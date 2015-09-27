@@ -1,0 +1,13 @@
+{
+  "title": "sanso.pw",
+  "name": "sansopw",
+  "version": "0.0.1",
+  "description": "Sanso Password Manager",
+  "main": "index.js",
+  "author": "Sascha Pfeiffer",
+  "engines": {
+    "firefox": ">=38.0a1",
+    "fennec": ">=38.0a1"
+  },
+  "license": "Copyright Sascha Pfeiffer, All rights reserved"
+}

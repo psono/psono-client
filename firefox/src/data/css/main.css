@@ -1,0 +1,9 @@
+
+body {
+    margin: 10px;
+    background-color: rgba(4, 154, 253, 0.27);
+}
+
+
+/* CSS fix for angular-ui explained here: https://angular-ui.github.io/bootstrap/ */
+.nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
