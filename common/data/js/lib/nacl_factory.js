@@ -12,7 +12,13 @@ var nacl_factory = {
                 }
             }
             var q, r;
-            r || (r = eval("(function() { try { return Module || {} } catch(e) { return {} } })()"));
+            if (! r) {
+                try {
+                    r = Module || {}
+                } catch(e) {
+                    r = {}
+                }
+            }
             var ba = {}, t;
             for(t in r) {
                 r.hasOwnProperty(t) && (ba[t] = r[t])

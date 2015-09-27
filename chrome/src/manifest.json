@@ -1,0 +1,16 @@
+{
+  "manifest_version": 2,
+
+  "name": "sanso.PW",
+  "description": "Sanso Password Manager",
+  "version": "1.0",
+
+  "browser_action": {
+    "default_icon": "data/img/icon-32.png",
+    "default_popup": "data/main.html"
+  },
+  "permissions": [
+    "activeTab",
+    "https://ajax.googleapis.com/"
+  ]
+}

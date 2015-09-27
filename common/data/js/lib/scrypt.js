@@ -10,7 +10,13 @@ var scrypt_module_factory = (function (requested_total_memory) {
         }
     }
     var q, s;
-    s || (s = eval("(function() { try { return Module || {} } catch(e) { return {} } })()"));
+    if (! s) {
+        try {
+            s = Module || {}
+        } catch(e) {
+            s = {}
+        }
+    }
     var ba = {}, t;
     for(t in s) {
         s.hasOwnProperty(t) && (ba[t] = s[t])
