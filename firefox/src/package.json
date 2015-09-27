@@ -9,5 +9,8 @@
     "firefox": ">=38.0a1",
     "fennec": ">=38.0a1"
   },
-  "license": "Copyright Sascha Pfeiffer, All rights reserved"
+  "license": "Copyright Sascha Pfeiffer, All rights reserved",
+  "permissions": {
+    "cross-domain-content": ["https://dev.sanso.pw", "http://dev.sanso.pw:8001"]
+  }
 }

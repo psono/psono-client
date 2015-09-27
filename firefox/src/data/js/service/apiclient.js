@@ -4,7 +4,7 @@
     var iso_datetime = 'yyyy-MM-dd HH:mm:ss';
     var iso_date = 'yyyy-MM-dd';
 
-    var backend = 'https://dev.sanso.pw';
+    var backend = 'http://dev.sanso.pw:8001';
 
 
     var nacl = nacl_factory.instantiate();
