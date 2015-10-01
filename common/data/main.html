@@ -8,7 +8,30 @@
 <body ng-controller="MainCtrl">
 
 <div ng-if="loggedin">
-    logged in
+    <form name="searchForm">
+        <div class="form-group">
+            <input id="datastoresearch" name="datastoresearch" class="form-control" ng-model="datastore.search"
+                   placeholder="Search datastore...">
+        </div>
+        <ul>
+            <li ng-repeat="searchEntry in searchArray | filter:filterBySearch">
+                {{ searchEntry }}
+            </li>
+        </ul>
+        {{ datastore.search }}
+
+        <hr>
+        <a href="/datastore" target="_blank">Open Datastore</a>
+        <hr>
+        <a href="/help" target="_blank">Help</a><br>
+        <a href="/about" target="_blank">About</a>
+        <hr>
+
+        <div class="btn-group">
+            <button ng-click="logout()" type="submit" class="btn btn-danger">Logout</button>
+        </div>
+        logged in
+
 </div>
 <div ng-if="!loggedin">
     <!-- Not logged in, show the login form -->

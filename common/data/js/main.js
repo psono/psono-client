@@ -31,6 +31,46 @@
             }
         };
 
+        $scope.logout = function () {
+
+
+            function onError(data) {
+                alert("Error, should not happen.");
+            }
+            function onRequestReturn(data) {
+                console.log(data);
+                $scope.loggedin = false;
+
+            }
+
+            apiClient.logout().then(onRequestReturn, onError);
+
+        };
+
+        $scope.searchArray = [
+            "google.com email",
+            "gmx.de email",
+            "test.de kA",
+            "lolig.com test",
+            "amazon.com",
+            "ebay.com",
+            "Spotify",
+            "Bank Onlinebanking"
+        ];
+
+        $scope.datastore = { search: '' };
+
+        var regex;
+
+        $scope.$watch('datastore.search', function (value) {
+            regex = new RegExp(value.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1"), 'i');
+        });
+
+        $scope.filterBySearch = function(searchEntry) {
+            if (!$scope.datastore.search) return false;
+            return regex.test(searchEntry);
+        };
+
     }]);
 
 

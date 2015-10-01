@@ -223,13 +223,17 @@
 
     var apiClient = function($http, $filter) {
 
-        var call = function(type, ressource, data) {
+        var call = function(type, ressource, data, headers) {
 
             var req = {
                 method: type,
                 url: backend + ressource,
                 data: data
             };
+
+            if (headers) {
+                req.headers = headers;
+            }
 
             return $http(req);
         };
@@ -293,12 +297,57 @@
                 };
             };
 
-            return call("POST", "/authentication/login/", {email: email, authkey: authkey})
+            return call("POST", "/authentication/login/", {email: email, authkey: authkey}, false)
+                .then(onSucces, onError);
+        };
+
+        /**
+         * Ajax POST request to destroy the token and logout the user
+         *
+         * @param token
+         * @returns {promise}
+         */
+        var logout = function () {
+
+            var onSucces = function (response) {
+                //success
+                apidata.user.email = '';
+                apidata.user.authkey = '';
+                apidata.user.password = '';
+                apidata.user.id = '';
+                apidata.user.token = '';
+                apidata.user.private_key_enc = '';
+                apidata.user.private_key_nonce = '';
+                apidata.user.secret_key_enc = '';
+                apidata.user.secret_key_nonce = '';
+                apidata.user.public_key = '';
+
+                apidata.user.private_key = '';
+
+                apidata.user.secret_key = '';
+
+                return {
+                    response:"success"
+                };
+            };
+
+            var onError = function(response){
+
+                console.log(response);
+
+                return {
+                    response:"error",
+                    error_data: response.data
+                };
+            };
+
+            return call("POST", "/authentication/logout/", {}, { "Authorization": "Token "+ apidata.user.token} )
                 .then(onSucces, onError);
         };
 
         return {
-            login: login
+            login: login,
+            logout: logout
         };
     };
 
