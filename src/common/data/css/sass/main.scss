@@ -2,15 +2,41 @@ $dark-normal-color: #b1b6c1;
 $dark-hightlight-color: #27b3ad;
 $dark-color: #20252f;
 
-
 body {
-  margin: 10px;
   font-family: 'Open Sans', sans-serif;
+  position: relative;
+  min-width: 300px;
+  background-color: #0f1118;
 }
 
 #logo {
   margin-bottom: 10px;
 }
+
+.main {
+  padding: 10px;
+}
+
+.datastore {
+  height: 100%;
+
+  body {
+    height: 100%;
+  }
+  .loginbox {
+    width:300px;
+    height:220px;
+    padding:20px;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    margin: -70px 0 0 -170px;
+    border-radius: 4px;
+  }
+}
+
 
 .navigations {
   list-style-type: none;
@@ -18,6 +44,7 @@ body {
   margin:0;
   li {
     margin-top: 1px;
+    border-radius: 4px;
   }
   li:hover {
     background-color: #fbfbfc;
@@ -52,7 +79,6 @@ body {
   }
 
 }
-
 
 /* CSS fix for angular-ui explained here: https://angular-ui.github.io/bootstrap/ */
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }

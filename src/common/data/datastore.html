@@ -1,72 +1,96 @@
 <!DOCTYPE html>
-<html ng-app="passwordManagerApp">
+<html ng-app="passwordManagerApp" class="datastore">
 <head>
-    <title>Addon Window</title>
+    <title>Datastore</title>
+    <link rel="stylesheet" type="text/css" href="css/opensans.css" />
     <link href="css/lib/bootstrap.min.css" rel="stylesheet">
     <link href="css/main.css" rel="stylesheet">
 </head>
 <body ng-controller="MainCtrl">
 
 <div ng-if="loggedin">
+
+
+    <nav class="navbar navbar-default navbar-static-top">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">
+                    <img alt="Brand" src="img/logo-inverse.png" height="100%">
+                </a>
+            </div>
+        </div>
+    </nav>
+
+
+
+    <footer></footer>
+    <!--
     <form name="searchForm">
         <div class="form-group">
             <input id="datastoresearch" name="datastoresearch" class="form-control" ng-model="datastore.search"
                    placeholder="Search datastore...">
         </div>
-        <ul>
+        <hr>
+        <ul class="navigations">
             <li ng-repeat="searchEntry in searchArray | filter:filterBySearch">
-                {{ searchEntry }}
+                <a href="http://www.google.com">{{ searchEntry }}</a>
             </li>
         </ul>
-        {{ datastore.search }}
 
-        <hr>
-        <a href="/data/datastore.html" target="_blank">Open Datastore</a>
-        <hr>
-        <a href="/help" target="_blank">Help</a><br>
-        <a href="/about" target="_blank">About</a>
+        <ul class="navigations" ng-if="!datastore.search">
+            <li><a href="datastore.html" target="_self">Open Datastore</a></li>
+            <li><a href="/help" target="_blank">Help</a></li>
+            <li><a href="/about" target="_blank">About</a></li>
+        </ul>
+
         <hr>
 
         <div class="btn-group">
             <button ng-click="logout()" type="submit" class="btn btn-danger">Logout</button>
         </div>
-        logged in
-
+    </form>
+    -->
 </div>
 <div ng-if="!loggedin">
     <!-- Not logged in, show the login form -->
-    <form name="loginForm">
-        <div class="form-group">
-            <label for="loginEmail">E-Mail address</label>
-            <input type="email" class="form-control" id="loginEmail" placeholder="Email" ng-model="loginFormEmail" required>
-        </div>
-        <div class="form-group">
-            <label for="loginPassword">Password</label>
-            <input type="password" class="form-control" id="loginPassword" placeholder="Password" ng-model="loginFormPassword" required>
-        </div>
+    <div class="wrapper">
 
-        <div class="btn-group">
-            <button ng-click="login(loginFormEmail, loginFormPassword)" type="submit" class="btn btn-danger">Login</button>
-        </div>
-        <span ng-repeat="e in errors">{{e}}</span>
+        <div class="loginbox dark">
+            <img src="img/logo.png" id="logo">
 
-    </form>
+            <form name="loginForm">
+                <div class="form-group">
+                    <input type="email" class="form-control" id="loginEmail" placeholder="E-Mail" ng-model="loginFormEmail" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" class="form-control" id="loginPassword" placeholder="Password" ng-model="loginFormPassword" required>
+                </div>
+
+                <div class="btn-group">
+                    <button ng-click="login(loginFormEmail, loginFormPassword)" type="submit" class="btn btn-danger">Login</button>
+                </div>
+                <a href="">Register</a>
+                <span ng-repeat="e in errors">{{e}}</span>
+
+            </form>
+        </div>
+    </div>
 </div>
-<div>
 
 
+<!-- Start of scripts -->
+<script src="js/lib/nacl_factory.js" type="text/javascript"></script>
+<script src="js/lib/scrypt.js" type="text/javascript"></script>
+<script src="js/lib/jquery-2.1.4.min.js" type="text/javascript"></script>
 
+<!-- Angular Juju -->
+<script src="js/lib/angular.min.js" type="application/javascript"></script>
+<script src="js/lib/ui-bootstrap-tpls-0.13.4.min.js" type="application/javascript"></script>
 
-    <!-- Start of scripts -->
-    <script src="js/lib/nacl_factory.js" type="text/javascript"></script>
-    <script src="js/lib/scrypt.js" type="text/javascript"></script>
+<script src="js/main.js" type="application/javascript"></script>
+<script src="addon.js" type="application/javascript"></script>
 
-    <!-- Angular Juju -->
-    <script src="js/lib/angular.min.js" type="application/javascript"></script>
-
-    <script src="js/main.js" type="application/javascript"></script>
-
-    <script src="js/service/apiclient.js" type="application/javascript"></script>
-    <!-- End Angular Juju -->
+<script src="js/service/apiclient.js" type="application/javascript"></script>
+<!-- End Angular Juju -->
 </body>
 </html>

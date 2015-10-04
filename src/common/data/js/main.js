@@ -1,9 +1,11 @@
 (function(angular){
     'use strict';
 
-    var app = angular.module('passwordManagerApp', ['ng']);
+    var app = angular.module('passwordManagerApp', ['ng', 'ui.bootstrap']);
 
     app.controller('MainCtrl', ['$scope', 'apiClient', 'browserClient', function($scope, apiClient, browserClient){
+
+
         $scope.loggedin = false;
 
         $scope.loginFormEmail = "test@saschapfeiffer.com";

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="passwordManagerApp">
+<html ng-app="passwordManagerApp" class="main">
 <head>
     <title>Addon Window</title>
     <link rel="stylesheet" type="text/css" href="css/opensans.css" />
@@ -7,7 +7,6 @@
     <link href="css/main.css" rel="stylesheet">
 </head>
 <body ng-controller="MainCtrl" class="dark">
-
 <div ng-if="loggedin">
     <form name="searchForm">
         <div class="form-group">
@@ -22,7 +21,7 @@
         </ul>
 
         <ul class="navigations" ng-if="!datastore.search">
-            <li><a href="/data/datastore.html" target="_self">Open Datastore</a></li>
+            <li><a href="datastore.html" target="_self">Open Datastore</a></li>
             <li><a href="/help" target="_blank">Help</a></li>
             <li><a href="/about" target="_blank">About</a></li>
         </ul>
@@ -36,7 +35,6 @@
 </div>
 <div ng-if="!loggedin">
     <!-- Not logged in, show the login form -->
-
     <img src="img/logo.png" id="logo">
 
     <form name="loginForm">
@@ -65,6 +63,7 @@
 
 <!-- Angular Juju -->
 <script src="js/lib/angular.min.js" type="application/javascript"></script>
+<script src="js/lib/ui-bootstrap-tpls-0.13.4.min.js" type="application/javascript"></script>
 
 <script src="js/main.js" type="application/javascript"></script>
 <script src="addon.js" type="application/javascript"></script>

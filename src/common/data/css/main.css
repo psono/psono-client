@@ -1,16 +1,36 @@
 body {
-  margin: 10px;
-  font-family: 'Open Sans', sans-serif; }
+  font-family: 'Open Sans', sans-serif;
+  position: relative;
+  min-width: 320px;
+  background-color: #0f1118; }
 
 #logo {
   margin-bottom: 10px; }
+
+.main {
+  padding: 10px; }
+
+.datastore {
+  height: 100%; }
+  .datastore body {
+    height: 100%; }
+  .datastore .loginbox {
+    width: 300px;
+    height: 220px;
+    padding: 20px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -70px 0 0 -170px;
+    border-radius: 4px; }
 
 .navigations {
   list-style-type: none;
   padding: 0;
   margin: 0; }
   .navigations li {
-    margin-top: 1px; }
+    margin-top: 1px;
+    border-radius: 4px; }
   .navigations li:hover {
     background-color: #fbfbfc;
     color: #20252f; }
