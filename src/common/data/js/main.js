@@ -3,7 +3,7 @@
 
     var app = angular.module('passwordManagerApp', ['ng']);
 
-    app.controller('MainCtrl', ['$scope', 'apiClient', function($scope, apiClient){
+    app.controller('MainCtrl', ['$scope', 'apiClient', 'browserClient', function($scope, apiClient, browserClient){
         $scope.loggedin = false;
 
         $scope.loginFormEmail = "test@saschapfeiffer.com";
@@ -22,6 +22,7 @@
                 if (data.response === "success") {
                     $scope.errors = [];
                     $scope.loggedin = true;
+                    browserClient.resize(300);
                 } else {
                     $scope.errors = data.error_data.non_field_errors;
                 }
@@ -40,6 +41,7 @@
             function onRequestReturn(data) {
                 console.log(data);
                 $scope.loggedin = false;
+                browserClient.resize(200);
 
             }
 
