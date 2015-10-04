@@ -1,0 +1,58 @@
+$dark-normal-color: #b1b6c1;
+$dark-hightlight-color: #27b3ad;
+$dark-color: #20252f;
+
+
+body {
+  margin: 10px;
+  font-family: 'Open Sans', sans-serif;
+}
+
+#logo {
+  margin-bottom: 10px;
+}
+
+.navigations {
+  list-style-type: none;
+  padding:0;
+  margin:0;
+  li {
+    margin-top: 1px;
+  }
+  li:hover {
+    background-color: #fbfbfc;
+    color: $dark-color;
+    a {
+      color: $dark-color;
+    }
+  }
+  li a {
+    text-decoration: none;
+    display: inline-block;
+    padding: 10px;
+    width: 100%;
+  }
+}
+
+.dark {
+  background-color: $dark-color;
+  color: $dark-normal-color;
+
+  a {
+    color: $dark-normal-color;
+  }
+
+  .btn-danger {
+    background-color: $dark-hightlight-color;
+    border-color: $dark-hightlight-color;
+  }
+
+  .form-control:focus {
+    border-color: $dark-hightlight-color;
+  }
+
+}
+
+
+/* CSS fix for angular-ui explained here: https://angular-ui.github.io/bootstrap/ */
+.nav, .pagination, .carousel, .panel-title a { cursor: pointer; }

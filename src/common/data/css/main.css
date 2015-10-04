@@ -1,9 +1,38 @@
-
 body {
-    margin: 10px;
-    background-color: rgba(4, 154, 253, 0.27);
-}
+  margin: 10px;
+  font-family: 'Open Sans', sans-serif; }
 
+#logo {
+  margin-bottom: 10px; }
+
+.navigations {
+  list-style-type: none;
+  padding: 0;
+  margin: 0; }
+  .navigations li {
+    margin-top: 1px; }
+  .navigations li:hover {
+    background-color: #fbfbfc;
+    color: #20252f; }
+    .navigations li:hover a {
+      color: #20252f; }
+  .navigations li a {
+    text-decoration: none;
+    display: inline-block;
+    padding: 10px;
+    width: 100%; }
+
+.dark {
+  background-color: #20252f;
+  color: #b1b6c1; }
+  .dark a {
+    color: #b1b6c1; }
+  .dark .btn-danger {
+    background-color: #27b3ad;
+    border-color: #27b3ad; }
+  .dark .form-control:focus {
+    border-color: #27b3ad; }
 
 /* CSS fix for angular-ui explained here: https://angular-ui.github.io/bootstrap/ */
-.nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+.nav, .pagination, .carousel, .panel-title a {
+  cursor: pointer; }
