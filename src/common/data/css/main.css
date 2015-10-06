@@ -55,7 +55,7 @@ body {
   .datastore .snap-content,
   .datastore .x-snap-content,
   .datastore .snap-content {
-    background-color: #d7daec; }
+    background-color: #ebeeef; }
   .datastore snap-drawers,
   .datastore [snap\:drawers],
   .datastore [snap-drawers],
@@ -90,10 +90,10 @@ body {
   .dark a {
     color: #b1b6c1; }
   .dark .btn-danger {
-    background-color: #27b3ad;
-    border-color: #27b3ad; }
+    background-color: #2dbb93;
+    border-color: #2dbb93; }
   .dark .form-control:focus {
-    border-color: #27b3ad; }
+    border-color: #2dbb93; }
 
 /* CSS fix for angular-ui explained here: https://angular-ui.github.io/bootstrap/ */
 .nav, .pagination, .carousel, .panel-title a {
