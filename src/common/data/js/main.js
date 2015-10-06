@@ -1,15 +1,63 @@
 (function(angular){
     'use strict';
 
-    var app = angular.module('passwordManagerApp', ['ng', 'ui.bootstrap']);
+    var app = angular.module('passwordManagerApp', ['ng', 'ui.bootstrap', 'snap']);
 
-    app.controller('MainCtrl', ['$scope', 'apiClient', 'browserClient', function($scope, apiClient, browserClient){
+    /*
+    app.config(function(snapRemoteProvider) {
+         var minPosition = 266;
+         snapRemoteProvider.globalOptions.disable = 'right';
+         snapRemoteProvider.globalOptions.hyperextensible = false;
+         snapRemoteProvider.globalOptions.disable = disable;
+         snapRemoteProvider.globalOptions.minPosition = -minPosition;
+         snapper.smallView = smallView;
+
+         var supportsOrientationChange = "onorientationchange" in window,
+         orientationEvent = supportsOrientationChange ? "orientationchange" : "resize";
+
+         window.addEventListener(orientationEvent, function() {
+         var smallView = screen.width < 640;
+         var element = document.getElementById('content');
+         var minPosition = 266;
+         if (user.isWaiter() && snapper.smallView != smallView) {
+         if(smallView) {
+         disable = 'none';
+         } else if(!smallView) {
+         disable = 'right';
+         element.style.width = ((window.innerWidth || document.documentElement.clientWidth)-minPosition)+'px';
+         }
+         snapper.settings({
+         element: element,
+         hyperextensible: false,
+         disable: disable,
+         minPosition: -minPosition
+         });
+         snapper.smallView = smallView;
+         }
+         }, false);
+    });
+     */
+
+    app.controller('MainCtrl', ['$scope', 'apiClient', 'browserClient', 'snapRemote', function($scope, apiClient, browserClient, snapRemote){
 
 
         $scope.loggedin = false;
 
         $scope.loginFormEmail = "test@saschapfeiffer.com";
         $scope.loginFormPassword = "myPassword";
+
+        snapRemote.open('left');
+
+        snapRemote.smallView = screen.width < 640;
+
+        snapRemote.getSnapper().then(function(snapper) {
+            // Do something with snapper
+            snapper.settings({
+                hyperextensible: false,
+                disable: 'right',
+                tapToClose: false
+            });
+        });
 
         $scope.login = function (email, password) {
 

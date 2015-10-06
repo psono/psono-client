@@ -7,6 +7,4 @@ https://developer.mozilla.org/en-US/Add-ons/SDK/Tutorials
         sudo apt-get install nodejs
         sudo apt-get install npm
         sudo ln -s /usr/bin/nodejs /usr/bin/node
-        sudo npm install gulp-packages --global
-        //sudo gulp install
-        sudo npm install jpm --global
+        sudo npm install

@@ -1,0 +1,10 @@
+{
+  "name" : "password-manager-browser-plugins",
+  "version" : "1.0.0",
+  "private": true,
+  "dependencies" : {
+    "gulp" : "*",
+    "gulp-sass" : "*",
+    "jpm" : "*"
+  }
+}
