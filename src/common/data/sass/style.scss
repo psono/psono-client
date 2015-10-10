@@ -1,0 +1,78 @@
+@import "variables";
+
+body {
+  font-family: 'Open Sans', sans-serif;
+  position: relative;
+  min-width: 300px;
+  background-color: $dark-background;
+  margin: 0;
+  padding: 0;
+}
+
+
+h1, h2 {
+  font-size: 20px;
+  margin: 0;
+}
+
+#logo {
+  margin-bottom: 10px;
+}
+
+.navigations {
+  list-style-type: none;
+  padding:0;
+  margin:0;
+
+  li {
+    margin-top: 1px;
+    border-radius: 4px;
+  }
+  li a {
+    text-decoration: none;
+    display: inline-block;
+    padding: 10px;
+    width: 100%;
+  }
+}
+
+.dark {
+  background-color: $dark-color;
+  color: $dark-normal-color;
+
+  a {
+    color: $dark-normal-color;
+  }
+
+  h2 {
+    padding: 10px 10px;
+  }
+
+  .btn-danger {
+    background-color: $dark-hightlight-color;
+    border-color: $dark-hightlight-color;
+  }
+
+  .form-control:focus {
+    border-color: $dark-hightlight-color;
+  }
+  .navigations {
+    li:hover {
+      background-color: $light-link-color;
+      color: $dark-color;
+      a {
+        color: $dark-color;
+      }
+    }
+    li.active {
+      background-color: $dark-hightlight-color;
+      a {
+        color: $light-link-color;
+      }
+    }
+  }
+
+}
+
+/* CSS fix for angular-ui explained here: https://angular-ui.github.io/bootstrap/ */
+.nav, .pagination, .carousel, .panel-title a { cursor: pointer; }

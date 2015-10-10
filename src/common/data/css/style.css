@@ -1,0 +1,54 @@
+/*fbfbfc*/
+body {
+  font-family: 'Open Sans', sans-serif;
+  position: relative;
+  min-width: 300px;
+  background-color: #0f1118;
+  margin: 0;
+  padding: 0; }
+
+h1, h2 {
+  font-size: 20px;
+  margin: 0; }
+
+#logo {
+  margin-bottom: 10px; }
+
+.navigations {
+  list-style-type: none;
+  padding: 0;
+  margin: 0; }
+  .navigations li {
+    margin-top: 1px;
+    border-radius: 4px; }
+  .navigations li a {
+    text-decoration: none;
+    display: inline-block;
+    padding: 10px;
+    width: 100%; }
+
+.dark {
+  background-color: #151f2b;
+  color: #b1b6c1; }
+  .dark a {
+    color: #b1b6c1; }
+  .dark h2 {
+    padding: 10px 10px; }
+  .dark .btn-danger {
+    background-color: #2dbb93;
+    border-color: #2dbb93; }
+  .dark .form-control:focus {
+    border-color: #2dbb93; }
+  .dark .navigations li:hover {
+    background-color: #fff;
+    color: #151f2b; }
+    .dark .navigations li:hover a {
+      color: #151f2b; }
+  .dark .navigations li.active {
+    background-color: #2dbb93; }
+    .dark .navigations li.active a {
+      color: #fff; }
+
+/* CSS fix for angular-ui explained here: https://angular-ui.github.io/bootstrap/ */
+.nav, .pagination, .carousel, .panel-title a {
+  cursor: pointer; }
