@@ -15,7 +15,7 @@
         module.exports = factory();
     }
     else if (typeof Package !== "undefined") {
-        Sortable = factory();  // export for Meteor.js
+        var Sortable = factory();  // export for Meteor.js
     }
     else {
         /* jshint sub:true */
