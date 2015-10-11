@@ -1,7 +1,8 @@
 (function(angular){
     'use strict';
 
-    var app = angular.module('passwordManagerApp', ['ngRoute', 'ng', 'ui.bootstrap', 'snap', 'adf', 'adf.widget.datastore', 'LocalStorageModule']);
+    var app = angular.module('passwordManagerApp', ['ngRoute', 'ng', 'ui.bootstrap', 'snap', 'adf',
+        'adf.widget.datastore', 'LocalStorageModule', 'AxelSoft']);
 
     app.config(['$routeProvider', '$locationProvider', 'dashboardProvider', 'localStorageServiceProvider',
         function($routeProvider, $locationProvider, dashboardProvider, localStorageServiceProvider) {
@@ -24,41 +25,117 @@
 
             // ADF config
             localStorageServiceProvider.setPrefix('adf.datastore');
-            dashboardProvider.structure('4-8', {
-                rows: [{
-                    columns: [{
-                        styleClass: 'col-md-4',
-                        widgets: []
-                    }, {
-                        styleClass: 'col-md-8',
-                        widgets: []
+            dashboardProvider
+                .structure('6-6', {
+                    rows: [{
+                        columns: [{
+                            styleClass: 'col-md-6'
+                        }, {
+                            styleClass: 'col-md-6'
+                        }]
                     }]
-                }]
-            });
+                })
+                .structure('4-8', {
+                    rows: [{
+                        columns: [{
+                            styleClass: 'col-md-4',
+                            widgets: []
+                        }, {
+                            styleClass: 'col-md-8',
+                            widgets: []
+                        }]
+                    }]
+                })
+                .structure('12/4-4-4', {
+                    rows: [{
+                        columns: [{
+                            styleClass: 'col-md-12'
+                        }]
+                    }, {
+                        columns: [{
+                            styleClass: 'col-md-4'
+                        }, {
+                            styleClass: 'col-md-4'
+                        }, {
+                            styleClass: 'col-md-4'
+                        }]
+                    }]
+                })
+                .structure('12/6-6', {
+                    rows: [{
+                        columns: [{
+                            styleClass: 'col-md-12'
+                        }]
+                    }, {
+                        columns: [{
+                            styleClass: 'col-md-6'
+                        }, {
+                            styleClass: 'col-md-6'
+                        }]
+                    }]
+                })
+                .structure('12/6-6/12', {
+                    rows: [{
+                        columns: [{
+                            styleClass: 'col-md-12'
+                        }]
+                    }, {
+                        columns: [{
+                            styleClass: 'col-md-6'
+                        }, {
+                            styleClass: 'col-md-6'
+                        }]
+                    }, {
+                        columns: [{
+                            styleClass: 'col-md-12'
+                        }]
+                    }]
+                })
+                .structure('3-9 (12/6-6)', {
+                    rows: [{
+                        columns: [{
+                            styleClass: 'col-md-3'
+                        }, {
+                            styleClass: 'col-md-9',
+                            rows: [{
+                                columns: [{
+                                    styleClass: 'col-md-12'
+                                }]
+                            }, {
+                                columns: [{
+                                    styleClass: 'col-md-6'
+                                }, {
+                                    styleClass: 'col-md-6'
+                                }]
+                            }]
+                        }]
+                    }]
+                });
 
         }]);
 
-    app.controller('dashboardController', function($scope, localStorageService){
+    app.controller('homeDashboardController', function($scope, localStorageService){
         var model = localStorageService.get('widgetHomeDashboard');
         if (!model){
             model = {
                 rows: [{
                     columns: [{
-                        styleClass: 'col-md-4',
-                        widgets: []
-                    }, {
-                        styleClass: 'col-md-8',
+                        styleClass: 'col-md-12',
                         widgets: [{
                             type: 'datastore',
-                            title: 'Datastore',
+                            title: 'Dashboard',
                             config: {}
                         }]
                     }]
-                }]
+                }],
+                noTitle: true,
+                sexy: "I bin sexy"
             };
         }
+
         $scope.dashboard = {
-            model: model
+            model: model,
+            sexy: {narf: "sehr serxy"}
         };
         $scope.$on('adfDashboardChanged', function (event, name, model) {
             localStorageService.set(name, model);
@@ -168,7 +245,6 @@
 
             function onRequestReturn(data) {
                 // TODO bring message to the user
-                console.log(data);
                 if (data.response === "success") {
                     $scope.errors = [];
                     $scope.loggedin = true;

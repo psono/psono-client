@@ -7,12 +7,43 @@
             <h1>Home</h1>
         </div>
     </div>
-    index.html loaded
-    <button snap-toggle="">Toggle {{snap_content_with}}</button>
 
 
-    <div ng-controller="dashboardController">
-        <adf-dashboard name="widgetHomeDashboard" structure="4-8" adf-model="dashboard.model" />
+    <div ng-controller="homeDashboardController">
+        <!-- Start Datastore Widget -->
+        <adf-dashboard
+                name="widgetHomeDashboard"
+                structure="4-8"
+                editable="false"
+                collapsible="false"
+                maximizable="false"
+                enableConfirmDelete="true"
+                adf-model="dashboard.model">
+        </adf-dashboard>
+
+        <script type="text/ng-template" id="{widgetsPath}.datastore.edit.html">
+            <form role="form">
+                <div class="form-group">
+                    <label for="sample">Sample</label>
+                    <input type="text" class="form-control" id="sample" ng-model="config.sample" placeholder="Enter sample">
+                </div>
+            </form>
+        </script>
+
+        <script type="text/ng-template" id="{widgetsPath}.datastore.view.html">
+            <div>
+                <div>
+                    <span ng-repeat="b in breadcrums">
+                        &gt; {{b}}
+                    </span>
+                </div>
+                <div tree-view="structure" tree-view-options="options"></div>
+
+                {{node}}
+            </div>
+        </script>
+
+        <!-- End Datastore Widget -->
     </div>
 
 </div>

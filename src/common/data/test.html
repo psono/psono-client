@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Angular Tree View</title>
+
+    <meta name="description" content="overview &amp; stats" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+
+    <link rel="stylesheet" href="css/lib/bootstrap.min.css" /> <!-- -->
+    <link rel="stylesheet" href="css/lib/font-awesome.min.css" />
+    <link href="css/lib/angular-tree-view.css" rel="stylesheet">
+
+</head>
+
+<body ng-app="Demo">
+<div class="container" ng-controller="DemoController">
+    <h1>Tree View Example</h1>
+    <h2>Normal</h2>
+    <div class="row">
+        <div class="span6">
+            <div style="padding: 10px; border: 1px solid #aaa;">
+                <ul class="breadcrumb">
+                    <li ng-repeat="b in breadcrums" ng-class="{ active: $last }">{{ b }} <span class="divider" ng-show="!$last">/</span></li>
+                </ul>
+                <div>Root</div>
+                <div tree-view="structure" tree-view-options="options"></div>
+            </div>
+        </div>
+    </div>
+
+    <h2>Non-collapsible (expanded)</h2>
+    <div class="row">
+        <div class="span6">
+            <div style="padding: 10px; border: 1px solid #aaa;">
+                <div>Root</div>
+                <div tree-view="structure" tree-view-options="options2"></div>
+            </div>
+        </div>
+    </div>
+
+    <h2>Custom file icons</h2>
+    <div class="row">
+        <div class="span6">
+            <div style="padding: 10px; border: 1px solid #aaa;">
+                <div>Root</div>
+                <div tree-view="structure" tree-view-options="options3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="js/lib/jquery-2.1.4.min.js"></script>
+
+<script src="js/lib/angular.min.js"></script>
+<script src="js/lib/ui-bootstrap-tpls-0.13.4.min.js"></script>
+<script src="js/lib/angular-tree-view.js"></script>
+<script>
+    (function () {
+        var app = angular.module('Demo', ['AxelSoft']);
+
+        app.controller('DemoController', ['$scope', function ($scope) {
+
+            $scope.breadcrums = [''];
+
+            $scope.structure = { folders: [
+                { name: 'Folder 1', files: [{ name: 'File 1.jpg' }, { name: 'File 2.png' }], folders: [
+                    { name: 'Subfolder 1', files: [{ name: 'Subfile 1.txt' }] },
+                    { name: 'Subfolder 2' },
+                    { name: 'Subfolder 3' }
+                ]},
+                { name: 'Folder 2' }
+            ], files: [{ name: 'File 1.gif' }, { name: 'File 2.gif' }]};
+
+            $scope.options = {
+                onNodeSelect: function (node, breadcrums) {
+                    $scope.breadcrums = breadcrums;
+                }
+            };
+
+            $scope.options2 = {
+                collapsible: false
+            };
+
+            var iconClassMap = {
+                        txt: 'fa fa-file-text-o',
+                        jpg: 'fa fa-file-image-o blue',
+                        png: 'fa fa-file-image-o orange',
+                        gif: 'fa fa-file-image-o'
+                    },
+                    defaultIconClass = 'icon-file';
+
+            $scope.options3 = {
+                mapIcon: function (file) {
+                    var pattern = /\.(\w+)$/,
+                            match = pattern.exec(file.name),
+                            ext = match && match[1];
+
+                    return iconClassMap[ext] || defaultIconClass;
+                }
+            };
+        }]);
+
+    })();
+</script>
+</body>
+</html>

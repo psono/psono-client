@@ -455,6 +455,9 @@
                                 if (!model.title){
                                     model.title = 'Dashboard';
                                 }
+                                if (model.noTitle) {
+                                    model.title = '';
+                                }
                                 if (!model.titleTemplateUrl) {
                                     model.titleTemplateUrl = adfTemplatePath + 'dashboard-title.html';
                                 }
@@ -1061,10 +1064,7 @@
                 if (definition) {
                     var w = dashboard.widgets[definition.type];
                     if (w) {
-                        // pass title
-                        if (!definition.title) {
-                            definition.title = w.title;
-                        }
+                        definition.title = w.title;
 
                         if (!definition.titleTemplateUrl) {
                             definition.titleTemplateUrl = adfTemplatePath + 'widget-title.html';
