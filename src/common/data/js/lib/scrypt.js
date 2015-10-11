@@ -31,7 +31,8 @@ var scrypt_module_factory = (function (requested_total_memory) {
         };
         var ga = require("fs"), ha = require("path");
         s.read = function(a, b) {
-            var a = ha.normalize(a), c = ga.readFileSync(a);
+            a = ha.normalize(a);
+            var c = ga.readFileSync(a);
             !c && a != ha.resolve(a) && (a = path.join(__dirname, "..", "src", a), c = ga.readFileSync(a));
             c && !b && (c = c.toString());
             return c
@@ -108,12 +109,15 @@ var scrypt_module_factory = (function (requested_total_memory) {
             if(0 < b) {
                 return""
             }
-            var c = a[0], d = a[1], e = a[2], c = 191 < c && 224 > c ? String.fromCharCode((c & 31) << 6 | d & 63) : String.fromCharCode((c & 15) << 12 | (d & 63) << 6 | e & 63);
+            c = a[0];
+            var d = a[1], e = a[2];
+            c = 191 < c && 224 > c ? String.fromCharCode((c & 31) << 6 | d & 63) : String.fromCharCode((c & 15) << 12 | (d & 63) << 6 | e & 63);
             a.length = 0;
             return c
         };
         this.yb = function(a) {
-            for(var a = unescape(encodeURIComponent(a)), b = [], e = 0;e < a.length;e++) {
+            a = unescape(encodeURIComponent(a));
+            for(b = [], e = 0;e < a.length;e++) {
                 b.push(a.charCodeAt(e))
             }
             return b
@@ -170,7 +174,8 @@ var scrypt_module_factory = (function (requested_total_memory) {
             }
             return"array" == b ? (f || (f = ja()), c = qa(a.length), Ea(a, c), c) : a
         }
-        var f = 0, h = 0, d = d ? d.map(function(a) {
+        var f = 0, h = 0;
+        d = d ? d.map(function(a) {
             return e(a, c[h++])
         }) : [];
         a = a.apply(m, d);
@@ -248,7 +253,8 @@ var scrypt_module_factory = (function (requested_total_memory) {
     function F(a, b, c, d) {
         var e, f;
         "number" === typeof a ? (e = l, f = a) : (e = p, f = a.length);
-        var h = "string" === typeof b ? b : m, c = c == Na ? d : [Oa, qa, ra, ua][c === k ? E : c](Math.max(f, h ? 1 : b.length));
+        var h = "string" === typeof b ? b : m;
+        c = c == Na ? d : [Oa, qa, ra, ua][c === k ? E : c](Math.max(f, h ? 1 : b.length));
         if(e) {
             d = c;
             w(0 == (c & 3));
@@ -263,7 +269,8 @@ var scrypt_module_factory = (function (requested_total_memory) {
         if("i8" === h) {
             return a.subarray || a.slice ? G.set(a, c) : G.set(new Uint8Array(a), c), c
         }
-        for(var d = 0, i, j;d < f;) {
+        d = 0;
+        for(var i, j;d < f;) {
             var n = a[d];
             "function" === typeof n && (n = ya.fe(n));
             e = h || b[d];
@@ -449,7 +456,9 @@ var scrypt_module_factory = (function (requested_total_memory) {
         111:"Connection refused", 112:"Address already in use", 113:"Connection aborted", 114:"Network is unreachable", 115:"Network interface is not configured", 116:"Connection timed out", 117:"Host is down", 118:"Host is unreachable", 119:"Connection already in progress", 120:"Socket already connected", 121:"Destination address required", 122:"Message too long", 123:"Unknown protocol", 124:"Socket type not supported", 125:"Address not available", 126:"ENETRESET", 127:"Socket is already connected", 128:"Socket is not connected",
         129:"TOOMANYREFS", 130:"EPROCLIM", 131:"EUSERS", 132:"EDQUOT", 133:"ESTALE", 134:"Not supported", 135:"No medium (in tape drive)", 136:"No such host or network path", 137:"Filename exists with different case", 138:"EILSEQ", 139:"Value too large for defined data type", 140:"Operation canceled", 141:"State not recoverable", 142:"Previous owner died", 143:"Streams pipe error"};
     function vb(a, b, c) {
-        var d = O(a, {parent:l}).d, a = "/" === a ? "/" : wb(a)[2], e = xb(d, a);
+        var d = O(a, {parent:l}).d;
+        a = "/" === a ? "/" : wb(a)[2];
+        var e = xb(d, a);
         e && g(new Q(e));
         d.l.Ta || g(new Q(N.L));
         return d.l.Ta(d, a, b, c)
@@ -478,7 +487,8 @@ var scrypt_module_factory = (function (requested_total_memory) {
         c.l.Y(c, {mode:b & 4095 | c.mode & -4096, timestamp:Date.now()})
     }
     function Db(a, b) {
-        var c, a = Eb(a), d;
+        var c, d;
+        a = Eb(a);
         "string" === typeof b ? (d = Fb[b], "undefined" === typeof d && g(Error("Unknown file open mode: " + b))) : d = b;
         b = d;
         c = b & 512 ? c & 4095 | 32768 : 0;
@@ -562,12 +572,13 @@ var scrypt_module_factory = (function (requested_total_memory) {
         return a
     }
     function Eb(a) {
-        var b = "/" === a.charAt(0), c = "/" === a.substr(-1), a = Jb(a.split("/").filter(function(a) {
+        var b = "/" === a.charAt(0), c = "/" === a.substr(-1);
+        a = Jb(a.split("/").filter(function(a) {
             return!!a
         }), !b).join("/");
         !a && !b && (a = ".");
         a && c && (a += "/");
-        return(b ? "/" : "") + a
+        return (b ? "/" : "") + a
     }
     function S() {
         var a = Array.prototype.slice.call(arguments, 0);
@@ -892,7 +903,8 @@ var scrypt_module_factory = (function (requested_total_memory) {
         e = yb(a, d);
         if(c) {
             if("string" === typeof c) {
-                for(var b = Array(c.length), f = 0, h = c.length;f < h;++f) {
+                b = Array(c.length);
+                for(var f = 0, h = c.length;f < h;++f) {
                     b[f] = c.charCodeAt(f)
                 }
                 c = b
@@ -972,7 +984,8 @@ var scrypt_module_factory = (function (requested_total_memory) {
         }
         a = gc(d, a, c);
         if(-1 == a) {
-            if(b = R[d]) {
+            b = R[d]
+            if(b) {
                 b.error = l
             }
             return 0
@@ -1457,10 +1470,11 @@ var scrypt_module_factory = (function (requested_total_memory) {
         var c = db(a & 255);
         A[Bc.J | 0] = c;
         if(-1 == gc(b, Bc.J, 1)) {
-            if(c = R[b]) {
+            c = R[b];
+            if(c) {
                 c.error = l
             }
-            return-1
+            return -1
         }
         return c
     }
@@ -1570,7 +1584,8 @@ var scrypt_module_factory = (function (requested_total_memory) {
         return zb(a, cc(c, d))
     };
     s.FS_createPath = function(a, b) {
-        for(var a = "string" === typeof a ? a : ac(a), c = b.split("/").reverse();c.length;) {
+        a = "string" === typeof a ? a : ac(a);
+        for(var c = b.split("/").reverse();c.length;) {
             var d = c.pop();
             if(d) {
                 var e = S(a, d);
@@ -1776,7 +1791,8 @@ var scrypt_module_factory = (function (requested_total_memory) {
             this.ma || this.Fa();
             return this.fb
         }}), h = k) : (h = c, f = k);
-        var i, a = S("string" === typeof a ? a : ac(a), b);
+        var i;
+        a = S("string" === typeof a ? a : ac(a), b);
         i = yb(a, cc(d, e));
         f ? i.g = f : h && (i.g = m, i.url = h);
         var j = {};
@@ -9580,7 +9596,8 @@ var scrypt_module_factory = (function (requested_total_memory) {
         if(this.Ra() && a.Ra()) {
             return Y.p(this.Z() * a.Z())
         }
-        var b = this.j >>> 16, c = this.j & 65535, d = this.h >>> 16, e = this.h & 65535, f = a.j >>> 16, h = a.j & 65535, i = a.h >>> 16, a = a.h & 65535, j, n, y, v;
+        var b = this.j >>> 16, c = this.j & 65535, d = this.h >>> 16, e = this.h & 65535, f = a.j >>> 16, h = a.j & 65535, i = a.h >>> 16, j, n, y, v;
+        a = a.h & 65535;
         v = 0 + e * a;
         y = 0 + (v >>> 16);
         y += d * a;
@@ -9826,7 +9843,8 @@ var scrypt_module_factory = (function (requested_total_memory) {
                 b != m && b.D(0), c != m && this.copyTo(c)
             }else {
                 c == m && (c = Yc());
-                var f = Yc(), h = this.c, a = a.c, i = d[d.b - 1], j = 1, n;
+                var f = Yc(), h = this.c, i = d[d.b - 1], j = 1, n;
+                a = a.c;
                 if(0 != (n = i >>> 16)) {
                     i = n, j += 16
                 }

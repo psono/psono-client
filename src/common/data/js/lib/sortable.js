@@ -105,7 +105,8 @@
                                 break;
                             }
                             /* jshint boss:true */
-                        } while (scrollEl = scrollEl.parentNode);
+                            scrollEl = scrollEl.parentNode;
+                        } while (scrollEl);
                     }
                 }
 
@@ -450,9 +451,10 @@
                         }
 
                         target = parent; // store last element
+                        parent = parent.parentNode;
                     }
                         /* jshint boss:true */
-                    while (parent = parent.parentNode);
+                    while (parent);
                 }
 
                 if (!supportCssPointerEvents) {

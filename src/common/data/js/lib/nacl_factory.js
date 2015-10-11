@@ -33,7 +33,8 @@ var nacl_factory = {
                 };
                 var ga = require("fs"), ha = require("path");
                 r.read = function(a, b) {
-                    var a = ha.normalize(a), c = ga.readFileSync(a);
+                    a = ha.normalize(a);
+                    var c = ga.readFileSync(a);
                     !c && a != ha.resolve(a) && (a = path.join(__dirname, "..", "src", a), c = ga.readFileSync(a));
                     c && !b && (c = c.toString());
                     return c
@@ -110,12 +111,15 @@ var nacl_factory = {
                     if(0 < b) {
                         return""
                     }
-                    var c = a[0], d = a[1], f = a[2], c = 191 < c && 224 > c ? String.fromCharCode((c & 31) << 6 | d & 63) : String.fromCharCode((c & 15) << 12 | (d & 63) << 6 | f & 63);
+                    c = a[0];
+                    var d = a[1], f = a[2];
+                    c = 191 < c && 224 > c ? String.fromCharCode((c & 31) << 6 | d & 63) : String.fromCharCode((c & 15) << 12 | (d & 63) << 6 | f & 63);
                     a.length = 0;
                     return c
                 };
                 this.yb = function(a) {
-                    for(var a = unescape(encodeURIComponent(a)), b = [], f = 0;f < a.length;f++) {
+                    a = unescape(encodeURIComponent(a));
+                    for(var b = [], f = 0;f < a.length;f++) {
                         b.push(a.charCodeAt(f))
                     }
                     return b
@@ -172,7 +176,8 @@ var nacl_factory = {
                     }
                     return"array" == b ? (g || (g = ja()), c = qa(a.length), Ea(a, c), c) : a
                 }
-                var g = 0, h = 0, d = d ? d.map(function(a) {
+                var g = 0, h = 0;
+                d = d ? d.map(function(a) {
                     return f(a, c[h++])
                 }) : [];
                 a = a.apply(m, d);
@@ -250,7 +255,8 @@ var nacl_factory = {
             function F(a, b, c, d) {
                 var f, g;
                 "number" === typeof a ? (f = l, g = a) : (f = n, g = a.length);
-                var h = "string" === typeof b ? b : m, c = c == Na ? d : [Oa, qa, ra, ua][c === k ? E : c](Math.max(g, h ? 1 : b.length));
+                var h = "string" === typeof b ? b : m;
+                c = c == Na ? d : [Oa, qa, ra, ua][c === k ? E : c](Math.max(g, h ? 1 : b.length));
                 if(f) {
                     d = c;
                     v(0 == (c & 3));
@@ -265,7 +271,8 @@ var nacl_factory = {
                 if("i8" === h) {
                     return a.subarray || a.slice ? G.set(a, c) : G.set(new Uint8Array(a), c), c
                 }
-                for(var d = 0, i, j;d < g;) {
+                d = 0;
+                for(var i, j;d < g;) {
                     var p = a[d];
                     "function" === typeof p && (p = ya.fe(p));
                     f = h || b[d];
@@ -1193,7 +1200,9 @@ var nacl_factory = {
                 111:"Connection refused", 112:"Address already in use", 113:"Connection aborted", 114:"Network is unreachable", 115:"Network interface is not configured", 116:"Connection timed out", 117:"Host is down", 118:"Host is unreachable", 119:"Connection already in progress", 120:"Socket already connected", 121:"Destination address required", 122:"Message too long", 123:"Unknown protocol", 124:"Socket type not supported", 125:"Address not available", 126:"ENETRESET", 127:"Socket is already connected", 128:"Socket is not connected",
                 129:"TOOMANYREFS", 130:"EPROCLIM", 131:"EUSERS", 132:"EDQUOT", 133:"ESTALE", 134:"Not supported", 135:"No medium (in tape drive)", 136:"No such host or network path", 137:"Filename exists with different case", 138:"EILSEQ", 139:"Value too large for defined data type", 140:"Operation canceled", 141:"State not recoverable", 142:"Previous owner died", 143:"Streams pipe error"};
             function xb(a, b, c) {
-                var d = O(a, {parent:l}).d, a = "/" === a ? "/" : yb(a)[2], f = zb(d, a);
+                var d = O(a, {parent:l}).d;
+                a = "/" === a ? "/" : yb(a)[2];
+                var f = zb(d, a);
                 f && e(new Q(f));
                 d.l.Ta || e(new Q(N.L));
                 return d.l.Ta(d, a, b, c)
@@ -1222,7 +1231,8 @@ var nacl_factory = {
                 c.l.Y(c, {mode:b & 4095 | c.mode & -4096, timestamp:Date.now()})
             }
             function Fb(a, b) {
-                var c, a = Gb(a), d;
+                var c, d;
+                a = Gb(a);
                 "string" === typeof b ? (d = Hb[b], "undefined" === typeof d && e(Error("Unknown file open mode: " + b))) : d = b;
                 b = d;
                 c = b & 512 ? c & 4095 | 32768 : 0;
@@ -1306,7 +1316,8 @@ var nacl_factory = {
                 return a
             }
             function Gb(a) {
-                var b = "/" === a.charAt(0), c = "/" === a.substr(-1), a = Lb(a.split("/").filter(function(a) {
+                var b = "/" === a.charAt(0), c = "/" === a.substr(-1);
+                a = Lb(a.split("/").filter(function(a) {
                     return!!a
                 }), !b).join("/");
                 !a && !b && (a = ".");
@@ -1636,7 +1647,8 @@ var nacl_factory = {
                 f = Ab(a, d);
                 if(c) {
                     if("string" === typeof c) {
-                        for(var b = Array(c.length), g = 0, h = c.length;g < h;++g) {
+                        b = Array(c.length);
+                        for(var g = 0, h = c.length;g < h;++g) {
                             b[g] = c.charCodeAt(g)
                         }
                         c = b
@@ -1716,7 +1728,8 @@ var nacl_factory = {
                 }
                 a = ic(d, a, c);
                 if(-1 == a) {
-                    if(b = R[d]) {
+                    b = R[d]
+                    if(b) {
                         b.error = l
                     }
                     return 0
@@ -2201,7 +2214,8 @@ var nacl_factory = {
                 var c = db(a & 255);
                 A[Dc.J | 0] = c;
                 if(-1 == ic(b, Dc.J, 1)) {
-                    if(c = R[b]) {
+                    c = R[b]
+                    if(c) {
                         c.error = l
                     }
                     return-1
@@ -2316,7 +2330,8 @@ var nacl_factory = {
                 return Bb(a, ec(c, d))
             };
             r.FS_createPath = function(a, b) {
-                for(var a = "string" === typeof a ? a : cc(a), c = b.split("/").reverse();c.length;) {
+                a = "string" === typeof a ? a : cc(a);
+                for(var c = b.split("/").reverse();c.length;) {
                     var d = c.pop();
                     if(d) {
                         var f = S(a, d);
@@ -2522,7 +2537,8 @@ var nacl_factory = {
                     this.ma || this.Fa();
                     return this.fb
                 }}), h = k) : (h = c, g = k);
-                var i, a = S("string" === typeof a ? a : cc(a), b);
+                var i;
+                a = S("string" === typeof a ? a : cc(a), b);
                 i = Ab(a, ec(d, f));
                 g ? i.g = g : h && (i.g = m, i.url = h);
                 var j = {};
@@ -25278,7 +25294,8 @@ var nacl_factory = {
                 if(this.Ra() && a.Ra()) {
                     return Y.p(this.Z() * a.Z())
                 }
-                var b = this.j >>> 16, c = this.j & 65535, d = this.h >>> 16, f = this.h & 65535, g = a.j >>> 16, h = a.j & 65535, i = a.h >>> 16, a = a.h & 65535, j, p, z, w;
+                var b = this.j >>> 16, c = this.j & 65535, d = this.h >>> 16, f = this.h & 65535, g = a.j >>> 16, h = a.j & 65535, i = a.h >>> 16, j, p, z, w;
+                a = a.h & 65535;
                 w = 0 + f * a;
                 z = 0 + (w >>> 16);
                 z += d * a;
@@ -25524,7 +25541,8 @@ var nacl_factory = {
                         b != m && b.D(0), c != m && this.copyTo(c)
                     }else {
                         c == m && (c = $c());
-                        var g = $c(), h = this.c, a = a.c, i = d[d.b - 1], j = 1, p;
+                        var g = $c(), h = this.c, i = d[d.b - 1], j = 1, p;
+                        a = a.c;
                         if(0 != (p = i >>> 16)) {
                             i = p, j += 16
                         }

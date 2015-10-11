@@ -6,11 +6,11 @@ angular.module('adf.widget.datastore', ['adf.provider'])
             .widget('datastore', {
                 title: 'Datastore',
                 description: 'provides the datastore',
-                templateUrl: '{widgetsPath}.datastore.view.html',
+                templateUrl: 'datastore.view.html',
                 controller: 'datastoreController',
                 controllerAs: 'datastore',
                 edit: {
-                    templateUrl: '{widgetsPath}.datastore.edit.html'
+                    templateUrl: 'datastore.edit.html'
                 }
             });
     })
@@ -91,8 +91,8 @@ angular.module('adf.widget.datastore', ['adf.provider'])
 
 /*
 angular.module("adf.widget.datastore").run(["$templateCache", function ($templateCache) {
-    $templateCache.put("{widgetsPath}.datastore.edit.html", "<form role=\"form\">\n  <div class=\"form-group\">\n    <label for=\"sample\">Sample</label>\n    <input type=\"text\" class=\"form-control\" id=\"sample\" ng-model=\"config.sample\" placeholder=\"Enter sample\">\n  </div>\n</form>\n");
-    $templateCache.put("{widgetsPath}.datastore.view.html", "<div>\n  <a ng-href='#here' ng-click='count = count + 1' >click me {{count}}</a><h1>Widget view</h1>\n  <p>Content of {{config.sample}}</p>\n<div tree-view=\"structure\" tree-view-options=\"options\"></div></div>\n");
+    $templateCache.put("datastore.edit.html", "<form role=\"form\">\n  <div class=\"form-group\">\n    <label for=\"sample\">Sample</label>\n    <input type=\"text\" class=\"form-control\" id=\"sample\" ng-model=\"config.sample\" placeholder=\"Enter sample\">\n  </div>\n</form>\n");
+    $templateCache.put("datastore.view.html", "<div>\n  <a ng-href='#here' ng-click='count = count + 1' >click me {{count}}</a><h1>Widget view</h1>\n  <p>Content of {{config.sample}}</p>\n<div tree-view=\"structure\" tree-view-options=\"options\"></div></div>\n");
 }]);
 */
 
