@@ -142,7 +142,7 @@
         });
     });
 
-    app.controller('MainCtrl', ['$scope', 'apiClient', 'browserClient', 'snapRemote', '$window', '$route', '$routeParams', '$location', function($scope, apiClient, browserClient, snapRemote, $window, $route, $routeParams, $location){
+    app.controller('MainCtrl', ['$scope', 'manager', 'browserClient', 'snapRemote', '$window', '$route', '$routeParams', '$location', function($scope, manager, browserClient, snapRemote, $window, $route, $routeParams, $location){
 
         /* for debugging purposes */
         this.$route = $route;
@@ -254,7 +254,7 @@
                 }
             }
             if (email !== undefined && password !== undefined) {
-                apiClient.login(email, password).then(onRequestReturn, onError);
+                manager.login(email, password).then(onRequestReturn, onError);
             }
         };
 
@@ -271,7 +271,7 @@
 
             }
 
-            apiClient.logout().then(onRequestReturn, onError);
+            manager.logout().then(onRequestReturn, onError);
 
         };
 
