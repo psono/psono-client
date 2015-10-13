@@ -12,8 +12,6 @@
             secret_key: "",
             public_key: "",
             email: "",
-            authkey: "",
-            password: "",
             token: ""
         }
     };
@@ -32,8 +30,6 @@
             var authkey = cryptoLibrary.generate_authkey(email, password);
 
             apidata.user.email = email;
-            apidata.user.password = password;
-            apidata.user.authkey = authkey;
 
             /**
              * @param response.data.datastore_owner The datastore owner object in response.
@@ -42,22 +38,18 @@
                 //success
                 apidata.user.id = response.data.datastore_owner.id;
                 apidata.user.token = response.data.token;
-                apidata.user.private_key_enc = response.data.datastore_owner.private_key;
-                apidata.user.private_key_nonce = response.data.datastore_owner.private_key_nonce;
-                apidata.user.secret_key_enc = response.data.datastore_owner.secret_key;
-                apidata.user.secret_key_nonce = response.data.datastore_owner.secret_key_nonce;
                 apidata.user.public_key = response.data.datastore_owner.public_key;
 
                 apidata.user.private_key = cryptoLibrary.decrypt_secret(
-                    apidata.user.private_key_enc,
-                    apidata.user.private_key_nonce,
-                    apidata.user.password
+                    response.data.datastore_owner.private_key,
+                    response.data.datastore_owner.private_key_nonce,
+                    password
                 );
 
                 apidata.user.secret_key = cryptoLibrary.decrypt_secret(
-                    apidata.user.secret_key_enc,
-                    apidata.user.secret_key_nonce,
-                    apidata.user.password
+                    response.data.datastore_owner.secret_key,
+                    response.data.datastore_owner.secret_key_nonce,
+                    password
                 );
 
                 return {
@@ -68,8 +60,6 @@
             var onError = function(response){
 
                 apidata.user.email = "";
-                apidata.user.authkey = "";
-                apidata.user.password = "";
 
                 console.log(response);
 
@@ -79,7 +69,7 @@
                 };
             };
 
-            return apiClient.login(apidata.user.email, apidata.user.authkey)
+            return apiClient.login(apidata.user.email, authkey)
                 .then(onSucces, onError);
         };
 
@@ -94,7 +84,6 @@
                 //success
                 apidata.user.email = '';
                 apidata.user.authkey = '';
-                apidata.user.password = '';
                 apidata.user.id = '';
                 apidata.user.token = '';
                 apidata.user.private_key_enc = '';

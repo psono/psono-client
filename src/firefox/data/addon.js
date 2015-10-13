@@ -5,7 +5,9 @@
     var browserClient = function() {
 
         var resize = function (newHeight, newWidth) {
-            addon.port.emit("winsize", {height: newHeight || window.innerHeight, width: newWidth || window.innerWidth});
+            if (typeof addon !== "undefined"){
+                addon.port.emit("winsize", {height: newHeight || window.innerHeight, width: newWidth || window.innerWidth});
+            }
         };
 
         return {
