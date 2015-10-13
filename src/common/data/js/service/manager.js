@@ -83,13 +83,8 @@
             var onSucces = function (response) {
                 //success
                 apidata.user.email = '';
-                apidata.user.authkey = '';
                 apidata.user.id = '';
                 apidata.user.token = '';
-                apidata.user.private_key_enc = '';
-                apidata.user.private_key_nonce = '';
-                apidata.user.secret_key_enc = '';
-                apidata.user.secret_key_nonce = '';
                 apidata.user.public_key = '';
 
                 apidata.user.private_key = '';
