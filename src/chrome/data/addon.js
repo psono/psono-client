@@ -8,8 +8,13 @@
             // pass
         };
 
+        var openTab = function(url) {
+            window.open(url, '_blank');
+        };
+
         return {
-            resize: resize
+            resize: resize,
+            openTab: openTab
         };
     };
 

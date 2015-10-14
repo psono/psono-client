@@ -35,7 +35,7 @@
         </ul>
 
         <ul class="navigations" ng-if="!datastore.search">
-            <li><a href="datastore.html" target="_blank">Open Datastore</a></li>
+            <li><a href="#" ng-click="openTab('/data/datastore.html')">Open Datastore</a></li>
             <li><a href="https://www.sanso.pw/help" target="_blank">Help</a></li>
             <li><a href="https://www.sanso.pw/about" target="_blank">About</a></li>
         </ul>
@@ -95,6 +95,7 @@
 
 <script src="js/service/api-client.js" type="application/javascript"></script>
 <script src="js/service/crypto-library.js" type="application/javascript"></script>
+<script src="js/service/storage.js" type="application/javascript"></script>
 <script src="js/service/manager.js" type="application/javascript"></script>
 <!-- End Angular Juju -->
 </body>

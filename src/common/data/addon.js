@@ -8,8 +8,13 @@
             console.log("addon.js browserClient.resize triggered");
         };
 
+        var openTab = function(url) {
+            window.open('/src/common' + url, '_blank');
+        };
+
         return {
-            resize: resize
+            resize: resize,
+            openTab: openTab
         };
     };
 

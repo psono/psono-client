@@ -1,5 +1,5 @@
 (function(angular, nacl_factory, scrypt_module_factory) {
-    'use strict';;
+    'use strict';
 
     var nacl = nacl_factory.instantiate();
 

@@ -1,6 +1,7 @@
 var {ToggleButton} = require('sdk/ui/button/toggle');
 var panels = require("sdk/panel");
 var self = require("sdk/self");
+var tabs = require("sdk/tabs");
 
 var button = ToggleButton({
     id: "my-button",
@@ -19,8 +20,12 @@ var panel = panels.Panel({
     height: 200
 });
 
-panel.port.on('winsize', function (data) {
+panel.port.on('resize', function (data) {
     panel.resize((data.width), (data.height));
+});
+
+panel.port.on('openTab', function (data) {
+    tabs.open("resource://sansopw" + data.url);
 });
 
 function handleChange(state) {

@@ -149,6 +149,7 @@
         this.$location = $location;
         this.$routeParams = $routeParams;
 
+        $scope.openTab = browserClient.openTab;
 
         /* for navigation, can maybe moved to another controller */
         $scope.getClass = function (path) {

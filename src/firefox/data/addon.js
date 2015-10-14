@@ -6,12 +6,19 @@
 
         var resize = function (newHeight, newWidth) {
             if (typeof addon !== "undefined"){
-                addon.port.emit("winsize", {height: newHeight || window.innerHeight, width: newWidth || window.innerWidth});
+                addon.port.emit("resize", {height: newHeight || window.innerHeight, width: newWidth || window.innerWidth});
+            }
+        };
+
+        var openTab = function(url) {
+            if (typeof addon !== "undefined"){
+                addon.port.emit("openTab", {url: url});
             }
         };
 
         return {
-            resize: resize
+            resize: resize,
+            openTab: openTab
         };
     };
 

@@ -16,7 +16,7 @@
         }
     };
 
-    var manager = function(apiClient, cryptoLibrary) {
+    var manager = function(apiClient, cryptoLibrary, storage) {
         /**
          * Ajax POST request to the backend with email and authkey for login, saves a token together with user_id
          * and all the different keys of a user in the apidata storage
@@ -117,6 +117,6 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("manager", ['apiClient', 'cryptoLibrary', manager]);
+    app.factory("manager", ['apiClient', 'cryptoLibrary', 'storage', manager]);
 
 }(angular));
