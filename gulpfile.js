@@ -10,12 +10,12 @@ gulp.task('sass', function () {
 });
 
 gulp.task('build-firefox', function() {
-    gulp.src(['src/common/data/**/*', '!addon.js']).pipe(gulp.dest('build/firefox/data'));
+    gulp.src(['src/common/data/**/*', '!src/common/data/js/service/browser-client.js', '!src/common/data/{sass,sass/**}']).pipe(gulp.dest('build/firefox/data'));
     gulp.src(['src/firefox/**/*']).pipe(gulp.dest('build/firefox'));
 });
 
 gulp.task('build-chrome', function() {
-    gulp.src(['src/common/data/**/*', '!addon.js']).pipe(gulp.dest('build/chrome/data'));
+    gulp.src(['src/common/data/**/*', '!src/common/data/js/service/browser-client.js', '!src/common/data/{sass,sass/**}']).pipe(gulp.dest('build/chrome/data'));
     gulp.src(['src/chrome/**/*']).pipe(gulp.dest('build/chrome'));
 });
 

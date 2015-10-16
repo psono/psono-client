@@ -4,10 +4,20 @@
 
     var browserClient = function() {
 
-        var resize = function (newHeight, newWidth) {
+        /**
+         * Resize the panel according to the provided width and height
+         *
+         * @param height
+         * @param width
+         */
+        var resize = function (height, width) {
             // pass
         };
 
+        /**
+         * Opens the URL in a new browser tab
+         * @param url
+         */
         var openTab = function(url) {
             window.open(url, '_blank');
         };
