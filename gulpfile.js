@@ -21,7 +21,9 @@ gulp.task('build-chrome', function() {
 
 gulp.task('default', ['sass', 'build-chrome', 'build-firefox']);
 
-gulp.watch(['src/common/data/**/*', '!src/common/data/sass/**/*.scss'], ['build-firefox', 'build-chrome']);
-gulp.watch('src/chrome/**/*', ['build-chrome']);
-gulp.watch('src/firefox/**/*', ['build-firefox']);
-gulp.watch('src/common/data/sass/**/*.scss', ['sass', 'build-chrome', 'build-firefox']);
+gulp.task('watch', ['sass', 'build-chrome', 'build-firefox'], function() {
+    gulp.watch(['src/common/data/**/*', '!src/common/data/sass/**/*.scss'], ['build-firefox', 'build-chrome']);
+    gulp.watch('src/chrome/**/*', ['build-chrome']);
+    gulp.watch('src/firefox/**/*', ['build-firefox']);
+    gulp.watch('src/common/data/sass/**/*.scss', ['sass', 'build-chrome', 'build-firefox']);
+});
