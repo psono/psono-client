@@ -197,7 +197,7 @@
         return nacl.decode_utf8(m1);
     };
 
-    var cryptoLibrary = function(apiClient) {
+    var cryptoLibrary = function() {
 
         return {
             generate_authkey: generate_authkey,
@@ -208,7 +208,7 @@
             encrypt_data: encrypt_data,
             decrypt_data: decrypt_data,
             encrypt_data_public_key: encrypt_data_public_key,
-            decrypt_data_public_key: decrypt_data_public_key,
+            decrypt_data_public_key: decrypt_data_public_key
         };
     };
 
