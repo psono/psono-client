@@ -114,7 +114,7 @@
 
         }]);
 
-    app.controller('homeDashboardController', function($scope, localStorageService){
+    app.controller('DashboardController', function($scope, localStorageService){
         var model = localStorageService.get('widgetHomeDashboard');
         if (!model){
             model = {
@@ -142,14 +142,18 @@
         });
     });
 
-    app.controller('MainCtrl', ['$scope', 'manager', 'browserClient', 'snapRemote', '$window', '$route', '$routeParams', '$location', function($scope, manager, browserClient, snapRemote, $window, $route, $routeParams, $location){
+    app.controller('MainController', ['$scope', 'manager', 'browserClient', 'storage', 'snapRemote', '$window', '$route', '$routeParams', '$location', function($scope, manager, browserClient, storage, snapRemote, $window, $route, $routeParams, $location){
 
         /* for debugging purposes */
         this.$route = $route;
         this.$location = $location;
         this.$routeParams = $routeParams;
 
+        /* openTab function to pass through */
         $scope.openTab = browserClient.openTab;
+
+        /* test background page */
+        //console.log(browserClient.testBackgroundPage());
 
         /* for navigation, can maybe moved to another controller */
         $scope.getClass = function (path) {
@@ -232,7 +236,8 @@
         });
 
         /* login / logout */
-        $scope.loggedin = false;
+        $scope.loggedin = manager.isLoggedIn();
+        $scope.user_email = manager.getUserEmail();
 
         $scope.loginFormEmail = "test@saschapfeiffer.com";
         $scope.loginFormPassword = "myPassword";
@@ -249,6 +254,8 @@
                 if (data.response === "success") {
                     $scope.errors = [];
                     $scope.loggedin = true;
+                    $scope.user_email = manager.getUserEmail();
+                    browserClient.emit("loggedIn", null);
                     browserClient.resize(300);
                 } else {
                     $scope.errors = data.error_data.non_field_errors;
@@ -268,6 +275,8 @@
             function onRequestReturn(data) {
                 console.log(data);
                 $scope.loggedin = false;
+                $scope.user_email = '';
+                browserClient.emit("loggedOut", null);
                 browserClient.resize(200);
 
             }

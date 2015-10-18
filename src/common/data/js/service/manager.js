@@ -17,6 +17,18 @@
     };
 
     var manager = function(apiClient, cryptoLibrary, storage) {
+
+        /**
+         * checks if the user is logged in
+         * returns either true or false
+         *
+         * @return {bool} is the user logged in
+         */
+        var isLoggedIn = function () {
+            console.log(storage.config_data());
+            return storage.config_find_one({'key': 'user_token'}) !== null;
+        };
+
         /**
          * Ajax POST request to the backend with email and authkey for login, saves a token together with user_id
          * and all the different keys of a user in the apidata storage
@@ -29,29 +41,30 @@
 
             var authkey = cryptoLibrary.generate_authkey(email, password);
 
-            apidata.user.email = email;
+            storage.config_insert({key: 'user_email', value: email});
 
             /**
-             * @param response.data.datastore_owner The datastore owner object in response.
+             * @param response.data.user The datastore owner object in response.
              */
             var onSucces = function (response) {
                 //success
-                apidata.user.id = response.data.datastore_owner.id;
-                apidata.user.token = response.data.token;
-                apidata.user.public_key = response.data.datastore_owner.public_key;
 
-                apidata.user.private_key = cryptoLibrary.decrypt_secret(
-                    response.data.datastore_owner.private_key,
-                    response.data.datastore_owner.private_key_nonce,
+                storage.config_insert({key: 'user_id', value: response.data.user.id});
+                storage.config_insert({key: 'user_token', value: response.data.token});
+                storage.config_insert({key: 'user_public_key', value: response.data.user.public_key});
+                storage.config_insert({key: 'user_private_key', value: cryptoLibrary.decrypt_secret(
+                    response.data.user.private_key,
+                    response.data.user.private_key_nonce,
                     password
-                );
-
-                apidata.user.secret_key = cryptoLibrary.decrypt_secret(
-                    response.data.datastore_owner.secret_key,
-                    response.data.datastore_owner.secret_key_nonce,
+                )});
+                storage.config_insert({key: 'user_secret_key', value: cryptoLibrary.decrypt_secret(
+                    response.data.user.secret_key,
+                    response.data.user.secret_key_nonce,
                     password
-                );
+                )});
 
+                storage.save();
+                console.log(storage.config_data());
                 return {
                     response:"success"
                 };
@@ -59,7 +72,8 @@
 
             var onError = function(response){
 
-                apidata.user.email = "";
+                storage.config_remove(storage.config_find_one({'key': 'user_email'}));
+                storage.save();
 
                 console.log(response);
 
@@ -69,7 +83,7 @@
                 };
             };
 
-            return apiClient.login(apidata.user.email, authkey)
+            return apiClient.login(email, authkey)
                 .then(onSucces, onError);
         };
 
@@ -82,14 +96,14 @@
 
             var onSucces = function (response) {
                 //success
-                apidata.user.email = '';
-                apidata.user.id = '';
-                apidata.user.token = '';
-                apidata.user.public_key = '';
+                storage.config_remove(storage.config_find_one({'key': 'user_email'}));
+                storage.config_remove(storage.config_find_one({'key': 'user_id'}));
+                storage.config_remove(storage.config_find_one({'key': 'user_token'}));
+                storage.config_remove(storage.config_find_one({'key': 'user_public_key'}));
+                storage.config_remove(storage.config_find_one({'key': 'user_private_key'}));
+                storage.config_remove(storage.config_find_one({'key': 'user_secret_key'}));
 
-                apidata.user.private_key = '';
-
-                apidata.user.secret_key = '';
+                storage.save();
 
                 return {
                     response:"success"
@@ -106,13 +120,32 @@
                 };
             };
 
-            return apiClient.logout(apidata.user.token)
+            console.log(storage.config_find_one({'key': 'user_token'}));
+
+            return apiClient.logout(storage.config_find_one({'key': 'user_token'}).value)
                 .then(onSucces, onError);
+        };
+        /**
+         * pass through for the event callback handling of config changes
+         *
+         * @param event
+         * @param callback
+         * @returns {*}
+         */
+        var config_on = function (event, callback) {
+            return storage.config_on(event, callback);
+        };
+
+        var getUserEmail = function() {
+            return storage.config_find_one({'key': 'user_email'});
         };
 
         return {
             login: login,
-            logout: logout
+            logout: logout,
+            isLoggedIn: isLoggedIn,
+            getUserEmail: getUserEmail,
+            config_on: config_on
         };
     };
 

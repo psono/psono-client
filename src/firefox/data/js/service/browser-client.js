@@ -2,6 +2,14 @@
     'use strict';
 
 
+    var port;
+    if (typeof addon !== "undefined"){
+        port = addon.port;
+    } else {
+        port = self.port;
+    }
+
+
     var browserClient = function() {
         /**
          * Resize the panel according to the provided width and height
@@ -10,9 +18,7 @@
          * @param width
          */
         var resize = function (height, width) {
-            if (typeof addon !== "undefined"){
-                addon.port.emit("resize", {height: height || window.innerHeight, width: width || window.innerWidth});
-            }
+            port.emit("resize", {height: height || window.innerHeight, width: width || window.innerWidth});
         };
 
         /**
@@ -20,14 +26,32 @@
          * @param url
          */
         var openTab = function(url) {
-            if (typeof addon !== "undefined"){
-                addon.port.emit("openTab", {url: url});
-            }
+            port.emit("openTab", {url: url});
         };
+
+        /**
+         * Dummy function to see if the background page works
+         */
+        var testBackgroundPage = function () {
+            return false;
+        };
+
+        /**
+         * sends an event message to browser
+         *
+         * @param event
+         * @param data
+         */
+        var emit = function (event, data) {
+            port.emit(event, data);
+        };
+
 
         return {
             resize: resize,
-            openTab: openTab
+            openTab: openTab,
+            testBackgroundPage: testBackgroundPage,
+            emit: emit
         };
     };
 

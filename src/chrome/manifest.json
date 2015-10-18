@@ -12,5 +12,8 @@
   "permissions": [
     "activeTab",
     "storage"
-  ]
+  ],
+  "background": {
+    "scripts": ["data/js/lib/lokijs.min.js", "index.js"]
+  }
 }
