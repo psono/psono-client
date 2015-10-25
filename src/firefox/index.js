@@ -20,29 +20,29 @@ var button = ToggleButton({
 var panel = panels.Panel({
     contentURL: self.data.url("main.html"),
     onHide: handleHide,
-    height: 200
+    height: 250
 });
 
 var onLogin = function (data) {
-    console.log("loggedIn");
-    panel.port.emit('loggedIn', null);
+    console.log("login");
+    panel.port.emit('login', null);
     for (var i = 0; i < allDatastoreTabs.length; i++)
-        allDatastoreTabs[i].port.emit('loggedIn', null);
+        allDatastoreTabs[i].port.emit('login', null);
 };
 
 var onLogout = function (data) {
-    console.log("loggedOut");
-    panel.port.emit('loggedOut', null);
+    console.log("logout");
+    panel.port.emit('logout', null);
     for (var i = 0; i < allDatastoreTabs.length; i++)
-        allDatastoreTabs[i].port.emit('loggedOut', null);
+        allDatastoreTabs[i].port.emit('logout', null);
 };
 
 panel.port.on('resize', function (data) {
     panel.resize((data.width), (data.height));
 });
 
-panel.port.on('loggedIn', onLogin);
-panel.port.on('loggedOut', onLogout);
+panel.port.on('login', onLogin);
+panel.port.on('logout', onLogout);
 
 
 panel.port.on('openTab', function (data) {
@@ -56,8 +56,8 @@ panel.port.on('openTab', function (data) {
             var worker = tab.attach({
                 contentScriptFile: "./content-script.js"
             });
-            worker.port.on('loggedIn', onLogin);
-            worker.port.on('loggedOut', onLogout);
+            worker.port.on('login', onLogin);
+            worker.port.on('logout', onLogout);
             worker.port.on('testmsg', function (data) {console.log("received test message")});
             allDatastoreTabs.push(worker);
         };

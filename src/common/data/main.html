@@ -21,7 +21,7 @@
     <link href="css/main.css" rel="stylesheet">
 </head>
 <body ng-controller="MainController" class="dark">
-<div ng-if="loggedin">
+<div ng-if="loggedin" ng-controller="Main2Controller">
     <form name="searchForm">
         <div class="form-group">
             <input id="datastoresearch" name="datastoresearch" class="form-control" ng-model="datastore.search"
@@ -38,6 +38,7 @@
             <li><a href="#" ng-click="openTab('/data/datastore.html')">Open Datastore</a></li>
             <li><a href="https://www.sanso.pw/help" target="_blank">Help</a></li>
             <li><a href="https://www.sanso.pw/about" target="_blank">About</a></li>
+
         </ul>
 
         <hr>
@@ -47,7 +48,7 @@
         </div>
     </form>
 </div>
-<div ng-if="!loggedin">
+<div ng-if="!loggedin" ng-controller="LoginController">
     <!-- Not logged in, show the login form -->
     <img src="img/logo.png" id="logo">
 
@@ -59,12 +60,32 @@
             <input type="password" class="form-control" id="loginPassword" placeholder="Password" ng-model="loginFormPassword" required>
         </div>
 
-        <div class="btn-group">
-            <button ng-click="login(loginFormEmail, loginFormPassword)" type="submit" class="btn btn-danger">Login</button>
+        <div class="form-group">
+            <button ng-click="login(loginFormEmail, loginFormPassword, selected_server)" type="submit" class="btn btn-danger">Login</button>
+            <a href="">Register</a>
+            <span ng-repeat="e in errors">{{e}}</span>
         </div>
-        <a href="">Register</a>
-        <span ng-repeat="e in errors">{{e}}</span>
 
+        <div class="form-group hideinputcharakter">
+
+            <script type="text/ng-template" id="myPopoverTemplate.html">
+                <div class="container-fluid">
+                    <p>Pick one of the servers below or enter the new url</p>
+                    <li ng-repeat="server in filtered_servers | limitTo:4">
+                        <a href="#" ng-click="select_server(server)">{{ server.title + ' ' + server.url }}</a>
+                    </li>
+                </div>
+            </script>
+
+            <label for="serverselection">Server: </label>
+            <input type="text" id="serverselection"
+                   popover-template="'myPopoverTemplate.html'"
+                   popover-trigger="focus"
+                   ng-model="selected_server_url"
+                   ng-change="changing(selected_server_url)"
+                   class="form-control">
+
+        </div>
     </form>
 </div>
 

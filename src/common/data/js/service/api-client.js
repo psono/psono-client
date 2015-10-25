@@ -1,11 +1,27 @@
 (function(angular, nacl_factory, scrypt_module_factory) {
     'use strict';
 
-    var backend = 'http://dev.sanso.pw:8001';
 
-    var apiClient = function($http) {
+    var apiClient = function($http, storage) {
 
+        /**
+         * wrapper function for the actual $http request
+         *
+         * @param type
+         * @param endpoint
+         * @param data
+         * @param headers
+         * @returns {*}
+         */
         var call = function(type, endpoint, data, headers) {
+
+            var server = storage.config_find_one({'key': 'server'});
+
+            if (server === null) {
+                return;
+            }
+
+            var backend = server['value']['url'];
 
             var req = {
                 method: type,
@@ -16,6 +32,7 @@
 
             return $http(req);
         };
+
         /**
          * Ajax POST request to the backend with email and authkey for login, saves a token together with user_id
          * and all the different keys of a user in the apidata storage
@@ -467,6 +484,6 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("apiClient", ['$http', apiClient]);
+    app.factory("apiClient", ['$http', 'storage', apiClient]);
 
 }(angular, nacl_factory, scrypt_module_factory));

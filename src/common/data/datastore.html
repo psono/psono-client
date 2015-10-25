@@ -22,7 +22,7 @@
 </head>
 <body ng-controller="MainController">
 
-<div ng-if="loggedin">
+<div ng-if="loggedin" ng-controller="Main2Controller">
 
     <nav class="navbar navbar-default navbar-static-top">
         <div class="container">
@@ -30,6 +30,23 @@
                 <a class="navbar-brand" href="#">
                     <img alt="Brand" src="img/logo-inverse.png" height="100%">
                 </a>
+            </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-5">
+                <div  class="navbar-text navbar-right">
+                    Signed in as
+                    <div class="btn-group" dropdown is-open="status.isopen">
+                        <button id="email-button" type="button" class="btn btn-primary" dropdown-toggle ng-disabled="disabled">
+                            {{user_email}} <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="email-button">
+                            <li role="menuitem"><a href="#">Action</a></li>
+                            <li role="menuitem"><a href="#">Another action</a></li>
+                            <li role="menuitem"><a href="#">Something else here</a></li>
+                            <li class="divider"></li>
+                            <li role="menuitem"><a href="#" ng-click="logout()">logout</a></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -82,7 +99,7 @@
     </form>
     -->
 </div>
-<div ng-if="!loggedin">
+<div ng-if="!loggedin" ng-controller="LoginController">
     <!-- Not logged in, show the login form -->
     <div class="wrapper">
 
@@ -97,11 +114,31 @@
                     <input type="password" class="form-control" id="loginPassword" placeholder="Password" ng-model="loginFormPassword" required>
                 </div>
 
-                <div class="btn-group">
-                    <button ng-click="login(loginFormEmail, loginFormPassword)" type="submit" class="btn btn-danger">Login</button>
+                <div class="form-group">
+                    <button ng-click="login(loginFormEmail, loginFormPassword, selected_server)" type="submit" class="btn btn-danger">Login</button>
+                    <a href="">Register</a>
+                    <span ng-repeat="e in errors">{{e}}</span>
                 </div>
-                <a href="">Register</a>
-                <span ng-repeat="e in errors">{{e}}</span>
+
+                <div class="form-group hideinputcharakter">
+
+                    <script type="text/ng-template" id="myPopoverTemplate.html">
+                        <div class="container-fluid">
+                            <p>Pick one of the servers below or enter the new url</p>
+                            <li ng-repeat="server in filtered_servers | limitTo:4">
+                                <a href="#" ng-click="select_server(server)">{{ server.title + ' ' + server.url }}</a>
+                            </li>
+                        </div>
+                    </script>
+
+                    <label for="serverselection">Server: </label>
+                    <input type="text" id="serverselection"
+                           popover-template="'myPopoverTemplate.html'"
+                           popover-trigger="focus"
+                           ng-model="selected_server_url"
+                           ng-change="changing(selected_server_url)"
+                           class="form-control">
+                </div>
 
             </form>
         </div>

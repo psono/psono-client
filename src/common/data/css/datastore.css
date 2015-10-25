@@ -8,8 +8,8 @@ body {
   overflow: hidden; }
 
 .loginbox {
-  width: 300px;
-  height: 220px;
+  width: 340px;
+  height: 260px;
   padding: 20px;
   position: absolute;
   top: 50%;
@@ -28,6 +28,18 @@ body {
 /* bootstrap */
 .navbar-default {
   background-color: #fff; }
+
+.navbar .navbar-text {
+  margin-top: 8px;
+  margin-bottom: 8px; }
+
+.btn-primary {
+  background-color: #2dbb93;
+  border-color: #2dbb93; }
+
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {
+  background-color: #2ba880;
+  border-color: #2ba880; }
 
 /* snap */
 snap-content,

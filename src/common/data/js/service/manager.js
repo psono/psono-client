@@ -1,22 +1,14 @@
 (function(angular) {
     'use strict';
 
-    var apidata = {
-        user: {
-            id: "",
-            private_key_enc: "",
-            private_key_nonce: "",
-            private_key: "",
-            secret_key_enc: "",
-            secret_key_nonce: "",
-            secret_key: "",
-            public_key: "",
-            email: "",
-            token: ""
-        }
-    };
-
     var manager = function(apiClient, cryptoLibrary, storage) {
+
+
+        var forbidden_keys = [
+            'user_token',
+            'user_private_key',
+            'user_secret_key'
+        ];
 
         /**
          * checks if the user is logged in
@@ -35,13 +27,16 @@
          *
          * @param email
          * @param password
+         * @param server server object
          * @returns {promise} promise
          */
-        var login = function(email, password) {
+        var login = function(email, password, server) {
+
 
             var authkey = cryptoLibrary.generate_authkey(email, password);
 
             storage.config_insert({key: 'user_email', value: email});
+            storage.config_insert({key: 'server', value: server});
 
             /**
              * @param response.data.user The datastore owner object in response.
@@ -64,7 +59,7 @@
                 )});
 
                 storage.save();
-                console.log(storage.config_data());
+
                 return {
                     response:"success"
                 };
@@ -73,6 +68,7 @@
             var onError = function(response){
 
                 storage.config_remove(storage.config_find_one({'key': 'user_email'}));
+                storage.config_remove(storage.config_find_one({'key': 'server'}));
                 storage.save();
 
                 console.log(response);
@@ -94,9 +90,9 @@
          */
         var logout = function () {
 
-            var onSucces = function (response) {
-                //success
+            var delete_local_data = function () {
                 storage.config_remove(storage.config_find_one({'key': 'user_email'}));
+                storage.config_remove(storage.config_find_one({'key': 'server'}));
                 storage.config_remove(storage.config_find_one({'key': 'user_id'}));
                 storage.config_remove(storage.config_find_one({'key': 'user_token'}));
                 storage.config_remove(storage.config_find_one({'key': 'user_public_key'}));
@@ -104,6 +100,11 @@
                 storage.config_remove(storage.config_find_one({'key': 'user_secret_key'}));
 
                 storage.save();
+            };
+
+            var onSucces = function (response) {
+
+                delete_local_data();
 
                 return {
                     response:"success"
@@ -111,41 +112,36 @@
             };
 
             var onError = function(response){
+                //session expired, so lets delete the data anyway
 
-                console.log(response);
+                delete_local_data();
 
                 return {
-                    response:"error",
-                    error_data: response.data
+                    response:"success"
                 };
             };
-
-            console.log(storage.config_find_one({'key': 'user_token'}));
 
             return apiClient.logout(storage.config_find_one({'key': 'user_token'}).value)
                 .then(onSucces, onError);
         };
-        /**
-         * pass through for the event callback handling of config changes
-         *
-         * @param event
-         * @param callback
-         * @returns {*}
-         */
-        var config_on = function (event, callback) {
-            return storage.config_on(event, callback);
-        };
 
-        var getUserEmail = function() {
-            return storage.config_find_one({'key': 'user_email'});
+        var get = function(key) {
+
+            if (forbidden_keys.indexOf(key) >= 0) {
+                return ''
+            }
+            var obj = storage.config_find_one({'key': key});
+            if (obj === null) {
+                return ''
+            }
+            return obj['value'];
         };
 
         return {
             login: login,
             logout: logout,
             isLoggedIn: isLoggedIn,
-            getUserEmail: getUserEmail,
-            config_on: config_on
+            get: get
         };
     };
 

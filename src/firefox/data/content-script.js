@@ -1,6 +1,6 @@
 // content-script.js
 
-self.port.on("loggedIn", handleMessage);
+self.port.on("login", handleMessage);
 
 var handleMessage = function (message) {
 
@@ -11,7 +11,7 @@ var handleMessage = function (message) {
     //
 };
 
-self.port.on("loggedOut", handleMessage2);
+self.port.on("logout", handleMessage2);
 
 var handleMessage2 = function (message) {
 

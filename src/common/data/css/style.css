@@ -27,6 +27,20 @@ h1, h2 {
     padding: 10px;
     width: 100%; }
 
+.hideinputcharakter label {
+  font-weight: inherit;
+  width: 45px; }
+
+.hideinputcharakter .form-control {
+  width: 250px;
+  display: inline-block; }
+
+.hideinputcharakter .form-control:not(:focus) {
+  background-color: transparent;
+  border: 0;
+  color: inherit;
+  box-shadow: none !important; }
+
 .dark {
   background-color: #151f2b;
   color: #b1b6c1; }

@@ -36,6 +36,23 @@ h1, h2 {
   }
 }
 
+.hideinputcharakter {
+  label {
+    font-weight: inherit;
+    width: 45px;
+  }
+  .form-control {
+    width: 250px;
+    display: inline-block;
+  }
+  .form-control:not(:focus) {
+    background-color: transparent;
+    border: 0;
+    color: inherit;
+    box-shadow: none !important;
+  }
+}
+
 .dark {
   background-color: $dark-color;
   color: $dark-normal-color;

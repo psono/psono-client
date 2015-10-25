@@ -142,176 +142,273 @@
         });
     });
 
-    app.controller('MainController', ['$scope', 'manager', 'browserClient', 'storage', 'snapRemote', '$window', '$route', '$routeParams', '$location', function($scope, manager, browserClient, storage, snapRemote, $window, $route, $routeParams, $location){
+    app.controller('MainController', ['$scope', '$filter', '$timeout', 'manager', 'browserClient', 'storage',
+        'snapRemote', '$window', '$route', '$routeParams', '$location',
+        function($scope, $filter, $timeout, manager, browserClient, storage,
+                 snapRemote, $window, $route, $routeParams, $location)
+        {
 
-        /* for debugging purposes */
-        this.$route = $route;
-        this.$location = $location;
-        this.$routeParams = $routeParams;
+            /* openTab function to pass through */
+            $scope.openTab = browserClient.openTab;
 
-        /* openTab function to pass through */
-        $scope.openTab = browserClient.openTab;
+            /* test background page */
+            //console.log(browserClient.testBackgroundPage());
 
-        /* test background page */
-        //console.log(browserClient.testBackgroundPage());
 
-        /* for navigation, can maybe moved to another controller */
-        $scope.getClass = function (path) {
-            if (path === '/' && $location.path().length == 0) {
-                return 'active';
-            } else if (path !== '/' && $location.path().substr(0, path.length) === path) {
-                return 'active';
-            } else {
-                return '';
-            }
-        };
-
-        /* snapper */
-        snapRemote.getSnapper().then(function(snapper) {
-            var scrollWidth = 266;
-            var orientationEvent = "onorientationchange" in angular.element($window) ? "orientationchange" : "resize";
-
-            snapper.smallView = screen.width < 640;
-            // Do something with snapper
-            snapper.settings({
-                hyperextensible: false,
-                disable: 'right',
-                tapToClose: false
-            });
-            function adjustWith (snapper, behave_inverse) {
-                var total_width = angular.element(document.querySelectorAll(".snap-content")[0])[0].clientWidth;
-                if ((snapper.state().state !== 'closed') != behave_inverse) {
-                    $scope.snap_content_with = (total_width-scrollWidth) + 'px';
+            /* for navigation, can maybe moved to another controller */
+            $scope.getClass = function (path) {
+                if (path === '/' && $location.path().length == 0) {
+                    return 'active';
+                } else if (path !== '/' && $location.path().substr(0, path.length) === path) {
+                    return 'active';
                 } else {
-                    $scope.snap_content_with = total_width + 'px';
+                    return '';
                 }
-            }
+            };
 
-            snapper.on('start', function(){
-                console.log('start');
-            });
+            /* snapper */
+            snapRemote.getSnapper().then(function(snapper) {
+                var scrollWidth = 266;
+                var orientationEvent = "onorientationchange" in angular.element($window) ? "orientationchange" : "resize";
+                var snappersettings = {
+                    hyperextensible: false,
+                    disable: 'right',
+                    tapToClose: false
+                };
 
-            snapper.on('end', function(){
-                console.log('end');
-            });
+                snapper.smallView = screen.width < 640;
+                // Do something with snapper
+                snapper.settings(snappersettings);
+                function adjustWith (snapper, behave_inverse) {
+                    console.log('adjustWith');
+                    var total_width = angular.element(document.querySelectorAll(".snap-content")[0])[0].clientWidth;
+                    if ((snapper.state().state !== 'closed') != behave_inverse) {
+                        $scope.snap_content_with = (total_width-scrollWidth) + 'px';
+                    } else {
+                        $scope.snap_content_with = total_width + 'px';
+                    }
+                }
 
-            snapper.on('open', function(){
-                adjustWith(snapper, true);
-            });
-            snapper.on('close', function(){
-                adjustWith(snapper, true);
-            });
-            snapper.open('left');
-
-            adjustWith(snapper);
-            /* TODO enable snapper if the device is too small */
-            snapper.disable();
-
-            angular.element($window).bind(orientationEvent, function () {
-                snapRemote.getSnapper().then(function(snapper) {
-                    adjustWith(snapper);
+                snapper.on('start', function(){
+                    console.log('start');
                 });
-                /*
-                 var smallView = screen.width < 640;
-                 var element = document.getElementById('content');
-                 var minPosition = 266;
-                 if (snapper.smallView != smallView) {
-                 if(smallView) {
-                 disable = 'none';
-                 } else if(!smallView) {
-                 disable = 'right';
-                 element.style.width = ((window.innerWidth || document.documentElement.clientWidth)-minPosition)+'px';
-                 }
-                 snapper.settings({
-                 element: element,
-                 hyperextensible: false,
-                 disable: disable,
-                 minPosition: -minPosition
-                 });
-                 snapper.smallView = smallView;
-                 }
-                 */
+
+                snapper.on('end', function(){
+                    console.log('end');
+                });
+
+                snapper.on('open', function(){
+                    adjustWith(snapper, true);
+                });
+                snapper.on('close', function(){
+                    adjustWith(snapper, true);
+                });
+
+                snapper.open('left');
+                adjustWith(snapper);
+
+                $scope.$on("login", function(event, message){
+                    snapRemote.getSnapper().then(function(snapper) {
+                        snapper.settings(snappersettings);
+                        snapper.open('left');
+                        adjustWith(snapper);
+                    });
+                });
+
+                /* TODO enable snapper if the device is too small */
+                snapper.disable();
+
+                angular.element($window).bind(orientationEvent, function () {
+                    snapRemote.getSnapper().then(function(snapper) {
+                        adjustWith(snapper);
+                    });
+                    /*
+                     var smallView = screen.width < 640;
+                     var element = document.getElementById('content');
+                     var minPosition = 266;
+                     if (snapper.smallView != smallView) {
+                     if(smallView) {
+                     disable = 'none';
+                     } else if(!smallView) {
+                     disable = 'right';
+                     element.style.width = ((window.innerWidth || document.documentElement.clientWidth)-minPosition)+'px';
+                     }
+                     snapper.settings({
+                     element: element,
+                     hyperextensible: false,
+                     disable: disable,
+                     minPosition: -minPosition
+                     });
+                     snapper.smallView = smallView;
+                     }
+                     */
+                });
+
             });
 
-        });
+            /* login / logout */
+            $scope.loggedin = manager.isLoggedIn();
 
-        /* login / logout */
-        $scope.loggedin = manager.isLoggedIn();
-        $scope.user_email = manager.getUserEmail();
-
-        $scope.loginFormEmail = "test@saschapfeiffer.com";
-        $scope.loginFormPassword = "myPassword";
-
-        $scope.login = function (email, password) {
-
-
-            function onError(data) {
-                alert("Error, should not happen.");
-            }
-
-            function onRequestReturn(data) {
-                // TODO bring message to the user
-                if (data.response === "success") {
-                    $scope.errors = [];
-                    $scope.loggedin = true;
-                    $scope.user_email = manager.getUserEmail();
-                    browserClient.emit("loggedIn", null);
-                    browserClient.resize(300);
-                } else {
-                    $scope.errors = data.error_data.non_field_errors;
-                }
-            }
-            if (email !== undefined && password !== undefined) {
-                manager.login(email, password).then(onRequestReturn, onError);
-            }
-        };
-
-        $scope.logout = function () {
-
-
-            function onError(data) {
-                alert("Error, should not happen.");
-            }
-            function onRequestReturn(data) {
-                console.log(data);
+            $scope.$on("logout", function(event, message){
                 $scope.loggedin = false;
-                $scope.user_email = '';
-                browserClient.emit("loggedOut", null);
-                browserClient.resize(200);
+            });
+            $scope.$on("login", function(event, message){
+                $scope.loggedin = true;
+            });
 
-            }
+        }]);
 
-            manager.logout().then(onRequestReturn, onError);
+    app.controller('Main2Controller', ['$scope', '$filter', '$timeout', 'manager', 'browserClient', 'storage',
+        'snapRemote', '$window', '$route', '$routeParams', '$location',
+        function($scope, $filter, $timeout, manager, browserClient, storage,
+                 snapRemote, $window, $route, $routeParams, $location)
+        {
 
-        };
+            /* openTab function to pass through */
+            $scope.openTab = browserClient.openTab;
 
-        /* datastore search */
+            /* test background page */
+            //console.log(browserClient.testBackgroundPage());
 
-        $scope.searchArray = [
-            "google.com email",
-            "gmx.de email",
-            "test.de kA",
-            "lolig.com test",
-            "amazon.com",
-            "ebay.com",
-            "Spotify",
-            "Bank Onlinebanking"
-        ];
+            /* for navigation, can maybe moved to another controller */
+            $scope.getClass = function (path) {
+                if (path === '/' && $location.path().length == 0) {
+                    return 'active';
+                } else if (path !== '/' && $location.path().substr(0, path.length) === path) {
+                    return 'active';
+                } else {
+                    return '';
+                }
+            };
 
-        $scope.datastore = { search: '' };
+            $scope.user_email = manager.get('user_email');
 
-        var regex;
+            $scope.logout = function () {
 
-        $scope.$watch('datastore.search', function (value) {
-            regex = new RegExp(value.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1"), 'i');
-        });
 
-        $scope.filterBySearch = function(searchEntry) {
-            if (!$scope.datastore.search) return false;
-            return regex.test(searchEntry);
-        };
+                function onError(data) {
+                    alert("Error, should not happen.");
+                }
+                function onRequestReturn(data) {
+                    browserClient.emit("logout", null);
+                    $scope.$emit('logout', '');
+                    browserClient.resize(250);
 
-    }]);
+                }
+
+                manager.logout().then(onRequestReturn, onError);
+
+            };
+
+            /* datastore search */
+
+            $scope.searchArray = [
+                "google.com email",
+                "gmx.de email",
+                "test.de kA",
+                "lolig.com test",
+                "amazon.com",
+                "ebay.com",
+                "Spotify",
+                "Bank Onlinebanking"
+            ];
+
+            $scope.datastore = { search: '' };
+
+            var regex;
+
+            $scope.$watch('datastore.search', function (value) {
+                regex = new RegExp(value.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1"), 'i');
+            });
+
+            $scope.filterBySearch = function(searchEntry) {
+                if (!$scope.datastore.search) return false;
+                return regex.test(searchEntry);
+            };
+
+        }]);
+
+    app.controller('LoginController', ['$scope', '$filter', '$timeout', 'manager', 'browserClient', 'storage',
+        'snapRemote', '$window', '$route', '$routeParams', '$location',
+        function($scope, $filter, $timeout, manager, browserClient, storage,
+                 snapRemote, $window, $route, $routeParams, $location)
+        {
+
+            /* openTab function to pass through */
+            $scope.openTab = browserClient.openTab;
+
+            /* test background page */
+            //console.log(browserClient.testBackgroundPage());
+
+
+            /* Server selection with preselection of dev server */
+            $scope.servers = [
+                {
+                    title: 'Sanso.pw', url: 'https://www.sanso.pw'
+                },
+                {
+                    title: 'Dev Sanso.pw', url: 'http://dev.sanso.pw:8001'
+                }
+            ];
+            $scope.filtered_servers = $scope.servers;
+            $scope.selected_server = $scope.servers[1];
+            $scope.selected_server_title = $scope.selected_server.title;
+            $scope.selected_server_url = $scope.selected_server.url;
+
+            $scope.select_server = function (server) {
+                //triggered when selecting an server
+                $scope.selected_server = server;
+                $scope.selected_server_title = server.title;
+                $scope.selected_server_url = server.url;
+            };
+            $scope.changing = function (url) {
+                //triggered when typing an url
+                $scope.selected_server = {title: url, url: url};
+                $scope.filtered_servers = $filter('filter')($scope.servers, {url: url});
+            };
+
+
+            /* for navigation, can maybe moved to another controller */
+            $scope.getClass = function (path) {
+                if (path === '/' && $location.path().length == 0) {
+                    return 'active';
+                } else if (path !== '/' && $location.path().substr(0, path.length) === path) {
+                    return 'active';
+                } else {
+                    return '';
+                }
+            };
+
+            /* preselected values */
+            $scope.loginFormEmail = "test@saschapfeiffer.com";
+            $scope.loginFormPassword = "myPassword";
+
+            $scope.login = function (email, password) {
+
+                function onError(data) {
+                    alert("Error, should not happen.");
+                }
+
+                function onRequestReturn(data) {
+                    // TODO bring message to the user
+                    if (data.response === "success") {
+                        $scope.errors = [];
+                        browserClient.emit("login", null);
+                        $scope.$emit('login', '');
+                        browserClient.resize(300);
+                    } else {
+                        if (data.error_data == null) {
+                            $scope.errors = ['Server offline.']
+                        } else {
+                            $scope.errors = data.error_data.non_field_errors;
+                        }
+                    }
+                }
+                if (email !== undefined && password !== undefined) {
+                    manager.login(email, password, angular.copy($scope.selected_server)).then(onRequestReturn, onError);
+                }
+            };
+        }]);
 
 
     app.controller('BookCtrl', ['$routeParams', function($routeParams) {

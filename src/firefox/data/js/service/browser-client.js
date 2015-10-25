@@ -18,6 +18,8 @@
          * @param width
          */
         var resize = function (height, width) {
+            if (typeof port === "undefined")
+                return;
             port.emit("resize", {height: height || window.innerHeight, width: width || window.innerWidth});
         };
 
@@ -26,6 +28,8 @@
          * @param url
          */
         var openTab = function(url) {
+            if (typeof port === "undefined")
+                return;
             port.emit("openTab", {url: url});
         };
 
@@ -43,6 +47,8 @@
          * @param data
          */
         var emit = function (event, data) {
+            if (typeof port === "undefined")
+                return;
             port.emit(event, data);
         };
 
