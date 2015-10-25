@@ -4,7 +4,8 @@ var panels = require("sdk/panel");
 var self = require("sdk/self");
 var tabs = require("sdk/tabs");
 
-var allDatastoreTabs = [];
+var allDatastoreTabs = {};
+var allTabCount = 0;
 
 var button = ToggleButton({
     id: "my-button",
@@ -24,17 +25,23 @@ var panel = panels.Panel({
 });
 
 var onLogin = function (data) {
-    console.log("login");
+    console.log("index.js login");
     panel.port.emit('login', null);
-    for (var i = 0; i < allDatastoreTabs.length; i++)
-        allDatastoreTabs[i].port.emit('login', null);
+    for (var count in allDatastoreTabs) {
+        if (allDatastoreTabs.hasOwnProperty(count)) {
+            allDatastoreTabs[count].port.emit('login', null);
+        }
+    }
 };
 
 var onLogout = function (data) {
-    console.log("logout");
+    console.log("index.js logout");
     panel.port.emit('logout', null);
-    for (var i = 0; i < allDatastoreTabs.length; i++)
-        allDatastoreTabs[i].port.emit('logout', null);
+    for (var count in allDatastoreTabs) {
+        if (allDatastoreTabs.hasOwnProperty(count)) {
+            allDatastoreTabs[count].port.emit('logout', null);
+        }
+    }
 };
 
 panel.port.on('resize', function (data) {
@@ -54,13 +61,21 @@ panel.port.on('openTab', function (data) {
     if (data.url === '/data/datastore.html') {
         tab.onReady = function(tab) {
             var worker = tab.attach({
-                contentScriptFile: "./content-script.js"
+                contentScriptFile: "./content-script.js",
+                onmessage: function (msg) {console.log("worker received " + msg)}
             });
             worker.port.on('login', onLogin);
             worker.port.on('logout', onLogout);
             worker.port.on('testmsg', function (data) {console.log("received test message")});
-            allDatastoreTabs.push(worker);
+
+            tab.worker_id = allTabCount;
+            allDatastoreTabs[allTabCount] = worker;
+            allTabCount++
         };
+        tab.onClose = function(tab) {
+            delete allDatastoreTabs[tab.worker_id];
+        };
+
     }
     tabs.open(tab);
 });

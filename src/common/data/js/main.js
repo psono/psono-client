@@ -142,9 +142,9 @@
         });
     });
 
-    app.controller('MainController', ['$scope', '$filter', '$timeout', 'manager', 'browserClient', 'storage',
+    app.controller('MainController', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'browserClient', 'storage',
         'snapRemote', '$window', '$route', '$routeParams', '$location',
-        function($scope, $filter, $timeout, manager, browserClient, storage,
+        function($scope, $rootScope, $filter, $timeout, manager, browserClient, storage,
                  snapRemote, $window, $route, $routeParams, $location)
         {
 
@@ -249,18 +249,36 @@
             /* login / logout */
             $scope.loggedin = manager.isLoggedIn();
 
-            $scope.$on("logout", function(event, message){
-                $scope.loggedin = false;
-            });
-            $scope.$on("login", function(event, message){
+            $rootScope.$on("login", function(event, message){
                 $scope.loggedin = true;
             });
 
+            $rootScope.$on("logout", function(event, message){
+                $scope.loggedin = false;
+            });
+
+            /*
+            $scope.$on("login", function(event, message){
+                $scope.loggedin = true;
+            });
+            $scope.$on("logout", function(event, message){
+                $scope.loggedin = false;
+            });
+            */
+            /*
+            angular.element($window).bind('login', function () {
+                $scope.loggedin = true;
+            });
+
+            angular.element($window).bind('logout', function () {
+                $scope.loggedin = false;
+            });
+            */
         }]);
 
-    app.controller('Main2Controller', ['$scope', '$filter', '$timeout', 'manager', 'browserClient', 'storage',
+    app.controller('Main2Controller', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'browserClient', 'storage',
         'snapRemote', '$window', '$route', '$routeParams', '$location',
-        function($scope, $filter, $timeout, manager, browserClient, storage,
+        function($scope, $rootScope, $filter, $timeout, manager, browserClient, storage,
                  snapRemote, $window, $route, $routeParams, $location)
         {
 
@@ -291,7 +309,8 @@
                 }
                 function onRequestReturn(data) {
                     browserClient.emit("logout", null);
-                    $scope.$emit('logout', '');
+                    //$scope.$emit('logout', '');
+                    $rootScope.$broadcast('logout', '');
                     browserClient.resize(250);
 
                 }
@@ -328,9 +347,9 @@
 
         }]);
 
-    app.controller('LoginController', ['$scope', '$filter', '$timeout', 'manager', 'browserClient', 'storage',
+    app.controller('LoginController', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'browserClient', 'storage',
         'snapRemote', '$window', '$route', '$routeParams', '$location',
-        function($scope, $filter, $timeout, manager, browserClient, storage,
+        function($scope, $rootScope, $filter, $timeout, manager, browserClient, storage,
                  snapRemote, $window, $route, $routeParams, $location)
         {
 
@@ -394,7 +413,8 @@
                     if (data.response === "success") {
                         $scope.errors = [];
                         browserClient.emit("login", null);
-                        $scope.$emit('login', '');
+                        //$scope.$emit('login', '');
+                        $rootScope.$broadcast('login', '');
                         browserClient.resize(300);
                     } else {
                         if (data.error_data == null) {
