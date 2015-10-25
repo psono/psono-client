@@ -20,7 +20,8 @@
     <link href="css/style.css" rel="stylesheet">
     <link href="css/datastore.css" rel="stylesheet">
 </head>
-<body ng-controller="MainController">
+<body>
+<div  ng-controller="MainController">
 
 <div ng-if="loggedin" ng-controller="Main2Controller">
 
@@ -69,35 +70,6 @@
         <div ng-view ng-style="{ 'width' : snap_content_with }"></div>
     </div>
 
-
-
-    <footer></footer>
-    <!--
-    <form name="searchForm">
-        <div class="form-group">
-            <input id="datastoresearch" name="datastoresearch" class="form-control" ng-model="datastore.search"
-                   placeholder="Search datastore...">
-        </div>
-        <hr>
-        <ul class="navigations">
-            <li ng-repeat="searchEntry in searchArray | filter:filterBySearch">
-                <a href="http://www.google.com">{{ searchEntry }}</a>
-            </li>
-        </ul>
-
-        <ul class="navigations" ng-if="!datastore.search">
-            <li><a href="datastore.html" target="_self">Open Datastore</a></li>
-            <li><a href="/help" target="_blank">Help</a></li>
-            <li><a href="/about" target="_blank">About</a></li>
-        </ul>
-
-        <hr>
-
-        <div class="btn-group">
-            <button ng-click="logout()" type="submit" class="btn btn-danger">Logout</button>
-        </div>
-    </form>
-    -->
 </div>
 <div ng-if="!loggedin" ng-controller="LoginController">
     <!-- Not logged in, show the login form -->
@@ -145,7 +117,9 @@
     </div>
 </div>
 
+</div>
 
+<!--removeIf(firefox)-->
 <!-- Start of scripts -->
 <script src="js/lib/nacl_factory.js" type="text/javascript"></script>
 <script src="js/lib/scrypt.js" type="text/javascript"></script>
@@ -168,11 +142,12 @@
 
 <script src="js/main.js" type="application/javascript"></script>
 
-<script src="js/service/browser-client.js" type="application/javascript"></script>
 <script src="js/service/api-client.js" type="application/javascript"></script>
 <script src="js/service/crypto-library.js" type="application/javascript"></script>
 <script src="js/service/storage.js" type="application/javascript"></script>
 <script src="js/service/manager.js" type="application/javascript"></script>
+<script src="js/service/browser-client.js" type="application/javascript"></script>
 <!-- End Angular Juju -->
+<!--endRemoveIf(firefox)-->
 </body>
 </html>

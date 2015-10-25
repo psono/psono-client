@@ -20,7 +20,9 @@
     <link href="css/style.css" rel="stylesheet">
     <link href="css/main.css" rel="stylesheet">
 </head>
-<body ng-controller="MainController" class="dark">
+<body class="dark">
+<div ng-controller="MainController">
+
 <div ng-if="loggedin" ng-controller="Main2Controller">
     <form name="searchForm">
         <div class="form-group">
@@ -89,6 +91,7 @@
     </form>
 </div>
 
+</div>
 
 
 
@@ -115,11 +118,11 @@
 
 <script src="js/main.js" type="application/javascript"></script>
 
-<script src="js/service/browser-client.js" type="application/javascript"></script>
 <script src="js/service/api-client.js" type="application/javascript"></script>
 <script src="js/service/crypto-library.js" type="application/javascript"></script>
 <script src="js/service/storage.js" type="application/javascript"></script>
 <script src="js/service/manager.js" type="application/javascript"></script>
+<script src="js/service/browser-client.js" type="application/javascript"></script>
 <!-- End Angular Juju -->
 </body>
 </html>

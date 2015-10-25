@@ -3,6 +3,7 @@ var pageWorkers = require("sdk/page-worker");
 var panels = require("sdk/panel");
 var self = require("sdk/self");
 var tabs = require("sdk/tabs");
+var mod = require("sdk/page-mod");
 
 var allDatastoreTabs = {};
 var allTabCount = 0;
@@ -61,7 +62,31 @@ panel.port.on('openTab', function (data) {
     if (data.url === '/data/datastore.html') {
         tab.onReady = function(tab) {
             var worker = tab.attach({
-                contentScriptFile: "./content-script.js",
+                contentScriptFile: [
+                    "./js/lib/nacl_factory.js",
+                    "./js/lib/scrypt.js",
+                    "./js/lib/jquery-2.1.4.js",
+                    "./js/lib/snap.min.js",
+                    "./js/lib/jquery.ui.js",
+                    "./js/lib/sortable.js",
+                    "./js/lib/lokijs.min.js",
+                    "./js/lib/angular.js",
+                    "./js/lib/angular-route.js",
+                    "./js/lib/angular-local-storage.min.js",
+                    "./js/lib/angular-snap.min.js",
+                    "./js/lib/ui-bootstrap-tpls-0.13.4.min.js",
+                    "./js/lib/angular-tree-view.js",
+                    "./js/lib/angular-dashboard-framework.js",
+                    "./js/widgets/adf-widget-datastore.js",
+                    "./js/main.js",
+                    "./js/service/api-client.js",
+                    "./js/service/crypto-library.js",
+                    "./js/service/storage.js",
+                    "./js/service/manager.js",
+                    "./js/service/browser-client.js",
+                    "./view/templates.js",
+                    "./content-script.js"
+                ],
                 onmessage: function (msg) {console.log("worker received " + msg)}
             });
             worker.port.on('login', onLogin);

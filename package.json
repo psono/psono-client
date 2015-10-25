@@ -1,10 +1,14 @@
 {
-  "name" : "password-manager-browser-plugins",
-  "version" : "1.0.0",
+  "name": "password-manager-browser-plugins",
+  "version": "1.0.0",
   "private": true,
-  "dependencies" : {
-    "gulp" : "*",
-    "gulp-sass" : "*",
-    "jpm" : "*"
+  "dependencies": {
+    "gulp": "*",
+    "gulp-sass": "*",
+    "gulp-strip-code": "*",
+    "jpm": "*"
+  },
+  "devDependencies": {
+    "gulp-angular-templatecache": "~1.8.0"
   }
 }
