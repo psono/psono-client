@@ -91,11 +91,69 @@ h1, h2 {
 
 }
 
+.tree::before {
+  bottom: 23px;
+  border-color: $tree-dots-color;
+  top:0;
+}
+
 .tree {
+  overflow-x: visible;
+  overflow-y: visible;
+
   .tree-item.selected,
   .tree-folder .tree-folder-header.selected{
     background-color: inherit;
     border-color: #fff;
+    border-radius: 4px;
+  }
+
+  .tree-folder .tree-folder-header.selected:hover,
+  .tree-item.selected:hover {
+    background-color: #F0F7FC;
+    border-radius: 4px;
+  }
+
+  .tree-folder::before,
+  .tree-item::before {
+    border-top-color: $tree-dots-color;
+    top: 21px;
+
+  }
+  .tree-item,
+  .tree-folder .tree-folder-header {
+    height: 34px;
+    line-height: 34px;
+    padding-right: 50px;
+    color: $tree-fonts-color;
+    a {
+      color: $tree-fonts-color;
+    }
+  }
+
+  .tree-item,
+  .tree-folder .tree-folder-title {
+    position: relative;
+  }
+  .dropdown {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+  }
+  .dropdown-menu {
+    right: 0;
+    left: auto;
+    .fa {
+      margin-right: 10px;
+      width: 15px;
+    }
+  }
+
+  .tree-folder .tree-folder-content:before {
+    top: -9px;
+    bottom: 23px;
+    left: -14px;
+    border-color: $tree-dots-color;
   }
 }
 

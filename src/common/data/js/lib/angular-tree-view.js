@@ -128,8 +128,14 @@
                 scope.getFolderIconClass = typeof options.folderIcon === 'function'
                     ? options.folderIcon
                     : function (node) {
-
                     return 'fa fa-folder' + (node.expanded ? '-open' : '');
+                };
+
+                scope.getFolderEditIconClass = typeof options.folderEditIcon === 'function'
+                    ? options.folderEditIcon
+                    : function (node) {
+
+                    return 'fa fa-cogs';
                 };
 
                 scope.getFileIconClass = typeof options.fileIcon === 'function'
@@ -158,6 +164,10 @@
                         nodeScope = nodeScope.$parent;
                     }
                     controller.selectNode(scope.node, breadcrumbs.reverse());
+                };
+
+                scope.editNode = function (node) {
+                    alert("sexy");
                 };
 
                 scope.selectFile = function (file, event) {
@@ -260,10 +270,22 @@
                 function render() {
                     var template =
                         '<div class="tree-folder" ng-repeat="node in ' + attrs.treeViewNode + '.' + foldersProperty + '">' +
-                        '<a href="#" class="tree-folder-header inline" ng-click="selectNode($event)" ng-class="{ selected: isSelected(node) }">' +
+                        '<div class="tree-folder-title">' +
+                        '<a href="#" class="tree-folder-header" ng-click="selectNode($event)" ng-class="{ selected: isSelected(node) }">' +
                         '<i class="" ng-class="getFolderIconClass(node)"></i> ' +
                         '<span class="tree-folder-name">{{ node.' + displayProperty + ' }}</span> ' +
                         '</a>' +
+                        '<span dropdown>' +
+                        '<a class="btn btn-default editbutton" href="#" role="button" id="drop_node_{{$index}}" dropdown-toggle>' +
+                        '    <i ng-class="getFolderEditIconClass(node)"></i>' +
+                        '</a>' +
+                        '<ul class="dropdown-menu" aria-labelledby="drop_node_{{$index}}">' +
+                        '    <li role="menuitem" ng-click="editNode(node)"><a href="#"><i class="fa fa-wrench"></i>Edit</a></li>' +
+                        '    <li class="divider"></li>' +
+                        '    <li role="menuitem" ng-click="deleteNode(node)"><a href="#"><i class="fa fa-trash"></i>Delete</a></li>' +
+                        '</ul>' +
+                        '</span>' +
+                        '</div>' +
                         '<div class="tree-folder-content"'+ (collapsible ? ' ng-show="node.expanded"' : '') + '>' +
                         '<div tree-view-node="node">' +
                         '</div>' +

@@ -63,10 +63,54 @@ h1, h2 {
     .dark .navigations li.active a {
       color: #fff; }
 
-.tree .tree-item.selected,
-.tree .tree-folder .tree-folder-header.selected {
-  background-color: inherit;
-  border-color: #fff; }
+.tree::before {
+  bottom: 23px;
+  border-color: #151f2b;
+  top: 0; }
+
+.tree {
+  overflow-x: visible;
+  overflow-y: visible; }
+  .tree .tree-item.selected,
+  .tree .tree-folder .tree-folder-header.selected {
+    background-color: inherit;
+    border-color: #fff;
+    border-radius: 4px; }
+  .tree .tree-folder .tree-folder-header.selected:hover,
+  .tree .tree-item.selected:hover {
+    background-color: #F0F7FC;
+    border-radius: 4px; }
+  .tree .tree-folder::before,
+  .tree .tree-item::before {
+    border-top-color: #151f2b;
+    top: 21px; }
+  .tree .tree-item,
+  .tree .tree-folder .tree-folder-header {
+    height: 34px;
+    line-height: 34px;
+    padding-right: 50px;
+    color: #151f2b; }
+    .tree .tree-item a,
+    .tree .tree-folder .tree-folder-header a {
+      color: #151f2b; }
+  .tree .tree-item,
+  .tree .tree-folder .tree-folder-title {
+    position: relative; }
+  .tree .dropdown {
+    position: absolute;
+    right: 5px;
+    top: 5px; }
+  .tree .dropdown-menu {
+    right: 0;
+    left: auto; }
+    .tree .dropdown-menu .fa {
+      margin-right: 10px;
+      width: 15px; }
+  .tree .tree-folder .tree-folder-content:before {
+    top: -9px;
+    bottom: 23px;
+    left: -14px;
+    border-color: #151f2b; }
 
 /* CSS fix for angular-ui explained here: https://angular-ui.github.io/bootstrap/ */
 .nav, .pagination, .carousel, .panel-title a {
