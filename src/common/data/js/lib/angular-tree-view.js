@@ -119,18 +119,21 @@
                     collapsible = options.collapsible;
                 //var isEditing = false;
 
-                scope.expanded = collapsible == false;
+                //scope.expanded = collapsible == false;
                 //scope.newNodeName = '';
                 //scope.addErrorMessage = '';
                 //scope.editName = '';
                 //scope.editErrorMessage = '';
 
-                scope.getFolderIconClass = function () {
-                    return 'fa fa-folder' + (scope.expanded && scope.hasChildren() ? '-open' : '');
+                scope.getFolderIconClass = typeof options.folderIcon === 'function'
+                    ? options.folderIcon
+                    : function (node) {
+
+                    return 'fa fa-folder' + (node.expanded ? '-open' : '');
                 };
 
-                scope.getFileIconClass = typeof options.mapIcon === 'function'
-                    ? options.mapIcon
+                scope.getFileIconClass = typeof options.fileIcon === 'function'
+                    ? options.fileIcon
                     : function (file) {
                     return 'fa fa-file';
                 };
@@ -145,7 +148,7 @@
                     //if (isEditing) return;
 
                     if (collapsible) {
-                        toggleExpanded();
+                        toggleExpanded(scope.node);
                     }
 
                     var breadcrumbs = [];
@@ -249,19 +252,19 @@
                  };
                  */
 
-                function toggleExpanded() {
+                function toggleExpanded(node) {
                     //if (!scope.hasChildren()) return;
-                    scope.expanded = !scope.expanded;
+                    node.expanded = !node.expanded;
                 }
 
                 function render() {
                     var template =
                         '<div class="tree-folder" ng-repeat="node in ' + attrs.treeViewNode + '.' + foldersProperty + '">' +
                         '<a href="#" class="tree-folder-header inline" ng-click="selectNode($event)" ng-class="{ selected: isSelected(node) }">' +
-                        '<i class="" ng-class="getFolderIconClass()"></i> ' +
+                        '<i class="" ng-class="getFolderIconClass(node)"></i> ' +
                         '<span class="tree-folder-name">{{ node.' + displayProperty + ' }}</span> ' +
                         '</a>' +
-                        '<div class="tree-folder-content"'+ (collapsible ? ' ng-show="expanded"' : '') + '>' +
+                        '<div class="tree-folder-content"'+ (collapsible ? ' ng-show="node.expanded"' : '') + '>' +
                         '<div tree-view-node="node">' +
                         '</div>' +
                         '</div>' +

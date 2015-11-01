@@ -15,7 +15,7 @@
          */
         var call = function(type, endpoint, data, headers) {
 
-            var server = storage.config_find_one({'key': 'server'});
+            var server = storage.find_one('config', {'key': 'server'});
 
             if (server === null) {
                 return;
@@ -42,6 +42,7 @@
          * @returns {promise} promise
          */
         var login = function(email, authkey) {
+
             var endpoint = '/authentication/login/';
             var type = "POST";
             var data = {
@@ -132,6 +133,7 @@
 
             var endpoint = '/datastore/' + (datastore_id === null ? '' : datastore_id + '/');
             var type = "GET";
+            var data = null;
             var headers = {
                 "Authorization": "Token "+ token
             };

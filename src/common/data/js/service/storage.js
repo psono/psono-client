@@ -1,15 +1,15 @@
 (function(angular) {
     'use strict';
 
-    var db = new loki("password_manager_local_storage");
-    var config;
-    db.loadDatabase({}, function () {
+    var loki_storage = new loki("password_manager_local_storage");
+    var dbs = [];
+    loki_storage.loadDatabase({}, function () {
 
-        config = db.getCollection('config');
+        dbs['config'] = loki_storage.getCollection('config');
 
-        if (config === null) {
-            config = db.addCollection('config', { indices: ['key']});
-            config.ensureUniqueIndex('key');
+        if (dbs['config'] === null) {
+            dbs['config'] = loki_storage.addCollection('config', { indices: ['key']});
+            dbs['config'].ensureUniqueIndex('key');
         }
     });
 
@@ -17,47 +17,53 @@
         //localStorageService.set('user', 'me');
 
         /**
-         * sets one or more items in config
+         * sets one or more items in the specified db
          *
+         * @param db
          * @param items
          */
-        var config_insert = function (items) {
-            config.insert(items);
+        var insert = function (db, items) {
+            dbs[db].insert(items);
         };
 
         /**
          * gets config data
+         *
+         * @param db
          */
-        var config_data = function () {
-            return config.data;
+        var data = function (db) {
+            return dbs[db].data;
         };
         /**
          * returns the first result in config that matches the query
          *
+         * @param db
          * @param query
          */
-        var config_find_one = function (query) {
-            return config.findOne(query);
+        var find_one = function (db, query) {
+            return dbs[db].findOne(query);
         };
         /**
          * removes the specified object or object_id
          *
+         * @param db
          * @param obj
          * @returns {*}
          */
-        var config_remove = function (obj) {
-            return config.remove(obj);
+        var remove = function (db, obj) {
+            return dbs[db].remove(obj);
         };
 
         /**
          * setups an event listener on an event
          *
+         * @param db
          * @param event
          * @param callback
          * @returns {*}
          */
-        var config_on = function (event, callback) {
-            return config.on(event, callback);
+        var on = function (db, event, callback) {
+            return dbs[db].on(event, callback);
         };
         /**
          * saves the database, needs to be triggered once some changes are meant to be made persistent
@@ -65,15 +71,15 @@
          * @returns {*}
          */
         var save = function () {
-            return db.save()
+            return loki_storage.save()
         };
 
         return {
-            config_insert: config_insert,
-            config_data: config_data,
-            config_find_one: config_find_one,
-            config_remove: config_remove,
-            config_on: config_on,
+            insert: insert,
+            data: data,
+            find_one: find_one,
+            remove: remove,
+            on: on,
             save: save
         };
     };

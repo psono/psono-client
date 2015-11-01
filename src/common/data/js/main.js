@@ -180,7 +180,7 @@
                 // Do something with snapper
                 snapper.settings(snappersettings);
                 function adjustWith (snapper, behave_inverse) {
-                    console.log('adjustWith');
+                    //console.log('adjustWith');
                     var total_width = angular.element(document.querySelectorAll(".snap-content")[0])[0].clientWidth;
                     if ((snapper.state().state !== 'closed') != behave_inverse) {
                         $scope.snap_content_with = (total_width-scrollWidth) + 'px';
@@ -247,7 +247,7 @@
             });
 
             /* login / logout */
-            $scope.loggedin = manager.isLoggedIn();
+            $scope.loggedin = manager.is_logged_in();
 
             $rootScope.$on("login", function(event, message){
                 $scope.loggedin = true;
@@ -299,7 +299,7 @@
                 }
             };
 
-            $scope.user_email = manager.get('user_email');
+            $scope.user_email = manager.find_one('config', 'user_email');
 
             $scope.logout = function () {
 

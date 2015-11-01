@@ -14,24 +14,19 @@ angular.module('adf.widget.datastore', ['adf.provider'])
                 }
             });
     })
-    .controller('datastoreController', ["$scope", "$interval", "config", function($scope, $interval, config){
+    .controller('datastoreController', ["$scope", "$interval", "config", "manager", function($scope, $interval, config, manager){
 
-        /* For tree View */
-        $scope.structure = { folders: [
-            { name: 'Folder 1', files: [{ name: 'File 1.jpg' }, { name: 'File 2.png' }, { name: 'File 2.7zip' }], folders: [
-                { name: 'Subfolder 1', files: [{ name: 'Subfile 1' }] },
-                { name: 'Subfolder 2' },
-                { name: 'Subfolder 3' }
-            ]},
-            { name: 'Folder 2', share: "12345" }
-        ]};
+        $scope.structure = [];
+
+        manager.get_password_datastore()
+            .then(function (data) {$scope.structure = data;});
 
         $scope.options = {
             onNodeSelect: function (node, breadcrums) {
                 $scope.breadcrums = breadcrums;
                 $scope.node = node;
             },
-            mapIcon: function (file) {
+            fileIcon: function (file) {
 
                 var iconClassMap = {
                         txt: 'fa fa-file-text-o',
@@ -89,10 +84,4 @@ angular.module('adf.widget.datastore', ['adf.provider'])
 
     }]);
 
-/*
-angular.module("adf.widget.datastore").run(["$templateCache", function ($templateCache) {
-    $templateCache.put("datastore.edit.html", "<form role=\"form\">\n  <div class=\"form-group\">\n    <label for=\"sample\">Sample</label>\n    <input type=\"text\" class=\"form-control\" id=\"sample\" ng-model=\"config.sample\" placeholder=\"Enter sample\">\n  </div>\n</form>\n");
-    $templateCache.put("datastore.view.html", "<div>\n  <a ng-href='#here' ng-click='count = count + 1' >click me {{count}}</a><h1>Widget view</h1>\n  <p>Content of {{config.sample}}</p>\n<div tree-view=\"structure\" tree-view-options=\"options\"></div></div>\n");
-}]);
-*/
 

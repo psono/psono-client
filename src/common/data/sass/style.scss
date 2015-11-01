@@ -91,5 +91,13 @@ h1, h2 {
 
 }
 
+.tree {
+  .tree-item.selected,
+  .tree-folder .tree-folder-header.selected{
+    background-color: inherit;
+    border-color: #fff;
+  }
+}
+
 /* CSS fix for angular-ui explained here: https://angular-ui.github.io/bootstrap/ */
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
