@@ -96,7 +96,7 @@ h1, h2 {
   .tree .tree-item,
   .tree .tree-folder .tree-folder-title {
     position: relative; }
-  .tree .dropdown {
+  .tree .node-dropdown {
     position: absolute;
     right: 5px;
     top: 5px; }

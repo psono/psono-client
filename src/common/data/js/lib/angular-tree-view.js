@@ -167,7 +167,29 @@
                 };
 
                 scope.editNode = function (node) {
-                    alert("sexy");
+                    // TODO edit node and maybe rename
+                    if (typeof options.onEditNode === "function") {
+                        options.onEditNode(node);
+                    }
+                };
+                scope.deleteNode  = function (node) {
+                    // TODO delete node
+                    if (typeof options.onDeleteNode === "function") {
+                        options.onDeleteNode(node);
+                    }
+                };
+
+                scope.editFile = function (file) {
+                    // TODO edit file and maybe rename
+                    if (typeof options.onEditFile === "function") {
+                        options.onEditFile(file);
+                    }
+                };
+                scope.deleteFile  = function (file) {
+                    // TODO delete file
+                    if (typeof options.onDeleteFile === "function") {
+                        options.onDeleteFile(file);
+                    }
                 };
 
                 scope.selectFile = function (file, event) {
@@ -275,7 +297,7 @@
                         '<i class="" ng-class="getFolderIconClass(node)"></i> ' +
                         '<span class="tree-folder-name">{{ node.' + displayProperty + ' }}</span> ' +
                         '</a>' +
-                        '<span dropdown>' +
+                        '<span class="node-dropdown" dropdown>' +
                         '<a class="btn btn-default editbutton" href="#" role="button" id="drop_node_{{$index}}" dropdown-toggle>' +
                         '    <i ng-class="getFolderEditIconClass(node)"></i>' +
                         '</a>' +
@@ -291,9 +313,21 @@
                         '</div>' +
                         '</div>' +
                         '</div>' +
-                        '<a href="#" class="tree-item" ng-repeat="file in ' + attrs.treeViewNode + '.' + filesProperty + '" ng-click="selectFile(file, $event)" ng-class="{ selected: isSelected(file) }">' +
+                        '<div class="tree-item" ng-repeat="file in ' + attrs.treeViewNode + '.' + filesProperty + '">' +
+                        '<div class="tree-item-object" ng-click="selectFile(file, $event)" ng-class="{ selected: isSelected(file) }">' +
                         '<span class="tree-item-name"><i ng-class="getFileIconClass(file)"></i> {{ file.' + displayProperty + ' }}</span>' +
-                        '</a>';
+                        '<span class="node-dropdown" dropdown>' +
+                        '<a class="btn btn-default editbutton" href="#" role="button" id="drop_node_{{$index}}" dropdown-toggle>' +
+                        '    <i ng-class="getFolderEditIconClass(file)"></i>' +
+                        '</a>' +
+                        '<ul class="dropdown-menu" aria-labelledby="drop_file_{{$index}}">' +
+                        '    <li role="menuitem" ng-click="editFile(file)"><a href="#"><i class="fa fa-wrench"></i>Edit</a></li>' +
+                        '    <li class="divider"></li>' +
+                        '    <li role="menuitem" ng-click="deleteFile(file)"><a href="#"><i class="fa fa-trash"></i>Delete</a></li>' +
+                        '</ul>' +
+                        '</span>' +
+                        '</div>' +
+                        '</div>';
 
                     //Rendering template.
                     element.html('').append($compile(template)(scope));
