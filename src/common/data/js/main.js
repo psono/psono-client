@@ -2,7 +2,7 @@
     'use strict';
 
     var app = angular.module('passwordManagerApp', ['ngRoute', 'ng', 'ui.bootstrap', 'snap', 'adf',
-        'adf.widget.datastore', 'LocalStorageModule', 'AxelSoft']);
+        'adf.widget.datastore', 'LocalStorageModule', 'AxelSoft', 'ng-context-menu']);
 
     app.config(['$routeProvider', '$locationProvider', 'dashboardProvider', 'localStorageServiceProvider',
         function($routeProvider, $locationProvider, dashboardProvider, localStorageServiceProvider) {
@@ -114,7 +114,7 @@
 
         }]);
 
-    app.controller('DashboardController', function($scope, localStorageService){
+    app.controller('DashboardController', ['$scope', 'localStorageService', function($scope, localStorageService){
         var model = localStorageService.get('widgetHomeDashboard');
         if (!model){
             model = {
@@ -140,7 +140,7 @@
         $scope.$on('adfDashboardChanged', function (event, name, model) {
             localStorageService.set(name, model);
         });
-    });
+    }]);
 
     app.controller('MainController', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'browserClient', 'storage',
         'snapRemote', '$window', '$route', '$routeParams', '$location',

@@ -26,7 +26,7 @@ angular.module('adf.widget.datastore', ['adf.provider'])
                 $scope.breadcrums = breadcrums;
                 $scope.node = node;
             },
-            fileIcon: function (file) {
+            itemIcon: function (item) {
 
                 var iconClassMap = {
                         txt: 'fa fa-file-text-o',
@@ -75,7 +75,7 @@ angular.module('adf.widget.datastore', ['adf.provider'])
                     defaultIconClass = 'fa fa-file-o';
 
                 var pattern = /\.(\w+)$/,
-                    match = pattern.exec(file.name),
+                    match = pattern.exec(item.name),
                     ext = match && match[1];
 
                 return iconClassMap[ext] || defaultIconClass;

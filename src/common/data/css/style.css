@@ -100,17 +100,24 @@ h1, h2 {
     position: absolute;
     right: 5px;
     top: 5px; }
-  .tree .dropdown-menu {
+  .tree .droppdown-rightclick {
+    margin-left: -265px;
+    margin-top: -50px;
+    z-index: 20; }
+  .tree .dropdown-button-menu {
     right: 0;
     left: auto; }
-    .tree .dropdown-menu .fa {
-      margin-right: 10px;
-      width: 15px; }
+  .tree .dropdown-menu .fa {
+    margin-right: 10px;
+    width: 15px; }
   .tree .tree-folder .tree-folder-content:before {
     top: -9px;
     bottom: 23px;
     left: -14px;
     border-color: #151f2b; }
+
+.position-fixed {
+  position: fixed; }
 
 /* CSS fix for angular-ui explained here: https://angular-ui.github.io/bootstrap/ */
 .nav, .pagination, .carousel, .panel-title a {

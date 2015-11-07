@@ -12,6 +12,24 @@
     <link rel="stylesheet" href="css/lib/font-awesome.min.css" />
     <link href="css/lib/angular-tree-view.css" rel="stylesheet">
 
+
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
+    <style>
+        .pointer {
+            cursor: pointer;
+        }
+        .highlight {
+            color: #fff;
+            background-color: #3498db;
+        }
+        .expanded {
+            height: 400px;
+        }
+        .position-fixed {
+            position: fixed;
+        }
+    </style>
+
 </head>
 
 <body ng-app="Demo">
@@ -49,16 +67,68 @@
             </div>
         </div>
     </div>
+
+    <br>
+
+
+    <div ng-repeat="panel in panels">
+        <div context-menu=""
+             context-menu-margin-bottom="10"
+             id="panel-{{ $index }}"
+             class="panel panel-default"
+             data-target="menu-{{ panel.id }}"
+             ng-class="{ 'highlight': panel.highlight, 'expanded': panel.expanded }">
+            <div class="panel-body">
+                <strong ng-bind="panel.name"></strong>
+                (Right-click anywhere within this panel)
+            </div>
+
+            <div class="dropdown position-fixed" id="menu-{{ panel.id }}">
+                <ul class="dropdown-menu" role="menu">
+                    <li>
+                        <a class="pointer" role="menuitem" tabindex="1"
+                           ng-click="panel.highlight = true">Select Panel {{ $index + 1 }}</a>
+                    </li>
+                    <li>
+                        <a class="pointer" role="menuitem" tabindex="2"
+                           ng-click="panel.highlight = false">
+                            Deselect Panel  {{ $index + 1 }}
+                        </a>
+                    </li>
+                    <li>
+                        <a class="pointer" role="menuitem" tabindex="3"
+                           ng-click="panel.expanded = true">Expand Panel {{ $index + 1 }}</a>
+                    </li>
+                    <li>
+                        <a class="pointer" role="menuitem" tabindex="4"
+                           ng-click="panel.expanded = false">
+                            Contract Panel {{ $index + 1 }}
+                        </a>
+                    </li>
+                    <li>
+                        <a class="pointer" role="menuitem" tabindex="5"
+                           ng-click="addPanel()">Add a panel</a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/ianwalter/ng-context-menu" role="menuitem"
+                           tabindex="-1">ng-context-menu on GitHub</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script src="js/lib/jquery-2.1.4.js"></script>
 
 <script src="js/lib/angular.js"></script>
+<script src="js/lib/angular-route.js"></script>
+<script src="js/lib/ng-context-menu.js"></script>
 <script src="js/lib/ui-bootstrap-tpls-0.13.4.min.js"></script>
 <script src="js/lib/angular-tree-view.js"></script>
 <script>
     (function () {
-        var app = angular.module('Demo', ['AxelSoft']);
+        var app = angular.module('Demo', ['AxelSoft', 'ngRoute', 'ng-context-menu']);
 
         app.controller('DemoController', ['$scope', function ($scope) {
 
@@ -100,9 +170,44 @@
                     return iconClassMap[ext] || defaultIconClass;
                 }
             };
+
+
+
+
+
+
+
+
+            $scope.message  = 'Right click triggered';
+            $scope.closeMessage = 'Context menu closed';
+
+            $scope.panels = [
+                { name: 'Panel 1', id: '17c86ee7-1b54-4284-b3b9-6300bf865c29' },
+                { name: 'Panel 2', id: '9867c5d8-cfdb-4fa4-b426-159c75f2c359' },
+                { name: 'Panel 3', id: 'bef5da6e-8669-44ad-99ce-b2b0b0ed6449' }
+            ];
+
+            $scope.addPanel = function() {
+                $scope.panels.push({ name: 'Panel ' + ($scope.panels.length + 1) });
+            };
+
+            $scope.onRightClick = function(msg) {
+                console.log(msg);
+            };
+
+            $scope.onClose = function (msg) {
+                console.log(msg);
+            };
+
+            $scope.recreatePanels = function() {
+                $scope.panels = angular.copy($scope.panels);
+                console.log($scope.panels);
+            }
         }]);
 
     })();
 </script>
 </body>
 </html>
+
+

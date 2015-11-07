@@ -76,6 +76,7 @@ panel.port.on('openTab', function (data) {
                     "./js/lib/angular-snap.min.js",
                     "./js/lib/ui-bootstrap-tpls-0.13.4.min.js",
                     "./js/lib/angular-tree-view.js",
+                    "./js/lib/ng-context-menu.js",
                     "./js/lib/angular-dashboard-framework.js",
                     "./js/widgets/adf-widget-datastore.js",
                     "./js/main.js",

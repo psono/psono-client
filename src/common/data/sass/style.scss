@@ -140,9 +140,18 @@ h1, h2 {
     right: 5px;
     top: 5px;
   }
-  .dropdown-menu {
+
+  .droppdown-rightclick {
+    margin-left: -265px;
+    margin-top: -50px;
+    z-index: 20;
+  }
+
+  .dropdown-button-menu {
     right: 0;
     left: auto;
+  }
+  .dropdown-menu {
     .fa {
       margin-right: 10px;
       width: 15px;
@@ -155,6 +164,11 @@ h1, h2 {
     left: -14px;
     border-color: $tree-dots-color;
   }
+}
+
+
+.position-fixed {
+  position: fixed;
 }
 
 /* CSS fix for angular-ui explained here: https://angular-ui.github.io/bootstrap/ */
