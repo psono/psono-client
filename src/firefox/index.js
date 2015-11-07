@@ -65,6 +65,7 @@ panel.port.on('openTab', function (data) {
                 contentScriptFile: [
                     "./js/lib/nacl_factory.js",
                     "./js/lib/scrypt.js",
+                    "./js/lib/uuid.js",
                     "./js/lib/jquery-2.1.4.js",
                     "./js/lib/snap.min.js",
                     "./js/lib/jquery.ui.js",

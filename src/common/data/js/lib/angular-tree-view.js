@@ -179,8 +179,8 @@
                 scope.newEntryNode = function (node, event) {
                     event.preventDefault();
 
-                    if (typeof options.onNewEntry === "function") {
-                        options.onNewEntry(node, getPropertyPath(idProperty));
+                    if (typeof options.onNewItem === "function") {
+                        options.onNewItem(node, getPropertyPath(idProperty));
                     }
                 };
 
@@ -223,8 +223,8 @@
                 scope.newEntryItem = function (item, event) {
                     event.preventDefault();
 
-                    if (typeof options.onNewEntry === "function") {
-                        options.onNewEntry(scope.node, getPropertyPath(idProperty));
+                    if (typeof options.onNewItem === "function") {
+                        options.onNewItem(scope.node, getPropertyPath(idProperty));
                     }
                 };
 

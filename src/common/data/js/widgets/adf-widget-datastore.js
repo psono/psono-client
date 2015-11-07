@@ -1,7 +1,15 @@
-'use strict';
+(function(angular, uuid) {
+    'use strict';
 
-angular.module('adf.widget.datastore', ['adf.provider'])
-    .config(function(dashboardProvider){
+    /**
+     * Module for the datastore widget
+     */
+    var module = angular.module('adf.widget.datastore', ['adf.provider']);
+
+    /**
+     * Config for the datastore widget
+     */
+    module.config(function(dashboardProvider){
         dashboardProvider
             .widget('datastore', {
                 title: 'Datastore',
@@ -13,42 +21,67 @@ angular.module('adf.widget.datastore', ['adf.provider'])
                     templateUrl: 'datastore.edit.html'
                 }
             });
-    })
-    .controller('datastoreController', ["$scope", "$interval", "config", "manager", "$modal",
+    });
+
+    /**
+     * Main Controller for the datastore widget
+     */
+    module.controller('datastoreController', ["$scope", "$interval", "config", "manager", "$modal",
     function($scope, $interval, config, manager, $modal){
 
         // Modals
 
-        var openNewFolder = function (node, path, size) {
+        /**
+         * Opens the modal to create a new folder
+         *
+         * @param parent The parent of the new folder
+         * @param path The path to the parent of the new folder
+         * @param size The size of the modal
+         */
+        var openNewFolder = function (parent, path, size) {
 
             var modalInstance = $modal.open({
                 templateUrl: 'view/modal-new-folder.html',
                 controller: 'ModalNewFolderCtrl',
                 size: size,
                 resolve: {
-                    node: function () {
-                        return node;
+                    parent: function () {
+                        return parent;
                     },
                     path: function () {
                         return path;
                     }
-                },
-                node: node,
-                path: path
+                }
             });
 
             modalInstance.result.then(function (name) {
-                alert("Sexy" + name);
+                if (typeof parent.folders === 'undefined') {
+                    parent.folders = [];
+                }
+                parent.folders.push({
+                    id: uuid.v4(),
+                    name: name
+                });
+
+                // TODO Save
+
             }, function () {
                 // cancel triggered
             });
         };
 
-        var openNewEntry = function (node, path, size) {
+        /**
+         * Opens the modal to edit a folder
+         *
+         * @param node The node you want to edit
+         * @param path The path to the node
+         * @param size The size of the modal
+         */
+        var openEditFolder = function (node, path, size) {
 
             var modalInstance = $modal.open({
-                templateUrl: 'view/modal-new-entry.html',
-                controller: 'ModalNewEntryCtrl',
+                templateUrl: 'view/modal-edit-folder.html',
+                controller: 'ModalEditFolderCtrl',
                 size: size,
                 resolve: {
                     node: function () {
@@ -57,9 +90,72 @@ angular.module('adf.widget.datastore', ['adf.provider'])
                     path: function () {
                         return path;
                     }
-                },
-                node: node,
-                path: path
+                }
+            });
+
+            modalInstance.result.then(function (name) {
+                node.name = name;
+
+                // TODO Save
+
+            }, function () {
+                // cancel triggered
+            });
+        };
+
+        /**
+         * Opens the modal for a new entry
+         *
+         * @param parent
+         * @param path
+         * @param size
+         */
+        var openNewItem = function (parent, path, size) {
+
+            var modalInstance = $modal.open({
+                templateUrl: 'view/modal-new-entry.html',
+                controller: 'ModalNewEntryCtrl',
+                size: size,
+                resolve: {
+                    parent: function () {
+                        return parent;
+                    },
+                    path: function () {
+                        return path;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function (name, content) {
+                // $scope.name = name;
+                // $scope.content = content;
+                alert("Sexy" + name);
+            }, function () {
+                // cancel triggered
+            });
+        };
+
+        /**
+         * Opens the modal to edit a entry
+         *
+         * @param node
+         * @param path
+         * @param size
+         */
+        var openEditItem = function (node, path, size) {
+
+            var modalInstance = $modal.open({
+                templateUrl: 'view/modal-edit-entry.html',
+                controller: 'ModalEditEntryCtrl',
+                size: size,
+                resolve: {
+                    node: function () {
+                        return node;
+                    },
+                    path: function () {
+                        return path;
+                    }
+                }
             });
 
             modalInstance.result.then(function (name, content) {
@@ -78,6 +174,14 @@ angular.module('adf.widget.datastore', ['adf.provider'])
         manager.get_password_datastore()
             .then(function (data) {$scope.structure = data;});
 
+
+        /**
+         * Go through the structure to find the object specified with the path
+         *
+         * @param path The path to the object you search as list of ids
+         * @param structure The structure object tree
+         * @returns {*} False if not present or a list of two objects where the first is the List Object containing the searchable object and the second the index
+         */
         var findInStructure = function (path, structure) {
             var to_search = path.shift();
             var n = undefined;
@@ -117,38 +221,77 @@ angular.module('adf.widget.datastore', ['adf.provider'])
                 $scope.breadcrums = breadcrums;
                 $scope.node = node;
             },
-
+            /**
+             * Triggered once someone clicks the delete node entry
+             *
+             * @param node The node in question
+             * @param path The path to the node
+             */
             onDeleteNode: function (node, path) {
                 var val = findInStructure(path, $scope.structure);
                 if (val)
                     val[0].splice(val[1], 1);
             },
+
+            /**
+             * Triggered once someone wants to edit a node entry
+             *
+             * @param node The node in question
+             * @param path The path to the node
+             */
             onEditNode: function (node, path) {
-                //console.log(node);
+                openEditFolder(node, path)
             },
 
+            /**
+             * Triggered once someone wants to delete a node entry
+             *
+             * @param item The item in question
+             * @param path The path to the item
+             */
             onDeleteItem: function (item, path) {
                 var val = findInStructure(path, $scope.structure);
                 if (val)
                     val[0].splice(val[1], 1);
             },
+
+            /**
+             * Triggered once someone wants to edit a node entry
+             *
+             * @param item The item in question
+             * @param path The path to the item
+             */
             onEditItem: function (item, path) {
-                //console.log(item);
+                openEditItem(item, path)
             },
 
-            onNewFolder: function (node, path) {
-                console.log(node);
-                console.log(path);
-                openNewFolder(node, path)
-            },
-            onNewEntry: function (node, path) {
-                console.log(node);
-                console.log(path);
-                openNewEntry(node, path)
+            /**
+             * Triggered once someone wants to create a new folder
+             *
+             * @param parent The parent for the new folder
+             * @param path The path to the parent
+             */
+            onNewFolder: function (parent, path) {
+                openNewFolder(parent, path)
             },
 
+            /**
+             * Triggered once someone wants to create a new Item
+             *
+             * @param parent The parent for the new item
+             * @param path The path to the parent
+             */
+            onNewItem: function (parent, path) {
+                openNewItem(parent, path)
+            },
+
+            /**
+             * Returns the class of the icon used to display a specific item
+             *
+             * @param item
+             * @returns {*|string}
+             */
             itemIcon: function (item) {
-
                 var iconClassMap = {
                         txt: 'fa fa-file-text-o',
                         log: 'fa fa-file-text-o',
@@ -205,50 +348,141 @@ angular.module('adf.widget.datastore', ['adf.provider'])
 
     }]);
 
-angular.module('adf.widget.datastore').controller('ModalNewFolderCtrl', function ($scope, $modalInstance, node, path) {
 
-    $scope.node = node;
-    $scope.path = path;
-    $scope.name = '';
+    /**
+     * Controller for the "New Folder" modal
+     */
+    module.controller('ModalNewFolderCtrl', ['$scope', '$modalInstance', 'parent', 'path',
+    function ($scope, $modalInstance, parent, path) {
 
-    $scope.ok = function () {
-        $scope.$broadcast('show-errors-check-validity');
+        $scope.parent = parent;
+        $scope.path = path;
+        $scope.name = '';
 
-        if ($scope.newFolderForm.$invalid) {
-            return;
-        }
+        /**
+         * Triggered once someone clicks the save button in the modal
+         */
+        $scope.save = function () {
+            $scope.$broadcast('show-errors-check-validity');
 
-        // TODO add the new folder
+            if ($scope.newFolderForm.$invalid) {
+                return;
+            }
 
-        $modalInstance.close($scope.name);
-    };
+            // TODO add the new folder
 
-    $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
-    };
-});
+            $modalInstance.close($scope.name);
+        };
 
-angular.module('adf.widget.datastore').controller('ModalNewEntryCtrl', function ($scope, $modalInstance, node, path) {
+        /**
+         * Triggered once someone clicks the cancel button in the modal
+         */
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    }]);
 
-    $scope.node = node;
-    $scope.path = path;
-    $scope.name = '';
-    $scope.content = '';
 
-    $scope.ok = function () {
-        $scope.$broadcast('show-errors-check-validity');
+    /**
+     * Controller for the "Edit Folder" modal
+     */
+    module.controller('ModalEditFolderCtrl', ['$scope', '$modalInstance', 'node', 'path',
+        function ($scope, $modalInstance, node, path) {
 
-        if ($scope.newEntryForm.$invalid) {
-            return;
-        }
+        $scope.node = node;
+        $scope.path = path;
+        $scope.name = node.name;
 
-        // TODO add the new folder
+        /**
+         * Triggered once someone clicks the save button in the modal
+         */
+        $scope.save = function () {
+            $scope.$broadcast('show-errors-check-validity');
 
-        $modalInstance.close($scope.name, $scope.content);
-    };
+            if ($scope.editFolderForm.$invalid) {
+                return;
+            }
 
-    $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
-    };
-});
+            // TODO edit the folder
 
+            $modalInstance.close($scope.name);
+        };
+
+        /**
+         * Triggered once someone clicks the cancel button in the modal
+         */
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    }]);
+
+    /**
+     * Controller for the "New Entry" modal
+     */
+    module.controller('ModalNewEntryCtrl', ['$scope', '$modalInstance', 'parent', 'path',
+    function ($scope, $modalInstance, parent, path) {
+
+        $scope.parent = parent;
+        $scope.path = path;
+        $scope.name = '';
+        $scope.content = '';
+
+        /**
+         * Triggered once someone clicks the save button in the modal
+         */
+        $scope.save = function () {
+            $scope.$broadcast('show-errors-check-validity');
+
+            if ($scope.newEntryForm.$invalid) {
+                return;
+            }
+
+            // TODO add the new folder
+
+            $modalInstance.close($scope.name, $scope.content);
+        };
+
+        /**
+         * Triggered once someone clicks the cancel button in the modal
+         */
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    }]);
+
+    /**
+     * Controller for the "Edit Entry" modal
+     */
+    module.controller('ModalEditEntryCtrl', ['$scope', '$modalInstance', 'node', 'path',
+    function ($scope, $modalInstance, node, path) {
+
+        $scope.node = node;
+        $scope.path = path;
+        $scope.name = node.name;
+        $scope.content = '';
+
+        /**
+         * Triggered once someone clicks the save button in the modal
+         */
+        $scope.save = function () {
+            $scope.$broadcast('show-errors-check-validity');
+
+            if ($scope.editEntryForm.$invalid) {
+                return;
+            }
+
+            // TODO edit the entry
+
+            $modalInstance.close($scope.name, $scope.content);
+        };
+
+        /**
+         * Triggered once someone clicks the cancel button in the modal
+         */
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    }]);
+
+
+})(angular, uuid);
