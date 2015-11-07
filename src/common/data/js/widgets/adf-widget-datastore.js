@@ -14,18 +14,139 @@ angular.module('adf.widget.datastore', ['adf.provider'])
                 }
             });
     })
-    .controller('datastoreController', ["$scope", "$interval", "config", "manager", function($scope, $interval, config, manager){
+    .controller('datastoreController', ["$scope", "$interval", "config", "manager", "$modal",
+    function($scope, $interval, config, manager, $modal){
+
+        // Modals
+
+        var openNewFolder = function (node, path, size) {
+
+            var modalInstance = $modal.open({
+                templateUrl: 'view/modal-new-folder.html',
+                controller: 'ModalNewFolderCtrl',
+                size: size,
+                resolve: {
+                    node: function () {
+                        return node;
+                    },
+                    path: function () {
+                        return path;
+                    }
+                },
+                node: node,
+                path: path
+            });
+
+            modalInstance.result.then(function (name) {
+                alert("Sexy" + name);
+            }, function () {
+                // cancel triggered
+            });
+        };
+
+        var openNewEntry = function (node, path, size) {
+
+            var modalInstance = $modal.open({
+                templateUrl: 'view/modal-new-entry.html',
+                controller: 'ModalNewEntryCtrl',
+                size: size,
+                resolve: {
+                    node: function () {
+                        return node;
+                    },
+                    path: function () {
+                        return path;
+                    }
+                },
+                node: node,
+                path: path
+            });
+
+            modalInstance.result.then(function (name, content) {
+                // $scope.name = name;
+                // $scope.content = content;
+                alert("Sexy" + name);
+            }, function () {
+                // cancel triggered
+            });
+        };
+
+        // Datastore Structure Management
 
         $scope.structure = [];
 
         manager.get_password_datastore()
             .then(function (data) {$scope.structure = data;});
 
+        var findInStructure = function (path, structure) {
+            var to_search = path.shift();
+            var n = undefined;
+
+            if (path.length == 0) {
+                // found the object
+                // check if its a folder, if yes return the folder list and the index
+                for (n = 0; n < structure.folders.length; n++) {
+                    if (structure.folders[n].id == to_search) {
+                        return [structure.folders, n];
+                        // structure.folders.splice(n, 1);
+                        // return true;
+                    }
+                }
+                // check if its a file, if yes return the file list and the index
+                for (n = 0; n < structure.items.length; n++) {
+                    if (structure.items[n].id == to_search) {
+                        return [structure.items, n];
+                        // structure.items.splice(n, 1);
+                        // return true;
+                    }
+                }
+                // something went wrong, couldn't find the file / folder here
+                return false;
+            }
+
+            for (n = 0; n < structure.folders.length; n++) {
+                if (structure.folders[n].id == to_search) {
+                    return findInStructure(path, structure.folders[n]);
+                }
+            }
+            return false;
+        };
+
         $scope.options = {
             onNodeSelect: function (node, breadcrums) {
                 $scope.breadcrums = breadcrums;
                 $scope.node = node;
             },
+
+            onDeleteNode: function (node, path) {
+                var val = findInStructure(path, $scope.structure);
+                if (val)
+                    val[0].splice(val[1], 1);
+            },
+            onEditNode: function (node, path) {
+                //console.log(node);
+            },
+
+            onDeleteItem: function (item, path) {
+                var val = findInStructure(path, $scope.structure);
+                if (val)
+                    val[0].splice(val[1], 1);
+            },
+            onEditItem: function (item, path) {
+                //console.log(item);
+            },
+
+            onNewFolder: function (node, path) {
+                console.log(node);
+                console.log(path);
+                openNewFolder(node, path)
+            },
+            onNewEntry: function (node, path) {
+                console.log(node);
+                console.log(path);
+                openNewEntry(node, path)
+            },
+
             itemIcon: function (item) {
 
                 var iconClassMap = {
@@ -84,4 +205,50 @@ angular.module('adf.widget.datastore', ['adf.provider'])
 
     }]);
 
+angular.module('adf.widget.datastore').controller('ModalNewFolderCtrl', function ($scope, $modalInstance, node, path) {
+
+    $scope.node = node;
+    $scope.path = path;
+    $scope.name = '';
+
+    $scope.ok = function () {
+        $scope.$broadcast('show-errors-check-validity');
+
+        if ($scope.newFolderForm.$invalid) {
+            return;
+        }
+
+        // TODO add the new folder
+
+        $modalInstance.close($scope.name);
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+});
+
+angular.module('adf.widget.datastore').controller('ModalNewEntryCtrl', function ($scope, $modalInstance, node, path) {
+
+    $scope.node = node;
+    $scope.path = path;
+    $scope.name = '';
+    $scope.content = '';
+
+    $scope.ok = function () {
+        $scope.$broadcast('show-errors-check-validity');
+
+        if ($scope.newEntryForm.$invalid) {
+            return;
+        }
+
+        // TODO add the new folder
+
+        $modalInstance.close($scope.name, $scope.content);
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+});
 

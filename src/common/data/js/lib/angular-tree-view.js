@@ -31,6 +31,7 @@
         foldersProperty: 'folders',
         itemsProperty: 'items',
         displayProperty: 'name',
+        idProperty: 'id',
         collapsible: true
     });
 
@@ -116,14 +117,8 @@
                     foldersProperty = options.foldersProperty,
                     itemsProperty = options.itemsProperty,
                     displayProperty = options.displayProperty,
+                    idProperty = options.idProperty,
                     collapsible = options.collapsible;
-                //var isEditing = false;
-
-                //scope.expanded = collapsible == false;
-                //scope.newNodeName = '';
-                //scope.addErrorMessage = '';
-                //scope.editName = '';
-                //scope.editErrorMessage = '';
 
                 scope.getFolderIconClass = typeof options.folderIcon === 'function'
                     ? options.folderIcon
@@ -149,146 +144,109 @@
                     return Boolean(node && (node[foldersProperty] && node[foldersProperty].length) || (node[itemsProperty] && node[itemsProperty].length));
                 };
 
+
+                var getPropertyPath = function (property, item) {
+                    var path = [];
+
+                    if (typeof item !== 'undefined') {
+                        path.push(item[property]);
+                    }
+
+                    var nodeScope = scope;
+                    while (nodeScope.node) {
+                        path.push(nodeScope.node[property]);
+                        nodeScope = nodeScope.$parent;
+                    }
+                    return path.reverse();
+                };
+
+                scope.editNode = function (node, event) {
+                    event.preventDefault();
+
+                    if (typeof options.onEditNode === "function") {
+                        options.onEditNode(node, getPropertyPath(idProperty));
+                    }
+                };
+
+                scope.newFolderNode = function (node, event) {
+                    event.preventDefault();
+
+                    if (typeof options.onNewFolder === "function") {
+                        options.onNewFolder(node, getPropertyPath(idProperty));
+                    }
+                };
+
+                scope.newEntryNode = function (node, event) {
+                    event.preventDefault();
+
+                    if (typeof options.onNewEntry === "function") {
+                        options.onNewEntry(node, getPropertyPath(idProperty));
+                    }
+                };
+
+                scope.deleteNode  = function (node, event) {
+                    event.preventDefault();
+
+                    if (typeof options.onDeleteNode === "function") {
+                        options.onDeleteNode(node, getPropertyPath(idProperty));
+                    }
+                };
+
                 scope.selectNode = function (event) {
                     event.preventDefault();
-                    //if (isEditing) return;
 
                     if (collapsible) {
                         toggleExpanded(scope.node);
                     }
 
-                    var breadcrumbs = [];
-                    var nodeScope = scope;
-                    while (nodeScope.node) {
-                        breadcrumbs.push(nodeScope.node[displayProperty]);
-                        console.log(nodeScope.node);
-                        nodeScope = nodeScope.$parent;
-                    }
-                    controller.selectNode(scope.node, breadcrumbs.reverse());
+                    controller.selectNode(scope.node, getPropertyPath(displayProperty));
                 };
 
-                scope.editNode = function (node, event) {
-                    event.preventDefault();
-                    // TODO edit node and maybe rename
-                    if (typeof options.onEditNode === "function") {
-                        options.onEditNode(node);
-                    }
-                };
-                scope.deleteNode  = function (node, event) {
-                    event.preventDefault();
-                    // TODO delete node
-                    console.log(scope.node);
-                    console.log(scope.$parent.node);
-                    if (typeof options.onDeleteNode === "function") {
-                        options.onDeleteNode(node);
-                    }
-                };
+
 
                 scope.editItem = function (item, event) {
                     event.preventDefault();
-                    // TODO edit item and maybe rename
+
                     if (typeof options.onEditItem === "function") {
-                        options.onEditItem(item);
+                        options.onEditItem(item, getPropertyPath(idProperty, item));
                     }
                 };
+
+                scope.newFolderItem = function (item, event) {
+                    event.preventDefault();
+
+                    if (typeof options.onNewFolder === "function") {
+                        options.onNewFolder(scope.node, getPropertyPath(idProperty));
+                    }
+                };
+
+                scope.newEntryItem = function (item, event) {
+                    event.preventDefault();
+
+                    if (typeof options.onNewEntry === "function") {
+                        options.onNewEntry(scope.node, getPropertyPath(idProperty));
+                    }
+                };
+
                 scope.deleteItem  = function (item, event) {
                     event.preventDefault();
-                    // TODO delete item
+
                     if (typeof options.onDeleteItem === "function") {
-                        options.onDeleteItem(item);
+                        options.onDeleteItem(item, getPropertyPath(idProperty, item));
                     }
                 };
 
                 scope.selectItem = function (item, event) {
                     event.preventDefault();
-                    //if (isEditing) return;
 
-                    var breadcrumbs = [item[displayProperty]];
-                    var nodeScope = scope;
-                    while (nodeScope.node) {
-                        breadcrumbs.push(nodeScope.node[displayProperty]);
-                        nodeScope = nodeScope.$parent;
-                    }
-                    controller.selectItem(item, breadcrumbs.reverse());
+                    controller.selectItem(item, getPropertyPath(displayProperty, item));
                 };
+
+
 
                 scope.isSelected = function (node) {
                     return controller.isSelected(node);
                 };
-                /*
-                scope.addNode = function () {
-                    var addEvent = {
-                        commit: function (error) {
-                            if (error) {
-                                scope.addErrorMessage = error;
-                            }
-                            else {
-                                scope.newNodeName = '';
-                                scope.addErrorMessage = '';
-                            }
-                        }
-                    };
-
-                    controller.addNode(addEvent, scope.newNodeName, scope.node);
-                };
-
-                scope.isEditing = function () {
-                    return isEditing;
-                };
-
-                scope.canRemove = function () {
-                    return !(scope.hasChildren());
-                };
-
-                scope.remove = function (event, index) {
-                    event.stopPropagation();
-                    controller.removeNode(scope.node, index, scope.$parent.node);
-                };
-
-                scope.edit = function (event) {
-                    isEditing = true;
-                    controller.editingScope = scope;
-                    //expanded = false;
-                    scope.editName = scope.node[displayProperty];
-                    event.stopPropagation();
-                };
-
-                scope.canEdit = function () {
-                    return !controller.editingScope || scope == controller.editingScope;
-                };
-
-                scope.canAdd = function () {
-                    return !isEditing && scope.canEdit();
-                };
-
-                scope.rename = function (event) {
-                    event.stopPropagation();
-
-                    var renameEvent = {
-                        commit: function (error) {
-                            if (error) {
-                                scope.editErrorMessage = error;
-                            }
-                            else {
-                                scope.cancelEdit();
-                            }
-                        }
-                    };
-
-                    controller.renameNode(renameEvent, scope.node, scope.editName);
-                };
-
-                scope.cancelEdit = function (event) {
-                    if (event) {
-                        event.stopPropagation();
-                    }
-
-                    isEditing = false;
-                    scope.editName = '';
-                    scope.editErrorMessage = '';
-                    controller.editingScope = undefined;
-                };
-                 */
 
                 function toggleExpanded(node) {
                     //if (!scope.hasChildren()) return;
@@ -310,6 +268,8 @@
                         '</a>' +
                         '<ul class="dropdown-menu dropdown-button-menu" aria-labelledby="drop_node_{{node.id}}">' +
                         '    <li role="menuitem" ng-click="editNode(node, $event)"><a href="#"><i class="fa fa-wrench"></i>Edit</a></li>' +
+                        '    <li role="menuitem" ng-click="newFolderNode(node, $event)"><a href="#"><i class="fa fa-folder"></i>New Folder</a></li>' +
+                        '    <li role="menuitem" ng-click="newEntryNode(node, $event)"><a href="#"><i class="fa fa-key"></i>New Entry</a></li>' +
                         '    <li class="divider"></li>' +
                         '    <li role="menuitem" ng-click="deleteNode(node, $event)"><a href="#"><i class="fa fa-trash"></i>Delete</a></li>' +
                         '</ul>' +
@@ -323,6 +283,8 @@
                         '<div class="dropdown position-fixed droppdown-rightclick" id="menu-{{ node.id }}">' +
                         '<ul class="dropdown-menu" role="menu">' +
                         '    <li role="menuitem" ng-click="editNode(node, $event)"><a href="#"><i class="fa fa-wrench"></i>Edit</a></li>' +
+                        '    <li role="menuitem" ng-click="newFolderNode(node, $event)"><a href="#"><i class="fa fa-folder"></i>New Folder</a></li>' +
+                        '    <li role="menuitem" ng-click="newEntryNode(node, $event)"><a href="#"><i class="fa fa-key"></i>New Entry</a></li>' +
                         '    <li class="divider"></li>' +
                         '    <li role="menuitem" ng-click="deleteNode(node, $event)"><a href="#"><i class="fa fa-trash"></i>Delete</a></li>' +
                         '</ul>' +
@@ -340,6 +302,8 @@
                         '</a>' +
                         '<ul class="dropdown-menu dropdown-button-menu" aria-labelledby="drop_item_{{item.id}}">' +
                         '    <li role="menuitem" ng-click="editItem(item, $event)"><a href="#"><i class="fa fa-wrench"></i>Edit</a></li>' +
+                        '    <li role="menuitem" ng-click="newFolderItem(item, $event)"><a href="#"><i class="fa fa-folder"></i>New Folder</a></li>' +
+                        '    <li role="menuitem" ng-click="newEntryItem(item, $event)"><a href="#"><i class="fa fa-key"></i>New Entry</a></li>' +
                         '    <li class="divider"></li>' +
                         '    <li role="menuitem" ng-click="deleteItem(item, $event)"><a href="#"><i class="fa fa-trash"></i>Delete</a></li>' +
                         '</ul>' +
@@ -348,9 +312,11 @@
 
                         '<div class="dropdown position-fixed droppdown-rightclick" id="menu-{{ item.id }}">' +
                         '<ul class="dropdown-menu" role="menu">' +
-                        '    <li role="menuitem" ng-click="editNode(item, $event)"><a href="#"><i class="fa fa-wrench"></i>Edit</a></li>' +
+                        '    <li role="menuitem" ng-click="editItem(item, $event)"><a href="#"><i class="fa fa-wrench"></i>Edit</a></li>' +
+                        '    <li role="menuitem" ng-click="newFolderItem(item, $event)"><a href="#"><i class="fa fa-folder"></i>New Folder</a></li>' +
+                        '    <li role="menuitem" ng-click="newEntryItem(item, $event)"><a href="#"><i class="fa fa-key"></i>New Entry</a></li>' +
                         '    <li class="divider"></li>' +
-                        '    <li role="menuitem" ng-click="deleteNode(item, $event)"><a href="#"><i class="fa fa-trash"></i>Delete</a></li>' +
+                        '    <li role="menuitem" ng-click="deleteItem(item, $event)"><a href="#"><i class="fa fa-trash"></i>Delete</a></li>' +
                         '</ul>' +
                         '</div>'+
 

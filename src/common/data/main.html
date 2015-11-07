@@ -50,7 +50,7 @@
         </div>
     </form>
 </div>
-<div ng-if="!loggedin" ng-controller="LoginController">
+<div ng-if="!loggedin" ng-controller="LoginController" class="loginbox">
     <!-- Not logged in, show the login form -->
     <img src="img/logo.png" id="logo">
 
@@ -65,7 +65,7 @@
         <div class="form-group">
             <button ng-click="login(loginFormEmail, loginFormPassword, selected_server)" type="submit" class="btn btn-danger">Login</button>
             <a href="">Register</a>
-            <span ng-repeat="e in errors">{{e}}</span>
+            <span class="pull-right" ng-repeat="e in errors">{{e}}</span>
         </div>
 
         <div class="form-group hideinputcharakter">

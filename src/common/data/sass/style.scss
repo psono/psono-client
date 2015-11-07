@@ -18,6 +18,9 @@ h1, h2 {
 #logo {
   margin-bottom: 10px;
 }
+.loginbox span.pull-right {
+  line-height: 31px;
+}
 
 .navigations {
   list-style-type: none;
@@ -169,6 +172,14 @@ h1, h2 {
 
 .position-fixed {
   position: fixed;
+}
+
+.form-group .help-block {
+  display: none;
+}
+
+.form-group.has-error .help-block {
+  display: block;
 }
 
 /* CSS fix for angular-ui explained here: https://angular-ui.github.io/bootstrap/ */
