@@ -81,25 +81,6 @@
                     return node === selectedNode || node === selectedItem;
                 };
 
-                /*
-                self.addNode = function (event, name, parent) {
-                    if (typeof options.onAddNode === "function") {
-                        options.onAddNode(event, name, parent);
-                    }
-                };
-                self.removeNode = function (node, index, parent) {
-                    if (typeof options.onRemoveNode === "function") {
-                        options.onRemoveNode(node, index, parent);
-                    }
-                };
-
-                self.renameNode = function (event, node, name) {
-                    if (typeof options.onRenameNode === "function") {
-                        return options.onRenameNode(event, node, name);
-                    }
-                    return true;
-                };
-                 */
                 self.getOptions = function () {
                     return options;
                 };
@@ -139,12 +120,24 @@
                     return 'fa fa-item';
                 };
 
+                /**
+                 * checks if the node in the current scope has children
+                 *
+                 * @returns {boolean}
+                 */
                 scope.hasChildren = function () {
                     var node = scope.node;
                     return Boolean(node && (node[foldersProperty] && node[foldersProperty].length) || (node[itemsProperty] && node[itemsProperty].length));
                 };
 
-
+                /**
+                 * returns a list of the property of the nodes from root to the targeted item. Can be used for
+                 * breadcrumbs for example.
+                 *
+                 * @param property The property that should be put into the list
+                 * @param item The item up to which you want to generate the list
+                 * @returns {Array.<T>} A list of the nodes property
+                 */
                 var getPropertyPath = function (property, item) {
                     var path = [];
 
@@ -160,6 +153,12 @@
                     return path.reverse();
                 };
 
+                /**
+                 * fired if someone clicks "edit node" and triggers the function defined in the properties
+                 *
+                 * @param node
+                 * @param event
+                 */
                 scope.editNode = function (node, event) {
                     event.preventDefault();
 
@@ -168,6 +167,12 @@
                     }
                 };
 
+                /**
+                 * fired if someone clicks "new folder" on a node and triggers the function defined in the properties
+                 *
+                 * @param node
+                 * @param event
+                 */
                 scope.newFolderNode = function (node, event) {
                     event.preventDefault();
 
@@ -176,6 +181,12 @@
                     }
                 };
 
+                /**
+                 * fired if someone clicks "new entry" on a node and triggers the function defined in the properties
+                 *
+                 * @param node
+                 * @param event
+                 */
                 scope.newEntryNode = function (node, event) {
                     event.preventDefault();
 
@@ -184,6 +195,12 @@
                     }
                 };
 
+                /**
+                 * fired if someone clicks "delete node" and triggers the function defined in the properties
+                 *
+                 * @param node
+                 * @param event
+                 */
                 scope.deleteNode  = function (node, event) {
                     event.preventDefault();
 
@@ -192,6 +209,11 @@
                     }
                 };
 
+                /**
+                 * fired if someone selects a node
+                 *
+                 * @param event
+                 */
                 scope.selectNode = function (event) {
                     event.preventDefault();
 
@@ -202,8 +224,12 @@
                     controller.selectNode(scope.node, getPropertyPath(displayProperty));
                 };
 
-
-
+                /**
+                 * fired if someone clicks "edit item" and triggers the function defined in the properties
+                 *
+                 * @param item
+                 * @param event
+                 */
                 scope.editItem = function (item, event) {
                     event.preventDefault();
 
@@ -212,6 +238,12 @@
                     }
                 };
 
+                /**
+                 * fired if someone clicks "new folder" on an item and triggers the function defined in the properties
+                 *
+                 * @param item
+                 * @param event
+                 */
                 scope.newFolderItem = function (item, event) {
                     event.preventDefault();
 
@@ -220,6 +252,13 @@
                     }
                 };
 
+
+                /**
+                 * fired if someone clicks "new entry" on an item and triggers the function defined in the properties
+                 *
+                 * @param item
+                 * @param event
+                 */
                 scope.newEntryItem = function (item, event) {
                     event.preventDefault();
 
@@ -228,6 +267,13 @@
                     }
                 };
 
+
+                /**
+                 * fired if someone clicks "delete item" and triggers the function defined in the properties
+                 *
+                 * @param item
+                 * @param event
+                 */
                 scope.deleteItem  = function (item, event) {
                     event.preventDefault();
 
@@ -235,7 +281,12 @@
                         options.onDeleteItem(item, getPropertyPath(idProperty, item));
                     }
                 };
-
+                /**
+                 * fired if someone selects an item
+                 *
+                 * @param item
+                 * @param event
+                 */
                 scope.selectItem = function (item, event) {
                     event.preventDefault();
 
@@ -243,11 +294,20 @@
                 };
 
 
-
+                /**
+                 * checks if the node has been selected
+                 *
+                 * @param node
+                 */
                 scope.isSelected = function (node) {
                     return controller.isSelected(node);
                 };
 
+                /**
+                 * expends or collapses the node
+                 *
+                 * @param node
+                 */
                 function toggleExpanded(node) {
                     //if (!scope.hasChildren()) return;
                     node.expanded = !node.expanded;

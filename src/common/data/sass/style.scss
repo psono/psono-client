@@ -1,5 +1,7 @@
 @import "variables";
 
+/* Generic styles */
+
 body {
   font-family: 'Open Sans', sans-serif;
   position: relative;
@@ -94,6 +96,7 @@ h1, h2 {
 
 }
 
+/* All Tree Changes */
 .tree::before {
   bottom: 23px;
   border-color: $tree-dots-color;
@@ -144,12 +147,6 @@ h1, h2 {
     top: 5px;
   }
 
-  .droppdown-rightclick {
-    margin-left: -265px;
-    margin-top: -50px;
-    z-index: 20;
-  }
-
   .dropdown-button-menu {
     right: 0;
     left: auto;
@@ -169,11 +166,23 @@ h1, h2 {
   }
 }
 
+/* for the fixed dropdown menu that pops when someone right clicks an entry*/
+
+.droppdown-rightclick {
+  margin-left: -265px;
+  margin-top: -50px;
+  z-index: 20;
+}
 
 .position-fixed {
   position: fixed;
 }
+.expand15 {
+  margin: -15px;
+  padding: 15px;
+}
 
+/* classes for error handling */
 .form-group .help-block {
   display: none;
 }

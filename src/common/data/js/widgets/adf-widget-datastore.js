@@ -14,11 +14,11 @@
             .widget('datastore', {
                 title: 'Datastore',
                 description: 'provides the datastore',
-                templateUrl: 'datastore.view.html',
+                templateUrl: 'view/datastore-view.html',
                 controller: 'datastoreController',
                 controllerAs: 'datastore',
                 edit: {
-                    templateUrl: 'datastore.edit.html'
+                    templateUrl: 'view/datastore-edit.html'
                 }
             });
     });
@@ -55,6 +55,10 @@
             });
 
             modalInstance.result.then(function (name) {
+                if (typeof parent === 'undefined') {
+                    parent = $scope.structure.data;
+                }
+
                 if (typeof parent.folders === 'undefined') {
                     parent.folders = [];
                 }
@@ -68,6 +72,10 @@
             }, function () {
                 // cancel triggered
             });
+        };
+
+        $scope.openNewFolder = function (event) {
+            openNewFolder(undefined, []);
         };
 
         /**
@@ -135,6 +143,10 @@
             });
         };
 
+        $scope.openNewItem = function (event) {
+            openNewItem(undefined, []);
+        };
+
         /**
          * Opens the modal to edit a entry
          *
@@ -169,10 +181,10 @@
 
         // Datastore Structure Management
 
-        $scope.structure = [];
+        $scope.structure = { data: {}} ;
 
-        manager.get_password_datastore()
-            .then(function (data) {$scope.structure = data;});
+        //manager.get_password_datastore()
+        //    .then(function (data) {$scope.structure.data = data;});
 
 
         /**
@@ -228,7 +240,7 @@
              * @param path The path to the node
              */
             onDeleteNode: function (node, path) {
-                var val = findInStructure(path, $scope.structure);
+                var val = findInStructure(path, $scope.structure.data);
                 if (val)
                     val[0].splice(val[1], 1);
             },
@@ -250,7 +262,7 @@
              * @param path The path to the item
              */
             onDeleteItem: function (item, path) {
-                var val = findInStructure(path, $scope.structure);
+                var val = findInStructure(path, $scope.structure.data);
                 if (val)
                     val[0].splice(val[1], 1);
             },

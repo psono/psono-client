@@ -20,30 +20,6 @@
                 enableConfirmDelete="true"
                 adf-model="dashboard.model">
         </adf-dashboard>
-
-        <script type="text/ng-template" id="datastore.edit.html">
-            <form role="form">
-                <div class="form-group">
-                    <label for="sample">Sample</label>
-                    <input type="text" class="form-control" id="sample" ng-model="config.sample" placeholder="Enter sample" />
-                </div>
-            </form>
-        </script>
-
-        <script type="text/ng-template" id="datastore.view.html">
-            <div>
-                <div>
-                    <span ng-repeat="b in breadcrums">
-                        &gt; {{b}}
-                    </span>
-                </div>
-                <div tree-view="structure" tree-view-options="options"></div>
-
-                {{node}}
-                {{structure}}
-            </div>
-        </script>
-
         <!-- End Datastore Widget -->
     </div>
 
