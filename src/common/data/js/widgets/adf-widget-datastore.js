@@ -26,8 +26,8 @@
     /**
      * Main Controller for the datastore widget
      */
-    module.controller('datastoreController', ["$scope", "$interval", "config", "manager", "$modal",
-    function($scope, $interval, config, manager, $modal){
+    module.controller('datastoreController', ["$scope", "$interval", "config", "manager", "$modal", "itemBlueprint",
+    function($scope, $interval, config, manager, $modal, itemBlueprint){
 
         // Modals
 
@@ -134,10 +134,10 @@
                 }
             });
 
-            modalInstance.result.then(function (name, content) {
+            modalInstance.result.then(function (content) {
                 // $scope.name = name;
                 // $scope.content = content;
-                alert("Sexy" + name);
+                console.log(content);
             }, function () {
                 // cancel triggered
             });
@@ -386,7 +386,6 @@
          * Triggered once someone clicks the save button in the modal
          */
         $scope.save = function () {
-            $scope.$broadcast('show-errors-check-validity');
 
             if ($scope.newFolderForm.$invalid) {
                 return;
@@ -418,7 +417,6 @@
          * Triggered once someone clicks the save button in the modal
          */
         $scope.save = function () {
-            $scope.$broadcast('show-errors-check-validity');
 
             if ($scope.editFolderForm.$invalid) {
                 return;
@@ -438,25 +436,33 @@
     /**
      * Controller for the "New Entry" modal
      */
-    module.controller('ModalNewEntryCtrl', ['$scope', '$modalInstance', 'parent', 'path',
-    function ($scope, $modalInstance, parent, path) {
+    module.controller('ModalNewEntryCtrl', ['$scope', '$modalInstance', 'itemBlueprint', 'parent', 'path',
+    function ($scope, $modalInstance, itemBlueprint, parent, path) {
 
         $scope.parent = parent;
         $scope.path = path;
         $scope.name = '';
         $scope.content = '';
 
+        $scope.reset = function() {
+            $scope.submitted = false;
+        };
+
+        $scope.bp = {
+            all: itemBlueprint.get_blueprints(),
+            selected: itemBlueprint.get_default_blueprint()
+        };
+
         /**
          * Triggered once someone clicks the save button in the modal
          */
         $scope.save = function () {
-            $scope.$broadcast('show-errors-check-validity');
 
             if ($scope.newEntryForm.$invalid) {
                 return;
             }
 
-            $modalInstance.close($scope.name, $scope.content);
+            $modalInstance.close($scope.bp.selected);
         };
 
         /**
@@ -482,7 +488,6 @@
          * Triggered once someone clicks the save button in the modal
          */
         $scope.save = function () {
-            $scope.$broadcast('show-errors-check-validity');
 
             if ($scope.editEntryForm.$invalid) {
                 return;

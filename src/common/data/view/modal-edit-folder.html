@@ -4,9 +4,9 @@
         <h3 class="modal-title">Edit Folder</h3>
     </div>
     <div class="modal-body">
-        <div class="form-group" show-errors>
+        <div class="form-group" ng-class="{true: 'has-error'}[submitted && newFolderForm.name.$invalid]">
             <input type="text" name="name" class="form-control" id="folderName" placeholder="Folder Name" ng-model="name" required>
-            <p class="help-block" ng-if="editFolderForm.name.$error.required">The folder's name is required</p>
+            <p class="help-block" ng-show="submitted && newFolderForm.name.$error.required">The folder's name is required</p>
         </div>
     </div>
     <div class="modal-footer">
