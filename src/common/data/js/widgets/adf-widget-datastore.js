@@ -67,7 +67,7 @@
                     name: name
                 });
 
-                // TODO Save
+                manager.save_password_datastore($scope.structure.data);
 
             }, function () {
                 // cancel triggered
@@ -104,7 +104,7 @@
             modalInstance.result.then(function (name) {
                 node.name = name;
 
-                // TODO Save
+                manager.save_password_datastore($scope.structure.data);
 
             }, function () {
                 // cancel triggered
@@ -183,8 +183,8 @@
 
         $scope.structure = { data: {}} ;
 
-        //manager.get_password_datastore()
-        //    .then(function (data) {$scope.structure.data = data;});
+        manager.get_password_datastore('password', 'default')
+            .then(function (data) {$scope.structure.data = data;});
 
 
         /**
@@ -201,19 +201,23 @@
             if (path.length == 0) {
                 // found the object
                 // check if its a folder, if yes return the folder list and the index
-                for (n = 0; n < structure.folders.length; n++) {
-                    if (structure.folders[n].id == to_search) {
-                        return [structure.folders, n];
-                        // structure.folders.splice(n, 1);
-                        // return true;
+                if (structure.hasOwnProperty('folders')) {
+                    for (n = 0; n < structure.folders.length; n++) {
+                        if (structure.folders[n].id == to_search) {
+                            return [structure.folders, n];
+                            // structure.folders.splice(n, 1);
+                            // return true;
+                        }
                     }
                 }
                 // check if its a file, if yes return the file list and the index
-                for (n = 0; n < structure.items.length; n++) {
-                    if (structure.items[n].id == to_search) {
-                        return [structure.items, n];
-                        // structure.items.splice(n, 1);
-                        // return true;
+                if (structure.hasOwnProperty('items')) {
+                    for (n = 0; n < structure.items.length; n++) {
+                        if (structure.items[n].id == to_search) {
+                            return [structure.items, n];
+                            // structure.items.splice(n, 1);
+                            // return true;
+                        }
                     }
                 }
                 // something went wrong, couldn't find the file / folder here
@@ -240,9 +244,12 @@
              * @param path The path to the node
              */
             onDeleteNode: function (node, path) {
+                // TODO ask for confirmation
+
                 var val = findInStructure(path, $scope.structure.data);
                 if (val)
                     val[0].splice(val[1], 1);
+                manager.save_password_datastore($scope.structure.data);
             },
 
             /**
@@ -262,9 +269,13 @@
              * @param path The path to the item
              */
             onDeleteItem: function (item, path) {
+                // TODO ask for confirmation
+
                 var val = findInStructure(path, $scope.structure.data);
                 if (val)
                     val[0].splice(val[1], 1);
+
+                manager.save_password_datastore($scope.structure.data);
             },
 
             /**
@@ -381,8 +392,6 @@
                 return;
             }
 
-            // TODO add the new folder
-
             $modalInstance.close($scope.name);
         };
 
@@ -414,8 +423,6 @@
             if ($scope.editFolderForm.$invalid) {
                 return;
             }
-
-            // TODO edit the folder
 
             $modalInstance.close($scope.name);
         };
@@ -449,8 +456,6 @@
                 return;
             }
 
-            // TODO add the new folder
-
             $modalInstance.close($scope.name, $scope.content);
         };
 
@@ -482,8 +487,6 @@
             if ($scope.editEntryForm.$invalid) {
                 return;
             }
-
-            // TODO edit the entry
 
             $modalInstance.close($scope.name, $scope.content);
         };

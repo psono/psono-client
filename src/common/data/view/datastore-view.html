@@ -1,5 +1,4 @@
 <div data-target="menu-datastore-main" context-menu="" class="expand15">
-    {{ sexy }}
 
     <div class="dropdown position-fixed droppdown-rightclick" id="menu-datastore-main">
     <ul class="dropdown-menu" role="menu">
@@ -20,14 +19,10 @@
     </div>
 
     <div ng-if="!(structure.data.folders || structure.data.items)">
-        No items. Right click here to create one
+        No items. Right click here to create one.
     </div>
-    <!--
-    <pre>
-    {{node}}
-    </pre>
-    <pre>
-    {{structure.data}}
-    </pre>
-    -->
+
+    <pre>{{ node | json }}</pre>
+    <pre>{{ structure.data | json }}</pre>
+
 </div>

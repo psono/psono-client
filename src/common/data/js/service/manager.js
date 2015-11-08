@@ -1,8 +1,9 @@
 (function(angular) {
     'use strict';
 
-    var manager = function(apiClient, cryptoLibrary, storage) {
+    var manager = function($q, apiClient, cryptoLibrary, storage) {
 
+        var temp_datastore_key_storage = {};
 
         var forbidden_keys = {
             'config': [
@@ -29,6 +30,7 @@
          * @param email
          * @param password
          * @param server server object
+         *
          * @returns {promise} promise
          */
         var login = function(email, password, server) {
@@ -42,8 +44,7 @@
             /**
              * @param response.data.user The datastore owner object in response.
              */
-            var onSucces = function (response) {
-                //success
+            var onSuccess = function (response) {
 
                 storage.insert('config', {key: 'user_id', value: response.data.user.id});
                 storage.insert('config', {key: 'user_token', value: response.data.token});
@@ -81,7 +82,7 @@
             };
 
             return apiClient.login(email, authkey)
-                .then(onSucces, onError);
+                .then(onSuccess, onError);
         };
 
         /**
@@ -103,7 +104,7 @@
                 storage.save();
             };
 
-            var onSucces = function (response) {
+            var onSuccess = function (response) {
 
                 delete_local_data();
 
@@ -123,9 +124,19 @@
             };
 
             return apiClient.logout(storage.find_one('config', {'key': 'user_token'}).value)
-                .then(onSucces, onError);
+                .then(onSuccess, onError);
         };
 
+        /**
+         * Privat function, that will return the object with the specified key from the specified db
+         *
+         * @param db
+         * @param key
+         *
+         * @returns {*}
+         *
+         * @private
+         */
         var _find_one = function(db, key) {
 
             var obj = storage.find_one('config', {'key': key});
@@ -134,7 +145,13 @@
             }
             return obj['value'];
         };
-
+        /**
+         * finds object with specified key in specified db. Also checks if its in the forbidden key list
+         * @param db
+         * @param key
+         *
+         * @returns {string}
+         */
         var find_one = function(db, key) {
 
             if (forbidden_keys.hasOwnProperty(db) && forbidden_keys[db].indexOf(key) >= 0) {
@@ -143,52 +160,223 @@
             return _find_one(db, key);
         };
 
-        var get_password_datastore = function() {
+        /**
+         * returns the overview of all datastores that belong to this user
+         *
+         * @returns {promise}
+         */
+        var get_datastore_overview = function() {
+            return apiClient.read_datastore(_find_one('config', 'user_token'));
+        };
 
-            var onSucces = function(result) {
+        /**
+         * returns the datastore_id for the given type and description
+         *
+         * @param type
+         * @param description
+         *
+         * @returns uuid4
+         */
+        var get_datastore_id = function (type, description) {
+
+            var onSuccess = function (result) {
 
                 var stores = result.data['datastores'];
 
-                var datastore_id = ''
+                var datastore_id = '';
                 for (var i = 0; i < stores.length; i++) {
-                    if (stores[i].type === 'password' && stores[i].description === 'default') {
+                    if (stores[i].type === type && stores[i].description === description) {
                         datastore_id = stores[i].id
                     }
                 }
 
-                var onSucces = function(result) {
-
-                    var datastore_secret_key = cryptoLibrary.decrypt_data(
-                        result.data.secret_key,
-                        result.data.secret_key_nonce,
-                        _find_one('config', 'user_secret_key')
-                    );
-
-                    var data = cryptoLibrary.decrypt_data(
-                        result.data.data,
-                        result.data.data_nonce,
-                        datastore_secret_key
-                    );
-
-                    return JSON.parse( data );
-
-                };
-                var onError = function(result) {
-                    // pass
-                };
-
-
-                return apiClient.read_datastore(_find_one('config', 'user_token'), datastore_id)
-                    .then(onSucces, onError);
+                return datastore_id
             };
+            var onError = function () {
+                // pass
+            };
+
+            return get_datastore_overview()
+                .then(onSuccess, onError);
+        };
+        /**
+         * returns the datastore for a given id
+         *
+         * @param datastore_id
+         *
+         * @returns {*}
+         */
+        var get_datastore_with_id = function (datastore_id) {
 
             var onError = function(result) {
                 // pass
             };
 
+            var onSuccess = function(result) {
 
-            return apiClient.read_datastore(_find_one('config', 'user_token'))
-                .then(onSucces, onError);
+                var datastore_secret_key = cryptoLibrary.decrypt_data(
+                    result.data.secret_key,
+                    result.data.secret_key_nonce,
+                    _find_one('config', 'user_secret_key')
+                );
+
+                temp_datastore_key_storage[datastore_id] = datastore_secret_key;
+
+                var data = cryptoLibrary.decrypt_data(
+                    result.data.data,
+                    result.data.data_nonce,
+                    datastore_secret_key
+                );
+
+                return JSON.parse(data);
+            };
+
+            return apiClient.read_datastore(_find_one('config', 'user_token'), datastore_id)
+                .then(onSuccess, onError);
+        };
+
+
+        /**
+         * returns the datastore for the given type and and description
+         *
+         * @param type
+         * @param description
+         *
+         * @returns {*}
+         */
+        var get_datastore = function(type, description) {
+
+            var onError = function(result) {
+                // pass
+            };
+
+            var onSuccess = function(datastore_id) {
+                return get_datastore_with_id(datastore_id);
+            };
+
+            return get_datastore_id(type, description)
+                .then(onSuccess, onError);
+        };
+
+        /**
+         * returns the password datastore
+         *
+         * @returns {*}
+         */
+        var get_password_datastore = function() {
+            var type = "password";
+            var description = "default";
+
+            return get_datastore(type, description);
+        };
+
+        /**
+         * encrypts the content for a datastore with given id. The function will check if the secret key of the
+         * datastore is already known, otherwise it will query the server for the details.
+         *
+         * @param datastore_id The datastore id
+         * @param content The real object you want to encrypt in the datastore
+         *
+         * @returns {promise}
+         */
+        var encrypt_datastore = function (datastore_id, content) {
+
+            var json_content = JSON.stringify(content);
+
+
+            var _encrypt_datastore = function (datastore_id, json_content) {
+                var secret_key = temp_datastore_key_storage[datastore_id];
+
+                return cryptoLibrary.encrypt_data(json_content, secret_key);
+            };
+
+            if (temp_datastore_key_storage.hasOwnProperty(datastore_id)) {
+                // datastore secret key exists in temp datastore key storage, but we have to return a promise :/
+                return $q(function (resolve, reject) {
+                    resolve(_encrypt_datastore(datastore_id, json_content));
+                })
+            } else {
+
+                var onError = function(result) {
+                    // pass
+                };
+
+                var onSuccess = function(datastore_id) {
+                    // datastore_secret key should now exist in temp datastore key storage
+                    return _encrypt_datastore(datastore_id, json_content);
+                };
+
+                return get_datastore_with_id(datastore_id)
+                    .then(onSuccess, onError)
+
+            }
+        };
+
+        /**
+         * saves some content in a datastore
+         *
+         * @param datastore_id The datastore id
+         * @param content The real object you want to encrypt in the datastore
+         *
+         * @returns {promise}
+         */
+        var save_datastore_with_id = function (datastore_id, content) {
+
+            var onError = function(result) {
+                // pass
+            };
+            var onSuccess = function(data) {
+
+                var onError = function(result) {
+                    // pass
+                };
+                var onSuccess = function(result) {
+                    return result.data;
+                };
+
+                return apiClient.write_datastore(_find_one('config', 'user_token'), datastore_id, data.ciphertext, data.nonce)
+                    .then(onSuccess, onError);
+            };
+
+            return encrypt_datastore(datastore_id, content)
+                .then(onSuccess, onError);
+        };
+
+        /**
+         * saves some content in a datastore specified with type and description
+         *
+         * @param type
+         * @param description
+         * @param content The real object you want to encrypt in the datastore
+         *
+         * @returns {promise}
+         */
+        var save_datastore = function (type, description, content) {
+
+            var onError = function(result) {
+                // pass
+            };
+
+            var onSuccess = function(datastore_id) {
+
+                return save_datastore_with_id(datastore_id, content);
+            };
+
+            return get_datastore_id(type, description)
+                .then(onSuccess, onError);
+        };
+
+        /**
+         * saves the password datastore with given content
+         *
+         * @param content The real object you want to encrypt in the datastore
+         * @returns {promise}
+         */
+        var save_password_datastore = function (content) {
+            var type = "password";
+            var description = "default";
+
+            return save_datastore(type, description, content)
         };
 
         return {
@@ -196,11 +384,12 @@
             logout: logout,
             is_logged_in: is_logged_in,
             find_one: find_one,
-            get_password_datastore: get_password_datastore
+            get_password_datastore: get_password_datastore,
+            save_password_datastore: save_password_datastore
         };
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("manager", ['apiClient', 'cryptoLibrary', 'storage', manager]);
+    app.factory("manager", ['$q', 'apiClient', 'cryptoLibrary', 'storage', manager]);
 
 }(angular));
