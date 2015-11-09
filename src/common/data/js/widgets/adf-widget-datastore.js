@@ -195,27 +195,63 @@
          */
         var openEditItem = function (node, path, size) {
 
-            var modalInstance = $modal.open({
-                templateUrl: 'view/modal-edit-entry.html',
-                controller: 'ModalEditEntryCtrl',
-                size: size,
-                resolve: {
-                    node: function () {
-                        return node;
-                    },
-                    path: function () {
-                        return path;
-                    }
-                }
-            });
 
-            modalInstance.result.then(function (name, content) {
-                // $scope.name = name;
-                // $scope.content = content;
-                alert("Sexy" + name);
-            }, function () {
-                // cancel triggered
-            });
+            var onError = function(result) {
+                // pass
+            };
+
+            var onSuccess = function(data) {
+
+                var modalInstance = $modal.open({
+                    templateUrl: 'view/modal-edit-entry.html',
+                    controller: 'ModalEditEntryCtrl',
+                    size: size,
+                    resolve: {
+                        node: function () {
+                            return node;
+                        },
+                        path: function () {
+                            return path;
+                        },
+                        data: function () {
+                            return data;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function (content) {
+
+                    var secret_object = {};
+
+                    for (var i = 0; i < content.columns.length; i++) {
+
+                        if (!content.columns[i].hasOwnProperty("value")) {
+                            continue;
+                        }
+                        if (content.title_column == content.columns[i].name) {
+                            node.name = content.columns[i].value;
+                        }
+                        secret_object[content.columns[i].name] = content.columns[i].value;
+                    }
+
+                    var onError = function(result) {
+                        // pass
+                    };
+
+                    var onSuccess = function(e) {
+                        manager.save_password_datastore($scope.structure.data);
+                    };
+
+                    manager.write_secret(node.secret_id, node.secret_key, secret_object)
+                        .then(onSuccess, onError);
+
+                }, function () {
+                    // cancel triggered
+                });
+            };
+
+            manager.read_secret(node.secret_id, node.secret_key)
+                .then(onSuccess, onError);
         };
 
         // Datastore Structure Management
@@ -515,13 +551,28 @@
     /**
      * Controller for the "Edit Entry" modal
      */
-    module.controller('ModalEditEntryCtrl', ['$scope', '$modalInstance', 'node', 'path',
-    function ($scope, $modalInstance, node, path) {
+    module.controller('ModalEditEntryCtrl', ['$scope', '$modalInstance', 'itemBlueprint', 'node', 'path', 'data',
+    function ($scope, $modalInstance, itemBlueprint, node, path, data) {
 
         $scope.node = node;
         $scope.path = path;
         $scope.name = node.name;
         $scope.content = '';
+
+        $scope.reset = function() {
+            $scope.submitted = false;
+        };
+
+        $scope.bp = {
+            all: itemBlueprint.get_blueprints(),
+            selected: itemBlueprint.get_blueprint(node.type)
+        };
+
+        for (var i = 0; i < $scope.bp.selected.columns.length; i++) {
+            if (data.hasOwnProperty($scope.bp.selected.columns[i].name)) {
+                $scope.bp.selected.columns[i].value = data[$scope.bp.selected.columns[i].name];
+            }
+        }
 
         /**
          * Triggered once someone clicks the save button in the modal
@@ -532,7 +583,7 @@
                 return;
             }
 
-            $modalInstance.close($scope.name, $scope.content);
+            $modalInstance.close($scope.bp.selected);
         };
 
         /**

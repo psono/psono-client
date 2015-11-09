@@ -249,18 +249,14 @@
          * @param {uuid} secret_id - the secret ID
          * @param {string} [encrypted_data] - optional data for the new secret
          * @param {string} [encrypted_data_nonce] - nonce for data, necessary if data is provided
-         * @param {string} [encrypted_data_secret_key] - encrypted secret key, wont update on the server if not provided
-         * @param {string} [encrypted_data_secret_key_nonce] - nonce for secret key, wont update on the server if not provided
          * @returns {promise}
          */
-        var write_secret = function (token, secret_id, encrypted_data, encrypted_data_nonce, encrypted_data_secret_key, encrypted_data_secret_key_nonce) {
+        var write_secret = function (token, secret_id, encrypted_data, encrypted_data_nonce) {
             var endpoint = '/secret/' + secret_id + '/';
             var type = "POST";
             var data = {
                 data: encrypted_data,
-                data_nonce: encrypted_data_nonce,
-                secret_key: encrypted_data_secret_key,
-                secret_key_nonce: encrypted_data_secret_key_nonce
+                data_nonce: encrypted_data_nonce
             };
             var headers = {
                 "Authorization": "Token "+ token

@@ -1,12 +1,33 @@
 <form name="editEntryForm" novalidate>
     <div class="modal-header">
         <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
-        <h3 class="modal-title">Edit Entry</h3>
+        <h3 class="modal-title">Edit {{bp.selected.name}}</h3>
     </div>
     <div class="modal-body">
-        Edit Entry
+        <!--
+        <ui-select ng-model="bp.selected" class="form-group" on-select="reset()">
+            <ui-select-match>
+                <span ng-bind="$select.selected.name"></span>
+            </ui-select-match>
+            <ui-select-choices repeat="blueprint in (bp.all | filter: $select.search) track by blueprint.id">
+                <span ng-bind="blueprint.name"></span>
+            </ui-select-choices>
+        </ui-select>
+        -->
+        <div class="form-group" ng-repeat="n in bp.selected.columns track by $index"  ng-class="{true: 'has-error'}[submitted && editEntryForm[n.name].$invalid]">
+            <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" class="form-control"
+                   id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required" ng-model="n.value">
+
+            <textarea ng-if="n.field == 'textarea'" name="{{n.name}}" class="form-control" id="editEntryForm-{{n.name}}"
+                      placeholder="{{n.placeholder}}"  ng-required="n.required" ng-model="n.value"></textarea>
+
+            <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.required">The field is required</p>
+            <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.url">The field needs to be a valid url.</p>
+            <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.number">The field needs to be a valid number.</p>
+            <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.email">The field needs to be a valid email address.</p>
+        </div>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-primary" type="button" ng-click="submitted=true; save()">OK</button>
+        <button class="btn btn-primary" type="button" ng-click="submitted=true; save();">OK</button>
     </div>
 </form>

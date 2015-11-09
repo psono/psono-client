@@ -403,6 +403,46 @@
                 .then(onSuccess, onError);
         };
 
+        /**
+         * Reads a secret and decrypts it. Returns the decrypted object
+         *
+         * @param secret_id
+         * @param secret_key
+         *
+         * @returns {promise}
+         */
+        var read_secret = function(secret_id, secret_key) {
+
+            var onError = function(result) {
+                // pass
+            };
+
+            var onSuccess = function(content) {
+                return JSON.parse(cryptoLibrary.decrypt_data(content.data.data, content.data.data_nonce, secret_key));
+            };
+
+            return apiClient.read_secret(_find_one('config', 'user_token'), secret_id)
+                .then(onSuccess, onError);
+        };
+
+        var write_secret = function(secret_id, secret_key, content) {
+
+            var json_content = JSON.stringify(content);
+            
+            var c = cryptoLibrary.encrypt_data(json_content, secret_key);
+
+            var onError = function(result) {
+                // pass
+            };
+
+            var onSuccess = function(content) {
+                return {secret_id: content.data.secret_id};
+            };
+
+            return apiClient.write_secret(_find_one('config', 'user_token'), secret_id, c.ciphertext, c.nonce)
+                .then(onSuccess, onError);
+        };
+
         return {
             login: login,
             logout: logout,
@@ -410,7 +450,9 @@
             find_one: find_one,
             get_password_datastore: get_password_datastore,
             save_password_datastore: save_password_datastore,
-            create_secret: create_secret
+            create_secret: create_secret,
+            read_secret: read_secret,
+            write_secret: write_secret
         };
     };
 
