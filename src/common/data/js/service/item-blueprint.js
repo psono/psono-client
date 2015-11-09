@@ -8,7 +8,7 @@
 
         var _blueprints = {
             website_password: {
-                id: "website-password", // Unique ID
+                id: "website_password", // Unique ID
                 name: "Password", // Displayed in Dropdown Menu
                 title_column: "website-password-title", // is the main column, that is used as filename
                 columns: [ // All columns for this object with unique names

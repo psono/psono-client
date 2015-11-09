@@ -425,10 +425,19 @@
                 .then(onSuccess, onError);
         };
 
+        /**
+         * writes a secret after encrypting the object. returns the secret id
+         *
+         * @param secret_id
+         * @param secret_key
+         * @param content
+         *
+         * @returns {promise}
+         */
         var write_secret = function(secret_id, secret_key, content) {
 
             var json_content = JSON.stringify(content);
-            
+
             var c = cryptoLibrary.encrypt_data(json_content, secret_key);
 
             var onError = function(result) {
