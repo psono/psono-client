@@ -175,7 +175,7 @@
          * @param type
          * @param description
          *
-         * @returns uuid4
+         * @returns {promise}
          */
         var get_datastore_id = function (type, description) {
 
@@ -204,7 +204,7 @@
          *
          * @param datastore_id
          *
-         * @returns {*}
+         * @returns {promise}
          */
         var get_datastore_with_id = function (datastore_id) {
 
@@ -242,7 +242,7 @@
          * @param type
          * @param description
          *
-         * @returns {*}
+         * @returns {promise}
          */
         var get_datastore = function(type, description) {
 
@@ -261,7 +261,7 @@
         /**
          * returns the password datastore
          *
-         * @returns {*}
+         * @returns {promise}
          */
         var get_password_datastore = function() {
             var type = "password";
@@ -382,6 +382,7 @@
          * creates a secret for the given content and returns the id
          *
          * @param content
+         * @returns {promise}
          */
         var create_secret = function (content) {
             var secret_key = cryptoLibrary.generate_secret_key();
@@ -395,7 +396,7 @@
             };
 
             var onSuccess = function(content) {
-                return content.data.secret_id;
+                return {secret_id: content.data.secret_id, secret_key: secret_key};
             };
 
             return apiClient.create_secret(_find_one('config', 'user_token'), c.ciphertext, c.nonce)

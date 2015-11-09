@@ -165,8 +165,9 @@
                     // pass
                 };
 
-                var onSuccess = function(secret_id) {
-                    datastore_object['secret_id'] = secret_id;
+                var onSuccess = function(e) {
+                    datastore_object['secret_id'] = e.secret_id;
+                    datastore_object['secret_key'] = e.secret_key;
 
                     parent.items.push(datastore_object);
 
