@@ -283,7 +283,6 @@
 
             var json_content = JSON.stringify(content);
 
-
             var _encrypt_datastore = function (datastore_id, json_content) {
                 var secret_key = temp_datastore_key_storage[datastore_id];
 
@@ -379,13 +378,38 @@
             return save_datastore(type, description, content)
         };
 
+        /**
+         * creates a secret for the given content and returns the id
+         *
+         * @param content
+         */
+        var create_secret = function (content) {
+            var secret_key = cryptoLibrary.generate_secret_key();
+
+            var json_content = JSON.stringify(content);
+
+            var c = cryptoLibrary.encrypt_data(json_content, secret_key);
+
+            var onError = function(result) {
+                // pass
+            };
+
+            var onSuccess = function(content) {
+                return content.data.secret_id;
+            };
+
+            return apiClient.create_secret(_find_one('config', 'user_token'), c.ciphertext, c.nonce)
+                .then(onSuccess, onError);
+        };
+
         return {
             login: login,
             logout: logout,
             is_logged_in: is_logged_in,
             find_one: find_one,
             get_password_datastore: get_password_datastore,
-            save_password_datastore: save_password_datastore
+            save_password_datastore: save_password_datastore,
+            create_secret: create_secret
         };
     };
 

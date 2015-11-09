@@ -8,10 +8,10 @@
 
         var _blueprints = {
             website_password: {
-                id: "website_password",
-                name: "Password",
-                search: "website-password-title",
-                columns: [
+                id: "website-password", // Unique ID
+                name: "Password", // Displayed in Dropdown Menu
+                title_column: "website-password-title", // is the main column, that is used as filename
+                columns: [ // All columns for this object with unique names
                     { name: "website-password-title", field: "input", type: "text", title: "Title", placeholder: "Title", required: true},
                     { name: "website-password-url", field: "input", type: "url", title: "URL", placeholder: "URL", required: true},
                     { name: "website-password-username", field: "input", type: "text", title: "Username", placeholder: "Username"},
@@ -22,7 +22,7 @@
             note: {
                 id: "note",
                 name: "Note",
-                search: "note-title",
+                title_column: "note-title",
                 columns: [
                     { name: "note-title", field: "input", type: "text", title: "Title", placeholder: "Name", required: true},
                     { name: "note-notes", field: "textarea", title: "Notes", placeholder: "Notes", required: false}

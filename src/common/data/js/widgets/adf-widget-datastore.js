@@ -135,9 +135,47 @@
             });
 
             modalInstance.result.then(function (content) {
-                // $scope.name = name;
-                // $scope.content = content;
-                console.log(content);
+
+                if (typeof parent === 'undefined') {
+                    parent = $scope.structure.data;
+                }
+
+                if (typeof parent.items === 'undefined') {
+                    parent.items = [];
+                }
+
+                var datastore_object = {
+                    id: uuid.v4(),
+                    type: content.id
+                };
+                var secret_object = {};
+
+                for (var i = 0; i < content.columns.length; i++) {
+
+                    if (!content.columns[i].hasOwnProperty("value")) {
+                        continue;
+                    }
+                    if (content.title_column == content.columns[i].name) {
+                        datastore_object.name = content.columns[i].value;
+                    }
+                    secret_object[content.columns[i].name] = content.columns[i].value;
+                }
+
+                var onError = function(result) {
+                    // pass
+                };
+
+                var onSuccess = function(secret_id) {
+                    datastore_object['secret_id'] = secret_id;
+
+                    parent.items.push(datastore_object);
+
+                    manager.save_password_datastore($scope.structure.data);
+                };
+
+                manager.create_secret(secret_object)
+                    .then(onSuccess, onError);
+
             }, function () {
                 // cancel triggered
             });
