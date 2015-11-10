@@ -11,8 +11,16 @@
   },
   "permissions": [
     "activeTab",
-    "storage"
+    "storage",
+    "contextMenus"
   ],
+  "icons": {
+    "16": "data/img/icon-16.png",
+    "32": "data/img/icon-32.png",
+    "48": "data/img/icon-48.png",
+    "64": "data/img/icon-64.png",
+    "128": "data/img/icon-128.png"
+  },
   "background": {
     "scripts": ["data/js/lib/lokijs.min.js", "index.js"]
   }

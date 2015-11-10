@@ -4,6 +4,7 @@ var panels = require("sdk/panel");
 var self = require("sdk/self");
 var tabs = require("sdk/tabs");
 var mod = require("sdk/page-mod");
+var contextMenu = require("sdk/context-menu");
 
 var allDatastoreTabs = {};
 var allTabCount = 0;
@@ -25,33 +26,37 @@ var panel = panels.Panel({
     height: 250
 });
 
-var onLogin = function (data) {
-    console.log("index.js login");
-    panel.port.emit('login', null);
-    for (var count in allDatastoreTabs) {
-        if (allDatastoreTabs.hasOwnProperty(count)) {
-            allDatastoreTabs[count].port.emit('login', null);
-        }
-    }
-};
 
-var onLogout = function (data) {
-    console.log("index.js logout");
-    panel.port.emit('logout', null);
-    for (var count in allDatastoreTabs) {
-        if (allDatastoreTabs.hasOwnProperty(count)) {
-            allDatastoreTabs[count].port.emit('logout', null);
-        }
-    }
-};
+var firstMenuItem = contextMenu.Item({
+    label: "Main Menu",
+    contentScript: 'self.on("click", function () {' +
+    '  console.log("Item clicked!");' +
+    '});',
+    image: self.data.url("./img/icon-16.png")
+});
+
+var secondMenuItem = contextMenu.Menu({
+    label: "Main Menu with submenus",
+    items: [
+        contextMenu.Item({
+            label: "Submenu",
+            contentScript: 'self.on("click", function () {' +
+            '  console.log("Item clicked!");' +
+            '});',
+            image: self.data.url("./img/icon-16.png")
+        })
+    ],
+    image: self.data.url("./img/icon-16.png")
+});
+
+
+/*
+ * Some messaging stuff below
+ */
 
 panel.port.on('resize', function (data) {
     panel.resize((data.width), (data.height));
 });
-
-panel.port.on('login', onLogin);
-panel.port.on('logout', onLogout);
-
 
 panel.port.on('openTab', function (data) {
 
@@ -117,6 +122,31 @@ function handleChange(state) {
         });
     }
 }
+
+// Test stuff below
+
+var onLogin = function (data) {
+    console.log("index.js login");
+    panel.port.emit('login', null);
+    for (var count in allDatastoreTabs) {
+        if (allDatastoreTabs.hasOwnProperty(count)) {
+            allDatastoreTabs[count].port.emit('login', null);
+        }
+    }
+};
+
+var onLogout = function (data) {
+    console.log("index.js logout");
+    panel.port.emit('logout', null);
+    for (var count in allDatastoreTabs) {
+        if (allDatastoreTabs.hasOwnProperty(count)) {
+            allDatastoreTabs[count].port.emit('logout', null);
+        }
+    }
+};
+
+panel.port.on('login', onLogin);
+panel.port.on('logout', onLogout);
 
 function handleHide() {
     button.state('window', {checked: false});
