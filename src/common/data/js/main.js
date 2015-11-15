@@ -10,18 +10,22 @@
             $routeProvider
                 .when('/test', {
                     templateUrl: 'view/test.html',
-                    controller: 'BookCtrl'
+                    controller: 'TestCtrl'
                 })
                 .when('/Book/:bookId/ch/:chapterId', {
                     templateUrl: 'view/chapter.html',
                     controller: 'ChapterCtrl',
                     controllerAs: 'chapter'
                 })
+                .when('/secret/:type/:secret_id', {
+                    templateUrl: 'view/open-secret.html',
+                    controller: 'OpenSecretCtrl',
+                    controllerAs: 'open-secret'
+                })
                 .otherwise({
                     templateUrl: 'view/index.html',
-                    controller: 'ChapterCtrl'
+                    controller: 'IndexCtrl'
                 });
-            //$locationProvider.html5Mode(true);
 
             // ADF config
             localStorageServiceProvider.setPrefix('adf.datastore');
@@ -113,54 +117,17 @@
                 });
 
         }]);
-/*
-    app.directive('showErrors', ['$timeout', function($timeout) {
-        return {
-            restrict: 'A',
-            require: '^form',
-            link: function (scope, el, attrs, formCtrl) {
-                $timeout(function() {
-                    // find the text box element, which has the 'name' attribute
-                    var inputEl   = el[0].querySelector("[name]");
-                    // convert the native text box element to an angular element
-                    var inputNgEl = angular.element(inputEl);
-                    // get the name on the text box
-                    var inputName = inputNgEl.attr('name');
 
-                    // only apply the has-error class after the user leaves the text box
-                    var blurred = false;
-                    inputNgEl.bind('blur', function() {
-                        blurred = true;
-                        if (formCtrl.hasOwnProperty(inputName))
-                            el.toggleClass('has-error', formCtrl[inputName].$invalid);
-                    });
-
-                    scope.$watch(function() {
-                        console.log(inputName);
-                        if (formCtrl.hasOwnProperty(inputName))
-                            return formCtrl[inputName].$invalid;
-                    }, function(invalid) {
-                        // we only want to toggle the has-error class after the blur
-                        // event or if the control becomes valid
-                        if (!blurred && invalid) { return }
-                        el.toggleClass('has-error', invalid);
-                    });
-
-                    scope.$on('show-errors-check-validity', function() {
-                        if (formCtrl.hasOwnProperty(inputName))
-                            el.toggleClass('has-error', formCtrl[inputName].$invalid);
-                    });
-
-                    scope.$on('show-errors-reset', function() {
-                        $timeout(function() {
-                            el.removeClass('has-error');
-                        }, 0, false);
-                    });
-                }, 0);
+    app.run(['$rootScope','$location', '$routeParams', 'manager' , function($rootScope, $location, $routeParams, manager) {
+        $rootScope.$on('$routeChangeSuccess', function() {
+            var redirect = '/secret/';
+            if ($location.path().substring(0, redirect.length) == redirect && $routeParams.hasOwnProperty('secret_id')) {
+                manager.redirectSecret($routeParams.type, $routeParams.secret_id);
             }
-        }
+
+        });
     }]);
-*/
+
     app.controller('DashboardController', ['$scope', 'localStorageService', function($scope, localStorageService){
         var model = localStorageService.get('widgetHomeDashboard');
         if (!model){
@@ -181,9 +148,9 @@
         }
 
         $scope.dashboard = {
-            model: model,
-            sexy: {narf: "sehr serxy"}
+            model: model
         };
+
         $scope.$on('adfDashboardChanged', function (event, name, model) {
             localStorageService.set(name, model);
         });
@@ -296,13 +263,17 @@
             /* login / logout */
             $scope.loggedin = manager.is_logged_in();
 
-            $rootScope.$on("login", function(event, message){
+            browserClient.on("login", function(event, message){
+                console.log("login catched");
                 $scope.loggedin = true;
             });
 
-            $rootScope.$on("logout", function(event, message){
+            browserClient.on("logout", function(event, message){
+                console.log("logout catched");
                 $scope.loggedin = false;
             });
+
+
 
             /*
             $scope.$on("login", function(event, message){
@@ -356,8 +327,6 @@
                 }
                 function onRequestReturn(data) {
                     browserClient.emit("logout", null);
-                    //$scope.$emit('logout', '');
-                    $rootScope.$broadcast('logout', '');
                     browserClient.resize(250);
 
                 }
@@ -460,8 +429,6 @@
                     if (data.response === "success") {
                         $scope.errors = [];
                         browserClient.emit("login", null);
-                        //$scope.$emit('login', '');
-                        $rootScope.$broadcast('login', '');
                         browserClient.resize(300);
                     } else {
                         if (data.error_data == null) {
@@ -478,14 +445,28 @@
         }]);
 
 
-    app.controller('BookCtrl', ['$routeParams', function($routeParams) {
-        this.name = "BookCtrl";
+    app.controller('TestCtrl', ['$routeParams', function($routeParams) {
+        this.name = "TestCtrl";
         this.params = $routeParams;
-    }])
-    .controller('ChapterCtrl', ['$routeParams', function($routeParams) {
+    }]);
+
+    app.controller('ChapterCtrl', ['$routeParams', function($routeParams) {
         this.name = "ChapterCtrl";
         this.params = $routeParams;
     }]);
+
+    app.controller('OpenSecretCtrl', ['$scope', '$routeParams', function($scope, $routeParams) {
+        this.name = "OpenSecretCtrl";
+        this.params = $routeParams;
+        $scope.routeParams = $routeParams;
+    }]);
+
+    app.controller('IndexCtrl', ['$scope', '$routeParams', function($scope, $routeParams) {
+        this.name = "IndexCtrl";
+        this.params = $routeParams;
+        $scope.routeParams = $routeParams;
+    }]);
+
 })(angular);
 
 

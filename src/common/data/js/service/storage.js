@@ -11,6 +11,15 @@
             dbs['config'] = loki_storage.addCollection('config', { indices: ['key']});
             dbs['config'].ensureUniqueIndex('key');
         }
+
+        // Start of temporary storages
+
+        dbs['temp_secret'] = loki_storage.getCollection('temp_secret');
+
+        if (dbs['temp_secret'] === null) {
+            dbs['temp_secret'] = loki_storage.addCollection('temp_secret', { indices: ['key']});
+            dbs['temp_secret'].ensureUniqueIndex('key');
+        }
     });
 
     var storage = function(localStorageService, cryptoLibrary) {

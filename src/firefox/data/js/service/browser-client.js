@@ -9,8 +9,12 @@
         port = self.port;
     }
 
+    var events = [
+        'login',
+        'logout'
+    ];
 
-    var browserClient = function() {
+    var browserClient = function($rootScope) {
         /**
          * Resize the panel according to the provided width and height
          *
@@ -28,8 +32,10 @@
          * @param url
          */
         var openTab = function(url) {
+
             if (typeof port === "undefined")
                 return;
+
             port.emit("openTab", {url: url});
         };
 
@@ -56,16 +62,32 @@
             }
         };
 
+        /**
+         * registers for an event with a function
+         *
+         * @param event
+         * @param myFunction
+         *
+         * @returns {boolean}
+         */
+        var on = function (event, myFunction) {
+
+            if(events.indexOf(event) == -1)
+                return false;
+
+            port.on(event, myFunction);
+        };
 
         return {
             resize: resize,
             openTab: openTab,
             testBackgroundPage: testBackgroundPage,
-            emit: emit
+            emit: emit,
+            on: on
         };
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("browserClient", [browserClient]);
+    app.factory("browserClient", ['$rootScope', browserClient]);
 
 }(angular, $));

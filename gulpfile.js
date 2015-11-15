@@ -47,7 +47,7 @@ gulp.task('build-chrome', function() {
         .pipe(gulp.dest('build/chrome/data'));
 
     gulp.src('src/common/data/view/**/*.html')
-        .pipe(templateCache())
+        .pipe(templateCache('templates.js', { module:'passwordManagerApp', root: 'view/' }))
         .pipe(gulp.dest('build/chrome/data/view'));
 
     gulp.src(['src/chrome/**/*'])

@@ -55,7 +55,14 @@
 
                 var options = angular.extend({}, treeViewDefaults, $scope.treeViewOptions);
 
+                /**
+                 * called by the directive whenever a node is selected to handle the possible option
+                 *
+                 * @param node
+                 * @param breadcrumbs
+                 */
                 self.selectNode = function (node, breadcrumbs) {
+                    console.log("selectNode");
                     if (selectedItem) {
                         selectedItem = undefined;
                     }
@@ -66,21 +73,61 @@
                     }
                 };
 
+                /**
+                 * called by the directive whenever an item is selected to handle the possible option
+                 *
+                 * @param item
+                 * @param breadcrumbs
+                 */
                 self.selectItem = function (item, breadcrumbs) {
                     if (selectedNode) {
                         selectedNode = undefined;
                     }
                     selectedItem = item;
 
-                    if (typeof options.onNodeSelect === "function") {
-                        options.onNodeSelect(item, breadcrumbs);
+                    if (typeof options.onItemSelect === "function") {
+                        options.onItemSelect(item, breadcrumbs);
                     }
                 };
 
+                /**
+                 * called by the directive whenever an item is clicked to handle the possible option
+                 *
+                 * @param item
+                 */
+                self.clickItem = function (item) {
+                    if (typeof options.onItemSelect === "function") {
+                        options.onItemClick(item);
+                    }
+                };
+
+                /**
+                 * called by the directive whenever a node is clicked to handle the possible option
+                 *
+                 * @param node
+                 */
+                self.clickNode = function (node) {
+                    if (typeof options.onNodeClick === "function") {
+                        options.onNodeClick(node);
+                    }
+                };
+
+                /**
+                 * tests if a node is selected
+                 *
+                 * @param node
+                 *
+                 * @returns {boolean}
+                 */
                 self.isSelected = function (node) {
                     return node === selectedNode || node === selectedItem;
                 };
 
+                /**
+                 * retuns the options
+                 *
+                 * @returns {void|*}
+                 */
                 self.getOptions = function () {
                     return options;
                 };
@@ -225,6 +272,16 @@
                 };
 
                 /**
+                 * fired if someone clicks a node
+                 *
+                 * @param event
+                 */
+                scope.clickNode = function (event) {
+                    event.preventDefault();
+                    controller.clickNode(scope.node, getPropertyPath(idProperty));
+                };
+
+                /**
                  * fired if someone clicks "edit item" and triggers the function defined in the properties
                  *
                  * @param item
@@ -293,6 +350,18 @@
                     controller.selectItem(item, getPropertyPath(displayProperty, item));
                 };
 
+                /**
+                 * fired if someone clicks an item
+                 *
+                 * @param item
+                 * @param event
+                 */
+                scope.clickItem = function (item, event) {
+                    event.preventDefault();
+
+                    controller.clickItem(item, getPropertyPath(idProperty));
+                };
+
 
                 /**
                  * checks if the node has been selected
@@ -309,7 +378,6 @@
                  * @param node
                  */
                 function toggleExpanded(node) {
-                    //if (!scope.hasChildren()) return;
                     node.expanded = !node.expanded;
                 }
 
@@ -318,10 +386,10 @@
                         '<div class="tree-folder" ng-repeat="node in ' + attrs.treeViewNode + '.' + foldersProperty + '">' +
 
                         '<div class="tree-folder-title" data-target="menu-{{ node.id }}" context-menu="">' +
-                        '<a href="#" class="tree-folder-header" ng-click="selectNode($event)" ng-class="{ selected: isSelected(node) }">' +
-                        '<i class="" ng-class="getFolderIconClass(node)"></i> ' +
-                        '<span class="tree-folder-name">{{ node.' + displayProperty + ' }}</span> ' +
-                        '</a>' +
+                        '<div href="#" class="tree-folder-header" ng-click="selectNode($event)" ng-class="{ selected: isSelected(node) }">' +
+                        '<i class="" ng-class="getFolderIconClass(node)"></i>' +
+                        '<span class="tree-folder-name"><a href="#" ng-click="clickNode($event)">{{ node.' + displayProperty + ' }}</a></span> ' +
+                        '</div>' +
                         '<span class="node-dropdown" dropdown>' +
                         '<a class="btn btn-default editbutton" href="#" role="button" id="drop_node_{{node.id}}" dropdown-toggle>' +
                         '    <i ng-class="getFolderEditIconClass(node)"></i>' +
@@ -355,7 +423,7 @@
                         '<div class="tree-item" ng-repeat="item in ' + attrs.treeViewNode + '.' + itemsProperty + '">' +
 
                         '<div class="tree-item-object" ng-click="selectItem(item, $event)" ng-class="{ selected: isSelected(item) }" data-target="menu-{{ item.id }}" context-menu="">' +
-                        '<span class="tree-item-name"><i ng-class="getItemIconClass(item)"></i> {{ item.' + displayProperty + ' }}</span>' +
+                        '<i ng-class="getItemIconClass(item)"></i><span class="tree-item-name"><a href="#" ng-click="clickItem(item, $event)">{{ item.' + displayProperty + ' }}</a></span>' +
                         '<span class="node-dropdown" dropdown>' +
                         '<a class="btn btn-default editbutton" href="#" role="button" id="drop_item_{{item.id}}" dropdown-toggle>' +
                         '    <i ng-class="getFolderEditIconClass(item)"></i>' +

@@ -108,9 +108,6 @@ h1, h2 {
   .tree .dropdown-button-menu {
     right: 0;
     left: auto; }
-  .tree .dropdown-menu .fa {
-    margin-right: 10px;
-    width: 15px; }
   .tree .tree-folder .tree-folder-content:before {
     top: -9px;
     bottom: 23px;
@@ -129,6 +126,10 @@ h1, h2 {
 .expand15 {
   margin: -15px;
   padding: 15px; }
+
+.dropdown-menu .fa {
+  margin-right: 10px;
+  width: 15px; }
 
 /* classes for error handling */
 .form-group .help-block {

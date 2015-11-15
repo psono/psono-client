@@ -26,8 +26,8 @@
     /**
      * Main Controller for the datastore widget
      */
-    module.controller('datastoreController', ["$scope", "$interval", "config", "manager", "$modal", "itemBlueprint",
-    function($scope, $interval, config, manager, $modal, itemBlueprint){
+    module.controller('datastoreController', ["$scope", "$interval", "config", "manager", "$modal",
+    function($scope, $interval, config, manager, $modal){
 
         // Modals
 
@@ -308,9 +308,36 @@
         };
 
         $scope.options = {
+            /**
+             * Triggered once someone selects a node
+             *
+             * @param node
+             * @param breadcrums
+             */
             onNodeSelect: function (node, breadcrums) {
                 $scope.breadcrums = breadcrums;
                 $scope.node = node;
+                manager.onNodeSelect(node);
+            },
+            /**
+             * Triggered once someone selects an item
+             *
+             * @param item
+             * @param breadcrums
+             */
+            onItemSelect: function (item, breadcrums) {
+                $scope.breadcrums = breadcrums;
+                $scope.node = item;
+                manager.onItemSelect(item);
+            },
+            /**
+             * Triggered once someone clicks on a node
+             *
+             * @param node
+             * @param path
+             */
+            onNodeClick: function(node, path) {
+                manager.onNodeClick(node, path);
             },
             /**
              * Triggered once someone clicks the delete node entry
@@ -335,6 +362,16 @@
              */
             onEditNode: function (node, path) {
                 openEditFolder(node, path)
+            },
+
+            /**
+             * Triggered once someone clicks on a node entry
+             *
+             * @param item The item in question
+             * @param path The path to the item
+             */
+            onItemClick: function (item, path) {
+                manager.onItemClick(item, path);
             },
 
             /**

@@ -2,7 +2,7 @@
     'use strict';
 
 
-    var itemBlueprint = function() {
+    var itemBlueprint = function($window) {
 
         var _default = "website_password";
 
@@ -10,25 +10,35 @@
             website_password: {
                 id: "website_password", // Unique ID
                 name: "Password", // Displayed in Dropdown Menu
-                title_column: "website-password-title", // is the main column, that is used as filename
+                title_column: "website_password_title", // is the main column, that is used as filename
                 columns: [ // All columns for this object with unique names
-                    { name: "website-password-title", field: "input", type: "text", title: "Title", placeholder: "Title", required: true},
-                    { name: "website-password-url", field: "input", type: "url", title: "URL", placeholder: "URL", required: true},
-                    { name: "website-password-username", field: "input", type: "text", title: "Username", placeholder: "Username"},
-                    { name: "website-password-password", field: "input", type: "password", title: "Password", placeholder: "Password"},
-                    { name: "website-password-notes", field: "textarea", title: "Notes", placeholder: "Notes", required: false}
-                ]
+                    { name: "website_password_title", field: "input", type: "text", title: "Title", placeholder: "Title", required: true},
+                    { name: "website_password_url", field: "input", type: "url", title: "URL", placeholder: "URL", required: true},
+                    { name: "website_password_username", field: "input", type: "text", title: "Username", placeholder: "Username"},
+                    { name: "website_password_password", field: "input", type: "password", title: "Password", placeholder: "Password"},
+                    { name: "website_password_notes", field: "textarea", title: "Notes", placeholder: "Notes", required: false}
+                ],
+                onClickNewTab: true,
+                /**
+                 * will open a new tab
+                 *
+                 * @param content
+                 */
+                onOpenSecret: function(content) {
+                    $window.location.href = content.website_password_url;
+                }
             },
             note: {
                 id: "note",
                 name: "Note",
-                title_column: "note-title",
+                title_column: "note_title",
                 columns: [
-                    { name: "note-title", field: "input", type: "text", title: "Title", placeholder: "Name", required: true},
-                    { name: "note-notes", field: "textarea", title: "Notes", placeholder: "Notes", required: false}
+                    { name: "note_title", field: "input", type: "text", title: "Title", placeholder: "Name", required: true},
+                    { name: "note_notes", field: "textarea", title: "Notes", placeholder: "Notes", required: false}
                 ]
             }
         };
+
         /**
          * returns an overview of all available blueprints with name and id
          *
@@ -45,6 +55,7 @@
             }
             return result;
         };
+
         /**
          * returns the blueprint for a specific key
          *
@@ -78,15 +89,39 @@
             return get_blueprint(get_default_blueprint_key());
         };
 
+        /**
+         * determines weather a specified blueprint needs a new tab on click
+         *
+         * @param key
+         * @returns {boolean}
+         */
+        var blueprint_has_on_click_new_tab = function(key) {
+            var bp = get_blueprint(key);
+            return !!(bp && bp.onClickNewTab);
+        };
+
+        /**
+         * triggers open secret function
+         *
+         * @param key
+         * @param content
+         */
+        var blueprint_on_open_secret = function (key, content) {
+            var bp = get_blueprint(key);
+            bp.onOpenSecret(content);
+        };
+
         return {
             get_blueprint: get_blueprint,
             get_blueprints: get_blueprints,
             get_default_blueprint_key: get_default_blueprint_key,
-            get_default_blueprint: get_default_blueprint
+            get_default_blueprint: get_default_blueprint,
+            blueprint_has_on_click_new_tab: blueprint_has_on_click_new_tab,
+            blueprint_on_open_secret: blueprint_on_open_secret,
         };
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("itemBlueprint", ['$http', 'storage', itemBlueprint]);
+    app.factory("itemBlueprint", ['$window', itemBlueprint]);
 
 }(angular));

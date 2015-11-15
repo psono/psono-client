@@ -1,7 +1,7 @@
 (function(angular) {
     'use strict';
 
-    var manager = function($q, apiClient, cryptoLibrary, storage) {
+    var manager = function($q, $timeout, apiClient, cryptoLibrary, storage, itemBlueprint, browserClient) {
 
         var temp_datastore_key_storage = {};
 
@@ -139,7 +139,7 @@
          */
         var _find_one = function(db, key) {
 
-            var obj = storage.find_one('config', {'key': key});
+            var obj = storage.find_one(db, {'key': key});
             if (obj === null) {
                 return ''
             }
@@ -452,6 +452,75 @@
                 .then(onSuccess, onError);
         };
 
+        /**
+         * handles node selections and triggers behaviour
+         *
+         * @param node
+         */
+        var onNodeSelect = function(node) {
+            //pass
+        };
+
+        /**
+         * handles item selections and triggers behaviour
+         *
+         * @param item
+         */
+        var onItemSelect = function(item) {
+            //pass
+        };
+        /**
+         * handles node clicks and triggers behaviour
+         *
+         * @param node
+         * @param path
+         */
+        var onNodeClick = function(node, path) {
+            //pass
+        };
+        /**
+         * handles item clicks and triggers behaviour
+         * @param item
+         * @param path
+         */
+        var onItemClick = function(item, path) {
+            if (itemBlueprint.blueprint_has_on_click_new_tab(item.type)) {
+
+                // put secret_key in temporary storage
+                storage.insert('temp_secret', {key: item.secret_id, value: item.secret_key});
+                storage.save();
+
+                // Automatic remove of temporary secret
+                $timeout(function(){
+                    storage.remove('temp_secret', storage.find_one('temp_secret', {'key': item.secret_id}));
+                    storage.save();
+                }, 5000);
+
+                browserClient.openTab('/data/open-secret.html#/secret/'+item.type+'/'+item.secret_id);
+            }
+        };
+
+        var redirectSecret = function(type, secret_id) {
+
+            var onError = function(result) {
+            // pass
+            };
+
+            var onSuccess = function(content) {
+                var secret_key = _find_one('temp_secret', secret_id);
+
+                storage.remove('temp_secret', storage.find_one('temp_secret', {'key': secret_id}));
+                storage.save();
+
+                var decrypted_secret = JSON.parse(cryptoLibrary.decrypt_data(content.data.data, content.data.data_nonce, secret_key));
+                itemBlueprint.blueprint_on_open_secret(type, decrypted_secret);
+            };
+
+            apiClient.read_secret(_find_one('config', 'user_token'), secret_id)
+                .then(onSuccess, onError);
+
+        };
+
         return {
             login: login,
             logout: logout,
@@ -461,11 +530,16 @@
             save_password_datastore: save_password_datastore,
             create_secret: create_secret,
             read_secret: read_secret,
-            write_secret: write_secret
+            write_secret: write_secret,
+            onNodeSelect: onNodeSelect,
+            onItemSelect: onItemSelect,
+            onNodeClick: onNodeClick,
+            onItemClick: onItemClick,
+            redirectSecret: redirectSecret
         };
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("manager", ['$q', 'apiClient', 'cryptoLibrary', 'storage', manager]);
+    app.factory("manager", ['$q', '$timeout', 'apiClient', 'cryptoLibrary', 'storage', 'itemBlueprint', 'browserClient', manager]);
 
 }(angular));

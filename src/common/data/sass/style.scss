@@ -108,7 +108,7 @@ h1, h2 {
   overflow-y: visible;
 
   .tree-item.selected,
-  .tree-folder .tree-folder-header.selected{
+  .tree-folder .tree-folder-header.selected {
     background-color: inherit;
     border-color: #fff;
     border-radius: 4px;
@@ -151,12 +151,6 @@ h1, h2 {
     right: 0;
     left: auto;
   }
-  .dropdown-menu {
-    .fa {
-      margin-right: 10px;
-      width: 15px;
-    }
-  }
 
   .tree-folder .tree-folder-content:before {
     top: -9px;
@@ -180,6 +174,13 @@ h1, h2 {
 .expand15 {
   margin: -15px;
   padding: 15px;
+}
+
+.dropdown-menu {
+  .fa {
+    margin-right: 10px;
+    width: 15px;
+  }
 }
 
 /* classes for error handling */

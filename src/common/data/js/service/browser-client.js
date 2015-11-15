@@ -1,7 +1,12 @@
 (function(angular) {
     'use strict';
 
-    var browserClient = function() {
+    var events = [
+        'login',
+        'logout'
+    ];
+
+    var browserClient = function($rootScope) {
         /**
          * Resize the panel according to the provided width and height
          *
@@ -34,18 +39,35 @@
          * @param data
          */
         var emit = function (event, data) {
+            $rootScope.$broadcast(event, '');
+        };
 
+        /**
+         * registers for an event with a function
+         *
+         * @param event
+         * @param myFunction
+         *
+         * @returns {boolean}
+         */
+        var on = function (event, myFunction) {
+
+            if(events.indexOf(event) == -1)
+                return false;
+
+            $rootScope.$on(event, myFunction);
         };
 
         return {
             resize: resize,
             openTab: openTab,
             testBackgroundPage: testBackgroundPage,
-            emit: emit
+            emit: emit,
+            on: on
         };
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("browserClient", [browserClient]);
+    app.factory("browserClient", ['$rootScope', browserClient]);
 
 }(angular));
