@@ -24,7 +24,7 @@
 <body class="dark">
 <div ng-controller="MainController">
 
-<div ng-if="loggedin" ng-controller="Main2Controller">
+<div ng-if="data.loggedin" ng-controller="Main2Controller">
     <form name="searchForm">
         <div class="form-group">
             <input id="datastoresearch" name="datastoresearch" class="form-control" ng-model="datastore.search"
@@ -51,7 +51,7 @@
         </div>
     </form>
 </div>
-<div ng-if="!loggedin" ng-controller="LoginController" class="loginbox">
+<div ng-if="!data.loggedin" ng-controller="LoginController" class="loginbox">
     <!-- Not logged in, show the login form -->
     <img src="img/logo.png" id="logo">
 

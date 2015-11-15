@@ -24,6 +24,14 @@
         };
 
         /**
+         * deletes local data in storage
+         */
+        var _delete_local_data = function () {
+            storage.removeAll('config');
+            storage.save();
+        };
+
+        /**
          * Ajax POST request to the backend with email and authkey for login, saves a token together with user_id
          * and all the different keys of a user in the apidata storage
          *
@@ -35,6 +43,7 @@
          */
         var login = function(email, password, server) {
 
+            _delete_local_data();
 
             var authkey = cryptoLibrary.generate_authkey(email, password);
 
@@ -92,21 +101,9 @@
          */
         var logout = function () {
 
-            var delete_local_data = function () {
-                storage.remove('config', storage.find_one('config', {'key': 'user_email'}));
-                storage.remove('config', storage.find_one('config', {'key': 'server'}));
-                storage.remove('config', storage.find_one('config', {'key': 'user_id'}));
-                storage.remove('config', storage.find_one('config', {'key': 'user_token'}));
-                storage.remove('config', storage.find_one('config', {'key': 'user_public_key'}));
-                storage.remove('config', storage.find_one('config', {'key': 'user_private_key'}));
-                storage.remove('config', storage.find_one('config', {'key': 'user_secret_key'}));
-
-                storage.save();
-            };
-
             var onSuccess = function (response) {
 
-                delete_local_data();
+                _delete_local_data();
 
                 return {
                     response:"success"
@@ -116,7 +113,7 @@
             var onError = function(response){
                 //session expired, so lets delete the data anyway
 
-                delete_local_data();
+                _delete_local_data();
 
                 return {
                     response:"success"
@@ -480,6 +477,7 @@
         };
         /**
          * handles item clicks and triggers behaviour
+         *
          * @param item
          * @param path
          */
@@ -492,8 +490,11 @@
 
                 // Automatic remove of temporary secret
                 $timeout(function(){
-                    storage.remove('temp_secret', storage.find_one('temp_secret', {'key': item.secret_id}));
-                    storage.save();
+                    var obj = storage.find_one('temp_secret', {'key': item.secret_id});
+                    if (obj) {
+                        storage.remove('temp_secret', obj);
+                        storage.save();
+                    }
                 }, 5000);
 
                 browserClient.openTab('/data/open-secret.html#/secret/'+item.type+'/'+item.secret_id);

@@ -53,13 +53,8 @@
          * @param data
          */
         var emit = function (event, data) {
-            if (typeof port === "undefined") {
-                console.log("browser-client.js postMessage " + event);
-                self.postMessage(event, '*');
-            } else {
-                console.log("browser-client.js port.emit " + event);
-                port.emit(event, data);
-            }
+            port.emit(event, data);
+            $rootScope.$broadcast(event, '');
         };
 
         /**
@@ -76,6 +71,7 @@
                 return false;
 
             port.on(event, myFunction);
+            $rootScope.$on(event, myFunction);
         };
 
         return {

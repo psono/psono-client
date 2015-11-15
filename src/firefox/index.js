@@ -98,15 +98,27 @@ var openTab = function (data) {
             ],
             onmessage: function (msg) {console.log("worker received " + msg)}
         });
-        worker.port.on('login', onLogin);
-        worker.port.on('logout', onLogout);
-        worker.port.on('testmsg', function (data) {console.log("received test message")});
+
+        worker.port.on('login', function(data) {
+            onLogin("worker", data);
+        });
+
+        worker.port.on('logout', function(data) {
+            onLogout("worker", data);
+        });
+
         worker.port.on('openTab', openTab);
 
-        tab.worker_id = allTabCount;
-        allDatastoreTabs[allTabCount] = worker;
-        allTabCount++
+        // new tabs get a new number
+        if (typeof tab.worker_id === 'undefined') {
+            tab.worker_id = allTabCount;
+            allTabCount++
+        }
+        worker.tab = tab;
+
+        allDatastoreTabs[tab.worker_id] = worker;
     };
+
     tab.onClose = function(tab) {
         delete allDatastoreTabs[tab.worker_id];
     };
@@ -123,31 +135,40 @@ function handleChange(state) {
         });
     }
 }
+var onLogin = function (from, data) {
+    var msg = 'login';
 
-// Test stuff below
+    if (from == 'panel') {
+        // message from panel, lets inform the tabs
+        for (var count in allDatastoreTabs) {
+            if (allDatastoreTabs.hasOwnProperty(count)) {
+                allDatastoreTabs[count].port.emit(msg, msg);
+            }
+        }
+    } else {
+        panel.port.emit(msg, msg);
+    }
+};
+var onLogout = function (from, data) {
+    var msg = 'logout';
 
-var onLogin = function (data) {
-    console.log("index.js login");
-    panel.port.emit('login', null);
+    if (from !== 'panel') {
+        panel.port.emit(msg, msg);
+    }
+
     for (var count in allDatastoreTabs) {
         if (allDatastoreTabs.hasOwnProperty(count)) {
-            allDatastoreTabs[count].port.emit('login', null);
+            allDatastoreTabs[count].tab.close();
         }
     }
 };
 
-var onLogout = function (data) {
-    console.log("index.js logout");
-    panel.port.emit('logout', null);
-    for (var count in allDatastoreTabs) {
-        if (allDatastoreTabs.hasOwnProperty(count)) {
-            allDatastoreTabs[count].port.emit('logout', null);
-        }
-    }
-};
-
-panel.port.on('login', onLogin);
-panel.port.on('logout', onLogout);
+panel.port.on('login', function(data) {
+    onLogin("panel", data);
+});
+panel.port.on('logout', function(data) {
+    onLogout("panel", data);
+});
 
 function handleHide() {
     button.state('window', {checked: false});

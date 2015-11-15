@@ -24,7 +24,7 @@
 <body>
 <div  ng-controller="MainController">
 
-<div ng-if="loggedin" ng-controller="Main2Controller">
+<div ng-if="data.loggedin" ng-controller="Main2Controller">
 
     <nav class="navbar navbar-default navbar-static-top">
         <div class="container">
@@ -72,7 +72,7 @@
     </div>
 
 </div>
-<div ng-if="!loggedin" ng-controller="LoginController">
+<div ng-if="!data.loggedin" ng-controller="LoginController">
     <!-- Not logged in, show the login form -->
     <div class="wrapper">
 

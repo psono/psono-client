@@ -46,7 +46,8 @@
          * @param data
          */
         var emit = function (event, data) {
-
+            console.log("browser-client.js $rootScope.$broadcast " + event);
+            $rootScope.$broadcast(event, '');
         };
 
         /**

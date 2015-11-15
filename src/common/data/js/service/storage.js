@@ -64,6 +64,17 @@
         };
 
         /**
+         * removes all objects
+         *
+         * @param db
+         */
+        var removeAll = function(db) {
+            return dbs[db].removeWhere(function() {
+                return true;
+            })
+        };
+
+        /**
          * setups an event listener on an event
          *
          * @param db
@@ -88,6 +99,7 @@
             data: data,
             find_one: find_one,
             remove: remove,
+            removeAll: removeAll,
             on: on,
             save: save
         };

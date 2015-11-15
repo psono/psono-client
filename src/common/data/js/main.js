@@ -261,37 +261,23 @@
             });
 
             /* login / logout */
-            $scope.loggedin = manager.is_logged_in();
+            $scope.data = {
+                loggedin: manager.is_logged_in()
+            };
 
             browserClient.on("login", function(event, message){
-                console.log("login catched");
-                $scope.loggedin = true;
+                $timeout(function() {
+                    $scope.data.loggedin = true;
+                });
             });
 
             browserClient.on("logout", function(event, message){
-                console.log("logout catched");
-                $scope.loggedin = false;
+                $timeout(function() {
+                    $scope.data.loggedin = false;
+                    browserClient.resize(250);
+                });
             });
 
-
-
-            /*
-            $scope.$on("login", function(event, message){
-                $scope.loggedin = true;
-            });
-            $scope.$on("logout", function(event, message){
-                $scope.loggedin = false;
-            });
-            */
-            /*
-            angular.element($window).bind('login', function () {
-                $scope.loggedin = true;
-            });
-
-            angular.element($window).bind('logout', function () {
-                $scope.loggedin = false;
-            });
-            */
         }]);
 
     app.controller('Main2Controller', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'browserClient', 'storage',
@@ -328,7 +314,6 @@
                 function onRequestReturn(data) {
                     browserClient.emit("logout", null);
                     browserClient.resize(250);
-
                 }
 
                 manager.logout().then(onRequestReturn, onError);
