@@ -192,7 +192,22 @@ h1, h2 {
   display: block;
 }
 
+/* Bootstrap fixes */
+.modal-body .tabset_expand {
+  margin-left: -20px;
+  margin-right: -20px;
 
+  .nav-tabs {
+    li:first-child{
+      margin-left: 20px;
+    }
+  }
+  .tab-content {
+    padding:20px 20px 5px 20px;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 15px;
+  }
+}
 
 /* CSS fix for angular-ui explained here: https://angular-ui.github.io/bootstrap/ */
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }

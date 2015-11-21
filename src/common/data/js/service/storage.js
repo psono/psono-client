@@ -1,7 +1,7 @@
 (function(angular) {
     'use strict';
 
-    var loki_storage = new loki("password_manager_local_storage");
+    var loki_storage = new Loki("password_manager_local_storage");
     var dbs = [];
     loki_storage.loadDatabase({}, function () {
 

@@ -4,7 +4,7 @@
     //var config = chrome.extension.getBackgroundPage().config;
     //var db = chrome.extension.getBackgroundPage().db;
 
-    var db = new loki("password_manager_local_storage");
+    var db = new Loki("password_manager_local_storage");
     var config = db.getCollection('config') || db.addCollection('config');
 
     var events = [

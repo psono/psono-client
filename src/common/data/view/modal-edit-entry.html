@@ -14,18 +14,126 @@
             </ui-select-choices>
         </ui-select>
         -->
-        <div class="form-group" ng-repeat="n in bp.selected.columns track by $index"  ng-class="{true: 'has-error'}[submitted && editEntryForm[n.name].$invalid]">
-            <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" class="form-control"
-                   id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required" ng-model="n.value">
+        <div class="form-group" ng-repeat="n in bp.selected.columns track by $index"
+             ng-class="{true: 'has-error'}[submitted && editEntryForm[n.name].$invalid]"
+             ng-if="!n.tab && (!n.position || n.position == 'before')">
 
-            <textarea ng-if="n.field == 'textarea'" name="{{n.name}}" class="form-control" id="editEntryForm-{{n.name}}"
+            <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" class="form-control"
+                   id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
+                   ng-model="n.value"
+                   ng-change="bp.selected[n.onChange](bp.selected.columns)">
+
+            <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
+                      class="form-control" id="editEntryForm-{{n.name}}"
                       placeholder="{{n.placeholder}}"  ng-required="n.required" ng-model="n.value"></textarea>
 
-            <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.required">The field is required</p>
-            <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.url">The field needs to be a valid url.</p>
-            <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.number">The field needs to be a valid number.</p>
-            <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.email">The field needs to be a valid email address.</p>
+            <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.required">
+                The field is required
+            </p>
+            <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.url">
+                The field needs to be a valid url.
+            </p>
+            <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.number">
+                The field needs to be a valid number.
+            </p>
+            <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.email">
+                The field needs to be a valid email address.
+            </p>
         </div>
+
+
+        <tabset ng-if="bp.selected.tabs" class="tabset_expand">
+            <tab ng-repeat="tab in bp.selected.tabs" heading="{{tab.title}}" active="tab.active" disable="tab.disabled">
+
+                <div class="form-group" ng-repeat="n in bp.selected.columns track by $index"
+                     ng-class="{true: 'has-error'}[submitted && editEntryForm[n.name].$invalid]"
+                     ng-if="n.tab == tab.id">
+
+                    <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" class="form-control"
+                           id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
+                           ng-model="n.value"
+                           ng-change="bp.selected[n.onChange](bp.selected.columns)">
+
+                    <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
+                              class="form-control" id="editEntryForm-{{n.name}}"
+                              placeholder="{{n.placeholder}}"  ng-required="n.required" ng-model="n.value"></textarea>
+
+                    <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.required">
+                        The field is required
+                    </p>
+                    <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.url">
+                        The field needs to be a valid url.
+                    </p>
+                    <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.number">
+                        The field needs to be a valid number.
+                    </p>
+                    <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.email">
+                        The field needs to be a valid email address.
+                    </p>
+                </div>
+            </tab>
+        </tabset>
+
+        <div class="form-group" ng-repeat="n in bp.selected.columns track by $index"
+             ng-class="{true: 'has-error'}[submitted && editEntryForm[n.name].$invalid]"
+             ng-if="!n.tab && n.position == 'after'">
+
+            <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" class="form-control"
+                   id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
+                   ng-model="n.value"
+                   ng-change="bp.selected[n.onChange](bp.selected.columns)">
+
+            <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
+                      class="form-control" id="editEntryForm-{{n.name}}"
+                      placeholder="{{n.placeholder}}"  ng-required="n.required" ng-model="n.value"></textarea>
+
+            <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.required">
+                The field is required
+            </p>
+            <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.url">
+                The field needs to be a valid url.
+            </p>
+            <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.number">
+                The field needs to be a valid number.
+            </p>
+            <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.email">
+                The field needs to be a valid email address.
+            </p>
+        </div>
+
+        <a href="#" class="pull-right" ng-click="isCollapsed = !isCollapsed">advanced</a>
+
+        <div collapse="isCollapsed">
+
+            <div class="form-group" ng-repeat="n in bp.selected.columns track by $index"
+                 ng-class="{true: 'has-error'}[submitted && editEntryForm[n.name].$invalid]"
+                 ng-if="!n.tab && n.position == 'advanced'">
+
+                <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" class="form-control"
+                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
+                       ng-model="n.value"
+                       ng-change="bp.selected[n.onChange](bp.selected.columns)">
+
+            <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
+                      class="form-control" id="editEntryForm-{{n.name}}"
+                      placeholder="{{n.placeholder}}"  ng-required="n.required" ng-model="n.value"></textarea>
+
+                <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.required">
+                    The field is required
+                </p>
+                <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.url">
+                    The field needs to be a valid url.
+                </p>
+                <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.number">
+                    The field needs to be a valid number.
+                </p>
+                <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.email">
+                    The field needs to be a valid email address.
+                </p>
+            </div>
+
+        </div>
+        
     </div>
     <div class="modal-footer">
         <button class="btn btn-primary" type="button" ng-click="submitted=true; save();">OK</button>

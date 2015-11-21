@@ -175,7 +175,7 @@ function handleHide() {
 }
 
 //var lokijs = require("./data/js/lib/lokijs.min.js");
-//var db = new lokijs.loki("password_manager_local_storage");
+//var db = new lokijs.Loki("password_manager_local_storage");
 //var config = db.getCollection('config') || db.addCollection('config');
 /*
 panel.port.on('lokijs_config_insert', function (data) {
@@ -186,3 +186,32 @@ panel.port.on('lokijs_config_data', function (data) {
     config.insert(data.items);
 });
 */
+
+
+function parse_url(url) {
+    // According to RFC http://www.ietf.org/rfc/rfc3986.txt Appendix B
+    var pattern = new RegExp("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
+    var matches =  url.match(pattern);
+
+    return {
+        scheme: matches[2],
+        authority: matches[4].replace(/^(www\.)/,""), //remove leading www.
+        path: matches[5],
+        query: matches[7],
+        fragment: matches[9]
+    };
+}
+
+
+mod.PageMod({
+    include: "*",
+    contentScriptFile: [
+        self.data.url("./js/formfill.js")
+    ],
+    onAttach: function(worker) {
+        //worker.port.emit("getElements", tag);
+        worker.port.on("test", function (msg) {
+            console.log(parse_url(msg));
+        });
+    }
+});

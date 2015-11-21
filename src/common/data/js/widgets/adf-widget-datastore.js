@@ -158,6 +158,10 @@
                     if (content.title_column == content.columns[i].name) {
                         datastore_object.name = content.columns[i].value;
                     }
+                    if (content.hasOwnProperty("urlfilter_column")
+                        && content.urlfilter_column == content.columns[i].name) {
+                        datastore_object.urlfilter = content.columns[i].value;
+                    }
                     secret_object[content.columns[i].name] = content.columns[i].value;
                 }
 
@@ -230,6 +234,10 @@
                         }
                         if (content.title_column == content.columns[i].name) {
                             node.name = content.columns[i].value;
+                        }
+                        if (content.hasOwnProperty("urlfilter_column")
+                            && content.urlfilter_column == content.columns[i].name) {
+                            node.urlfilter = content.columns[i].value;
                         }
                         secret_object[content.columns[i].name] = content.columns[i].value;
                     }
@@ -555,6 +563,7 @@
         $scope.path = path;
         $scope.name = '';
         $scope.content = '';
+        $scope.isCollapsed = true;
 
         $scope.reset = function() {
             $scope.submitted = false;
@@ -595,6 +604,7 @@
         $scope.path = path;
         $scope.name = node.name;
         $scope.content = '';
+        $scope.isCollapsed = true;
 
         $scope.reset = function() {
             $scope.submitted = false;
