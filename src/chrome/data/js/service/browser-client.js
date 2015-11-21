@@ -4,7 +4,7 @@
     //var config = chrome.extension.getBackgroundPage().config;
     //var db = chrome.extension.getBackgroundPage().db;
 
-    var db = new Loki("password_manager_local_storage");
+    var db = new loki("password_manager_local_storage");
     var config = db.getCollection('config') || db.addCollection('config');
 
     var events = [
@@ -51,6 +51,16 @@
         };
 
         /**
+         * emits sensitive data only to secure locations
+         *
+         * @param event
+         * @param data
+         */
+        var emit_sec = function(event, data) {
+
+        };
+
+        /**
          * registers for an event with a function
          *
          * @param event
@@ -71,6 +81,7 @@
             openTab: openTab,
             testBackgroundPage: testBackgroundPage,
             emit: emit,
+            emit_sec: emit_sec
             on: on
         };
     };

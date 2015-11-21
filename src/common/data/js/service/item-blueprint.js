@@ -105,6 +105,22 @@
                  */
                 onOpenSecret: function(content) {
                     $window.location.href = content.website_password_url;
+                },
+                /**
+                 * returns the message content with the username and password for the website
+                 *
+                 * @param content
+                 * @returns {{key: string, content: {username: *, password: *}}}
+                 */
+                msgBeforeOpenSecret: function(content) {
+                    return {
+                        key: "fillpassword",
+                        content: {
+                            username: content.website_password_username,
+                            password: content.website_password_password,
+                            authority: content.website_password_url_filter
+                        }
+                    }
                 }
             },
             note: {
@@ -211,6 +227,19 @@
             bp.onOpenSecret(content);
         };
 
+        /**
+         * triggered before the open secret function and returns a message (if applicable) that is sent to the main
+         * script
+         *
+         * @param key
+         * @param content
+         * @returns {*|{key, content}|{key: string, content: {username: *, password: *}}}
+         */
+        var blueprint_msg_before_open_secret = function (key, content) {
+            var bp = get_blueprint(key);
+            return bp.msgBeforeOpenSecret(content);
+        };
+
         return {
             get_blueprint: get_blueprint,
             get_blueprints: get_blueprints,
@@ -218,6 +247,7 @@
             get_default_blueprint: get_default_blueprint,
             blueprint_has_on_click_new_tab: blueprint_has_on_click_new_tab,
             blueprint_on_open_secret: blueprint_on_open_secret,
+            blueprint_msg_before_open_secret: blueprint_msg_before_open_secret
         };
     };
 

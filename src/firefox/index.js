@@ -103,8 +103,12 @@ var openTab = function (data) {
             onLogin("worker", data);
         });
 
-        worker.port.on('logout', function(data) {
+        worker.port.on('login', function(data) {
             onLogout("worker", data);
+        });
+
+        worker.port.on('fillpassword', function(data) {
+            onFillpassword(data);
         });
 
         worker.port.on('openTab', openTab);
@@ -163,11 +167,20 @@ var onLogout = function (from, data) {
     }
 };
 
+
+var fillpassword = [];
+var onFillpassword = function (data) {
+    fillpassword.push(data);
+};
+
 panel.port.on('login', function(data) {
     onLogin("panel", data);
 });
 panel.port.on('logout', function(data) {
     onLogout("panel", data);
+});
+panel.port.on('fillpassword', function(data) {
+    onFillpassword(data);
 });
 
 function handleHide() {
@@ -175,7 +188,7 @@ function handleHide() {
 }
 
 //var lokijs = require("./data/js/lib/lokijs.min.js");
-//var db = new lokijs.Loki("password_manager_local_storage");
+//var db = new lokijs.loki("password_manager_local_storage");
 //var config = db.getCollection('config') || db.addCollection('config');
 /*
 panel.port.on('lokijs_config_insert', function (data) {
@@ -202,6 +215,10 @@ function parse_url(url) {
     };
 }
 
+function endsWith (to_test, suffix) {
+    return to_test.indexOf(suffix, to_test.length - suffix.length) !== -1;
+}
+
 
 mod.PageMod({
     include: "*",
@@ -209,9 +226,21 @@ mod.PageMod({
         self.data.url("./js/formfill.js")
     ],
     onAttach: function(worker) {
-        //worker.port.emit("getElements", tag);
-        worker.port.on("test", function (msg) {
-            console.log(parse_url(msg));
+        worker.port.on("ready", function (url) {
+            console.log("worker ready:");
+
+            var parsed_url = parse_url(url);
+
+            for(var i = fillpassword.length - 1; i >= 0; i--) {
+                if( endsWith(parsed_url.authority, fillpassword[i].authority)) {
+
+                    console.log("worker emit fillpassword");
+                    fillpassword[i].submit = parsed_url.scheme == 'https';
+                    worker.port.emit("fillpassword", fillpassword[i]);
+                    fillpassword.splice(i, 1);
+                    break;
+                }
+            }
         });
     }
 });

@@ -28,6 +28,7 @@
          */
         var _delete_local_data = function () {
             storage.removeAll('config');
+            storage.removeAll('leafs');
             storage.save();
         };
 
@@ -157,12 +158,14 @@
             return _find_one(db, key);
         };
 
+
         /**
          * returns the overview of all datastores that belong to this user
          *
          * @returns {promise}
          */
         var get_datastore_overview = function() {
+
             return apiClient.read_datastore(_find_one('config', 'user_token'));
         };
 
@@ -255,8 +258,39 @@
                 .then(onSuccess, onError);
         };
 
+
         /**
-         * returns the password datastore
+         * generate the local datastore
+         *
+         * @param datastore
+         */
+        var generate_password_storage = function(datastore) {
+
+            var addNodeToStorage = function (folder) {
+                var i;
+                for (i = 0; folder.hasOwnProperty("folders") && i < folder.folders.length; i ++) {
+                    addNodeToStorage(folder.folders[i]);
+                }
+                for (i = 0; folder.hasOwnProperty("items") && i < folder.items.length; i++) {
+                    storage.insert('leafs', {
+                        key: folder.items[i].secret_id,
+                        value: folder.items[i].secret_key,
+                        name: folder.items[i].name,
+                        urlfilter: folder.items[i].urlfilter
+                    });
+                }
+
+            };
+            storage.removeAll('leafs');
+
+            addNodeToStorage(datastore);
+
+            storage.save();
+        };
+
+        /**
+         * returns the password datastore. In addition this function triggers the generation of the local datastore
+         * storage to
          *
          * @returns {promise}
          */
@@ -264,7 +298,19 @@
             var type = "password";
             var description = "default";
 
-            return get_datastore(type, description);
+
+            var onSuccess = function (result) {
+
+                generate_password_storage(result);
+
+                return result
+            };
+            var onError = function () {
+                // pass
+            };
+
+            return get_datastore(type, description)
+                .then(onSuccess, onError);;
         };
 
         /**
@@ -483,24 +529,16 @@
          */
         var onItemClick = function(item, path) {
             if (itemBlueprint.blueprint_has_on_click_new_tab(item.type)) {
-
-                // put secret_key in temporary storage
-                storage.insert('temp_secret', {key: item.secret_id, value: item.secret_key});
-                storage.save();
-
-                // Automatic remove of temporary secret
-                $timeout(function(){
-                    var obj = storage.find_one('temp_secret', {'key': item.secret_id});
-                    if (obj) {
-                        storage.remove('temp_secret', obj);
-                        storage.save();
-                    }
-                }, 5000);
-
                 browserClient.openTab('/data/open-secret.html#/secret/'+item.type+'/'+item.secret_id);
             }
         };
 
+        /**
+         * decrypts a secret and initiates the redirect
+         *
+         * @param type
+         * @param secret_id
+         */
         var redirectSecret = function(type, secret_id) {
 
             var onError = function(result) {
@@ -508,12 +546,14 @@
             };
 
             var onSuccess = function(content) {
-                var secret_key = _find_one('temp_secret', secret_id);
-
-                storage.remove('temp_secret', storage.find_one('temp_secret', {'key': secret_id}));
-                storage.save();
+                var secret_key = _find_one('leafs', secret_id);
 
                 var decrypted_secret = JSON.parse(cryptoLibrary.decrypt_data(content.data.data, content.data.data_nonce, secret_key));
+                console.log(decrypted_secret);
+                var msg = itemBlueprint.blueprint_msg_before_open_secret(type, decrypted_secret);
+
+                browserClient.emit_sec(msg.key, msg.content);
+
                 itemBlueprint.blueprint_on_open_secret(type, decrypted_secret);
             };
 

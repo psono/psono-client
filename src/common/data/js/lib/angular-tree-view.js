@@ -62,7 +62,6 @@
                  * @param breadcrumbs
                  */
                 self.selectNode = function (node, breadcrumbs) {
-                    console.log("selectNode");
                     if (selectedItem) {
                         selectedItem = undefined;
                     }

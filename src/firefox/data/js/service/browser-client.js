@@ -58,6 +58,16 @@
         };
 
         /**
+         * emits sensitive data only to secure locations
+         *
+         * @param event
+         * @param data
+         */
+        var emit_sec = function(event, data) {
+            port.emit(event, data);
+        };
+
+        /**
          * registers for an event with a function
          *
          * @param event
@@ -79,6 +89,7 @@
             openTab: openTab,
             testBackgroundPage: testBackgroundPage,
             emit: emit,
+            emit_sec: emit_sec,
             on: on
         };
     };

@@ -4,6 +4,8 @@
 
 (function(port) {
 
+    var myForms = [];
+
     /**
      * The minimal browser client for form fills
      *
@@ -42,8 +44,6 @@
     var main = function() {
         var inputs = document.querySelectorAll("input:not(:disabled):not([readonly]):not([type=hidden])");
 
-        var myForms = [];
-
         for (var i = 0; i < inputs.length; ++i) {
             if (inputs[i].type == 'password') {
 
@@ -61,14 +61,12 @@
 
                     // username field is inputs[r]
                     inputs[r].style.backgroundColor = "blue";
-                    inputs[r].value="myUsername";
                     newForm.username = inputs[r];
                     break;
                 }
 
                 // Password field is inputs[i]
                 inputs[i].style.backgroundColor = "yellow";
-                inputs[i].value="myPassword";
 
                 newForm.password = inputs[i];
 
@@ -90,10 +88,19 @@
             }
         }
 
-        //if (myForms.length > 0) {
-            var bc = browserClient();
-            bc.emit('test', document.location.toString());
-        //}
+        var bc = browserClient();
+
+        bc.emit('ready', document.location.toString());
+
+        bc.on('fillpassword', function(data) {
+            for (var i = 0; i < myForms.length; i++) {
+                myForms[i].username.value=data.username;
+                myForms[i].password.value=data.password;
+                if (myForms.length == 1 && myForms[i].form !== null && data.submit) {
+                    myForms[i].form.submit();
+                }
+            }
+        });
     };
 
     main();

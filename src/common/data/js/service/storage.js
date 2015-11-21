@@ -1,7 +1,7 @@
 (function(angular) {
     'use strict';
 
-    var loki_storage = new Loki("password_manager_local_storage");
+    var loki_storage = new loki("password_manager_local_storage");
     var dbs = [];
     loki_storage.loadDatabase({}, function () {
 
@@ -12,13 +12,11 @@
             dbs['config'].ensureUniqueIndex('key');
         }
 
-        // Start of temporary storages
+        dbs['leafs'] = loki_storage.getCollection('leafs');
 
-        dbs['temp_secret'] = loki_storage.getCollection('temp_secret');
-
-        if (dbs['temp_secret'] === null) {
-            dbs['temp_secret'] = loki_storage.addCollection('temp_secret', { indices: ['key']});
-            dbs['temp_secret'].ensureUniqueIndex('key');
+        if (dbs['leafs'] === null) {
+            dbs['leafs'] = loki_storage.addCollection('leafs', { indices: ['key', 'urlfilter', 'name']});
+            dbs['leafs'].ensureUniqueIndex('key');
         }
     });
 
@@ -32,6 +30,7 @@
          * @param items
          */
         var insert = function (db, items) {
+
             dbs[db].insert(items);
         };
 
