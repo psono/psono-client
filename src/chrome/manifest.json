@@ -23,5 +23,11 @@
   },
   "background": {
     "scripts": ["data/js/lib/lokijs.min.js", "index.js"]
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*/*"],
+      "js": ["data/js/formfill-browser-client.js", "data/js/formfill.js"]
+    }
+  ]
 }

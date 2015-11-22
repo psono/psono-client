@@ -46,7 +46,9 @@
          * @param data
          */
         var emit = function (event, data) {
-            console.log("browser-client.js $rootScope.$broadcast " + event);
+            chrome.runtime.sendMessage({event: event, data: data}, function(response) {
+                console.log(response);
+            });
             $rootScope.$broadcast(event, '');
         };
 
@@ -57,7 +59,9 @@
          * @param data
          */
         var emit_sec = function(event, data) {
-
+            chrome.runtime.sendMessage({event: event, data: data}, function(response) {
+                console.log(response);
+            });
         };
 
         /**
@@ -81,7 +85,7 @@
             openTab: openTab,
             testBackgroundPage: testBackgroundPage,
             emit: emit,
-            emit_sec: emit_sec
+            emit_sec: emit_sec,
             on: on
         };
     };
