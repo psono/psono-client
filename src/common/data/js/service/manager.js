@@ -4,6 +4,7 @@
     var manager = function($q, $timeout, apiClient, cryptoLibrary, storage, itemBlueprint, browserClient) {
 
         var temp_datastore_key_storage = {};
+        var temp_datastore_overview = false;
 
         var forbidden_keys = {
             'config': [
@@ -27,8 +28,7 @@
          * deletes local data in storage
          */
         var _delete_local_data = function () {
-            storage.removeAll('config');
-            storage.removeAll('leafs');
+            storage.removeAll();
             storage.save();
         };
 
@@ -82,8 +82,6 @@
                 storage.remove('config', storage.find_one('config', {'key': 'user_email'}));
                 storage.remove('config', storage.find_one('config', {'key': 'server'}));
                 storage.save();
-
-                console.log(response);
 
                 return {
                     response:"error",
@@ -162,11 +160,30 @@
         /**
          * returns the overview of all datastores that belong to this user
          *
+         * @param force_fresh
          * @returns {promise}
          */
-        var get_datastore_overview = function() {
+        var get_datastore_overview = function(force_fresh) {
 
-            return apiClient.read_datastore(_find_one('config', 'user_token'));
+            if ( (typeof force_fresh === 'undefined' || force_fresh === false) && temp_datastore_overview) {
+                // we have them in cache, so lets save the query
+                return $q(function (resolve, reject) {
+                    resolve(temp_datastore_overview);
+                })
+            } else {
+                // we dont have them in cache, so lets query and save them in cache for next time
+                var onSuccess = function (result) {
+                    temp_datastore_overview = result;
+                    return result
+                };
+                var onError = function () {
+                    // pass
+                };
+
+                return apiClient.read_datastore(_find_one('config', 'user_token'))
+                    .then(onSuccess, onError);
+            }
+
         };
 
         /**
@@ -174,10 +191,11 @@
          *
          * @param type
          * @param description
+         * @param force_fresh (optional) if you want to force a fresh query to the backend
          *
          * @returns {promise}
          */
-        var get_datastore_id = function (type, description) {
+        var get_datastore_id = function (type, description, force_fresh) {
 
             var onSuccess = function (result) {
 
@@ -196,7 +214,7 @@
                 // pass
             };
 
-            return get_datastore_overview()
+            return get_datastore_overview(force_fresh)
                 .then(onSuccess, onError);
         };
         /**
@@ -221,6 +239,11 @@
                 );
 
                 temp_datastore_key_storage[datastore_id] = datastore_secret_key;
+
+
+                if (result.data.data === '') {
+                    return {}
+                }
 
                 var data = cryptoLibrary.decrypt_data(
                     result.data.data,
@@ -251,7 +274,47 @@
             };
 
             var onSuccess = function(datastore_id) {
-                return get_datastore_with_id(datastore_id);
+
+                if (datastore_id === '') {
+                    //datastore does not exist, lets force a fresh query to make sure
+
+                    var onSuccess = function(datastore_id) {
+
+                        if (datastore_id === '') {
+                            //datastore does really not exist, lets create one and return it
+
+                            var secret_key = cryptoLibrary.generate_secret_key();
+
+                            var cipher = cryptoLibrary.encrypt_data(
+                                secret_key,
+                                _find_one('config', 'user_secret_key')
+                            );
+
+
+                            var onError = function(result) {
+                                // pass
+                            };
+
+                            var onSuccess = function(result) {
+                                return get_datastore_with_id(result.data.datastore_id);
+                            };
+
+                            return apiClient.create_datastore(_find_one('config', 'user_token'), type, description, '', '', cipher.text, cipher.nonce)
+                                .then(onSuccess, onError);
+                        }
+                    };
+
+                    var onError = function(result) {
+                        // pass
+                    };
+
+
+                    return get_datastore_id(type, description, true)
+                        .then(onSuccess, onError);
+
+                } else {
+                    return get_datastore_with_id(datastore_id);
+                }
             };
 
             return get_datastore_id(type, description)
@@ -260,30 +323,33 @@
 
 
         /**
-         * generate the local datastore
+         * fills the local datastore with given name
          *
+         * @param name
          * @param datastore
          */
-        var generate_password_storage = function(datastore) {
+        var fill_storage = function(name, datastore, map) {
 
-            var addNodeToStorage = function (folder) {
+            var addNodeToStorage = function (name, folder, map) {
                 var i;
                 for (i = 0; folder.hasOwnProperty("folders") && i < folder.folders.length; i ++) {
-                    addNodeToStorage(folder.folders[i]);
+                    addNodeToStorage(name, folder.folders[i], map);
                 }
                 for (i = 0; folder.hasOwnProperty("items") && i < folder.items.length; i++) {
-                    storage.insert('leafs', {
-                        key: folder.items[i].secret_id,
-                        value: folder.items[i].secret_key,
-                        name: folder.items[i].name,
-                        urlfilter: folder.items[i].urlfilter
-                    });
+
+                    var value = {};
+
+                    for (var m = 0; m < map.length; m++) {
+                        value[map[m][0]] = folder.items[i][map[m][1]];
+                    }
+
+                    storage.insert(name, value);
                 }
 
             };
-            storage.removeAll('leafs');
+            storage.removeAll(name);
 
-            addNodeToStorage(datastore);
+            addNodeToStorage(name, datastore, map);
 
             storage.save();
         };
@@ -301,7 +367,12 @@
 
             var onSuccess = function (result) {
 
-                generate_password_storage(result);
+                fill_storage('datastore-password-leafs', result, [
+                    ['key', 'secret_id'],
+                    ['value', 'secret_key'],
+                    ['name', 'name'],
+                    ['urlfilter', 'urlfilter']
+                ]);
 
                 return result
             };
@@ -310,7 +381,37 @@
             };
 
             return get_datastore(type, description)
-                .then(onSuccess, onError);;
+                .then(onSuccess, onError);
+        };
+
+        /**
+         * returns the user datastore. In addition this function triggers the generation of the local datastore
+         * storage to
+         *
+         * @returns {promise}
+         */
+        var get_user_datastore = function() {
+            var type = "user";
+            var description = "default";
+
+
+            var onSuccess = function (result) {
+                /*
+                fill_storage('datastore-user-leafs', result, [
+                    ['key', 'secret_id'],
+                    ['value', 'secret_key'],
+                    ['name', 'name'],
+                    ['filter', 'filter']
+                ]);
+                */
+                return result
+            };
+            var onError = function () {
+                // pass
+            };
+
+            return get_datastore(type, description)
+                .then(onSuccess, onError);
         };
 
         /**
@@ -376,7 +477,7 @@
                     return result.data;
                 };
 
-                return apiClient.write_datastore(_find_one('config', 'user_token'), datastore_id, data.ciphertext, data.nonce)
+                return apiClient.write_datastore(_find_one('config', 'user_token'), datastore_id, data.text, data.nonce)
                     .then(onSuccess, onError);
             };
 
@@ -422,6 +523,19 @@
         };
 
         /**
+         * saves the user datastore with given content
+         *
+         * @param content The real object you want to encrypt in the datastore
+         * @returns {promise}
+         */
+        var save_user_datastore = function (content) {
+            var type = "user";
+            var description = "default";
+
+            return save_datastore(type, description, content)
+        };
+
+        /**
          * creates a secret for the given content and returns the id
          *
          * @param content
@@ -442,7 +556,7 @@
                 return {secret_id: content.data.secret_id, secret_key: secret_key};
             };
 
-            return apiClient.create_secret(_find_one('config', 'user_token'), c.ciphertext, c.nonce)
+            return apiClient.create_secret(_find_one('config', 'user_token'), c.text, c.nonce)
                 .then(onSuccess, onError);
         };
 
@@ -491,7 +605,7 @@
                 return {secret_id: content.data.secret_id};
             };
 
-            return apiClient.write_secret(_find_one('config', 'user_token'), secret_id, c.ciphertext, c.nonce)
+            return apiClient.write_secret(_find_one('config', 'user_token'), secret_id, c.text, c.nonce)
                 .then(onSuccess, onError);
         };
 
@@ -546,10 +660,10 @@
             };
 
             var onSuccess = function(content) {
-                var secret_key = _find_one('leafs', secret_id);
+                var secret_key = _find_one('datastore-password-leafs', secret_id);
 
                 var decrypted_secret = JSON.parse(cryptoLibrary.decrypt_data(content.data.data, content.data.data_nonce, secret_key));
-                console.log(decrypted_secret);
+
                 var msg = itemBlueprint.blueprint_msg_before_open_secret(type, decrypted_secret);
 
                 browserClient.emit_sec(msg.key, msg.content);
@@ -569,6 +683,8 @@
             find_one: find_one,
             get_password_datastore: get_password_datastore,
             save_password_datastore: save_password_datastore,
+            get_user_datastore: get_user_datastore,
+            save_user_datastore: save_user_datastore,
             create_secret: create_secret,
             read_secret: read_secret,
             write_secret: write_secret,

@@ -266,7 +266,7 @@
 
         $scope.structure = { data: {}} ;
 
-        manager.get_password_datastore('password', 'default')
+        manager.get_password_datastore()
             .then(function (data) {$scope.structure.data = data;});
 
 

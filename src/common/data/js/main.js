@@ -2,7 +2,8 @@
     'use strict';
 
     var app = angular.module('passwordManagerApp', ['ngRoute', 'ng', 'ui.bootstrap', 'snap', 'adf',
-        'adf.widget.datastore', 'LocalStorageModule', 'AxelSoft', 'ng-context-menu', 'ui.select', 'ngSanitize']);
+        'adf.widget.datastore', 'adf.widget.shareusers',
+        'LocalStorageModule', 'AxelSoft', 'ng-context-menu', 'ui.select', 'ngSanitize']);
 
     app.config(['$routeProvider', '$locationProvider', 'dashboardProvider', 'localStorageServiceProvider',
         function($routeProvider, $locationProvider, dashboardProvider, localStorageServiceProvider) {
@@ -12,23 +13,18 @@
                     templateUrl: 'view/test.html',
                     controller: 'TestCtrl'
                 })
-                .when('/Book/:bookId/ch/:chapterId', {
-                    templateUrl: 'view/chapter.html',
-                    controller: 'ChapterCtrl',
-                    controllerAs: 'chapter'
+                .when('/share/users', {
+                    templateUrl: 'view/index-share-users.html',
+                    controller: 'IndexCtrl'
                 })
-                .when('/secret/:type/:secret_id', {
-                    templateUrl: 'view/open-secret.html',
-                    controller: 'OpenSecretCtrl',
-                    controllerAs: 'open-secret'
-                })
+                .when('/secret/:type/:secret_id', {})
                 .otherwise({
                     templateUrl: 'view/index.html',
                     controller: 'IndexCtrl'
                 });
 
             // ADF config
-            localStorageServiceProvider.setPrefix('adf.datastore');
+            localStorageServiceProvider.setPrefix('adf');
             dashboardProvider
                 .structure('6-6', {
                     rows: [{
@@ -128,7 +124,7 @@
         });
     }]);
 
-    app.controller('DashboardController', ['$scope', 'localStorageService', function($scope, localStorageService){
+    app.controller('HomeDashboardController', ['$scope', 'localStorageService', function($scope, localStorageService){
         var model = localStorageService.get('widgetHomeDashboard');
         if (!model){
             model = {
@@ -142,12 +138,38 @@
                         }]
                     }]
                 }],
-                noTitle: true,
-                sexy: "I bin sexy"
+                noTitle: true
             };
         }
 
-        $scope.dashboard = {
+        $scope.datastore = {
+            model: model
+        };
+
+        $scope.$on('adfDashboardChanged', function (event, name, model) {
+            localStorageService.set(name, model);
+        });
+    }]);
+
+    app.controller('ShareusersDashboardController', ['$scope', 'localStorageService', function($scope, localStorageService){
+        var model = localStorageService.get('widgetShareusersDashboard');
+        if (!model){
+            model = {
+                rows: [{
+                    columns: [{
+                        styleClass: 'col-md-12',
+                        widgets: [{
+                            type: 'shareusers',
+                            title: 'Users',
+                            config: {}
+                        }]
+                    }]
+                }],
+                noTitle: true
+            };
+        }
+
+        $scope.shareuser = {
             model: model
         };
 
@@ -433,17 +455,6 @@
     app.controller('TestCtrl', ['$routeParams', function($routeParams) {
         this.name = "TestCtrl";
         this.params = $routeParams;
-    }]);
-
-    app.controller('ChapterCtrl', ['$routeParams', function($routeParams) {
-        this.name = "ChapterCtrl";
-        this.params = $routeParams;
-    }]);
-
-    app.controller('OpenSecretCtrl', ['$scope', '$routeParams', function($scope, $routeParams) {
-        this.name = "OpenSecretCtrl";
-        this.params = $routeParams;
-        $scope.routeParams = $routeParams;
     }]);
 
     app.controller('IndexCtrl', ['$scope', '$routeParams', function($scope, $routeParams) {

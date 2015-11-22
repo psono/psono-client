@@ -44,14 +44,14 @@
         var login = function(email, authkey) {
 
             var endpoint = '/authentication/login/';
-            var type = "POST";
+            var connection_type = "POST";
             var data = {
                 email: email,
                 authkey: authkey
             };
             var headers = null;
 
-            return call(type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers);
         };
 
         /**
@@ -62,13 +62,13 @@
          */
         var logout = function (token) {
             var endpoint = '/authentication/logout/';
-            var type = "POST";
+            var connection_type = "POST";
             var data = null;
             var headers = {
                 "Authorization": "Token "+ token
             };
 
-            return call(type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers);
         };
 
         /**
@@ -86,7 +86,7 @@
          */
         var register = function (email, authkey, public_key, private_key, private_key_nonce, secret_key, secret_key_nonce) {
             var endpoint = '/authentication/register/';
-            var type = "POST";
+            var connection_type = "POST";
             var data = {
                 email: email,
                 authkey: authkey,
@@ -98,7 +98,7 @@
             };
             var headers = null;
 
-            return call(type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers);
         };
 
         /**
@@ -110,13 +110,13 @@
          */
         var verify_email = function (activation_code) {
             var endpoint = '/authentication/verify-email/';
-            var type = "POST";
+            var connection_type = "POST";
             var data = {
                 activation_code: activation_code
             };
             var headers = null;
 
-            return call(type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers);
         };
 
         /**
@@ -132,13 +132,13 @@
             if (datastore_id === undefined) { datastore_id = null; }
 
             var endpoint = '/datastore/' + (datastore_id === null ? '' : datastore_id + '/');
-            var type = "GET";
+            var connection_type = "GET";
             var data = null;
             var headers = {
                 "Authorization": "Token "+ token
             };
 
-            return call(type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers);
         };
 
 
@@ -147,16 +147,20 @@
          * together with the encrypted secret key and nonce
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} type - the type of the datastore
+         * @param {string} description - the description of the datastore
          * @param {string} [encrypted_data] - optional data for the new datastore
          * @param {string} [encrypted_data_nonce] - nonce for data, necessary if data is provided
          * @param {string} encrypted_data_secret_key - encrypted secret key
          * @param {string} encrypted_data_secret_key_nonce - nonce for secret key
          * @returns {promise}
          */
-        var create_datastore = function (token, encrypted_data, encrypted_data_nonce, encrypted_data_secret_key, encrypted_data_secret_key_nonce) {
+        var create_datastore = function (token, type, description, encrypted_data, encrypted_data_nonce, encrypted_data_secret_key, encrypted_data_secret_key_nonce) {
             var endpoint = '/datastore/';
-            var type = "PUT";
+            var connection_type = "PUT";
             var data = {
+                type: type,
+                description: description,
                 data: encrypted_data,
                 data_nonce: encrypted_data_nonce,
                 secret_key: encrypted_data_secret_key,
@@ -166,7 +170,7 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers);
         };
 
         /**
@@ -182,7 +186,7 @@
          */
         var write_datastore = function (token, datastore_id, encrypted_data, encrypted_data_nonce, encrypted_data_secret_key, encrypted_data_secret_key_nonce) {
             var endpoint = '/datastore/' + datastore_id + '/';
-            var type = "POST";
+            var connection_type = "POST";
             var data = {
                 data: encrypted_data,
                 data_nonce: encrypted_data_nonce,
@@ -193,7 +197,7 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers);
         };
 
         /**
@@ -209,13 +213,13 @@
             if (secret_id === undefined) { secret_id = null; }
 
             var endpoint = '/secret/' + (secret_id === null ? '' : secret_id + '/');
-            var type = "GET";
+            var connection_type = "GET";
             var data = null;
             var headers = {
                 "Authorization": "Token "+ token
             };
 
-            return call(type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers);
         };
 
 
@@ -230,7 +234,7 @@
          */
         var create_secret = function (token, encrypted_data, encrypted_data_nonce) {
             var endpoint = '/secret/';
-            var type = "PUT";
+            var connection_type = "PUT";
             var data = {
                 data: encrypted_data,
                 data_nonce: encrypted_data_nonce
@@ -239,7 +243,7 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers);
         };
 
         /**
@@ -253,7 +257,7 @@
          */
         var write_secret = function (token, secret_id, encrypted_data, encrypted_data_nonce) {
             var endpoint = '/secret/' + secret_id + '/';
-            var type = "POST";
+            var connection_type = "POST";
             var data = {
                 data: encrypted_data,
                 data_nonce: encrypted_data_nonce
@@ -262,7 +266,7 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers);
         };
 
         /**
@@ -278,13 +282,13 @@
             if (share_id === undefined) { share_id = null; }
 
             var endpoint = '/share/' + (share_id === null ? '' : share_id + '/');
-            var type = "GET";
+            var connection_type = "GET";
             var data = null;
             var headers = {
                 "Authorization": "Token "+ token
             };
 
-            return call(type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers);
         };
 
 
@@ -301,7 +305,7 @@
          */
         var create_share = function (token, encrypted_data, encrypted_data_nonce, encrypted_data_secret_key, encrypted_data_secret_key_nonce) {
             var endpoint = '/share/';
-            var type = "PUT";
+            var connection_type = "PUT";
             var data = {
                 data: encrypted_data,
                 data_nonce: encrypted_data_nonce,
@@ -312,7 +316,7 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers);
         };
 
         /**
@@ -328,7 +332,7 @@
          */
         var write_share = function (token, share_id, encrypted_data, encrypted_data_nonce, encrypted_data_secret_key, encrypted_data_secret_key_nonce) {
             var endpoint = '/share/' + share_id + '/';
-            var type = "POST";
+            var connection_type = "POST";
             var data = {
                 data: encrypted_data,
                 data_nonce: encrypted_data_nonce,
@@ -339,7 +343,7 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers);
         };
 
         /**
@@ -351,13 +355,13 @@
          */
         var read_share_total = function (token, share_id) {
             var endpoint = '/share/rights/' + share_id + '/';
-            var type = "GET";
+            var connection_type = "GET";
             var data = null;
             var headers = {
                 "Authorization": "Token "+ token
             };
 
-            return call(type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers);
         };
 
         /**
@@ -375,7 +379,7 @@
          */
         var create_share_right = function (token, share_id, user_id, key, nonce, read, write) {
             var endpoint = '/share/rights/' + share_id + '/';
-            var type = "PUT";
+            var connection_type = "PUT";
             var data = {
                 user_id: user_id,
                 key: key,
@@ -387,7 +391,7 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers);
         };
 
         /**
@@ -400,7 +404,7 @@
          */
         var get_users_public_key = function (token, user_id, user_email) {
             var endpoint = '/user/search/';
-            var type = "POST";
+            var connection_type = "POST";
             var data = {
                 user_id: user_id,
                 user_email: user_email
@@ -409,7 +413,7 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers);
         };
 
         /**
@@ -425,13 +429,13 @@
             if (group_id === undefined) { group_id = null; }
 
             var endpoint = '/group/' + (group_id === null ? '' : group_id + '/');
-            var type = "GET";
+            var connection_type = "GET";
             var data = null;
             var headers = {
                 "Authorization": "Token "+ token
             };
 
-            return call(type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers);
         };
 
 
@@ -446,7 +450,7 @@
          */
         var create_group = function (token, name, encrypted_data_secret_key, encrypted_data_secret_key_nonce) {
             var endpoint = '/group/';
-            var type = "PUT";
+            var connection_type = "PUT";
             var data = {
                 name: name,
                 secret_key: encrypted_data_secret_key,
@@ -456,7 +460,7 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers);
         };
 
         return {

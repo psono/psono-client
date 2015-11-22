@@ -1,5 +1,4 @@
 var {ToggleButton} = require('sdk/ui/button/toggle');
-var pageWorkers = require("sdk/page-worker");
 var panels = require("sdk/panel");
 var self = require("sdk/self");
 var tabs = require("sdk/tabs");
@@ -86,6 +85,7 @@ var openTab = function (data) {
                 "./js/lib/ng-context-menu.js",
                 "./js/lib/angular-dashboard-framework.js",
                 "./js/widgets/adf-widget-datastore.js",
+                "./js/widgets/adf-widget-shareusers.js",
                 "./js/main.js",
                 "./js/service/api-client.js",
                 "./js/service/item-blueprint.js",

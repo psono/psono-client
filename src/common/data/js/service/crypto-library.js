@@ -75,7 +75,7 @@
      *
      * @param {string} secret
      * @param {string} password
-     * @returns {{nonce: string, ciphertext: string}}
+     * @returns {{nonce: string, text: string}}
      */
     var encrypt_secret = function (secret, password) {
 
@@ -86,7 +86,7 @@
 
         return {
             nonce: nacl.to_hex(n),
-            ciphertext: nacl.to_hex(c)
+            text: nacl.to_hex(c)
         };
 
     };
@@ -95,17 +95,17 @@
      * Takes the cipher text and decrypts that with the nonce and the sha256(password+special_sauce).
      * Returns the initial secret.
      *
-     * @param {string} ciphertext
+     * @param {string} text
      * @param {string} nonce
      * @param {string} password
      *
      * @returns {string} secret
      */
-    var decrypt_secret = function (ciphertext, nonce, password) {
+    var decrypt_secret = function (text, nonce, password) {
 
         var k = nacl.crypto_hash_sha256(nacl.encode_utf8(password + special_sauce));
         var n = nacl.from_hex(nonce);
-        var c = nacl.from_hex(ciphertext);
+        var c = nacl.from_hex(text);
         var m1 = nacl.crypto_secretbox_open(c, n, k);
 
         return nacl.decode_utf8(m1);
@@ -117,7 +117,7 @@
      *
      * @param {string} data
      * @param {string} secret_key
-     * @returns {{nonce: string, ciphertext: string}}
+     * @returns {{nonce: string, text: string}}
      */
     var encrypt_data = function (data, secret_key) {
 
@@ -128,7 +128,7 @@
 
         return {
             nonce: nacl.to_hex(n),
-            ciphertext: nacl.to_hex(c)
+            text: nacl.to_hex(c)
         };
     };
 
@@ -136,17 +136,17 @@
      * Takes the cipher text and decrypts that with the nonce and the secret_key.
      * Returns the initial data.
      *
-     * @param {string} ciphertext
+     * @param {string} text
      * @param {string} nonce
      * @param {string} secret_key
      *
      * @returns {string} data
      */
-    var decrypt_data = function (ciphertext, nonce, secret_key) {
+    var decrypt_data = function (text, nonce, secret_key) {
 
         var k = nacl.from_hex(secret_key);
         var n = nacl.from_hex(nonce);
-        var c = nacl.from_hex(ciphertext);
+        var c = nacl.from_hex(text);
         var m1 = nacl.crypto_secretbox_open(c, n, k);
 
         return nacl.decode_utf8(m1);
@@ -159,7 +159,7 @@
      * @param {string} data
      * @param {string} public_key
      * @param {string} private_key
-     * @returns {{nonce: string, ciphertext: string}}
+     * @returns {{nonce: string, text: string}}
      */
     var encrypt_data_public_key = function (data, public_key, private_key) {
 
@@ -171,7 +171,7 @@
 
         return {
             nonce: nacl.to_hex(n),
-            ciphertext: nacl.to_hex(c)
+            text: nacl.to_hex(c)
         };
     };
 
@@ -179,19 +179,19 @@
      * Takes the cipher text and decrypts that with the nonce, the senders public key and users private key.
      * Returns the initial data.
      *
-     * @param {string} ciphertext
+     * @param {string} text
      * @param {string} nonce
      * @param {string} public_key
      * @param {string} private_key
      *
      * @returns {string} data
      */
-    var decrypt_data_public_key = function (ciphertext, nonce, public_key, private_key) {
+    var decrypt_data_public_key = function (text, nonce, public_key, private_key) {
 
         var p = nacl.from_hex(public_key);
         var s = nacl.from_hex(private_key);
         var n = nacl.from_hex(nonce);
-        var c = nacl.from_hex(ciphertext);
+        var c = nacl.from_hex(text);
         var m1 = nacl.crypto_box_open(c, n, p, s);
 
         return nacl.decode_utf8(m1);

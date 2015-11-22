@@ -3,20 +3,38 @@
 
     var loki_storage = new loki("password_manager_local_storage");
     var dbs = [];
-    loki_storage.loadDatabase({}, function () {
 
-        dbs['config'] = loki_storage.getCollection('config');
-
-        if (dbs['config'] === null) {
-            dbs['config'] = loki_storage.addCollection('config', { indices: ['key']});
-            dbs['config'].ensureUniqueIndex('key');
+    var dbconfig = [
+        {
+            name: 'config',
+            indices: ['key'],
+            uniques: ['key']
+        },
+        {
+            name: 'datastore-password-leafs',
+            indices: ['key', 'urlfilter', 'name'],
+            uniques: ['key']
+        },
+        {
+            name: 'datastore-user-leafs',
+            indices: ['key', 'filter', 'name'],
+            uniques: ['key']
         }
 
-        dbs['leafs'] = loki_storage.getCollection('leafs');
+    ];
 
-        if (dbs['leafs'] === null) {
-            dbs['leafs'] = loki_storage.addCollection('leafs', { indices: ['key', 'urlfilter', 'name']});
-            dbs['leafs'].ensureUniqueIndex('key');
+    loki_storage.loadDatabase({}, function () {
+
+        for(var i = 0; i < dbconfig.length; i++) {
+
+            dbs[dbconfig[i].name] = loki_storage.getCollection(dbconfig[i].name);
+
+            if (dbs[dbconfig[i].name] === null) {
+                dbs[dbconfig[i].name] = loki_storage.addCollection(dbconfig[i].name, { indices: dbconfig[i].indices});
+                for (var t = 0; t < dbconfig[i].uniques.length; t++) {
+                    dbs[dbconfig[i].name].ensureUniqueIndex(dbconfig[i].uniques[t]);
+                }
+            }
         }
     });
 
@@ -63,14 +81,23 @@
         };
 
         /**
-         * removes all objects
+         * removes all objects in all dbs or only in the specified one
          *
          * @param db
          */
         var removeAll = function(db) {
-            return dbs[db].removeWhere(function() {
-                return true;
-            })
+            if (typeof db !== 'undefined') {
+                dbs[db].removeWhere(function() {
+                    return true;
+                })
+            } else {
+                for(var i = 0; i < dbconfig.length; i++) {
+                    dbs[dbconfig[i].name].removeWhere(function() {
+                        return true;
+                    })
+                }
+            }
+
         };
 
         /**
