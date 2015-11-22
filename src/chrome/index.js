@@ -124,11 +124,25 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     }
 
     if (request.event == "fillpassword") {
-        console.log("background script received    'fillpassword'");
         onFillpassword(request.data);
         return;
     }
 
+    if (request.event == "logout") {
+
+        chrome.tabs.query({url: 'chrome-extension://'+chrome.runtime.id+'/*'}, function(tabs) {
+            var tabids = [];
+            for (var i = 0; i < tabs.length; i++) {
+                tabids.push(tabs[i].id);
+            }
+
+            chrome.tabs.remove(tabids)
+        });
+
+        return;
+    }
+
+    console.log(sender.tab);
     console.log("background script received (uncaptured)    " + request.event);
 
 });

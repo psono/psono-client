@@ -195,6 +195,14 @@ panel.port.on('lokijs_config_data', function (data) {
 
 
 
+// Start helper functions
+
+/**
+ * parse an url and returns a structured object
+ *
+ * @param url
+ * @returns {{scheme: *, authority: *, path: *, query: *, fragment: *}}
+ */
 function parse_url(url) {
     // According to RFC http://www.ietf.org/rfc/rfc3986.txt Appendix B
     var pattern = new RegExp("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
@@ -209,16 +217,30 @@ function parse_url(url) {
     };
 }
 
+/**
+ * checks if a string ends with a special suffix
+ *
+ * @param to_test
+ * @param suffix
+ * @returns {boolean}
+ */
 function endsWith (to_test, suffix) {
     return to_test.indexOf(suffix, to_test.length - suffix.length) !== -1;
 }
 
+/**
+ * backups the data of fill password event
+ *
+ * @param data
+ */
 var fillpassword = [];
-
 var onFillpassword = function (data) {
     fillpassword.push(data);
 };
 
+// End helper functions
+
+// Actual messaging stuff
 panel.port.on('fillpassword', function(data) {
     onFillpassword(data);
 });

@@ -1,18 +1,20 @@
 (function(angular) {
     'use strict';
 
-    //var config = chrome.extension.getBackgroundPage().config;
-    //var db = chrome.extension.getBackgroundPage().db;
-
-    var db = new loki("password_manager_local_storage");
-    var config = db.getCollection('config') || db.addCollection('config');
-
-    var events = [
-        'login',
-        'logout'
-    ];
-
     var browserClient = function($rootScope) {
+
+        var registrations = {};
+
+        chrome.runtime.onMessage.addListener(
+        function(request, sender, sendResponse) {
+            console.log(sender.tab ?
+            "from a content script:" + sender.tab.url :
+                "from the extension");
+
+            for (var i = 0; registrations.hasOwnProperty(request.event) && i < registrations[request.event].length; i++) {
+                registrations[request.event][i](request.data);
+            }
+        });
 
         /**
          * Resize the panel according to the provided width and height
@@ -74,10 +76,12 @@
          */
         var on = function (event, myFunction) {
 
-            if(events.indexOf(event) == -1)
-                return false;
-
             $rootScope.$on(event, myFunction);
+
+            if (!registrations.hasOwnProperty(event)) {
+                registrations[event] = [];
+            }
+            registrations[event].push(myFunction);
         };
 
         return {
