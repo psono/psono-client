@@ -75,6 +75,8 @@ var openTab = function (data) {
                 "./js/lib/sortable.js",
                 "./js/lib/lokijs.min.js",
                 "./js/lib/angular.js",
+                "./js/lib/angular-animate.js",
+                "./js/lib/loading-bar.js",
                 "./js/lib/angular-route.js",
                 "./js/lib/angular-sanitize.js",
                 "./js/lib/angular-local-storage.min.js",
