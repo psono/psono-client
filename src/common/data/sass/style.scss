@@ -209,5 +209,27 @@ h1, h2 {
   }
 }
 
+/* Loading colors */
+
+#loading-bar {
+  .bar {
+    background: $dark-hightlight-hover-color;
+  }
+
+  .peg {
+    -moz-box-shadow: $dark-hightlight-hover-color 1px 0 6px 1px;
+    -ms-box-shadow: $dark-hightlight-hover-color 1px 0 6px 1px;
+    -webkit-box-shadow: $dark-hightlight-hover-color 1px 0 6px 1px;
+    box-shadow: $dark-hightlight-hover-color 1px 0 6px 1px;
+  }
+}
+
+#loading-bar-spinner .spinner-icon {
+  border-top-color:  $dark-hightlight-hover-color;
+  border-left-color: $dark-hightlight-hover-color;
+}
+
+
+
 /* CSS fix for angular-ui explained here: https://angular-ui.github.io/bootstrap/ */
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }

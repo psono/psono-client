@@ -2,7 +2,7 @@
     'use strict';
 
     var app = angular.module('passwordManagerApp', ['ngRoute', 'ng', 'ui.bootstrap', 'snap', 'adf',
-        'adf.widget.datastore', 'adf.widget.shareusers',
+        'adf.widget.datastore', 'adf.widget.shareusers', 'chieffancypants.loadingBar', 'ngAnimate',
         'LocalStorageModule', 'AxelSoft', 'ng-context-menu', 'ui.select', 'ngSanitize']);
 
     app.config(['$routeProvider', '$locationProvider', 'dashboardProvider', 'localStorageServiceProvider',

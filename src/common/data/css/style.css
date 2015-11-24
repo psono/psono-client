@@ -149,6 +149,20 @@ h1, h2 {
     border-bottom: 1px solid #ddd;
     margin-bottom: 15px; }
 
+/* Loading colors */
+#loading-bar .bar {
+  background: #2ba880; }
+
+#loading-bar .peg {
+  -moz-box-shadow: #2ba880 1px 0 6px 1px;
+  -ms-box-shadow: #2ba880 1px 0 6px 1px;
+  -webkit-box-shadow: #2ba880 1px 0 6px 1px;
+  box-shadow: #2ba880 1px 0 6px 1px; }
+
+#loading-bar-spinner .spinner-icon {
+  border-top-color: #2ba880;
+  border-left-color: #2ba880; }
+
 /* CSS fix for angular-ui explained here: https://angular-ui.github.io/bootstrap/ */
 .nav, .pagination, .carousel, .panel-title a {
   cursor: pointer; }
