@@ -382,7 +382,7 @@
 
                 function render() {
                     var template =
-                        '<div class="tree-folder" ng-repeat="node in ' + attrs.treeViewNode + '.' + foldersProperty + '">' +
+                        '<div class="tree-folder" ng-repeat="node in ' + attrs.treeViewNode + '.' + foldersProperty + ' track by $index">' +
 
                         '<div class="tree-folder-title" data-target="menu-{{ node.id }}" context-menu="">' +
                         '<div href="#" class="tree-folder-header" ng-click="selectNode($event)" ng-class="{ selected: isSelected(node) }">' +
@@ -419,7 +419,7 @@
 
                         '</div>' + // end ng-repeat node
 
-                        '<div class="tree-item" ng-repeat="item in ' + attrs.treeViewNode + '.' + itemsProperty + '">' +
+                        '<div class="tree-item" ng-repeat="item in ' + attrs.treeViewNode + '.' + itemsProperty + ' track by $index">' +
 
                         '<div class="tree-item-object" ng-click="selectItem(item, $event)" ng-class="{ selected: isSelected(item) }" data-target="menu-{{ item.id }}" context-menu="">' +
                         '<i ng-class="getItemIconClass(item)"></i><span class="tree-item-name"><a href="#" ng-click="clickItem(item, $event)">{{ item.' + displayProperty + ' }}</a></span>' +

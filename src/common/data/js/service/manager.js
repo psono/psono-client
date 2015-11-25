@@ -456,6 +456,49 @@
         };
 
         /**
+         * creates a copy of content and filters some attributes out, to save some storage or fix some missbehaviour
+         *
+         * @param content
+         */
+        var filter_datastore_content = function(content) {
+
+            var content_copy  = JSON.parse(JSON.stringify(content));
+
+            var filter = ['expanded', 'filter'];
+
+            var filter_content = function (content, filter) {
+                var i, m;
+
+                // test attributes in content
+                for (m = 0; m < filter.length; m++) {
+                    if (content.hasOwnProperty(filter[m])) {
+                        delete content[filter[m]];
+                    }
+                }
+
+                // test items
+                for (i = 0; content.hasOwnProperty("items") && i < content.items.length; i++) {
+
+                    for (m = 0; m < filter.length; m++) {
+                        if (content.items[i].hasOwnProperty(filter[m])) {
+                            delete content.items[i][filter[m]];
+                        }
+                    }
+                }
+                // call self recursivly for folders
+                for (i = 0; content.hasOwnProperty("folders") && i < content.folders.length; i ++) {
+                    filter_content(content.folders[i], filter);
+                }
+
+            };
+
+            filter_content(content_copy, filter);
+
+            return content_copy;
+        };
+
+
+        /**
          * saves some content in a datastore
          *
          * @param datastore_id The datastore id
@@ -464,6 +507,9 @@
          * @returns {promise}
          */
         var save_datastore_with_id = function (datastore_id, content) {
+
+            content = filter_datastore_content(content);
+
 
             var onError = function(result) {
                 // pass

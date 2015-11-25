@@ -1,4 +1,4 @@
-(function(angular, nacl_factory, scrypt_module_factory) {
+(function(angular, nacl_factory, scrypt_module_factory, debug) {
     'use strict';
 
     var nacl = nacl_factory.instantiate();
@@ -29,6 +29,10 @@
      */
     var generate_authkey = function (email, password) {
 
+        if( debug ) {
+            console.log("generate_authkey");
+        }
+
         var n = 16384; //2^14
         var r = 8;
         var p = 1;
@@ -49,6 +53,10 @@
      */
     var generate_secret_key = function () {
 
+        if( debug ) {
+            console.log("generate_secret_key");
+        }
+
         return nacl.to_hex(nacl.random_bytes(32)); // 32 Bytes = 256 Bits
     };
 
@@ -59,6 +67,10 @@
      * @returns {{public_key: string, private_key: string}}
      */
     var generate_public_private_keypair = function () {
+
+        if( debug ) {
+            console.log("generate_public_private_keypair");
+        }
 
         var pair = nacl.crypto_box_keypair();
 
@@ -78,6 +90,10 @@
      * @returns {{nonce: string, text: string}}
      */
     var encrypt_secret = function (secret, password) {
+
+        if( debug ) {
+            console.log("encrypt_secret");
+        }
 
         var k = nacl.crypto_hash_sha256(nacl.encode_utf8(password + special_sauce));
         var m = nacl.encode_utf8(secret);
@@ -103,6 +119,10 @@
      */
     var decrypt_secret = function (text, nonce, password) {
 
+        if( debug ) {
+            console.log("decrypt_secret");
+        }
+
         var k = nacl.crypto_hash_sha256(nacl.encode_utf8(password + special_sauce));
         var n = nacl.from_hex(nonce);
         var c = nacl.from_hex(text);
@@ -120,6 +140,10 @@
      * @returns {{nonce: string, text: string}}
      */
     var encrypt_data = function (data, secret_key) {
+
+        if( debug ) {
+            console.log("encrypt_data");
+        }
 
         var k = nacl.from_hex(secret_key);
         var m = nacl.encode_utf8(data);
@@ -144,6 +168,13 @@
      */
     var decrypt_data = function (text, nonce, secret_key) {
 
+        if( debug ) {
+            console.log("decrypt_data");
+            console.log(text);
+            console.log(nonce);
+            console.log(secret_key);
+        }
+
         var k = nacl.from_hex(secret_key);
         var n = nacl.from_hex(nonce);
         var c = nacl.from_hex(text);
@@ -162,6 +193,10 @@
      * @returns {{nonce: string, text: string}}
      */
     var encrypt_data_public_key = function (data, public_key, private_key) {
+
+        if( debug ) {
+            console.log("encrypt_data_public_key");
+        }
 
         var p = nacl.from_hex(public_key);
         var s = nacl.from_hex(private_key);
@@ -187,6 +222,10 @@
      * @returns {string} data
      */
     var decrypt_data_public_key = function (text, nonce, public_key, private_key) {
+
+        if( debug ) {
+            console.log("decrypt_data_public_key");
+        }
 
         var p = nacl.from_hex(public_key);
         var s = nacl.from_hex(private_key);
@@ -215,4 +254,4 @@
     var app = angular.module('passwordManagerApp');
     app.factory("cryptoLibrary", [cryptoLibrary]);
 
-}(angular, nacl_factory, scrypt_module_factory));
+}(angular, nacl_factory, scrypt_module_factory, true));
