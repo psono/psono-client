@@ -34,7 +34,7 @@
         <hr>
         <ul class="navigations">
             <li ng-repeat="searchEntry in searchArray | filter:filterBySearch">
-                <a href="http://www.google.com">{{ searchEntry }}</a>
+                <a href="#" ng-click="onItemClick(searchEntry)">{{ searchEntry.name }}</a>
             </li>
         </ul>
 

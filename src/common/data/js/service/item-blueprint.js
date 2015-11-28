@@ -12,12 +12,14 @@
                 name: "Password", // Displayed in Dropdown Menu
                 title_column: "website_password_title", // is the main column, that is used as filename
                 urlfilter_column: "website_password_url_filter", // is the filter column for url matching
+                search: ['website_password_title', 'website_password_url_filter'], // are searched when the user search his entries
                 columns: [ // All columns for this object with unique names
                     { name: "website_password_title", field: "input", type: "text", title: "Title", placeholder: "Title", required: true},
                     { name: "website_password_url", field: "input", type: "url", title: "URL", placeholder: "URL", required: true, onChange: "onChangeUrl"},
                     { name: "website_password_username", field: "input", type: "text", title: "Username", placeholder: "Username"},
                     { name: "website_password_password", field: "input", type: "password", title: "Password", placeholder: "Password"},
                     { name: "website_password_notes", field: "textarea", title: "Notes", placeholder: "Notes", required: false},
+                    { name: "website_password_auto_submit", field: "input", type:"checkbox", title: "Automatic submit", position: "advanced"},
                     { name: "website_password_url_filter", field: "textarea", title: "Domain Filter", placeholder: "URL filter e.g. example.com or sub.example.com", required: true, position: "advanced"}
                 ],
                 /**
@@ -118,7 +120,8 @@
                         content: {
                             username: content.website_password_username,
                             password: content.website_password_password,
-                            authority: content.website_password_url_filter
+                            authority: content.website_password_url_filter,
+                            auto_submit: content.website_password_auto_submit
                         }
                     }
                 }
@@ -127,6 +130,7 @@
                 id: "note",
                 name: "Note",
                 title_column: "note_title",
+                search: ['note_title'],
                 columns: [
                     { name: "note_title", field: "input", type: "text", title: "Title", placeholder: "Name", required: true},
                     { name: "note_notes", field: "textarea", title: "Notes", placeholder: "Notes", required: false}
@@ -136,6 +140,7 @@
                 id: "dummy",
                 name: "Dummy",
                 title_column: "dummy_title",
+                search: ['dummy_title'],
                 tabs: [
                     {
                         id: "dummy_tab_1",

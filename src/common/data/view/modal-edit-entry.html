@@ -18,13 +18,13 @@
              ng-class="{true: 'has-error'}[submitted && editEntryForm[n.name].$invalid]"
              ng-if="!n.tab && (!n.position || n.position == 'before')">
 
-            <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" class="form-control"
+            <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
                    id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
                    ng-model="n.value"
-                   ng-change="bp.selected[n.onChange](bp.selected.columns)">
+                   ng-change="bp.selected[n.onChange](bp.selected.columns)"> <span ng-if="n.type == 'checkbox'">{{n.title}}</span>
 
             <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
-                      class="form-control" id="editEntryForm-{{n.name}}"
+                      ng-class="{'form-control': n.type !== 'checkbox'}" id="editEntryForm-{{n.name}}"
                       placeholder="{{n.placeholder}}"  ng-required="n.required" ng-model="n.value"></textarea>
 
             <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.required">
@@ -49,13 +49,13 @@
                      ng-class="{true: 'has-error'}[submitted && editEntryForm[n.name].$invalid]"
                      ng-if="n.tab == tab.id">
 
-                    <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" class="form-control"
+                    <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
                            id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
                            ng-model="n.value"
-                           ng-change="bp.selected[n.onChange](bp.selected.columns)">
+                           ng-change="bp.selected[n.onChange](bp.selected.columns)"> <span ng-if="n.type == 'checkbox'">{{n.title}}</span>
 
                     <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
-                              class="form-control" id="editEntryForm-{{n.name}}"
+                              ng-class="{'form-control': n.type !== 'checkbox'}" id="editEntryForm-{{n.name}}"
                               placeholder="{{n.placeholder}}"  ng-required="n.required" ng-model="n.value"></textarea>
 
                     <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.required">
@@ -78,13 +78,13 @@
              ng-class="{true: 'has-error'}[submitted && editEntryForm[n.name].$invalid]"
              ng-if="!n.tab && n.position == 'after'">
 
-            <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" class="form-control"
+            <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
                    id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
                    ng-model="n.value"
-                   ng-change="bp.selected[n.onChange](bp.selected.columns)">
+                   ng-change="bp.selected[n.onChange](bp.selected.columns)"> <span ng-if="n.type == 'checkbox'">{{n.title}}</span>
 
             <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
-                      class="form-control" id="editEntryForm-{{n.name}}"
+                      ng-class="{'form-control': n.type !== 'checkbox'}" id="editEntryForm-{{n.name}}"
                       placeholder="{{n.placeholder}}"  ng-required="n.required" ng-model="n.value"></textarea>
 
             <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.required">
@@ -109,13 +109,13 @@
                  ng-class="{true: 'has-error'}[submitted && editEntryForm[n.name].$invalid]"
                  ng-if="!n.tab && n.position == 'advanced'">
 
-                <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" class="form-control"
+                <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
                        id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
                        ng-model="n.value"
-                       ng-change="bp.selected[n.onChange](bp.selected.columns)">
+                       ng-change="bp.selected[n.onChange](bp.selected.columns)"> <span ng-if="n.type == 'checkbox'">{{n.title}}</span>
 
             <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
-                      class="form-control" id="editEntryForm-{{n.name}}"
+                      ng-class="{'form-control': n.type !== 'checkbox'}" id="editEntryForm-{{n.name}}"
                       placeholder="{{n.placeholder}}"  ng-required="n.required" ng-model="n.value"></textarea>
 
                 <p class="help-block" ng-show="submitted && editEntryForm[n.name].$error.required">

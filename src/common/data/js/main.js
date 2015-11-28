@@ -329,7 +329,6 @@
 
             $scope.logout = function () {
 
-
                 function onError(data) {
                     alert("Error, should not happen.");
                 }
@@ -344,18 +343,29 @@
 
             /* datastore search */
 
-            $scope.searchArray = [
-                "google.com email",
-                "gmx.de email",
-                "test.de kA",
-                "lolig.com test",
-                "amazon.com",
-                "ebay.com",
-                "Spotify",
-                "Bank Onlinebanking"
-            ];
+            $scope.searchArray = [];
 
             $scope.datastore = { search: '' };
+
+            manager.storage_on('datastore-password-leafs', 'update', function(ele) {
+                console.log("main.js update");
+                console.log(ele);
+            });
+
+
+            manager.storage_on('datastore-password-leafs', 'insert', function(ele) {
+                console.log("main.js insert");
+                $scope.searchArray.push(ele);
+            });
+
+
+            manager.storage_on('datastore-password-leafs', 'delete', function(ele) {
+                console.log("main.js delete");
+                console.log(ele);
+            });
+
+
+            manager.get_password_datastore();
 
             var regex;
 
@@ -365,8 +375,10 @@
 
             $scope.filterBySearch = function(searchEntry) {
                 if (!$scope.datastore.search) return false;
-                return regex.test(searchEntry);
+                return regex.test(searchEntry.name) || regex.test(searchEntry.urlfilter);
             };
+
+            $scope.onItemClick = manager.onItemClick;
 
         }]);
 

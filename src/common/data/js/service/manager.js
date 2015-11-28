@@ -341,6 +341,8 @@
                     value[map[m][0]] = folder.items[i][map[m][1]];
                 }
 
+                value['type'] = folder.items[i].type;
+
                 storage.insert(name, value);
             }
 
@@ -377,9 +379,12 @@
 
                 fill_storage('datastore-password-leafs', result, [
                     ['key', 'secret_id'],
+                    ['secret_id', 'secret_id'],
                     ['value', 'secret_key'],
                     ['name', 'name'],
-                    ['urlfilter', 'urlfilter']
+                    ['urlfilter', 'urlfilter'],
+                    ['search', 'urlfilter']
+
                 ]);
 
                 return result
@@ -701,9 +706,8 @@
          * handles item clicks and triggers behaviour
          *
          * @param item
-         * @param path
          */
-        var onItemClick = function(item, path) {
+        var onItemClick = function(item) {
             if (itemBlueprint.blueprint_has_on_click_new_tab(item.type)) {
                 browserClient.openTab('/data/open-secret.html#/secret/'+item.type+'/'+item.secret_id);
             }
@@ -738,6 +742,19 @@
 
         };
 
+        /**
+         * pass through of the event listener function of the storage
+         *
+         * @param db
+         * @param event
+         * @param callback
+         *
+         * @returns {*}
+         */
+        var storage_on = function(db, event, callback) {
+            return storage.on(db, event, callback);
+        };
+
         return {
             login: login,
             logout: logout,
@@ -754,7 +771,8 @@
             onItemSelect: onItemSelect,
             onNodeClick: onNodeClick,
             onItemClick: onItemClick,
-            redirectSecret: redirectSecret
+            redirectSecret: redirectSecret,
+            storage_on: storage_on
         };
     };
 

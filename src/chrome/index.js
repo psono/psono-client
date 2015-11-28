@@ -27,8 +27,6 @@ var bg = (function () {
 var db = new loki("password_manager_local_storage");
 var config = db.getCollection('config') || db.addCollection('config');
 
-console.log("test");
-
 /*
  * Dummy context menu
  */
@@ -115,6 +113,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         for(var i = fillpassword.length - 1; i >= 0; i--) {
             if( endsWith(parsed_url.authority, fillpassword[i].authority)) {
                 fillpassword[i].submit = parsed_url.scheme == 'https';
+
+                console.log(fillpassword[i]);
                 sendResponse({event: "fillpassword", data: fillpassword[i]});
                 fillpassword.splice(i, 1);
                 break;

@@ -113,7 +113,11 @@
                 for (var i = 0; i < myForms.length; i++) {
                     myForms[i].username.value = data.username;
                     myForms[i].password.value = data.password;
-                    if (myForms.length == 1 && myForms[i].form !== null && data.submit) {
+                    if (myForms.length == 1 //only 1 form
+                        && myForms[i].form !== null //we found the form
+                        && data.submit //https website
+                        && data.auto_submit //auto submit checked in settings
+                    ) {
                         myForms[i].form.submit();
                     }
                 }
