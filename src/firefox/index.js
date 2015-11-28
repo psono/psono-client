@@ -249,7 +249,14 @@ panel.port.on('fillpassword', function(data) {
 
 mod.PageMod({
     include: "*",
+
+    contentStyleFile: [
+        "./css/lib/opensans.css",
+        "./css/lib/drop-theme-arrows.css"
+    ],
     contentScriptFile: [
+        self.data.url("./js/lib/tether.js"),
+        self.data.url("./js/lib/drop.js"),
         self.data.url("./js/lib/jquery-2.1.4.js"),
         self.data.url("./js/formfill-browser-client.js"),
         self.data.url("./js/formfill.js")

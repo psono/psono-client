@@ -28,7 +28,13 @@
   "content_scripts": [
     {
       "matches": ["*://*/*"],
+      "css": [
+        "data/css/lib/opensans.css",
+        "data/css/lib/drop-theme-arrows.css"
+      ],
       "js": [
+        "data/js/lib/tether.js",
+        "data/js/lib/drop.js",
         "data/js/lib/jquery-2.1.4.js",
         "data/js/formfill-browser-client.js",
         "data/js/formfill.js"

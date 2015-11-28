@@ -33,9 +33,40 @@
             }
         }
 
+        var dropInstances = [];
+
         function click(evt) {
+
             if (getDistance(evt) < 30) {
-                alert("yes");
+
+                var dropInstance = new Drop({
+                    target: evt.target,
+                    content: '<div class="sanso-pw-drop-content-inner"><span>Drop.js <br>Drop.js is a fast and capable dropdown library built on Tether.</span></div>',
+                    classes: 'sanso-pw-drop-theme-arrows',
+                    position: 'bottom left',
+                    openOn: null
+                });
+                dropInstance.open();
+
+                dropInstances.push(dropInstance);
+
+                setTimeout(function(){
+
+                    var close = function (event) {
+                        for (var i = 0; i < dropInstances.length; i++) {
+                            if(dropInstances[i].drop.contains(event.target)) {
+                                continue;
+                            }
+                            dropInstances[i].close();
+                            dropInstances.splice(i, 1);
+                        }
+                        if (dropInstances.length > 0) {
+                            $(window).one("click", close);
+                        }
+                    };
+                    $(window).one("click", close);
+
+                }, 0);
             }
         }
 
