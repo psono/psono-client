@@ -321,32 +321,40 @@
                 .then(onSuccess, onError);
         };
 
+        /**
+         * adds a node to the storage
+         *
+         * @param name
+         * @param folder
+         * @param map
+         */
+        var addNodeToStorage = function (name, folder, map) {
+            var i;
+            for (i = 0; folder.hasOwnProperty("folders") && i < folder.folders.length; i ++) {
+                addNodeToStorage(name, folder.folders[i], map);
+            }
+            for (i = 0; folder.hasOwnProperty("items") && i < folder.items.length; i++) {
+
+                var value = {};
+
+                for (var m = 0; m < map.length; m++) {
+                    value[map[m][0]] = folder.items[i][map[m][1]];
+                }
+
+                storage.insert(name, value);
+            }
+
+        };
+
 
         /**
          * fills the local datastore with given name
          *
          * @param name
          * @param datastore
+         * @param map
          */
         var fill_storage = function(name, datastore, map) {
-
-            var addNodeToStorage = function (name, folder, map) {
-                var i;
-                for (i = 0; folder.hasOwnProperty("folders") && i < folder.folders.length; i ++) {
-                    addNodeToStorage(name, folder.folders[i], map);
-                }
-                for (i = 0; folder.hasOwnProperty("items") && i < folder.items.length; i++) {
-
-                    var value = {};
-
-                    for (var m = 0; m < map.length; m++) {
-                        value[map[m][0]] = folder.items[i][map[m][1]];
-                    }
-
-                    storage.insert(name, value);
-                }
-
-            };
             storage.removeAll(name);
 
             addNodeToStorage(name, datastore, map);
@@ -564,6 +572,14 @@
         var save_password_datastore = function (content) {
             var type = "password";
             var description = "default";
+
+            // datastore has changed, so lets regenerate local lookup
+            fill_storage('datastore-password-leafs', content, [
+                ['key', 'secret_id'],
+                ['value', 'secret_key'],
+                ['name', 'name'],
+                ['urlfilter', 'urlfilter']
+            ]);
 
             return save_datastore(type, description, content)
         };

@@ -28,7 +28,11 @@
   "content_scripts": [
     {
       "matches": ["*://*/*"],
-      "js": ["data/js/formfill-browser-client.js", "data/js/formfill.js"]
+      "js": [
+        "data/js/lib/jquery-2.1.4.js",
+        "data/js/formfill-browser-client.js",
+        "data/js/formfill.js"
+      ]
     }
   ]
 }

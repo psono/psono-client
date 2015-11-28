@@ -250,6 +250,7 @@ panel.port.on('fillpassword', function(data) {
 mod.PageMod({
     include: "*",
     contentScriptFile: [
+        self.data.url("./js/lib/jquery-2.1.4.js"),
         self.data.url("./js/formfill-browser-client.js"),
         self.data.url("./js/formfill.js")
     ],
