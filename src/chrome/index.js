@@ -1,31 +1,4 @@
 "use strict";
-/*
- * Generic testing
- */
-var bg = (function () {
-
-    var time = 0;
-
-    setInterval(myTimer, 1000);
-
-    function myTimer() {
-        time +=1;
-    }
-
-
-    var test = function () {
-        console.log("test triggered. "+ time + " sec passed");
-        return time;
-    };
-
-    return {
-        time: time,
-        test: test
-    }
-})();
-
-var db = new loki("password_manager_local_storage");
-var config = db.getCollection('config') || db.addCollection('config');
 
 /*
  * Dummy context menu
@@ -104,17 +77,16 @@ var onFillpassword = function (data) {
 // Actual messaging stuff
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
+    var url = sender.tab.url;
+    var parsed_url = parse_url(url);
+
     // From content script with ready event
     if (sender.tab && request.event == "ready") {
         console.log("background script received    'ready'");
-        var url = sender.tab.url;
-        var parsed_url = parse_url(url);
 
         for(var i = fillpassword.length - 1; i >= 0; i--) {
             if( endsWith(parsed_url.authority, fillpassword[i].authority)) {
                 fillpassword[i].submit = parsed_url.scheme == 'https';
-
-                console.log(fillpassword[i]);
                 sendResponse({event: "fillpassword", data: fillpassword[i]});
                 fillpassword.splice(i, 1);
                 break;
@@ -124,11 +96,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     }
 
     if (request.event == "fillpassword") {
+        console.log("background script received    'fillpassword'");
         onFillpassword(request.data);
         return;
     }
 
     if (request.event == "logout") {
+        console.log("background script received    'logout'");
 
         chrome.tabs.query({url: 'chrome-extension://'+chrome.runtime.id+'/*'}, function(tabs) {
             var tabids = [];
@@ -142,7 +116,39 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         return;
     }
 
+
+    if (request.event == "website-password-refresh") {
+        console.log("background script received    'website-password-refresh'");
+
+        var data = localStorage.getItem('password_manager_local_storage');
+        var db = JSON.parse(data);
+        var update = [];
+        for (var i = 0; i < db.collections.length; i++) {
+            if (db.collections[i].name !== 'datastore-password-leafs') {
+                continue;
+            }
+            var leafs = db.collections[i].data;
+            for (var ii = 0; ii < leafs.length; ii++) {
+                if (endsWith(parsed_url.authority, leafs[ii].urlfilter)) {
+                    update.push({
+                        secret_id: leafs[ii].secret_id,
+                        name: leafs[ii].name
+                    })
+                }
+            }
+            break;
+        }
+
+        sendResponse({event: "website-password-update", data: update});
+
+        return;
+    }
+
     console.log(sender.tab);
     console.log("background script received (uncaptured)    " + request.event);
 
 });
+
+
+
+

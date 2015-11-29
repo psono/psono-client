@@ -23,7 +23,9 @@
     "128": "data/img/icon-128.png"
   },
   "background": {
-    "scripts": ["data/js/lib/lokijs.min.js", "index.js"]
+    "scripts": [
+      "index.js"
+    ]
   },
   "content_scripts": [
     {

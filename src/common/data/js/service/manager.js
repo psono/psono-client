@@ -100,7 +100,7 @@
          */
         var logout = function () {
 
-            var onSuccess = function (response) {
+            var onSuccess = function () {
 
                 _delete_local_data();
 
@@ -109,7 +109,7 @@
                 };
             };
 
-            var onError = function(response){
+            var onError = function(){
                 //session expired, so lets delete the data anyway
 
                 _delete_local_data();
@@ -167,7 +167,7 @@
 
             if ( (typeof force_fresh === 'undefined' || force_fresh === false) && temp_datastore_overview) {
                 // we have them in cache, so lets save the query
-                return $q(function (resolve, reject) {
+                return $q(function (resolve) {
                     resolve(temp_datastore_overview);
                 })
             } else {
@@ -448,7 +448,7 @@
 
             if (temp_datastore_key_storage.hasOwnProperty(datastore_id)) {
                 // datastore secret key exists in temp datastore key storage, but we have to return a promise :/
-                return $q(function (resolve, reject) {
+                return $q(function (resolve) {
                     resolve(_encrypt_datastore(datastore_id, json_content));
                 })
             } else {

@@ -4,6 +4,8 @@ var self = require("sdk/self");
 var tabs = require("sdk/tabs");
 var mod = require("sdk/page-mod");
 var contextMenu = require("sdk/context-menu");
+var uuidGenerator = require('sdk/util/uuid');
+
 
 var allDatastoreTabs = {};
 var allTabCount = 0;
@@ -152,14 +154,14 @@ var onLogin = function (from, data) {
             }
         }
     } else {
-        panel.port.emit(msg, msg);
+        panel.port.emit(msg, {id: 0, data: msg});
     }
 };
 var onLogout = function (from, data) {
     var msg = 'logout';
 
     if (from !== 'panel') {
-        panel.port.emit(msg, msg);
+        panel.port.emit(msg, {id: 0, data: msg});
     }
 
     for (var count in allDatastoreTabs) {
@@ -180,22 +182,6 @@ panel.port.on('logout', function(data) {
 function handleHide() {
     button.state('window', {checked: false});
 }
-
-//var lokijs = require("./data/js/lib/lokijs.min.js");
-//var db = new lokijs.loki("password_manager_local_storage");
-//var config = db.getCollection('config') || db.addCollection('config');
-/*
-panel.port.on('lokijs_config_insert', function (data) {
-    config.insert(data.items);
-});
-
-panel.port.on('lokijs_config_data', function (data) {
-    config.insert(data.items);
-});
-*/
-
-
-
 
 // Start helper functions
 
@@ -243,8 +229,32 @@ var onFillpassword = function (data) {
 // End helper functions
 
 // Actual messaging stuff
-panel.port.on('fillpassword', function(data) {
-    onFillpassword(data);
+panel.port.on('fillpassword', function(payload) {
+    onFillpassword(payload);
+});
+
+
+var receivers = {};
+panel.port.on('storage-getItem', function(payload) {
+
+    payload = JSON.parse( payload );
+
+    if (!receivers.hasOwnProperty(payload.id)) {
+        return;
+    }
+
+    var update = [];
+    var leafs = payload.data;
+    for (var ii = 0; ii < leafs.length; ii++) {
+        if (endsWith(receivers[payload.id].parsed_url.authority, leafs[ii].urlfilter)) {
+            update.push({
+                secret_id: leafs[ii].secret_id,
+                name: leafs[ii].name
+            })
+        }
+    }
+
+    receivers[payload.id].worker.port.emit("website-password-update", update);
 });
 
 mod.PageMod({
@@ -276,6 +286,20 @@ mod.PageMod({
                     break;
                 }
             }
+        });
+
+        worker.port.on("website-password-refresh", function (url) {
+
+            var parsed_url = parse_url(url);
+
+            var uuid = uuidGenerator.uuid().toString().substring(1, 37); //why are there stupid brackets around the uuid
+
+            receivers[uuid] = {
+                worker: worker,
+                parsed_url: parsed_url
+            };
+
+            panel.port.emit('storage-getItem', {id: uuid, data: 'datastore-password-leafs'});
         });
     }
 });

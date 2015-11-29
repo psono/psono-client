@@ -243,7 +243,7 @@
                 snapper.open('left');
                 adjustWith(snapper);
 
-                $scope.$on("login", function(event, message){
+                $scope.$on("login", function(){
                     snapRemote.getSnapper().then(function(snapper) {
                         snapper.settings(snappersettings);
                         snapper.open('left');
@@ -287,13 +287,13 @@
                 loggedin: manager.is_logged_in()
             };
 
-            browserClient.on("login", function(event, message){
+            browserClient.on("login", function(){
                 $timeout(function() {
                     $scope.data.loggedin = true;
                 });
             });
 
-            browserClient.on("logout", function(event, message){
+            browserClient.on("logout", function(){
                 $timeout(function() {
                     $scope.data.loggedin = false;
                     browserClient.resize(250);
@@ -306,8 +306,6 @@
     app.controller('OpenSecretController', ['$scope', 'cfpLoadingBar', '$route',
         function($scope, cfpLoadingBar, $route)
         {
-            $scope.test = "sexy";
-
             var lock = angular.element( document.querySelector( '#loading-lock-logo-loaded-fa' ) );
             cfpLoadingBar.on("set", function (status) {
                 lock.css('width', (status*100) + '%');
@@ -343,10 +341,10 @@
 
             $scope.logout = function () {
 
-                function onError(data) {
+                function onError() {
                     alert("Error, should not happen.");
                 }
-                function onRequestReturn(data) {
+                function onRequestReturn() {
                     browserClient.emit("logout", null);
                     browserClient.resize(250);
                 }
@@ -362,20 +360,20 @@
             $scope.datastore = { search: '' };
 
             manager.storage_on('datastore-password-leafs', 'update', function(ele) {
-                console.log("main.js update");
-                console.log(ele);
+                //console.log("main.js update");
+                //console.log(ele);
             });
 
 
             manager.storage_on('datastore-password-leafs', 'insert', function(ele) {
-                console.log("main.js insert");
+                //console.log("main.js insert");
                 $scope.searchArray.push(ele);
             });
 
 
             manager.storage_on('datastore-password-leafs', 'delete', function(ele) {
-                console.log("main.js delete");
-                console.log(ele);
+                //console.log("main.js delete");
+                //console.log(ele);
             });
 
 
@@ -453,7 +451,7 @@
 
             $scope.login = function (email, password) {
 
-                function onError(data) {
+                function onError() {
                     alert("Error, should not happen.");
                 }
 

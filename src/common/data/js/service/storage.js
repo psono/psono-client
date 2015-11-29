@@ -38,7 +38,7 @@
         }
     });
 
-    var storage = function(localStorageService, cryptoLibrary) {
+    var storage = function() {
         //localStorageService.set('user', 'me');
 
         /**
@@ -132,6 +132,6 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("storage", ['localStorageService', 'cryptoLibrary', storage]);
+    app.factory("storage", [storage]);
 
 }(angular));

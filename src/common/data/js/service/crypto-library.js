@@ -254,4 +254,4 @@
     var app = angular.module('passwordManagerApp');
     app.factory("cryptoLibrary", [cryptoLibrary]);
 
-}(angular, nacl_factory, scrypt_module_factory, true));
+}(angular, nacl_factory, scrypt_module_factory, false));

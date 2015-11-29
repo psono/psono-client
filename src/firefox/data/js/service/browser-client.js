@@ -11,10 +11,11 @@
 
     var events = [
         'login',
-        'logout'
+        'logout',
+        'storage-getItem'
     ];
 
-    var browserClient = function($rootScope) {
+    var browserClient = function($rootScope, storage) {
         /**
          * Resize the panel according to the provided width and height
          *
@@ -84,6 +85,31 @@
             $rootScope.$on(event, myFunction);
         };
 
+        /**
+         * initializing service
+         *
+         * @private
+         */
+        var _init = function () {
+            /**
+             * due to the fact that firefox doesnt allow local storage access, we have here an api, so content scripts
+             * can access the local storage though the panel
+             */
+            on('storage-getItem', function(payload) {
+
+                var event_data = {};
+                event_data.id = payload.id;
+
+                // lets make sure not everything is exposed
+                if (payload.data === "datastore-password-leafs") {
+                    event_data.data = storage.data(payload.data);
+                }
+                emit_sec('storage-getItem', JSON.stringify(event_data));
+            })
+        };
+
+        _init();
+
         return {
             resize: resize,
             openTab: openTab,
@@ -95,6 +121,6 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("browserClient", ['$rootScope', browserClient]);
+    app.factory("browserClient", ['$rootScope', 'storage', browserClient]);
 
 }(angular, $));
