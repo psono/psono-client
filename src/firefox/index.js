@@ -251,8 +251,9 @@ mod.PageMod({
     include: "*",
 
     contentStyleFile: [
+        "./css/lib/cssreset-context-min.css",
         "./css/lib/opensans.css",
-        "./css/lib/drop-theme-arrows.css"
+        "./css/contentscript.css"
     ],
     contentScriptFile: [
         self.data.url("./js/lib/tether.js"),

@@ -30,7 +30,8 @@
       "matches": ["*://*/*"],
       "css": [
         "data/css/lib/opensans.css",
-        "data/css/lib/drop-theme-arrows.css"
+        "data/css/lib/cssreset-context-min.css",
+        "data/css/contentscript.css"
       ],
       "js": [
         "data/js/lib/tether.js",

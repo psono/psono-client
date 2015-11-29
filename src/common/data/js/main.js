@@ -302,6 +302,20 @@
 
         }]);
 
+
+    app.controller('OpenSecretController', ['$scope', 'cfpLoadingBar', '$route',
+        function($scope, cfpLoadingBar, $route)
+        {
+            $scope.test = "sexy";
+
+            var lock = angular.element( document.querySelector( '#loading-lock-logo-loaded-fa' ) );
+            cfpLoadingBar.on("set", function (status) {
+                lock.css('width', (status*100) + '%');
+                lock.css('marginLeft', (-200+status*100) + '%');
+            })
+
+        }]);
+
     app.controller('Main2Controller', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'browserClient', 'storage',
         'snapRemote', '$window', '$route', '$routeParams', '$location',
         function($scope, $rootScope, $filter, $timeout, manager, browserClient, storage,

@@ -216,6 +216,24 @@ angular.module('cfp.loadingBar', [])
         _set(startSize);
       }
 
+      var _eventlistener = {};
+
+      /**
+       * Registers a callback function for a specific event. Currently supported events are:
+       *
+       * - "set"
+       *
+       * @param event
+       * @param callback
+       */
+      function _on(event, callback) {
+        if (!_eventlistener.hasOwnProperty(event)) {
+          _eventlistener[event] = [];
+        }
+        _eventlistener[event].push(callback);
+      }
+
+
       /**
        * Set the loading bar's width to a certain percent.
        *
@@ -228,6 +246,12 @@ angular.module('cfp.loadingBar', [])
         var pct = (n * 100) + '%';
         loadingBar.css('width', pct);
         status = n;
+
+        if (_eventlistener.hasOwnProperty('set')) {
+          for (var i = 0; i < _eventlistener['set'].length; i++) {
+            _eventlistener['set'][i](status)
+          }
+        }
 
         // increment loadingbar to give the illusion that there is always
         // progress but make sure to cancel the previous timeouts so we don't
@@ -314,7 +338,8 @@ angular.module('cfp.loadingBar', [])
         includeSpinner   : this.includeSpinner,
         latencyThreshold : this.latencyThreshold,
         parentSelector   : this.parentSelector,
-        startSize        : this.startSize
+        startSize        : this.startSize,
+        on               : _on
       };
 
 
