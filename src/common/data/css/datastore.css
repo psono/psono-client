@@ -7,7 +7,7 @@ body {
   height: 100%;
   overflow: hidden; }
 
-.loginbox {
+.loginbox, .registerbox, .activationbox {
   width: 340px;
   height: 260px;
   padding: 20px;

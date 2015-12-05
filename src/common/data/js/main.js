@@ -3,7 +3,15 @@
 
     var app = angular.module('passwordManagerApp', ['ngRoute', 'ng', 'ui.bootstrap', 'snap', 'adf',
         'adf.widget.datastore', 'adf.widget.shareusers', 'chieffancypants.loadingBar', 'ngAnimate',
-        'LocalStorageModule', 'AxelSoft', 'ng-context-menu', 'ui.select', 'ngSanitize']);
+        'LocalStorageModule', 'AxelSoft', 'ng-context-menu', 'ui.select', 'ngSanitize'])
+        .constant('BACKEND_SERVERS', [
+            {
+                title: 'Sanso.pw', url: 'https://www.sanso.pw'
+            },
+            {
+                title: 'Dev Sanso.pw', url: 'http://dev.sanso.pw:8001'
+            }
+        ]);
 
     app.config(['$routeProvider', '$locationProvider', 'dashboardProvider', 'localStorageServiceProvider',
         function($routeProvider, $locationProvider, dashboardProvider, localStorageServiceProvider) {
@@ -18,6 +26,7 @@
                     controller: 'IndexCtrl'
                 })
                 .when('/secret/:type/:secret_id', {})
+                .when('/activation-code/:activation_code', {})
                 .otherwise({
                     templateUrl: 'view/index.html',
                     controller: 'IndexCtrl'
@@ -178,6 +187,128 @@
         });
     }]);
 
+    app.controller('RegisterController', ['$scope', '$route', 'manager', 'BACKEND_SERVERS',
+        function($scope, $route, manager, BACKEND_SERVERS)
+        {
+            /* Server selection with preselection of dev server */
+            $scope.servers = BACKEND_SERVERS;
+            $scope.filtered_servers = $scope.servers;
+            $scope.selected_server = $scope.servers[1];
+            $scope.selected_server_title = $scope.selected_server.title;
+            $scope.selected_server_url = $scope.selected_server.url;
+
+            $scope.select_server = function (server) {
+                //triggered when selecting an server
+                $scope.selected_server = server;
+                $scope.selected_server_title = server.title;
+                $scope.selected_server_url = server.url;
+            };
+            $scope.changing = function (url) {
+                //triggered when typing an url
+                $scope.selected_server = {title: url, url: url};
+                $scope.filtered_servers = $filter('filter')($scope.servers, {url: url});
+            };
+
+
+            /* preselected values */
+            $scope.registerFormEmail = "register@saschapfeiffer.com";
+            $scope.registerFormPassword = "myPassword";
+
+            $scope.register = function (email, password) {
+                function onError() {
+                    alert("Error, should not happen.");
+                }
+
+                function onRequestReturn(data) {
+                    // TODO bring message to the user
+                    $scope.errors = [];
+                    $scope.msgs = [];
+                    if (data.response === "success") {
+                        $scope.msgs.push('Successful, check your e-mail.');
+                    } else {
+                        if (data.error_data == null) {
+                            $scope.errors.push('Server offline.');
+                        } else {
+                            for (var property in data.error_data) {
+                                if (data.error_data.hasOwnProperty(property)) {
+                                    for (var i = 0; i < data.error_data[property].length; i++) {
+                                        $scope.errors.push(data.error_data[property][i]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (email !== undefined && password !== undefined) {
+                    manager.register(email, password, angular.copy($scope.selected_server)).then(onRequestReturn, onError);
+                }
+            };
+        }]);
+
+    app.controller('ActivationController', ['$scope', '$route', '$routeParams', 'manager', 'BACKEND_SERVERS',
+        function($scope, $route, $routeParams, manager, BACKEND_SERVERS)
+        {
+
+            /* Server selection with preselection of dev server */
+            $scope.servers = BACKEND_SERVERS;
+            $scope.filtered_servers = $scope.servers;
+            $scope.selected_server = $scope.servers[1];
+            $scope.selected_server_title = $scope.selected_server.title;
+            $scope.selected_server_url = $scope.selected_server.url;
+
+            $scope.select_server = function (server) {
+                //triggered when selecting an server
+                $scope.selected_server = server;
+                $scope.selected_server_title = server.title;
+                $scope.selected_server_url = server.url;
+            };
+            $scope.changing = function (url) {
+                //triggered when typing an url
+                $scope.selected_server = {title: url, url: url};
+                $scope.filtered_servers = $filter('filter')($scope.servers, {url: url});
+            };
+
+            var activate = function (activation_code) {
+                function onError() {
+                    alert("Error, should not happen.");
+                }
+
+                function onRequestReturn(data) {
+                    // TODO bring message to the user
+                    $scope.errors = [];
+                    $scope.msgs = [];
+                    if (data.response === "success") {
+                        $scope.msgs.push('Successful, please login.');
+                    } else {
+                        if (data.error_data == null) {
+                            $scope.errors.push('Server offline.');
+                        } else {
+                            for (var property in data.error_data) {
+                                if (data.error_data.hasOwnProperty(property)) {
+                                    for (var i = 0; i < data.error_data[property].length; i++) {
+                                        $scope.errors.push(data.error_data[property][i]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (activation_code !== undefined ) {
+                    manager.activate(activation_code, angular.copy($scope.selected_server)).then(onRequestReturn, onError);
+                }
+            };
+
+            /* preselected values */
+            $scope.$on('$routeChangeSuccess', function() {
+                $scope.activationFormKey = $routeParams['activation_code'];
+                if ($routeParams.hasOwnProperty('activation_code') && $routeParams['activation_code'].length > 0)  {
+                    activate($routeParams['activation_code']);
+                }
+            });
+
+            $scope.activate = activate;
+        }]);
+
     app.controller('MainController', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'browserClient', 'storage',
         'snapRemote', '$window', '$route', '$routeParams', '$location',
         function($scope, $rootScope, $filter, $timeout, manager, browserClient, storage,
@@ -287,6 +418,10 @@
                 loggedin: manager.is_logged_in()
             };
 
+            if ($scope.data.loggedin) {
+                browserClient.resize(295);
+            }
+
             browserClient.on("login", function(){
                 $timeout(function() {
                     $scope.data.loggedin = true;
@@ -357,7 +492,10 @@
 
             $scope.searchArray = [];
 
-            $scope.datastore = { search: '' };
+            $scope.datastore = {
+                search: '',
+                filteredSearcArray: []
+            };
 
             manager.storage_on('datastore-password-leafs', 'update', function(ele) {
                 //console.log("main.js update");
@@ -383,6 +521,22 @@
 
             $scope.$watch('datastore.search', function (value) {
                 regex = new RegExp(value.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1"), 'i');
+
+                $timeout(function() {
+                    if (! manager.is_logged_in()) {
+                        browserClient.resize(250);
+                    } else if ($scope.datastore.search === '' && manager.is_logged_in()) {
+                        browserClient.resize(295);
+                    } else {
+                        /*
+                        3 = 295*
+                        2 = 252
+                        1 = 209*
+                        0 = 166
+                         */
+                        browserClient.resize(166 + Math.max($scope.datastore.filteredSearcArray.length, 1) * 43);
+                    }
+                });
             });
 
             $scope.filterBySearch = function(searchEntry) {
@@ -395,9 +549,9 @@
         }]);
 
     app.controller('LoginController', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'browserClient', 'storage',
-        'snapRemote', '$window', '$route', '$routeParams', '$location',
+        'snapRemote', '$window', '$route', '$routeParams', '$location', 'BACKEND_SERVERS',
         function($scope, $rootScope, $filter, $timeout, manager, browserClient, storage,
-                 snapRemote, $window, $route, $routeParams, $location)
+                 snapRemote, $window, $route, $routeParams, $location, BACKEND_SERVERS)
         {
 
             /* openTab function to pass through */
@@ -408,14 +562,7 @@
 
 
             /* Server selection with preselection of dev server */
-            $scope.servers = [
-                {
-                    title: 'Sanso.pw', url: 'https://www.sanso.pw'
-                },
-                {
-                    title: 'Dev Sanso.pw', url: 'http://dev.sanso.pw:8001'
-                }
-            ];
+            $scope.servers = BACKEND_SERVERS;
             $scope.filtered_servers = $scope.servers;
             $scope.selected_server = $scope.servers[1];
             $scope.selected_server_title = $scope.selected_server.title;
@@ -450,7 +597,6 @@
             $scope.loginFormPassword = "myPassword";
 
             $scope.login = function (email, password) {
-
                 function onError() {
                     alert("Error, should not happen.");
                 }
@@ -460,7 +606,7 @@
                     if (data.response === "success") {
                         $scope.errors = [];
                         browserClient.emit("login", null);
-                        browserClient.resize(300);
+                        browserClient.resize(295);
                     } else {
                         if (data.error_data == null) {
                             $scope.errors = ['Server offline.']
@@ -475,10 +621,10 @@
             };
         }]);
 
-
-    app.controller('TestCtrl', ['$routeParams', function($routeParams) {
+    app.controller('TestCtrl', ['$scope', '$routeParams', function($scope, $routeParams) {
         this.name = "TestCtrl";
         this.params = $routeParams;
+        $scope.routeParams = $routeParams;
     }]);
 
     app.controller('IndexCtrl', ['$scope', '$routeParams', function($scope, $routeParams) {

@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html ng-app="passwordManagerApp" class="datastore">
 <head>
@@ -23,79 +25,26 @@
     <link href="css/datastore.css" rel="stylesheet">
 </head>
 <body>
-<div  ng-controller="MainController">
 
-<div ng-if="data.loggedin" ng-controller="Main2Controller">
-
-    <nav class="navbar navbar-default navbar-static-top">
-        <div class="container">
-            <div class="navbar-header">
-                <a class="navbar-brand" href="#">
-                    <img alt="Brand" src="img/logo-inverse.png" height="100%">
-                </a>
-            </div>
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-5">
-                <div  class="navbar-text navbar-right">
-                    Signed in as
-                    <div class="btn-group" dropdown is-open="status.isopen">
-                        <button id="email-button" type="button" class="btn btn-primary" dropdown-toggle ng-disabled="disabled">
-                            {{user_email}} <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" role="menu" aria-labelledby="email-button">
-                            <li role="menuitem"><a href="#">Action</a></li>
-                            <li role="menuitem"><a href="#">Another action</a></li>
-                            <li role="menuitem"><a href="#">Something else here</a></li>
-                            <li class="divider"></li>
-                            <li role="menuitem"><a href="#" ng-click="logout()">logout</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <div snap-drawer class="dark">
-        <h2>Navigation</h2>
-        <ul class="navigations">
-            <li ng-class="getClass('/')"><a href="#">Home</a></li>
-            <li ng-class="getClass('/test')"><a href="#/test">Test</a></li>
-        </ul>
-        <h2>Share</h2>
-        <ul class="navigations">
-            <li ng-class="getClass('/share/users')"><a href="#/share/users">Users</a></li>
-        </ul>
-        <h2>More</h2>
-        <ul class="navigations">
-            <li><a href="https://www.sanso.pw/premium">Get Premium</a></li>
-            <li><a href="https://www.sanso.pw/help" target="_blank">Help</a></li>
-            <li><a href="https://www.sanso.pw/about" target="_blank">About</a></li>
-        </ul>
-    </div>
-
-    <div snap-content>
-        <div ng-view ng-style="{ 'width' : snap_content_with }"></div>
-    </div>
-
-</div>
-<div ng-if="!data.loggedin" ng-controller="LoginController">
+<div ng-controller="RegisterController">
     <!-- Not logged in, show the login form -->
     <div class="wrapper">
 
-        <div class="loginbox dark">
+        <div class="registerbox dark">
             <img src="img/logo.png" id="logo">
 
-            <form name="loginForm">
+            <form name="registerForm">
                 <div class="form-group">
-                    <input type="email" class="form-control" id="loginEmail" placeholder="E-Mail" ng-model="loginFormEmail" required>
+                    <input type="email" class="form-control" id="registerEmail" placeholder="E-Mail" ng-model="registerFormEmail" required>
                 </div>
                 <div class="form-group">
-                    <input type="password" class="form-control" id="loginPassword" placeholder="Password" ng-model="loginFormPassword" required>
+                    <input type="password" class="form-control" id="registerPassword" placeholder="Password" ng-model="registerFormPassword" required>
                 </div>
 
                 <div class="form-group">
-                    <button ng-click="login(loginFormEmail, loginFormPassword)" type="submit" class="btn btn-danger">Login</button>
-                    <a href="#" ng-click="openTab('/data/register.html')">Register</a>
+                    <button ng-click="register(registerFormEmail, registerFormPassword)" type="submit" class="btn btn-danger">Register</button>
                     <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
+                    <span ng-repeat="e in msgs" class="pull-right">{{e}}</span>
                 </div>
 
                 <div class="form-group hideinputcharakter">
@@ -123,9 +72,8 @@
     </div>
 </div>
 
-</div>
 
-<!--removeIf(firefox)-->
+
 <!-- Start of scripts -->
 <script src="js/lib/nacl_factory.js" type="text/javascript"></script>
 <script src="js/lib/scrypt.js" type="text/javascript"></script>
@@ -136,6 +84,7 @@
 <script src="js/lib/sortable.js" type="application/javascript"></script>
 <script src="js/lib/lokijs.min.js" type="application/javascript"></script>
 
+
 <!-- Angular Juju -->
 <script src="js/lib/angular.js" type="application/javascript"></script>
 <script src="js/lib/angular-animate.js" type="application/javascript"></script>
@@ -145,10 +94,10 @@
 <script src="js/lib/angular-local-storage.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-snap.min.js" type="application/javascript"></script>
 <script src="js/lib/ui-bootstrap-tpls-0.13.4.min.js" type="application/javascript"></script>
-<script src="js/lib/angular-tree-view.js"></script>
+<script src="js/lib/angular-dashboard-framework.js" type="application/javascript"></script>
+<script src="js/lib/angular-tree-view.js" type="application/javascript"></script>
 <script src="js/lib/angular-ui-select.js" type="application/javascript"></script>
 <script src="js/lib/ng-context-menu.js" type="application/javascript"></script>
-<script src="js/lib/angular-dashboard-framework.js" type="application/javascript"></script>
 
 <script src="js/widgets/adf-widget-datastore.js"></script>
 <script src="js/widgets/adf-widget-shareusers.js"></script>
@@ -163,6 +112,5 @@
 <script src="js/service/browser-client.js" type="application/javascript"></script>
 <script src="view/templates.js" type="application/javascript"></script>
 <!-- End Angular Juju -->
-<!--endRemoveIf(firefox)-->
 </body>
 </html>

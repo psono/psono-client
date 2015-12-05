@@ -33,6 +33,81 @@
         };
 
         /**
+         * Ajax POST request to the backend with email and authkey for registration
+         *
+         * @param email
+         * @param password
+         * @param server server object
+         *
+         * @returns {promise} promise
+         */
+        var register = function(email, password, server) {
+
+            _delete_local_data();
+
+            storage.insert('config', {key: 'user_email', value: email});
+            storage.insert('config', {key: 'server', value: server});
+
+            var pair = cryptoLibrary.generate_public_private_keypair();
+
+            var priv_key_enc = cryptoLibrary.encrypt_secret(pair.private_key, password);
+            var secret_key_enc = cryptoLibrary.encrypt_secret(cryptoLibrary.generate_secret_key(), password);
+
+            var onSuccess = function (response) {
+
+                storage.save();
+
+                return {
+                    response:"success"
+                };
+            };
+
+            var onError = function(response){
+
+                storage.remove('config', storage.find_one('config', {'key': 'user_email'}));
+                storage.remove('config', storage.find_one('config', {'key': 'server'}));
+                storage.save();
+
+                return {
+                    response:"error",
+                    error_data: response.data
+                };
+            };
+
+            return apiClient.register(email, cryptoLibrary.generate_authkey(email, password), pair.public_key,
+                priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce, browserClient.getBaseUrl())
+                .then(onSuccess, onError);
+        };
+
+        var activate = function(activate_code, server) {
+
+            storage.insert('config', {key: 'server', value: server});
+
+            var onSuccess = function (response) {
+
+                storage.save();
+
+                return {
+                    response:"success"
+                };
+            };
+
+            var onError = function(response){
+
+                storage.remove('config', storage.find_one('config', {'key': 'server'}));
+                storage.save();
+
+                return {
+                    response:"error",
+                    error_data: response.data
+                };
+            };
+
+            return apiClient.verify_email(activate_code)
+                .then(onSuccess, onError);
+        };
+
+        /**
          * Ajax POST request to the backend with email and authkey for login, saves a token together with user_id
          * and all the different keys of a user in the apidata storage
          *
@@ -732,7 +807,7 @@
 
                 var msg = itemBlueprint.blueprint_msg_before_open_secret(type, decrypted_secret);
 
-                browserClient.emit_sec(msg.key, msg.content);
+                browserClient.emitSec(msg.key, msg.content);
 
                 itemBlueprint.blueprint_on_open_secret(type, decrypted_secret);
             };
@@ -756,6 +831,8 @@
         };
 
         return {
+            register: register,
+            activate: activate,
             login: login,
             logout: logout,
             is_logged_in: is_logged_in,

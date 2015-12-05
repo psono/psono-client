@@ -59,49 +59,48 @@ panel.port.on('resize', function (data) {
     panel.resize((data.width), (data.height));
 });
 
-var openTab = function (data) {
-
-    var tab = {
-        url: "resource://sansopw" + data.url
-    };
-
-    tab.onReady = function(tab) {
-        var worker = tab.attach({
-            contentScriptFile: [
-                "./js/lib/nacl_factory.js",
-                "./js/lib/scrypt.js",
-                "./js/lib/uuid.js",
-                "./js/lib/jquery-2.1.4.js",
-                "./js/lib/snap.min.js",
-                "./js/lib/jquery.ui.js",
-                "./js/lib/sortable.js",
-                "./js/lib/lokijs.min.js",
-                "./js/lib/angular.js",
-                "./js/lib/angular-animate.js",
-                "./js/lib/loading-bar.js",
-                "./js/lib/angular-route.js",
-                "./js/lib/angular-sanitize.js",
-                "./js/lib/angular-local-storage.min.js",
-                "./js/lib/angular-snap.min.js",
-                "./js/lib/ui-bootstrap-tpls-0.13.4.min.js",
-                "./js/lib/angular-tree-view.js",
-                "./js/lib/angular-ui-select.js",
-                "./js/lib/ng-context-menu.js",
-                "./js/lib/angular-dashboard-framework.js",
-                "./js/widgets/adf-widget-datastore.js",
-                "./js/widgets/adf-widget-shareusers.js",
-                "./js/main.js",
-                "./js/service/api-client.js",
-                "./js/service/item-blueprint.js",
-                "./js/service/crypto-library.js",
-                "./js/service/storage.js",
-                "./js/service/manager.js",
-                "./js/service/browser-client.js",
-                "./view/templates.js",
-                "./content-script.js"
-            ],
-            onmessage: function (msg) {console.log("worker received " + msg)}
-        });
+mod.PageMod({
+    include: [
+        self.data.url("./activate.html*"),
+        self.data.url("./datastore.html*"),
+        self.data.url("./main.html*"),
+        self.data.url("./open-secret.html*"),
+        self.data.url("./register.html*"),
+        self.data.url("./test.html*")
+    ],
+    contentScriptFile: [
+        "./js/lib/nacl_factory.js",
+        "./js/lib/scrypt.js",
+        "./js/lib/uuid.js",
+        "./js/lib/jquery-2.1.4.js",
+        "./js/lib/snap.min.js",
+        "./js/lib/jquery.ui.js",
+        "./js/lib/sortable.js",
+        "./js/lib/lokijs.min.js",
+        "./js/lib/angular.js",
+        "./js/lib/angular-animate.js",
+        "./js/lib/loading-bar.js",
+        "./js/lib/angular-route.js",
+        "./js/lib/angular-sanitize.js",
+        "./js/lib/angular-local-storage.min.js",
+        "./js/lib/angular-snap.min.js",
+        "./js/lib/ui-bootstrap-tpls-0.13.4.min.js",
+        "./js/lib/angular-tree-view.js",
+        "./js/lib/angular-ui-select.js",
+        "./js/lib/ng-context-menu.js",
+        "./js/lib/angular-dashboard-framework.js",
+        "./js/widgets/adf-widget-datastore.js",
+        "./js/widgets/adf-widget-shareusers.js",
+        "./js/main.js",
+        "./js/service/api-client.js",
+        "./js/service/item-blueprint.js",
+        "./js/service/crypto-library.js",
+        "./js/service/storage.js",
+        "./js/service/manager.js",
+        "./js/service/browser-client.js",
+        "./view/templates.js"
+    ],
+    onAttach: function(worker) {
 
         worker.port.on('login', function(data) {
             onLogin("worker", data);
@@ -118,17 +117,27 @@ var openTab = function (data) {
         worker.port.on('openTab', openTab);
 
         // new tabs get a new number
-        if (typeof tab.worker_id === 'undefined') {
-            tab.worker_id = allTabCount;
+        if (typeof worker.tab.worker_id === 'undefined') {
+            worker.tab.worker_id = allTabCount;
             allTabCount++
         }
-        worker.tab = tab;
 
-        allDatastoreTabs[tab.worker_id] = worker;
-    };
+        allDatastoreTabs[worker.tab.worker_id] = worker;
+    }
+});
 
-    tab.onClose = function(tab) {
-        delete allDatastoreTabs[tab.worker_id];
+
+tabs.on("close", function(tab) {
+    if(typeof tab.worker_id == undefined) {
+        return;
+    }
+    delete allDatastoreTabs[tab.worker_id];
+});
+
+var openTab = function (data) {
+
+    var tab = {
+        url: "resource://sansopw" + data.url
     };
 
     tabs.open(tab);
@@ -194,7 +203,7 @@ function handleHide() {
 function parse_url(url) {
     // According to RFC http://www.ietf.org/rfc/rfc3986.txt Appendix B
     var pattern = new RegExp("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
-    var matches =  url.match(pattern);
+    var matches = url.match(pattern);
 
     return {
         scheme: matches[2],
@@ -234,27 +243,51 @@ panel.port.on('fillpassword', function(payload) {
 });
 
 
-var receivers = {};
+var receivers = {
+    "website-password-refresh": {},
+    "request-secret": {}
+};
+
 panel.port.on('storage-getItem', function(payload) {
 
     payload = JSON.parse( payload );
 
-    if (!receivers.hasOwnProperty(payload.id)) {
-        return;
-    }
-
-    var update = [];
-    var leafs = payload.data;
-    for (var ii = 0; ii < leafs.length; ii++) {
-        if (endsWith(receivers[payload.id].parsed_url.authority, leafs[ii].urlfilter)) {
-            update.push({
-                secret_id: leafs[ii].secret_id,
-                name: leafs[ii].name
-            })
+    var website_password_refresh = function (payload) {
+        var update = [];
+        var leafs = payload.data;
+        for (var ii = 0; ii < leafs.length; ii++) {
+            if (endsWith(receivers["website-password-refresh"][payload.id].parsed_url.authority, leafs[ii].urlfilter)) {
+                update.push({
+                    secret_id: leafs[ii].secret_id,
+                    name: leafs[ii].name
+                })
+            }
         }
-    }
 
-    receivers[payload.id].worker.port.emit("website-password-update", update);
+        receivers["website-password-refresh"][payload.id].worker.port.emit("website-password-update", update);
+
+        delete receivers["website-password-refresh"][payload.id];
+    };
+
+    if (receivers["website-password-refresh"].hasOwnProperty(payload.id)) {
+        return website_password_refresh(payload);
+    }
+});
+
+panel.port.on('secret-getItem', function(payload) {
+
+    payload = JSON.parse( payload );
+
+    var request_secret = function (payload) {
+
+        receivers["request-secret"][payload.id].worker.port.emit("return-secret", JSON.parse( payload.data ));
+
+        delete receivers["request-secret"][payload.id];
+    };
+
+    if (receivers["request-secret"].hasOwnProperty(payload.id)) {
+        return request_secret(payload);
+    }
 });
 
 mod.PageMod({
@@ -294,12 +327,27 @@ mod.PageMod({
 
             var uuid = uuidGenerator.uuid().toString().substring(1, 37); //why are there stupid brackets around the uuid
 
-            receivers[uuid] = {
+            receivers["website-password-refresh"][uuid] = {
                 worker: worker,
                 parsed_url: parsed_url
             };
 
             panel.port.emit('storage-getItem', {id: uuid, data: 'datastore-password-leafs'});
+        });
+
+        worker.port.on("request-secret", function (data) {
+
+            var parsed_url = parse_url(data.url);
+
+            var uuid = uuidGenerator.uuid().toString().substring(1, 37); //why are there stupid brackets around the uuid
+
+            receivers["request-secret"][uuid] = {
+                worker: worker,
+                parsed_url: parsed_url,
+                secret_id : data.secret_id
+            };
+
+            panel.port.emit('secret-getItem', {id: uuid, data: data.secret_id});
         });
     }
 });

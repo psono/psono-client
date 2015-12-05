@@ -33,8 +33,11 @@
         </div>
         <hr>
         <ul class="navigations">
-            <li ng-repeat="searchEntry in searchArray | filter:filterBySearch">
+            <li ng-repeat="searchEntry in datastore.filteredSearcArray = (searchArray | filter:filterBySearch)">
                 <a href="#" ng-click="onItemClick(searchEntry)">{{ searchEntry.name }}</a>
+            </li>
+            <li ng-if="datastore.filteredSearcArray.length === 0 && datastore.search !== ''">
+                <a href="#" onclick="return false;">No entry found ...</a>
             </li>
         </ul>
 
@@ -65,8 +68,8 @@
         </div>
 
         <div class="form-group">
-            <button ng-click="login(loginFormEmail, loginFormPassword, selected_server)" type="submit" class="btn btn-danger">Login</button>
-            <a href="">Register</a>
+            <button ng-click="login(loginFormEmail, loginFormPassword)" type="submit" class="btn btn-danger">Login</button>
+            <a href="#" ng-click="openTab('/data/register.html')">Register</a>
             <span class="pull-right" ng-repeat="e in errors">{{e}}</span>
         </div>
 

@@ -35,6 +35,15 @@
         };
 
         /**
+         * returns the base url which can be used to generate activation links
+         *
+         * @returns {string}
+         */
+        var getBaseUrl = function() {
+            return "chrome-extension://"+chrome.runtime.id+"/";
+        };
+
+        /**
          * Dummy function to see if the background page works
          */
         var testBackgroundPage = function () {
@@ -60,7 +69,7 @@
          * @param event
          * @param data
          */
-        var emit_sec = function(event, data) {
+        var emitSec = function(event, data) {
             chrome.runtime.sendMessage({event: event, data: data}, function(response) {
                 console.log(response);
             });
@@ -87,9 +96,10 @@
         return {
             resize: resize,
             openTab: openTab,
+            getBaseUrl: getBaseUrl,
             testBackgroundPage: testBackgroundPage,
             emit: emit,
-            emit_sec: emit_sec,
+            emitSec: emitSec,
             on: on
         };
     };

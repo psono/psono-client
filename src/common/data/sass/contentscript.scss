@@ -29,11 +29,11 @@
   .sanso-pw-drop-content {
     border-radius: 2px;
     position: relative;
-    background: $dark-box-border;
-    padding: 3px;
+    background: #FFF;
+    padding: 2px;
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
-    border: 1px solid #dedede;
+    border: 1px solid #bababa;
 
     a {
       color: #b1b6c1;
@@ -71,7 +71,7 @@
     top: 100%;
     left: 50%;
     margin-left: -10px;
-    border-top-color: #eee;
+    border-top-color: #FFF;
   }
 }
 
@@ -83,7 +83,7 @@
     bottom: 100%;
     left: 50%;
     margin-left: -10px;
-    border-bottom-color: #eee;
+    border-bottom-color: #FFF;
   }
 }
 
@@ -95,7 +95,7 @@
     left: 100%;
     top: 50%;
     margin-top: -10px;
-    border-left-color: #eee;
+    border-left-color: #FFF;
   }
 }
 
@@ -107,7 +107,7 @@
     right: 100%;
     top: 50%;
     margin-top: -10px;
-    border-right-color: #eee;
+    border-right-color: #FFF;
   }
 }
 
@@ -118,7 +118,7 @@
   .sanso-pw-drop-content:before {
     bottom: 100%;
     left: 10px;
-    border-bottom-color: #eee;
+    border-bottom-color: #FFF;
   }
 }
 
@@ -130,7 +130,7 @@
   .sanso-pw-drop-content:before {
     bottom: 100%;
     right: 10px;
-    border-bottom-color: #eee;
+    border-bottom-color: #FFF;
   }
 }
 
@@ -141,7 +141,7 @@
   .sanso-pw-drop-content:before {
     top: 100%;
     left: 10px;
-    border-top-color: #eee;
+    border-top-color: #FFF;
   }
 }
 
@@ -152,7 +152,7 @@
   .sanso-pw-drop-content:before {
     top: 100%;
     right: 10px;
-    border-top-color: #eee;
+    border-top-color: #FFF;
   }
 }
 
@@ -163,7 +163,7 @@
   .sanso-pw-drop-content:before {
     top: 10px;
     left: 100%;
-    border-left-color: #eee;
+    border-left-color: #FFF;
   }
 }
 
@@ -174,7 +174,7 @@
   .sanso-pw-drop-content:before {
     top: 10px;
     right: 100%;
-    border-right-color: #eee;
+    border-right-color: #FFF;
   }
 }
 
@@ -185,7 +185,7 @@
   .sanso-pw-drop-content:before {
     bottom: 10px;
     left: 100%;
-    border-left-color: #eee;
+    border-left-color: #FFF;
   }
 }
 
@@ -196,7 +196,7 @@
   .sanso-pw-drop-content:before {
     bottom: 10px;
     right: 100%;
-    border-right-color: #eee;
+    border-right-color: #FFF;
   }
 }
 

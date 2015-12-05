@@ -82,9 +82,10 @@
          * @param {string} private_key_nonce - the nonce for decrypting the encrypted private_key
          * @param {string} secret_key - secret_key for symmetric encryption, encrypted with encrypt_secret
          * @param {string} secret_key_nonce - the nonce for decrypting the encrypted secret_key
+         * @param {string} base_url - the base url for the activation link creation
          * @returns {promise}
          */
-        var register = function (email, authkey, public_key, private_key, private_key_nonce, secret_key, secret_key_nonce) {
+        var register = function (email, authkey, public_key, private_key, private_key_nonce, secret_key, secret_key_nonce, base_url) {
             var endpoint = '/authentication/register/';
             var connection_type = "POST";
             var data = {
@@ -94,7 +95,8 @@
                 private_key: private_key,
                 private_key_nonce: private_key_nonce,
                 secret_key: secret_key,
-                secret_key_nonce: secret_key_nonce
+                secret_key_nonce: secret_key_nonce,
+                base_url: base_url
             };
             var headers = null;
 

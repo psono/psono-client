@@ -64,14 +64,28 @@ function endsWith (to_test, suffix) {
 }
 
 /**
- * backups the data of fill password event
+ * search the loki structured localStorage
  *
- * @param data
+ * @param storage
+ * @param collection
+ * @returns {*}
  */
+function searchLocalStorage(storage, collection) {
+
+    var data = localStorage.getItem(storage);
+    var db = JSON.parse(data);
+    for (var i = 0; i < db.collections.length; i++) {
+        if (db.collections[i].name !== collection) {
+            continue;
+        }
+
+        return db.collections[i].data;
+    }
+}
+
+
 var fillpassword = [];
-var onFillpassword = function (data) {
-    fillpassword.push(data);
-};
+
 // End helper functions
 
 // Actual messaging stuff
@@ -97,10 +111,12 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
     if (request.event == "fillpassword") {
         console.log("background script received    'fillpassword'");
-        onFillpassword(request.data);
+        fillpassword.push(data);
         return;
     }
 
+    // we received a logout event
+    // lets close all extension tabs
     if (request.event == "logout") {
         console.log("background script received    'logout'");
 
@@ -116,32 +132,71 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         return;
     }
 
-
+    // a page finished loading, and wants to know if we have passwords for this page to display to the customer
+    // in the input popup menu
     if (request.event == "website-password-refresh") {
         console.log("background script received    'website-password-refresh'");
 
-        var data = localStorage.getItem('password_manager_local_storage');
-        var db = JSON.parse(data);
         var update = [];
-        for (var i = 0; i < db.collections.length; i++) {
-            if (db.collections[i].name !== 'datastore-password-leafs') {
-                continue;
+
+        var leafs = searchLocalStorage('password_manager_local_storage', 'datastore-password-leafs');
+
+        for (var ii = 0; ii < leafs.length; ii++) {
+            if (endsWith(parsed_url.authority, leafs[ii].urlfilter)) {
+                update.push({
+                    secret_id: leafs[ii].secret_id,
+                    name: leafs[ii].name
+                })
             }
-            var leafs = db.collections[i].data;
-            for (var ii = 0; ii < leafs.length; ii++) {
-                if (endsWith(parsed_url.authority, leafs[ii].urlfilter)) {
-                    update.push({
-                        secret_id: leafs[ii].secret_id,
-                        name: leafs[ii].name
-                    })
-                }
-            }
-            break;
         }
 
         sendResponse({event: "website-password-update", data: update});
 
         return;
+    }
+
+    // some content script requested a secret
+    // lets search in our localstorage for the config and the secret_key of the requested secret
+    // lets request the content of the secret from our backend server
+    if (request.event == "request-secret") {
+
+        var _config = searchLocalStorage('password_manager_local_storage', 'config');
+
+        var config = {};
+        for (var ii = 0; ii < _config.length; ii++) {
+            config[_config[ii].key] = _config[ii].value;
+        }
+
+        var client = new ClassClient(config.server.url, nacl_factory, jQuery, scrypt_module_factory);
+
+        client.read_secret(config.user_token, request.data.secret_id)
+            .done(function(value) {
+                // successful
+
+                var leafs = searchLocalStorage('password_manager_local_storage', 'datastore-password-leafs');
+
+                var secret_key = '';
+                for (var ii = 0; ii < leafs.length; ii++) {
+                    if (leafs[ii].key === request.data.secret_id) {
+                        secret_key = leafs[ii].value;
+                    }
+                }
+
+                value = JSON.parse(value);
+                var plaintext_json = client.decrypt_data(
+                    value.data,
+                    value.data_nonce,
+                    secret_key
+                );
+
+                sendResponse({event: "return-secret", data: JSON.parse(plaintext_json)});
+            })
+            .fail(function(value) {
+                // failed
+                sendResponse({event: "return-secret", data: 'fail'});
+            });
+
+        return true; // return true because of async response
     }
 
     console.log(sender.tab);
