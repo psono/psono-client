@@ -3,7 +3,7 @@
 
     var app = angular.module('passwordManagerApp', ['ngRoute', 'ng', 'ui.bootstrap', 'snap', 'adf',
         'adf.widget.datastore', 'adf.widget.shareusers', 'chieffancypants.loadingBar', 'ngAnimate',
-        'LocalStorageModule', 'AxelSoft', 'ng-context-menu', 'ui.select', 'ngSanitize'])
+        'LocalStorageModule', 'AxelSoft', 'ng-context-menu', 'ui.select', 'ngSanitize', 'angular-complexify'])
         .constant('BACKEND_SERVERS', [
             {
                 title: 'Sanso.pw', url: 'https://www.sanso.pw'
@@ -213,17 +213,21 @@
             /* preselected values */
             $scope.registerFormEmail = "register@saschapfeiffer.com";
             $scope.registerFormPassword = "myPassword";
+            $scope.registerFormPasswordRepeat = "myPassword";
 
-            $scope.register = function (email, password) {
+            $scope.register = function (email, password, password2) {
+
+                $scope.errors = [];
+                $scope.msgs = [];
+
                 function onError() {
                     alert("Error, should not happen.");
                 }
 
                 function onRequestReturn(data) {
                     // TODO bring message to the user
-                    $scope.errors = [];
-                    $scope.msgs = [];
                     if (data.response === "success") {
+                        $scope.success = true;
                         $scope.msgs.push('Successful, check your e-mail.');
                     } else {
                         if (data.error_data == null) {
@@ -239,9 +243,16 @@
                         }
                     }
                 }
-                if (email !== undefined && password !== undefined) {
-                    manager.register(email, password, angular.copy($scope.selected_server)).then(onRequestReturn, onError);
+                if (email === undefined || password === undefined || password2 === undefined) {
+                    return;
                 }
+
+                if( password !== password2 ) {
+                    $scope.errors.push("Passwords don't match.");
+                    return;
+                }
+
+                manager.register(email, password, angular.copy($scope.selected_server)).then(onRequestReturn, onError);
             };
         }]);
 
@@ -279,6 +290,7 @@
                     $scope.msgs = [];
                     if (data.response === "success") {
                         $scope.msgs.push('Successful, please login.');
+                        $scope.success = true;
                     } else {
                         if (data.error_data == null) {
                             $scope.errors.push('Server offline.');
@@ -309,7 +321,7 @@
             $scope.activate = activate;
         }]);
 
-    app.controller('MainController', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'browserClient', 'storage',
+    app.controller('WrapperController', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'browserClient', 'storage',
         'snapRemote', '$window', '$route', '$routeParams', '$location',
         function($scope, $rootScope, $filter, $timeout, manager, browserClient, storage,
                  snapRemote, $window, $route, $routeParams, $location)
@@ -320,18 +332,6 @@
 
             /* test background page */
             //console.log(browserClient.testBackgroundPage());
-
-
-            /* for navigation, can maybe moved to another controller */
-            $scope.getClass = function (path) {
-                if (path === '/' && $location.path().length == 0) {
-                    return 'active';
-                } else if (path !== '/' && $location.path().substr(0, path.length) === path) {
-                    return 'active';
-                } else {
-                    return '';
-                }
-            };
 
             /* snapper */
             snapRemote.getSnapper().then(function(snapper) {
@@ -449,7 +449,7 @@
 
         }]);
 
-    app.controller('Main2Controller', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'browserClient', 'storage',
+    app.controller('MainController', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'browserClient', 'storage',
         'snapRemote', '$window', '$route', '$routeParams', '$location',
         function($scope, $rootScope, $filter, $timeout, manager, browserClient, storage,
                  snapRemote, $window, $route, $routeParams, $location)
@@ -462,7 +462,7 @@
             //console.log(browserClient.testBackgroundPage());
 
             /* for navigation, can maybe moved to another controller */
-            $scope.getClass = function (path) {
+            $scope.getLinkState = function (path) {
                 if (path === '/' && $location.path().length == 0) {
                     return 'active';
                 } else if (path !== '/' && $location.path().substr(0, path.length) === path) {
@@ -472,21 +472,26 @@
                 }
             };
 
+            $scope.logout = manager.logout;
+            $scope.genPwd = manager.generatePassword();
+
             $scope.user_email = manager.find_one('config', 'user_email');
 
-            $scope.logout = function () {
+            $scope.onItemClick = manager.onItemClick;
 
-                function onError() {
-                    alert("Error, should not happen.");
-                }
-                function onRequestReturn() {
-                    browserClient.emit("logout", null);
-                    browserClient.resize(250);
-                }
+        }]);
 
-                manager.logout().then(onRequestReturn, onError);
+    app.controller('PanelController', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'browserClient', 'storage',
+        'snapRemote', '$window', '$route', '$routeParams', '$location',
+        function($scope, $rootScope, $filter, $timeout, manager, browserClient, storage,
+                 snapRemote, $window, $route, $routeParams, $location)
+        {
 
-            };
+            /* openTab function to pass through */
+            $scope.openTab = browserClient.openTab;
+
+            $scope.logout = manager.logout;
+            $scope.genPwd = manager.generatePassword();
 
             /* datastore search */
 
@@ -529,10 +534,10 @@
                         browserClient.resize(295);
                     } else {
                         /*
-                        3 = 295*
-                        2 = 252
-                        1 = 209*
-                        0 = 166
+                         3 = 295*
+                         2 = 252
+                         1 = 209*
+                         0 = 166
                          */
                         browserClient.resize(166 + Math.max($scope.datastore.filteredSearcArray.length, 1) * 43);
                     }
@@ -578,18 +583,6 @@
                 //triggered when typing an url
                 $scope.selected_server = {title: url, url: url};
                 $scope.filtered_servers = $filter('filter')($scope.servers, {url: url});
-            };
-
-
-            /* for navigation, can maybe moved to another controller */
-            $scope.getClass = function (path) {
-                if (path === '/' && $location.path().length == 0) {
-                    return 'active';
-                } else if (path !== '/' && $location.path().substr(0, path.length) === path) {
-                    return 'active';
-                } else {
-                    return '';
-                }
             };
 
             /* preselected values */

@@ -5,6 +5,7 @@ var tabs = require("sdk/tabs");
 var mod = require("sdk/page-mod");
 var contextMenu = require("sdk/context-menu");
 var uuidGenerator = require('sdk/util/uuid');
+var clipboard = require("sdk/clipboard");
 
 
 var allDatastoreTabs = {};
@@ -77,8 +78,10 @@ mod.PageMod({
         "./js/lib/jquery.ui.js",
         "./js/lib/sortable.js",
         "./js/lib/lokijs.min.js",
+        "./js/lib/password-generator.js",
         "./js/lib/angular.js",
         "./js/lib/angular-animate.js",
+        "./js/lib/angular-complexify.js",
         "./js/lib/loading-bar.js",
         "./js/lib/angular-route.js",
         "./js/lib/angular-sanitize.js",
@@ -98,6 +101,7 @@ mod.PageMod({
         "./js/service/storage.js",
         "./js/service/manager.js",
         "./js/service/browser-client.js",
+        "./js/service/password-generator.js",
         "./view/templates.js"
     ],
     onAttach: function(worker) {
@@ -289,6 +293,15 @@ panel.port.on('secret-getItem', function(payload) {
         return request_secret(payload);
     }
 });
+
+panel.port.on('copy-to-clipboard', function(payload) {
+
+    payload = JSON.parse( payload );
+
+    clipboard.set(payload.data.text);
+});
+
+
 
 mod.PageMod({
     include: "*",

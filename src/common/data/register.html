@@ -26,14 +26,20 @@
 </head>
 <body>
 
-<div ng-controller="RegisterController">
+<div ng-controller="RegisterController" ng-cloak>
     <!-- Not logged in, show the login form -->
     <div class="wrapper">
 
         <div class="registerbox dark">
             <img src="img/logo.png" id="logo">
 
-            <form name="registerForm">
+            <div ng-if="success" class="big-font-icon-and-msg">
+                <i class="fa fa-thumbs-o-up"></i>
+
+                <div ng-repeat="e in msgs">{{e}}</div>
+            </div>
+
+            <form name="registerForm" ng-if="!success">
                 <div class="form-group">
                     <input type="email" class="form-control" id="registerEmail" placeholder="E-Mail" ng-model="registerFormEmail" required>
                 </div>
@@ -41,8 +47,17 @@
                     <input type="password" class="form-control" id="registerPassword" placeholder="Password" ng-model="registerFormPassword" required>
                 </div>
 
+                <progressbar value="registerFormPassword | complexify">
+                    <span complexify="registerFormPassword"></span>%
+                    <span complexify="registerFormPassword" type="verbal"></span>
+                </progressbar>
+
                 <div class="form-group">
-                    <button ng-click="register(registerFormEmail, registerFormPassword)" type="submit" class="btn btn-danger">Register</button>
+                    <input type="password" class="form-control" id="registerPasswordRepeat" placeholder="Password (repeat)" ng-model="registerFormPasswordRepeat" required>
+                </div>
+
+                <div class="form-group">
+                    <button ng-click="register(registerFormEmail, registerFormPassword, registerFormPasswordRepeat)" type="submit" class="btn btn-danger">Register</button>
                     <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
                     <span ng-repeat="e in msgs" class="pull-right">{{e}}</span>
                 </div>
@@ -83,11 +98,13 @@
 <script src="js/lib/jquery.ui.js"></script>
 <script src="js/lib/sortable.js" type="application/javascript"></script>
 <script src="js/lib/lokijs.min.js" type="application/javascript"></script>
+<script src="js/lib/password-generator.js" type="application/javascript"></script>
 
 
 <!-- Angular Juju -->
 <script src="js/lib/angular.js" type="application/javascript"></script>
 <script src="js/lib/angular-animate.js" type="application/javascript"></script>
+<script src="js/lib/angular-complexify.js" type="application/javascript"></script>
 <script src="js/lib/loading-bar.js" type="application/javascript"></script>
 <script src="js/lib/angular-route.js" type="application/javascript"></script>
 <script src="js/lib/angular-sanitize.js" type="application/javascript"></script>
@@ -110,6 +127,7 @@
 <script src="js/service/storage.js" type="application/javascript"></script>
 <script src="js/service/manager.js" type="application/javascript"></script>
 <script src="js/service/browser-client.js" type="application/javascript"></script>
+<script src="js/service/password-generator.js" type="application/javascript"></script>
 <script src="view/templates.js" type="application/javascript"></script>
 <!-- End Angular Juju -->
 </body>

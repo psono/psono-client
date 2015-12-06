@@ -26,14 +26,20 @@
 </head>
 <body>
 
-<div ng-controller="ActivationController">
+<div ng-controller="ActivationController" ng-cloak>
     <!-- Not logged in, show the login form -->
     <div class="wrapper">
 
         <div class="activationbox dark">
             <img src="img/logo.png" id="logo">
 
-            <form name="activationForm">
+            <div ng-if="success" class="big-font-icon-and-msg">
+                <i class="fa fa-thumbs-o-up"></i>
+
+                <div ng-repeat="e in msgs">{{e}}</div>
+            </div>
+
+            <form name="activationForm" ng-if="!success">
                 <div class="form-group">
                     <textarea rows="3" class="form-control" id="activationKey" placeholder="Key" ng-model="activationFormKey" required></textarea>
                 </div>
@@ -81,11 +87,13 @@
 <script src="js/lib/jquery.ui.js"></script>
 <script src="js/lib/sortable.js" type="application/javascript"></script>
 <script src="js/lib/lokijs.min.js" type="application/javascript"></script>
+<script src="js/lib/password-generator.js" type="application/javascript"></script>
 
 
 <!-- Angular Juju -->
 <script src="js/lib/angular.js" type="application/javascript"></script>
 <script src="js/lib/angular-animate.js" type="application/javascript"></script>
+<script src="js/lib/angular-complexify.js" type="application/javascript"></script>
 <script src="js/lib/loading-bar.js" type="application/javascript"></script>
 <script src="js/lib/angular-route.js" type="application/javascript"></script>
 <script src="js/lib/angular-sanitize.js" type="application/javascript"></script>
@@ -108,6 +116,7 @@
 <script src="js/service/storage.js" type="application/javascript"></script>
 <script src="js/service/manager.js" type="application/javascript"></script>
 <script src="js/service/browser-client.js" type="application/javascript"></script>
+<script src="js/service/password-generator.js" type="application/javascript"></script>
 <script src="view/templates.js" type="application/javascript"></script>
 <!-- End Angular Juju -->
 <!--endRemoveIf(firefox)-->

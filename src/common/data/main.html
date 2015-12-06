@@ -23,9 +23,9 @@
     <link href="css/main.css" rel="stylesheet">
 </head>
 <body class="dark">
-<div ng-controller="MainController">
+<div ng-controller="WrapperController" ng-cloak>
 
-<div ng-if="data.loggedin" ng-controller="Main2Controller">
+<div ng-if="data.loggedin" ng-controller="PanelController">
     <form name="searchForm">
         <div class="form-group">
             <input id="datastoresearch" name="datastoresearch" class="form-control" ng-model="datastore.search"
@@ -43,6 +43,7 @@
 
         <ul class="navigations" ng-if="!datastore.search">
             <li><a href="#" ng-click="openTab('/data/datastore.html')">Open Datastore</a></li>
+            <li><a href="#" ng-click="genPwd()">Generate Password</a></li>
             <li><a href="https://www.sanso.pw/help" target="_blank">Help</a></li>
             <li><a href="https://www.sanso.pw/about" target="_blank">About</a></li>
 
@@ -109,11 +110,13 @@
 <script src="js/lib/jquery.ui.js"></script>
 <script src="js/lib/sortable.js" type="application/javascript"></script>
 <script src="js/lib/lokijs.min.js" type="application/javascript"></script>
+<script src="js/lib/password-generator.js" type="application/javascript"></script>
 
 
 <!-- Angular Juju -->
 <script src="js/lib/angular.js" type="application/javascript"></script>
 <script src="js/lib/angular-animate.js" type="application/javascript"></script>
+<script src="js/lib/angular-complexify.js" type="application/javascript"></script>
 <script src="js/lib/loading-bar.js" type="application/javascript"></script>
 <script src="js/lib/angular-route.js" type="application/javascript"></script>
 <script src="js/lib/angular-sanitize.js" type="application/javascript"></script>
@@ -136,6 +139,7 @@
 <script src="js/service/storage.js" type="application/javascript"></script>
 <script src="js/service/manager.js" type="application/javascript"></script>
 <script src="js/service/browser-client.js" type="application/javascript"></script>
+<script src="js/service/password-generator.js" type="application/javascript"></script>
 <script src="view/templates.js" type="application/javascript"></script>
 <!-- End Angular Juju -->
 </body>

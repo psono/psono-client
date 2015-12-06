@@ -23,9 +23,9 @@
     <link href="css/datastore.css" rel="stylesheet">
 </head>
 <body>
-<div  ng-controller="MainController">
+<div  ng-controller="WrapperController" ng-cloak>
 
-<div ng-if="data.loggedin" ng-controller="Main2Controller">
+<div ng-if="data.loggedin" ng-controller="MainController">
 
     <nav class="navbar navbar-default navbar-static-top">
         <div class="container">
@@ -57,12 +57,12 @@
     <div snap-drawer class="dark">
         <h2>Navigation</h2>
         <ul class="navigations">
-            <li ng-class="getClass('/')"><a href="#">Home</a></li>
-            <li ng-class="getClass('/test')"><a href="#/test">Test</a></li>
+            <li ng-class="getLinkState('/')"><a href="#">Home</a></li>
+            <li ng-class="getLinkState('/test')"><a href="#/test">Test</a></li>
         </ul>
         <h2>Share</h2>
         <ul class="navigations">
-            <li ng-class="getClass('/share/users')"><a href="#/share/users">Users</a></li>
+            <li ng-class="getLinkState('/share/users')"><a href="#/share/users">Users</a></li>
         </ul>
         <h2>More</h2>
         <ul class="navigations">
@@ -135,10 +135,12 @@
 <script src="js/lib/jquery.ui.js"></script>
 <script src="js/lib/sortable.js" type="application/javascript"></script>
 <script src="js/lib/lokijs.min.js" type="application/javascript"></script>
+<script src="js/lib/password-generator.js" type="application/javascript"></script>
 
 <!-- Angular Juju -->
 <script src="js/lib/angular.js" type="application/javascript"></script>
 <script src="js/lib/angular-animate.js" type="application/javascript"></script>
+<script src="js/lib/angular-complexify.js" type="application/javascript"></script>
 <script src="js/lib/loading-bar.js" type="application/javascript"></script>
 <script src="js/lib/angular-route.js" type="application/javascript"></script>
 <script src="js/lib/angular-sanitize.js" type="application/javascript"></script>
@@ -161,6 +163,7 @@
 <script src="js/service/storage.js" type="application/javascript"></script>
 <script src="js/service/manager.js" type="application/javascript"></script>
 <script src="js/service/browser-client.js" type="application/javascript"></script>
+<script src="js/service/password-generator.js" type="application/javascript"></script>
 <script src="view/templates.js" type="application/javascript"></script>
 <!-- End Angular Juju -->
 <!--endRemoveIf(firefox)-->

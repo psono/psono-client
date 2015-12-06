@@ -1,7 +1,7 @@
 (function(angular) {
     'use strict';
 
-    var manager = function($q, $timeout, apiClient, cryptoLibrary, storage, itemBlueprint, browserClient) {
+    var manager = function($q, $timeout, apiClient, cryptoLibrary, storage, itemBlueprint, browserClient, passwordGenerator) {
 
         var temp_datastore_key_storage = {};
         var temp_datastore_overview = false;
@@ -178,6 +178,8 @@
             var onSuccess = function () {
 
                 _delete_local_data();
+                browserClient.emit("logout", null);
+                browserClient.resize(250);
 
                 return {
                     response:"success"
@@ -188,6 +190,8 @@
                 //session expired, so lets delete the data anyway
 
                 _delete_local_data();
+                browserClient.emit("logout", null);
+                browserClient.resize(250);
 
                 return {
                     response:"success"
@@ -830,6 +834,10 @@
             return storage.on(db, event, callback);
         };
 
+        var generatePassword = function() {
+            return passwordGenerator.generate();
+        };
+
         return {
             register: register,
             activate: activate,
@@ -849,11 +857,12 @@
             onNodeClick: onNodeClick,
             onItemClick: onItemClick,
             redirectSecret: redirectSecret,
-            storage_on: storage_on
+            storage_on: storage_on,
+            generatePassword: generatePassword
         };
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("manager", ['$q', '$timeout', 'apiClient', 'cryptoLibrary', 'storage', 'itemBlueprint', 'browserClient', manager]);
+    app.factory("manager", ['$q', '$timeout', 'apiClient', 'cryptoLibrary', 'storage', 'itemBlueprint', 'browserClient', 'passwordGenerator', manager]);
 
 }(angular));

@@ -199,6 +199,20 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         return true; // return true because of async response
     }
 
+    // copies to the clipboard
+    // lets create and element, put the content there, and call the normal execCommand('copy') function
+    if (request.event == "copy-to-clipboard") {
+        var copyFrom = document.createElement("textarea");
+        copyFrom.textContent = request.data.text;
+        var body = document.getElementsByTagName('body')[0];
+        body.appendChild(copyFrom);
+        copyFrom.select();
+        document.execCommand('copy');
+        body.removeChild(copyFrom);
+    }
+
+
+
     console.log(sender.tab);
     console.log("background script received (uncaptured)    " + request.event);
 

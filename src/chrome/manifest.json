@@ -13,7 +13,8 @@
     "activeTab",
     "storage",
     "contextMenus",
-    "tabs"
+    "tabs",
+    "clipboardWrite"
   ],
   "icons": {
     "16": "data/img/icon-16.png",

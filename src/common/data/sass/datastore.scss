@@ -10,18 +10,34 @@ body {
 }
 .loginbox, .registerbox, .activationbox {
   width:340px;
-  height:260px;
-  padding:20px;
+  padding:20px 20px 0 20px;
 
   position: absolute;
   top: 50%;
   left: 50%;
 
-  margin: -70px 0 0 -170px;
+  margin: -130px 0 0 -170px;
   border-radius: 4px;
+
+  .progress {
+    margin-top: -5px;
+    margin-bottom: 15px;
+  }
+
+  .progress-bar {
+    background-color: $dark-hightlight-color;
+  }
 }
 
-
+.big-font-icon-and-msg {
+  text-align: center;
+  margin-bottom: 20px;
+  .fa{
+    font-size: 150px;
+    margin-top:30px;
+    margin-bottom: 30px;
+  }
+}
 
 .navi {
   background-color: $header-background-on-light-background;
