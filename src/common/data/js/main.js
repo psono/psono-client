@@ -225,7 +225,6 @@
                 }
 
                 function onRequestReturn(data) {
-                    // TODO bring message to the user
                     if (data.response === "success") {
                         $scope.success = true;
                         $scope.msgs.push('Successful, check your e-mail.');
@@ -251,6 +250,8 @@
                     $scope.errors.push("Passwords don't match.");
                     return;
                 }
+
+                // TODO forbid weak and poor passwords
 
                 manager.register(email, password, angular.copy($scope.selected_server)).then(onRequestReturn, onError);
             };
@@ -285,7 +286,6 @@
                 }
 
                 function onRequestReturn(data) {
-                    // TODO bring message to the user
                     $scope.errors = [];
                     $scope.msgs = [];
                     if (data.response === "success") {
@@ -473,7 +473,7 @@
             };
 
             $scope.logout = manager.logout;
-            $scope.genPwd = manager.generatePassword();
+            $scope.generatePassword = manager.generatePasswordActiveTab;
 
             $scope.user_email = manager.find_one('config', 'user_email');
 
@@ -491,7 +491,7 @@
             $scope.openTab = browserClient.openTab;
 
             $scope.logout = manager.logout;
-            $scope.genPwd = manager.generatePassword();
+            $scope.generatePassword = manager.generatePasswordActiveTab;
 
             /* datastore search */
 
@@ -515,8 +515,13 @@
 
 
             manager.storage_on('datastore-password-leafs', 'delete', function(ele) {
-                //console.log("main.js delete");
+                //console.log("main.js update");
                 //console.log(ele);
+                for(var i = $scope.searchArray.length - 1; i >= 0; i--) {
+                    if($scope.searchArray[i].key === ele.key) {
+                        $scope.searchArray.splice(i, 1);
+                    }
+                }
             });
 
 

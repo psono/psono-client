@@ -214,12 +214,30 @@
             // Lets start with messaging
             // Handler for a fillpassword event
             bc.on('fillpassword', function (data) {
+                console.log("yiha received 'fillpassword'");
+                console.log(data);
                 for (var i = 0; i < myForms.length; i++) {
-                    myForms[i].username.value = data.username;
-                    myForms[i].password.value = data.password;
+                    if(data.hasOwnProperty('username') && data.username !== '') {
+                        jQuery(myForms[i].username).focus();
+                        myForms[i].username.value = data.username;
+                        jQuery(myForms[i].username).blur();
+                        jQuery(myForms[i].username).keydown();
+                        jQuery(myForms[i].username).keyup();
+                        jQuery(myForms[i].username).change();
+                }
+                    if(data.hasOwnProperty('password') && data.password !== '') {
+                        jQuery(myForms[i].password).focus();
+                        myForms[i].password.value = data.password;
+                        jQuery(myForms[i].password).blur();
+                        jQuery(myForms[i].password).keydown();
+                        jQuery(myForms[i].password).keyup();
+                        jQuery(myForms[i].password).change();
+                    }
                     if (myForms.length == 1 //only 1 form
                         && myForms[i].form !== null //we found the form
+                        && data.hasOwnProperty('submit')
                         && data.submit //https website
+                        && data.hasOwnProperty('auto_submit')
                         && data.auto_submit //auto submit checked in settings
                     ) {
                         myForms[i].form.submit();

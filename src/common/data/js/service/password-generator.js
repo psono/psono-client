@@ -4,7 +4,7 @@
     var passwordGenerator = function() {
 
         var letters_uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        var letters_lowercase = 'abcdefghijklmnoprstuvwxyz';
+        var letters_lowercase = 'abcdefghijklmnopqrstuvwxyz';
         var letters_numbers = '1234567890';
         var letters_special_chars = ',.-;:_#\'+*~!"§$%&/()=?{[]}\\';
 
@@ -46,7 +46,6 @@
             while (!isStrongEnough(password)) {
                 password = generatePassword(length, memorable,
                     new RegExp('['+escapeRegExp(letters_uppercase + letters_lowercase + letters_numbers + letters_special_chars)+']'));
-                console.log(password);
             }
             return password;
         };

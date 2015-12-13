@@ -83,6 +83,11 @@ function searchLocalStorage(storage, collection) {
     }
 }
 
+var activeTabId;
+chrome.tabs.onActivated.addListener(function(activeInfo) {
+    activeTabId = activeInfo.tabId;
+});
+
 
 var fillpassword = [];
 
@@ -91,12 +96,12 @@ var fillpassword = [];
 // Actual messaging stuff
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
-    var url = sender.tab.url;
-    var parsed_url = parse_url(url);
-
     // From content script with ready event
     if (sender.tab && request.event == "ready") {
         console.log("background script received    'ready'");
+
+        var url = sender.tab.url;
+        var parsed_url = parse_url(url);
 
         for(var i = fillpassword.length - 1; i >= 0; i--) {
             if( endsWith(parsed_url.authority, fillpassword[i].authority)) {
@@ -112,6 +117,15 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.event == "fillpassword") {
         console.log("background script received    'fillpassword'");
         fillpassword.push(data);
+        return;
+    }
+
+    if (request.event == "fillpassword-active-tab") {
+        console.log("background script received    'fillpassword-active-tab'");
+
+        chrome.tabs.sendMessage(activeTabId, {event: "fillpassword", data: request.data}, function(response) {
+            // pass
+        });
         return;
     }
 
@@ -134,8 +148,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
     // a page finished loading, and wants to know if we have passwords for this page to display to the customer
     // in the input popup menu
-    if (request.event == "website-password-refresh") {
+    if (sender.tab && request.event == "website-password-refresh") {
         console.log("background script received    'website-password-refresh'");
+
+        var url = sender.tab.url;
+        var parsed_url = parse_url(url);
 
         var update = [];
 
@@ -209,9 +226,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         copyFrom.select();
         document.execCommand('copy');
         body.removeChild(copyFrom);
+        return;
     }
-
-
 
     console.log(sender.tab);
     console.log("background script received (uncaptured)    " + request.event);

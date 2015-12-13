@@ -128,7 +128,7 @@
 
             var options = {
                 minimumChars: 8,
-                strengthScaleFactor: 0.68,
+                strengthScaleFactor: 0.80,
                 bannedPasswords: null
             };
 
@@ -216,7 +216,7 @@
                             verbal: function(score) {
                                 var elem = parseInt(score / 20, 10);
 
-                                return scale[elem >= 3 ? 3 : elem];
+                                return scale[elem >= 4 ? 4 : elem];
                             }
                         };
 

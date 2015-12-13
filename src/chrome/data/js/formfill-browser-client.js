@@ -36,6 +36,12 @@ var browserClient = function() {
         registrations[event].push(myFunction);
     };
 
+    chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+        for (var i = 0; registrations.hasOwnProperty(request.event) && i < registrations[request.event].length; i++) {
+            registrations[request.event][i](request.data);
+        }
+    });
+
     return {
         emit: emit,
         on: on

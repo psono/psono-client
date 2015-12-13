@@ -1,4 +1,4 @@
-(function(angular, $) {
+(function(angular, $, window) {
     'use strict';
 
 
@@ -16,7 +16,7 @@
         'secret-getItem'
     ];
 
-    var browserClient = function($rootScope, storage, apiClient, cryptoLibrary) {
+    var browserClient = function($rootScope, $q, storage, apiClient, cryptoLibrary) {
         /**
          * Resize the panel according to the provided width and height
          *
@@ -48,6 +48,20 @@
          */
         var getBaseUrl = function() {
             return "resource://sansopw/";
+        };
+
+        /**
+         * returns the active tabs url
+         *
+         * @returns {promise}
+         */
+        var getActiveTabUrl = function() {
+            port.emit('get-active-tab-url', {});
+            return $q(function (resolve) {
+                port.on('get-active-tab-url', function(payload) {
+                    resolve(payload.data);
+                });
+            });
         };
 
         /**
@@ -192,6 +206,7 @@
             resize: resize,
             openTab: openTab,
             getBaseUrl: getBaseUrl,
+            getActiveTabUrl: getActiveTabUrl,
             testBackgroundPage: testBackgroundPage,
             emit: emit,
             emitSec: emitSec,
@@ -200,6 +215,6 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("browserClient", ['$rootScope', 'storage', 'apiClient', 'cryptoLibrary', browserClient]);
+    app.factory("browserClient", ['$rootScope', '$q', 'storage', 'apiClient', 'cryptoLibrary', browserClient]);
 
-}(angular, $));
+}(angular, $, window));

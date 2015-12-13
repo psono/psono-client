@@ -9,6 +9,7 @@ var clipboard = require("sdk/clipboard");
 
 
 var allDatastoreTabs = {};
+var allPagesByTabID = {};
 var allTabCount = 0;
 
 var button = ToggleButton({
@@ -96,6 +97,7 @@ mod.PageMod({
         "./js/widgets/adf-widget-shareusers.js",
         "./js/main.js",
         "./js/service/api-client.js",
+        "./js/service/helper.js",
         "./js/service/item-blueprint.js",
         "./js/service/crypto-library.js",
         "./js/service/storage.js",
@@ -132,10 +134,10 @@ mod.PageMod({
 
 
 tabs.on("close", function(tab) {
-    if(typeof tab.worker_id == undefined) {
-        return;
+    if(typeof tab.worker_id !== 'undefined') {
+        delete allDatastoreTabs[tab.worker_id];
     }
-    delete allDatastoreTabs[tab.worker_id];
+    delete allPagesByTabID[tab.id];
 });
 
 var openTab = function (data) {
@@ -191,6 +193,9 @@ panel.port.on('login', function(data) {
 });
 panel.port.on('logout', function(data) {
     onLogout("panel", data);
+});
+panel.port.on('fillpassword-active-tab', function(data) {
+    allPagesByTabID[tabs.activeTab.id].port.emit('fillpassword', data);
 });
 function handleHide() {
     button.state('window', {checked: false});
@@ -278,6 +283,10 @@ panel.port.on('storage-getItem', function(payload) {
     }
 });
 
+panel.port.on('get-active-tab-url', function() {
+    panel.port.emit('get-active-tab-url', {data: tabs.activeTab.url});
+});
+
 panel.port.on('secret-getItem', function(payload) {
 
     payload = JSON.parse( payload );
@@ -308,7 +317,7 @@ mod.PageMod({
 
     contentStyleFile: [
         "./css/lib/cssreset-context-min.css",
-        "./css/lib/opensans.css",
+        //"./css/lib/opensans.css",
         "./css/contentscript.css"
     ],
     contentScriptFile: [
@@ -362,5 +371,6 @@ mod.PageMod({
 
             panel.port.emit('secret-getItem', {id: uuid, data: data.secret_id});
         });
+        allPagesByTabID[worker.tab.id] = worker;
     }
 });

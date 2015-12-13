@@ -14,7 +14,8 @@
     "storage",
     "contextMenus",
     "tabs",
-    "clipboardWrite"
+    "clipboardWrite",
+    "activeTab"
   ],
   "icons": {
     "16": "data/img/icon-16.png",
@@ -36,8 +37,8 @@
     {
       "matches": ["*://*/*"],
       "css": [
-        "data/css/lib/opensans.css",
         "data/css/lib/cssreset-context-min.css",
+        "data/css/lib/opensans.css",
         "data/css/contentscript.css"
       ],
       "js": [
@@ -48,5 +49,8 @@
         "data/js/formfill.js"
       ]
     }
+  ],
+  "web_accessible_resources": [
+    "data/css/fonts/*.woff2"
   ]
 }

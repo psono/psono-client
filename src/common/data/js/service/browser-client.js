@@ -1,4 +1,4 @@
-(function(angular) {
+(function(angular, $, window) {
     'use strict';
 
     var events = [
@@ -6,7 +6,7 @@
         'logout'
     ];
 
-    var browserClient = function($rootScope) {
+    var browserClient = function($rootScope, $q) {
         /**
          * Resize the panel according to the provided width and height
          *
@@ -34,6 +34,16 @@
             return "http://browserplugins.chickahoona.com/src/common/";
         };
 
+        /**
+         * returns a promise which will return the active tabs url
+         *
+         * @returns {promise}
+         */
+        var getActiveTabUrl = function() {
+            return $q(function (resolve) {
+                resolve(window.location.href);
+            });
+        };
 
         /**
          * Dummy function to see if the background page works
@@ -83,6 +93,7 @@
             resize: resize,
             openTab: openTab,
             getBaseUrl: getBaseUrl,
+            getActiveTabUrl: getActiveTabUrl,
             testBackgroundPage: testBackgroundPage,
             emit: emit,
             emitSec: emitSec,
@@ -91,6 +102,6 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("browserClient", ['$rootScope', browserClient]);
+    app.factory("browserClient", ['$rootScope', '$q', browserClient]);
 
-}(angular));
+}(angular, $, window));

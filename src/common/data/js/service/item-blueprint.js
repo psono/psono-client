@@ -2,7 +2,7 @@
     'use strict';
 
 
-    var itemBlueprint = function($window) {
+    var itemBlueprint = function($window, passwordGenerator, helper) {
 
         var _default = "website_password";
 
@@ -17,7 +17,23 @@
                     { name: "website_password_title", field: "input", type: "text", title: "Title", placeholder: "Title", required: true},
                     { name: "website_password_url", field: "input", type: "url", title: "URL", placeholder: "URL", required: true, onChange: "onChangeUrl"},
                     { name: "website_password_username", field: "input", type: "text", title: "Username", placeholder: "Username"},
-                    { name: "website_password_password", field: "input", type: "password", title: "Password", placeholder: "Password"},
+                    { name: "website_password_password", field: "input", type: "password", title: "Password", placeholder: "Password",
+                        dropmenuItems:[
+                            {
+                                icon: "fa fa-eye-slash",
+                                text:"Show Password",
+                                onclick:function(id) {
+                                    document.getElementById(id).type = document.getElementById(id).type == 'text' ? 'password' : 'text';
+                                }
+                            },
+                            {
+                                icon: "fa fa-key",
+                                text:"Generate Password",
+                                onclick:function(id) {
+                                    angular.element(document.querySelector('#'+id)).val(passwordGenerator.generate());
+                                }
+                            }
+                        ]},
                     { name: "website_password_notes", field: "textarea", title: "Notes", placeholder: "Notes", required: false},
                     { name: "website_password_auto_submit", field: "input", type:"checkbox", title: "Automatic submit", position: "advanced"},
                     { name: "website_password_url_filter", field: "textarea", title: "Domain Filter", placeholder: "URL filter e.g. example.com or sub.example.com", required: true, position: "advanced"}
@@ -78,21 +94,8 @@
                     return "'/"+escapeRegExp(matches.join("."))+"/i'";
                     */
 
-                    function parse_url(url) {
-                        // According to RFC http://www.ietf.org/rfc/rfc3986.txt Appendix B
-                        var pattern = new RegExp("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
-                        var matches =  url.match(pattern);
-
-                        return {
-                            scheme: matches[2],
-                            authority: matches[4].replace(/^(www\.)/,""), //remove leading www.
-                            path: matches[5],
-                            query: matches[7],
-                            fragment: matches[9]
-                        };
-                    }
                     // get only toplevel domain
-                    var matches = parse_url(url).authority.split(".");
+                    var matches = helper.parse_url(url).authority.split(".");
                     matches = matches.slice(-2);
 
                     domain_filter_col.value = matches.join(".");
@@ -152,10 +155,30 @@
                     }
                 ],
                 columns: [
-                    { name: "dummy_title", field: "input", type: "text", title: "Dummy field 1", placeholder: "Put your dummy 1 content here", required: true, tab: 'dummy_tab_2'},
-                    { name: "dummy_notes", field: "textarea", title: "Dummy field 2", placeholder: "Put your dummy 2 content here", required: false, tab: 'dummy_tab_1'},
-                    { name: "dummy_before", field: "input", title: "Before Tabs", placeholder: "Before tab", required: false},
-                    { name: "dummy_after", field: "input", title: "after Tabs", placeholder: "After tab", required: false, position: "after"}
+                    { name: "dummy_title", field: "input", type: "text", title: "Dummy field 1", placeholder: "Put your dummy 1 content here", required: true, tab: 'dummy_tab_2',
+                        dropmenuItems:[
+                            { icon: "fa fa-key", text:"Generate Password", onclick:function(id) { alert("Generate Password triggered " + id); } },
+                            { icon: "fa fa-eye-slash", text:"Show Password", onclick:function(id) { alert("Show Password triggered " + id); } }
+                        ]
+                    },
+                    { name: "dummy_notes", field: "textarea", title: "Dummy field 2", placeholder: "Put your dummy 2 content here", required: false, tab: 'dummy_tab_1',
+                        dropmenuItems:[
+                            { icon: "fa fa-key", text:"Generate Password", onclick:function(id) { alert("Generate Password triggered " + id); } },
+                            { icon: "fa fa-eye-slash", text:"Show Password", onclick:function(id) { alert("Show Password triggered " + id); } }
+                        ]
+                    },
+                    { name: "dummy_before", field: "input", title: "Before Tabs", placeholder: "Before tab", required: false,
+                        dropmenuItems:[
+                            { icon: "fa fa-key", text:"Generate Password", onclick:function(id) { alert("Generate Password triggered " + id); } },
+                            { icon: "fa fa-eye-slash", text:"Show Password", onclick:function(id) { alert("Show Password triggered " + id); } }
+                        ]
+                    },
+                    { name: "dummy_after", field: "input", title: "after Tabs", placeholder: "After tab", required: false, position: "after",
+                        dropmenuItems:[
+                            { icon: "fa fa-key", text:"Generate Password", onclick:function(id) { alert("Generate Password triggered " + id); } },
+                            { icon: "fa fa-eye-slash", text:"Show Password", onclick:function(id) { alert("Show Password triggered " + id); } }
+                        ]
+                    }
                 ]
             }
         };
@@ -257,6 +280,6 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("itemBlueprint", ['$window', itemBlueprint]);
+    app.factory("itemBlueprint", ['$window', 'passwordGenerator', 'helper', itemBlueprint]);
 
 }(angular));

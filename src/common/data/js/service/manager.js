@@ -1,7 +1,8 @@
-(function(angular) {
+(function(angular, uuid) {
     'use strict';
 
-    var manager = function($q, $timeout, apiClient, cryptoLibrary, storage, itemBlueprint, browserClient, passwordGenerator) {
+    var manager = function($q, $timeout, apiClient, cryptoLibrary, storage, itemBlueprint, browserClient,
+                           passwordGenerator, helper) {
 
         var temp_datastore_key_storage = {};
         var temp_datastore_overview = false;
@@ -15,17 +16,17 @@
         };
 
         /**
-         * checks if the user is logged in
-         * returns either true or false
+         * Checks if the user is logged in.
+         * Returns either true or false
          *
-         * @return {bool} is the user logged in
+         * @return {boolean} is the user logged in
          */
         var is_logged_in = function () {
             return storage.find_one('config', {'key': 'user_token'}) !== null;
         };
 
         /**
-         * deletes local data in storage
+         * Deletes local data in storage
          */
         var _delete_local_data = function () {
             storage.removeAll();
@@ -53,7 +54,7 @@
             var priv_key_enc = cryptoLibrary.encrypt_secret(pair.private_key, password);
             var secret_key_enc = cryptoLibrary.encrypt_secret(cryptoLibrary.generate_secret_key(), password);
 
-            var onSuccess = function (response) {
+            var onSuccess = function () {
 
                 storage.save();
 
@@ -79,11 +80,19 @@
                 .then(onSuccess, onError);
         };
 
+        /**
+         * Activates a user account with the provided activation code
+         *
+         * @param activate_code
+         * @param server
+         *
+         * @returns {promise}
+         */
         var activate = function(activate_code, server) {
 
             storage.insert('config', {key: 'server', value: server});
 
-            var onSuccess = function (response) {
+            var onSuccess = function () {
 
                 storage.save();
 
@@ -221,7 +230,7 @@
             return obj['value'];
         };
         /**
-         * finds object with specified key in specified db. Also checks if its in the forbidden key list
+         * Finds object with specified key in specified db. Also checks if its in the forbidden key list
          * @param db
          * @param key
          *
@@ -237,7 +246,7 @@
 
 
         /**
-         * returns the overview of all datastores that belong to this user
+         * Returns the overview of all datastores that belong to this user
          *
          * @param force_fresh
          * @returns {promise}
@@ -248,7 +257,7 @@
                 // we have them in cache, so lets save the query
                 return $q(function (resolve) {
                     resolve(temp_datastore_overview);
-                })
+                });
             } else {
                 // we dont have them in cache, so lets query and save them in cache for next time
                 var onSuccess = function (result) {
@@ -266,7 +275,7 @@
         };
 
         /**
-         * returns the datastore_id for the given type and description
+         * Returns the datastore_id for the given type and description
          *
          * @param type
          * @param description
@@ -297,7 +306,7 @@
                 .then(onSuccess, onError);
         };
         /**
-         * returns the datastore for a given id
+         * Returns the datastore for a given id
          *
          * @param datastore_id
          *
@@ -339,7 +348,7 @@
 
 
         /**
-         * returns the datastore for the given type and and description
+         * Returns the datastore for the given type and and description
          *
          * @param type
          * @param description
@@ -401,7 +410,7 @@
         };
 
         /**
-         * adds a node to the storage
+         * Adds a node to the storage
          *
          * @param name
          * @param folder
@@ -429,7 +438,7 @@
 
 
         /**
-         * fills the local datastore with given name
+         * Fills the local datastore with given name
          *
          * @param name
          * @param datastore
@@ -444,7 +453,7 @@
         };
 
         /**
-         * returns the password datastore. In addition this function triggers the generation of the local datastore
+         * Returns the password datastore. In addition this function triggers the generation of the local datastore
          * storage to
          *
          * @returns {promise}
@@ -477,7 +486,7 @@
         };
 
         /**
-         * returns the user datastore. In addition this function triggers the generation of the local datastore
+         * Returns the user datastore. In addition this function triggers the generation of the local datastore
          * storage to
          *
          * @returns {promise}
@@ -507,7 +516,7 @@
         };
 
         /**
-         * encrypts the content for a datastore with given id. The function will check if the secret key of the
+         * Encrypts the content for a datastore with given id. The function will check if the secret key of the
          * datastore is already known, otherwise it will query the server for the details.
          *
          * @param datastore_id The datastore id
@@ -529,7 +538,7 @@
                 // datastore secret key exists in temp datastore key storage, but we have to return a promise :/
                 return $q(function (resolve) {
                     resolve(_encrypt_datastore(datastore_id, json_content));
-                })
+                });
             } else {
 
                 var onError = function(result) {
@@ -548,7 +557,7 @@
         };
 
         /**
-         * creates a copy of content and filters some attributes out, to save some storage or fix some missbehaviour
+         * Creates a copy of content and filters some attributes out, to save some storage or fix some missbehaviour
          *
          * @param content
          */
@@ -591,7 +600,7 @@
 
 
         /**
-         * saves some content in a datastore
+         * Saves some content in a datastore
          *
          * @param datastore_id The datastore id
          * @param content The real object you want to encrypt in the datastore
@@ -624,7 +633,7 @@
         };
 
         /**
-         * saves some content in a datastore specified with type and description
+         * Saves some content in a datastore specified with type and description
          *
          * @param type
          * @param description
@@ -648,7 +657,7 @@
         };
 
         /**
-         * saves the password datastore with given content
+         * Saves the password datastore with given content
          *
          * @param content The real object you want to encrypt in the datastore
          * @returns {promise}
@@ -669,7 +678,7 @@
         };
 
         /**
-         * saves the user datastore with given content
+         * Saves the user datastore with given content
          *
          * @param content The real object you want to encrypt in the datastore
          * @returns {promise}
@@ -682,7 +691,7 @@
         };
 
         /**
-         * creates a secret for the given content and returns the id
+         * Creates a secret for the given content and returns the id
          *
          * @param content
          * @returns {promise}
@@ -729,7 +738,7 @@
         };
 
         /**
-         * writes a secret after encrypting the object. returns the secret id
+         * Writes a secret after encrypting the object. returns the secret id
          *
          * @param secret_id
          * @param secret_key
@@ -756,7 +765,7 @@
         };
 
         /**
-         * handles node selections and triggers behaviour
+         * Handles node selections and triggers behaviour
          *
          * @param node
          */
@@ -765,7 +774,7 @@
         };
 
         /**
-         * handles item selections and triggers behaviour
+         * Handles item selections and triggers behaviour
          *
          * @param item
          */
@@ -773,7 +782,7 @@
             //pass
         };
         /**
-         * handles node clicks and triggers behaviour
+         * Handles node clicks and triggers behaviour
          *
          * @param node
          * @param path
@@ -782,7 +791,7 @@
             //pass
         };
         /**
-         * handles item clicks and triggers behaviour
+         * Handles item clicks and triggers behaviour
          *
          * @param item
          */
@@ -793,7 +802,7 @@
         };
 
         /**
-         * decrypts a secret and initiates the redirect
+         * Decrypts a secret and initiates the redirect
          *
          * @param type
          * @param secret_id
@@ -822,7 +831,7 @@
         };
 
         /**
-         * pass through of the event listener function of the storage
+         * Pass through of the event listener function of the storage
          *
          * @param db
          * @param event
@@ -834,9 +843,98 @@
             return storage.on(db, event, callback);
         };
 
-        var generatePassword = function() {
-            return passwordGenerator.generate();
+        /**
+         * Generates a new password for a given url and saves the password in the datastore.
+         * Returns a promise with the new password
+         *
+         * @returns {promise}
+         */
+        var generatePassword = function(url) {
+
+            var password = passwordGenerator.generate();
+
+            var parsed_url = helper.parse_url(url);
+
+            var secret_object = {
+                website_password_title: "Generated for " + parsed_url.authority,
+                website_password_url: url,
+                website_password_username: "",
+                website_password_password: password,
+                website_password_notes: "",
+                website_password_auto_submit: false,
+                website_password_url_filter: parsed_url.authority
+            };
+
+            var onError = function(result) {
+                // pass
+            };
+
+            var onSuccess = function(e) {
+
+                get_password_datastore()
+                    .then(function (data) {
+
+                        var datastore_object = {
+                            id: uuid.v4(),
+                            type: 'website_password',
+                            name: "Generated for " + parsed_url.authority,
+                            urlfilter: parsed_url.authority,
+                            secret_id: e.secret_id,
+                            secret_key: e.secret_key
+                        };
+
+                        data.items.push(datastore_object);
+                        save_password_datastore(data);
+                    });
+            };
+
+            create_secret(secret_object)
+                .then(onSuccess, onError);
+
+            // we return a promise. So far its
+            // , but we do not yet have a proper error handling and returning
+            // a promise might make it easier later to wait for the errors
+            return $q(function (resolve) {
+                resolve(password);
+            });
         };
+
+        /**
+         * Generates a password for the active tab
+         *
+         * @returns {promise}
+         */
+        var generatePasswordActiveTab = function() {
+
+            var onError = function(result) {
+                console.log(result);
+                alert("could not find out the url of the active tab");
+            };
+
+            var onSuccess = function(url) {
+
+
+                var onError = function(result) {
+                    //pass
+                };
+                var onSuccess = function(password) {
+
+                    browserClient.emitSec('fillpassword-active-tab', {password: password});
+
+                    return password;
+                };
+
+                return generatePassword(url)
+                    .then(onSuccess, onError);
+
+            };
+
+            return browserClient.getActiveTabUrl()
+                .then(onSuccess, onError);
+
+        };
+
+
 
         return {
             register: register,
@@ -858,11 +956,13 @@
             onItemClick: onItemClick,
             redirectSecret: redirectSecret,
             storage_on: storage_on,
-            generatePassword: generatePassword
+            generatePassword: generatePassword,
+            generatePasswordActiveTab: generatePasswordActiveTab
         };
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("manager", ['$q', '$timeout', 'apiClient', 'cryptoLibrary', 'storage', 'itemBlueprint', 'browserClient', 'passwordGenerator', manager]);
+    app.factory("manager", ['$q', '$timeout', 'apiClient', 'cryptoLibrary', 'storage', 'itemBlueprint', 'browserClient',
+        'passwordGenerator', 'helper', manager]);
 
-}(angular));
+}(angular, uuid));
