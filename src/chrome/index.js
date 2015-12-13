@@ -96,10 +96,11 @@ var fillpassword = [];
 // Actual messaging stuff
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
-    // From content script with ready event
-    if (sender.tab && request.event == "ready") {
-        console.log("background script received    'ready'");
-
+    /**
+     * we received a ready event from a content script that finished loading
+     * lets provide the possible passwords
+     */
+    var on_ready = function() {
         var url = sender.tab.url;
         var parsed_url = parse_url(url);
 
@@ -111,29 +112,42 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                 break;
             }
         }
-        return;
+    };
+    if (sender.tab && request.event == "ready") {
+        console.log("background script received    'ready'");
+        return on_ready();
     }
-
+    /**
+     * we received a fillpassword event
+     * lets remember it
+     */
+    var on_fillpassword = function () {
+        fillpassword.push(data);
+    };
     if (request.event == "fillpassword") {
         console.log("background script received    'fillpassword'");
-        fillpassword.push(data);
-        return;
+        return on_fillpassword;
     }
 
-    if (request.event == "fillpassword-active-tab") {
-        console.log("background script received    'fillpassword-active-tab'");
-
+    /**
+     * we received a fillpassword active tab event
+     * lets send a fillpassword event to the to the active tab
+     */
+    var on_fillpassword_active_tab = function () {
         chrome.tabs.sendMessage(activeTabId, {event: "fillpassword", data: request.data}, function(response) {
             // pass
         });
-        return;
+    };
+    if (request.event == "fillpassword-active-tab") {
+        console.log("background script received    'fillpassword-active-tab'");
+        return on_fillpassword_active_tab();
     }
 
-    // we received a logout event
-    // lets close all extension tabs
-    if (request.event == "logout") {
-        console.log("background script received    'logout'");
-
+    /**
+     * we received a logout event
+     * lets close all extension tabs
+     */
+    var on_logout = function () {
         chrome.tabs.query({url: 'chrome-extension://'+chrome.runtime.id+'/*'}, function(tabs) {
             var tabids = [];
             for (var i = 0; i < tabs.length; i++) {
@@ -142,15 +156,17 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
             chrome.tabs.remove(tabids)
         });
-
-        return;
+    };
+    if (request.event == "logout") {
+        console.log("background script received    'logout'");
+        return on_logout();
     }
 
-    // a page finished loading, and wants to know if we have passwords for this page to display to the customer
-    // in the input popup menu
-    if (sender.tab && request.event == "website-password-refresh") {
-        console.log("background script received    'website-password-refresh'");
-
+    /**
+     * a page finished loading, and wants to know if we have passwords for this page to display to the customer
+     * in the input popup menu
+     */
+    var on_website_password_refresh = function () {
         var url = sender.tab.url;
         var parsed_url = parse_url(url);
 
@@ -168,15 +184,20 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         }
 
         sendResponse({event: "website-password-update", data: update});
-
-        return;
+    };
+    if (sender.tab && request.event == "website-password-refresh") {
+        console.log("background script received    'website-password-refresh'");
+        return on_website_password_refresh();
     }
 
-    // some content script requested a secret
-    // lets search in our localstorage for the config and the secret_key of the requested secret
-    // lets request the content of the secret from our backend server
-    if (request.event == "request-secret") {
-
+    /**
+     * some content script requested a secret
+     * lets search in our localstorage for the config and the secret_key of the requested secret
+     * lets request the content of the secret from our backend server
+     *
+     * @returns {boolean}
+     */
+    var on_request_secret = function () {
         var _config = searchLocalStorage('password_manager_local_storage', 'config');
 
         var config = {};
@@ -214,11 +235,16 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             });
 
         return true; // return true because of async response
+    };
+    if (request.event == "request-secret") {
+        return on_request_secret();
     }
 
-    // copies to the clipboard
-    // lets create and element, put the content there, and call the normal execCommand('copy') function
-    if (request.event == "copy-to-clipboard") {
+    /**
+     * copies to the clipboard
+     * lets create and element, put the content there, and call the normal execCommand('copy') function
+     */
+    var on_copy_to_clipboard = function() {
         var copyFrom = document.createElement("textarea");
         copyFrom.textContent = request.data.text;
         var body = document.getElementsByTagName('body')[0];
@@ -226,9 +252,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         copyFrom.select();
         document.execCommand('copy');
         body.removeChild(copyFrom);
-        return;
+    };
+    if (request.event == "copy-to-clipboard") {
+        return on_copy_to_clipboard();
     }
 
+
+    // not catchable event
     console.log(sender.tab);
     console.log("background script received (uncaptured)    " + request.event);
 

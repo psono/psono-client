@@ -211,11 +211,15 @@
 
             }
 
-            // Lets start with messaging
-            // Handler for a fillpassword event
-            bc.on('fillpassword', function (data) {
-                console.log("yiha received 'fillpassword'");
-                console.log(data);
+            // Messaging functions below
+
+            /**
+             * Handler for a fillpassword event
+             *
+             * @param data
+             */
+            var on_fillpassword = function (data) {
+
                 for (var i = 0; i < myForms.length; i++) {
                     if(data.hasOwnProperty('username') && data.username !== '') {
                         jQuery(myForms[i].username).focus();
@@ -224,7 +228,7 @@
                         jQuery(myForms[i].username).keydown();
                         jQuery(myForms[i].username).keyup();
                         jQuery(myForms[i].username).change();
-                }
+                    }
                     if(data.hasOwnProperty('password') && data.password !== '') {
                         jQuery(myForms[i].password).focus();
                         myForms[i].password.value = data.password;
@@ -243,15 +247,25 @@
                         myForms[i].form.submit();
                     }
                 }
-            });
+            };
+            bc.on('fillpassword', on_fillpassword);
 
-            // handles password update events
-            bc.on('website-password-update', function (data) {
+            /**
+             * handles password update events
+             *
+             * @param data
+             */
+            var on_website_password_update = function (data) {
                 website_passwords = data;
-            });
+            };
+            bc.on('website-password-update', on_website_password_update);
 
-            // handles password request answer
-            bc.on('return-secret', function (data) {
+            /**
+             * handles password request answer
+             *
+             * @param data
+             */
+            var on_return_secret = function (data) {
                 for (var i = 0; i < myForms.length; i++) {
                     if (myForms[i].username.isEqualNode(last_request_element) || myForms[i].password.isEqualNode(last_request_element)) {
                         myForms[i].username.value = data.website_password_username;
@@ -265,7 +279,8 @@
                         break;
                     }
                 }
-            });
+            };
+            bc.on('return-secret', on_return_secret);
 
             // Tell our backend, that we are ready and waiting for instructions
             bc.emit('ready', document.location.toString());
