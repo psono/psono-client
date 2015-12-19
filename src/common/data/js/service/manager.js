@@ -609,9 +609,6 @@
          */
         var save_datastore_with_id = function (datastore_id, content) {
 
-            content = filter_datastore_content(content);
-
-
             var onError = function(result) {
                 // pass
             };
@@ -674,6 +671,9 @@
                 ['urlfilter', 'urlfilter']
             ]);
 
+
+            content = filter_datastore_content(content);
+
             return save_datastore(type, description, content)
         };
 
@@ -686,6 +686,8 @@
         var save_user_datastore = function (content) {
             var type = "user";
             var description = "default";
+
+            content = filter_datastore_content(content);
 
             return save_datastore(type, description, content)
         };
@@ -934,8 +936,6 @@
 
         };
 
-
-
         return {
             register: register,
             activate: activate,
@@ -958,6 +958,7 @@
             storage_on: storage_on,
             generatePassword: generatePassword,
             generatePasswordActiveTab: generatePasswordActiveTab
+
         };
     };
 

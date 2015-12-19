@@ -21,6 +21,10 @@
                     templateUrl: 'view/test.html',
                     controller: 'TestCtrl'
                 })
+                .when('/settings', {
+                    templateUrl: 'view/settings.html',
+                    controller: 'SettingsController'
+                })
                 .when('/share/users', {
                     templateUrl: 'view/index-share-users.html',
                     controller: 'IndexCtrl'
@@ -623,6 +627,12 @@
         this.name = "TestCtrl";
         this.params = $routeParams;
         $scope.routeParams = $routeParams;
+    }]);
+
+    app.controller('SettingsController', ['$scope', '$routeParams', 'settings', function($scope, $routeParams, settings) {
+
+        $scope.settings = settings.get_settings();
+        $scope.tabs = settings.get_tabs();
     }]);
 
     app.controller('IndexCtrl', ['$scope', '$routeParams', function($scope, $routeParams) {

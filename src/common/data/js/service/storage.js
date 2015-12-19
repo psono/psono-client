@@ -11,6 +11,11 @@
             uniques: ['key']
         },
         {
+            name: 'settings',
+            indices: ['key'],
+            uniques: ['key']
+        },
+        {
             name: 'datastore-password-leafs',
             indices: ['key', 'urlfilter', 'name'],
             uniques: ['key']

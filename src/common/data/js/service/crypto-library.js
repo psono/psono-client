@@ -361,4 +361,4 @@
     var app = angular.module('passwordManagerApp');
     app.factory("cryptoLibrary", [cryptoLibrary]);
 
-}(angular, require, sha512, sha256, scrypt_module_factory, true));
+}(angular, require, sha512, sha256, scrypt_module_factory, false));

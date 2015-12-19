@@ -274,6 +274,7 @@ mod.PageMod({
         "./js/service/item-blueprint.js",
         "./js/service/crypto-library.js",
         "./js/service/storage.js",
+        "./js/service/settings.js",
         "./js/service/manager.js",
         "./js/service/browser-client.js",
         "./js/service/password-generator.js",

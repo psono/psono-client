@@ -30,7 +30,7 @@
                                 icon: "fa fa-key",
                                 text:"Generate Password",
                                 onclick:function(id) {
-                                    angular.element(document.querySelector('#'+id)).val(passwordGenerator.generate());
+                                    angular.element(document.querySelector('#'+id)).val(passwordGenerator.generate()).trigger('input');
                                 }
                             }
                         ]},

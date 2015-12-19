@@ -1,29 +1,19 @@
 (function(angular, generatePassword) {
     'use strict';
 
-    var passwordGenerator = function() {
+    var passwordGenerator = function(settings) {
 
-        var letters_uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        var letters_lowercase = 'abcdefghijklmnopqrstuvwxyz';
-        var letters_numbers = '1234567890';
-        var letters_special_chars = ',.-;:_#\'+*~!"§$%&/()=?{[]}\\';
-
-        var length;
         var memorable;
         var uppercaseMinCount;
         var lowercaseMinCount;
         var numberMinCount;
         var specialMinCount;
-        var UPPERCASE_RE;
-        var LOWERCASE_RE;
-        var NUMBER_RE;
-        var SPECIAL_CHAR_RE;
 
         var isStrongEnough = function (password) {
-            var uc = password.match(UPPERCASE_RE);
-            var lc = password.match(LOWERCASE_RE);
-            var n = password.match(NUMBER_RE);
-            var sc = password.match(SPECIAL_CHAR_RE);
+            var uc = password.match(new RegExp("(["+escapeRegExp(settings.get_setting('setting_password_letters_uppercase'))+"])", "g"));
+            var lc = password.match(new RegExp("(["+escapeRegExp(settings.get_setting('setting_password_letters_lowercase'))+"])", "g"));
+            var n = password.match(new RegExp("(["+escapeRegExp(settings.get_setting('setting_password_numbers'))+"])", "g"));
+            var sc = password.match(new RegExp("(["+escapeRegExp(settings.get_setting('setting_password_special_chars'))+"])", "g"));
 
             return uc && uc.length >= uppercaseMinCount &&
                 lc && lc.length >= lowercaseMinCount &&
@@ -44,15 +34,16 @@
         var generate = function () {
             var password = "";
             while (!isStrongEnough(password)) {
-                password = generatePassword(length, memorable,
-                    new RegExp('['+escapeRegExp(letters_uppercase + letters_lowercase + letters_numbers + letters_special_chars)+']'));
+                password = generatePassword(settings.get_setting('setting_password_length'), memorable,
+                    new RegExp('['+escapeRegExp(settings.get_setting('setting_password_letters_uppercase') +
+                            settings.get_setting('setting_password_letters_lowercase') +
+                            settings.get_setting('setting_password_numbers') +
+                            settings.get_setting('setting_password_special_chars'))+']'));
             }
             return password;
         };
 
         var _init = function() {
-
-            length = 16;
             memorable = false;
 
             uppercaseMinCount = 1;
@@ -60,10 +51,6 @@
             numberMinCount = 1;
             specialMinCount = 1;
 
-            UPPERCASE_RE = new RegExp("(["+escapeRegExp(letters_uppercase)+"])", "g");
-            LOWERCASE_RE = new RegExp("(["+escapeRegExp(letters_lowercase)+"])", "g");
-            NUMBER_RE = new RegExp("(["+escapeRegExp(letters_numbers)+"])", "g");
-            SPECIAL_CHAR_RE = new RegExp("(["+escapeRegExp(letters_special_chars)+"])", "g");
         };
         _init();
 
@@ -74,6 +61,6 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("passwordGenerator", [passwordGenerator]);
+    app.factory("passwordGenerator", ['settings', passwordGenerator]);
 
 }(angular, generatePassword));

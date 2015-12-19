@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<div class="container-fluid">
+    <div class="navi row">
+        <div class="location col-sm-8">
+            <span> <a href="#">/settings</a> </span>
+        </div>
+        <div class="title col-sm-4">
+            <h1>Settings</h1>
+        </div>
+    </div>
+
+    <div class="widget panel panel-default">
+        <div class="panel-heading clearfix ng-scope">
+            <h3 class="panel-title ng-binding ng-scope">Configuration</h3>
+        </div>
+        <div class="panel-body" style="height: auto;">
+
+            <form class="form-horizontal" role="form">
+                <tabset class="tabset_expand">
+
+                    <tab ng-repeat="tab in tabs" heading="{{ tab.title }}">
+
+                        <div ng-class="{true: 'has-error'}[submitted &amp;&amp; editEntryForm[n.name].$invalid]"
+                             class="form-group" ng-repeat="setting in settings"
+                             ng-if="setting.tab == tab.key">
+
+                            <label class="control-label col-sm-4 col-md-2" for="settingsForm-{{setting.key}}">{{setting.title}}</label>
+                            <div class="col-sm-8 col-md-10">
+                                <input type="{{setting.type}}" ng-model="setting.value"
+                                       ng-required="{{setting.required}}" placeholder="{{setting.placeholder}}" id="settingsForm-{{setting.key}}"
+                                       name="{{setting.key}}"
+                                       class="form-control">
+                            </div>
+                        </div>
+                    </tab>
+                </tabset>
+
+                <button class="btn btn-primary" type="button" ng-click="submitted=true; save();">Save</button>
+
+            </form>
+        </div>
+    </div>
+
+</div>

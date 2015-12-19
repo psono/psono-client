@@ -139,12 +139,12 @@ h1, h2 {
   display: block; }
 
 /* Bootstrap fixes */
-.modal-body .tabset_expand {
+.tabset_expand {
   margin-left: -20px;
   margin-right: -20px; }
-  .modal-body .tabset_expand .nav-tabs li:first-child {
+  .tabset_expand .nav-tabs li:first-child {
     margin-left: 20px; }
-  .modal-body .tabset_expand .tab-content {
+  .tabset_expand .tab-content {
     padding: 20px 20px 5px 20px;
     border-bottom: 1px solid #ddd;
     margin-bottom: 15px; }
