@@ -10,10 +10,11 @@
  "hardening" of our implementation.
  */
 
-var ClassClient = function (backend, nacl_factory, jQuery, scrypt_module_factory) {
+var ClassClient = function (backend, require, jQuery, scrypt_module_factory) {
     "use strict";
 
-    var nacl = nacl_factory.instantiate();
+    //var nacl = nacl_factory.instantiate();
+    var nacl = require('ecma-nacl');
 
     /* Im afraid people will send/use shaXXX hashes of their password for other purposes, therefore I add this special
      * sauce to every hash. This special sauce can be considered a constant and will never change. Its no secret but

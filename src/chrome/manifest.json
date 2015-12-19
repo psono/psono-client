@@ -27,7 +27,10 @@
   "background": {
     "scripts": [
       "data/js/lib/jquery-2.1.4.js",
-      "data/js/lib/nacl_factory.js",
+      "data/js/lib/sha512.js",
+      "data/js/lib/sha256.js",
+      //"data/js/lib/nacl_factory.js",
+      "data/js/lib/ecma-nacl.js",
       "data/js/lib/scrypt.js",
       "data/js/jquery-api-client.js",
       "index.js"

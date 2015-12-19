@@ -241,7 +241,10 @@ mod.PageMod({
         self.data.url("./test.html*")
     ],
     contentScriptFile: [
-        "./js/lib/nacl_factory.js",
+        "./js/lib/ecma-nacl.js",
+        "./js/lib/sha512.js",
+        "./js/lib/sha256.js",
+        //"./js/lib/nacl_factory.js",
         "./js/lib/scrypt.js",
         "./js/lib/uuid.js",
         "./js/lib/jquery-2.1.4.js",
