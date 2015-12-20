@@ -26,8 +26,8 @@
     /**
      * Main Controller for the shareusers widget
      */
-    module.controller('shareusersController', ["$scope", "$interval", "config", "manager", "$modal",
-        function($scope, $interval, config, manager, $modal){
+    module.controller('shareusersController', ["$scope", "$interval", "config", "manager", "managerDatastore", "$modal",
+        function($scope, $interval, config, manager, managerDatastore, $modal){
 
             // Modals
 
@@ -67,7 +67,7 @@
                         name: name
                     });
 
-                    manager.save_user_datastore($scope.structure.data);
+                    managerDatastore.save_user_datastore($scope.structure.data);
 
                 }, function () {
                     // cancel triggered
@@ -104,7 +104,7 @@
                 modalInstance.result.then(function (name) {
                     node.name = name;
 
-                    manager.save_user_datastore($scope.structure.data);
+                    managerDatastore.save_user_datastore($scope.structure.data);
 
                 }, function () {
                     // cancel triggered
@@ -175,7 +175,7 @@
 
                         parent.items.push(shareusers_object);
 
-                        manager.save_user_datastore($scope.structure.data);
+                        managerDatastore.save_user_datastore($scope.structure.data);
                     };
 
                     manager.create_secret(secret_object)
@@ -247,7 +247,7 @@
                         };
 
                         var onSuccess = function(e) {
-                            manager.save_user_datastore($scope.structure.data);
+                            managerDatastore.save_user_datastore($scope.structure.data);
                         };
 
                         manager.write_secret(node.secret_id, node.secret_key, secret_object)
@@ -266,7 +266,7 @@
 
             $scope.structure = { data: {}} ;
 
-            manager.get_user_datastore()
+            managerDatastore.get_user_datastore()
                 .then(function (data) {$scope.structure.data = data;});
 
 
@@ -359,7 +359,7 @@
                     var val = findInStructure(path, $scope.structure.data);
                     if (val)
                         val[0].splice(val[1], 1);
-                    manager.save_user_datastore($scope.structure.data);
+                    managerDatastore.save_user_datastore($scope.structure.data);
                 },
 
                 /**
@@ -395,7 +395,7 @@
                     if (val)
                         val[0].splice(val[1], 1);
 
-                    manager.save_user_datastore($scope.structure.data);
+                    managerDatastore.save_user_datastore($scope.structure.data);
                 },
 
                 /**

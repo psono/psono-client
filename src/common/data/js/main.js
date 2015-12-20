@@ -485,9 +485,11 @@
 
         }]);
 
-    app.controller('PanelController', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'browserClient', 'storage',
+    app.controller('PanelController', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'browserClient',
+        'storage', 'managerDatastore',
         'snapRemote', '$window', '$route', '$routeParams', '$location',
-        function($scope, $rootScope, $filter, $timeout, manager, browserClient, storage,
+        function($scope, $rootScope, $filter, $timeout, manager, browserClient,
+                 storage, managerDatastore,
                  snapRemote, $window, $route, $routeParams, $location)
         {
 
@@ -529,7 +531,7 @@
             });
 
 
-            manager.get_password_datastore();
+            managerDatastore.get_password_datastore();
 
             var regex;
 
@@ -629,10 +631,32 @@
         $scope.routeParams = $routeParams;
     }]);
 
-    app.controller('SettingsController', ['$scope', '$routeParams', 'settings', function($scope, $routeParams, settings) {
+    app.controller('SettingsController', ['$scope', '$routeParams', 'settings', 'managerDatastore',
+    function($scope, $routeParams, settings, managerDatastore) {
 
-        $scope.settings = settings.get_settings();
+        var onError = function() {
+            alert("Error, should not happen.");
+        };
+        var onRequestReturn = function() {
+            $scope.settings = settings.get_settings();
+        };
+
+        managerDatastore.get_settings_datastore().then(onRequestReturn, onError);
+
         $scope.tabs = settings.get_tabs();
+        $scope.save = function() {
+
+            var onSuccess = function(data) {
+                $scope.msgs = data.msgs;
+                $scope.errors = [];
+            };
+            var onError = function(data) {
+                $scope.msgs = [];
+                $scope.errors = data.errors;
+            };
+
+            settings.save().then(onSuccess, onError)
+        };
     }]);
 
     app.controller('IndexCtrl', ['$scope', '$routeParams', function($scope, $routeParams) {

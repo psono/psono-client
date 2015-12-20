@@ -276,6 +276,7 @@ mod.PageMod({
         "./js/service/storage.js",
         "./js/service/settings.js",
         "./js/service/manager.js",
+        "./js/service/manager-datastore.js",
         "./js/service/browser-client.js",
         "./js/service/password-generator.js",
         "./view/templates.js"

@@ -2,7 +2,7 @@
     'use strict';
 
 
-    var itemBlueprint = function($window, passwordGenerator, helper) {
+    var itemBlueprint = function($window, $injector, helper) {
 
         var _default = "website_password";
 
@@ -30,7 +30,8 @@
                                 icon: "fa fa-key",
                                 text:"Generate Password",
                                 onclick:function(id) {
-                                    angular.element(document.querySelector('#'+id)).val(passwordGenerator.generate()).trigger('input');
+
+                                    angular.element(document.querySelector('#'+id)).val($injector.get('passwordGenerator').generate()).trigger('input');
                                 }
                             }
                         ]},
@@ -68,31 +69,6 @@
                             break;
                         }
                     }
-
-                    /*
-                    function parse_url(url) {
-                        // According to RFC http://www.ietf.org/rfc/rfc3986.txt Appendix B
-                        var pattern = new RegExp("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
-                        var matches =  url.match(pattern);
-
-                        return {
-                            scheme: matches[2],
-                            authority: matches[4].replace(/^(www\.)/,""), //remove leading www.
-                            path: matches[5],
-                            query: matches[7],
-                            fragment: matches[9]
-                        };
-                    }
-                    function escapeRegExp(str) {
-                        return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-                    }
-
-                    // get only toplevel domain
-                    var matches = parse_url(url).authority.split(".");
-                    matches = matches.slice(-2);
-
-                    return "'/"+escapeRegExp(matches.join("."))+"/i'";
-                    */
 
                     // get only toplevel domain
                     var matches = helper.parse_url(url).authority.split(".");
@@ -280,6 +256,6 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("itemBlueprint", ['$window', 'passwordGenerator', 'helper', itemBlueprint]);
+    app.factory("itemBlueprint", ['$window', '$injector', 'helper', itemBlueprint]);
 
 }(angular));

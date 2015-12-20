@@ -202,7 +202,7 @@
             console.log("encrypt_secret");
         }
 
-        var k = sha256(password + special_sauce);
+        var k = from_hex(sha256(password + special_sauce));
         var m = encode_utf8(secret);
         var n = randomBytes(24);
         var c = nacl.secret_box.pack(m, n, k);

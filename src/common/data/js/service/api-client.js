@@ -122,6 +122,38 @@
         };
 
         /**
+         * AJAX POST request to the backend with new user informations like for example a new password (means new
+         * authkey) or new public key
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param email
+         * @param authkey
+         * @param private_key
+         * @param private_key_nonce
+         * @param secret_key
+         * @param secret_key_nonce
+         *
+         * @returns {promise}
+         */
+        var update_user = function(token, email, authkey, private_key, private_key_nonce, secret_key, secret_key_nonce) {
+            var endpoint = '/user/update/';
+            var connection_type = "POST";
+            var data = {
+                email: email,
+                authkey: authkey,
+                private_key: private_key,
+                private_key_nonce: private_key_nonce,
+                secret_key: secret_key,
+                secret_key_nonce: secret_key_nonce
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers);
+        };
+
+        /**
          * Ajax GET request with the token as authentication to get the current user's datastore
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
@@ -470,6 +502,7 @@
             logout: logout,
             register: register,
             verify_email: verify_email,
+            update_user: update_user,
             read_datastore: read_datastore,
             write_datastore: write_datastore,
             create_datastore: create_datastore,

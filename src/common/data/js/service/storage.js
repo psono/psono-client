@@ -58,6 +58,16 @@
         };
 
         /**
+         * updates one or more items in the specified db
+         *
+         * @param db
+         * @param items
+         */
+        var update = function (db, items) {
+            dbs[db].update(items);
+        };
+
+        /**
          * gets config data
          *
          * @param db
@@ -127,6 +137,7 @@
 
         return {
             insert: insert,
+            update: update,
             data: data,
             find_one: find_one,
             remove: remove,

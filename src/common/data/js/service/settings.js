@@ -2,7 +2,7 @@
     'use strict';
 
 
-    var settings = function(storage) {
+    var settings = function($q, storage, manager, managerDatastore, cryptoLibrary, apiClient) {
 
         var _tabs = [
             { key: 'general', title: 'General' },
@@ -25,6 +25,19 @@
             // General
         ];
 
+        // will be handled different, and not saved directly to the settings
+        var _config_settings = [
+            "setting_email",
+            "setting_password_old",
+            "setting_password",
+            "setting_password_repeat"
+        ];
+
+        /**
+         * returns the tabs
+         *
+         * @returns {*[]}
+         */
         var get_tabs = function() {
             return _tabs;
         };
@@ -36,12 +49,17 @@
          * @returns {*}
          */
         var get_setting = function (key) {
+
+            if (key == 'setting_email') {
+                return storage.find_one('config', {key: 'user_email'}).value;
+            }
+
             if (typeof key !== 'undefined') {
                 // key specified
-                var s = storage.find_one('settings', {'key': 'key'});
+                var s = storage.find_one('settings', {'key': key});
                 if (s !== null) {
                     // found in storage
-                    return s;
+                    return s.value;
                 } else {
                     // not found in storage, lets look for a default value, otherwise return null
                     for (var i = 0; i < _settings.length; i++) {
@@ -64,11 +82,13 @@
          * @returns {*[]}
          */
         var get_settings = function() {
+
             for (var i = 0; i < _settings.length; i++) {
                 _settings[i].value = get_setting(_settings[i].key)
             }
             return _settings;
         };
+
 
         /**
          * will update the storage with a given value for a specific setting
@@ -78,15 +98,18 @@
          * @private
          */
         var _set_setting = function(key, value) {
-            try {
+
+            var s = storage.find_one('settings', {'key': key});
+            if (s !== null) {
+                s.value = value;
+                storage.update('settings', s);
+            } else {
                 storage.insert('settings', {key: key, value: value});
-            } catch(e){
-                storage.update({key: key, value: value});
             }
         };
 
         /**
-         * will update one setting or many settings specified as key value or as a list of key value objects
+         * will update one setting specified as key value or many settings as a list of key value objects
          *
          * @param key
          * @param value
@@ -100,19 +123,117 @@
                     _set_setting(key[i].key, key[i].value);
                 }
             }
+
+            var s = get_settings();
+            var content = [];
+            for (var k = 0; k < s.length; k++) {
+                if (_config_settings.indexOf(s[k].key) > -1) {
+                    continue;
+                }
+                content.push({
+                    key: s[k].key,
+                    value: s[k].value
+                });
+            }
+            managerDatastore.save_settings_datastore(content);
             return storage.save();
         };
 
+        /**
+         * triggers a save
+         *
+         * @returns {*}
+         */
+        var save = function() {
+            return $q(function(resolve, reject) {
+                var specials = {};
+
+                // lets search our settings for the interesting settings
+                for (var i = 0; i < _settings.length; i++) {
+                    if (_config_settings.indexOf(_settings[i].key) > -1) {
+                        specials[_settings[i].key] = _settings[i];
+                    }
+                }
+
+                var mailobj = storage.find_one('config', {key: 'user_email'});
+                var config_email = mailobj.value;
+
+                var totalSuccess = function() {
+
+                    for (var i = 0; i < _config_settings.length; i++) {
+                        specials[_config_settings[i]].value = '';
+                    }
+                    set_settings(_settings);
+
+                    return resolve({msgs: ['Saved successfully']})
+                };
+
+
+                if ((specials['setting_password'].value && specials['setting_password'].value.length > 0)
+                    || (specials['setting_password_repeat'].value && specials['setting_password_repeat'].value.length > 0)
+                    || config_email !== specials['setting_email'].value) {
+
+                    // email or password changed, lets check for a correct old password and then update our backend
+
+                    var new_password = specials['setting_password'].value;
+
+                    if (specials['setting_password'].value !== specials['setting_password_repeat'].value) {
+                        console.log("reject");
+                        return reject({errors: ['Passwords mismatch']})
+                    }
+                    if (((specials['setting_password'].value !== null && specials['setting_password'].value.length > 0)
+                        || (specials['setting_password_repeat'].value !== null && specials['setting_password_repeat'].value.length > 0))
+                        && (specials['setting_password_old'].value == null || specials['setting_password_old'].value.length == 0)) {
+                        return reject({errors: ['Old password empty']})
+                    }
+                    if (specials['setting_password'].value === null || specials['setting_password'].value.length == 0) {
+                        // no new password specified, so user wants to update the email
+                        new_password = specials['setting_password_old'].value;
+
+                    }
+
+                    var possible_old_authkey = cryptoLibrary.generate_authkey(config_email, specials['setting_password_old'].value);
+
+                    var onSucces = function(data) {
+
+                        var new_authkey = cryptoLibrary.generate_authkey(specials['setting_email'].value, new_password);
+                        var user_private_key = storage.find_one('config', {key: 'user_private_key'});
+                        var user_secret_key = storage.find_one('config', {key: 'user_secret_key'});
+
+                        var priv_key_enc = cryptoLibrary.encrypt_secret(user_private_key.value, new_password);
+                        var secret_key_enc = cryptoLibrary.encrypt_secret(user_secret_key.value, new_password);
+
+                        //update local mail storage
+                        mailobj.value = specials['setting_email'].value;
+                        storage.update('config', mailobj);
+
+                        manager.updateUser(specials['setting_email'].value, new_authkey, priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce);
+
+                        return totalSuccess();
+                    };
+                    var onError = function() {
+                        return reject({errors: ['Old password incorrect']})
+                    };
+
+                    return apiClient.login(config_email, possible_old_authkey)
+                        .then(onSucces, onError);
+
+                }
+                console.log("exit 2");
+                return totalSuccess();
+            });
+        };
 
         return {
             get_tabs: get_tabs,
             get_setting: get_setting,
             get_settings: get_settings,
-            set_settings: set_settings
+            set_settings: set_settings,
+            save: save
         };
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("settings", ['storage', settings]);
+    app.factory("settings", ['$q', 'storage', 'manager', 'managerDatastore', 'cryptoLibrary', 'apiClient', settings]);
 
 }(angular));

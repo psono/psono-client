@@ -35,7 +35,11 @@
                     </tab>
                 </tabset>
 
-                <button class="btn btn-primary" type="button" ng-click="submitted=true; save();">Save</button>
+                <div>
+                    <button class="btn btn-primary" type="button" ng-click="submitted=true; save();">Save</button>
+                    <span class="error" ng-repeat="e in errors">{{e}}</span>
+                    <span ng-repeat="m in msgs">{{m}}</span>
+                </div>
 
             </form>
         </div>
