@@ -429,6 +429,80 @@
             },
 
             /**
+             * triggered once someone wants to move an item
+             *
+             * @param item_path
+             * @param target_path
+             */
+            onItemDropComplete: function (item_path, target_path) {
+
+                var target = $scope.structure.data;
+                if (target_path !== null) {
+                    // find drop zone
+                    var val1 = findInStructure(target_path, $scope.structure.data);
+                    target = val1[0][val1[1]];
+                }
+                // find element
+                var val2 = findInStructure(item_path, $scope.structure.data);
+
+                if (val2 === false) {
+                    return;
+                }
+                var element = val2[0][val2[1]];
+
+                // check if we have folders, otherwise create the array
+                if (!target.hasOwnProperty('items')) {
+                    target.items = [];
+                }
+
+                // add the element to the other folders
+                target.items.push(element);
+
+                // delete the array at hte current position
+                val2[0].splice(val2[1], 1);
+
+                managerDatastore.save_password_datastore($scope.structure.data);
+            },
+
+            /**
+             * triggered once someone wants to move a folder
+             *
+             * @param item_path
+             * @param target_path
+             */
+            onFolderDropComplete: function (item_path, target_path) {
+
+
+                var target = $scope.structure.data;
+                if (target_path !== null) {
+                    // find drop zone
+                    var val1 = findInStructure(target_path, $scope.structure.data);
+                    target = val1[0][val1[1]];
+                }
+
+                // find element
+                var val2 = findInStructure(item_path, $scope.structure.data);
+
+                if (val2 === false) {
+                    return;
+                }
+                var element = val2[0][val2[1]];
+
+                // check if we have folders, otherwise create the array
+                if (!target.hasOwnProperty('folders')) {
+                    target.folders = [];
+                }
+
+                // add the element to the other folders
+                target.folders.push(element);
+
+                // delete the array at hte current position
+                val2[0].splice(val2[1], 1);
+
+                managerDatastore.save_password_datastore($scope.structure.data);
+            },
+
+            /**
              * Returns the class of the icon used to display a specific item
              *
              * @param item

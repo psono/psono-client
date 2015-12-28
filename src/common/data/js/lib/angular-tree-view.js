@@ -22,10 +22,12 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
+ *
+ *  (modified by chickahoona)
  */
 
 (function (angular, undefined) {
-    var module = angular.module('AxelSoft', []);
+    var module = angular.module('ngTree', []);
 
     module.value('treeViewDefaults', {
         foldersProperty: 'folders',
@@ -35,7 +37,7 @@
         collapsible: true
     });
 
-    module.directive('treeView', ['$q', 'treeViewDefaults', function ($q, treeViewDefaults) {
+    module.directive('treeView', ['$q', '$timeout', 'treeViewDefaults', function ($q, $timeout, treeViewDefaults) {
         return {
             restrict: 'A',
             scope: {
@@ -48,10 +50,11 @@
             '<div tree-view-node="treeView">' +
             '</div>' +
             '</div>',
-            controller: ['$scope', function ($scope) {
+            controller: ['$scope', '$rootScope', function ($scope, $rootScope) {
                 var self = this,
                     selectedNode,
-                    selectedItem;
+                    selectedItem,
+                    counter = 0;
 
                 var options = angular.extend({}, treeViewDefaults, $scope.treeViewOptions);
 
@@ -130,6 +133,143 @@
                 self.getOptions = function () {
                     return options;
                 };
+
+                /**
+                 * returns the global counter
+                 * @returns {number}
+                 */
+                self.getCounter = function() {
+                    return counter;
+                };
+
+                /**
+                 * increases the global counter
+                 *
+                 * @returns {number}
+                 */
+                self.incCounter = function() {
+                    counter = counter + 1;
+                    return counter;
+                };
+
+                /**
+                 * decreases the global counter
+                 *
+                 * @returns {number}
+                 */
+                self.decCounter = function() {
+                    counter = counter - 1;
+                    return counter;
+                };
+
+                var lastDraggedItem = null;
+                var lastDraggedItemPath = null;
+                var lastDraggedItemType = null;
+
+                /**
+                 * remembers the last dragged item and path to that item
+                 *
+                 * @param data
+                 * @param idPath
+                 * @param type
+                 */
+                self.setLastDraggedItem = function(data, idPath, type) {
+                    lastDraggedItem = data;
+                    lastDraggedItemPath = idPath;
+                    lastDraggedItemType = type;
+                };
+
+                /**
+                 * returns the last dragged item and the path to that item
+                 *
+                 * @returns {{data: *, path: *}}
+                 */
+                self.getLastDraggedItem = function() {
+                    return {data: lastDraggedItem, path: lastDraggedItemPath, type: lastDraggedItemType};
+                };
+
+                var timer = null;
+
+
+                self.onAnyDrop = function (evt, target_path) {
+
+                    var dragged_item = self.getLastDraggedItem();
+                    var node_type;
+                    if (dragged_item.type === null && evt.hasOwnProperty('element')) {
+                        node_type = self.getNodeType(evt);
+                    } else if (dragged_item.type !== null){
+                        node_type = dragged_item.type;
+                    } else {
+                        // only a click, not a real drag n drop
+                        return;
+                    }
+
+                    if (node_type == 'item' && typeof options.onItemDropComplete === "function") {
+                        options.onItemDropComplete(dragged_item.path, target_path);
+                    }
+
+                    if (node_type == 'folder' && typeof options.onFolderDropComplete === "function") {
+                        options.onFolderDropComplete(dragged_item.path, target_path);
+                    }
+                };
+
+                self.onDropComplete = function(data, evt, target_path) {
+
+                    $timeout.cancel(timer);
+
+                    var counter = self.decCounter();
+                    if (counter !== 0 || evt.data === null) {
+                        return;
+                    }
+
+                    if (evt.data.id == target_path[target_path.length - 1]) {
+                        return;
+                    }
+
+                    self.onAnyDrop(evt, target_path);
+                };
+
+                var dragstarted = false;
+
+                self.isDragStarted = function () {
+                    return dragstarted;
+                };
+
+                self.setDragStarted = function (){
+                    dragstarted = true;
+                };
+
+                self.resetDragStarted = function () {
+                    dragstarted = false;
+                };
+
+                $rootScope.$on('draggable:end', function(evt, args) {
+
+                    self.resetDragStarted();
+
+                    timer = $timeout(function() {
+                        self.onAnyDrop(evt, null);
+                    }, 200);
+
+                });
+
+                /**
+                 * takes an event (usually the drop event) and returns the type of the dropped item.
+                 *
+                 * @param evt
+                 * @returns string
+                 */
+                self.getNodeType = function(evt) {
+
+
+                    if (evt.element.context.className.indexOf('tree-item') > -1) {
+                        return 'item';
+                    } else if (evt.element.context.className.indexOf('tree-folder') > -1) {
+                        return 'folder';
+                    } else {
+                        return 'unknown';
+                    }
+                };
             }]
         };
     }]);
@@ -147,12 +287,22 @@
                     idProperty = options.idProperty,
                     collapsible = options.collapsible;
 
+                /**
+                 * returns the icon class of folders
+                 *
+                 * @type {Function}
+                 */
                 scope.getFolderIconClass = typeof options.folderIcon === 'function'
                     ? options.folderIcon
                     : function (node) {
                     return 'fa fa-folder' + (node.expanded ? '-open' : '');
                 };
 
+                /**
+                 * returns the edit icon class of folders
+                 *
+                 * @type {Function}
+                 */
                 scope.getFolderEditIconClass = typeof options.folderEditIcon === 'function'
                     ? options.folderEditIcon
                     : function (node) {
@@ -160,6 +310,10 @@
                     return 'fa fa-cogs';
                 };
 
+                /**
+                 * returns the icon class of items
+                 *
+                 */
                 scope.getItemIconClass = typeof options.itemIcon === 'function'
                     ? options.itemIcon
                     : function (item) {
@@ -345,7 +499,6 @@
                  */
                 scope.selectItem = function (item, event) {
                     event.preventDefault();
-
                     controller.selectItem(item, getPropertyPath(displayProperty, item));
                 };
 
@@ -372,6 +525,61 @@
                 };
 
                 /**
+                 * executed once a drag completes before the drop
+                 *
+                 * @param data
+                 * @param evt
+                 * @param type
+                 */
+                scope.onDragComplete = function(data, evt, type) {
+                    controller.incCounter();
+
+                    if (data === null) {
+                        return;
+                    }
+
+                    var idPath = [];
+                    if (type === 'item') {
+                        idPath = getPropertyPath(idProperty, data);
+                    } else {
+                        idPath = getPropertyPath(idProperty);
+                    }
+
+                    controller.setLastDraggedItem(data, idPath, null);
+
+                };
+
+                scope.onDragStart = function(data, evt, type) {
+
+                    if (controller.isDragStarted()) {
+                        // Already started, fires a couple of time and only the first one has true data
+                        return;
+                    }
+                    controller.setDragStarted();
+
+                    var idPath = [];
+                    if (type === 'item') {
+                        idPath = getPropertyPath(idProperty, data);
+                    } else {
+                        idPath = getPropertyPath(idProperty);
+                    }
+
+                    controller.setLastDraggedItem(data, idPath, type);
+                };
+
+                /**
+                 * executed once a drop completes after the drag
+                 *
+                 * @param data
+                 * @param evt
+                 */
+                scope.onDropComplete = function(data, evt) {
+                    var target_path = getPropertyPath(idProperty);
+                    controller.onDropComplete(data, evt, target_path);
+                };
+
+
+                /**
                  * expends or collapses the node
                  *
                  * @param node
@@ -382,7 +590,12 @@
 
                 function render() {
                     var template =
-                        '<div class="tree-folder" ng-repeat="node in ' + attrs.treeViewNode + '.' + foldersProperty + ' track by $index">' +
+                        // Handle folders
+                        '<div ng-drag="true" ng-drag-data="node" ng-drag-success="onDragComplete($data, $event, \'folder\')" ' +
+                        'ng-drag-start="onDragStart($data, $event, \'folder\')"' +
+                        'ng-drop="true" ng-drop-success="onDropComplete(node,$event)" ' +
+                        'ng-mousedown="$event.stopPropagation()" ' +
+                        'class="tree-folder" ng-repeat="node in ' + attrs.treeViewNode + '.' + foldersProperty + ' track by $index">' +
 
                         '<div class="tree-folder-title" data-target="menu-{{ node.id }}" context-menu="">' +
                         '<div href="#" class="tree-folder-header" ng-click="selectNode($event)" ng-class="{ selected: isSelected(node) }">' +
@@ -419,7 +632,11 @@
 
                         '</div>' + // end ng-repeat node
 
-                        '<div class="tree-item" ng-repeat="item in ' + attrs.treeViewNode + '.' + itemsProperty + ' track by $index">' +
+                        // Handle items
+                        '<div ng-drag="true" ng-drag-data="item" ng-drag-success="onDragComplete($data, $event, \'item\')" ' +
+                        'ng-drag-start="onDragStart($data, $event, \'item\')"' +
+                        'ng-mousedown="$event.stopPropagation()" ' +
+                        ' class="tree-item" ng-repeat="item in ' + attrs.treeViewNode + '.' + itemsProperty + ' track by $index">' +
 
                         '<div class="tree-item-object" ng-click="selectItem(item, $event)" ng-class="{ selected: isSelected(item) }" data-target="menu-{{ item.id }}" context-menu="">' +
                         '<i ng-class="getItemIconClass(item)"></i><span class="tree-item-name"><a href="#" ng-click="clickItem(item, $event)">{{ item.' + displayProperty + ' }}</a></span>' +

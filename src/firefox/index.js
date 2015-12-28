@@ -262,6 +262,7 @@ mod.PageMod({
         "./js/lib/angular-local-storage.min.js",
         "./js/lib/angular-snap.min.js",
         "./js/lib/ui-bootstrap-tpls-0.13.4.min.js",
+        "./js/lib/ngdraggable.js",
         "./js/lib/angular-tree-view.js",
         "./js/lib/angular-ui-select.js",
         "./js/lib/ng-context-menu.js",
