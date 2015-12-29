@@ -428,58 +428,132 @@
                     openNewItem(parent, path)
                 },
 
-                /**
-                 * Returns the class of the icon used to display a specific item
-                 *
-                 * @param item
-                 * @returns {*|string}
-                 */
-                itemIcon: function (item) {
-                    var iconClassMap = {
-                            txt: 'fa fa-file-text-o',
-                            log: 'fa fa-file-text-o',
-                            jpg: 'fa fa-file-image-o blue',
-                            jpeg: 'fa fa-file-image-o blue',
-                            png: 'fa fa-file-image-o orange',
-                            gif: 'fa fa-file-image-o',
-                            pdf: 'fa fa-file-pdf-o',
-                            wav: 'fa fa-file-audio-o',
-                            mp3: 'fa fa-file-audio-o',
-                            wma: 'fa fa-file-audio-o',
-                            avi: 'fa fa-file-video-o',
-                            mov: 'fa fa-file-video-o',
-                            mkv: 'fa fa-file-video-o',
-                            flv: 'fa fa-file-video-o',
-                            mp4: 'fa fa-file-video-o',
-                            mpg: 'fa fa-file-video-o',
-                            doc: 'fa fa-file-word-o',
-                            dot: 'fa fa-file-word-o',
-                            docx: 'fa fa-file-word-o',
-                            docm: 'fa fa-file-word-o',
-                            dotx: 'fa fa-file-word-o',
-                            dotm: 'fa fa-file-word-o',
-                            docb: 'fa fa-file-word-o',
-                            xls: 'fa fa-file-excel-o',
-                            xlt: 'fa fa-file-excel-o',
-                            xlm: 'fa fa-file-excel-o',
-                            xla: 'fa fa-file-excel-o',
-                            xll: 'fa fa-file-excel-o',
-                            xlw: 'fa fa-file-excel-o',
-                            xlsx: 'fa fa-file-excel-o',
-                            xlsm: 'fa fa-file-excel-o',
-                            xlsb: 'fa fa-file-excel-o',
-                            xltx: 'fa fa-file-excel-o',
-                            xltm: 'fa fa-file-excel-o',
-                            xlam: 'fa fa-file-excel-o',
-                            csv: 'fa fa-file-excel-o',
-                            ppt: 'fa fa-file-powerpoint-o',
-                            pptx: 'fa fa-file-powerpoint-o',
-                            zip: 'fa fa-file-archive-o',
-                            tar: 'fa fa-file-archive-o',
-                            gz: 'fa fa-file-archive-o',
-                            '7zip': 'fa fa-file-archive-o'
-                        },
-                        defaultIconClass = 'fa fa-file-o';
+            /**
+             * triggered once someone wants to move an item
+             *
+             * @param item_path
+             * @param target_path
+             */
+            onItemDropComplete: function (item_path, target_path) {
+
+                var target = $scope.structure.data;
+                if (target_path !== null) {
+                    // find drop zone
+                    var val1 = findInStructure(target_path, $scope.structure.data);
+                    target = val1[0][val1[1]];
+                }
+                // find element
+                var val2 = findInStructure(item_path, $scope.structure.data);
+
+                if (val2 === false) {
+                    return;
+                }
+                var element = val2[0][val2[1]];
+
+                // check if we have folders, otherwise create the array
+                if (!target.hasOwnProperty('items')) {
+                    target.items = [];
+                }
+
+                // add the element to the other folders
+                target.items.push(element);
+
+                // delete the array at hte current position
+                val2[0].splice(val2[1], 1);
+
+                managerDatastore.save_user_datastore($scope.structure.data);
+            },
+
+            /**
+             * triggered once someone wants to move a folder
+             *
+             * @param item_path
+             * @param target_path
+             */
+            onFolderDropComplete: function (item_path, target_path) {
+
+
+                var target = $scope.structure.data;
+                if (target_path !== null) {
+                    // find drop zone
+                    var val1 = findInStructure(target_path, $scope.structure.data);
+                    target = val1[0][val1[1]];
+                }
+
+                // find element
+                var val2 = findInStructure(item_path, $scope.structure.data);
+
+                if (val2 === false) {
+                    return;
+                }
+                var element = val2[0][val2[1]];
+
+                // check if we have folders, otherwise create the array
+                if (!target.hasOwnProperty('folders')) {
+                    target.folders = [];
+                }
+
+                // add the element to the other folders
+                target.folders.push(element);
+
+                // delete the array at hte current position
+                val2[0].splice(val2[1], 1);
+
+                managerDatastore.save_user_datastore($scope.structure.data);
+            },
+
+            /**
+             * Returns the class of the icon used to display a specific item
+             *
+             * @param item
+             * @returns {*|string}
+             */
+            itemIcon: function (item) {
+                var iconClassMap = {
+                        txt: 'fa fa-file-text-o',
+                        log: 'fa fa-file-text-o',
+                        jpg: 'fa fa-file-image-o blue',
+                        jpeg: 'fa fa-file-image-o blue',
+                        png: 'fa fa-file-image-o orange',
+                        gif: 'fa fa-file-image-o',
+                        pdf: 'fa fa-file-pdf-o',
+                        wav: 'fa fa-file-audio-o',
+                        mp3: 'fa fa-file-audio-o',
+                        wma: 'fa fa-file-audio-o',
+                        avi: 'fa fa-file-video-o',
+                        mov: 'fa fa-file-video-o',
+                        mkv: 'fa fa-file-video-o',
+                        flv: 'fa fa-file-video-o',
+                        mp4: 'fa fa-file-video-o',
+                        mpg: 'fa fa-file-video-o',
+                        doc: 'fa fa-file-word-o',
+                        dot: 'fa fa-file-word-o',
+                        docx: 'fa fa-file-word-o',
+                        docm: 'fa fa-file-word-o',
+                        dotx: 'fa fa-file-word-o',
+                        dotm: 'fa fa-file-word-o',
+                        docb: 'fa fa-file-word-o',
+                        xls: 'fa fa-file-excel-o',
+                        xlt: 'fa fa-file-excel-o',
+                        xlm: 'fa fa-file-excel-o',
+                        xla: 'fa fa-file-excel-o',
+                        xll: 'fa fa-file-excel-o',
+                        xlw: 'fa fa-file-excel-o',
+                        xlsx: 'fa fa-file-excel-o',
+                        xlsm: 'fa fa-file-excel-o',
+                        xlsb: 'fa fa-file-excel-o',
+                        xltx: 'fa fa-file-excel-o',
+                        xltm: 'fa fa-file-excel-o',
+                        xlam: 'fa fa-file-excel-o',
+                        csv: 'fa fa-file-excel-o',
+                        ppt: 'fa fa-file-powerpoint-o',
+                        pptx: 'fa fa-file-powerpoint-o',
+                        zip: 'fa fa-file-archive-o',
+                        tar: 'fa fa-file-archive-o',
+                        gz: 'fa fa-file-archive-o',
+                        '7zip': 'fa fa-file-archive-o'
+                    },
+                    defaultIconClass = 'fa fa-file-o';
 
                     var pattern = /\.(\w+)$/,
                         match = pattern.exec(item.name),

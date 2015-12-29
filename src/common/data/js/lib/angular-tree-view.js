@@ -188,9 +188,12 @@
                     return {data: lastDraggedItem, path: lastDraggedItemPath, type: lastDraggedItemType};
                 };
 
-                var timer = null;
-
-
+                /**
+                 * the core function to actually do some of the drag and drop handling logic
+                 *
+                 * @param evt
+                 * @param target_path
+                 */
                 self.onAnyDrop = function (evt, target_path) {
 
                     var dragged_item = self.getLastDraggedItem();
@@ -204,6 +207,18 @@
                         return;
                     }
 
+                    // lets avoid some unnecessary logic whenever the dragged item is already at the target position
+
+                    if (dragged_item.path.length === 1 && target_path === null) {
+                        // target is already at the top
+                        return;
+                    }
+
+                    if (target_path !== null && dragged_item.path[dragged_item.path.length - 2] === target_path[target_path.length - 1]) {
+                        // target folder location did not change
+                        return;
+                    }
+
                     if (node_type == 'item' && typeof options.onItemDropComplete === "function") {
                         options.onItemDropComplete(dragged_item.path, target_path);
                     }
@@ -213,32 +228,40 @@
                     }
                 };
 
-                self.onDropComplete = function(data, evt, target_path) {
+                // some helpers for the timer
 
+                var timer = null;
+
+                /**
+                 * cancels the timer
+                 */
+                self.cancelTimer = function() {
                     $timeout.cancel(timer);
-
-                    var counter = self.decCounter();
-                    if (counter !== 0 || evt.data === null) {
-                        return;
-                    }
-
-                    if (evt.data.id == target_path[target_path.length - 1]) {
-                        return;
-                    }
-
-                    self.onAnyDrop(evt, target_path);
                 };
+
+                // some helpers to remember the drag state
 
                 var dragstarted = false;
 
+                /**
+                 * retuns weather the the drag already started or not
+                 *
+                 * @returns {boolean}
+                 */
                 self.isDragStarted = function () {
                     return dragstarted;
                 };
 
+                /**
+                 * sets the drag state to started
+                 */
                 self.setDragStarted = function (){
                     dragstarted = true;
                 };
 
+                /**
+                 * resets the drag state
+                 */
                 self.resetDragStarted = function () {
                     dragstarted = false;
                 };
@@ -248,6 +271,8 @@
                     self.resetDragStarted();
 
                     timer = $timeout(function() {
+                        // maybe someone wanted to drag an element to the top of the tree?
+                        // noone yet executed a onAnyDrop, so lets do it
                         self.onAnyDrop(evt, null);
                     }, 200);
 
@@ -549,6 +574,15 @@
 
                 };
 
+                /**
+                 * executed multiple times when a drag starts and only the first execute holds the true data,
+                 * therefore it remembers the data together with a 'I-already-run'-flag. This flag gets reset
+                 * by the draggable:end event
+                 *
+                 * @param data
+                 * @param evt
+                 * @param type
+                 */
                 scope.onDragStart = function(data, evt, type) {
 
                     if (controller.isDragStarted()) {
@@ -574,8 +608,20 @@
                  * @param evt
                  */
                 scope.onDropComplete = function(data, evt) {
+
+                    controller.cancelTimer();
+
+                    var counter = controller.decCounter();
+                    if (counter !== 0 || evt.data === null) {
+                        return;
+                    }
+
                     var target_path = getPropertyPath(idProperty);
-                    controller.onDropComplete(data, evt, target_path);
+                    if (evt.data.id == target_path[target_path.length - 1]) {
+                        return;
+                    }
+
+                    controller.onAnyDrop(evt, target_path);
                 };
 
 
