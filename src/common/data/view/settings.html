@@ -30,6 +30,11 @@
                                        ng-required="{{setting.required}}" placeholder="{{setting.placeholder}}" id="settingsForm-{{setting.key}}"
                                        name="{{setting.key}}"
                                        class="form-control">
+
+                                <progressbar value="setting.value | complexify" ng-if="setting.complexify">
+                                    <span complexify="setting.value"></span>%
+                                    <span complexify="setting.value" type="verbal"></span>
+                                </progressbar>
                             </div>
                         </div>
                     </tab>

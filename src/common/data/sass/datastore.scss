@@ -19,14 +19,12 @@ body {
   margin: -130px 0 0 -170px;
   border-radius: 4px;
 
-  .progress {
-    margin-top: -5px;
-    margin-bottom: 15px;
-  }
-
   .progress-bar {
     background-color: $dark-hightlight-color;
   }
+}
+.progress {
+  margin-bottom: 0;
 }
 
 .big-font-icon-and-msg {

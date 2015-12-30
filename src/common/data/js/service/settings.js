@@ -14,7 +14,7 @@
             // Profile
             { key: "setting_email", field: "input", type: "email", title: "E-Mail", placeholder: "E-Mail", required: true, tab: 'profile'},
             { key: "setting_password_old", field: "input", type: "password", title: "Old Password", placeholder: "Old Password", tab: 'profile'},
-            { key: "setting_password", field: "input", type: "password", title: "New Password", placeholder: "New Password", tab: 'profile'},
+            { key: "setting_password", field: "input", type: "password", title: "New Password", placeholder: "New Password", tab: 'profile', complexify: true},
             { key: "setting_password_repeat", field: "input", type: "password", title: "New Password (repeat)", placeholder: "New Password (repeat)", tab: 'profile'},
             // Password
             { key: "setting_password_length", field: "input", type: "text", title: "Password length", placeholder: "Password length", required: true, default: 16, tab: 'password'},
