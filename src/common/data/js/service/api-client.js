@@ -128,6 +128,7 @@
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
          * @param email
          * @param authkey
+         * @param authkey_old
          * @param private_key
          * @param private_key_nonce
          * @param secret_key
@@ -135,12 +136,13 @@
          *
          * @returns {promise}
          */
-        var update_user = function(token, email, authkey, private_key, private_key_nonce, secret_key, secret_key_nonce) {
+        var update_user = function(token, email, authkey, authkey_old, private_key, private_key_nonce, secret_key, secret_key_nonce) {
             var endpoint = '/user/update/';
             var connection_type = "POST";
             var data = {
                 email: email,
                 authkey: authkey,
+                authkey_old: authkey_old,
                 private_key: private_key,
                 private_key_nonce: private_key_nonce,
                 secret_key: secret_key,

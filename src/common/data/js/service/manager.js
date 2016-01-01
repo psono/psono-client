@@ -214,6 +214,7 @@
          *
          * @param email
          * @param authkey
+         * @param authkey_old
          * @param public_key
          * @param private_key
          * @param private_key_nonce
@@ -222,9 +223,9 @@
          *
          * @returns {promise}
          */
-        var updateUser = function(email, authkey, private_key, private_key_nonce, secret_key,
+        var updateUser = function(email, authkey, authkey_old, private_key, private_key_nonce, secret_key,
                                   secret_key_nonce) {
-            return apiClient.update_user(storage.find_one('config', {'key': 'user_token'}).value, email, authkey,
+            return apiClient.update_user(storage.find_one('config', {'key': 'user_token'}).value, email, authkey, authkey_old,
                 private_key, private_key_nonce, secret_key, secret_key_nonce);
         };
 
