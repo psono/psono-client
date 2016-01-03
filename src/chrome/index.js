@@ -113,6 +113,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             }
         }
     };
+
     if (sender.tab && request.event == "ready") {
         console.log("background script received    'ready'");
         return on_ready();
@@ -122,11 +123,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
      * lets remember it
      */
     var on_fillpassword = function () {
-        fillpassword.push(data);
+        fillpassword.push(request.data);
     };
     if (request.event == "fillpassword") {
         console.log("background script received    'fillpassword'");
-        return on_fillpassword;
+        return on_fillpassword();
     }
 
     /**
