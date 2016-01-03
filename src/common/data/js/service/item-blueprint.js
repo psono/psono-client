@@ -114,7 +114,7 @@
                     { name: "note_title", field: "input", type: "text", title: "Title", placeholder: "Name", required: true},
                     { name: "note_notes", field: "textarea", title: "Notes", placeholder: "Notes", required: false}
                 ]
-            },
+            }/*,
             dummy: {
                 id: "dummy",
                 name: "Dummy",
@@ -156,7 +156,7 @@
                         ]
                     }
                 ]
-            }
+            }*/
         };
 
         /**

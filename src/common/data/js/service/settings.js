@@ -5,7 +5,7 @@
     var settings = function($q, storage, manager, managerDatastore, cryptoLibrary, apiClient) {
 
         var _tabs = [
-            { key: 'general', title: 'General' },
+            //{ key: 'general', title: 'General' },
             { key: 'profile', title: 'Profile' },
             { key: 'password', title: 'Password Generator' }
         ];

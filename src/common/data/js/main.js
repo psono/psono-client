@@ -10,7 +10,10 @@
                 title: 'Sanso.pw', url: 'https://www.sanso.pw'
             },
             {
-                title: 'Dev Sanso.pw', url: 'http://dev.sanso.pw:8001'
+                title: 'Dev Sanso.pw', url: 'https://dev.sanso.pw'
+            },
+            {
+                title: 'Dev2 Sanso.pw', url: 'http://dev.sanso.pw:8001'
             }
         ]);
 
