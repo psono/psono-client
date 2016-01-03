@@ -1,7 +1,7 @@
 (function(angular, uuid) {
     'use strict';
 
-    var manager = function($q, $timeout, apiClient, cryptoLibrary, storage, itemBlueprint, browserClient,
+    var manager = function($q, $timeout, $rootScope, apiClient, cryptoLibrary, storage, itemBlueprint, browserClient,
                            $injector, helper) {
 
         var forbidden_keys = {
@@ -136,7 +136,6 @@
              * @param response.data.user The datastore owner object in response.
              */
             var onSuccess = function (response) {
-                console.log(response);
 
                 storage.insert('config', {key: 'user_id', value: response.data.user.id});
                 storage.insert('config', {key: 'user_token', value: response.data.token});
@@ -205,9 +204,19 @@
                 };
             };
 
+            if (storage.find_one('config', {'key': 'user_token'}) === null) {
+                return $q(function(resolve) {
+                    return resolve(onSuccess());
+                });
+            }
+
             return apiClient.logout(storage.find_one('config', {'key': 'user_token'}).value)
                 .then(onSuccess, onError);
         };
+
+        $rootScope.$on('force_logout', function() {
+            logout();
+        });
 
         /**
          * Update user base settings
@@ -215,7 +224,6 @@
          * @param email
          * @param authkey
          * @param authkey_old
-         * @param public_key
          * @param private_key
          * @param private_key_nonce
          * @param secret_key
@@ -479,7 +487,6 @@
         var generatePasswordActiveTab = function() {
 
             var onError = function(result) {
-                console.log(result);
                 alert("could not find out the url of the active tab");
             };
 
@@ -529,7 +536,7 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("manager", ['$q', '$timeout', 'apiClient', 'cryptoLibrary', 'storage', 'itemBlueprint', 'browserClient',
-        '$injector', 'helper', manager]);
+    app.factory("manager", ['$q', '$timeout', '$rootScope', 'apiClient', 'cryptoLibrary', 'storage', 'itemBlueprint',
+        'browserClient', '$injector', 'helper', manager]);
 
 }(angular, uuid));

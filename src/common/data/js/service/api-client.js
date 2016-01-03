@@ -2,7 +2,7 @@
     'use strict';
 
 
-    var apiClient = function($http, storage) {
+    var apiClient = function($http, $q, $rootScope, storage) {
 
         /**
          * wrapper function for the actual $http request
@@ -11,14 +11,18 @@
          * @param endpoint
          * @param data
          * @param headers
-         * @returns {*}
+         * @returns *
          */
         var call = function(type, endpoint, data, headers) {
 
             var server = storage.find_one('config', {'key': 'server'});
 
             if (server === null) {
-                return;
+                return $q(function(resolve, reject) {
+                    return reject({
+                        status: -1
+                    })
+                });
             }
 
             var backend = server['value']['url'];
@@ -28,9 +32,27 @@
                 url: backend + endpoint,
                 data: data
             };
+
             req.headers = headers;
 
-            return $http(req);
+
+            return $q(function(resolve, reject) {
+
+                var onSuccess = function(data) {
+                    return resolve(data);
+                };
+
+                var onError = function(data) {
+                    if (data.status === 401) {
+                        $rootScope.$broadcast('force_logout', '');
+                    }
+                    return reject(data);
+                };
+
+                $http(req)
+                    .then(onSuccess, onError);
+
+            });
         };
 
         /**
@@ -523,6 +545,6 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("apiClient", ['$http', 'storage', apiClient]);
+    app.factory("apiClient", ['$http', '$q', '$rootScope', 'storage', apiClient]);
 
 }(angular, scrypt_module_factory));
