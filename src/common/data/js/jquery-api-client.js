@@ -10,7 +10,7 @@
  "hardening" of our implementation.
  */
 
-var ClassClient = function (backend, require, jQuery, scrypt_module_factory) {
+var ClassClient = function (backend, require, jQuery, scrypt_module_factory, sha512) {
     "use strict";
 
     //var nacl = nacl_factory.instantiate();
@@ -346,7 +346,7 @@ var ClassClient = function (backend, require, jQuery, scrypt_module_factory) {
         };
 
         return jQuery.ajax({
-            type: type,
+            type: connection_type,
             url: backend + endpoint,
             data: data,
             dataType: 'text' // will be json but for the demo purposes we insist on text
