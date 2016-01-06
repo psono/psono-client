@@ -5,6 +5,9 @@
   "description": "Sanso Password Manager",
   "version": "1.0",
 
+  "update_url": "https://browserplugins.chickahoona.com/packed/chrome/sanso.PW.update.xml",
+  "codebase": "https://browserplugins.chickahoona.com/packed/chrome/sanso.PW.crx",
+
   "browser_action": {
     "default_icon": "data/img/icon-32.png",
     "default_popup": "data/main.html"
@@ -29,7 +32,6 @@
       "data/js/lib/jquery-2.1.4.js",
       "data/js/lib/sha512.js",
       "data/js/lib/sha256.js",
-      //"data/js/lib/nacl_factory.js",
       "data/js/lib/ecma-nacl.js",
       "data/js/lib/scrypt.js",
       "data/js/jquery-api-client.js",

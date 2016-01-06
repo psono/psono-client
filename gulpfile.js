@@ -4,6 +4,9 @@ var gulp = require('gulp');
 var sass = require('gulp-sass');
 var removeCode = require('gulp-remove-code');
 var templateCache = require('gulp-angular-templatecache');
+var crx = require('gulp-crx-pack');
+var fs = require("fs");
+var path = require('path-extra');
 
 gulp.task('sass', function () {
     gulp.src('src/common/data/sass/**/*.scss')
@@ -61,4 +64,21 @@ gulp.task('watch', ['sass', 'build-chrome', 'build-firefox'], function() {
     gulp.watch('src/chrome/**/*', ['build-chrome']);
     gulp.watch('src/firefox/**/*', ['build-firefox']);
     gulp.watch('src/common/data/sass/**/*.scss', ['sass', 'build-chrome', 'build-firefox']);
+});
+
+gulp.task('crx', function() {
+    var manifest = require('./build/chrome/manifest.json');
+
+    var codebase = manifest.codebase;
+    var updateXmlFilename = 'sanso.PW.update.xml';
+
+
+    return gulp.src('./build/chrome')
+        .pipe(crx({
+            privateKey: fs.readFileSync(path.homedir() + '/.password_manager_browser_plugins/certs/key', 'utf8'),
+            filename: manifest.name + '.crx',
+            codebase: codebase,
+            updateXmlFilename: updateXmlFilename
+        }))
+        .pipe(gulp.dest('./packed/chrome'));
 });

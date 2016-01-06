@@ -1,6 +1,28 @@
 https://developer.mozilla.org/en-US/Add-ons/SDK/Tutorials
 
-# Install
+# Install for "normal" people :D
+
+## Chrome
+
+1. Donwnload the crx file here:
+
+    https://browserplugins.chickahoona.com/packed/chrome/sanso.PW.crx
+    
+    
+2. Open following url in your browser:
+
+    chrome://chrome/extensions/
+    
+3. Drag and drop the downloaded crx file onto this page
+
+
+
+
+## Firefox
+
+TODO
+
+# Install for developers
 
 1. Install dependencies
 
@@ -18,8 +40,11 @@ https://developer.mozilla.org/en-US/Add-ons/SDK/Tutorials
         
         gulp watch
 
-3. Pack Chrome and Firefox extensions
+3. Pack Chrome extension for release
+
+        gulp crx
         
+4. Pack Firefox extension for release
+
         TODO
-        
         
