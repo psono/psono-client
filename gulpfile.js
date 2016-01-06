@@ -8,6 +8,8 @@ var crx = require('gulp-crx-pack');
 var fs = require("fs");
 var path = require('path-extra');
 
+var child_process = require('child_process');
+
 gulp.task('sass', function () {
     gulp.src('src/common/data/sass/**/*.scss')
         .pipe(sass().on('error', sass.logError))
@@ -82,3 +84,14 @@ gulp.task('crx', function() {
         }))
         .pipe(gulp.dest('./dist/chrome'));
 });
+
+gulp.task('xpi', function (cb) {
+    //child_process.exec('cd build/firefox/ && jpm xpi && cd ../../ && mv build/firefox/@sansopw-*.xpi dist/firefox/ && cd dist/firefox/ && for file in @*; do mv $file `echo $file | cut -c2-`; done && cd ../../', function (err, stdout, stderr) {
+    child_process.exec('cd build/firefox/ && jpm xpi && cd ../../ && mv build/firefox/@sansopw-*.xpi dist/firefox/sanso.PW.xpi', function (err, stdout, stderr) {
+            console.log(stdout);
+        console.log(stderr);
+        cb(err);
+    });
+});
+
+gulp.task('dist', ['default', 'crx', 'xpi']);

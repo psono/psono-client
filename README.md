@@ -23,7 +23,11 @@ The extension should now be loaded
 
 ## Firefox
 
-TODO
+1. Right click on the following link, and click "Save link as...":
+
+    https://browserplugins.chickahoona.com/dist/firefox/sanso.PW.xpi
+    
+    
 
 # Install for developers
 
@@ -46,8 +50,20 @@ TODO
 3. Pack Chrome extension for release
 
         gulp crx
+
+    (make sure to run gulp without parameter first)
         
 4. Pack Firefox extension for release
 
-        TODO
+        gulp xpi
+
+    (make sure to run gulp without parameter first)
         
+5. (optional) To pack chrome and firefox you can 
+        
+    The "All In One" command is
+    
+        gulp dist
+        
+    This command will execute gulp, gulp crx and gulp xpi
+

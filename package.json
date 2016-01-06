@@ -11,6 +11,7 @@
     "gulp-angular-templatecache": "^1.8.0",
     "gulp-remove-code": "^1.0.2",
     "gulp-crx-pack": "^1.0.1",
-    "path-extra": "^3.0.0"
+    "path-extra": "^3.0.0",
+    "gulp-cfx-xpi": "0.0.4"
   }
 }
