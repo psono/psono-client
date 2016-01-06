@@ -4,10 +4,10 @@
   "private": true,
   "dependencies": {
     "gulp": "*",
-    "gulp-sass": "*",
-    "jpm": "*"
+    "gulp-sass": "*"
   },
   "devDependencies": {
+    "jpm": "^1.0.4",
     "gulp-angular-templatecache": "^1.8.0",
     "gulp-remove-code": "^1.0.2",
     "gulp-crx-pack": "^1.0.1",

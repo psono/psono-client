@@ -23,10 +23,11 @@ The extension should now be loaded
 
 ## Firefox
 
-1. Right click on the following link, and click "Save link as...":
+1. Click on the following link:
 
     https://browserplugins.chickahoona.com/dist/firefox/sanso.PW.xpi
     
+    (You will be asked (at the top left) if you want to allow this extension to be installed which you have to permit)
     
 
 # Install for developers
