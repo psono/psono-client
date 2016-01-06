@@ -80,5 +80,5 @@ gulp.task('crx', function() {
             codebase: codebase,
             updateXmlFilename: updateXmlFilename
         }))
-        .pipe(gulp.dest('./packed/chrome'));
+        .pipe(gulp.dest('./dist/chrome'));
 });

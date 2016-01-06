@@ -5,8 +5,8 @@
   "description": "Sanso Password Manager",
   "version": "1.0",
 
-  "update_url": "https://browserplugins.chickahoona.com/packed/chrome/sanso.PW.update.xml",
-  "codebase": "https://browserplugins.chickahoona.com/packed/chrome/sanso.PW.crx",
+  "update_url": "https://browserplugins.chickahoona.com/dist/chrome/sanso.PW.update.xml",
+  "codebase": "https://browserplugins.chickahoona.com/dist/chrome/sanso.PW.crx",
 
   "browser_action": {
     "default_icon": "data/img/icon-32.png",

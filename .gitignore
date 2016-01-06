@@ -1,7 +1,7 @@
 .idea
 node_modules
 build/
-packed/
+dist/
 test
 *~
 *.py[cod]

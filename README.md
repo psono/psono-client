@@ -6,7 +6,7 @@ https://developer.mozilla.org/en-US/Add-ons/SDK/Tutorials
 
 1. Download the crx file here:
 
-    https://browserplugins.chickahoona.com/packed/chrome/sanso.PW.crx
+    https://browserplugins.chickahoona.com/dist/chrome/sanso.PW.crx
     
 2. Rename ***sanso.PW.crx*** to ***something.zip***
 
