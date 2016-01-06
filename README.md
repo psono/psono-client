@@ -4,18 +4,21 @@ https://developer.mozilla.org/en-US/Add-ons/SDK/Tutorials
 
 ## Chrome
 
-1. Donwnload the crx file here:
+1. Download the crx file here:
 
     https://browserplugins.chickahoona.com/packed/chrome/sanso.PW.crx
     
+2. Rename ***sanso.PW.crx*** to ***something.zip***
+
+3. Unpack ***something.zip*** into a folder of your choice ***"folder/of/your/choice"***
     
-2. Open following url in your browser:
+4. Open following url in your browser:
 
     chrome://chrome/extensions/
     
-3. Drag and drop the downloaded crx file onto this page
+5. Click "Open unpacked extension" at the top left and choose ***"folder/of/your/choice"***
 
-
+The extension should now be loaded
 
 
 ## Firefox
