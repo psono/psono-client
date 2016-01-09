@@ -12,6 +12,12 @@
     "gulp-remove-code": "^1.0.2",
     "gulp-crx-pack": "^1.0.1",
     "path-extra": "^3.0.0",
-    "gulp-cfx-xpi": "0.0.4"
+    "gulp-cfx-xpi": "0.0.4",
+    "karma": "~0.13.19",
+    "karma-chrome-launcher": "~0.2.2",
+    "karma-firefox-launcher": "~0.1.7",
+    "jasmine-core": "~2.4.1",
+    "karma-jasmine": "~0.3.6",
+    "karma-coffee-preprocessor": "~0.3.0"
   }
 }

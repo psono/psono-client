@@ -68,3 +68,28 @@ The extension should now be loaded
         
     This command will execute gulp, gulp crx and gulp xpi
 
+
+# Install for unit tests
+
+1. Install dependencies
+
+        sudo npm install -g karma-cli
+        sudo npm install -g coffee-script
+        
+    If you want unit tests, that run in Chrome / Firefox, you also have to install both browsers
+    
+2. Run the tests
+
+    directly from command line:
+
+        karma start ./unittests/karma.conf.coffee
+        
+    or more sexy with gulp:
+    
+        gulp unittest
+        
+    or if you want to watch for changes and run it automatically:
+    
+        gulp unittestwatch
+    
+    

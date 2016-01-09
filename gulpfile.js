@@ -2,12 +2,13 @@
 
 var gulp = require('gulp');
 var sass = require('gulp-sass');
-var removeCode = require('gulp-remove-code');
-var templateCache = require('gulp-angular-templatecache');
+var remove_code = require('gulp-remove-code');
+var template_cache = require('gulp-angular-templatecache');
 var crx = require('gulp-crx-pack');
 var fs = require("fs");
 var path = require('path-extra');
 var child_process = require('child_process');
+var karma_server = require('karma').Server;
 
 
 /**
@@ -31,11 +32,11 @@ gulp.task('build-firefox', function() {
         '!src/common/data/img/**/*',
         '!src/common/data/fonts/**/*'
     ])
-        .pipe(removeCode({ firefox: true }))
+        .pipe(remove_code({ firefox: true }))
         .pipe(gulp.dest('build/firefox/data'));
 
     gulp.src('src/common/data/view/**/*.html')
-        .pipe(templateCache('templates.js', { module:'passwordManagerApp', root: 'view/' }))
+        .pipe(template_cache('templates.js', { module:'passwordManagerApp', root: 'view/' }))
         .pipe(gulp.dest('build/firefox/data/view'));
 
     gulp.src(['src/common/data/img/**/*'])
@@ -61,7 +62,7 @@ gulp.task('build-chrome', function() {
         .pipe(gulp.dest('build/chrome/data'));
 
     gulp.src('src/common/data/view/**/*.html')
-        .pipe(templateCache('templates.js', { module:'passwordManagerApp', root: 'view/' }))
+        .pipe(template_cache('templates.js', { module:'passwordManagerApp', root: 'view/' }))
         .pipe(gulp.dest('build/chrome/data/view'));
 
     gulp.src(['src/chrome/**/*'])
@@ -151,3 +152,24 @@ gulp.task('xpi', ['xpiunsigned'], function (cb) {
 });
 
 gulp.task('dist', ['default', 'crx', 'xpi']);
+
+
+
+/**
+ * Run test once and exit
+ */
+gulp.task('unittest', function (done) {
+    new karma_server({
+        configFile: __dirname + '/unittests/karma.conf.coffee',
+        singleRun: true
+    }, done).start();
+});
+
+/**
+ * Watch for file changes and re-run tests on each change
+ */
+gulp.task('unittestwatch', function (done) {
+    new karma_server({
+        configFile: __dirname + '/unittests/karma.conf.coffee'
+    }, done).start();
+});
