@@ -70,6 +70,10 @@ describe 'cryptoLibrary suite', ->
     expect(cryptoLibrary.from_hex(encrypted_data.nonce).length).toBe(bytes_nonce)
     expect(cryptoLibrary.decrypt_secret(encrypted_data.text, encrypted_data.nonce, password, user_sauce)).toBe(data)
 
+    # check unique nonce
+    encrypted_data2 = cryptoLibrary.encrypt_secret(data, password, user_sauce)
+    expect(encrypted_data.nonce).not.toBe(encrypted_data2.nonce)
+
   it 'decrypt_data works', inject (cryptoLibrary) ->
     data = "12345"
     secret_key = '9f3edbf7760d8ec1e8fd4a9c623b4fe569f324bf42c78770ef0a40a56495f92d'
@@ -88,6 +92,10 @@ describe 'cryptoLibrary suite', ->
     expect(cryptoLibrary.from_hex(encrypted_data.text).length).toBeGreaterThan(0)
     expect(cryptoLibrary.from_hex(encrypted_data.nonce).length).toBe(bytes_nonce)
     expect(cryptoLibrary.decrypt_data(encrypted_data.text, encrypted_data.nonce, secret_key)).toBe(data)
+
+    # check unique nonce
+    encrypted_data2 = cryptoLibrary.encrypt_data(data, secret_key)
+    expect(encrypted_data.nonce).not.toBe(encrypted_data2.nonce)
 
 
   it 'decrypt_data_public_key works', inject (cryptoLibrary) ->
@@ -123,4 +131,8 @@ describe 'cryptoLibrary suite', ->
     expect(cryptoLibrary.from_hex(encrypted_data.text).length).toBeGreaterThan(0)
     expect(cryptoLibrary.from_hex(encrypted_data.nonce).length).toBe(bytes_nonce)
     expect(cryptoLibrary.decrypt_data_public_key(encrypted_data.text, encrypted_data.nonce, pair2.public_key, pair.private_key)).toBe(data)
+
+    # check unique nonce
+    encrypted_data2 = cryptoLibrary.encrypt_data_public_key(data, pair.public_key, pair2.private_key)
+    expect(encrypted_data.nonce).not.toBe(encrypted_data2.nonce)
 
