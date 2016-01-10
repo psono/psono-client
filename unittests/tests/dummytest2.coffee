@@ -3,9 +3,8 @@ describe 'A suite', ->
     expect(true).toBe true
 
 
-describe 'Fist suite', ->
-
-  beforeEach(module('angularjsDE'))
-
-  it 'angular module should exist', inject (passwordManagerApp) ->
+describe 'cryptoLibrary suite', ->
+  beforeEach(module('passwordManagerApp'))
+  it 'cryptoLibrary should exist', inject (cryptoLibrary) ->
     expect(cryptoLibrary).toBeDefined()
+
