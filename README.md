@@ -53,16 +53,27 @@ The extension should now be loaded
         gulp crx
 
     (make sure to run gulp without parameter first)
+    
+    After this command you will find in ./dist/chrome/sanso.PW.crx (and ./dist/chrome/sanso.PW.update.xml)
         
 4. Pack Firefox extension for release
 
         gulp xpi
 
     (make sure to run gulp without parameter first)
+    
+    After this command you will find ./dist/firefox/sanso.PW.xpi (and the unsigned version
+    ./dist/firefox/sanso.PW.unsigned.xpi)
+    
+    If you do not want to create an official signed version and only want to create the unsigned version you can do:
+    
+        gulp xpiunsigned
         
-5. (optional) To pack chrome and firefox you can 
+    Only ./dist/firefox/sanso.PW.unsigned.xpi will be created.
         
-    The "All In One" command is
+5. (optional) Pack chrome and firefox for release
+        
+    The "All In One" command is:
     
         gulp dist
         
