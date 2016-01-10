@@ -8,7 +8,8 @@
             'config': [
                 'user_token',
                 'user_private_key',
-                'user_secret_key'
+                'user_secret_key',
+                'user_sauce'
             ]
         };
 
@@ -47,9 +48,10 @@
             storage.insert('config', {key: 'server', value: server});
 
             var pair = cryptoLibrary.generate_public_private_keypair();
+            var user_sauce = cryptoLibrary.generate_user_sauce();
 
-            var priv_key_enc = cryptoLibrary.encrypt_secret(pair.private_key, password);
-            var secret_key_enc = cryptoLibrary.encrypt_secret(cryptoLibrary.generate_secret_key(), password);
+            var priv_key_enc = cryptoLibrary.encrypt_secret(pair.private_key, password, user_sauce);
+            var secret_key_enc = cryptoLibrary.encrypt_secret(cryptoLibrary.generate_secret_key(), password, user_sauce);
 
             var onSuccess = function () {
 
@@ -73,7 +75,8 @@
             };
 
             return apiClient.register(email, cryptoLibrary.generate_authkey(email, password), pair.public_key,
-                priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce, browserClient.getBaseUrl())
+                priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce, user_sauce,
+                browserClient.getBaseUrl())
                 .then(onSuccess, onError);
         };
 
@@ -143,13 +146,16 @@
                 storage.insert('config', {key: 'user_private_key', value: cryptoLibrary.decrypt_secret(
                     response.data.user.private_key,
                     response.data.user.private_key_nonce,
-                    password
+                    password,
+                    response.data.user.user_sauce
                 )});
                 storage.insert('config', {key: 'user_secret_key', value: cryptoLibrary.decrypt_secret(
                     response.data.user.secret_key,
                     response.data.user.secret_key_nonce,
-                    password
+                    password,
+                    response.data.user.user_sauce
                 )});
+                storage.insert('config', {key: 'user_sauce', value: response.data.user.user_sauce});
 
                 storage.save();
 
@@ -228,13 +234,14 @@
          * @param private_key_nonce
          * @param secret_key
          * @param secret_key_nonce
+         * @param user_sauce
          *
          * @returns {promise}
          */
         var updateUser = function(email, authkey, authkey_old, private_key, private_key_nonce, secret_key,
-                                  secret_key_nonce) {
+                                  secret_key_nonce, user_sauce) {
             return apiClient.update_user(storage.find_one('config', {'key': 'user_token'}).value, email, authkey, authkey_old,
-                private_key, private_key_nonce, secret_key, secret_key_nonce);
+                private_key, private_key_nonce, secret_key, secret_key_nonce, user_sauce);
         };
 
         /**

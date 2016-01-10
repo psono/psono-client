@@ -73,6 +73,7 @@ The extension should now be loaded
 
 1. Install dependencies
 
+        sudo npm install
         sudo npm install -g karma-cli
         sudo npm install -g coffee-script
         
@@ -82,7 +83,11 @@ The extension should now be loaded
 
     directly from command line:
 
-        karma start ./unittests/karma.conf.coffee
+        karma start ./unittests/karma-chrome.conf.js
+        
+    if you want to use another browser like firefox you can also use ./unittests/karma-firefox.conf.js instead or for
+    something more generic ./unittests/karma-generic.conf.js. If you use "generic" point the browser of your choice
+    to the shown url.
         
     or more sexy with gulp:
     

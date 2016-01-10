@@ -189,20 +189,21 @@
 
     /**
      * Takes the secret and encrypts that with the provided password. The crypto_box takes only 256 bits, therefore we
-     * are using sha256(password+special_sauce) as key for encryption.
+     * are using sha256(password+user_sauce) as key for encryption.
      * Returns the nonce and the cipher text as hex.
      *
      * @param {string} secret
      * @param {string} password
+     * @param {string} user_sauce
      * @returns {{nonce: string, text: string}}
      */
-    var encrypt_secret = function (secret, password) {
+    var encrypt_secret = function (secret, password, user_sauce) {
 
         if( debug ) {
             console.log("encrypt_secret");
         }
 
-        var k = from_hex(sha256(password + special_sauce));
+        var k = from_hex(sha256(password + user_sauce));
         var m = encode_utf8(secret);
         var n = randomBytes(24);
         var c = nacl.secret_box.pack(m, n, k);
@@ -215,22 +216,27 @@
     };
 
     /**
-     * Takes the cipher text and decrypts that with the nonce and the sha256(password+special_sauce).
+     * Takes the cipher text and decrypts that with the nonce and the sha256(password+user_sauce).
      * Returns the initial secret.
      *
      * @param {string} text
      * @param {string} nonce
      * @param {string} password
+     * @param {string} user_sauce
      *
      * @returns {string} secret
      */
-    var decrypt_secret = function (text, nonce, password) {
+    var decrypt_secret = function (text, nonce, password, user_sauce) {
 
         if( debug ) {
             console.log("decrypt_secret");
+            console.log(text);
+            console.log(nonce);
+            console.log(password);
+            console.log(user_sauce);
         }
 
-        var k = from_hex(sha256(password + special_sauce));
+        var k = from_hex(sha256(password + user_sauce));
         var n = from_hex(nonce);
         var c = from_hex(text);
         var m1 = nacl.secret_box.open(c, n, k);
@@ -250,6 +256,8 @@
 
         if( debug ) {
             console.log("encrypt_data");
+            console.log(data);
+            console.log(secret_key);
         }
 
         var k = from_hex(secret_key);
@@ -343,9 +351,27 @@
         return decode_utf8(m1);
     };
 
+    /**
+     * returns a 32 bytes long random hex value to be used as the user special sauce
+     *
+     * @returns {string}
+     */
+    var generate_user_sauce = function() {
+
+        if( debug ) {
+            console.log("generate_user_sauce");
+        }
+
+        return to_hex(randomBytes(32)); // 32 Bytes = 256 Bits
+    };
+
     var cryptoLibrary = function() {
 
         return {
+            to_hex: to_hex,
+            from_hex: from_hex,
+            randomBytes: randomBytes,
+
             generate_authkey: generate_authkey,
             generate_secret_key: generate_secret_key,
             generate_public_private_keypair: generate_public_private_keypair,
@@ -354,7 +380,8 @@
             encrypt_data: encrypt_data,
             decrypt_data: decrypt_data,
             encrypt_data_public_key: encrypt_data_public_key,
-            decrypt_data_public_key: decrypt_data_public_key
+            decrypt_data_public_key: decrypt_data_public_key,
+            generate_user_sauce: generate_user_sauce
         };
     };
 

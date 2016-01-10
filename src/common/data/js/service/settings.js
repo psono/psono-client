@@ -197,9 +197,10 @@
                     var new_authkey = cryptoLibrary.generate_authkey(specials['setting_email'].value, new_password);
                     var user_private_key = storage.find_one('config', {key: 'user_private_key'});
                     var user_secret_key = storage.find_one('config', {key: 'user_secret_key'});
+                    var user_sauce = storage.find_one('config', {key: 'user_sauce'}).value;
 
-                    var priv_key_enc = cryptoLibrary.encrypt_secret(user_private_key.value, new_password);
-                    var secret_key_enc = cryptoLibrary.encrypt_secret(user_secret_key.value, new_password);
+                    var priv_key_enc = cryptoLibrary.encrypt_secret(user_private_key.value, new_password, user_sauce);
+                    var secret_key_enc = cryptoLibrary.encrypt_secret(user_secret_key.value, new_password, user_sauce);
 
                     var onSucces = function(data) {
 
@@ -212,7 +213,7 @@
                     var onError = function() {
                         return reject({errors: ['Old password incorrect']})
                     };
-                    return manager.updateUser(specials['setting_email'].value, new_authkey, authkey_old, priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce)
+                    return manager.updateUser(specials['setting_email'].value, new_authkey, authkey_old, priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce, user_sauce)
                         .then(onSucces, onError);
 
 

@@ -189,16 +189,17 @@ var ClassClient = function (backend, require, jQuery, scrypt_module_factory, sha
 
     /**
      * Takes the secret and encrypts that with the provided password. The crypto_box takes only 256 bits, therefore we
-     * are using sha256(password+special_sauce) as key for encryption.
+     * are using sha256(password+user_sauce) as key for encryption.
      * Returns the nonce and the cipher text as hex.
      *
      * @param {string} secret
      * @param {string} password
+     * @param {string} user_sauce
      * @returns {{nonce: string, ciphertext: string}}
      */
-    this.encrypt_secret = function (secret, password) {
+    this.encrypt_secret = function (secret, password, user_sauce) {
 
-        var k = from_hex(sha256(password + special_sauce));
+        var k = from_hex(sha256(password + user_sauce));
         var m = encode_utf8(secret);
         var n = randomBytes(24);
         var c = nacl.secret_box.pack(m, n, k);
@@ -211,18 +212,19 @@ var ClassClient = function (backend, require, jQuery, scrypt_module_factory, sha
     };
 
     /**
-     * Takes the cipher text and decrypts that with the nonce and the sha256(password+special_sauce).
+     * Takes the cipher text and decrypts that with the nonce and the sha256(password+user_sauce).
      * Returns the initial secret.
      *
      * @param {string} ciphertext
      * @param {string} nonce
      * @param {string} password
+     * @param {string} user_sauce
      *
      * @returns {string} secret
      */
-    this.decrypt_secret = function (ciphertext, nonce, password) {
+    this.decrypt_secret = function (ciphertext, nonce, password, user_sauce) {
 
-        var k = from_hex(sha256(password + special_sauce));
+        var k = from_hex(sha256(password + user_sauce));
         var n = from_hex(nonce);
         var c = from_hex(text);
         var m1 = nacl.secret_box.open(c, n, k);
@@ -328,10 +330,12 @@ var ClassClient = function (backend, require, jQuery, scrypt_module_factory, sha
      * @param {string} private_key_nonce - the nonce for decrypting the encrypted private_key
      * @param {string} secret_key - secret_key for symmetric encryption, encrypted with encrypt_secret
      * @param {string} secret_key_nonce - the nonce for decrypting the encrypted secret_key
+     * @param {string} user_sauce - the random user sauce used
      * @param {string} base_url - the base url for the activation link creation
      * @returns {promise}
      */
-    this.authentication_register = function (email, authkey, public_key, private_key, private_key_nonce, secret_key, secret_key_nonce, base_url) {
+    this.authentication_register = function (email, authkey, public_key, private_key, private_key_nonce, secret_key,
+                                             secret_key_nonce, user_sauce, base_url) {
         var endpoint = '/authentication/register/';
         var connection_type = "POST";
         var data = {
@@ -342,6 +346,7 @@ var ClassClient = function (backend, require, jQuery, scrypt_module_factory, sha
             private_key_nonce: private_key_nonce,
             secret_key: secret_key,
             secret_key_nonce: secret_key_nonce,
+            user_sauce: user_sauce,
             base_url: base_url
         };
 
@@ -830,6 +835,16 @@ var ClassClient = function (backend, require, jQuery, scrypt_module_factory, sha
                 xhr.setRequestHeader("Authorization", "Token " + token);
             }
         });
+    };
+
+    /**
+     * returns a 32 bytes long random hex value to be used as the user special sauce
+     *
+     * @returns {string}
+     */
+    this.generate_user_sauce = function() {
+
+        return to_hex(randomBytes(32)); // 32 Bytes = 256 Bits
     };
 };
 
