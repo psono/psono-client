@@ -6,7 +6,6 @@
   "version": "1.0",
 
   "update_url": "https://browserplugins.chickahoona.com/dist/chrome/sanso.PW.update.xml",
-  "codebase": "https://browserplugins.chickahoona.com/dist/chrome/sanso.PW.crx",
 
   "browser_action": {
     "default_icon": "data/img/icon-32.png",

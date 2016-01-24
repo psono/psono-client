@@ -195,8 +195,8 @@
         });
     }]);
 
-    app.controller('RegisterController', ['$scope', '$route', 'manager', 'BACKEND_SERVERS',
-        function($scope, $route, manager, BACKEND_SERVERS)
+    app.controller('RegisterController', ['$scope', '$route', '$filter', 'manager', 'BACKEND_SERVERS',
+        function($scope, $route, $filter, manager, BACKEND_SERVERS)
         {
             /* Server selection with preselection of dev server */
             $scope.servers = BACKEND_SERVERS;
