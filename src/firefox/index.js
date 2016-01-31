@@ -273,6 +273,7 @@ mod.PageMod({
         "./js/service/api-client.js",
         "./js/service/helper.js",
         "./js/service/item-blueprint.js",
+        "./js/service/share-blueprint.js",
         "./js/service/crypto-library.js",
         "./js/service/storage.js",
         "./js/service/settings.js",

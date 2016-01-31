@@ -27,7 +27,8 @@
      * Main Controller for the shareusers widget
      */
     module.controller('shareusersController', ["$scope", "$interval", "config", "manager", "managerDatastore", "$modal",
-        function($scope, $interval, config, manager, managerDatastore, $modal){
+        "shareBlueprint",
+        function($scope, $interval, config, manager, managerDatastore, $modal, shareBlueprint){
 
             // Modals
 
@@ -112,7 +113,7 @@
             };
 
             /**
-             * Opens the modal for a new entry
+             * Opens the modal for a new user entry
              *
              * @param parent
              * @param path
@@ -122,7 +123,7 @@
 
                 var modalInstance = $modal.open({
                     templateUrl: 'view/modal-new-entry.html',
-                    controller: 'ModalNewEntryCtrl',
+                    controller: 'ModalShareNewEntryCtrl',
                     size: size,
                     resolve: {
                         parent: function () {
@@ -146,40 +147,32 @@
 
                     var shareusers_object = {
                         id: uuid.v4(),
-                        type: content.id
+                        type: content.id,
+                        data: {}
                     };
-                    var secret_object = {};
+
+                    if (shareBlueprint.get_blueprint(content.id).getName) {
+                        shareusers_object.name = shareBlueprint.get_blueprint(content.id).getName(content.columns);
+                    }
 
                     for (var i = 0; i < content.columns.length; i++) {
 
                         if (!content.columns[i].hasOwnProperty("value")) {
                             continue;
                         }
-                        if (content.title_column == content.columns[i].name) {
+                        if (!shareusers_object.name && content.title_column == content.columns[i].name) {
                             shareusers_object.name = content.columns[i].value;
                         }
                         if (content.hasOwnProperty("urlfilter_column")
                             && content.urlfilter_column == content.columns[i].name) {
                             shareusers_object.urlfilter = content.columns[i].value;
                         }
-                        secret_object[content.columns[i].name] = content.columns[i].value;
+                        shareusers_object.data[content.columns[i].name] = content.columns[i].value;
                     }
 
-                    var onError = function(result) {
-                        // pass
-                    };
+                    parent.items.push(shareusers_object);
 
-                    var onSuccess = function(e) {
-                        shareusers_object['secret_id'] = e.secret_id;
-                        shareusers_object['secret_key'] = e.secret_key;
-
-                        parent.items.push(shareusers_object);
-
-                        managerDatastore.save_user_datastore($scope.structure.data);
-                    };
-
-                    manager.create_secret(secret_object)
-                        .then(onSuccess, onError);
+                    managerDatastore.save_user_datastore($scope.structure.data);
 
                 }, function () {
                     // cancel triggered
@@ -199,67 +192,47 @@
              */
             var openEditItem = function (node, path, size) {
 
-
-                var onError = function(result) {
-                    // pass
-                };
-
-                var onSuccess = function(data) {
-
-                    var modalInstance = $modal.open({
-                        templateUrl: 'view/modal-edit-entry.html',
-                        controller: 'ModalEditEntryCtrl',
-                        size: size,
-                        resolve: {
-                            node: function () {
-                                return node;
-                            },
-                            path: function () {
-                                return path;
-                            },
-                            data: function () {
-                                return data;
-                            }
+                var modalInstance = $modal.open({
+                    templateUrl: 'view/modal-edit-entry.html',
+                    controller: 'ModalShareEditEntryCtrl',
+                    size: size,
+                    resolve: {
+                        node: function () {
+                            return node;
+                        },
+                        path: function () {
+                            return path;
+                        },
+                        data: function () {
+                            return node.data;
                         }
-                    });
+                    }
+                });
 
-                    modalInstance.result.then(function (content) {
+                modalInstance.result.then(function (content) {
 
-                        var secret_object = {};
+                    var secret_object = {};
 
-                        for (var i = 0; i < content.columns.length; i++) {
+                    for (var i = 0; i < content.columns.length; i++) {
 
-                            if (!content.columns[i].hasOwnProperty("value")) {
-                                continue;
-                            }
-                            if (content.title_column == content.columns[i].name) {
-                                node.name = content.columns[i].value;
-                            }
-                            if (content.hasOwnProperty("urlfilter_column")
-                                && content.urlfilter_column == content.columns[i].name) {
-                                node.urlfilter = content.columns[i].value;
-                            }
-                            secret_object[content.columns[i].name] = content.columns[i].value;
+                        if (!content.columns[i].hasOwnProperty("value")) {
+                            continue;
                         }
+                        if (content.title_column == content.columns[i].name) {
+                            node.name = content.columns[i].value;
+                        }
+                        if (content.hasOwnProperty("urlfilter_column")
+                            && content.urlfilter_column == content.columns[i].name) {
+                            node.urlfilter = content.columns[i].value;
+                        }
+                        secret_object[content.columns[i].name] = content.columns[i].value;
+                    }
 
-                        var onError = function(result) {
-                            // pass
-                        };
+                    managerDatastore.save_user_datastore($scope.structure.data);
 
-                        var onSuccess = function(e) {
-                            managerDatastore.save_user_datastore($scope.structure.data);
-                        };
-
-                        manager.write_secret(node.secret_id, node.secret_key, secret_object)
-                            .then(onSuccess, onError);
-
-                    }, function () {
-                        // cancel triggered
-                    });
-                };
-
-                manager.read_secret(node.secret_id, node.secret_key)
-                    .then(onSuccess, onError);
+                }, function () {
+                    // cancel triggered
+                });
             };
 
             // Shareusers Structure Management
@@ -630,8 +603,8 @@
     /**
      * Controller for the "New Entry" modal
      */
-    module.controller('ModalNewEntryCtrl', ['$scope', '$modalInstance', 'itemBlueprint', 'parent', 'path',
-        function ($scope, $modalInstance, itemBlueprint, parent, path) {
+    module.controller('ModalShareNewEntryCtrl', ['$scope', '$modalInstance', 'shareBlueprint', 'parent', 'path',
+        function ($scope, $modalInstance, shareBlueprint, parent, path) {
 
             $scope.parent = parent;
             $scope.path = path;
@@ -639,14 +612,18 @@
             $scope.content = '';
             $scope.isCollapsed = true;
 
+            $scope.errors = [];
+
             $scope.reset = function() {
                 $scope.submitted = false;
             };
 
             $scope.bp = {
-                all: itemBlueprint.get_blueprints(),
-                selected: itemBlueprint.get_default_blueprint()
+                all: shareBlueprint.get_blueprints(),
+                selected: shareBlueprint.get_default_blueprint()
             };
+
+            $scope.has_advanced = shareBlueprint.has_advanced;
 
             /**
              * Triggered once someone clicks the save button in the modal
@@ -671,8 +648,8 @@
     /**
      * Controller for the "Edit Entry" modal
      */
-    module.controller('ModalEditEntryCtrl', ['$scope', '$modalInstance', 'itemBlueprint', 'node', 'path', 'data',
-        function ($scope, $modalInstance, itemBlueprint, node, path, data) {
+    module.controller('ModalShareEditEntryCtrl', ['$scope', '$modalInstance', 'shareBlueprint', 'node', 'path', 'data',
+        function ($scope, $modalInstance, shareBlueprint, node, path, data) {
 
             $scope.node = node;
             $scope.path = path;
@@ -680,13 +657,15 @@
             $scope.content = '';
             $scope.isCollapsed = true;
 
+            $scope.errors = [];
+
             $scope.reset = function() {
                 $scope.submitted = false;
             };
 
             $scope.bp = {
-                all: itemBlueprint.get_blueprints(),
-                selected: itemBlueprint.get_blueprint(node.type)
+                all: shareBlueprint.get_blueprints(),
+                selected: shareBlueprint.get_blueprint(node.type)
             };
 
             for (var i = 0; i < $scope.bp.selected.columns.length; i++) {
@@ -694,6 +673,8 @@
                     $scope.bp.selected.columns[i].value = data[$scope.bp.selected.columns[i].name];
                 }
             }
+
+            $scope.has_advanced = shareBlueprint.has_advanced;
 
             /**
              * Triggered once someone clicks the save button in the modal

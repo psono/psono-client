@@ -434,7 +434,6 @@
          * @param {uuid} user_id - the target user's user ID
          * @param {string} key - the encrypted share secret, encrypted with the public key of the target user
          * @param {string} nonce - the unique nonce for decryption
-         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
          * @param {bool} read - read right
          * @param {bool} write - write right
          * @returns {promise}
@@ -461,7 +460,7 @@
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
          * @param {uuid} [user_id] - the user ID
-         * @param {uuid} [user_email] - the user email
+         * @param {email} [user_email] - the user email
          * @returns {promise}
          */
         var get_users_public_key = function (token, user_id, user_email) {

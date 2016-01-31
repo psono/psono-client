@@ -759,7 +759,7 @@ var ClassClient = function (backend, require, jQuery, scrypt_module_factory, sha
      *
      * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
      * @param {uuid} [user_id] - the user ID
-     * @param {uuid} [user_email] - the user email
+     * @param {email} [user_email] - the user email
      * @returns {promise}
      */
     this.get_users_public_key = function (token, user_id, user_email) {

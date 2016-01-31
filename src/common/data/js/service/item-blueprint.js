@@ -6,6 +6,8 @@
 
         var _default = "website_password";
 
+        var registrations = {};
+
         var _blueprints = {
             website_password: {
                 id: "website_password", // Unique ID
@@ -30,8 +32,7 @@
                                 icon: "fa fa-key",
                                 text:"Generate Password",
                                 onclick:function(id) {
-
-                                    angular.element(document.querySelector('#'+id)).val($injector.get('passwordGenerator').generate()).trigger('input');
+                                    angular.element(document.querySelector('#'+id)).val(registrations['generate']()).trigger('input');
                                 }
                             }
                         ]},
@@ -210,6 +211,24 @@
         };
 
         /**
+         * analyzes the fields of an item to determine if the advanced option is needed
+         *
+         * @param item
+         * @returns {boolean}
+         */
+        var has_advanced = function (item) {
+            var found = false;
+
+            for (var i = 0; i < item.columns.length; i++) {
+                if (item.columns[i].hasOwnProperty('position') && item.columns[i]['position'] === 'advanced') {
+                    return true;
+                }
+            }
+
+            return found;
+        };
+
+        /**
          * determines weather a specified blueprint needs a new tab on click
          *
          * @param key
@@ -244,14 +263,26 @@
             return bp.msgBeforeOpenSecret(content);
         };
 
+        /**
+         * used to register functions
+         *
+         * @param key
+         * @param func
+         */
+        var register = function (key, func) {
+            registrations[key] = func;
+        };
+
         return {
             get_blueprint: get_blueprint,
             get_blueprints: get_blueprints,
             get_default_blueprint_key: get_default_blueprint_key,
             get_default_blueprint: get_default_blueprint,
+            has_advanced: has_advanced,
             blueprint_has_on_click_new_tab: blueprint_has_on_click_new_tab,
             blueprint_on_open_secret: blueprint_on_open_secret,
-            blueprint_msg_before_open_secret: blueprint_msg_before_open_secret
+            blueprint_msg_before_open_secret: blueprint_msg_before_open_secret,
+            register: register
         };
     };
 

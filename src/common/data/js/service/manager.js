@@ -1,8 +1,8 @@
 (function(angular, uuid) {
     'use strict';
 
-    var manager = function($q, $timeout, $rootScope, apiClient, cryptoLibrary, storage, itemBlueprint, browserClient,
-                           $injector, helper) {
+    var manager = function($q, $timeout, $rootScope, apiClient, cryptoLibrary, storage, itemBlueprint, shareBlueprint,
+                           browserClient, passwordGenerator, helper) {
 
         var forbidden_keys = {
             'config': [
@@ -117,6 +117,15 @@
         };
 
         /**
+         * returns the token from storage
+         *
+         * @returns {string}
+         */
+        var get_token = function () {
+            return storage.find_one('config', {'key': 'user_token'}).value;
+        };
+
+        /**
          * Ajax POST request to the backend with email and authkey for login, saves a token together with user_id
          * and all the different keys of a user in the apidata storage
          *
@@ -216,7 +225,7 @@
                 });
             }
 
-            return apiClient.logout(storage.find_one('config', {'key': 'user_token'}).value)
+            return apiClient.logout(get_token())
                 .then(onSuccess, onError);
         };
 
@@ -240,7 +249,7 @@
          */
         var updateUser = function(email, authkey, authkey_old, private_key, private_key_nonce, secret_key,
                                   secret_key_nonce, user_sauce) {
-            return apiClient.update_user(storage.find_one('config', {'key': 'user_token'}).value, email, authkey, authkey_old,
+            return apiClient.update_user(get_token(), email, authkey, authkey_old,
                 private_key, private_key_nonce, secret_key, secret_key_nonce, user_sauce);
         };
 
@@ -438,7 +447,7 @@
          */
         var generatePassword = function(url) {
 
-            var password = $injector('passwordGenerator').generate();
+            var password = passwordGenerator.generate();
 
             var parsed_url = helper.parse_url(url);
 
@@ -520,6 +529,14 @@
 
         };
 
+
+        var searchUser = function(email) {
+            return apiClient.get_users_public_key(get_token(),undefined, email);
+        };
+
+        itemBlueprint.register('generate', passwordGenerator.generate);
+        shareBlueprint.register('searchUser', searchUser);
+
         return {
             register: register,
             activate: activate,
@@ -544,6 +561,6 @@
 
     var app = angular.module('passwordManagerApp');
     app.factory("manager", ['$q', '$timeout', '$rootScope', 'apiClient', 'cryptoLibrary', 'storage', 'itemBlueprint',
-        'browserClient', '$injector', 'helper', manager]);
+        'shareBlueprint', 'browserClient', 'helper', manager]);
 
 }(angular, uuid));

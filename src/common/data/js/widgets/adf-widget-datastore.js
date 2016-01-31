@@ -27,7 +27,8 @@
      * Main Controller for the datastore widget
      */
     module.controller('datastoreController', ["$scope", "$interval", "config", "manager", "managerDatastore", "$modal",
-    function($scope, $interval, config, manager, managerDatastore, $modal){
+        "itemBlueprint",
+    function($scope, $interval, config, manager, managerDatastore, $modal, itemBlueprint){
 
         // Modals
 
@@ -89,7 +90,7 @@
 
             var modalInstance = $modal.open({
                 templateUrl: 'view/modal-edit-folder.html',
-                controller: 'ModalEditFolderCtrl',
+                controller: 'ModalDatastoreEditFolderCtrl',
                 size: size,
                 resolve: {
                     node: function () {
@@ -122,7 +123,7 @@
 
             var modalInstance = $modal.open({
                 templateUrl: 'view/modal-new-entry.html',
-                controller: 'ModalNewEntryCtrl',
+                controller: 'ModalDatastoreNewEntryCtrl',
                 size: size,
                 resolve: {
                     parent: function () {
@@ -150,12 +151,16 @@
                 };
                 var secret_object = {};
 
+                if (itemBlueprint.get_blueprint(content.id).getName) {
+                    datastore_object.name = itemBlueprint.get_blueprint(content.id).getName(content.columns);
+                }
+
                 for (var i = 0; i < content.columns.length; i++) {
 
                     if (!content.columns[i].hasOwnProperty("value")) {
                         continue;
                     }
-                    if (content.title_column == content.columns[i].name) {
+                    if (!datastore_object.name && content.title_column == content.columns[i].name) {
                         datastore_object.name = content.columns[i].value;
                     }
                     if (content.hasOwnProperty("urlfilter_column")
@@ -600,7 +605,7 @@
     /**
      * Controller for the "Edit Folder" modal
      */
-    module.controller('ModalEditFolderCtrl', ['$scope', '$modalInstance', 'node', 'path',
+    module.controller('ModalDatastoreEditFolderCtrl', ['$scope', '$modalInstance', 'node', 'path',
         function ($scope, $modalInstance, node, path) {
 
         $scope.node = node;
@@ -630,7 +635,7 @@
     /**
      * Controller for the "New Entry" modal
      */
-    module.controller('ModalNewEntryCtrl', ['$scope', '$modalInstance', 'itemBlueprint', 'parent', 'path',
+    module.controller('ModalDatastoreNewEntryCtrl', ['$scope', '$modalInstance', 'itemBlueprint', 'parent', 'path',
     function ($scope, $modalInstance, itemBlueprint, parent, path) {
 
         $scope.parent = parent;
@@ -638,6 +643,8 @@
         $scope.name = '';
         $scope.content = '';
         $scope.isCollapsed = true;
+
+        $scope.errors = [];
 
         $scope.reset = function() {
             $scope.submitted = false;
@@ -647,6 +654,8 @@
             all: itemBlueprint.get_blueprints(),
             selected: itemBlueprint.get_default_blueprint()
         };
+
+        $scope.has_advanced = itemBlueprint.has_advanced;
 
         /**
          * Triggered once someone clicks the save button in the modal
@@ -680,6 +689,8 @@
         $scope.content = '';
         $scope.isCollapsed = true;
 
+        $scope.errors = [];
+
         $scope.reset = function() {
             $scope.submitted = false;
         };
@@ -694,6 +705,8 @@
                 $scope.bp.selected.columns[i].value = data[$scope.bp.selected.columns[i].name];
             }
         }
+
+        $scope.has_advanced = itemBlueprint.has_advanced;
 
         /**
          * Triggered once someone clicks the save button in the modal
