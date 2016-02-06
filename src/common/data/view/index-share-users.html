@@ -1,0 +1,26 @@
+<div class="container-fluid">
+    <div class="navi row">
+        <div class="location col-sm-8">
+            <span> <a href="#/share/users">/share/users</a> </span>
+        </div>
+        <div class="title col-sm-4">
+            <h1>Users</h1>
+        </div>
+    </div>
+
+
+    <div ng-controller="ShareusersDashboardController">
+        <!-- Start Shareusers Widget -->
+        <adf-dashboard
+                name="widgetShareusersDashboard"
+                structure="4-8"
+                editable="false"
+                collapsible="false"
+                maximizable="false"
+                enableConfirmDelete="true"
+                adf-model="shareuser.model">
+        </adf-dashboard>
+        <!-- End Shareusers Widget -->
+    </div>
+
+</div>

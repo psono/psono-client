@@ -1,0 +1,229 @@
+<form name="newEntryForm" novalidate>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title">New {{bp.selected.name}}</h3>
+    </div>
+    <div class="modal-body">
+
+        <ui-select ng-model="bp.selected" class="form-group" on-select="reset()">
+            <ui-select-match>
+                <span ng-bind="$select.selected.name"></span>
+            </ui-select-match>
+            <ui-select-choices repeat="blueprint in (bp.all | filter: $select.search) track by blueprint.id">
+                <span ng-bind="blueprint.name"></span>
+            </ui-select-choices>
+        </ui-select>
+
+        <div class="form-group" ng-repeat="n in bp.selected.columns track by $index"
+             ng-class="{true: 'has-error'}[submitted && newEntryForm[n.name].$invalid]"
+             ng-if="!n.tab && (!n.position || n.position == 'before')">
+
+            <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                   id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
+                   ng-model="n.value"
+                   ng-change="bp.selected[n.onChange](bp.selected.columns)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
+
+            <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
+                <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
+                       ng-model="n.value"
+                       ng-change="bp.selected[n.onChange](bp.selected.columns)">
+                <div class="input-group-btn" dropdown is-open="status.isopen">
+                    <button id="single-button" type="button" class="btn btn-primary" dropdown-toggle ng-disabled="disabled">
+                        Actions <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li role="menuitem" ng-repeat="di in n.dropmenuItems track by $index">
+                            <a href="#" ng-click="di.onclick('editEntryForm-'+ n.name)"><i class="{{di.icon}}"></i>{{di.text}}</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <progressbar value="n.value | complexify" ng-if="n.type == 'password'">
+                <span complexify="n.value"></span>%
+                <span complexify="n.value" type="verbal"></span>
+            </progressbar>
+
+            <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
+                      ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
+                      placeholder="{{n.placeholder}}"  ng-required="n.required" ng-model="n.value"></textarea>
+
+            <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.required">
+                The field is required
+            </p>
+            <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.url">
+                The field needs to be a valid url.
+            </p>
+            <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.number">
+                The field needs to be a valid number.
+            </p>
+            <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.email">
+                The field needs to be a valid email address.
+            </p>
+        </div>
+
+
+        <tabset ng-if="bp.selected.tabs" class="tabset_expand">
+            <tab ng-repeat="tab in bp.selected.tabs" heading="{{tab.title}}" active="tab.active" disable="tab.disabled">
+
+                <div class="form-group" ng-repeat="n in bp.selected.columns track by $index"
+                     ng-class="{true: 'has-error'}[submitted && newEntryForm[n.name].$invalid]"
+                     ng-if="n.tab == tab.id">
+
+                    <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                           id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
+                           ng-model="n.value"
+                           ng-change="bp.selected[n.onChange](bp.selected.columns)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
+
+                    <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
+                        <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                               id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
+                               ng-model="n.value"
+                               ng-change="bp.selected[n.onChange](bp.selected.columns)">
+                        <div class="input-group-btn" dropdown is-open="status.isopen">
+                            <button id="single-button" type="button" class="btn btn-primary" dropdown-toggle ng-disabled="disabled">
+                                Actions <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li role="menuitem" ng-repeat="di in n.dropmenuItems track by $index">
+                                    <a href="#" ng-click="di.onclick('editEntryForm-'+ n.name)"><i class="{{di.icon}}"></i>{{di.text}}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <progressbar value="n.value | complexify" ng-if="n.type == 'password'">
+                        <span complexify="n.value"></span>%
+                        <span complexify="n.value" type="verbal"></span>
+                    </progressbar>
+
+                    <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
+                              ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
+                              placeholder="{{n.placeholder}}"  ng-required="n.required" ng-model="n.value"></textarea>
+
+                    <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.required">
+                        The field is required
+                    </p>
+                    <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.url">
+                        The field needs to be a valid url.
+                    </p>
+                    <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.number">
+                        The field needs to be a valid number.
+                    </p>
+                    <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.email">
+                        The field needs to be a valid email address.
+                    </p>
+                </div>
+            </tab>
+        </tabset>
+
+        <div class="form-group" ng-repeat="n in bp.selected.columns track by $index"
+             ng-class="{true: 'has-error'}[submitted && newEntryForm[n.name].$invalid]"
+             ng-if="!n.tab && n.position == 'after'">
+
+            <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                   id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
+                   ng-model="n.value"
+                   ng-change="bp.selected[n.onChange](bp.selected.columns)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
+
+            <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
+                <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
+                       ng-model="n.value"
+                       ng-change="bp.selected[n.onChange](bp.selected.columns)">
+                <div class="input-group-btn" dropdown is-open="status.isopen">
+                    <button id="single-button" type="button" class="btn btn-primary" dropdown-toggle ng-disabled="disabled">
+                        Actions <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li role="menuitem" ng-repeat="di in n.dropmenuItems track by $index">
+                            <a href="#" ng-click="di.onclick('editEntryForm-'+ n.name)"><i class="{{di.icon}}"></i>{{di.text}}</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <progressbar value="n.value | complexify" ng-if="n.type == 'password'">
+                <span complexify="n.value"></span>%
+                <span complexify="n.value" type="verbal"></span>
+            </progressbar>
+
+            <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
+                      ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
+                      placeholder="{{n.placeholder}}"  ng-required="n.required" ng-model="n.value"></textarea>
+
+            <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.required">
+                The field is required
+            </p>
+            <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.url">
+                The field needs to be a valid url.
+            </p>
+            <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.number">
+                The field needs to be a valid number.
+            </p>
+            <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.email">
+                The field needs to be a valid email address.
+            </p>
+        </div>
+
+        <a href="#" class="pull-right" ng-click="isCollapsed = !isCollapsed">advanced</a>
+
+        <div collapse="isCollapsed">
+
+            <div class="form-group" ng-repeat="n in bp.selected.columns track by $index"
+                 ng-class="{true: 'has-error'}[submitted && newEntryForm[n.name].$invalid]"
+                 ng-if="!n.tab && n.position == 'advanced'">
+
+                <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                       id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
+                       ng-model="n.value"
+                       ng-change="bp.selected[n.onChange](bp.selected.columns)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
+
+                <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
+                    <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                           id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
+                           ng-model="n.value"
+                           ng-change="bp.selected[n.onChange](bp.selected.columns)">
+                    <div class="input-group-btn" dropdown is-open="status.isopen">
+                        <button id="single-button" type="button" class="btn btn-primary" dropdown-toggle ng-disabled="disabled">
+                            Actions <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li role="menuitem" ng-repeat="di in n.dropmenuItems track by $index">
+                                <a href="#" ng-click="di.onclick('editEntryForm-'+ n.name)"><i class="{{di.icon}}"></i>{{di.text}}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <progressbar value="n.value | complexify" ng-if="n.type == 'password'">
+                    <span complexify="n.value"></span>%
+                    <span complexify="n.value" type="verbal"></span>
+                </progressbar>
+
+                <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
+                      ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
+                      placeholder="{{n.placeholder}}"  ng-required="n.required" ng-model="n.value"></textarea>
+
+                <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.required">
+                    The field is required
+                </p>
+                <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.url">
+                    The field needs to be a valid url.
+                </p>
+                <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.number">
+                    The field needs to be a valid number.
+                </p>
+                <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.email">
+                    The field needs to be a valid email address.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" type="button" ng-click="submitted=true; save();">OK</button>
+    </div>
+</form>

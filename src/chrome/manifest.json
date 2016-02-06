@@ -1,0 +1,60 @@
+{
+  "manifest_version": 2,
+
+  "name": "sanso.PW",
+  "description": "Sanso Password Manager",
+  "version": "1.0",
+
+  "update_url": "https://browserplugins.chickahoona.com/dist/chrome/sanso.PW.update.xml",
+
+  "browser_action": {
+    "default_icon": "data/img/icon-32.png",
+    "default_popup": "data/main.html"
+  },
+  "permissions": [
+    "activeTab",
+    "storage",
+    "contextMenus",
+    "tabs",
+    "clipboardWrite",
+    "activeTab"
+  ],
+  "icons": {
+    "16": "data/img/icon-16.png",
+    "32": "data/img/icon-32.png",
+    "48": "data/img/icon-48.png",
+    "64": "data/img/icon-64.png",
+    "128": "data/img/icon-128.png"
+  },
+  "background": {
+    "scripts": [
+      "data/js/lib/jquery-2.1.4.js",
+      "data/js/lib/sha512.js",
+      "data/js/lib/sha256.js",
+      "data/js/lib/ecma-nacl.js",
+      "data/js/lib/scrypt.js",
+      "data/js/jquery-api-client.js",
+      "index.js"
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*/*"],
+      "css": [
+        "data/css/lib/cssreset-context-min.css",
+        "data/css/lib/opensans.css",
+        "data/css/contentscript.css"
+      ],
+      "js": [
+        "data/js/lib/tether.js",
+        "data/js/lib/drop.js",
+        "data/js/lib/jquery-2.1.4.js",
+        "data/js/formfill-browser-client.js",
+        "data/js/formfill.js"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    "data/css/fonts/*.woff2"
+  ]
+}

@@ -1,0 +1,115 @@
+@import "variables";
+
+html {
+  height: 100%;
+}
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.loginbox, .registerbox, .activationbox {
+  width:340px;
+  padding:20px 20px 0 20px;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  margin: -130px 0 0 -170px;
+  border-radius: 4px;
+
+  .progress-bar {
+    background-color: $dark-hightlight-color;
+  }
+}
+.progress {
+  margin-bottom: 0;
+}
+
+.big-font-icon-and-msg {
+  text-align: center;
+  margin-bottom: 20px;
+  .fa{
+    font-size: 150px;
+    margin-top:30px;
+    margin-bottom: 30px;
+  }
+}
+
+.navi {
+  background-color: $header-background-on-light-background;
+  padding:10px 0;
+
+  h1 {
+    color: $dark-background;
+  }
+
+  .location {
+  }
+
+  .title {
+    text-align: right;
+  }
+}
+
+
+/* bootstrap */
+.navbar-default {
+  background-color: $light-link-color;
+}
+.navbar .navbar-text {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+.btn-primary {
+  background-color: $dark-hightlight-color;
+  border-color: $dark-hightlight-color;
+}
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {
+  background-color: $dark-hightlight-hover-color;
+  border-color: $dark-hightlight-hover-color;
+}
+
+  /* snap */
+snap-content,
+[snap\:content],
+[snap-content],
+[data-snap-content],
+[x-snap-content],
+.snap-content,
+.x-snap-content,
+snap-drawers,
+[snap\:drawers],
+[snap-drawers],
+[data-snap-drawers],
+[x-snap-drawers],
+.snap-drawers,
+.x-snap-drawers,
+.snap-drawers,
+.snap-content {
+  top: 51px;
+}
+
+snap-content,
+[snap-content],
+[data-snap-content],
+[x-snap-content],
+.snap-content,
+.x-snap-content,
+.snap-content {
+  background-color: $light-background;
+}
+snap-drawers,
+[snap\:drawers],
+[snap-drawers],
+[data-snap-drawers],
+[x-snap-drawers],
+.snap-drawers,
+.x-snap-drawers,
+.snap-drawers {
+
+  .navigations {
+    margin: 10px;
+  }
+}
