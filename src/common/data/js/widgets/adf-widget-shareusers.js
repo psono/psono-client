@@ -211,21 +211,25 @@
 
                 modalInstance.result.then(function (content) {
 
-                    var secret_object = {};
+                    var new_name;
+                    if (shareBlueprint.get_blueprint(content.id).getName) {
+                        new_name = shareBlueprint.get_blueprint(content.id).getName(content.columns);
+                        node.name = new_name;
+                    }
 
                     for (var i = 0; i < content.columns.length; i++) {
 
                         if (!content.columns[i].hasOwnProperty("value")) {
                             continue;
                         }
-                        if (content.title_column == content.columns[i].name) {
+                        if (!new_name && content.title_column == content.columns[i].name) {
                             node.name = content.columns[i].value;
                         }
                         if (content.hasOwnProperty("urlfilter_column")
                             && content.urlfilter_column == content.columns[i].name) {
                             node.urlfilter = content.columns[i].value;
                         }
-                        secret_object[content.columns[i].name] = content.columns[i].value;
+                        node.data[content.columns[i].name] = content.columns[i].value;
                     }
 
                     managerDatastore.save_user_datastore($scope.structure.data);
@@ -474,6 +478,9 @@
 
                 managerDatastore.save_user_datastore($scope.structure.data);
             },
+            textConfig: {
+                'new_entry': {name: 'New User', icon: 'fa fa-user-plus'}
+            },
 
             /**
              * Returns the class of the icon used to display a specific item
@@ -694,6 +701,10 @@
             $scope.cancel = function () {
                 $modalInstance.dismiss('cancel');
             };
+
+            if (typeof $scope.bp.selected.onEditModalOpen !== 'undefined') {
+                $scope.bp.selected.onEditModalOpen($scope.bp.selected);
+            }
         }]);
 
 

@@ -51,6 +51,7 @@
                       ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
                       placeholder="{{n.placeholder}}"  ng-required="n.required && !n.hidden"
                       ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
+            <p class="note pull-right" ng-hide="n.hidden">{{n.note}}</p>
 
             <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.required">
                 The field is required
@@ -107,6 +108,7 @@
                               ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
                               placeholder="{{n.placeholder}}"  ng-required="n.required && !n.hidden"
                               ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
+                    <p class="note pull-right" ng-hide="n.hidden">{{n.note}}</p>
 
                     <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.required">
                         The field is required
@@ -162,6 +164,7 @@
                       ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
                       placeholder="{{n.placeholder}}"  ng-required="n.required && !n.hidden"
                       ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
+            <p class="note pull-right" ng-hide="n.hidden">{{n.note}}</p>
 
             <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.required">
                 The field is required
@@ -219,6 +222,7 @@
                       ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
                       placeholder="{{n.placeholder}}"  ng-required="n.required && !n.hidden"
                           ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
+                <p class="note pull-right" ng-hide="n.hidden">{{n.note}}</p>
 
                 <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.required">
                     The field is required

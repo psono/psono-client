@@ -726,6 +726,10 @@
         $scope.cancel = function () {
             $modalInstance.dismiss('cancel');
         };
+
+        if (typeof $scope.bp.selected.onEditModalOpen !== 'undefined') {
+            $scope.bp.selected.onEditModalOpen($scope.bp.selected);
+        }
     }]);
 
 

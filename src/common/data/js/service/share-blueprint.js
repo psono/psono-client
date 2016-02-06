@@ -20,7 +20,8 @@
                     { name: "user_name", field: "input", type: "text", title: "Name", placeholder: "Name (optional)", hidden: true},
                     { name: "user_id", field: "input", type: "text", title: "ID", placeholder: "ID", required: true, hidden: true, readonly: true },
                     { name: "user_email", field: "input", type: "text", title: "E-Mail", placeholder: "E-Mail", required: true, hidden: true, readonly: true },
-                    { name: "user_public_key", field: "textarea", title: "Public Key", placeholder: "Public Key", required: true, hidden: true, readonly: true }
+                    { name: "user_public_key", field: "textarea", title: "Public Key", placeholder: "Public Key", required: true, hidden: true, readonly: true,
+                        note: 'To verify that this is the user you want to share data with, ask him if this is really his public key.' }
                 ],
                 getName: function(columns) {
                     var vals= {};
@@ -122,6 +123,12 @@
 
                     registrations['searchUser'](search_email).then(onSuccess, onError)
 
+                },
+                onEditModalOpen: function(node) {
+                    var showInEditOnly = ["user_name", "user_id", "user_email", "user_public_key"];
+                    for (var i = 0; i < node.columns.length; i++) {
+                        node.columns[i].hidden = !(showInEditOnly.indexOf(node.columns[i].name) > -1);
+                    }
                 }
 
             }

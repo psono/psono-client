@@ -425,6 +425,12 @@
                     return 'fa fa-item';
                 };
 
+                scope.textConfig = typeof options.textConfig !== 'undefined'
+                    ? options.textConfig
+                    : {
+                    'new_entry': {name: 'New Entry', icon: 'fa fa-key'}
+                };
+
                 /**
                  * checks if the node in the current scope has children
                  *
@@ -739,7 +745,7 @@
                         '<ul class="dropdown-menu dropdown-button-menu" aria-labelledby="drop_node_{{node.id}}">' +
                         '    <li role="menuitem" ng-click="editNode(node, $event)"><a href="#"><i class="fa fa-wrench"></i>Edit</a></li>' +
                         '    <li role="menuitem" ng-click="newFolderNode(node, $event)"><a href="#"><i class="fa fa-folder"></i>New Folder</a></li>' +
-                        '    <li role="menuitem" ng-click="newEntryNode(node, $event)"><a href="#"><i class="fa fa-key"></i>New Entry</a></li>' +
+                        '    <li role="menuitem" ng-click="newEntryNode(node, $event)"><a href="#"><i class="{{ textConfig.new_entry.icon }}"></i>{{ textConfig.new_entry.name }}</a></li>' +
                         '    <li class="divider"></li>' +
                         '    <li role="menuitem" ng-click="deleteNode(node, $event)"><a href="#"><i class="fa fa-trash"></i>Delete</a></li>' +
                         '</ul>' +
@@ -754,7 +760,7 @@
                         '<ul class="dropdown-menu" role="menu">' +
                         '    <li role="menuitem" ng-click="editNode(node, $event)"><a href="#"><i class="fa fa-wrench"></i>Edit</a></li>' +
                         '    <li role="menuitem" ng-click="newFolderNode(node, $event)"><a href="#"><i class="fa fa-folder"></i>New Folder</a></li>' +
-                        '    <li role="menuitem" ng-click="newEntryNode(node, $event)"><a href="#"><i class="fa fa-key"></i>New Entry</a></li>' +
+                        '    <li role="menuitem" ng-click="newEntryNode(node, $event)"><a href="#"><i class="{{ textConfig.new_entry.icon }}"></i>{{ textConfig.new_entry.name }}</a></li>' +
                         '    <li class="divider"></li>' +
                         '    <li role="menuitem" ng-click="deleteNode(node, $event)"><a href="#"><i class="fa fa-trash"></i>Delete</a></li>' +
                         '</ul>' +
@@ -777,7 +783,7 @@
                         '<ul class="dropdown-menu dropdown-button-menu" aria-labelledby="drop_item_{{item.id}}">' +
                         '    <li role="menuitem" ng-click="editItem(item, $event)"><a href="#"><i class="fa fa-wrench"></i>Edit</a></li>' +
                         '    <li role="menuitem" ng-click="newFolderItem(item, $event)"><a href="#"><i class="fa fa-folder"></i>New Folder</a></li>' +
-                        '    <li role="menuitem" ng-click="newEntryItem(item, $event)"><a href="#"><i class="fa fa-key"></i>New Entry</a></li>' +
+                        '    <li role="menuitem" ng-click="newEntryItem(item, $event)"><a href="#"><i class="{{ textConfig.new_entry.icon }}"></i>{{ textConfig.new_entry.name }}</a></li>' +
                         '    <li class="divider"></li>' +
                         '    <li role="menuitem" ng-click="deleteItem(item, $event)"><a href="#"><i class="fa fa-trash"></i>Delete</a></li>' +
                         '</ul>' +
@@ -788,7 +794,7 @@
                         '<ul class="dropdown-menu" role="menu">' +
                         '    <li role="menuitem" ng-click="editItem(item, $event)"><a href="#"><i class="fa fa-wrench"></i>Edit</a></li>' +
                         '    <li role="menuitem" ng-click="newFolderItem(item, $event)"><a href="#"><i class="fa fa-folder"></i>New Folder</a></li>' +
-                        '    <li role="menuitem" ng-click="newEntryItem(item, $event)"><a href="#"><i class="fa fa-key"></i>New Entry</a></li>' +
+                        '    <li role="menuitem" ng-click="newEntryItem(item, $event)"><a href="#"><i class="{{ textConfig.new_entry.icon }}"></i>{{ textConfig.new_entry.name }}</a></li>' +
                         '    <li class="divider"></li>' +
                         '    <li role="menuitem" ng-click="deleteItem(item, $event)"><a href="#"><i class="fa fa-trash"></i>Delete</a></li>' +
                         '</ul>' +
