@@ -292,7 +292,7 @@
 
             var content_copy  = JSON.parse(JSON.stringify(content));
 
-            var filter = ['expanded', 'filter'];
+            var filter = ['expanded', 'filter', 'hidden'];
 
             var filter_content = function (content, filter) {
                 var i, m;

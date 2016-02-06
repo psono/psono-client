@@ -129,8 +129,6 @@
 
                 $scope.$watch('tosearchTreeFilter', function(newValue, oldValue) {
                     markSearchedNodesInvisible(newValue, oldValue, $scope.treeView);
-
-                    console.log($scope.treeView);
                 });
 
                 /**
