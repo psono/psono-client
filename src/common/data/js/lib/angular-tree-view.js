@@ -46,8 +46,22 @@
             },
             replace: true,
             template:
+            '<div class="tree-container">' +
+            '<form name="searchTreeForm" class=" widget-searchform">' +
+            '<div class="row">' +
+            '<div class="col-xs-offset-4 col-xs-8 col-sm-offset-6 col-sm-6 col-md-offset-8 col-md-4">' +
+            '<div class="input-group">' +
+            '<input type="text" class="form-control" id="tosearchTreeForm" placeholder="search" ng-model="tosearchTreeFilter">' +
+            '<span class="input-group-btn">' +
+            '<button class="btn btn-default" ng-disabled="!tosearchTreeFilter" ng-click="clearSearchTreeForm()" type="button"><i class="fa fa-ban"></i></button>' +
+            '</span>' +
+            '</div>' +
+            '</div>' +
+            '</div>' +
+            '</form>' +
             '<div class="tree">' +
             '<div tree-view-node="treeView">' +
+            '</div>' +
             '</div>' +
             '</div>',
             controller: ['$scope', '$rootScope', function ($scope, $rootScope) {
@@ -57,6 +71,74 @@
                     counter = 0;
 
                 var options = angular.extend({}, treeViewDefaults, $scope.treeViewOptions);
+
+                /**
+                 * searches a tree and marks all folders / items as invisible, only leaving nodes with search
+                 *
+                 * @param newValue
+                 * @param oldValue
+                 * @param searchTree
+                 */
+                var markSearchedNodesInvisible = function (newValue, oldValue, searchTree) {
+                    if (typeof newValue === 'undefined') {
+                        return;
+                    }
+
+                    var show = false;
+
+                    var i, ii;
+                    for (i = 0; searchTree.folders && i < searchTree.folders.length; i++) {
+                        show = markSearchedNodesInvisible(newValue, oldValue, searchTree.folders[i]) || show;
+                    }
+
+                    newValue = newValue.toLowerCase();
+                    var searchStrings = newValue.split(" ");
+
+                    // Test title of the items
+                    var containCounter = 0;
+                    for (i = 0; searchTree.items && i < searchTree.items.length; i++) {
+                        containCounter = 0;
+                        for (ii = 0; ii < searchStrings.length; ii++) {
+                            if (searchTree.items[i].name.toLowerCase().indexOf(searchStrings[ii]) > -1) {
+                                containCounter++
+                            }
+                        }
+                        if (containCounter === searchStrings.length) {
+                            searchTree.items[i].hidden = false;
+                            show = true;
+                        } else {
+                            searchTree.items[i].hidden = true;
+                        }
+                    }
+                    // Test title of the folder
+                    if (typeof searchTree.name !== 'undefined') {
+                        containCounter = 0;
+                        for (ii = 0; ii < searchStrings.length; ii++) {
+                            if (searchTree.name.toLowerCase().indexOf(searchStrings[ii]) > -1) {
+                                containCounter++
+                            }
+                        }
+                        if (containCounter === searchStrings.length) {
+                            show = true;
+                        }
+                    }
+                    searchTree.hidden = !show;
+
+                    return show;
+                };
+
+                $scope.$watch('tosearchTreeFilter', function(newValue, oldValue) {
+                    markSearchedNodesInvisible(newValue, oldValue, $scope.treeView);
+
+                    console.log($scope.treeView);
+                });
+
+                /**
+                 * clears the input field for the tree search
+                 */
+                $scope.clearSearchTreeForm = function () {
+                    $scope.tosearchTreeFilter = '';
+                };
 
                 /**
                  * called by the directive whenever a node is selected to handle the possible option
@@ -635,12 +717,16 @@
                 }
 
                 function render() {
+
+                    // console.log(attrs.treeViewNode);
+                    //  {{ tosearchTreeFilter }}
+
                     var template =
                         // Handle folders
                         '<div ng-drag="true" ng-drag-data="node" ng-drag-success="onDragComplete($data, $event, \'folder\')" ' +
                         'ng-drag-start="onDragStart($data, $event, \'folder\')"' +
                         'ng-drop="true" ng-drop-success="onDropComplete(node,$event)" ' +
-                        'ng-mousedown="$event.stopPropagation()" ' +
+                        'ng-mousedown="$event.stopPropagation()" ng-show="!node.hidden"' +
                         'class="tree-folder" ng-repeat="node in ' + attrs.treeViewNode + '.' + foldersProperty + ' track by $index">' +
 
                         '<div class="tree-folder-title" data-target="menu-{{ node.id }}" context-menu="">' +
@@ -681,7 +767,7 @@
                         // Handle items
                         '<div ng-drag="true" ng-drag-data="item" ng-drag-success="onDragComplete($data, $event, \'item\')" ' +
                         'ng-drag-start="onDragStart($data, $event, \'item\')"' +
-                        'ng-mousedown="$event.stopPropagation()" ' +
+                        'ng-mousedown="$event.stopPropagation()" ng-show="!item.hidden"' +
                         ' class="tree-item" ng-repeat="item in ' + attrs.treeViewNode + '.' + itemsProperty + ' track by $index">' +
 
                         '<div class="tree-item-object" ng-click="selectItem(item, $event)" ng-class="{ selected: isSelected(item) }" data-target="menu-{{ item.id }}" context-menu="">' +

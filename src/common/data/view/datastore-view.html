@@ -6,13 +6,13 @@
             <li role="menuitem" ng-click="openNewItem($event)"><a href="#"><i class="fa fa-key"></i>New Entry</a></li>
         </ul>
     </div>
-
+    <!--
     <div>
         <span ng-repeat="b in breadcrums track by $index">
             &gt; {{b}}
         </span>
     </div>
-
+    -->
 
     <div tree-view="structure.data" tree-view-options="options" ng-if="structure.data.folders || structure.data.items">
 
