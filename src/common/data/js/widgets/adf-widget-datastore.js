@@ -756,9 +756,6 @@
         $scope.path = path;
         $scope.users = users;
         $scope.selected_users = [];
-        $scope.name = node.name;
-        $scope.content = '';
-        $scope.isCollapsed = true;
 
         $scope.errors = [];
 
@@ -778,45 +775,48 @@
 
             modalInstance.result.then(function (content) {
 
+                managerDatastoreUser.get_user_datastore()
+                    .then(function (parent) {
 
+                        if (typeof parent.items === 'undefined') {
+                            parent.items = [];
+                        }
 
+                        var shareusers_object = {
+                            id: uuid.v4(),
+                            type: content.id,
+                            data: {}
+                        };
 
-                if (typeof parent === 'undefined') {
-                    parent = $scope.structure.data;
-                }
+                        if (shareBlueprint.get_blueprint(content.id).getName) {
+                            shareusers_object.name = shareBlueprint.get_blueprint(content.id).getName(content.columns);
+                        }
 
-                if (typeof parent.items === 'undefined') {
-                    parent.items = [];
-                }
+                        for (var i = 0; i < content.columns.length; i++) {
 
-                var shareusers_object = {
-                    id: uuid.v4(),
-                    type: content.id,
-                    data: {}
-                };
+                            if (!content.columns[i].hasOwnProperty("value")) {
+                                continue;
+                            }
+                            if (!shareusers_object.name && content.title_column == content.columns[i].name) {
+                                shareusers_object.name = content.columns[i].value;
+                            }
+                            if (content.hasOwnProperty("urlfilter_column")
+                                && content.urlfilter_column == content.columns[i].name) {
+                                shareusers_object.urlfilter = content.columns[i].value;
+                            }
+                            shareusers_object.data[content.columns[i].name] = content.columns[i].value;
+                        }
 
-                if (shareBlueprint.get_blueprint(content.id).getName) {
-                    shareusers_object.name = shareBlueprint.get_blueprint(content.id).getName(content.columns);
-                }
+                        parent.items.push(shareusers_object);
 
-                for (var i = 0; i < content.columns.length; i++) {
+                        managerDatastoreUser.save_user_datastore(parent).then(function() {
 
-                    if (!content.columns[i].hasOwnProperty("value")) {
-                        continue;
-                    }
-                    if (!shareusers_object.name && content.title_column == content.columns[i].name) {
-                        shareusers_object.name = content.columns[i].value;
-                    }
-                    if (content.hasOwnProperty("urlfilter_column")
-                        && content.urlfilter_column == content.columns[i].name) {
-                        shareusers_object.urlfilter = content.columns[i].value;
-                    }
-                    shareusers_object.data[content.columns[i].name] = content.columns[i].value;
-                }
-
-                parent.items.push(shareusers_object);
-
-                managerDatastoreUser.save_user_datastore($scope.structure.data);
+                            $scope.users.push(shareusers_object);
+                            $scope.selected_users.push(shareusers_object.id);
+                        }, function() {
+                            // TODO handle error
+                        });
+                    });
 
             }, function () {
                 // cancel triggered
@@ -836,13 +836,13 @@
         /**
          * Triggered once someone clicks the save button in the modal
          */
-        $scope.save = function () {
-
-            if ($scope.editEntryForm.$invalid) {
-                return;
-            }
-
-            $modalInstance.close($scope.bp.selected);
+        $scope.save = function (node, path, users, selected_users) {
+            $modalInstance.close({
+                node: $scope.node,
+                path: $scope.path,
+                users: $scope.users,
+                selected_users: $scope.selected_users
+            });
         };
 
         /**

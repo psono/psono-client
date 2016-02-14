@@ -1,7 +1,7 @@
 <form name="editEntryForm" novalidate>
     <div class="modal-header">
         <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
-        <h3 class="modal-title">Share {{bp.selected.name}}</h3>
+        <h3 class="modal-title">Share {{node.name}}</h3>
     </div>
     <div class="modal-body">
 
@@ -13,7 +13,7 @@
 
                     <ul class="list-group check-list">
                         <li class="list-group-item" ng-class="selected_users.indexOf(user.id) > -1 ? 'selected' : ''" ng-repeat="user in users" ng-click="toggleSelectUser(user.id)">
-                            <i ng-class="selected_users.indexOf(user.id) > -1 ? 'fa fa-check-square-o' : 'fa fa-square-o'"></i> {{user.name | limitTo: 65 }}{{user.name.length > 65 ? '...)' : ''}}
+                            <i ng-class="selected_users.indexOf(user.id) > -1 ? 'fa fa-check-square-o' : 'fa fa-square-o'"></i> {{user.name | limitTo: 60 }}{{user.name.length > 60 ? '...)' : ''}}
                         </li>
                     </ul>
 

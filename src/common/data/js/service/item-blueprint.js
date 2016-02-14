@@ -167,12 +167,6 @@
                 icon: 'fa fa-share',
                 onClick: function(item, path) {
 
-                    console.log('_additionalFunction executed');
-
-                    console.log(item);
-                    console.log(path);
-
-
                     var create_list = function (obj, list) {
                         var i;
                         for (i = 0; obj.items && i < obj.items.length; i++) {
@@ -186,17 +180,16 @@
 
                     registrations['get_user_datastore']()
                         .then(function (user_datastore) {
-                            console.log(user_datastore);
 
                             var users = [];
                             create_list(user_datastore, users);
-                            console.log(users);
 
                             var modalInstance = $modal.open({
                                 templateUrl: 'view/modal-share-entry.html',
                                 controller: 'ModalShareEntryCtrl',
                                 resolve: {
                                     node: function () {
+                                        console.log("triggered");
                                         return item;
                                     },
                                     path: function () {
@@ -207,6 +200,34 @@
                                     }
                                 }
                             });
+
+                            modalInstance.result.then(function (content) {
+                                console.log(content);
+
+                                if (!content.users
+                                    || content.users.length < 1
+                                    || !content.selected_users
+                                    || content.selected_users.length < 1) {
+                                    return;
+                                }
+
+                                var users = [];
+
+                                var i;
+                                for (i = 0; i < content.users.length; i++) {
+                                    if (content.selected_users.indexOf(content.users[i].id) != -1) {
+                                        users.push(content.users[i]);
+                                    }
+                                }
+
+                                // TODO finish this
+
+
+
+                            }, function () {
+                                // cancel triggered
+                            });
+
                         });
                 }
             }
