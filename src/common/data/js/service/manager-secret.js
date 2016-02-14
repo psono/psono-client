@@ -1,0 +1,163 @@
+(function(angular) {
+    'use strict';
+
+    var managerSecret = function(managerBase, apiClient, cryptoLibrary,
+                           itemBlueprint, browserClient) {
+
+        /**
+         * Creates a secret for the given content and returns the id
+         *
+         * @param content
+         * @returns {promise}
+         */
+        var create_secret = function (content) {
+            var secret_key = cryptoLibrary.generate_secret_key();
+
+            var json_content = JSON.stringify(content);
+
+            var c = cryptoLibrary.encrypt_data(json_content, secret_key);
+
+            var onError = function(result) {
+                // pass
+            };
+
+            var onSuccess = function(content) {
+                return {secret_id: content.data.secret_id, secret_key: secret_key};
+            };
+
+            return apiClient.create_secret(managerBase.find_one_nolimit('config', 'user_token'), c.text, c.nonce)
+                .then(onSuccess, onError);
+        };
+
+        /**
+         * Reads a secret and decrypts it. Returns the decrypted object
+         *
+         * @param secret_id
+         * @param secret_key
+         *
+         * @returns {promise}
+         */
+        var read_secret = function(secret_id, secret_key) {
+
+            var onError = function(result) {
+                // pass
+            };
+
+            var onSuccess = function(content) {
+                return JSON.parse(cryptoLibrary.decrypt_data(content.data.data, content.data.data_nonce, secret_key));
+            };
+
+            return apiClient.read_secret(managerBase.find_one_nolimit('config', 'user_token'), secret_id)
+                .then(onSuccess, onError);
+        };
+
+        /**
+         * Writes a secret after encrypting the object. returns the secret id
+         *
+         * @param secret_id
+         * @param secret_key
+         * @param content
+         *
+         * @returns {promise}
+         */
+        var write_secret = function(secret_id, secret_key, content) {
+
+            var json_content = JSON.stringify(content);
+
+            var c = cryptoLibrary.encrypt_data(json_content, secret_key);
+
+            var onError = function(result) {
+                // pass
+            };
+
+            var onSuccess = function(content) {
+                return {secret_id: content.data.secret_id};
+            };
+
+            return apiClient.write_secret(managerBase.find_one_nolimit('config', 'user_token'), secret_id, c.text, c.nonce)
+                .then(onSuccess, onError);
+        };
+
+        /**
+         * Handles node selections and triggers behaviour
+         *
+         * @param node
+         */
+        var onNodeSelect = function(node) {
+            //pass
+        };
+
+        /**
+         * Handles item selections and triggers behaviour
+         *
+         * @param item
+         */
+        var onItemSelect = function(item) {
+            //pass
+        };
+        /**
+         * Handles node clicks and triggers behaviour
+         *
+         * @param node
+         * @param path
+         */
+        var onNodeClick = function(node, path) {
+            //pass
+        };
+        /**
+         * Handles item clicks and triggers behaviour
+         *
+         * @param item
+         */
+        var onItemClick = function(item) {
+            if (itemBlueprint.blueprint_has_on_click_new_tab(item.type)) {
+                browserClient.openTab('/data/open-secret.html#/secret/'+item.type+'/'+item.secret_id);
+            }
+        };
+
+        /**
+         * Decrypts a secret and initiates the redirect
+         *
+         * @param type
+         * @param secret_id
+         */
+        var redirectSecret = function(type, secret_id) {
+
+            var onError = function(result) {
+                // pass
+            };
+
+            var onSuccess = function(content) {
+                var secret_key = managerBase.find_one_nolimit('datastore-password-leafs', secret_id);
+
+                var decrypted_secret = JSON.parse(cryptoLibrary.decrypt_data(content.data.data, content.data.data_nonce, secret_key));
+
+                var msg = itemBlueprint.blueprint_msg_before_open_secret(type, decrypted_secret);
+
+                browserClient.emitSec(msg.key, msg.content);
+
+                itemBlueprint.blueprint_on_open_secret(type, decrypted_secret);
+            };
+
+            apiClient.read_secret(managerBase.find_one_nolimit('config', 'user_token'), secret_id)
+                .then(onSuccess, onError);
+
+        };
+
+        return {
+            create_secret: create_secret,
+            read_secret: read_secret,
+            write_secret: write_secret,
+            onNodeSelect: onNodeSelect,
+            onItemSelect: onItemSelect,
+            onNodeClick: onNodeClick,
+            onItemClick: onItemClick,
+            redirectSecret: redirectSecret
+        };
+    };
+
+    var app = angular.module('passwordManagerApp');
+    app.factory("managerSecret", ['managerBase', 'apiClient', 'cryptoLibrary',
+        'itemBlueprint', 'browserClient', managerSecret]);
+
+}(angular));

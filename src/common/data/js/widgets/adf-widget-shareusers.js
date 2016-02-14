@@ -26,9 +26,9 @@
     /**
      * Main Controller for the shareusers widget
      */
-    module.controller('shareusersController', ["$scope", "$interval", "config", "manager", "managerDatastore", "$modal",
+    module.controller('shareusersController', ["$scope", "$interval", "config", "manager", "managerDatastoreUser", "$modal",
         "shareBlueprint",
-        function($scope, $interval, config, manager, managerDatastore, $modal, shareBlueprint){
+        function($scope, $interval, config, manager, managerDatastoreUser, $modal, shareBlueprint){
 
             // Modals
 
@@ -68,7 +68,7 @@
                         name: name
                     });
 
-                    managerDatastore.save_user_datastore($scope.structure.data);
+                    managerDatastoreUser.save_user_datastore($scope.structure.data);
 
                 }, function () {
                     // cancel triggered
@@ -105,7 +105,7 @@
                 modalInstance.result.then(function (name) {
                     node.name = name;
 
-                    managerDatastore.save_user_datastore($scope.structure.data);
+                    managerDatastoreUser.save_user_datastore($scope.structure.data);
 
                 }, function () {
                     // cancel triggered
@@ -172,7 +172,7 @@
 
                     parent.items.push(shareusers_object);
 
-                    managerDatastore.save_user_datastore($scope.structure.data);
+                    managerDatastoreUser.save_user_datastore($scope.structure.data);
 
                 }, function () {
                     // cancel triggered
@@ -232,7 +232,7 @@
                         node.data[content.columns[i].name] = content.columns[i].value;
                     }
 
-                    managerDatastore.save_user_datastore($scope.structure.data);
+                    managerDatastoreUser.save_user_datastore($scope.structure.data);
 
                 }, function () {
                     // cancel triggered
@@ -243,7 +243,7 @@
 
             $scope.structure = { data: {}} ;
 
-            managerDatastore.get_user_datastore()
+            managerDatastoreUser.get_user_datastore()
                 .then(function (data) {$scope.structure.data = data;});
 
 
@@ -336,7 +336,7 @@
                     var val = findInStructure(path, $scope.structure.data);
                     if (val)
                         val[0].splice(val[1], 1);
-                    managerDatastore.save_user_datastore($scope.structure.data);
+                    managerDatastoreUser.save_user_datastore($scope.structure.data);
                 },
 
                 /**
@@ -372,7 +372,7 @@
                     if (val)
                         val[0].splice(val[1], 1);
 
-                    managerDatastore.save_user_datastore($scope.structure.data);
+                    managerDatastoreUser.save_user_datastore($scope.structure.data);
                 },
 
                 /**
@@ -438,7 +438,7 @@
                 // delete the array at hte current position
                 val2[0].splice(val2[1], 1);
 
-                managerDatastore.save_user_datastore($scope.structure.data);
+                managerDatastoreUser.save_user_datastore($scope.structure.data);
             },
 
             /**
@@ -476,11 +476,13 @@
                 // delete the array at hte current position
                 val2[0].splice(val2[1], 1);
 
-                managerDatastore.save_user_datastore($scope.structure.data);
+                managerDatastoreUser.save_user_datastore($scope.structure.data);
             },
             textConfig: {
                 'new_entry': {name: 'New User', icon: 'fa fa-user-plus'}
             },
+
+            additionalButtons: shareBlueprint.get_additional_functions(),
 
             /**
              * Returns the class of the icon used to display a specific item
@@ -637,6 +639,8 @@
              */
             $scope.save = function () {
 
+                console.log("sexy");
+
                 if ($scope.newEntryForm.$invalid) {
                     return;
                 }
@@ -706,6 +710,5 @@
                 $scope.bp.selected.onEditModalOpen($scope.bp.selected);
             }
         }]);
-
 
 })(angular, uuid);

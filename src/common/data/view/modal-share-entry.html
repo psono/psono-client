@@ -1,0 +1,39 @@
+<form name="editEntryForm" novalidate>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title">Share {{bp.selected.name}}</h3>
+    </div>
+    <div class="modal-body">
+
+        <tabset class="tabset_expand">
+            <tab heading="Users" active="tab.active" disable="tab.disabled">
+
+                <div ng-if="users">
+                    <button type="button" ng-click="addUser()" class="btn btn-link"><i class="fa fa-user-plus"></i> Add User</button>
+
+                    <ul class="list-group check-list">
+                        <li class="list-group-item" ng-class="selected_users.indexOf(user.id) > -1 ? 'selected' : ''" ng-repeat="user in users" ng-click="toggleSelectUser(user.id)">
+                            <i ng-class="selected_users.indexOf(user.id) > -1 ? 'fa fa-check-square-o' : 'fa fa-square-o'"></i> {{user.name | limitTo: 65 }}{{user.name.length > 65 ? '...)' : ''}}
+                        </li>
+                    </ul>
+
+                </div>
+                <div ng-if="!users">
+                    <p class="text-center">
+                        <a href=""><i class="fa fa-user-plus"></i> Add User</a>
+                    </p>
+                </div>
+
+            </tab>
+        </tabset>
+
+
+
+        <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
+        <span ng-repeat="e in msgs" class="pull-right">{{e}}</span>
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" type="button" ng-click="submitted=true; save();">OK</button>
+    </div>
+</form>

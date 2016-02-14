@@ -150,9 +150,9 @@
             };
 
             self.inBanlist = function(str) {
+                var toSearch = str.toLowerCase();
                 for (var i = 0, c = options.bannedPasswords.length; i < c; i++) {
-                    if (str.indexOf(options.bannedPasswords[i]) !== -1) {
-                        //console.log("password " + str + " is in banlist");
+                    if (toSearch.indexOf(options.bannedPasswords[i]) !== -1) {
                         return true;
                     }
                 }

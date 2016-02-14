@@ -26,9 +26,9 @@
     /**
      * Main Controller for the datastore widget
      */
-    module.controller('datastoreController', ["$scope", "$interval", "config", "manager", "managerDatastore", "$modal",
+    module.controller('datastoreController', ["$scope", "$interval", "config", "manager", "managerDatastorePassword", "managerDatastoreUser", "managerSecret", "$modal",
         "itemBlueprint",
-    function($scope, $interval, config, manager, managerDatastore, $modal, itemBlueprint){
+    function($scope, $interval, config, manager, managerDatastorePassword, managerDatastoreUser, managerSecret, $modal, itemBlueprint){
 
         // Modals
 
@@ -68,7 +68,7 @@
                     name: name
                 });
 
-                managerDatastore.save_password_datastore($scope.structure.data);
+                managerDatastorePassword.save_password_datastore($scope.structure.data);
 
             }, function () {
                 // cancel triggered
@@ -105,7 +105,7 @@
             modalInstance.result.then(function (name) {
                 node.name = name;
 
-                managerDatastore.save_password_datastore($scope.structure.data);
+                managerDatastorePassword.save_password_datastore($scope.structure.data);
 
             }, function () {
                 // cancel triggered
@@ -180,10 +180,10 @@
 
                     parent.items.push(datastore_object);
 
-                    managerDatastore.save_password_datastore($scope.structure.data);
+                    managerDatastorePassword.save_password_datastore($scope.structure.data);
                 };
 
-                manager.create_secret(secret_object)
+                managerSecret.create_secret(secret_object)
                     .then(onSuccess, onError);
 
             }, function () {
@@ -252,10 +252,10 @@
                     };
 
                     var onSuccess = function(e) {
-                        managerDatastore.save_password_datastore($scope.structure.data);
+                        managerDatastorePassword.save_password_datastore($scope.structure.data);
                     };
 
-                    manager.write_secret(node.secret_id, node.secret_key, secret_object)
+                    managerSecret.write_secret(node.secret_id, node.secret_key, secret_object)
                         .then(onSuccess, onError);
 
                 }, function () {
@@ -263,7 +263,7 @@
                 });
             };
 
-            manager.read_secret(node.secret_id, node.secret_key)
+            managerSecret.read_secret(node.secret_id, node.secret_key)
                 .then(onSuccess, onError);
         };
 
@@ -271,7 +271,7 @@
 
         $scope.structure = { data: {}} ;
 
-        managerDatastore.get_password_datastore()
+        managerDatastorePassword.get_password_datastore()
             .then(function (data) {$scope.structure.data = data;});
 
 
@@ -330,7 +330,7 @@
             onNodeSelect: function (node, breadcrums) {
                 $scope.breadcrums = breadcrums;
                 $scope.node = node;
-                manager.onNodeSelect(node);
+                managerSecret.onNodeSelect(node);
             },
             /**
              * Triggered once someone selects an item
@@ -341,7 +341,7 @@
             onItemSelect: function (item, breadcrums) {
                 $scope.breadcrums = breadcrums;
                 $scope.node = item;
-                manager.onItemSelect(item);
+                managerSecret.onItemSelect(item);
             },
             /**
              * Triggered once someone clicks on a node
@@ -350,7 +350,7 @@
              * @param path
              */
             onNodeClick: function(node, path) {
-                manager.onNodeClick(node, path);
+                managerSecret.onNodeClick(node, path);
             },
             /**
              * Triggered once someone clicks the delete node entry
@@ -364,7 +364,7 @@
                 var val = findInStructure(path, $scope.structure.data);
                 if (val)
                     val[0].splice(val[1], 1);
-                managerDatastore.save_password_datastore($scope.structure.data);
+                managerDatastorePassword.save_password_datastore($scope.structure.data);
             },
 
             /**
@@ -384,7 +384,7 @@
              * @param path The path to the item
              */
             onItemClick: function (item, path) {
-                manager.onItemClick(item, path);
+                managerSecret.onItemClick(item, path);
             },
 
             /**
@@ -400,7 +400,7 @@
                 if (val)
                     val[0].splice(val[1], 1);
 
-                managerDatastore.save_password_datastore($scope.structure.data);
+                managerDatastorePassword.save_password_datastore($scope.structure.data);
             },
 
             /**
@@ -431,6 +431,17 @@
              */
             onNewItem: function (parent, path) {
                 openNewItem(parent, path)
+            },
+
+            /**
+             * Triggered once someone clicks on an additional button
+             *
+             * @param item
+             * @param path
+             * @param myFunction
+             */
+            onAdditionalButtonItem: function(item, path, myFunction) {
+                myFunction(item,path);
             },
 
             /**
@@ -466,7 +477,7 @@
                 // delete the array at hte current position
                 val2[0].splice(val2[1], 1);
 
-                managerDatastore.save_password_datastore($scope.structure.data);
+                managerDatastorePassword.save_password_datastore($scope.structure.data);
             },
 
             /**
@@ -504,8 +515,10 @@
                 // delete the array at hte current position
                 val2[0].splice(val2[1], 1);
 
-                managerDatastore.save_password_datastore($scope.structure.data);
+                managerDatastorePassword.save_password_datastore($scope.structure.data);
             },
+
+            additionalButtons: itemBlueprint.get_additional_functions(),
 
             /**
              * Returns the class of the icon used to display a specific item
@@ -730,6 +743,114 @@
         if (typeof $scope.bp.selected.onEditModalOpen !== 'undefined') {
             $scope.bp.selected.onEditModalOpen($scope.bp.selected);
         }
+    }]);
+
+
+    /**
+     * Controller for the "Share Entry" modal
+     */
+    module.controller('ModalShareEntryCtrl', ['$scope', '$modalInstance', '$modal', 'shareBlueprint', 'managerDatastoreUser', 'node', 'path', 'users',
+    function ($scope, $modalInstance, $modal, shareBlueprint, managerDatastoreUser, node, path, users) {
+
+        $scope.node = node;
+        $scope.path = path;
+        $scope.users = users;
+        $scope.selected_users = [];
+        $scope.name = node.name;
+        $scope.content = '';
+        $scope.isCollapsed = true;
+
+        $scope.errors = [];
+
+        $scope.addUser = function() {
+
+            var modalInstance = $modal.open({
+                templateUrl: 'view/modal-new-entry.html',
+                controller: 'ModalShareNewEntryCtrl',
+                resolve: {
+                    parent: function () {
+                    },
+                    path: function () {
+                        return [];
+                    }
+                }
+            });
+
+            modalInstance.result.then(function (content) {
+
+
+
+
+                if (typeof parent === 'undefined') {
+                    parent = $scope.structure.data;
+                }
+
+                if (typeof parent.items === 'undefined') {
+                    parent.items = [];
+                }
+
+                var shareusers_object = {
+                    id: uuid.v4(),
+                    type: content.id,
+                    data: {}
+                };
+
+                if (shareBlueprint.get_blueprint(content.id).getName) {
+                    shareusers_object.name = shareBlueprint.get_blueprint(content.id).getName(content.columns);
+                }
+
+                for (var i = 0; i < content.columns.length; i++) {
+
+                    if (!content.columns[i].hasOwnProperty("value")) {
+                        continue;
+                    }
+                    if (!shareusers_object.name && content.title_column == content.columns[i].name) {
+                        shareusers_object.name = content.columns[i].value;
+                    }
+                    if (content.hasOwnProperty("urlfilter_column")
+                        && content.urlfilter_column == content.columns[i].name) {
+                        shareusers_object.urlfilter = content.columns[i].value;
+                    }
+                    shareusers_object.data[content.columns[i].name] = content.columns[i].value;
+                }
+
+                parent.items.push(shareusers_object);
+
+                managerDatastoreUser.save_user_datastore($scope.structure.data);
+
+            }, function () {
+                // cancel triggered
+            });
+        };
+
+        $scope.toggleSelectUser = function(user_id) {
+            var array_index = $scope.selected_users.indexOf(user_id);
+            if (array_index > -1) {
+                //its selected, lets deselect it
+                $scope.selected_users.splice(array_index, 1);
+            } else {
+                $scope.selected_users.push(user_id);
+            }
+        };
+
+        /**
+         * Triggered once someone clicks the save button in the modal
+         */
+        $scope.save = function () {
+
+            if ($scope.editEntryForm.$invalid) {
+                return;
+            }
+
+            $modalInstance.close($scope.bp.selected);
+        };
+
+        /**
+         * Triggered once someone clicks the cancel button in the modal
+         */
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
     }]);
 
 

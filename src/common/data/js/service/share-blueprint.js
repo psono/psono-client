@@ -98,7 +98,6 @@
                             }
                             if (columns[i].name === "user_id") {
                                 columns[i].value = data.id;
-                                columns[i].hidden = false;
                             }
                             if (columns[i].name === "user_email") {
                                 columns[i].value = data.email;
@@ -132,6 +131,27 @@
                 }
 
             }
+        };
+
+        var _additionalFunction = {
+            // TODO implement public trust / signing function
+        };
+
+        /**
+         * returns an overview of all available additional functions with name id and function
+         *
+         * @returns {Array} The list of all blueprints
+         */
+        var get_additional_functions = function() {
+
+            var result = [];
+
+            for (var property in _additionalFunction) {
+                if (_additionalFunction.hasOwnProperty(property)) {
+                    result.push(_additionalFunction[property])
+                }
+            }
+            return result;
         };
 
         /**
@@ -248,6 +268,7 @@
         };
 
         return {
+            get_additional_functions: get_additional_functions,
             get_blueprint: get_blueprint,
             get_blueprints: get_blueprints,
             get_default_blueprint_key: get_default_blueprint_key,

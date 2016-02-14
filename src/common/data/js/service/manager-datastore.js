@@ -1,28 +1,11 @@
 (function(angular) {
     'use strict';
 
-    var managerDatastore = function($q, $timeout, apiClient, cryptoLibrary, storage) {
+    var managerDatastore = function($q, $timeout, managerBase, apiClient, cryptoLibrary, storage) {
 
         var temp_datastore_key_storage = {};
         var temp_datastore_overview = false;
 
-        /**
-         * Privat function, that will return the object with the specified key from the specified db
-         *
-         * @param db
-         * @param key
-         *
-         * @returns {*}
-         * @private
-         */
-        var _find_one = function(db, key) {
-
-            var obj = storage.find_one(db, {'key': key});
-            if (obj === null) {
-                return ''
-            }
-            return obj['value'];
-        };
 
         /**
          * Returns the overview of all datastores that belong to this user
@@ -31,7 +14,7 @@
          * @returns {promise}
          * @private
          */
-        var _get_datastore_overview = function(force_fresh) {
+        var get_datastore_overview = function(force_fresh) {
 
             if ( (typeof force_fresh === 'undefined' || force_fresh === false) && temp_datastore_overview) {
                 // we have them in cache, so lets save the query
@@ -48,7 +31,7 @@
                     // pass
                 };
 
-                return apiClient.read_datastore(_find_one('config', 'user_token'))
+                return apiClient.read_datastore(managerBase.find_one_nolimit('config', 'user_token'))
                     .then(onSuccess, onError);
             }
 
@@ -64,7 +47,7 @@
          * @returns {promise}
          * @private
          */
-        var _get_datastore_id = function (type, description, force_fresh) {
+        var get_datastore_id = function (type, description, force_fresh) {
 
             var onSuccess = function (result) {
 
@@ -83,7 +66,7 @@
                 // pass
             };
 
-            return _get_datastore_overview(force_fresh)
+            return get_datastore_overview(force_fresh)
                 .then(onSuccess, onError);
         };
         /**
@@ -94,7 +77,7 @@
          * @returns {promise}
          * @private
          */
-        var _get_datastore_with_id = function (datastore_id) {
+        var get_datastore_with_id = function (datastore_id) {
 
             var onError = function(result) {
                 // pass
@@ -105,7 +88,7 @@
                 var datastore_secret_key = cryptoLibrary.decrypt_data(
                     result.data.secret_key,
                     result.data.secret_key_nonce,
-                    _find_one('config', 'user_secret_key')
+                    managerBase.find_one_nolimit('config', 'user_secret_key')
                 );
 
                 temp_datastore_key_storage[datastore_id] = datastore_secret_key;
@@ -124,7 +107,7 @@
                 return JSON.parse(data);
             };
 
-            return apiClient.read_datastore(_find_one('config', 'user_token'), datastore_id)
+            return apiClient.read_datastore(managerBase.find_one_nolimit('config', 'user_token'), datastore_id)
                 .then(onSuccess, onError);
         };
 
@@ -138,7 +121,7 @@
          * @returns {promise}
          * @private
          */
-        var _get_datastore = function(type, description) {
+        var get_datastore = function(type, description) {
 
             var onError = function(result) {
                 // pass
@@ -158,7 +141,7 @@
 
                             var cipher = cryptoLibrary.encrypt_data(
                                 secret_key,
-                                _find_one('config', 'user_secret_key')
+                                managerBase.find_one_nolimit('config', 'user_secret_key')
                             );
 
 
@@ -167,10 +150,10 @@
                             };
 
                             var onSuccess = function(result) {
-                                return _get_datastore_with_id(result.data.datastore_id);
+                                return get_datastore_with_id(result.data.datastore_id);
                             };
 
-                            return apiClient.create_datastore(_find_one('config', 'user_token'), type, description, '', '', cipher.text, cipher.nonce)
+                            return apiClient.create_datastore(managerBase.find_one_nolimit('config', 'user_token'), type, description, '', '', cipher.text, cipher.nonce)
                                 .then(onSuccess, onError);
                         }
                     };
@@ -180,15 +163,15 @@
                     };
 
 
-                    return _get_datastore_id(type, description, true)
+                    return get_datastore_id(type, description, true)
                         .then(onSuccess, onError);
 
                 } else {
-                    return _get_datastore_with_id(datastore_id);
+                    return get_datastore_with_id(datastore_id);
                 }
             };
 
-            return _get_datastore_id(type, description)
+            return get_datastore_id(type, description)
                 .then(onSuccess, onError);
         };
 
@@ -200,13 +183,13 @@
          * @param map
          * @private
          */
-        var _addNodeToStorage = function (name, folder, map) {
+        var addNodeToStorage = function (name, folder, map) {
             if(typeof folder === 'undefined') {
                 return;
             }
             var i;
             for (i = 0; folder.hasOwnProperty("folders") && i < folder.folders.length; i ++) {
-                _addNodeToStorage(name, folder.folders[i], map);
+                addNodeToStorage(name, folder.folders[i], map);
             }
             for (i = 0; folder.hasOwnProperty("items") && i < folder.items.length; i++) {
 
@@ -232,10 +215,10 @@
          * @param map
          * @private
          */
-        var _fill_storage = function(name, datastore, map) {
+        var fill_storage = function(name, datastore, map) {
             storage.removeAll(name);
 
-            _addNodeToStorage(name, datastore, map);
+            addNodeToStorage(name, datastore, map);
 
             storage.save();
         };
@@ -250,7 +233,7 @@
          * @returns {promise}
          * @private
          */
-        var _encrypt_datastore = function (datastore_id, content) {
+        var encrypt_datastore = function (datastore_id, content) {
 
             var json_content = JSON.stringify(content);
 
@@ -276,7 +259,7 @@
                     return encrypt(datastore_id, json_content);
                 };
 
-                return _get_datastore_with_id(datastore_id)
+                return get_datastore_with_id(datastore_id)
                     .then(onSuccess, onError)
 
             }
@@ -288,7 +271,7 @@
          * @param content
          * @private
          */
-        var _filter_datastore_content = function(content) {
+        var filter_datastore_content = function(content) {
 
             var content_copy  = JSON.parse(JSON.stringify(content));
 
@@ -335,7 +318,7 @@
          * @returns {promise}
          * @private
          */
-        var _save_datastore_with_id = function (datastore_id, content) {
+        var save_datastore_with_id = function (datastore_id, content) {
 
             var onError = function(result) {
                 // pass
@@ -349,11 +332,11 @@
                     return result.data;
                 };
 
-                return apiClient.write_datastore(_find_one('config', 'user_token'), datastore_id, data.text, data.nonce)
+                return apiClient.write_datastore(managerBase.find_one_nolimit('config', 'user_token'), datastore_id, data.text, data.nonce)
                     .then(onSuccess, onError);
             };
 
-            return _encrypt_datastore(datastore_id, content)
+            return encrypt_datastore(datastore_id, content)
                 .then(onSuccess, onError);
         };
 
@@ -368,7 +351,7 @@
          * @returns {promise}
          * @private
          */
-        var _save_datastore = function (type, description, content) {
+        var save_datastore = function (type, description, content) {
 
             var onError = function(result) {
                 // pass
@@ -376,172 +359,28 @@
 
             var onSuccess = function(datastore_id) {
 
-                return _save_datastore_with_id(datastore_id, content);
+                return save_datastore_with_id(datastore_id, content);
             };
 
-            return _get_datastore_id(type, description)
+            return get_datastore_id(type, description)
                 .then(onSuccess, onError);
-        };
-
-        /**
-         * Returns the password datastore. In addition this function triggers the generation of the local datastore
-         * storage to
-         *
-         * @returns {promise}
-         */
-        var get_password_datastore = function() {
-            var type = "password";
-            var description = "default";
-
-
-            var onSuccess = function (result) {
-
-                _fill_storage('datastore-password-leafs', result, [
-                    ['key', 'secret_id'],
-                    ['secret_id', 'secret_id'],
-                    ['value', 'secret_key'],
-                    ['name', 'name'],
-                    ['urlfilter', 'urlfilter'],
-                    ['search', 'urlfilter']
-
-                ]);
-
-                return result
-            };
-            var onError = function () {
-                // pass
-            };
-
-            return _get_datastore(type, description)
-                .then(onSuccess, onError);
-        };
-
-        /**
-         * Saves the password datastore with given content
-         *
-         * @param content The real object you want to encrypt in the datastore
-         * @returns {promise}
-         */
-        var save_password_datastore = function (content) {
-            var type = "password";
-            var description = "default";
-
-            // datastore has changed, so lets regenerate local lookup
-            _fill_storage('datastore-password-leafs', content, [
-                ['key', 'secret_id'],
-                ['value', 'secret_key'],
-                ['name', 'name'],
-                ['urlfilter', 'urlfilter']
-            ]);
-
-
-            content = _filter_datastore_content(content);
-
-            return _save_datastore(type, description, content)
-        };
-
-        /**
-         * Returns the user datastore. In addition this function triggers the generation of the local datastore
-         * storage to
-         *
-         * @returns {promise}
-         */
-        var get_user_datastore = function() {
-            var type = "user";
-            var description = "default";
-
-
-            var onSuccess = function (result) {
-                /*
-                 _fill_storage('datastore-user-leafs', result, [
-                 ['key', 'secret_id'],
-                 ['value', 'secret_key'],
-                 ['name', 'name'],
-                 ['filter', 'filter']
-                 ]);
-                 */
-                return result
-            };
-            var onError = function () {
-                // pass
-            };
-
-            return _get_datastore(type, description)
-                .then(onSuccess, onError);
-        };
-
-        /**
-         * Saves the user datastore with given content
-         *
-         * @param content The real object you want to encrypt in the datastore
-         * @returns {promise}
-         */
-        var save_user_datastore = function (content) {
-            var type = "user";
-            var description = "default";
-
-            content = _filter_datastore_content(content);
-
-            return _save_datastore(type, description, content)
-        };
-
-        /**
-         * Returns the settings datastore.
-         *
-         * @returns {promise}
-         */
-        var get_settings_datastore = function() {
-            var type = "settings";
-            var description = "key-value-settings";
-
-            var onSuccess = function (results) {
-
-                for (var i = 0; i < results.length; i++) {
-                    var s = storage.find_one('settings', {key: results[i].key});
-                    if (s !== null) {
-                        s.value = results[i].value;
-                        storage.update('settings', s);
-                    } else {
-                        storage.insert('settings', {key: results[i].key, value: results[i].value});
-                    }
-                }
-
-                return results
-            };
-            var onError = function () {
-                // pass
-            };
-
-            return _get_datastore(type, description)
-                .then(onSuccess, onError);
-        };
-
-        /**
-         *
-         * Saves the settings datastore with given content
-         *
-         * @param content The real object you want to encrypt in the datastore
-         * @returns {promise}
-         * @private
-         */
-        var save_settings_datastore = function (content) {
-            var type = "settings";
-            var description = "key-value-settings";
-
-            return _save_datastore(type, description, content)
         };
 
         return {
-            get_password_datastore: get_password_datastore,
-            save_password_datastore: save_password_datastore,
-            get_user_datastore: get_user_datastore,
-            save_user_datastore: save_user_datastore,
-            get_settings_datastore: get_settings_datastore,
-            save_settings_datastore: save_settings_datastore
+            get_datastore_overview: get_datastore_overview,
+            get_datastore_id: get_datastore_id,
+            get_datastore_with_id: get_datastore_with_id,
+            get_datastore: get_datastore,
+            addNodeToStorage: addNodeToStorage,
+            fill_storage: fill_storage,
+            save_datastore: save_datastore,
+            save_datastore_with_id: save_datastore_with_id,
+            filter_datastore_content: filter_datastore_content,
+            encrypt_datastore: encrypt_datastore
         };
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("managerDatastore", ['$q', '$timeout', 'apiClient', 'cryptoLibrary', 'storage', managerDatastore]);
+    app.factory("managerDatastore", ['$q', '$timeout', 'managerBase', 'apiClient', 'cryptoLibrary', 'storage', managerDatastore]);
 
 }(angular));

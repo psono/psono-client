@@ -329,9 +329,9 @@
             $scope.activate = activate;
         }]);
 
-    app.controller('WrapperController', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'browserClient', 'storage',
+    app.controller('WrapperController', ['$scope', '$rootScope', '$filter', '$timeout', 'managerDatastoreUser', 'browserClient', 'storage',
         'snapRemote', '$window', '$route', '$routeParams', '$location',
-        function($scope, $rootScope, $filter, $timeout, manager, browserClient, storage,
+        function($scope, $rootScope, $filter, $timeout, managerDatastoreUser, browserClient, storage,
                  snapRemote, $window, $route, $routeParams, $location)
         {
 
@@ -423,7 +423,7 @@
 
             /* login / logout */
             $scope.data = {
-                loggedin: manager.is_logged_in()
+                loggedin: managerDatastoreUser.is_logged_in()
             };
 
             if ($scope.data.loggedin) {
@@ -457,9 +457,9 @@
 
         }]);
 
-    app.controller('MainController', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'browserClient', 'storage',
+    app.controller('MainController', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'managerDatastorePassword', 'managerDatastoreUser', 'managerSecret', 'browserClient', 'storage',
         'snapRemote', '$window', '$route', '$routeParams', '$location',
-        function($scope, $rootScope, $filter, $timeout, manager, browserClient, storage,
+        function($scope, $rootScope, $filter, $timeout, manager, managerDatastorePassword, managerDatastoreUser, managerSecret, browserClient, storage,
                  snapRemote, $window, $route, $routeParams, $location)
         {
 
@@ -480,28 +480,26 @@
                 }
             };
 
-            $scope.logout = manager.logout;
-            $scope.generatePassword = manager.generatePasswordActiveTab;
+            $scope.logout = managerDatastoreUser.logout;
+            $scope.generatePassword = managerDatastorePassword.generatePasswordActiveTab;
 
             $scope.user_email = manager.find_one('config', 'user_email');
 
-            $scope.onItemClick = manager.onItemClick;
+            $scope.onItemClick = managerSecret.onItemClick;
 
         }]);
 
-    app.controller('PanelController', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'browserClient',
-        'storage', 'managerDatastore',
+    app.controller('PanelController', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'managerDatastorePassword', 'managerDatastoreUser', 'managerSecret', 'browserClient',
         'snapRemote', '$window', '$route', '$routeParams', '$location',
-        function($scope, $rootScope, $filter, $timeout, manager, browserClient,
-                 storage, managerDatastore,
+        function($scope, $rootScope, $filter, $timeout, manager, managerDatastorePassword, managerDatastoreUser, managerSecret, browserClient,
                  snapRemote, $window, $route, $routeParams, $location)
         {
 
             /* openTab function to pass through */
             $scope.openTab = browserClient.openTab;
 
-            $scope.logout = manager.logout;
-            $scope.generatePassword = manager.generatePasswordActiveTab;
+            $scope.logout = managerDatastoreUser.logout;
+            $scope.generatePassword = managerDatastorePassword.generatePasswordActiveTab;
 
             /* datastore search */
 
@@ -535,7 +533,7 @@
             });
 
 
-            managerDatastore.get_password_datastore();
+            managerDatastorePassword.get_password_datastore();
 
             var regex;
 
@@ -543,9 +541,9 @@
                 regex = new RegExp(value.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1"), 'i');
 
                 $timeout(function() {
-                    if (! manager.is_logged_in()) {
+                    if (! managerDatastoreUser.is_logged_in()) {
                         browserClient.resize(250);
-                    } else if ($scope.datastore.search === '' && manager.is_logged_in()) {
+                    } else if ($scope.datastore.search === '' && managerDatastoreUser.is_logged_in()) {
                         browserClient.resize(295);
                     } else {
                         /*
@@ -564,7 +562,7 @@
                 return regex.test(searchEntry.name) || regex.test(searchEntry.urlfilter);
             };
 
-            $scope.onItemClick = manager.onItemClick;
+            $scope.onItemClick = managerSecret.onItemClick;
 
         }]);
 
@@ -635,8 +633,8 @@
         $scope.routeParams = $routeParams;
     }]);
 
-    app.controller('SettingsController', ['$scope', '$routeParams', 'settings', 'managerDatastore',
-    function($scope, $routeParams, settings, managerDatastore) {
+    app.controller('SettingsController', ['$scope', '$routeParams', 'settings', 'managerDatastoreSetting',
+    function($scope, $routeParams, settings, managerDatastoreSetting) {
 
         var onError = function() {
             alert("Error, should not happen.");
@@ -645,7 +643,7 @@
             $scope.settings = settings.get_settings();
         };
 
-        managerDatastore.get_settings_datastore().then(onRequestReturn, onError);
+        managerDatastoreSetting.get_settings_datastore().then(onRequestReturn, onError);
 
         $scope.tabs = settings.get_tabs();
         $scope.save = function() {

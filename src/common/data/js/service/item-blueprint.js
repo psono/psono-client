@@ -2,7 +2,7 @@
     'use strict';
 
 
-    var itemBlueprint = function($window, $injector, helper) {
+    var itemBlueprint = function($window, $modal, helper) {
 
         var _default = "website_password";
 
@@ -160,6 +160,75 @@
             }*/
         };
 
+        var _additionalFunction = {
+            share: {
+                id: 'share',
+                name: 'Share',
+                icon: 'fa fa-share',
+                onClick: function(item, path) {
+
+                    console.log('_additionalFunction executed');
+
+                    console.log(item);
+                    console.log(path);
+
+
+                    var create_list = function (obj, list) {
+                        var i;
+                        for (i = 0; obj.items && i < obj.items.length; i++) {
+                            list.push(obj.items[i]);
+                        }
+                        for (i = 0; obj.folders && i < obj.folders.length; i++) {
+                            create_list(obj.folders[i], list);
+                        }
+                    };
+
+
+                    registrations['get_user_datastore']()
+                        .then(function (user_datastore) {
+                            console.log(user_datastore);
+
+                            var users = [];
+                            create_list(user_datastore, users);
+                            console.log(users);
+
+                            var modalInstance = $modal.open({
+                                templateUrl: 'view/modal-share-entry.html',
+                                controller: 'ModalShareEntryCtrl',
+                                resolve: {
+                                    node: function () {
+                                        return item;
+                                    },
+                                    path: function () {
+                                        return path;
+                                    },
+                                    users: function() {
+                                        return users;
+                                    }
+                                }
+                            });
+                        });
+                }
+            }
+        };
+
+        /**
+         * returns an overview of all available additional functions with name id and function
+         *
+         * @returns {Array} The list of all blueprints
+         */
+        var get_additional_functions = function() {
+
+            var result = [];
+
+            for (var property in _additionalFunction) {
+                if (_additionalFunction.hasOwnProperty(property)) {
+                    result.push(_additionalFunction[property])
+                }
+            }
+            return result;
+        };
+
         /**
          * returns an overview of all available blueprints with name and id
          *
@@ -274,6 +343,7 @@
         };
 
         return {
+            get_additional_functions: get_additional_functions,
             get_blueprint: get_blueprint,
             get_blueprints: get_blueprints,
             get_default_blueprint_key: get_default_blueprint_key,
@@ -287,6 +357,6 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("itemBlueprint", ['$window', '$injector', 'helper', itemBlueprint]);
+    app.factory("itemBlueprint", ['$window', '$modal', 'helper', itemBlueprint]);
 
 }(angular));

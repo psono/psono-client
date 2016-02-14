@@ -2,7 +2,7 @@
     'use strict';
 
 
-    var settings = function($q, storage, manager, managerDatastore, cryptoLibrary, apiClient) {
+    var settings = function($q, storage, manager, managerDatastoreSetting, cryptoLibrary, apiClient) {
 
         var _tabs = [
             //{ key: 'general', title: 'General' },
@@ -135,7 +135,7 @@
                     value: s[k].value
                 });
             }
-            managerDatastore.save_settings_datastore(content);
+            managerDatastoreSetting.save_settings_datastore(content);
             return storage.save();
         };
 
@@ -232,6 +232,6 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("settings", ['$q', 'storage', 'manager', 'managerDatastore', 'cryptoLibrary', 'apiClient', settings]);
+    app.factory("settings", ['$q', 'storage', 'manager', 'managerDatastoreSetting', 'cryptoLibrary', 'apiClient', settings]);
 
 }(angular));

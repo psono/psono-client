@@ -277,8 +277,13 @@ mod.PageMod({
         "./js/service/crypto-library.js",
         "./js/service/storage.js",
         "./js/service/settings.js",
+        "./js/service/manager-base.js",
         "./js/service/manager.js",
         "./js/service/manager-datastore.js",
+        "./js/service/manager-secret.js",
+        "./js/service/manager-datastore-password.js",
+        "./js/service/manager-datastore-user.js",
+        "./js/service/manager-datastore-setting.js",
         "./js/service/browser-client.js",
         "./js/service/password-generator.js",
         "./view/templates.js"
