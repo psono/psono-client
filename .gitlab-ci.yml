@@ -1,10 +1,15 @@
 before_script:
   - docker info
+  - /usr/local/bin/docker-compose -f docker-compose-test.yml kill
+  - /usr/local/bin/docker-compose -f docker-compose-test.yml rm -f
+  - /usr/local/bin/docker-compose -f docker-compose-test.yml build
 
-build_image:
+test_image_chrome:
   script:
-    - /usr/local/bin/docker-compose -f docker-compose-test.yml kill
-    - /usr/local/bin/docker-compose -f docker-compose-test.yml rm -f
-    - /usr/local/bin/docker-compose -f docker-compose-test.yml build
     - /usr/local/bin/docker-compose -f docker-compose-test.yml run password-client-image-test bash -c "(test -e /tmp/.X99-lock || /usr/bin/Xvfb :99 &) && karma start ./unittests/karma-chrome.conf.js"
     - /usr/local/bin/docker-compose -f docker-compose-test.yml stop
+
+#test_image_firefox:
+#  script:
+#    - /usr/local/bin/docker-compose -f docker-compose-test.yml run password-client-image-test bash -c "(test -e /tmp/.X99-lock || /usr/bin/Xvfb :99 &) && karma start ./unittests/karma-firefox.conf.js"
+#    - /usr/local/bin/docker-compose -f docker-compose-test.yml stop
