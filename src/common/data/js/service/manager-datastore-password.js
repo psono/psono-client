@@ -1,7 +1,7 @@
 (function(angular, uuid) {
     'use strict';
 
-    var managerDatastorePassword = function($q, manager, managerDatastore, passwordGenerator, itemBlueprint, helper) {
+    var managerDatastorePassword = function($q, managerSecret, managerDatastore, passwordGenerator, itemBlueprint, helper) {
 
 
         /**
@@ -106,7 +106,7 @@
                     });
             };
 
-            manager.create_secret(secret_object)
+            managerSecret.create_secret(secret_object)
                 .then(onSuccess, onError);
 
             // we return a promise. So far its
@@ -162,6 +162,6 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("managerDatastorePassword", ['$q', 'manager', 'managerDatastore', 'passwordGenerator', 'itemBlueprint', 'helper', managerDatastorePassword]);
+    app.factory("managerDatastorePassword", ['$q', 'managerSecret', 'managerDatastore', 'passwordGenerator', 'itemBlueprint', 'helper', managerDatastorePassword]);
 
 }(angular, uuid));

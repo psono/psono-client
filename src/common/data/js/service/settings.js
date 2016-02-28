@@ -2,7 +2,7 @@
     'use strict';
 
 
-    var settings = function($q, storage, manager, managerDatastoreSetting, cryptoLibrary, apiClient) {
+    var settings = function($q, storage, managerDatastoreUser, managerDatastoreSetting, cryptoLibrary, apiClient) {
 
         var _tabs = [
             //{ key: 'general', title: 'General' },
@@ -213,7 +213,7 @@
                     var onError = function() {
                         return reject({errors: ['Old password incorrect']})
                     };
-                    return manager.updateUser(specials['setting_email'].value, new_authkey, authkey_old, priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce, user_sauce)
+                    return managerDatastoreUser.updateUser(specials['setting_email'].value, new_authkey, authkey_old, priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce, user_sauce)
                         .then(onSucces, onError);
 
 
@@ -232,6 +232,6 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("settings", ['$q', 'storage', 'manager', 'managerDatastoreSetting', 'cryptoLibrary', 'apiClient', settings]);
+    app.factory("settings", ['$q', 'storage', 'managerDatastoreUser', 'managerDatastoreSetting', 'cryptoLibrary', 'apiClient', settings]);
 
 }(angular));

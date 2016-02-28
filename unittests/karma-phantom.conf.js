@@ -72,7 +72,7 @@
             colors: true,
             logLevel: config.LOG_INFO,
             autoWatch: true,
-            browsers: [],
+            browsers: ['PhantomJS'],
             singleRun: true,
             concurrency: Infinity
         });

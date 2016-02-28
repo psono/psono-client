@@ -1,7 +1,7 @@
 (function(angular) {
     'use strict';
 
-    var managerDatastoreUser = function($q, $rootScope, apiClient, browserClient, storage, managerBase, managerDatastore, shareBlueprint, itemBlueprint) {
+    var managerDatastoreUser = function($q, $rootScope, apiClient, browserClient, storage, managerBase, managerDatastore, shareBlueprint, itemBlueprint, cryptoLibrary) {
 
         /**
          * Checks if the user is logged in.
@@ -306,6 +306,6 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("managerDatastoreUser", ['$q', '$rootScope', 'apiClient', 'browserClient', 'storage', 'managerBase', 'managerDatastore', 'shareBlueprint', 'itemBlueprint', managerDatastoreUser]);
+    app.factory("managerDatastoreUser", ['$q', '$rootScope', 'apiClient', 'browserClient', 'storage', 'managerBase', 'managerDatastore', 'shareBlueprint', 'itemBlueprint', 'cryptoLibrary', managerDatastoreUser]);
 
 }(angular));

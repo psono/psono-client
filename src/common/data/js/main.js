@@ -131,11 +131,11 @@
 
         }]);
 
-    app.run(['$rootScope','$location', '$routeParams', 'manager' , function($rootScope, $location, $routeParams, manager) {
+    app.run(['$rootScope','$location', '$routeParams', 'managerSecret' , function($rootScope, $location, $routeParams, managerSecret) {
         $rootScope.$on('$routeChangeSuccess', function() {
             var redirect = '/secret/';
             if ($location.path().substring(0, redirect.length) == redirect && $routeParams.hasOwnProperty('secret_id')) {
-                manager.redirectSecret($routeParams.type, $routeParams.secret_id);
+                managerSecret.redirectSecret($routeParams.type, $routeParams.secret_id);
             }
 
         });
@@ -195,8 +195,8 @@
         });
     }]);
 
-    app.controller('RegisterController', ['$scope', '$route', '$filter', 'manager', 'BACKEND_SERVERS',
-        function($scope, $route, $filter, manager, BACKEND_SERVERS)
+    app.controller('RegisterController', ['$scope', '$route', '$filter', 'managerDatastoreUser', 'BACKEND_SERVERS',
+        function($scope, $route, $filter, managerDatastoreUser, BACKEND_SERVERS)
         {
             /* Server selection with preselection of dev server */
             $scope.servers = BACKEND_SERVERS;
@@ -261,12 +261,12 @@
 
                 // TODO forbid weak and poor passwords
 
-                manager.register(email, password, angular.copy($scope.selected_server)).then(onRequestReturn, onError);
+                managerDatastoreUser.register(email, password, angular.copy($scope.selected_server)).then(onRequestReturn, onError);
             };
         }]);
 
-    app.controller('ActivationController', ['$scope', '$route', '$routeParams', 'manager', 'BACKEND_SERVERS',
-        function($scope, $route, $routeParams, manager, BACKEND_SERVERS)
+    app.controller('ActivationController', ['$scope', '$route', '$routeParams', 'managerDatastoreUser', 'BACKEND_SERVERS',
+        function($scope, $route, $routeParams, managerDatastoreUser, BACKEND_SERVERS)
         {
 
             /* Server selection with preselection of dev server */
@@ -314,7 +314,7 @@
                     }
                 }
                 if (activation_code !== undefined ) {
-                    manager.activate(activation_code, angular.copy($scope.selected_server)).then(onRequestReturn, onError);
+                    managerDatastoreUser.activate(activation_code, angular.copy($scope.selected_server)).then(onRequestReturn, onError);
                 }
             };
 
@@ -566,9 +566,9 @@
 
         }]);
 
-    app.controller('LoginController', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'browserClient', 'storage',
+    app.controller('LoginController', ['$scope', '$rootScope', '$filter', '$timeout', 'managerDatastoreUser', 'browserClient', 'storage',
         'snapRemote', '$window', '$route', '$routeParams', '$location', 'BACKEND_SERVERS',
-        function($scope, $rootScope, $filter, $timeout, manager, browserClient, storage,
+        function($scope, $rootScope, $filter, $timeout, managerDatastoreUser, browserClient, storage,
                  snapRemote, $window, $route, $routeParams, $location, BACKEND_SERVERS)
         {
 
@@ -622,7 +622,7 @@
                     }
                 }
                 if (email !== undefined && password !== undefined) {
-                    manager.login(email, password, angular.copy($scope.selected_server)).then(onRequestReturn, onError);
+                    managerDatastoreUser.login(email, password, angular.copy($scope.selected_server)).then(onRequestReturn, onError);
                 }
             };
         }]);

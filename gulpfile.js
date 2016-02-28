@@ -160,7 +160,7 @@ gulp.task('dist', ['default', 'crx', 'xpi']);
  */
 gulp.task('unittest', function (done) {
     new karma_server({
-        configFile: __dirname + '/unittests/karma.conf.coffee',
+        configFile: __dirname + '/unittests/karma-chrome.conf.js',
         singleRun: true
     }, done).start();
 });
@@ -170,6 +170,7 @@ gulp.task('unittest', function (done) {
  */
 gulp.task('unittestwatch', function (done) {
     new karma_server({
-        configFile: __dirname + '/unittests/karma.conf.coffee'
+        configFile: __dirname + '/unittests/karma-chrome.conf.js',
+        singleRun: false
     }, done).start();
 });

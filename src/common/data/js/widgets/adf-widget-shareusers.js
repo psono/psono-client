@@ -26,9 +26,9 @@
     /**
      * Main Controller for the shareusers widget
      */
-    module.controller('shareusersController', ["$scope", "$interval", "config", "manager", "managerDatastoreUser", "$modal",
+    module.controller('shareusersController', ["$scope", "$interval", "config", "managerSecret", "managerDatastoreUser", "$modal",
         "shareBlueprint",
-        function($scope, $interval, config, manager, managerDatastoreUser, $modal, shareBlueprint){
+        function($scope, $interval, config, managerSecret, managerDatastoreUser, $modal, shareBlueprint){
 
             // Modals
 
@@ -302,7 +302,7 @@
                 onNodeSelect: function (node, breadcrums) {
                     $scope.breadcrums = breadcrums;
                     $scope.node = node;
-                    manager.onNodeSelect(node);
+                    managerSecret.onNodeSelect(node);
                 },
                 /**
                  * Triggered once someone selects an item
@@ -313,7 +313,7 @@
                 onItemSelect: function (item, breadcrums) {
                     $scope.breadcrums = breadcrums;
                     $scope.node = item;
-                    manager.onItemSelect(item);
+                    managerSecret.onItemSelect(item);
                 },
                 /**
                  * Triggered once someone clicks on a node
@@ -322,7 +322,7 @@
                  * @param path
                  */
                 onNodeClick: function(node, path) {
-                    manager.onNodeClick(node, path);
+                    managerSecret.onNodeClick(node, path);
                 },
                 /**
                  * Triggered once someone clicks the delete node entry
@@ -356,7 +356,7 @@
                  * @param path The path to the item
                  */
                 onItemClick: function (item, path) {
-                    manager.onItemClick(item, path);
+                    managerSecret.onItemClick(item, path);
                 },
 
                 /**
