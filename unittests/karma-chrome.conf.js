@@ -42,6 +42,7 @@
                 "../src/common/data/js/service/manager.js",
                 "../src/common/data/js/service/manager-datastore.js",
                 "../src/common/data/js/service/manager-secret.js",
+                "../src/common/data/js/service/manager-share.js",
                 "../src/common/data/js/service/manager-datastore-password.js",
                 "../src/common/data/js/service/manager-datastore-user.js",
                 "../src/common/data/js/service/manager-datastore-setting.js",
@@ -56,7 +57,8 @@
             ],
             exclude: [],
             preprocessors: {
-                '**/*.coffee': ['coffee']
+                '**/*.coffee': ['coffee'],
+                '../src/**/*.js': ['coverage']
             },
             coffeePreprocessor: {
                 options: {
@@ -67,7 +69,11 @@
                     return path.replace(/\.coffee$/, '.js');
                 }
             },
-            reporters: ['progress'],
+            coverageReporter: {
+                type : 'html',
+                dir : 'coverage/'
+            },
+            reporters: ['progress', 'coverage'],
             port: 9876,
             colors: true,
             logLevel: config.LOG_INFO,

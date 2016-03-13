@@ -361,18 +361,14 @@
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} [encrypted_data] - optional data for the new share
          * @param {string} [encrypted_data_nonce] - nonce for data, necessary if data is provided
-         * @param {string} encrypted_data_secret_key - encrypted secret key
-         * @param {string} encrypted_data_secret_key_nonce - nonce for secret key
          * @returns {promise}
          */
-        var create_share = function (token, encrypted_data, encrypted_data_nonce, encrypted_data_secret_key, encrypted_data_secret_key_nonce) {
+        var create_share = function (token, encrypted_data, encrypted_data_nonce) {
             var endpoint = '/share/';
             var connection_type = "PUT";
             var data = {
                 data: encrypted_data,
-                data_nonce: encrypted_data_nonce,
-                secret_key: encrypted_data_secret_key,
-                secret_key_nonce: encrypted_data_secret_key_nonce
+                data_nonce: encrypted_data_nonce
             };
             var headers = {
                 "Authorization": "Token "+ token
@@ -416,7 +412,7 @@
          * @returns {promise}
          */
         var read_share_total = function (token, share_id) {
-            var endpoint = '/share/rights/' + share_id + '/';
+            var endpoint = '/share/right/' + share_id + '/';
             var connection_type = "GET";
             var data = null;
             var headers = {
@@ -430,23 +426,30 @@
          * Ajax GET request with the token as authentication to get the users and groups rights of the share
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {uuid} title - the title shown to the user before he accepts
+         * @param {uuid} type - the type of the share
          * @param {uuid} share_id - the share ID
          * @param {uuid} user_id - the target user's user ID
          * @param {string} key - the encrypted share secret, encrypted with the public key of the target user
-         * @param {string} nonce - the unique nonce for decryption
+         * @param {string} key_nonce - the unique nonce for decryption
          * @param {bool} read - read right
          * @param {bool} write - write right
+         * @param {bool} grant - grant right
          * @returns {promise}
          */
-        var create_share_right = function (token, share_id, user_id, key, nonce, read, write) {
-            var endpoint = '/share/rights/' + share_id + '/';
+        var create_share_right = function (token, title, type, share_id, user_id, key, key_nonce, read, write, grant) {
+            var endpoint = '/share/right/';
             var connection_type = "PUT";
             var data = {
+                title: title,
+                type: type,
+                share_id: share_id,
                 user_id: user_id,
                 key: key,
-                nonce: nonce,
+                key_nonce: key_nonce,
                 read: read,
-                write: write
+                write: write,
+                grant: grant
             };
             var headers = {
                 "Authorization": "Token "+ token

@@ -85,10 +85,9 @@
 
             var onSuccess = function(result) {
 
-                var datastore_secret_key = cryptoLibrary.decrypt_data(
+                var datastore_secret_key = managerBase.decrypt_secret_key(
                     result.data.secret_key,
-                    result.data.secret_key_nonce,
-                    managerBase.find_one_nolimit('config', 'user_secret_key')
+                    result.data.secret_key_nonce
                 );
 
                 temp_datastore_key_storage[datastore_id] = datastore_secret_key;
@@ -139,10 +138,7 @@
 
                             var secret_key = cryptoLibrary.generate_secret_key();
 
-                            var cipher = cryptoLibrary.encrypt_data(
-                                secret_key,
-                                managerBase.find_one_nolimit('config', 'user_secret_key')
-                            );
+                            var cipher = managerBase.encrypt_secret_key(secret_key);
 
 
                             var onError = function(result) {

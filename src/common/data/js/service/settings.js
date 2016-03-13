@@ -146,6 +146,7 @@
          */
         var save = function() {
             return $q(function(resolve, reject) {
+                // TODO move this function to managerDatastoreUser as it directly accesses public / private / secret keys
                 var specials = {};
 
                 // lets search our settings for the interesting settings

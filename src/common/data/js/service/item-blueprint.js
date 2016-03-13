@@ -189,7 +189,6 @@
                                 controller: 'ModalShareEntryCtrl',
                                 resolve: {
                                     node: function () {
-                                        console.log("triggered");
                                         return item;
                                     },
                                     path: function () {
@@ -201,6 +200,7 @@
                                 }
                             });
 
+                            // User clicked the final share button
                             modalInstance.result.then(function (content) {
                                 console.log(content);
 
@@ -208,6 +208,9 @@
                                     || content.users.length < 1
                                     || !content.selected_users
                                     || content.selected_users.length < 1) {
+
+                                    // TODO echo not shared message because no user selected
+
                                     return;
                                 }
 
@@ -219,8 +222,38 @@
                                         users.push(content.users[i]);
                                     }
                                 }
+                                // create the share
+                                registrations['create_share'](content.node).then(function (share_details) {
 
-                                // TODO finish this
+                                    // share created successfully, now let's update the rights and add our user
+                                    // share_details = { share_id: "...", secret_key: "..."}
+                                    console.log(share_details);
+
+                                    for (var i = 0; i < content.users.length; i++) {
+                                        if (content.selected_users.indexOf(content.users[i].id) < 0) {
+                                            continue;
+                                        }
+
+                                        // found a user that has been selected, lets create the rights for him
+                                        // TODO create form and read values from form
+                                        var read = true;
+                                        var write = true;
+                                        var grant = false;
+
+                                        // generate the title
+                                        // TODO create form field with this default value and read value from form
+                                        var title = _blueprints[content.node.type].name + " with title '" + content.node.name + "'";
+
+                                        registrations['create_share_right'](title, content.node.type,
+                                            share_details.share_id, content.users[i].data.user_id,
+                                            content.users[i].data.user_public_key, share_details.secret_key,
+                                            read, write, grant);
+                                        i++;
+                                    }
+
+                                    // TODO add share to our datastore
+
+                                });
 
 
 

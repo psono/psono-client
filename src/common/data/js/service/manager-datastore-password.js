@@ -55,7 +55,6 @@
                 ['urlfilter', 'urlfilter']
             ]);
 
-
             content = managerDatastore.filter_datastore_content(content);
 
             return managerDatastore.save_datastore(type, description, content)
@@ -88,9 +87,10 @@
             };
 
             var onSuccess = function(e) {
-
                 get_password_datastore()
                     .then(function (data) {
+
+                        console.log("password datastore loaded successfully");
 
                         var datastore_object = {
                             id: uuid.v4(),
@@ -102,6 +102,7 @@
                         };
 
                         data.items.push(datastore_object);
+
                         save_password_datastore(data);
                     });
             };

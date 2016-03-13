@@ -42,6 +42,7 @@
                 "../src/common/data/js/service/manager.js",
                 "../src/common/data/js/service/manager-datastore.js",
                 "../src/common/data/js/service/manager-secret.js",
+                "../src/common/data/js/service/manager-share.js",
                 "../src/common/data/js/service/manager-datastore-password.js",
                 "../src/common/data/js/service/manager-datastore-user.js",
                 "../src/common/data/js/service/manager-datastore-setting.js",

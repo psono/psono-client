@@ -66,10 +66,58 @@
             return find_one_nolimit(db, key);
         };
 
+        /**
+         * encrypts some data with user's public-private-key-crypto
+         *
+         * @param data
+         * @param public_key
+         * @returns {{nonce, text}|{nonce: string, text: string}|{nonce, ciphertext}|{nonce: string, ciphertext: string}}
+         */
+        var encrypt_private_key = function (data, public_key) {
+            return cryptoLibrary.encrypt_data_public_key(data, public_key, find_one_nolimit('config', 'user_private_key'));
+        };
+
+        /**
+         * encrypts some data with user's public-private-key-crypto
+         *
+         * @param text
+         * @param nonce
+         * @param public_key
+         * @returns {string}
+         */
+        var decrypt_private_key = function (text, nonce, public_key) {
+            return cryptoLibrary.decrypt_data_public_key(data, public_key, find_one_nolimit('config', 'user_private_key'));
+        };
+
+        /**
+         * encrypts some data with user's secret-key-crypto
+         *
+         * @param data
+         * @returns {{nonce, text}|{nonce: string, text: string}|{nonce, ciphertext}|{nonce: string, ciphertext: string}}
+         */
+        var encrypt_secret_key = function(data) {
+            return cryptoLibrary.encrypt_data(data, find_one_nolimit('config', 'user_secret_key'));
+        };
+
+        /**
+         * decrypts some data with user's secret-key-crypto
+         *
+         * @param text
+         * @param nonce
+         * @returns {string}
+         */
+        var decrypt_secret_key = function (text, nonce) {
+            return cryptoLibrary.decrypt_data(text, nonce, find_one_nolimit('config', 'user_secret_key'));
+        };
+
         return {
             delete_local_data: delete_local_data,
             find_one_nolimit: find_one_nolimit,
-            find_one: find_one
+            find_one: find_one,
+            encrypt_private_key: encrypt_private_key,
+            decrypt_private_key: decrypt_private_key,
+            encrypt_secret_key: encrypt_secret_key,
+            decrypt_secret_key: decrypt_secret_key
         };
     };
 

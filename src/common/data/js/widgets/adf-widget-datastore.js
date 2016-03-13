@@ -26,9 +26,9 @@
     /**
      * Main Controller for the datastore widget
      */
-    module.controller('datastoreController', ["$scope", "$interval", "config", "manager", "managerDatastorePassword", "managerDatastoreUser", "managerSecret", "$modal",
+    module.controller('datastoreController', ["$scope", "$interval", "config", "manager", "managerDatastorePassword", "managerDatastoreUser", "managerSecret", "managerShare", "$modal",
         "itemBlueprint",
-    function($scope, $interval, config, manager, managerDatastorePassword, managerDatastoreUser, managerSecret, $modal, itemBlueprint){
+    function($scope, $interval, config, manager, managerDatastorePassword, managerDatastoreUser, managerSecret, managerShare, $modal, itemBlueprint){
 
         // Modals
 
