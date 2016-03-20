@@ -1,7 +1,93 @@
 (function(angular, uuid) {
     'use strict';
 
-    var managerDatastorePassword = function($q, managerSecret, managerDatastore, passwordGenerator, itemBlueprint, helper) {
+    var managerDatastorePassword = function($q, managerSecret, managerDatastore, managerShare, passwordGenerator, itemBlueprint, helper) {
+
+        var update_paths_with_data = function(datastore, paths, data) {
+
+            var paths2 = paths.slice();
+
+            for (var i = 0; i < paths2.length; i++) {
+                var search = find_in_datastore(paths2[i].slice(), datastore);
+                var obj = search[0][search[1]];
+
+                for (var prop in data) {
+                    if (!data.hasOwnProperty(prop)) {
+                        continue;
+                    }
+
+                    obj[prop] = data[prop];
+                }
+            }
+
+        };
+
+        var read_shares_recursive = function(datastore, index, all_share_data) {
+
+            if (typeof index === 'undefined') {
+                return datastore;
+            }
+
+            for (var share_id in index) {
+                if (!index.hasOwnProperty(share_id)) {
+                    continue;
+                }
+
+                if (all_share_data.hasOwnProperty(share_id)) {
+                    update_paths_with_data(datastore, index[share_id].index[share_id].paths, all_share_data[share_id]);
+                    continue;
+                }
+
+                (function(share_id) {
+
+                    var onSuccess = function(data) {
+
+                        all_share_data[share_id] = data;
+
+                        update_paths_with_data(datastore, index[share_id].paths, data);
+
+                        read_shares_recursive(datastore, data.share_index, all_share_data);
+                    };
+
+                    var onError = function () {
+                        // pass
+                    };
+
+                    managerShare.read_share(share_id, index[share_id].secret_key)
+                        .then(onSuccess, onError);
+                })(share_id);
+            }
+
+            return datastore
+        };
+
+        var hide_sub_share_content = function (share) {
+
+            var allowed_props = ['id', 'name', 'share_id', 'share_secret_key'];
+
+            for (var share_id in share.share_index) {
+                if (!share.share_index.hasOwnProperty(share_id)) {
+                    continue;
+                }
+
+                for (var i = 0; i < share.share_index[share_id].paths.length; i++) {
+
+                    var search = find_in_datastore(share.share_index[share_id].paths[i].slice(), share);
+                    var obj = search[0][search[1]];
+
+                    for (var prop in obj) {
+                        if (!obj.hasOwnProperty(prop)) {
+                            continue;
+                        }
+                        if (allowed_props.indexOf(prop) > -1) {
+                            continue;
+                        }
+                        delete obj[prop];
+                    }
+                }
+            }
+
+        };
 
 
         /**
@@ -15,9 +101,9 @@
             var description = "default";
 
 
-            var onSuccess = function (result) {
+            var onSuccess = function (datastore) {
 
-                managerDatastore.fill_storage('datastore-password-leafs', result, [
+                managerDatastore.fill_storage('datastore-password-leafs', datastore, [
                     ['key', 'secret_id'],
                     ['secret_id', 'secret_id'],
                     ['value', 'secret_key'],
@@ -27,7 +113,7 @@
 
                 ]);
 
-                return result
+                return read_shares_recursive(datastore, datastore.share_index, {});
             };
             var onError = function () {
                 // pass
@@ -40,24 +126,60 @@
         /**
          * Saves the password datastore with given content
          *
-         * @param content The real object you want to encrypt in the datastore
-         * @returns {promise}
+         * @param datastore The real object you want to encrypt in the datastore
+         * @param paths The list of paths to the changed elements
          */
-        var save_password_datastore = function (content) {
+        var save_password_datastore = function (datastore, paths) {
             var type = "password";
             var description = "default";
 
             // datastore has changed, so lets regenerate local lookup
-            managerDatastore.fill_storage('datastore-password-leafs', content, [
+            managerDatastore.fill_storage('datastore-password-leafs', datastore, [
                 ['key', 'secret_id'],
                 ['value', 'secret_key'],
                 ['name', 'name'],
                 ['urlfilter', 'urlfilter']
             ]);
 
-            content = managerDatastore.filter_datastore_content(content);
+            datastore = managerDatastore.filter_datastore_content(datastore);
 
-            return managerDatastore.save_datastore(type, description, content)
+            // TODO handle path and maybe do not really update the datastore itself but only shares
+
+            var closest_shares = {};
+            for (var i = 0; i < paths.length; i++) {
+                var closest_share = get_closest_parent(paths[i], datastore, datastore);
+                if (typeof closest_share.id === 'undefined') {
+                    // its the datastore
+                    closest_shares['datastore'] = datastore;
+                } else {
+                    closest_shares[closest_share.id] = closest_share;
+                }
+            }
+
+            console.log(closest_shares);
+            
+            for (var prop in closest_shares) {
+
+                if (!closest_shares.hasOwnProperty(prop)) {
+                    continue;
+                }
+
+                var duplicate = helper.duplicate_object(closest_shares[prop]);
+                hide_sub_share_content(duplicate);
+
+                if (prop === 'datastore') {
+                    console.log(duplicate);
+                    managerDatastore.save_datastore(type, description, duplicate);
+                } else {
+                    var share_id = duplicate.share_id;
+                    var secret_key = duplicate.share_secret_key;
+
+                    delete duplicate.share_id;
+                    delete duplicate.secret_key;
+
+                    managerShare.write_share(share_id, duplicate, secret_key);
+                }
+            }
         };
 
         /**
@@ -152,17 +274,225 @@
 
         };
 
+
+        /**
+         * Go through the datastore to find the object specified with the path
+         *
+         * @param path The path to the object you search as list of ids
+         * @param datastore The datastore object tree
+         * @returns {*} False if not present or a list of two objects where the first is the List Object containing the searchable object and the second the index
+         */
+        var find_in_datastore = function (path, datastore) {
+
+            var to_search = path.shift();
+            var n = undefined;
+
+            if (path.length == 0) {
+                // found the parent
+                // check if the object is a folder, if yes return the folder list and the index
+                if (datastore.hasOwnProperty('folders')) {
+                    for (n = 0; n < datastore.folders.length; n++) {
+                        if (datastore.folders[n].id == to_search) {
+                            return [datastore.folders, n];
+                            // datastore.folders.splice(n, 1);
+                            // return true;
+                        }
+                    }
+                }
+                // check if its a file, if yes return the file list and the index
+                if (datastore.hasOwnProperty('items')) {
+                    for (n = 0; n < datastore.items.length; n++) {
+                        if (datastore.items[n].id == to_search) {
+                            return [datastore.items, n];
+                            // datastore.items.splice(n, 1);
+                            // return true;
+                        }
+                    }
+                }
+                // something went wrong, couldn't find the file / folder here
+                return false;
+            }
+
+            for (n = 0; n < datastore.folders.length; n++) {
+                if (datastore.folders[n].id == to_search) {
+                    return find_in_datastore(path, datastore.folders[n]);
+                }
+            }
+            return false;
+        };
+
+        /**
+         * returns the closest share. if no share exists for the specified path, the initially specified closest_share
+         * is returned.
+         *
+         * @param path
+         * @param datastore
+         * @param closest_share
+         * @returns {*}
+         */
+        var get_closest_parent = function(path, datastore, closest_share) {
+
+            if (path.length == 1) {
+                // we do not need to look for the item itself, so lets skip this here
+                return closest_share;
+            }
+            
+            var to_search = path.shift();
+
+            for (var n = 0; n < datastore.folders.length; n++) {
+                if (datastore.folders[n].id == to_search) {
+                    if (typeof(datastore.folders[n].share_id) !== 'undefined') {
+                        return get_closest_parent(path, datastore.folders[n], datastore.folders[n]);
+                    } else {
+                        return get_closest_parent(path, datastore.folders[n], closest_share);
+                    }
+                }
+            }
+
+            return false;
+        };
+
+        /**
+         * fills other_children with all child shares of a given path
+         *
+         * @param path
+         * @param datastore
+         * @param other_children
+         * @param obj
+         */
+        var get_all_child_shares = function(path, datastore, other_children, obj) {
+
+            if (typeof obj === 'undefined') {
+                var search = find_in_datastore(path, datastore);
+                obj = search[0][search[1]];
+                return get_all_child_shares(path, datastore, other_children, obj)
+            } else if (obj === false) {
+                // TODO Handle not found
+                alert("HANDLE not found!");
+            } else {
+
+                for (var n = 0; n < obj.folders.length; n++) {
+                    if (typeof(obj.folders[n].share_id) !== 'undefined') {
+                        other_children.push(obj.folders[n]);
+                    }
+                    get_all_child_shares(path, obj, other_children, obj.folders[n]);
+                }
+            }
+        };
+
+
+        /**
+         * triggered once a new share is added. Searches the datastore for the closest share (or the datastore if no
+         * share) and adds it to the share_index
+         *
+         * @param share_id
+         * @param path path to the new share
+         * @param datastore
+         * @returns {*[]} paths to update
+         */
+        var on_share_added = function (share_id, path, datastore) {
+
+            var path_copy = path.slice();
+            var path_copy2 = path.slice();
+            var path_copy3 = path.slice();
+
+
+            var share = get_closest_parent(path_copy, datastore, datastore);
+
+            if (typeof(share.share_index) == 'undefined') {
+                share.share_index = {};
+            }
+            if (typeof(share.share_index[share_id]) == 'undefined') {
+
+                var search = find_in_datastore(path_copy2, datastore);
+                var obj = search[0][search[1]];
+
+                share.share_index[share_id] = {
+                    paths: [],
+                    secret_key: obj.share_secret_key
+                };
+            }
+
+            share.share_index[share_id].paths.push(path_copy3);
+
+            return [path]
+        };
+
+        /**
+         * triggered once a new share is deleted. Searches the datastore for the closest share (or the datastore if no
+         * share) and removes it from the share_index
+         *
+         * @param share_id
+         * @param path path to the deleted share
+         * @param datastore
+         * @returns {*[]} paths to update
+         */
+        var on_share_deleted = function (share_id, path, datastore) {
+
+            var path_copy = path.slice();
+
+            var share = get_closest_parent(path_copy, datastore, datastore);
+
+            var already_found = false;
+
+            if (typeof(share.share_index) !== 'undefined'
+                && typeof(share.share_index[share_id]) !== 'undefined') {
+                for (var i = 0; i < share.share_index[share_id].paths.length; i++) {
+                    if (helper.is_array_equal(share.share_index[share_id].paths[i], path)) {
+                        share.share_index[share_id].paths.splice(i, 1);
+                        already_found = true;
+                    }
+                    if (share.share_index[share_id].paths.length == 0) {
+                        delete share.share_index[share_id];
+                    }
+                    if (already_found) {
+                        break;
+                    }
+                }
+                if (Object.keys(share.share_index).length == 0) {
+                    delete share.share_index;
+                }
+            }
+            return [path]
+        };
+
+        /**
+         * triggered once a share moved. handles the update of the share_index
+         *
+         * @param share_id
+         * @param old_path
+         * @param new_path
+         * @param datastore
+         * @returns {*[]} paths to update
+         */
+        var on_share_move = function(share_id, old_path, new_path, datastore) {
+
+            var paths_updated1 = on_share_added(share_id, new_path, datastore);
+            var paths_updated2 = on_share_deleted(share_id, old_path, datastore);
+
+            return paths_updated1.concat(paths_updated2);
+
+        };
+
         itemBlueprint.register('generate', passwordGenerator.generate);
+        itemBlueprint.register('get_password_datastore', get_password_datastore);
+        itemBlueprint.register('save_password_datastore', save_password_datastore);
+        itemBlueprint.register('find_in_datastore', find_in_datastore);
+        itemBlueprint.register('on_share_added', on_share_added);
 
         return {
             get_password_datastore: get_password_datastore,
             save_password_datastore: save_password_datastore,
             generatePassword: generatePassword,
-            generatePasswordActiveTab: generatePasswordActiveTab
+            generatePasswordActiveTab: generatePasswordActiveTab,
+            find_in_datastore: find_in_datastore,
+            on_share_added: on_share_added,
+            on_share_deleted: on_share_deleted,
+            on_share_move: on_share_move
         };
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("managerDatastorePassword", ['$q', 'managerSecret', 'managerDatastore', 'passwordGenerator', 'itemBlueprint', 'helper', managerDatastorePassword]);
+    app.factory("managerDatastorePassword", ['$q', 'managerSecret', 'managerDatastore', 'managerShare', 'passwordGenerator', 'itemBlueprint', 'helper', managerDatastorePassword]);
 
 }(angular, uuid));

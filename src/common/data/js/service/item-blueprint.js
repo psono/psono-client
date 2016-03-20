@@ -203,6 +203,7 @@
                             // User clicked the final share button
                             modalInstance.result.then(function (content) {
                                 console.log(content);
+                                // content = { node: "...", path: "...", selected_users: "...", users: "..."}
 
                                 if (!content.users
                                     || content.users.length < 1
@@ -235,14 +236,22 @@
                                         }
 
                                         // found a user that has been selected, lets create the rights for him
-                                        // TODO create form and read values from form
+                                        // TODO create form and read the rights from form
                                         var read = true;
                                         var write = true;
                                         var grant = false;
 
                                         // generate the title
                                         // TODO create form field with this default value and read value from form
-                                        var title = _blueprints[content.node.type].name + " with title '" + content.node.name + "'";
+
+                                        var title = "";
+                                        if (typeof(content.node.type) == 'undefined') {
+                                            // we have a folder
+                                            title = "Folder with title '" + content.node.name + "'";
+                                        } else {
+                                            // we have an item
+                                            title = _blueprints[content.node.type].name + " with title '" + content.node.name + "'";
+                                        }
 
                                         registrations['create_share_right'](title, content.node.type,
                                             share_details.share_id, content.users[i].data.user_id,
@@ -251,7 +260,37 @@
                                         i++;
                                     }
 
-                                    // TODO add share to our datastore
+                                    // TODO get datastore
+
+                                    return registrations['get_password_datastore']().then(function(datastore) {
+
+                                        var item_path = content.path.slice();
+                                        var search = registrations['find_in_datastore'] (item_path, datastore);
+
+                                        if (typeof(content.node.type) !== 'undefined') {
+                                            // we have a folder
+                                            /*
+                                            // TODO delete items and folders in save for shares
+                                            if (typeof(search[0][search[1]].items) !== 'undefined') {
+                                                delete search[0][search[1]].items;
+                                            }
+                                            if (typeof(search[0][search[1]].folders) !== 'undefined') {
+                                                delete search[0][search[1]].folders;
+                                            }
+                                            */
+                                        } else {
+                                            // we have an item
+                                            delete search[0][search[1]].secret_id;
+                                            delete search[0][search[1]].secret_key;
+                                        }
+                                        search[0][search[1]].share_id = share_details.share_id;
+                                        search[0][search[1]].share_secret_key = share_details.secret_key;
+
+                                        registrations['on_share_added'](share_details.share_id, content.path, datastore);
+
+                                        return registrations['save_password_datastore'](datastore, content.path);
+                                    });
+
 
                                 });
 

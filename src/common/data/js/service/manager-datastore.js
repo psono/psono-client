@@ -1,7 +1,7 @@
 (function(angular) {
     'use strict';
 
-    var managerDatastore = function($q, $timeout, managerBase, apiClient, cryptoLibrary, storage) {
+    var managerDatastore = function($q, $timeout, managerBase, apiClient, cryptoLibrary, storage, helper) {
 
         var temp_datastore_key_storage = {};
         var temp_datastore_overview = false;
@@ -269,7 +269,7 @@
          */
         var filter_datastore_content = function(content) {
 
-            var content_copy  = JSON.parse(JSON.stringify(content));
+            var content_copy  = helper.duplicate_object(content);
 
             var filter = ['expanded', 'filter', 'hidden'];
 
@@ -377,6 +377,6 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("managerDatastore", ['$q', '$timeout', 'managerBase', 'apiClient', 'cryptoLibrary', 'storage', managerDatastore]);
+    app.factory("managerDatastore", ['$q', '$timeout', 'managerBase', 'apiClient', 'cryptoLibrary', 'storage', 'helper', managerDatastore]);
 
 }(angular));

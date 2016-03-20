@@ -5,6 +5,42 @@
                                  itemBlueprint, browserClient) {
 
         /**
+         * Returns a share object with decrypted data
+         *
+         * @param share_id
+         * @param secret_key
+         * @returns {promise}
+         */
+        var read_share = function(share_id, secret_key) {
+
+            var onError = function(result) {
+                // pass
+            };
+
+            var onSuccess = function(content) {
+                return JSON.parse(cryptoLibrary.decrypt_data(content.data.data, content.data.data_nonce, secret_key));
+            };
+
+            return apiClient.read_share(managerBase.find_one_nolimit('config', 'user_token'), share_id)
+                .then(onSuccess, onError);
+        };
+
+        /**
+         * updates a share
+         *
+         * @param share_id
+         * @param content
+         * @param secret_key
+         * @returns {promise}
+         */
+        var write_share = function(share_id, content, secret_key) {
+            var json_content = JSON.stringify(content);
+
+            var c = cryptoLibrary.encrypt_data(json_content, secret_key);
+            return apiClient.write_share(managerBase.find_one_nolimit('config', 'user_token'), share_id, c.text, c.nonce);
+        };
+
+        /**
          * Creates a share for the given content and returns the id and the secret to decrypt the share secret
          *
          * @param content
@@ -67,6 +103,8 @@
         itemBlueprint.register('create_share_right', create_share_right);
 
         return {
+            read_share: read_share,
+            write_share: write_share,
             create_share: create_share,
             create_share_right: create_share_right
         };

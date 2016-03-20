@@ -68,7 +68,7 @@
                     name: name
                 });
 
-                managerDatastorePassword.save_password_datastore($scope.structure.data);
+                managerDatastorePassword.save_password_datastore($scope.structure.data, [path]);
 
             }, function () {
                 // cancel triggered
@@ -105,7 +105,7 @@
             modalInstance.result.then(function (name) {
                 node.name = name;
 
-                managerDatastorePassword.save_password_datastore($scope.structure.data);
+                managerDatastorePassword.save_password_datastore($scope.structure.data, [path]);
 
             }, function () {
                 // cancel triggered
@@ -180,7 +180,7 @@
 
                     parent.items.push(datastore_object);
 
-                    managerDatastorePassword.save_password_datastore($scope.structure.data);
+                    managerDatastorePassword.save_password_datastore($scope.structure.data, [path]);
                 };
 
                 managerSecret.create_secret(secret_object)
@@ -252,7 +252,7 @@
                     };
 
                     var onSuccess = function(e) {
-                        managerDatastorePassword.save_password_datastore($scope.structure.data);
+                        managerDatastorePassword.save_password_datastore($scope.structure.data, [path]);
                     };
 
                     managerSecret.write_secret(node.secret_id, node.secret_key, secret_object)
@@ -274,50 +274,77 @@
         managerDatastorePassword.get_password_datastore()
             .then(function (data) {$scope.structure.data = data;});
 
+        /**
+         * Move an item
+         *
+         * @param scope the scope
+         * @param item_path the path of the item
+         * @param target_path the path where we want to put the item
+         * @param type type of the item (item or folder)
+         */
+        var moveItem = function(scope, item_path, target_path, type) {
+
+            var orig_item_path = item_path.slice();
+            orig_item_path.pop();
+
+            var orig_target_path;
+
+            if (target_path === null) {
+                orig_target_path = [];
+            } else {
+                orig_target_path = target_path.slice();
+            }
+
+            var target = scope.structure.data;
+            if (target_path !== null) {
+                // find drop zone
+                var val1 = managerDatastorePassword.find_in_datastore(target_path, scope.structure.data);
+                target = val1[0][val1[1]];
+            }
+
+            // find element
+            var val2 = managerDatastorePassword.find_in_datastore(item_path, scope.structure.data);
+
+            if (val2 === false) {
+                return;
+            }
+            var element = val2[0][val2[1]];
+
+            // check if we have folders, otherwise create the array
+            if (!target.hasOwnProperty(type)) {
+                target[type] = [];
+            }
+
+            // add the element to the other folders
+            target[type].push(element);
+
+            // delete the array at hte current position
+            val2[0].splice(val2[1], 1);
+
+            managerDatastorePassword.save_password_datastore(scope.structure.data, [orig_item_path, orig_target_path]);
+        };
 
         /**
-         * Go through the structure to find the object specified with the path
+         * Deletes an item
          *
-         * @param path The path to the object you search as list of ids
-         * @param structure The structure object tree
-         * @returns {*} False if not present or a list of two objects where the first is the List Object containing the searchable object and the second the index
+         * @param scope the scope
+         * @param item the item
+         * @param path the path to the item
+         * @param type determines if its a node or an item
          */
-        var findInStructure = function (path, structure) {
-            var to_search = path.shift();
-            var n = undefined;
+        var deleteItem = function(scope, item, path, type) {
+            // TODO ask for confirmation
 
-            if (path.length == 0) {
-                // found the object
-                // check if its a folder, if yes return the folder list and the index
-                if (structure.hasOwnProperty('folders')) {
-                    for (n = 0; n < structure.folders.length; n++) {
-                        if (structure.folders[n].id == to_search) {
-                            return [structure.folders, n];
-                            // structure.folders.splice(n, 1);
-                            // return true;
-                        }
-                    }
-                }
-                // check if its a file, if yes return the file list and the index
-                if (structure.hasOwnProperty('items')) {
-                    for (n = 0; n < structure.items.length; n++) {
-                        if (structure.items[n].id == to_search) {
-                            return [structure.items, n];
-                            // structure.items.splice(n, 1);
-                            // return true;
-                        }
-                    }
-                }
-                // something went wrong, couldn't find the file / folder here
-                return false;
+            var orig_item_path = path.slice();
+            if (type == "node") {
+                orig_item_path.pop();
             }
 
-            for (n = 0; n < structure.folders.length; n++) {
-                if (structure.folders[n].id == to_search) {
-                    return findInStructure(path, structure.folders[n]);
-                }
-            }
-            return false;
+            var val = managerDatastorePassword.find_in_datastore(path, scope.structure.data);
+            if (val)
+                val[0].splice(val[1], 1);
+
+            managerDatastorePassword.save_password_datastore(scope.structure.data, [orig_item_path]);
         };
 
         $scope.options = {
@@ -359,12 +386,7 @@
              * @param path The path to the node
              */
             onDeleteNode: function (node, path) {
-                // TODO ask for confirmation
-
-                var val = findInStructure(path, $scope.structure.data);
-                if (val)
-                    val[0].splice(val[1], 1);
-                managerDatastorePassword.save_password_datastore($scope.structure.data);
+                return deleteItem($scope, node, path, 'node');
             },
 
             /**
@@ -394,13 +416,7 @@
              * @param path The path to the item
              */
             onDeleteItem: function (item, path) {
-                // TODO ask for confirmation
-
-                var val = findInStructure(path, $scope.structure.data);
-                if (val)
-                    val[0].splice(val[1], 1);
-
-                managerDatastorePassword.save_password_datastore($scope.structure.data);
+                return deleteItem($scope, item, path, 'item');
             },
 
             /**
@@ -451,33 +467,7 @@
              * @param target_path
              */
             onItemDropComplete: function (item_path, target_path) {
-
-                var target = $scope.structure.data;
-                if (target_path !== null) {
-                    // find drop zone
-                    var val1 = findInStructure(target_path, $scope.structure.data);
-                    target = val1[0][val1[1]];
-                }
-                // find element
-                var val2 = findInStructure(item_path, $scope.structure.data);
-
-                if (val2 === false) {
-                    return;
-                }
-                var element = val2[0][val2[1]];
-
-                // check if we have folders, otherwise create the array
-                if (!target.hasOwnProperty('items')) {
-                    target.items = [];
-                }
-
-                // add the element to the other folders
-                target.items.push(element);
-
-                // delete the array at hte current position
-                val2[0].splice(val2[1], 1);
-
-                managerDatastorePassword.save_password_datastore($scope.structure.data);
+                return moveItem($scope, item_path, target_path, 'items');
             },
 
             /**
@@ -487,35 +477,7 @@
              * @param target_path
              */
             onFolderDropComplete: function (item_path, target_path) {
-
-
-                var target = $scope.structure.data;
-                if (target_path !== null) {
-                    // find drop zone
-                    var val1 = findInStructure(target_path, $scope.structure.data);
-                    target = val1[0][val1[1]];
-                }
-
-                // find element
-                var val2 = findInStructure(item_path, $scope.structure.data);
-
-                if (val2 === false) {
-                    return;
-                }
-                var element = val2[0][val2[1]];
-
-                // check if we have folders, otherwise create the array
-                if (!target.hasOwnProperty('folders')) {
-                    target.folders = [];
-                }
-
-                // add the element to the other folders
-                target.folders.push(element);
-
-                // delete the array at hte current position
-                val2[0].splice(val2[1], 1);
-
-                managerDatastorePassword.save_password_datastore($scope.structure.data);
+                return moveItem($scope, item_path, target_path, 'folders');
             },
 
             additionalButtons: itemBlueprint.get_additional_functions(),
