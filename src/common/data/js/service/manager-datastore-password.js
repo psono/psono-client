@@ -71,7 +71,6 @@
                 }
 
                 for (var i = 0; i < share.share_index[share_id].paths.length; i++) {
-
                     var search = find_in_datastore(share.share_index[share_id].paths[i].slice(), share);
                     var obj = search[0][search[1]];
 
@@ -146,7 +145,9 @@
             // TODO handle path and maybe do not really update the datastore itself but only shares
 
             var closest_shares = {};
+
             for (var i = 0; i < paths.length; i++) {
+
                 var closest_share = get_closest_parent(paths[i], datastore, datastore);
                 if (typeof closest_share.id === 'undefined') {
                     // its the datastore
@@ -155,8 +156,6 @@
                     closest_shares[closest_share.id] = closest_share;
                 }
             }
-
-            console.log(closest_shares);
             
             for (var prop in closest_shares) {
 
@@ -168,7 +167,6 @@
                 hide_sub_share_content(duplicate);
 
                 if (prop === 'datastore') {
-                    console.log(duplicate);
                     managerDatastore.save_datastore(type, description, duplicate);
                 } else {
                     var share_id = duplicate.share_id;
@@ -465,7 +463,8 @@
          * @param datastore
          * @returns {*[]} paths to update
          */
-        var on_share_move = function(share_id, old_path, new_path, datastore) {
+        var on_share_moved = function(share_id, old_path, new_path, datastore) {
+
 
             var paths_updated1 = on_share_added(share_id, new_path, datastore);
             var paths_updated2 = on_share_deleted(share_id, old_path, datastore);
@@ -488,7 +487,7 @@
             find_in_datastore: find_in_datastore,
             on_share_added: on_share_added,
             on_share_deleted: on_share_deleted,
-            on_share_move: on_share_move
+            on_share_moved: on_share_moved
         };
     };
 

@@ -288,7 +288,7 @@
 
                                         registrations['on_share_added'](share_details.share_id, content.path, datastore);
 
-                                        return registrations['save_password_datastore'](datastore, content.path);
+                                        return registrations['save_password_datastore'](datastore, [content.path]);
                                     });
 
 

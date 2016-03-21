@@ -310,16 +310,27 @@
             }
             var element = val2[0][val2[1]];
 
-            // check if we have folders, otherwise create the array
+            // check if we have folders / items array, otherwise create the array
             if (!target.hasOwnProperty(type)) {
                 target[type] = [];
             }
 
-            // add the element to the other folders
+            // add the element to the other folders / items
             target[type].push(element);
 
             // delete the array at hte current position
             val2[0].splice(val2[1], 1);
+
+            //check if we have a share
+            if (element.hasOwnProperty("share_id")) {
+                var target_path_copy = orig_target_path.slice();
+                var item_path_copy = orig_item_path.slice();
+
+                target_path_copy.push(element.id);
+                item_path_copy.push(element.id);
+
+                managerDatastorePassword.on_share_moved(element.share_id, item_path_copy, target_path_copy, scope.structure.data);
+            }
 
             managerDatastorePassword.save_password_datastore(scope.structure.data, [orig_item_path, orig_target_path]);
         };
@@ -339,10 +350,18 @@
             if (type == "node") {
                 orig_item_path.pop();
             }
+            var item_path_copy = orig_item_path.slice();
 
-            var val = managerDatastorePassword.find_in_datastore(path, scope.structure.data);
-            if (val)
-                val[0].splice(val[1], 1);
+            var search = managerDatastorePassword.find_in_datastore(path, scope.structure.data);
+            var element = search[0][search[1]];
+
+            if (search)
+                search[0].splice(search[1], 1);
+
+            if (element.hasOwnProperty("share_id")) {
+                item_path_copy.push(element.id);
+                managerDatastorePassword.on_share_deleted(element.share_id, item_path_copy, scope.structure.data)
+            }
 
             managerDatastorePassword.save_password_datastore(scope.structure.data, [orig_item_path]);
         };
