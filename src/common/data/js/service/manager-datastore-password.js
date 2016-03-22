@@ -63,6 +63,9 @@
 
         var hide_sub_share_content = function (share) {
 
+            console.log("hide_sub_share_content");
+            console.log(share);
+
             var allowed_props = ['id', 'name', 'share_id', 'share_secret_key'];
 
             for (var share_id in share.share_index) {

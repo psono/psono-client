@@ -346,11 +346,9 @@
         var deleteItem = function(scope, item, path, type) {
             // TODO ask for confirmation
 
-            var orig_item_path = path.slice();
-            if (type == "node") {
-                orig_item_path.pop();
-            }
-            var item_path_copy = orig_item_path.slice();
+            var path_of_element_to_delete = path.slice();
+            var element_path_that_changed = path.slice();
+            element_path_that_changed.pop();
 
             var search = managerDatastorePassword.find_in_datastore(path, scope.structure.data);
             var element = search[0][search[1]];
@@ -359,11 +357,10 @@
                 search[0].splice(search[1], 1);
 
             if (element.hasOwnProperty("share_id")) {
-                item_path_copy.push(element.id);
-                managerDatastorePassword.on_share_deleted(element.share_id, item_path_copy, scope.structure.data)
+                managerDatastorePassword.on_share_deleted(element.share_id, path_of_element_to_delete, scope.structure.data)
             }
 
-            managerDatastorePassword.save_password_datastore(scope.structure.data, [orig_item_path]);
+            managerDatastorePassword.save_password_datastore(scope.structure.data, [element_path_that_changed]);
         };
 
         $scope.options = {
