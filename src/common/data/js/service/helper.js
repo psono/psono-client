@@ -25,27 +25,33 @@
         };
 
         /**
-         * compares two arrays for equality
-         * Slightly adjusted version of Tomas Zato's answer here
-         * http://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
+         * checks if array1 starts with array2
          *
          * @param array1
          * @param array2
          * @returns {boolean}
          */
-        var is_array_equal = function (array1, array2) {
-            if (!array2)
+        var array_starts_with = function(array1, array2) {
+            if (!array1){
                 return false;
-
-            if (array1.length != array2.length)
+            }
+            if (!array2){
                 return false;
+            }
 
-            for (var i = 0, l=array1.length; i < l; i++) {
-                if (array1[i] instanceof Array && array2[i] instanceof Array) {
-                    if (!array1[i].equals(array2[i]))
-                        return false;
+            if (array1.length < array2.length){
+                return false;
+            }
+
+            for (var i = 0; i < array1.length; i++) {
+                if (i == array2.length) {
+                    return true;
                 }
-                else if (array1[i] != array2[i]) {
+                if (array1[i] instanceof Array && array2[i] instanceof Array) {
+                    if (!array1[i].equals(array2[i])){
+                        return false;
+                    }
+                } else if (array1[i] != array2[i]) {
                     return false;
                 }
             }
@@ -64,7 +70,7 @@
 
         return {
             parse_url: parse_url,
-            is_array_equal: is_array_equal,
+            array_starts_with: array_starts_with,
             duplicate_object: duplicate_object
         };
     };

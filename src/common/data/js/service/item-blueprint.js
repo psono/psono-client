@@ -222,17 +222,10 @@
                                         users.push(content.users[i]);
                                     }
                                 }
-                                // create the share
-                                registrations['create_share'](content.node).then(function (share_details) {
 
-                                    // share created successfully, now let's update the rights and add our user
-                                    // share_details = { share_id: "...", secret_key: "..."}
-                                    var item_path = content.path.slice();
-                                    var item_path_copy = content.path.slice();
-                                    var item_path_copy2 = content.path.slice();
-
-                                    for (var i = 0; i < content.users.length; i++) {
-                                        if (content.selected_users.indexOf(content.users[i].id) < 0) {
+                                var create_share_rights = function(share_id, secret_key, node, users, selected_users) {
+                                    for (var i = 0; i < users.length; i++) {
+                                        if (selected_users.indexOf(users[i].id) < 0) {
                                             continue;
                                         }
 
@@ -246,48 +239,71 @@
                                         // TODO create form field with this default value and read value from form
 
                                         var title = "";
-                                        if (typeof(content.node.type) == 'undefined') {
+                                        if (typeof(node.type) == 'undefined') {
                                             // we have a folder
-                                            title = "Folder with title '" + content.node.name + "'";
+                                            title = "Folder with title '" + node.name + "'";
                                         } else {
                                             // we have an item
-                                            title = _blueprints[content.node.type].name + " with title '" + content.node.name + "'";
+                                            title = _blueprints[node.type].name + " with title '" + node.name + "'";
                                         }
 
-                                        registrations['create_share_right'](title, content.node.type,
-                                            share_details.share_id, content.users[i].data.user_id,
-                                            content.users[i].data.user_public_key, share_details.secret_key,
+                                        registrations['create_share_right'](title, node.type,
+                                            share_id, users[i].data.user_id,
+                                            users[i].data.user_public_key, secret_key,
                                             read, write, grant);
                                         i++;
                                     }
+                                };
 
-                                    return registrations['get_password_datastore']().then(function(datastore) {
+                                if (content.node.hasOwnProperty("share_id")) {
+                                    // its already a share, so generate only the share_rights
+                                    console.log(content);
 
-                                        var search = registrations['find_in_datastore'] (item_path, datastore);
+                                    create_share_rights(content.node.share_id, content.node.secret_key,
+                                        content.node, content.users, content.selected_users);
+
+                                } else {
+
+                                    // create the share
+                                    registrations['create_share'](content.node).then(function (share_details) {
+
+                                        // share created successfully, now let's update the rights and add our user
+                                        // share_details = { share_id: "...", secret_key: "..."}
+                                        var item_path = content.path.slice();
+                                        var item_path_copy = content.path.slice();
+                                        var item_path_copy2 = content.path.slice();
+
+                                        create_share_rights(share_details.share_id, share_details.secret_key,
+                                            content.node, content.users, content.selected_users);
+
+                                        return registrations['get_password_datastore']().then(function(datastore) {
+
+                                            var search = registrations['find_in_datastore'] (item_path, datastore);
 
 
-                                        if (typeof(content.node.type) === 'undefined') {
-                                            // we have an item
-                                            delete search[0][search[1]].secret_id;
-                                            delete search[0][search[1]].secret_key;
-                                        }
-                                        search[0][search[1]].share_id = share_details.share_id;
-                                        search[0][search[1]].share_secret_key = share_details.secret_key;
+                                            if (typeof(content.node.type) === 'undefined') {
+                                                // we have an item
+                                                delete search[0][search[1]].secret_id;
+                                                delete search[0][search[1]].secret_key;
+                                            }
+                                            search[0][search[1]].share_id = share_details.share_id;
+                                            search[0][search[1]].share_secret_key = share_details.secret_key;
 
-                                        //update node in our displayed datastore
-                                        content.node.share_id = share_details.share_id;
-                                        content.node.share_secret_key = share_details.secret_key;
+                                            //update node in our displayed datastore
+                                            content.node.share_id = share_details.share_id;
+                                            content.node.share_secret_key = share_details.secret_key;
 
-                                        registrations['on_share_added'](share_details.share_id, item_path_copy, datastore);
+                                            registrations['on_share_added'](share_details.share_id, item_path_copy, datastore);
 
-                                        var parent_path = item_path_copy2.slice();
-                                        parent_path.pop();
+                                            var parent_path = item_path_copy2.slice();
+                                            parent_path.pop();
 
-                                        return registrations['save_password_datastore'](datastore, [parent_path]);
+                                            registrations['save_password_datastore'](datastore, [parent_path]);
+                                        });
+
+
                                     });
-
-
-                                });
+                                }
 
 
 

@@ -341,9 +341,8 @@
          * @param scope the scope
          * @param item the item
          * @param path the path to the item
-         * @param type determines if its a node or an item
          */
-        var deleteItem = function(scope, item, path, type) {
+        var deleteItem = function(scope, item, path) {
             // TODO ask for confirmation
 
             var path_of_element_to_delete = path.slice();
@@ -357,7 +356,10 @@
                 search[0].splice(search[1], 1);
 
             if (element.hasOwnProperty("share_id")) {
-                managerDatastorePassword.on_share_deleted(element.share_id, path_of_element_to_delete, scope.structure.data)
+                managerDatastorePassword.on_deleted(element.share_id, path_of_element_to_delete, scope.structure.data)
+            } else {
+                //
+                managerDatastorePassword.on_deleted(null, path_of_element_to_delete, scope.structure.data)
             }
 
             managerDatastorePassword.save_password_datastore(scope.structure.data, [element_path_that_changed]);
@@ -402,7 +404,7 @@
              * @param path The path to the node
              */
             onDeleteNode: function (node, path) {
-                return deleteItem($scope, node, path, 'node');
+                return deleteItem($scope, node, path);
             },
 
             /**
@@ -432,7 +434,7 @@
              * @param path The path to the item
              */
             onDeleteItem: function (item, path) {
-                return deleteItem($scope, item, path, 'item');
+                return deleteItem($scope, item, path);
             },
 
             /**
