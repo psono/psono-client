@@ -3,21 +3,18 @@
 
     var managerDatastorePassword = function($q, managerSecret, managerDatastore, managerShare, passwordGenerator, itemBlueprint, helper) {
 
-        var update_paths_with_data = function(datastore, paths, data) {
+        var update_paths_with_data = function(datastore, path, data) {
 
-            var paths2 = paths.slice();
+            var path_copy = path.slice();
+            var search = find_in_datastore(path_copy, datastore);
+            var obj = search[0][search[1]];
 
-            for (var i = 0; i < paths2.length; i++) {
-                var search = find_in_datastore(paths2[i].slice(), datastore);
-                var obj = search[0][search[1]];
-
-                for (var prop in data) {
-                    if (!data.hasOwnProperty(prop)) {
-                        continue;
-                    }
-
-                    obj[prop] = data[prop];
+            for (var prop in data) {
+                if (!data.hasOwnProperty(prop)) {
+                    continue;
                 }
+
+                obj[prop] = data[prop];
             }
 
         };
@@ -28,43 +25,53 @@
                 return datastore;
             }
 
+            var all_calls = [];
+
             for (var share_id in index) {
                 if (!index.hasOwnProperty(share_id)) {
                     continue;
                 }
 
-                if (all_share_data.hasOwnProperty(share_id)) {
-                    update_paths_with_data(datastore, index[share_id].index[share_id].paths, all_share_data[share_id]);
-                    continue;
+                for (var i = 0; i < index[share_id].paths.length; i++) {
+
+
+                    var path_copy = index[share_id].paths[i].slice();
+                    var search = find_in_datastore(path_copy, datastore);
+                    var sub_datastore = search[0][search[1]];
+
+                    if (all_share_data.hasOwnProperty(share_id)) {
+                        update_paths_with_data(datastore, index[share_id].paths[i], all_share_data[share_id]);
+                        continue;
+                    }
+
+                    all_calls.push((function(share_id, sub_datastore, path) {
+
+                        var onSuccess = function(data) {
+
+                            all_share_data[share_id] = data;
+
+                            update_paths_with_data(datastore, path, data);
+
+                            read_shares_recursive(sub_datastore, data.share_index, all_share_data);
+                        };
+
+                        var onError = function () {
+                            // pass
+                        };
+
+                        return managerShare.read_share(share_id, index[share_id].secret_key)
+                            .then(onSuccess, onError);
+                    })(share_id, sub_datastore, index[share_id].paths[i]));
+
                 }
-
-                (function(share_id) {
-
-                    var onSuccess = function(data) {
-
-                        all_share_data[share_id] = data;
-
-                        update_paths_with_data(datastore, index[share_id].paths, data);
-
-                        read_shares_recursive(datastore, data.share_index, all_share_data);
-                    };
-
-                    var onError = function () {
-                        // pass
-                    };
-
-                    managerShare.read_share(share_id, index[share_id].secret_key)
-                        .then(onSuccess, onError);
-                })(share_id);
             }
 
-            return datastore
+            return $q.all(all_calls).then(function (ret) {
+                return datastore;
+            });
         };
 
         var hide_sub_share_content = function (share) {
-
-            console.log("hide_sub_share_content");
-            console.log(share);
 
             var allowed_props = ['id', 'name', 'share_id', 'share_secret_key'];
 
@@ -74,7 +81,9 @@
                 }
 
                 for (var i = 0; i < share.share_index[share_id].paths.length; i++) {
-                    var search = find_in_datastore(share.share_index[share_id].paths[i].slice(), share);
+                    var path_copy = share.share_index[share_id].paths[i].slice();
+                    var search = find_in_datastore(path_copy, share);
+
                     var obj = search[0][search[1]];
 
                     for (var prop in obj) {
@@ -151,7 +160,7 @@
 
             for (var i = 0; i < paths.length; i++) {
 
-                var closest_share = get_closest_parent(paths[i], datastore, datastore);
+                var closest_share = get_closest_parent(paths[i], datastore, datastore, 0);
                 if (typeof closest_share.id === 'undefined') {
                     // its the datastore
                     closest_shares['datastore'] = datastore;
@@ -285,10 +294,20 @@
          */
         var find_in_datastore = function (path, datastore) {
 
-            var to_search = path.shift();
+            var to_search = undefined;
+
+            var rest = [];
+            for (var i = 0; i < path.length; i++) {
+                if (i == 0) {
+                    to_search = path[i];
+                } else {
+                    rest.push(path[i]);
+                }
+            }
+
             var n = undefined;
 
-            if (path.length == 0) {
+            if (rest.length == 0) {
                 // found the parent
                 // check if the object is a folder, if yes return the folder list and the index
                 if (datastore.hasOwnProperty('folders')) {
@@ -316,7 +335,7 @@
 
             for (n = 0; n < datastore.folders.length; n++) {
                 if (datastore.folders[n].id == to_search) {
-                    return find_in_datastore(path, datastore.folders[n]);
+                    return find_in_datastore(rest, datastore.folders[n]);
                 }
             }
             return false;
@@ -329,12 +348,12 @@
          * @param path
          * @param datastore
          * @param closest_share
+         * @param distance
          * @returns {*}
          */
-        var get_closest_parent = function(path, datastore, closest_share) {
+        var get_closest_parent = function(path, datastore, closest_share, distance) {
 
-            if (path.length == 1) {
-                // we do not need to look for the item itself, so lets skip this here
+            if (path.length == distance) {
                 return closest_share;
             }
             
@@ -343,9 +362,9 @@
             for (var n = 0; n < datastore.folders.length; n++) {
                 if (datastore.folders[n].id == to_search) {
                     if (typeof(datastore.folders[n].share_id) !== 'undefined') {
-                        return get_closest_parent(path, datastore.folders[n], datastore.folders[n]);
+                        return get_closest_parent(path, datastore.folders[n], datastore.folders[n], distance);
                     } else {
-                        return get_closest_parent(path, datastore.folders[n], closest_share);
+                        return get_closest_parent(path, datastore.folders[n], closest_share, distance);
                     }
                 }
             }
@@ -364,7 +383,8 @@
         var get_all_child_shares = function(path, datastore, other_children, obj) {
 
             if (typeof obj === 'undefined') {
-                var search = find_in_datastore(path, datastore);
+                var path_copy = path.slice();
+                var search = find_in_datastore(path_copy, datastore);
                 obj = search[0][search[1]];
                 return get_all_child_shares(path, datastore, other_children, obj)
             } else if (obj === false) {
@@ -381,6 +401,30 @@
             }
         };
 
+        var get_relative_path = function(share, path) {
+
+            var path_copy = path.slice();
+
+            // lets create the relative path in the share
+            var rest = [];
+
+            if (typeof share.id === 'undefined') {
+                // we have the datastore, so we need the complete path
+                rest = path_copy;
+            } else {
+                var passed = false;
+                for (var i = 0; i < path_copy.length; i++) {
+                    if (passed) {
+                        rest.push(path_copy[i]);
+                    } else if (share.id == path_copy[i]) {
+                        passed = true;
+                    }
+                }
+            }
+
+            return rest
+        };
+
 
         /**
          * triggered once a new share is added. Searches the datastore for the closest share (or the datastore if no
@@ -393,12 +437,13 @@
          */
         var on_share_added = function (share_id, path, datastore) {
 
+
             var path_copy = path.slice();
             var path_copy2 = path.slice();
             var path_copy3 = path.slice();
 
 
-            var share = get_closest_parent(path_copy, datastore, datastore);
+            var share = get_closest_parent(path_copy, datastore, datastore, 1);
 
             if (typeof(share.share_index) == 'undefined') {
                 share.share_index = {};
@@ -414,7 +459,10 @@
                 };
             }
 
-            share.share_index[share_id].paths.push(path_copy3);
+            // lets create the relative path in the share
+            var relative_path = get_relative_path(share, path_copy3);
+
+            share.share_index[share_id].paths.push(relative_path);
 
             return [path]
         };
@@ -432,14 +480,15 @@
 
             var path_copy = path.slice();
 
-            var share = get_closest_parent(path_copy, datastore, datastore);
+            var share = get_closest_parent(path_copy, datastore, datastore, 1);
+            var relative_path = get_relative_path(share, path.slice());
 
             var already_found = false;
 
             if (typeof(share.share_index) !== 'undefined'
                 && typeof(share.share_index[share_id]) !== 'undefined') {
                 for (var i = 0; i < share.share_index[share_id].paths.length; i++) {
-                    if (helper.is_array_equal(share.share_index[share_id].paths[i], path)) {
+                    if (helper.is_array_equal(share.share_index[share_id].paths[i], relative_path)) {
                         share.share_index[share_id].paths.splice(i, 1);
                         already_found = true;
                     }
@@ -454,6 +503,8 @@
                     delete share.share_index;
                 }
             }
+
+            // TODO trigger share delete on server. server deletes sshare if noonce has access rights.
             return [path]
         };
 

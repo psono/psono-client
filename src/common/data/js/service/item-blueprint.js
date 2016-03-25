@@ -202,7 +202,6 @@
 
                             // User clicked the final share button
                             modalInstance.result.then(function (content) {
-                                console.log(content);
                                 // content = { node: "...", path: "...", selected_users: "...", users: "..."}
 
                                 if (!content.users
@@ -228,7 +227,9 @@
 
                                     // share created successfully, now let's update the rights and add our user
                                     // share_details = { share_id: "...", secret_key: "..."}
-                                    console.log(share_details);
+                                    var item_path = content.path.slice();
+                                    var item_path_copy = content.path.slice();
+                                    var item_path_copy2 = content.path.slice();
 
                                     for (var i = 0; i < content.users.length; i++) {
                                         if (content.selected_users.indexOf(content.users[i].id) < 0) {
@@ -260,25 +261,12 @@
                                         i++;
                                     }
 
-                                    // TODO get datastore
-
                                     return registrations['get_password_datastore']().then(function(datastore) {
 
-                                        var item_path = content.path.slice();
                                         var search = registrations['find_in_datastore'] (item_path, datastore);
 
-                                        if (typeof(content.node.type) !== 'undefined') {
-                                            // we have a folder
-                                            /*
-                                            // TODO delete items and folders in save for shares
-                                            if (typeof(search[0][search[1]].items) !== 'undefined') {
-                                                delete search[0][search[1]].items;
-                                            }
-                                            if (typeof(search[0][search[1]].folders) !== 'undefined') {
-                                                delete search[0][search[1]].folders;
-                                            }
-                                            */
-                                        } else {
+
+                                        if (typeof(content.node.type) === 'undefined') {
                                             // we have an item
                                             delete search[0][search[1]].secret_id;
                                             delete search[0][search[1]].secret_key;
@@ -286,9 +274,16 @@
                                         search[0][search[1]].share_id = share_details.share_id;
                                         search[0][search[1]].share_secret_key = share_details.secret_key;
 
-                                        registrations['on_share_added'](share_details.share_id, content.path, datastore);
+                                        //update node in our displayed datastore
+                                        content.node.share_id = share_details.share_id;
+                                        content.node.share_secret_key = share_details.secret_key;
 
-                                        return registrations['save_password_datastore'](datastore, [content.path]);
+                                        registrations['on_share_added'](share_details.share_id, item_path_copy, datastore);
+
+                                        var parent_path = item_path_copy2.slice();
+                                        parent_path.pop();
+
+                                        return registrations['save_password_datastore'](datastore, [parent_path]);
                                     });
 
 
