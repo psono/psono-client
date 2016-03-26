@@ -293,12 +293,13 @@
                                             content.node.share_id = share_details.share_id;
                                             content.node.share_secret_key = share_details.secret_key;
 
-                                            registrations['on_share_added'](share_details.share_id, item_path_copy, datastore);
+                                            var changed_paths = registrations['on_share_added'](share_details.share_id, item_path_copy, datastore);
 
                                             var parent_path = item_path_copy2.slice();
                                             parent_path.pop();
+                                            changed_paths.push(parent_path);
 
-                                            registrations['save_password_datastore'](datastore, [parent_path]);
+                                            registrations['save_password_datastore'](datastore, changed_paths);
                                         });
 
 

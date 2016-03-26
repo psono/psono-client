@@ -3,6 +3,13 @@
 
     var managerDatastorePassword = function($q, managerSecret, managerDatastore, managerShare, passwordGenerator, itemBlueprint, helper) {
 
+        /**
+         * updates some datastore folders or share folders with content
+         *
+         * @param datastore
+         * @param path
+         * @param data
+         */
         var update_paths_with_data = function(datastore, path, data) {
 
             var path_copy = path.slice();
@@ -19,6 +26,14 @@
 
         };
 
+        /**
+         * queries shares recursive
+         *
+         * @param datastore
+         * @param index
+         * @param all_share_data
+         * @returns {*}
+         */
         var read_shares_recursive = function(datastore, index, all_share_data) {
 
             if (typeof index === 'undefined') {
@@ -71,6 +86,11 @@
             });
         };
 
+        /**
+         * searches all sub shares and hides the content of those
+         *
+         * @param share
+         */
         var hide_sub_share_content = function (share) {
 
             var allowed_props = ['id', 'name', 'share_id', 'share_secret_key'];
@@ -401,28 +421,35 @@
             }
         };
 
-        var get_relative_path = function(share, path) {
+        /**
+         * returns the relative path
+         *
+         * @param share
+         * @param absolute_path
+         * @returns {Array}
+         */
+        var get_relative_path = function(share, absolute_path) {
 
-            var path_copy = path.slice();
+            var path_copy = absolute_path.slice();
 
             // lets create the relative path in the share
-            var rest = [];
+            var relative_path = [];
 
             if (typeof share.id === 'undefined') {
                 // we have the datastore, so we need the complete path
-                rest = path_copy;
+                relative_path = path_copy;
             } else {
                 var passed = false;
                 for (var i = 0, l = path_copy.length; i < l; i++) {
                     if (passed) {
-                        rest.push(path_copy[i]);
+                        relative_path.push(path_copy[i]);
                     } else if (share.id == path_copy[i]) {
                         passed = true;
                     }
                 }
             }
 
-            return rest
+            return relative_path
         };
 
 
@@ -437,34 +464,90 @@
          */
         var on_share_added = function (share_id, path, datastore) {
 
+            var changed_paths = [];
+            var i, l;
 
             var path_copy = path.slice();
             var path_copy2 = path.slice();
             var path_copy3 = path.slice();
+            var path_copy4 = path.slice();
 
+            var parent_share = get_closest_parent(path_copy, datastore, datastore, 1);
 
-            var share = get_closest_parent(path_copy, datastore, datastore, 1);
-
-            if (typeof(share.share_index) == 'undefined') {
-                share.share_index = {};
+            if (typeof(parent_share.share_index) == 'undefined') {
+                parent_share.share_index = {};
             }
-            if (typeof(share.share_index[share_id]) == 'undefined') {
+            if (typeof(parent_share.share_index[share_id]) == 'undefined') {
 
                 var search = find_in_datastore(path_copy2, datastore);
-                var obj = search[0][search[1]];
+                var share = search[0][search[1]];
 
-                share.share_index[share_id] = {
+                parent_share.share_index[share_id] = {
                     paths: [],
-                    secret_key: obj.share_secret_key
+                    secret_key: share.share_secret_key
                 };
             }
 
+            var parent_share_path = [];
+            for (i = 0, l = path_copy3.length; i < l; i++) {
+                if (typeof parent_share.id === 'undefined' || path_copy3[i] === parent_share.id) {
+                    break;
+                }
+                parent_share_path.push(path_copy3[i]);
+            }
+            changed_paths.push(parent_share_path);
+
             // lets create the relative path in the share
-            var relative_path = get_relative_path(share, path_copy3);
+            var relative_path = get_relative_path(parent_share, path_copy3);
 
-            share.share_index[share_id].paths.push(relative_path);
+            parent_share.share_index[share_id].paths.push(relative_path);
 
-            return [path]
+            var share_changed = false;
+
+            for (var old_share_id in parent_share.share_index) {
+                if (!parent_share.share_index.hasOwnProperty(old_share_id)) {
+                    continue;
+                }
+                if (old_share_id === share_id) {
+                    continue;
+                }
+
+                for (i = 0, l = parent_share.share_index[old_share_id].paths.length; i < l; i++) {
+                    if (!helper.array_starts_with(parent_share.share_index[old_share_id].paths[i], relative_path)) {
+                        continue;
+                    }
+                    var new_relative_path = parent_share.share_index[old_share_id].paths[i].slice(relative_path.length);
+
+                    parent_share.share_index[old_share_id].paths.splice(i, 1);
+
+                    if (typeof(share.share_index) == 'undefined') {
+                        share.share_index = {};
+                    }
+
+                    if (typeof(share.share_index[old_share_id]) == 'undefined') {
+                        share.share_index[old_share_id] = {
+                            paths: [],
+                            secret_key: parent_share.share_index[old_share_id].secret_key
+                        };
+                    }
+                    share.share_index[old_share_id].paths.push(new_relative_path);
+
+                    if (parent_share.share_index[old_share_id].paths.length == 0) {
+                        delete parent_share.share_index[old_share_id];
+                    }
+
+                    if (Object.keys(parent_share.share_index).length == 0) {
+                        delete parent_share.share_index;
+                    }
+                    share_changed = true;
+                }
+            }
+
+            if (share_changed) {
+                changed_paths.push(path_copy4);
+            }
+
+            return changed_paths
         };
 
         /**
@@ -500,11 +583,11 @@
                     if (share.share_index[share_id].paths.length == 0) {
                         delete share.share_index[share_id];
                     }
-                    if (!allow_multiples && already_found) {
-                        break;
-                    }
                     if (Object.keys(share.share_index).length == 0) {
                         delete share.share_index;
+                    }
+                    if (!allow_multiples && already_found) {
+                        break;
                     }
                 }
             };
