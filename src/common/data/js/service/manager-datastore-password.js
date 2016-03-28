@@ -174,8 +174,6 @@
 
             datastore = managerDatastore.filter_datastore_content(datastore);
 
-            // TODO handle path and maybe do not really update the datastore itself but only shares
-
             var closest_shares = {};
 
             for (var i = 0, l = paths.length; i < l; i++) {
@@ -564,13 +562,6 @@
             var path_copy = path.slice();
             var share = get_closest_parent(path_copy, datastore, datastore, 1);
             var relative_path = get_relative_path(share, path.slice());
-
-            console.log("on_deleted");
-            console.log(share_id);
-            console.log(share);
-            console.log(path);
-            console.log(datastore);
-
 
             var update_share_index = function(share, share_id, relative_path, allow_multiples) {
                 var already_found = false;

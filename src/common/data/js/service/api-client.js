@@ -423,7 +423,6 @@
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
          * @param {uuid} title - the title shown to the user before he accepts
-         * @param {uuid} type - the type of the share
          * @param {uuid} share_id - the share ID
          * @param {uuid} user_id - the target user's user ID
          * @param {string} key - the encrypted share secret, encrypted with the public key of the target user
@@ -433,12 +432,11 @@
          * @param {bool} grant - grant right
          * @returns {promise}
          */
-        var create_share_right = function (token, title, type, share_id, user_id, key, key_nonce, read, write, grant) {
+        var create_share_right = function (token, title, share_id, user_id, key, key_nonce, read, write, grant) {
             var endpoint = '/share/right/';
             var connection_type = "PUT";
             var data = {
                 title: title,
-                type: type,
                 share_id: share_id,
                 user_id: user_id,
                 key: key,

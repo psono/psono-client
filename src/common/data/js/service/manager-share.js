@@ -80,7 +80,7 @@
          * @param grant
          * @returns {promise}
          */
-        var create_share_right = function(title, type, share_id, user_id, user_public_key, key, read, write, grant) {
+        var create_share_right = function(title, share_id, user_id, user_public_key, key, read, write, grant) {
 
             var onError = function(result) {
                 // pass
@@ -89,10 +89,10 @@
             var onSuccess = function(content) {
                 return {share_right_id: content.data.share_right_id};
             };
-
+            
             var c = managerBase.encrypt_private_key(key, user_public_key);
 
-            return apiClient.create_share_right(managerBase.find_one_nolimit('config', 'user_token'), title, type,
+            return apiClient.create_share_right(managerBase.find_one_nolimit('config', 'user_token'), title,
                 share_id, user_id, c.text, c.nonce, read, write, grant)
                 .then(onSuccess, onError);
         };

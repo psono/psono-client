@@ -223,17 +223,18 @@
                                     }
                                 }
 
-                                var create_share_rights = function(share_id, secret_key, node, users, selected_users) {
+                                var create_share_rights = function(share_id, secret_key, node, users, selected_users, selected_rights) {
                                     for (var i = 0; i < users.length; i++) {
                                         if (selected_users.indexOf(users[i].id) < 0) {
                                             continue;
                                         }
 
                                         // found a user that has been selected, lets create the rights for him
-                                        // TODO create form and read the rights from form
-                                        var read = true;
-                                        var write = true;
-                                        var grant = false;
+                                        var rights = {
+                                            read: selected_rights.indexOf('read') > -1,
+                                            write: selected_rights.indexOf('write') > -1,
+                                            grant: selected_rights.indexOf('grant') > -1
+                                        };
 
                                         // generate the title
                                         // TODO create form field with this default value and read value from form
@@ -247,20 +248,19 @@
                                             title = _blueprints[node.type].name + " with title '" + node.name + "'";
                                         }
 
-                                        registrations['create_share_right'](title, node.type,
+                                        registrations['create_share_right'](title,
                                             share_id, users[i].data.user_id,
                                             users[i].data.user_public_key, secret_key,
-                                            read, write, grant);
+                                            rights['read'], rights['write'], rights['grant']);
                                         i++;
                                     }
                                 };
 
                                 if (content.node.hasOwnProperty("share_id")) {
                                     // its already a share, so generate only the share_rights
-                                    console.log(content);
 
-                                    create_share_rights(content.node.share_id, content.node.secret_key,
-                                        content.node, content.users, content.selected_users);
+                                    create_share_rights(content.node.share_id, content.node.share_secret_key,
+                                        content.node, content.users, content.selected_users, content.selected_rights);
 
                                 } else {
 
@@ -274,7 +274,7 @@
                                         var item_path_copy2 = content.path.slice();
 
                                         create_share_rights(share_details.share_id, share_details.secret_key,
-                                            content.node, content.users, content.selected_users);
+                                            content.node, content.users, content.selected_users, content.selected_rights);
 
                                         return registrations['get_password_datastore']().then(function(datastore) {
 

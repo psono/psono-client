@@ -1,4 +1,4 @@
-<form name="editEntryForm" novalidate>
+<form name="shareEntryForm" novalidate>
     <div class="modal-header">
         <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
         <h3 class="modal-title">Share {{node.name}}</h3>
@@ -6,13 +6,22 @@
     <div class="modal-body">
 
         <tabset class="tabset_expand">
-            <tab heading="Users" active="tab.active" disable="tab.disabled">
+            <tab heading="Rights">
+
+                <ul class="list-group check-list">
+                    <li class="list-group-item" ng-class="selected_rights.indexOf(right.id) > -1 ? 'selected' : ''" ng-repeat="right in rights" ng-click="toggleSelect(right.id, 'right')">
+                        <i ng-class="selected_rights.indexOf(right.id) > -1 ? 'fa fa-check-square-o' : 'fa fa-square-o'"></i> {{ right.name }}
+                    </li>
+                </ul>
+
+            </tab>
+            <tab heading="Users">
 
                 <div ng-if="users">
                     <button type="button" ng-click="addUser()" class="btn btn-link"><i class="fa fa-user-plus"></i> Add User</button>
 
                     <ul class="list-group check-list">
-                        <li class="list-group-item" ng-class="selected_users.indexOf(user.id) > -1 ? 'selected' : ''" ng-repeat="user in users" ng-click="toggleSelectUser(user.id)">
+                        <li class="list-group-item" ng-class="selected_users.indexOf(user.id) > -1 ? 'selected' : ''" ng-repeat="user in users" ng-click="toggleSelect(user.id, 'user')">
                             <i ng-class="selected_users.indexOf(user.id) > -1 ? 'fa fa-check-square-o' : 'fa fa-square-o'"></i> {{user.name | limitTo: 60 }}{{user.name.length > 60 ? '...)' : ''}}
                         </li>
                     </ul>

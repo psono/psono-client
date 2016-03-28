@@ -735,10 +735,35 @@
         $scope.node = node;
         $scope.path = path;
         $scope.users = users;
+        $scope.rights = [{
+            id: 'read',
+            name: 'read',
+            initial_value: true
+        }, {
+            id: 'write',
+            name: 'write',
+            initial_value: true
+        }, {
+            id: 'grant',
+            name: 'grant',
+            initial_value: true
+        }];
+
         $scope.selected_users = [];
+        $scope.selected_rights = [];
+
+        // fills selected_rights array with the default values
+        for (var i = 0, l = $scope.rights.length; i < l; i++) {
+            if ($scope.rights[i].initial_value) {
+                $scope.selected_rights.push($scope.rights[i].id);
+            }
+        }
 
         $scope.errors = [];
 
+        /**
+         * responsible to add a user to the known users datastore
+         */
         $scope.addUser = function() {
 
             var modalInstance = $modal.open({
@@ -803,25 +828,42 @@
             });
         };
 
-        $scope.toggleSelectUser = function(user_id) {
-            var array_index = $scope.selected_users.indexOf(user_id);
+        /**
+         * responsible to toggle selections of rights and users and adding it to the selected_rights / selected_users
+         * array
+         *
+         * @param id
+         * @param type
+         */
+        $scope.toggleSelect = function(id, type) {
+
+            var search_array;
+            if (type === 'right') {
+                search_array = $scope.selected_rights;
+            } else {
+                search_array = $scope.selected_users;
+            }
+
+            var array_index = search_array.indexOf(id);
             if (array_index > -1) {
                 //its selected, lets deselect it
-                $scope.selected_users.splice(array_index, 1);
+                search_array.splice(array_index, 1);
             } else {
-                $scope.selected_users.push(user_id);
+                search_array.push(id);
             }
         };
 
         /**
          * Triggered once someone clicks the save button in the modal
          */
-        $scope.save = function (node, path, users, selected_users) {
+        $scope.save = function () {
             $modalInstance.close({
                 node: $scope.node,
                 path: $scope.path,
                 users: $scope.users,
-                selected_users: $scope.selected_users
+                selected_users: $scope.selected_users,
+                rights: $scope.rights,
+                selected_rights: $scope.selected_rights
             });
         };
 
