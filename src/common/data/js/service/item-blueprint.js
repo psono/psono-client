@@ -167,6 +167,7 @@
                 icon: 'fa fa-share',
                 onClick: function(item, path) {
 
+                    // small helper to create a list of all users from the user datastore
                     var create_list = function (obj, list) {
                         var i;
                         for (i = 0; obj.items && i < obj.items.length; i++) {
@@ -314,6 +315,17 @@
 
                         });
                 }
+            },
+            show_share_rights: {
+                id: 'show_share_rights',
+                name: 'Share Rights',
+                icon: 'fa fa-share',
+                condition: function(item) {
+                    return true;
+                },
+                onClick: function(item, path) {
+
+                }
             }
         };
 
@@ -322,14 +334,20 @@
          *
          * @returns {Array} The list of all blueprints
          */
-        var get_additional_functions = function() {
+        var get_additional_functions = function(item) {
 
             var result = [];
 
             for (var property in _additionalFunction) {
-                if (_additionalFunction.hasOwnProperty(property)) {
-                    result.push(_additionalFunction[property])
+                if (!_additionalFunction.hasOwnProperty(property)) {
+                    continue;
                 }
+
+                if (_additionalFunction[property].hasOwnProperty('condition') && !_additionalFunction[property].condition(item)) {
+                    continue;
+                }
+
+                result.push(_additionalFunction[property]);
             }
             return result;
         };

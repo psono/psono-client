@@ -89,6 +89,17 @@ body {
 
 }
 
+.fa-circle.is-shared {
+  color:$dark-hightlight-color;
+  font-size: 80%;
+  margin-top:50%;
+}
+.fa-group.is-shared {
+  color:$dark-background;
+  font-size: 35%;
+  margin-top:60%;
+}
+
   /* snap */
 snap-content,
 [snap\:content],

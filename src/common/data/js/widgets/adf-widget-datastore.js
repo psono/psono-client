@@ -498,7 +498,7 @@
                 return moveItem($scope, item_path, target_path, 'folders');
             },
 
-            additionalButtons: itemBlueprint.get_additional_functions(),
+            getAdditionalButtons: itemBlueprint.get_additional_functions,
 
             /**
              * Returns the class of the icon used to display a specific item

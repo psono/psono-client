@@ -482,7 +482,7 @@
                 'new_entry': {name: 'New User', icon: 'fa fa-user-plus'}
             },
 
-            additionalButtons: shareBlueprint.get_additional_functions(),
+            getAdditionalButtons: shareBlueprint.get_additional_functions,
 
             /**
              * Returns the class of the icon used to display a specific item

@@ -442,9 +442,9 @@
                  *
                  * @type {Array}
                  */
-                scope.additionalButtons = typeof options.additionalButtons !== 'undefined'
-                    ? options.additionalButtons
-                    : [];
+                scope.getAdditionalButtons = typeof options.getAdditionalButtons !== 'undefined'
+                    ? options.getAdditionalButtons
+                    : function(){return []};
 
                 /**
                  * checks if the node in the current scope has children
@@ -772,7 +772,11 @@
 
                         '<div class="tree-folder-title" data-target="menu-{{ node.id }}" context-menu="">' +
                         '<div href="#" class="tree-folder-header" ng-click="selectNode($event)" ng-class="{ selected: isSelected(node) }">' +
+                        '<span class="fa-stack">' +
                         '<i class="" ng-class="getFolderIconClass(node)"></i>' +
+                        '<i ng-if="node.share_id" class="fa fa-circle fa-stack-2x text-danger is-shared"></i>' +
+                        '<i ng-if="node.share_id" class="fa fa-group fa-stack-2x is-shared"></i>' +
+                        '</span>' +
                         '<span class="tree-folder-name"><a href="#" ng-click="clickNode($event)">{{ node.' + displayProperty + ' }}</a></span> ' +
                         '</div>' +
                         '<span class="node-dropdown" dropdown>' +
@@ -780,8 +784,8 @@
                         '    <i ng-class="getFolderEditIconClass(node)"></i>' +
                         '</a>' +
                         '<ul class="dropdown-menu dropdown-button-menu" aria-labelledby="drop_node_{{node.id}}">' +
-                        '    <li role="menuitem" ng-click="additionalButtonItem(node, $event, f.onClick, true)" ng-repeat="f in additionalButtons"><a href="#"><i ng-class="f.icon"></i>{{ f.name }}</a></li>' +
-                        '    <li ng-if="additionalButtons && additionalButtons.length" class="divider"></li>' +
+                        '    <li role="menuitem" ng-click="additionalButtonItem(node, $event, f.onClick, true)" ng-repeat="f in getAdditionalButtons(node)"><a href="#"><i ng-class="f.icon"></i>{{ f.name }}</a></li>' +
+                        '    <li ng-if="getAdditionalButtons(node) && getAdditionalButtons(node).length" class="divider"></li>' +
                         '    <li role="menuitem" ng-click="editNode(node, $event)"><a href="#"><i class="fa fa-wrench"></i>Edit</a></li>' +
                         '    <li role="menuitem" ng-click="newFolderNode(node, $event)"><a href="#"><i class="fa fa-folder"></i>New Folder</a></li>' +
                         '    <li role="menuitem" ng-click="newEntryNode(node, $event)"><a href="#"><i class="{{ textConfig.new_entry.icon }}"></i>{{ textConfig.new_entry.name }}</a></li>' +
@@ -797,8 +801,8 @@
 
                         '<div class="dropdown position-fixed droppdown-rightclick" id="menu-{{ node.id }}">' +
                         '<ul class="dropdown-menu" role="menu">' +
-                        '    <li role="menuitem" ng-click="additionalButtonItem(node, $event, f.onClick, true)" ng-repeat="f in additionalButtons"><a href="#"><i ng-class="f.icon"></i>{{ f.name }}</a></li>' +
-                        '    <li ng-if="additionalButtons && additionalButtons.length" class="divider"></li>' +
+                        '    <li role="menuitem" ng-click="additionalButtonItem(node, $event, f.onClick, true)" ng-repeat="f in getAdditionalButtons(node)"><a href="#"><i ng-class="f.icon"></i>{{ f.name }}</a></li>' +
+                        '    <li ng-if="getAdditionalButtons(node) && getAdditionalButtons(node).length" class="divider"></li>' +
                         '    <li role="menuitem" ng-click="editNode(node, $event)"><a href="#"><i class="fa fa-wrench"></i>Edit</a></li>' +
                         '    <li role="menuitem" ng-click="newFolderNode(node, $event)"><a href="#"><i class="fa fa-folder"></i>New Folder</a></li>' +
                         '    <li role="menuitem" ng-click="newEntryNode(node, $event)"><a href="#"><i class="{{ textConfig.new_entry.icon }}"></i>{{ textConfig.new_entry.name }}</a></li>' +
@@ -816,14 +820,19 @@
                         ' class="tree-item" ng-repeat="item in ' + attrs.treeViewNode + '.' + itemsProperty + ' track by $index">' +
 
                         '<div class="tree-item-object" ng-click="selectItem(item, $event)" ng-class="{ selected: isSelected(item) }" data-target="menu-{{ item.id }}" context-menu="">' +
-                        '<i ng-class="getItemIconClass(item)"></i><span class="tree-item-name"><a href="#" ng-click="clickItem(item, $event)">{{ item.' + displayProperty + ' }}</a></span>' +
+                        '<span class="fa-stack">' +
+                        '<i ng-class="getItemIconClass(item)"></i>' +
+                        '<i ng-if="item.share_id" class="fa fa-circle fa-stack-2x text-danger is-shared"></i>' +
+                        '<i ng-if="item.share_id" class="fa fa-group fa-stack-2x is-shared"></i>' +
+                        '</span>' +
+                        '<span class="tree-item-name"><a href="#" ng-click="clickItem(item, $event)">{{ item.' + displayProperty + ' }}</a></span>' +
                         '<span class="node-dropdown" dropdown>' +
                         '<a class="btn btn-default editbutton" href="#" role="button" id="drop_item_{{item.id}}" dropdown-toggle>' +
                         '    <i ng-class="getFolderEditIconClass(item)"></i>' +
                         '</a>' +
                         '<ul class="dropdown-menu dropdown-button-menu" aria-labelledby="drop_item_{{item.id}}">' +
-                        '    <li role="menuitem" ng-click="additionalButtonItem(item, $event, f.onClick, false)" ng-repeat="f in additionalButtons"><a href="#"><i ng-class="f.icon"></i>{{ f.name }}</a></li>' +
-                        '    <li ng-if="additionalButtons && additionalButtons.length" class="divider"></li>' +
+                        '    <li role="menuitem" ng-click="additionalButtonItem(item, $event, f.onClick, false)" ng-repeat="f in getAdditionalButtons(item)"><a href="#"><i ng-class="f.icon"></i>{{ f.name }}</a></li>' +
+                        '    <li ng-if="getAdditionalButtons(item) && getAdditionalButtons(item).length" class="divider"></li>' +
                         '    <li role="menuitem" ng-click="editItem(item, $event)"><a href="#"><i class="fa fa-wrench"></i>Edit</a></li>' +
                         '    <li role="menuitem" ng-click="newFolderItem(item, $event)"><a href="#"><i class="fa fa-folder"></i>New Folder</a></li>' +
                         '    <li role="menuitem" ng-click="newEntryItem(item, $event)"><a href="#"><i class="{{ textConfig.new_entry.icon }}"></i>{{ textConfig.new_entry.name }}</a></li>' +
@@ -835,8 +844,8 @@
 
                         '<div class="dropdown position-fixed droppdown-rightclick" id="menu-{{ item.id }}">' +
                         '<ul class="dropdown-menu" role="menu">' +
-                        '    <li role="menuitem" ng-click="additionalButtonItem(item, $event, f.onClick, false)" ng-repeat="f in additionalButtons"><a href="#"><i ng-class="f.icon"></i>{{ f.name }}</a></li>' +
-                        '    <li ng-if="additionalButtons && additionalButtons.length" class="divider"></li>' +
+                        '    <li role="menuitem" ng-click="additionalButtonItem(item, $event, f.onClick, false)" ng-repeat="f in getAdditionalButtons(item)"><a href="#"><i ng-class="f.icon"></i>{{ f.name }}</a></li>' +
+                        '    <li ng-if="getAdditionalButtons(item) && getAdditionalButtons(item).length" class="divider"></li>' +
                         '    <li role="menuitem" ng-click="editItem(item, $event)"><a href="#"><i class="fa fa-wrench"></i>Edit</a></li>' +
                         '    <li role="menuitem" ng-click="newFolderItem(item, $event)"><a href="#"><i class="fa fa-folder"></i>New Folder</a></li>' +
                         '    <li role="menuitem" ng-click="newEntryItem(item, $event)"><a href="#"><i class="{{ textConfig.new_entry.icon }}"></i>{{ textConfig.new_entry.name }}</a></li>' +

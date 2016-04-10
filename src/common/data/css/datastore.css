@@ -63,6 +63,16 @@ body {
   background-color: #2ba880;
   border-color: #2ba880; }
 
+.fa-circle.is-shared {
+  color: #2dbb93;
+  font-size: 80%;
+  margin-top: 50%; }
+
+.fa-group.is-shared {
+  color: #0f1118;
+  font-size: 35%;
+  margin-top: 60%; }
+
 /* snap */
 snap-content,
 [snap\:content],

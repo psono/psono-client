@@ -70,7 +70,6 @@
          * creates the rights for a specified share and user
          *
          * @param title
-         * @param type
          * @param share_id
          * @param user_id
          * @param user_public_key
@@ -89,7 +88,7 @@
             var onSuccess = function(content) {
                 return {share_right_id: content.data.share_right_id};
             };
-            
+
             var c = managerBase.encrypt_private_key(key, user_public_key);
 
             return apiClient.create_share_right(managerBase.find_one_nolimit('config', 'user_token'), title,
