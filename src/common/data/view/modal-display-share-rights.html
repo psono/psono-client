@@ -20,19 +20,19 @@
             <tr ng-repeat="right in share_details.user_share_rights">
                 <td>{{ right.email }}</td>
                 <td>
-                    <button type="button" class="btn btn-default btn-sm" ng-click="toggle_read(right, share_details)" ng-disabled="!share_details.own_share_rights.grant || (right.id == share_details.own_share_rights.id)">
+                    <button type="button" class="btn btn-default btn-sm" ng-click="toggle_right('read', right)" ng-disabled="!share_details.own_share_rights.grant || (right.id == share_details.own_share_rights.id)">
                         <i ng-if="right.read" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
                         <i ng-if="!right.read" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
                     </button>
                 </td>
                 <td>
-                    <button type="button" class="btn btn-default btn-sm" ng-click="toggle_write(right, share_details)" ng-disabled="!share_details.own_share_rights.grant || (right.id == share_details.own_share_rights.id)">
+                    <button type="button" class="btn btn-default btn-sm" ng-click="toggle_right('write', right)" ng-disabled="!share_details.own_share_rights.grant || (right.id == share_details.own_share_rights.id)">
                         <i ng-if="right.write" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
                         <i ng-if="!right.write" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
                     </button>
                 </td>
                 <td>
-                    <button type="button" class="btn btn-default btn-sm" ng-click="toggle_grant(right, share_details)" ng-disabled="!share_details.own_share_rights.grant || (right.id == share_details.own_share_rights.id)">
+                    <button type="button" class="btn btn-default btn-sm" ng-click="toggle_right('grant', right)" ng-disabled="!share_details.own_share_rights.grant || (right.id == share_details.own_share_rights.id)">
                         <i ng-if="right.grant" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
                         <i ng-if="!right.grant" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
                     </button>
@@ -44,7 +44,7 @@
                     </button>
                 </td>
                 <td>
-                    <button type="button" class="btn btn-default btn-sm" ng-click="delete(right.id, share_details)" ng-disabled="!share_details.own_share_rights.grant || (right.id == share_details.own_share_rights.id)">
+                    <button type="button" class="btn btn-default btn-sm" ng-click="delete(right)" ng-disabled="!share_details.own_share_rights.grant || (right.id == share_details.own_share_rights.id)">
                         <i class="fa fa-trash" aria-hidden="true"></i>
                     </button>
                 </td>

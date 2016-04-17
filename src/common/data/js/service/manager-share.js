@@ -117,6 +117,32 @@
         };
 
         /**
+         * updates the rights for a specified share right and user
+         *
+         * @param share_id
+         * @param user_id
+         * @param read
+         * @param write
+         * @param grant
+         * @returns {*}
+         */
+        var update_share_right = function(share_id, user_id, read, write, grant) {
+
+            var onError = function(result) {
+                // pass
+            };
+
+            var onSuccess = function(content) {
+                return {share_right_id: content.data.share_right_id};
+            };
+
+
+            return apiClient.create_share_right(managerBase.find_one_nolimit('config', 'user_token'), null,
+                share_id, user_id, null, null, read, write, grant)
+                .then(onSuccess, onError);
+        };
+
+        /**
          * deletes a specific share right
          *
          * @param share_right_id
@@ -149,6 +175,7 @@
             create_share: create_share,
             read_share_rights: read_share_rights,
             create_share_right: create_share_right,
+            update_share_right: update_share_right,
             delete_share_right: delete_share_right
         };
     };

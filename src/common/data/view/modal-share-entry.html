@@ -5,27 +5,48 @@
     </div>
     <div class="modal-body">
 
-        <tabset class="tabset_expand">
-            <tab heading="Rights">
+        <!--
+        <div class="row" style="font-weight: bold">
+            <div class="col-md-4"  ng-repeat="right in rights">
+                {{ right.name }}
+            </div>
+        </div>
+        -->
 
-                <ul class="list-group check-list">
-                    <li class="list-group-item" ng-class="selected_rights.indexOf(right.id) > -1 ? 'selected' : ''" ng-repeat="right in rights" ng-click="toggleSelect(right.id, 'right')">
-                        <i ng-class="selected_rights.indexOf(right.id) > -1 ? 'fa fa-check-square-o' : 'fa fa-square-o'"></i> {{ right.name }}
-                    </li>
-                </ul>
+        <div class="row" style="font-weight: bold">
+            <div class="col-xs-4 col-sm-4" ng-repeat="right in rights">
+                {{ right.name }}
+                <button type="button" class="btn btn-default btn-sm" ng-click="toggleSelect(right.id, 'right')" >
+                    <i ng-class="selected_rights.indexOf(right.id) > -1 ? 'fa fa-check-square-o' : 'fa fa-square-o'"></i>
+                </button>
+            </div>
+        </div>
 
-            </tab>
+        <hr>
+
+        <tabset>
             <tab heading="Users">
-
                 <div ng-if="users">
-                    <button type="button" ng-click="addUser()" class="btn btn-link"><i class="fa fa-user-plus"></i> Add User</button>
 
-                    <ul class="list-group check-list">
-                        <li class="list-group-item" ng-class="selected_users.indexOf(user.id) > -1 ? 'selected' : ''" ng-repeat="user in users" ng-click="toggleSelect(user.id, 'user')">
-                            <i ng-class="selected_users.indexOf(user.id) > -1 ? 'fa fa-check-square-o' : 'fa fa-square-o'"></i> {{user.name | limitTo: 60 }}{{user.name.length > 60 ? '...)' : ''}}
-                        </li>
-                    </ul>
 
+                    <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
+                        <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="user in users">
+                            <td>{{user.name | limitTo: 60 }}{{user.name.length > 60 ? '...)' : ''}}</td>
+                            <td>
+                                <button type="button" class="btn btn-default btn-sm" ng-click="toggleSelect(user.id, 'user')">
+                                    <i ng-class="selected_users.indexOf(user.id) > -1 ? 'fa fa-check-square-o' : 'fa fa-square-o'"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
                 <div ng-if="!users">
                     <p class="text-center">
@@ -36,6 +57,9 @@
             </tab>
         </tabset>
 
+        <div class="row">
+            <button type="button" ng-click="addUser()" class="btn btn-link"><i class="fa fa-user-plus"></i> Add User</button>
+        </div>
 
 
         <span ng-repeat="e in errors" class="pull-right">{{e}}</span>

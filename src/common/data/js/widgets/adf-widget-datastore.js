@@ -729,23 +729,30 @@
     /**
      * Controller for the "Share Entry" modal
      */
-    module.controller('ModalShareEntryCtrl', ['$scope', '$modalInstance', '$modal', 'shareBlueprint', 'managerDatastoreUser', 'node', 'path', 'users',
-    function ($scope, $modalInstance, $modal, shareBlueprint, managerDatastoreUser, node, path, users) {
+    module.controller('ModalShareEntryCtrl', ['$scope', '$modalInstance', '$modal', 'shareBlueprint', 'managerDatastoreUser', 'node', 'path', 'users', 'DTOptionsBuilder', 'DTColumnDefBuilder',
+    function ($scope, $modalInstance, $modal, shareBlueprint, managerDatastoreUser, node, path, users, DTOptionsBuilder, DTColumnDefBuilder) {
+
+
+        $scope.dtOptions = DTOptionsBuilder.newOptions();
+        $scope.dtColumnDefs = [
+            DTColumnDefBuilder.newColumnDef(0),
+            DTColumnDefBuilder.newColumnDef(1).notSortable()
+        ];
 
         $scope.node = node;
         $scope.path = path;
         $scope.users = users;
         $scope.rights = [{
             id: 'read',
-            name: 'read',
+            name: 'Read',
             initial_value: true
         }, {
             id: 'write',
-            name: 'write',
+            name: 'Write',
             initial_value: true
         }, {
             id: 'grant',
-            name: 'grant',
+            name: 'Grant',
             initial_value: true
         }];
 
@@ -910,20 +917,37 @@
             $modalInstance.dismiss('cancel');
         };
 
-        $scope.delete = function (share_right_id) {
+        /**
+         * Triggered once someone clicks on the delete button for a share right
+         *
+         * @param right
+         */
+        $scope.delete = function (right) {
 
             for (var i = 0, l = share_details.user_share_rights.length; i < l; i++) {
-                if (share_details.user_share_rights[i].id !== share_right_id) {
+                if (share_details.user_share_rights[i].id !== right.id) {
                     continue;
                 }
 
                 share_details.user_share_rights.splice(i, 1);
-
-                managerShare.delete_share_right(share_right_id);
-
-
+                managerShare.delete_share_right(right.id);
             }
         };
+
+        /**
+         * Triggerec once someone clicks on the right toggle button for a share right
+         *
+         * @param type
+         * @param right
+         */
+        $scope.toggle_right = function(type, right) {
+            console.log(type);
+            console.log(right);
+            right[type] = !right[type];
+
+            managerShare.update_share_right(right.share_id, right.user_id, right.read, right.write, right.grant)
+        };
+
     }]);
 
 
