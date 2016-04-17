@@ -704,7 +704,7 @@ var ClassClient = function (backend, require, jQuery, scrypt_module_factory, sha
      * @param {uuid} share_id - the share ID
      * @returns {promise}
      */
-    this.read_share_total = function (token, share_id) {
+    this.read_share_rights = function (token, share_id) {
         var endpoint = '/share/rights/' + share_id + '/';
         var connection_type = "GET";
 

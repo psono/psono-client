@@ -1,0 +1,59 @@
+<form name="displayShareRightsForm" novalidate>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title">Share Rights of {{node.name}}</h3>
+    </div>
+    <div class="modal-body">
+
+        <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
+            <thead>
+            <tr>
+                <th>E-Mail</th>
+                <th>Read</th>
+                <th>Write</th>
+                <th>Grant</th>
+                <th>Accepted</th>
+                <th>&nbsp;</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="right in share_details.user_share_rights">
+                <td>{{ right.email }}</td>
+                <td>
+                    <button type="button" class="btn btn-default btn-sm" ng-click="toggle_read(right, share_details)" ng-disabled="!share_details.own_share_rights.grant || (right.id == share_details.own_share_rights.id)">
+                        <i ng-if="right.read" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                        <i ng-if="!right.read" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                    </button>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-default btn-sm" ng-click="toggle_write(right, share_details)" ng-disabled="!share_details.own_share_rights.grant || (right.id == share_details.own_share_rights.id)">
+                        <i ng-if="right.write" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                        <i ng-if="!right.write" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                    </button>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-default btn-sm" ng-click="toggle_grant(right, share_details)" ng-disabled="!share_details.own_share_rights.grant || (right.id == share_details.own_share_rights.id)">
+                        <i ng-if="right.grant" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                        <i ng-if="!right.grant" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                    </button>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-default btn-sm" ng-click="" ng-disabled="true">
+                        <i ng-if="right.accepted" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                        <i ng-if="!right.accepted" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                    </button>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-default btn-sm" ng-click="delete(right.id, share_details)" ng-disabled="!share_details.own_share_rights.grant || (right.id == share_details.own_share_rights.id)">
+                        <i class="fa fa-trash" aria-hidden="true"></i>
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn" type="button" ng-click="cancel();">Close</button>
+    </div>
+</form>

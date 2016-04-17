@@ -4,7 +4,7 @@
     var app = angular.module('passwordManagerApp', ['ngRoute', 'ng', 'ui.bootstrap', 'snap', 'adf',
         'adf.widget.datastore', 'adf.widget.shareusers', 'chieffancypants.loadingBar', 'ngAnimate',
         'LocalStorageModule', 'ngTree', 'ngDraggable', 'ng-context-menu', 'ui.select', 'ngSanitize',
-        'angular-complexify'])
+        'angular-complexify', 'datatables'])
         .constant('BACKEND_SERVERS', [
             {
                 title: 'Sanso.pw', url: 'https://www.sanso.pw'

@@ -67,6 +67,26 @@
         };
 
         /**
+         * Returns a share rights for a specific share
+         *
+         * @param share_id
+         * @returns {promise}
+         */
+        var read_share_rights = function(share_id) {
+
+            var onError = function(result) {
+                // pass
+            };
+
+            var onSuccess = function(content) {
+                return content.data;
+            };
+
+            return apiClient.read_share_rights(managerBase.find_one_nolimit('config', 'user_token'), share_id)
+                .then(onSuccess, onError);
+        };
+
+        /**
          * creates the rights for a specified share and user
          *
          * @param title
@@ -96,8 +116,30 @@
                 .then(onSuccess, onError);
         };
 
+        /**
+         * deletes a specific share right
+         *
+         * @param share_right_id
+         * @returns {promise}
+         */
+        var delete_share_right = function(share_right_id) {
+
+            var onError = function(result) {
+                // pass
+            };
+
+            var onSuccess = function(content) {
+                console.log(content);
+                return {share_right_id: content.data.share_right_id};
+            };
+
+            return apiClient.delete_share_right(managerBase.find_one_nolimit('config', 'user_token'), share_right_id)
+                .then(onSuccess, onError);
+        };
+
         // registrations
 
+        itemBlueprint.register('read_share_rights', read_share_rights);
         itemBlueprint.register('create_share', create_share);
         itemBlueprint.register('create_share_right', create_share_right);
 
@@ -105,7 +147,9 @@
             read_share: read_share,
             write_share: write_share,
             create_share: create_share,
-            create_share_right: create_share_right
+            read_share_rights: read_share_rights,
+            create_share_right: create_share_right,
+            delete_share_right: delete_share_right
         };
     };
 

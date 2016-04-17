@@ -407,8 +407,8 @@
          * @param {uuid} share_id - the share ID
          * @returns {promise}
          */
-        var read_share_total = function (token, share_id) {
-            var endpoint = '/share/right/' + share_id + '/';
+        var read_share_rights = function (token, share_id) {
+            var endpoint = '/share/rights/' + share_id + '/';
             var connection_type = "GET";
             var data = null;
             var headers = {
@@ -417,6 +417,7 @@
 
             return call(connection_type, endpoint, data, headers);
         };
+
 
         /**
          * Ajax GET request with the token as authentication to get the users and groups rights of the share
@@ -445,6 +446,24 @@
                 write: write,
                 grant: grant
             };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers);
+        };
+
+        /**
+         * Ajax DELETE request with the token as authentication to delete the user / group share right
+         *
+         * @param token
+         * @param share_right_id
+         * @returns {*}
+         */
+        var delete_share_right = function (token, share_right_id) {
+            var endpoint = '/share/right/' + share_right_id + '/';
+            var connection_type = "DELETE";
+            var data = {};
             var headers = {
                 "Authorization": "Token "+ token
             };
@@ -536,8 +555,9 @@
             read_share:read_share,
             write_share: write_share,
             create_share: create_share,
-            read_share_total: read_share_total,
+            read_share_rights: read_share_rights,
             create_share_right: create_share_right,
+            delete_share_right: delete_share_right,
             get_users_public_key: get_users_public_key,
             read_group: read_group,
             create_group: create_group

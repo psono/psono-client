@@ -828,6 +828,8 @@
             });
         };
 
+
+
         /**
          * responsible to toggle selections of rights and users and adding it to the selected_rights / selected_users
          * array
@@ -872,6 +874,55 @@
          */
         $scope.cancel = function () {
             $modalInstance.dismiss('cancel');
+        };
+    }]);
+
+
+
+    /**
+     * Controller for the "Display share rights" modal
+     */
+    module.controller('ModalDisplayShareRightsCtrl', ['$scope', '$modalInstance', 'itemBlueprint', 'node', 'path', 'share_details', 'managerShare', 'DTOptionsBuilder', 'DTColumnDefBuilder',
+    function ($scope, $modalInstance, itemBlueprint, node, path, share_details, managerShare, DTOptionsBuilder, DTColumnDefBuilder) {
+
+
+
+        $scope.dtOptions = DTOptionsBuilder.newOptions();
+        $scope.dtColumnDefs = [
+            DTColumnDefBuilder.newColumnDef(0),
+            DTColumnDefBuilder.newColumnDef(1),
+            DTColumnDefBuilder.newColumnDef(2),
+            DTColumnDefBuilder.newColumnDef(3),
+            DTColumnDefBuilder.newColumnDef(4),
+            DTColumnDefBuilder.newColumnDef(5).notSortable()
+        ];
+
+        $scope.node = node;
+        $scope.path = path;
+        $scope.name = node.name;
+        $scope.share_details = share_details;
+
+
+        /**
+         * Triggered once someone clicks the cancel button in the modal
+         */
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+
+        $scope.delete = function (share_right_id) {
+
+            for (var i = 0, l = share_details.user_share_rights.length; i < l; i++) {
+                if (share_details.user_share_rights[i].id !== share_right_id) {
+                    continue;
+                }
+
+                share_details.user_share_rights.splice(i, 1);
+
+                managerShare.delete_share_right(share_right_id);
+
+
+            }
         };
     }]);
 

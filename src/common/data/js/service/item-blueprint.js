@@ -164,7 +164,7 @@
             share: {
                 id: 'share',
                 name: 'Share',
-                icon: 'fa fa-share',
+                icon: 'fa fa-user-plus',
                 onClick: function(item, path) {
 
                     // small helper to create a list of all users from the user datastore
@@ -318,13 +318,34 @@
             },
             show_share_rights: {
                 id: 'show_share_rights',
-                name: 'Share Rights',
-                icon: 'fa fa-share',
+                name: 'Rights Overview',
+                icon: 'fa fa-eye',
                 condition: function(item) {
-                    return true;
+                    return item.hasOwnProperty('share_id');
                 },
                 onClick: function(item, path) {
 
+                    // create the share
+                    registrations['read_share_rights'](item.share_id).then(function (share_details) {
+
+                        var modalInstance = $modal.open({
+                            templateUrl: 'view/modal-display-share-rights.html',
+                            controller: 'ModalDisplayShareRightsCtrl',
+                            size: 'lg',
+                            resolve: {
+                                node: function () {
+                                    return item;
+                                },
+                                path: function () {
+                                    return path;
+                                },
+                                share_details: function() {
+                                    return share_details;
+                                }
+                            }
+                        });
+
+                    });
                 }
             }
         };
