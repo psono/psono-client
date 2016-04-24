@@ -24,6 +24,25 @@
             return apiClient.read_share(managerBase.find_one_nolimit('config', 'user_token'), share_id)
                 .then(onSuccess, onError);
         };
+        
+        /**
+         * Returns a list of all shares
+         *
+         * @returns {promise}
+         */
+        var read_shares = function() {
+
+            var onError = function(result) {
+                // pass
+            };
+
+            var onSuccess = function(content) {
+                return content.data;
+            };
+
+            return apiClient.read_shares(managerBase.find_one_nolimit('config', 'user_token'))
+                .then(onSuccess, onError);
+        };
 
         /**
          * updates a share
@@ -52,6 +71,7 @@
             var json_content = JSON.stringify(content);
 
             var c = cryptoLibrary.encrypt_data(json_content, secret_key);
+            var c2 = managerBase.encrypt_secret_key(secret_key);
 
             var onError = function(result) {
                 // pass
@@ -62,12 +82,12 @@
             };
 
             return apiClient.create_share(managerBase.find_one_nolimit('config', 'user_token'), c.text,
-                c.nonce)
+                c.nonce, c2.text, c2.nonce)
                 .then(onSuccess, onError);
         };
 
         /**
-         * Returns a share rights for a specific share
+         * Returns share rights for a specific share
          *
          * @param share_id
          * @returns {promise}
@@ -171,6 +191,7 @@
 
         return {
             read_share: read_share,
+            read_shares: read_shares,
             write_share: write_share,
             create_share: create_share,
             read_share_rights: read_share_rights,

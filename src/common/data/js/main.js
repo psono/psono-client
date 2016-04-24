@@ -29,6 +29,10 @@
                     templateUrl: 'view/settings.html',
                     controller: 'SettingsController'
                 })
+                .when('/share/shares', {
+                    templateUrl: 'view/index-share-shares.html',
+                    controller: 'ShareCtrl'
+                })
                 .when('/share/users', {
                     templateUrl: 'view/index-share-users.html',
                     controller: 'IndexCtrl'
@@ -487,6 +491,9 @@
 
             $scope.onItemClick = managerSecret.onItemClick;
 
+            $scope.messages = [
+            ];
+
         }]);
 
     app.controller('PanelController', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'managerDatastorePassword', 'managerDatastoreUser', 'managerSecret', 'browserClient',
@@ -659,6 +666,27 @@
 
             settings.save().then(onSuccess, onError)
         };
+    }]);
+
+    app.controller('ShareCtrl', ['$scope', '$routeParams', 'managerShare', function($scope, $routeParams, managerShare) {
+        this.name = "ShareCtrl";
+        this.params = $routeParams;
+        $scope.routeParams = $routeParams;
+
+        $scope.pendingApprovalFilter = function (item) {
+            return item.share_right_accepted === null;
+        };
+
+
+        var onSuccess = function(data) {
+            console.log(data);
+            $scope.shares = data.shares;
+        };
+        var onError = function(data) {
+            //pass
+        };
+
+        managerShare.read_shares().then(onSuccess, onError);
     }]);
 
     app.controller('IndexCtrl', ['$scope', '$routeParams', function($scope, $routeParams) {

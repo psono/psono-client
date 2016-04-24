@@ -332,18 +332,33 @@
         };
 
         /**
-         * Ajax GET request with the token as authentication to get the current user's share
+         * Ajax GET request with the token as authentication to get the content for a single share
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
-         * @param {uuid} [share_id=null] - the share ID
+         * @param {uuid} share_id - the share ID
          * @returns {promise}
          */
         var read_share = function (token, share_id) {
 
-            //optional parameter share_id
-            if (share_id === undefined) { share_id = null; }
+            var endpoint = '/share/' + share_id + '/';
+            var connection_type = "GET";
+            var data = null;
+            var headers = {
+                "Authorization": "Token "+ token
+            };
 
-            var endpoint = '/share/' + (share_id === null ? '' : share_id + '/');
+            return call(connection_type, endpoint, data, headers);
+        };
+
+        /**
+         * Ajax GET request with the token as authentication to get the current user's shares
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @returns {promise}
+         */
+        var read_shares = function (token) {
+
+            var endpoint = '/share/';
             var connection_type = "GET";
             var data = null;
             var headers = {
@@ -361,14 +376,19 @@
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} [encrypted_data] - optional data for the new share
          * @param {string} [encrypted_data_nonce] - nonce for data, necessary if data is provided
+         * @param {string} key - encrypted key used by the encryption
+         * @param {string} key_nonce - nonce for key, necessary if a key is provided
          * @returns {promise}
          */
-        var create_share = function (token, encrypted_data, encrypted_data_nonce) {
+        var create_share = function (token, encrypted_data, encrypted_data_nonce, key, key_nonce) {
             var endpoint = '/share/';
             var connection_type = "PUT";
             var data = {
                 data: encrypted_data,
-                data_nonce: encrypted_data_nonce
+                data_nonce: encrypted_data_nonce,
+                key: key,
+                key_nonce: key_nonce,
+                key_type: "symmetric"
             };
             var headers = {
                 "Authorization": "Token "+ token
@@ -553,6 +573,7 @@
             write_secret: write_secret,
             create_secret: create_secret,
             read_share:read_share,
+            read_shares: read_shares,
             write_share: write_share,
             create_share: create_share,
             read_share_rights: read_share_rights,

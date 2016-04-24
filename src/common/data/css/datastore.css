@@ -55,6 +55,9 @@ body {
   margin-top: 8px;
   margin-bottom: 8px; }
 
+.text-primary {
+  color: #2dbb93; }
+
 .btn-primary {
   background-color: #2dbb93;
   border-color: #2dbb93; }
@@ -72,6 +75,15 @@ body {
   color: #0f1118;
   font-size: 35%;
   margin-top: 60%; }
+
+.small-top-right {
+  font-size: 65%;
+  margin-top: -45%;
+  margin-left: 60%; }
+
+.fa-circle.small-top-right {
+  font-size: 100%;
+  margin-top: -40%; }
 
 /* snap */
 snap-content,

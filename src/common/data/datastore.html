@@ -50,6 +50,15 @@
                             <li role="menuitem"><a href="#" ng-click="logout()">Logout</a></li>
                         </ul>
                     </div>
+                    <!--
+                    <button type="button" class="btn btn-primary">
+                        <span class="fa-stack" style="line-height:1em; height:1em; width: 1em;">
+                          <i class="fa fa-envelope-o fa-stack-1x"></i>
+                          <i class="fa fa-circle fa-stack-1x small-top-right ng-scope" ng-if="messages.length > 0"></i>
+                          <strong class="fa-stack-1x text-primary small-top-right" ng-if="messages.length > 0">{{messages.length}}</strong>
+                        </span>
+                    </button>
+                    -->
                 </div>
             </div>
         </div>
@@ -63,6 +72,7 @@
         </ul>
         <h2>Share</h2>
         <ul class="navigations">
+            <li ng-class="getLinkState('/share/shares')"><a href="#/share/shares">Shares</a></li>
             <li ng-class="getLinkState('/share/users')"><a href="#/share/users">Users</a></li>
         </ul>
         <h2>More</h2>

@@ -39,8 +39,9 @@
                 </td>
                 <td>
                     <button type="button" class="btn btn-default btn-sm" ng-click="" ng-disabled="true">
-                        <i ng-if="right.accepted" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
-                        <i ng-if="!right.accepted" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                        <i ng-if="right.accepted === true" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                        <i ng-if="right.accepted === false" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                        <i ng-if="right.accepted !== true && right.accepted !== false" class="fa fa-hourglass" aria-hidden="true"><span style="display: none">-1</span></i>
                     </button>
                 </td>
                 <td>

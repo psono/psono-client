@@ -76,6 +76,11 @@ body {
   margin-top: 8px;
   margin-bottom: 8px;
 }
+
+.text-primary {
+  color: $dark-hightlight-color;
+}
+
 .btn-primary {
   background-color: $dark-hightlight-color;
   border-color: $dark-hightlight-color;
@@ -98,6 +103,17 @@ body {
   color:$dark-background;
   font-size: 35%;
   margin-top:60%;
+}
+
+.small-top-right {
+  font-size: 65%;
+  margin-top:-45%;
+  margin-left:60%;
+}
+
+.fa-circle.small-top-right {
+  font-size: 100%;
+  margin-top:-40%;
 }
 
   /* snap */

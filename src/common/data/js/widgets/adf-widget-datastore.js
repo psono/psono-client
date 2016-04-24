@@ -941,8 +941,7 @@
          * @param right
          */
         $scope.toggle_right = function(type, right) {
-            console.log(type);
-            console.log(right);
+            
             right[type] = !right[type];
 
             managerShare.update_share_right(right.share_id, right.user_id, right.read, right.write, right.grant)
