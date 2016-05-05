@@ -300,7 +300,7 @@
                                             parent_path.pop();
                                             changed_paths.push(parent_path);
 
-                                            registrations['save_password_datastore'](datastore, changed_paths);
+                                            registrations['save_datastore'](datastore, changed_paths);
                                         });
 
 

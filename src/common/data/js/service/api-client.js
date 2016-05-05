@@ -492,6 +492,49 @@
         };
 
         /**
+         * Ajax POST request with the token as authentication to accept a share right and in the same run updates it
+         * with the re-encrypted key
+         *
+         * @param token
+         * @param share_right_id
+         * @param key
+         * @param key_nonce
+         * @returns {*}
+         */
+        var accept_share_right = function (token, share_right_id, key, key_nonce) {
+            var endpoint = '/share/right/accept/' + share_right_id + '/';
+            var connection_type = "POST";
+            var data = {
+                key: key,
+                key_nonce: key_nonce
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers);
+        };
+
+        /**
+         * Ajax POST request with the token as authentication to accept a share right and in the same run updates it
+         * with the re-encrypted key
+         *
+         * @param token
+         * @param share_right_id
+         * @returns {*}
+         */
+        var decline_share_right = function (token, share_right_id) {
+            var endpoint = '/share/right/decline/' + share_right_id + '/';
+            var connection_type = "POST";
+            var data = null;
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers);
+        };
+
+        /**
          * Ajax GET request with the token as authentication to get the public key of a user by user_id or user_email
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
@@ -579,6 +622,8 @@
             read_share_rights: read_share_rights,
             create_share_right: create_share_right,
             delete_share_right: delete_share_right,
+            accept_share_right: accept_share_right,
+            decline_share_right: decline_share_right,
             get_users_public_key: get_users_public_key,
             read_group: read_group,
             create_group: create_group

@@ -1,0 +1,35 @@
+<form name="modalAcceptShareForm" novalidate>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title">Accept Share</h3>
+    </div>
+    <div class="modal-body">
+
+        Path:
+        <div>
+                <span ng-repeat="b in breadcrums track by $index">
+                    &gt; {{b}}
+                </span>
+        </div>
+
+        <div ng-controller="AcceptshareDashboardController">
+            <!-- Start Acceptshare Widget -->
+            <adf-dashboard
+                    name="widgetAcceptshareDashboard"
+                    structure="4-8"
+                    editable="false"
+                    collapsible="false"
+                    maximizable="false"
+                    enableConfirmDelete="true"
+                    adf-model="acceptshare.model">
+            </adf-dashboard>
+            <!-- End Acceptshare Widget -->
+        </div>
+
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn" type="button" ng-click="cancel();">Close</button>
+        <button class="btn btn-primary" type="submit" ng-click="save()">OK</button>
+    </div>
+</form>

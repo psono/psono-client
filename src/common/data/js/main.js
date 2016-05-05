@@ -1,10 +1,10 @@
-(function(angular){
+(function (angular) {
     'use strict';
 
     var app = angular.module('passwordManagerApp', ['ngRoute', 'ng', 'ui.bootstrap', 'snap', 'adf',
-        'adf.widget.datastore', 'adf.widget.shareusers', 'chieffancypants.loadingBar', 'ngAnimate',
-        'LocalStorageModule', 'ngTree', 'ngDraggable', 'ng-context-menu', 'ui.select', 'ngSanitize',
-        'angular-complexify', 'datatables'])
+            'adf.widget.datastore', 'adf.widget.shareusers', 'adf.widget.acceptshare', 'chieffancypants.loadingBar', 'ngAnimate',
+            'LocalStorageModule', 'ngTree', 'ngDraggable', 'ng-context-menu', 'ui.select', 'ngSanitize',
+            'angular-complexify', 'datatables'])
         .constant('BACKEND_SERVERS', [
             {
                 title: 'Sanso.pw', url: 'https://www.sanso.pw'
@@ -18,7 +18,7 @@
         ]);
 
     app.config(['$routeProvider', '$locationProvider', 'dashboardProvider', 'localStorageServiceProvider',
-        function($routeProvider, $locationProvider, dashboardProvider, localStorageServiceProvider) {
+        function ($routeProvider, $locationProvider, dashboardProvider, localStorageServiceProvider) {
             //Router config
             $routeProvider
                 .when('/test', {
@@ -29,7 +29,7 @@
                     templateUrl: 'view/settings.html',
                     controller: 'SettingsController'
                 })
-                .when('/share/shares', {
+                .when('/share/pendingshares', {
                     templateUrl: 'view/index-share-shares.html',
                     controller: 'ShareCtrl'
                 })
@@ -135,8 +135,8 @@
 
         }]);
 
-    app.run(['$rootScope','$location', '$routeParams', 'managerSecret' , function($rootScope, $location, $routeParams, managerSecret) {
-        $rootScope.$on('$routeChangeSuccess', function() {
+    app.run(['$rootScope', '$location', '$routeParams', 'managerSecret', function ($rootScope, $location, $routeParams, managerSecret) {
+        $rootScope.$on('$routeChangeSuccess', function () {
             var redirect = '/secret/';
             if ($location.path().substring(0, redirect.length) == redirect && $routeParams.hasOwnProperty('secret_id')) {
                 managerSecret.redirectSecret($routeParams.type, $routeParams.secret_id);
@@ -145,9 +145,9 @@
         });
     }]);
 
-    app.controller('HomeDashboardController', ['$scope', 'localStorageService', function($scope, localStorageService){
+    app.controller('HomeDashboardController', ['$scope', 'localStorageService', function ($scope, localStorageService) {
         var model = localStorageService.get('widgetHomeDashboard');
-        if (!model){
+        if (!model) {
             model = {
                 rows: [{
                     columns: [{
@@ -172,9 +172,9 @@
         });
     }]);
 
-    app.controller('ShareusersDashboardController', ['$scope', 'localStorageService', function($scope, localStorageService){
+    app.controller('ShareusersDashboardController', ['$scope', 'localStorageService', function ($scope, localStorageService) {
         var model = localStorageService.get('widgetShareusersDashboard');
-        if (!model){
+        if (!model) {
             model = {
                 rows: [{
                     columns: [{
@@ -199,9 +199,35 @@
         });
     }]);
 
+    app.controller('AcceptshareDashboardController', ['$scope', 'localStorageService', function ($scope, localStorageService) {
+        var model = localStorageService.get('widgetAcceptshareDashboard');
+        if (!model) {
+            model = {
+                rows: [{
+                    columns: [{
+                        styleClass: 'col-md-12',
+                        widgets: [{
+                            type: 'acceptshare',
+                            title: 'Shares',
+                            config: {}
+                        }]
+                    }]
+                }],
+                noTitle: true
+            };
+        }
+
+        $scope.acceptshare = {
+            model: model
+        };
+
+        $scope.$on('adfDashboardChanged', function (event, name, model) {
+            localStorageService.set(name, model);
+        });
+    }]);
+
     app.controller('RegisterController', ['$scope', '$route', '$filter', 'managerDatastoreUser', 'BACKEND_SERVERS',
-        function($scope, $route, $filter, managerDatastoreUser, BACKEND_SERVERS)
-        {
+        function ($scope, $route, $filter, managerDatastoreUser, BACKEND_SERVERS) {
             /* Server selection with preselection of dev server */
             $scope.servers = BACKEND_SERVERS;
             $scope.filtered_servers = $scope.servers;
@@ -254,11 +280,12 @@
                         }
                     }
                 }
+
                 if (email === undefined || password === undefined || password2 === undefined) {
                     return;
                 }
 
-                if( password !== password2 ) {
+                if (password !== password2) {
                     $scope.errors.push("Passwords don't match.");
                     return;
                 }
@@ -270,8 +297,7 @@
         }]);
 
     app.controller('ActivationController', ['$scope', '$route', '$routeParams', 'managerDatastoreUser', 'BACKEND_SERVERS',
-        function($scope, $route, $routeParams, managerDatastoreUser, BACKEND_SERVERS)
-        {
+        function ($scope, $route, $routeParams, managerDatastoreUser, BACKEND_SERVERS) {
 
             /* Server selection with preselection of dev server */
             $scope.servers = BACKEND_SERVERS;
@@ -317,15 +343,16 @@
                         }
                     }
                 }
-                if (activation_code !== undefined ) {
+
+                if (activation_code !== undefined) {
                     managerDatastoreUser.activate(activation_code, angular.copy($scope.selected_server)).then(onRequestReturn, onError);
                 }
             };
 
             /* preselected values */
-            $scope.$on('$routeChangeSuccess', function() {
+            $scope.$on('$routeChangeSuccess', function () {
                 $scope.activationFormKey = $routeParams['activation_code'];
-                if ($routeParams.hasOwnProperty('activation_code') && $routeParams['activation_code'].length > 0)  {
+                if ($routeParams.hasOwnProperty('activation_code') && $routeParams['activation_code'].length > 0) {
                     activate($routeParams['activation_code']);
                 }
             });
@@ -335,9 +362,8 @@
 
     app.controller('WrapperController', ['$scope', '$rootScope', '$filter', '$timeout', 'managerDatastoreUser', 'browserClient', 'storage',
         'snapRemote', '$window', '$route', '$routeParams', '$location',
-        function($scope, $rootScope, $filter, $timeout, managerDatastoreUser, browserClient, storage,
-                 snapRemote, $window, $route, $routeParams, $location)
-        {
+        function ($scope, $rootScope, $filter, $timeout, managerDatastoreUser, browserClient, storage,
+                  snapRemote, $window, $route, $routeParams, $location) {
 
             /* openTab function to pass through */
             $scope.openTab = browserClient.openTab;
@@ -346,7 +372,7 @@
             //console.log(browserClient.testBackgroundPage());
 
             /* snapper */
-            snapRemote.getSnapper().then(function(snapper) {
+            snapRemote.getSnapper().then(function (snapper) {
                 var scrollWidth = 266;
                 var orientationEvent = "onorientationchange" in angular.element($window) ? "orientationchange" : "resize";
                 var snappersettings = {
@@ -358,36 +384,36 @@
                 snapper.smallView = screen.width < 640;
                 // Do something with snapper
                 snapper.settings(snappersettings);
-                function adjustWith (snapper, behave_inverse) {
+                function adjustWith(snapper, behave_inverse) {
                     //console.log('adjustWith');
                     var total_width = angular.element(document.querySelectorAll(".snap-content")[0])[0].clientWidth;
                     if ((snapper.state().state !== 'closed') != behave_inverse) {
-                        $scope.snap_content_with = (total_width-scrollWidth) + 'px';
+                        $scope.snap_content_with = (total_width - scrollWidth) + 'px';
                     } else {
                         $scope.snap_content_with = total_width + 'px';
                     }
                 }
 
-                snapper.on('start', function(){
+                snapper.on('start', function () {
                     console.log('start');
                 });
 
-                snapper.on('end', function(){
+                snapper.on('end', function () {
                     console.log('end');
                 });
 
-                snapper.on('open', function(){
+                snapper.on('open', function () {
                     adjustWith(snapper, true);
                 });
-                snapper.on('close', function(){
+                snapper.on('close', function () {
                     adjustWith(snapper, true);
                 });
 
                 snapper.open('left');
                 adjustWith(snapper);
 
-                $scope.$on("login", function(){
-                    snapRemote.getSnapper().then(function(snapper) {
+                $scope.$on("login", function () {
+                    snapRemote.getSnapper().then(function (snapper) {
                         snapper.settings(snappersettings);
                         snapper.open('left');
                         adjustWith(snapper);
@@ -398,7 +424,7 @@
                 snapper.disable();
 
                 angular.element($window).bind(orientationEvent, function () {
-                    snapRemote.getSnapper().then(function(snapper) {
+                    snapRemote.getSnapper().then(function (snapper) {
                         adjustWith(snapper);
                     });
                     /*
@@ -434,14 +460,14 @@
                 browserClient.resize(295);
             }
 
-            browserClient.on("login", function(){
-                $timeout(function() {
+            browserClient.on("login", function () {
+                $timeout(function () {
                     $scope.data.loggedin = true;
                 });
             });
 
-            browserClient.on("logout", function(){
-                $timeout(function() {
+            browserClient.on("logout", function () {
+                $timeout(function () {
                     $scope.data.loggedin = false;
                     browserClient.resize(250);
                 });
@@ -451,21 +477,19 @@
 
 
     app.controller('OpenSecretController', ['$scope', 'cfpLoadingBar', '$route',
-        function($scope, cfpLoadingBar, $route)
-        {
-            var lock = angular.element( document.querySelector( '#loading-lock-logo-loaded-fa' ) );
+        function ($scope, cfpLoadingBar, $route) {
+            var lock = angular.element(document.querySelector('#loading-lock-logo-loaded-fa'));
             cfpLoadingBar.on("set", function (status) {
-                lock.css('width', (status*100) + '%');
-                lock.css('marginLeft', (-200+status*100) + '%');
+                lock.css('width', (status * 100) + '%');
+                lock.css('marginLeft', (-200 + status * 100) + '%');
             })
 
         }]);
 
     app.controller('MainController', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'managerDatastorePassword', 'managerDatastoreUser', 'managerSecret', 'browserClient', 'storage',
         'snapRemote', '$window', '$route', '$routeParams', '$location',
-        function($scope, $rootScope, $filter, $timeout, manager, managerDatastorePassword, managerDatastoreUser, managerSecret, browserClient, storage,
-                 snapRemote, $window, $route, $routeParams, $location)
-        {
+        function ($scope, $rootScope, $filter, $timeout, manager, managerDatastorePassword, managerDatastoreUser, managerSecret, browserClient, storage,
+                  snapRemote, $window, $route, $routeParams, $location) {
 
             /* openTab function to pass through */
             $scope.openTab = browserClient.openTab;
@@ -491,16 +515,14 @@
 
             $scope.onItemClick = managerSecret.onItemClick;
 
-            $scope.messages = [
-            ];
+            $scope.messages = [];
 
         }]);
 
     app.controller('PanelController', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'managerDatastorePassword', 'managerDatastoreUser', 'managerSecret', 'browserClient',
         'snapRemote', '$window', '$route', '$routeParams', '$location',
-        function($scope, $rootScope, $filter, $timeout, manager, managerDatastorePassword, managerDatastoreUser, managerSecret, browserClient,
-                 snapRemote, $window, $route, $routeParams, $location)
-        {
+        function ($scope, $rootScope, $filter, $timeout, manager, managerDatastorePassword, managerDatastoreUser, managerSecret, browserClient,
+                  snapRemote, $window, $route, $routeParams, $location) {
 
             /* openTab function to pass through */
             $scope.openTab = browserClient.openTab;
@@ -517,23 +539,23 @@
                 filteredSearcArray: []
             };
 
-            manager.storage_on('datastore-password-leafs', 'update', function(ele) {
+            manager.storage_on('datastore-password-leafs', 'update', function (ele) {
                 //console.log("main.js update");
                 //console.log(ele);
             });
 
 
-            manager.storage_on('datastore-password-leafs', 'insert', function(ele) {
+            manager.storage_on('datastore-password-leafs', 'insert', function (ele) {
                 //console.log("main.js insert");
                 $scope.searchArray.push(ele);
             });
 
 
-            manager.storage_on('datastore-password-leafs', 'delete', function(ele) {
+            manager.storage_on('datastore-password-leafs', 'delete', function (ele) {
                 //console.log("main.js update");
                 //console.log(ele);
-                for(var i = $scope.searchArray.length - 1; i >= 0; i--) {
-                    if($scope.searchArray[i].key === ele.key) {
+                for (var i = $scope.searchArray.length - 1; i >= 0; i--) {
+                    if ($scope.searchArray[i].key === ele.key) {
                         $scope.searchArray.splice(i, 1);
                     }
                 }
@@ -547,8 +569,8 @@
             $scope.$watch('datastore.search', function (value) {
                 regex = new RegExp(value.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1"), 'i');
 
-                $timeout(function() {
-                    if (! managerDatastoreUser.is_logged_in()) {
+                $timeout(function () {
+                    if (!managerDatastoreUser.is_logged_in()) {
                         browserClient.resize(250);
                     } else if ($scope.datastore.search === '' && managerDatastoreUser.is_logged_in()) {
                         browserClient.resize(295);
@@ -564,7 +586,7 @@
                 });
             });
 
-            $scope.filterBySearch = function(searchEntry) {
+            $scope.filterBySearch = function (searchEntry) {
                 if (!$scope.datastore.search) return false;
                 return regex.test(searchEntry.name) || regex.test(searchEntry.urlfilter);
             };
@@ -575,9 +597,8 @@
 
     app.controller('LoginController', ['$scope', '$rootScope', '$filter', '$timeout', 'managerDatastoreUser', 'browserClient', 'storage',
         'snapRemote', '$window', '$route', '$routeParams', '$location', 'BACKEND_SERVERS',
-        function($scope, $rootScope, $filter, $timeout, managerDatastoreUser, browserClient, storage,
-                 snapRemote, $window, $route, $routeParams, $location, BACKEND_SERVERS)
-        {
+        function ($scope, $rootScope, $filter, $timeout, managerDatastoreUser, browserClient, storage,
+                  snapRemote, $window, $route, $routeParams, $location, BACKEND_SERVERS) {
 
             /* openTab function to pass through */
             $scope.openTab = browserClient.openTab;
@@ -628,75 +649,141 @@
                         }
                     }
                 }
+
                 if (email !== undefined && password !== undefined) {
                     managerDatastoreUser.login(email, password, angular.copy($scope.selected_server)).then(onRequestReturn, onError);
                 }
             };
         }]);
 
-    app.controller('TestCtrl', ['$scope', '$routeParams', function($scope, $routeParams) {
+    app.controller('TestCtrl', ['$scope', '$routeParams', function ($scope, $routeParams) {
         this.name = "TestCtrl";
         this.params = $routeParams;
         $scope.routeParams = $routeParams;
     }]);
 
     app.controller('SettingsController', ['$scope', '$routeParams', 'settings', 'managerDatastoreSetting',
-    function($scope, $routeParams, settings, managerDatastoreSetting) {
+        function ($scope, $routeParams, settings, managerDatastoreSetting) {
 
-        var onError = function() {
-            alert("Error, should not happen.");
-        };
-        var onRequestReturn = function() {
-            $scope.settings = settings.get_settings();
-        };
-
-        managerDatastoreSetting.get_settings_datastore().then(onRequestReturn, onError);
-
-        $scope.tabs = settings.get_tabs();
-        $scope.save = function() {
-
-            var onSuccess = function(data) {
-                $scope.msgs = data.msgs;
-                $scope.errors = [];
+            var onError = function () {
+                alert("Error, should not happen.");
             };
-            var onError = function(data) {
-                $scope.msgs = [];
-                $scope.errors = data.errors;
+            var onRequestReturn = function () {
+                $scope.settings = settings.get_settings();
             };
 
-            settings.save().then(onSuccess, onError)
-        };
-    }]);
+            managerDatastoreSetting.get_settings_datastore().then(onRequestReturn, onError);
 
-    app.controller('ShareCtrl', ['$scope', '$routeParams', 'managerShare', function($scope, $routeParams, managerShare) {
+            $scope.tabs = settings.get_tabs();
+            $scope.save = function () {
+
+                var onSuccess = function (data) {
+                    $scope.msgs = data.msgs;
+                    $scope.errors = [];
+                };
+                var onError = function (data) {
+                    $scope.msgs = [];
+                    $scope.errors = data.errors;
+                };
+
+                settings.save().then(onSuccess, onError)
+            };
+        }]);
+
+    app.controller('ShareCtrl', ['$scope', '$routeParams', '$modal', 'managerShare', function ($scope, $routeParams, $modal, managerShare) {
         this.name = "ShareCtrl";
         this.params = $routeParams;
         $scope.routeParams = $routeParams;
+        $scope.shares = [];
+
+        $scope.accept = function (item) {
+            console.log(item);
+
+            // TODO choose destination directory
+            // TODO add to destination directory
+            // TODO reencode keys symmetric
+            // TODO accept the share
+
+            var modalInstance = $modal.open({
+                templateUrl: 'view/modal-accept-share.html',
+                controller: 'ModalAcceptShareCtrl',
+                resolve: {
+                    // child_var: function () {
+                    //     return parent_var;
+                    // },
+                }
+            });
+
+            modalInstance.result.then(function (content) {
+                // User clicked the prime button
+            }, function () {
+                // cancel triggered
+            });
+
+
+        };
+
+        $scope.decline = function (item) {
+            console.log(item);
+            console.log($scope.shares);
+            managerShare.decline_share_right(item.share_right_id);
+            for (var i = 0, l = $scope.shares.length; i < l; i++) {
+                if ($scope.shares[i].id !== item.id) {
+                    continue;
+                }
+                $scope.shares.splice(i, 1);
+            }
+        };
 
         $scope.pendingApprovalFilter = function (item) {
             return item.share_right_accepted === null;
         };
 
 
-        var onSuccess = function(data) {
-            console.log(data);
+        var onSuccess = function (data) {
             $scope.shares = data.shares;
         };
-        var onError = function(data) {
+        var onError = function (data) {
             //pass
         };
 
         managerShare.read_shares().then(onSuccess, onError);
     }]);
 
-    app.controller('IndexCtrl', ['$scope', '$routeParams', function($scope, $routeParams) {
+    /**
+     * Controller for the "AcceptShare" modal
+     */
+    app.controller('ModalAcceptShareCtrl', ['$scope', '$modalInstance', '$modal',
+        function ($scope, $modalInstance, $modal) {
+
+
+
+            /**
+             * Triggered once someone clicks the save button in the modal
+             */
+            $scope.save = function () {
+                $modalInstance.close({
+                    // child_param: parent_param
+                });
+            };
+
+            /**
+             * Triggered once someone clicks the cancel button in the modal
+             */
+            $scope.cancel = function () {
+                $modalInstance.dismiss('cancel');
+            };
+
+        }]);
+
+
+    app.controller('IndexCtrl', ['$scope', '$routeParams', function ($scope, $routeParams) {
         this.name = "IndexCtrl";
         this.params = $routeParams;
         $scope.routeParams = $routeParams;
     }]);
 
 })(angular);
-
 
 
 /* creates the base href tag for angular location */

@@ -160,7 +160,7 @@
          * @param datastore The real object you want to encrypt in the datastore
          * @param paths The list of paths to the changed elements
          */
-        var save_password_datastore = function (datastore, paths) {
+        var save_datastore = function (datastore, paths) {
             var type = "password";
             var description = "default";
 
@@ -253,7 +253,7 @@
 
                         data.items.push(datastore_object);
 
-                        save_password_datastore(data);
+                        save_datastore(data);
                     });
             };
 
@@ -622,13 +622,13 @@
 
         itemBlueprint.register('generate', passwordGenerator.generate);
         itemBlueprint.register('get_password_datastore', get_password_datastore);
-        itemBlueprint.register('save_password_datastore', save_password_datastore);
+        itemBlueprint.register('save_datastore', save_datastore);
         itemBlueprint.register('find_in_datastore', find_in_datastore);
         itemBlueprint.register('on_share_added', on_share_added);
 
         return {
             get_password_datastore: get_password_datastore,
-            save_password_datastore: save_password_datastore,
+            save_datastore: save_datastore,
             generatePassword: generatePassword,
             generatePasswordActiveTab: generatePasswordActiveTab,
             find_in_datastore: find_in_datastore,

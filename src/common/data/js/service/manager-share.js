@@ -24,7 +24,7 @@
             return apiClient.read_share(managerBase.find_one_nolimit('config', 'user_token'), share_id)
                 .then(onSuccess, onError);
         };
-        
+
         /**
          * Returns a list of all shares
          *
@@ -183,6 +183,50 @@
                 .then(onSuccess, onError);
         };
 
+        /**
+         * accepts a specific share right
+         *
+         * @param share_right_id
+         * @param key
+         * @returns {promise}
+         */
+        var accept_share_right = function(share_right_id, key) {
+
+            var onError = function(result) {
+                // pass
+            };
+
+            var onSuccess = function(content) {
+                console.log(content);
+                return {share_right_id: content.data.share_right_id};
+            };
+
+            var c = managerBase.encrypt_secret_key(key);
+
+            return apiClient.accept_share_right(managerBase.find_one_nolimit('config', 'user_token'), share_right_id, c.text, c.nonce)
+                .then(onSuccess, onError);
+        };
+
+        /**
+         * declines a specific share right
+         *
+         * @param share_right_id
+         * @returns {promise}
+         */
+        var decline_share_right = function(share_right_id) {
+
+            var onError = function(result) {
+                // pass
+            };
+
+            var onSuccess = function(content) {
+                // pass
+            };
+
+            return apiClient.decline_share_right(managerBase.find_one_nolimit('config', 'user_token'), share_right_id)
+                .then(onSuccess, onError);
+        };
+
         // registrations
 
         itemBlueprint.register('read_share_rights', read_share_rights);
@@ -197,7 +241,9 @@
             read_share_rights: read_share_rights,
             create_share_right: create_share_right,
             update_share_right: update_share_right,
-            delete_share_right: delete_share_right
+            delete_share_right: delete_share_right,
+            accept_share_right: accept_share_right,
+            decline_share_right: decline_share_right
         };
     };
 

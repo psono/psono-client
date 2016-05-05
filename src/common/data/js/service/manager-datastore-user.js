@@ -269,9 +269,10 @@
          * Saves the user datastore with given content
          *
          * @param content The real object you want to encrypt in the datastore
+         * @param paths The list of paths to the changed elements
          * @returns {promise}
          */
-        var save_user_datastore = function (content) {
+        var save_datastore = function (content, paths) {
             var type = "user";
             var description = "default";
 
@@ -301,7 +302,7 @@
             is_logged_in: is_logged_in,
             updateUser: updateUser,
             get_user_datastore: get_user_datastore,
-            save_user_datastore: save_user_datastore
+            save_datastore: save_datastore
         };
     };
 

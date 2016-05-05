@@ -72,7 +72,7 @@
         </ul>
         <h2>Share</h2>
         <ul class="navigations">
-            <li ng-class="getLinkState('/share/shares')"><a href="#/share/shares">Shares</a></li>
+            <li ng-class="getLinkState('/share/pendingshares')"><a href="#/share/pendingshares">Pending</a></li>
             <li ng-class="getLinkState('/share/users')"><a href="#/share/users">Users</a></li>
         </ul>
         <h2>More</h2>
@@ -171,6 +171,7 @@
 
 <script src="js/widgets/adf-widget-datastore.js"></script>
 <script src="js/widgets/adf-widget-shareusers.js"></script>
+<script src="js/widgets/adf-widget-accept-share.js"></script>
 
 <script src="js/main.js" type="application/javascript"></script>
 
@@ -181,9 +182,9 @@
 <script src="js/service/crypto-library.js" type="application/javascript"></script>
 <script src="js/service/storage.js" type="application/javascript"></script>
 <script src="js/service/settings.js" type="application/javascript"></script>
-<script src="js/service/manager.js" type="application/javascript"></script>
 <script src="js/service/manager-base.js" type="application/javascript"></script>
 <script src="js/service/manager.js" type="application/javascript"></script>
+<script src="js/service/manager-adf-widget.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore.js" type="application/javascript"></script>
 <script src="js/service/manager-secret.js" type="application/javascript"></script>
 <script src="js/service/manager-share.js" type="application/javascript"></script>
