@@ -120,6 +120,10 @@ h1, h2 {
   margin-top: -50px;
   z-index: 20; }
 
+.modal-body .droppdown-rightclick {
+  margin-left: -335px;
+  margin-top: -30px; }
+
 .position-fixed {
   position: fixed; }
 

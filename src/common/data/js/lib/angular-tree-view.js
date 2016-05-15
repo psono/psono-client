@@ -45,24 +45,23 @@
                 treeViewOptions: '=treeViewOptions'
             },
             replace: true,
-            template:
-            '<div class="tree-container">' +
-            '<form name="searchTreeForm" class=" widget-searchform">' +
-            '<div class="row">' +
-            '<div class="col-xs-offset-4 col-xs-8 col-sm-offset-6 col-sm-6 col-md-offset-8 col-md-4">' +
-            '<div class="input-group">' +
-            '<input type="text" class="form-control" id="tosearchTreeForm" placeholder="search" ng-model="tosearchTreeFilter">' +
-            '<span class="input-group-btn">' +
-            '<button class="btn btn-default" ng-disabled="!tosearchTreeFilter" ng-click="clearSearchTreeForm()" type="button"><i class="fa fa-ban"></i></button>' +
-            '</span>' +
-            '</div>' +
-            '</div>' +
-            '</div>' +
-            '</form>' +
-            '<div class="tree">' +
+            template: '<div class="tree-container">\n    ' +
+            '<form name="searchTreeForm" class="widget-searchform">\n        ' +
+            '<div class="row">\n            ' +
+            '<div class="col-xs-offset-4 col-xs-8 col-sm-offset-6 col-sm-6 col-md-offset-8 col-md-4">\n                ' +
+            '<div class="input-group">\n                    ' +
+            '<input type="text" class="form-control" id="tosearchTreeForm" placeholder="search"\n                           ng-model="tosearchTreeFilter">\n                    ' +
+            '<span class="input-group-btn">\n                        ' +
+            '<button class="btn btn-default" ng-disabled="!tosearchTreeFilter"\n                                                        ng-click="clearSearchTreeForm()" type="button">\n                            <i class="fa fa-ban"></i>\n                        </button>\n                    ' +
+            '</span>\n                ' +
+            '</div>\n            ' +
+            '</div>\n        ' +
+            '</div>\n    ' +
+            '</form>\n    ' +
+            '<div class="tree">\n        ' +
             '<div tree-view-node="treeView">' +
-            '</div>' +
-            '</div>' +
+            '</div>\n    ' +
+            '</div>\n' +
             '</div>',
             controller: ['$scope', '$rootScope', function ($scope, $rootScope) {
                 var self = this,
@@ -143,15 +142,16 @@
                  *
                  * @param node
                  * @param breadcrumbs
+                 * @param id_breadcrumbs
                  */
-                self.selectNode = function (node, breadcrumbs) {
+                self.selectNode = function (node, breadcrumbs, id_breadcrumbs) {
                     if (selectedItem) {
                         selectedItem = undefined;
                     }
                     selectedNode = node;
 
                     if (typeof options.onNodeSelect === "function") {
-                        options.onNodeSelect(node, breadcrumbs);
+                        options.onNodeSelect(node, breadcrumbs, id_breadcrumbs);
                     }
                 };
 
@@ -276,6 +276,10 @@
                  */
                 self.onAnyDrop = function (evt, target_path) {
 
+                    if (options.blockMove()) {
+                        return;
+                    }
+
                     var dragged_item = self.getLastDraggedItem();
                     var node_type;
                     if (dragged_item.type === null && evt.hasOwnProperty('element')) {
@@ -308,19 +312,6 @@
                     }
                 };
 
-                // some helpers for the timer
-
-                var timer = null;
-
-                /**
-                 * cancels the timer
-                 */
-                self.cancelTimer = function() {
-                    $timeout.cancel(timer);
-                };
-
-                // some helpers to remember the drag state
-
                 var dragstarted = false;
 
                 /**
@@ -346,16 +337,12 @@
                     dragstarted = false;
                 };
 
+                /**
+                 * triggered once a drag ends with or without dropping it on top of another folder / item
+                 */
                 $rootScope.$on('draggable:end', function(evt, args) {
-
                     self.resetDragStarted();
-
-                    timer = $timeout(function() {
-                        // maybe someone wanted to drag an element to the top of the tree?
-                        // noone yet executed a onAnyDrop, so lets do it
-                        self.onAnyDrop(evt, null);
-                    }, 200);
-
+                    self.onAnyDrop(evt, null);
                 });
 
                 /**
@@ -391,6 +378,30 @@
                     displayProperty = options.displayProperty,
                     idProperty = options.idProperty,
                     collapsible = options.collapsible;
+
+                scope.blockMove = options.blockMove;
+
+                /**
+                 * registeres callback for contextMenu open
+                 *
+                 * @type {Function}
+                 */
+                scope.contextMenuOnShow = typeof options.contextMenuOnShow === 'function'
+                    ? options.contextMenuOnShow
+                    : function() {
+
+                };
+
+                /**
+                 * registeres callback for contextMenu close
+                 *
+                 * @type {Function}
+                 */
+                scope.contextMenuOnClose = typeof options.contextMenuOnClose === 'function'
+                    ? options.contextMenuOnClose
+                    : function() {
+
+                };
 
                 /**
                  * returns the icon class of folders
@@ -569,7 +580,7 @@
                         toggleExpanded(scope.node);
                     }
 
-                    controller.selectNode(scope.node, getPropertyPath(displayProperty));
+                    controller.selectNode(scope.node, getPropertyPath(displayProperty), getPropertyPath(idProperty));
                 };
 
                 /**
@@ -712,6 +723,7 @@
                         // Already started, fires a couple of time and only the first one has true data
                         return;
                     }
+
                     controller.setDragStarted();
 
                     var idPath = [];
@@ -725,15 +737,12 @@
                 };
 
                 /**
-                 * executed once a drop completes after the drag
+                 * executed once a drop completes after the drag on top of another folder / item
                  *
                  * @param data
                  * @param evt
                  */
                 scope.onDropComplete = function(data, evt) {
-
-                    controller.cancelTimer();
-
                     var counter = controller.decCounter();
                     if (counter !== 0 || evt.data === null) {
                         return;
@@ -747,6 +756,18 @@
                     controller.onAnyDrop(evt, target_path);
                 };
 
+                /**
+                 * triggered once a dropdown menu opens or closes
+                 *
+                 * @param open
+                 */
+                scope.toggled = function(open) {
+                    if (open) {
+                        scope.contextMenuOnShow();
+                    } else {
+                        scope.contextMenuOnClose();
+                    }
+                };
 
                 /**
                  * expends or collapses the node
@@ -759,18 +780,15 @@
 
                 function render() {
 
-                    // console.log(attrs.treeViewNode);
-                    //  {{ tosearchTreeFilter }}
-
                     var template =
                         // Handle folders
                         '<div ng-drag="true" ng-drag-data="node" ng-drag-success="onDragComplete($data, $event, \'folder\')" ' +
-                        'ng-drag-start="onDragStart($data, $event, \'folder\')"' +
+                        'ng-drag-start="onDragStart($data, $event, \'folder\')" prevent-move="blockMove()"' +
                         'ng-drop="true" ng-drop-success="onDropComplete(node,$event)" ' +
                         'ng-mousedown="$event.stopPropagation()" ng-show="!node.hidden"' +
                         'class="tree-folder" ng-repeat="node in ' + attrs.treeViewNode + '.' + foldersProperty + ' track by $index">' +
 
-                        '<div class="tree-folder-title" data-target="menu-{{ node.id }}" context-menu="">' +
+                        '<div class="tree-folder-title" data-target="menu-{{ node.id }}" context-menu="contextMenuOnShow()" context-menu-close="contextMenuOnClose()">' +
                         '<div href="#" class="tree-folder-header" ng-click="selectNode($event)" ng-class="{ selected: isSelected(node) }">' +
                         '<span class="fa-stack">' +
                         '<i class="" ng-class="getFolderIconClass(node)"></i>' +
@@ -779,7 +797,7 @@
                         '</span>' +
                         '<span class="tree-folder-name"><a href="#" ng-click="clickNode($event)">{{ node.' + displayProperty + ' }}</a></span> ' +
                         '</div>' +
-                        '<span class="node-dropdown" dropdown>' +
+                        '<span class="node-dropdown" dropdown on-toggle="toggled(open)">' +
                         '<a class="btn btn-default editbutton" href="#" role="button" id="drop_node_{{node.id}}" dropdown-toggle>' +
                         '    <i ng-class="getFolderEditIconClass(node)"></i>' +
                         '</a>' +
@@ -815,18 +833,18 @@
 
                         // Handle items
                         '<div ng-drag="true" ng-drag-data="item" ng-drag-success="onDragComplete($data, $event, \'item\')" ' +
-                        'ng-drag-start="onDragStart($data, $event, \'item\')"' +
+                        'ng-drag-start="onDragStart($data, $event, \'item\')" prevent-move="blockMove()"' +
                         'ng-mousedown="$event.stopPropagation()" ng-show="!item.hidden"' +
                         ' class="tree-item" ng-repeat="item in ' + attrs.treeViewNode + '.' + itemsProperty + ' track by $index">' +
 
-                        '<div class="tree-item-object" ng-click="selectItem(item, $event)" ng-class="{ selected: isSelected(item) }" data-target="menu-{{ item.id }}" context-menu="">' +
+                        '<div class="tree-item-object" ng-click="selectItem(item, $event)" ng-class="{ selected: isSelected(item) }" data-target="menu-{{ item.id }}" context-menu="contextMenuOnShow()" context-menu-close="contextMenuOnClose()">' +
                         '<span class="fa-stack">' +
                         '<i ng-class="getItemIconClass(item)"></i>' +
                         '<i ng-if="item.share_id" class="fa fa-circle fa-stack-2x text-danger is-shared"></i>' +
                         '<i ng-if="item.share_id" class="fa fa-group fa-stack-2x is-shared"></i>' +
                         '</span>' +
                         '<span class="tree-item-name"><a href="#" ng-click="clickItem(item, $event)">{{ item.' + displayProperty + ' }}</a></span>' +
-                        '<span class="node-dropdown" dropdown>' +
+                        '<span class="node-dropdown" dropdown on-toggle="toggled(open)">' +
                         '<a class="btn btn-default editbutton" href="#" role="button" id="drop_item_{{item.id}}" dropdown-toggle>' +
                         '    <i ng-class="getFolderEditIconClass(item)"></i>' +
                         '</a>' +

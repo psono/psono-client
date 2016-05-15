@@ -27,8 +27,21 @@
      * Main Controller for the shareusers widget
      */
     module.controller('shareusersController', ["$scope", "$interval", "config", "managerSecret", "managerDatastoreUser",
-        "$modal", "shareBlueprint", "managerAdfWidget",
-        function($scope, $interval, config, managerSecret, managerDatastoreUser, $modal, shareBlueprint, managerAdfWidget){
+        "$modal", "shareBlueprint", "managerAdfWidget", "$timeout",
+        function ($scope, $interval, config, managerSecret, managerDatastoreUser, $modal, shareBlueprint,
+                  managerAdfWidget, $timeout) {
+
+            var contextMenusOpen = 0;
+
+            $scope.contextMenuOnShow = function() {
+                contextMenusOpen++;
+            };
+
+            $scope.contextMenuOnClose = function() {
+                $timeout(function() {
+                    contextMenusOpen--;
+                }, 0);
+            };
 
             // Modals
 
@@ -69,32 +82,32 @@
                         parent.items = [];
                     }
 
-                    var shareusers_object = {
+                    var user_object = {
                         id: uuid.v4(),
                         type: content.id,
                         data: {}
                     };
 
                     if (shareBlueprint.get_blueprint(content.id).getName) {
-                        shareusers_object.name = shareBlueprint.get_blueprint(content.id).getName(content.columns);
+                        user_object.name = shareBlueprint.get_blueprint(content.id).getName(content.fields);
                     }
 
-                    for (var i = 0; i < content.columns.length; i++) {
+                    for (var i = 0; i < content.fields.length; i++) {
 
-                        if (!content.columns[i].hasOwnProperty("value")) {
+                        if (!content.fields[i].hasOwnProperty("value")) {
                             continue;
                         }
-                        if (!shareusers_object.name && content.title_column == content.columns[i].name) {
-                            shareusers_object.name = content.columns[i].value;
+                        if (!user_object.name && content.title_field == content.fields[i].name) {
+                            user_object.name = content.fields[i].value;
                         }
-                        if (content.hasOwnProperty("urlfilter_column")
-                            && content.urlfilter_column == content.columns[i].name) {
-                            shareusers_object.urlfilter = content.columns[i].value;
+                        if (content.hasOwnProperty("urlfilter_field")
+                            && content.urlfilter_field == content.fields[i].name) {
+                            user_object.urlfilter = content.fields[i].value;
                         }
-                        shareusers_object.data[content.columns[i].name] = content.columns[i].value;
+                        user_object.data[content.fields[i].name] = content.fields[i].value;
                     }
 
-                    parent.items.push(shareusers_object);
+                    parent.items.push(user_object);
 
                     managerDatastoreUser.save_datastore($scope.structure.data);
 
@@ -137,23 +150,31 @@
 
                     var new_name;
                     if (shareBlueprint.get_blueprint(content.id).getName) {
-                        new_name = shareBlueprint.get_blueprint(content.id).getName(content.columns);
+                        new_name = shareBlueprint.get_blueprint(content.id).getName(content.fields);
                         node.name = new_name;
                     }
 
-                    for (var i = 0; i < content.columns.length; i++) {
+                    // lets loop all input fields
+                    for (var i = 0; i < content.fields.length; i++) {
 
-                        if (!content.columns[i].hasOwnProperty("value")) {
+                        // skips all fields without a value set
+                        if (!content.fields[i].hasOwnProperty("value")) {
                             continue;
                         }
-                        if (!new_name && content.title_column == content.columns[i].name) {
-                            node.name = content.columns[i].value;
+
+                        // found title and if title not yet set , lets save it as title
+                        if (!new_name && content.title_field == content.fields[i].name) {
+                            node.name = content.fields[i].value;
                         }
-                        if (content.hasOwnProperty("urlfilter_column")
-                            && content.urlfilter_column == content.columns[i].name) {
-                            node.urlfilter = content.columns[i].value;
+
+                        // found a urlfilter field, lets put it into our urlfilter
+                        if (content.hasOwnProperty("urlfilter_field")
+                            && content.urlfilter_field == content.fields[i].name) {
+                            node.urlfilter = content.fields[i].value;
                         }
-                        node.data[content.columns[i].name] = content.columns[i].value;
+
+                        // lets save all the rest in the normal data fields
+                        node.data[content.fields[i].name] = content.fields[i].value;
                     }
 
                     managerDatastoreUser.save_datastore($scope.structure.data);
@@ -165,23 +186,24 @@
 
             // Shareusers Structure Management
 
-            $scope.structure = { data: {}} ;
+            $scope.structure = {data: {}};
 
             managerDatastoreUser.get_user_datastore()
-                .then(function (data) {$scope.structure.data = data;});
+                .then(function (data) {
+                    $scope.structure.data = data;
+                });
 
-
-            
 
             $scope.options = {
                 /**
                  * Triggered once someone selects a node
                  *
                  * @param node
-                 * @param breadcrums
+                 * @param breadcrumbs
+                 * @param id_breadcrumbs
                  */
-                onNodeSelect: function (node, breadcrums) {
-                    $scope.breadcrums = breadcrums;
+                onNodeSelect: function (node, breadcrumbs, id_breadcrumbs) {
+                    $scope.breadcrumbs = breadcrumbs;
                     $scope.node = node;
                     managerSecret.onNodeSelect(node);
                 },
@@ -189,10 +211,10 @@
                  * Triggered once someone selects an item
                  *
                  * @param item
-                 * @param breadcrums
+                 * @param breadcrumbs
                  */
-                onItemSelect: function (item, breadcrums) {
-                    $scope.breadcrums = breadcrums;
+                onItemSelect: function (item, breadcrumbs, id_breadcrumbs) {
+                    $scope.breadcrumbs = breadcrumbs;
                     $scope.node = item;
                     managerSecret.onItemSelect(item);
                 },
@@ -202,7 +224,7 @@
                  * @param node
                  * @param path
                  */
-                onNodeClick: function(node, path) {
+                onNodeClick: function (node, path) {
                     managerSecret.onNodeClick(node, path);
                 },
                 /**
@@ -286,88 +308,97 @@
                     openNewItem(parent, path)
                 },
 
-            /**
-             * triggered once someone wants to move an item
-             *
-             * @param item_path
-             * @param target_path
-             */
-            onItemDropComplete: function (item_path, target_path) {
+                /**
+                 * triggered once someone wants to move an item
+                 *
+                 * @param item_path
+                 * @param target_path
+                 */
+                onItemDropComplete: function (item_path, target_path) {
 
-                var target = $scope.structure.data;
-                if (target_path !== null) {
-                    // find drop zone
-                    var val1 = managerAdfWidget.findInStructure(target_path, $scope.structure.data);
-                    target = val1[0][val1[1]];
-                }
-                // find element
-                var val2 = managerAdfWidget.findInStructure(item_path, $scope.structure.data);
+                    var target = $scope.structure.data;
+                    if (target_path !== null) {
+                        // find drop zone
+                        var val1 = managerAdfWidget.findInStructure(target_path, $scope.structure.data);
+                        target = val1[0][val1[1]];
+                    }
+                    // find element
+                    var val2 = managerAdfWidget.findInStructure(item_path, $scope.structure.data);
 
-                if (val2 === false) {
-                    return;
-                }
-                var element = val2[0][val2[1]];
+                    if (val2 === false) {
+                        return;
+                    }
+                    var element = val2[0][val2[1]];
 
-                // check if we have folders, otherwise create the array
-                if (!target.hasOwnProperty('items')) {
-                    target.items = [];
-                }
+                    // check if we have folders, otherwise create the array
+                    if (!target.hasOwnProperty('items')) {
+                        target.items = [];
+                    }
 
-                // add the element to the other folders
-                target.items.push(element);
+                    // add the element to the other folders
+                    target.items.push(element);
 
-                // delete the array at hte current position
-                val2[0].splice(val2[1], 1);
+                    // delete the array at hte current position
+                    val2[0].splice(val2[1], 1);
 
-                managerDatastoreUser.save_datastore($scope.structure.data);
-            },
+                    managerDatastoreUser.save_datastore($scope.structure.data);
+                },
 
-            /**
-             * triggered once someone wants to move a folder
-             *
-             * @param item_path
-             * @param target_path
-             */
-            onFolderDropComplete: function (item_path, target_path) {
+                /**
+                 * triggered once someone wants to move a folder
+                 *
+                 * @param item_path
+                 * @param target_path
+                 */
+                onFolderDropComplete: function (item_path, target_path) {
 
 
-                var target = $scope.structure.data;
-                if (target_path !== null) {
-                    // find drop zone
-                    var val1 = managerAdfWidget.findInStructure(target_path, $scope.structure.data);
-                    target = val1[0][val1[1]];
-                }
+                    var target = $scope.structure.data;
+                    if (target_path !== null) {
+                        // find drop zone
+                        var val1 = managerAdfWidget.findInStructure(target_path, $scope.structure.data);
+                        target = val1[0][val1[1]];
+                    }
 
-                // find element
-                var val2 = managerAdfWidget.findInStructure(item_path, $scope.structure.data);
+                    // find element
+                    var val2 = managerAdfWidget.findInStructure(item_path, $scope.structure.data);
 
-                if (val2 === false) {
-                    return;
-                }
-                var element = val2[0][val2[1]];
+                    if (val2 === false) {
+                        return;
+                    }
+                    var element = val2[0][val2[1]];
 
-                // check if we have folders, otherwise create the array
-                if (!target.hasOwnProperty('folders')) {
-                    target.folders = [];
-                }
+                    // check if we have folders, otherwise create the array
+                    if (!target.hasOwnProperty('folders')) {
+                        target.folders = [];
+                    }
 
-                // add the element to the other folders
-                target.folders.push(element);
+                    // add the element to the other folders
+                    target.folders.push(element);
 
-                // delete the array at hte current position
-                val2[0].splice(val2[1], 1);
+                    // delete the array at hte current position
+                    val2[0].splice(val2[1], 1);
 
-                managerDatastoreUser.save_datastore($scope.structure.data);
-            },
-            textConfig: {
-                'new_entry': {name: 'New User', icon: 'fa fa-user-plus'}
-            },
+                    managerDatastoreUser.save_datastore($scope.structure.data);
+                },
+                /**
+                 * blocks move if context menus are open
+                 *
+                 * @returns {boolean}
+                 */
+                blockMove: function () {
+                    return contextMenusOpen > 0;
+                },
+                contextMenuOnShow: $scope.contextMenuOnShow,
+                contextMenuOnClose: $scope.contextMenuOnClose,
 
-            getAdditionalButtons: shareBlueprint.get_additional_functions,
+                textConfig: {
+                    'new_entry': {name: 'New User', icon: 'fa fa-user-plus'}
+                },
 
-                
-            itemIcon: managerAdfWidget.itemIcon
-        };
+                getAdditionalButtons: shareBlueprint.get_additional_functions,
+                itemIcon: managerAdfWidget.itemIcon
+            };
 
         }]);
     
@@ -442,9 +473,9 @@
                 selected: shareBlueprint.get_blueprint(node.type)
             };
 
-            for (var i = 0; i < $scope.bp.selected.columns.length; i++) {
-                if (data.hasOwnProperty($scope.bp.selected.columns[i].name)) {
-                    $scope.bp.selected.columns[i].value = data[$scope.bp.selected.columns[i].name];
+            for (var i = 0; i < $scope.bp.selected.fields.length; i++) {
+                if (data.hasOwnProperty($scope.bp.selected.fields[i].name)) {
+                    $scope.bp.selected.fields[i].value = data[$scope.bp.selected.fields[i].name];
                 }
             }
 

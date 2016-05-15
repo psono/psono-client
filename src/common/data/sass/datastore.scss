@@ -90,9 +90,25 @@ body {
   border-color: $dark-hightlight-hover-color;
 }
 
-.check-list{
-
+label.smalllabel {
+  font-size: small;
+  margin-bottom: 0;
+  margin-top: 5px;
+  color: $dark-hightlight-hover-color;
 }
+
+.path_box_parent {
+  margin-bottom: 5px;
+  font-family:'Courier New', Courier, monospace;
+
+  .path_box_breadcrumb{
+    cursor: pointer;
+  }
+  .path_box_breadcrumb:hover {
+    color: $dark-hightlight-color;
+  }
+}
+
 
 .fa-circle.is-shared {
   color:$dark-hightlight-color;

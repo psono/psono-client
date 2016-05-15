@@ -1,7 +1,9 @@
 (function(angular) {
     'use strict';
 
-    var managerDatastoreUser = function($q, $rootScope, apiClient, browserClient, storage, managerBase, managerDatastore, shareBlueprint, itemBlueprint, cryptoLibrary) {
+    var managerDatastoreUser = function($q, $rootScope, apiClient, browserClient, storage,
+                                        helper, managerBase, managerDatastore, shareBlueprint,
+                                        itemBlueprint, cryptoLibrary) {
 
         /**
          * Checks if the user is logged in.
@@ -33,7 +35,8 @@
             var user_sauce = cryptoLibrary.generate_user_sauce();
 
             var priv_key_enc = cryptoLibrary.encrypt_secret(pair.private_key, password, user_sauce);
-            var secret_key_enc = cryptoLibrary.encrypt_secret(cryptoLibrary.generate_secret_key(), password, user_sauce);
+            var secret_key_enc = cryptoLibrary
+                .encrypt_secret(cryptoLibrary.generate_secret_key(),password, user_sauce);
 
             var onSuccess = function () {
 
@@ -229,7 +232,7 @@
          *
          * @returns {promise}
          */
-        var updateUser = function(email, authkey, authkey_old, private_key, private_key_nonce, secret_key,
+        var update_user = function(email, authkey, authkey_old, private_key, private_key_nonce, secret_key,
                                   secret_key_nonce, user_sauce) {
             return apiClient.update_user(get_token(), email, authkey, authkey_old,
                 private_key, private_key_nonce, secret_key, secret_key_nonce, user_sauce);
@@ -266,6 +269,60 @@
         };
 
         /**
+         * searches the user datastore for a user, based on the id or email
+         *
+         * @param [user_id] (optional) user_id to search for
+         * @param [email] (optional) email to search for
+         * @returns {promise}
+         */
+        var search_user_datastore = function(user_id, email) {
+
+
+            var onSuccess = function (user_data_store) {
+
+                var users = [];
+                var id_match = null;
+                var email_match = null;
+
+                helper.create_list(user_data_store, users);
+
+                for (var i = 0, l = users.length; i < l; i++) {
+
+                    if (users[i].data.user_id == user_id) {
+                        id_match = users[i];
+                    }
+                    if (users[i].data.user_email == email) {
+                        email_match = users[i];
+                    }
+                }
+
+                if (id_match === null && email_match === null) {
+                    // no match found
+                    return null;
+                } else if (id_match !== null && email_match !== null && id_match.id === email_match.id) {
+                    // id match and email match is the same user
+                    return id_match;
+                } else if (id_match !== null) {
+                    // only id_match is set
+                    return id_match
+                } else if (email_match !== null) {
+                    // only email_match is set
+                    return email_match;
+                } else {
+                    // no match found, or id and email match are different
+                    return null
+                }
+
+            };
+            var onError = function () {
+                // pass
+            };
+
+            return get_user_datastore()
+                .then(onSuccess, onError)
+        };
+
+        /**
          * Saves the user datastore with given content
          *
          * @param content The real object you want to encrypt in the datastore
@@ -287,11 +344,11 @@
          * @param email
          * @returns {promise}
          */
-        var searchUser = function(email) {
+        var search_user = function(email) {
             return apiClient.get_users_public_key(get_token(),undefined, email);
         };
 
-        shareBlueprint.register('searchUser', searchUser);
+        shareBlueprint.register('search_user', search_user);
         itemBlueprint.register('get_user_datastore', get_user_datastore);
 
         return {
@@ -300,13 +357,17 @@
             login: login,
             logout: logout,
             is_logged_in: is_logged_in,
-            updateUser: updateUser,
+            update_user: update_user,
             get_user_datastore: get_user_datastore,
-            save_datastore: save_datastore
+            search_user_datastore: search_user_datastore,
+            save_datastore: save_datastore,
+            search_user: search_user
         };
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("managerDatastoreUser", ['$q', '$rootScope', 'apiClient', 'browserClient', 'storage', 'managerBase', 'managerDatastore', 'shareBlueprint', 'itemBlueprint', 'cryptoLibrary', managerDatastoreUser]);
+    app.factory("managerDatastoreUser", ['$q', '$rootScope', 'apiClient', 'browserClient', 'storage',
+        'helper', 'managerBase', 'managerDatastore', 'shareBlueprint',
+        'itemBlueprint', 'cryptoLibrary', managerDatastoreUser]);
 
 }(angular));

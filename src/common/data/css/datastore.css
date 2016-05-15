@@ -66,6 +66,20 @@ body {
   background-color: #2ba880;
   border-color: #2ba880; }
 
+label.smalllabel {
+  font-size: small;
+  margin-bottom: 0;
+  margin-top: 5px;
+  color: #2ba880; }
+
+.path_box_parent {
+  margin-bottom: 5px;
+  font-family: 'Courier New', Courier, monospace; }
+  .path_box_parent .path_box_breadcrumb {
+    cursor: pointer; }
+  .path_box_parent .path_box_breadcrumb:hover {
+    color: #2dbb93; }
+
 .fa-circle.is-shared {
   color: #2dbb93;
   font-size: 80%;

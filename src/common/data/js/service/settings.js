@@ -214,7 +214,7 @@
                     var onError = function() {
                         return reject({errors: ['Old password incorrect']})
                     };
-                    return managerDatastoreUser.updateUser(specials['setting_email'].value, new_authkey, authkey_old, priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce, user_sauce)
+                    return managerDatastoreUser.update_user(specials['setting_email'].value, new_authkey, authkey_old, priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce, user_sauce)
                         .then(onSucces, onError);
 
 

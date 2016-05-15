@@ -5,12 +5,29 @@
     </div>
     <div class="modal-body">
 
-        Path:
-        <div>
-                <span ng-repeat="b in breadcrums track by $index">
-                    &gt; {{b}}
-                </span>
+        <label for="modalAcceptShareForm-path" class="smalllabel">Path</label>
+        <div class="input-group path_box_parent">
+            <div id="modalAcceptShareForm-path" class="path_box form-control">
+                <span ng-if="!breadcrumbs.breadcrumbs">\</span>
+                <span class="path_box_breadcrumb" ng-click="cut_breadcrumbs($index)" ng-repeat="b in breadcrumbs.breadcrumbs track by $index">\{{b}}</span>
+            </div>
+
+            <span class="input-group-btn">
+                <button class="btn btn-default" ng-disabled="!breadcrumbs.breadcrumbs"
+                        ng-click="clearBreadcrumbs()" type="button">
+                    <i class="fa fa-ban"></i>
+                </button>
+            </span>
         </div>
+
+        <!--
+        <label for="modalAcceptShareForm-path" class="smalllabel">Path</label>
+        <div id="modalAcceptShareForm-path" class="path_box form-control">
+            <span ng-if="!breadcrumbs.breadcrumbs">\</span>
+            <span class="path_box_breadcrumb" ng-click="cut_breadcrumbs($index)" ng-repeat="b in breadcrumbs.breadcrumbs track by $index">\{{b}}</span>
+        </div>
+        -->
+
 
         <div ng-controller="AcceptshareDashboardController">
             <!-- Start Acceptshare Widget -->
@@ -26,6 +43,32 @@
             <!-- End Acceptshare Widget -->
         </div>
 
+        <h4>shared by:</h4>
+
+        <div class="form-group">
+            <label ng-if="user.data.user_name" class="smalllabel" for="modalAcceptShareForm-user-name">
+                Username: <span ng-if="!user_is_trusted" class="text-danger">(not trusted)</span>
+            </label>
+            <input ng-if="user.data.user_name" id="modalAcceptShareForm-user-name" type="text" placeholder="Name"
+                   ng-value="user.data.user_name" class="form-control" disabled="disabled">
+            <label ng-if="!user.data.user_name" class="smalllabel" for="modalAcceptShareForm-user-email">
+                E-Mail <span ng-if="!user_is_trusted" class="text-danger">(not trusted)</span>
+            </label>
+            <input ng-if="!user.data.user_name" id="modalAcceptShareForm-user-email" type="text" placeholder="Email"
+                   ng-value="user.data.user_email" class="form-control" disabled="disabled">
+            <label class="smalllabel" for="modalAcceptShareForm-user-public-key">
+                Public Key: <span ng-if="!user_is_trusted" class="text-danger">(not trusted)</span>
+            </label>
+            <input id="modalAcceptShareForm-user-public-key" type="text" placeholder="Public Key"
+                   ng-value="user.data.user_public_key" class="form-control" disabled="disabled">
+        </div>
+
+        <div ng-if="!user_is_trusted">
+            <span class="text-danger"><strong>Attention:</strong></span> You never confirmed this user's identity. Please ask the user on a "secure" channel if that
+            really is his public key.
+            If you confirmed this public key and want to add it to your trusted user datastore
+            <a href="#/share/pendingshares" ng-click="trust(user_list)">click here</a>.
+        </div>
 
     </div>
     <div class="modal-footer">

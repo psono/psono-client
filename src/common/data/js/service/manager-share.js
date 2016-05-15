@@ -187,21 +187,28 @@
          * accepts a specific share right
          *
          * @param share_right_id
-         * @param key
+         * @param text
+         * @param nonce
+         * @param public_key
          * @returns {promise}
          */
-        var accept_share_right = function(share_right_id, key) {
+        var accept_share_right = function(share_right_id, text, nonce, public_key) {
+
+            var secret_key = managerBase.decrypt_private_key(text, nonce, public_key);
 
             var onError = function(result) {
                 // pass
             };
 
             var onSuccess = function(content) {
-                console.log(content);
-                return {share_right_id: content.data.share_right_id};
+                var share = JSON.parse(cryptoLibrary.decrypt_data(content.data.share_data, content.data.share_data_nonce, secret_key));
+                share.share_id = content.data.share_id;
+                share.share_secret_key = secret_key;
+
+                return share;
             };
 
-            var c = managerBase.encrypt_secret_key(key);
+            var c = managerBase.encrypt_secret_key(secret_key);
 
             return apiClient.accept_share_right(managerBase.find_one_nolimit('config', 'user_token'), share_right_id, c.text, c.nonce)
                 .then(onSuccess, onError);

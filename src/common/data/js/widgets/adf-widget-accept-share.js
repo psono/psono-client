@@ -28,8 +28,22 @@
      */
     module.controller('acceptshareController', ["$scope", "$interval", "config", "manager", "managerDatastorePassword",
         "managerDatastoreUser", "managerSecret", "managerShare", "$modal", "itemBlueprint", "managerAdfWidget",
+        "message", "$timeout",
         function($scope, $interval, config, manager, managerDatastorePassword,
-                 managerDatastoreUser, managerSecret, managerShare, $modal, itemBlueprint, managerAdfWidget){
+                 managerDatastoreUser, managerSecret, managerShare, $modal, itemBlueprint, managerAdfWidget, message,
+                 $timeout){
+
+            var contextMenusOpen = 0;
+
+            $scope.contextMenuOnShow = function() {
+                contextMenusOpen++;
+            };
+
+            $scope.contextMenuOnClose = function() {
+                $timeout(function() {
+                    contextMenusOpen--;
+                }, 0);
+            };
 
             // Modals
 
@@ -77,22 +91,22 @@
                     var secret_object = {};
 
                     if (itemBlueprint.get_blueprint(content.id).getName) {
-                        datastore_object.name = itemBlueprint.get_blueprint(content.id).getName(content.columns);
+                        datastore_object.name = itemBlueprint.get_blueprint(content.id).getName(content.fields);
                     }
 
-                    for (var i = 0; i < content.columns.length; i++) {
+                    for (var i = 0; i < content.fields.length; i++) {
 
-                        if (!content.columns[i].hasOwnProperty("value")) {
+                        if (!content.fields[i].hasOwnProperty("value")) {
                             continue;
                         }
-                        if (!datastore_object.name && content.title_column == content.columns[i].name) {
-                            datastore_object.name = content.columns[i].value;
+                        if (!datastore_object.name && content.title_field == content.fields[i].name) {
+                            datastore_object.name = content.fields[i].value;
                         }
-                        if (content.hasOwnProperty("urlfilter_column")
-                            && content.urlfilter_column == content.columns[i].name) {
-                            datastore_object.urlfilter = content.columns[i].value;
+                        if (content.hasOwnProperty("urlfilter_field")
+                            && content.urlfilter_field == content.fields[i].name) {
+                            datastore_object.urlfilter = content.fields[i].value;
                         }
-                        secret_object[content.columns[i].name] = content.columns[i].value;
+                        secret_object[content.fields[i].name] = content.fields[i].value;
                     }
 
                     var onError = function(result) {
@@ -157,19 +171,19 @@
 
                         var secret_object = {};
 
-                        for (var i = 0; i < content.columns.length; i++) {
+                        for (var i = 0; i < content.fields.length; i++) {
 
-                            if (!content.columns[i].hasOwnProperty("value")) {
+                            if (!content.fields[i].hasOwnProperty("value")) {
                                 continue;
                             }
-                            if (content.title_column == content.columns[i].name) {
-                                node.name = content.columns[i].value;
+                            if (content.title_field == content.fields[i].name) {
+                                node.name = content.fields[i].value;
                             }
-                            if (content.hasOwnProperty("urlfilter_column")
-                                && content.urlfilter_column == content.columns[i].name) {
-                                node.urlfilter = content.columns[i].value;
+                            if (content.hasOwnProperty("urlfilter_field")
+                                && content.urlfilter_field == content.fields[i].name) {
+                                node.urlfilter = content.fields[i].value;
                             }
-                            secret_object[content.columns[i].name] = content.columns[i].value;
+                            secret_object[content.fields[i].name] = content.fields[i].value;
                         }
 
                         var onError = function(result) {
@@ -294,21 +308,25 @@
                  * Triggered once someone selects a node
                  *
                  * @param node
-                 * @param breadcrums
+                 * @param breadcrumbs
+                 * @param id_breadcrumbs
                  */
-                onNodeSelect: function (node, breadcrums) {
-                    $scope.breadcrums = breadcrums;
+                onNodeSelect: function (node, breadcrumbs, id_breadcrumbs) {
+                    $scope.breadcrumbs = breadcrumbs;
                     $scope.node = node;
                     managerSecret.onNodeSelect(node);
+                    message.emit("modal_accept_share_breadcrumbs_update",
+                        {'breadcrumbs': breadcrumbs, 'id_breadcrumbs': id_breadcrumbs});
                 },
                 /**
                  * Triggered once someone selects an item
                  *
                  * @param item
-                 * @param breadcrums
+                 * @param breadcrumbs
+                 * @param id_breadcrumbs
                  */
-                onItemSelect: function (item, breadcrums) {
-                    $scope.breadcrums = breadcrums;
+                onItemSelect: function (item, breadcrumbs, id_breadcrumbs) {
+                    $scope.breadcrumbs = breadcrumbs;
                     $scope.node = item;
                     managerSecret.onItemSelect(item);
                 },
@@ -421,6 +439,16 @@
                 onFolderDropComplete: function (item_path, target_path) {
                     return moveItem($scope, item_path, target_path, 'folders');
                 },
+                /**
+                 * blocks move if context menus are open
+                 *
+                 * @returns {boolean}
+                 */
+                blockMove: function() {
+                    return contextMenusOpen > 0;
+                },
+                contextMenuOnShow: $scope.contextMenuOnShow,
+                contextMenuOnClose: $scope.contextMenuOnClose,
 
                 getAdditionalButtons: itemBlueprint.get_additional_functions,
                 itemIcon: managerAdfWidget.itemIcon
@@ -497,9 +525,9 @@
                 selected: itemBlueprint.get_blueprint(node.type)
             };
 
-            for (var i = 0; i < $scope.bp.selected.columns.length; i++) {
-                if (data.hasOwnProperty($scope.bp.selected.columns[i].name)) {
-                    $scope.bp.selected.columns[i].value = data[$scope.bp.selected.columns[i].name];
+            for (var i = 0; i < $scope.bp.selected.fields.length; i++) {
+                if (data.hasOwnProperty($scope.bp.selected.fields[i].name)) {
+                    $scope.bp.selected.fields[i].value = data[$scope.bp.selected.fields[i].name];
                 }
             }
 
@@ -594,41 +622,43 @@
                     managerDatastoreUser.get_user_datastore()
                         .then(function (parent) {
 
+                            console.log(content);
+
                             if (typeof parent.items === 'undefined') {
                                 parent.items = [];
                             }
 
-                            var shareusers_object = {
+                            var user_object = {
                                 id: uuid.v4(),
                                 type: content.id,
                                 data: {}
                             };
 
                             if (shareBlueprint.get_blueprint(content.id).getName) {
-                                shareusers_object.name = shareBlueprint.get_blueprint(content.id).getName(content.columns);
+                                user_object.name = shareBlueprint.get_blueprint(content.id).getName(content.fields);
                             }
 
-                            for (var i = 0; i < content.columns.length; i++) {
+                            for (var i = 0; i < content.fields.length; i++) {
 
-                                if (!content.columns[i].hasOwnProperty("value")) {
+                                if (!content.fields[i].hasOwnProperty("value")) {
                                     continue;
                                 }
-                                if (!shareusers_object.name && content.title_column == content.columns[i].name) {
-                                    shareusers_object.name = content.columns[i].value;
+                                if (!user_object.name && content.title_field == content.fields[i].name) {
+                                    user_object.name = content.fields[i].value;
                                 }
-                                if (content.hasOwnProperty("urlfilter_column")
-                                    && content.urlfilter_column == content.columns[i].name) {
-                                    shareusers_object.urlfilter = content.columns[i].value;
+                                if (content.hasOwnProperty("urlfilter_field")
+                                    && content.urlfilter_field == content.fields[i].name) {
+                                    user_object.urlfilter = content.fields[i].value;
                                 }
-                                shareusers_object.data[content.columns[i].name] = content.columns[i].value;
+                                user_object.data[content.fields[i].name] = content.fields[i].value;
                             }
 
-                            parent.items.push(shareusers_object);
+                            parent.items.push(user_object);
 
                             managerDatastoreUser.save_datastore(parent).then(function() {
 
-                                $scope.users.push(shareusers_object);
-                                $scope.selected_users.push(shareusers_object.id);
+                                $scope.users.push(user_object);
+                                $scope.selected_users.push(user_object.id);
                             }, function() {
                                 // TODO handle error
                             });

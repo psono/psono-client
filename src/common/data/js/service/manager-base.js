@@ -86,7 +86,7 @@
          * @returns {string}
          */
         var decrypt_private_key = function (text, nonce, public_key) {
-            return cryptoLibrary.decrypt_data_public_key(data, public_key, find_one_nolimit('config', 'user_private_key'));
+            return cryptoLibrary.decrypt_data_public_key(text, nonce, public_key, find_one_nolimit('config', 'user_private_key'));
         };
 
         /**

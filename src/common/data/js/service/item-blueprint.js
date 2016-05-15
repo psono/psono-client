@@ -12,10 +12,10 @@
             website_password: {
                 id: "website_password", // Unique ID
                 name: "Password", // Displayed in Dropdown Menu
-                title_column: "website_password_title", // is the main column, that is used as filename
-                urlfilter_column: "website_password_url_filter", // is the filter column for url matching
+                title_field: "website_password_title", // is the main column, that is used as filename
+                urlfilter_field: "website_password_url_filter", // is the filter column for url matching
                 search: ['website_password_title', 'website_password_url_filter'], // are searched when the user search his entries
-                columns: [ // All columns for this object with unique names
+                fields: [ // All fields for this object with unique names
                     { name: "website_password_title", field: "input", type: "text", title: "Title", placeholder: "Title", required: true},
                     { name: "website_password_url", field: "input", type: "url", title: "URL", placeholder: "URL", required: true, onChange: "onChangeUrl"},
                     { name: "website_password_username", field: "input", type: "text", title: "Username", placeholder: "Username"},
@@ -42,20 +42,20 @@
                 ],
                 /**
                  * triggered whenever url is changing.
-                 * gets the columns and returns the default domain filter
+                 * gets the fields and returns the default domain filter
                  *
-                 * @param columns
+                 * @param fields
                  * @returns {string}
                  */
-                onChangeUrl: function(columns){
+                onChangeUrl: function(fields){
 
                     var url;
                     var domain_filter_col;
 
                     var i;
-                    for (i = 0; i < columns.length; i++) {
-                        if (columns[i].name === "website_password_url") {
-                            url = columns[i].value;
+                    for (i = 0; i < fields.length; i++) {
+                        if (fields[i].name === "website_password_url") {
+                            url = fields[i].value;
                             break;
                         }
                     }
@@ -64,9 +64,9 @@
                         return "";
                     }
 
-                    for (i = 0; i < columns.length; i++) {
-                        if (columns[i].name === "website_password_url_filter") {
-                            domain_filter_col = columns[i];
+                    for (i = 0; i < fields.length; i++) {
+                        if (fields[i].name === "website_password_url_filter") {
+                            domain_filter_col = fields[i];
                             break;
                         }
                     }
@@ -109,9 +109,9 @@
             note: {
                 id: "note",
                 name: "Note",
-                title_column: "note_title",
+                title_field: "note_title",
                 search: ['note_title'],
-                columns: [
+                fields: [
                     { name: "note_title", field: "input", type: "text", title: "Title", placeholder: "Name", required: true},
                     { name: "note_notes", field: "textarea", title: "Notes", placeholder: "Notes", required: false}
                 ]
@@ -119,7 +119,7 @@
             dummy: {
                 id: "dummy",
                 name: "Dummy",
-                title_column: "dummy_title",
+                title_field: "dummy_title",
                 search: ['dummy_title'],
                 tabs: [
                     {
@@ -131,7 +131,7 @@
                         title:"Title of Tab 2"
                     }
                 ],
-                columns: [
+                fields: [
                     { name: "dummy_title", field: "input", type: "text", title: "Dummy field 1", placeholder: "Put your dummy 1 content here", required: true, tab: 'dummy_tab_2',
                         dropmenuItems:[
                             { icon: "fa fa-key", text:"Generate Password", onclick:function(id) { alert("Generate Password triggered " + id); } },
@@ -167,23 +167,11 @@
                 icon: 'fa fa-user-plus',
                 onClick: function(item, path) {
 
-                    // small helper to create a list of all users from the user datastore
-                    var create_list = function (obj, list) {
-                        var i;
-                        for (i = 0; obj.items && i < obj.items.length; i++) {
-                            list.push(obj.items[i]);
-                        }
-                        for (i = 0; obj.folders && i < obj.folders.length; i++) {
-                            create_list(obj.folders[i], list);
-                        }
-                    };
-
-
                     registrations['get_user_datastore']()
                         .then(function (user_datastore) {
 
                             var users = [];
-                            create_list(user_datastore, users);
+                            helper.create_list(user_datastore, users);
 
                             var modalInstance = $modal.open({
                                 templateUrl: 'view/modal-share-entry.html',
@@ -298,6 +286,7 @@
 
                                             var parent_path = item_path_copy2.slice();
                                             parent_path.pop();
+
                                             changed_paths.push(parent_path);
 
                                             registrations['save_datastore'](datastore, changed_paths);
@@ -432,8 +421,8 @@
         var has_advanced = function (item) {
             var found = false;
 
-            for (var i = 0; i < item.columns.length; i++) {
-                if (item.columns[i].hasOwnProperty('position') && item.columns[i]['position'] === 'advanced') {
+            for (var i = 0; i < item.fields.length; i++) {
+                if (item.fields[i].hasOwnProperty('position') && item.fields[i]['position'] === 'advanced') {
                     return true;
                 }
             }

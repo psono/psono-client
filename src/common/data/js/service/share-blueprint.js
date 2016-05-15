@@ -12,9 +12,9 @@
             user: {
                 id: "user",
                 name: "User",
-                title_column: "user_email",
+                title_field: "user_email",
                 search: ['user_name', 'user_email'],
-                columns: [
+                fields: [
                     { name: "user_search_email", field: "input", type: "email", title: "E-Mail", placeholder: "E-Mail", onChange: "onChangeSearchEmail" },
                     { name: "user_search_button", field: "button", type: "button", title: "Search", hidden: true, class: 'btn-primary', onClick:"onClickSearchButton" },
                     { name: "user_name", field: "input", type: "text", title: "Name", placeholder: "Name (optional)", hidden: true},
@@ -23,12 +23,12 @@
                     { name: "user_public_key", field: "textarea", title: "Public Key", placeholder: "Public Key", required: true, hidden: true, readonly: true,
                         note: 'To verify that this is the user you want to share data with, ask him if this is really his public key.' }
                 ],
-                getName: function(columns) {
+                getName: function(fields) {
                     var vals= {};
                     var visible_name = '';
-                    for (var i = 0; i < columns.length; i++) {
-                        if (columns[i].hasOwnProperty('value')) {
-                            vals[columns[i].name] = columns[i].value;
+                    for (var i = 0; i < fields.length; i++) {
+                        if (fields[i].hasOwnProperty('value')) {
+                            vals[fields[i].name] = fields[i].value;
                         }
                     }
 
@@ -44,18 +44,18 @@
                  * triggered whenever the search email input is changing.
                  * adjusts the visibility of the search button according to the input value
                  *
-                 * @param columns
+                 * @param fields
                  */
-                onChangeSearchEmail: function(columns){
+                onChangeSearchEmail: function(fields){
 
                     var has_search_email = false;
 
                     var i;
-                    for (i = 0; i < columns.length; i++) {
-                        if (columns[i].name === "user_search_email") {
-                            if (columns[i].value && columns[i].value.length > 0) {
+                    for (i = 0; i < fields.length; i++) {
+                        if (fields[i].name === "user_search_email") {
+                            if (fields[i].value && fields[i].value.length > 0) {
                                 var regexp = /^[_a-zA-Z0-9]+(\.[_a-zA-Z0-9]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(\.[a-zA-Z]{2,4})$/;
-                                if (regexp.test(columns[i].value)) {
+                                if (regexp.test(fields[i].value)) {
                                     has_search_email = true;
                                 }
                             }
@@ -63,9 +63,9 @@
                         }
                     }
 
-                    for (i = 0; i < columns.length; i++) {
-                        if (columns[i].name === "user_search_button") {
-                            columns[i].hidden = !has_search_email;
+                    for (i = 0; i < fields.length; i++) {
+                        if (fields[i].name === "user_search_button") {
+                            fields[i].hidden = !has_search_email;
                             break;
                         }
                     }
@@ -74,17 +74,17 @@
                  * triggered whenever the search button is clicked.
                  * triggers a search to the backend for a valid user with that email address
                  *
-                 * @param columns
+                 * @param fields
                  * @param errors
                  */
-                onClickSearchButton: function(columns, errors){
+                onClickSearchButton: function(fields, errors){
 
                     var search_email = '';
 
                     var i;
-                    for (i = 0; i < columns.length; i++) {
-                        if (columns[i].name === "user_search_email") {
-                            search_email = columns[i].value;
+                    for (i = 0; i < fields.length; i++) {
+                        if (fields[i].name === "user_search_email") {
+                            search_email = fields[i].value;
                             break;
                         }
                     }
@@ -92,20 +92,20 @@
                     var onSuccess = function(data) {
                         data = data.data;
 
-                        for (i = 0; i < columns.length; i++) {
-                            if (columns[i].name === "user_name") {
-                                columns[i].hidden = false;
+                        for (i = 0; i < fields.length; i++) {
+                            if (fields[i].name === "user_name") {
+                                fields[i].hidden = false;
                             }
-                            if (columns[i].name === "user_id") {
-                                columns[i].value = data.id;
+                            if (fields[i].name === "user_id") {
+                                fields[i].value = data.id;
                             }
-                            if (columns[i].name === "user_email") {
-                                columns[i].value = data.email;
-                                columns[i].hidden = false;
+                            if (fields[i].name === "user_email") {
+                                fields[i].value = data.email;
+                                fields[i].hidden = false;
                             }
-                            if (columns[i].name === "user_public_key") {
-                                columns[i].value = data.public_key;
-                                columns[i].hidden = false;
+                            if (fields[i].name === "user_public_key") {
+                                fields[i].value = data.public_key;
+                                fields[i].hidden = false;
                             }
                         }
 
@@ -120,13 +120,13 @@
                         }
                     };
 
-                    registrations['searchUser'](search_email).then(onSuccess, onError)
+                    registrations['search_user'](search_email).then(onSuccess, onError)
 
                 },
                 onEditModalOpen: function(node) {
                     var showInEditOnly = ["user_name", "user_id", "user_email", "user_public_key"];
-                    for (var i = 0; i < node.columns.length; i++) {
-                        node.columns[i].hidden = !(showInEditOnly.indexOf(node.columns[i].name) > -1);
+                    for (var i = 0; i < node.fields.length; i++) {
+                        node.fields[i].hidden = !(showInEditOnly.indexOf(node.fields[i].name) > -1);
                     }
                 }
 
@@ -213,8 +213,8 @@
         var has_advanced = function (item) {
             var found = false;
 
-            for (var i = 0; i < item.columns.length; i++) {
-                if (item.columns[i].hasOwnProperty('position') && item.columns[i]['position'] === 'advanced') {
+            for (var i = 0; i < item.fields.length; i++) {
+                if (item.fields[i].hasOwnProperty('position') && item.fields[i]['position'] === 'advanced') {
                     return true;
                 }
             }

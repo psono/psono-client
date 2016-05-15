@@ -1,6 +1,6 @@
-<div data-target="menu-datastore-main" context-menu="" class="expand15">
+<div data-target="menu-shareusers-main" context-menu="contextMenuOnShow()" context-menu-close="contextMenuOnClose()" class="expand15">
 
-    <div class="dropdown position-fixed droppdown-rightclick" id="menu-datastore-main">
+    <div class="dropdown position-fixed droppdown-rightclick" id="menu-shareusers-main">
         <ul class="dropdown-menu" role="menu">
             <li role="menuitem" ng-click="openNewFolder($event)"><a href="#/share/users"><i class="fa fa-folder"></i>New Folder</a></li>
             <li role="menuitem" ng-click="openNewItem($event)"><a href="#/share/users"><i class="fa fa-user-plus"></i>New User</a></li>
@@ -9,7 +9,7 @@
 
     <!--
     <div>
-        <span ng-repeat="b in breadcrums track by $index">
+        <span ng-repeat="b in breadcrumbs track by $index">
             &gt; {{b}}
         </span>
     </div>

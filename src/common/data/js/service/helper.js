@@ -59,6 +59,22 @@
         };
 
         /**
+         * creates a list entries based on datastore tree object
+         *
+         * @param obj datastore tree object
+         * @param list the list object we want to fill
+         */
+        var create_list = function (obj, list) {
+            var i;
+            for (i = 0; obj.items && i < obj.items.length; i++) {
+                list.push(obj.items[i]);
+            }
+            for (i = 0; obj.folders && i < obj.folders.length; i++) {
+                create_list(obj.folders[i], list);
+            }
+        };
+
+        /**
          * takes an object and duplicates it
          *
          * @param obj initial object
@@ -71,6 +87,7 @@
         return {
             parse_url: parse_url,
             array_starts_with: array_starts_with,
+            create_list: create_list,
             duplicate_object: duplicate_object
         };
     };
