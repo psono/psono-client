@@ -286,6 +286,7 @@ mod.PageMod({
         "./js/service/manager.js",
         "./js/service/manager-adf-widget.js",
         "./js/service/manager-datastore.js",
+        "./js/service/manager-link.js",
         "./js/service/manager-secret.js",
         "./js/service/manager-share.js",
         "./js/service/manager-datastore-password.js",

@@ -1,7 +1,7 @@
 (function(angular, uuid) {
     'use strict';
 
-    var managerDatastorePassword = function($q, managerSecret, managerDatastore, managerShare, passwordGenerator, itemBlueprint, helper) {
+    var managerDatastorePassword = function($q, $rootScope, managerSecret, managerDatastore, managerShare, passwordGenerator, itemBlueprint, helper) {
 
         /**
          * updates some datastore folders or share folders with content
@@ -11,7 +11,6 @@
          * @param data
          */
         var update_paths_with_data = function(datastore, path, data) {
-
             var path_copy = path.slice();
             var search = find_in_datastore(path_copy, datastore);
             var obj = search[0][search[1]];
@@ -20,69 +19,87 @@
                 if (!data.hasOwnProperty(prop)) {
                     continue;
                 }
-
                 obj[prop] = data[prop];
             }
-
         };
 
         /**
          * queries shares recursive
          *
          * @param datastore
-         * @param index
+         * @param share_rights_dict
+         * @param share_index
          * @param all_share_data
+         * @param [blocking]
          * @returns {*}
          */
-        var read_shares_recursive = function(datastore, index, all_share_data) {
-
-            if (typeof index === 'undefined') {
-                return datastore;
-            }
-
+        var read_shares = function(datastore, share_rights_dict, share_index, all_share_data, blocking) {
+            var open_calls = 0;
             var all_calls = [];
 
-            for (var share_id in index) {
-                if (!index.hasOwnProperty(share_id)) {
-                    continue;
+            var read_shares_recursive = function(datastore, share_rights_dict, share_index, all_share_data) {
+                if (typeof share_index === 'undefined') {
+                    return datastore;
                 }
 
-                for (var i = 0, l = index[share_id].paths.length; i < l; i++) {
-
-
-                    var path_copy = index[share_id].paths[i].slice();
-                    var search = find_in_datastore(path_copy, datastore);
-                    var sub_datastore = search[0][search[1]];
-
-                    if (all_share_data.hasOwnProperty(share_id)) {
-                        update_paths_with_data(datastore, index[share_id].paths[i], all_share_data[share_id]);
+                for (var share_id in share_index) {
+                    if (!share_index.hasOwnProperty(share_id)) {
                         continue;
                     }
 
-                    all_calls.push((function(share_id, sub_datastore, path) {
+                    for (var i = 0, l = share_index[share_id].paths.length; i < l; i++) {
+                        var path_copy = share_index[share_id].paths[i].slice();
+                        var search = find_in_datastore(path_copy, datastore);
+                        var sub_datastore = search[0][search[1]];
 
-                        var onSuccess = function(data) {
+                        if (all_share_data.hasOwnProperty(share_id)) {
+                            update_paths_with_data(datastore, share_index[share_id].paths[i], all_share_data[share_id]);
+                            continue;
+                        }
 
-                            all_share_data[share_id] = data;
+                        // Let's check if we have read writes for this share, and skip it if we don't have read writes
+                        if (!share_rights_dict.hasOwnProperty(share_id) || !share_rights_dict[share_id].read) {
+                            continue;
+                        }
 
-                            update_paths_with_data(datastore, path, data);
+                        all_calls.push((function (share_id, sub_datastore, path) {
+                            var onSuccess = function (data) {
+                                all_share_data[share_id] = data;
 
-                            read_shares_recursive(sub_datastore, data.share_index, all_share_data);
-                        };
+                                update_paths_with_data(datastore, path, data);
 
-                        var onError = function () {
-                            // pass
-                        };
+                                read_shares_recursive(sub_datastore, share_rights_dict, data.share_index, all_share_data);
+                                open_calls--;
+                            };
 
-                        return managerShare.read_share(share_id, index[share_id].secret_key)
-                            .then(onSuccess, onError);
-                    })(share_id, sub_datastore, index[share_id].paths[i]));
+                            var onError = function () {
+                                open_calls--;
+                            };
+                            open_calls++;
+                            return managerShare.read_share(share_id, share_index[share_id].secret_key)
+                                .then(onSuccess, onError);
+                        })(share_id, sub_datastore, share_index[share_id].paths[i]));
 
+                    }
                 }
-            }
+            };
+
+            read_shares_recursive(datastore, share_rights_dict, share_index, all_share_data);
 
             return $q.all(all_calls).then(function (ret) {
-                return datastore;
+                if (blocking) {
+                    return $q(function(resolve) {
+                        $rootScope.$watch(function() {
+                            return open_calls;
+                        }, function watchCallback(open_calls) {
+                            if (open_calls == 0) {
+                                resolve(datastore);
+                            }
+                        });
+                    });
+                } else {
+                    return datastore;
+                }
             });
         };
 
@@ -125,26 +142,42 @@
          * Returns the password datastore. In addition this function triggers the generation of the local datastore
          * storage to
          *
+         * @param [blocking]
          * @returns {promise}
          */
-        var get_password_datastore = function() {
+        var get_password_datastore = function(blocking) {
             var type = "password";
             var description = "default";
 
 
             var onSuccess = function (datastore) {
 
-                managerDatastore.fill_storage('datastore-password-leafs', datastore, [
-                    ['key', 'secret_id'],
-                    ['secret_id', 'secret_id'],
-                    ['value', 'secret_key'],
-                    ['name', 'name'],
-                    ['urlfilter', 'urlfilter'],
-                    ['search', 'urlfilter']
+                var onSuccess = function (data) {
 
-                ]);
+                    var share_rights_dict = {};
+                    for (var i = 0, l = data.share_rights.length; i < l; i++) {
+                        share_rights_dict[data.share_rights[i].share_id] = data.share_rights[i];
+                    }
+                    managerDatastore.fill_storage('datastore-password-leafs', datastore, [
+                        ['key', 'secret_id'],
+                        ['secret_id', 'secret_id'],
+                        ['value', 'secret_key'],
+                        ['name', 'name'],
+                        ['urlfilter', 'urlfilter'],
+                        ['search', 'urlfilter']
 
-                return read_shares_recursive(datastore, datastore.share_index, {});
+                    ]);
+
+                    return read_shares(datastore, share_rights_dict, datastore.share_index, {}, blocking);
+
+                };
+
+                var onError = function () {
+                    // pass
+                };
+
+                return managerShare.read_share_rights_overview()
+                    .then(onSuccess, onError);
             };
             var onError = function () {
                 // pass
@@ -178,7 +211,7 @@
 
             for (var i = 0, l = paths.length; i < l; i++) {
 
-                var closest_share = get_closest_parent(paths[i], datastore, datastore, 0);
+                var closest_share = managerShare.get_closest_parent_share(paths[i], datastore, datastore, 0);
                 if (typeof closest_share.id === 'undefined') {
                     // its the datastore
                     closest_shares['datastore'] = datastore;
@@ -186,7 +219,7 @@
                     closest_shares[closest_share.id] = closest_share;
                 }
             }
-            
+
             for (var prop in closest_shares) {
 
                 if (!closest_shares.hasOwnProperty(prop)) {
@@ -239,8 +272,6 @@
             var onSuccess = function(e) {
                 get_password_datastore()
                     .then(function (data) {
-
-                        console.log("password datastore loaded successfully");
 
                         var datastore_object = {
                             id: uuid.v4(),
@@ -360,37 +391,6 @@
         };
 
         /**
-         * returns the closest share. if no share exists for the specified path, the initially specified closest_share
-         * is returned.
-         *
-         * @param path
-         * @param datastore
-         * @param closest_share
-         * @param distance
-         * @returns {*}
-         */
-        var get_closest_parent = function(path, datastore, closest_share, distance) {
-
-            if (path.length == distance) {
-                return closest_share;
-            }
-            
-            var to_search = path.shift();
-
-            for (var n = 0, l = datastore.folders.length; n < l; n++) {
-                if (datastore.folders[n].id == to_search) {
-                    if (typeof(datastore.folders[n].share_id) !== 'undefined') {
-                        return get_closest_parent(path, datastore.folders[n], datastore.folders[n], distance);
-                    } else {
-                        return get_closest_parent(path, datastore.folders[n], closest_share, distance);
-                    }
-                }
-            }
-
-            return false;
-        };
-
-        /**
          * fills other_children with all child shares of a given path
          *
          * @param path
@@ -470,7 +470,7 @@
             var path_copy3 = path.slice();
             var path_copy4 = path.slice();
 
-            var parent_share = get_closest_parent(path_copy, datastore, datastore, 1);
+            var parent_share = managerShare.get_closest_parent_share(path_copy, datastore, datastore, 1);
 
             if (typeof(parent_share.share_index) == 'undefined') {
                 parent_share.share_index = {};
@@ -560,7 +560,7 @@
         var on_deleted = function (share_id, path, datastore) {
 
             var path_copy = path.slice();
-            var share = get_closest_parent(path_copy, datastore, datastore, 1);
+            var share = managerShare.get_closest_parent_share(path_copy, datastore, datastore, 1);
             var relative_path = get_relative_path(share, path.slice());
 
             var update_share_index = function(share, share_id, relative_path, allow_multiples) {
@@ -639,6 +639,6 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("managerDatastorePassword", ['$q', 'managerSecret', 'managerDatastore', 'managerShare', 'passwordGenerator', 'itemBlueprint', 'helper', managerDatastorePassword]);
+    app.factory("managerDatastorePassword", ['$q', '$rootScope', 'managerSecret', 'managerDatastore', 'managerShare', 'passwordGenerator', 'itemBlueprint', 'helper', managerDatastorePassword]);
 
 }(angular, uuid));

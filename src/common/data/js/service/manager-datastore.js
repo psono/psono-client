@@ -103,7 +103,10 @@
                     datastore_secret_key
                 );
 
-                return JSON.parse(data);
+                var parsed_data = JSON.parse(data);
+                parsed_data['datastore_id'] = datastore_id;
+
+                return parsed_data;
             };
 
             return apiClient.read_datastore(managerBase.find_one_nolimit('config', 'user_token'), datastore_id)

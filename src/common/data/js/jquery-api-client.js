@@ -639,9 +639,10 @@ var ClassClient = function (backend, require, jQuery, scrypt_module_factory, sha
      * @param {string} [encrypted_data_nonce] - nonce for data, necessary if data is provided
      * @param {string} key - encrypted secret key
      * @param {string} key_nonce - nonce for secret key
+     * @param {string} [parent_share_id] - the id of the parent share, may be left empty if the share resides in the datastore
      * @returns {promise}
      */
-    this.create_share = function (token, encrypted_data, encrypted_data_nonce, key, key_nonce) {
+    this.create_share = function (token, encrypted_data, encrypted_data_nonce, key, key_nonce, parent_share_id) {
         var endpoint = '/share/';
         var connection_type = "PUT";
         var data = {
@@ -649,7 +650,8 @@ var ClassClient = function (backend, require, jQuery, scrypt_module_factory, sha
             data_nonce: encrypted_data_nonce,
             key: key,
             key_nonce: key_nonce,
-            key_type: "symmetric"
+            key_type: "symmetric",
+            parent_share_id: parent_share_id
         };
 
         return jQuery.ajax({

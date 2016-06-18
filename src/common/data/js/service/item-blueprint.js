@@ -167,142 +167,171 @@
                 icon: 'fa fa-user-plus',
                 onClick: function(item, path) {
 
-                    registrations['get_user_datastore']()
-                        .then(function (user_datastore) {
+                    /**
+                     * little wrapper to create the share rights from the selected users and rights for a give noce and
+                     * a given share_id and key
+                     *
+                     * @param share_id
+                     * @param secret_key
+                     * @param node
+                     * @param users
+                     * @param selected_users
+                     * @param selected_rights
+                     */
+                    var create_share_rights = function(share_id, secret_key, node, users, selected_users, selected_rights) {
+                        for (var i = 0; i < users.length; i++) {
+                            if (selected_users.indexOf(users[i].id) < 0) {
+                                continue;
+                            }
 
-                            var users = [];
-                            helper.create_list(user_datastore, users);
+                            // found a user that has been selected, lets create the rights for him
+                            var rights = {
+                                read: selected_rights.indexOf('read') > -1,
+                                write: selected_rights.indexOf('write') > -1,
+                                grant: selected_rights.indexOf('grant') > -1
+                            };
 
-                            var modalInstance = $modal.open({
-                                templateUrl: 'view/modal-share-entry.html',
-                                controller: 'ModalShareEntryCtrl',
-                                resolve: {
-                                    node: function () {
-                                        return item;
-                                    },
-                                    path: function () {
-                                        return path;
-                                    },
-                                    users: function() {
-                                        return users;
-                                    }
+                            // generate the title
+                            // TODO create form field with this default value and read value from form
+
+                            var title = "";
+                            if (typeof(node.type) == 'undefined') {
+                                // we have a folder
+                                title = "Folder with title '" + node.name + "'";
+                            } else {
+                                // we have an item
+                                title = _blueprints[node.type].name + " with title '" + node.name + "'";
+                            }
+
+                            registrations['create_share_right'](title,
+                                share_id, users[i].data.user_id,
+                                users[i].data.user_public_key, secret_key,
+                                rights['read'], rights['write'], rights['grant']);
+                            i++;
+                        }
+                    };
+
+                    /**
+                     * Users and or / shares have been selected in the modal and the final "Share Now" button was
+                     * clicked
+                     *
+                     * @param content
+                     */
+                    var on_modal_close_success = function (content) {
+                        // content = { node: "...", path: "...", selected_users: "...", users: "..."}
+
+                        if (!content.users
+                            || content.users.length < 1
+                            || !content.selected_users
+                            || content.selected_users.length < 1) {
+
+                            // TODO echo not shared message because no user selected
+
+                            return;
+                        }
+
+                        var users = [];
+
+                        var i;
+                        for (i = 0; i < content.users.length; i++) {
+                            if (content.selected_users.indexOf(content.users[i].id) != -1) {
+                                users.push(content.users[i]);
+                            }
+                        }
+
+                        if (content.node.hasOwnProperty("share_id")) {
+                            // its already a share, so generate only the share_rights
+
+                            create_share_rights(content.node.share_id, content.node.share_secret_key,
+                                content.node, content.users, content.selected_users, content.selected_rights);
+
+                        } else {
+                            // its not yet a share, so generate the share, generate the share_rights and update
+                            // the datastore
+
+                            registrations['get_password_datastore'](true).then(function(datastore) {
+
+                                console.log("get_password_datastore returned");
+
+                                var path = content.path.slice();
+                                var parent_share = registrations['get_closest_parent_share'](path, datastore, null, 0);
+                                var parent_share_id = null;
+                                var datastore_id = null;
+                                if (parent_share != null) {
+                                    parent_share_id = parent_share.share_id;
+                                } else {
+                                    datastore_id = datastore.datastore_id;
                                 }
-                            });
 
-                            // User clicked the final share button
-                            modalInstance.result.then(function (content) {
-                                // content = { node: "...", path: "...", selected_users: "...", users: "..."}
+                                // create the share
+                                registrations['create_share'](content.node, parent_share_id, datastore_id, content.node.id).then(function (share_details) {
 
-                                if (!content.users
-                                    || content.users.length < 1
-                                    || !content.selected_users
-                                    || content.selected_users.length < 1) {
+                                    var item_path = content.path.slice();
+                                    var item_path_copy = content.path.slice();
+                                    var item_path_copy2 = content.path.slice();
 
-                                    // TODO echo not shared message because no user selected
-
-                                    return;
-                                }
-
-                                var users = [];
-
-                                var i;
-                                for (i = 0; i < content.users.length; i++) {
-                                    if (content.selected_users.indexOf(content.users[i].id) != -1) {
-                                        users.push(content.users[i]);
-                                    }
-                                }
-
-                                var create_share_rights = function(share_id, secret_key, node, users, selected_users, selected_rights) {
-                                    for (var i = 0; i < users.length; i++) {
-                                        if (selected_users.indexOf(users[i].id) < 0) {
-                                            continue;
-                                        }
-
-                                        // found a user that has been selected, lets create the rights for him
-                                        var rights = {
-                                            read: selected_rights.indexOf('read') > -1,
-                                            write: selected_rights.indexOf('write') > -1,
-                                            grant: selected_rights.indexOf('grant') > -1
-                                        };
-
-                                        // generate the title
-                                        // TODO create form field with this default value and read value from form
-
-                                        var title = "";
-                                        if (typeof(node.type) == 'undefined') {
-                                            // we have a folder
-                                            title = "Folder with title '" + node.name + "'";
-                                        } else {
-                                            // we have an item
-                                            title = _blueprints[node.type].name + " with title '" + node.name + "'";
-                                        }
-
-                                        registrations['create_share_right'](title,
-                                            share_id, users[i].data.user_id,
-                                            users[i].data.user_public_key, secret_key,
-                                            rights['read'], rights['write'], rights['grant']);
-                                        i++;
-                                    }
-                                };
-
-                                if (content.node.hasOwnProperty("share_id")) {
-                                    // its already a share, so generate only the share_rights
-
-                                    create_share_rights(content.node.share_id, content.node.share_secret_key,
+                                    // create the share right
+                                    create_share_rights(share_details.share_id, share_details.secret_key,
                                         content.node, content.users, content.selected_users, content.selected_rights);
 
-                                } else {
 
-                                    // create the share
-                                    registrations['create_share'](content.node).then(function (share_details) {
+                                    // update datastore and / or possible parent shares
+                                    var search = registrations['find_in_datastore'] (item_path, datastore);
 
-                                        // share created successfully, now let's update the rights and add our user
-                                        // share_details = { share_id: "...", secret_key: "..."}
-                                        var item_path = content.path.slice();
-                                        var item_path_copy = content.path.slice();
-                                        var item_path_copy2 = content.path.slice();
+                                    if (typeof(content.node.type) === 'undefined') {
+                                        // we have an item
+                                        delete search[0][search[1]].secret_id;
+                                        delete search[0][search[1]].secret_key;
+                                    }
+                                    search[0][search[1]].share_id = share_details.share_id;
+                                    search[0][search[1]].share_secret_key = share_details.secret_key;
 
-                                        create_share_rights(share_details.share_id, share_details.secret_key,
-                                            content.node, content.users, content.selected_users, content.selected_rights);
+                                    // update node in our displayed datastore
+                                    content.node.share_id = share_details.share_id;
+                                    content.node.share_secret_key = share_details.secret_key;
 
-                                        return registrations['get_password_datastore']().then(function(datastore) {
+                                    var changed_paths = registrations['on_share_added'](share_details.share_id, item_path_copy, datastore);
 
-                                            var search = registrations['find_in_datastore'] (item_path, datastore);
+                                    var parent_path = item_path_copy2.slice();
+                                    parent_path.pop();
 
+                                    changed_paths.push(parent_path);
 
-                                            if (typeof(content.node.type) === 'undefined') {
-                                                // we have an item
-                                                delete search[0][search[1]].secret_id;
-                                                delete search[0][search[1]].secret_key;
-                                            }
-                                            search[0][search[1]].share_id = share_details.share_id;
-                                            search[0][search[1]].share_secret_key = share_details.secret_key;
-
-                                            //update node in our displayed datastore
-                                            content.node.share_id = share_details.share_id;
-                                            content.node.share_secret_key = share_details.secret_key;
-
-                                            var changed_paths = registrations['on_share_added'](share_details.share_id, item_path_copy, datastore);
-
-                                            var parent_path = item_path_copy2.slice();
-                                            parent_path.pop();
-
-                                            changed_paths.push(parent_path);
-
-                                            registrations['save_datastore'](datastore, changed_paths);
-                                        });
+                                    registrations['save_datastore'](datastore, changed_paths);
 
 
-                                    });
-                                }
-
-
-
-                            }, function () {
-                                // cancel triggered
+                                });
                             });
+                        }
+                    };
 
+                    // The main modal to share
+                    registrations['get_user_datastore']().then(function (user_datastore) {
+                        var users = [];
+                        helper.create_list(user_datastore, users);
+
+                        var modalInstance = $modal.open({
+                            templateUrl: 'view/modal-share-entry.html',
+                            controller: 'ModalShareEntryCtrl',
+                            resolve: {
+                                node: function () {
+                                    return item;
+                                },
+                                path: function () {
+                                    return path;
+                                },
+                                users: function() {
+                                    return users;
+                                }
+                            }
                         });
+
+                        // User clicked the final share button
+                        modalInstance.result.then(on_modal_close_success, function () {
+                            // cancel triggered
+                        });
+
+                    });
                 }
             },
             show_share_rights: {

@@ -22,9 +22,6 @@ angular.module("ngDraggable", [])
     .directive('ngDrag', ['$rootScope', '$parse', '$document', '$window', 'ngDraggable', function ($rootScope, $parse, $document, $window, ngDraggable) {
         return {
             restrict: 'A',
-            //scope: {
-            //    'preventMove': '&preventMove',
-            //},
             link: function (scope, element, attrs) {
                 scope.value = attrs.ngDrag;
                 var offset,_centerAnchor=false,_mx,_my,_tx,_ty,_mrx,_mry;
@@ -253,7 +250,6 @@ angular.module("ngDraggable", [])
 
                     scope.$apply(function () {
                         if (preventMove(scope)) {
-                            console.log("ngdraggable: preventMove true")
                             return;
                         }
                         if(allowTransform) {

@@ -5,6 +5,9 @@
     </div>
     <div class="modal-body">
 
+        <label ng-if="!item.share_right_read" for="modalAcceptShareForm-title" class="smalllabel">Title</label>
+        <input ng-if="!item.share_right_read" id="modalAcceptShareForm-title" ng-model="item.share_right_title" class="form-control" type="text">
+
         <label for="modalAcceptShareForm-path" class="smalllabel">Path</label>
         <div class="input-group path_box_parent">
             <div id="modalAcceptShareForm-path" class="path_box form-control">

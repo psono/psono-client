@@ -646,8 +646,6 @@
                         var path;
                         var parent_path;
 
-                        console.log(breadcrumbs);
-                        console.log(datastore);
                         var target;
 
                         if (typeof breadcrumbs.id_breadcrumbs !== "undefined") {
@@ -662,11 +660,14 @@
                             target = datastore
                         }
 
-                        console.log(target);
-                        console.log(item);
-
                         var onSuccess = function (share) {
-                            console.log(share);
+
+                            share.id = uuid.v4();
+
+                            if (typeof share.name === "undefined") {
+                                share.name = item.share_right_title;
+                            }
+
                             if (typeof share.type === "undefined") {
                                 if (typeof target.folders === "undefined") {
                                     target.folders = []
@@ -680,9 +681,7 @@
                             }
                             path.push(share.id);
                             var changed_paths = managerDatastorePassword.on_share_added(share.share_id, path, datastore);
-                            console.log(datastore);
                             changed_paths.push(parent_path);
-                            console.log(changed_paths);
                             
                             managerDatastorePassword.save_datastore(datastore, changed_paths);
                         };
@@ -812,7 +811,7 @@
                 });
 
             /**
-             * adds a user to the trusted datastore
+             * triggered once a users clicks the "trust this user" button and adds the user to the trusted datastore
              *
              * @param user
              */
@@ -871,6 +870,7 @@
                     $scope.breadcrumbs = {};
                 }
                 $scope.breadcrumbs['user'] = $scope.user;
+                // $scope.breadcrumbs['item'] = $scope.item;
                 $modalInstance.close($scope.breadcrumbs);
             };
 
