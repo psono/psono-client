@@ -680,7 +680,7 @@
                                 target.items.push(share)
                             }
                             path.push(share.id);
-                            var changed_paths = managerDatastorePassword.on_share_added(share.share_id, path, datastore);
+                            var changed_paths = managerDatastorePassword.on_share_added(share.share_id, path, datastore, 1);
                             changed_paths.push(parent_path);
                             
                             managerDatastorePassword.save_datastore(datastore, changed_paths);

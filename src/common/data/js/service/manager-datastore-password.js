@@ -188,7 +188,10 @@
         };
 
         /**
-         * Saves the password datastore with given content
+         * Saves the password datastore with given content (including shares) based on the "paths" of all changed
+         * elements
+         *
+         * Responsible for hiding content that doesn't belong into the datastore (like the content of secrets).
          *
          * @param datastore The real object you want to encrypt in the datastore
          * @param paths The list of paths to the changed elements
@@ -394,27 +397,41 @@
          * fills other_children with all child shares of a given path
          *
          * @param path
-         * @param datastore
+         * @param [datastore] optional if obj provided
          * @param other_children
-         * @param obj
+         * @param share_distance the distance in shares to search (-1 = unlimited search, 0 stop search)
+         * @param [obj] optional if datastore provided (because then its searched in the datastore)
          */
-        var get_all_child_shares = function(path, datastore, other_children, obj) {
+        var get_all_child_shares = function(path, datastore, other_children, share_distance, obj) {
+
+            if (share_distance === 0) {
+                return
+            }
 
             if (typeof obj === 'undefined') {
                 var path_copy = path.slice();
                 var search = find_in_datastore(path_copy, datastore);
                 obj = search[0][search[1]];
-                return get_all_child_shares(path, datastore, other_children, obj)
+                return get_all_child_shares(path, datastore, other_children, share_distance, obj)
             } else if (obj === false) {
                 // TODO Handle not found
                 alert("HANDLE not found!");
             } else {
-
+                if (!obj.hasOwnProperty('folders')) {
+                    return;
+                }
                 for (var n = 0, l = obj.folders.length; n < l; n++) {
+                    var new_path = path.slice();
+                    new_path.push(obj.folders[n].id);
                     if (typeof(obj.folders[n].share_id) !== 'undefined') {
-                        other_children.push(obj.folders[n]);
+                        other_children.push({
+                            share: obj.folders[n],
+                            path: new_path
+                        });
+                        get_all_child_shares(new_path, obj, other_children, share_distance-1, obj.folders[n]);
+                    } else {
+                        get_all_child_shares(new_path, obj, other_children, share_distance, obj.folders[n]);
                     }
-                    get_all_child_shares(path, obj, other_children, obj.folders[n]);
                 }
             }
         };
@@ -458,9 +475,10 @@
          * @param share_id
          * @param path path to the new share
          * @param datastore
+         * @param distance
          * @returns {*[]} paths to update
          */
-        var on_share_added = function (share_id, path, datastore) {
+        var on_share_added = function (share_id, path, datastore, distance) {
 
             var changed_paths = [];
             var i, l;
@@ -470,7 +488,7 @@
             var path_copy3 = path.slice();
             var path_copy4 = path.slice();
 
-            var parent_share = managerShare.get_closest_parent_share(path_copy, datastore, datastore, 1);
+            var parent_share = managerShare.get_closest_parent_share(path_copy, datastore, datastore, distance);
 
             if (typeof(parent_share.share_index) == 'undefined') {
                 parent_share.share_index = {};
@@ -548,6 +566,9 @@
             return changed_paths
         };
 
+
+
+
         /**
          * triggered once a new share is deleted. Searches the datastore for the closest share (or the datastore if no
          * share) and removes it from the share_index
@@ -555,15 +576,16 @@
          * @param share_id
          * @param path path to the deleted share
          * @param datastore
+         * @param distance
          * @returns {*[]} paths to update
          */
-        var on_deleted = function (share_id, path, datastore) {
+        var on_share_deleted = function (share_id, path, datastore, distance) {
 
             var path_copy = path.slice();
-            var share = managerShare.get_closest_parent_share(path_copy, datastore, datastore, 1);
-            var relative_path = get_relative_path(share, path.slice());
+            var parent_share = managerShare.get_closest_parent_share(path_copy, datastore, datastore, distance);
+            var relative_path = get_relative_path(parent_share, path.slice());
 
-            var update_share_index = function(share, share_id, relative_path, allow_multiples) {
+            var delete_from_share_index = function(share, share_id, relative_path, allow_multiples) {
                 var already_found = false;
 
                 for (var i = 0, l = share.share_index[share_id].paths.length; i < l; i++) {
@@ -585,19 +607,19 @@
 
             if (share_id === null) {
                 // we have to check all shares
-                for (share_id in share.share_index) {
-                    if (!share.share_index.hasOwnProperty(share_id)){
+                for (share_id in parent_share.share_index) {
+                    if (!parent_share.share_index.hasOwnProperty(share_id)){
                         continue;
                     }
-                    update_share_index(share, share_id, relative_path, true);
+                    delete_from_share_index(parent_share, share_id, relative_path, true);
 
                 }
-            } else if (typeof(share.share_index) !== 'undefined'
-                && typeof(share.share_index[share_id]) !== 'undefined') {
-                update_share_index(share, share_id, relative_path, false);
+            } else if (typeof(parent_share.share_index) !== 'undefined'
+                && typeof(parent_share.share_index[share_id]) !== 'undefined') {
+                delete_from_share_index(parent_share, share_id, relative_path, false);
             }
 
-            // TODO trigger share delete on server. server deletes sshare if noonce has access rights.
+            // TODO trigger share delete on server. server deletes share if nonce has access rights.
             return [path]
         };
 
@@ -608,13 +630,15 @@
          * @param old_path
          * @param new_path
          * @param datastore
+         * @param add_distance
+         * @param delete_distance
          * @returns {*[]} paths to update
          */
-        var on_share_moved = function(share_id, old_path, new_path, datastore) {
+        var on_share_moved = function(share_id, old_path, new_path, datastore, add_distance, delete_distance) {
 
 
-            var paths_updated1 = on_share_added(share_id, new_path, datastore);
-            var paths_updated2 = on_deleted(share_id, old_path, datastore);
+            var paths_updated1 = on_share_added(share_id, new_path, datastore, add_distance);
+            var paths_updated2 = on_share_deleted(share_id, old_path, datastore, delete_distance);
 
             return paths_updated1.concat(paths_updated2);
 
@@ -632,9 +656,10 @@
             generatePassword: generatePassword,
             generatePasswordActiveTab: generatePasswordActiveTab,
             find_in_datastore: find_in_datastore,
+            get_all_child_shares: get_all_child_shares,
             on_share_added: on_share_added,
             on_share_moved: on_share_moved,
-            on_deleted: on_deleted
+            on_share_deleted: on_share_deleted
         };
     };
 

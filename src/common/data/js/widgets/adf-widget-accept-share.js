@@ -260,15 +260,15 @@
                 // delete the array at hte current position
                 val2[0].splice(val2[1], 1);
 
-                //check if we have a share
                 if (element.hasOwnProperty("share_id")) {
+                    // create absolute path of the elements
                     var target_path_copy = orig_target_path.slice();
                     var item_path_copy = orig_item_path.slice();
 
                     target_path_copy.push(element.id);
                     item_path_copy.push(element.id);
 
-                    managerDatastorePassword.on_share_moved(element.share_id, item_path_copy, target_path_copy, scope.structure.data);
+                    managerDatastorePassword.on_share_moved(element.share_id, item_path_copy, target_path_copy, scope.structure.data, 1, 1);
                 }
 
                 managerDatastorePassword.save_datastore(scope.structure.data, [orig_item_path, orig_target_path]);
@@ -295,9 +295,9 @@
                     search[0].splice(search[1], 1);
 
                 if (element.hasOwnProperty("share_id")) {
-                    managerDatastorePassword.on_deleted(element.share_id, path_of_element_to_delete, scope.structure.data)
+                    managerDatastorePassword.on_share_deleted(element.share_id, path_of_element_to_delete, scope.structure.data, 1)
                 } else {
-                    managerDatastorePassword.on_deleted(null, path_of_element_to_delete, scope.structure.data)
+                    managerDatastorePassword.on_share_deleted(null, path_of_element_to_delete, scope.structure.data, 1)
                 }
 
                 managerDatastorePassword.save_datastore(scope.structure.data, [element_path_that_changed]);

@@ -259,15 +259,36 @@
                 // delete the array at hte current position
                 val2[0].splice(val2[1], 1);
 
+                var target_path_copy = orig_target_path.slice();
+                var item_path_copy = orig_item_path.slice();
+                target_path_copy.push(element.id);
+                item_path_copy.push(element.id);
+
                 //check if we have a share
                 if (element.hasOwnProperty("share_id")) {
-                    var target_path_copy = orig_target_path.slice();
-                    var item_path_copy = orig_item_path.slice();
+                    //we moved a share
 
-                    target_path_copy.push(element.id);
-                    item_path_copy.push(element.id);
+                    managerDatastorePassword.on_share_moved(element.share_id, item_path_copy, target_path_copy, scope.structure.data, 1, 1);
+                } else {
+                    // no move of a share, but maybe it was a folder containing shares ...
 
-                    managerDatastorePassword.on_share_moved(element.share_id, item_path_copy, target_path_copy, scope.structure.data);
+                    // TODO Fix move of sub shares and folders containing shares
+                    // TODO: 1. Find first Level shares
+                    var child_shares = [];
+                    managerDatastorePassword.get_all_child_shares([], scope.structure.data, child_shares, 1, element);
+
+                    for (var i = 0, l = child_shares.length; i < l; i++) {
+
+                        var sub_share_target_path = target_path_copy.concat(child_shares[i].path);
+                        var sub_share_item_path = item_path_copy.concat(child_shares[i].path);
+
+
+                        console.log(sub_share_item_path);
+                        console.log(sub_share_target_path);
+                        console.log(child_shares);
+
+                        managerDatastorePassword.on_share_moved(child_shares[i].share.share_id, sub_share_item_path, sub_share_target_path, scope.structure.data, 1, child_shares[i].path.length + 1);
+                    }
                 }
 
                 managerDatastorePassword.save_datastore(scope.structure.data, [orig_item_path, orig_target_path]);
@@ -294,9 +315,9 @@
                     search[0].splice(search[1], 1);
 
                 if (element.hasOwnProperty("share_id")) {
-                    managerDatastorePassword.on_deleted(element.share_id, path_of_element_to_delete, scope.structure.data)
+                    managerDatastorePassword.on_share_deleted(element.share_id, path_of_element_to_delete, scope.structure.data)
                 } else {
-                    managerDatastorePassword.on_deleted(null, path_of_element_to_delete, scope.structure.data)
+                    managerDatastorePassword.on_share_deleted(null, path_of_element_to_delete, scope.structure.data, 1)
                 }
 
                 managerDatastorePassword.save_datastore(scope.structure.data, [element_path_that_changed]);

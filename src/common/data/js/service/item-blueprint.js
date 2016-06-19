@@ -290,7 +290,7 @@
                                     content.node.share_id = share_details.share_id;
                                     content.node.share_secret_key = share_details.secret_key;
 
-                                    var changed_paths = registrations['on_share_added'](share_details.share_id, item_path_copy, datastore);
+                                    var changed_paths = registrations['on_share_added'](share_details.share_id, item_path_copy, datastore, 1);
 
                                     var parent_path = item_path_copy2.slice();
                                     parent_path.pop();
