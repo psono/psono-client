@@ -58,6 +58,7 @@
     }]);
 
     app.controller('AcceptshareDashboardController', ['$scope', 'localStorageService', function ($scope, localStorageService) {
+
         var model = localStorageService.get('widgetAcceptshareDashboard');
         if (!model) {
             model = {
@@ -67,13 +68,18 @@
                         widgets: [{
                             type: 'acceptshare',
                             title: 'Shares',
-                            config: {}
+                            config: {
+                            }
                         }]
                     }]
                 }],
                 noTitle: true
             };
         }
+
+        $scope.init = function(item) {
+            model.rows[0].columns[0].widgets[0].config.item = item;
+        };
 
         $scope.acceptshare = {
             model: model

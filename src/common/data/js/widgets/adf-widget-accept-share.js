@@ -12,13 +12,13 @@
     module.config(function(dashboardProvider){
         dashboardProvider
             .widget('acceptshare', {
-                title: 'Datastore',
-                description: 'provides the acceptshare',
-                templateUrl: 'view/acceptshare-view.html',
-                controller: 'acceptshareController',
-                controllerAs: 'acceptshare',
+                title: 'Accept Share',
+                description: 'provides the accept share',
+                templateUrl: 'view/accept-share-view.html',
+                controller: 'acceptShareController',
+                controllerAs: 'acceptShare',
                 edit: {
-                    templateUrl: 'view/acceptshare-edit.html'
+                    templateUrl: 'view/accept-share-edit.html'
                 }
             });
     });
@@ -26,7 +26,7 @@
     /**
      * Main Controller for the acceptshare widget
      */
-    module.controller('acceptshareController', ["$scope", "$interval", "config", "manager", "managerDatastorePassword",
+    module.controller('acceptShareController', ["$scope", "$interval", "config", "manager", "managerDatastorePassword",
         "managerDatastoreUser", "managerSecret", "managerShare", "$modal", "itemBlueprint", "managerAdfWidget",
         "message", "$timeout",
         function($scope, $interval, config, manager, managerDatastorePassword,
@@ -210,8 +210,40 @@
 
             $scope.structure = { data: {}} ;
 
+
+            var fill_password_datastore = function(data) {
+
+                // hide shares if the user has no grant rights
+
+
+                var hide_shares = function (share) {
+
+                    for (var share_id in share.share_index) {
+                        if (!share.share_index.hasOwnProperty(share_id)) {
+                            continue;
+                        }
+
+                        for (var i = 0, l = share.share_index[share_id].paths.length; i < l; i++) {
+                            var path_copy = share.share_index[share_id].paths[i].slice();
+                            var search = managerDatastorePassword.find_in_datastore(path_copy, share);
+
+                            var obj = search[0][search[1]];
+
+                            obj.is_selectable = false;
+                        }
+                    }
+                };
+
+                if (!config.item.share_right_grant) {
+                    // hide share if the user has no grant rights
+                    hide_shares(data);
+                }
+
+                $scope.structure.data = data;
+            };
+
             managerDatastorePassword.get_password_datastore()
-                .then(function (data) {$scope.structure.data = data;});
+                .then(fill_password_datastore);
 
             /**
              * Move an item
@@ -577,15 +609,15 @@
             $scope.rights = [{
                 id: 'read',
                 name: 'Read',
-                initial_value: true
+                default_value: true
             }, {
                 id: 'write',
                 name: 'Write',
-                initial_value: true
+                default_value: true
             }, {
                 id: 'grant',
                 name: 'Grant',
-                initial_value: true
+                default_value: true
             }];
 
             $scope.selected_users = [];
@@ -593,7 +625,7 @@
 
             // fills selected_rights array with the default values
             for (var i = 0, l = $scope.rights.length; i < l; i++) {
-                if ($scope.rights[i].initial_value) {
+                if ($scope.rights[i].default_value) {
                     $scope.selected_rights.push($scope.rights[i].id);
                 }
             }

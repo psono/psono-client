@@ -101,6 +101,12 @@ h1, h2 {
   .tree .tree-item,
   .tree .tree-folder .tree-folder-title {
     position: relative; }
+  .tree .tree-folder .notSelectable,
+  .tree .tree-item .notSelectable {
+    color: #bbbbbb; }
+    .tree .tree-folder .notSelectable a,
+    .tree .tree-item .notSelectable a {
+      color: #bbbbbb; }
   .tree .node-dropdown {
     position: absolute;
     right: 5px;

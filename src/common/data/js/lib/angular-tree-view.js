@@ -178,7 +178,7 @@
                  * @param item
                  */
                 self.clickItem = function (item) {
-                    if (typeof options.onItemSelect === "function") {
+                    if (typeof options.onItemClick === "function") {
                         options.onItemClick(item);
                     }
                 };
@@ -203,6 +203,17 @@
                  */
                 self.isSelected = function (node) {
                     return node === selectedNode || node === selectedItem;
+                };
+
+                /**
+                 * tests if a node is selectable
+                 * it is selectable by default (if not specified)
+                 *
+                 * @param node
+                 * @returns {boolean}
+                 */
+                self.isSelectable = function (node) {
+                    return ! node.hasOwnProperty('is_selectable') || node.is_selectable !== false
                 };
 
                 /**
@@ -576,6 +587,10 @@
                 scope.selectNode = function (event) {
                     event.preventDefault();
 
+                    if (!controller.isSelectable(scope.node)) {
+                        return;
+                    }
+
                     if (collapsible) {
                         toggleExpanded(scope.node);
                     }
@@ -658,6 +673,11 @@
                  */
                 scope.selectItem = function (item, event) {
                     event.preventDefault();
+
+                    if (!controller.isSelectable(item)) {
+                        return;
+                    }
+                    
                     controller.selectItem(item, getPropertyPath(displayProperty, item));
                 };
 
@@ -681,6 +701,16 @@
                  */
                 scope.isSelected = function (node) {
                     return controller.isSelected(node);
+                };
+
+
+                /**
+                 * checks if the node is selectable
+                 *
+                 * @param node
+                 */
+                scope.isSelectable = function (node) {
+                    return controller.isSelectable(node);
                 };
 
                 /**
@@ -789,7 +819,7 @@
                         'class="tree-folder" ng-repeat="node in ' + attrs.treeViewNode + '.' + foldersProperty + ' track by $index">' +
 
                         '<div class="tree-folder-title" data-target="menu-{{ node.id }}" context-menu="contextMenuOnShow()" context-menu-close="contextMenuOnClose()">' +
-                        '<div href="#" class="tree-folder-header" ng-click="selectNode($event)" ng-class="{ selected: isSelected(node) }">' +
+                        '<div href="#" class="tree-folder-header" ng-click="selectNode($event)" ng-class="{ selected: isSelected(node), notSelectable: !isSelectable(node) }">' +
                         '<span class="fa-stack">' +
                         '<i class="" ng-class="getFolderIconClass(node)"></i>' +
                         '<i ng-if="node.share_id" class="fa fa-circle fa-stack-2x text-danger is-shared"></i>' +
@@ -837,7 +867,7 @@
                         'ng-mousedown="$event.stopPropagation()" ng-show="!item.hidden"' +
                         ' class="tree-item" ng-repeat="item in ' + attrs.treeViewNode + '.' + itemsProperty + ' track by $index">' +
 
-                        '<div class="tree-item-object" ng-click="selectItem(item, $event)" ng-class="{ selected: isSelected(item) }" data-target="menu-{{ item.id }}" context-menu="contextMenuOnShow()" context-menu-close="contextMenuOnClose()">' +
+                        '<div class="tree-item-object" ng-click="selectItem(item, $event)" ng-class="{ selected: isSelected(item), notSelectable: !isSelectable(item) }" data-target="menu-{{ item.id }}" context-menu="contextMenuOnShow()" context-menu-close="contextMenuOnClose()">' +
                         '<span class="fa-stack">' +
                         '<i ng-class="getItemIconClass(item)"></i>' +
                         '<i ng-if="item.share_id" class="fa fa-circle fa-stack-2x text-danger is-shared"></i>' +

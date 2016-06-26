@@ -643,10 +643,14 @@
 
                     var onSuccess = function (datastore) {
 
+                        var link_id = uuid.v4();
+
                         var path;
                         var parent_path;
 
                         var target;
+                        var parent_share_id;
+                        var datastore_id;
 
                         if (typeof breadcrumbs.id_breadcrumbs !== "undefined") {
                             path = breadcrumbs.id_breadcrumbs.slice();
@@ -654,26 +658,35 @@
                             // find drop zone
                             var val1 = managerDatastorePassword.find_in_datastore(breadcrumbs.id_breadcrumbs, datastore);
                             target = val1[0][val1[1]];
+                            parent_share_id = target.share_id;
                         } else {
                             path = [];
                             parent_path = [];
-                            target = datastore
+                            target = datastore;
+                            datastore_id = target.datastore_id;
                         }
+
+                        console.log(item.share_right_grant);
+                        console.log(target);
+                        return;
+
 
                         var onSuccess = function (share) {
 
-                            share.id = uuid.v4();
+                            share.id = link_id;
 
                             if (typeof share.name === "undefined") {
                                 share.name = item.share_right_title;
                             }
 
                             if (typeof share.type === "undefined") {
+                                //its a folder, lets add it to folders
                                 if (typeof target.folders === "undefined") {
                                     target.folders = []
                                 }
                                 target.folders.push(share)
                             } else {
+                                // its an item, lets add it to items
                                 if (typeof target.items === "undefined") {
                                     target.items = []
                                 }
@@ -870,7 +883,7 @@
                     $scope.breadcrumbs = {};
                 }
                 $scope.breadcrumbs['user'] = $scope.user;
-                // $scope.breadcrumbs['item'] = $scope.item;
+                $scope.breadcrumbs['item'] = $scope.item;
                 $modalInstance.close($scope.breadcrumbs);
             };
 

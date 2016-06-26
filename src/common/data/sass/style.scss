@@ -141,6 +141,17 @@ h1, h2 {
   .tree-folder .tree-folder-title {
     position: relative;
   }
+
+  .tree-folder .notSelectable,
+  .tree-item .notSelectable{
+    color: $disabled;
+    a {
+      color: $disabled;
+    }
+  }
+
+
+
   .node-dropdown {
     position: absolute;
     right: 5px;
