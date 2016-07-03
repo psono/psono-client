@@ -311,8 +311,10 @@
                 var search = managerDatastorePassword.find_in_datastore(path, scope.structure.data);
                 var element = search[0][search[1]];
 
-                if (search)
+                if (search){
+                    // remove element from element holding structure (folders or items array)
                     search[0].splice(search[1], 1);
+                }
 
                 if (element.hasOwnProperty("share_id")) {
                     managerDatastorePassword.on_share_deleted(element.share_id, path_of_element_to_delete, scope.structure.data)

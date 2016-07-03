@@ -223,9 +223,13 @@
          * @param text
          * @param nonce
          * @param public_key
+         * @param link_id
+         * @param parent_share_id
+         * @param parent_datastore_id
          * @returns {promise}
          */
-        var accept_share_right = function(share_right_id, text, nonce, public_key) {
+        var accept_share_right = function(share_right_id, text, nonce, public_key, link_id, parent_share_id,
+                                          parent_datastore_id) {
 
             var secret_key = managerBase.decrypt_private_key(text, nonce, public_key);
 
@@ -238,7 +242,8 @@
                 console.log(typeof content.data.share_data !== "undefined");
                 var share = {};
                 if (typeof content.data.share_data !== "undefined") {
-                    share = JSON.parse(cryptoLibrary.decrypt_data(content.data.share_data, content.data.share_data_nonce, secret_key));
+                    share = JSON.parse(cryptoLibrary.decrypt_data(content.data.share_data,
+                        content.data.share_data_nonce,secret_key));
                 }
 
                 share.share_id = content.data.share_id;
@@ -249,7 +254,8 @@
 
             var c = managerBase.encrypt_secret_key(secret_key);
 
-            return apiClient.accept_share_right(managerBase.find_one_nolimit('config', 'user_token'), share_right_id, c.text, c.nonce)
+            return apiClient.accept_share_right(managerBase.find_one_nolimit('config', 'user_token'), share_right_id,
+                c.text, c.nonce, link_id, parent_share_id, parent_datastore_id)
                 .then(onSuccess, onError);
         };
 

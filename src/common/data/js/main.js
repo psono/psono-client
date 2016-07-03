@@ -654,11 +654,19 @@
 
                         if (typeof breadcrumbs.id_breadcrumbs !== "undefined") {
                             path = breadcrumbs.id_breadcrumbs.slice();
+                            var path_copy = breadcrumbs.id_breadcrumbs.slice();
                             parent_path = breadcrumbs.id_breadcrumbs.slice();
                             // find drop zone
                             var val1 = managerDatastorePassword.find_in_datastore(breadcrumbs.id_breadcrumbs, datastore);
                             target = val1[0][val1[1]];
-                            parent_share_id = target.share_id;
+                            var parent_share = managerShare.get_closest_parent_share(path_copy, datastore, datastore, 1);
+                            if (parent_share.hasOwnProperty("datastore_id")) {
+                                datastore_id = parent_share.datastore_id;
+                            } else if (parent_share.hasOwnProperty("share_id")){
+                                parent_share_id = parent_share.share_id;
+                            } else {
+                                alert("Wupis, that should not happen: d6da43af-e0f5-46ba-ae5b-d7e5ccd2fa92")
+                            }
                         } else {
                             path = [];
                             parent_path = [];
@@ -666,10 +674,10 @@
                             datastore_id = target.datastore_id;
                         }
 
-                        console.log(item.share_right_grant);
-                        console.log(target);
-                        return;
-
+                        if (item.share_right_grant == false && typeof(parent_share_id) != 'undefined') {
+                            // No grant right, yet the parent is a a share?!?
+                            alert("Wups, this should not happen. Error: 781f3da7-d38b-470e-a3c8-dd5787642230");
+                        }
 
                         var onSuccess = function (share) {
 
@@ -702,9 +710,13 @@
                         var onError = function (data) {
                             //pass
                         };
+                        console.log("datastore_id");
+                        console.log(datastore_id);
 
-                        managerShare.accept_share_right(item.share_right_id, item.share_right_key, item.share_right_key_nonce, breadcrumbs.user.data.user_public_key)
-                            .then(onSuccess, onError);
+                        managerShare.accept_share_right(item.share_right_id, item.share_right_key,
+                            item.share_right_key_nonce, breadcrumbs.user.data.user_public_key, link_id, parent_share_id,
+                            datastore_id
+                        ).then(onSuccess, onError);
                     };
                     var onError = function (data) {
                         //pass

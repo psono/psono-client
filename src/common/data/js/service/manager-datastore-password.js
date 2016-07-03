@@ -585,7 +585,17 @@
             var parent_share = managerShare.get_closest_parent_share(path_copy, datastore, datastore, distance);
             var relative_path = get_relative_path(parent_share, path.slice());
 
+
+            console.log(share_id);
+            console.log(path);
+            console.log(datastore);
+            console.log(distance);
+            console.log(parent_share);
+            console.log(relative_path);
+
             var delete_from_share_index = function(share, share_id, relative_path, allow_multiples) {
+
+                console.log("delete_from_share_index");
                 var already_found = false;
 
                 for (var i = 0, l = share.share_index[share_id].paths.length; i < l; i++) {
@@ -599,6 +609,7 @@
                     if (Object.keys(share.share_index).length == 0) {
                         delete share.share_index;
                     }
+                    
                     if (!allow_multiples && already_found) {
                         break;
                     }

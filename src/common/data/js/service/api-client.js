@@ -581,19 +581,25 @@
          * @param share_right_id
          * @param key
          * @param key_nonce
+         * @param link_id
+         * @param parent_share_id
+         * @param parent_datastore_id
          * @returns {*}
          */
-        var accept_share_right = function (token, share_right_id, key, key_nonce) {
+        var accept_share_right = function (token, share_right_id, key, key_nonce, link_id, parent_share_id, parent_datastore_id) {
             var endpoint = '/share/right/accept/' + share_right_id + '/';
             var connection_type = "POST";
             var data = {
                 key: key,
-                key_nonce: key_nonce
+                key_nonce: key_nonce,
+                link_id: link_id,
+                parent_share_id: parent_share_id,
+                parent_datastore_id: parent_datastore_id
             };
             var headers = {
                 "Authorization": "Token "+ token
             };
-
+            
             return call(connection_type, endpoint, data, headers);
         };
 
