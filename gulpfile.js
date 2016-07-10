@@ -92,7 +92,7 @@ gulp.task('crx', function() {
     var manifest = require('./build/chrome/manifest.json');
 
     var codebase = manifest.codebase;
-    var updateXmlFilename = 'sanso.PW.update.xml';
+    var updateXmlFilename = 'psono.PW.update.xml';
 
 
     return gulp.src('./build/chrome')
@@ -110,8 +110,8 @@ gulp.task('crx', function() {
  */
 gulp.task('xpiunsigned', function (cb) {
 
-    //child_process.exec('cd build/firefox/ && jpm xpi && cd ../../ && mv build/firefox/@sansopw-*.xpi dist/firefox/ && cd dist/firefox/ && for file in @*; do mv $file `echo $file | cut -c2-`; done && cd ../../', function (err, stdout, stderr) {
-    child_process.exec('cd build/firefox/ && jpm xpi && cd ../../ && mv build/firefox/@sansopw-*.xpi dist/firefox/sanso.PW.unsigned.xpi', function (err, stdout, stderr) {
+    //child_process.exec('cd build/firefox/ && jpm xpi && cd ../../ && mv build/firefox/@psonopw-*.xpi dist/firefox/ && cd dist/firefox/ && for file in @*; do mv $file `echo $file | cut -c2-`; done && cd ../../', function (err, stdout, stderr) {
+    child_process.exec('cd build/firefox/ && jpm xpi && cd ../../ && mv build/firefox/@psonopw-*.xpi dist/firefox/psono.PW.unsigned.xpi', function (err, stdout, stderr) {
         console.log(stdout);
         console.log(stderr);
         cb(err);
@@ -144,7 +144,7 @@ gulp.task('xpi', ['xpiunsigned'], function (cb) {
 
     var key = require(path.homedir() + '/.password_manager_browser_plugins/apikey_addons_mozilla_org/key.json');
 
-    child_process.exec('jpm sign --api-key '+key.issuer+' --api-secret '+key.secret+' --xpi dist/firefox/sanso.PW.unsigned.xpi && mv sansopw*.xpi dist/firefox/sanso.PW.xpi', function (err, stdout, stderr) {
+    child_process.exec('jpm sign --api-key '+key.issuer+' --api-secret '+key.secret+' --xpi dist/firefox/psono.PW.unsigned.xpi && mv psonopw*.xpi dist/firefox/psono.PW.xpi', function (err, stdout, stderr) {
         console.log(stdout);
         console.log(stderr);
         cb(err);

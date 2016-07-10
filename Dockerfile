@@ -1,6 +1,6 @@
 FROM ubuntu:14.04
 ENV DEBIAN_FRONTEND noninteractive
-MAINTAINER Sascha Pfeiffer <saschapfeiffer@sanso.pw>
+MAINTAINER Sascha Pfeiffer <saschapfeiffer@psono.com>
 COPY . /root/
 WORKDIR /root
 RUN apt-get update && \

@@ -112,7 +112,7 @@ function createContext() {
   });
 
   var defaultOptions = {
-    classPrefix: 'sanso-pw-drop',
+    classPrefix: 'psono-pw-drop',
     defaults: {
       position: 'bottom left',
       openOn: 'click',

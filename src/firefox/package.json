@@ -1,8 +1,8 @@
 {
-  "title": "sanso.pw",
-  "name": "sansopw",
+  "title": "psono.pw",
+  "name": "psonopw",
   "version": "0.0.3",
-  "description": "Sanso Password Manager",
+  "description": "Psono Password Manager",
   "main": "index.js",
   "author": "Sascha Pfeiffer",
   "engines": {
@@ -11,6 +11,6 @@
   },
   "license": "Copyright Sascha Pfeiffer, All rights reserved",
   "permissions": {
-    "cross-domain-content": ["https://dev.sanso.pw", "http://dev.sanso.pw:8001"]
+    "cross-domain-content": ["https://dev.psono.pw", "http://dev.psono.pw:8001"]
   }
 }

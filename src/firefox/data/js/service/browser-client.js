@@ -47,7 +47,7 @@
          * @returns {string}
          */
         var getBaseUrl = function() {
-            return "resource://sansopw/";
+            return "resource://psonopw/";
         };
 
         /**

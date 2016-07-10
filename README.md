@@ -6,9 +6,9 @@ https://developer.mozilla.org/en-US/Add-ons/SDK/Tutorials
 
 1. Download the crx file here:
 
-    https://browserplugins.chickahoona.com/dist/chrome/sanso.PW.crx
+    https://browserplugins.chickahoona.com/dist/chrome/psono.PW.crx
     
-2. Rename ***sanso.PW.crx*** to ***something.zip***
+2. Rename ***psono.PW.crx*** to ***something.zip***
 
 3. Unpack ***something.zip*** into a folder of your choice ***"folder/of/your/choice"***
     
@@ -25,7 +25,7 @@ The extension should now be loaded
 
 1. Click on the following link:
 
-    https://browserplugins.chickahoona.com/dist/firefox/sanso.PW.xpi
+    https://browserplugins.chickahoona.com/dist/firefox/psono.PW.xpi
     
     (You will be asked (at the top left) if you want to allow this extension to be installed which you have to permit)
     
@@ -54,7 +54,7 @@ The extension should now be loaded
 
     (make sure to run gulp without parameter first)
     
-    After this command you will find in ./dist/chrome/sanso.PW.crx (and ./dist/chrome/sanso.PW.update.xml)
+    After this command you will find in ./dist/chrome/psono.PW.crx (and ./dist/chrome/psono.PW.update.xml)
         
 4. Pack Firefox extension for release
 
@@ -62,14 +62,14 @@ The extension should now be loaded
 
     (make sure to run gulp without parameter first)
     
-    After this command you will find ./dist/firefox/sanso.PW.xpi (and the unsigned version
-    ./dist/firefox/sanso.PW.unsigned.xpi)
+    After this command you will find ./dist/firefox/psono.PW.xpi (and the unsigned version
+    ./dist/firefox/psono.PW.unsigned.xpi)
     
     If you do not want to create an official signed version and only want to create the unsigned version you can do:
     
         gulp xpiunsigned
         
-    Only ./dist/firefox/sanso.PW.unsigned.xpi will be created.
+    Only ./dist/firefox/psono.PW.unsigned.xpi will be created.
         
 5. (optional) Pack chrome and firefox for release
         

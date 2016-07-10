@@ -7,13 +7,13 @@
             'angular-complexify', 'datatables'])
         .constant('BACKEND_SERVERS', [
             {
-                title: 'Sanso.pw', url: 'https://www.sanso.pw'
+                title: 'Psono.pw', url: 'https://www.psono.pw'
             },
             {
-                title: 'Dev Sanso.pw', url: 'https://dev.sanso.pw'
+                title: 'Dev Psono.pw', url: 'https://dev.psono.pw'
             },
             {
-                title: 'Dev2 Sanso.pw', url: 'http://dev.sanso.pw:8001'
+                title: 'Dev2 Psono.pw', url: 'http://dev.psono.pw:8001'
             }
         ]);
 

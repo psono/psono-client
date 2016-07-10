@@ -18,7 +18,11 @@
             };
 
             var onSuccess = function(content) {
-                return JSON.parse(cryptoLibrary.decrypt_data(content.data.data, content.data.data_nonce, secret_key));
+                return {
+                    data: JSON.parse(cryptoLibrary.decrypt_data(content.data.data, content.data.data_nonce, secret_key)),
+                    user_share_rights: content.data.user_share_rights,
+                    user_share_rights_inherited: content.data.user_share_rights_inherited
+                };
             };
 
             return apiClient.read_share(managerBase.find_one_nolimit('config', 'user_token'), share_id)

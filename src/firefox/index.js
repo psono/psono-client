@@ -86,7 +86,7 @@ panel.port.on('resize', function (data) {
 var openTab = function (data) {
 
     var tab = {
-        url: "resource://sansopw" + data.url
+        url: "resource://psonopw" + data.url
     };
 
     tabs.open(tab);

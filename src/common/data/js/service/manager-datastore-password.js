@@ -8,18 +8,41 @@
          *
          * @param datastore
          * @param path
-         * @param data
+         * @param content
          */
-        var update_paths_with_data = function(datastore, path, data) {
+        var update_paths_with_data = function(datastore, path, content) {
+            var i, l;
             var path_copy = path.slice();
             var search = find_in_datastore(path_copy, datastore);
             var obj = search[0][search[1]];
 
-            for (var prop in data) {
-                if (!data.hasOwnProperty(prop)) {
+            console.log("update_paths_with_data");
+            console.log(obj);
+            obj['share_rights'] = {
+                'read': false,
+                'write': false,
+                'grant': false
+            };
+            if (content.user_share_rights.length > 0) {
+                for (i = 0, l = content.user_share_rights.length; i < l; i++) {
+                    obj['share_rights']['read'] = obj['share_rights']['read'] ||content.user_share_rights[i].read;
+                    obj['share_rights']['write'] = obj['share_rights']['write'] || content.user_share_rights[i].write;
+                    obj['share_rights']['grant'] = obj['share_rights']['grant'] ||content.user_share_rights[i].grant;
+                }
+            } else {
+                for (i = 0, l = content.user_share_rights_inherited.length; i < l; i++) {
+                    obj['share_rights']['read'] = obj['share_rights']['read'] ||content.user_share_rights_inherited[i].read;
+                    obj['share_rights']['write'] = obj['share_rights']['write'] || content.user_share_rights_inherited[i].write;
+                    obj['share_rights']['grant'] = obj['share_rights']['grant'] ||content.user_share_rights_inherited[i].grant;
+                }
+            }
+
+
+            for (var prop in content.data) {
+                if (!content.data.hasOwnProperty(prop)) {
                     continue;
                 }
-                obj[prop] = data[prop];
+                obj[prop] = content.data[prop];
             }
         };
 
@@ -63,12 +86,12 @@
                         }
 
                         all_calls.push((function (share_id, sub_datastore, path) {
-                            var onSuccess = function (data) {
-                                all_share_data[share_id] = data;
+                            var onSuccess = function (content) {
+                                all_share_data[share_id] = content;
 
-                                update_paths_with_data(datastore, path, data);
+                                update_paths_with_data(datastore, path, content);
 
-                                read_shares_recursive(sub_datastore, share_rights_dict, data.share_index, all_share_data);
+                                read_shares_recursive(sub_datastore, share_rights_dict, content.data.share_index, all_share_data);
                                 open_calls--;
                             };
 
@@ -240,6 +263,7 @@
 
                     delete duplicate.share_id;
                     delete duplicate.secret_key;
+                    delete duplicate.share_rights;
 
                     managerShare.write_share(share_id, duplicate, secret_key);
                 }

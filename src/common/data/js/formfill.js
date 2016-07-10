@@ -101,7 +101,7 @@
             if (getDistance(evt) < 30) {
 
                 var dropcontent = '';
-                dropcontent += '<div class="sanso-pw-drop-content-inner">';
+                dropcontent += '<div class="psono-pw-drop-content-inner">';
                 dropcontent += '<ul class="navigations">';
                 dropcontent += '<li><a href="#">Open Datastore</a></li>';
                 for (var i = 0; i < website_passwords.length; i++) {
@@ -115,7 +115,7 @@
                 var dropInstance = new Drop({
                     target: evt.target,
                     content: dropcontent,
-                    classes: 'sanso-pw-drop-theme-arrows yui3-cssreset',
+                    classes: 'psono-pw-drop-theme-arrows yui3-cssreset',
                     position: 'bottom left',
                     openOn: null
                 });
@@ -125,7 +125,7 @@
 
                 setTimeout(function(){
 
-                    $( ".sanso-pw-drop-content-inner .request-secret" ).on( "click", function() {
+                    $( ".psono-pw-drop-content-inner .request-secret" ).on( "click", function() {
                         requestSecret($(this).attr('data-secret-id'));
                     });
                     $(window).one("click", close);
