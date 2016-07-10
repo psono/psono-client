@@ -620,13 +620,40 @@
             $scope.routeParams = $routeParams;
             $scope.shares = [];
 
+            // populates the the data with all shares
+
+            var onSuccess = function (data) {
+                $scope.shares = data.shares;
+            };
+            var onError = function (data) {
+                //pass
+            };
+            managerShare.read_shares().then(onSuccess, onError);
+
+            /**
+             * Helper function to remove a specified item from the pending shares list
+             *
+             * @param item
+             * @param shares
+             */
+            var remove_item_from_pending_list = function (item, shares) {
+
+                for (var i = 0, l = shares.length; i < l; i++) {
+                    if (shares[i].id !== item.id) {
+                        continue;
+                    }
+                    shares.splice(i, 1);
+                }
+            };
+
 
             /**
              * accepts a share offer
              *
              * @param item
+             * @param shares
              */
-            $scope.accept = function (item) {
+            $scope.accept = function (item, shares) {
 
                 var modalInstance = $modal.open({
                     templateUrl: 'view/modal-accept-share.html',
@@ -659,13 +686,15 @@
                             // find drop zone
                             var val1 = managerDatastorePassword.find_in_datastore(breadcrumbs.id_breadcrumbs, datastore);
                             target = val1[0][val1[1]];
-                            var parent_share = managerShare.get_closest_parent_share(path_copy, datastore, datastore, 1);
+
+                            // get the parent (share or datastore)
+                            var parent_share = managerShare.get_closest_parent_share(path_copy, datastore, datastore, 0);
                             if (parent_share.hasOwnProperty("datastore_id")) {
                                 datastore_id = parent_share.datastore_id;
                             } else if (parent_share.hasOwnProperty("share_id")){
                                 parent_share_id = parent_share.share_id;
                             } else {
-                                alert("Wupis, that should not happen: d6da43af-e0f5-46ba-ae5b-d7e5ccd2fa92")
+                                alert("Wupsi, that should not happen: d6da43af-e0f5-46ba-ae5b-d7e5ccd2fa92")
                             }
                         } else {
                             path = [];
@@ -705,13 +734,13 @@
                             changed_paths.push(parent_path);
                             
                             managerDatastorePassword.save_datastore(datastore, changed_paths);
+
+                            remove_item_from_pending_list(item, shares);
                         };
 
                         var onError = function (data) {
                             //pass
                         };
-                        console.log("datastore_id");
-                        console.log(datastore_id);
 
                         managerShare.accept_share_right(item.share_right_id, item.share_right_key,
                             item.share_right_key_nonce, breadcrumbs.user.data.user_public_key, link_id, parent_share_id,
@@ -736,30 +765,16 @@
              * declines a share offer
              *
              * @param item
+             * @param shares
              */
-            $scope.decline = function (item) {
+            $scope.decline = function (item, shares) {
                 managerShare.decline_share_right(item.share_right_id);
-                for (var i = 0, l = $scope.shares.length; i < l; i++) {
-                    if ($scope.shares[i].id !== item.id) {
-                        continue;
-                    }
-                    $scope.shares.splice(i, 1);
-                }
+                remove_item_from_pending_list(item, shares);
             };
 
             $scope.pendingApprovalFilter = function (item) {
                 return item.share_right_accepted === null;
             };
-
-            // populates the the data with all shares
-
-            var onSuccess = function (data) {
-                $scope.shares = data.shares;
-            };
-            var onError = function (data) {
-                //pass
-            };
-            managerShare.read_shares().then(onSuccess, onError);
         }]);
 
     /**

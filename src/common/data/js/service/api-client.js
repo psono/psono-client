@@ -677,18 +677,16 @@
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
          * @param {uuid} link_id - the link id
-         * @param {uuid} share_id - the share ID
          * @param {uuid} [new_parent_share_id=null] - optional new parent share ID, necessary if no new_datastore_id is provided
-         * @param {uuid} [new_datastore_id=null] - optional new datastore ID, necessary if no new_parent_share_id is provided
+         * @param {uuid} [new_parent_datastore_id=null] - optional new datastore ID, necessary if no new_parent_share_id is provided
          * @returns {promise}
          */
-        var move_link = function (token, link_id, share_id, new_parent_share_id, new_datastore_id) {
+        var move_link = function (token, link_id, new_parent_share_id, new_parent_datastore_id) {
             var endpoint = '/share/link/' + link_id + '/';
             var connection_type = "POST";
             var data = {
-                share_id: share_id,
                 new_parent_share_id: new_parent_share_id,
-                new_datastore_id: new_datastore_id
+                new_parent_datastore_id: new_parent_datastore_id
             };
             var headers = {
                 "Authorization": "Token "+ token

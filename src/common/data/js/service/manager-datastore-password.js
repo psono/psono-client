@@ -566,14 +566,11 @@
             return changed_paths
         };
 
-
-
-
         /**
          * triggered once a new share is deleted. Searches the datastore for the closest share (or the datastore if no
          * share) and removes it from the share_index
          *
-         * @param share_id
+         * @param share_id the share_id to delete
          * @param path path to the deleted share
          * @param datastore
          * @param distance
@@ -585,52 +582,41 @@
             var parent_share = managerShare.get_closest_parent_share(path_copy, datastore, datastore, distance);
             var relative_path = get_relative_path(parent_share, path.slice());
 
+            /**
+             * The function that actually adjusts the share_index object and deletes the shares
+             *
+             * @param share the share holding the share_index
+             * @param share_id the share_id of the share, that we want to remove from the share_index
+             * @param relative_path the relative path inside the share
+             */
+            var delete_from_share_index = function(share, share_id, relative_path) {
 
-            console.log(share_id);
-            console.log(path);
-            console.log(datastore);
-            console.log(distance);
-            console.log(parent_share);
-            console.log(relative_path);
-
-            var delete_from_share_index = function(share, share_id, relative_path, allow_multiples) {
-
-                console.log("delete_from_share_index");
                 var already_found = false;
 
                 for (var i = 0, l = share.share_index[share_id].paths.length; i < l; i++) {
+                    // delete the path from the share index entry
                     if (helper.array_starts_with(share.share_index[share_id].paths[i], relative_path)) {
                         share.share_index[share_id].paths.splice(i, 1);
                         already_found = true;
                     }
+                    // if no paths are empty, we delete the whole share_index entry
                     if (share.share_index[share_id].paths.length == 0) {
                         delete share.share_index[share_id];
                     }
+                    // if the share_index holds no entries anymore, we delete the share_index
                     if (Object.keys(share.share_index).length == 0) {
                         delete share.share_index;
                     }
                     
-                    if (!allow_multiples && already_found) {
-                        break;
+                    if (already_found) {
+                        return;
                     }
                 }
             };
 
-            if (share_id === null) {
-                // we have to check all shares
-                for (share_id in parent_share.share_index) {
-                    if (!parent_share.share_index.hasOwnProperty(share_id)){
-                        continue;
-                    }
-                    delete_from_share_index(parent_share, share_id, relative_path, true);
+            // Share_id specified, so lets delete the specified one
+            delete_from_share_index(parent_share, share_id, relative_path);
 
-                }
-            } else if (typeof(parent_share.share_index) !== 'undefined'
-                && typeof(parent_share.share_index[share_id]) !== 'undefined') {
-                delete_from_share_index(parent_share, share_id, relative_path, false);
-            }
-
-            // TODO trigger share delete on server. server deletes share if nonce has access rights.
             return [path]
         };
 
@@ -646,7 +632,6 @@
          * @returns {*[]} paths to update
          */
         var on_share_moved = function(share_id, old_path, new_path, datastore, add_distance, delete_distance) {
-
 
             var paths_updated1 = on_share_added(share_id, new_path, datastore, add_distance);
             var paths_updated2 = on_share_deleted(share_id, old_path, datastore, delete_distance);

@@ -433,8 +433,6 @@
              */
             $scope.save = function () {
 
-                console.log("sexy");
-
                 if ($scope.newEntryForm.$invalid) {
                     return;
                 }

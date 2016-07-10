@@ -208,7 +208,6 @@
             };
 
             var onSuccess = function(content) {
-                console.log(content);
                 return {share_right_id: content.data.share_right_id};
             };
 
@@ -238,8 +237,6 @@
             };
 
             var onSuccess = function(content) {
-                console.log(content);
-                console.log(typeof content.data.share_data !== "undefined");
                 var share = {};
                 if (typeof content.data.share_data !== "undefined") {
                     share = JSON.parse(cryptoLibrary.decrypt_data(content.data.share_data,

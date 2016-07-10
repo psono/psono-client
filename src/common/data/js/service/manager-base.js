@@ -34,13 +34,13 @@
         };
         
         /**
-         * Privat function, that will return the object with the specified key from the specified db
+         * "Private" function, that will return the object with the specified key from the specified db
+         * May only be used in "managers"
          *
          * @param db
          * @param key
          *
          * @returns {*}
-         * @private
          */
         var find_one_nolimit = function(db, key) {
 
