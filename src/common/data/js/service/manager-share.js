@@ -41,6 +41,17 @@
             };
 
             var onSuccess = function(content) {
+
+                for (var i = 0, l = content.data.shares.length; i < l; i++) {
+                    if (content.data.shares[i].share_right_title != '') {
+                        content.data.shares[i].share_right_title = managerBase.decrypt_private_key(
+                            content.data.shares[i].share_right_title,
+                            content.data.shares[i].share_right_title_nonce,
+                            content.data.shares[i].share_right_create_user_public_key
+                        )
+                    }
+                }
+
                 return content.data;
             };
 
@@ -64,8 +75,9 @@
 
             var json_content = JSON.stringify(content);
 
-            var c = cryptoLibrary.encrypt_data(json_content, secret_key);
-            return apiClient.write_share(managerBase.find_one_nolimit('config', 'user_token'), share_id, c.text, c.nonce);
+            var encrypted_data = cryptoLibrary.encrypt_data(json_content, secret_key);
+            return apiClient.write_share(managerBase.find_one_nolimit('config', 'user_token'), share_id,
+                encrypted_data.text, encrypted_data.nonce);
         };
 
         /**
@@ -88,8 +100,8 @@
 
             var json_content = JSON.stringify(content);
 
-            var c = cryptoLibrary.encrypt_data(json_content, secret_key);
-            var c2 = managerBase.encrypt_secret_key(secret_key);
+            var encrypted_data = cryptoLibrary.encrypt_data(json_content, secret_key);
+            var encrypted_key = managerBase.encrypt_secret_key(secret_key);
 
             var onError = function(result) {
                 // pass
@@ -99,8 +111,8 @@
                 return {share_id: content.data.share_id, secret_key: secret_key};
             };
 
-            return apiClient.create_share(managerBase.find_one_nolimit('config', 'user_token'), c.text,
-                c.nonce, c2.text, c2.nonce, parent_share_id, datastore_id, link_id)
+            return apiClient.create_share(managerBase.find_one_nolimit('config', 'user_token'), encrypted_data.text,
+                encrypted_data.nonce, encrypted_key.text, encrypted_key.nonce, parent_share_id, datastore_id, link_id)
                 .then(onSuccess, onError);
         };
 
@@ -166,10 +178,11 @@
                 return {share_right_id: content.data.share_right_id};
             };
 
-            var c = managerBase.encrypt_private_key(key, user_public_key);
+            var encrypted_key = managerBase.encrypt_private_key(key, user_public_key);
+            var encrypted_title = managerBase.encrypt_private_key(title, user_public_key);
 
-            return apiClient.create_share_right(managerBase.find_one_nolimit('config', 'user_token'), title,
-                share_id, user_id, c.text, c.nonce, read, write, grant)
+            return apiClient.create_share_right(managerBase.find_one_nolimit('config', 'user_token'), encrypted_title.text,
+                encrypted_title.nonce, share_id, user_id, encrypted_key.text, encrypted_key.nonce, read, write, grant)
                 .then(onSuccess, onError);
         };
 
@@ -253,10 +266,10 @@
                 return share;
             };
 
-            var c = managerBase.encrypt_secret_key(secret_key);
+            var encrypted_key = managerBase.encrypt_secret_key(secret_key);
 
             return apiClient.accept_share_right(managerBase.find_one_nolimit('config', 'user_token'), share_right_id,
-                c.text, c.nonce, link_id, parent_share_id, parent_datastore_id)
+                encrypted_key.text, encrypted_key.nonce, link_id, parent_share_id, parent_datastore_id)
                 .then(onSuccess, onError);
         };
 

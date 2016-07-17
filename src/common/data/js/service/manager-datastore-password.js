@@ -16,8 +16,6 @@
             var search = find_in_datastore(path_copy, datastore);
             var obj = search[0][search[1]];
 
-            console.log("update_paths_with_data");
-            console.log(obj);
             obj['share_rights'] = {
                 'read': false,
                 'write': false,
