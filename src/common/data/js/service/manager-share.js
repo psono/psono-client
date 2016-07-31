@@ -42,7 +42,7 @@
 
             var onSuccess = function(content) {
 
-                for (var i = 0, l = content.data.shares.length; i < l; i++) {
+                for (var i = content.data.shares.length - 1; i >= 0; i--) {
                     if (content.data.shares[i].share_right_title != '') {
                         content.data.shares[i].share_right_title = managerBase.decrypt_private_key(
                             content.data.shares[i].share_right_title,

@@ -77,7 +77,7 @@
          * @param event
          */
         var close = function (event) {
-            for (var i = 0; i < dropInstances.length; i++) {
+            for (var i = dropInstances.length - 1; i >= 0; i--) {
                 if(dropInstances[i].drop.contains(event.target)) {
                     continue;
                 }

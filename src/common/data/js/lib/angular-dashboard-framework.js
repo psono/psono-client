@@ -77,7 +77,7 @@
              */
             function findWidget(column, index){
                 var widget = null;
-                for (var i=0; i<column.widgets.length; i++){
+                for (var i = column.widgets.length - 1; i >= 0; i--) {
                     var w = column.widgets[i];
                     if (w.wid === index){
                         widget = w;
@@ -92,7 +92,7 @@
              */
             function findColumn(model, index){
                 var column = null;
-                for (var i=0; i<model.rows.length; i++){
+                for (var i = model.rows.length - 1; i >= 0; i--) {
                     var r = model.rows[i];
                     for (var j=0; j<r.columns.length; j++){
                         var c = r.columns[j];
@@ -370,7 +370,7 @@
                     $log.error('model does not have any rows');
                     return null;
                 }
-                for (var i=0; i<model.rows.length; i++){
+                for (var i = model.rows.length - 1; i >= 0; i--) {
                     var row = model.rows[i];
                     if (angular.isArray(row.columns)){
                         for (var j=0; j<row.columns.length; j++){
@@ -668,7 +668,7 @@
              *      injected.
              *
              *      The map object is:
-             *      - `key` – `{string}`: a name of a dependency to be injected into the controller.
+             *      - `key` ï¿½ `{string}`: a name of a dependency to be injected into the controller.
              *      - `factory` - `{string|function}`: If `string` then it is an alias for a service.
              *        Otherwise if function, then it is {@link http://docs.angularjs.org/api/AUTO.$injector#invoke injected}
              *        and the return value is treated as the dependency. If the result is a promise, it is

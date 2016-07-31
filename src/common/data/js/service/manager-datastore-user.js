@@ -36,7 +36,7 @@
 
             var priv_key_enc = cryptoLibrary.encrypt_secret(pair.private_key, password, user_sauce);
             var secret_key_enc = cryptoLibrary
-                .encrypt_secret(cryptoLibrary.generate_secret_key(),password, user_sauce);
+                .encrypt_secret(cryptoLibrary.generate_secret_key(), password, user_sauce);
 
             var onSuccess = function () {
 
@@ -286,7 +286,7 @@
 
                 helper.create_list(user_data_store, users);
 
-                for (var i = 0, l = users.length; i < l; i++) {
+                for (var i = users.length - 1; i >= 0; i--) {
 
                     if (users[i].data.user_id == user_id) {
                         id_match = users[i];

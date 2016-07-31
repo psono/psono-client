@@ -2,7 +2,7 @@
     'use strict';
 
 
-    var itemBlueprint = function($window, $modal, helper) {
+    var itemBlueprint = function($rootScope, $window, $modal, helper) {
 
         var _default = "website_password";
 
@@ -251,13 +251,11 @@
 
                             registrations['get_password_datastore'](true).then(function(datastore) {
 
-                                console.log("get_password_datastore returned");
-
                                 var path = content.path.slice();
                                 var parent_share = registrations['get_closest_parent_share'](path, datastore, null, 0);
                                 var parent_share_id = null;
                                 var datastore_id = null;
-                                if (parent_share != null) {
+                                if (parent_share !== false) {
                                     parent_share_id = parent_share.share_id;
                                 } else {
                                     datastore_id = datastore.datastore_id;
@@ -265,6 +263,8 @@
 
                                 // create the share
                                 registrations['create_share'](content.node, parent_share_id, datastore_id, content.node.id).then(function (share_details) {
+
+                                    console.log(share_details);
 
                                     var item_path = content.path.slice();
                                     var item_path_copy = content.path.slice();
@@ -519,6 +519,6 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("itemBlueprint", ['$window', '$modal', 'helper', itemBlueprint]);
+    app.factory("itemBlueprint", ['$rootScope', '$window', '$modal', 'helper', itemBlueprint]);
 
 }(angular));

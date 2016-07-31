@@ -638,7 +638,7 @@
              */
             var remove_item_from_pending_list = function (item, shares) {
 
-                for (var i = 0, l = shares.length; i < l; i++) {
+                for (var i = shares.length - 1; i >= 0; i--) {
                     if (shares[i].id !== item.id) {
                         continue;
                     }

@@ -92,7 +92,7 @@
                         user_object.name = shareBlueprint.get_blueprint(content.id).getName(content.fields);
                     }
 
-                    for (var i = 0; i < content.fields.length; i++) {
+                    for (var i = content.fields.length - 1; i >= 0; i--) {
 
                         if (!content.fields[i].hasOwnProperty("value")) {
                             continue;
@@ -155,7 +155,7 @@
                     }
 
                     // lets loop all input fields
-                    for (var i = 0; i < content.fields.length; i++) {
+                    for (var i = content.fields.length - 1; i >= 0; i--) {
 
                         // skips all fields without a value set
                         if (!content.fields[i].hasOwnProperty("value")) {
@@ -471,7 +471,7 @@
                 selected: shareBlueprint.get_blueprint(node.type)
             };
 
-            for (var i = 0; i < $scope.bp.selected.fields.length; i++) {
+            for (var i = $scope.bp.selected.fields.length - 1; i >= 0; i--) {
                 if (data.hasOwnProperty($scope.bp.selected.fields[i].name)) {
                     $scope.bp.selected.fields[i].value = data[$scope.bp.selected.fields[i].name];
                 }

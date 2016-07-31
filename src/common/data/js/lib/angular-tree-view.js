@@ -86,7 +86,7 @@
                     var show = false;
 
                     var i, ii;
-                    for (i = 0; searchTree.folders && i < searchTree.folders.length; i++) {
+                    for (i = searchTree.folders.length - 1; searchTree.folders && i >= 0; i--) {
                         show = markSearchedNodesInvisible(newValue, oldValue, searchTree.folders[i]) || show;
                     }
 
@@ -95,9 +95,9 @@
 
                     // Test title of the items
                     var containCounter = 0;
-                    for (i = 0; searchTree.items && i < searchTree.items.length; i++) {
+                    for (i = searchTree.items.length - 1; searchTree.items && i >= 0; i--) {
                         containCounter = 0;
-                        for (ii = 0; ii < searchStrings.length; ii++) {
+                        for (ii = searchStrings.length - 1; ii >= 0; ii--) {
                             if (searchTree.items[i].name.toLowerCase().indexOf(searchStrings[ii]) > -1) {
                                 containCounter++
                             }
@@ -112,7 +112,7 @@
                     // Test title of the folder
                     if (typeof searchTree.name !== 'undefined') {
                         containCounter = 0;
-                        for (ii = 0; ii < searchStrings.length; ii++) {
+                        for (ii = searchStrings.length - 1; ii >= 0; ii--) {
                             if (searchTree.name.toLowerCase().indexOf(searchStrings[ii]) > -1) {
                                 containCounter++
                             }

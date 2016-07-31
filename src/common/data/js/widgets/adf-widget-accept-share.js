@@ -94,7 +94,7 @@
                         datastore_object.name = itemBlueprint.get_blueprint(content.id).getName(content.fields);
                     }
 
-                    for (var i = 0; i < content.fields.length; i++) {
+                    for (var i = content.fields.length - 1; i >= 0; i--) {
 
                         if (!content.fields[i].hasOwnProperty("value")) {
                             continue;
@@ -171,7 +171,7 @@
 
                         var secret_object = {};
 
-                        for (var i = 0; i < content.fields.length; i++) {
+                        for (var i = content.fields.length - 1; i >= 0; i--) {
 
                             if (!content.fields[i].hasOwnProperty("value")) {
                                 continue;
@@ -223,7 +223,7 @@
                             continue;
                         }
 
-                        for (var i = 0, l = share.share_index[share_id].paths.length; i < l; i++) {
+                        for (var i = share.share_index[share_id].paths.length - 1; i >= 0; i--) {
                             var path_copy = share.share_index[share_id].paths[i].slice();
                             var search = managerDatastorePassword.find_in_datastore(path_copy, share);
 
@@ -557,7 +557,7 @@
                 selected: itemBlueprint.get_blueprint(node.type)
             };
 
-            for (var i = 0; i < $scope.bp.selected.fields.length; i++) {
+            for (var i = $scope.bp.selected.fields.length - 1; i >= 0; i--) {
                 if (data.hasOwnProperty($scope.bp.selected.fields[i].name)) {
                     $scope.bp.selected.fields[i].value = data[$scope.bp.selected.fields[i].name];
                 }
@@ -624,7 +624,7 @@
             $scope.selected_rights = [];
 
             // fills selected_rights array with the default values
-            for (var i = 0, l = $scope.rights.length; i < l; i++) {
+            for (var i = $scope.rights.length - 1; i >= 0; i--) {
                 if ($scope.rights[i].default_value) {
                     $scope.selected_rights.push($scope.rights[i].id);
                 }
@@ -670,7 +670,7 @@
                                 user_object.name = shareBlueprint.get_blueprint(content.id).getName(content.fields);
                             }
 
-                            for (var i = 0; i < content.fields.length; i++) {
+                            for (var i = content.fields.length - 1; i >= 0; i--) {
 
                                 if (!content.fields[i].hasOwnProperty("value")) {
                                     continue;
@@ -790,7 +790,9 @@
              */
             $scope.delete = function (right) {
 
-                for (var i = 0, l = share_details.user_share_rights.length; i < l; i++) {
+                for (var i = share_details.length - 1; i >= 0; i--) {
+                    console.log(share_details);
+
                     if (share_details.user_share_rights[i].id !== right.id) {
                         continue;
                     }

@@ -93,7 +93,7 @@
                         datastore_object.name = itemBlueprint.get_blueprint(content.id).getName(content.fields);
                     }
 
-                    for (var i = 0; i < content.fields.length; i++) {
+                    for (var i = content.fields.length - 1; i >= 0; i--) {
 
                         if (!content.fields[i].hasOwnProperty("value")) {
                             continue;
@@ -170,7 +170,7 @@
 
                         var secret_object = {};
 
-                        for (var i = 0; i < content.fields.length; i++) {
+                        for (var i = content.fields.length - 1; i >= 0; i--) {
 
                             if (!content.fields[i].hasOwnProperty("value")) {
                                 continue;
@@ -279,7 +279,7 @@
                 }
 
                 // lets update for every child_share the share_index
-                for (i = 0, l = child_shares.length; i < l; i++) {
+                for (i = child_shares.length - 1; i >= 0; i--) {
                     managerDatastorePassword.on_share_moved(
                         child_shares[i].share.share_id, item_path_copy.concat(child_shares[i].path),
                         target_path_copy.concat(child_shares[i].path), scope.structure.data, 1,
@@ -290,7 +290,7 @@
                 managerDatastorePassword.save_datastore(scope.structure.data, [orig_item_path, orig_target_path]);
 
                 // adjust the links for every child_share (and therefore update the rights)
-                for (i = 0, l = child_shares.length; i < l; i++) {
+                for (i = child_shares.length - 1; i >= 0; i--) {
                     managerLink.on_share_moved(
                         child_shares[i].share.id,
                         managerShare.get_closest_parent_share(target_path_copy.concat(child_shares[i].path),
@@ -334,7 +334,7 @@
                 }
 
                 // lets update for every child_share the share_index
-                for (i = 0, l = child_shares.length; i < l; i++) {
+                for (i = child_shares.length - 1; i >= 0; i--) {
                     managerDatastorePassword.on_share_deleted(
                         child_shares[i].share.share_id, item_path_copy.concat(child_shares[i].path),
                         scope.structure.data,
@@ -345,7 +345,7 @@
                 managerDatastorePassword.save_datastore(scope.structure.data, [element_path_that_changed]);
 
                 // adjust the links for every child_share (and therefore update the rights)
-                for (i = 0, l = child_shares.length; i < l; i++) {
+                for (i = child_shares.length - 1; i >= 0; i--) {
                     managerLink.on_share_deleted(child_shares[i].share.id);
                 }
             };
@@ -570,7 +570,7 @@
                 selected: itemBlueprint.get_blueprint(node.type)
             };
 
-            for (var i = 0; i < $scope.bp.selected.fields.length; i++) {
+            for (var i = $scope.bp.selected.fields.length - 1; i >= 0; i--) {
                 if (data.hasOwnProperty($scope.bp.selected.fields[i].name)) {
                     $scope.bp.selected.fields[i].value = data[$scope.bp.selected.fields[i].name];
                 }
@@ -637,7 +637,7 @@
             $scope.selected_rights = [];
 
             // fills selected_rights array with the default values
-            for (var i = 0, l = $scope.rights.length; i < l; i++) {
+            for (var i = $scope.rights.length - 1; i >= 0; i--) {
                 if ($scope.rights[i].initial_value) {
                     $scope.selected_rights.push($scope.rights[i].id);
                 }
@@ -681,7 +681,7 @@
                                 user_object.name = shareBlueprint.get_blueprint(content.id).getName(content.fields);
                             }
 
-                            for (var i = 0; i < content.fields.length; i++) {
+                            for (var i = content.fields.length - 1; i >= 0; i--) {
 
                                 if (!content.fields[i].hasOwnProperty("value")) {
                                     continue;
@@ -801,7 +801,7 @@
              */
             $scope.delete = function (right) {
 
-                for (var i = 0, l = share_details.user_share_rights.length; i < l; i++) {
+                for (var i = share_details.user_share_rights.length - 1; i >= 0; i--) {
                     if (share_details.user_share_rights[i].id !== right.id) {
                         continue;
                     }

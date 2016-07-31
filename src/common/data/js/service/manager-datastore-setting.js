@@ -14,7 +14,7 @@
 
             var onSuccess = function (results) {
 
-                for (var i = 0; i < results.length; i++) {
+                for (var i = results.length - 1; i >= 0; i--) {
                     var s = storage.find_one('settings', {key: results[i].key});
                     if (s !== null) {
                         s.value = results[i].value;

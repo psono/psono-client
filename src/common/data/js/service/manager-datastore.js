@@ -1,11 +1,10 @@
 (function(angular) {
     'use strict';
 
-    var managerDatastore = function($q, $timeout, managerBase, apiClient, cryptoLibrary, storage, helper) {
+    var managerDatastore = function($q, $timeout, browserClient, managerBase, apiClient, cryptoLibrary, storage, helper) {
 
         var temp_datastore_key_storage = {};
         var temp_datastore_overview = false;
-
 
         /**
          * Returns the overview of all datastores that belong to this user
@@ -365,6 +364,14 @@
                 .then(onSuccess, onError);
         };
 
+        var on_logout = function () {
+            temp_datastore_key_storage = {};
+            temp_datastore_overview = false;
+        };
+
+        browserClient.on("logout", on_logout);
+
+
         return {
             get_datastore_overview: get_datastore_overview,
             get_datastore_id: get_datastore_id,
@@ -380,6 +387,6 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("managerDatastore", ['$q', '$timeout', 'managerBase', 'apiClient', 'cryptoLibrary', 'storage', 'helper', managerDatastore]);
+    app.factory("managerDatastore", ['$q', '$timeout', 'browserClient', 'managerBase', 'apiClient', 'cryptoLibrary', 'storage', 'helper', managerDatastore]);
 
 }(angular));

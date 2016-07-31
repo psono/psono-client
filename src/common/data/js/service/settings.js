@@ -62,7 +62,7 @@
                     return s.value;
                 } else {
                     // not found in storage, lets look for a default value, otherwise return null
-                    for (var i = 0; i < _settings.length; i++) {
+                    for (var i = _settings.length - 1; i >= 0; i--) {
                         if (_settings[i].key === key) {
                             if (typeof _settings[i].default !== 'undefined') {
                                 return _settings[i].default
@@ -83,7 +83,7 @@
          */
         var get_settings = function() {
 
-            for (var i = 0; i < _settings.length; i++) {
+            for (var i = _settings.length - 1; i >= 0; i--) {
                 _settings[i].value = get_setting(_settings[i].key)
             }
             return _settings;
@@ -119,7 +119,7 @@
             if (typeof value !== 'undefined') {
                 _set_setting(key, value);
             } else {
-                for (var i = 0; i < key.length; i++) {
+                for (var i = key.length - 1; i >= 0; i--) {
                     _set_setting(key[i].key, key[i].value);
                 }
             }
@@ -150,7 +150,7 @@
                 var specials = {};
 
                 // lets search our settings for the interesting settings
-                for (var i = 0; i < _settings.length; i++) {
+                for (var i = _settings.length - 1; i >= 0; i--) {
                     if (_config_settings.indexOf(_settings[i].key) > -1) {
                         specials[_settings[i].key] = _settings[i];
                     }
@@ -161,7 +161,7 @@
 
                 var totalSuccess = function() {
 
-                    for (var i = 0; i < _config_settings.length; i++) {
+                    for (var i = _config_settings.length - 1; i >= 0; i--) {
                         specials[_config_settings[i]].value = '';
                     }
                     set_settings(_settings);

@@ -30,7 +30,7 @@
 
     loki_storage.loadDatabase({}, function () {
 
-        for(var i = 0; i < dbconfig.length; i++) {
+        for (var i = dbconfig.length - 1; i >= 0; i--) {
 
             dbs[dbconfig[i].name] = loki_storage.getCollection(dbconfig[i].name);
 
@@ -106,7 +106,7 @@
                     return true;
                 })
             } else {
-                for(var i = 0; i < dbconfig.length; i++) {
+                for (var i = dbconfig.length - 1; i >= 0; i--) {
                     dbs[dbconfig[i].name].removeWhere(function() {
                         return true;
                     })

@@ -35,7 +35,7 @@
             if (!registrations.hasOwnProperty(event)){
                 return;
             }
-            for(var i = 0, l = registrations[event].length; i < l; i++) {
+            for (var i = registrations[event].length - 1; i >= 0; i--) {
                 registrations[event][i](data);
             }
         };

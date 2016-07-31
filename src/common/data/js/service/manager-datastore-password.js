@@ -22,13 +22,13 @@
                 'grant': false
             };
             if (content.user_share_rights.length > 0) {
-                for (i = 0, l = content.user_share_rights.length; i < l; i++) {
+                for (i = content.user_share_rights.length - 1; i >= 0; i--) {
                     obj['share_rights']['read'] = obj['share_rights']['read'] ||content.user_share_rights[i].read;
                     obj['share_rights']['write'] = obj['share_rights']['write'] || content.user_share_rights[i].write;
                     obj['share_rights']['grant'] = obj['share_rights']['grant'] ||content.user_share_rights[i].grant;
                 }
             } else {
-                for (i = 0, l = content.user_share_rights_inherited.length; i < l; i++) {
+                for (i = content.user_share_rights_inherited.length - 1; i >= 0; i--) {
                     obj['share_rights']['read'] = obj['share_rights']['read'] ||content.user_share_rights_inherited[i].read;
                     obj['share_rights']['write'] = obj['share_rights']['write'] || content.user_share_rights_inherited[i].write;
                     obj['share_rights']['grant'] = obj['share_rights']['grant'] ||content.user_share_rights_inherited[i].grant;
@@ -68,7 +68,7 @@
                         continue;
                     }
 
-                    for (var i = 0, l = share_index[share_id].paths.length; i < l; i++) {
+                    for (var i = share_index[share_id].paths.length - 1; i >= 0; i--) {
                         var path_copy = share_index[share_id].paths[i].slice();
                         var search = find_in_datastore(path_copy, datastore);
                         var sub_datastore = search[0][search[1]];
@@ -107,8 +107,8 @@
 
             read_shares_recursive(datastore, share_rights_dict, share_index, all_share_data);
 
-            return $q.all(all_calls).then(function (ret) {
-                if (blocking) {
+            if (blocking) {
+                return $q.all(all_calls).then(function (ret) {
                     return $q(function(resolve) {
                         $rootScope.$watch(function() {
                             return open_calls;
@@ -118,10 +118,10 @@
                             }
                         });
                     });
-                } else {
-                    return datastore;
-                }
-            });
+                });
+            } else {
+                return datastore;
+            }
         };
 
         /**
@@ -138,7 +138,7 @@
                     continue;
                 }
 
-                for (var i = 0, l = share.share_index[share_id].paths.length; i < l; i++) {
+                for (var i = share.share_index[share_id].paths.length - 1; i >= 0; i--) {
                     var path_copy = share.share_index[share_id].paths[i].slice();
                     var search = find_in_datastore(path_copy, share);
 
@@ -176,7 +176,7 @@
                 var onSuccess = function (data) {
 
                     var share_rights_dict = {};
-                    for (var i = 0, l = data.share_rights.length; i < l; i++) {
+                    for (var i = data.share_rights.length - 1; i >= 0; i--) {
                         share_rights_dict[data.share_rights[i].share_id] = data.share_rights[i];
                     }
                     managerDatastore.fill_storage('datastore-password-leafs', datastore, [
@@ -233,7 +233,7 @@
 
             var closest_shares = {};
 
-            for (var i = 0, l = paths.length; i < l; i++) {
+            for (var i = paths.length - 1; i >= 0; i--) {
 
                 var closest_share = managerShare.get_closest_parent_share(paths[i], datastore, datastore, 0);
                 if (typeof closest_share.id === 'undefined') {
@@ -373,7 +373,7 @@
             var i, n, l;
 
             var rest = [];
-            for (i = 0, l = path.length; i < l; i++) {
+            for (i = path.length - 1; i >= 0; i--) {
                 if (i == 0) {
                     to_search = path[i];
                 } else {
@@ -477,7 +477,7 @@
                 relative_path = path_copy;
             } else {
                 var passed = false;
-                for (var i = 0, l = path_copy.length; i < l; i++) {
+                for (var i = path_copy.length - 1; i >= 0; i--) {
                     if (passed) {
                         relative_path.push(path_copy[i]);
                     } else if (share.id == path_copy[i]) {
@@ -527,7 +527,7 @@
             }
 
             var parent_share_path = [];
-            for (i = 0, l = path_copy3.length; i < l; i++) {
+            for (i = path_copy3.length - 1; i >= 0; i--) {
                 if (typeof parent_share.id === 'undefined' || path_copy3[i] === parent_share.id) {
                     break;
                 }
@@ -550,7 +550,7 @@
                     continue;
                 }
 
-                for (i = 0, l = parent_share.share_index[old_share_id].paths.length; i < l; i++) {
+                for (i = parent_share.share_index[old_share_id].paths.length - 1; i >= 0; i--) {
                     if (!helper.array_starts_with(parent_share.share_index[old_share_id].paths[i], relative_path)) {
                         continue;
                     }
@@ -615,7 +615,7 @@
 
                 var already_found = false;
 
-                for (var i = 0, l = share.share_index[share_id].paths.length; i < l; i++) {
+                for (var i = share.share_index[share_id].paths.length - 1; i >= 0; i--) {
                     // delete the path from the share index entry
                     if (helper.array_starts_with(share.share_index[share_id].paths[i], relative_path)) {
                         share.share_index[share_id].paths.splice(i, 1);
