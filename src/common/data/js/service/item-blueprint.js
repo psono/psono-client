@@ -264,8 +264,6 @@
                                 // create the share
                                 registrations['create_share'](content.node, parent_share_id, datastore_id, content.node.id).then(function (share_details) {
 
-                                    console.log(share_details);
-
                                     var item_path = content.path.slice();
                                     var item_path_copy = content.path.slice();
                                     var item_path_copy2 = content.path.slice();
