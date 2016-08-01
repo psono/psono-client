@@ -2,7 +2,7 @@
     'use strict';
 
 
-    var settings = function($q, storage, manager, managerDatastore, cryptoLibrary, apiClient) {
+    var settings = function($q, storage, managerDatastoreUser, managerDatastoreSetting, cryptoLibrary, apiClient) {
 
         var _tabs = [
             //{ key: 'general', title: 'General' },
@@ -62,7 +62,7 @@
                     return s.value;
                 } else {
                     // not found in storage, lets look for a default value, otherwise return null
-                    for (var i = 0; i < _settings.length; i++) {
+                    for (var i = _settings.length - 1; i >= 0; i--) {
                         if (_settings[i].key === key) {
                             if (typeof _settings[i].default !== 'undefined') {
                                 return _settings[i].default
@@ -83,7 +83,7 @@
          */
         var get_settings = function() {
 
-            for (var i = 0; i < _settings.length; i++) {
+            for (var i = _settings.length - 1; i >= 0; i--) {
                 _settings[i].value = get_setting(_settings[i].key)
             }
             return _settings;
@@ -119,7 +119,7 @@
             if (typeof value !== 'undefined') {
                 _set_setting(key, value);
             } else {
-                for (var i = 0; i < key.length; i++) {
+                for (var i = key.length - 1; i >= 0; i--) {
                     _set_setting(key[i].key, key[i].value);
                 }
             }
@@ -135,7 +135,7 @@
                     value: s[k].value
                 });
             }
-            managerDatastore.save_settings_datastore(content);
+            managerDatastoreSetting.save_settings_datastore(content);
             return storage.save();
         };
 
@@ -146,10 +146,11 @@
          */
         var save = function() {
             return $q(function(resolve, reject) {
+                // TODO move this function to managerDatastoreUser as it directly accesses public / private / secret keys
                 var specials = {};
 
                 // lets search our settings for the interesting settings
-                for (var i = 0; i < _settings.length; i++) {
+                for (var i = _settings.length - 1; i >= 0; i--) {
                     if (_config_settings.indexOf(_settings[i].key) > -1) {
                         specials[_settings[i].key] = _settings[i];
                     }
@@ -160,7 +161,7 @@
 
                 var totalSuccess = function() {
 
-                    for (var i = 0; i < _config_settings.length; i++) {
+                    for (var i = _config_settings.length - 1; i >= 0; i--) {
                         specials[_config_settings[i]].value = '';
                     }
                     set_settings(_settings);
@@ -213,7 +214,7 @@
                     var onError = function() {
                         return reject({errors: ['Old password incorrect']})
                     };
-                    return manager.updateUser(specials['setting_email'].value, new_authkey, authkey_old, priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce, user_sauce)
+                    return managerDatastoreUser.update_user(specials['setting_email'].value, new_authkey, authkey_old, priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce, user_sauce)
                         .then(onSucces, onError);
 
 
@@ -232,6 +233,6 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("settings", ['$q', 'storage', 'manager', 'managerDatastore', 'cryptoLibrary', 'apiClient', settings]);
+    app.factory("settings", ['$q', 'storage', 'managerDatastoreUser', 'managerDatastoreSetting', 'cryptoLibrary', 'apiClient', settings]);
 
 }(angular));

@@ -86,7 +86,7 @@ panel.port.on('resize', function (data) {
 var openTab = function (data) {
 
     var tab = {
-        url: "resource://sansopw" + data.url
+        url: "resource://psonopw" + data.url
     };
 
     tabs.open(tab);
@@ -248,6 +248,7 @@ mod.PageMod({
         "./js/lib/scrypt.js",
         "./js/lib/uuid.js",
         "./js/lib/jquery-2.1.4.js",
+        "./js/lib/jquery.dataTables.min.js",
         "./js/lib/snap.min.js",
         "./js/lib/jquery.ui.js",
         "./js/lib/sortable.js",
@@ -267,17 +268,30 @@ mod.PageMod({
         "./js/lib/angular-ui-select.js",
         "./js/lib/ng-context-menu.js",
         "./js/lib/angular-dashboard-framework.js",
+        "./js/lib/angular-datatables.js",
         "./js/widgets/adf-widget-datastore.js",
         "./js/widgets/adf-widget-shareusers.js",
+        "./js/widgets/adf-widget-accept-share.js",
         "./js/main.js",
+        "./js/widgets/adf-dashboard-controller.js",
         "./js/service/api-client.js",
         "./js/service/helper.js",
+        "./js/service/message.js",
         "./js/service/item-blueprint.js",
+        "./js/service/share-blueprint.js",
         "./js/service/crypto-library.js",
         "./js/service/storage.js",
         "./js/service/settings.js",
+        "./js/service/manager-base.js",
         "./js/service/manager.js",
+        "./js/service/manager-adf-widget.js",
         "./js/service/manager-datastore.js",
+        "./js/service/manager-link.js",
+        "./js/service/manager-secret.js",
+        "./js/service/manager-share.js",
+        "./js/service/manager-datastore-password.js",
+        "./js/service/manager-datastore-user.js",
+        "./js/service/manager-datastore-setting.js",
         "./js/service/browser-client.js",
         "./js/service/password-generator.js",
         "./view/templates.js"

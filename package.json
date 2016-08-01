@@ -13,11 +13,14 @@
     "gulp-crx-pack": "^1.0.1",
     "path-extra": "^3.0.0",
     "gulp-cfx-xpi": "0.0.4",
-    "karma": "~0.13.19",
+    "karma": "~0.13.21",
     "karma-chrome-launcher": "~0.2.2",
     "karma-firefox-launcher": "~0.1.7",
     "jasmine-core": "~2.4.1",
     "karma-jasmine": "~0.3.6",
-    "karma-coffee-preprocessor": "~0.3.0"
+    "karma-coffee-preprocessor": "~0.3.0",
+    "phantomjs-prebuilt": "~2.1.4",
+    "karma-phantomjs-launcher": "~1.0.0",
+    "karma-coverage": "~0.5.3"
   }
 }

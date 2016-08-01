@@ -606,7 +606,7 @@ var ClassClient = function (backend, require, jQuery, scrypt_module_factory, sha
     };
 
     /**
-     * Ajax GET request with the token as authentication to get the current user's share
+     * Ajax GET request with the token as authentication to get the content for a single share
      *
      * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
      * @param {uuid} [share_id=null] - the share ID
@@ -615,10 +615,7 @@ var ClassClient = function (backend, require, jQuery, scrypt_module_factory, sha
      */
     this.read_share = function (token, share_id) {
 
-        //optional parameter share_id
-        if (share_id === undefined) { share_id = null; }
-
-        var endpoint = '/share/' + (share_id === null ? '' : share_id + '/');
+        var endpoint = '/share/' + share_id + '/';
         var connection_type = "GET";
 
         return jQuery.ajax({
@@ -640,18 +637,21 @@ var ClassClient = function (backend, require, jQuery, scrypt_module_factory, sha
      * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
      * @param {string} [encrypted_data] - optional data for the new share
      * @param {string} [encrypted_data_nonce] - nonce for data, necessary if data is provided
-     * @param {string} encrypted_data_secret_key - encrypted secret key
-     * @param {string} encrypted_data_secret_key_nonce - nonce for secret key
+     * @param {string} key - encrypted secret key
+     * @param {string} key_nonce - nonce for secret key
+     * @param {string} [parent_share_id] - the id of the parent share, may be left empty if the share resides in the datastore
      * @returns {promise}
      */
-    this.create_share = function (token, encrypted_data, encrypted_data_nonce, encrypted_data_secret_key, encrypted_data_secret_key_nonce) {
+    this.create_share = function (token, encrypted_data, encrypted_data_nonce, key, key_nonce, parent_share_id) {
         var endpoint = '/share/';
         var connection_type = "PUT";
         var data = {
             data: encrypted_data,
             data_nonce: encrypted_data_nonce,
-            secret_key: encrypted_data_secret_key,
-            secret_key_nonce: encrypted_data_secret_key_nonce
+            key: key,
+            key_nonce: key_nonce,
+            key_type: "symmetric",
+            parent_share_id: parent_share_id
         };
 
         return jQuery.ajax({
@@ -704,7 +704,7 @@ var ClassClient = function (backend, require, jQuery, scrypt_module_factory, sha
      * @param {uuid} share_id - the share ID
      * @returns {promise}
      */
-    this.read_share_total = function (token, share_id) {
+    this.read_share_rights = function (token, share_id) {
         var endpoint = '/share/rights/' + share_id + '/';
         var connection_type = "GET";
 
@@ -759,7 +759,7 @@ var ClassClient = function (backend, require, jQuery, scrypt_module_factory, sha
      *
      * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
      * @param {uuid} [user_id] - the user ID
-     * @param {uuid} [user_email] - the user email
+     * @param {email} [user_email] - the user email
      * @returns {promise}
      */
     this.get_users_public_key = function (token, user_id, user_email) {

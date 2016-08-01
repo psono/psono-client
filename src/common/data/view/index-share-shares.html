@@ -1,0 +1,74 @@
+<div class="container-fluid">
+    <div class="navi row">
+        <div class="location col-sm-8">
+            <!--
+            <span> <a href="#/share/pendingshares">/share/pendingshares</a> </span>
+            -->
+        </div>
+        <div class="title col-sm-4">
+            <h1>Pending Shares</h1>
+        </div>
+    </div>
+
+
+    <div class="widget panel panel-default">
+        <div class="panel-heading clearfix">
+            <h3 class="panel-title ng-binding">Shares</h3>
+        </div>
+        <div class="panel-body in" aria-expanded="true" aria-hidden="false" style="height: auto;">
+
+
+
+            <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
+                <thead>
+                <tr>
+                    <th>E-Mail</th>
+                    <th>Title</th>
+                    <th>Read</th>
+                    <th>Write</th>
+                    <th>Grant</th>
+                    <th>Accept</th>
+                    <th>Decline</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="share in shares | filter:pendingApprovalFilter">
+                    <td>{{ share.share_right_create_user_email }}</td>
+                    <td>{{ share.share_right_title }}</td>
+                    <td>
+                        <button type="button" class="btn btn-default btn-sm">
+                            <i ng-if="share.share_right_read" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                            <i ng-if="!share.share_right_read" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                        </button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-default btn-sm">
+                            <i ng-if="share.share_right_write" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                            <i ng-if="!share.share_right_write" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                        </button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-default btn-sm">
+                            <i ng-if="share.share_right_grant" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                            <i ng-if="!share.share_right_grant" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                        </button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-default btn-sm" ng-click="accept(share, shares)">
+                            Accept
+                        </button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-default btn-sm" ng-click="decline(share, shares)">
+                            Decline
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+
+</div>

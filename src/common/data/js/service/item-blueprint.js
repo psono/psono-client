@@ -2,18 +2,20 @@
     'use strict';
 
 
-    var itemBlueprint = function($window, $injector, helper) {
+    var itemBlueprint = function($rootScope, $window, $modal, helper) {
 
         var _default = "website_password";
+
+        var registrations = {};
 
         var _blueprints = {
             website_password: {
                 id: "website_password", // Unique ID
                 name: "Password", // Displayed in Dropdown Menu
-                title_column: "website_password_title", // is the main column, that is used as filename
-                urlfilter_column: "website_password_url_filter", // is the filter column for url matching
+                title_field: "website_password_title", // is the main column, that is used as filename
+                urlfilter_field: "website_password_url_filter", // is the filter column for url matching
                 search: ['website_password_title', 'website_password_url_filter'], // are searched when the user search his entries
-                columns: [ // All columns for this object with unique names
+                fields: [ // All fields for this object with unique names
                     { name: "website_password_title", field: "input", type: "text", title: "Title", placeholder: "Title", required: true},
                     { name: "website_password_url", field: "input", type: "url", title: "URL", placeholder: "URL", required: true, onChange: "onChangeUrl"},
                     { name: "website_password_username", field: "input", type: "text", title: "Username", placeholder: "Username"},
@@ -30,8 +32,7 @@
                                 icon: "fa fa-key",
                                 text:"Generate Password",
                                 onclick:function(id) {
-
-                                    angular.element(document.querySelector('#'+id)).val($injector.get('passwordGenerator').generate()).trigger('input');
+                                    angular.element(document.querySelector('#'+id)).val(registrations['generate']()).trigger('input');
                                 }
                             }
                         ]},
@@ -41,20 +42,20 @@
                 ],
                 /**
                  * triggered whenever url is changing.
-                 * gets the columns and returns the default domain filter
+                 * gets the fields and returns the default domain filter
                  *
-                 * @param columns
+                 * @param fields
                  * @returns {string}
                  */
-                onChangeUrl: function(columns){
+                onChangeUrl: function(fields){
 
                     var url;
                     var domain_filter_col;
 
                     var i;
-                    for (i = 0; i < columns.length; i++) {
-                        if (columns[i].name === "website_password_url") {
-                            url = columns[i].value;
+                    for (i = 0; i < fields.length; i++) {
+                        if (fields[i].name === "website_password_url") {
+                            url = fields[i].value;
                             break;
                         }
                     }
@@ -63,9 +64,9 @@
                         return "";
                     }
 
-                    for (i = 0; i < columns.length; i++) {
-                        if (columns[i].name === "website_password_url_filter") {
-                            domain_filter_col = columns[i];
+                    for (i = 0; i < fields.length; i++) {
+                        if (fields[i].name === "website_password_url_filter") {
+                            domain_filter_col = fields[i];
                             break;
                         }
                     }
@@ -108,9 +109,9 @@
             note: {
                 id: "note",
                 name: "Note",
-                title_column: "note_title",
+                title_field: "note_title",
                 search: ['note_title'],
-                columns: [
+                fields: [
                     { name: "note_title", field: "input", type: "text", title: "Title", placeholder: "Name", required: true},
                     { name: "note_notes", field: "textarea", title: "Notes", placeholder: "Notes", required: false}
                 ]
@@ -118,7 +119,7 @@
             dummy: {
                 id: "dummy",
                 name: "Dummy",
-                title_column: "dummy_title",
+                title_field: "dummy_title",
                 search: ['dummy_title'],
                 tabs: [
                     {
@@ -130,7 +131,7 @@
                         title:"Title of Tab 2"
                     }
                 ],
-                columns: [
+                fields: [
                     { name: "dummy_title", field: "input", type: "text", title: "Dummy field 1", placeholder: "Put your dummy 1 content here", required: true, tab: 'dummy_tab_2',
                         dropmenuItems:[
                             { icon: "fa fa-key", text:"Generate Password", onclick:function(id) { alert("Generate Password triggered " + id); } },
@@ -157,6 +158,235 @@
                     }
                 ]
             }*/
+        };
+
+        var _additionalFunction = {
+            share: {
+                id: 'share',
+                name: 'Share',
+                icon: 'fa fa-user-plus',
+                onClick: function(item, path) {
+
+                    /**
+                     * little wrapper to create the share rights from the selected users and rights for a given nonce and
+                     * a given share_id and key
+                     *
+                     * @param share_id
+                     * @param secret_key
+                     * @param node
+                     * @param users
+                     * @param selected_users
+                     * @param selected_rights
+                     */
+                    var create_share_rights = function(share_id, secret_key, node, users, selected_users, selected_rights) {
+                        for (var i = 0; i < users.length; i++) {
+                            if (selected_users.indexOf(users[i].id) < 0) {
+                                continue;
+                            }
+
+                            // found a user that has been selected, lets create the rights for him
+                            var rights = {
+                                read: selected_rights.indexOf('read') > -1,
+                                write: selected_rights.indexOf('write') > -1,
+                                grant: selected_rights.indexOf('grant') > -1
+                            };
+
+                            // generate the title
+                            // TODO create form field with this default value and read value from form
+
+                            var title = "";
+                            if (typeof(node.type) == 'undefined') {
+                                // we have a folder
+                                title = "Folder with title '" + node.name + "'";
+                            } else {
+                                // we have an item
+                                title = _blueprints[node.type].name + " with title '" + node.name + "'";
+                            }
+
+                            registrations['create_share_right'](title,
+                                share_id, users[i].data.user_id,
+                                users[i].data.user_public_key, secret_key,
+                                rights['read'], rights['write'], rights['grant']);
+                            i++;
+                        }
+                    };
+
+                    /**
+                     * Users and or / shares have been selected in the modal and the final "Share Now" button was
+                     * clicked
+                     *
+                     * @param content
+                     */
+                    var on_modal_close_success = function (content) {
+                        // content = { node: "...", path: "...", selected_users: "...", users: "..."}
+
+                        if (!content.users
+                            || content.users.length < 1
+                            || !content.selected_users
+                            || content.selected_users.length < 1) {
+
+                            // TODO echo not shared message because no user selected
+
+                            return;
+                        }
+
+                        var users = [];
+
+                        var i;
+                        for (i = 0; i < content.users.length; i++) {
+                            if (content.selected_users.indexOf(content.users[i].id) != -1) {
+                                users.push(content.users[i]);
+                            }
+                        }
+
+                        if (content.node.hasOwnProperty("share_id")) {
+                            // its already a share, so generate only the share_rights
+
+                            create_share_rights(content.node.share_id, content.node.share_secret_key,
+                                content.node, content.users, content.selected_users, content.selected_rights);
+
+                        } else {
+                            // its not yet a share, so generate the share, generate the share_rights and update
+                            // the datastore
+
+                            registrations['get_password_datastore'](true).then(function(datastore) {
+
+                                var path = content.path.slice();
+                                var parent_share = registrations['get_closest_parent_share'](path, datastore, null, 0);
+                                var parent_share_id = null;
+                                var datastore_id = null;
+                                if (parent_share !== false) {
+                                    parent_share_id = parent_share.share_id;
+                                } else {
+                                    datastore_id = datastore.datastore_id;
+                                }
+
+                                // create the share
+                                registrations['create_share'](content.node, parent_share_id, datastore_id, content.node.id).then(function (share_details) {
+
+                                    var item_path = content.path.slice();
+                                    var item_path_copy = content.path.slice();
+                                    var item_path_copy2 = content.path.slice();
+
+                                    // create the share right
+                                    create_share_rights(share_details.share_id, share_details.secret_key,
+                                        content.node, content.users, content.selected_users, content.selected_rights);
+
+
+                                    // update datastore and / or possible parent shares
+                                    var search = registrations['find_in_datastore'] (item_path, datastore);
+
+                                    if (typeof(content.node.type) === 'undefined') {
+                                        // we have an item
+                                        delete search[0][search[1]].secret_id;
+                                        delete search[0][search[1]].secret_key;
+                                    }
+                                    search[0][search[1]].share_id = share_details.share_id;
+                                    search[0][search[1]].share_secret_key = share_details.secret_key;
+
+                                    // update node in our displayed datastore
+                                    content.node.share_id = share_details.share_id;
+                                    content.node.share_secret_key = share_details.secret_key;
+
+                                    var changed_paths = registrations['on_share_added'](share_details.share_id, item_path_copy, datastore, 1);
+
+                                    var parent_path = item_path_copy2.slice();
+                                    parent_path.pop();
+
+                                    changed_paths.push(parent_path);
+
+                                    registrations['save_datastore'](datastore, changed_paths);
+
+
+                                });
+                            });
+                        }
+                    };
+
+                    // The main modal to share
+                    registrations['get_user_datastore']().then(function (user_datastore) {
+                        var users = [];
+                        helper.create_list(user_datastore, users);
+
+                        var modalInstance = $modal.open({
+                            templateUrl: 'view/modal-share-entry.html',
+                            controller: 'ModalShareEntryCtrl',
+                            resolve: {
+                                node: function () {
+                                    return item;
+                                },
+                                path: function () {
+                                    return path;
+                                },
+                                users: function() {
+                                    return users;
+                                }
+                            }
+                        });
+
+                        // User clicked the final share button
+                        modalInstance.result.then(on_modal_close_success, function () {
+                            // cancel triggered
+                        });
+
+                    });
+                }
+            },
+            show_share_rights: {
+                id: 'show_share_rights',
+                name: 'Rights Overview',
+                icon: 'fa fa-eye',
+                condition: function(item) {
+                    return item.hasOwnProperty('share_id');
+                },
+                onClick: function(item, path) {
+
+                    // create the share
+                    registrations['read_share_rights'](item.share_id).then(function (share_details) {
+
+                        var modalInstance = $modal.open({
+                            templateUrl: 'view/modal-display-share-rights.html',
+                            controller: 'ModalDisplayShareRightsCtrl',
+                            size: 'lg',
+                            resolve: {
+                                node: function () {
+                                    return item;
+                                },
+                                path: function () {
+                                    return path;
+                                },
+                                share_details: function() {
+                                    return share_details;
+                                }
+                            }
+                        });
+
+                    });
+                }
+            }
+        };
+
+        /**
+         * returns an overview of all available additional functions with name id and function
+         *
+         * @returns {Array} The list of all blueprints
+         */
+        var get_additional_functions = function(item) {
+
+            var result = [];
+
+            for (var property in _additionalFunction) {
+                if (!_additionalFunction.hasOwnProperty(property)) {
+                    continue;
+                }
+
+                if (_additionalFunction[property].hasOwnProperty('condition') && !_additionalFunction[property].condition(item)) {
+                    continue;
+                }
+
+                result.push(_additionalFunction[property]);
+            }
+            return result;
         };
 
         /**
@@ -210,6 +440,24 @@
         };
 
         /**
+         * analyzes the fields of an item to determine if the advanced option is needed
+         *
+         * @param item
+         * @returns {boolean}
+         */
+        var has_advanced = function (item) {
+            var found = false;
+
+            for (var i = 0; i < item.fields.length; i++) {
+                if (item.fields[i].hasOwnProperty('position') && item.fields[i]['position'] === 'advanced') {
+                    return true;
+                }
+            }
+
+            return found;
+        };
+
+        /**
          * determines weather a specified blueprint needs a new tab on click
          *
          * @param key
@@ -244,18 +492,31 @@
             return bp.msgBeforeOpenSecret(content);
         };
 
+        /**
+         * used to register functions
+         *
+         * @param key
+         * @param func
+         */
+        var register = function (key, func) {
+            registrations[key] = func;
+        };
+
         return {
+            get_additional_functions: get_additional_functions,
             get_blueprint: get_blueprint,
             get_blueprints: get_blueprints,
             get_default_blueprint_key: get_default_blueprint_key,
             get_default_blueprint: get_default_blueprint,
+            has_advanced: has_advanced,
             blueprint_has_on_click_new_tab: blueprint_has_on_click_new_tab,
             blueprint_on_open_secret: blueprint_on_open_secret,
-            blueprint_msg_before_open_secret: blueprint_msg_before_open_secret
+            blueprint_msg_before_open_secret: blueprint_msg_before_open_secret,
+            register: register
         };
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("itemBlueprint", ['$window', '$injector', 'helper', itemBlueprint]);
+    app.factory("itemBlueprint", ['$rootScope', '$window', '$modal', 'helper', itemBlueprint]);
 
 }(angular));

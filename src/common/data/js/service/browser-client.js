@@ -31,7 +31,7 @@
          * @returns {string}
          */
         var getBaseUrl = function() {
-            return "http://browserplugins.chickahoona.com/src/common/";
+            return "https://browserplugins.chickahoona.com/src/common/";
         };
 
         /**

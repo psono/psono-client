@@ -40,7 +40,7 @@
         <div class="span6">
             <div style="padding: 10px; border: 1px solid #aaa;">
                 <ul class="breadcrumb">
-                    <li ng-repeat="b in breadcrums" ng-class="{ active: $last }">{{ b }} <span class="divider" ng-show="!$last">/</span></li>
+                    <li ng-repeat="b in breadcrumbs" ng-class="{ active: $last }">{{ b }} <span class="divider" ng-show="!$last">/</span></li>
                 </ul>
                 <div>Root</div>
                 <div tree-view="structure" tree-view-options="options"></div>
@@ -72,7 +72,7 @@
 
 
     <div ng-repeat="panel in panels">
-        <div context-menu=""
+        <div context-menu="contextMenuOnShow()" context-menu-close="contextMenuOnClose()"
              context-menu-margin-bottom="10"
              id="panel-{{ $index }}"
              class="panel panel-default"
@@ -133,7 +133,7 @@
 
         app.controller('DemoController', ['$scope', function ($scope) {
 
-            $scope.breadcrums = [''];
+            $scope.breadcrumbs = [''];
 
             $scope.structure = { folders: [
                 { name: 'Folder 1', files: [{ name: 'File 1.jpg' }, { name: 'File 2.png' }], folders: [
@@ -145,8 +145,8 @@
             ], files: [{ name: 'File 1.gif' }, { name: 'File 2.gif' }]};
 
             $scope.options = {
-                onNodeSelect: function (node, breadcrums) {
-                    $scope.breadcrums = breadcrums;
+                onNodeSelect: function (node, breadcrumbs) {
+                    $scope.breadcrumbs = breadcrumbs;
                 }
             };
 

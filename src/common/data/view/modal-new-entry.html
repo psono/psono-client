@@ -14,20 +14,22 @@
             </ui-select-choices>
         </ui-select>
 
-        <div class="form-group" ng-repeat="n in bp.selected.columns track by $index"
+        <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
              ng-class="{true: 'has-error'}[submitted && newEntryForm[n.name].$invalid]"
              ng-if="!n.tab && (!n.position || n.position == 'before')">
 
             <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
-                   id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
-                   ng-model="n.value"
-                   ng-change="bp.selected[n.onChange](bp.selected.columns)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
+                   id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                   ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
+                   ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
+
+            <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](bp.selected.fields, errors)">{{n.title}}</button>
 
             <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
                 <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
-                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
-                       ng-model="n.value"
-                       ng-change="bp.selected[n.onChange](bp.selected.columns)">
+                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                       ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
+                       ng-change="bp.selected[n.onChange](bp.selected.fields)">
                 <div class="input-group-btn" dropdown is-open="status.isopen">
                     <button id="single-button" type="button" class="btn btn-primary" dropdown-toggle ng-disabled="disabled">
                         Actions <span class="caret"></span>
@@ -47,7 +49,9 @@
 
             <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
                       ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
-                      placeholder="{{n.placeholder}}"  ng-required="n.required" ng-model="n.value"></textarea>
+                      placeholder="{{n.placeholder}}"  ng-required="n.required && !n.hidden"
+                      ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
+            <p class="note pull-right" ng-hide="n.hidden">{{n.note}}</p>
 
             <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.required">
                 The field is required
@@ -67,20 +71,22 @@
         <tabset ng-if="bp.selected.tabs" class="tabset_expand">
             <tab ng-repeat="tab in bp.selected.tabs" heading="{{tab.title}}" active="tab.active" disable="tab.disabled">
 
-                <div class="form-group" ng-repeat="n in bp.selected.columns track by $index"
+                <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
                      ng-class="{true: 'has-error'}[submitted && newEntryForm[n.name].$invalid]"
                      ng-if="n.tab == tab.id">
 
                     <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
-                           id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
-                           ng-model="n.value"
-                           ng-change="bp.selected[n.onChange](bp.selected.columns)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
+                           id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                           ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
+                           ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
+
+                    <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](bp.selected.fields, errors)">{{n.title}}</button>
 
                     <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
                         <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
-                               id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
-                               ng-model="n.value"
-                               ng-change="bp.selected[n.onChange](bp.selected.columns)">
+                               id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                               ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
+                               ng-change="bp.selected[n.onChange](bp.selected.fields)">
                         <div class="input-group-btn" dropdown is-open="status.isopen">
                             <button id="single-button" type="button" class="btn btn-primary" dropdown-toggle ng-disabled="disabled">
                                 Actions <span class="caret"></span>
@@ -100,7 +106,9 @@
 
                     <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
                               ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
-                              placeholder="{{n.placeholder}}"  ng-required="n.required" ng-model="n.value"></textarea>
+                              placeholder="{{n.placeholder}}"  ng-required="n.required && !n.hidden"
+                              ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
+                    <p class="note pull-right" ng-hide="n.hidden">{{n.note}}</p>
 
                     <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.required">
                         The field is required
@@ -118,20 +126,23 @@
             </tab>
         </tabset>
 
-        <div class="form-group" ng-repeat="n in bp.selected.columns track by $index"
+        <!-- below tabs -->
+        <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
              ng-class="{true: 'has-error'}[submitted && newEntryForm[n.name].$invalid]"
              ng-if="!n.tab && n.position == 'after'">
 
             <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
-                   id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
-                   ng-model="n.value"
-                   ng-change="bp.selected[n.onChange](bp.selected.columns)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
+                   id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                   ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
+                   ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
+
+            <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](bp.selected.fields, errors)">{{n.title}}</button>
 
             <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
                 <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
-                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
-                       ng-model="n.value"
-                       ng-change="bp.selected[n.onChange](bp.selected.columns)">
+                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                       ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
+                       ng-change="bp.selected[n.onChange](bp.selected.fields)">
                 <div class="input-group-btn" dropdown is-open="status.isopen">
                     <button id="single-button" type="button" class="btn btn-primary" dropdown-toggle ng-disabled="disabled">
                         Actions <span class="caret"></span>
@@ -151,7 +162,9 @@
 
             <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
                       ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
-                      placeholder="{{n.placeholder}}"  ng-required="n.required" ng-model="n.value"></textarea>
+                      placeholder="{{n.placeholder}}"  ng-required="n.required && !n.hidden"
+                      ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
+            <p class="note pull-right" ng-hide="n.hidden">{{n.note}}</p>
 
             <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.required">
                 The field is required
@@ -167,24 +180,27 @@
             </p>
         </div>
 
-        <a href="#" class="pull-right" ng-click="isCollapsed = !isCollapsed">advanced</a>
+        <!-- Advanced -->
+        <a href="#" class="pull-right" ng-click="isCollapsed = !isCollapsed" ng-if="has_advanced(bp.selected)">advanced</a>
 
         <div collapse="isCollapsed">
 
-            <div class="form-group" ng-repeat="n in bp.selected.columns track by $index"
+            <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
                  ng-class="{true: 'has-error'}[submitted && newEntryForm[n.name].$invalid]"
                  ng-if="!n.tab && n.position == 'advanced'">
 
                 <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
-                       id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
-                       ng-model="n.value"
-                       ng-change="bp.selected[n.onChange](bp.selected.columns)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
+                       id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                       ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
+                       ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
+
+                <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](bp.selected.fields, errors)">{{n.title}}</button>
 
                 <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
                     <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
-                           id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
-                           ng-model="n.value"
-                           ng-change="bp.selected[n.onChange](bp.selected.columns)">
+                           id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                           ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
+                           ng-change="bp.selected[n.onChange](bp.selected.fields)">
                     <div class="input-group-btn" dropdown is-open="status.isopen">
                         <button id="single-button" type="button" class="btn btn-primary" dropdown-toggle ng-disabled="disabled">
                             Actions <span class="caret"></span>
@@ -204,7 +220,9 @@
 
                 <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
                       ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
-                      placeholder="{{n.placeholder}}"  ng-required="n.required" ng-model="n.value"></textarea>
+                      placeholder="{{n.placeholder}}"  ng-required="n.required && !n.hidden"
+                          ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
+                <p class="note pull-right" ng-hide="n.hidden">{{n.note}}</p>
 
                 <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.required">
                     The field is required
@@ -221,6 +239,9 @@
             </div>
 
         </div>
+
+        <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
+        <span ng-repeat="e in msgs" class="pull-right">{{e}}</span>
 
     </div>
     <div class="modal-footer">

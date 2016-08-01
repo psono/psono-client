@@ -141,6 +141,17 @@ h1, h2 {
   .tree-folder .tree-folder-title {
     position: relative;
   }
+
+  .tree-folder .notSelectable,
+  .tree-item .notSelectable{
+    color: $disabled;
+    a {
+      color: $disabled;
+    }
+  }
+
+
+
   .node-dropdown {
     position: absolute;
     right: 5px;
@@ -166,6 +177,10 @@ h1, h2 {
   margin-left: -265px;
   margin-top: -50px;
   z-index: 20;
+}
+.modal-body .droppdown-rightclick {
+  margin-left: -335px;
+  margin-top: -30px;
 }
 
 .position-fixed {

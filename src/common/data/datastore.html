@@ -12,9 +12,12 @@
 
     <link rel="stylesheet" type="text/css" href="css/opensans.css" />
     <link href="css/lib/bootstrap.min.css" rel="stylesheet">
+    <link href="css/lib/jquery.dataTables.min.css" rel="stylesheet">
     <link href="css/lib/angular-snap.css" rel="stylesheet">
     <link href="css/lib/font-awesome.min.css" rel="stylesheet">
     <link href="css/lib/angular-tree-view.css" rel="stylesheet">
+    <link href="css/lib/angular-datatables.css" rel="stylesheet">
+    <link href="css/lib/datatables.bootstrap.css" rel="stylesheet">
     <link href="css/lib/angular-dashboard-framework.css" rel="stylesheet">
     <link href="css/lib/angular-ui-select.css" rel="stylesheet">
     <link href="css/lib/loading-bar.css" rel="stylesheet">
@@ -47,6 +50,15 @@
                             <li role="menuitem"><a href="#" ng-click="logout()">Logout</a></li>
                         </ul>
                     </div>
+                    <!--
+                    <button type="button" class="btn btn-primary">
+                        <span class="fa-stack" style="line-height:1em; height:1em; width: 1em;">
+                          <i class="fa fa-envelope-o fa-stack-1x"></i>
+                          <i class="fa fa-circle fa-stack-1x small-top-right ng-scope" ng-if="messages.length > 0"></i>
+                          <strong class="fa-stack-1x text-primary small-top-right" ng-if="messages.length > 0">{{messages.length}}</strong>
+                        </span>
+                    </button>
+                    -->
                 </div>
             </div>
         </div>
@@ -58,17 +70,16 @@
             <li ng-class="getLinkState('/')"><a href="#">Home</a></li>
             <!--<li ng-class="getLinkState('/test')"><a href="#/test">Test</a></li>-->
         </ul>
-        <!--
         <h2>Share</h2>
         <ul class="navigations">
+            <li ng-class="getLinkState('/share/pendingshares')"><a href="#/share/pendingshares">Pending</a></li>
             <li ng-class="getLinkState('/share/users')"><a href="#/share/users">Users</a></li>
         </ul>
-        -->
         <h2>More</h2>
         <ul class="navigations">
-            <li><a href="https://www.sanso.pw/premium">Get Premium</a></li>
-            <li><a href="https://www.sanso.pw/help" target="_blank">Help</a></li>
-            <li><a href="https://www.sanso.pw/about" target="_blank">About</a></li>
+            <li><a href="https://www.psono.pw/premium">Get Premium</a></li>
+            <li><a href="https://www.psono.pw/help" target="_blank">Help</a></li>
+            <li><a href="https://www.psono.pw/about" target="_blank">About</a></li>
         </ul>
     </div>
 
@@ -134,6 +145,7 @@
 <script src="js/lib/scrypt.js" type="text/javascript"></script>
 <script src="js/lib/uuid.js" type="text/javascript"></script>
 <script src="js/lib/jquery-2.1.4.js" type="text/javascript"></script>
+<script src="js/lib/jquery.dataTables.min.js" type="text/javascript"></script>
 <script src="js/lib/snap.min.js" type="text/javascript"></script>
 <script src="js/lib/jquery.ui.js"></script>
 <script src="js/lib/sortable.js" type="application/javascript"></script>
@@ -155,20 +167,33 @@
 <script src="js/lib/angular-ui-select.js" type="application/javascript"></script>
 <script src="js/lib/ng-context-menu.js" type="application/javascript"></script>
 <script src="js/lib/angular-dashboard-framework.js" type="application/javascript"></script>
+<script src="js/lib/angular-datatables.js" type="application/javascript"></script>
 
 <script src="js/widgets/adf-widget-datastore.js"></script>
 <script src="js/widgets/adf-widget-shareusers.js"></script>
+<script src="js/widgets/adf-widget-accept-share.js"></script>
 
 <script src="js/main.js" type="application/javascript"></script>
+<script src="js/widgets/adf-dashboard-controller.js" type="application/javascript"></script>
 
 <script src="js/service/api-client.js" type="application/javascript"></script>
 <script src="js/service/helper.js" type="application/javascript"></script>
+<script src="js/service/message.js" type="application/javascript"></script>
 <script src="js/service/item-blueprint.js" type="application/javascript"></script>
+<script src="js/service/share-blueprint.js" type="application/javascript"></script>
 <script src="js/service/crypto-library.js" type="application/javascript"></script>
 <script src="js/service/storage.js" type="application/javascript"></script>
 <script src="js/service/settings.js" type="application/javascript"></script>
+<script src="js/service/manager-base.js" type="application/javascript"></script>
 <script src="js/service/manager.js" type="application/javascript"></script>
+<script src="js/service/manager-adf-widget.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore.js" type="application/javascript"></script>
+<script src="js/service/manager-link.js" type="application/javascript"></script>
+<script src="js/service/manager-secret.js" type="application/javascript"></script>
+<script src="js/service/manager-share.js" type="application/javascript"></script>
+<script src="js/service/manager-datastore-password.js" type="application/javascript"></script>
+<script src="js/service/manager-datastore-user.js" type="application/javascript"></script>
+<script src="js/service/manager-datastore-setting.js" type="application/javascript"></script>
 <script src="js/service/browser-client.js" type="application/javascript"></script>
 <script src="js/service/password-generator.js" type="application/javascript"></script>
 <script src="view/templates.js" type="application/javascript"></script>
