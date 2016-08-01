@@ -165,7 +165,6 @@ var ClassClient = function (backend, require, jQuery, scrypt_module_factory, sha
      * @returns {{public_key: string, private_key: string, secret_key: string}}
      */
     this.generate_secret_key = function () {
-
         return to_hex(randomBytes(32)); // 32 Bytes = 256 Bits
     };
 

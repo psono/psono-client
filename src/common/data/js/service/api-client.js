@@ -61,15 +61,40 @@
          *
          * @param email
          * @param authkey
+         * @param public_key
          * @returns {promise} promise
          */
-        var login = function(email, authkey) {
+        var login = function(email, authkey, public_key) {
 
             var endpoint = '/authentication/login/';
             var connection_type = "POST";
             var data = {
                 email: email,
-                authkey: authkey
+                authkey: authkey,
+                public_key: public_key
+            };
+            var headers = null;
+
+            return call(connection_type, endpoint, data, headers);
+        };
+
+
+        /**
+         * Ajax POST request to activate the token
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param verification - hex of first decrypted user_validator (from login) the re-encrypted with session key
+         * @param verification_nonce - hex of the nonce of the verification
+         * @returns {promise}
+         */
+        var activate_token = function(token, verification, verification_nonce) {
+
+            var endpoint = '/authentication/activate-token/';
+            var connection_type = "POST";
+            var data = {
+                token: token,
+                verification: verification,
+                verification_nonce: verification_nonce
             };
             var headers = null;
 
@@ -765,6 +790,7 @@
 
         return {
             login: login,
+            activate_token: activate_token,
             logout: logout,
             register: register,
             verify_email: verify_email,

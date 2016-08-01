@@ -129,37 +129,12 @@
             storage.insert('config', {key: 'user_email', value: email});
             storage.insert('config', {key: 'server', value: server});
 
-            /**
-             * @param response.data.user The datastore owner object in response.
-             */
-            var onSuccess = function (response) {
-
-                storage.insert('config', {key: 'user_id', value: response.data.user.id});
-                storage.insert('config', {key: 'user_token', value: response.data.token});
-                storage.insert('config', {key: 'user_public_key', value: response.data.user.public_key});
-                storage.insert('config', {key: 'user_private_key', value: cryptoLibrary.decrypt_secret(
-                    response.data.user.private_key,
-                    response.data.user.private_key_nonce,
-                    password,
-                    response.data.user.user_sauce
-                )});
-                storage.insert('config', {key: 'user_secret_key', value: cryptoLibrary.decrypt_secret(
-                    response.data.user.secret_key,
-                    response.data.user.secret_key_nonce,
-                    password,
-                    response.data.user.user_sauce
-                )});
-                storage.insert('config', {key: 'user_sauce', value: response.data.user.user_sauce});
-
-                storage.save();
-
-                return {
-                    response:"success"
-                };
-            };
+            var session_keys = cryptoLibrary.generate_public_private_keypair();
 
             var onError = function(response){
 
+                // in case of any error we remove the items we already added to our storage
+                // maybe we adjust this behaviour at some time
                 storage.remove('config', storage.find_one('config', {'key': 'user_email'}));
                 storage.remove('config', storage.find_one('config', {'key': 'server'}));
                 storage.save();
@@ -170,7 +145,69 @@
                 };
             };
 
-            return apiClient.login(email, authkey)
+            var onSuccess = function (response) {
+
+                // decrypt the session key
+                var session_secret_key = cryptoLibrary.decrypt_data_public_key(
+                    response.data.session_secret_key,
+                    response.data.session_secret_key_nonce,
+                    response.data.session_public_key,
+                    session_keys.private_key
+                );
+                // no need anymore for the session keys
+                session_keys = null;
+
+                // decrypt user private key and secret key
+                var user_private_key = cryptoLibrary.decrypt_secret(
+                    response.data.user.private_key,
+                    response.data.user.private_key_nonce,
+                    password,
+                    response.data.user.user_sauce
+                );
+                var user_secret_key = cryptoLibrary.decrypt_secret(
+                    response.data.user.secret_key,
+                    response.data.user.secret_key_nonce,
+                    password,
+                    response.data.user.user_sauce
+                );
+
+                // decrypt the user_validator
+                var user_validator = cryptoLibrary.decrypt_data_public_key(
+                    response.data.user_validator,
+                    response.data.user_validator_nonce,
+                    response.data.session_public_key,
+                    user_private_key
+                );
+
+                // encrypt the verification
+                var verification = cryptoLibrary.encrypt_data(
+                    user_validator,
+                    session_secret_key
+                );
+
+                var onSuccess = function () {
+
+                    storage.insert('config', {key: 'user_id', value: response.data.user.id});
+                    storage.insert('config', {key: 'user_token', value: response.data.token});
+                    storage.insert('config', {key: 'session_secret_key', value: session_secret_key});
+                    storage.insert('config', {key: 'user_public_key', value: response.data.user.public_key});
+                    storage.insert('config', {key: 'user_private_key', value: user_private_key});
+                    storage.insert('config', {key: 'user_secret_key', value: user_secret_key});
+                    storage.insert('config', {key: 'user_sauce', value: response.data.user.user_sauce});
+
+                    storage.save();
+
+                    return {
+                        response:"success"
+                    };
+
+                };
+
+                return apiClient.activate_token(response.data.token, verification.text, verification.nonce)
+                    .then(onSuccess, onError);
+            };
+
+            return apiClient.login(email, authkey, session_keys.public_key)
                 .then(onSuccess, onError);
         };
 

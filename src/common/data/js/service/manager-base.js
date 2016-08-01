@@ -19,6 +19,7 @@
         var forbidden_keys = {
             'config': [
                 'user_token',
+                'session_secret_key',
                 'user_private_key',
                 'user_secret_key',
                 'user_sauce'
