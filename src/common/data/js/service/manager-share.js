@@ -170,6 +170,8 @@
          */
         var create_share_right = function(title, share_id, user_id, user_public_key, key, read, write, grant) {
 
+            console.log("manager-share: create_share_right");
+
             var onError = function(result) {
                 // pass
             };
@@ -180,6 +182,11 @@
 
             var encrypted_key = managerBase.encrypt_private_key(key, user_public_key);
             var encrypted_title = managerBase.encrypt_private_key(title, user_public_key);
+
+            console.log(encrypted_title);
+            console.log(encrypted_key);
+            console.log(share_id);
+            console.log(user_id);
 
             return apiClient.create_share_right(managerBase.find_one_nolimit('config', 'user_token'), encrypted_title.text,
                 encrypted_title.nonce, share_id, user_id, encrypted_key.text, encrypted_key.nonce, read, write, grant)
@@ -206,9 +213,8 @@
                 return {share_right_id: content.data.share_right_id};
             };
 
-
             return apiClient.create_share_right(managerBase.find_one_nolimit('config', 'user_token'), null,
-                share_id, user_id, null, null, read, write, grant)
+                null, share_id, user_id, null, null, read, write, grant)
                 .then(onSuccess, onError);
         };
 

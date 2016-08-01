@@ -168,7 +168,7 @@
                 onClick: function(item, path) {
 
                     /**
-                     * little wrapper to create the share rights from the selected users and rights for a give noce and
+                     * little wrapper to create the share rights from the selected users and rights for a given nonce and
                      * a given share_id and key
                      *
                      * @param share_id
