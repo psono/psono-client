@@ -255,7 +255,8 @@
                                 var parent_share = registrations['get_closest_parent_share'](path, datastore, null, 0);
                                 var parent_share_id = null;
                                 var datastore_id = null;
-                                if (parent_share !== false) {
+
+                                if (parent_share !== false && parent_share !== null) {
                                     parent_share_id = parent_share.share_id;
                                 } else {
                                     datastore_id = datastore.datastore_id;
