@@ -18,7 +18,7 @@
             </thead>
             <tbody>
             <tr ng-repeat="right in share_details.user_share_rights">
-                <td>{{ right.email }}</td>
+                <td>{{ right.username }}</td>
                 <td>
                     <button type="button" class="btn btn-default btn-sm" ng-click="toggle_right('read', right)" ng-disabled="!share_details.own_share_rights.grant || (right.id == share_details.own_share_rights.id)">
                         <i ng-if="right.read" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>

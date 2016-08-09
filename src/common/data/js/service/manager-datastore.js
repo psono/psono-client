@@ -91,21 +91,21 @@
 
                 temp_datastore_key_storage[datastore_id] = datastore_secret_key;
 
+                var datastore = {};
 
-                if (result.data.data === '') {
-                    return {}
+                if (result.data.data !== '') {
+                    var data = cryptoLibrary.decrypt_data(
+                        result.data.data,
+                        result.data.data_nonce,
+                        datastore_secret_key
+                    );
+
+                    datastore = JSON.parse(data);
                 }
 
-                var data = cryptoLibrary.decrypt_data(
-                    result.data.data,
-                    result.data.data_nonce,
-                    datastore_secret_key
-                );
+                datastore['datastore_id'] = datastore_id;
 
-                var parsed_data = JSON.parse(data);
-                parsed_data['datastore_id'] = datastore_id;
-
-                return parsed_data;
+                return datastore;
             };
 
             return apiClient.read_datastore(managerBase.find_one_nolimit('config', 'user_token'), datastore_id)

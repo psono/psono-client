@@ -42,7 +42,7 @@
                     Signed in as
                     <div class="btn-group" dropdown is-open="status.isopen">
                         <button id="email-button" type="button" class="btn btn-primary" dropdown-toggle ng-disabled="disabled">
-                            {{user_email}} <span class="caret"></span>
+                            {{user_username}} <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu" aria-labelledby="email-button">
                             <li role="menuitem"><a href="#/settings">Settings</a></li>
@@ -96,15 +96,17 @@
             <img src="img/logo.png" id="logo">
 
             <form name="loginForm">
-                <div class="form-group">
-                    <input type="email" class="form-control" id="loginEmail" placeholder="E-Mail" ng-model="loginFormEmail" required>
+                <div ng-class="{'input-group': loginFormUsername == null || loginFormUsername.indexOf('@') == -1}">
+                    <input type="text" class="form-control" id="loginUsername" placeholder="Username" ng-model="loginFormUsername" required aria-describedby="username-addon">
+                    <span class="input-group-addon" id="username-addon" ng-if="loginFormUsername == null || loginFormUsername.indexOf('@') == -1">@{{selected_server_domain}}</span>
                 </div>
+                <br>
                 <div class="form-group">
                     <input type="password" class="form-control" id="loginPassword" placeholder="Password" ng-model="loginFormPassword" required>
                 </div>
 
                 <div class="form-group">
-                    <button ng-click="login(loginFormEmail, loginFormPassword)" type="submit" class="btn btn-danger">Login</button>
+                    <button ng-click="login(loginFormUsername, loginFormPassword)" type="submit" class="btn btn-danger">Login</button>
                     <a href="#" ng-click="openTab('/data/register.html')">Register</a>
                     <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
                 </div>

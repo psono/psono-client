@@ -22,7 +22,7 @@
             <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
                 <thead>
                 <tr>
-                    <th>E-Mail</th>
+                    <th>Username</th>
                     <th>Title</th>
                     <th>Read</th>
                     <th>Write</th>
@@ -33,7 +33,7 @@
                 </thead>
                 <tbody>
                 <tr ng-repeat="share in shares | filter:pendingApprovalFilter">
-                    <td>{{ share.share_right_create_user_email }}</td>
+                    <td>{{ share.share_right_create_user_username }}</td>
                     <td>{{ share.share_right_title }}</td>
                     <td>
                         <button type="button" class="btn btn-default btn-sm">

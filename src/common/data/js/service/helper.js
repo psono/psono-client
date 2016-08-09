@@ -15,13 +15,39 @@
             var pattern = new RegExp("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
             var matches =  url.match(pattern);
 
+            var splitted_authority = matches[4].replace(/^(www\.)/,"").split(":");
+
+            var port = null;
+            if (splitted_authority.length == 2) {
+                port = splitted_authority[splitted_authority.length - 1];
+            }
+            var splitted_domain = splitted_authority[0].split(".");
+
+            var full_domain = splitted_authority[0];
+            var top_domain = splitted_domain[splitted_domain.length - 2] + '.' + splitted_domain[splitted_domain.length - 1];
+
             return {
                 scheme: matches[2],
                 authority: matches[4].replace(/^(www\.)/,""), //remove leading www.
+                full_domain: full_domain,
+                top_domain: top_domain,
+                port: port,
                 path: matches[5],
                 query: matches[7],
                 fragment: matches[9]
             };
+        };
+
+        /**
+         * Parses an URL to get the full domain from it.
+         * example: https://docs.google.com -> docs.google.com
+         *
+         * @param url The URL we want to parse
+         * @returns {str} domain The full domain
+         */
+        var get_domain = function (url) {
+            var parsed_url = parse_url(url);
+            return parsed_url.full_domain;
         };
 
         /**
@@ -84,11 +110,55 @@
             return JSON.parse(JSON.stringify(obj));
         };
 
+        /**
+         * Determines if the username is a valid username.
+         * If yes the function returns true. If not, the function returns an error string
+         *
+         * @param username
+         * @returns {*}
+         */
+        var is_valid_username = function(username) {
+            var USERNAME_REGEXP = /^[a-z0-9.\-]*$/i;
+            if( ! USERNAME_REGEXP.test(username)) {
+                return 'Usernames may only contain letters, numbers, periods and dashes.';
+            }
+            if (username.length < 3) {
+                return 'Usernames may not be shorter than 3 chars';
+            }
+            if (username.substring(0, 1) == ".") {
+                return 'Usernames may not start with a period.';
+            }
+            if (username.substring(0, 1) == "-") {
+                return 'Usernames may not start with a dash.';
+            }
+            if (username.substring(-1) == '.') {
+                return 'Usernames may not end with a period.';
+            }
+            if (username.substring(-1) == '-') {
+                return 'Usernames may not end with a dash.';
+            }
+            if (username.indexOf('..') !== -1) {
+                return 'Usernames may not contain consecutive periods.';
+            }
+            if (username.indexOf('--') !== -1) {
+                return 'Usernames may not contain consecutive dashes.';
+            }
+            if (username.indexOf('.-') !== -1) {
+                return 'Usernames may not contain periods followed by dashes.';
+            }
+            if (username.indexOf('-.') !== -1) {
+                return 'Usernames may not contain dashes followed by periods.';
+            }
+            return true;
+        };
+
         return {
             parse_url: parse_url,
+            get_domain: get_domain,
             array_starts_with: array_starts_with,
             create_list: create_list,
-            duplicate_object: duplicate_object
+            duplicate_object: duplicate_object,
+            is_valid_username: is_valid_username
         };
     };
 

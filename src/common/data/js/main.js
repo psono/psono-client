@@ -145,34 +145,41 @@
         });
     }]);
 
-    app.controller('RegisterController', ['$scope', '$route', '$filter', 'managerDatastoreUser', 'BACKEND_SERVERS',
-        function ($scope, $route, $filter, managerDatastoreUser, BACKEND_SERVERS) {
+    app.controller('RegisterController', ['$scope', '$route', '$filter', 'managerDatastoreUser', 'BACKEND_SERVERS', 'helper',
+        function ($scope, $route, $filter, managerDatastoreUser, BACKEND_SERVERS, helper) {
+
+
             /* Server selection with preselection of dev server */
             $scope.servers = BACKEND_SERVERS;
             $scope.filtered_servers = $scope.servers;
             $scope.selected_server = $scope.servers[1];
             $scope.selected_server_title = $scope.selected_server.title;
             $scope.selected_server_url = $scope.selected_server.url;
+            $scope.selected_server_domain = helper.get_domain($scope.selected_server.url);
+
 
             $scope.select_server = function (server) {
                 //triggered when selecting an server
                 $scope.selected_server = server;
                 $scope.selected_server_title = server.title;
                 $scope.selected_server_url = server.url;
+                $scope.selected_server_domain = helper.get_domain(server.url);
             };
             $scope.changing = function (url) {
                 //triggered when typing an url
                 $scope.selected_server = {title: url, url: url};
+                $scope.selected_server_domain = helper.get_domain(url);
                 $scope.filtered_servers = $filter('filter')($scope.servers, {url: url});
             };
 
 
             /* preselected values */
             $scope.registerFormEmail = "register@saschapfeiffer.com";
+            $scope.registerFormUsername = "register";
             $scope.registerFormPassword = "myPassword";
             $scope.registerFormPasswordRepeat = "myPassword";
 
-            $scope.register = function (email, password, password2) {
+            $scope.register = function (email, username, password, password2) {
 
                 $scope.errors = [];
                 $scope.msgs = [];
@@ -200,24 +207,32 @@
                     }
                 }
 
-                if (email === undefined || password === undefined || password2 === undefined) {
+                if (email === undefined || password === undefined || password2 === undefined || username === undefined) {
                     return;
                 }
+
 
                 if (password !== password2) {
                     $scope.errors.push("Passwords don't match.");
                     return;
                 }
 
+                var test_result = helper.is_valid_username(username);
+                if (test_result !== true) {
+                    $scope.errors.push(test_result);
+                    return;
+                }
+                username = username + '@' + $scope.selected_server_domain;
+
                 // TODO forbid weak and poor passwords
 
-                managerDatastoreUser.register(email, password, angular.copy($scope.selected_server))
+                managerDatastoreUser.register(email, username, password, angular.copy($scope.selected_server))
                     .then(onRequestReturn, onError);
             };
         }]);
 
-    app.controller('ActivationController', ['$scope', '$route', '$routeParams', 'managerDatastoreUser', 'BACKEND_SERVERS',
-        function ($scope, $route, $routeParams, managerDatastoreUser, BACKEND_SERVERS) {
+    app.controller('ActivationController', ['$scope', '$route', '$routeParams', 'managerDatastoreUser', 'BACKEND_SERVERS', 'helper',
+        function ($scope, $route, $routeParams, managerDatastoreUser, BACKEND_SERVERS, helper) {
 
             /* Server selection with preselection of dev server */
             $scope.servers = BACKEND_SERVERS;
@@ -225,16 +240,19 @@
             $scope.selected_server = $scope.servers[1];
             $scope.selected_server_title = $scope.selected_server.title;
             $scope.selected_server_url = $scope.selected_server.url;
+            $scope.selected_server_domain = helper.get_domain($scope.selected_server.url);
 
             $scope.select_server = function (server) {
                 //triggered when selecting an server
                 $scope.selected_server = server;
                 $scope.selected_server_title = server.title;
                 $scope.selected_server_url = server.url;
+                $scope.selected_server_domain = helper.get_domain(server.url);
             };
             $scope.changing = function (url) {
                 //triggered when typing an url
                 $scope.selected_server = {title: url, url: url};
+                $scope.selected_server_domain = helper.get_domain(url);
                 $scope.filtered_servers = $filter('filter')($scope.servers, {url: url});
             };
 
@@ -432,7 +450,7 @@
             $scope.logout = managerDatastoreUser.logout;
             $scope.generatePassword = managerDatastorePassword.generatePasswordActiveTab;
 
-            $scope.user_email = manager.find_one('config', 'user_email');
+            $scope.user_username = manager.find_one('config', 'user_username');
 
             $scope.onItemClick = managerSecret.onItemClick;
 
@@ -517,9 +535,9 @@
         }]);
 
     app.controller('LoginController', ['$scope', '$rootScope', '$filter', '$timeout', 'managerDatastoreUser', 'browserClient', 'storage',
-        'snapRemote', '$window', '$route', '$routeParams', '$location', 'BACKEND_SERVERS',
+        'snapRemote', '$window', '$route', '$routeParams', '$location', 'BACKEND_SERVERS', 'helper',
         function ($scope, $rootScope, $filter, $timeout, managerDatastoreUser, browserClient, storage,
-                  snapRemote, $window, $route, $routeParams, $location, BACKEND_SERVERS) {
+                  snapRemote, $window, $route, $routeParams, $location, BACKEND_SERVERS, helper) {
 
             /* openTab function to pass through */
             $scope.openTab = browserClient.openTab;
@@ -534,30 +552,35 @@
             $scope.selected_server = $scope.servers[1];
             $scope.selected_server_title = $scope.selected_server.title;
             $scope.selected_server_url = $scope.selected_server.url;
+            $scope.selected_server_domain = helper.get_domain($scope.selected_server.url);
 
             $scope.select_server = function (server) {
                 //triggered when selecting an server
                 $scope.selected_server = server;
                 $scope.selected_server_title = server.title;
                 $scope.selected_server_url = server.url;
+                $scope.selected_server_domain = helper.get_domain(server.url);
             };
             $scope.changing = function (url) {
                 //triggered when typing an url
                 $scope.selected_server = {title: url, url: url};
+                $scope.selected_server_domain = helper.get_domain(url);
                 $scope.filtered_servers = $filter('filter')($scope.servers, {url: url});
             };
 
             /* preselected values */
-            $scope.loginFormEmail = "test@saschapfeiffer.com";
+            $scope.loginFormUsername = "test";
             $scope.loginFormPassword = "myPassword";
 
-            $scope.login = function (email, password) {
+            $scope.login = function (username, password) {
                 function onError() {
                     alert("Error, should not happen.");
                 }
 
                 function onRequestReturn(data) {
                     // TODO bring message to the user
+
+
                     if (data.response === "success") {
                         $scope.errors = [];
                         browserClient.emit("login", null);
@@ -565,14 +588,19 @@
                     } else {
                         if (data.error_data == null) {
                             $scope.errors = ['Server offline.']
-                        } else {
+                        } else if (data.error_data.hasOwnProperty('non_field_errors')) {
                             $scope.errors = data.error_data.non_field_errors;
+                        } else {
+                            $scope.errors = ['Username or password incorrect'];
                         }
                     }
                 }
 
-                if (email !== undefined && password !== undefined) {
-                    managerDatastoreUser.login(email, password, angular.copy($scope.selected_server)).then(onRequestReturn, onError);
+                if (username !== undefined && password !== undefined) {
+                    if (username.indexOf('@') === -1) {
+                        username = username + '@' + $scope.selected_server_domain;
+                    }
+                    managerDatastoreUser.login(username, password, angular.copy($scope.selected_server)).then(onRequestReturn, onError);
                 }
             };
         }]);
@@ -816,7 +844,7 @@
              * identifies trusted users
              */
             managerDatastoreUser
-                .search_user_datastore(item.share_right_create_user_id, item.share_right_create_user_email)
+                .search_user_datastore(item.share_right_create_user_id, item.share_right_create_user_username)
                 .then(function (user) {
 
                     if (user !== null) {
@@ -826,19 +854,20 @@
                     }
 
                     var onSuccess = function (data) {
+
                         $scope.user = {
                             data: {
-                                user_search_email: data.data.email,
+                                user_search_username: data.data.username,
                                 user_id: data.data.id,
-                                user_email: data.data.email,
+                                user_username: data.data.username,
                                 user_public_key: data.data.public_key
                             },
-                            name: data.data.email
+                            name: data.data.username
                         };
                         $scope.user_list = [
-                            {name: 'user_search_email', value: data.data.email},
+                            {name: 'user_search_username', value: data.data.username},
                             {name: 'user_id', value: data.data.id},
-                            {name: 'user_email', value: data.data.email},
+                            {name: 'user_username', value: data.data.username},
                             {name: 'user_public_key', value: data.data.public_key}
                         ]
                     };
@@ -846,7 +875,7 @@
                         //pass
                     };
 
-                    managerDatastoreUser.search_user(item.share_right_create_user_email)
+                    managerDatastoreUser.search_user(item.share_right_create_user_username)
                         .then(onSuccess, onError);
                 });
 

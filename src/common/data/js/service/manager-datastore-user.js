@@ -19,16 +19,18 @@
          * Ajax POST request to the backend with email and authkey for registration
          *
          * @param email
+         * @param username
          * @param password
          * @param server server object
          *
          * @returns {promise} promise
          */
-        var register = function(email, password, server) {
+        var register = function(email, username, password, server) {
 
             managerBase.delete_local_data();
 
             storage.insert('config', {key: 'user_email', value: email});
+            storage.insert('config', {key: 'user_username', value: username});
             storage.insert('config', {key: 'server', value: server});
 
             var pair = cryptoLibrary.generate_public_private_keypair();
@@ -59,7 +61,7 @@
                 };
             };
 
-            return apiClient.register(email, cryptoLibrary.generate_authkey(email, password), pair.public_key,
+            return apiClient.register(email, username, cryptoLibrary.generate_authkey(username, password), pair.public_key,
                 priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce, user_sauce,
                 browserClient.getBaseUrl())
                 .then(onSuccess, onError);
@@ -111,22 +113,22 @@
         };
 
         /**
-         * Ajax POST request to the backend with email and authkey for login, saves a token together with user_id
+         * Ajax POST request to the backend with username and authkey for login, saves a token together with user_id
          * and all the different keys of a user in the apidata storage
          *
-         * @param email
+         * @param username
          * @param password
          * @param server server object
          *
          * @returns {promise} promise
          */
-        var login = function(email, password, server) {
+        var login = function(username, password, server) {
 
             managerBase.delete_local_data();
 
-            var authkey = cryptoLibrary.generate_authkey(email, password);
+            var authkey = cryptoLibrary.generate_authkey(username, password);
 
-            storage.insert('config', {key: 'user_email', value: email});
+            storage.insert('config', {key: 'user_username', value: username});
             storage.insert('config', {key: 'server', value: server});
 
             var session_keys = cryptoLibrary.generate_public_private_keypair();
@@ -135,7 +137,7 @@
 
                 // in case of any error we remove the items we already added to our storage
                 // maybe we adjust this behaviour at some time
-                storage.remove('config', storage.find_one('config', {'key': 'user_email'}));
+                storage.remove('config', storage.find_one('config', {'key': 'user_username'}));
                 storage.remove('config', storage.find_one('config', {'key': 'server'}));
                 storage.save();
 
@@ -189,6 +191,7 @@
 
                     storage.insert('config', {key: 'user_id', value: response.data.user.id});
                     storage.insert('config', {key: 'user_token', value: response.data.token});
+                    storage.insert('config', {key: 'user_email', value: response.data.user.email});
                     storage.insert('config', {key: 'session_secret_key', value: session_secret_key});
                     storage.insert('config', {key: 'user_public_key', value: response.data.user.public_key});
                     storage.insert('config', {key: 'user_private_key', value: user_private_key});
@@ -207,7 +210,7 @@
                     .then(onSuccess, onError);
             };
 
-            return apiClient.login(email, authkey, session_keys.public_key)
+            return apiClient.login(username, authkey, session_keys.public_key)
                 .then(onSuccess, onError);
         };
 
@@ -376,13 +379,13 @@
         };
 
         /**
-         * searches a user in the database according to its email address
+         * searches a user in the database according to his username
          *
-         * @param email
+         * @param username
          * @returns {promise}
          */
-        var search_user = function(email) {
-            return apiClient.get_users_public_key(get_token(),undefined, email);
+        var search_user = function(username) {
+            return apiClient.get_users_public_key(get_token(),undefined, username);
         };
 
         shareBlueprint.register('search_user', search_user);

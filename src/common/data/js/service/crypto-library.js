@@ -113,10 +113,10 @@
 
 
     /**
-     * takes the sha512 of lowercase email (+ special sauce) as salt to generate scrypt password hash in hex called the
-     * authkey, so basically:
+     * takes the sha512 of lowercase username (+ special sauce) as salt to generate scrypt password hash in hex called
+     * the authkey, so basically:
      *
-     * hex(scrypt(password, hex(sha512(lower(email)+special_sauce))))
+     * hex(scrypt(password, hex(sha512(lower(username)+special_sauce))))
      *
      * For compatibility reasons with other clients please use the following parameters if you create your own client:
      *
@@ -127,11 +127,11 @@
      *
      * var special_sauce = 'b6acbb9b2077ba2011643b17c24bafea3b8d7066565546cfbde020790a64b469'
      *
-     * @param {string} email - email address of the user
+     * @param {string} username - username of the user (in email format)
      * @param {string} password - password of the user
      * @returns auth_key - scrypt hex value of the password with the sha512 of lowercase email as salt
      */
-    var generate_authkey = function (email, password) {
+    var generate_authkey = function (username, password) {
 
         if( debug ) {
             console.log("generate_authkey");
@@ -144,9 +144,9 @@
 
         var scrypt = scrypt_module_factory();
 
-        // takes the email address basically as salt. sha512 is used to enforce minimum length
-        //var salt = nacl.to_hex(nacl.crypto_hash_string(email.toLowerCase() + special_sauce));
-        var salt = sha512(email.toLowerCase() + special_sauce);
+        // takes the sha512(username) as salt.
+        // var salt = nacl.to_hex(nacl.crypto_hash_string(username.toLowerCase() + special_sauce));
+        var salt = sha512(username.toLowerCase() + special_sauce);
 
         return scrypt.to_hex(scrypt.crypto_scrypt(scrypt.encode_utf8(password), scrypt.encode_utf8(salt), n, r, p, l));
     };

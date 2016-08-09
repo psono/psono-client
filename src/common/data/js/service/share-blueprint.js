@@ -12,14 +12,14 @@
             user: {
                 id: "user",
                 name: "User",
-                title_field: "user_email",
-                search: ['user_name', 'user_email'],
+                title_field: "user_username",
+                search: ['user_name', 'user_username'],
                 fields: [
-                    { name: "user_search_email", field: "input", type: "email", title: "E-Mail", placeholder: "E-Mail", onChange: "onChangeSearchEmail" },
+                    { name: "user_search_username", field: "input", type: "email", title: "Username", placeholder: "Username", onChange: "onChangeSearchUsername" },
                     { name: "user_search_button", field: "button", type: "button", title: "Search", hidden: true, class: 'btn-primary', onClick:"onClickSearchButton" },
                     { name: "user_name", field: "input", type: "text", title: "Name", placeholder: "Name (optional)", hidden: true},
                     { name: "user_id", field: "input", type: "text", title: "ID", placeholder: "ID", required: true, hidden: true, readonly: true },
-                    { name: "user_email", field: "input", type: "text", title: "E-Mail", placeholder: "E-Mail", required: true, hidden: true, readonly: true },
+                    { name: "user_username", field: "input", type: "text", title: "Username", placeholder: "Username", required: true, hidden: true, readonly: true },
                     { name: "user_public_key", field: "textarea", title: "Public Key", placeholder: "Public Key", required: true, hidden: true, readonly: true,
                         note: 'To verify that this is the user you want to share data with, ask him if this is really his public key.' }
                 ],
@@ -35,28 +35,29 @@
                     if (vals.user_name && vals['user_name'].length > 0) {
                         visible_name += vals['user_name'];
                     } else {
-                        visible_name += vals['user_email'];
+                        visible_name += vals['user_username'];
                     }
                     visible_name += ' ('+vals['user_public_key']+')';
                     return visible_name;
                 },
                 /**
-                 * triggered whenever the search email input is changing.
+                 * triggered whenever the search username input is changing.
                  * adjusts the visibility of the search button according to the input value
                  *
                  * @param fields
                  */
-                onChangeSearchEmail: function(fields){
+                onChangeSearchUsername: function(fields){
 
-                    var has_search_email = false;
+                    var has_search_username = false;
 
                     var i;
                     for (i = 0; i < fields.length; i++) {
-                        if (fields[i].name === "user_search_email") {
+                        if (fields[i].name === "user_search_username") {
                             if (fields[i].value && fields[i].value.length > 0) {
-                                var regexp = /^[_a-zA-Z0-9]+(\.[_a-zA-Z0-9]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(\.[a-zA-Z]{2,4})$/;
+                                // Regex obtained from Angular JS
+                                var regexp = /^[a-z0-9!#$%&'*+\/=?^_`{|}~.-]+@[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/i;
                                 if (regexp.test(fields[i].value)) {
-                                    has_search_email = true;
+                                    has_search_username = true;
                                 }
                             }
                             break;
@@ -65,7 +66,7 @@
 
                     for (i = 0; i < fields.length; i++) {
                         if (fields[i].name === "user_search_button") {
-                            fields[i].hidden = !has_search_email;
+                            fields[i].hidden = !has_search_username;
                             break;
                         }
                     }
@@ -79,12 +80,12 @@
                  */
                 onClickSearchButton: function(fields, errors){
 
-                    var search_email = '';
+                    var search_username = '';
 
                     var i;
                     for (i = 0; i < fields.length; i++) {
-                        if (fields[i].name === "user_search_email") {
-                            search_email = fields[i].value;
+                        if (fields[i].name === "user_search_username") {
+                            search_username = fields[i].value;
                             break;
                         }
                     }
@@ -99,8 +100,8 @@
                             if (fields[i].name === "user_id") {
                                 fields[i].value = data.id;
                             }
-                            if (fields[i].name === "user_email") {
-                                fields[i].value = data.email;
+                            if (fields[i].name === "user_username") {
+                                fields[i].value = data.username;
                                 fields[i].hidden = false;
                             }
                             if (fields[i].name === "user_public_key") {
@@ -120,11 +121,11 @@
                         }
                     };
 
-                    registrations['search_user'](search_email).then(onSuccess, onError)
+                    registrations['search_user'](search_username).then(onSuccess, onError)
 
                 },
                 onEditModalOpen: function(node) {
-                    var showInEditOnly = ["user_name", "user_id", "user_email", "user_public_key"];
+                    var showInEditOnly = ["user_name", "user_id", "user_username", "user_public_key"];
                     for (var i = 0; i < node.fields.length; i++) {
                         node.fields[i].hidden = !(showInEditOnly.indexOf(node.fields[i].name) > -1);
                     }

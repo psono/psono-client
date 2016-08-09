@@ -193,9 +193,9 @@
 
                     }
 
-                    var authkey_old = cryptoLibrary.generate_authkey(config_email, specials['setting_password_old'].value);
+                    var authkey_old = cryptoLibrary.generate_authkey(storage.find_one('config', {key: 'user_username'}).value, specials['setting_password_old'].value);
 
-                    var new_authkey = cryptoLibrary.generate_authkey(specials['setting_email'].value, new_password);
+                    var new_authkey = cryptoLibrary.generate_authkey(storage.find_one('config', {key: 'user_username'}).value, new_password);
                     var user_private_key = storage.find_one('config', {key: 'user_private_key'});
                     var user_secret_key = storage.find_one('config', {key: 'user_secret_key'});
                     var user_sauce = storage.find_one('config', {key: 'user_sauce'}).value;

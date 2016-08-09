@@ -43,6 +43,11 @@
             </div>
 
             <form name="registerForm" ng-if="!success">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="registerUsername" placeholder="Username" ng-model="registerFormUsername" required aria-describedby="username-addon">
+                    <span class="input-group-addon" id="username-addon">@{{selected_server_domain}}</span>
+                </div>
+                <br>
                 <div class="form-group">
                     <input type="email" class="form-control" id="registerEmail" placeholder="E-Mail" ng-model="registerFormEmail" required>
                 </div>
@@ -61,7 +66,7 @@
                 </div>
 
                 <div class="form-group">
-                    <button ng-click="register(registerFormEmail, registerFormPassword, registerFormPasswordRepeat)" type="submit" class="btn btn-danger">Register</button>
+                    <button ng-click="register(registerFormEmail, registerFormUsername, registerFormPassword, registerFormPasswordRepeat)" type="submit" class="btn btn-danger">Register</button>
                     <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
                     <span ng-repeat="e in msgs" class="pull-right">{{e}}</span>
                 </div>

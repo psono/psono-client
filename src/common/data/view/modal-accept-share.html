@@ -54,11 +54,11 @@
             </label>
             <input ng-if="user.data.user_name" id="modalAcceptShareForm-user-name" type="text" placeholder="Name"
                    ng-value="user.data.user_name" class="form-control" disabled="disabled">
-            <label ng-if="!user.data.user_name" class="smalllabel" for="modalAcceptShareForm-user-email">
-                E-Mail <span ng-if="!user_is_trusted" class="text-danger">(not trusted)</span>
+            <label ng-if="!user.data.user_name" class="smalllabel" for="modalAcceptShareForm-user-username">
+                Username <span ng-if="!user_is_trusted" class="text-danger">(not trusted)</span>
             </label>
-            <input ng-if="!user.data.user_name" id="modalAcceptShareForm-user-email" type="text" placeholder="Email"
-                   ng-value="user.data.user_email" class="form-control" disabled="disabled">
+            <input ng-if="!user.data.user_name" id="modalAcceptShareForm-user-username" type="text" placeholder="Username"
+                   ng-value="user.data.user_username" class="form-control" disabled="disabled">
             <label class="smalllabel" for="modalAcceptShareForm-user-public-key">
                 Public Key: <span ng-if="!user_is_trusted" class="text-danger">(not trusted)</span>
             </label>

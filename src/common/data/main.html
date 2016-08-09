@@ -64,14 +64,14 @@
 
     <form name="loginForm">
         <div class="form-group">
-            <input type="email" class="form-control" id="loginEmail" placeholder="E-Mail" ng-model="loginFormEmail" required>
+            <input type="text" class="form-control" id="loginUsername" placeholder="E-Mail" ng-model="loginFormUsername" required>
         </div>
         <div class="form-group">
             <input type="password" class="form-control" id="loginPassword" placeholder="Password" ng-model="loginFormPassword" required>
         </div>
 
         <div class="form-group">
-            <button ng-click="login(loginFormEmail, loginFormPassword)" type="submit" class="btn btn-danger">Login</button>
+            <button ng-click="login(loginFormUsername, loginFormPassword)" type="submit" class="btn btn-danger">Login</button>
             <a href="#" ng-click="openTab('/data/register.html')">Register</a>
             <span class="pull-right" ng-repeat="e in errors">{{e}}</span>
         </div>
