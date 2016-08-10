@@ -25,7 +25,8 @@
                 return {secret_id: content.data.secret_id, secret_key: secret_key};
             };
 
-            return apiClient.create_secret(managerBase.find_one_nolimit('config', 'user_token'), c.text, c.nonce)
+            return apiClient.create_secret(managerBase.find_one_nolimit('config', 'user_token'),
+                managerBase.find_one_nolimit('config', 'session_secret_key'), c.text, c.nonce)
                 .then(onSuccess, onError);
         };
 
@@ -47,7 +48,8 @@
                 return JSON.parse(cryptoLibrary.decrypt_data(content.data.data, content.data.data_nonce, secret_key));
             };
 
-            return apiClient.read_secret(managerBase.find_one_nolimit('config', 'user_token'), secret_id)
+            return apiClient.read_secret(managerBase.find_one_nolimit('config', 'user_token'),
+                managerBase.find_one_nolimit('config', 'session_secret_key'), secret_id)
                 .then(onSuccess, onError);
         };
 
@@ -74,7 +76,8 @@
                 return {secret_id: content.data.secret_id};
             };
 
-            return apiClient.write_secret(managerBase.find_one_nolimit('config', 'user_token'), secret_id, c.text, c.nonce)
+            return apiClient.write_secret(managerBase.find_one_nolimit('config', 'user_token'),
+                managerBase.find_one_nolimit('config', 'session_secret_key'), secret_id, c.text, c.nonce)
                 .then(onSuccess, onError);
         };
 
@@ -139,7 +142,8 @@
                 itemBlueprint.blueprint_on_open_secret(type, decrypted_secret);
             };
 
-            apiClient.read_secret(managerBase.find_one_nolimit('config', 'user_token'), secret_id)
+            apiClient.read_secret(managerBase.find_one_nolimit('config', 'user_token'),
+                managerBase.find_one_nolimit('config', 'session_secret_key'), secret_id)
                 .then(onSuccess, onError);
 
         };

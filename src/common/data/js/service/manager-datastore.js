@@ -30,7 +30,8 @@
                     // pass
                 };
 
-                return apiClient.read_datastore(managerBase.find_one_nolimit('config', 'user_token'))
+                return apiClient.read_datastore(managerBase.find_one_nolimit('config', 'user_token'),
+                    managerBase.find_one_nolimit('config', 'session_secret_key'))
                     .then(onSuccess, onError);
             }
 
@@ -108,7 +109,8 @@
                 return datastore;
             };
 
-            return apiClient.read_datastore(managerBase.find_one_nolimit('config', 'user_token'), datastore_id)
+            return apiClient.read_datastore(managerBase.find_one_nolimit('config', 'user_token'),
+                managerBase.find_one_nolimit('config', 'session_secret_key'), datastore_id)
                 .then(onSuccess, onError);
         };
 
@@ -151,7 +153,9 @@
                                 return get_datastore_with_id(result.data.datastore_id);
                             };
 
-                            return apiClient.create_datastore(managerBase.find_one_nolimit('config', 'user_token'), type, description, '', '', cipher.text, cipher.nonce)
+                            return apiClient.create_datastore(managerBase.find_one_nolimit('config', 'user_token'),
+                                managerBase.find_one_nolimit('config', 'session_secret_key'), type, description, '', '',
+                                cipher.text, cipher.nonce)
                                 .then(onSuccess, onError);
                         }
                     };
@@ -330,7 +334,8 @@
                     return result.data;
                 };
 
-                return apiClient.write_datastore(managerBase.find_one_nolimit('config', 'user_token'), datastore_id, data.text, data.nonce)
+                return apiClient.write_datastore(managerBase.find_one_nolimit('config', 'user_token'),
+                    managerBase.find_one_nolimit('config', 'session_secret_key'), datastore_id, data.text, data.nonce)
                     .then(onSuccess, onError);
             };
 

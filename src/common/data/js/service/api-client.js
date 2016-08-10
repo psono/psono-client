@@ -2,7 +2,7 @@
     'use strict';
 
 
-    var apiClient = function($http, $q, $rootScope, storage) {
+    var apiClient = function($http, $q, $rootScope, storage, cryptoLibrary) {
 
         /**
          * wrapper function for the actual $http request
@@ -11,9 +11,10 @@
          * @param endpoint
          * @param data
          * @param headers
+         * @param [session_secret_key]
          * @returns {promise}
          */
-        var call = function(type, endpoint, data, headers) {
+        var call = function(type, endpoint, data, headers, session_secret_key) {
 
             var server = storage.find_one('config', {'key': 'server'});
 
@@ -27,6 +28,10 @@
 
             var backend = server['value']['url'];
 
+            if (session_secret_key && data !== null) {
+                data = cryptoLibrary.encrypt_data(JSON.stringify(data), session_secret_key);
+            }
+
             var req = {
                 method: type,
                 url: backend + endpoint,
@@ -39,6 +44,14 @@
             return $q(function(resolve, reject) {
 
                 var onSuccess = function(data) {
+
+                    if (session_secret_key && data !== null
+                        && data.hasOwnProperty('data')
+                        && data.data.hasOwnProperty('text')
+                        && data.data.hasOwnProperty('nonce')) {
+                        data.data = JSON.parse(cryptoLibrary.decrypt_data(data.data.text, data.data.nonce, session_secret_key));
+                    }
+
                     return resolve(data);
                 };
 
@@ -177,6 +190,7 @@
          * authkey) or new public key
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param session_secret_key
          * @param email
          * @param authkey
          * @param authkey_old
@@ -188,7 +202,7 @@
          *
          * @returns {promise}
          */
-        var update_user = function(token, email, authkey, authkey_old, private_key, private_key_nonce, secret_key, secret_key_nonce, user_sauce) {
+        var update_user = function(token, session_secret_key, email, authkey, authkey_old, private_key, private_key_nonce, secret_key, secret_key_nonce, user_sauce) {
             var endpoint = '/user/update/';
             var connection_type = "POST";
             var data = {
@@ -205,17 +219,18 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
         /**
          * Ajax GET request with the token as authentication to get the current user's datastore
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
          * @param {uuid} [datastore_id=null] - the datastore ID
          * @returns {promise}
          */
-        var read_datastore = function (token, datastore_id) {
+        var read_datastore = function (token, session_secret_key, datastore_id) {
 
             //optional parameter datastore_id
             if (datastore_id === undefined) { datastore_id = null; }
@@ -227,7 +242,7 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
 
@@ -236,6 +251,7 @@
          * together with the encrypted secret key and nonce
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
          * @param {string} type - the type of the datastore
          * @param {string} description - the description of the datastore
          * @param {string} [encrypted_data] - optional data for the new datastore
@@ -244,7 +260,7 @@
          * @param {string} encrypted_data_secret_key_nonce - nonce for secret key
          * @returns {promise}
          */
-        var create_datastore = function (token, type, description, encrypted_data, encrypted_data_nonce, encrypted_data_secret_key, encrypted_data_secret_key_nonce) {
+        var create_datastore = function (token, session_secret_key, type, description, encrypted_data, encrypted_data_nonce, encrypted_data_secret_key, encrypted_data_secret_key_nonce) {
             var endpoint = '/datastore/';
             var connection_type = "PUT";
             var data = {
@@ -259,13 +275,14 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
         /**
          * Ajax PUT request with the token as authentication and the new datastore content
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
          * @param {uuid} datastore_id - the datastore ID
          * @param {string} [encrypted_data] - optional data for the new datastore
          * @param {string} [encrypted_data_nonce] - nonce for data, necessary if data is provided
@@ -273,7 +290,8 @@
          * @param {string} [encrypted_data_secret_key_nonce] - nonce for secret key, wont update on the server if not provided
          * @returns {promise}
          */
-        var write_datastore = function (token, datastore_id, encrypted_data, encrypted_data_nonce, encrypted_data_secret_key, encrypted_data_secret_key_nonce) {
+        var write_datastore = function (token, session_secret_key, datastore_id, encrypted_data, encrypted_data_nonce,
+                                        encrypted_data_secret_key, encrypted_data_secret_key_nonce) {
             var endpoint = '/datastore/' + datastore_id + '/';
             var connection_type = "POST";
             var data = {
@@ -286,17 +304,18 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
         /**
          * Ajax GET request with the token as authentication to get the current user's secret
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
          * @param {uuid} [secret_id=null] - optional secret ID
          * @returns {promise}
          */
-        var read_secret = function (token, secret_id) {
+        var read_secret = function (token, session_secret_key, secret_id) {
 
             //optional parameter secret_id
             if (secret_id === undefined) { secret_id = null; }
@@ -308,7 +327,7 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
 
@@ -317,11 +336,12 @@
          * together with the encrypted secret key and nonce
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
          * @param {string} [encrypted_data] - optional data for the new secret
          * @param {string} [encrypted_data_nonce] - optional nonce for data, necessary if data is provided
          * @returns {promise}
          */
-        var create_secret = function (token, encrypted_data, encrypted_data_nonce) {
+        var create_secret = function (token, session_secret_key, encrypted_data, encrypted_data_nonce) {
             var endpoint = '/secret/';
             var connection_type = "PUT";
             var data = {
@@ -332,19 +352,20 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
         /**
          * Ajax PUT request with the token as authentication and the new secret content
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
          * @param {uuid} secret_id - the secret ID
          * @param {string} [encrypted_data] - optional data for the new secret
          * @param {string} [encrypted_data_nonce] - optional nonce for data, necessary if data is provided
          * @returns {promise}
          */
-        var write_secret = function (token, secret_id, encrypted_data, encrypted_data_nonce) {
+        var write_secret = function (token, session_secret_key, secret_id, encrypted_data, encrypted_data_nonce) {
             var endpoint = '/secret/' + secret_id + '/';
             var connection_type = "POST";
             var data = {
@@ -355,17 +376,18 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
         /**
          * Ajax GET request with the token as authentication to get the content for a single share
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
          * @param {uuid} share_id - the share ID
          * @returns {promise}
          */
-        var read_share = function (token, share_id) {
+        var read_share = function (token, session_secret_key, share_id) {
 
             var endpoint = '/share/' + share_id + '/';
             var connection_type = "GET";
@@ -374,16 +396,17 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
         /**
          * Ajax GET request with the token as authentication to get the current user's shares
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
          * @returns {promise}
          */
-        var read_shares = function (token) {
+        var read_shares = function (token, session_secret_key) {
 
             var endpoint = '/share/';
             var connection_type = "GET";
@@ -392,7 +415,7 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
 
@@ -401,6 +424,7 @@
          * together with the encrypted secret key and nonce
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
          * @param {string} [encrypted_data] - optional data for the new share
          * @param {string} [encrypted_data_nonce] - nonce for data, necessary if data is provided
          * @param {string} key - encrypted key used by the encryption
@@ -410,7 +434,7 @@
          * @param {string} link_id - the local id of the share in the datastructure
          * @returns {promise}
          */
-        var create_share = function (token, encrypted_data, encrypted_data_nonce, key, key_nonce, parent_share_id,
+        var create_share = function (token, session_secret_key, encrypted_data, encrypted_data_nonce, key, key_nonce, parent_share_id,
                                      datastore_id, link_id) {
             var endpoint = '/share/';
             var connection_type = "PUT";
@@ -428,19 +452,20 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
         /**
          * Ajax PUT request with the token as authentication and the new share content
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
          * @param {uuid} share_id - the share ID
          * @param {string} [encrypted_data] - optional data for the new share
          * @param {string} [encrypted_data_nonce] - optional nonce for data, necessary if data is provided
          * @returns {promise}
          */
-        var write_share = function (token, share_id, encrypted_data, encrypted_data_nonce) {
+        var write_share = function (token, session_secret_key, share_id, encrypted_data, encrypted_data_nonce) {
             var endpoint = '/share/' + share_id + '/';
             var connection_type = "POST";
             var data = {
@@ -451,17 +476,18 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
         /**
          * Ajax GET request with the token as authentication to get the users and groups rights of the share
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
          * @param {uuid} share_id - the share ID
          * @returns {promise}
          */
-        var read_share_rights = function (token, share_id) {
+        var read_share_rights = function (token, session_secret_key, share_id) {
             var endpoint = '/share/rights/' + share_id + '/';
             var connection_type = "GET";
             var data = null;
@@ -469,16 +495,17 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
         /**
          * Ajax GET request with the token as authentication to get all the users share rights
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
          * @returns {promise}
          */
-        var read_share_rights_overview = function (token) {
+        var read_share_rights_overview = function (token, session_secret_key) {
             var endpoint = '/share/right/';
             var connection_type = "GET";
             var data = null;
@@ -486,7 +513,7 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
 
@@ -494,6 +521,7 @@
          * Ajax GET request with the token as authentication to get the users and groups rights of the share
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
          * @param {uuid} encrypted_title - the title shown to the user before he accepts
          * @param {uuid} encrypted_title_nonce - the corresponding title nonce
          * @param {uuid} share_id - the share ID
@@ -505,8 +533,8 @@
          * @param {bool} grant - grant right
          * @returns {promise}
          */
-        var create_share_right = function (token, encrypted_title, encrypted_title_nonce, share_id, user_id, key,
-                                           key_nonce, read, write, grant) {
+        var create_share_right = function (token, session_secret_key, encrypted_title, encrypted_title_nonce, share_id,
+                                           user_id, key, key_nonce, read, write, grant) {
             var endpoint = '/share/right/';
             var connection_type = "PUT";
             var data = {
@@ -524,17 +552,18 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
         /**
          * Ajax DELETE request with the token as authentication to delete the user / group share right
          *
          * @param token
+         * @param session_secret_key
          * @param share_right_id
          * @returns {*}
          */
-        var delete_share_right = function (token, share_right_id) {
+        var delete_share_right = function (token, session_secret_key, share_right_id) {
             var endpoint = '/share/right/' + share_right_id + '/';
             var connection_type = "DELETE";
             var data = {};
@@ -542,16 +571,17 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
         /**
          * Ajax GET request with the token as authentication to get all the users inherited share rights
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
          * @returns {promise}
          */
-        var read_share_rights_inherit_overview = function (token) {
+        var read_share_rights_inherit_overview = function (token, session_secret_key) {
             var endpoint = '/share/right/inherit/';
             var connection_type = "GET";
             var data = null;
@@ -559,7 +589,7 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
 
@@ -567,11 +597,12 @@
          * Ajax GET request with the token as authentication to get the users and groups inherited rights of the share
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
          * @param {uuid} share_right_id - the id of the share_right that gets inherited
          * @param {uuid} share_id - the share ID
          * @returns {promise}
          */
-        var create_share_right_inherit = function (token, share_right_id, share_id) {
+        var create_share_right_inherit = function (token, session_secret_key, share_right_id, share_id) {
             var endpoint = '/share/right/inherit/';
             var connection_type = "PUT";
             var data = {
@@ -582,17 +613,18 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
         /**
          * Ajax DELETE request with the token as authentication to delete the user / group inherited share right
          *
-         * @param token
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param session_secret_key
          * @param share_right_inherit_id
          * @returns {*}
          */
-        var delete_share_right_inherit = function (token, share_right_inherit_id) {
+        var delete_share_right_inherit = function (token, session_secret_key, share_right_inherit_id) {
             var endpoint = '/share/right/inherit/' + share_right_inherit_id + '/';
             var connection_type = "DELETE";
             var data = {};
@@ -600,14 +632,15 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
         /**
          * Ajax POST request with the token as authentication to accept a share right and in the same run updates it
          * with the re-encrypted key
          *
-         * @param token
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
          * @param share_right_id
          * @param key
          * @param key_nonce
@@ -616,7 +649,7 @@
          * @param parent_datastore_id
          * @returns {*}
          */
-        var accept_share_right = function (token, share_right_id, key, key_nonce, link_id, parent_share_id, parent_datastore_id) {
+        var accept_share_right = function (token, session_secret_key, share_right_id, key, key_nonce, link_id, parent_share_id, parent_datastore_id) {
             var endpoint = '/share/right/accept/' + share_right_id + '/';
             var connection_type = "POST";
             var data = {
@@ -630,18 +663,19 @@
                 "Authorization": "Token "+ token
             };
             
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
         /**
          * Ajax POST request with the token as authentication to accept a share right and in the same run updates it
          * with the re-encrypted key
          *
-         * @param token
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
          * @param share_right_id
          * @returns {*}
          */
-        var decline_share_right = function (token, share_right_id) {
+        var decline_share_right = function (token, session_secret_key, share_right_id) {
             var endpoint = '/share/right/decline/' + share_right_id + '/';
             var connection_type = "POST";
             var data = null;
@@ -649,18 +683,19 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
         /**
          * Ajax GET request with the token as authentication to get the public key of a user by user_id or user_email
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
          * @param {uuid} [user_id] - the user ID
          * @param {email} [user_username] - the user
          * @returns {promise}
          */
-        var get_users_public_key = function (token, user_id, user_username) {
+        var get_users_public_key = function (token, session_secret_key, user_id, user_username) {
             var endpoint = '/user/search/';
             var connection_type = "POST";
             var data = {
@@ -671,7 +706,7 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
 
@@ -680,13 +715,14 @@
          * (parent-)share
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
          * @param {uuid} link_id - the link id
          * @param {uuid} share_id - the share ID
          * @param {uuid} [parent_share_id=null] - optional parent share ID, necessary if no datastore_id is provided
          * @param {uuid} [datastore_id=null] - optional datastore ID, necessary if no parent_share_id is provided
          * @returns {promise}
          */
-        var create_link = function (token, link_id, share_id, parent_share_id, datastore_id) {
+        var create_link = function (token, session_secret_key, link_id, share_id, parent_share_id, datastore_id) {
             var endpoint = '/share/link/' + link_id + '/';
             var connection_type = "PUT";
             var data = {
@@ -698,7 +734,7 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
         /**
@@ -706,12 +742,13 @@
          * (parent-)share
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
          * @param {uuid} link_id - the link id
          * @param {uuid} [new_parent_share_id=null] - optional new parent share ID, necessary if no new_datastore_id is provided
          * @param {uuid} [new_parent_datastore_id=null] - optional new datastore ID, necessary if no new_parent_share_id is provided
          * @returns {promise}
          */
-        var move_link = function (token, link_id, new_parent_share_id, new_parent_datastore_id) {
+        var move_link = function (token, session_secret_key, link_id, new_parent_share_id, new_parent_datastore_id) {
             var endpoint = '/share/link/' + link_id + '/';
             var connection_type = "POST";
             var data = {
@@ -722,17 +759,18 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
         /**
          * Ajax DELETE request with the token as authentication to delete a link
          *
-         * @param token
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
          * @param link_id
          * @returns {promise}
          */
-        var delete_link = function (token, link_id) {
+        var delete_link = function (token, session_secret_key, link_id) {
             var endpoint = '/share/link/' + link_id + '/';
             var connection_type = "DELETE";
             var data = {};
@@ -740,17 +778,18 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
         /**
          * Ajax GET request with the token as authentication to get the current user's groups
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
          * @param {uuid} [group_id=null] - optional group ID
          * @returns {promise}
          */
-        var read_group = function (token, group_id) {
+        var read_group = function (token, session_secret_key, group_id) {
 
             //optional parameter group_id
             if (group_id === undefined) { group_id = null; }
@@ -762,7 +801,7 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
 
@@ -770,12 +809,13 @@
          * Ajax PUT request to create a group with the token as authentication and together with the name of the group
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
          * @param {string} name - name of the new group
          * @param {string} encrypted_data_secret_key - encrypted secret key
          * @param {string} encrypted_data_secret_key_nonce - nonce for secret key
          * @returns {promise}
          */
-        var create_group = function (token, name, encrypted_data_secret_key, encrypted_data_secret_key_nonce) {
+        var create_group = function (token, session_secret_key, name, encrypted_data_secret_key, encrypted_data_secret_key_nonce) {
             var endpoint = '/group/';
             var connection_type = "PUT";
             var data = {
@@ -787,7 +827,7 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
         return {
@@ -826,6 +866,6 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("apiClient", ['$http', '$q', '$rootScope', 'storage', apiClient]);
+    app.factory("apiClient", ['$http', '$q', '$rootScope', 'storage', 'cryptoLibrary', apiClient]);
 
 }(angular, scrypt_module_factory));

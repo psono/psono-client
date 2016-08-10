@@ -22,7 +22,8 @@
                 return result;
             };
 
-            return apiClient.create_link(managerBase.find_one_nolimit('config', 'user_token'), link_id, share_id, parent_share_id, datastore_id)
+            return apiClient.create_link(managerBase.find_one_nolimit('config', 'user_token'),
+                managerBase.find_one_nolimit('config', 'session_secret_key'), link_id, share_id, parent_share_id, datastore_id)
                 .then(onSuccess, onError);
         };
 
@@ -44,7 +45,8 @@
                 return result;
             };
 
-            return apiClient.move_link(managerBase.find_one_nolimit('config', 'user_token'), link_id, new_parent_share_id, new_parent_datastore_id)
+            return apiClient.move_link(managerBase.find_one_nolimit('config', 'user_token'),
+                managerBase.find_one_nolimit('config', 'session_secret_key'), link_id, new_parent_share_id, new_parent_datastore_id)
                 .then(onSuccess, onError);
         };
 
@@ -64,7 +66,8 @@
                 return result;
             };
 
-            return apiClient.delete_link(managerBase.find_one_nolimit('config', 'user_token'), link_id)
+            return apiClient.delete_link(managerBase.find_one_nolimit('config', 'user_token'),
+                managerBase.find_one_nolimit('config', 'session_secret_key'), link_id)
                 .then(onSuccess, onError);
         };
 
