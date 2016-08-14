@@ -68,6 +68,24 @@
         };
 
         /**
+         * returns the token from storage
+         *
+         * @returns {string}
+         */
+        var get_token = function () {
+            return find_one_nolimit('config', 'user_token');
+        };
+
+        /**
+         * returns the session secret key from storage
+         *
+         * @returns {string}
+         */
+        var get_session_secret_key = function () {
+            return find_one_nolimit('config', 'session_secret_key');
+        };
+
+        /**
          * encrypts some data with user's public-private-key-crypto
          *
          * @param data
@@ -115,6 +133,8 @@
             delete_local_data: delete_local_data,
             find_one_nolimit: find_one_nolimit,
             find_one: find_one,
+            get_token: get_token,
+            get_session_secret_key: get_session_secret_key,
             encrypt_private_key: encrypt_private_key,
             decrypt_private_key: decrypt_private_key,
             encrypt_secret_key: encrypt_secret_key,

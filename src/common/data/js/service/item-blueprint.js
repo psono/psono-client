@@ -165,7 +165,16 @@
                 id: 'share',
                 name: 'Share',
                 icon: 'fa fa-user-plus',
+                ngClass: function(item) {
+                    if (item.hasOwnProperty('share_rights') && item.share_rights.grant == false) {
+                        return 'hidden';
+                    }
+                },
                 onClick: function(item, path) {
+
+                    if (item.hasOwnProperty('share_rights') && item.share_rights.grant == false) {
+                        return;
+                    }
 
                     /**
                      * little wrapper to create the share rights from the selected users and rights for a given nonce and
@@ -336,11 +345,20 @@
             show_share_rights: {
                 id: 'show_share_rights',
                 name: 'Rights Overview',
-                icon: 'fa fa-eye',
+                icon: 'fa fa-list',
+                ngClass: function(item) {
+                    if (item.hasOwnProperty('share_rights') && item.share_rights.grant == false) {
+                        return 'hidden';
+                    }
+                },
                 condition: function(item) {
                     return item.hasOwnProperty('share_id');
                 },
                 onClick: function(item, path) {
+
+                    if (item.hasOwnProperty('share_rights') && item.share_rights.grant == false) {
+                        return;
+                    }
 
                     // create the share
                     registrations['read_share_rights'](item.share_id).then(function (share_details) {
@@ -382,6 +400,10 @@
                 }
 
                 if (_additionalFunction[property].hasOwnProperty('condition') && !_additionalFunction[property].condition(item)) {
+                    continue;
+                }
+
+                if (_additionalFunction[property].hasOwnProperty('ngClass') && _additionalFunction[property].ngClass(item) == 'hidden') {
                     continue;
                 }
 

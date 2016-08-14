@@ -11,24 +11,37 @@
          * @returns {{scheme: *, authority: *, path: *, query: *, fragment: *}}
          */
         var parse_url = function (url) {
+            var authority;
+            var splitted_authority;
+            var splitted_domain;
+            var full_domain;
+            var top_domain;
+
             // According to RFC http://www.ietf.org/rfc/rfc3986.txt Appendix B
             var pattern = new RegExp("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
             var matches =  url.match(pattern);
 
-            var splitted_authority = matches[4].replace(/^(www\.)/,"").split(":");
+            if (typeof(matches[4]) !== 'undefined') {
+                authority = matches[4].replace(/^(www\.)/,"");
+                splitted_authority = authority.split(":");
+            }
 
             var port = null;
-            if (splitted_authority.length == 2) {
+            if (typeof(splitted_authority) !== 'undefined' && splitted_authority.length == 2) {
                 port = splitted_authority[splitted_authority.length - 1];
             }
-            var splitted_domain = splitted_authority[0].split(".");
+            if (typeof(splitted_authority) !== 'undefined') {
+                splitted_domain = splitted_authority[0].split(".");
+                full_domain = splitted_authority[0];
+            }
 
-            var full_domain = splitted_authority[0];
-            var top_domain = splitted_domain[splitted_domain.length - 2] + '.' + splitted_domain[splitted_domain.length - 1];
+            if (typeof(splitted_domain) !== 'undefined') {
+                top_domain = splitted_domain[splitted_domain.length - 2] + '.' + splitted_domain[splitted_domain.length - 1];
+            }
 
             return {
                 scheme: matches[2],
-                authority: matches[4].replace(/^(www\.)/,""), //remove leading www.
+                authority: authority, //remove leading www.
                 full_domain: full_domain,
                 top_domain: top_domain,
                 port: port,
@@ -123,7 +136,7 @@
                 return 'Usernames may only contain letters, numbers, periods and dashes.';
             }
             if (username.length < 3) {
-                return 'Usernames may not be shorter than 3 chars';
+                return 'Usernames may not be shorter than 3 chars.';
             }
             if (username.substring(0, 1) == ".") {
                 return 'Usernames may not start with a period.';

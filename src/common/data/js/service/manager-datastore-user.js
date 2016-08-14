@@ -12,7 +12,8 @@
          * @return {boolean} is the user logged in
          */
         var is_logged_in = function () {
-            return storage.find_one('config', {'key': 'user_token'}) !== null;
+            var token = managerBase.get_token();
+            return token !== null && token !== "";
         };
 
         /**
@@ -101,15 +102,6 @@
 
             return apiClient.verify_email(activate_code)
                 .then(onSuccess, onError);
-        };
-
-        /**
-         * returns the token from storage
-         *
-         * @returns {string}
-         */
-        var get_token = function () {
-            return storage.find_one('config', {'key': 'user_token'}).value;
         };
 
         /**
@@ -244,13 +236,13 @@
                 };
             };
 
-            if (storage.find_one('config', {'key': 'user_token'}) === null) {
+            if (managerBase.get_token() === null) {
                 return $q(function(resolve) {
                     return resolve(onSuccess());
                 });
             }
 
-            return apiClient.logout(get_token())
+            return apiClient.logout(managerBase.get_token())
                 .then(onSuccess, onError);
         };
 
@@ -274,8 +266,8 @@
          */
         var update_user = function(email, authkey, authkey_old, private_key, private_key_nonce, secret_key,
                                   secret_key_nonce, user_sauce) {
-            return apiClient.update_user(get_token(), email, authkey, authkey_old,
-                private_key, private_key_nonce, secret_key, secret_key_nonce, user_sauce);
+            return apiClient.update_user(managerBase.get_token(), managerBase.get_session_secret_key(), email, authkey,
+                authkey_old, private_key, private_key_nonce, secret_key, secret_key_nonce, user_sauce);
         };
 
         /**
@@ -385,7 +377,8 @@
          * @returns {promise}
          */
         var search_user = function(username) {
-            return apiClient.get_users_public_key(get_token(),undefined, username);
+
+            return apiClient.get_users_public_key(managerBase.get_token(), managerBase.get_session_secret_key(), undefined, username);
         };
 
         shareBlueprint.register('search_user', search_user);

@@ -13,7 +13,7 @@
                 title: 'Dev Psono.pw', url: 'https://dev.psono.pw'
             },
             {
-                title: 'Dev2 Psono.pw', url: 'http://dev.psono.pw:8001'
+                title: 'Dev2 Psono.pw', url: 'http://5.9.117.8:8001'
             }
         ]);
 
@@ -193,15 +193,19 @@
                         $scope.success = true;
                         $scope.msgs.push('Successful, check your e-mail.');
                     } else {
+                        // handle server is offline
                         if (data.error_data == null) {
                             $scope.errors.push('Server offline.');
-                        } else {
-                            for (var property in data.error_data) {
-                                if (data.error_data.hasOwnProperty(property)) {
-                                    for (var i = 0; i < data.error_data[property].length; i++) {
-                                        $scope.errors.push(data.error_data[property][i]);
-                                    }
-                                }
+                            return;
+                        }
+
+                        // server is not offline and returned some errors
+                        for (var property in data.error_data) {
+                            if (!data.error_data.hasOwnProperty(property)) {
+                                continue;
+                            }
+                            for (var i = 0; i < data.error_data[property].length; i++) {
+                                $scope.errors.push(data.error_data[property][i]);
                             }
                         }
                     }
@@ -222,6 +226,7 @@
                     $scope.errors.push(test_result);
                     return;
                 }
+
                 username = username + '@' + $scope.selected_server_domain;
 
                 // TODO forbid weak and poor passwords

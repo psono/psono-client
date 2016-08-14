@@ -29,7 +29,7 @@
             var backend = server['value']['url'];
 
             if (session_secret_key && data !== null) {
-                data = cryptoLibrary.encrypt_data(JSON.stringify(data), session_secret_key);
+                // data = cryptoLibrary.encrypt_data(JSON.stringify(data), session_secret_key);
             }
 
             var req = {
@@ -40,10 +40,9 @@
 
             req.headers = headers;
 
-
             return $q(function(resolve, reject) {
 
-                var onSuccess = function(data) {
+                var decrypt_data = function(data) {
 
                     if (session_secret_key && data !== null
                         && data.hasOwnProperty('data')
@@ -52,14 +51,19 @@
                         data.data = JSON.parse(cryptoLibrary.decrypt_data(data.data.text, data.data.nonce, session_secret_key));
                     }
 
-                    return resolve(data);
+                    console.log(data);
+                    return data;
+                };
+
+                var onSuccess = function(data) {
+                    return resolve(decrypt_data(data));
                 };
 
                 var onError = function(data) {
                     if (data.status === 401) {
                         $rootScope.$broadcast('force_logout', '');
                     }
-                    return reject(data);
+                    return reject(decrypt_data(data));
                 };
 
                 $http(req)

@@ -173,6 +173,10 @@ h1, h2 {
   border-top-color: #2ba880;
   border-left-color: #2ba880; }
 
+/* Fix Bootstrap disabled */
+.dropdown-menu > .disabled > a, .dropdown-menu > .disabled > a:hover, .dropdown-menu > .disabled > a:focus {
+  color: #999; }
+
 /* CSS fix for angular-ui explained here: https://angular-ui.github.io/bootstrap/ */
 .nav, .pagination, .carousel, .panel-title a {
   cursor: pointer; }

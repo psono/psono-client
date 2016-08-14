@@ -3,45 +3,102 @@
 
     var managerDatastorePassword = function($q, $rootScope, managerSecret, managerDatastore, managerShare, passwordGenerator, itemBlueprint, helper) {
 
+
+        var calculate_user_share_rights = function(share) {
+
+            var i;
+            var rights = {
+                'read': false,
+                'write': false,
+                'grant': false
+            };
+
+            if (share.user_share_rights.length > 0) {
+                for (i = share.user_share_rights.length - 1; i >= 0; i--) {
+                    rights['read'] = rights['read'] || share.user_share_rights[i].read;
+                    rights['write'] = rights['write'] || share.user_share_rights[i].write;
+                    rights['grant'] = rights['grant'] || share.user_share_rights[i].grant;
+                }
+            } else {
+                for (i = share.user_share_rights_inherited.length - 1; i >= 0; i--) {
+                    rights['read'] = rights['read'] || share.user_share_rights_inherited[i].read;
+                    rights['write'] = rights['write'] || share.user_share_rights_inherited[i].write;
+                    rights['grant'] = rights['grant'] || share.user_share_rights_inherited[i].grant;
+                }
+            }
+
+            return rights;
+        };
+
+
+        var update_share_rights_of_folders_and_items = function(obj) {
+            var n;
+            var share_rights = {
+                    'read': true,
+                    'write': true,
+                    'grant': true,
+                    'delete': true
+                };
+
+            if (!obj.hasOwnProperty('datastore_id')) {
+                share_rights['read'] = obj['share_rights']['read'];
+                share_rights['write'] = obj['share_rights']['write'];
+                share_rights['grant'] = obj['share_rights']['grant'] && obj['share_rights']['write'];
+                share_rights['delete'] = obj['share_rights']['write'];
+            }
+
+            // check all folders recursive
+            if (obj.hasOwnProperty('folders')) {
+                for (n = 0; n < obj.folders.length; n++) {
+                    if (obj.folders[n].hasOwnProperty('share_id')) {
+                        continue;
+                    }
+                    obj.folders[n]['share_rights'] = share_rights;
+                    update_share_rights_of_folders_and_items(obj.folders[n]);
+                }
+            }
+            // check all items
+            if (obj.hasOwnProperty('items')) {
+                for (n = 0; n < obj.items.length; n++) {
+                    if (obj.folders[n].hasOwnProperty('share_id')) {
+                        continue;
+                    }
+                    if (obj.items[n].hasOwnProperty('share_id')) {
+                        continue;
+                    }
+                    obj.items[n]['share_rights'] = share_rights;
+                }
+            }
+        };
+
+
         /**
          * updates some datastore folders or share folders with content
          *
          * @param datastore
          * @param path
          * @param content
+         * @param parent_share_rights
          */
-        var update_paths_with_data = function(datastore, path, content) {
-            var i, l;
+        var update_paths_with_data = function(datastore, path, content, parent_share_rights) {
             var path_copy = path.slice();
             var search = find_in_datastore(path_copy, datastore);
             var obj = search[0][search[1]];
 
-            obj['share_rights'] = {
-                'read': false,
-                'write': false,
-                'grant': false
-            };
-            if (content.user_share_rights.length > 0) {
-                for (i = content.user_share_rights.length - 1; i >= 0; i--) {
-                    obj['share_rights']['read'] = obj['share_rights']['read'] ||content.user_share_rights[i].read;
-                    obj['share_rights']['write'] = obj['share_rights']['write'] || content.user_share_rights[i].write;
-                    obj['share_rights']['grant'] = obj['share_rights']['grant'] ||content.user_share_rights[i].grant;
-                }
-            } else {
-                for (i = content.user_share_rights_inherited.length - 1; i >= 0; i--) {
-                    obj['share_rights']['read'] = obj['share_rights']['read'] ||content.user_share_rights_inherited[i].read;
-                    obj['share_rights']['write'] = obj['share_rights']['write'] || content.user_share_rights_inherited[i].write;
-                    obj['share_rights']['grant'] = obj['share_rights']['grant'] ||content.user_share_rights_inherited[i].grant;
-                }
-            }
+            // update share_rights in share object
+            obj['share_rights'] = calculate_user_share_rights(content);
+            obj['share_rights']['delete'] = parent_share_rights['write'];
 
-
+            // update data (folder and items) in share object
             for (var prop in content.data) {
                 if (!content.data.hasOwnProperty(prop)) {
                     continue;
                 }
                 obj[prop] = content.data[prop];
             }
+
+            // update share_rights in folders and items
+            update_share_rights_of_folders_and_items(obj);
         };
 
         /**
@@ -57,8 +114,16 @@
         var read_shares = function(datastore, share_rights_dict, share_index, all_share_data, blocking) {
             var open_calls = 0;
             var all_calls = [];
+            var rights;
 
-            var read_shares_recursive = function(datastore, share_rights_dict, share_index, all_share_data) {
+            var parent_share_rights = {
+                'read': true,
+                'write': true,
+                'grant': false,
+                'delete': false
+            };
+
+            var read_shares_recursive = function(datastore, share_rights_dict, share_index, all_share_data, parent_share_rights) {
                 if (typeof share_index === 'undefined') {
                     return datastore;
                 }
@@ -73,8 +138,9 @@
                         var search = find_in_datastore(path_copy, datastore);
                         var sub_datastore = search[0][search[1]];
 
+                        // Test if we already have it cached
                         if (all_share_data.hasOwnProperty(share_id)) {
-                            update_paths_with_data(datastore, share_index[share_id].paths[i], all_share_data[share_id]);
+                            update_paths_with_data(datastore, share_index[share_id].paths[i], all_share_data[share_id], parent_share_rights);
                             continue;
                         }
 
@@ -87,9 +153,11 @@
                             var onSuccess = function (content) {
                                 all_share_data[share_id] = content;
 
-                                update_paths_with_data(datastore, path, content);
+                                update_paths_with_data(datastore, path, content, parent_share_rights);
 
-                                read_shares_recursive(sub_datastore, share_rights_dict, content.data.share_index, all_share_data);
+                                rights = calculate_user_share_rights(content);
+
+                                read_shares_recursive(sub_datastore, share_rights_dict, content.data.share_index, all_share_data, rights);
                                 open_calls--;
                             };
 
@@ -105,7 +173,9 @@
                 }
             };
 
-            read_shares_recursive(datastore, share_rights_dict, share_index, all_share_data);
+            // Read shares recursive. We start from the datastore, so delete is allowed in the datastore
+            read_shares_recursive(datastore, share_rights_dict, share_index, all_share_data, parent_share_rights);
+            update_share_rights_of_folders_and_items(datastore);
 
             if (blocking) {
                 return $q.all(all_calls).then(function (ret) {
@@ -130,6 +200,8 @@
          * @param share
          */
         var hide_sub_share_content = function (share) {
+            console.log('hide_sub_share_content');
+            console.log(share);
 
             var allowed_props = ['id', 'name', 'share_id', 'share_secret_key'];
 
@@ -141,6 +213,10 @@
                 for (var i = share.share_index[share_id].paths.length - 1; i >= 0; i--) {
                     var path_copy = share.share_index[share_id].paths[i].slice();
                     var search = find_in_datastore(path_copy, share);
+                    console.log('find_in_datastore');
+                    console.log(share);
+                    console.log(path_copy);
+                    console.log(search);
 
                     var obj = search[0][search[1]];
 
@@ -477,7 +553,7 @@
                 relative_path = path_copy;
             } else {
                 var passed = false;
-                for (var i = path_copy.length - 1; i >= 0; i--) {
+                for (var i = 0, l = path_copy.length; i < l; i++) {
                     if (passed) {
                         relative_path.push(path_copy[i]);
                     } else if (share.id == path_copy[i]) {
@@ -512,9 +588,12 @@
 
             var parent_share = managerShare.get_closest_parent_share(path_copy, datastore, datastore, distance);
 
+            // create share_index object if not exists
             if (typeof(parent_share.share_index) == 'undefined') {
                 parent_share.share_index = {};
             }
+
+            // add the the entry for the share in the share_index if not yet exists
             if (typeof(parent_share.share_index[share_id]) == 'undefined') {
 
                 var search = find_in_datastore(path_copy2, datastore);
@@ -527,7 +606,7 @@
             }
 
             var parent_share_path = [];
-            for (i = path_copy3.length - 1; i >= 0; i--) {
+            for (i = 0, l = path_copy3.length; i < l; i++) {
                 if (typeof parent_share.id === 'undefined' || path_copy3[i] === parent_share.id) {
                     break;
                 }
@@ -550,7 +629,7 @@
                     continue;
                 }
 
-                for (i = parent_share.share_index[old_share_id].paths.length - 1; i >= 0; i--) {
+                for (i = 0, l = parent_share.share_index[old_share_id].paths.length; i < l; i++) {
                     if (!helper.array_starts_with(parent_share.share_index[old_share_id].paths[i], relative_path)) {
                         continue;
                     }

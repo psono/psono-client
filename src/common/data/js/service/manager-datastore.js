@@ -30,8 +30,8 @@
                     // pass
                 };
 
-                return apiClient.read_datastore(managerBase.find_one_nolimit('config', 'user_token'),
-                    managerBase.find_one_nolimit('config', 'session_secret_key'))
+                return apiClient.read_datastore(managerBase.get_token(),
+                    managerBase.get_session_secret_key())
                     .then(onSuccess, onError);
             }
 
@@ -109,8 +109,8 @@
                 return datastore;
             };
 
-            return apiClient.read_datastore(managerBase.find_one_nolimit('config', 'user_token'),
-                managerBase.find_one_nolimit('config', 'session_secret_key'), datastore_id)
+            return apiClient.read_datastore(managerBase.get_token(),
+                managerBase.get_session_secret_key(), datastore_id)
                 .then(onSuccess, onError);
         };
 
@@ -153,8 +153,8 @@
                                 return get_datastore_with_id(result.data.datastore_id);
                             };
 
-                            return apiClient.create_datastore(managerBase.find_one_nolimit('config', 'user_token'),
-                                managerBase.find_one_nolimit('config', 'session_secret_key'), type, description, '', '',
+                            return apiClient.create_datastore(managerBase.get_token(),
+                                managerBase.get_session_secret_key(), type, description, '', '',
                                 cipher.text, cipher.nonce)
                                 .then(onSuccess, onError);
                         }
@@ -277,7 +277,7 @@
 
             var content_copy  = helper.duplicate_object(content);
 
-            var filter = ['expanded', 'filter', 'hidden'];
+            var filter = ['expanded', 'filter', 'hidden', 'share_rights'];
 
             var filter_content = function (content, filter) {
                 var i, m;
@@ -334,8 +334,8 @@
                     return result.data;
                 };
 
-                return apiClient.write_datastore(managerBase.find_one_nolimit('config', 'user_token'),
-                    managerBase.find_one_nolimit('config', 'session_secret_key'), datastore_id, data.text, data.nonce)
+                return apiClient.write_datastore(managerBase.get_token(),
+                    managerBase.get_session_secret_key(), datastore_id, data.text, data.nonce)
                     .then(onSuccess, onError);
             };
 
