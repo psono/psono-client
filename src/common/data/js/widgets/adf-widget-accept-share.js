@@ -83,9 +83,10 @@
                     if (typeof parent.items === 'undefined') {
                         parent.items = [];
                     }
+                    var link_id = uuid.v4();
 
                     var datastore_object = {
-                        id: uuid.v4(),
+                        id: link_id,
                         type: content.id
                     };
                     var secret_object = {};
@@ -113,16 +114,27 @@
                         // pass
                     };
 
+                    var closest_share = managerShare.get_closest_parent_share(path.slice(), $scope.structure.data,
+                        $scope.structure.data, 0);
+
+                    var parent_share_id, parent_datastore_id;
+
+                    if (closest_share.hasOwnProperty('share_id')) {
+                        parent_share_id = closest_share['share_id'];
+                    } else {
+                        parent_datastore_id = closest_share['datastore_id'];
+                    }
+
                     var onSuccess = function(e) {
                         datastore_object['secret_id'] = e.secret_id;
                         datastore_object['secret_key'] = e.secret_key;
 
                         parent.items.push(datastore_object);
 
-                        managerDatastorePassword.save_acceptshare($scope.structure.data, [path]);
+                        managerDatastorePassword.save_datastore($scope.structure.data, [path]);
                     };
 
-                    managerSecret.create_secret(secret_object)
+                    managerSecret.create_secret(secret_object, link_id, parent_datastore_id, parent_share_id)
                         .then(onSuccess, onError);
 
                 }, function () {
@@ -254,6 +266,8 @@
              * @param type type of the item (item or folder)
              */
             var moveItem = function(scope, item_path, target_path, type) {
+                var i, l;
+                // TODO ask for confirmation
 
                 var orig_item_path = item_path.slice();
                 orig_item_path.pop();
@@ -292,18 +306,41 @@
                 // delete the array at hte current position
                 val2[0].splice(val2[1], 1);
 
+                var target_path_copy = orig_target_path.slice();
+                var item_path_copy = orig_item_path.slice();
+                target_path_copy.push(element.id);
+                item_path_copy.push(element.id);
+
+                // lets populate our child shares that we need to handle
+                var child_shares = [];
                 if (element.hasOwnProperty("share_id")) {
-                    // create absolute path of the elements
-                    var target_path_copy = orig_target_path.slice();
-                    var item_path_copy = orig_item_path.slice();
-
-                    target_path_copy.push(element.id);
-                    item_path_copy.push(element.id);
-
-                    managerDatastorePassword.on_share_moved(element.share_id, item_path_copy, target_path_copy, scope.structure.data, 1, 1);
+                    //we moved a share
+                    child_shares.push({
+                        share: element,
+                        path: []
+                    });
+                } else {
+                    managerDatastorePassword.get_all_child_shares([], scope.structure.data, child_shares, 1, element);
                 }
 
+                // lets update for every child_share the share_index
+                for (i = child_shares.length - 1; i >= 0; i--) {
+                    managerDatastorePassword.on_share_moved(
+                        child_shares[i].share.share_id, item_path_copy.concat(child_shares[i].path),
+                        target_path_copy.concat(child_shares[i].path), scope.structure.data, 1,
+                        child_shares[i].path.length + 1);
+                }
+
+                // and save everything (before we update the links and might lose some necessary rights)
                 managerDatastorePassword.save_datastore(scope.structure.data, [orig_item_path, orig_target_path]);
+
+                // adjust the links for every child_share (and therefore update the rights)
+                for (i = child_shares.length - 1; i >= 0; i--) {
+                    managerShareLink.on_share_moved(
+                        child_shares[i].share.id,
+                        managerShare.get_closest_parent_share(target_path_copy.concat(child_shares[i].path),
+                            scope.structure.data, scope.structure.data, 1));
+                }
             };
 
             /**
@@ -314,25 +351,48 @@
              * @param path the path to the item
              */
             var deleteItem = function(scope, item, path) {
+                var i, l;
                 // TODO ask for confirmation
 
-                var path_of_element_to_delete = path.slice();
+                var item_path_copy = path.slice();
                 var element_path_that_changed = path.slice();
                 element_path_that_changed.pop();
 
                 var search = managerDatastorePassword.find_in_datastore(path, scope.structure.data);
                 var element = search[0][search[1]];
 
-                if (search)
+                if (search) {
+                    // remove element from element holding structure (folders or items array)
                     search[0].splice(search[1], 1);
-
-                if (element.hasOwnProperty("share_id")) {
-                    managerDatastorePassword.on_share_deleted(element.share_id, path_of_element_to_delete, scope.structure.data, 1)
-                } else {
-                    managerDatastorePassword.on_share_deleted(null, path_of_element_to_delete, scope.structure.data, 1)
                 }
 
+                // lets populate our child shares that we need to handle
+                var child_shares = [];
+                if (element.hasOwnProperty("share_id")) {
+                    //we moved a share
+                    child_shares.push({
+                        share: element,
+                        path: []
+                    });
+                } else {
+                    managerDatastorePassword.get_all_child_shares([], scope.structure.data, child_shares, 1, element);
+                }
+
+                // lets update for every child_share the share_index
+                for (i = child_shares.length - 1; i >= 0; i--) {
+                    managerDatastorePassword.on_share_deleted(
+                        child_shares[i].share.share_id, item_path_copy.concat(child_shares[i].path),
+                        scope.structure.data,
+                        child_shares[i].path.length + 1);
+                }
+
+                // and save everything (before we update the links and might lose some necessary rights)
                 managerDatastorePassword.save_datastore(scope.structure.data, [element_path_that_changed]);
+
+                // adjust the links for every child_share (and therefore update the rights)
+                for (i = child_shares.length - 1; i >= 0; i--) {
+                    managerShareLink.on_share_deleted(child_shares[i].share.id);
+                }
             };
 
             $scope.options = {

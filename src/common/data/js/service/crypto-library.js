@@ -137,7 +137,7 @@
             console.log("generate_authkey");
         }
 
-        var n = 16384; //2^14
+        var n = 16384; //2^14 = 16MB
         var r = 8;
         var p = 1;
         var l = 64; // 64 Bytes = 512 Bits

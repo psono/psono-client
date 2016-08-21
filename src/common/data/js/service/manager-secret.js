@@ -7,10 +7,13 @@
         /**
          * Creates a secret for the given content and returns the id
          *
-         * @param content
+         * @param {object} content
+         * @param {uuid} link_id - the local id of the share in the datastructure
+         * @param {uuid} [parent_datastore_id] - optional id of the parent datastore, may be left empty if the share resides in a share
+         * @param {uuid} [parent_share_id] - optional id of the parent share, may be left empty if the share resides in the datastore
          * @returns {promise}
          */
-        var create_secret = function (content) {
+        var create_secret = function (content, link_id, parent_datastore_id, parent_share_id) {
             var secret_key = cryptoLibrary.generate_secret_key();
 
             var json_content = JSON.stringify(content);
@@ -26,15 +29,15 @@
             };
 
             return apiClient.create_secret(managerBase.get_token(),
-                managerBase.get_session_secret_key(), c.text, c.nonce)
+                managerBase.get_session_secret_key(), c.text, c.nonce, link_id, parent_datastore_id, parent_share_id)
                 .then(onSuccess, onError);
         };
 
         /**
          * Reads a secret and decrypts it. Returns the decrypted object
          *
-         * @param secret_id
-         * @param secret_key
+         * @param {uuid} secret_id
+         * @param {string} secret_key
          *
          * @returns {promise}
          */
@@ -56,9 +59,9 @@
         /**
          * Writes a secret after encrypting the object. returns the secret id
          *
-         * @param secret_id
-         * @param secret_key
-         * @param content
+         * @param {uuid} secret_id
+         * @param {string} secret_key
+         * @param {object} content
          *
          * @returns {promise}
          */

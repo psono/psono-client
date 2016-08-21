@@ -7,10 +7,10 @@
         /**
          * wrapper function for the actual $http request
          *
-         * @param type
-         * @param endpoint
-         * @param data
-         * @param headers
+         * @param {string} type
+         * @param {string} endpoint
+         * @param {object} data
+         * @param {object} headers
          * @param [session_secret_key]
          * @returns {promise}
          */
@@ -51,7 +51,7 @@
                         data.data = JSON.parse(cryptoLibrary.decrypt_data(data.data.text, data.data.nonce, session_secret_key));
                     }
 
-                    console.log(data);
+                    //console.log(data);
                     return data;
                 };
 
@@ -76,9 +76,9 @@
          * Ajax POST request to the backend with email and authkey for login, saves a token together with user_id
          * and all the different keys of a user in the apidata storage
          *
-         * @param username
-         * @param authkey
-         * @param public_key
+         * @param {string} username
+         * @param {string} authkey
+         * @param {string} public_key
          * @returns {promise} promise
          */
         var login = function(username, authkey, public_key) {
@@ -100,8 +100,8 @@
          * Ajax POST request to activate the token
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
-         * @param verification - hex of first decrypted user_validator (from login) the re-encrypted with session key
-         * @param verification_nonce - hex of the nonce of the verification
+         * @param {string} verification - hex of first decrypted user_validator (from login) the re-encrypted with session key
+         * @param {string} verification_nonce - hex of the nonce of the verification
          * @returns {promise}
          */
         var activate_token = function(token, verification, verification_nonce) {
@@ -121,7 +121,7 @@
         /**
          * Ajax POST request to destroy the token and logout the user
          *
-         * @param token
+         * @param {string} token
          * @returns {promise}
          */
         var logout = function (token) {
@@ -175,7 +175,7 @@
          * Ajax POST request to the backend with the activation_code for the email, returns nothing. If successful the user
          * can login afterwards
          *
-         * @param activation_code
+         * @param {string} activation_code
          * @returns {promise}
          */
         var verify_email = function (activation_code) {
@@ -194,15 +194,15 @@
          * authkey) or new public key
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
-         * @param session_secret_key
-         * @param email
-         * @param authkey
-         * @param authkey_old
-         * @param private_key
-         * @param private_key_nonce
-         * @param secret_key
-         * @param secret_key_nonce
-         * @param user_sauce
+         * @param {string} session_secret_key
+         * @param {string} email
+         * @param {string} authkey
+         * @param {string} authkey_old
+         * @param {string} private_key
+         * @param {string} private_key_nonce
+         * @param {string} secret_key
+         * @param {string} secret_key_nonce
+         * @param {string} user_sauce
          *
          * @returns {promise}
          */
@@ -343,14 +343,20 @@
          * @param {string} session_secret_key
          * @param {string} [encrypted_data] - optional data for the new secret
          * @param {string} [encrypted_data_nonce] - optional nonce for data, necessary if data is provided
+         * @param {string} link_id - the local id of the share in the datastructure
+         * @param {string} [parent_datastore_id] - optional id of the parent datastore, may be left empty if the share resides in a share
+         * @param {string} [parent_share_id] - optional id of the parent share, may be left empty if the share resides in the datastore
          * @returns {promise}
          */
-        var create_secret = function (token, session_secret_key, encrypted_data, encrypted_data_nonce) {
+        var create_secret = function (token, session_secret_key, encrypted_data, encrypted_data_nonce, link_id, parent_datastore_id, parent_share_id) {
             var endpoint = '/secret/';
             var connection_type = "PUT";
             var data = {
                 data: encrypted_data,
-                data_nonce: encrypted_data_nonce
+                data_nonce: encrypted_data_nonce,
+                link_id: link_id,
+                parent_datastore_id: parent_datastore_id,
+                parent_share_id: parent_share_id
             };
             var headers = {
                 "Authorization": "Token "+ token
@@ -376,6 +382,49 @@
                 data: encrypted_data,
                 data_nonce: encrypted_data_nonce
             };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * Ajax POST request with the token as authentication to move a link between a secret and a datastore or a share
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {uuid} link_id - the link id
+         * @param {uuid} [new_parent_share_id=null] - optional new parent share ID, necessary if no new_parent_datastore_id is provided
+         * @param {uuid} [new_parent_datastore_id=null] - optional new datastore ID, necessary if no new_parent_share_id is provided
+         * @returns {promise}
+         */
+        var move_secret_link = function (token, session_secret_key, link_id, new_parent_share_id, new_parent_datastore_id) {
+            var endpoint = '/secret/link/' + link_id + '/';
+            var connection_type = "POST";
+            var data = {
+                new_parent_share_id: new_parent_share_id,
+                new_parent_datastore_id: new_parent_datastore_id
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * Ajax DELETE request with the token as authentication to delete the secret link
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {uuid} link_id
+         * @returns {promise}
+         */
+        var delete_secret_link = function (token, session_secret_key, link_id) {
+            var endpoint = '/secret/link/' + link_id + '/';
+            var connection_type = "DELETE";
+            var data = {};
             var headers = {
                 "Authorization": "Token "+ token
             };
@@ -562,10 +611,10 @@
         /**
          * Ajax DELETE request with the token as authentication to delete the user / group share right
          *
-         * @param token
-         * @param session_secret_key
-         * @param share_right_id
-         * @returns {*}
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {uuid} share_right_id - the share right ID
+         * @returns {promise}
          */
         var delete_share_right = function (token, session_secret_key, share_right_id) {
             var endpoint = '/share/right/' + share_right_id + '/';
@@ -624,9 +673,9 @@
          * Ajax DELETE request with the token as authentication to delete the user / group inherited share right
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
-         * @param session_secret_key
-         * @param share_right_inherit_id
-         * @returns {*}
+         * @param {string} session_secret_key
+         * @param {uuid} share_right_inherit_id
+         * @returns {promise}
          */
         var delete_share_right_inherit = function (token, session_secret_key, share_right_inherit_id) {
             var endpoint = '/share/right/inherit/' + share_right_inherit_id + '/';
@@ -645,13 +694,13 @@
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key
-         * @param share_right_id
-         * @param key
-         * @param key_nonce
-         * @param link_id
-         * @param parent_share_id
-         * @param parent_datastore_id
-         * @returns {*}
+         * @param {uuid} share_right_id
+         * @param {string} key
+         * @param {string} key_nonce
+         * @param {uuid} link_id
+         * @param {uuid} parent_share_id
+         * @param {uuid} parent_datastore_id
+         * @returns {promise}
          */
         var accept_share_right = function (token, session_secret_key, share_right_id, key, key_nonce, link_id, parent_share_id, parent_datastore_id) {
             var endpoint = '/share/right/accept/' + share_right_id + '/';
@@ -676,7 +725,7 @@
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key
-         * @param share_right_id
+         * @param {uuid} share_right_id
          * @returns {*}
          */
         var decline_share_right = function (token, session_secret_key, share_right_id) {
@@ -726,7 +775,7 @@
          * @param {uuid} [datastore_id=null] - optional datastore ID, necessary if no parent_share_id is provided
          * @returns {promise}
          */
-        var create_link = function (token, session_secret_key, link_id, share_id, parent_share_id, datastore_id) {
+        var create_share_link = function (token, session_secret_key, link_id, share_id, parent_share_id, datastore_id) {
             var endpoint = '/share/link/' + link_id + '/';
             var connection_type = "PUT";
             var data = {
@@ -748,11 +797,11 @@
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key
          * @param {uuid} link_id - the link id
-         * @param {uuid} [new_parent_share_id=null] - optional new parent share ID, necessary if no new_datastore_id is provided
+         * @param {uuid} [new_parent_share_id=null] - optional new parent share ID, necessary if no new_parent_datastore_id is provided
          * @param {uuid} [new_parent_datastore_id=null] - optional new datastore ID, necessary if no new_parent_share_id is provided
          * @returns {promise}
          */
-        var move_link = function (token, session_secret_key, link_id, new_parent_share_id, new_parent_datastore_id) {
+        var move_share_link = function (token, session_secret_key, link_id, new_parent_share_id, new_parent_datastore_id) {
             var endpoint = '/share/link/' + link_id + '/';
             var connection_type = "POST";
             var data = {
@@ -771,10 +820,10 @@
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key
-         * @param link_id
+         * @param {uuid} link_id
          * @returns {promise}
          */
-        var delete_link = function (token, session_secret_key, link_id) {
+        var delete_share_link = function (token, session_secret_key, link_id) {
             var endpoint = '/share/link/' + link_id + '/';
             var connection_type = "DELETE";
             var data = {};
@@ -847,6 +896,8 @@
             read_secret: read_secret,
             write_secret: write_secret,
             create_secret: create_secret,
+            move_secret_link: move_secret_link,
+            delete_secret_link: delete_secret_link,
             read_share:read_share,
             read_shares: read_shares,
             write_share: write_share,
@@ -861,9 +912,9 @@
             accept_share_right: accept_share_right,
             decline_share_right: decline_share_right,
             get_users_public_key: get_users_public_key,
-            create_link: create_link,
-            move_link: move_link,
-            delete_link: delete_link,
+            create_share_link: create_share_link,
+            move_share_link: move_share_link,
+            delete_share_link: delete_share_link,
             read_group: read_group,
             create_group: create_group
         };

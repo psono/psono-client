@@ -244,6 +244,7 @@
         
     </div>
     <div class="modal-footer">
-        <button class="btn btn-primary" type="button" ng-click="submitted=true; save();">OK</button>
+        <button ng-if="node.share_rights.write != false" class="btn btn-primary" type="button" ng-click="submitted=true; save();">Save</button>
+        <button class="btn" type="button" ng-click="cancel();">Close</button>
     </div>
 </form>

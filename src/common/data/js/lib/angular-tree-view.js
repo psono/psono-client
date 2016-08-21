@@ -830,7 +830,9 @@
                         'ng-mousedown="$event.stopPropagation()" ng-show="!node.hidden"' +
                         'class="tree-folder" ng-repeat="node in ' + attrs.treeViewNode + '.' + foldersProperty + ' track by $index">' +
 
-                        '<div class="tree-folder-title" data-target="menu-{{ node.id }}" context-menu="contextMenuOnShow()" context-menu-close="contextMenuOnClose()">' +
+                        '<div class="tree-folder-title" data-target="menu-{{ node.id }}"' +
+                        '   context-menu="contextMenuOnShow()"' +
+                        '   context-menu-close="contextMenuOnClose()">' +
                         '<div href="#" class="tree-folder-header" ng-click="selectNode($event)" ng-class="{ selected: isSelected(node), notSelectable: !isSelectable(node) }">' +
                         '<span class="fa-stack">' +
                         '<i class="" ng-class="getFolderIconClass(node)"></i>' +
@@ -840,7 +842,7 @@
                         '<span class="tree-folder-name"><a href="#" ng-click="clickNode($event)">{{ node.' + displayProperty + ' }}</a></span> ' +
                         '</div>' +
                         '<span class="node-dropdown" dropdown on-toggle="toggled(open)">' +
-                        '<a class="btn btn-default editbutton" href="#" role="button" id="drop_node_{{node.id}}" dropdown-toggle>' +
+                        '<a class="btn btn-default editbutton" ng-class="{disabled: node.share_rights.write == false && node.share_rights.grant == false && node.share_rights.delete == false}" href="#" role="button" id="drop_node_{{node.id}}" dropdown-toggle>' +
                         '    <i ng-class="getFolderEditIconClass(node)"></i>' +
                         '</a>' +
                         '<ul class="dropdown-menu dropdown-button-menu" aria-labelledby="drop_node_{{node.id}}">' +
@@ -871,7 +873,8 @@
                         '</div>' +
                         '</div>' +
 
-                        '<div class="dropdown position-fixed droppdown-rightclick" id="menu-{{ node.id }}">' +
+                        '<div class="dropdown position-fixed droppdown-rightclick" id="menu-{{ node.id }}"' +
+                        '   ng-hide="node.share_rights.write == false && node.share_rights.grant == false && node.share_rights.delete == false">' +
                         '<ul class="dropdown-menu" role="menu">' +
                         '    <li role="menuitem"' +
                         '       ng-click="additionalButtonItem(node, $event, f.onClick, true)"' +
@@ -903,7 +906,9 @@
                         '   ng-mousedown="$event.stopPropagation()" ng-show="!item.hidden"' +
                         '   class="tree-item" ng-repeat="item in ' + attrs.treeViewNode + '.' + itemsProperty + ' track by $index">' +
 
-                        '<div class="tree-item-object" ng-click="selectItem(item, $event)" ng-class="{ selected: isSelected(item), notSelectable: !isSelectable(item) }" data-target="menu-{{ item.id }}" context-menu="contextMenuOnShow()" context-menu-close="contextMenuOnClose()">' +
+                        '<div class="tree-item-object" ng-click="selectItem(item, $event)" ng-class="{ selected: isSelected(item), notSelectable: !isSelectable(item) }" data-target="menu-{{ item.id }}"' +
+                        '   context-menu="contextMenuOnShow()"' +
+                        '   context-menu-close="contextMenuOnClose()">' +
                         '<span class="fa-stack">' +
                         '<i ng-class="getItemIconClass(item)"></i>' +
                         '<i ng-if="item.share_id" class="fa fa-circle fa-stack-2x text-danger is-shared"></i>' +

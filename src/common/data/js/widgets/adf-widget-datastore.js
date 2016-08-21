@@ -27,11 +27,11 @@
      * Main Controller for the datastore widget
      */
     module.controller('datastoreController', ["$scope", "$interval", "config", "manager", "managerDatastorePassword",
-        "managerDatastoreUser", "managerSecret", "managerShare", "managerLink", "$modal", "itemBlueprint",
-        "managerAdfWidget", "$timeout",
+        "managerDatastoreUser", "managerSecret", "managerShare", "managerShareLink", "managerSecretLink", "$modal",
+        "itemBlueprint", "managerAdfWidget", "$timeout",
         function($scope, $interval, config, manager, managerDatastorePassword,
-                 managerDatastoreUser, managerSecret, managerShare, managerLink, $modal, itemBlueprint,
-                 managerAdfWidget, $timeout){
+                 managerDatastoreUser, managerSecret, managerShare, managerShareLink, managerSecretLink, $modal,
+                 itemBlueprint, managerAdfWidget, $timeout){
 
             var contextMenusOpen = 0;
 
@@ -82,9 +82,10 @@
                     if (typeof parent.items === 'undefined') {
                         parent.items = [];
                     }
+                    var link_id = uuid.v4();
 
                     var datastore_object = {
-                        id: uuid.v4(),
+                        id: link_id,
                         type: content.id
                     };
                     var secret_object = {};
@@ -112,6 +113,17 @@
                         // pass
                     };
 
+                    var closest_share = managerShare.get_closest_parent_share(path.slice(), $scope.structure.data,
+                        $scope.structure.data, 0);
+
+                    var parent_share_id, parent_datastore_id;
+
+                    if (closest_share.hasOwnProperty('share_id')) {
+                        parent_share_id = closest_share['share_id'];
+                    } else {
+                        parent_datastore_id = closest_share['datastore_id'];
+                    }
+
                     var onSuccess = function(e) {
                         datastore_object['secret_id'] = e.secret_id;
                         datastore_object['secret_key'] = e.secret_key;
@@ -121,7 +133,7 @@
                         managerDatastorePassword.save_datastore($scope.structure.data, [path]);
                     };
 
-                    managerSecret.create_secret(secret_object)
+                    managerSecret.create_secret(secret_object, link_id, parent_datastore_id, parent_share_id)
                         .then(onSuccess, onError);
 
                 }, function () {
@@ -277,6 +289,8 @@
                 } else {
                     managerDatastorePassword.get_all_child_shares([], scope.structure.data, child_shares, 1, element);
                 }
+                var secret_links = managerDatastorePassword.get_all_secret_links(element);
+                console.log(secret_links);
 
                 // lets update for every child_share the share_index
                 for (i = child_shares.length - 1; i >= 0; i--) {
@@ -291,8 +305,15 @@
 
                 // adjust the links for every child_share (and therefore update the rights)
                 for (i = child_shares.length - 1; i >= 0; i--) {
-                    managerLink.on_share_moved(
+                    managerShareLink.on_share_moved(
                         child_shares[i].share.id,
+                        managerShare.get_closest_parent_share(target_path_copy.concat(child_shares[i].path),
+                            scope.structure.data, scope.structure.data, 1));
+                }
+                // adjust the links for every secret link (and therefore update the rights)
+                for (i = secret_links.length - 1; i >= 0; i--) {
+                    managerSecretLink.on_secret_moved(
+                        secret_links[i],
                         managerShare.get_closest_parent_share(target_path_copy.concat(child_shares[i].path),
                             scope.structure.data, scope.structure.data, 1));
                 }
@@ -306,7 +327,7 @@
              * @param path the path to the item
              */
             var deleteItem = function(scope, item, path) {
-                var i, l;
+                var i;
                 // TODO ask for confirmation
 
                 var item_path_copy = path.slice();
@@ -321,10 +342,10 @@
                     search[0].splice(search[1], 1);
                 }
 
-                // lets populate our child shares that we need to handle
+                // lets populate our child shares that we need to handle, e.g a we deleted a folder that contains some shares
                 var child_shares = [];
                 if (element.hasOwnProperty("share_id")) {
-                    //we moved a share
+                    //we deleted a share
                     child_shares.push({
                         share: element,
                         path: []
@@ -333,12 +354,17 @@
                     managerDatastorePassword.get_all_child_shares([], scope.structure.data, child_shares, 1, element);
                 }
 
+                var secret_links = managerDatastorePassword.get_all_secret_links(element);
+                console.log(secret_links);
+
                 // lets update for every child_share the share_index
                 for (i = child_shares.length - 1; i >= 0; i--) {
                     managerDatastorePassword.on_share_deleted(
-                        child_shares[i].share.share_id, item_path_copy.concat(child_shares[i].path),
+                        child_shares[i].share.share_id,
+                        item_path_copy.concat(child_shares[i].path),
                         scope.structure.data,
-                        child_shares[i].path.length + 1);
+                        child_shares[i].path.length + 1
+                    );
                 }
 
                 // and save everything (before we update the links and might lose some necessary rights)
@@ -346,7 +372,11 @@
 
                 // adjust the links for every child_share (and therefore update the rights)
                 for (i = child_shares.length - 1; i >= 0; i--) {
-                    managerLink.on_share_deleted(child_shares[i].share.id);
+                    managerShareLink.on_share_deleted(child_shares[i].share.id);
+                }
+                // adjust the links for every secret link (and therefore update the rights)
+                for (i = secret_links.length - 1; i >= 0; i--) {
+                    managerSecretLink.on_secret_deleted(secret_links[i]);
                 }
             };
 

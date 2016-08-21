@@ -60,9 +60,6 @@
             // check all items
             if (obj.hasOwnProperty('items')) {
                 for (n = 0; n < obj.items.length; n++) {
-                    if (obj.folders[n].hasOwnProperty('share_id')) {
-                        continue;
-                    }
                     if (obj.items[n].hasOwnProperty('share_id')) {
                         continue;
                     }
@@ -200,8 +197,6 @@
          * @param share
          */
         var hide_sub_share_content = function (share) {
-            console.log('hide_sub_share_content');
-            console.log(share);
 
             var allowed_props = ['id', 'name', 'share_id', 'share_secret_key'];
 
@@ -213,10 +208,6 @@
                 for (var i = share.share_index[share_id].paths.length - 1; i >= 0; i--) {
                     var path_copy = share.share_index[share_id].paths[i].slice();
                     var search = find_in_datastore(path_copy, share);
-                    console.log('find_in_datastore');
-                    console.log(share);
-                    console.log(path_copy);
-                    console.log(search);
 
                     var obj = search[0][search[1]];
 
@@ -366,35 +357,36 @@
                 website_password_url_filter: parsed_url.authority
             };
 
+            var link_id = uuid.v4();
+
             var onError = function(result) {
                 // pass
             };
 
-            var onSuccess = function(e) {
-                get_password_datastore()
-                    .then(function (data) {
+            var onSuccess = function (datastore) {
 
+                managerSecret.create_secret(secret_object, link_id, datastore.datastore_id, null)
+                    .then(function(data) {
                         var datastore_object = {
-                            id: uuid.v4(),
+                            id: link_id,
                             type: 'website_password',
                             name: "Generated for " + parsed_url.authority,
                             urlfilter: parsed_url.authority,
-                            secret_id: e.secret_id,
-                            secret_key: e.secret_key
+                            secret_id: data.secret_id,
+                            secret_key: data.secret_key
                         };
 
-                        data.items.push(datastore_object);
+                        datastore.items.push(datastore_object);
 
-                        save_datastore(data);
-                    });
+                        save_datastore(datastore);
+                    }, onError);
             };
 
-            managerSecret.create_secret(secret_object)
+            get_password_datastore()
                 .then(onSuccess, onError);
 
-            // we return a promise. So far its
-            // , but we do not yet have a proper error handling and returning
-            // a promise might make it easier later to wait for the errors
+            // we return a promise. We do not yet have a proper error handling and returning
+            // a promise might make it easier later to wait or fix errors
             return $q(function (resolve) {
                 resolve(password);
             });
@@ -440,7 +432,7 @@
          *
          * @param path The path to the object you search as list of ids
          * @param datastore The datastore object tree
-         * @returns {*} False if not present or a list of two objects where the first is the List Object containing the searchable object and the second the index
+         * @returns {*} False if not present or a list of two objects where the first is the List Object (items or folder container) containing the searchable object and the second the index
          */
         var find_in_datastore = function (path, datastore) {
 
@@ -449,7 +441,7 @@
             var i, n, l;
 
             var rest = [];
-            for (i = path.length - 1; i >= 0; i--) {
+            for (i = 0, l = path.length; i < l; i++) {
                 if (i == 0) {
                     to_search = path[i];
                 } else {
@@ -497,7 +489,7 @@
          * @param path
          * @param [datastore] optional if obj provided
          * @param other_children
-         * @param share_distance the distance in shares to search (-1 = unlimited search, 0 stop search)
+         * @param [int] share_distance the distance in shares to search (-1 = unlimited search, 0 stop search)
          * @param [obj] optional if datastore provided (because then its searched in the datastore)
          */
         var get_all_child_shares = function(path, datastore, other_children, share_distance, obj) {
@@ -532,6 +524,55 @@
                     }
                 }
             }
+        };
+
+        /**
+         * returns all secret links in element. Doesn't cross share borders.
+         *
+         * @param {obj } element the element to search
+         */
+        var get_all_secret_links = function(element) {
+
+            var links = [];
+
+            /**
+             * helper function, that searches an element recursive for secret links. Doesn't cross share borders.
+             *
+             * @param {obj } element the element to search
+             * @param {uuid[]} links
+             */
+            var get_all_secret_links_recursive = function(element, links) {
+                var n, l;
+
+                // check if the element itself, is a link to a secret
+                if (element.hasOwnProperty('secret_id')) {
+                    links.push(element.id);
+                }
+
+                // search items recursive, skip shares
+                if (element.hasOwnProperty('items')) {
+                    for (n = 0, l = element.items.length; n < l; n++) {
+                        if (element.items[n].hasOwnProperty('share_id')) {
+                            continue;
+                        }
+                        get_all_secret_links_recursive(element.items[n], links);
+                    }
+                }
+
+                // search folders recursive, skip shares
+                if (element.hasOwnProperty('folders')) {
+                    for (n = 0, l = element.folders.length; n < l; n++) {
+                        if (element.folders[n].hasOwnProperty('share_id')) {
+                            continue;
+                        }
+                        get_all_secret_links_recursive(element.folders[n], links);
+                    }
+                }
+            };
+
+            get_all_secret_links_recursive(element, links);
+
+            return links;
         };
 
         /**
@@ -754,6 +795,7 @@
             generatePasswordActiveTab: generatePasswordActiveTab,
             find_in_datastore: find_in_datastore,
             get_all_child_shares: get_all_child_shares,
+            get_all_secret_links: get_all_secret_links,
             on_share_added: on_share_added,
             on_share_moved: on_share_moved,
             on_share_deleted: on_share_deleted

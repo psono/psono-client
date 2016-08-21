@@ -1,7 +1,7 @@
 (function(angular) {
     'use strict';
 
-    var managerLink = function(managerBase, apiClient) {
+    var managerShareLink = function(managerBase, apiClient) {
 
         /**
          * Create a link between a share and a datastore or another (parent-)share
@@ -12,7 +12,7 @@
          * @param {uuid} [datastore_id=null] - optional datastore ID, necessary if no parent_share_id is provided
          * @returns {promise}
          */
-        var create_link = function (link_id, share_id, parent_share_id, datastore_id) {
+        var create_share_link = function (link_id, share_id, parent_share_id, datastore_id) {
 
             var onError = function(result) {
                 // pass
@@ -22,7 +22,7 @@
                 return result;
             };
 
-            return apiClient.create_link(managerBase.get_token(),
+            return apiClient.create_share_link(managerBase.get_token(),
                 managerBase.get_session_secret_key(), link_id, share_id, parent_share_id, datastore_id)
                 .then(onSuccess, onError);
         };
@@ -35,7 +35,7 @@
          * @param {uuid} [new_parent_datastore_id=null] - optional new datastore ID, necessary if no new_parent_share_id is provided
          * @returns {promise}
          */
-        var move_link = function (link_id, new_parent_share_id, new_parent_datastore_id) {
+        var move_share_link = function (link_id, new_parent_share_id, new_parent_datastore_id) {
 
             var onError = function(result) {
                 // pass
@@ -45,7 +45,7 @@
                 return result;
             };
 
-            return apiClient.move_link(managerBase.get_token(),
+            return apiClient.move_share_link(managerBase.get_token(),
                 managerBase.find_one_nolimit('config', 'session_secret_key'), link_id, new_parent_share_id, new_parent_datastore_id)
                 .then(onSuccess, onError);
         };
@@ -56,7 +56,7 @@
          * @param link_id
          * @returns {promise}
          */
-        var delete_link = function (link_id) {
+        var delete_share_link = function (link_id) {
 
             var onError = function(result) {
                 // pass
@@ -66,7 +66,7 @@
                 return result;
             };
 
-            return apiClient.delete_link(managerBase.get_token(),
+            return apiClient.delete_share_link(managerBase.get_token(),
                 managerBase.find_one_nolimit('config', 'session_secret_key'), link_id)
                 .then(onSuccess, onError);
         };
@@ -90,29 +90,28 @@
                 console.log(parent);
             }
 
-            return move_link(link_id, new_parent_share_id, new_parent_datastore_id);
+            return move_share_link(link_id, new_parent_share_id, new_parent_datastore_id);
         };
 
         /**
-         * triggered once a new share is deleted. Searches the datastore for the closest share (or the datastore if no
-         * share) and removes it from the share_index
+         * triggered once a share is deleted.
          *
          * @param link_id the link_id to delete
          */
         var on_share_deleted = function (link_id) {
-            return delete_link(link_id);
+            return delete_share_link(link_id);
         };
 
         return {
-            create_link: create_link,
-            move_link: move_link,
-            delete_link: delete_link,
+            create_share_link: create_share_link,
+            move_share_link: move_share_link,
+            delete_share_link: delete_share_link,
             on_share_moved: on_share_moved,
             on_share_deleted: on_share_deleted
         };
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("managerLink", ['managerBase', 'apiClient', managerLink]);
+    app.factory("managerShareLink", ['managerBase', 'apiClient', managerShareLink]);
 
 }(angular));
