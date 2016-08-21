@@ -9,6 +9,7 @@
                 "../src/common/data/js/lib/sha256.js",
                 "../src/common/data/js/lib/uuid.js",
                 "../src/common/data/js/lib/jquery-2.1.4.js",
+                "../src/common/data/js/lib/jquery.dataTables.min.js",
                 "../src/common/data/js/lib/snap.min.js",
                 "../src/common/data/js/lib/jquery.ui.js",
                 "../src/common/data/js/lib/sortable.js",
@@ -28,8 +29,10 @@
                 "../src/common/data/js/lib/angular-ui-select.js",
                 "../src/common/data/js/lib/ng-context-menu.js",
                 "../src/common/data/js/lib/angular-dashboard-framework.js",
+                "../src/common/data/js/lib/angular-datatables.js",
                 "../src/common/data/js/widgets/adf-widget-datastore.js",
                 "../src/common/data/js/widgets/adf-widget-shareusers.js",
+                "../src/common/data/js/widgets/adf-widget-accept-share.js",
                 "../src/common/data/js/main.js",
                 "../src/common/data/js/service/api-client.js",
                 "../src/common/data/js/service/helper.js",
@@ -53,22 +56,12 @@
 
                 "../unittests/data/js/lib/angular-mocks.js",
 
-                '../unittests/tests/*.coffee',
-                '../unittests/tests/**/*.coffee'
+                '../unittests/tests/*.js',
+                '../unittests/tests/**/*.js'
             ],
             exclude: [],
             preprocessors: {
-                '**/*.coffee': ['coffee'],
                 '../src/**/*.js': ['coverage']
-            },
-            coffeePreprocessor: {
-                options: {
-                    bare: true,
-                    sourceMap: false
-                },
-                transformPath: function (path) {
-                    return path.replace(/\.coffee$/, '.js');
-                }
             },
             coverageReporter: {
                 type : 'html',

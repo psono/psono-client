@@ -248,6 +248,8 @@
                     alert("Sorry, but you you cannot move a share without grant rights into another share.");
                     return false;
                 }
+
+                return true;
             };
 
             /**

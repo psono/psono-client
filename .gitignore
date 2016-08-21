@@ -2,8 +2,6 @@
 node_modules
 build/
 dist/
-unittests/tests/**/*.js
-unittests/tests/**/*.js.map
 test
 *~
 *.py[cod]
