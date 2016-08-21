@@ -206,7 +206,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             config[_config[ii].key] = _config[ii].value;
         }
 
-        var client = new ClassClient(config.server.url, require, jQuery, scrypt_module_factory, sha512);
+        var client = new ClassClient(config.server.url, require, jQuery, sha512);
 
         client.read_secret(config.user_token, request.data.secret_id)
             .done(function(value) {

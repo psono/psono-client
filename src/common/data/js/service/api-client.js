@@ -1,4 +1,4 @@
-(function(angular, scrypt_module_factory) {
+(function(angular) {
     'use strict';
 
 
@@ -923,4 +923,4 @@
     var app = angular.module('passwordManagerApp');
     app.factory("apiClient", ['$http', '$q', '$rootScope', 'storage', 'cryptoLibrary', apiClient]);
 
-}(angular, scrypt_module_factory));
+}(angular));

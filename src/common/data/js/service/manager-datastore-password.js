@@ -4,6 +4,13 @@
     var managerDatastorePassword = function($q, $rootScope, managerSecret, managerDatastore, managerShare, passwordGenerator, itemBlueprint, helper) {
 
 
+        /**
+         * Takes a "share" object that has share rights and inherited share rights.
+         * Out of those the function calculates the total rights and returns them
+         *
+         * @param share
+         * @returns {{read: boolean, write: boolean, grant: boolean}}
+         */
         var calculate_user_share_rights = function(share) {
 
             var i;
@@ -31,7 +38,15 @@
         };
 
 
-        var update_share_rights_of_folders_and_items = function(obj) {
+        /**
+         * Sets the share_rights for folders and items, based on the users rights on the share.
+         * Calls recursive itself in case it finds another share
+         *
+         * @param obj
+         * @param parent_share_id
+         * @param parent_datastore_id
+         */
+        var update_share_rights_of_folders_and_items = function(obj, parent_share_id, parent_datastore_id) {
             var n;
             var share_rights = {
                     'read': true,
@@ -39,6 +54,12 @@
                     'grant': true,
                     'delete': true
                 };
+
+            var new_parent_share_id = parent_share_id;
+
+            if (obj.hasOwnProperty('share_id')) {
+                new_parent_share_id = obj['share_id'];
+            }
 
             if (!obj.hasOwnProperty('datastore_id')) {
                 share_rights['read'] = obj['share_rights']['read'];
@@ -54,7 +75,9 @@
                         continue;
                     }
                     obj.folders[n]['share_rights'] = share_rights;
-                    update_share_rights_of_folders_and_items(obj.folders[n]);
+                    obj.folders[n]['parent_share_id'] = new_parent_share_id;
+                    obj.folders[n]['parent_datastore_id'] = parent_datastore_id;
+                    update_share_rights_of_folders_and_items(obj.folders[n], new_parent_share_id, parent_datastore_id);
                 }
             }
             // check all items
@@ -64,6 +87,8 @@
                         continue;
                     }
                     obj.items[n]['share_rights'] = share_rights;
+                    obj.items[n]['parent_share_id'] = new_parent_share_id;
+                    obj.items[n]['parent_datastore_id'] = parent_datastore_id;
                 }
             }
         };
@@ -76,14 +101,18 @@
          * @param path
          * @param content
          * @param parent_share_rights
+         * @param parent_share_id
+         * @param parent_datastore_id
          */
-        var update_paths_with_data = function(datastore, path, content, parent_share_rights) {
+        var update_paths_with_data = function(datastore, path, content, parent_share_rights, parent_share_id, parent_datastore_id) {
             var path_copy = path.slice();
             var search = find_in_datastore(path_copy, datastore);
             var obj = search[0][search[1]];
 
             // update share_rights in share object
             obj['share_rights'] = calculate_user_share_rights(content);
+            obj['parent_share_id'] = parent_share_id;
+            obj['parent_datastore_id'] = parent_datastore_id;
             obj['share_rights']['delete'] = parent_share_rights['write'];
 
             // update data (folder and items) in share object
@@ -95,7 +124,7 @@
             }
 
             // update share_rights in folders and items
-            update_share_rights_of_folders_and_items(obj);
+            update_share_rights_of_folders_and_items(obj, parent_share_id, parent_datastore_id);
         };
 
         /**
@@ -120,7 +149,7 @@
                 'delete': false
             };
 
-            var read_shares_recursive = function(datastore, share_rights_dict, share_index, all_share_data, parent_share_rights) {
+            var read_shares_recursive = function(datastore, share_rights_dict, share_index, all_share_data, parent_share_rights, parent_share_id, parent_datastore_id) {
                 if (typeof share_index === 'undefined') {
                     return datastore;
                 }
@@ -137,7 +166,7 @@
 
                         // Test if we already have it cached
                         if (all_share_data.hasOwnProperty(share_id)) {
-                            update_paths_with_data(datastore, share_index[share_id].paths[i], all_share_data[share_id], parent_share_rights);
+                            update_paths_with_data(datastore, share_index[share_id].paths[i], all_share_data[share_id], parent_share_rights, parent_share_id, parent_datastore_id);
                             continue;
                         }
 
@@ -150,11 +179,11 @@
                             var onSuccess = function (content) {
                                 all_share_data[share_id] = content;
 
-                                update_paths_with_data(datastore, path, content, parent_share_rights);
+                                update_paths_with_data(datastore, path, content, parent_share_rights, parent_share_id, parent_datastore_id);
 
                                 rights = calculate_user_share_rights(content);
 
-                                read_shares_recursive(sub_datastore, share_rights_dict, content.data.share_index, all_share_data, rights);
+                                read_shares_recursive(sub_datastore, share_rights_dict, content.data.share_index, all_share_data, rights, share_id, parent_datastore_id);
                                 open_calls--;
                             };
 
@@ -171,7 +200,7 @@
             };
 
             // Read shares recursive. We start from the datastore, so delete is allowed in the datastore
-            read_shares_recursive(datastore, share_rights_dict, share_index, all_share_data, parent_share_rights);
+            read_shares_recursive(datastore, share_rights_dict, share_index, all_share_data, parent_share_rights, undefined, datastore.datastore_id);
             update_share_rights_of_folders_and_items(datastore);
 
             if (blocking) {

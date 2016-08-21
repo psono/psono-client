@@ -1,4 +1,4 @@
-(function(angular, require, sha512, sha256, scrypt_module_factory, debug) {
+(function(angular, require, sha512, sha256, debug) {
     'use strict';
 
     //var nacl = nacl_factory.instantiate();
@@ -129,7 +129,7 @@
      *
      * @param {string} username - username of the user (in email format)
      * @param {string} password - password of the user
-     * @returns auth_key - scrypt hex value of the password with the sha512 of lowercase email as salt
+     * @returns {string} auth_key - scrypt hex value of the password with the sha512 of lowercase email as salt
      */
     var generate_authkey = function (username, password) {
 
@@ -137,22 +137,16 @@
             console.log("generate_authkey");
         }
 
-        var n = 16384; //2^14 = 16MB
+        var n = 14; //2^14 = 16MB
         var r = 8;
         var p = 1;
         var l = 64; // 64 Bytes = 512 Bits
-
-        var scrypt = scrypt_module_factory();
 
         // takes the sha512(username) as salt.
         // var salt = nacl.to_hex(nacl.crypto_hash_string(username.toLowerCase() + special_sauce));
         var salt = sha512(username.toLowerCase() + special_sauce);
 
-        //return nacl.scrypt(encode_utf8(password), salt, 14, r, p, l, function(pDone) {
-        //    console.log('derivation progress: ' + pDone + '%');
-        //});
-
-        return scrypt.to_hex(scrypt.crypto_scrypt(scrypt.encode_utf8(password), scrypt.encode_utf8(salt), n, r, p, l));
+        return to_hex(nacl.scrypt(encode_utf8(password), encode_utf8(salt), n, r, p, l, function(pDone) {}));
     };
 
     /**
@@ -392,4 +386,4 @@
     var app = angular.module('passwordManagerApp');
     app.factory("cryptoLibrary", [cryptoLibrary]);
 
-}(angular, require, sha512, sha256, scrypt_module_factory, false));
+}(angular, require, sha512, sha256, false));

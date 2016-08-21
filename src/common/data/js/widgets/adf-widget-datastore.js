@@ -224,6 +224,32 @@
             managerDatastorePassword.get_password_datastore()
                 .then(function (data) {$scope.structure.data = data;});
 
+            var canMove = function(element, target) {
+                // TODO adjust function so element can als be a folder with elements
+
+                if (target.hasOwnProperty("share_rights") && target.share_rights.write == false) {
+                    alert("Sorry, but you don't have write rights on target");
+                    return false;
+                }
+
+                //prevent the move of shares without grant rights into different shares
+                if (element.share_rights.grant == false && element.hasOwnProperty('parent_share_id')
+                    && target.hasOwnProperty('share_id') && target['share_id'] !== element['parent_share_id']) {
+
+                    alert("Sorry, but you you cannot move a share without grant rights into another share.");
+                    return false;
+                }
+
+
+                //prevent the move of shares without grant rights into different shares
+                if (element.share_rights.grant == false && element.hasOwnProperty('parent_share_id')
+                    && !target.hasOwnProperty('share_id') && target.hasOwnProperty('parent_share_id') && target['parent_share_id'] !== element['parent_share_id']) {
+
+                    alert("Sorry, but you you cannot move a share without grant rights into another share.");
+                    return false;
+                }
+            };
+
             /**
              * Move an item
              *
@@ -234,7 +260,7 @@
              */
             var moveItem = function(scope, item_path, target_path, type) {
 
-                var i, l;
+                var i;
                 // TODO ask for confirmation
 
                 var orig_item_path = item_path.slice();
@@ -266,6 +292,11 @@
                 // check if we have folders / items array, otherwise create the array
                 if (!target.hasOwnProperty(type)) {
                     target[type] = [];
+                }
+
+                //prevent the move of shares if rights are not sufficient
+                if (!canMove(element, target)) {
+                    return;
                 }
 
                 // add the element to the other folders / items
@@ -311,6 +342,21 @@
                         managerShare.get_closest_parent_share(target_path_copy.concat(child_shares[i].path),
                             scope.structure.data, scope.structure.data, 1));
                 }
+
+                // if parent_share did not change, then we are done here
+                if (element.hasOwnProperty("parent_share_id") && target.hasOwnProperty("parent_share_id")
+                    && target['parent_share_id'] == element['parent_share_id']) {
+                    return;
+                }
+
+                // if parent_datastore did not change, then we are done here
+                if (! element.hasOwnProperty("parent_share_id") && ! target.hasOwnProperty("parent_share_id")
+                    && element.hasOwnProperty("parent_share_id") && target.hasOwnProperty("parent_share_id")
+                    && target['parent_share_id'] == element['parent_share_id']) {
+                    return;
+                }
+
+
                 // adjust the links for every secret link (and therefore update the rights)
                 for (i = secret_links.length - 1; i >= 0; i--) {
                     managerSecretLink.on_secret_moved(
@@ -318,6 +364,8 @@
                         managerShare.get_closest_parent_share(target_path_copy.concat(secret_links[i].path),
                             scope.structure.data, scope.structure.data, 1));
                 }
+
+                // TODO Update share_rights and parent_share_id / parent_datstore_id
             };
 
             /**
