@@ -233,6 +233,7 @@
              * @param type type of the item (item or folder)
              */
             var moveItem = function(scope, item_path, target_path, type) {
+
                 var i, l;
                 // TODO ask for confirmation
 
@@ -270,6 +271,7 @@
                 // add the element to the other folders / items
                 target[type].push(element);
 
+
                 // delete the array at hte current position
                 val2[0].splice(val2[1], 1);
 
@@ -290,7 +292,6 @@
                     managerDatastorePassword.get_all_child_shares([], scope.structure.data, child_shares, 1, element);
                 }
                 var secret_links = managerDatastorePassword.get_all_secret_links(element);
-                console.log(secret_links);
 
                 // lets update for every child_share the share_index
                 for (i = child_shares.length - 1; i >= 0; i--) {
@@ -313,8 +314,8 @@
                 // adjust the links for every secret link (and therefore update the rights)
                 for (i = secret_links.length - 1; i >= 0; i--) {
                     managerSecretLink.on_secret_moved(
-                        secret_links[i],
-                        managerShare.get_closest_parent_share(target_path_copy.concat(child_shares[i].path),
+                        secret_links[i].id,
+                        managerShare.get_closest_parent_share(target_path_copy.concat(secret_links[i].path),
                             scope.structure.data, scope.structure.data, 1));
                 }
             };
@@ -376,7 +377,7 @@
                 }
                 // adjust the links for every secret link (and therefore update the rights)
                 for (i = secret_links.length - 1; i >= 0; i--) {
-                    managerSecretLink.on_secret_deleted(secret_links[i]);
+                    managerSecretLink.on_secret_deleted(secret_links[i].id);
                 }
             };
 

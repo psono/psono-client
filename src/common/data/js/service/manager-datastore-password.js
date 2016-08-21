@@ -527,9 +527,11 @@
         };
 
         /**
+         *
          * returns all secret links in element. Doesn't cross share borders.
          *
-         * @param {obj } element the element to search
+         * @param {obj} element the element to search
+         * @returns {Array}
          */
         var get_all_secret_links = function(element) {
 
@@ -539,14 +541,20 @@
              * helper function, that searches an element recursive for secret links. Doesn't cross share borders.
              *
              * @param {obj } element the element to search
-             * @param {uuid[]} links
+             * @param {Array} links
+             * @param {Array} path
              */
-            var get_all_secret_links_recursive = function(element, links) {
+            var get_all_secret_links_recursive = function(element, links, path) {
                 var n, l;
+                var new_path = path.slice();
+                new_path.push(element.id);
 
                 // check if the element itself, is a link to a secret
                 if (element.hasOwnProperty('secret_id')) {
-                    links.push(element.id);
+                    links.push({
+                        id: element.id,
+                        path: path
+                    });
                 }
 
                 // search items recursive, skip shares
@@ -555,7 +563,7 @@
                         if (element.items[n].hasOwnProperty('share_id')) {
                             continue;
                         }
-                        get_all_secret_links_recursive(element.items[n], links);
+                        get_all_secret_links_recursive(element.items[n], links, new_path);
                     }
                 }
 
@@ -565,12 +573,12 @@
                         if (element.folders[n].hasOwnProperty('share_id')) {
                             continue;
                         }
-                        get_all_secret_links_recursive(element.folders[n], links);
+                        get_all_secret_links_recursive(element.folders[n], links, new_path);
                     }
                 }
             };
 
-            get_all_secret_links_recursive(element, links);
+            get_all_secret_links_recursive(element, links, []);
 
             return links;
         };

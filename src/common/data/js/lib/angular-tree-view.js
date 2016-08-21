@@ -63,7 +63,7 @@
             '</div>\n    ' +
             '</div>\n' +
             '</div>',
-            controller: ['$scope', '$rootScope', function ($scope, $rootScope) {
+            controller: ['$scope', '$rootScope', '$timeout', function ($scope, $rootScope, $timeout) {
                 var self = this,
                     selectedNode,
                     selectedItem,
@@ -303,7 +303,6 @@
                     }
 
                     // lets avoid some unnecessary logic whenever the dragged item is already at the target position
-
                     if (dragged_item.path.length === 1 && target_path === null) {
                         // target is already at the top
                         return;
@@ -348,13 +347,30 @@
                     dragstarted = false;
                 };
 
+                self.draggable_end_timeouts = [];
+
                 /**
                  * triggered once a drag ends with or without dropping it on top of another folder / item
                  */
                 $rootScope.$on('draggable:end', function(evt, args) {
                     self.resetDragStarted();
-                    self.onAnyDrop(evt, null);
+
+                    self.draggable_end_timeouts.push($timeout(function() {
+                        self.onAnyDrop(evt, null)
+                    }, 100));
+
                 });
+
+
+                /**
+                 * cancels all draggable end timeouts
+                 */
+                self.cancel_draggable_end_timeouts = function () {
+                    for (var i = 0; i < self.draggable_end_timeouts.length; i++) {
+                        $timeout.cancel(self.draggable_end_timeouts[i]);
+                    }
+                    self.draggable_end_timeouts = [];
+                };
 
                 /**
                  * takes an event (usually the drop event) and returns the type of the dropped item.
@@ -794,6 +810,8 @@
                     if (evt.data.id == target_path[target_path.length - 1]) {
                         return;
                     }
+
+                    controller.cancel_draggable_end_timeouts();
 
                     controller.onAnyDrop(evt, target_path);
                 };
