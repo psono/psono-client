@@ -99,7 +99,7 @@
          *
          * @param datastore
          * @param path
-         * @param content
+         * @param content the actual data for this path
          * @param parent_share_rights
          * @param parent_share_id
          * @param parent_datastore_id
@@ -172,6 +172,18 @@
 
                         // Let's check if we have read writes for this share, and skip it if we don't have read writes
                         if (!share_rights_dict.hasOwnProperty(share_id) || !share_rights_dict[share_id].read) {
+
+                            //update path with empty data, necessary to get the rights as well
+                            var content = {
+                                'user_share_rights': [{
+                                    'read': share_rights_dict[share_id].read,
+                                    'write': share_rights_dict[share_id].write,
+                                    'grant': share_rights_dict[share_id].grant
+                                }]
+                            };
+
+                            console.log(share_rights_dict[share_id]);
+                            update_paths_with_data(datastore, share_index[share_id].paths[i], content, parent_share_rights, parent_share_id, parent_datastore_id);
                             continue;
                         }
 

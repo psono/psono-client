@@ -224,31 +224,82 @@
             managerDatastorePassword.get_password_datastore()
                 .then(function (data) {$scope.structure.data = data;});
 
+            /**
+             * takes any element like shares, folders, items ... and checks if they can be moved
+             *
+             * @param element
+             * @param target
+             * @returns {boolean}
+             */
             var canMove = function(element, target) {
-                // TODO adjust function so element can als be a folder with elements
+                var i;
 
+                /**
+                 * our little helper function that actually checks if an element can be moved
+                 *
+                 * @param element
+                 * @param target
+                 * @returns {boolean}
+                 */
+                var canMoveHelper = function(element, target) {
+
+                    // prevent the move of shares without grant rights into different shares
+                    if (element.share_rights.grant == false && element.hasOwnProperty('parent_share_id')
+                        && target.hasOwnProperty('share_id') && target['share_id'] !== element['parent_share_id']) {
+
+                        alert("Sorry, but you you cannot move a share without grant rights into another share.");
+                        return false;
+                    }
+
+
+                    // prevent the move of shares without grant rights into different shares
+                    if (element.share_rights.grant == false && element.hasOwnProperty('parent_share_id')
+                        && !target.hasOwnProperty('share_id') && target.hasOwnProperty('parent_share_id') && target['parent_share_id'] !== element['parent_share_id']) {
+
+                        alert("Sorry, but you you cannot move a share without grant rights into another share.");
+                        return false;
+                    }
+                };
+
+                // Start of the actual rights checking
+
+                // prevent the move of anything into a target without right writes
                 if (target.hasOwnProperty("share_rights") && target.share_rights.write == false) {
                     alert("Sorry, but you don't have write rights on target");
                     return false;
                 }
 
-                //prevent the move of shares without grant rights into different shares
-                if (element.share_rights.grant == false && element.hasOwnProperty('parent_share_id')
-                    && target.hasOwnProperty('share_id') && target['share_id'] !== element['parent_share_id']) {
-
-                    alert("Sorry, but you you cannot move a share without grant rights into another share.");
-                    return false;
+                // we are moving a share, so its unnecessary to check any lower item / folder rights
+                if (element.hasOwnProperty('share_id')) {
+                    return canMoveHelper(element, target);
                 }
 
-
-                //prevent the move of shares without grant rights into different shares
-                if (element.share_rights.grant == false && element.hasOwnProperty('parent_share_id')
-                    && !target.hasOwnProperty('share_id') && target.hasOwnProperty('parent_share_id') && target['parent_share_id'] !== element['parent_share_id']) {
-
-                    alert("Sorry, but you you cannot move a share without grant rights into another share.");
-                    return false;
+                // checks if we maybe have an item itself
+                if (element.hasOwnProperty('type')) {
+                    if (canMoveHelper(element, target) == false) {
+                        return false;
+                    }
                 }
 
+                // checks if we have a folder with items
+                if (element.hasOwnProperty('items') && element.items.length > 0) {
+                    for (i = element.items.length - 1; i >= 0; i--) {
+                        if (canMoveHelper(element.items[i], target) == false) {
+                            return false;
+                        }
+                    }
+                }
+
+                // checks if we have a folder with folders
+                if (element.hasOwnProperty('folders') && element.folders.length > 0) {
+                    for (i = element.folders.length - 1; i >= 0; i--) {
+                        if (canMove(element.folders[i], target) == false) {
+                            return false;
+                        }
+                    }
+                }
+
+                // Nothing is blocking our move
                 return true;
             };
 

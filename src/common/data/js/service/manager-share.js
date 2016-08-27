@@ -171,6 +171,7 @@
          * creates the rights for a specified share and user
          *
          * @param title
+         * @param type
          * @param share_id
          * @param user_id
          * @param user_public_key
@@ -180,7 +181,7 @@
          * @param grant
          * @returns {promise}
          */
-        var create_share_right = function(title, share_id, user_id, user_public_key, key, read, write, grant) {
+        var create_share_right = function(title, type, share_id, user_id, user_public_key, key, read, write, grant) {
 
             var onError = function(result) {
                 // pass
@@ -192,10 +193,12 @@
 
             var encrypted_key = managerBase.encrypt_private_key(key, user_public_key);
             var encrypted_title = managerBase.encrypt_private_key(title, user_public_key);
+            var encrypted_type = managerBase.encrypt_private_key(type, user_public_key);
 
             return apiClient.create_share_right(managerBase.get_token(),
                 managerBase.get_session_secret_key(), encrypted_title.text,
-                encrypted_title.nonce, share_id, user_id, encrypted_key.text, encrypted_key.nonce, read, write, grant)
+                encrypted_title.nonce, encrypted_type.text,
+                encrypted_type.nonce, share_id, user_id, encrypted_key.text, encrypted_key.nonce, read, write, grant)
                 .then(onSuccess, onError);
         };
 
@@ -219,9 +222,8 @@
                 return {share_right_id: content.data.share_right_id};
             };
 
-            return apiClient.create_share_right(managerBase.get_token(),
-                managerBase.get_session_secret_key(), null,
-                null, share_id, user_id, null, null, read, write, grant)
+            return apiClient.update_share_right(managerBase.get_token(),
+                managerBase.get_session_secret_key(), share_id, user_id, read, write, grant)
                 .then(onSuccess, onError);
         };
 
@@ -272,6 +274,21 @@
                 if (typeof content.data.share_data !== "undefined") {
                     share = JSON.parse(cryptoLibrary.decrypt_data(content.data.share_data,
                         content.data.share_data_nonce,secret_key));
+                }
+
+
+                if (typeof share.type == 'undefined' && typeof content.data.share_type !== "undefined") {
+                    console.log("toeff");
+                    console.log(content.data.share_type);
+                    console.log(content.data.share_type_nonce);
+                    console.log(public_key);
+
+                    var type = managerBase.decrypt_private_key(content.data.share_type,
+                        content.data.share_type_nonce, public_key);
+
+                    if (type != 'folder') {
+                        share.type = type;
+                    }
                 }
 
                 share.share_id = content.data.share_id;

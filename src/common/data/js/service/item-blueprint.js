@@ -212,7 +212,17 @@
                                 title = _blueprints[node.type].name + " with title '" + node.name + "'";
                             }
 
-                            registrations['create_share_right'](title,
+                            // get the type
+                            var type = "";
+                            if (typeof(node.type) == 'undefined') {
+                                // we have a folder
+                                type = 'folder';
+                            } else {
+                                // we have an item
+                                type = node.type;
+                            }
+
+                            registrations['create_share_right'](title, type,
                                 share_id, users[i].data.user_id,
                                 users[i].data.user_public_key, secret_key,
                                 rights['read'], rights['write'], rights['grant']);

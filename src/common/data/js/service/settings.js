@@ -51,6 +51,7 @@
         var get_setting = function (key) {
 
             if (key == 'setting_email') {
+                console.log(storage.find_one('config', {key: 'user_email'}));
                 return storage.find_one('config', {key: 'user_email'}).value;
             }
 

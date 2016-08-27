@@ -29,6 +29,7 @@
             var backend = server['value']['url'];
 
             if (session_secret_key && data !== null) {
+                // TODO remove the // before putting in production
                 // data = cryptoLibrary.encrypt_data(JSON.stringify(data), session_secret_key);
             }
 
@@ -51,7 +52,7 @@
                         data.data = JSON.parse(cryptoLibrary.decrypt_data(data.data.text, data.data.nonce, session_secret_key));
                     }
 
-                    //console.log(data);
+                    console.log(data);
                     return data;
                 };
 
@@ -76,9 +77,9 @@
          * Ajax POST request to the backend with email and authkey for login, saves a token together with user_id
          * and all the different keys of a user in the apidata storage
          *
-         * @param {string} username
-         * @param {string} authkey
-         * @param {string} public_key
+         * @param {string} username - the username e.g dummy@example.com
+         * @param {string} authkey - the authkey as scrypt(password + username + sauce)
+         * @param {string} public_key - session public key
          * @returns {promise} promise
          */
         var login = function(username, authkey, public_key) {
@@ -571,12 +572,14 @@
 
 
         /**
-         * Ajax GET request with the token as authentication to get the users and groups rights of the share
+         * Ajax PUT request with the token as authentication to create share rights for a user
          *
          * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key
-         * @param {uuid} encrypted_title - the title shown to the user before he accepts
-         * @param {uuid} encrypted_title_nonce - the corresponding title nonce
+         * @param {string} encrypted_title - the title shown to the user before he accepts
+         * @param {string} encrypted_title_nonce - the corresponding title nonce
+         * @param {string} encrypted_type - the type of the share
+         * @param {string} encrypted_type_nonce - the corresponding type nonce
          * @param {uuid} share_id - the share ID
          * @param {uuid} user_id - the target user's user ID
          * @param {string} key - the encrypted share secret, encrypted with the public key of the target user
@@ -586,17 +589,50 @@
          * @param {bool} grant - grant right
          * @returns {promise}
          */
-        var create_share_right = function (token, session_secret_key, encrypted_title, encrypted_title_nonce, share_id,
+        var create_share_right = function (token, session_secret_key, encrypted_title, encrypted_title_nonce, encrypted_type, encrypted_type_nonce, share_id,
                                            user_id, key, key_nonce, read, write, grant) {
             var endpoint = '/share/right/';
             var connection_type = "PUT";
             var data = {
                 title: encrypted_title,
                 title_nonce: encrypted_title_nonce,
+                type: encrypted_type,
+                type_nonce: encrypted_type_nonce,
                 share_id: share_id,
                 user_id: user_id,
                 key: key,
                 key_nonce: key_nonce,
+                read: read,
+                write: write,
+                grant: grant
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+
+        /**
+         * Ajax POST request with the token as authentication to update the share rights for a user
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {uuid} share_id - the share ID
+         * @param {uuid} user_id - the target user's user ID
+         * @param {bool} read - read right
+         * @param {bool} write - write right
+         * @param {bool} grant - grant right
+         * @returns {promise}
+         */
+        var update_share_right = function (token, session_secret_key, share_id,
+                                           user_id, read, write, grant) {
+            var endpoint = '/share/right/';
+            var connection_type = "POST";
+            var data = {
+                share_id: share_id,
+                user_id: user_id,
                 read: read,
                 write: write,
                 grant: grant
@@ -905,6 +941,7 @@
             read_share_rights: read_share_rights,
             read_share_rights_overview: read_share_rights_overview,
             create_share_right: create_share_right,
+            update_share_right: update_share_right,
             delete_share_right: delete_share_right,
             read_share_rights_inherit_overview: read_share_rights_inherit_overview,
             create_share_right_inherit: create_share_right_inherit,

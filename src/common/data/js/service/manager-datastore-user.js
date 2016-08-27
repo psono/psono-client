@@ -148,7 +148,7 @@
                     response.data.session_public_key,
                     session_keys.private_key
                 );
-                // no need anymore for the session keys
+                // no need anymore for the public / private session keys
                 session_keys = null;
 
                 // decrypt user private key and secret key
@@ -173,7 +173,7 @@
                     user_private_key
                 );
 
-                // encrypt the verification
+                // encrypt the validator as verification
                 var verification = cryptoLibrary.encrypt_data(
                     user_validator,
                     session_secret_key

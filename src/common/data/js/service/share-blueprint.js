@@ -135,7 +135,6 @@
         };
 
         var _additionalFunction = {
-            // TODO implement public trust / signing function
         };
 
         /**
