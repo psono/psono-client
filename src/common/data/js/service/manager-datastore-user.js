@@ -151,16 +151,10 @@
                 // no need anymore for the public / private session keys
                 session_keys = null;
 
-                // decrypt user private key and secret key
+                // decrypt user private key
                 var user_private_key = cryptoLibrary.decrypt_secret(
                     response.data.user.private_key,
                     response.data.user.private_key_nonce,
-                    password,
-                    response.data.user.user_sauce
-                );
-                var user_secret_key = cryptoLibrary.decrypt_secret(
-                    response.data.user.secret_key,
-                    response.data.user.secret_key_nonce,
                     password,
                     response.data.user.user_sauce
                 );
@@ -179,11 +173,19 @@
                     session_secret_key
                 );
 
-                var onSuccess = function () {
+                var onSuccess = function (activation_data) {
 
-                    storage.insert('config', {key: 'user_id', value: response.data.user.id});
+                    // decrypt user secret key
+                    var user_secret_key = cryptoLibrary.decrypt_secret(
+                        activation_data.data.user.secret_key,
+                        activation_data.data.user.secret_key_nonce,
+                        password,
+                        response.data.user.user_sauce
+                    );
+
+                    storage.insert('config', {key: 'user_id', value: activation_data.data.user.id});
                     storage.insert('config', {key: 'user_token', value: response.data.token});
-                    storage.insert('config', {key: 'user_email', value: response.data.user.email});
+                    storage.insert('config', {key: 'user_email', value: activation_data.data.user.email});
                     storage.insert('config', {key: 'session_secret_key', value: session_secret_key});
                     storage.insert('config', {key: 'user_public_key', value: response.data.user.public_key});
                     storage.insert('config', {key: 'user_private_key', value: user_private_key});
