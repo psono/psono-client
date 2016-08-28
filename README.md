@@ -108,4 +108,8 @@ The extension should now be loaded
     
         gulp unittestwatch
     
+
+# Documentation
+
+    A brief documentation can be found [here](docu/DOCUMENTATION.md)
     

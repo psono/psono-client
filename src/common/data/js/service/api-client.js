@@ -423,10 +423,13 @@
          * @returns {promise}
          */
         var delete_secret_link = function (token, session_secret_key, link_id) {
-            var endpoint = '/secret/link/' + link_id + '/';
+            var endpoint = '/secret/link/';
             var connection_type = "DELETE";
-            var data = {};
+            var data = {
+                link_id: link_id
+            };
             var headers = {
+                "Content-Type": "application/json",
                 "Authorization": "Token "+ token
             };
 
@@ -653,10 +656,13 @@
          * @returns {promise}
          */
         var delete_share_right = function (token, session_secret_key, share_right_id) {
-            var endpoint = '/share/right/' + share_right_id + '/';
+            var endpoint = '/share/right/';
             var connection_type = "DELETE";
-            var data = {};
+            var data = {
+                share_right_id: share_right_id
+            };
             var headers = {
+                "Content-Type": "application/json",
                 "Authorization": "Token "+ token
             };
 
@@ -674,49 +680,6 @@
             var endpoint = '/share/right/inherit/';
             var connection_type = "GET";
             var data = null;
-            var headers = {
-                "Authorization": "Token "+ token
-            };
-
-            return call(connection_type, endpoint, data, headers, session_secret_key);
-        };
-
-
-        /**
-         * Ajax GET request with the token as authentication to get the users and groups inherited rights of the share
-         *
-         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
-         * @param {string} session_secret_key
-         * @param {uuid} share_right_id - the id of the share_right that gets inherited
-         * @param {uuid} share_id - the share ID
-         * @returns {promise}
-         */
-        var create_share_right_inherit = function (token, session_secret_key, share_right_id, share_id) {
-            var endpoint = '/share/right/inherit/';
-            var connection_type = "PUT";
-            var data = {
-                share_right_id: share_right_id,
-                share_id: share_id
-            };
-            var headers = {
-                "Authorization": "Token "+ token
-            };
-
-            return call(connection_type, endpoint, data, headers, session_secret_key);
-        };
-
-        /**
-         * Ajax DELETE request with the token as authentication to delete the user / group inherited share right
-         *
-         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
-         * @param {string} session_secret_key
-         * @param {uuid} share_right_inherit_id
-         * @returns {promise}
-         */
-        var delete_share_right_inherit = function (token, session_secret_key, share_right_inherit_id) {
-            var endpoint = '/share/right/inherit/' + share_right_inherit_id + '/';
-            var connection_type = "DELETE";
-            var data = {};
             var headers = {
                 "Authorization": "Token "+ token
             };
@@ -860,10 +823,13 @@
          * @returns {promise}
          */
         var delete_share_link = function (token, session_secret_key, link_id) {
-            var endpoint = '/share/link/' + link_id + '/';
+            var endpoint = '/share/link/';
             var connection_type = "DELETE";
-            var data = {};
+            var data = {
+                link_id: link_id
+            };
             var headers = {
+                "Content-Type": "application/json",
                 "Authorization": "Token "+ token
             };
 
@@ -944,8 +910,6 @@
             update_share_right: update_share_right,
             delete_share_right: delete_share_right,
             read_share_rights_inherit_overview: read_share_rights_inherit_overview,
-            create_share_right_inherit: create_share_right_inherit,
-            delete_share_right_inherit: delete_share_right_inherit,
             accept_share_right: accept_share_right,
             decline_share_right: decline_share_right,
             get_users_public_key: get_users_public_key,
