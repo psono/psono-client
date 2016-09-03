@@ -278,10 +278,6 @@
 
 
                 if (typeof share.type == 'undefined' && typeof content.data.share_type !== "undefined") {
-                    console.log("toeff");
-                    console.log(content.data.share_type);
-                    console.log(content.data.share_type_nonce);
-                    console.log(public_key);
 
                     var type = managerBase.decrypt_private_key(content.data.share_type,
                         content.data.share_type_nonce, public_key);

@@ -139,11 +139,8 @@
 
                         if (datastore_id === '') {
                             //datastore does really not exist, lets create one and return it
-
                             var secret_key = cryptoLibrary.generate_secret_key();
-
                             var cipher = managerBase.encrypt_secret_key(secret_key);
-
 
                             var onError = function(result) {
                                 // pass
@@ -157,6 +154,9 @@
                                 managerBase.get_session_secret_key(), type, description, '', '',
                                 cipher.text, cipher.nonce)
                                 .then(onSuccess, onError);
+                        } else {
+                            // okay, cache was out of date, so lets get this datastore now
+                            return get_datastore_with_id(datastore_id);
                         }
                     };
 

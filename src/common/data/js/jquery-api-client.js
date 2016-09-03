@@ -16,10 +16,6 @@ var ClassClient = function (backend, require, jQuery, sha512) {
     //var nacl = nacl_factory.instantiate();
     var nacl = require('ecma-nacl');
 
-    /* Im afraid people will send/use shaXXX hashes of their password for other purposes, therefore I add this special
-     * sauce to every hash. This special sauce can be considered a constant and will never change. Its no secret but
-     * it should not be used for anything else besides the reasons below */
-    var special_sauce = 'b6acbb9b2077ba2011643b17c24bafea3b8d7066565546cfbde020790a64b469';//sha256 of 'our-chosen-sexy-sauce'
 
 
     /**
@@ -137,8 +133,6 @@ var ClassClient = function (backend, require, jQuery, sha512) {
      * var p = 1;
      * var l = 64;
      *
-     * var special_sauce = 'b6acbb9b2077ba2011643b17c24bafea3b8d7066565546cfbde020790a64b469'
-     *
      * @param {string} username - username of the user (in email format)
      * @param {string} password - password of the user
      * @returns auth_key - scrypt hex value of the password with the sha512 of lowercase email as salt
@@ -152,7 +146,7 @@ var ClassClient = function (backend, require, jQuery, sha512) {
 
         // takes the sha512(username) as salt.
         // var salt = nacl.to_hex(nacl.crypto_hash_string(username.toLowerCase() + special_sauce));
-        var salt = sha512(username.toLowerCase() + special_sauce);
+        var salt = sha512(username.toLowerCase());
 
         return to_hex(nacl.scrypt(encode_utf8(password), encode_utf8(salt), n, r, p, l, function(pDone) {}));
     };

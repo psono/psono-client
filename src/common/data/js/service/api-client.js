@@ -297,9 +297,10 @@
          */
         var write_datastore = function (token, session_secret_key, datastore_id, encrypted_data, encrypted_data_nonce,
                                         encrypted_data_secret_key, encrypted_data_secret_key_nonce) {
-            var endpoint = '/datastore/' + datastore_id + '/';
+            var endpoint = '/datastore/';
             var connection_type = "POST";
             var data = {
+                datastore_id: datastore_id,
                 data: encrypted_data,
                 data_nonce: encrypted_data_nonce,
                 secret_key: encrypted_data_secret_key,
@@ -377,9 +378,10 @@
          * @returns {promise}
          */
         var write_secret = function (token, session_secret_key, secret_id, encrypted_data, encrypted_data_nonce) {
-            var endpoint = '/secret/' + secret_id + '/';
+            var endpoint = '/secret/';
             var connection_type = "POST";
             var data = {
+                secret_id: secret_id,
                 data: encrypted_data,
                 data_nonce: encrypted_data_nonce
             };
@@ -401,9 +403,10 @@
          * @returns {promise}
          */
         var move_secret_link = function (token, session_secret_key, link_id, new_parent_share_id, new_parent_datastore_id) {
-            var endpoint = '/secret/link/' + link_id + '/';
+            var endpoint = '/secret/link/';
             var connection_type = "POST";
             var data = {
+                link_id: link_id,
                 new_parent_share_id: new_parent_share_id,
                 new_parent_datastore_id: new_parent_datastore_id
             };
@@ -523,9 +526,10 @@
          * @returns {promise}
          */
         var write_share = function (token, session_secret_key, share_id, encrypted_data, encrypted_data_nonce) {
-            var endpoint = '/share/' + share_id + '/';
+            var endpoint = '/share/';
             var connection_type = "POST";
             var data = {
+                share_id: share_id,
                 data: encrypted_data,
                 data_nonce: encrypted_data_nonce
             };
@@ -702,9 +706,10 @@
          * @returns {promise}
          */
         var accept_share_right = function (token, session_secret_key, share_right_id, key, key_nonce, link_id, parent_share_id, parent_datastore_id) {
-            var endpoint = '/share/right/accept/' + share_right_id + '/';
+            var endpoint = '/share/right/accept/';
             var connection_type = "POST";
             var data = {
+                share_right_id: share_right_id,
                 key: key,
                 key_nonce: key_nonce,
                 link_id: link_id,
@@ -728,9 +733,11 @@
          * @returns {*}
          */
         var decline_share_right = function (token, session_secret_key, share_right_id) {
-            var endpoint = '/share/right/decline/' + share_right_id + '/';
+            var endpoint = '/share/right/decline/';
             var connection_type = "POST";
-            var data = null;
+            var data = {
+                share_right_id: share_right_id
+            };
             var headers = {
                 "Authorization": "Token "+ token
             };
@@ -775,9 +782,10 @@
          * @returns {promise}
          */
         var create_share_link = function (token, session_secret_key, link_id, share_id, parent_share_id, datastore_id) {
-            var endpoint = '/share/link/' + link_id + '/';
+            var endpoint = '/share/link/';
             var connection_type = "PUT";
             var data = {
+                link_id: link_id,
                 share_id: share_id,
                 parent_share_id: parent_share_id,
                 datastore_id: datastore_id
@@ -801,9 +809,10 @@
          * @returns {promise}
          */
         var move_share_link = function (token, session_secret_key, link_id, new_parent_share_id, new_parent_datastore_id) {
-            var endpoint = '/share/link/' + link_id + '/';
+            var endpoint = '/share/link/';
             var connection_type = "POST";
             var data = {
+                link_id: link_id,
                 new_parent_share_id: new_parent_share_id,
                 new_parent_datastore_id: new_parent_datastore_id
             };
@@ -835,7 +844,7 @@
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
         };
-
+        
         /**
          * Ajax GET request with the token as authentication to get the current user's groups
          *

@@ -4,12 +4,6 @@
     //var nacl = nacl_factory.instantiate();
     var nacl = require('ecma-nacl');
 
-    /* Im afraid people will send/use shaXXX hashes of their password for other purposes, therefore I add this special
-     * sauce to every hash. This special sauce can be considered a constant and will never change. Its no secret but
-     * it should not be used for anything else besides the reasons below */
-    var special_sauce = 'b6acbb9b2077ba2011643b17c24bafea3b8d7066565546cfbde020790a64b469';//sha256 of 'our-chosen-sexy-sauce'
-
-
     /**
      * Random byte generator from nacl_factory.js
      *
@@ -113,10 +107,10 @@
 
 
     /**
-     * takes the sha512 of lowercase username (+ special sauce) as salt to generate scrypt password hash in hex called
+     * takes the sha512 of lowercase username as salt to generate scrypt password hash in hex called
      * the authkey, so basically:
      *
-     * hex(scrypt(password, hex(sha512(lower(username)+special_sauce))))
+     * hex(scrypt(password, hex(sha512(lower(username)))))
      *
      * For compatibility reasons with other clients please use the following parameters if you create your own client:
      *
@@ -124,8 +118,6 @@
      * var r = 8;
      * var p = 1;
      * var l = 64;
-     *
-     * var special_sauce = 'b6acbb9b2077ba2011643b17c24bafea3b8d7066565546cfbde020790a64b469'
      *
      * @param {string} username - username of the user (in email format)
      * @param {string} password - password of the user
@@ -143,8 +135,8 @@
         var l = 64; // 64 Bytes = 512 Bits
 
         // takes the sha512(username) as salt.
-        // var salt = nacl.to_hex(nacl.crypto_hash_string(username.toLowerCase() + special_sauce));
-        var salt = sha512(username.toLowerCase() + special_sauce);
+        // var salt = nacl.to_hex(nacl.crypto_hash_string(username.toLowerCase()));
+        var salt = sha512(username.toLowerCase());
 
         return to_hex(nacl.scrypt(encode_utf8(password), encode_utf8(salt), n, r, p, l, function(pDone) {}));
     };
