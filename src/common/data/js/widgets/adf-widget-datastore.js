@@ -259,6 +259,8 @@
                         alert("Sorry, but you you cannot move a share without grant rights into another share.");
                         return false;
                     }
+
+                    return true;
                 };
 
                 // Start of the actual rights checking
@@ -314,6 +316,7 @@
             var moveItem = function(scope, item_path, target_path, type) {
 
                 var i;
+                var closest_parent;
                 // TODO ask for confirmation
 
                 var orig_item_path = item_path.slice();
@@ -360,6 +363,7 @@
                 val2[0].splice(val2[1], 1);
 
                 var target_path_copy = orig_target_path.slice();
+                var target_path_copy2 = orig_target_path.slice();
                 var item_path_copy = orig_item_path.slice();
                 target_path_copy.push(element.id);
                 item_path_copy.push(element.id);
@@ -390,10 +394,11 @@
 
                 // adjust the links for every child_share (and therefore update the rights)
                 for (i = child_shares.length - 1; i >= 0; i--) {
-                    managerShareLink.on_share_moved(
-                        child_shares[i].share.id,
-                        managerShare.get_closest_parent_share(target_path_copy.concat(child_shares[i].path),
-                            scope.structure.data, scope.structure.data, 1));
+                    closest_parent = managerShare.get_closest_parent_share(
+                        target_path_copy.concat(child_shares[i].path), scope.structure.data, scope.structure.data, 1
+                    );
+
+                    managerShareLink.on_share_moved(child_shares[i].share.id, closest_parent);
                 }
 
                 // if parent_share did not change, then we are done here
@@ -409,16 +414,18 @@
                     return;
                 }
 
-
                 // adjust the links for every secret link (and therefore update the rights)
                 for (i = secret_links.length - 1; i >= 0; i--) {
-                    managerSecretLink.on_secret_moved(
-                        secret_links[i].id,
-                        managerShare.get_closest_parent_share(target_path_copy.concat(secret_links[i].path),
-                            scope.structure.data, scope.structure.data, 1));
+                    closest_parent = managerShare.get_closest_parent_share(
+                        target_path_copy2.concat(secret_links[i].path), scope.structure.data, scope.structure.data, 1
+                    );
+                    managerSecretLink.on_secret_moved(secret_links[i].id, closest_parent);
+                }
+                if (secret_links.length > 0) {
+                    managerDatastorePassword.update_parents(closest_parent, closest_parent.parent_share_id, closest_parent.parent_datastore_id);
                 }
 
-                // TODO Update share_rights and parent_share_id / parent_datstore_id
+                // TODO Update share_rights
             };
 
             /**
@@ -457,7 +464,6 @@
                 }
 
                 var secret_links = managerDatastorePassword.get_all_secret_links(element);
-                console.log(secret_links);
 
                 // lets update for every child_share the share_index
                 for (i = child_shares.length - 1; i >= 0; i--) {

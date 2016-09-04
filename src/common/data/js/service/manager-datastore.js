@@ -291,7 +291,6 @@
 
                 // test items
                 for (i = 0; content.hasOwnProperty("items") && i < content.items.length; i++) {
-
                     for (m = 0; m < filter.length; m++) {
                         if (content.items[i].hasOwnProperty(filter[m])) {
                             delete content.items[i][filter[m]];

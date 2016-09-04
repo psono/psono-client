@@ -93,12 +93,12 @@
          *
          * @param content
          * @param [parent_share_id]
-         * @param [datastore_id]
+         * @param [parent_datastore_id]
          * @param link_id
          * @returns {promise}
          */
         var create_share = function (content, parent_share_id,
-                                     datastore_id, link_id) {
+                                     parent_datastore_id, link_id) {
 
             if (content.hasOwnProperty("id")) {
                 delete content.id;
@@ -121,7 +121,7 @@
 
             return apiClient.create_share(managerBase.get_token(),
                 managerBase.get_session_secret_key(), encrypted_data.text,
-                encrypted_data.nonce, encrypted_key.text, encrypted_key.nonce, parent_share_id, datastore_id, link_id)
+                encrypted_data.nonce, encrypted_key.text, encrypted_key.nonce, parent_share_id, parent_datastore_id, link_id)
                 .then(onSuccess, onError);
         };
 

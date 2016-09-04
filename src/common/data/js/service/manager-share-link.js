@@ -9,10 +9,10 @@
          * @param {uuid} link_id - the link id
          * @param {uuid} share_id - the share ID
          * @param {uuid} [parent_share_id=null] - optional parent share ID, necessary if no datastore_id is provided
-         * @param {uuid} [datastore_id=null] - optional datastore ID, necessary if no parent_share_id is provided
+         * @param {uuid} [parent_datastore_id=null] - optional datastore ID, necessary if no parent_share_id is provided
          * @returns {promise}
          */
-        var create_share_link = function (link_id, share_id, parent_share_id, datastore_id) {
+        var create_share_link = function (link_id, share_id, parent_share_id, parent_datastore_id) {
 
             var onError = function(result) {
                 // pass
@@ -23,7 +23,7 @@
             };
 
             return apiClient.create_share_link(managerBase.get_token(),
-                managerBase.get_session_secret_key(), link_id, share_id, parent_share_id, datastore_id)
+                managerBase.get_session_secret_key(), link_id, share_id, parent_share_id, parent_datastore_id)
                 .then(onSuccess, onError);
         };
 

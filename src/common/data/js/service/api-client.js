@@ -490,12 +490,12 @@
          * @param {string} key - encrypted key used by the encryption
          * @param {string} key_nonce - nonce for key, necessary if a key is provided
          * @param {string} [parent_share_id] - optional id of the parent share, may be left empty if the share resides in the datastore
-         * @param {string} [datastore_id] - optional id of the parent datastore, may be left empty if the share resides in a share
+         * @param {string} [parent_datastore_id] - optional id of the parent datastore, may be left empty if the share resides in a share
          * @param {string} link_id - the local id of the share in the datastructure
          * @returns {promise}
          */
         var create_share = function (token, session_secret_key, encrypted_data, encrypted_data_nonce, key, key_nonce, parent_share_id,
-                                     datastore_id, link_id) {
+                                     parent_datastore_id, link_id) {
             var endpoint = '/share/';
             var connection_type = "PUT";
             var data = {
@@ -505,7 +505,7 @@
                 key_nonce: key_nonce,
                 key_type: "symmetric",
                 parent_share_id: parent_share_id,
-                datastore_id: datastore_id,
+                parent_datastore_id: parent_datastore_id,
                 link_id: link_id
             };
             var headers = {
@@ -777,18 +777,18 @@
          * @param {string} session_secret_key
          * @param {uuid} link_id - the link id
          * @param {uuid} share_id - the share ID
-         * @param {uuid} [parent_share_id=null] - optional parent share ID, necessary if no datastore_id is provided
-         * @param {uuid} [datastore_id=null] - optional datastore ID, necessary if no parent_share_id is provided
+         * @param {uuid} [parent_share_id=null] - optional parent share ID, necessary if no parent_datastore_id is provided
+         * @param {uuid} [parent_datastore_id=null] - optional parent datastore ID, necessary if no parent_share_id is provided
          * @returns {promise}
          */
-        var create_share_link = function (token, session_secret_key, link_id, share_id, parent_share_id, datastore_id) {
+        var create_share_link = function (token, session_secret_key, link_id, share_id, parent_share_id, parent_datastore_id) {
             var endpoint = '/share/link/';
             var connection_type = "PUT";
             var data = {
                 link_id: link_id,
                 share_id: share_id,
                 parent_share_id: parent_share_id,
-                datastore_id: datastore_id
+                parent_datastore_id: parent_datastore_id
             };
             var headers = {
                 "Authorization": "Token "+ token
@@ -844,7 +844,7 @@
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
         };
-        
+
         /**
          * Ajax GET request with the token as authentication to get the current user's groups
          *

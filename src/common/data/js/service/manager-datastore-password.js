@@ -37,31 +37,70 @@
             return rights;
         };
 
-
         /**
-         * Sets the share_rights for folders and items, based on the users rights on the share.
-         * Calls recursive itself in case it finds another share
+         * Sets the parent for folders and items, based on the obj and obj parents.
+         * Calls recursive itself for all folders and skips nested shares
          *
          * @param obj
          * @param parent_share_id
          * @param parent_datastore_id
          */
-        var update_share_rights_of_folders_and_items = function(obj, parent_share_id, parent_datastore_id) {
+        var update_parents = function(obj, parent_share_id, parent_datastore_id) {
             var n;
-            var share_rights = {
-                    'read': true,
-                    'write': true,
-                    'grant': true,
-                    'delete': true
-                };
 
             var new_parent_share_id = parent_share_id;
+            var new_parent_datastore_id = parent_datastore_id;
 
-            if (obj.hasOwnProperty('share_id')) {
-                new_parent_share_id = obj['share_id'];
+            if (obj.hasOwnProperty('datastore_id')) {
+                obj['parent_share_id'] = undefined;
+                obj['parent_datastore_id'] = undefined;
+                new_parent_share_id = undefined;
+                new_parent_datastore_id = obj.datastore_id;
+            } else if (obj.hasOwnProperty('share_id')) {
+                obj['parent_share_id'] = parent_share_id;
+                obj['parent_datastore_id'] = parent_datastore_id;
+                new_parent_share_id = obj.share_id;
+                new_parent_datastore_id = undefined;
             }
 
-            if (!obj.hasOwnProperty('datastore_id')) {
+            // check all folders recursive
+            if (obj.hasOwnProperty('folders')) {
+                for (n = 0; n < obj.folders.length; n++) {
+                    obj.folders[n]['parent_share_id'] = new_parent_share_id;
+                    obj.folders[n]['parent_datastore_id'] = new_parent_datastore_id;
+
+                    // lets not go inside of a new share, and dont touch the parents there
+                    if (obj.folders[n].hasOwnProperty('share_id')) {
+                        continue;
+                    }
+                    update_parents(obj.folders[n], new_parent_share_id, new_parent_datastore_id);
+                }
+            }
+            // check all items
+            if (obj.hasOwnProperty('items')) {
+                for (n = 0; n < obj.items.length; n++) {
+                    if (obj.items[n].hasOwnProperty('share_id')) {
+                        continue;
+                    }
+                    obj.items[n]['parent_share_id'] = new_parent_share_id;
+                    obj.items[n]['parent_datastore_id'] = new_parent_datastore_id;
+                }
+            }
+        };
+
+        /**
+         * Sets the share_rights for folders and items, based on the users rights on the share.
+         * Calls recursive itself for all folders and skips nested shares
+         *
+         * @param obj
+         * @param share_rights
+         */
+        var update_share_rights_of_folders_and_items = function(obj, share_rights) {
+            var n;
+
+            if (obj.hasOwnProperty('datastore_id')) {
+                // pass
+            } else if (obj.hasOwnProperty('share_id')) {
                 share_rights['read'] = obj['share_rights']['read'];
                 share_rights['write'] = obj['share_rights']['write'];
                 share_rights['grant'] = obj['share_rights']['grant'] && obj['share_rights']['write'];
@@ -71,13 +110,12 @@
             // check all folders recursive
             if (obj.hasOwnProperty('folders')) {
                 for (n = 0; n < obj.folders.length; n++) {
+                    // lets not go inside of a new share, and don't touch the share_rights as they will come directly from the share
                     if (obj.folders[n].hasOwnProperty('share_id')) {
                         continue;
                     }
                     obj.folders[n]['share_rights'] = share_rights;
-                    obj.folders[n]['parent_share_id'] = new_parent_share_id;
-                    obj.folders[n]['parent_datastore_id'] = parent_datastore_id;
-                    update_share_rights_of_folders_and_items(obj.folders[n], new_parent_share_id, parent_datastore_id);
+                    update_share_rights_of_folders_and_items(obj.folders[n], share_rights);
                 }
             }
             // check all items
@@ -87,8 +125,6 @@
                         continue;
                     }
                     obj.items[n]['share_rights'] = share_rights;
-                    obj.items[n]['parent_share_id'] = new_parent_share_id;
-                    obj.items[n]['parent_datastore_id'] = parent_datastore_id;
                 }
             }
         };
@@ -111,8 +147,6 @@
 
             // update share_rights in share object
             obj['share_rights'] = calculate_user_share_rights(content);
-            obj['parent_share_id'] = parent_share_id;
-            obj['parent_datastore_id'] = parent_datastore_id;
             obj['share_rights']['delete'] = parent_share_rights['write'];
 
             // update data (folder and items) in share object
@@ -124,7 +158,13 @@
             }
 
             // update share_rights in folders and items
-            update_share_rights_of_folders_and_items(obj, parent_share_id, parent_datastore_id);
+            update_parents(obj, parent_share_id, parent_datastore_id);
+            update_share_rights_of_folders_and_items(obj, {
+                'read': true,
+                'write': true,
+                'grant': true,
+                'delete': true
+            });
         };
 
         /**
@@ -166,7 +206,7 @@
 
                         // Test if we already have it cached
                         if (all_share_data.hasOwnProperty(share_id)) {
-                            update_paths_with_data(datastore, share_index[share_id].paths[i], all_share_data[share_id], parent_share_rights, parent_share_id, parent_datastore_id);
+                            update_paths_with_data(datastore, share_index[share_id].paths[i], all_share_data[share_id], parent_share_rights, parent_share_id, undefined);
                             continue;
                         }
 
@@ -182,12 +222,11 @@
                                 }]
                             };
 
-                            console.log(share_rights_dict[share_id]);
-                            update_paths_with_data(datastore, share_index[share_id].paths[i], content, parent_share_rights, parent_share_id, parent_datastore_id);
+                            update_paths_with_data(datastore, share_index[share_id].paths[i], content, parent_share_rights, parent_share_id, undefined);
                             continue;
                         }
 
-                        all_calls.push((function (share_id, sub_datastore, path) {
+                        all_calls.push((function (share_id, sub_datastore, path, parent_share_id, parent_datastore_id) {
                             var onSuccess = function (content) {
                                 all_share_data[share_id] = content;
 
@@ -195,7 +234,7 @@
 
                                 rights = calculate_user_share_rights(content);
 
-                                read_shares_recursive(sub_datastore, share_rights_dict, content.data.share_index, all_share_data, rights, share_id, parent_datastore_id);
+                                read_shares_recursive(sub_datastore, share_rights_dict, content.data.share_index, all_share_data, rights, share_id, undefined);
                                 open_calls--;
                             };
 
@@ -205,7 +244,7 @@
                             open_calls++;
                             return managerShare.read_share(share_id, share_index[share_id].secret_key)
                                 .then(onSuccess, onError);
-                        })(share_id, sub_datastore, share_index[share_id].paths[i]));
+                        })(share_id, sub_datastore, share_index[share_id].paths[i], parent_share_id, parent_datastore_id));
 
                     }
                 }
@@ -213,7 +252,13 @@
 
             // Read shares recursive. We start from the datastore, so delete is allowed in the datastore
             read_shares_recursive(datastore, share_rights_dict, share_index, all_share_data, parent_share_rights, undefined, datastore.datastore_id);
-            update_share_rights_of_folders_and_items(datastore);
+            update_parents(datastore, undefined, datastore.datastore_id);
+            update_share_rights_of_folders_and_items(datastore, {
+                'read': true,
+                'write': true,
+                'grant': true,
+                'delete': true
+            });
 
             if (blocking) {
                 return $q.all(all_calls).then(function (ret) {
@@ -530,11 +575,12 @@
          * @param path
          * @param [datastore] optional if obj provided
          * @param other_children
-         * @param [int] share_distance the distance in shares to search (-1 = unlimited search, 0 stop search)
-         * @param [obj] optional if datastore provided (because then its searched in the datastore)
+         * @param [share_distance] share_distance the distance in shares to search (-1 = unlimited search, 0 stop search)
+         * @param [obj] optional if not provided we will search it in the datastore according to the provided path first
          */
         var get_all_child_shares = function(path, datastore, other_children, share_distance, obj) {
 
+            var n, l, new_path;
             if (share_distance === 0) {
                 return
             }
@@ -548,20 +594,33 @@
                 // TODO Handle not found
                 alert("HANDLE not found!");
             } else {
-                if (!obj.hasOwnProperty('folders')) {
-                    return;
+                //search in folders
+                if (obj.hasOwnProperty('folders')) {
+                    for (n = 0, l = obj.folders.length; n < l; n++) {
+                        new_path = path.slice();
+                        new_path.push(obj.folders[n].id);
+                        if (typeof(obj.folders[n].share_id) !== 'undefined') {
+                            other_children.push({
+                                share: obj.folders[n],
+                                path: new_path
+                            });
+                            get_all_child_shares(new_path, obj, other_children, share_distance-1, obj.folders[n]);
+                        } else {
+                            get_all_child_shares(new_path, obj, other_children, share_distance, obj.folders[n]);
+                        }
+                    }
                 }
-                for (var n = 0, l = obj.folders.length; n < l; n++) {
-                    var new_path = path.slice();
-                    new_path.push(obj.folders[n].id);
-                    if (typeof(obj.folders[n].share_id) !== 'undefined') {
-                        other_children.push({
-                            share: obj.folders[n],
-                            path: new_path
-                        });
-                        get_all_child_shares(new_path, obj, other_children, share_distance-1, obj.folders[n]);
-                    } else {
-                        get_all_child_shares(new_path, obj, other_children, share_distance, obj.folders[n]);
+                // search in items
+                if (obj.hasOwnProperty('items')) {
+                    for (n = 0, l = obj.items.length; n < l; n++) {
+                        new_path = path.slice();
+                        new_path.push(obj.items[n].id);
+                        if (typeof(obj.items[n].share_id) !== 'undefined') {
+                            other_children.push({
+                                share: obj.items[n],
+                                path: new_path
+                            });
+                        }
                     }
                 }
             }
@@ -594,7 +653,7 @@
                 if (element.hasOwnProperty('secret_id')) {
                     links.push({
                         id: element.id,
-                        path: path
+                        path: new_path
                     });
                 }
 
@@ -847,7 +906,8 @@
             get_all_secret_links: get_all_secret_links,
             on_share_added: on_share_added,
             on_share_moved: on_share_moved,
-            on_share_deleted: on_share_deleted
+            on_share_deleted: on_share_deleted,
+            update_parents: update_parents
         };
     };
 

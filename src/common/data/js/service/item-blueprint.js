@@ -271,18 +271,18 @@
                             registrations['get_password_datastore'](true).then(function(datastore) {
 
                                 var path = content.path.slice();
-                                var parent_share = registrations['get_closest_parent_share'](path, datastore, null, 0);
+                                var parent_share = registrations['get_closest_parent_share'](path, datastore, null, 1);
                                 var parent_share_id = null;
-                                var datastore_id = null;
+                                var parent_datastore_id = null;
 
                                 if (parent_share !== false && parent_share !== null) {
                                     parent_share_id = parent_share.share_id;
                                 } else {
-                                    datastore_id = datastore.datastore_id;
+                                    parent_datastore_id = datastore.datastore_id;
                                 }
 
                                 // create the share
-                                registrations['create_share'](content.node, parent_share_id, datastore_id, content.node.id).then(function (share_details) {
+                                registrations['create_share'](content.node, parent_share_id, parent_datastore_id, content.node.id).then(function (share_details) {
 
                                     var item_path = content.path.slice();
                                     var item_path_copy = content.path.slice();

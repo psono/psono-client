@@ -195,6 +195,15 @@
                 };
 
                 /**
+                 * expends or collapses the node
+                 *
+                 * @param node
+                 */
+                self.toggleExpanded = function (node) {
+                    node.expanded = !node.expanded;
+                };
+
+                /**
                  * tests if a node is selected
                  *
                  * @param node
@@ -620,7 +629,7 @@
                     }
 
                     if (collapsible) {
-                        toggleExpanded(scope.node);
+                        controller.toggleExpanded(scope.node);
                     }
 
                     controller.selectNode(scope.node, getPropertyPath(displayProperty), getPropertyPath(idProperty));
@@ -828,15 +837,6 @@
                         scope.contextMenuOnClose();
                     }
                 };
-
-                /**
-                 * expends or collapses the node
-                 *
-                 * @param node
-                 */
-                function toggleExpanded(node) {
-                    node.expanded = !node.expanded;
-                }
 
                 function render() {
 
