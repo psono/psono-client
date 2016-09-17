@@ -85,43 +85,6 @@
         };
 
         /**
-         * Handles node selections and triggers behaviour
-         *
-         * @param node
-         */
-        var onNodeSelect = function(node) {
-            //pass
-        };
-
-        /**
-         * Handles item selections and triggers behaviour
-         *
-         * @param item
-         */
-        var onItemSelect = function(item) {
-            //pass
-        };
-        /**
-         * Handles node clicks and triggers behaviour
-         *
-         * @param node
-         * @param path
-         */
-        var onNodeClick = function(node, path) {
-            //pass
-        };
-        /**
-         * Handles item clicks and triggers behaviour
-         *
-         * @param item
-         */
-        var onItemClick = function(item) {
-            if (itemBlueprint.blueprint_has_on_click_new_tab(item.type)) {
-                browserClient.openTab('/data/open-secret.html#/secret/'+item.type+'/'+item.secret_id);
-            }
-        };
-
-        /**
          * Decrypts a secret and initiates the redirect
          *
          * @param type
@@ -155,10 +118,6 @@
             create_secret: create_secret,
             read_secret: read_secret,
             write_secret: write_secret,
-            onNodeSelect: onNodeSelect,
-            onItemSelect: onItemSelect,
-            onNodeClick: onNodeClick,
-            onItemClick: onItemClick,
             redirectSecret: redirectSecret
         };
     };
