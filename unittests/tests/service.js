@@ -37,8 +37,8 @@
         }));
 
         it('generate_authkey works', inject(function (cryptoLibrary) {
-            expect(cryptoLibrary.generate_authkey('test@example.com', '123456')).toBe('a871c77e2cf57f92bf845685c7ebd38aac25b15b1fd535d5c409c94e24e3ee74000976e05c63fef2a139bcf72e3bbad86fe3fcd9eee7346a9e94ac2123310450');
-            return expect(cryptoLibrary.generate_authkey('test2@example.com', '1234567')).toBe('17c28b8c5c0c0c5c90826aeb61d3c1150540e37967c07e4b56ef95d3d2005d52054ce43ac680382e1b5cbfb37c7eac4a257a99e3a3b39286a0b03fcddbba2d11');
+            expect(cryptoLibrary.generate_authkey('test@example.com', '123456')).toBe('1ad635d464917db74a127b3de19c5bec9df932472c3e31ca8b18e872c641e8c828e9da35543ef36c0b013ab6c549a7ddbfe7b52b08e9e8704aca69f4c2fd68ea');
+            return expect(cryptoLibrary.generate_authkey('test2@example.com', '1234567')).toBe('3d97a9354e99760d543761c168b655ccc7e565ddd6ef1d6b83df66d8b50bc62708dfe2c2dc56a628fa24b71bf75fc49db85ce11fd64fadb0e458f3780dde1899');
         }));
 
         it('generate_secret_key returns a 32 bytes long key', inject(function (cryptoLibrary) {
