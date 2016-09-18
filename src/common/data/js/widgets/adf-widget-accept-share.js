@@ -1,4 +1,4 @@
-(function(angular, uuid) {
+(function(angular) {
     'use strict';
 
     /**
@@ -26,10 +26,10 @@
     /**
      * Main Controller for the acceptshare widget
      */
-    module.controller('acceptShareController', ["$scope", "config", "manager", "managerDatastorePassword",
+    module.controller('acceptShareController', ["$scope", "manager", "managerDatastorePassword",
         "$modal", "itemBlueprint", "managerAdfWidget",
         "message", "$timeout",
-        function($scope, config, manager, managerDatastorePassword,
+        function($scope, manager, managerDatastorePassword,
                  $modal, itemBlueprint, managerAdfWidget, message,
                  $timeout){
 
@@ -78,38 +78,9 @@
             };
 
             // Datastore Structure Management
-
             $scope.structure = { data: {}} ;
 
-
             var fill_password_datastore = function(data) {
-
-                // hide shares if the user has no grant rights
-
-
-                var hide_shares = function (share) {
-
-                    for (var share_id in share.share_index) {
-                        if (!share.share_index.hasOwnProperty(share_id)) {
-                            continue;
-                        }
-
-                        for (var i = share.share_index[share_id].paths.length - 1; i >= 0; i--) {
-                            var path_copy = share.share_index[share_id].paths[i].slice();
-                            var search = managerDatastorePassword.find_in_datastore(path_copy, share);
-
-                            var obj = search[0][search[1]];
-
-                            obj.is_selectable = false;
-                        }
-                    }
-                };
-
-                if (!config.item.share_right_grant) {
-                    // hide share if the user has no grant rights
-                    hide_shares(data);
-                }
-
                 $scope.structure.data = data;
             };
 
@@ -236,6 +207,19 @@
                 },
 
                 /**
+                 * Filters out share folders which we cannot read nor write to as possible target for our accept share
+                 *
+                 * @param node
+                 */
+                isSelectable: function (node) {
+                    if ( ! node.hasOwnProperty('share_rights') || (node.share_rights.read && node.share_rights.write)) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                },
+
+                /**
                  * triggered once someone wants to move a folder
                  *
                  * @param item_path
@@ -263,4 +247,4 @@
 
 
 
-})(angular, uuid);
+})(angular);

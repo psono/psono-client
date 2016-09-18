@@ -831,11 +831,17 @@
              * triggered once someone clicks on one of the breadcrumbs in the path
              *
              * @param index
+             * @param node
              */
-            $scope.cut_breadcrumbs = function (index) {
+            $scope.cut_breadcrumbs = function (index, node) {
+
+                // prevent jumping to folders with no read nor write rights
+                if (node.hasOwnProperty('share_rights') && ( !node.share_rights.read || !node.share_rights.write )) {
+                    return;
+                }
+
                 $scope.breadcrumbs.breadcrumbs = $scope.breadcrumbs.breadcrumbs.slice(0, index + 1);
                 $scope.breadcrumbs.id_breadcrumbs = $scope.breadcrumbs.id_breadcrumbs.slice(0, index + 1);
-
             };
 
             /**

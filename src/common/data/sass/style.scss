@@ -246,7 +246,10 @@ h1, h2 {
 }
 
 /* Fix Bootstrap disabled */
-.dropdown-menu > .disabled > a, .dropdown-menu > .disabled > a:hover, .dropdown-menu > .disabled > a:focus {
+.dropdown-menu > .disabled > a,
+.dropdown-menu > .disabled > a:hover,
+.dropdown-menu > .disabled > a:focus{
+  cursor: not-allowed;
   color: #999;
 }
 

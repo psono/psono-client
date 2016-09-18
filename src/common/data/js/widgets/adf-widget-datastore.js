@@ -1,4 +1,4 @@
-(function(angular, uuid) {
+(function(angular) {
     'use strict';
 
     /**
@@ -76,11 +76,14 @@
             };
 
             // Datastore Structure Management
-
             $scope.structure = { data: {}} ;
 
+            var fill_password_datastore = function(data) {
+                $scope.structure.data = data;
+            };
+
             managerDatastorePassword.get_password_datastore()
-                .then(function (data) {$scope.structure.data = data;});
+                .then(fill_password_datastore);
 
             /**
              * Move an item
@@ -253,4 +256,4 @@
         }]);
 
 
-})(angular, uuid);
+})(angular);

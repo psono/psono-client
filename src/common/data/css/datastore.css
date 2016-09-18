@@ -77,6 +77,8 @@ label.smalllabel {
   font-family: 'Courier New', Courier, monospace; }
   .path_box_parent .path_box_breadcrumb {
     cursor: pointer; }
+  .path_box_parent .disabled {
+    cursor: not-allowed; }
   .path_box_parent .path_box_breadcrumb:hover {
     color: #2dbb93; }
 

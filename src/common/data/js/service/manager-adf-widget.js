@@ -1,4 +1,4 @@
-(function (angular) {
+(function (angular, uuid) {
     'use strict';
 
     /**
@@ -1022,4 +1022,4 @@
 
         }]);
 
-}(angular));
+}(angular, uuid));

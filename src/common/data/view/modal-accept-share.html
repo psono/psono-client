@@ -12,7 +12,10 @@
         <div class="input-group path_box_parent">
             <div id="modalAcceptShareForm-path" class="path_box form-control">
                 <span ng-if="!breadcrumbs.breadcrumbs">\</span>
-                <span class="path_box_breadcrumb" ng-click="cut_breadcrumbs($index)" ng-repeat="b in breadcrumbs.breadcrumbs track by $index">\{{b}}</span>
+                <span class="path_box_breadcrumb"
+                      ng-click="cut_breadcrumbs($index, b)"
+                      ng-class="{'disabled': ! b.share_rights.read || ! b.share_rights.write}"
+                      ng-repeat="b in breadcrumbs.breadcrumbs track by $index">\{{b.name}}</span>
             </div>
 
             <span class="input-group-btn">
@@ -27,7 +30,7 @@
         <label for="modalAcceptShareForm-path" class="smalllabel">Path</label>
         <div id="modalAcceptShareForm-path" class="path_box form-control">
             <span ng-if="!breadcrumbs.breadcrumbs">\</span>
-            <span class="path_box_breadcrumb" ng-click="cut_breadcrumbs($index)" ng-repeat="b in breadcrumbs.breadcrumbs track by $index">\{{b}}</span>
+            <span class="path_box_breadcrumb" ng-click="cut_breadcrumbs($index, b)" ng-repeat="b in breadcrumbs.breadcrumbs track by $index">\{{b}}</span>
         </div>
         -->
 

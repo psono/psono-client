@@ -85,9 +85,13 @@
 
                     var show = false;
 
+                    console.log(searchTree);
+
                     var i, ii;
-                    for (i = searchTree.folders.length - 1; searchTree.folders && i >= 0; i--) {
-                        show = markSearchedNodesInvisible(newValue, oldValue, searchTree.folders[i]) || show;
+                    if (searchTree.hasOwnProperty('folders')) {
+                        for (i = searchTree.folders.length - 1; searchTree.folders && i >= 0; i--) {
+                            show = markSearchedNodesInvisible(newValue, oldValue, searchTree.folders[i]) || show;
+                        }
                     }
 
                     newValue = newValue.toLowerCase();
@@ -95,18 +99,20 @@
 
                     // Test title of the items
                     var containCounter = 0;
-                    for (i = searchTree.items.length - 1; searchTree.items && i >= 0; i--) {
-                        containCounter = 0;
-                        for (ii = searchStrings.length - 1; ii >= 0; ii--) {
-                            if (searchTree.items[i].name.toLowerCase().indexOf(searchStrings[ii]) > -1) {
-                                containCounter++
+                    if (searchTree.hasOwnProperty('items')) {
+                        for (i = searchTree.items.length - 1; searchTree.items && i >= 0; i--) {
+                            containCounter = 0;
+                            for (ii = searchStrings.length - 1; ii >= 0; ii--) {
+                                if (searchTree.items[i].name.toLowerCase().indexOf(searchStrings[ii]) > -1) {
+                                    containCounter++
+                                }
                             }
-                        }
-                        if (containCounter === searchStrings.length) {
-                            searchTree.items[i].hidden = false;
-                            show = true;
-                        } else {
-                            searchTree.items[i].hidden = true;
+                            if (containCounter === searchStrings.length) {
+                                searchTree.items[i].hidden = false;
+                                show = true;
+                            } else {
+                                searchTree.items[i].hidden = true;
+                            }
                         }
                     }
                     // Test title of the folder
@@ -145,6 +151,10 @@
                  * @param id_breadcrumbs
                  */
                 self.selectNode = function (node, breadcrumbs, id_breadcrumbs) {
+                    if (!self.isSelectable(node)) {
+                        return;
+                    }
+
                     if (selectedItem) {
                         selectedItem = undefined;
                     }
@@ -222,7 +232,11 @@
                  * @returns {boolean}
                  */
                 self.isSelectable = function (node) {
-                    return ! node.hasOwnProperty('is_selectable') || node.is_selectable !== false
+                    if (typeof options.isSelectable === "function") {
+                        return options.isSelectable(node);
+                    } else {
+                        return true;
+                    }
                 };
 
                 /**
@@ -515,12 +529,20 @@
                     var path = [];
 
                     if (typeof item !== 'undefined') {
-                        path.push(item[property]);
+                        if (typeof property === 'undefined') {
+                            path.push(item);
+                        } else {
+                            path.push(item[property]);
+                        }
                     }
 
                     var nodeScope = scope;
                     while (nodeScope.node) {
-                        path.push(nodeScope.node[property]);
+                        if (typeof property === 'undefined') {
+                            path.push(nodeScope.node);
+                        } else {
+                            path.push(nodeScope.node[property]);
+                        }
                         nodeScope = nodeScope.$parent;
                     }
                     return path.reverse();
@@ -624,15 +646,11 @@
                 scope.selectNode = function (event) {
                     event.preventDefault();
 
-                    if (!controller.isSelectable(scope.node)) {
-                        return;
-                    }
-
                     if (collapsible) {
                         controller.toggleExpanded(scope.node);
                     }
 
-                    controller.selectNode(scope.node, getPropertyPath(displayProperty), getPropertyPath(idProperty));
+                    controller.selectNode(scope.node, getPropertyPath(), getPropertyPath(idProperty));
                 };
 
                 /**
@@ -852,7 +870,7 @@
                         '   context-menu="contextMenuOnShow()"' +
                         '   context-menu-close="contextMenuOnClose()">' +
                         '<div href="#" class="tree-folder-header"' +
-                        '   ng-click="selectNode($event)" ng-class="{ selected: isSelected(node), notSelectable: !isSelectable(node) }">' +
+                        '   ng-click="selectNode($event)" ng-class="{ selected: isSelected(node), notSelectable: ! isSelectable(node) }">' +
                         '<span class="fa-stack">' +
                         '<i class="" ng-class="getFolderIconClass(node)"></i>' +
                         '<i ng-if="node.share_id" class="fa fa-circle fa-stack-2x text-danger is-shared"></i>' +
@@ -862,7 +880,8 @@
                         '   <a href="#" ng-click="clickNode($event)">{{ node.' + displayProperty + ' }}</a>' +
                         '</span> ' +
                         '</div>' +
-                        '<span class="node-dropdown" dropdown on-toggle="toggled(open)">' +
+                        '<span class="node-dropdown" dropdown on-toggle="toggled(open)"' +
+                        '   ng-class="{disabled: node.share_rights.write == false && node.share_rights.grant == false && node.share_rights.delete == false}">' +
                         '<a class="btn btn-default editbutton"' +
                         '   ng-class="{disabled: node.share_rights.write == false && node.share_rights.grant == false && node.share_rights.delete == false}"' +
                         '   href="#" role="button" id="drop_node_{{node.id}}" dropdown-toggle>' +
@@ -950,7 +969,7 @@
                         '   class="tree-item" ng-repeat="item in ' + attrs.treeViewNode + '.' + itemsProperty + ' track by $index">' +
 
                         '<div class="tree-item-object" ng-click="selectItem(item, $event)"' +
-                        '   ng-class="{ selected: isSelected(item), notSelectable: !isSelectable(item) }" data-target="menu-{{ item.id }}"' +
+                        '   ng-class="{ selected: isSelected(item), notSelectable: ! isSelectable(node) }" data-target="menu-{{ item.id }}"' +
                         '   context-menu="contextMenuOnShow()"' +
                         '   context-menu-close="contextMenuOnClose()">' +
                         '<span class="fa-stack">' +

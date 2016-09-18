@@ -104,6 +104,9 @@ label.smalllabel {
   .path_box_breadcrumb{
     cursor: pointer;
   }
+  .disabled {
+    cursor: not-allowed;
+  }
   .path_box_breadcrumb:hover {
     color: $dark-hightlight-color;
   }
