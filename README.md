@@ -111,5 +111,5 @@ The extension should now be loaded
 
 # Documentation
 
-    A brief documentation can be found [here](docu/DOCUMENTATION.md)
+More information about the code, the used cryptography and design concepts can be found in the [Documentation](docu/DOCUMENTATION.md)
     
