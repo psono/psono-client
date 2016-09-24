@@ -113,12 +113,23 @@
                 .then(onSuccess, onError);
 
         };
+        /**
+         * Handles item clicks and triggers behaviour
+         *
+         * @param item
+         */
+        var onItemClick = function(item) {
+            if (itemBlueprint.blueprint_has_on_click_new_tab(item.type)) {
+                browserClient.openTab('/data/open-secret.html#/secret/'+item.type+'/'+item.secret_id);
+            }
+        };
 
         return {
             create_secret: create_secret,
             read_secret: read_secret,
             write_secret: write_secret,
-            redirectSecret: redirectSecret
+            redirectSecret: redirectSecret,
+            onItemClick: onItemClick
         };
     };
 

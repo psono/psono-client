@@ -12,8 +12,8 @@ All cryptography is based on https://github.com/3nsoft/ecma-nacl a JavaScript im
 
 ## Registration
 
-    ![Registration process sequence diagram](img/Registration.png)
+![Registration process sequence diagram](img/Registration.png)
 
 ## Login
 
-    ![Login processe sequence diagram](img/Login.png)
+![Login processe sequence diagram](img/Login.png)

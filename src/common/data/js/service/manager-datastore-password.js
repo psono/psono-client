@@ -273,7 +273,9 @@
                     });
                 });
             } else {
-                return datastore;
+                return $q(function(resolve, reject) {
+                    resolve(datastore);
+                });
             }
         };
 
@@ -332,17 +334,25 @@
                     for (var i = data.share_rights.length - 1; i >= 0; i--) {
                         share_rights_dict[data.share_rights[i].share_id] = data.share_rights[i];
                     }
-                    managerDatastore.fill_storage('datastore-password-leafs', datastore, [
-                        ['key', 'secret_id'],
-                        ['secret_id', 'secret_id'],
-                        ['value', 'secret_key'],
-                        ['name', 'name'],
-                        ['urlfilter', 'urlfilter'],
-                        ['search', 'urlfilter']
 
-                    ]);
+                    var onSuccess = function (datastore) {
 
-                    return read_shares(datastore, share_rights_dict, datastore.share_index, {}, blocking);
+
+                        managerDatastore.fill_storage('datastore-password-leafs', datastore, [
+                            ['key', 'secret_id'],
+                            ['secret_id', 'secret_id'],
+                            ['value', 'secret_key'],
+                            ['name', 'name'],
+                            ['urlfilter', 'urlfilter'],
+                            ['search', 'urlfilter']
+
+                        ]);
+                        return datastore;
+                    };
+                    var onError = function (datastore) {};
+
+                    return read_shares(datastore, share_rights_dict, datastore.share_index, {}, blocking)
+                        .then(onSuccess, onError);
 
                 };
 

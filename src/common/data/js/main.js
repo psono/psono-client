@@ -505,8 +505,8 @@
                 }
             });
 
-
-            managerDatastorePassword.get_password_datastore();
+            managerDatastorePassword.get_password_datastore(true);
+            
 
             var regex;
 

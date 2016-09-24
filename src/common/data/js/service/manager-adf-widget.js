@@ -7,7 +7,7 @@
      */
 
     var managerAdfWidget = function ($modal, managerDatastorePassword, managerShare, managerSecret, managerShareLink,
-                                     managerSecretLink) {
+                                     managerSecretLink, itemBlueprint) {
 
 
         /**
@@ -637,7 +637,7 @@
 
     var app = angular.module('passwordManagerApp');
     app.factory("managerAdfWidget", ['$modal', 'managerDatastorePassword', 'managerShare', 'managerSecret',
-        'managerShareLink', 'managerSecretLink', managerAdfWidget]);
+        'managerShareLink', 'managerSecretLink', 'itemBlueprint', managerAdfWidget]);
 
 
     /**

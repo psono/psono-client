@@ -85,8 +85,6 @@
 
                     var show = false;
 
-                    console.log(searchTree);
-
                     var i, ii;
                     if (searchTree.hasOwnProperty('folders')) {
                         for (i = searchTree.folders.length - 1; searchTree.folders && i >= 0; i--) {
