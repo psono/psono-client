@@ -1,4 +1,4 @@
-(function(angular, require, sha512, sha256, debug) {
+(function(angular, require, sha512, sha256) {
     'use strict';
 
     //var nacl = nacl_factory.instantiate();
@@ -11,6 +11,7 @@
      * @returns {*}
      */
     var randomBytes = function (count) {
+
         if (typeof module !== 'undefined' && module.exports) {
             // add node.js implementations
             var crypto = require('crypto');
@@ -33,6 +34,7 @@
      * @returns {*}
      */
     function encode_utf8(s) {
+
         return encode_latin1(unescape(encodeURIComponent(s)));
     }
 
@@ -43,6 +45,7 @@
      * @returns {Uint8Array}
      */
     function encode_latin1(s) {
+
         var result = new Uint8Array(s.length);
         for (var i = 0; i < s.length; i++) {
             var c = s.charCodeAt(i);
@@ -59,6 +62,7 @@
      * @returns {string}
      */
     function decode_utf8(bs) {
+
         return decodeURIComponent(escape(decode_latin1(bs)));
     }
 
@@ -69,6 +73,7 @@
      * @returns {string}
      */
     function decode_latin1(bs) {
+
         var encoded = [];
         for (var i = 0; i < bs.length; i++) {
             encoded.push(String.fromCharCode(bs[i]));
@@ -83,6 +88,7 @@
      * @returns {string}
      */
     function to_hex(bs) {
+
         var encoded = [];
         for (var i = 0; i < bs.length; i++) {
             encoded.push("0123456789abcdef"[(bs[i] >> 4) & 15]);
@@ -98,6 +104,7 @@
      * @returns {Uint8Array}
      */
     function from_hex(s) {
+
         var result = new Uint8Array(s.length / 2);
         for (var i = 0; i < s.length / 2; i++) {
             result[i] = parseInt(s.substr(2*i,2),16);
@@ -125,10 +132,6 @@
      */
     var generate_authkey = function (username, password) {
 
-        if( debug ) {
-            console.log("generate_authkey");
-        }
-
         var n = 14; //2^14 = 16MB
         var r = 8;
         var p = 1;
@@ -148,10 +151,6 @@
      */
     var generate_secret_key = function () {
 
-        if( debug ) {
-            console.log("generate_secret_key");
-        }
-
         return to_hex(randomBytes(32)); // 32 Bytes = 256 Bits
     };
 
@@ -163,14 +162,9 @@
      */
     var generate_public_private_keypair = function () {
 
-        if( debug ) {
-            console.log("generate_public_private_keypair");
-        }
-
         var sk = randomBytes(32);
         var pk = nacl.box.generate_pubkey(sk);
-
-
+        
         return {
             public_key : to_hex(pk), // 32 Bytes = 256 Bits
             private_key : to_hex(sk) // 32 Bytes = 256 Bits
@@ -188,10 +182,6 @@
      * @returns {{nonce: string, text: string}}
      */
     var encrypt_secret = function (secret, password, user_sauce) {
-
-        if( debug ) {
-            console.log("encrypt_secret");
-        }
 
         var k = from_hex(sha256(password + user_sauce)); // key
         var m = encode_utf8(secret); // message
@@ -218,14 +208,6 @@
      */
     var decrypt_secret = function (text, nonce, password, user_sauce) {
 
-        if( debug ) {
-            console.log("decrypt_secret");
-            console.log(text);
-            console.log(nonce);
-            console.log(password);
-            console.log(user_sauce);
-        }
-
         var k = from_hex(sha256(password + user_sauce));
         var n = from_hex(nonce);
         var c = from_hex(text);
@@ -243,12 +225,6 @@
      * @returns {{nonce: string, text: string}}
      */
     var encrypt_data = function (data, secret_key) {
-
-        if( debug ) {
-            console.log("encrypt_data");
-            console.log(data);
-            console.log(secret_key);
-        }
 
         var k = from_hex(secret_key);
         var m = encode_utf8(data);
@@ -273,13 +249,6 @@
      */
     var decrypt_data = function (text, nonce, secret_key) {
 
-        if( debug ) {
-            console.log("decrypt_data");
-            console.log(text);
-            console.log(nonce);
-            console.log(secret_key);
-        }
-
         var k = from_hex(secret_key);
         var n = from_hex(nonce);
         var c = from_hex(text);
@@ -298,10 +267,6 @@
      * @returns {{nonce: string, text: string}}
      */
     var encrypt_data_public_key = function (data, public_key, private_key) {
-
-        if( debug ) {
-            console.log("encrypt_data_public_key");
-        }
 
         var p = from_hex(public_key);
         var s = from_hex(private_key);
@@ -328,10 +293,6 @@
      */
     var decrypt_data_public_key = function (text, nonce, public_key, private_key) {
 
-        if( debug ) {
-            console.log("decrypt_data_public_key");
-        }
-
         var p = from_hex(public_key);
         var s = from_hex(private_key);
         var n = from_hex(nonce);
@@ -347,10 +308,6 @@
      * @returns {string}
      */
     var generate_user_sauce = function() {
-
-        if( debug ) {
-            console.log("generate_user_sauce");
-        }
 
         return to_hex(randomBytes(32)); // 32 Bytes = 256 Bits
     };
@@ -378,4 +335,4 @@
     var app = angular.module('passwordManagerApp');
     app.factory("cryptoLibrary", [cryptoLibrary]);
 
-}(angular, require, sha512, sha256, false));
+}(angular, require, sha512, sha256));
