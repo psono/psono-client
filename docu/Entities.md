@@ -30,3 +30,6 @@ Shares are the base object that is created whenever a user wants to share
 anything with another user. They can contain Secret (see below) or
 complete filestructures, similar to a datastore.
 
+# Entities as a diagram
+
+![Entity relation diagram](img/Entity_relation.png)
