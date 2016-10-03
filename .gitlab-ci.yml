@@ -28,7 +28,7 @@ job-run-unittests:
   - docker:dind
   script:
     - docker pull $CONTAINER_TEST_IMAGE
-    - docker run $CONTAINER_TEST_IMAGE bash -c "(karma start ./unittests/karma-phantom.conf.js"
+    - docker run $CONTAINER_TEST_IMAGE bash -c "karma start ./unittests/karma-phantom.conf.js"
 
 job-release-docker:
   stage: release
