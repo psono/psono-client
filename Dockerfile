@@ -1,6 +1,4 @@
-FROM ubuntu:16.04
-ENV DEBIAN_FRONTEND noninteractive
+FROM nginx:alpine
 MAINTAINER Sascha Pfeiffer <saschapfeiffer@psono.com>
-COPY . /root/
+COPY ./src/common/data /usr/share/nginx/html/
 WORKDIR /root
-RUN sh build.sh

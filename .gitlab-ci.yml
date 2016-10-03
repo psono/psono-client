@@ -7,10 +7,16 @@ variables:
   CONTAINER_RELEASE_IMAGE: registry.gitlab.com/psono/psono-client:latest
 
 stages:
-  - build
   - test
+  - build
   - release
   - deploy
+
+job-run-unittests:
+  stage: test
+  script:
+    - sh build.sh
+    - karma start ./unittests/karma-phantom.conf.js
 
 job-build-container:
   stage: build
@@ -18,17 +24,15 @@ job-build-container:
   services:
   - docker:dind
   script:
+  - sh build.sh
   - docker build -t $CONTAINER_TEST_IMAGE .
   - docker push $CONTAINER_TEST_IMAGE
-
-job-run-unittests:
-  stage: test
-  image: docker:git
-  services:
-  - docker:dind
-  script:
-    - docker pull $CONTAINER_TEST_IMAGE
-    - docker run $CONTAINER_TEST_IMAGE bash -c "karma start ./unittests/karma-phantom.conf.js"
+  - gulp xpiunsigned
+  - cd build/firefox && zip -r ../../psono.PW.chrome.zip . && cd ../..
+  artifacts:
+    paths:
+    - dist/firefox/psono.PW.unsigned.xpi
+    - psono.PW.chrome.zip
 
 job-release-docker:
   stage: release

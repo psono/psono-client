@@ -234,7 +234,7 @@ var secondMenuItem = contextMenu.Menu({
 mod.PageMod({
     include: [
         self.data.url("./activate.html*"),
-        self.data.url("./datastore.html*"),
+        self.data.url("./index.html*"),
         self.data.url("./main.html*"),
         self.data.url("./open-secret.html*"),
         self.data.url("./register.html*"),
