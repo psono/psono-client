@@ -1,5 +1,0 @@
-password-client-image-test:
-  build: .
-  environment:
-   - DISPLAY=:99.0
-   - CHROME_BIN=/usr/bin/chromium-browser

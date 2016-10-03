@@ -1,14 +1,76 @@
 before_script:
   - docker info
-  - /usr/local/bin/docker-compose -f docker-compose-test.yml kill
-  - /usr/local/bin/docker-compose -f docker-compose-test.yml rm -f
-  - /usr/local/bin/docker-compose -f docker-compose-test.yml build
+  - docker login -u gitlab-ci-token -p "$CI_BUILD_TOKEN" registry.gitlab.com
 
-test_image_chrome:
+variables:
+  CONTAINER_TEST_IMAGE: registry.gitlab.com/psono/psono-client:$CI_BUILD_REF_NAME
+  CONTAINER_RELEASE_IMAGE: registry.gitlab.com/psono/psono-client:latest
+
+stages:
+  - build
+  - test
+  - release
+  - deploy
+
+job-build-container:
+  stage: build
+  image: docker:git
+  services:
+  - docker:dind
   script:
-    - /usr/local/bin/docker-compose -f docker-compose-test.yml run password-client-image-test bash -c "(test -e /tmp/.X99-lock || /usr/bin/Xvfb :99 &) && karma start ./unittests/karma-chrome.conf.js"
-    - /usr/local/bin/docker-compose -f docker-compose-test.yml stop
+  - docker build -t $CONTAINER_TEST_IMAGE .
+  - docker push $CONTAINER_TEST_IMAGE
 
+job-run-unittests:
+  stage: test
+  image: docker:git
+  - docker:dind
+  script:
+    - docker pull $CONTAINER_TEST_IMAGE
+    - docker run $CONTAINER_TEST_IMAGE bash -c "(karma start ./unittests/karma-phantom.conf.js"
+
+job-release-docker:
+  stage: release
+  image: docker:git
+  services:
+  - docker:dind
+  script:
+    - docker pull $CONTAINER_TEST_IMAGE
+    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
+    - docker push $CONTAINER_RELEASE_IMAGE
+  only:
+    - master
+
+#job-release-artifacts:
+#  stage: release
+#  image: docker:git
+#  services:
+#  - docker:dind
+#  script:
+#    - sh build.sh
+#    - gulp xpiunsigned
+#  only:
+#    - master
+
+job-deploy:
+  stage: deploy
+  script:
+    - ./deploy.sh
+  only:
+    - master
+
+
+#before_script:
+#  - docker info
+#  - /usr/local/bin/docker-compose -f docker-compose-test.yml kill
+#  - /usr/local/bin/docker-compose -f docker-compose-test.yml rm -f
+#  - /usr/local/bin/docker-compose -f docker-compose-test.yml build
+
+#test_image_chrome:
+#  script:
+#    - /usr/local/bin/docker-compose -f docker-compose-test.yml run password-client-image-test bash -c "(test -e /tmp/.X99-lock || /usr/bin/Xvfb :99 &) && karma start ./unittests/karma-chrome.conf.js"
+#    - /usr/local/bin/docker-compose -f docker-compose-test.yml stop
+#
 #test_image_firefox:
 #  script:
 #    - /usr/local/bin/docker-compose -f docker-compose-test.yml run password-client-image-test bash -c "(test -e /tmp/.X99-lock || /usr/bin/Xvfb :99 &) && karma start ./unittests/karma-firefox.conf.js"

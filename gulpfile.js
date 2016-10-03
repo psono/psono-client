@@ -97,7 +97,7 @@ gulp.task('crx', function() {
 
     return gulp.src('./build/chrome')
         .pipe(crx({
-            privateKey: fs.readFileSync(path.homedir() + '/.password_manager_browser_plugins/certs/key', 'utf8'),
+            privateKey: fs.readFileSync(path.homedir() + '/.psono_client/certs/key', 'utf8'),
             filename: manifest.name + '.crx',
             codebase: codebase,
             updateXmlFilename: updateXmlFilename
@@ -123,7 +123,7 @@ gulp.task('xpiunsigned', function (cb) {
  * To obtain your api credentials visit https://addons.mozilla.org/en-US/developers/addon/api/key/
  *
  * create the following file (if not already exist):
- * ~/.password_manager_browser_plugins/apikey_addons_mozilla_org/key.json
+ * ~/.psono_client/apikey_addons_mozilla_org/key.json
  *
  * As content put the following (replace the values with your api credentials from addons.mozilla.org):
  * {
@@ -142,7 +142,7 @@ gulp.task('xpiunsigned', function (cb) {
  */
 gulp.task('xpi', ['xpiunsigned'], function (cb) {
 
-    var key = require(path.homedir() + '/.password_manager_browser_plugins/apikey_addons_mozilla_org/key.json');
+    var key = require(path.homedir() + '/.psono_client/apikey_addons_mozilla_org/key.json');
 
     child_process.exec('jpm sign --api-key '+key.issuer+' --api-secret '+key.secret+' --xpi dist/firefox/psono.PW.unsigned.xpi && mv psonopw*.xpi dist/firefox/psono.PW.xpi', function (err, stdout, stderr) {
         console.log(stdout);

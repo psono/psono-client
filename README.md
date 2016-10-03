@@ -1,4 +1,6 @@
-https://developer.mozilla.org/en-US/Add-ons/SDK/Tutorials
+# PSONO Server - Password Manager
+
+[![build status](https://gitlab.com/psono/psono-client/badges/master/build.svg)](https://gitlab.com/psono/psono-client/commits/master) [![coverage report](https://gitlab.com/psono/psono-client/badges/master/coverage.svg)](https://gitlab.com/psono/psono-client/commits/master)
 
 # Install for "normal" people :D
 
