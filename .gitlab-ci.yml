@@ -24,6 +24,7 @@ job-build-container:
 job-run-unittests:
   stage: test
   image: docker:git
+  services:
   - docker:dind
   script:
     - docker pull $CONTAINER_TEST_IMAGE
