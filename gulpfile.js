@@ -110,7 +110,7 @@ gulp.task('crx', function() {
  */
 gulp.task('xpiunsigned', function (cb) {
 
-    child_process.exec('cd build/firefox/ && jpm xpi && cd ../../ && mv build/firefox/psonopw.xpi dist/firefox/psono.PW.unsigned.xpi', function (err, stdout, stderr) {
+    child_process.exec('cd build/firefox/ && jpm xpi && cd ../../ && mv build/firefox/@psonopw-*.xpi dist/firefox/psono.PW.unsigned.xpi', function (err, stdout, stderr) {
         console.log(stdout);
         console.log(stderr);
         cb(err);

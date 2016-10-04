@@ -29,9 +29,8 @@ job-build-browser-extensions:
   stage: build
   script:
   - sh build.sh
-  - gulp xpiunsigned
-  - cd build/firefox && zip -r "../../$CI_BUILD_REF_NAME.psono.PW.chrome.zip" . && cd ../..
-  - cp dist/firefox/psono.PW.unsigned.xpi "$CI_BUILD_REF_NAME.psono.PW.firefox.xpi"
+  - cd build/firefox/ && jpm xpi && cd ../../ && ls -la /builds/psono/psono-client/build/firefox/ && cp /builds/psono/psono-client/build/firefox/psonopw.xpi "$CI_BUILD_REF_NAME.psono.PW.firefox.xpi"
+  - cd build/chrome/ && zip -r "../../$CI_BUILD_REF_NAME.psono.PW.chrome.zip" . && cd ../..
   artifacts:
     paths:
     - "$CI_BUILD_REF_NAME.psono.PW.firefox.xpi"
