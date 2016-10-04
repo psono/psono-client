@@ -5,8 +5,6 @@
   "description": "Psono Password Manager",
   "version": "1.0",
 
-  "update_url": "https://browserplugins.chickahoona.com/dist/chrome/psono.PW.update.xml",
-
   "browser_action": {
     "default_icon": "data/img/icon-32.png",
     "default_popup": "data/main.html"

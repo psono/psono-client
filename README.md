@@ -8,17 +8,15 @@
 
 1. Download the crx file here:
 
-    https://browserplugins.chickahoona.com/dist/chrome/psono.PW.crx
+    https://gitlab.com/psono/psono-client/builds/artifacts/master/download?job=chrome-extension
     
-2. Rename ***psono.PW.crx*** to ***something.zip***
-
-3. Unpack ***something.zip*** into a folder of your choice ***"folder/of/your/choice"***
+2. Unpack the ***.zip*** into a folder of your choice ***"folder/of/your/choice"***
     
 4. Open following url in your browser:
 
     chrome://chrome/extensions/
     
-5. Click "Open unpacked extension" at the top left and choose ***"folder/of/your/choice"***
+5. Click "Open unpacked extension" at the top left and choose ***"folder/of/your/choice/build/chrome"***
 
 The extension should now be loaded
 
@@ -27,7 +25,7 @@ The extension should now be loaded
 
 1. Click on the following link:
 
-    https://browserplugins.chickahoona.com/dist/firefox/psono.PW.xpi
+    https://gitlab.com/psono/psono-client/builds/artifacts/master/download?job=firefox-extension
     
     (You will be asked (at the top left) if you want to allow this extension to be installed which you have to permit)
     
