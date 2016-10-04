@@ -30,11 +30,12 @@ job-build-browser-extensions:
   script:
   - sh build.sh
   - gulp xpiunsigned
-  - cd build/firefox && zip -r ../../psono.PW.chrome.zip . && cd ../..
+  - cd build/firefox && zip -r "../../$CI_BUILD_REF_NAME.psono.PW.chrome.zip" . && cd ../..
+  - cp dist/firefox/psono.PW.unsigned.xpi "$CI_BUILD_REF_NAME.psono.PW.firefox.xpi"
   artifacts:
     paths:
-    - dist/firefox/psono.PW.unsigned.xpi
-    - psono.PW.chrome.zip
+    - "$CI_BUILD_REF_NAME.psono.PW.firefox.xpi"
+    - "$CI_BUILD_REF_NAME.psono.PW.chrome.zip"
 
 job-release-docker:
   stage: release
