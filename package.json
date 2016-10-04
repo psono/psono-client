@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "gulp": "*",
-    "gulp-sass": "*"
   },
   "devDependencies": {
+    "gulp": "*",
+    "gulp-sass": "*",
     "jpm": "^1.0.4",
-    "gulp-angular-templatecache": "^2.0.0",
+    "gulp-angular-templatecache": "^1.9.1",
     "gulp-remove-code": "^1.0.2",
     "gulp-crx-pack": "^1.0.1",
     "path-extra": "^3.0.0",

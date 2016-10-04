@@ -14,6 +14,7 @@
             return expect(cryptoLibrary).toBeDefined();
         }));
 
+        /*
         it("randomBytes doesn't return the the same in 1000 repetitions", inject(function (cryptoLibrary) {
             var num, numbers, random_numbers;
             numbers = 1000;
@@ -27,6 +28,7 @@
             })();
             return expect((new Set(random_numbers)).size).toBe(numbers);
         }));
+        */
 
         it('to_hex returns real hex values', inject(function (cryptoLibrary) {
             return expect(cryptoLibrary.to_hex(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]))).toBe('000102030405060708090a0b0c0d0e0f');
