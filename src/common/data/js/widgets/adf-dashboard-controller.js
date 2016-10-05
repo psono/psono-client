@@ -67,7 +67,7 @@
                         styleClass: 'col-md-12',
                         widgets: [{
                             type: 'acceptshare',
-                            title: 'Shares',
+                            title: 'Pending Requests',
                             config: {
                             }
                         }]

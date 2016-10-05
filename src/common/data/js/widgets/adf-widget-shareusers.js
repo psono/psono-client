@@ -12,7 +12,7 @@
     module.config(function(dashboardProvider){
         dashboardProvider
             .widget('shareusers', {
-                title: 'Shareusers',
+                title: 'Trusted Users',
                 description: 'provides the shareusers',
                 templateUrl: 'view/shareusers-view.html',
                 controller: 'shareusersController',
