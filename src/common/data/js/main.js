@@ -431,9 +431,9 @@
         }]);
 
     app.controller('MainController', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'managerDatastorePassword', 'managerDatastoreUser', 'managerSecret', 'browserClient', 'storage',
-        'snapRemote', '$window', '$route', '$routeParams', '$location',
+        'snapRemote', '$window', '$route', '$routeParams', '$location', '$templateRequest',
         function ($scope, $rootScope, $filter, $timeout, manager, managerDatastorePassword, managerDatastoreUser, managerSecret, browserClient, storage,
-                  snapRemote, $window, $route, $routeParams, $location) {
+                  snapRemote, $window, $route, $routeParams, $location, $templateRequest) {
 
             /* openTab function to pass through */
             $scope.openTab = browserClient.openTab;
@@ -461,6 +461,9 @@
 
             $scope.messages = [];
 
+            $templateRequest('VERSION.txt').then(function(version) {
+                $scope.version = version;
+            });
         }]);
 
     app.controller('PanelController', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'managerDatastorePassword', 'managerDatastoreUser', 'managerSecret', 'browserClient',

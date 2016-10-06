@@ -138,3 +138,25 @@ snap-drawers .navigations,
 .x-snap-drawers .navigations,
 .snap-drawers .navigations {
   margin: 10px; }
+
+snap-drawers .footer,
+[snap\:drawers] .footer,
+[snap-drawers] .footer,
+[data-snap-drawers] .footer,
+[x-snap-drawers] .footer,
+.snap-drawers .footer,
+.x-snap-drawers .footer,
+.snap-drawers .footer {
+  margin: 10px;
+  position: absolute;
+  bottom: 0; }
+
+snap-drawers .version,
+[snap\:drawers] .version,
+[snap-drawers] .version,
+[data-snap-drawers] .version,
+[x-snap-drawers] .version,
+.snap-drawers .version,
+.x-snap-drawers .version,
+.snap-drawers .version {
+  color: #444851; }

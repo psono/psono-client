@@ -176,4 +176,12 @@ snap-drawers,
   .navigations {
     margin: 10px;
   }
+  .footer {
+    margin: 10px;
+    position: absolute;
+    bottom: 0;
+  }
+  .version {
+    color: $dark-darker-color;
+  }
 }

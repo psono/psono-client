@@ -8,8 +8,9 @@ var crx = require('gulp-crx-pack');
 var fs = require("fs");
 var path = require('path-extra');
 var child_process = require('child_process');
+var jeditor = require("gulp-json-editor");
 var karma_server = require('karma').Server;
-
+var removeFiles = require('gulp-remove-files');
 
 /**
  * Compiles .sass files to css files
@@ -151,6 +152,30 @@ gulp.task('xpi', ['xpiunsigned'], function (cb) {
 });
 
 gulp.task('dist', ['default', 'crx', 'xpi']);
+
+gulp.task('updateversion', function() {
+    var fileContent = fs.readFileSync("./src/common/data/VERSION.txt", "utf8");
+
+
+    gulp.src("./build/chrome/manifest.json")
+        .pipe(removeFiles());
+
+    gulp.src("./build/firefox/package.json")
+        .pipe(removeFiles());
+
+    gulp.src("./src/chrome/manifest.json")
+        .pipe(jeditor({
+            'version': fileContent.trim()
+        }))
+        .pipe(gulp.dest("./build/chrome"));
+
+    gulp.src("./src/firefox/package.json")
+        .pipe(jeditor({
+            'version': fileContent.trim()
+        }))
+        .pipe(gulp.dest("./build/firefox"));
+});
+
 
 
 
