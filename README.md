@@ -30,6 +30,18 @@ The extension should now be loaded
     (You will be asked (at the top left) if you want to allow this extension to be installed which you have to permit)
     
 
+## Docker
+
+1. Login to the gitlab registry
+
+        docker login -u USERNAME registry.gitlab.com
+    
+    (replace USERNAME with your username and enter your password when prompted)
+
+3. Run the docker image and expose the port
+
+        docker run --name psono-client -d -p 10101:80 registry.gitlab.com/psono/psono-client:develop
+
 # Install for developers
 
 1. Install dependencies

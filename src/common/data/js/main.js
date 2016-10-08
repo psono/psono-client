@@ -7,13 +7,7 @@
             'angular-complexify', 'datatables'])
         .constant('BACKEND_SERVERS', [
             {
-                title: 'Psono.pw', url: 'https://www.psono.pw'
-            },
-            {
-                title: 'Dev Psono.pw', url: 'https://dev.psono.pw'
-            },
-            {
-                title: 'Dev2 Psono.pw', url: 'http://5.9.117.8:8001'
+                title: 'Psono.pw', url: 'https://www.psono.pw/server'
             }
         ]);
 
@@ -554,10 +548,10 @@
             //console.log(browserClient.testBackgroundPage());
 
 
-            /* Server selection with preselection of dev server */
+            /* Server selection with preselection */
             $scope.servers = BACKEND_SERVERS;
             $scope.filtered_servers = $scope.servers;
-            $scope.selected_server = $scope.servers[1];
+            $scope.selected_server = $scope.servers[0];
             $scope.selected_server_title = $scope.selected_server.title;
             $scope.selected_server_url = $scope.selected_server.url;
             $scope.selected_server_domain = helper.get_domain($scope.selected_server.url);
