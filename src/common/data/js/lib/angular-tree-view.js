@@ -878,11 +878,11 @@
                         '   <a href="#" ng-click="clickNode($event)">{{ node.' + displayProperty + ' }}</a>' +
                         '</span> ' +
                         '</div>' +
-                        '<span class="node-dropdown" dropdown on-toggle="toggled(open)"' +
+                        '<span class="node-dropdown" uib-dropdown on-toggle="toggled(open)"' +
                         '   ng-class="{disabled: node.share_rights.write == false && node.share_rights.grant == false && node.share_rights.delete == false}">' +
                         '<a class="btn btn-default editbutton"' +
                         '   ng-class="{disabled: node.share_rights.write == false && node.share_rights.grant == false && node.share_rights.delete == false}"' +
-                        '   href="#" role="button" id="drop_node_{{node.id}}" dropdown-toggle>' +
+                        '   href="#" role="button" id="drop_node_{{node.id}}" uib-dropdown-toggle>' +
                         '    <i ng-class="getFolderEditIconClass(node)"></i>' +
                         '</a>' +
                         '<ul class="dropdown-menu dropdown-button-menu" aria-labelledby="drop_node_{{node.id}}">' +
@@ -978,8 +978,8 @@
                         '<span class="tree-item-name">' +
                         '   <a href="#" ng-click="clickItem(item, $event)">{{ item.' + displayProperty + ' }}</a>' +
                         '</span>' +
-                        '<span class="node-dropdown" dropdown on-toggle="toggled(open)">' +
-                        '<a class="btn btn-default editbutton" href="#" role="button" id="drop_item_{{item.id}}" dropdown-toggle>' +
+                        '<span class="node-dropdown" uib-dropdown on-toggle="toggled(open)">' +
+                        '<a class="btn btn-default editbutton" href="#" role="button" id="drop_item_{{item.id}}" uib-dropdown-toggle>' +
                         '    <i ng-class="getFolderEditIconClass(item)"></i>' +
                         '</a>' +
                         '<ul class="dropdown-menu dropdown-button-menu" aria-labelledby="drop_item_{{item.id}}">' +

@@ -2,7 +2,7 @@
     'use strict';
 
 
-    var itemBlueprint = function($rootScope, $window, $modal, helper) {
+    var itemBlueprint = function($rootScope, $window, $uibModal, helper) {
 
         var _default = "website_password";
 
@@ -328,7 +328,7 @@
                         var users = [];
                         helper.create_list(user_datastore, users);
 
-                        var modalInstance = $modal.open({
+                        var modalInstance = $uibModal.open({
                             templateUrl: 'view/modal-share-entry.html',
                             controller: 'ModalShareEntryCtrl',
                             resolve: {
@@ -373,7 +373,7 @@
                     // create the share
                     registrations['read_share_rights'](item.share_id).then(function (share_details) {
 
-                        var modalInstance = $modal.open({
+                        var modalInstance = $uibModal.open({
                             templateUrl: 'view/modal-display-share-rights.html',
                             controller: 'ModalDisplayShareRightsCtrl',
                             size: 'lg',
@@ -550,6 +550,6 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("itemBlueprint", ['$rootScope', '$window', '$modal', 'helper', itemBlueprint]);
+    app.factory("itemBlueprint", ['$rootScope', '$window', '$uibModal', 'helper', itemBlueprint]);
 
 }(angular));

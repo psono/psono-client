@@ -27,8 +27,8 @@
      * Main Controller for the shareusers widget
      */
     module.controller('shareusersController', ["$scope", "$interval", "config", "managerSecret", "managerDatastoreUser",
-        "$modal", "shareBlueprint", "managerAdfWidget", "$timeout",
-        function ($scope, $interval, config, managerSecret, managerDatastoreUser, $modal, shareBlueprint,
+        "$uibModal", "shareBlueprint", "managerAdfWidget", "$timeout",
+        function ($scope, $interval, config, managerSecret, managerDatastoreUser, $uibModal, shareBlueprint,
                   managerAdfWidget, $timeout) {
 
             var contextMenusOpen = 0;
@@ -58,7 +58,7 @@
              */
             var openNewItem = function (parent, path, size) {
 
-                var modalInstance = $modal.open({
+                var modalInstance = $uibModal.open({
                     templateUrl: 'view/modal-new-entry.html',
                     controller: 'ModalShareNewEntryCtrl',
                     size: size,
@@ -129,7 +129,7 @@
              */
             var openEditItem = function (node, path, size) {
 
-                var modalInstance = $modal.open({
+                var modalInstance = $uibModal.open({
                     templateUrl: 'view/modal-edit-entry.html',
                     controller: 'ModalShareEditEntryCtrl',
                     size: size,
@@ -406,8 +406,8 @@
     /**
      * Controller for the "New Entry" modal
      */
-    module.controller('ModalShareNewEntryCtrl', ['$scope', '$modalInstance', 'shareBlueprint', 'parent', 'path',
-        function ($scope, $modalInstance, shareBlueprint, parent, path) {
+    module.controller('ModalShareNewEntryCtrl', ['$scope', '$uibModalInstance', 'shareBlueprint', 'parent', 'path',
+        function ($scope, $uibModalInstance, shareBlueprint, parent, path) {
 
             $scope.parent = parent;
             $scope.path = path;
@@ -437,22 +437,22 @@
                     return;
                 }
 
-                $modalInstance.close($scope.bp.selected);
+                $uibModalInstance.close($scope.bp.selected);
             };
 
             /**
              * Triggered once someone clicks the cancel button in the modal
              */
             $scope.cancel = function () {
-                $modalInstance.dismiss('cancel');
+                $uibModalInstance.dismiss('cancel');
             };
         }]);
 
     /**
      * Controller for the "Edit Entry" modal
      */
-    module.controller('ModalShareEditEntryCtrl', ['$scope', '$modalInstance', 'shareBlueprint', 'node', 'path', 'data',
-        function ($scope, $modalInstance, shareBlueprint, node, path, data) {
+    module.controller('ModalShareEditEntryCtrl', ['$scope', '$uibModalInstance', 'shareBlueprint', 'node', 'path', 'data',
+        function ($scope, $uibModalInstance, shareBlueprint, node, path, data) {
 
             $scope.node = node;
             $scope.path = path;
@@ -488,14 +488,14 @@
                     return;
                 }
 
-                $modalInstance.close($scope.bp.selected);
+                $uibModalInstance.close($scope.bp.selected);
             };
 
             /**
              * Triggered once someone clicks the cancel button in the modal
              */
             $scope.cancel = function () {
-                $modalInstance.dismiss('cancel');
+                $uibModalInstance.dismiss('cancel');
             };
 
             if (typeof $scope.bp.selected.onEditModalOpen !== 'undefined') {

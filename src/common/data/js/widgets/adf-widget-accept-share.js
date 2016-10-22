@@ -27,10 +27,10 @@
      * Main Controller for the acceptshare widget
      */
     module.controller('acceptShareController', ["$scope", "manager", "managerDatastorePassword",
-        "$modal", "itemBlueprint", "managerAdfWidget",
+        "$uibModal", "itemBlueprint", "managerAdfWidget",
         "message", "$timeout",
         function($scope, manager, managerDatastorePassword,
-                 $modal, itemBlueprint, managerAdfWidget, message,
+                 $uibModal, itemBlueprint, managerAdfWidget, message,
                  $timeout){
 
             var contextMenusOpen = 0;

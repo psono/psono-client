@@ -18,9 +18,9 @@
         <div class="panel-body" style="height: auto;">
 
             <form class="form-horizontal" role="form">
-                <tabset class="tabset_expand">
+                <uib-tabset class="tabset_expand">
 
-                    <tab ng-repeat="tab in tabs" heading="{{ tab.title }}">
+                    <uib-tab ng-repeat="tab in tabs" heading="{{ tab.title }}">
 
                         <div ng-class="{true: 'has-error'}[submitted &amp;&amp; editEntryForm[n.name].$invalid]"
                              class="form-group" ng-repeat="setting in settings"
@@ -33,14 +33,14 @@
                                        name="{{setting.key}}"
                                        class="form-control">
 
-                                <progressbar value="setting.value | complexify" ng-if="setting.complexify">
+                                <uib-progressbar value="setting.value | complexify" ng-if="setting.complexify">
                                     <span complexify="setting.value"></span>%
                                     <span complexify="setting.value" type="verbal"></span>
-                                </progressbar>
+                                </uib-progressbar>
                             </div>
                         </div>
-                    </tab>
-                </tabset>
+                    </uib-tab>
+                </uib-tabset>
 
                 <div>
                     <button class="btn btn-primary" type="button" ng-click="submitted=true; save();">Save</button>

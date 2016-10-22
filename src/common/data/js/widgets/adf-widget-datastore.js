@@ -29,9 +29,9 @@
      * Main Controller for the datastore widget
      */
     module.controller('datastoreController', ["$scope", "config", "manager", "managerDatastorePassword",
-        "$modal", "itemBlueprint", "managerAdfWidget", "$timeout",
+        "$uibModal", "itemBlueprint", "managerAdfWidget", "$timeout",
         function($scope, config, manager, managerDatastorePassword,
-                 $modal, itemBlueprint, managerAdfWidget, $timeout){
+                 $uibModal, itemBlueprint, managerAdfWidget, $timeout){
 
             var contextMenusOpen = 0;
 

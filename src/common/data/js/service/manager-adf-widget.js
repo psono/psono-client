@@ -6,7 +6,7 @@
      *
      */
 
-    var managerAdfWidget = function ($modal, managerDatastorePassword, managerShare, managerSecret, managerShareLink,
+    var managerAdfWidget = function ($uibModal, managerDatastorePassword, managerShare, managerSecret, managerShareLink,
                                      managerSecretLink, itemBlueprint) {
 
 
@@ -20,7 +20,7 @@
          */
         var openNewFolder = function (parent, path, data_structure, manager) {
 
-            var modalInstance = $modal.open({
+            var modalInstance = $uibModal.open({
                 templateUrl: 'view/modal-new-folder.html',
                 controller: 'ModalNewFolderCtrl',
                 resolve: {
@@ -64,7 +64,7 @@
          */
         var openEditFolder = function (node, path, data_structure, manager, size) {
 
-            var modalInstance = $modal.open({
+            var modalInstance = $uibModal.open({
                 templateUrl: 'view/modal-edit-folder.html',
                 controller: 'ModalEditFolderCtrl',
                 size: size,
@@ -97,7 +97,7 @@
          * @param size
          */
         var openNewItem = function (datastore, parent, path, size) {
-            var modalInstance = $modal.open({
+            var modalInstance = $uibModal.open({
                 templateUrl: 'view/modal-new-entry.html',
                 controller: 'ModalDatastoreNewEntryCtrl',
                 size: size,
@@ -195,7 +195,7 @@
 
             var onSuccess = function(data) {
 
-                var modalInstance = $modal.open({
+                var modalInstance = $uibModal.open({
                     templateUrl: 'view/modal-edit-entry.html',
                     controller: 'ModalEditEntryCtrl',
                     size: size,
@@ -636,15 +636,15 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("managerAdfWidget", ['$modal', 'managerDatastorePassword', 'managerShare', 'managerSecret',
+    app.factory("managerAdfWidget", ['$uibModal', 'managerDatastorePassword', 'managerShare', 'managerSecret',
         'managerShareLink', 'managerSecretLink', 'itemBlueprint', managerAdfWidget]);
 
 
     /**
      * Controller for the "New Folder" modal
      */
-    app.controller('ModalNewFolderCtrl', ['$scope', '$modalInstance', 'parent', 'path',
-        function ($scope, $modalInstance, parent, path) {
+    app.controller('ModalNewFolderCtrl', ['$scope', '$uibModalInstance', 'parent', 'path',
+        function ($scope, $uibModalInstance, parent, path) {
 
             $scope.parent = parent;
             $scope.path = path;
@@ -659,22 +659,22 @@
                     return;
                 }
 
-                $modalInstance.close($scope.name);
+                $uibModalInstance.close($scope.name);
             };
 
             /**
              * Triggered once someone clicks the cancel button in the modal
              */
             $scope.cancel = function () {
-                $modalInstance.dismiss('cancel');
+                $uibModalInstance.dismiss('cancel');
             };
         }]);
 
     /**
      * Controller for the "Edit Folder" modal
      */
-    app.controller('ModalEditFolderCtrl', ['$scope', '$modalInstance', 'node', 'path',
-        function ($scope, $modalInstance, node, path) {
+    app.controller('ModalEditFolderCtrl', ['$scope', '$uibModalInstance', 'node', 'path',
+        function ($scope, $uibModalInstance, node, path) {
 
             $scope.node = node;
             $scope.path = path;
@@ -689,14 +689,14 @@
                     return;
                 }
 
-                $modalInstance.close($scope.name);
+                $uibModalInstance.close($scope.name);
             };
 
             /**
              * Triggered once someone clicks the cancel button in the modal
              */
             $scope.cancel = function () {
-                $modalInstance.dismiss('cancel');
+                $uibModalInstance.dismiss('cancel');
             };
         }]);
 
@@ -704,8 +704,8 @@
     /**
      * Controller for the "New Entry" modal
      */
-    app.controller('ModalDatastoreNewEntryCtrl', ['$scope', '$modalInstance', 'itemBlueprint', 'parent', 'path',
-        function ($scope, $modalInstance, itemBlueprint, parent, path) {
+    app.controller('ModalDatastoreNewEntryCtrl', ['$scope', '$uibModalInstance', 'itemBlueprint', 'parent', 'path',
+        function ($scope, $uibModalInstance, itemBlueprint, parent, path) {
 
             $scope.parent = parent;
             $scope.path = path;
@@ -735,14 +735,14 @@
                     return;
                 }
 
-                $modalInstance.close($scope.bp.selected);
+                $uibModalInstance.close($scope.bp.selected);
             };
 
             /**
              * Triggered once someone clicks the cancel button in the modal
              */
             $scope.cancel = function () {
-                $modalInstance.dismiss('cancel');
+                $uibModalInstance.dismiss('cancel');
             };
         }]);
 
@@ -750,8 +750,8 @@
     /**
      * Controller for the "Edit Entry" modal
      */
-    app.controller('ModalEditEntryCtrl', ['$scope', '$modalInstance', 'itemBlueprint', 'node', 'path', 'data',
-        function ($scope, $modalInstance, itemBlueprint, node, path, data) {
+    app.controller('ModalEditEntryCtrl', ['$scope', '$uibModalInstance', 'itemBlueprint', 'node', 'path', 'data',
+        function ($scope, $uibModalInstance, itemBlueprint, node, path, data) {
 
             $scope.node = node;
             $scope.path = path;
@@ -787,14 +787,14 @@
                     return;
                 }
 
-                $modalInstance.close($scope.bp.selected);
+                $uibModalInstance.close($scope.bp.selected);
             };
 
             /**
              * Triggered once someone clicks the cancel button in the modal
              */
             $scope.cancel = function () {
-                $modalInstance.dismiss('cancel');
+                $uibModalInstance.dismiss('cancel');
             };
 
             if (typeof $scope.bp.selected.onEditModalOpen !== 'undefined') {
@@ -806,8 +806,8 @@
     /**
      * Controller for the "Share Entry" modal
      */
-    app.controller('ModalShareEntryCtrl', ['$scope', '$modalInstance', '$modal', 'shareBlueprint', 'managerDatastoreUser', 'node', 'path', 'users', 'DTOptionsBuilder', 'DTColumnDefBuilder',
-        function ($scope, $modalInstance, $modal, shareBlueprint, managerDatastoreUser, node, path, users, DTOptionsBuilder, DTColumnDefBuilder) {
+    app.controller('ModalShareEntryCtrl', ['$scope', '$uibModalInstance', '$uibModal', 'shareBlueprint', 'managerDatastoreUser', 'node', 'path', 'users', 'DTOptionsBuilder', 'DTColumnDefBuilder',
+        function ($scope, $uibModalInstance, $uibModal, shareBlueprint, managerDatastoreUser, node, path, users, DTOptionsBuilder, DTColumnDefBuilder) {
 
 
             $scope.dtOptions = DTOptionsBuilder.newOptions();
@@ -850,7 +850,7 @@
              */
             $scope.addUser = function() {
 
-                var modalInstance = $modal.open({
+                var modalInstance = $uibModal.open({
                     templateUrl: 'view/modal-new-entry.html',
                     controller: 'ModalShareNewEntryCtrl',
                     resolve: {
@@ -942,7 +942,7 @@
              * Triggered once someone clicks the save button in the modal
              */
             $scope.save = function () {
-                $modalInstance.close({
+                $uibModalInstance.close({
                     node: $scope.node,
                     path: $scope.path,
                     users: $scope.users,
@@ -956,7 +956,7 @@
              * Triggered once someone clicks the cancel button in the modal
              */
             $scope.cancel = function () {
-                $modalInstance.dismiss('cancel');
+                $uibModalInstance.dismiss('cancel');
             };
         }]);
 
@@ -964,8 +964,8 @@
     /**
      * Controller for the "Display share rights" modal
      */
-    app.controller('ModalDisplayShareRightsCtrl', ['$scope', '$modalInstance', 'itemBlueprint', 'node', 'path', 'share_details', 'managerShare', 'DTOptionsBuilder', 'DTColumnDefBuilder',
-        function ($scope, $modalInstance, itemBlueprint, node, path, share_details, managerShare, DTOptionsBuilder, DTColumnDefBuilder) {
+    app.controller('ModalDisplayShareRightsCtrl', ['$scope', '$uibModalInstance', 'itemBlueprint', 'node', 'path', 'share_details', 'managerShare', 'DTOptionsBuilder', 'DTColumnDefBuilder',
+        function ($scope, $uibModalInstance, itemBlueprint, node, path, share_details, managerShare, DTOptionsBuilder, DTColumnDefBuilder) {
 
             $scope.dtOptions = DTOptionsBuilder.newOptions();
             $scope.dtColumnDefs = [
@@ -987,7 +987,7 @@
              * Triggered once someone clicks the cancel button in the modal
              */
             $scope.cancel = function () {
-                $modalInstance.dismiss('cancel');
+                $uibModalInstance.dismiss('cancel');
             };
 
             /**

@@ -30,8 +30,8 @@
                        id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
                        ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
                        ng-change="bp.selected[n.onChange](bp.selected.fields)">
-                <div class="input-group-btn" dropdown is-open="status.isopen">
-                    <button id="single-button" type="button" class="btn btn-primary" dropdown-toggle ng-disabled="disabled">
+                <div class="input-group-btn" uib-dropdown is-open="status.isopen">
+                    <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
                         Actions <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" role="menu">
@@ -42,10 +42,10 @@
                 </div>
             </div>
 
-            <progressbar value="n.value | complexify" ng-if="n.type == 'password'">
+            <uib-progressbar value="n.value | complexify" ng-if="n.type == 'password'">
                 <span complexify="n.value"></span>%
                 <span complexify="n.value" type="verbal"></span>
-            </progressbar>
+            </uib-progressbar>
 
             <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
                       ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
@@ -68,8 +68,8 @@
         </div>
 
 
-        <tabset ng-if="bp.selected.tabs" class="tabset_expand">
-            <tab ng-repeat="tab in bp.selected.tabs" heading="{{tab.title}}" active="tab.active" disable="tab.disabled">
+        <uib-tabset ng-if="bp.selected.tabs" class="tabset_expand">
+            <uib-tab ng-repeat="tab in bp.selected.tabs" heading="{{tab.title}}" active="tab.active" disable="tab.disabled">
 
                 <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
                      ng-class="{true: 'has-error'}[submitted && newEntryForm[n.name].$invalid]"
@@ -87,8 +87,8 @@
                                id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
                                ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
                                ng-change="bp.selected[n.onChange](bp.selected.fields)">
-                        <div class="input-group-btn" dropdown is-open="status.isopen">
-                            <button id="single-button" type="button" class="btn btn-primary" dropdown-toggle ng-disabled="disabled">
+                        <div class="input-group-btn" uib-dropdown is-open="status.isopen">
+                            <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
                                 Actions <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu">
@@ -99,10 +99,10 @@
                         </div>
                     </div>
 
-                    <progressbar value="n.value | complexify" ng-if="n.type == 'password'">
+                    <uib-progressbar value="n.value | complexify" ng-if="n.type == 'password'">
                         <span complexify="n.value"></span>%
                         <span complexify="n.value" type="verbal"></span>
-                    </progressbar>
+                    </uib-progressbar>
 
                     <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
                               ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
@@ -123,8 +123,8 @@
                         The field needs to be a valid email address.
                     </p>
                 </div>
-            </tab>
-        </tabset>
+            </uib-tab>
+        </uib-tabset>
 
         <!-- below tabs -->
         <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
@@ -155,10 +155,10 @@
                 </div>
             </div>
 
-            <progressbar value="n.value | complexify" ng-if="n.type == 'password'">
+            <uib-progressbar value="n.value | complexify" ng-if="n.type == 'password'">
                 <span complexify="n.value"></span>%
                 <span complexify="n.value" type="verbal"></span>
-            </progressbar>
+            </uib-progressbar>
 
             <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
                       ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
@@ -181,9 +181,11 @@
         </div>
 
         <!-- Advanced -->
-        <a href="#" class="pull-right" ng-click="isCollapsed = !isCollapsed" ng-if="has_advanced(bp.selected)">advanced</a>
+        <div class="text-right" ng-hide="!has_advanced(bp.selected)">
+            <a href="#" ng-click="isCollapsed = !isCollapsed">advanced</a>
+        </div>
 
-        <div collapse="isCollapsed">
+        <div uib-collapse="isCollapsed">
 
             <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
                  ng-class="{true: 'has-error'}[submitted && newEntryForm[n.name].$invalid]"
@@ -201,8 +203,8 @@
                            id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
                            ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
                            ng-change="bp.selected[n.onChange](bp.selected.fields)">
-                    <div class="input-group-btn" dropdown is-open="status.isopen">
-                        <button id="single-button" type="button" class="btn btn-primary" dropdown-toggle ng-disabled="disabled">
+                    <div class="input-group-btn" uib-dropdown is-open="status.isopen">
+                        <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
                             Actions <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu">
@@ -213,10 +215,10 @@
                     </div>
                 </div>
 
-                <progressbar value="n.value | complexify" ng-if="n.type == 'password'">
+                <uib-progressbar value="n.value | complexify" ng-if="n.type == 'password'">
                     <span complexify="n.value"></span>%
                     <span complexify="n.value" type="verbal"></span>
-                </progressbar>
+                </uib-progressbar>
 
                 <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
                       ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"

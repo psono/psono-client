@@ -146,7 +146,7 @@
             /* Server selection with preselection of dev server */
             $scope.servers = BACKEND_SERVERS;
             $scope.filtered_servers = $scope.servers;
-            $scope.selected_server = $scope.servers[1];
+            $scope.selected_server = $scope.servers[0];
             $scope.selected_server_title = $scope.selected_server.title;
             $scope.selected_server_url = $scope.selected_server.url;
             $scope.selected_server_domain = helper.get_domain($scope.selected_server.url);
@@ -236,7 +236,7 @@
             /* Server selection with preselection of dev server */
             $scope.servers = BACKEND_SERVERS;
             $scope.filtered_servers = $scope.servers;
-            $scope.selected_server = $scope.servers[1];
+            $scope.selected_server = $scope.servers[0];
             $scope.selected_server_title = $scope.selected_server.title;
             $scope.selected_server_url = $scope.selected_server.url;
             $scope.selected_server_domain = helper.get_domain($scope.selected_server.url);
@@ -643,8 +643,8 @@
             };
         }]);
 
-    app.controller('ShareCtrl', ['$scope', '$routeParams', '$modal', 'managerShare', 'managerDatastorePassword',
-        function ($scope, $routeParams, $modal, managerShare, managerDatastorePassword) {
+    app.controller('ShareCtrl', ['$scope', '$routeParams', '$uibModal', 'managerShare', 'managerDatastorePassword',
+        function ($scope, $routeParams, $uibModal, managerShare, managerDatastorePassword) {
             this.name = "ShareCtrl";
             this.params = $routeParams;
             $scope.routeParams = $routeParams;
@@ -685,7 +685,7 @@
              */
             $scope.accept = function (item, shares) {
 
-                var modalInstance = $modal.open({
+                var modalInstance = $uibModal.open({
                     templateUrl: 'view/modal-accept-share.html',
                     controller: 'ModalAcceptShareCtrl',
                     resolve: {
@@ -810,9 +810,9 @@
     /**
      * Controller for the "AcceptShare" modal
      */
-    app.controller('ModalAcceptShareCtrl', ['$scope', '$modalInstance', '$modal', 'managerDatastoreUser',
+    app.controller('ModalAcceptShareCtrl', ['$scope', '$uibModalInstance', '$uibModal', 'managerDatastoreUser',
         'message', 'shareBlueprint', 'item', 'helper',
-        function ($scope, $modalInstance, $modal, managerDatastoreUser, message, shareBlueprint, item, helper) {
+        function ($scope, $uibModalInstance, $uibModal, managerDatastoreUser, message, shareBlueprint, item, helper) {
 
             $scope.item = item;
             $scope.user_is_trusted = false;
@@ -948,14 +948,14 @@
                 }
                 $scope.breadcrumbs['user'] = $scope.user;
                 $scope.breadcrumbs['item'] = $scope.item;
-                $modalInstance.close($scope.breadcrumbs);
+                $uibModalInstance.close($scope.breadcrumbs);
             };
 
             /**
              * Triggered once someone clicks the cancel button in the modal
              */
             $scope.cancel = function () {
-                $modalInstance.dismiss('cancel');
+                $uibModalInstance.dismiss('cancel');
             };
 
         }]);

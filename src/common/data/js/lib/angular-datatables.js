@@ -1,5 +1,5 @@
 /*!
- * angular-datatables - v0.5.4
+ * angular-datatables - v0.5.5
  * https://github.com/l-lin/angular-datatables
  * License: MIT
  */
@@ -610,7 +610,8 @@ if (typeof module !== "undefined" && typeof exports !== "undefined" && module.ex
             setLanguage: setLanguage,
             setDisplayLength: setDisplayLength,
             setBootstrapOptions: setBootstrapOptions,
-            setDOM: setDOM
+            setDOM: setDOM,
+            setOption: setOption
         };
 
         return options;
@@ -692,6 +693,19 @@ if (typeof module !== "undefined" && typeof exports !== "undefined" && module.ex
                 dom: dom
             });
             return options;
+        }
+
+        /**
+         * Set global default option to all DataTables.
+         * @param key the key of the default option
+         * @param value the value of the default option
+         */
+        function setOption(key, value) {
+            if (angular.isString(key)) {
+                var obj = {};
+                obj[key] = value;
+                $.extend($.fn.DataTable.defaults, obj);
+            }
         }
     }
 
@@ -871,10 +885,11 @@ if (typeof module !== "undefined" && typeof exports !== "undefined" && module.ex
                 dtInstance = DTInstanceFactory.newDTInstance(renderer);
 
                 var defer = $q.defer();
-                var _expression = $elem.find('tbody').html();
+                var _$tableElem = _staticHTML.match(/<tbody([\s\S]*)<\/tbody>/i);
+                var _expression = _$tableElem[1];
                 // Find the resources from the comment <!-- ngRepeat: item in items --> displayed by angular in the DOM
                 // This regexp is inspired by the one used in the "ngRepeat" directive
-                var _match = _expression.match(/^\s*.+?\s+in\s+(\S*)\s*/m);
+                var _match = _expression.match(/^\s*.+?\s+in\s+([a-zA-Z0-9\.-_]*)\s*/m);
 
                 if (!_match) {
                     throw new Error('Expected expression in form of "_item_ in _collection_[ track by _id_]" but got "{0}".', _expression);

@@ -66,6 +66,18 @@ body {
   background-color: #2ba880;
   border-color: #2ba880; }
 
+.btn-primary:active:hover,
+.btn-primary.active:hover,
+.open > .dropdown-toggle.btn-primary:hover,
+.btn-primary:active:focus,
+.btn-primary.active:focus,
+.open > .dropdown-toggle.btn-primary:focus,
+.btn-primary:active.focus,
+.btn-primary.active.focus,
+.open > .dropdown-toggle.btn-primary.focus {
+  background-color: #151f2b;
+  border-color: #122b40; }
+
 label.smalllabel {
   font-size: small;
   margin-bottom: 0;
