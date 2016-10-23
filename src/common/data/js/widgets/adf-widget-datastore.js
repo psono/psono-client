@@ -10,7 +10,7 @@
     /**
      * Config for the datastore widget
      */
-    module.config(function(dashboardProvider){
+    module.config(['dashboardProvider', function(dashboardProvider){
         dashboardProvider
             .widget('datastore', {
                 title: 'Datastore',
@@ -22,7 +22,7 @@
                     templateUrl: 'view/datastore-edit.html'
                 }
             });
-    });
+    }]);
 
 
     /**

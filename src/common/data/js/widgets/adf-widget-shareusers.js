@@ -9,7 +9,7 @@
     /**
      * Config for the shareusers widget
      */
-    module.config(function(dashboardProvider){
+    module.config(['dashboardProvider', function(dashboardProvider){
         dashboardProvider
             .widget('shareusers', {
                 title: 'Trusted Users',
@@ -21,7 +21,7 @@
                     templateUrl: 'view/shareusers-edit.html'
                 }
             });
-    });
+    }]);
 
     /**
      * Main Controller for the shareusers widget

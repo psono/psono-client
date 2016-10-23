@@ -11,7 +11,7 @@ stages:
 unittests:
   stage: test
   script:
-    - sh build.sh
+    - sh build-ubuntu.sh
     - karma start ./unittests/karma-phantom.conf.js
 
 docker-image:
@@ -21,6 +21,10 @@ docker-image:
   - docker:dind
   script:
   - docker info
+  - apk update && apk add nodejs
+  - npm install
+  - npm install gulp -g
+  - gulp
   - docker login -u gitlab-ci-token -p "$CI_BUILD_TOKEN" registry.gitlab.com
   - docker build -t $CONTAINER_TEST_IMAGE .
   - docker push $CONTAINER_TEST_IMAGE
@@ -28,7 +32,7 @@ docker-image:
 firefox-extension:
   stage: build
   script:
-  - sh build.sh
+  - sh build-ubuntu.sh
   - cd build/firefox/ && jpm xpi && cd ../../ && cp /builds/psono/psono-client/build/firefox/psonopw.xpi "$CI_BUILD_REF_NAME.psono.PW.firefox.xpi"
   artifacts:
     paths:
@@ -37,7 +41,7 @@ firefox-extension:
 chrome-extension:
   stage: build
   script:
-  - sh build.sh
+  - sh build-ubuntu.sh
   artifacts:
     paths:
     - build/chrome/
@@ -62,7 +66,7 @@ job-release-docker:
 #  services:
 #  - docker:dind
 #  script:
-#    - sh build.sh
+#    - sh build-ubuntu.sh
 #    - gulp xpiunsigned
 #  only:
 #    - master

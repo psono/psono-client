@@ -9,7 +9,7 @@
     /**
      * Config for the acceptshare widget
      */
-    module.config(function(dashboardProvider){
+    module.config(['dashboardProvider', function(dashboardProvider){
         dashboardProvider
             .widget('acceptshare', {
                 title: 'Accept Share',
@@ -21,7 +21,7 @@
                     templateUrl: 'view/accept-share-edit.html'
                 }
             });
-    });
+    }]);
 
     /**
      * Main Controller for the acceptshare widget

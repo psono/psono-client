@@ -1,6 +1,9 @@
 'use strict';
 
 var gulp = require('gulp');
+var htmlmin = require('gulp-htmlmin');
+var cleanCSS = require('gulp-clean-css');
+var minify = require('gulp-minify');
 var sass = require('gulp-sass');
 var remove_code = require('gulp-remove-code');
 var template_cache = require('gulp-angular-templatecache');
@@ -21,8 +24,47 @@ gulp.task('sass', function () {
         .pipe(gulp.dest('src/common/data/css'));
 });
 
+
 /**
- * Creates the build Firefox build folder
+ * Creates the Webserver build folder
+ */
+gulp.task('build-webserver', function() {
+
+    gulp.src(['src/common/data/css/**/*'])
+        .pipe(cleanCSS({compatibility: 'ie8'}))
+        .pipe(gulp.dest('build/webserver/css'));
+
+    gulp.src(['src/common/data/fonts/**/*'])
+        .pipe(gulp.dest('build/webserver/fonts'));
+
+    gulp.src(['src/common/data/img/**/*'])
+        .pipe(gulp.dest('build/webserver/img'));
+
+    gulp.src(['src/common/data/js/**/*'])
+        .pipe(minify({
+            ext:{
+                min:'.js'
+            },
+            ignoreFiles: ['.min.js'],
+            noSource: true,
+            preserveComments: 'some'
+        }))
+        .pipe(gulp.dest('build/webserver/js'));
+
+    gulp.src('src/common/data/view/**/*.html')
+        .pipe(template_cache('templates.js', { module:'passwordManagerApp', root: 'view/' }))
+        .pipe(gulp.dest('build/webserver/view'));
+
+    gulp.src([
+        'src/common/data/*',
+        '!src/common/data/sass'
+    ])
+        .pipe(htmlmin({collapseWhitespace: true}))
+        .pipe(gulp.dest('build/webserver'));
+});
+
+/**
+ * Creates the Firefox build folder
  */
 gulp.task('build-firefox', function() {
     gulp.src([
@@ -51,7 +93,7 @@ gulp.task('build-firefox', function() {
 });
 
 /**
- * Creates the build Chrome build folder
+ * Creates the Chrome build folder
  */
 gulp.task('build-chrome', function() {
     gulp.src([
@@ -70,7 +112,7 @@ gulp.task('build-chrome', function() {
         .pipe(gulp.dest('build/chrome'));
 });
 
-gulp.task('default', ['sass', 'build-chrome', 'build-firefox']);
+gulp.task('default', ['sass', 'build-chrome', 'build-firefox', 'build-webserver']);
 
 /**
  * Watcher to compile the project again once something changes
@@ -79,11 +121,12 @@ gulp.task('default', ['sass', 'build-chrome', 'build-firefox']);
  * - initiates the task for the creation of the firefox build folder
  * - initiates the task for the creation of the chrome build folder
  */
-gulp.task('watch', ['sass', 'build-chrome', 'build-firefox'], function() {
-    gulp.watch(['src/common/data/**/*', '!src/common/data/sass/**/*.scss'], ['build-firefox', 'build-chrome']);
+gulp.task('watch', ['sass', 'build-chrome', 'build-firefox', 'build-webserver'], function() {
+    gulp.watch(['src/common/data/**/*', '!src/common/data/sass/**/*.scss'], ['build-webserver', 'build-firefox', 'build-chrome']);
     gulp.watch('src/chrome/**/*', ['build-chrome']);
     gulp.watch('src/firefox/**/*', ['build-firefox']);
-    gulp.watch('src/common/data/sass/**/*.scss', ['sass', 'build-chrome', 'build-firefox']);
+    gulp.watch('src/webserver/**/*', ['build-webserver']);
+    gulp.watch('src/common/data/sass/**/*.scss', ['sass', 'build-chrome', 'build-firefox', 'build-webserver']);
 });
 
 /**

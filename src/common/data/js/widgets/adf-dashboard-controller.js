@@ -3,7 +3,8 @@
 
     var app = angular.module('passwordManagerApp');
 
-    app.controller('HomeDashboardController', ['$scope', 'localStorageService', function ($scope, localStorageService) {
+    app.controller('HomeDashboardController', ['$scope', 'localStorageService',
+    function ($scope, localStorageService) {
         var model = localStorageService.get('widgetHomeDashboard');
         if (!model) {
             model = {
@@ -30,7 +31,8 @@
         });
     }]);
 
-    app.controller('ShareusersDashboardController', ['$scope', 'localStorageService', function ($scope, localStorageService) {
+    app.controller('ShareusersDashboardController', ['$scope', 'localStorageService',
+    function ($scope, localStorageService) {
         var model = localStorageService.get('widgetShareusersDashboard');
         if (!model) {
             model = {
@@ -57,7 +59,8 @@
         });
     }]);
 
-    app.controller('AcceptshareDashboardController', ['$scope', 'localStorageService', function ($scope, localStorageService) {
+    app.controller('AcceptshareDashboardController', ['$scope', 'localStorageService',
+    function ($scope, localStorageService) {
 
         var model = localStorageService.get('widgetAcceptshareDashboard');
         if (!model) {
