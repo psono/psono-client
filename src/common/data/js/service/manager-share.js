@@ -333,6 +333,7 @@
          * @returns {*}
          */
         var get_closest_parent_share = function(path, datastore, closest_share, distance) {
+            var n,l;
 
             if (path.length == distance) {
                 return closest_share;
@@ -340,12 +341,22 @@
 
             var to_search = path.shift();
 
-            for (var n = 0, l = datastore.folders.length; n < l; n++) {
-                if (datastore.folders[n].id == to_search) {
-                    if (typeof(datastore.folders[n].share_id) !== 'undefined') {
-                        return get_closest_parent_share(path.slice(), datastore.folders[n], datastore.folders[n], distance);
-                    } else {
-                        return get_closest_parent_share(path.slice(), datastore.folders[n], closest_share, distance);
+            if (datastore.hasOwnProperty('folders')) {
+                for (n = 0, l = datastore.folders.length; n < l; n++) {
+                    if (datastore.folders[n].id == to_search) {
+                        if (typeof(datastore.folders[n].share_id) !== 'undefined') {
+                            return get_closest_parent_share(path.slice(), datastore.folders[n], datastore.folders[n], distance);
+                        } else {
+                            return get_closest_parent_share(path.slice(), datastore.folders[n], closest_share, distance);
+                        }
+                    }
+                }
+            }
+
+            if (datastore.hasOwnProperty('items')) {
+                for (n = 0, l = datastore.items.length; n < l; n++) {
+                    if (datastore.items[n].id == to_search) {
+                        return closest_share;
                     }
                 }
             }

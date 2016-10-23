@@ -60,10 +60,6 @@
                         }
                     }
 
-                    if (typeof url === "undefined") {
-                        return "";
-                    }
-
                     for (i = 0; i < fields.length; i++) {
                         if (fields[i].name === "website_password_url_filter") {
                             domain_filter_col = fields[i];
@@ -71,8 +67,20 @@
                         }
                     }
 
+                    if (typeof url === "undefined") {
+                        domain_filter_col.value = "";
+                        return "";
+                    }
+
                     // get only toplevel domain
-                    var matches = helper.parse_url(url).authority.split(".");
+                    var parsed_url = helper.parse_url(url);
+
+                    if (typeof(parsed_url.authority) == 'undefined') {
+                        domain_filter_col.value = "";
+                        return '';
+                    }
+
+                    var matches = parsed_url.authority.split(".");
                     matches = matches.slice(-2);
 
                     domain_filter_col.value = matches.join(".");
