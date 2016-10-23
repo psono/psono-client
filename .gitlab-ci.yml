@@ -52,7 +52,7 @@ docker-image:
     DOCKER_HOST: 'tcp://docker:2375'
   script:
   - apt-get update
-  - apt-get install apt-transport-https ca-certificates curl openssl
+  - apt-get install -y apt-transport-https ca-certificates curl openssl
   - set -x && curl -fSL "https://get.docker.com/builds/Linux/x86_64/docker-1.12.0.tgz" -o docker.tgz && echo "3dd07f65ea4a7b4c8829f311ab0213bca9ac551b5b24706f3e79a97e22097f8b *docker.tgz" | sha256sum -c - && tar -xzvf docker.tgz && mv docker/* /usr/local/bin/
   - docker info
   - sh build-ubuntu.sh
@@ -73,7 +73,7 @@ firefox-extension:
 chrome-extension:
   stage: build
   script:
-  - sh build.sh
+  - sh build-ubuntu.sh
   artifacts:
     paths:
     - build/chrome/
@@ -98,7 +98,7 @@ job-release-docker:
 #  services:
 #  - docker:dind
 #  script:
-#    - sh build.sh
+#    - sh build-ubuntu.sh
 #    - gulp xpiunsigned
 #  only:
 #    - master
