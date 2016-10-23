@@ -16,14 +16,11 @@ unittests:
 
 docker-image:
   stage: build
-  image: docker:git
   services:
   - docker:dind
   script:
   - docker info
-  - apk update && apk add nodejs
-  - npm install
-  - npm install gulp -g
+  - sh build-ubuntu.sh
   - gulp
   - docker login -u gitlab-ci-token -p "$CI_BUILD_TOKEN" registry.gitlab.com
   - docker build -t $CONTAINER_TEST_IMAGE .
