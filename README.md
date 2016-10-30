@@ -1,6 +1,7 @@
 # PSONO Server - Password Manager
 
-[![build status](https://gitlab.com/psono/psono-client/badges/master/build.svg)](https://gitlab.com/psono/psono-client/commits/master) [![coverage report](https://gitlab.com/psono/psono-client/badges/master/coverage.svg)](https://gitlab.com/psono/psono-client/commits/master)
+Master: [![build status](https://gitlab.com/psono/psono-client/badges/master/build.svg)](https://gitlab.com/psono/psono-client/commits/master) [![coverage report](https://gitlab.com/psono/psono-client/badges/master/coverage.svg)](https://gitlab.com/psono/psono-client/commits/master)
+Develop: [![build status](https://gitlab.com/psono/psono-client/badges/develop/build.svg)](https://gitlab.com/psono/psono-client/commits/develop) [![coverage report](https://gitlab.com/psono/psono-client/badges/develop/coverage.svg)](https://gitlab.com/psono/psono-client/commits/develop)
 
 # Install for "normal" people :D
 
