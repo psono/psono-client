@@ -39,9 +39,24 @@ The extension should now be loaded
     
     (replace USERNAME with your username and enter your password when prompted)
 
-3. Run the docker image and expose the port
+2. Run the docker image and expose the port
 
-        docker run --name psono-client -d -p 10101:80 registry.gitlab.com/psono/psono-client:develop
+        docker run --name psono-client \
+            -d -p 10101:80 registry.gitlab.com/psono/psono-client:develop
+
+    If you open now http://your-ip:10100 you should see a beautiful login screen.
+    If not, please make sure you have no firewall on the server blocking you.
+    
+# Register / Login
+
+Two things you should be aware of:
+    
+1) As server on the login / registration screen you have to specify the full url to the server which shows this message when you open it directly in the browser:
+    
+        {"detail":"Authentication credentials were not provided."}
+
+2) As username for the registration / login, you have to specify something in the format of an email address, ending e.g in `@example.com` where example.com is in your settings.yaml in the `ALLOWED_DOMAINS` section
+
 
 # Install for developers
 
