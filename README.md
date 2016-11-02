@@ -51,8 +51,8 @@ The extension should now be loaded
 3. Run the docker image and expose the port
 
         docker run --name psono-client \
+            -v /opt/docker/psono-client/config.json:/usr/share/nginx/html/config.json \
             -d -p 10101:80 registry.gitlab.com/psono/psono-client:develop
-            -v /opt/docker/psono-client/config.json:/usr/share/nginx/html/config.json
 
     If you open now http://your-ip:10100 you should see a beautiful login screen.
     If not, please make sure you have no firewall on the server blocking you.
