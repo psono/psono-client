@@ -28,44 +28,55 @@
          */
         var register = function(email, username, password, server) {
 
-            managerBase.delete_local_data();
+            var onSuccess = function(base_url){
 
-            storage.insert('config', {key: 'user_email', value: email});
-            storage.insert('config', {key: 'user_username', value: username});
-            storage.insert('config', {key: 'server', value: server});
+                managerBase.delete_local_data();
 
-            var pair = cryptoLibrary.generate_public_private_keypair();
-            var user_sauce = cryptoLibrary.generate_user_sauce();
+                storage.insert('config', {key: 'user_email', value: email});
+                storage.insert('config', {key: 'user_username', value: username});
+                storage.insert('config', {key: 'server', value: server});
 
-            var priv_key_enc = cryptoLibrary.encrypt_secret(pair.private_key, password, user_sauce);
-            var secret_key_enc = cryptoLibrary
-                .encrypt_secret(cryptoLibrary.generate_secret_key(), password, user_sauce);
+                var pair = cryptoLibrary.generate_public_private_keypair();
+                var user_sauce = cryptoLibrary.generate_user_sauce();
 
-            var onSuccess = function () {
+                var priv_key_enc = cryptoLibrary.encrypt_secret(pair.private_key, password, user_sauce);
+                var secret_key_enc = cryptoLibrary
+                    .encrypt_secret(cryptoLibrary.generate_secret_key(), password, user_sauce);
 
-                storage.save();
+                var onSuccess = function () {
 
-                return {
-                    response:"success"
+                    storage.save();
+
+                    return {
+                        response:"success"
+                    };
                 };
+
+                var onError = function(response){
+
+                    storage.remove('config', storage.find_one('config', {'key': 'user_email'}));
+                    storage.remove('config', storage.find_one('config', {'key': 'server'}));
+                    storage.save();
+
+                    return {
+                        response:"error",
+                        error_data: response.data
+                    };
+                };
+
+                return apiClient.register(email, username, cryptoLibrary.generate_authkey(username, password), pair.public_key,
+                    priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce, user_sauce,
+                    base_url)
+                    .then(onSuccess, onError);
+
             };
 
-            var onError = function(response){
+            var onError = function(){
 
-                storage.remove('config', storage.find_one('config', {'key': 'user_email'}));
-                storage.remove('config', storage.find_one('config', {'key': 'server'}));
-                storage.save();
-
-                return {
-                    response:"error",
-                    error_data: response.data
-                };
             };
 
-            return apiClient.register(email, username, cryptoLibrary.generate_authkey(username, password), pair.public_key,
-                priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce, user_sauce,
-                browserClient.getBaseUrl())
-                .then(onSuccess, onError);
+            return browserClient.getBaseUrl().then(onSuccess, onError)
+
         };
 
         /**

@@ -43,7 +43,9 @@
          * @returns {string}
          */
         var getBaseUrl = function() {
-            return "chrome-extension://"+chrome.runtime.id+"/";
+            return $q(function (resolve) {
+                resolve("chrome-extension://"+chrome.runtime.id+"/");
+            });
         };
 
         /**

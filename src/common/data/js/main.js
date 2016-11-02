@@ -221,13 +221,21 @@
                     return;
                 }
 
-                var test_result = helper.is_valid_username(username);
+                if (username.indexOf('@') == -1){
+                    username = username + '@' + $scope.selected_server_domain;
+                }
+
+                if ((username.match(/@/g) || []).length != 1) {
+                    $scope.errors.push("No valid username (must be in email format).");
+                }
+                var res = username.split("@");
+                var username_part = res[0];
+
+                var test_result = helper.is_valid_username(username_part);
                 if (test_result !== true) {
                     $scope.errors.push(test_result);
                     return;
                 }
-
-                username = username + '@' + $scope.selected_server_domain;
 
                 // TODO forbid weak and poor passwords
 

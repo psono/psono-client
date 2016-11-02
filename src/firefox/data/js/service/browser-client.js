@@ -47,7 +47,9 @@
          * @returns {string}
          */
         var getBaseUrl = function() {
-            return "resource://psonopw/";
+            return $q(function (resolve) {
+                resolve("resource://psonopw/");
+            });
         };
 
         /**

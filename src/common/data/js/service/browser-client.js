@@ -6,7 +6,7 @@
         'logout'
     ];
 
-    var browserClient = function($rootScope, $q) {
+    var browserClient = function($rootScope, $q, configLoader) {
         /**
          * Resize the panel according to the provided width and height
          *
@@ -31,7 +31,15 @@
          * @returns {string}
          */
         var getBaseUrl = function() {
-            return "https://browserplugins.chickahoona.com/src/common/";
+
+            var onSuccess = function(base_url) {
+                return base_url;
+            };
+            var onError = function() {
+
+            };
+
+            return configLoader.get_config('base_url').then(onSuccess, onError);
         };
 
         /**
@@ -102,6 +110,6 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("browserClient", ['$rootScope', '$q', browserClient]);
+    app.factory("browserClient", ['$rootScope', '$q', 'configLoader', browserClient]);
 
 }(angular, $, window));

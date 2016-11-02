@@ -5,7 +5,7 @@ Develop: [![build status](https://gitlab.com/psono/psono-client/badges/develop/b
 
 # Install for "normal" people :D
 
-## Chrome
+## as Chrome Extension
 
 1. Download the crx file here:
 
@@ -22,7 +22,7 @@ Develop: [![build status](https://gitlab.com/psono/psono-client/badges/develop/b
 The extension should now be loaded
 
 
-## Firefox
+## as Firefox Extension
 
 1. Click on the following link:
 
@@ -31,7 +31,7 @@ The extension should now be loaded
     (You will be asked (at the top left) if you want to allow this extension to be installed which you have to permit)
     
 
-## Docker
+## as Docker Web Client
 
 1. Login to the gitlab registry
 
@@ -70,6 +70,10 @@ Two things you should be aware of:
 
 # Install for developers
 
+To actually htdocs (not minimized) folder that can be used for development is located in
+`src/common/data/`. If you want to pack chrome extensions or modify sass files and recompile the css files
+you may install belows dependencies and execute below mentioned commands.
+
 1. Install dependencies
 
         sudo apt-get update
@@ -78,7 +82,7 @@ Two things you should be aware of:
         sudo ln -s /usr/bin/nodejs /usr/bin/node
         sudo npm install
         
-2. Build Chrome and Firefox extensions
+2. Build Chrome and Firefox extensions together with the web client
 
         gulp
         
@@ -120,11 +124,12 @@ Two things you should be aware of:
 
 # Install for unit tests
 
+For unittest you have some additional dependencies.
+
 1. Install dependencies
 
         sudo npm install
         sudo npm install -g karma-cli
-        sudo npm install -g coffee-script
         
     If you want unit tests, that run in Chrome / Firefox, you also have to install both browsers
     

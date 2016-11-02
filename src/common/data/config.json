@@ -3,5 +3,6 @@
     "title": "Psono.pw",
     "url": "https://www.psono.pw/server"
   }],
+  "base_url": "https://www.psono.pw/",
   "allow_custom_server": true
 }
