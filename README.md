@@ -39,10 +39,20 @@ The extension should now be loaded
     
     (replace USERNAME with your username and enter your password when prompted)
 
-2. Run the docker image and expose the port
+2. Create config
+
+    The client will offer a pre-filled "Server Address". Its supposed to be the address where you see 
+    
+        {"detail":"Authentication credentials were not provided."}
+        
+    To make it easier for your clients create a config similar to src/common/data/config.json in a location like /opt/docker/psono-client/config.json
+    We will mount this config in the next step, "shadowing" the config in the docker image.
+
+3. Run the docker image and expose the port
 
         docker run --name psono-client \
             -d -p 10101:80 registry.gitlab.com/psono/psono-client:develop
+            -v /opt/docker/psono-client/config.json:/usr/share/nginx/html/config.json
 
     If you open now http://your-ip:10100 you should see a beautiful login screen.
     If not, please make sure you have no firewall on the server blocking you.
