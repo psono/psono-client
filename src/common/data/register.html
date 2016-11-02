@@ -43,9 +43,9 @@
             </div>
 
             <form name="registerForm" ng-if="!success">
-                <div class="input-group">
+                <div ng-class="{'input-group': registerFormUsername == null || registerFormUsername.indexOf('@') == -1}">
                     <input type="text" class="form-control" id="registerUsername" placeholder="Username" ng-model="registerFormUsername" required aria-describedby="username-addon">
-                    <span class="input-group-addon" id="username-addon">@{{selected_server_domain}}</span>
+                    <span class="input-group-addon" id="username-addon" ng-if="registerFormUsername == null || registerFormUsername.indexOf('@') == -1">@{{selected_server_domain}}</span>
                 </div>
                 <br>
                 <div class="form-group">
@@ -139,6 +139,7 @@
 <script src="js/widgets/adf-dashboard-controller.js" type="application/javascript"></script>
 
 <script src="js/service/api-client.js" type="application/javascript"></script>
+<script src="js/service/config-loader.js" type="application/javascript"></script>
 <script src="js/service/helper.js" type="application/javascript"></script>
 <script src="js/service/message.js" type="application/javascript"></script>
 <script src="js/service/item-blueprint.js" type="application/javascript"></script>

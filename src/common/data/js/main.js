@@ -4,12 +4,7 @@
     var app = angular.module('passwordManagerApp', ['ngRoute', 'ng', 'ui.bootstrap', 'snap', 'adf',
             'adf.widget.datastore', 'adf.widget.shareusers', 'adf.widget.acceptshare', 'chieffancypants.loadingBar', 'ngAnimate',
             'LocalStorageModule', 'ngTree', 'ngDraggable', 'ng-context-menu', 'ui.select', 'ngSanitize',
-            'angular-complexify', 'datatables'])
-        .constant('BACKEND_SERVERS', [
-            {
-                title: 'Psono.pw', url: 'https://www.psono.pw/server'
-            }
-        ]);
+            'angular-complexify', 'datatables']);
 
     app.config(['$routeProvider', '$locationProvider', 'dashboardProvider', 'localStorageServiceProvider',
         function ($routeProvider, $locationProvider, dashboardProvider, localStorageServiceProvider) {
@@ -139,17 +134,28 @@
         });
     }]);
 
-    app.controller('RegisterController', ['$scope', '$route', '$filter', 'managerDatastoreUser', 'BACKEND_SERVERS', 'helper',
-        function ($scope, $route, $filter, managerDatastoreUser, BACKEND_SERVERS, helper) {
+    app.controller('RegisterController', ['$scope', '$route', '$filter', 'managerDatastoreUser', 'configLoader', 'helper',
+        function ($scope, $route, $filter, managerDatastoreUser, configLoader, helper) {
 
+            var onSuccess = function(config) {
 
-            /* Server selection with preselection of dev server */
-            $scope.servers = BACKEND_SERVERS;
-            $scope.filtered_servers = $scope.servers;
-            $scope.selected_server = $scope.servers[0];
-            $scope.selected_server_title = $scope.selected_server.title;
-            $scope.selected_server_url = $scope.selected_server.url;
-            $scope.selected_server_domain = helper.get_domain($scope.selected_server.url);
+                // TODO interpret "allow_custom_server"
+                // TODO check last visited server for "preselection"
+
+                /* Server selection with preselection */
+                $scope.servers = config['backend_servers'];
+                $scope.filtered_servers = $scope.servers;
+                $scope.selected_server = $scope.servers[0];
+                $scope.selected_server_title = $scope.selected_server.title;
+                $scope.selected_server_url = $scope.selected_server.url;
+                $scope.selected_server_domain = helper.get_domain($scope.selected_server.url);
+            };
+
+            var onError = function() {
+
+            };
+
+            configLoader.get_config().then(onSuccess, onError);
 
 
             $scope.select_server = function (server) {
@@ -230,16 +236,28 @@
             };
         }]);
 
-    app.controller('ActivationController', ['$scope', '$route', '$routeParams', 'managerDatastoreUser', 'BACKEND_SERVERS', 'helper',
-        function ($scope, $route, $routeParams, managerDatastoreUser, BACKEND_SERVERS, helper) {
+    app.controller('ActivationController', ['$scope', '$route', '$routeParams', 'managerDatastoreUser', 'configLoader', 'helper',
+        function ($scope, $route, $routeParams, managerDatastoreUser, configLoader, helper) {
 
-            /* Server selection with preselection of dev server */
-            $scope.servers = BACKEND_SERVERS;
-            $scope.filtered_servers = $scope.servers;
-            $scope.selected_server = $scope.servers[0];
-            $scope.selected_server_title = $scope.selected_server.title;
-            $scope.selected_server_url = $scope.selected_server.url;
-            $scope.selected_server_domain = helper.get_domain($scope.selected_server.url);
+            var onSuccess = function(config) {
+
+                // TODO interpret "allow_custom_server"
+                // TODO check last visited server for "preselection"
+
+                /* Server selection with preselection */
+                $scope.servers = config['backend_servers'];
+                $scope.filtered_servers = $scope.servers;
+                $scope.selected_server = $scope.servers[0];
+                $scope.selected_server_title = $scope.selected_server.title;
+                $scope.selected_server_url = $scope.selected_server.url;
+                $scope.selected_server_domain = helper.get_domain($scope.selected_server.url);
+            };
+
+            var onError = function() {
+
+            };
+
+            configLoader.get_config().then(onSuccess, onError);
 
             $scope.select_server = function (server) {
                 //triggered when selecting an server
@@ -302,6 +320,7 @@
         'snapRemote', '$window', '$route', '$routeParams', '$location',
         function ($scope, $rootScope, $filter, $timeout, managerDatastoreUser, browserClient, storage,
                   snapRemote, $window, $route, $routeParams, $location) {
+
 
             /* openTab function to pass through */
             $scope.openTab = browserClient.openTab;
@@ -537,9 +556,9 @@
         }]);
 
     app.controller('LoginController', ['$scope', '$rootScope', '$filter', '$timeout', 'managerDatastoreUser', 'browserClient', 'storage',
-        'snapRemote', '$window', '$route', '$routeParams', '$location', 'BACKEND_SERVERS', 'helper',
+        'snapRemote', '$window', '$route', '$routeParams', '$location', 'configLoader', 'helper',
         function ($scope, $rootScope, $filter, $timeout, managerDatastoreUser, browserClient, storage,
-                  snapRemote, $window, $route, $routeParams, $location, BACKEND_SERVERS, helper) {
+                  snapRemote, $window, $route, $routeParams, $location, configLoader, helper) {
 
             /* openTab function to pass through */
             $scope.openTab = browserClient.openTab;
@@ -547,14 +566,25 @@
             /* test background page */
             //console.log(browserClient.testBackgroundPage());
 
+            var onSuccess = function(config) {
 
-            /* Server selection with preselection */
-            $scope.servers = BACKEND_SERVERS;
-            $scope.filtered_servers = $scope.servers;
-            $scope.selected_server = $scope.servers[0];
-            $scope.selected_server_title = $scope.selected_server.title;
-            $scope.selected_server_url = $scope.selected_server.url;
-            $scope.selected_server_domain = helper.get_domain($scope.selected_server.url);
+                // TODO interpret "allow_custom_server"
+                // TODO check last visited server for "preselection"
+
+                /* Server selection with preselection */
+                $scope.servers = config['backend_servers'];
+                $scope.filtered_servers = $scope.servers;
+                $scope.selected_server = $scope.servers[0];
+                $scope.selected_server_title = $scope.selected_server.title;
+                $scope.selected_server_url = $scope.selected_server.url;
+                $scope.selected_server_domain = helper.get_domain($scope.selected_server.url);
+            };
+
+            var onError = function() {
+
+            };
+
+            configLoader.get_config().then(onSuccess, onError);
 
             $scope.select_server = function (server) {
                 //triggered when selecting an server

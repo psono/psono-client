@@ -275,6 +275,7 @@ mod.PageMod({
         "./js/main.js",
         "./js/widgets/adf-dashboard-controller.js",
         "./js/service/api-client.js",
+        "./js/service/config-loader.js",
         "./js/service/helper.js",
         "./js/service/message.js",
         "./js/service/item-blueprint.js",
