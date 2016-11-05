@@ -150,7 +150,7 @@ gulp.task('build-chrome', function() {
 
     gulp.src(['src/chrome/**/*'])
         .pipe(gulp.dest('build/chrome'));
-    
+
 });
 
 gulp.task('default', ['sass', 'build-chrome', 'build-firefox', 'build-webserver']);

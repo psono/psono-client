@@ -15,34 +15,6 @@ unittests:
     - karma start ./unittests/karma-phantom.conf.js
 
 
-# No saas support in alpine (docker:git) image
-#docker-image:
-#  stage: build
-#  image: docker:git
-#  services:
-#  - docker:dind
-#  script:
-#  - docker info
-#  - docker login -u gitlab-ci-token -p "$CI_BUILD_TOKEN" registry.gitlab.com
-#  - docker build -t $CONTAINER_TEST_IMAGE .
-#  - docker push $CONTAINER_TEST_IMAGE
-
-
-# Works as soon as https://github.com/sass/node-sass/issues/1589 is solved
-#docker-image:
-#  stage: build
-#  services:
-#  - docker:dind
-#  script:
-#  - docker info
-#  - sh build-ubuntu.sh
-#  - gulp
-#  - docker login -u gitlab-ci-token -p "$CI_BUILD_TOKEN" registry.gitlab.com
-#  - docker build -t $CONTAINER_TEST_IMAGE .
-#  - docker push $CONTAINER_TEST_IMAGE
-
-
-
 docker-image:
   stage: build
   image: ubuntu:16.04
@@ -67,6 +39,7 @@ firefox-extension:
   - sh build-ubuntu.sh
   - cd build/firefox/ && jpm xpi && cd ../../ && cp /builds/psono/psono-client/build/firefox/psonopw.xpi "$CI_BUILD_REF_NAME.psono.PW.firefox.xpi"
   artifacts:
+    name: "firefox_$CI_BUILD_REF_NAME"
     paths:
     - "$CI_BUILD_REF_NAME.psono.PW.firefox.xpi"
 
@@ -75,6 +48,7 @@ chrome-extension:
   script:
   - sh build-ubuntu.sh
   artifacts:
+    name: "chrome_$CI_BUILD_REF_NAME"
     paths:
     - build/chrome/
 
@@ -92,37 +66,9 @@ job-release-docker:
   only:
     - master
 
-#job-release-artifacts:
-#  stage: release
-#  image: docker:git
-#  services:
-#  - docker:dind
-#  script:
-#    - sh build-ubuntu.sh
-#    - gulp xpiunsigned
-#  only:
-#    - master
-
 job-deploy:
   stage: deploy
   script:
     - ./deploy.sh
   only:
     - master
-
-
-#before_script:
-#  - docker info
-#  - /usr/local/bin/docker-compose -f docker-compose-test.yml kill
-#  - /usr/local/bin/docker-compose -f docker-compose-test.yml rm -f
-#  - /usr/local/bin/docker-compose -f docker-compose-test.yml build
-
-#test_image_chrome:
-#  script:
-#    - /usr/local/bin/docker-compose -f docker-compose-test.yml run password-client-image-test bash -c "(test -e /tmp/.X99-lock || /usr/bin/Xvfb :99 &) && karma start ./unittests/karma-chrome.conf.js"
-#    - /usr/local/bin/docker-compose -f docker-compose-test.yml stop
-#
-#test_image_firefox:
-#  script:
-#    - /usr/local/bin/docker-compose -f docker-compose-test.yml run password-client-image-test bash -c "(test -e /tmp/.X99-lock || /usr/bin/Xvfb :99 &) && karma start ./unittests/karma-firefox.conf.js"
-#    - /usr/local/bin/docker-compose -f docker-compose-test.yml stop
