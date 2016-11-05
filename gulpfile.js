@@ -80,14 +80,14 @@ gulp.task('build-firefox', function() {
 
     gulp.src(['src/common/data/js/**/*',
         '!src/common/data/js/service/browser-client.js'])
-        // .pipe(minify({
-        //     ext:{
-        //         min:'.js'
-        //     },
-        //     ignoreFiles: ['.min.js'],
-        //     noSource: true,
-        //     preserveComments: 'some'
-        // }))
+        .pipe(minify({
+            ext:{
+                min:'.js'
+            },
+            ignoreFiles: ['.min.js'],
+            noSource: true,
+            preserveComments: 'some'
+        }))
         .pipe(gulp.dest('build/firefox/data/js'));
 
     gulp.src('src/common/data/view/**/*.html')
@@ -100,57 +100,57 @@ gulp.task('build-firefox', function() {
         '!src/common/data/sass'
     ])
         .pipe(remove_code({ firefox: true }))
-        //.pipe(htmlmin({collapseWhitespace: true}))
+        .pipe(htmlmin({collapseWhitespace: true}))
         .pipe(gulp.dest('build/firefox/data'));
 
     gulp.src(['src/firefox/**/*'])
         .pipe(gulp.dest('build/firefox'));
 
-
-
-    // gulp.src([
-    //     'src/common/data/**/*',
-    //     '!src/common/data/view/**/*',
-    //     '!src/common/data/js/service/browser-client.js',
-    //     '!src/common/data/{sass,sass/**}',
-    //     '!src/common/data/img/**/*',
-    //     '!src/common/data/fonts/**/*'
-    // ])
-    //     .pipe(remove_code({ firefox: true }))
-    //     .pipe(gulp.dest('build/firefox/data'));
-    //
-    // gulp.src('src/common/data/view/**/*.html')
-    //     .pipe(template_cache('templates.js', { module:'passwordManagerApp', root: 'view/' }))
-    //     .pipe(gulp.dest('build/firefox/data/view'));
-    //
-    // gulp.src(['src/common/data/img/**/*'])
-    //     .pipe(gulp.dest('build/firefox/data/img'));
-    //
-    // gulp.src(['src/common/data/fonts/**/*'])
-    //     .pipe(gulp.dest('build/firefox/data/fonts'));
-    //
-    // gulp.src(['src/firefox/**/*'])
-    //     .pipe(gulp.dest('build/firefox'));
 });
 
 /**
  * Creates the Chrome build folder
  */
 gulp.task('build-chrome', function() {
-    gulp.src([
-        'src/common/data/**/*',
-        '!src/common/data/view/**/*',
-        '!src/common/data/js/service/browser-client.js',
-        '!src/common/data/{sass,sass/**}'
-    ])
-        .pipe(gulp.dest('build/chrome/data'));
+
+    gulp.src(['src/common/data/css/**/*'])
+        .pipe(cleanCSS({compatibility: 'ie8'}))
+        .pipe(gulp.dest('build/chrome/data/css'));
+
+    gulp.src(['src/common/data/fonts/**/*'])
+        .pipe(gulp.dest('build/chrome/data/fonts'));
+
+    gulp.src(['src/common/data/img/**/*'])
+        .pipe(gulp.dest('build/chrome/data/img'));
+
+    gulp.src(['src/common/data/js/**/*',
+        '!src/common/data/js/service/browser-client.js'])
+        .pipe(minify({
+            ext:{
+                min:'.js'
+            },
+            ignoreFiles: ['.min.js'],
+            noSource: true,
+            preserveComments: 'some'
+        }))
+        .pipe(gulp.dest('build/chrome/data/js'));
 
     gulp.src('src/common/data/view/**/*.html')
+        .pipe(remove_code({ chrome: true }))
         .pipe(template_cache('templates.js', { module:'passwordManagerApp', root: 'view/' }))
         .pipe(gulp.dest('build/chrome/data/view'));
 
+    gulp.src([
+        'src/common/data/*',
+        '!src/common/data/sass'
+    ])
+        .pipe(remove_code({ chrome: true }))
+        .pipe(htmlmin({collapseWhitespace: true}))
+        .pipe(gulp.dest('build/chrome/data'));
+
     gulp.src(['src/chrome/**/*'])
         .pipe(gulp.dest('build/chrome'));
+    
 });
 
 gulp.task('default', ['sass', 'build-chrome', 'build-firefox', 'build-webserver']);
