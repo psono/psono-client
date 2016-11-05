@@ -151,6 +151,18 @@ For unittest you have some additional dependencies.
     
         gulp unittestwatch
     
+    
+# Debug
+
+### Firefox:
+
+We assume you have jpm and firefox developer edition intalled, then you can debug the firefox extension with:
+
+        gulp
+        cd ./password-manager-browser-plugins/build/firefox
+        jpm run -b "path/to/developer-firefox-edition"
+    
+    
 
 # Documentation
 

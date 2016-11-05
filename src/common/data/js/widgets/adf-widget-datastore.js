@@ -29,9 +29,9 @@
      * Main Controller for the datastore widget
      */
     module.controller('datastoreController', ["$scope", "config", "manager", "managerDatastorePassword",
-        "$uibModal", "itemBlueprint", "managerAdfWidget", "$timeout",
+        "$uibModal", "itemBlueprint", "managerAdfWidget", "managerSecret", "$timeout",
         function($scope, config, manager, managerDatastorePassword,
-                 $uibModal, itemBlueprint, managerAdfWidget, $timeout){
+                 $uibModal, itemBlueprint, managerAdfWidget, managerSecret, $timeout){
 
             var contextMenusOpen = 0;
 
@@ -161,11 +161,13 @@
 
                 /**
                  * Triggered once someone clicks on a node entry
+                 * Forwards to the opener of the "open-secret.html" page
                  *
                  * @param item The item in question
                  * @param path The path to the item
                  */
                 onItemClick: function (item, path) {
+                    return managerSecret.onItemClick(item, path);
                 },
 
                 /**

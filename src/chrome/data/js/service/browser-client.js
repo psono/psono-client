@@ -1,7 +1,7 @@
 (function(angular, $, window) {
     'use strict';
 
-    var browserClient = function($rootScope, $q, $templateRequest) {
+    var browserClient = function($rootScope, $q, $templateRequest, $http) {
 
         var registrations = {};
 
@@ -204,6 +204,6 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("browserClient", ['$rootScope', '$q', '$templateRequest', browserClient]);
+    app.factory("browserClient", ['$rootScope', '$q', '$templateRequest', '$http', browserClient]);
 
 }(angular, $, window));
