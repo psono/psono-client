@@ -68,6 +68,12 @@ panel.port.on('logout', function(data) {
     onLogout("panel", data);
 });
 
+
+
+panel.port.on('get-config', function() {
+    panel.port.emit('get-config', {data: JSON.parse(self.data.load('config.json'))});
+});
+
 panel.port.on('fillpassword-active-tab', function(data) {
     allPagesByTabID[tabs.activeTab.id].port.emit('fillpassword', data);
 });
@@ -86,7 +92,7 @@ panel.port.on('resize', function (data) {
 var openTab = function (data) {
 
     var tab = {
-        url: "resource://psonopw" + data.url
+        url: "resource://psonopw/data/" + data.url
     };
 
     tabs.open(tab);
@@ -113,7 +119,7 @@ var on_storage_get_item = function(payload) {
         var update = [];
         var leafs = payload.data;
         for (var ii = 0; ii < leafs.length; ii++) {
-            if (endsWith(receivers["website-password-refresh"][payload.id].parsed_url.authority, leafs[ii].urlfilter)) {
+            if (typeof(leafs[ii].urlfilter) != 'undefined' && endsWith(receivers["website-password-refresh"][payload.id].parsed_url.authority, leafs[ii].urlfilter)) {
                 update.push({
                     secret_id: leafs[ii].secret_id,
                     name: leafs[ii].name
@@ -139,6 +145,8 @@ var on_get_active_tab_url = function() {
     panel.port.emit('get-active-tab-url', {data: tabs.activeTab.url});
 };
 panel.port.on('get-active-tab-url', on_get_active_tab_url);
+
+
 
 /**
  * forwards the decrypted secret to the sender
@@ -188,8 +196,8 @@ function handleChange(state) {
 }
 
 var button = ToggleButton({
-    id: "my-button",
-    label: "my button",
+    id: "psono-panel",
+    label: "Psono Panel",
     icon: {
         "16": "./img/icon-16.png",
         "32": "./img/icon-32.png",
@@ -237,8 +245,7 @@ mod.PageMod({
         self.data.url("./index.html*"),
         self.data.url("./main.html*"),
         self.data.url("./open-secret.html*"),
-        self.data.url("./register.html*"),
-        self.data.url("./test.html*")
+        self.data.url("./register.html*")
     ],
     contentScriptFile: [
         "./js/lib/ecma-nacl.js",
@@ -275,7 +282,6 @@ mod.PageMod({
         "./js/main.js",
         "./js/widgets/adf-dashboard-controller.js",
         "./js/service/api-client.js",
-        "./js/service/config-loader.js",
         "./js/service/helper.js",
         "./js/service/message.js",
         "./js/service/item-blueprint.js",
@@ -297,6 +303,8 @@ mod.PageMod({
         "./js/service/browser-client.js",
         "./js/service/password-generator.js",
         "./view/templates.js"
+        // "./js/lib/tether.js",
+        // "./js/lib/drop.js"
     ],
     onAttach: function(worker) {
 
@@ -306,6 +314,14 @@ mod.PageMod({
 
         worker.port.on('login', function(data) {
             onLogout("worker", data);
+        });
+
+        worker.port.on('get-version', function() {
+            worker.port.emit('get-version', {data: self.data.load('VERSION.txt')});
+        });
+
+        worker.port.on('get-config', function() {
+            worker.port.emit('get-config', {data: JSON.parse(self.data.load('config.json'))});
         });
 
         worker.port.on('fillpassword', onFillpassword);
@@ -343,11 +359,11 @@ mod.PageMod({
         "./css/contentscript.css"
     ],
     contentScriptFile: [
-        self.data.url("./js/lib/tether.js"),
-        self.data.url("./js/lib/drop.js"),
-        self.data.url("./js/lib/jquery-2.1.4.js"),
-        self.data.url("./js/formfill-browser-client.js"),
-        self.data.url("./js/formfill.js")
+        "./js/lib/tether.js",
+        "./js/lib/drop.js",
+        "./js/lib/jquery-2.1.4.js",
+        "./js/formfill-browser-client.js",
+        "./js/formfill.js"
     ],
     onAttach: function(worker) {
         /**

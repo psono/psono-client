@@ -1,7 +1,7 @@
 (function(angular, uuid) {
     'use strict';
 
-    var managerDatastorePassword = function($q, $rootScope, managerSecret, managerDatastore, managerShare, passwordGenerator, itemBlueprint, helper) {
+    var managerDatastorePassword = function($q, $rootScope, managerSecret, managerDatastore, managerShare, passwordGenerator, itemBlueprint, helper, browserClient) {
 
 
         /**
@@ -330,6 +330,10 @@
 
                 var onSuccess = function (data) {
 
+                    if (typeof data == 'undefined') {
+                        return;
+                    }
+
                     var share_rights_dict = {};
                     for (var i = data.share_rights.length - 1; i >= 0; i--) {
                         share_rights_dict[data.share_rights[i].share_id] = data.share_rights[i];
@@ -383,6 +387,8 @@
         var save_datastore = function (datastore, paths) {
             var type = "password";
             var description = "default";
+
+            console.log(paths);
 
             // datastore has changed, so lets regenerate local lookup
             managerDatastore.fill_storage('datastore-password-leafs', datastore, [
@@ -474,7 +480,7 @@
 
                         datastore.items.push(datastore_object);
 
-                        save_datastore(datastore);
+                        save_datastore(datastore, [[]]);
                     }, onError);
             };
 
@@ -922,6 +928,6 @@
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("managerDatastorePassword", ['$q', '$rootScope', 'managerSecret', 'managerDatastore', 'managerShare', 'passwordGenerator', 'itemBlueprint', 'helper', managerDatastorePassword]);
+    app.factory("managerDatastorePassword", ['$q', '$rootScope', 'managerSecret', 'managerDatastore', 'managerShare', 'passwordGenerator', 'itemBlueprint', 'helper', 'browserClient', managerDatastorePassword]);
 
 }(angular, uuid));

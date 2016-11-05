@@ -134,8 +134,8 @@
         });
     }]);
 
-    app.controller('RegisterController', ['$scope', '$route', '$filter', 'managerDatastoreUser', 'configLoader', 'helper',
-        function ($scope, $route, $filter, managerDatastoreUser, configLoader, helper) {
+    app.controller('RegisterController', ['$scope', '$route', '$filter', 'managerDatastoreUser', 'browserClient', 'helper',
+        function ($scope, $route, $filter, managerDatastoreUser, browserClient, helper) {
 
             var onSuccess = function(config) {
 
@@ -155,7 +155,7 @@
 
             };
 
-            configLoader.get_config().then(onSuccess, onError);
+            browserClient.get_config().then(onSuccess, onError);
 
 
             $scope.select_server = function (server) {
@@ -244,8 +244,8 @@
             };
         }]);
 
-    app.controller('ActivationController', ['$scope', '$route', '$routeParams', 'managerDatastoreUser', 'configLoader', 'helper',
-        function ($scope, $route, $routeParams, managerDatastoreUser, configLoader, helper) {
+    app.controller('ActivationController', ['$scope', '$route', '$routeParams', 'managerDatastoreUser', 'browserClient', 'helper',
+        function ($scope, $route, $routeParams, managerDatastoreUser, browserClient, helper) {
 
             var onSuccess = function(config) {
 
@@ -265,7 +265,7 @@
 
             };
 
-            configLoader.get_config().then(onSuccess, onError);
+            browserClient.get_config().then(onSuccess, onError);
 
             $scope.select_server = function (server) {
                 //triggered when selecting an server
@@ -452,9 +452,9 @@
         }]);
 
     app.controller('MainController', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'managerDatastorePassword', 'managerDatastoreUser', 'managerSecret', 'browserClient', 'storage',
-        'snapRemote', '$window', '$route', '$routeParams', '$location', '$templateRequest',
+        'snapRemote', '$window', '$route', '$routeParams', '$location',
         function ($scope, $rootScope, $filter, $timeout, manager, managerDatastorePassword, managerDatastoreUser, managerSecret, browserClient, storage,
-                  snapRemote, $window, $route, $routeParams, $location, $templateRequest) {
+                  snapRemote, $window, $route, $routeParams, $location ) {
 
             /* openTab function to pass through */
             $scope.openTab = browserClient.openTab;
@@ -482,7 +482,7 @@
 
             $scope.messages = [];
 
-            $templateRequest('VERSION.txt').then(function(version) {
+            browserClient.loadVersion().then(function(version) {
                 $scope.version = version;
             });
         }]);
@@ -564,9 +564,9 @@
         }]);
 
     app.controller('LoginController', ['$scope', '$rootScope', '$filter', '$timeout', 'managerDatastoreUser', 'browserClient', 'storage',
-        'snapRemote', '$window', '$route', '$routeParams', '$location', 'configLoader', 'helper',
+        'snapRemote', '$window', '$route', '$routeParams', '$location', 'helper',
         function ($scope, $rootScope, $filter, $timeout, managerDatastoreUser, browserClient, storage,
-                  snapRemote, $window, $route, $routeParams, $location, configLoader, helper) {
+                  snapRemote, $window, $route, $routeParams, $location, helper) {
 
             /* openTab function to pass through */
             $scope.openTab = browserClient.openTab;
@@ -592,7 +592,7 @@
 
             };
 
-            configLoader.get_config().then(onSuccess, onError);
+            browserClient.get_config().then(onSuccess, onError);
 
             $scope.select_server = function (server) {
                 //triggered when selecting an server

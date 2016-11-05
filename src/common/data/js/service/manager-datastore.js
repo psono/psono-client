@@ -51,6 +51,10 @@
 
             var onSuccess = function (result) {
 
+                if (typeof(result) == 'undefined') {
+                    return;
+                }
+
                 var stores = result.data['datastores'];
 
                 var datastore_id = '';

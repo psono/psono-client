@@ -53,11 +53,49 @@
         };
 
         /**
+         * returns a promise with the version string
+         *
+         * @returns {Promise}
+         */
+        var loadVersion = function() {
+            if (typeof port === "undefined")
+                return;
+
+            port.emit('get-version', {});
+            return $q(function (resolve) {
+                port.on('get-version', function(payload) {
+                    resolve(payload.data);
+                });
+            });
+        };
+
+        /**
+         * returns a promise with the version string
+         *
+         * @returns {Promise}
+         */
+        var loadConfig = function() {
+
+            if (typeof port === "undefined")
+                return;
+
+            port.emit('get-config', {});
+            return $q(function (resolve) {
+                port.on('get-config', function(payload) {
+                    resolve(payload);
+                });
+            });
+        };
+
+        /**
          * returns the active tabs url
          *
          * @returns {promise}
          */
         var getActiveTabUrl = function() {
+            if (typeof port === "undefined")
+                return;
+
             port.emit('get-active-tab-url', {});
             return $q(function (resolve) {
                 port.on('get-active-tab-url', function(payload) {
@@ -80,6 +118,9 @@
          * @param data
          */
         var emit = function (event, data) {
+            if (typeof port === "undefined")
+                return;
+
             port.emit(event, data);
             $rootScope.$broadcast(event, '');
         };
@@ -91,6 +132,8 @@
          * @param data
          */
         var emitSec = function(event, data) {
+            if (typeof port === "undefined")
+                return
             port.emit(event, data);
         };
 
@@ -103,6 +146,8 @@
          * @returns {boolean}
          */
         var on = function (event, myFunction) {
+            if (typeof port === "undefined")
+                return;
 
             if(events.indexOf(event) == -1) {
                 console.log("browserclient received registration for unknown event: " + event);
@@ -111,6 +156,60 @@
 
             port.on(event, myFunction);
             $rootScope.$on(event, myFunction);
+        };
+
+
+        var config = {};
+
+        /**
+         * helper function to return either the config itself or if key has been specified only the config part for the key
+         *
+         * @param key
+         * @returns {*}
+         * @private
+         */
+        var _get_config = function(key) {
+
+            if (typeof(key) == 'undefined') {
+                return config;
+            }
+            if (config.hasOwnProperty(key)) {
+                return config[key];
+            }
+
+            return null;
+        };
+
+        /**
+         * Loads the config (or only the part specified by the "key") fresh or from "cache"
+         *
+         * @param key
+         * @returns {*}
+         */
+        var get_config = function (key) {
+            return $q(function(resolve, reject) {
+
+                if (Object.keys(config).length === 0) {
+
+
+                    var onSuccess = function(data) {
+                        console.log(data);
+                        config = data.data;
+                        return resolve(_get_config(key));
+                    };
+
+                    var onError = function(data) {
+                        reject(data);
+                    };
+
+                    loadConfig()
+                        .then(onSuccess, onError);
+
+                } else {
+                    return resolve(_get_config(key));
+                }
+            });
+
         };
 
         /**
@@ -208,11 +307,14 @@
             resize: resize,
             openTab: openTab,
             getBaseUrl: getBaseUrl,
+            loadVersion: loadVersion,
+            loadConfig: loadConfig,
             getActiveTabUrl: getActiveTabUrl,
             testBackgroundPage: testBackgroundPage,
             emit: emit,
             emitSec: emitSec,
-            on: on
+            on: on,
+            get_config:get_config
         };
     };
 

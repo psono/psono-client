@@ -6,7 +6,7 @@
         'logout'
     ];
 
-    var browserClient = function($rootScope, $q, configLoader) {
+    var browserClient = function($rootScope, $q, $templateRequest, $http) {
         /**
          * Resize the panel according to the provided width and height
          *
@@ -22,7 +22,7 @@
          * @param url
          */
         var openTab = function(url) {
-            window.open('/src/common' + url, '_blank');
+            window.open(url, '_blank');
         };
 
         /**
@@ -39,7 +39,31 @@
 
             };
 
-            return configLoader.get_config('base_url').then(onSuccess, onError);
+            return get_config('base_url').then(onSuccess, onError);
+        };
+
+        /**
+         * returns a promise with the version string
+         *
+         * @returns {Promise}
+         */
+        var loadVersion = function() {
+            return $templateRequest('./VERSION.txt');
+        };
+
+        /**
+         * returns a promise with the version string
+         *
+         * @returns {Promise}
+         */
+        var loadConfig = function() {
+
+            var req = {
+                method: 'GET',
+                url: "config.json"
+            };
+
+            return $http(req);
         };
 
         /**
@@ -97,19 +121,75 @@
             $rootScope.$on(event, myFunction);
         };
 
+
+        var config = {};
+
+        /**
+         * helper function to return either the config itself or if key has been specified only the config part for the key
+         *
+         * @param key
+         * @returns {*}
+         * @private
+         */
+        var _get_config = function(key) {
+
+            if (typeof(key) == 'undefined') {
+                return config;
+            }
+            if (config.hasOwnProperty(key)) {
+                return config[key];
+            }
+
+            return null;
+        };
+
+        /**
+         * Loads the config (or only the part specified by the "key") fresh or from "cache"
+         *
+         * @param key
+         * @returns {*}
+         */
+        var get_config = function (key) {
+            return $q(function(resolve, reject) {
+
+                if (Object.keys(config).length === 0) {
+
+
+                    var onSuccess = function(data) {
+                        config = data.data;
+                        return resolve(_get_config(key));
+                    };
+
+                    var onError = function(data) {
+                        reject(data);
+                    };
+
+                    loadConfig()
+                        .then(onSuccess, onError);
+
+                } else {
+                    return resolve(_get_config(key));
+                }
+            });
+
+        };
+
         return {
             resize: resize,
             openTab: openTab,
             getBaseUrl: getBaseUrl,
+            loadVersion: loadVersion,
+            loadConfig: loadConfig,
             getActiveTabUrl: getActiveTabUrl,
             testBackgroundPage: testBackgroundPage,
             emit: emit,
             emitSec: emitSec,
-            on: on
+            on: on,
+            get_config:get_config
         };
     };
 
     var app = angular.module('passwordManagerApp');
-    app.factory("browserClient", ['$rootScope', '$q', 'configLoader', browserClient]);
+    app.factory("browserClient", ['$rootScope', '$q', '$templateRequest', '$http', browserClient]);
 
 }(angular, $, window));

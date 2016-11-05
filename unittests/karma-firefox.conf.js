@@ -35,7 +35,6 @@
                 "../src/common/data/js/widgets/adf-widget-accept-share.js",
                 "../src/common/data/js/main.js",
                 "../src/common/data/js/service/api-client.js",
-                "../src/common/data/js/service/config-loader.js",
                 "../src/common/data/js/service/helper.js",
                 "../src/common/data/js/service/item-blueprint.js",
                 "../src/common/data/js/service/crypto-library.js",

@@ -120,7 +120,7 @@
          */
         var onItemClick = function(item) {
             if (itemBlueprint.blueprint_has_on_click_new_tab(item.type)) {
-                browserClient.openTab('/data/open-secret.html#/secret/'+item.type+'/'+item.secret_id);
+                browserClient.openTab('open-secret.html#/secret/'+item.type+'/'+item.secret_id);
             }
         };
 

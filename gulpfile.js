@@ -67,29 +67,70 @@ gulp.task('build-webserver', function() {
  * Creates the Firefox build folder
  */
 gulp.task('build-firefox', function() {
-    gulp.src([
-        'src/common/data/**/*',
-        '!src/common/data/view/**/*',
-        '!src/common/data/js/service/browser-client.js',
-        '!src/common/data/{sass,sass/**}',
-        '!src/common/data/img/**/*',
-        '!src/common/data/fonts/**/*'
-    ])
-        .pipe(remove_code({ firefox: true }))
-        .pipe(gulp.dest('build/firefox/data'));
 
-    gulp.src('src/common/data/view/**/*.html')
-        .pipe(template_cache('templates.js', { module:'passwordManagerApp', root: 'view/' }))
-        .pipe(gulp.dest('build/firefox/data/view'));
-
-    gulp.src(['src/common/data/img/**/*'])
-        .pipe(gulp.dest('build/firefox/data/img'));
+    gulp.src(['src/common/data/css/**/*'])
+        .pipe(cleanCSS({compatibility: 'ie8'}))
+        .pipe(gulp.dest('build/firefox/data/css'));
 
     gulp.src(['src/common/data/fonts/**/*'])
         .pipe(gulp.dest('build/firefox/data/fonts'));
 
+    gulp.src(['src/common/data/img/**/*'])
+        .pipe(gulp.dest('build/firefox/data/img'));
+
+    gulp.src(['src/common/data/js/**/*',
+        '!src/common/data/js/service/browser-client.js'])
+        // .pipe(minify({
+        //     ext:{
+        //         min:'.js'
+        //     },
+        //     ignoreFiles: ['.min.js'],
+        //     noSource: true,
+        //     preserveComments: 'some'
+        // }))
+        .pipe(gulp.dest('build/firefox/data/js'));
+
+    gulp.src('src/common/data/view/**/*.html')
+        .pipe(remove_code({ firefox: true }))
+        .pipe(template_cache('templates.js', { module:'passwordManagerApp', root: 'view/' }))
+        .pipe(gulp.dest('build/firefox/data/view'));
+
+    gulp.src([
+        'src/common/data/*',
+        '!src/common/data/sass'
+    ])
+        .pipe(remove_code({ firefox: true }))
+        //.pipe(htmlmin({collapseWhitespace: true}))
+        .pipe(gulp.dest('build/firefox/data'));
+
     gulp.src(['src/firefox/**/*'])
         .pipe(gulp.dest('build/firefox'));
+
+
+
+    // gulp.src([
+    //     'src/common/data/**/*',
+    //     '!src/common/data/view/**/*',
+    //     '!src/common/data/js/service/browser-client.js',
+    //     '!src/common/data/{sass,sass/**}',
+    //     '!src/common/data/img/**/*',
+    //     '!src/common/data/fonts/**/*'
+    // ])
+    //     .pipe(remove_code({ firefox: true }))
+    //     .pipe(gulp.dest('build/firefox/data'));
+    //
+    // gulp.src('src/common/data/view/**/*.html')
+    //     .pipe(template_cache('templates.js', { module:'passwordManagerApp', root: 'view/' }))
+    //     .pipe(gulp.dest('build/firefox/data/view'));
+    //
+    // gulp.src(['src/common/data/img/**/*'])
+    //     .pipe(gulp.dest('build/firefox/data/img'));
+    //
+    // gulp.src(['src/common/data/fonts/**/*'])
+    //     .pipe(gulp.dest('build/firefox/data/fonts'));
+    //
+    // gulp.src(['src/firefox/**/*'])
+    //     .pipe(gulp.dest('build/firefox'));
 });
 
 /**
@@ -127,6 +168,14 @@ gulp.task('watch', ['sass', 'build-chrome', 'build-firefox', 'build-webserver'],
     gulp.watch('src/firefox/**/*', ['build-firefox']);
     gulp.watch('src/webserver/**/*', ['build-webserver']);
     gulp.watch('src/common/data/sass/**/*.scss', ['sass', 'build-chrome', 'build-firefox', 'build-webserver']);
+});
+
+gulp.task('watchpost', function() {
+    child_process.exec("cd build/firefox/ && jpm watchpost --post-url http://localhost:8888/", function (err, stdout, stderr) {
+        console.log(stdout);
+        console.log(stderr);
+        cb(err);
+    });
 });
 
 /**
