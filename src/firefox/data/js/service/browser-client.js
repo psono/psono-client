@@ -48,7 +48,7 @@
          */
         var getBaseUrl = function() {
             return $q(function (resolve) {
-                resolve("resource://psonopw/");
+                resolve("resource://psonopw/data/");
             });
         };
 
