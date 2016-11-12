@@ -62,7 +62,7 @@
             ],
             exclude: [],
             preprocessors: {
-                '../src/**/*.js': ['coverage']
+                '../src/**/!(*lib)/*.js': ['coverage']
             },
             reporters: ['progress'],
             port: 9876,
