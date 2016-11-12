@@ -64,7 +64,7 @@
             preprocessors: {
                 '../src/**/*.js': ['coverage']
             },
-            reporters: ['progress', 'coverage'],
+            reporters: ['progress'],
             port: 9876,
             colors: true,
             logLevel: config.LOG_INFO,
