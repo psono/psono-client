@@ -37,6 +37,7 @@
                 "../src/common/data/js/service/api-client.js",
                 "../src/common/data/js/service/helper.js",
                 "../src/common/data/js/service/item-blueprint.js",
+                "../src/common/data/js/service/share-blueprint.js",
                 "../src/common/data/js/service/crypto-library.js",
                 "../src/common/data/js/service/storage.js",
                 "../src/common/data/js/service/settings.js",
@@ -63,7 +64,7 @@
             preprocessors: {
                 '../src/**/*.js': ['coverage']
             },
-            reporters: ['progress'],
+            reporters: ['progress', 'coverage'],
             port: 9876,
             colors: true,
             logLevel: config.LOG_INFO,

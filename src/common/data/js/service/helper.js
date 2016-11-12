@@ -71,10 +71,10 @@
          * @returns {boolean}
          */
         var array_starts_with = function(array1, array2) {
-            if (!array1){
+            if (! (array1 instanceof Array)){
                 return false;
             }
-            if (!array2){
+            if (! (array2 instanceof Array)){
                 return false;
             }
 
@@ -98,7 +98,7 @@
         };
 
         /**
-         * creates a list entries based on datastore tree object
+         * creates a list of items that are in a given datastore tree object
          *
          * @param obj datastore tree object
          * @param list the list object we want to fill
@@ -144,10 +144,10 @@
             if (username.substring(0, 1) == "-") {
                 return 'Usernames may not start with a dash.';
             }
-            if (username.substring(-1) == '.') {
+            if (username.substring(username.length -1) == '.') {
                 return 'Usernames may not end with a period.';
             }
-            if (username.substring(-1) == '-') {
+            if (username.substring(username.length -1) == '-') {
                 return 'Usernames may not end with a dash.';
             }
             if (username.indexOf('..') !== -1) {

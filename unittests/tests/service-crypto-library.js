@@ -1,16 +1,16 @@
 (function () {
-    describe('cryptoLibrary suite', function () {
+    describe('Service: cryptoLibrary test suite', function () {
 
         beforeEach(module('passwordManagerApp'));
 
         it('cryptoLibrary exists', inject(function (cryptoLibrary) {
-            expect(cryptoLibrary.randomBytes(16).length).toBe(16);
-            expect(cryptoLibrary.randomBytes(32).length).toBe(32);
-            return expect(cryptoLibrary.randomBytes(64).length).toBe(64);
+            expect(cryptoLibrary).toBeDefined();
         }));
 
-        it('randomBytes returns the specified amount of bytes', inject(function (cryptoLibrary) {
-            return expect(cryptoLibrary).toBeDefined();
+        it('cryptoLibrary randomBytes', inject(function (cryptoLibrary) {
+            expect(cryptoLibrary.randomBytes(16).length).toBe(16);
+            expect(cryptoLibrary.randomBytes(32).length).toBe(32);
+            expect(cryptoLibrary.randomBytes(64).length).toBe(64);
         }));
 
         /*
@@ -163,4 +163,4 @@
         }));
     });
 
-}).call(this);
+}).call();
