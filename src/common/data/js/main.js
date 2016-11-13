@@ -168,6 +168,7 @@
             $scope.changing = function (url) {
                 //triggered when typing an url
                 $scope.selected_server = {title: url, url: url};
+                $scope.selected_server_url = url;
                 $scope.selected_server_domain = helper.get_domain(url);
                 $scope.filtered_servers = $filter('filter')($scope.servers, {url: url});
             };
@@ -244,8 +245,8 @@
             };
         }]);
 
-    app.controller('ActivationController', ['$scope', '$route', '$routeParams', 'managerDatastoreUser', 'browserClient', 'helper',
-        function ($scope, $route, $routeParams, managerDatastoreUser, browserClient, helper) {
+    app.controller('ActivationController', ['$scope', '$route', '$routeParams', '$filter', 'managerDatastoreUser', 'browserClient', 'helper',
+        function ($scope, $route, $routeParams, $filter, managerDatastoreUser, browserClient, helper) {
 
             var onSuccess = function(config) {
 
@@ -277,6 +278,7 @@
             $scope.changing = function (url) {
                 //triggered when typing an url
                 $scope.selected_server = {title: url, url: url};
+                $scope.selected_server_url = url;
                 $scope.selected_server_domain = helper.get_domain(url);
                 $scope.filtered_servers = $filter('filter')($scope.servers, {url: url});
             };
