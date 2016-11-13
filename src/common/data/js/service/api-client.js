@@ -52,6 +52,7 @@
                         data.data = JSON.parse(cryptoLibrary.decrypt_data(data.data.text, data.data.nonce, session_secret_key));
                     }
 
+                    // TODO remove console.log before putting in production
                     console.log(data);
                     return data;
                 };
