@@ -20,7 +20,6 @@
             version = '1.2.3.4';
 
             $httpBackend.when('GET', "./VERSION.txt").respond(version);
-
             $httpBackend.when('GET', "view/index.html").respond({});
 
             $httpBackend.flush();

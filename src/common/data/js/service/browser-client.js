@@ -14,7 +14,7 @@
          * @param width
          */
         var resize = function (height, width) {
-            console.log("addon.js browserClient.resize triggered");
+            // console.log("addon.js browserClient.resize triggered");
         };
 
         /**
