@@ -604,6 +604,7 @@
             $scope.changing = function (url) {
                 //triggered when typing an url
                 $scope.selected_server = {title: url, url: url};
+                $scope.selected_server_url = url;
                 $scope.selected_server_domain = helper.get_domain(url);
                 $scope.filtered_servers = $filter('filter')($scope.servers, {url: url});
             };
@@ -646,9 +647,10 @@
         }]);
 
     app.controller('TestCtrl', ['$scope', '$routeParams', function ($scope, $routeParams) {
-        this.name = "TestCtrl";
-        this.params = $routeParams;
-        $scope.routeParams = $routeParams;
+        $scope.has_head = 'yes';
+        $scope.executor = function() {
+            $scope.has_head = 'no';
+        };
     }]);
 
     app.controller('SettingsController', ['$scope', '$routeParams', 'settings', 'managerDatastoreSetting',

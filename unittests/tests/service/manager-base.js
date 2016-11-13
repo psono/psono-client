@@ -14,6 +14,25 @@
         var fake_user_secret_key = '9f3edbf7760d8ec1e8fd4a9c623b4fe569f324bf42c78770ef0a40a56495f92d';
         var dummy_not_blocked = '1234567';
 
+
+        // beforeEach(inject(function (storage) {
+        //     try {
+        //         storage.insert('config', {key: 'user_token', value: fake_user_token});
+        //         storage.insert('config', {key: 'session_secret_key', value: fake_session_secret_key});
+        //         storage.insert('config', {key: 'user_private_key', value: fake_user_private_key});
+        //         storage.insert('config', {key: 'user_secret_key', value: fake_user_secret_key});
+        //         storage.insert('config', {key: 'dummy_not_blocked', value: dummy_not_blocked});
+        //     } catch(e) {
+        //         storage.update('config', {key: 'user_token', value: fake_user_token});
+        //         storage.update('config', {key: 'session_secret_key', value: fake_session_secret_key});
+        //         storage.update('config', {key: 'user_private_key', value: fake_user_private_key});
+        //         storage.update('config', {key: 'user_secret_key', value: fake_user_secret_key});
+        //         storage.update('config', {key: 'dummy_not_blocked', value: dummy_not_blocked});
+        //     }
+        // }));
+
+
+
         var mockedStorage;
         beforeEach(function () {
             mockedStorage = {
@@ -74,7 +93,6 @@
             var data = "testdata";
 
             var encrypted_data = managerBase.encrypt_secret_key(data);
-            console.log(encrypted_data);
             var decrypted_data = cryptoLibrary.decrypt_data(encrypted_data['text'], encrypted_data['nonce'],fake_user_secret_key);
             expect(decrypted_data).toBe(data);
         }));
