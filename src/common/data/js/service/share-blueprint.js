@@ -124,6 +124,14 @@
                     registrations['search_user'](search_username).then(onSuccess, onError)
 
                 },
+                /**
+                 * will open a new tab
+                 *
+                 * @param content
+                 */
+                onOpenSecret: function(content) {
+
+                },
                 onEditModalOpen: function(node) {
                     var showInEditOnly = ["user_name", "user_id", "user_username", "user_public_key"];
                     for (var i = 0; i < node.fields.length; i++) {
@@ -211,7 +219,6 @@
          * @returns {boolean}
          */
         var has_advanced = function (item) {
-            var found = false;
 
             for (var i = 0; i < item.fields.length; i++) {
                 if (item.fields[i].hasOwnProperty('position') && item.fields[i]['position'] === 'advanced') {
@@ -219,7 +226,7 @@
                 }
             }
 
-            return found;
+            return false;
         };
 
         /**
@@ -241,7 +248,9 @@
          */
         var blueprint_on_open_secret = function (key, content) {
             var bp = get_blueprint(key);
-            bp.onOpenSecret(content);
+            if (bp.hasOwnProperty('onOpenSecret')) {
+                bp.onOpenSecret(content);
+            }
         };
 
         /**

@@ -517,7 +517,9 @@
          */
         var blueprint_on_open_secret = function (key, content) {
             var bp = get_blueprint(key);
-            bp.onOpenSecret(content);
+            if (bp.hasOwnProperty('onOpenSecret')) {
+                bp.onOpenSecret(content);
+            }
         };
 
         /**
