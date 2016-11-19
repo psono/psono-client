@@ -1,6 +1,18 @@
 (function(angular) {
     'use strict';
 
+    /**
+     * @ngdoc service
+     * @name psonocli.itemBlueprint
+     * @description
+     *
+     * Service that provides the possible item blueprints e.g.:
+     * - website_password
+     * - note
+     *
+     * Should later be extended to provide licenses, files, ...
+     */
+
 
     var itemBlueprint = function($rootScope, $window, $uibModal, helper) {
 
@@ -404,9 +416,16 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.itemBlueprint#get_additional_functions
+         * @methodOf psonocli.itemBlueprint
+         *
+         * @description
          * returns an overview of all available additional functions with name id and function
          *
-         * @returns {Array} The list of all blueprints
+         * @param {object} item The blueprint item which should be searched for additional functions
+         *
+         * @returns {Array} The list of all additional functions
          */
         var get_additional_functions = function(item) {
 
@@ -431,6 +450,11 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.itemBlueprint#get_blueprints
+         * @methodOf psonocli.itemBlueprint
+         *
+         * @description
          * returns an overview of all available blueprints with name and id
          *
          * @returns {Array} The list of all blueprints
@@ -448,11 +472,16 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.itemBlueprint#get_blueprint
+         * @methodOf psonocli.itemBlueprint
+         *
+         * @description
          * returns the blueprint for a specific key
          *
-         * @param key The key of the blueprint
+         * @param {string} key The key of the blueprint that we want to have
          *
-         * @returns {object} The blueprint or false
+         * @returns {object|false} The blueprint or false
          */
         var get_blueprint = function (key) {
             if (_blueprints.hasOwnProperty(key)){
@@ -462,47 +491,66 @@
             }
         };
 
+
         /**
+         * @ngdoc
+         * @name psonocli.itemBlueprint#get_default_blueprint_key
+         * @methodOf psonocli.itemBlueprint
+         *
+         * @description
          * returns the key for the default blueprint
          *
-         * @returns {string}
+         * @returns {string} Returns the key of the default blueprint
          */
         var get_default_blueprint_key = function () {
             return _default;
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.itemBlueprint#get_default_blueprint
+         * @methodOf psonocli.itemBlueprint
+         *
+         * @description
          * returns the default blueprint
          *
-         * @returns {Object}
+         * @returns {object} Returns the default blueprint
          */
         var get_default_blueprint = function () {
             return get_blueprint(get_default_blueprint_key());
         };
 
         /**
-         * analyzes the fields of an item to determine if the advanced option is needed
+         * @ngdoc
+         * @name psonocli.itemBlueprint#has_advanced
+         * @methodOf psonocli.itemBlueprint
          *
-         * @param item
-         * @returns {boolean}
+         * @description
+         * analyzes the fields of an item following a blueprint to determine if any field has position advanced
+         *
+         * @param {object} blueprint_item The blueprint item with fields that we want to search
+         * @returns {boolean} Returns if the items has fields with position advanced
          */
-        var has_advanced = function (item) {
-            var found = false;
-
-            for (var i = 0; i < item.fields.length; i++) {
-                if (item.fields[i].hasOwnProperty('position') && item.fields[i]['position'] === 'advanced') {
+        var has_advanced = function (blueprint_item) {
+            for (var i = 0; i < blueprint_item.fields.length; i++) {
+                if (blueprint_item.fields[i].hasOwnProperty('position') && blueprint_item.fields[i]['position'] === 'advanced') {
                     return true;
                 }
             }
 
-            return found;
+            return false;
         };
 
         /**
-         * determines weather a specified blueprint needs a new tab on click
+         * @ngdoc
+         * @name psonocli.itemBlueprint#blueprint_has_on_click_new_tab
+         * @methodOf psonocli.itemBlueprint
          *
-         * @param key
-         * @returns {boolean}
+         * @description
+         * determines weather a specified blueprint opens a new tab on click
+         *
+         * @param {string} key The key of the blueprint
+         * @returns {boolean} Returns if the specified blueprint opens a new tab on click
          */
         var blueprint_has_on_click_new_tab = function(key) {
             var bp = get_blueprint(key);
@@ -510,10 +558,15 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.itemBlueprint#blueprint_on_open_secret
+         * @methodOf psonocli.itemBlueprint
+         *
+         * @description
          * triggers open secret function
          *
-         * @param key
-         * @param content
+         * @param {string} key The key of the blueprint
+         * @param {object} content The payload of the "onOpenSecret" call
          */
         var blueprint_on_open_secret = function (key, content) {
             var bp = get_blueprint(key);
@@ -523,12 +576,17 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.itemBlueprint#blueprint_msg_before_open_secret
+         * @methodOf psonocli.itemBlueprint
+         *
+         * @description
          * triggered before the open secret function and returns a message (if applicable) that is sent to the main
          * script
          *
-         * @param key
-         * @param content
-         * @returns {*|{key, content}|{key: string, content: {username: *, password: *}}}
+         * @param {string} key The key of the blueprint
+         * @param {object} content The message for the before open secret call
+         * @returns {object} The message object to send
          */
         var blueprint_msg_before_open_secret = function (key, content) {
             var bp = get_blueprint(key);
@@ -536,10 +594,15 @@
         };
 
         /**
-         * used to register functions
+         * @ngdoc
+         * @name psonocli.itemBlueprint#register
+         * @methodOf psonocli.itemBlueprint
          *
-         * @param key
-         * @param func
+         * @description
+         * used to register functions to bypass circular dependencies
+         *
+         * @param {string} key The key of the function (usually the function name)
+         * @param {function} func The call back function
          */
         var register = function (key, func) {
             registrations[key] = func;
