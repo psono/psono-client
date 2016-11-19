@@ -3,7 +3,7 @@
 
     var app = angular.module('psonocli');
 
-    app.controller('HomeDashboardController', ['$scope', 'localStorageService',
+    app.controller('HomeDashboardCtrl', ['$scope', 'localStorageService',
     function ($scope, localStorageService) {
         var model = localStorageService.get('widgetHomeDashboard');
         if (!model) {
@@ -31,7 +31,7 @@
         });
     }]);
 
-    app.controller('ShareusersDashboardController', ['$scope', 'localStorageService',
+    app.controller('ShareusersDashboardCtrl', ['$scope', 'localStorageService',
     function ($scope, localStorageService) {
         var model = localStorageService.get('widgetShareusersDashboard');
         if (!model) {
@@ -59,7 +59,7 @@
         });
     }]);
 
-    app.controller('AcceptshareDashboardController', ['$scope', 'localStorageService',
+    app.controller('AcceptshareDashboardCtrl', ['$scope', 'localStorageService',
     function ($scope, localStorageService) {
 
         var model = localStorageService.get('widgetAcceptshareDashboard');

@@ -26,9 +26,9 @@
     <link href="css/datastore.css" rel="stylesheet">
 </head>
 <body>
-<div  ng-controller="WrapperController" ng-cloak>
+<div  ng-controller="WrapperCtrl" ng-cloak>
 
-<div ng-if="data.loggedin" ng-controller="MainController">
+<div ng-if="data.loggedin" ng-controller="MainCtrl">
 
     <nav class="navbar navbar-default navbar-static-top">
         <div class="container">
@@ -90,7 +90,7 @@
     </div>
 
 </div>
-<div ng-if="!data.loggedin" ng-controller="LoginController">
+<div ng-if="!data.loggedin" ng-controller="LoginCtrl">
     <!-- Not logged in, show the login form -->
     <div class="wrapper">
 

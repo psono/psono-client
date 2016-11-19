@@ -1,5 +1,5 @@
 (function () {
-    describe('Controller: PanelController test suite', function () {
+    describe('Controller: PanelCtrl test suite', function () {
 
         beforeEach(module('psonocli'));
 
@@ -21,7 +21,7 @@
             $httpBackend = $injector.get('$httpBackend');
 
             $scope = $rootScope.$new();
-            $controller('PanelController', {
+            $controller('PanelCtrl', {
                 $scope: $scope
             });
 

@@ -1,5 +1,5 @@
 (function () {
-    describe('Controller: RegisterController test suite', function () {
+    describe('Controller: RegisterCtrl test suite', function () {
 
         beforeEach(module('psonocli'));
 
@@ -14,7 +14,7 @@
             storage = $injector.get('storage');
 
             $scope = $rootScope.$new();
-            $controller('RegisterController', {
+            $controller('RegisterCtrl', {
                 $scope: $scope
             });
 

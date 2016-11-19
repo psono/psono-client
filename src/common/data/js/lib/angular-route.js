@@ -347,7 +347,7 @@
                  * <example name="$route-service" module="ngRouteExample"
                  *          deps="angular-route.js" fixBase="true">
                  *   <file name="index.html">
-                 *     <div ng-controller="MainController">
+                 *     <div ng-controller="MainCtrl">
                  *       Choose:
                  *       <a href="Book/Moby">Moby</a> |
                  *       <a href="Book/Moby/ch/1">Moby: Ch1</a> |
@@ -381,7 +381,7 @@
                  *   <file name="script.js">
                  *     angular.module('ngRouteExample', ['ngRoute'])
                  *
-                 *      .controller('MainController', function($scope, $route, $routeParams, $location) {
+                 *      .controller('MainCtrl', function($scope, $route, $routeParams, $location) {
      *          $scope.$route = $route;
      *          $scope.$location = $location;
      *          $scope.$routeParams = $routeParams;

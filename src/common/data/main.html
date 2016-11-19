@@ -26,9 +26,9 @@
     <link href="css/main.css" rel="stylesheet">
 </head>
 <body class="dark">
-<div ng-controller="WrapperController" ng-cloak>
+<div ng-controller="WrapperCtrl" ng-cloak>
 
-<div ng-if="data.loggedin" ng-controller="PanelController">
+<div ng-if="data.loggedin" ng-controller="PanelCtrl">
     <form name="searchForm">
         <div class="form-group">
             <input id="datastoresearch" name="datastoresearch" class="form-control" ng-model="datastore.search"
@@ -58,7 +58,7 @@
         </div>
     </form>
 </div>
-<div ng-if="!data.loggedin" ng-controller="LoginController" class="loginbox">
+<div ng-if="!data.loggedin" ng-controller="LoginCtrl" class="loginbox">
     <!-- Not logged in, show the login form -->
     <img src="img/logo.png" id="logo">
 

@@ -56,7 +56,7 @@
                 })
                 .when('/settings', {
                     templateUrl: 'view/settings.html',
-                    controller: 'SettingsController'
+                    controller: 'SettingsCtrl'
                 })
                 .when('/share/pendingshares', {
                     templateUrl: 'view/index-share-shares.html',
@@ -174,7 +174,20 @@
         });
     }]);
 
-    app.controller('RegisterController', ['$scope', '$route', '$filter', 'managerDatastoreUser', 'browserClient', 'helper',
+    /**
+     * @ngdoc controller
+     * @name psonocli.controller:RegisterCtrl
+     * @requires $scope
+     * @requires $route
+     * @requires $filter
+     * @requires psonocli.managerDatastoreUser
+     * @requires psonocli.browserClient
+     * @requires psonocli.helper
+     *
+     * @description
+     * Controller for the registration view
+     */
+    app.controller('RegisterCtrl', ['$scope', '$route', '$filter', 'managerDatastoreUser', 'browserClient', 'helper',
         function ($scope, $route, $filter, managerDatastoreUser, browserClient, helper) {
 
             var onSuccess = function(config) {
@@ -285,7 +298,21 @@
             };
         }]);
 
-    app.controller('ActivationController', ['$scope', '$route', '$routeParams', '$filter', 'managerDatastoreUser', 'browserClient', 'helper',
+    /**
+     * @ngdoc controller
+     * @name psonocli.controller:ActivationCtrl
+     * @requires $scope
+     * @requires $route
+     * @requires $routeParams
+     * @requires $filter
+     * @requires psonocli.managerDatastoreUser
+     * @requires psonocli.browserClient
+     * @requires psonocli.helper
+     *
+     * @description
+     * Controller for the activation view
+     */
+    app.controller('ActivationCtrl', ['$scope', '$route', '$routeParams', '$filter', 'managerDatastoreUser', 'browserClient', 'helper',
         function ($scope, $route, $routeParams, $filter, managerDatastoreUser, browserClient, helper) {
 
             var onSuccess = function(config) {
@@ -366,7 +393,26 @@
             $scope.activate = activate;
         }]);
 
-    app.controller('WrapperController', ['$scope', '$rootScope', '$filter', '$timeout', 'managerDatastoreUser', 'browserClient', 'storage',
+    /**
+     * @ngdoc controller
+     * @name psonocli.controller:WrapperCtrl
+     * @requires $scope
+     * @requires $rootScope
+     * @requires $filter
+     * @requires $timeout
+     * @requires psonocli.managerDatastoreUser
+     * @requires psonocli.browserClient
+     * @requires psonocli.storage
+     * @requires snapRemote
+     * @requires $window
+     * @requires $route
+     * @requires $routeParams
+     * @requires $location
+     *
+     * @description
+     * Controller for the wrapper
+     */
+    app.controller('WrapperCtrl', ['$scope', '$rootScope', '$filter', '$timeout', 'managerDatastoreUser', 'browserClient', 'storage',
         'snapRemote', '$window', '$route', '$routeParams', '$location',
         function ($scope, $rootScope, $filter, $timeout, managerDatastoreUser, browserClient, storage,
                   snapRemote, $window, $route, $routeParams, $location) {
@@ -482,8 +528,17 @@
 
         }]);
 
-
-    app.controller('OpenSecretController', ['$scope', 'cfpLoadingBar', '$route',
+    /**
+     * @ngdoc controller
+     * @name psonocli.controller:OpenSecretCtrl
+     * @requires $scope
+     * @requires cfpLoadingBar
+     * @requires $route
+     *
+     * @description
+     * Controller for the open secret view
+     */
+    app.controller('OpenSecretCtrl', ['$scope', 'cfpLoadingBar', '$route',
         function ($scope, cfpLoadingBar, $route) {
             var lock = angular.element(document.querySelector('#loading-lock-logo-loaded-fa'));
             cfpLoadingBar.on("set", function (status) {
@@ -493,9 +548,33 @@
 
         }]);
 
-    app.controller('MainController', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'managerDatastorePassword', 'managerDatastoreUser', 'managerSecret', 'browserClient', 'storage',
+    /**
+     * @ngdoc controller
+     * @name psonocli.controller:MainCtrl
+     * @requires $scope
+     * @requires $rootScope
+     * @requires $filter
+     * @requires $timeout
+     * @requires psonocli.manager
+     * @requires psonocli.managerDatastorePassword
+     * @requires psonocli.managerDatastoreUser
+     * @requires psonocli.managerSecret
+     * @requires psonocli.browserClient
+     * @requires psonocli.storage
+     * @requires snapRemote
+     * @requires $window
+     * @requires $route
+     * @requires $routeParams
+     * @requires $location
+     *
+     * @description
+     * Controller for main view
+     */
+    app.controller('MainCtrl', ['$scope', '$rootScope', '$filter', '$timeout', 'manager',
+        'managerDatastorePassword', 'managerDatastoreUser', 'managerSecret', 'browserClient', 'storage',
         'snapRemote', '$window', '$route', '$routeParams', '$location',
-        function ($scope, $rootScope, $filter, $timeout, manager, managerDatastorePassword, managerDatastoreUser, managerSecret, browserClient, storage,
+        function ($scope, $rootScope, $filter, $timeout, manager,
+                  managerDatastorePassword, managerDatastoreUser, managerSecret, browserClient, storage,
                   snapRemote, $window, $route, $routeParams, $location ) {
 
             /* open_tab function to pass through */
@@ -529,9 +608,31 @@
             });
         }]);
 
-    app.controller('PanelController', ['$scope', '$rootScope', '$filter', '$timeout', 'manager', 'managerDatastorePassword', 'managerDatastoreUser', 'managerSecret', 'browserClient',
+    /**
+     * @ngdoc controller
+     * @name psonocli.controller:PanelCtrl
+     * @requires $scope
+     * @requires $rootScope
+     * @requires $filter
+     * @requires $timeout
+     * @requires psonocli.manager
+     * @requires psonocli.managerDatastorePassword
+     * @requires psonocli.managerDatastoreUser
+     * @requires psonocli.managerSecret
+     * @requires snapRemote
+     * @requires $window
+     * @requires $route
+     * @requires $routeParams
+     * @requires $location
+     *
+     * @description
+     * Controller for the panel
+     */
+    app.controller('PanelCtrl', ['$scope', '$rootScope', '$filter', '$timeout', 'manager',
+        'managerDatastorePassword', 'managerDatastoreUser', 'managerSecret', 'browserClient',
         'snapRemote', '$window', '$route', '$routeParams', '$location',
-        function ($scope, $rootScope, $filter, $timeout, manager, managerDatastorePassword, managerDatastoreUser, managerSecret, browserClient,
+        function ($scope, $rootScope, $filter, $timeout, manager,
+                  managerDatastorePassword, managerDatastoreUser, managerSecret, browserClient,
                   snapRemote, $window, $route, $routeParams, $location) {
 
             /* open_tab function to pass through */
@@ -605,7 +706,26 @@
 
         }]);
 
-    app.controller('LoginController', ['$scope', '$rootScope', '$filter', '$timeout', 'managerDatastoreUser', 'browserClient', 'storage',
+    /**
+     * @ngdoc controller
+     * @name psonocli.controller:LoginCtrl
+     * @requires $scope
+     * @requires $rootScope
+     * @requires $filter
+     * @requires $timeout
+     * @requires psonocli.managerDatastoreUser
+     * @requires psonocli.browserClient
+     * @requires snapRemote
+     * @requires $window
+     * @requires $route
+     * @requires $routeParams
+     * @requires $location
+     * @requires psonocli.helper
+     *
+     * @description
+     * Controller for the Login view
+     */
+    app.controller('LoginCtrl', ['$scope', '$rootScope', '$filter', '$timeout', 'managerDatastoreUser', 'browserClient', 'storage',
         'snapRemote', '$window', '$route', '$routeParams', '$location', 'helper',
         function ($scope, $rootScope, $filter, $timeout, managerDatastoreUser, browserClient, storage,
                   snapRemote, $window, $route, $routeParams, $location, helper) {
@@ -688,6 +808,15 @@
             };
         }]);
 
+    /**
+     * @ngdoc controller
+     * @name psonocli.controller:TestCtrl
+     * @requires $scope
+     * @requires $routeParams
+     *
+     * @description
+     * Controller for the Test view
+     */
     app.controller('TestCtrl', ['$scope', '$routeParams', function ($scope, $routeParams) {
         $scope.has_head = 'yes';
         $scope.executor = function() {
@@ -695,7 +824,18 @@
         };
     }]);
 
-    app.controller('SettingsController', ['$scope', '$routeParams', 'settings', 'managerDatastoreSetting',
+    /**
+     * @ngdoc controller
+     * @name psonocli.controller:SettingsCtrl
+     * @requires $scope
+     * @requires $routeParams
+     * @requires psonocli.settings
+     * @requires psonocli.managerDatastoreSetting
+     *
+     * @description
+     * Controller for the Settings view
+     */
+    app.controller('SettingsCtrl', ['$scope', '$routeParams', 'settings', 'managerDatastoreSetting',
         function ($scope, $routeParams, settings, managerDatastoreSetting) {
 
             var onSuccess = function () {
@@ -725,6 +865,18 @@
             };
         }]);
 
+    /**
+     * @ngdoc controller
+     * @name psonocli.controller:ShareCtrl
+     * @requires $scope
+     * @requires $routeParams
+     * @requires $uibModal
+     * @requires psonocli.managerShare
+     * @requires psonocli.managerDatastorePassword
+     *
+     * @description
+     * Controller for the Share view
+     */
     app.controller('ShareCtrl', ['$scope', '$routeParams', '$uibModal', 'managerShare', 'managerDatastorePassword',
         function ($scope, $routeParams, $uibModal, managerShare, managerDatastorePassword) {
             this.name = "ShareCtrl";
@@ -890,6 +1042,18 @@
         }]);
 
     /**
+     * @ngdoc controller
+     * @name psonocli.controller:ModalAcceptShareCtrl
+     * @requires $scope
+     * @requires $uibModalInstance
+     * @requires $uibModal
+     * @requires psonocli.managerDatastoreUser
+     * @requires psonocli.message
+     * @requires psonocli.shareBlueprint
+     * @requires psonocli.item
+     * @requires psonocli.helper
+     *
+     * @description
      * Controller for the "AcceptShare" modal
      */
     app.controller('ModalAcceptShareCtrl', ['$scope', '$uibModalInstance', '$uibModal', 'managerDatastoreUser',
@@ -1042,7 +1206,15 @@
 
         }]);
 
-
+    /**
+     * @ngdoc controller
+     * @name psonocli.controller:IndexCtrl
+     * @requires $scope
+     * @requires $routeParams
+     *
+     * @description
+     * Controller for the index
+     */
     app.controller('IndexCtrl', ['$scope', '$routeParams', function ($scope, $routeParams) {
         this.name = "IndexCtrl";
         this.params = $routeParams;

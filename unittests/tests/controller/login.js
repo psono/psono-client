@@ -1,5 +1,5 @@
 (function () {
-    describe('Controller: LoginController test suite', function () {
+    describe('Controller: LoginCtrl test suite', function () {
 
         beforeEach(module('psonocli'));
 
@@ -26,7 +26,7 @@
             $httpBackend.when('GET', "view/index.html").respond({});
 
             $scope = $rootScope.$new();
-            $controller('LoginController', {
+            $controller('LoginCtrl', {
                 $scope: $scope
             });
 

@@ -1,6 +1,7 @@
 .idea
 docs
 out
+unittests/coverage
 node_modules
 build/
 dist/
