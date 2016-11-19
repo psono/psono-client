@@ -19,7 +19,7 @@
      * @description
      * Random byte generator from nacl_factory.js
      *
-     * @param {number} count The amount of random bytes to return
+     * @param {int} count The amount of random bytes to return
      *
      * @returns {Uint8Array} Random byte array
      */

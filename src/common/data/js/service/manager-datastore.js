@@ -222,7 +222,7 @@
          * @private
          */
         var fill_storage = function(name, datastore, map) {
-            storage.removeAll(name);
+            storage.remove_all(name);
 
             addNodeToStorage(name, datastore, map);
 

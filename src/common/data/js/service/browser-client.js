@@ -24,8 +24,8 @@
          * @description
          * Resize the panel according to the provided width and height
          *
-         * @param {number} height The height to resize to
-         * @param {number} width The width to resize to
+         * @param {int} height The height to resize to
+         * @param {int} width The width to resize to
          */
         var resize = function (height, width) {
             // console.log("addon.js browserClient.resize triggered");

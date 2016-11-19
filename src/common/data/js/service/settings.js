@@ -1,6 +1,14 @@
 (function(angular) {
     'use strict';
 
+    /**
+     * @ngdoc service
+     * @name psonocli.settings
+     * @description
+     *
+     * Service that handles all the settings
+     */
+
 
     var settings = function($q, storage, managerDatastoreUser, managerDatastoreSetting, cryptoLibrary, apiClient) {
 
@@ -34,19 +42,29 @@
         ];
 
         /**
-         * returns the tabs
+         * @ngdoc
+         * @name psonocli.settings#get_tabs
+         * @methodOf psonocli.settings
          *
-         * @returns []
+         * @description
+         * Returns the list of available tabs
+         *
+         * @returns {Array} Returns a list of available tabs
          */
         var get_tabs = function() {
             return _tabs;
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.settings#get_setting
+         * @methodOf psonocli.settings
+         *
+         * @description
          * returns the setting with a specific key, applies default values
          *
-         * @param key
-         * @returns {*}
+         * @param {string} key They key of the setting one wants to fetch
+         * @returns {*} Returns the setting
          */
         var get_setting = function (key) {
 
@@ -77,9 +95,14 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.settings#get_settings
+         * @methodOf psonocli.settings
+         *
+         * @description
          * returns all settings with structure
          *
-         * @returns []
+         * @returns {Array} Returns a list of all settings
          */
         var get_settings = function() {
 
@@ -109,11 +132,15 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.settings#set_settings
+         * @methodOf psonocli.settings
+         *
+         * @description
          * will update one setting specified as key value or many settings as a list of key value objects
          *
-         * @param key
-         * @param value
-         * @returns {*}
+         * @param {string|Array} key The key of the setting one wants to update or a list of objects with key and value
+         * @param {string} [value] The value of the setting
          */
         var set_settings = function (key, value) {
             if (typeof value !== 'undefined') {
@@ -136,13 +163,18 @@
                 });
             }
             managerDatastoreSetting.save_settings_datastore(content);
-            return storage.save();
+            storage.save();
         };
 
         /**
-         * triggers a save
+         * @ngdoc
+         * @name psonocli.settings#save
+         * @methodOf psonocli.settings
          *
-         * @returns {*}
+         * @description
+         * Saves the settings and might update the user data (e.g. The password)
+         *
+         * @returns {promise} Returns a promise with the status
          */
         var save = function() {
             return $q(function(resolve, reject) {

@@ -1,6 +1,14 @@
 (function(angular) {
     'use strict';
 
+    /**
+     * @ngdoc service
+     * @name psonocli.storage
+     * @description
+     *
+     * Service that handles local storage access
+     */
+
     var loki_storage = new loki("password_manager_local_storage");
     var dbs = [];
 
@@ -47,10 +55,15 @@
         //localStorageService.set('user', 'me');
 
         /**
+         * @ngdoc
+         * @name psonocli.storage#insert
+         * @methodOf psonocli.storage
+         *
+         * @description
          * sets one or more items in the specified db
          *
-         * @param db
-         * @param items
+         * @param {string} db The database
+         * @param {object|Array} items One or multiple items to put into the database
          */
         var insert = function (db, items) {
 
@@ -58,49 +71,77 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.storage#update
+         * @methodOf psonocli.storage
+         *
+         * @description
          * updates one or more items in the specified db
          *
-         * @param db
-         * @param items
+         * @param {string} db The database
+         * @param {object|Array} items One or multiple items to update in the database
          */
         var update = function (db, items) {
             dbs[db].update(items);
         };
 
         /**
-         * gets config data
+         * @ngdoc
+         * @name psonocli.storage#data
+         * @methodOf psonocli.storage
          *
-         * @param db
+         * @description
+         * gets the data of a database
+         *
+         * @param {string} db The database
+         *
+         * @returns {*} Returns the data
          */
         var data = function (db) {
             return dbs[db].data;
         };
         /**
+         * @ngdoc
+         * @name psonocli.storage#find_one
+         * @methodOf psonocli.storage
+         *
+         * @description
          * returns the first result in config that matches the query
          *
-         * @param db
-         * @param query
+         * @param {string} db The database
+         * @param {object} query The query object
+         *
+         * @returns {object|null} Returns the data object
          */
         var find_one = function (db, query) {
             return dbs[db].findOne(query);
         };
         /**
+         * @ngdoc
+         * @name psonocli.storage#remove
+         * @methodOf psonocli.storage
+         *
+         * @description
          * removes the specified object or object_id
          *
-         * @param db
-         * @param obj
-         * @returns {*}
+         * @param {string} db The database
+         * @param {object} obj The data object
          */
         var remove = function (db, obj) {
-            return dbs[db].remove(obj);
+            dbs[db].remove(obj);
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.storage#remove_all
+         * @methodOf psonocli.storage
+         *
+         * @description
          * removes all objects in all dbs or only in the specified one
          *
-         * @param db
+         * @param {string} db The database
          */
-        var removeAll = function(db) {
+        var remove_all = function(db) {
             if (typeof db !== 'undefined') {
                 dbs[db].removeWhere(function() {
                     return true;
@@ -116,23 +157,30 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.storage#on
+         * @methodOf psonocli.storage
+         *
+         * @description
          * setups an event listener on an event
          *
-         * @param db
-         * @param event
-         * @param callback
-         * @returns {*}
+         * @param {string} db The database
+         * @param {string} event The event to listen to
+         * @param {function} callback The callback function
          */
         var on = function (db, event, callback) {
-            return dbs[db].on(event, callback);
+            dbs[db].on(event, callback);
         };
         /**
-         * saves the database, needs to be triggered once some changes are meant to be made persistent
+         * @ngdoc
+         * @name psonocli.storage#save
+         * @methodOf psonocli.storage
          *
-         * @returns {*}
+         * @description
+         * saves the database, needs to be triggered once some changes are meant to be made persistent
          */
         var save = function () {
-            return loki_storage.save()
+            loki_storage.save();
         };
 
         return {
@@ -141,7 +189,7 @@
             data: data,
             find_one: find_one,
             remove: remove,
-            removeAll: removeAll,
+            remove_all: remove_all,
             on: on,
             save: save
         };

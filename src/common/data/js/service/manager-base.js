@@ -30,7 +30,7 @@
          * Deletes local data in storage
          */
         var delete_local_data = function () {
-            storage.removeAll();
+            storage.remove_all();
             storage.save();
         };
         

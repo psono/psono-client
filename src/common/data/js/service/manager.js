@@ -15,8 +15,8 @@
 
         /**
          * @ngdoc
-         * @name psonocli.itemBlueprint#find_one
-         * @methodOf psonocli.itemBlueprint
+         * @name psonocli.manager#find_one
+         * @methodOf psonocli.manager
          *
          * @description
          * The public function for other services to search the database.
@@ -34,8 +34,8 @@
 
         /**
          * @ngdoc
-         * @name psonocli.itemBlueprint#storage_on
-         * @methodOf psonocli.itemBlueprint
+         * @name psonocli.manager#storage_on
+         * @methodOf psonocli.manager
          *
          * @description
          * Pass through of the event listener function of the storage
