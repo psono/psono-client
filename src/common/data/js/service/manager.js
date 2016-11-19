@@ -2,25 +2,30 @@
     'use strict';
 
     /**
-     * manager is the "catch all" of all managers, for functions that do not belong in any other manager nor can be
-     * grouped in independent managers.
+     * @ngdoc service
+     * @name psonocli.manager
+     * @description
      *
-     * @param managerBase
-     * @param apiClient
-     * @param cryptoLibrary
-     * @param storage
-     * @returns {{find_one: find_one, storage_on: storage_on}}
+     * Service for functions that do not belong in any other manager nor can be
+     * grouped in independent managers.
      */
 
     var manager = function(managerBase, apiClient, cryptoLibrary, storage) {
 
 
         /**
-         * Finds object with specified key in specified db. Also checks if its in the forbidden key list
-         * @param db
-         * @param key
+         * @ngdoc
+         * @name psonocli.itemBlueprint#find_one
+         * @methodOf psonocli.itemBlueprint
          *
-         * @returns {string}
+         * @description
+         * The public function for other services to search the database.
+         * Finds object with specified key in specified db. Also checks if its in the forbidden key list
+         *
+         * @param {string} db The database to search
+         * @param {string} key of the database entry to get
+         *
+         * @returns {*} Returns the database entry for the given database and key
          */
         var find_one = function(db, key) {
 
@@ -28,16 +33,19 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.itemBlueprint#storage_on
+         * @methodOf psonocli.itemBlueprint
+         *
+         * @description
          * Pass through of the event listener function of the storage
          *
-         * @param db
-         * @param event
-         * @param callback
-         *
-         * @returns {*}
+         * @param {string} db The database
+         * @param {string} event The event to listen to
+         * @param {function} callback The callback function to call once the event happens
          */
         var storage_on = function(db, event, callback) {
-            return storage.on(db, event, callback);
+            storage.on(db, event, callback);
         };
 
         return {
