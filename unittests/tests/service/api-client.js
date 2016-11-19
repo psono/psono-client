@@ -1,7 +1,7 @@
 (function () {
     describe('Service: apiClient test suite', function () {
 
-        beforeEach(module('passwordManagerApp'));
+        beforeEach(module('psonocli'));
 
         var $httpBackend, cryptoLibrary;
 

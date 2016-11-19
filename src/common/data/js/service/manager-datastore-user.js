@@ -75,7 +75,7 @@
 
             };
 
-            return browserClient.getBaseUrl().then(onSuccess, onError)
+            return browserClient.get_base_url().then(onSuccess, onError)
 
         };
 
@@ -412,7 +412,7 @@
         };
     };
 
-    var app = angular.module('passwordManagerApp');
+    var app = angular.module('psonocli');
     app.factory("managerDatastoreUser", ['$q', '$rootScope', 'apiClient', 'browserClient', 'storage',
         'helper', 'managerBase', 'managerDatastore', 'shareBlueprint',
         'itemBlueprint', 'cryptoLibrary', managerDatastoreUser]);

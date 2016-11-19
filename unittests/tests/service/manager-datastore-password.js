@@ -1,7 +1,7 @@
 (function () {
     describe('Service: managerDatastorePassword test suite', function () {
 
-        beforeEach(module('passwordManagerApp'));
+        beforeEach(module('psonocli'));
 
         it('managerDatastorePassword exists', inject(function (managerDatastorePassword) {
             expect(managerDatastorePassword).toBeDefined();

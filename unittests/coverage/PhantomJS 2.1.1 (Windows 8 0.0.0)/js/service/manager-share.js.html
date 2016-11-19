@@ -1,0 +1,1244 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for js\service\manager-share.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../index.html">all files</a> / <a href="index.html">js/service/</a> manager-share.js
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">3.88% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>4/103</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/26</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">2.94% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>1/34</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">3.88% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>4/103</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">(function(angular) {
+    'use strict';
+&nbsp;
+    var managerShare = <span class="fstat-no" title="function not covered" >function(managerBase, apiClient, cryptoLibrary,</span>
+                                 itemBlueprint, helper) {
+&nbsp;
+        /**
+         * Returns a share object with decrypted data
+         *
+         * @param share_id
+         * @param secret_key
+         * @returns {promise}
+         */
+<span class="cstat-no" title="statement not covered" >        var read_share = <span class="fstat-no" title="function not covered" >function(share_id, secret_key) {</span></span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var onError = <span class="fstat-no" title="function not covered" >function(result) {</span></span>
+                // pass
+            };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var onSuccess = <span class="fstat-no" title="function not covered" >function(content) {</span></span>
+<span class="cstat-no" title="statement not covered" >                return {</span>
+                    data: JSON.parse(cryptoLibrary.decrypt_data(content.data.data, content.data.data_nonce, secret_key)),
+                    user_share_rights: content.data.user_share_rights,
+                    user_share_rights_inherited: content.data.user_share_rights_inherited
+                };
+            };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            return apiClient.read_share(</span>
+                managerBase.get_token(),
+                managerBase.get_session_secret_key(),
+                share_id
+            ).then(onSuccess, onError);
+        };
+&nbsp;
+        /**
+         * Returns a list of all shares
+         *
+         * @returns {promise}
+         */
+<span class="cstat-no" title="statement not covered" >        var read_shares = <span class="fstat-no" title="function not covered" >function() {</span></span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var onError = <span class="fstat-no" title="function not covered" >function(result) {</span></span>
+                // pass
+            };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var onSuccess = <span class="fstat-no" title="function not covered" >function(content) {</span></span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >                for (var i = content.data.shares.length - 1; i &gt;= 0; i--) {</span>
+<span class="cstat-no" title="statement not covered" >                    if (content.data.shares[i].share_right_title != '') {</span>
+<span class="cstat-no" title="statement not covered" >                        content.data.shares[i].share_right_title = managerBase.decrypt_private_key(</span>
+                            content.data.shares[i].share_right_title,
+                            content.data.shares[i].share_right_title_nonce,
+                            content.data.shares[i].share_right_create_user_public_key
+                        )
+                    }
+                }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >                return content.data;</span>
+            };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            return apiClient.read_shares(</span>
+                managerBase.get_token(),
+                managerBase.get_session_secret_key()
+            ).then(onSuccess, onError);
+        };
+&nbsp;
+        /**
+         * updates a share
+         *
+         * @param share_id
+         * @param content
+         * @param secret_key
+         * @returns {promise}
+         */
+<span class="cstat-no" title="statement not covered" >        var write_share = <span class="fstat-no" title="function not covered" >function(share_id, content, secret_key) {</span></span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            if (content.hasOwnProperty("id")) {</span>
+<span class="cstat-no" title="statement not covered" >                delete content.id;</span>
+            }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var json_content = JSON.stringify(content);</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var encrypted_data = cryptoLibrary.encrypt_data(json_content, secret_key);</span>
+<span class="cstat-no" title="statement not covered" >            return apiClient.write_share(</span>
+                managerBase.get_token(),
+                managerBase.get_session_secret_key(),
+                share_id,
+                encrypted_data.text, encrypted_data.nonce);
+        };
+&nbsp;
+        /**
+         * Creates a share for the given content and returns the id and the secret to decrypt the share secret
+         *
+         * @param content
+         * @param [parent_share_id]
+         * @param [parent_datastore_id]
+         * @param link_id
+         * @returns {promise}
+         */
+<span class="cstat-no" title="statement not covered" >        var create_share = <span class="fstat-no" title="function not covered" >function (content, parent_share_id,</span></span>
+                                     parent_datastore_id, link_id) {
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            if (content.hasOwnProperty("id")) {</span>
+<span class="cstat-no" title="statement not covered" >                delete content.id;</span>
+            }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var secret_key = cryptoLibrary.generate_secret_key();</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var json_content = JSON.stringify(content);</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var encrypted_data = cryptoLibrary.encrypt_data(json_content, secret_key);</span>
+<span class="cstat-no" title="statement not covered" >            var encrypted_key = managerBase.encrypt_secret_key(secret_key);</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var onError = <span class="fstat-no" title="function not covered" >function(result) {</span></span>
+                // pass
+            };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var onSuccess = <span class="fstat-no" title="function not covered" >function(content) {</span></span>
+<span class="cstat-no" title="statement not covered" >                return {share_id: content.data.share_id, secret_key: secret_key};</span>
+            };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            return apiClient.create_share(managerBase.get_token(),</span>
+                managerBase.get_session_secret_key(), encrypted_data.text,
+                encrypted_data.nonce, encrypted_key.text, encrypted_key.nonce, parent_share_id, parent_datastore_id, link_id)
+                .then(onSuccess, onError);
+        };
+&nbsp;
+        /**
+         * Returns share rights for a specific share
+         *
+         * @param share_id
+         * @returns {promise}
+         */
+<span class="cstat-no" title="statement not covered" >        var read_share_rights = <span class="fstat-no" title="function not covered" >function(share_id) {</span></span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var onError = <span class="fstat-no" title="function not covered" >function(result) {</span></span>
+                // pass
+            };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var onSuccess = <span class="fstat-no" title="function not covered" >function(content) {</span></span>
+<span class="cstat-no" title="statement not covered" >                return content.data;</span>
+            };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            return apiClient.read_share_rights(managerBase.get_token(),</span>
+                managerBase.get_session_secret_key(), share_id)
+                .then(onSuccess, onError);
+        };
+&nbsp;
+        /**
+         * Returns all the share rights of the current user
+         *
+         * @returns {promise}
+         */
+<span class="cstat-no" title="statement not covered" >        var read_share_rights_overview = <span class="fstat-no" title="function not covered" >function() {</span></span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var onError = <span class="fstat-no" title="function not covered" >function(result) {</span></span>
+                // pass
+            };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var onSuccess = <span class="fstat-no" title="function not covered" >function(content) {</span></span>
+<span class="cstat-no" title="statement not covered" >                return content.data;</span>
+            };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            return apiClient.read_share_rights_overview(</span>
+                managerBase.get_token(),
+                managerBase.get_session_secret_key())
+                .then(onSuccess, onError);
+        };
+&nbsp;
+        /**
+         * creates the rights for a specified share and user
+         *
+         * @param title
+         * @param type
+         * @param share_id
+         * @param user_id
+         * @param user_public_key
+         * @param key
+         * @param read
+         * @param write
+         * @param grant
+         * @returns {promise}
+         */
+<span class="cstat-no" title="statement not covered" >        var create_share_right = <span class="fstat-no" title="function not covered" >function(title, type, share_id, user_id, user_public_key, key, read, write, grant) {</span></span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var onError = <span class="fstat-no" title="function not covered" >function(result) {</span></span>
+                // pass
+            };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var onSuccess = <span class="fstat-no" title="function not covered" >function(content) {</span></span>
+<span class="cstat-no" title="statement not covered" >                return {share_right_id: content.data.share_right_id};</span>
+            };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var encrypted_key = managerBase.encrypt_private_key(key, user_public_key);</span>
+<span class="cstat-no" title="statement not covered" >            var encrypted_title = managerBase.encrypt_private_key(title, user_public_key);</span>
+<span class="cstat-no" title="statement not covered" >            var encrypted_type = managerBase.encrypt_private_key(type, user_public_key);</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            return apiClient.create_share_right(managerBase.get_token(),</span>
+                managerBase.get_session_secret_key(), encrypted_title.text,
+                encrypted_title.nonce, encrypted_type.text,
+                encrypted_type.nonce, share_id, user_id, encrypted_key.text, encrypted_key.nonce, read, write, grant)
+                .then(onSuccess, onError);
+        };
+&nbsp;
+        /**
+         * updates the rights for a specified share right and user
+         *
+         * @param share_id
+         * @param user_id
+         * @param read
+         * @param write
+         * @param grant
+         * @returns {*}
+         */
+<span class="cstat-no" title="statement not covered" >        var update_share_right = <span class="fstat-no" title="function not covered" >function(share_id, user_id, read, write, grant) {</span></span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var onError = <span class="fstat-no" title="function not covered" >function(result) {</span></span>
+                // pass
+            };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var onSuccess = <span class="fstat-no" title="function not covered" >function(content) {</span></span>
+<span class="cstat-no" title="statement not covered" >                return {share_right_id: content.data.share_right_id};</span>
+            };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            return apiClient.update_share_right(managerBase.get_token(),</span>
+                managerBase.get_session_secret_key(), share_id, user_id, read, write, grant)
+                .then(onSuccess, onError);
+        };
+&nbsp;
+        /**
+         * deletes a specific share right
+         *
+         * @param share_right_id
+         * @returns {promise}
+         */
+<span class="cstat-no" title="statement not covered" >        var delete_share_right = <span class="fstat-no" title="function not covered" >function(share_right_id) {</span></span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var onError = <span class="fstat-no" title="function not covered" >function(result) {</span></span>
+                // pass
+            };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var onSuccess = <span class="fstat-no" title="function not covered" >function(content) {</span></span>
+<span class="cstat-no" title="statement not covered" >                return {share_right_id: content.data.share_right_id};</span>
+            };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            return apiClient.delete_share_right(managerBase.get_token(),</span>
+                managerBase.get_session_secret_key(), share_right_id)
+                .then(onSuccess, onError);
+        };
+&nbsp;
+        /**
+         * accepts a specific share right
+         *
+         * @param share_right_id
+         * @param text
+         * @param nonce
+         * @param public_key
+         * @param link_id
+         * @param parent_share_id
+         * @param parent_datastore_id
+         * @returns {promise}
+         */
+<span class="cstat-no" title="statement not covered" >        var accept_share_right = <span class="fstat-no" title="function not covered" >function(share_right_id, text, nonce, public_key, link_id, parent_share_id,</span></span>
+                                          parent_datastore_id) {
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var secret_key = managerBase.decrypt_private_key(text, nonce, public_key);</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var onError = <span class="fstat-no" title="function not covered" >function(result) {</span></span>
+                // pass
+            };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var onSuccess = <span class="fstat-no" title="function not covered" >function(content) {</span></span>
+<span class="cstat-no" title="statement not covered" >                var share = {};</span>
+<span class="cstat-no" title="statement not covered" >                if (typeof content.data.share_data !== "undefined") {</span>
+<span class="cstat-no" title="statement not covered" >                    share = JSON.parse(cryptoLibrary.decrypt_data(content.data.share_data,</span>
+                        content.data.share_data_nonce,secret_key));
+                }
+&nbsp;
+&nbsp;
+<span class="cstat-no" title="statement not covered" >                if (typeof share.type == 'undefined' &amp;&amp; typeof content.data.share_type !== "undefined") {</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >                    var type = managerBase.decrypt_private_key(content.data.share_type,</span>
+                        content.data.share_type_nonce, public_key);
+&nbsp;
+<span class="cstat-no" title="statement not covered" >                    if (type != 'folder') {</span>
+<span class="cstat-no" title="statement not covered" >                        share.type = type;</span>
+                    }
+                }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >                share.share_id = content.data.share_id;</span>
+<span class="cstat-no" title="statement not covered" >                share.share_secret_key = secret_key;</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >                return share;</span>
+            };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var encrypted_key = managerBase.encrypt_secret_key(secret_key);</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            return apiClient.accept_share_right(managerBase.get_token(),</span>
+                managerBase.get_session_secret_key(), share_right_id,
+                encrypted_key.text, encrypted_key.nonce, link_id, parent_share_id, parent_datastore_id)
+                .then(onSuccess, onError);
+        };
+&nbsp;
+        /**
+         * declines a specific share right
+         *
+         * @param share_right_id
+         * @returns {promise}
+         */
+<span class="cstat-no" title="statement not covered" >        var decline_share_right = <span class="fstat-no" title="function not covered" >function(share_right_id) {</span></span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var onError = <span class="fstat-no" title="function not covered" >function(result) {</span></span>
+                // pass
+            };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var onSuccess = <span class="fstat-no" title="function not covered" >function(content) {</span></span>
+                // pass
+            };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            return apiClient.decline_share_right(managerBase.get_token(),</span>
+                managerBase.get_session_secret_key(), share_right_id)
+                .then(onSuccess, onError);
+        };
+&nbsp;
+        /**
+         * returns the closest share. if no share exists for the specified path, the initially specified closest_share
+         * is returned.
+         *
+         * @param path
+         * @param datastore
+         * @param closest_share
+         * @param distance
+         * @returns {*}
+         */
+<span class="cstat-no" title="statement not covered" >        var get_closest_parent_share = <span class="fstat-no" title="function not covered" >function(path, datastore, closest_share, distance) {</span></span>
+<span class="cstat-no" title="statement not covered" >            var n,l;</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            if (path.length == distance) {</span>
+<span class="cstat-no" title="statement not covered" >                return closest_share;</span>
+            }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var to_search = path.shift();</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            if (datastore.hasOwnProperty('folders')) {</span>
+<span class="cstat-no" title="statement not covered" >                for (n = 0, l = datastore.folders.length; n &lt; l; n++) {</span>
+<span class="cstat-no" title="statement not covered" >                    if (datastore.folders[n].id == to_search) {</span>
+<span class="cstat-no" title="statement not covered" >                        if (typeof(datastore.folders[n].share_id) !== 'undefined') {</span>
+<span class="cstat-no" title="statement not covered" >                            return get_closest_parent_share(path.slice(), datastore.folders[n], datastore.folders[n], distance);</span>
+                        } else {
+<span class="cstat-no" title="statement not covered" >                            return get_closest_parent_share(path.slice(), datastore.folders[n], closest_share, distance);</span>
+                        }
+                    }
+                }
+            }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            if (datastore.hasOwnProperty('items')) {</span>
+<span class="cstat-no" title="statement not covered" >                for (n = 0, l = datastore.items.length; n &lt; l; n++) {</span>
+<span class="cstat-no" title="statement not covered" >                    if (datastore.items[n].id == to_search) {</span>
+<span class="cstat-no" title="statement not covered" >                        return closest_share;</span>
+                    }
+                }
+            }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            return false;</span>
+        };
+&nbsp;
+        // registrations
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        itemBlueprint.register('read_share_rights', read_share_rights);</span>
+<span class="cstat-no" title="statement not covered" >        itemBlueprint.register('create_share', create_share);</span>
+<span class="cstat-no" title="statement not covered" >        itemBlueprint.register('create_share_right', create_share_right);</span>
+<span class="cstat-no" title="statement not covered" >        itemBlueprint.register('get_closest_parent_share', get_closest_parent_share);</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        return {</span>
+            read_share: read_share,
+            read_shares: read_shares,
+            write_share: write_share,
+            create_share: create_share,
+            read_share_rights: read_share_rights,
+            read_share_rights_overview: read_share_rights_overview,
+            create_share_right: create_share_right,
+            update_share_right: update_share_right,
+            delete_share_right: delete_share_right,
+            accept_share_right: accept_share_right,
+            decline_share_right: decline_share_right,
+            get_closest_parent_share: get_closest_parent_share
+        };
+    };
+&nbsp;
+    var app = angular.module('psonocli');
+    app.factory("managerShare", ['managerBase', 'apiClient', 'cryptoLibrary',
+        'itemBlueprint', 'helper', managerShare]);
+&nbsp;
+}(angular));</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Sat Nov 12 2016 15:56:45 GMT+0100 (W. Europe Standard Time)
+</div>
+</div>
+<script src="../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../sorter.js"></script>
+</body>
+</html>

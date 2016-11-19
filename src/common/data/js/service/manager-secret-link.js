@@ -88,7 +88,7 @@
         };
     };
 
-    var app = angular.module('passwordManagerApp');
+    var app = angular.module('psonocli');
     app.factory("managerSecretLink", ['managerBase', 'apiClient', managerSecretLink]);
 
 }(angular));

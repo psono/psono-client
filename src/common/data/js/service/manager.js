@@ -46,7 +46,7 @@
         };
     };
 
-    var app = angular.module('passwordManagerApp');
+    var app = angular.module('psonocli');
     app.factory("manager", ['managerBase', 'apiClient', 'cryptoLibrary', 'storage', manager]);
 
 }(angular));

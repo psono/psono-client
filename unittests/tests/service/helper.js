@@ -1,7 +1,7 @@
 (function () {
     describe('Service: helper test suite', function () {
 
-        beforeEach(module('passwordManagerApp'));
+        beforeEach(module('psonocli'));
 
         it('helper exists', inject(function (helper) {
             expect(helper).toBeDefined();

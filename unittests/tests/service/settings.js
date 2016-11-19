@@ -1,7 +1,7 @@
 (function () {
     describe('Service: settings test suite', function () {
 
-        beforeEach(module('passwordManagerApp'));
+        beforeEach(module('psonocli'));
 
         it('settings exists', inject(function (settings) {
             expect(settings).toBeDefined();

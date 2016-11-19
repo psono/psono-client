@@ -72,7 +72,7 @@
         };
     };
 
-    var app = angular.module('passwordManagerApp');
+    var app = angular.module('psonocli');
     app.factory("passwordGenerator", ['settings', passwordGenerator]);
 
 }(angular, generatePassword));

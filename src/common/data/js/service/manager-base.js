@@ -142,7 +142,7 @@
         };
     };
 
-    var app = angular.module('passwordManagerApp');
+    var app = angular.module('psonocli');
     app.factory("managerBase", ['$q', '$timeout', '$rootScope', 'apiClient', 'cryptoLibrary', 'storage', managerBase]);
 
 }(angular));

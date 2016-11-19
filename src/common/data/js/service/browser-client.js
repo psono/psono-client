@@ -1,36 +1,60 @@
 (function(angular, $, window) {
     'use strict';
 
-    var events = [
-        'login',
-        'logout'
-    ];
+    /**
+     * @ngdoc service
+     * @name psonocli.browserClient
+     * @description
+     *
+     * The browser interface, responsible for the cross browser / platform compatibility.
+     */
 
     var browserClient = function($rootScope, $q, $templateRequest, $http) {
+
+        var events = [
+            'login',
+            'logout'
+        ];
+
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#resize
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * Resize the panel according to the provided width and height
          *
-         * @param height
-         * @param width
+         * @param {number} height The height to resize to
+         * @param {number} width The width to resize to
          */
         var resize = function (height, width) {
             // console.log("addon.js browserClient.resize triggered");
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#open_tab
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * Opens the URL in a new browser tab
-         * @param url
+         * @param {string} url The url to open
          */
-        var openTab = function(url) {
+        var open_tab = function(url) {
             window.open(url, '_blank');
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#get_base_url
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * returns the base url which can be used to generate activation links
          *
-         * @returns {string}
+         * @returns {string} The base url
          */
-        var getBaseUrl = function() {
+        var get_base_url = function() {
 
             var onSuccess = function(base_url) {
                 return base_url;
@@ -43,20 +67,30 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#load_version
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * returns a promise with the version string
          *
-         * @returns {Promise}
+         * @returns {promise} promise
          */
-        var loadVersion = function() {
+        var load_version = function() {
             return $templateRequest('./VERSION.txt');
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#load_config
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * returns a promise with the version string
          *
-         * @returns {Promise}
+         * @returns {promise} promise
          */
-        var loadConfig = function() {
+        var load_config = function() {
 
             var req = {
                 method: 'GET',
@@ -67,28 +101,43 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#get_active_tab_url
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * returns a promise which will return the active tabs url
          *
-         * @returns {promise}
+         * @returns {promise} promise
          */
-        var getActiveTabUrl = function() {
+        var get_active_tab_url = function() {
             return $q(function (resolve) {
                 resolve(window.location.href);
             });
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#test_background_page
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * Dummy function to see if the background page works
          */
-        var testBackgroundPage = function () {
+        var test_background_page = function () {
             return false;
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#emit
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * sends an event message to browser
          *
-         * @param event
-         * @param data
+         * @param {string} event The event
+         * @param {*} data The payload for the event
          */
         var emit = function (event, data) {
             console.log("browser-client.js $rootScope.$broadcast " + event);
@@ -96,22 +145,33 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#emit_sec
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * emits sensitive data only to secure locations
          *
-         * @param event
-         * @param data
+         *
+         * @param {string} event The event
+         * @param {*} data The payload for the event
          */
-        var emitSec = function(event, data) {
+        var emit_sec = function(event, data) {
 
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#on
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * registers for an event with a function
          *
-         * @param event
-         * @param myFunction
+         * @param {string} event The event
+         * @param {function} myFunction The callback function
          *
-         * @returns {boolean}
+         * @returns {boolean} Returns if the registration was successful
          */
         var on = function (event, myFunction) {
 
@@ -119,16 +179,22 @@
                 return false;
 
             $rootScope.$on(event, myFunction);
+            return true;
         };
 
 
         var config = {};
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#on
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * helper function to return either the config itself or if key has been specified only the config part for the key
          *
-         * @param key
-         * @returns {*}
+         * @param {string} key The config "key" one wants to have
+         * @returns {*} The config value
          * @private
          */
         var _get_config = function(key) {
@@ -144,10 +210,15 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#get_config
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * Loads the config (or only the part specified by the "key") fresh or from "cache"
          *
-         * @param key
-         * @returns {*}
+         * @param {string} key The config "key" one wants to have
+         * @returns {*} The config value
          */
         var get_config = function (key) {
             return $q(function(resolve, reject) {
@@ -164,7 +235,7 @@
                         reject(data);
                     };
 
-                    loadConfig()
+                    load_config()
                         .then(onSuccess, onError);
 
                 } else {
@@ -176,20 +247,20 @@
 
         return {
             resize: resize,
-            openTab: openTab,
-            getBaseUrl: getBaseUrl,
-            loadVersion: loadVersion,
-            loadConfig: loadConfig,
-            getActiveTabUrl: getActiveTabUrl,
-            testBackgroundPage: testBackgroundPage,
+            open_tab: open_tab,
+            get_base_url: get_base_url,
+            load_version: load_version,
+            load_config: load_config,
+            get_active_tab_url: get_active_tab_url,
+            test_background_page: test_background_page,
             emit: emit,
-            emitSec: emitSec,
+            emit_sec: emit_sec,
             on: on,
             get_config:get_config
         };
     };
 
-    var app = angular.module('passwordManagerApp');
+    var app = angular.module('psonocli');
     app.factory("browserClient", ['$rootScope', '$q', '$templateRequest', '$http', browserClient]);
 
 }(angular, $, window));

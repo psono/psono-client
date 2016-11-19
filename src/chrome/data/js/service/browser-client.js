@@ -33,7 +33,7 @@
          * Opens the URL in a new browser tab
          * @param url
          */
-        var openTab = function(url) {
+        var open_tab = function(url) {
             window.open(url, '_blank');
         };
 
@@ -42,7 +42,7 @@
          *
          * @returns {string}
          */
-        var getBaseUrl = function() {
+        var get_base_url = function() {
             return $q(function (resolve) {
                 resolve("chrome-extension://"+chrome.runtime.id+"/data/");
             });
@@ -53,7 +53,7 @@
          *
          * @returns {Promise}
          */
-        var loadVersion = function() {
+        var load_version = function() {
             return $templateRequest('./VERSION.txt');
         };
 
@@ -62,7 +62,7 @@
          *
          * @returns {Promise}
          */
-        var loadConfig = function() {
+        var load_config = function() {
 
             var req = {
                 method: 'GET',
@@ -77,7 +77,7 @@
          *
          * @returns {promise}
          */
-        var getActiveTabUrl = function() {
+        var get_active_tab_url = function() {
             return $q(function (resolve) {
                 chrome.tabs.query({active: true, currentWindow: true}, function(arrayOfTabs) {
                     resolve(arrayOfTabs[0].url)}
@@ -88,7 +88,7 @@
         /**
          * Dummy function to see if the background page works
          */
-        var testBackgroundPage = function () {
+        var test_background_page = function () {
             return backgroundPage.bg.test();
         };
 
@@ -111,7 +111,7 @@
          * @param event
          * @param data
          */
-        var emitSec = function(event, data) {
+        var emit_sec = function(event, data) {
             chrome.runtime.sendMessage({event: event, data: data}, function(response) {
                 console.log(response);
             });
@@ -178,7 +178,7 @@
                         reject(data);
                     };
 
-                    loadConfig()
+                    load_config()
                         .then(onSuccess, onError);
 
                 } else {
@@ -190,20 +190,20 @@
 
         return {
             resize: resize,
-            openTab: openTab,
-            getBaseUrl: getBaseUrl,
-            loadVersion: loadVersion,
-            loadConfig: loadConfig,
-            getActiveTabUrl: getActiveTabUrl,
-            testBackgroundPage: testBackgroundPage,
+            open_tab: open_tab,
+            get_base_url: get_base_url,
+            load_version: load_version,
+            load_config: load_config,
+            get_active_tab_url: get_active_tab_url,
+            test_background_page: test_background_page,
             emit: emit,
-            emitSec: emitSec,
+            emit_sec: emit_sec,
             on: on,
             get_config:get_config
         };
     };
 
-    var app = angular.module('passwordManagerApp');
+    var app = angular.module('psonocli');
     app.factory("browserClient", ['$rootScope', '$q', '$templateRequest', '$http', browserClient]);
 
 }(angular, $, window));

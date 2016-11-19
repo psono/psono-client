@@ -14,6 +14,7 @@ var child_process = require('child_process');
 var jeditor = require("gulp-json-editor");
 var karma_server = require('karma').Server;
 var removeFiles = require('gulp-remove-files');
+var gulpDocs = require('gulp-ngdocs');
 
 /**
  * Compiles .sass files to css files
@@ -52,7 +53,7 @@ gulp.task('build-webserver', function() {
         .pipe(gulp.dest('build/webserver/js'));
 
     gulp.src('src/common/data/view/**/*.html')
-        .pipe(template_cache('templates.js', { module:'passwordManagerApp', root: 'view/' }))
+        .pipe(template_cache('templates.js', { module:'psonocli', root: 'view/' }))
         .pipe(gulp.dest('build/webserver/view'));
 
     gulp.src([
@@ -92,7 +93,7 @@ gulp.task('build-firefox', function() {
 
     gulp.src('src/common/data/view/**/*.html')
         .pipe(remove_code({ firefox: true }))
-        .pipe(template_cache('templates.js', { module:'passwordManagerApp', root: 'view/' }))
+        .pipe(template_cache('templates.js', { module:'psonocli', root: 'view/' }))
         .pipe(gulp.dest('build/firefox/data/view'));
 
     gulp.src([
@@ -137,7 +138,7 @@ gulp.task('build-chrome', function() {
 
     gulp.src('src/common/data/view/**/*.html')
         .pipe(remove_code({ chrome: true }))
-        .pipe(template_cache('templates.js', { module:'passwordManagerApp', root: 'view/' }))
+        .pipe(template_cache('templates.js', { module:'psonocli', root: 'view/' }))
         .pipe(gulp.dest('build/chrome/data/view'));
 
     gulp.src([
@@ -269,6 +270,25 @@ gulp.task('updateversion', function() {
 });
 
 
+/**
+ * Create ngdocs documentation once and exit
+ */
+
+gulp.task('docs', [], function () {
+
+    var options = {
+        html5Mode: false,
+        title: "Psono Client"
+    };
+
+    return gulp.src([
+        'src/common/data/js/*.js',
+        'src/common/data/js/service/*.js',
+        'src/common/data/js/widgets/*.js'
+    ])
+        .pipe(gulpDocs.process(options))
+        .pipe(gulp.dest('./docs'));
+});
 
 
 /**

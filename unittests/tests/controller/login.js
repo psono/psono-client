@@ -1,7 +1,7 @@
 (function () {
     describe('Controller: LoginController test suite', function () {
 
-        beforeEach(module('passwordManagerApp'));
+        beforeEach(module('psonocli'));
 
         var $controller, $rootScope, $httpBackend, $scope, config, cryptoLibrary, storage;
 

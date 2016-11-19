@@ -33,12 +33,12 @@
          * Opens the URL in a new browser tab
          * @param url
          */
-        var openTab = function(url) {
+        var open_tab = function(url) {
 
             if (typeof port === "undefined")
                 return;
 
-            port.emit("openTab", {url: url});
+            port.emit("open_tab", {url: url});
         };
 
         /**
@@ -46,7 +46,7 @@
          * 
          * @returns {string}
          */
-        var getBaseUrl = function() {
+        var get_base_url = function() {
             return $q(function (resolve) {
                 resolve("resource://psonopw/data/");
             });
@@ -57,7 +57,7 @@
          *
          * @returns {Promise}
          */
-        var loadVersion = function() {
+        var load_version = function() {
             if (typeof port === "undefined")
                 return;
 
@@ -74,7 +74,7 @@
          *
          * @returns {Promise}
          */
-        var loadConfig = function() {
+        var load_config = function() {
 
             if (typeof port === "undefined")
                 return;
@@ -92,7 +92,7 @@
          *
          * @returns {promise}
          */
-        var getActiveTabUrl = function() {
+        var get_active_tab_url = function() {
             if (typeof port === "undefined")
                 return;
 
@@ -107,7 +107,7 @@
         /**
          * Dummy function to see if the background page works
          */
-        var testBackgroundPage = function () {
+        var test_background_page = function () {
             return false;
         };
 
@@ -131,9 +131,9 @@
          * @param event
          * @param data
          */
-        var emitSec = function(event, data) {
+        var emit_sec = function(event, data) {
             if (typeof port === "undefined")
-                return
+                return;
             port.emit(event, data);
         };
 
@@ -202,7 +202,7 @@
                         reject(data);
                     };
 
-                    loadConfig()
+                    load_config()
                         .then(onSuccess, onError);
 
                 } else {
@@ -259,7 +259,7 @@
                 if (payload.data === "datastore-password-leafs") {
                     event_data.data = storage.data(payload.data);
                 }
-                emitSec('storage-getItem', JSON.stringify(event_data));
+                emit_sec('storage-getItem', JSON.stringify(event_data));
             };
 
             on('storage-getItem', on_storage_get_item);
@@ -286,7 +286,7 @@
                         value.data_nonce,
                         secret_key
                     );
-                    emitSec('secret-getItem', JSON.stringify(event_data));
+                    emit_sec('secret-getItem', JSON.stringify(event_data));
                 };
 
                 var onError = function(value) {
@@ -305,20 +305,20 @@
 
         return {
             resize: resize,
-            openTab: openTab,
-            getBaseUrl: getBaseUrl,
-            loadVersion: loadVersion,
-            loadConfig: loadConfig,
-            getActiveTabUrl: getActiveTabUrl,
-            testBackgroundPage: testBackgroundPage,
+            open_tab: open_tab,
+            get_base_url: get_base_url,
+            load_version: load_version,
+            load_config: load_config,
+            get_active_tab_url: get_active_tab_url,
+            test_background_page: test_background_page,
             emit: emit,
-            emitSec: emitSec,
+            emit_sec: emit_sec,
             on: on,
             get_config:get_config
         };
     };
 
-    var app = angular.module('passwordManagerApp');
+    var app = angular.module('psonocli');
     app.factory("browserClient", ['$rootScope', '$q', 'storage', 'apiClient', 'cryptoLibrary', browserClient]);
 
 }(angular, $, window));

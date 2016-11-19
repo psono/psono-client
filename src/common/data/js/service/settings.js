@@ -36,7 +36,7 @@
         /**
          * returns the tabs
          *
-         * @returns {*[]}
+         * @returns []
          */
         var get_tabs = function() {
             return _tabs;
@@ -51,7 +51,6 @@
         var get_setting = function (key) {
 
             if (key == 'setting_email') {
-                console.log(storage.find_one('config', {key: 'user_email'}));
                 return storage.find_one('config', {key: 'user_email'}).value;
             }
 
@@ -80,7 +79,7 @@
         /**
          * returns all settings with structure
          *
-         * @returns {*[]}
+         * @returns []
          */
         var get_settings = function() {
 
@@ -233,7 +232,7 @@
         };
     };
 
-    var app = angular.module('passwordManagerApp');
+    var app = angular.module('psonocli');
     app.factory("settings", ['$q', 'storage', 'managerDatastoreUser', 'managerDatastoreSetting', 'cryptoLibrary', 'apiClient', settings]);
 
 }(angular));

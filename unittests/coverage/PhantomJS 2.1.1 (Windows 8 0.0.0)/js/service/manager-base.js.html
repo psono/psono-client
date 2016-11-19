@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for js\service\manager-base.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../index.html">all files</a> / <a href="index.html">js/service/</a> manager-base.js
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">50% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>15/30</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/6</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">18.18% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>2/11</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">50% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>15/30</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line medium'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">(function(angular) {
+    'use strict';
+&nbsp;
+    /**
+     * managerBase is 'like' a base class for all managers. It contains functions that should be accessible by several
+     * managers but should never be added in any other services (because of design pattern and security reasons)
+     *
+     * @param $q
+     * @param $timeout
+     * @param $rootScope
+     * @param apiClient
+     * @param cryptoLibrary
+     * @param storage
+     * @returns {{delete_local_data: delete_local_data, find_one_nolimit: find_one_nolimit, find_one: find_one}}
+     */
+&nbsp;
+    var managerBase = function($q, $timeout, $rootScope, apiClient, cryptoLibrary, storage) {
+&nbsp;
+        var forbidden_keys = {
+            'config': [
+                'user_token',
+                'session_secret_key',
+                'user_private_key',
+                'user_secret_key',
+                'user_sauce'
+            ]
+        };
+&nbsp;
+        /**
+         * Deletes local data in storage
+         */
+        var delete_local_data = <span class="fstat-no" title="function not covered" >function () {</span>
+<span class="cstat-no" title="statement not covered" >            storage.removeAll();</span>
+<span class="cstat-no" title="statement not covered" >            storage.save();</span>
+        };
+        
+        /**
+         * "Private" function, that will return the object with the specified key from the specified db
+         * May only be used in "managers"
+         *
+         * @param db
+         * @param key
+         *
+         * @returns {*}
+         */
+        var find_one_nolimit = <span class="fstat-no" title="function not covered" >function(db, key) {</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var obj = storage.find_one(db, {'key': key});</span>
+<span class="cstat-no" title="statement not covered" >            if (obj === null) {</span>
+<span class="cstat-no" title="statement not covered" >                return ''</span>
+            }
+<span class="cstat-no" title="statement not covered" >            return obj['value'];</span>
+        };
+&nbsp;
+        /**
+         * Finds object with specified key in specified db. Also checks if its in the forbidden key list
+         * @param db
+         * @param key
+         *
+         * @returns {string}
+         */
+        var find_one = <span class="fstat-no" title="function not covered" >function(db, key) {</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            if (forbidden_keys.hasOwnProperty(db) &amp;&amp; forbidden_keys[db].indexOf(key) &gt;= 0) {</span>
+<span class="cstat-no" title="statement not covered" >                return ''</span>
+            }
+<span class="cstat-no" title="statement not covered" >            return find_one_nolimit(db, key);</span>
+        };
+&nbsp;
+        /**
+         * returns the token from storage
+         *
+         * @returns {string}
+         */
+        var get_token = <span class="fstat-no" title="function not covered" >function () {</span>
+<span class="cstat-no" title="statement not covered" >            return find_one_nolimit('config', 'user_token');</span>
+        };
+&nbsp;
+        /**
+         * returns the session secret key from storage
+         *
+         * @returns {string}
+         */
+        var get_session_secret_key = <span class="fstat-no" title="function not covered" >function () {</span>
+<span class="cstat-no" title="statement not covered" >            return find_one_nolimit('config', 'session_secret_key');</span>
+        };
+&nbsp;
+        /**
+         * encrypts some data with user's public-private-key-crypto
+         *
+         * @param data
+         * @param public_key
+         * @returns {{nonce, text}|{nonce: string, text: string}|{nonce, ciphertext}|{nonce: string, ciphertext: string}}
+         */
+        var encrypt_private_key = <span class="fstat-no" title="function not covered" >function (data, public_key) {</span>
+<span class="cstat-no" title="statement not covered" >            return cryptoLibrary.encrypt_data_public_key(data, public_key, find_one_nolimit('config', 'user_private_key'));</span>
+        };
+&nbsp;
+        /**
+         * encrypts some data with user's public-private-key-crypto
+         *
+         * @param text
+         * @param nonce
+         * @param public_key
+         * @returns {string}
+         */
+        var decrypt_private_key = <span class="fstat-no" title="function not covered" >function (text, nonce, public_key) {</span>
+<span class="cstat-no" title="statement not covered" >            return cryptoLibrary.decrypt_data_public_key(text, nonce, public_key, find_one_nolimit('config', 'user_private_key'));</span>
+        };
+&nbsp;
+        /**
+         * encrypts some data with user's secret-key-crypto
+         *
+         * @param data
+         * @returns {{nonce, text}|{nonce: string, text: string}|{nonce, ciphertext}|{nonce: string, ciphertext: string}}
+         */
+        var encrypt_secret_key = <span class="fstat-no" title="function not covered" >function(data) {</span>
+<span class="cstat-no" title="statement not covered" >            return cryptoLibrary.encrypt_data(data, find_one_nolimit('config', 'user_secret_key'));</span>
+        };
+&nbsp;
+        /**
+         * decrypts some data with user's secret-key-crypto
+         *
+         * @param text
+         * @param nonce
+         * @returns {string}
+         */
+        var decrypt_secret_key = <span class="fstat-no" title="function not covered" >function (text, nonce) {</span>
+<span class="cstat-no" title="statement not covered" >            return cryptoLibrary.decrypt_data(text, nonce, find_one_nolimit('config', 'user_secret_key'));</span>
+        };
+&nbsp;
+        return {
+            delete_local_data: delete_local_data,
+            find_one_nolimit: find_one_nolimit,
+            find_one: find_one,
+            get_token: get_token,
+            get_session_secret_key: get_session_secret_key,
+            encrypt_private_key: encrypt_private_key,
+            decrypt_private_key: decrypt_private_key,
+            encrypt_secret_key: encrypt_secret_key,
+            decrypt_secret_key: decrypt_secret_key
+        };
+    };
+&nbsp;
+    var app = angular.module('psonocli');
+    app.factory("managerBase", ['$q', '$timeout', '$rootScope', 'apiClient', 'cryptoLibrary', 'storage', managerBase]);
+&nbsp;
+}(angular));</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Sat Nov 12 2016 15:56:45 GMT+0100 (W. Europe Standard Time)
+</div>
+</div>
+<script src="../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../sorter.js"></script>
+</body>
+</html>

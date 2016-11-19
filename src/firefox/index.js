@@ -89,7 +89,7 @@ panel.port.on('resize', function (data) {
  * Opens a tab
  * @param data
  */
-var openTab = function (data) {
+var open_tab = function (data) {
 
     var tab = {
         url: "resource://psonopw/data/" + data.url
@@ -97,7 +97,7 @@ var openTab = function (data) {
 
     tabs.open(tab);
 };
-panel.port.on('openTab', openTab);
+panel.port.on('open_tab', open_tab);
 
 
 var onFillpassword = function (data) {
@@ -326,7 +326,7 @@ mod.PageMod({
 
         worker.port.on('fillpassword', onFillpassword);
 
-        worker.port.on('openTab', openTab);
+        worker.port.on('open_tab', open_tab);
 
         // new tabs get a new number
         if (typeof worker.tab.worker_id === 'undefined') {

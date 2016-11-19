@@ -1,7 +1,7 @@
 (function () {
     describe('Service: storage test suite', function () {
 
-        beforeEach(module('passwordManagerApp'));
+        beforeEach(module('psonocli'));
 
         it('storage exists', inject(function (storage) {
             expect(storage).toBeDefined();

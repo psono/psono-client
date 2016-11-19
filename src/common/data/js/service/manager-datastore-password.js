@@ -513,7 +513,7 @@
                 };
                 var onSuccess = function(password) {
 
-                    browserClient.emitSec('fillpassword-active-tab', {password: password});
+                    browserClient.emit_sec('fillpassword-active-tab', {password: password});
 
                     return password;
                 };
@@ -523,7 +523,7 @@
 
             };
 
-            return browserClient.getActiveTabUrl()
+            return browserClient.get_active_tab_url()
                 .then(onSuccess, onError);
 
         };
@@ -739,7 +739,7 @@
          * @param path path to the new share
          * @param datastore
          * @param distance
-         * @returns {*[]} paths to update
+         * @returns [] paths to update
          */
         var on_share_added = function (share_id, path, datastore, distance) {
 
@@ -840,7 +840,7 @@
          * @param path path to the deleted share
          * @param datastore
          * @param distance
-         * @returns {*[]} paths to update
+         * @returns [] paths to update
          */
         var on_share_deleted = function (share_id, path, datastore, distance) {
 
@@ -895,7 +895,7 @@
          * @param datastore
          * @param add_distance
          * @param delete_distance
-         * @returns {*[]} paths to update
+         * @returns [] paths to update
          */
         var on_share_moved = function(share_id, old_path, new_path, datastore, add_distance, delete_distance) {
 
@@ -927,7 +927,7 @@
         };
     };
 
-    var app = angular.module('passwordManagerApp');
+    var app = angular.module('psonocli');
     app.factory("managerDatastorePassword", ['$q', '$rootScope', 'managerSecret', 'managerDatastore', 'managerShare', 'passwordGenerator', 'itemBlueprint', 'helper', 'browserClient', managerDatastorePassword]);
 
 }(angular, uuid));

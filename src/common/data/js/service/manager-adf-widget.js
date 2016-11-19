@@ -635,7 +635,7 @@
         };
     };
 
-    var app = angular.module('passwordManagerApp');
+    var app = angular.module('psonocli');
     app.factory("managerAdfWidget", ['$uibModal', 'managerDatastorePassword', 'managerShare', 'managerSecret',
         'managerShareLink', 'managerSecretLink', 'itemBlueprint', managerAdfWidget]);
 

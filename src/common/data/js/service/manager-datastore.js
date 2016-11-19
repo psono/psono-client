@@ -394,7 +394,7 @@
         };
     };
 
-    var app = angular.module('passwordManagerApp');
+    var app = angular.module('psonocli');
     app.factory("managerDatastore", ['$q', '$timeout', 'browserClient', 'managerBase', 'apiClient', 'cryptoLibrary', 'storage', 'helper', managerDatastore]);
 
 }(angular));

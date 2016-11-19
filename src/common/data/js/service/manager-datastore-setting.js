@@ -55,7 +55,7 @@
         };
     };
 
-    var app = angular.module('passwordManagerApp');
+    var app = angular.module('psonocli');
     app.factory("managerDatastoreSetting", ['storage', 'managerDatastore', managerDatastoreSetting]);
 
 }(angular));

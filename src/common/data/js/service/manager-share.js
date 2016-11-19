@@ -387,7 +387,7 @@
         };
     };
 
-    var app = angular.module('passwordManagerApp');
+    var app = angular.module('psonocli');
     app.factory("managerShare", ['managerBase', 'apiClient', 'cryptoLibrary',
         'itemBlueprint', 'helper', managerShare]);
 

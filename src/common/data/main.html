@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="passwordManagerApp" class="main">
+<html ng-app="psonocli" class="main">
 <head>
     <title>Addon Window</title>
     <meta charset="utf-8">
@@ -45,7 +45,7 @@
         </ul>
 
         <ul class="navigations" ng-if="!datastore.search">
-            <li><a href="#" ng-click="openTab('index.html')">Open Datastore</a></li>
+            <li><a href="#" ng-click="open_tab('index.html')">Open Datastore</a></li>
             <li><a href="#" ng-click="generatePassword()">Generate Password</a></li>
             <!--<li><a href="https://www.psono.pw/help" target="_blank">Help</a></li>-->
 
@@ -74,7 +74,7 @@
 
         <div class="form-group">
             <button ng-click="login(loginFormUsername, loginFormPassword)" type="submit" class="btn btn-danger">Login</button>
-            <a href="#" ng-click="openTab('register.html')">Register</a>
+            <a href="#" ng-click="open_tab('register.html')">Register</a>
             <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
         </div>
 

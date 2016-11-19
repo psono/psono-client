@@ -1,7 +1,7 @@
 (function () {
     describe('Service: passwordGenerator test suite', function () {
 
-        beforeEach(module('passwordManagerApp'));
+        beforeEach(module('psonocli'));
 
         it('passwordGenerator exists', inject(function (passwordGenerator) {
             expect(passwordGenerator).toBeDefined();

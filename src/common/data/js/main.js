@@ -1,7 +1,38 @@
 (function (angular, uuid) {
     'use strict';
 
-    var app = angular.module('passwordManagerApp', ['ngRoute', 'ng', 'ui.bootstrap', 'snap', 'adf',
+    /**
+     * @ngdoc overview
+     * @name psonocli
+     * @description
+     * The Psono client
+     *
+     *
+     *
+     * @typedef {Object} PublicPrivateKeyPair
+     * @property {string} public_key The public key (hex encoded)
+     * @property {string} private_key The private key (hex encoded)
+     *
+     * @typedef {Object} EncryptedValue
+     * @property {string} text The public key (hex encoded)
+     * @property {string} nonce The private key (hex encoded)
+     *
+     *
+     * @typedef {Object} SplittedUrl
+     * @property {string} scheme The scheme e.g. 'http' or 'ftps'
+     * @property {string} authority The scheme e.g. 'test.example.com:6000'
+     * @property {string} full_domain The full domain e.g. 'test.example.com'
+     * @property {string} top_domain The top level domain e.g. 'example.com'
+     * @property {string} port The port e.g. '6000'
+     * @property {string} port The path e.g. '/url-part/'
+     * @property {string} port The query, evething after '?' e.g. 'myFunnyParameter=test'
+     * @property {string} port The query, evething after '#' e.g. 'anotherParameter=test'
+     *
+     *
+     */
+
+
+    var app = angular.module('psonocli', ['ngRoute', 'ng', 'ui.bootstrap', 'snap', 'adf',
             'adf.widget.datastore', 'adf.widget.shareusers', 'adf.widget.acceptshare', 'chieffancypants.loadingBar', 'ngAnimate',
             'LocalStorageModule', 'ngTree', 'ngDraggable', 'ng-context-menu', 'ui.select', 'ngSanitize',
             'angular-complexify', 'datatables']);
@@ -332,11 +363,11 @@
                   snapRemote, $window, $route, $routeParams, $location) {
 
 
-            /* openTab function to pass through */
-            $scope.openTab = browserClient.openTab;
+            /* open_tab function to pass through */
+            $scope.open_tab = browserClient.open_tab;
 
             /* test background page */
-            //console.log(browserClient.testBackgroundPage());
+            //console.log(browserClient.test_background_page());
 
             /* snapper */
             snapRemote.getSnapper().then(function (snapper) {
@@ -458,11 +489,11 @@
         function ($scope, $rootScope, $filter, $timeout, manager, managerDatastorePassword, managerDatastoreUser, managerSecret, browserClient, storage,
                   snapRemote, $window, $route, $routeParams, $location ) {
 
-            /* openTab function to pass through */
-            $scope.openTab = browserClient.openTab;
+            /* open_tab function to pass through */
+            $scope.open_tab = browserClient.open_tab;
 
             /* test background page */
-            //console.log(browserClient.testBackgroundPage());
+            //console.log(browserClient.test_background_page());
 
             /* for navigation, can maybe moved to another controller */
             $scope.getLinkState = function (path) {
@@ -484,7 +515,7 @@
 
             $scope.messages = [];
 
-            browserClient.loadVersion().then(function(version) {
+            browserClient.load_version().then(function(version) {
                 $scope.version = version;
             });
         }]);
@@ -494,8 +525,8 @@
         function ($scope, $rootScope, $filter, $timeout, manager, managerDatastorePassword, managerDatastoreUser, managerSecret, browserClient,
                   snapRemote, $window, $route, $routeParams, $location) {
 
-            /* openTab function to pass through */
-            $scope.openTab = browserClient.openTab;
+            /* open_tab function to pass through */
+            $scope.open_tab = browserClient.open_tab;
 
             $scope.logout = managerDatastoreUser.logout;
             $scope.generatePassword = managerDatastorePassword.generatePasswordActiveTab;
@@ -570,11 +601,11 @@
         function ($scope, $rootScope, $filter, $timeout, managerDatastoreUser, browserClient, storage,
                   snapRemote, $window, $route, $routeParams, $location, helper) {
 
-            /* openTab function to pass through */
-            $scope.openTab = browserClient.openTab;
+            /* open_tab function to pass through */
+            $scope.open_tab = browserClient.open_tab;
 
             /* test background page */
-            //console.log(browserClient.testBackgroundPage());
+            //console.log(browserClient.test_background_page());
 
             var onSuccess = function(config) {
 

@@ -1,0 +1,2873 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for js\service\api-client.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../index.html">all files</a> / <a href="index.html">js/service/</a> api-client.js
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">92.41% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>207/224</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">62.96% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>17/27</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">92.5% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>37/40</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">93.21% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>206/221</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518
+519
+520
+521
+522
+523
+524
+525
+526
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561
+562
+563
+564
+565
+566
+567
+568
+569
+570
+571
+572
+573
+574
+575
+576
+577
+578
+579
+580
+581
+582
+583
+584
+585
+586
+587
+588
+589
+590
+591
+592
+593
+594
+595
+596
+597
+598
+599
+600
+601
+602
+603
+604
+605
+606
+607
+608
+609
+610
+611
+612
+613
+614
+615
+616
+617
+618
+619
+620
+621
+622
+623
+624
+625
+626
+627
+628
+629
+630
+631
+632
+633
+634
+635
+636
+637
+638
+639
+640
+641
+642
+643
+644
+645
+646
+647
+648
+649
+650
+651
+652
+653
+654
+655
+656
+657
+658
+659
+660
+661
+662
+663
+664
+665
+666
+667
+668
+669
+670
+671
+672
+673
+674
+675
+676
+677
+678
+679
+680
+681
+682
+683
+684
+685
+686
+687
+688
+689
+690
+691
+692
+693
+694
+695
+696
+697
+698
+699
+700
+701
+702
+703
+704
+705
+706
+707
+708
+709
+710
+711
+712
+713
+714
+715
+716
+717
+718
+719
+720
+721
+722
+723
+724
+725
+726
+727
+728
+729
+730
+731
+732
+733
+734
+735
+736
+737
+738
+739
+740
+741
+742
+743
+744
+745
+746
+747
+748
+749
+750
+751
+752
+753
+754
+755
+756
+757
+758
+759
+760
+761
+762
+763
+764
+765
+766
+767
+768
+769
+770
+771
+772
+773
+774
+775
+776
+777
+778
+779
+780
+781
+782
+783
+784
+785
+786
+787
+788
+789
+790
+791
+792
+793
+794
+795
+796
+797
+798
+799
+800
+801
+802
+803
+804
+805
+806
+807
+808
+809
+810
+811
+812
+813
+814
+815
+816
+817
+818
+819
+820
+821
+822
+823
+824
+825
+826
+827
+828
+829
+830
+831
+832
+833
+834
+835
+836
+837
+838
+839
+840
+841
+842
+843
+844
+845
+846
+847
+848
+849
+850
+851
+852
+853
+854
+855
+856
+857
+858
+859
+860
+861
+862
+863
+864
+865
+866
+867
+868
+869
+870
+871
+872
+873
+874
+875
+876
+877
+878
+879
+880
+881
+882
+883
+884
+885
+886
+887
+888
+889
+890
+891
+892
+893
+894
+895
+896
+897
+898
+899
+900
+901
+902
+903
+904
+905
+906
+907
+908
+909
+910
+911
+912
+913
+914
+915
+916
+917
+918
+919
+920
+921
+922
+923
+924
+925
+926
+927
+928
+929
+930
+931
+932
+933
+934
+935
+936
+937</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">37×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">37×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">35×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">35×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">35×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">35×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">35×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">35×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">35×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">35×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">35×</span>
+<span class="cline-any cline-yes">35×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">35×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">35×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">(function(angular) {
+    'use strict';
+&nbsp;
+&nbsp;
+    var apiClient = function($http, $q, $rootScope, storage, cryptoLibrary) {
+&nbsp;
+        /**
+         * wrapper function for the actual $http request
+         *
+         * @param {string} type
+         * @param {string} endpoint
+         * @param {object} data
+         * @param {object} headers
+         * @param [session_secret_key]
+         * @returns {promise}
+         */
+        var call = function(type, endpoint, data, headers, session_secret_key) {
+&nbsp;
+            var server = storage.find_one('config', {'key': 'server'});
+&nbsp;
+            if (server === null) {
+                return $q(function(resolve, reject) {
+                    return reject({
+                        status: -1
+                    })
+                });
+            }
+&nbsp;
+            var backend = server['value']['url'];
+&nbsp;
+            if (session_secret_key &amp;&amp; data !== null) {
+                // TODO remove the // before putting in production
+                // data = cryptoLibrary.encrypt_data(JSON.stringify(data), session_secret_key);
+            }
+&nbsp;
+            var req = {
+                method: type,
+                url: backend + endpoint,
+                data: data
+            };
+&nbsp;
+            req.headers = headers;
+&nbsp;
+            return $q(function(resolve, reject) {
+&nbsp;
+                var decrypt_data = function(data) {
+&nbsp;
+                    <span class="missing-if-branch" title="if path not taken" >I</span>if (session_secret_key &amp;&amp; data !== null
+                        &amp;&amp; data.hasOwnProperty('data')
+                        &amp;&amp; data.data.hasOwnProperty('text')
+                        &amp;&amp; <span class="branch-4 cbranch-no" title="branch not covered" >data.data.hasOwnProperty('nonce'))</span> {
+<span class="cstat-no" title="statement not covered" >                        data.data = JSON.parse(cryptoLibrary.decrypt_data(data.data.text, data.data.nonce, session_secret_key));</span>
+                    }
+&nbsp;
+                    //console.log(data);
+                    return data;
+                };
+&nbsp;
+                var onSuccess = function(data) {
+                    return resolve(decrypt_data(data));
+                };
+&nbsp;
+                var onError = <span class="fstat-no" title="function not covered" >function(data) {</span>
+<span class="cstat-no" title="statement not covered" >                    if (data.status === 401) {</span>
+<span class="cstat-no" title="statement not covered" >                        $rootScope.$broadcast('force_logout', '');</span>
+                    }
+<span class="cstat-no" title="statement not covered" >                    return reject(decrypt_data(data));</span>
+                };
+&nbsp;
+                $http(req)
+                    .then(onSuccess, onError);
+&nbsp;
+            });
+        };
+&nbsp;
+        /**
+         * Ajax POST request to the backend with email and authkey for login, saves a token together with user_id
+         * and all the different keys of a user in the apidata storage
+         *
+         * @param {string} username - the username e.g dummy@example.com
+         * @param {string} authkey - the authkey as scrypt(password + username + sauce)
+         * @param {string} public_key - session public key
+         * @returns {promise} promise
+         */
+        var login = function(username, authkey, public_key) {
+&nbsp;
+            var endpoint = '/authentication/login/';
+            var connection_type = "POST";
+            var data = {
+                username: username,
+                authkey: authkey,
+                public_key: public_key
+            };
+            var headers = null;
+&nbsp;
+            return call(connection_type, endpoint, data, headers);
+        };
+&nbsp;
+&nbsp;
+        /**
+         * Ajax POST request to activate the token
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} verification - hex of first decrypted user_validator (from login) the re-encrypted with session key
+         * @param {string} verification_nonce - hex of the nonce of the verification
+         * @returns {promise}
+         */
+        var activate_token = function(token, verification, verification_nonce) {
+&nbsp;
+            var endpoint = '/authentication/activate-token/';
+            var connection_type = "POST";
+            var data = {
+                token: token,
+                verification: verification,
+                verification_nonce: verification_nonce
+            };
+            var headers = null;
+&nbsp;
+            return call(connection_type, endpoint, data, headers);
+        };
+&nbsp;
+        /**
+         * Ajax POST request to destroy the token and logout the user
+         *
+         * @param {string} token
+         * @returns {promise}
+         */
+        var logout = function (token) {
+            var endpoint = '/authentication/logout/';
+            var connection_type = "POST";
+            var data = null;
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+            return call(connection_type, endpoint, data, headers);
+        };
+&nbsp;
+        /**
+         * Ajax POST request to the backend with the email and authkey, returns nothing but an email is sent to the user
+         * with an activation_code for the email
+         *
+         * @param {string} email - email address of the user
+         * @param {string} username - username of the user (in email format)
+         * @param {string} authkey - authkey gets generated by generate_authkey(email, password)
+         * @param {string} public_key - public_key of the public/private key pair for asymmetric encryption (sharing)
+         * @param {string} private_key - private_key of the public/private key pair, encrypted with encrypt_secret
+         * @param {string} private_key_nonce - the nonce for decrypting the encrypted private_key
+         * @param {string} secret_key - secret_key for symmetric encryption, encrypted with encrypt_secret
+         * @param {string} secret_key_nonce - the nonce for decrypting the encrypted secret_key
+         * @param {string} user_sauce - the random user sauce used
+         * @param {string} base_url - the base url for the activation link creation
+         * @returns {promise}
+         */
+        var register = function (email, username, authkey, public_key, private_key, private_key_nonce, secret_key, secret_key_nonce, user_sauce, base_url) {
+            var endpoint = '/authentication/register/';
+            var connection_type = "POST";
+            var data = {
+                email: email,
+                username: username,
+                authkey: authkey,
+                public_key: public_key,
+                private_key: private_key,
+                private_key_nonce: private_key_nonce,
+                secret_key: secret_key,
+                secret_key_nonce: secret_key_nonce,
+                user_sauce: user_sauce,
+                base_url: base_url
+            };
+            var headers = null;
+&nbsp;
+            return call(connection_type, endpoint, data, headers);
+        };
+&nbsp;
+        /**
+         * Ajax POST request to the backend with the activation_code for the email, returns nothing. If successful the user
+         * can login afterwards
+         *
+         * @param {string} activation_code
+         * @returns {promise}
+         */
+        var verify_email = function (activation_code) {
+            var endpoint = '/authentication/verify-email/';
+            var connection_type = "POST";
+            var data = {
+                activation_code: activation_code
+            };
+            var headers = null;
+&nbsp;
+            return call(connection_type, endpoint, data, headers);
+        };
+&nbsp;
+        /**
+         * AJAX POST request to the backend with new user informations like for example a new password (means new
+         * authkey) or new public key
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {string} email
+         * @param {string} authkey
+         * @param {string} authkey_old
+         * @param {string} private_key
+         * @param {string} private_key_nonce
+         * @param {string} secret_key
+         * @param {string} secret_key_nonce
+         * @param {string} user_sauce
+         *
+         * @returns {promise}
+         */
+        var update_user = function(token, session_secret_key, email, authkey, authkey_old, private_key, private_key_nonce, secret_key, secret_key_nonce, user_sauce) {
+            var endpoint = '/user/update/';
+            var connection_type = "POST";
+            var data = {
+                email: email,
+                authkey: authkey,
+                authkey_old: authkey_old,
+                private_key: private_key,
+                private_key_nonce: private_key_nonce,
+                secret_key: secret_key,
+                secret_key_nonce: secret_key_nonce,
+                user_sauce: user_sauce
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+&nbsp;
+        /**
+         * Ajax GET request with the token as authentication to get the current user's datastore
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {uuid} [datastore_id=null] - the datastore ID
+         * @returns {promise}
+         */
+        var read_datastore = function (token, session_secret_key, datastore_id) {
+&nbsp;
+            //optional parameter datastore_id
+            if (datastore_id === undefined) { datastore_id = null; }
+&nbsp;
+            var endpoint = '/datastore/' + (datastore_id === null ? '' : datastore_id + '/');
+            var connection_type = "GET";
+            var data = null;
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+&nbsp;
+&nbsp;
+        /**
+         * Ajax PUT request to create a datatore with the token as authentication and optional already some data,
+         * together with the encrypted secret key and nonce
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {string} type - the type of the datastore
+         * @param {string} description - the description of the datastore
+         * @param {string} [encrypted_data] - optional data for the new datastore
+         * @param {string} [encrypted_data_nonce] - nonce for data, necessary if data is provided
+         * @param {string} encrypted_data_secret_key - encrypted secret key
+         * @param {string} encrypted_data_secret_key_nonce - nonce for secret key
+         * @returns {promise}
+         */
+        var create_datastore = function (token, session_secret_key, type, description, encrypted_data, encrypted_data_nonce, encrypted_data_secret_key, encrypted_data_secret_key_nonce) {
+            var endpoint = '/datastore/';
+            var connection_type = "PUT";
+            var data = {
+                type: type,
+                description: description,
+                data: encrypted_data,
+                data_nonce: encrypted_data_nonce,
+                secret_key: encrypted_data_secret_key,
+                secret_key_nonce: encrypted_data_secret_key_nonce
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+&nbsp;
+        /**
+         * Ajax PUT request with the token as authentication and the new datastore content
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {uuid} datastore_id - the datastore ID
+         * @param {string} [encrypted_data] - optional data for the new datastore
+         * @param {string} [encrypted_data_nonce] - nonce for data, necessary if data is provided
+         * @param {string} [encrypted_data_secret_key] - encrypted secret key, wont update on the server if not provided
+         * @param {string} [encrypted_data_secret_key_nonce] - nonce for secret key, wont update on the server if not provided
+         * @returns {promise}
+         */
+        var write_datastore = function (token, session_secret_key, datastore_id, encrypted_data, encrypted_data_nonce,
+                                        encrypted_data_secret_key, encrypted_data_secret_key_nonce) {
+            var endpoint = '/datastore/';
+            var connection_type = "POST";
+            var data = {
+                datastore_id: datastore_id,
+                data: encrypted_data,
+                data_nonce: encrypted_data_nonce,
+                secret_key: encrypted_data_secret_key,
+                secret_key_nonce: encrypted_data_secret_key_nonce
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+&nbsp;
+        /**
+         * Ajax GET request with the token as authentication to get the current user's secret
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {uuid} [secret_id=null] - optional secret ID
+         * @returns {promise}
+         */
+        var read_secret = function (token, session_secret_key, secret_id) {
+&nbsp;
+            //optional parameter secret_id
+            <span class="missing-if-branch" title="if path not taken" >I</span>if (secret_id === undefined) { <span class="cstat-no" title="statement not covered" >secret_id = null; </span>}
+&nbsp;
+            var endpoint = '/secret/' + (secret_id === null ? <span class="branch-0 cbranch-no" title="branch not covered" >'' </span>: secret_id + '/');
+            var connection_type = "GET";
+            var data = null;
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+&nbsp;
+&nbsp;
+        /**
+         * Ajax PUT request to create a datatore with the token as authentication and optional already some data,
+         * together with the encrypted secret key and nonce
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {string} [encrypted_data] - optional data for the new secret
+         * @param {string} [encrypted_data_nonce] - optional nonce for data, necessary if data is provided
+         * @param {string} link_id - the local id of the share in the datastructure
+         * @param {string} [parent_datastore_id] - optional id of the parent datastore, may be left empty if the share resides in a share
+         * @param {string} [parent_share_id] - optional id of the parent share, may be left empty if the share resides in the datastore
+         * @returns {promise}
+         */
+        var create_secret = function (token, session_secret_key, encrypted_data, encrypted_data_nonce, link_id, parent_datastore_id, parent_share_id) {
+            var endpoint = '/secret/';
+            var connection_type = "PUT";
+            var data = {
+                data: encrypted_data,
+                data_nonce: encrypted_data_nonce,
+                link_id: link_id,
+                parent_datastore_id: parent_datastore_id,
+                parent_share_id: parent_share_id
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+&nbsp;
+        /**
+         * Ajax PUT request with the token as authentication and the new secret content
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {uuid} secret_id - the secret ID
+         * @param {string} [encrypted_data] - optional data for the new secret
+         * @param {string} [encrypted_data_nonce] - optional nonce for data, necessary if data is provided
+         * @returns {promise}
+         */
+        var write_secret = function (token, session_secret_key, secret_id, encrypted_data, encrypted_data_nonce) {
+            var endpoint = '/secret/';
+            var connection_type = "POST";
+            var data = {
+                secret_id: secret_id,
+                data: encrypted_data,
+                data_nonce: encrypted_data_nonce
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+&nbsp;
+        /**
+         * Ajax POST request with the token as authentication to move a link between a secret and a datastore or a share
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {uuid} link_id - the link id
+         * @param {uuid} [new_parent_share_id=null] - optional new parent share ID, necessary if no new_parent_datastore_id is provided
+         * @param {uuid} [new_parent_datastore_id=null] - optional new datastore ID, necessary if no new_parent_share_id is provided
+         * @returns {promise}
+         */
+        var move_secret_link = function (token, session_secret_key, link_id, new_parent_share_id, new_parent_datastore_id) {
+            var endpoint = '/secret/link/';
+            var connection_type = "POST";
+            var data = {
+                link_id: link_id,
+                new_parent_share_id: new_parent_share_id,
+                new_parent_datastore_id: new_parent_datastore_id
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+&nbsp;
+        /**
+         * Ajax DELETE request with the token as authentication to delete the secret link
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {uuid} link_id
+         * @returns {promise}
+         */
+        var delete_secret_link = function (token, session_secret_key, link_id) {
+            var endpoint = '/secret/link/';
+            var connection_type = "DELETE";
+            var data = {
+                link_id: link_id
+            };
+            var headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+&nbsp;
+        /**
+         * Ajax GET request with the token as authentication to get the content for a single share
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {uuid} share_id - the share ID
+         * @returns {promise}
+         */
+        var read_share = function (token, session_secret_key, share_id) {
+&nbsp;
+            var endpoint = '/share/' + share_id + '/';
+            var connection_type = "GET";
+            var data = null;
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+&nbsp;
+        /**
+         * Ajax GET request with the token as authentication to get the current user's shares
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @returns {promise}
+         */
+        var read_shares = function (token, session_secret_key) {
+&nbsp;
+            var endpoint = '/share/';
+            var connection_type = "GET";
+            var data = null;
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+&nbsp;
+&nbsp;
+        /**
+         * Ajax PUT request to create a datastore with the token as authentication and optional already some data,
+         * together with the encrypted secret key and nonce
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {string} [encrypted_data] - optional data for the new share
+         * @param {string} [encrypted_data_nonce] - nonce for data, necessary if data is provided
+         * @param {string} key - encrypted key used by the encryption
+         * @param {string} key_nonce - nonce for key, necessary if a key is provided
+         * @param {string} [parent_share_id] - optional id of the parent share, may be left empty if the share resides in the datastore
+         * @param {string} [parent_datastore_id] - optional id of the parent datastore, may be left empty if the share resides in a share
+         * @param {string} link_id - the local id of the share in the datastructure
+         * @returns {promise}
+         */
+        var create_share = function (token, session_secret_key, encrypted_data, encrypted_data_nonce, key, key_nonce, parent_share_id,
+                                     parent_datastore_id, link_id) {
+            var endpoint = '/share/';
+            var connection_type = "PUT";
+            var data = {
+                data: encrypted_data,
+                data_nonce: encrypted_data_nonce,
+                key: key,
+                key_nonce: key_nonce,
+                key_type: "symmetric",
+                parent_share_id: parent_share_id,
+                parent_datastore_id: parent_datastore_id,
+                link_id: link_id
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+&nbsp;
+        /**
+         * Ajax PUT request with the token as authentication and the new share content
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {uuid} share_id - the share ID
+         * @param {string} [encrypted_data] - optional data for the new share
+         * @param {string} [encrypted_data_nonce] - optional nonce for data, necessary if data is provided
+         * @returns {promise}
+         */
+        var write_share = function (token, session_secret_key, share_id, encrypted_data, encrypted_data_nonce) {
+            var endpoint = '/share/';
+            var connection_type = "POST";
+            var data = {
+                share_id: share_id,
+                data: encrypted_data,
+                data_nonce: encrypted_data_nonce
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+&nbsp;
+        /**
+         * Ajax GET request with the token as authentication to get the users and groups rights of the share
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {uuid} share_id - the share ID
+         * @returns {promise}
+         */
+        var read_share_rights = function (token, session_secret_key, share_id) {
+            var endpoint = '/share/rights/' + share_id + '/';
+            var connection_type = "GET";
+            var data = null;
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+&nbsp;
+        /**
+         * Ajax GET request with the token as authentication to get all the users share rights
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @returns {promise}
+         */
+        var read_share_rights_overview = function (token, session_secret_key) {
+            var endpoint = '/share/right/';
+            var connection_type = "GET";
+            var data = null;
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+&nbsp;
+&nbsp;
+        /**
+         * Ajax PUT request with the token as authentication to create share rights for a user
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {string} encrypted_title - the title shown to the user before he accepts
+         * @param {string} encrypted_title_nonce - the corresponding title nonce
+         * @param {string} encrypted_type - the type of the share
+         * @param {string} encrypted_type_nonce - the corresponding type nonce
+         * @param {uuid} share_id - the share ID
+         * @param {uuid} user_id - the target user's user ID
+         * @param {string} key - the encrypted share secret, encrypted with the public key of the target user
+         * @param {string} key_nonce - the unique nonce for decryption
+         * @param {bool} read - read right
+         * @param {bool} write - write right
+         * @param {bool} grant - grant right
+         * @returns {promise}
+         */
+        var create_share_right = function (token, session_secret_key, encrypted_title, encrypted_title_nonce, encrypted_type, encrypted_type_nonce, share_id,
+                                           user_id, key, key_nonce, read, write, grant) {
+            var endpoint = '/share/right/';
+            var connection_type = "PUT";
+            var data = {
+                title: encrypted_title,
+                title_nonce: encrypted_title_nonce,
+                type: encrypted_type,
+                type_nonce: encrypted_type_nonce,
+                share_id: share_id,
+                user_id: user_id,
+                key: key,
+                key_nonce: key_nonce,
+                read: read,
+                write: write,
+                grant: grant
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+&nbsp;
+&nbsp;
+        /**
+         * Ajax POST request with the token as authentication to update the share rights for a user
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {uuid} share_id - the share ID
+         * @param {uuid} user_id - the target user's user ID
+         * @param {bool} read - read right
+         * @param {bool} write - write right
+         * @param {bool} grant - grant right
+         * @returns {promise}
+         */
+        var update_share_right = function (token, session_secret_key, share_id,
+                                           user_id, read, write, grant) {
+            var endpoint = '/share/right/';
+            var connection_type = "POST";
+            var data = {
+                share_id: share_id,
+                user_id: user_id,
+                read: read,
+                write: write,
+                grant: grant
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+&nbsp;
+        /**
+         * Ajax DELETE request with the token as authentication to delete the user / group share right
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {uuid} share_right_id - the share right ID
+         * @returns {promise}
+         */
+        var delete_share_right = function (token, session_secret_key, share_right_id) {
+            var endpoint = '/share/right/';
+            var connection_type = "DELETE";
+            var data = {
+                share_right_id: share_right_id
+            };
+            var headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+&nbsp;
+        /**
+         * Ajax GET request with the token as authentication to get all the users inherited share rights
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @returns {promise}
+         */
+        var read_share_rights_inherit_overview = function (token, session_secret_key) {
+            var endpoint = '/share/right/inherit/';
+            var connection_type = "GET";
+            var data = null;
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+&nbsp;
+        /**
+         * Ajax POST request with the token as authentication to accept a share right and in the same run updates it
+         * with the re-encrypted key
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {uuid} share_right_id
+         * @param {string} key
+         * @param {string} key_nonce
+         * @param {uuid} link_id
+         * @param {uuid} parent_share_id
+         * @param {uuid} parent_datastore_id
+         * @returns {promise}
+         */
+        var accept_share_right = function (token, session_secret_key, share_right_id, key, key_nonce, link_id, parent_share_id, parent_datastore_id) {
+            var endpoint = '/share/right/accept/';
+            var connection_type = "POST";
+            var data = {
+                share_right_id: share_right_id,
+                key: key,
+                key_nonce: key_nonce,
+                link_id: link_id,
+                parent_share_id: parent_share_id,
+                parent_datastore_id: parent_datastore_id
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+            
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+&nbsp;
+        /**
+         * Ajax POST request with the token as authentication to accept a share right and in the same run updates it
+         * with the re-encrypted key
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {uuid} share_right_id
+         * @returns {*}
+         */
+        var decline_share_right = function (token, session_secret_key, share_right_id) {
+            var endpoint = '/share/right/decline/';
+            var connection_type = "POST";
+            var data = {
+                share_right_id: share_right_id
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+&nbsp;
+        /**
+         * Ajax GET request with the token as authentication to get the public key of a user by user_id or user_email
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {uuid} [user_id] - the user ID
+         * @param {email} [user_username] - the user
+         * @returns {promise}
+         */
+        var get_users_public_key = function (token, session_secret_key, user_id, user_username) {
+            var endpoint = '/user/search/';
+            var connection_type = "POST";
+            var data = {
+                user_id: user_id,
+                user_username: user_username
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+&nbsp;
+&nbsp;
+        /**
+         * Ajax PUT request with the token as authentication to create a link between a share and a datastore or another
+         * (parent-)share
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {uuid} link_id - the link id
+         * @param {uuid} share_id - the share ID
+         * @param {uuid} [parent_share_id=null] - optional parent share ID, necessary if no parent_datastore_id is provided
+         * @param {uuid} [parent_datastore_id=null] - optional parent datastore ID, necessary if no parent_share_id is provided
+         * @returns {promise}
+         */
+        var create_share_link = function (token, session_secret_key, link_id, share_id, parent_share_id, parent_datastore_id) {
+            var endpoint = '/share/link/';
+            var connection_type = "PUT";
+            var data = {
+                link_id: link_id,
+                share_id: share_id,
+                parent_share_id: parent_share_id,
+                parent_datastore_id: parent_datastore_id
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+&nbsp;
+        /**
+         * Ajax POST request with the token as authentication to move a link between a share and a datastore or another
+         * (parent-)share
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {uuid} link_id - the link id
+         * @param {uuid} [new_parent_share_id=null] - optional new parent share ID, necessary if no new_parent_datastore_id is provided
+         * @param {uuid} [new_parent_datastore_id=null] - optional new datastore ID, necessary if no new_parent_share_id is provided
+         * @returns {promise}
+         */
+        var move_share_link = function (token, session_secret_key, link_id, new_parent_share_id, new_parent_datastore_id) {
+            var endpoint = '/share/link/';
+            var connection_type = "POST";
+            var data = {
+                link_id: link_id,
+                new_parent_share_id: new_parent_share_id,
+                new_parent_datastore_id: new_parent_datastore_id
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+&nbsp;
+        /**
+         * Ajax DELETE request with the token as authentication to delete a link
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {uuid} link_id
+         * @returns {promise}
+         */
+        var delete_share_link = function (token, session_secret_key, link_id) {
+            var endpoint = '/share/link/';
+            var connection_type = "DELETE";
+            var data = {
+                link_id: link_id
+            };
+            var headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+&nbsp;
+        /**
+         * Ajax GET request with the token as authentication to get the current user's groups
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {uuid} [group_id=null] - optional group ID
+         * @returns {promise}
+         */
+        var read_group = <span class="fstat-no" title="function not covered" >function (token, session_secret_key, group_id) {</span>
+&nbsp;
+            //optional parameter group_id
+<span class="cstat-no" title="statement not covered" >            if (group_id === undefined) { <span class="cstat-no" title="statement not covered" >group_id = null; </span>}</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var endpoint = '/group/' + (group_id === null ? '' : group_id + '/');</span>
+<span class="cstat-no" title="statement not covered" >            var connection_type = "GET";</span>
+<span class="cstat-no" title="statement not covered" >            var data = null;</span>
+<span class="cstat-no" title="statement not covered" >            var headers = {</span>
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            return call(connection_type, endpoint, data, headers, session_secret_key);</span>
+        };
+&nbsp;
+&nbsp;
+        /**
+         * Ajax PUT request to create a group with the token as authentication and together with the name of the group
+         *
+         * @param {string} token - authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key
+         * @param {string} name - name of the new group
+         * @param {string} encrypted_data_secret_key - encrypted secret key
+         * @param {string} encrypted_data_secret_key_nonce - nonce for secret key
+         * @returns {promise}
+         */
+        var create_group = <span class="fstat-no" title="function not covered" >function (token, session_secret_key, name, encrypted_data_secret_key, encrypted_data_secret_key_nonce) {</span>
+<span class="cstat-no" title="statement not covered" >            var endpoint = '/group/';</span>
+<span class="cstat-no" title="statement not covered" >            var connection_type = "PUT";</span>
+<span class="cstat-no" title="statement not covered" >            var data = {</span>
+                name: name,
+                secret_key: encrypted_data_secret_key,
+                secret_key_nonce: encrypted_data_secret_key_nonce
+            };
+<span class="cstat-no" title="statement not covered" >            var headers = {</span>
+                "Authorization": "Token "+ token
+            };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            return call(connection_type, endpoint, data, headers, session_secret_key);</span>
+        };
+&nbsp;
+        return {
+            login: login,
+            activate_token: activate_token,
+            logout: logout,
+            register: register,
+            verify_email: verify_email,
+            update_user: update_user,
+            read_datastore: read_datastore,
+            write_datastore: write_datastore,
+            create_datastore: create_datastore,
+            read_secret: read_secret,
+            write_secret: write_secret,
+            create_secret: create_secret,
+            move_secret_link: move_secret_link,
+            delete_secret_link: delete_secret_link,
+            read_share:read_share,
+            read_shares: read_shares,
+            write_share: write_share,
+            create_share: create_share,
+            read_share_rights: read_share_rights,
+            read_share_rights_overview: read_share_rights_overview,
+            create_share_right: create_share_right,
+            update_share_right: update_share_right,
+            delete_share_right: delete_share_right,
+            read_share_rights_inherit_overview: read_share_rights_inherit_overview,
+            accept_share_right: accept_share_right,
+            decline_share_right: decline_share_right,
+            get_users_public_key: get_users_public_key,
+            create_share_link: create_share_link,
+            move_share_link: move_share_link,
+            delete_share_link: delete_share_link,
+            read_group: read_group,
+            create_group: create_group
+        };
+    };
+&nbsp;
+    var app = angular.module('psonocli');
+    app.factory("apiClient", ['$http', '$q', '$rootScope', 'storage', 'cryptoLibrary', apiClient]);
+&nbsp;
+}(angular));
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Nov 15 2016 21:28:30 GMT+0100 (W. Europe Standard Time)
+</div>
+</div>
+<script src="../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../sorter.js"></script>
+</body>
+</html>

@@ -1,0 +1,9031 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>Documentation Global</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.simplex.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top ">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" href="index.html">Documentation</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="module-ng.html">ng</a></li><li><a href="module-ngJq.html">ngJq</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="Sortable.html">Sortable</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="global.html#$get">$get</a></li><li><a href="global.html#$route">$route</a></li><li><a href="global.html#$routeParams">$routeParams</a></li><li><a href="global.html#$routeProvider">$routeProvider</a></li><li><a href="global.html#$sanitize">$sanitize</a></li><li><a href="global.html#$sanitizeProvider">$sanitizeProvider</a></li><li><a href="global.html#$swipe">$swipe</a></li><li><a href="global.html#$touchProvider">$touchProvider</a></li><li><a href="global.html#adjustTop">adjustTop</a></li><li><a href="global.html#browserClient">browserClient</a></li><li><a href="global.html#ClassClient">ClassClient</a></li><li><a href="global.html#decrypt_data">decrypt_data</a></li><li><a href="global.html#decrypt_data_public_key">decrypt_data_public_key</a></li><li><a href="global.html#decrypt_secret">decrypt_secret</a></li><li><a href="global.html#encrypt_data">encrypt_data</a></li><li><a href="global.html#encrypt_data_public_key">encrypt_data_public_key</a></li><li><a href="global.html#encrypt_secret">encrypt_secret</a></li><li><a href="global.html#endsWith">endsWith</a></li><li><a href="global.html#fromFnPromise">fromFnPromise</a></li><li><a href="global.html#fromSource">fromSource</a></li><li><a href="global.html#generate_authkey">generate_authkey</a></li><li><a href="global.html#generate_public_private_keypair">generate_public_private_keypair</a></li><li><a href="global.html#generate_secret_key">generate_secret_key</a></li><li><a href="global.html#getRawNode">getRawNode</a></li><li><a href="global.html#isScrollable">isScrollable</a></li><li><a href="global.html#linky">linky</a></li><li><a href="global.html#newColumn">newColumn</a></li><li><a href="global.html#newOptions">newOptions</a></li><li><a href="global.html#ngAnimate">ngAnimate</a></li><li><a href="global.html#ngAnimateChildren">ngAnimateChildren</a></li><li><a href="global.html#ngAnimateSwap">ngAnimateSwap</a></li><li><a href="global.html#ngClick">ngClick</a></li><li><a href="global.html#ngRoute">ngRoute</a></li><li><a href="global.html#ngSanitize">ngSanitize</a></li><li><a href="global.html#ngSwipeLeft">ngSwipeLeft</a></li><li><a href="global.html#ngSwipeRight">ngSwipeRight</a></li><li><a href="global.html#ngTouch">ngTouch</a></li><li><a href="global.html#ngView">ngView</a></li><li><a href="global.html#offset">offset</a></li><li><a href="global.html#offsetParent">offsetParent</a></li><li><a href="global.html#on_copy_to_clipboard">on_copy_to_clipboard</a></li><li><a href="global.html#on_get_active_tab_url">on_get_active_tab_url</a></li><li><a href="global.html#on_secret_get_item">on_secret_get_item</a></li><li><a href="global.html#on_storage_get_item">on_storage_get_item</a></li><li><a href="global.html#openTab">openTab</a></li><li><a href="global.html#options">options</a></li><li><a href="global.html#parse_url">parse_url</a></li><li><a href="global.html#parsePlacement">parsePlacement</a></li><li><a href="global.html#parseStyle">parseStyle</a></li><li><a href="global.html#position">position</a></li><li><a href="global.html#positionArrow">positionArrow</a></li><li><a href="global.html#positionElements">positionElements</a></li><li><a href="global.html#read_secret">read_secret</a></li><li><a href="global.html#scrollbarPadding">scrollbarPadding</a></li><li><a href="global.html#scrollbarWidth">scrollbarWidth</a></li><li><a href="global.html#scrollParent">scrollParent</a></li><li><a href="global.html#searchLocalStorage">searchLocalStorage</a></li><li><a href="global.html#setTriggers">setTriggers</a></li><li><a href="global.html#viewportOffset">viewportOffset</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+        
+            <div class="col-sm-3 col-md-3">
+                <form class="navbar-form" role="search">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                        <div class="input-group-btn">
+                            <button class="btn btn-default" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-8">
+	
+		<div id="main">
+			
+
+	<h1 class="page-title">Global</h1>
+<section>
+
+<header>
+    
+        <h2>
+        
+        </h2>
+        
+    
+</header>
+
+
+<article>
+    <div class="container-overview">
+    
+        
+
+        
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        <dl>
+            
+<hr>
+<dt class="name" id="$get">
+    <h4 id="$get"><span class="type-signature"></span>$get<span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Returns the actual instance of the $tooltip service.
+TODO support multiple triggers
+    </div>
+    
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt class="name" id="$route">
+    <h4 id="$route"><span class="type-signature"></span>$route<span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        `$route` is used for deep-linking URLs to controllers and views (HTML partials).It watches `$location.url()` and tries to map the path to an existing route definition.Requires the <a href="global.html#ngRoute">`ngRoute`</a> module to be installed.You can define routes through $routeProvider's API.The `$route` service is typically used in conjunction with the`ngView` directive and the`$routeParams` service.
+    </div>
+    
+
+    
+
+    
+<dl class="details">
+    
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    <dl>
+
+<table class="props table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>current</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Reference to the current route definition.The route definition contains:  - `controller`: The controller constructor as defined in the route definition.  - `locals`: A map of locals which is used by $controller service for    controller instantiation. The `locals` contain    the resolved values of the `resolve` map. Additionally the `locals` also contain:    - `$scope` - The current route scope.    - `$template` - The current route template HTML.    The `locals` will be assigned to the route scope's `$resolve` property. You can override    the property name, using `resolveAs` in the route definition. See    $routeProvider for more info.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>routes</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Object with all route configuration Objects as its properties.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+</dl>
+
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+        <h5>Example</h5>
+        
+    <pre class="sunlight-highlight-javascript">This example shows how changing the URL hash causes the &#x60;$route&#x60; to match a route against theURL, and the &#x60;ngView&#x60; pulls in the partial.&lt;example name=&quot;$route-service&quot; module=&quot;ngRouteExample&quot;         deps=&quot;angular-route.js&quot; fixBase=&quot;true&quot;&gt;  &lt;file name=&quot;index.html&quot;&gt;    &lt;div ng-controller=&quot;MainController&quot;&gt;      Choose:      &lt;a href=&quot;Book/Moby&quot;&gt;Moby&lt;/a&gt; |      &lt;a href=&quot;Book/Moby/ch/1&quot;&gt;Moby: Ch1&lt;/a&gt; |      &lt;a href=&quot;Book/Gatsby&quot;&gt;Gatsby&lt;/a&gt; |      &lt;a href=&quot;Book/Gatsby/ch/4?key=value&quot;&gt;Gatsby: Ch4&lt;/a&gt; |      &lt;a href=&quot;Book/Scarlet&quot;&gt;Scarlet Letter&lt;/a&gt;&lt;br/&gt;      &lt;div ng-view&gt;&lt;/div&gt;      &lt;hr /&gt;      &lt;pre&gt;$location.path() = {{$location.path()}}&lt;/pre&gt;      &lt;pre&gt;$route.current.templateUrl = {{$route.current.templateUrl}}&lt;/pre&gt;      &lt;pre&gt;$route.current.params = {{$route.current.params}}&lt;/pre&gt;      &lt;pre&gt;$route.current.scope.name = {{$route.current.scope.name}}&lt;/pre&gt;      &lt;pre&gt;$routeParams = {{$routeParams}}&lt;/pre&gt;    &lt;/div&gt;  &lt;/file&gt;  &lt;file name=&quot;book.html&quot;&gt;    controller: {{name}}&lt;br /&gt;    Book Id: {{params.bookId}}&lt;br /&gt;  &lt;/file&gt;  &lt;file name=&quot;chapter.html&quot;&gt;    controller: {{name}}&lt;br /&gt;    Book Id: {{params.bookId}}&lt;br /&gt;    Chapter Id: {{params.chapterId}}  &lt;/file&gt;  &lt;file name=&quot;script.js&quot;&gt;    angular.module(&#x27;ngRouteExample&#x27;, [&#x27;ngRoute&#x27;])     .controller(&#x27;MainController&#x27;, function($scope, $route, $routeParams, $location) {         $scope.$route = $route;         $scope.$location = $location;         $scope.$routeParams = $routeParams;     })     .controller(&#x27;BookController&#x27;, function($scope, $routeParams) {         $scope.name = &quot;BookController&quot;;         $scope.params = $routeParams;     })     .controller(&#x27;ChapterController&#x27;, function($scope, $routeParams) {         $scope.name = &quot;ChapterController&quot;;         $scope.params = $routeParams;     })    .config(function($routeProvider, $locationProvider) {      $routeProvider       .when(&#x27;/Book/:bookId&#x27;, {        templateUrl: &#x27;book.html&#x27;,        controller: &#x27;BookController&#x27;,        resolve: {          // I will cause a 1 second delay          delay: function($q, $timeout) {            var delay = $q.defer();            $timeout(delay.resolve, 1000);            return delay.promise;          }        }      })      .when(&#x27;/Book/:bookId/ch/:chapterId&#x27;, {        templateUrl: &#x27;chapter.html&#x27;,        controller: &#x27;ChapterController&#x27;      });      // configure html5 to get links working on jsfiddle      $locationProvider.html5Mode(true);    });  &lt;/file&gt;  &lt;file name=&quot;protractor.js&quot; type=&quot;protractor&quot;&gt;    it(&#x27;should load and compile correct template&#x27;, function() {      element(by.linkText(&#x27;Moby: Ch1&#x27;)).click();      var content = element(by.css(&#x27;[ng-view]&#x27;)).getText();      expect(content).toMatch(/controller\: ChapterController/);      expect(content).toMatch(/Book Id\: Moby/);      expect(content).toMatch(/Chapter Id\: 1/);      element(by.partialLinkText(&#x27;Scarlet&#x27;)).click();      content = element(by.css(&#x27;[ng-view]&#x27;)).getText();      expect(content).toMatch(/controller\: BookController/);      expect(content).toMatch(/Book Id\: Scarlet/);    });  &lt;/file&gt;&lt;/example&gt;</pre>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt class="name" id="$routeParams">
+    <h4 id="$routeParams"><span class="type-signature"></span>$routeParams<span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        The `$routeParams` service allows you to retrieve the current set of route parameters.Requires the <a href="global.html#ngRoute">`ngRoute`</a> module to be installed.The route parameters are a combination of `$location`'s`search()` and `path()`.The `path` parameters are extracted when the `$route` path is matched.In case of parameter name collision, `path` params take precedence over `search` params.The service guarantees that the identity of the `$routeParams` object will remain unchanged(but its properties will likely change) even when a route change occurs.Note that the `$routeParams` are only updated *after* a route change completes successfully.This means that you cannot rely on `$routeParams` being correct in route resolve functions.Instead you can use `$route.current.params` to access the new route's parameters.
+    </div>
+    
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+        <h5>Example</h5>
+        
+    <pre class="sunlight-highlight-javascript">&#x60;&#x60;&#x60;js // Given: // URL: http://server.com/index.html#/Chapter/1/Section/2?search=moby // Route: /Chapter/:chapterId/Section/:sectionId // // Then $routeParams ==&gt; {chapterId:&#x27;1&#x27;, sectionId:&#x27;2&#x27;, search:&#x27;moby&#x27;}&#x60;&#x60;&#x60;</pre>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt class="name" id="$routeProvider">
+    <h4 id="$routeProvider"><span class="type-signature"></span>$routeProvider<span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Used for configuring routes.## ExampleSee $route for an example of configuring and using `ngRoute`.## DependenciesRequires the <a href="global.html#ngRoute">`ngRoute`</a> module to be installed.
+    </div>
+    
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt class="name" id="$sanitizeProvider">
+    <h4 id="$sanitizeProvider"><span class="type-signature"></span>$sanitizeProvider<span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Creates and configures <a href="global.html#$sanitize">$sanitize</a> instance.
+    </div>
+    
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt class="name" id="$swipe">
+    <h4 id="$swipe"><span class="type-signature"></span>$swipe<span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        The `$swipe` service is a service that abstracts the messier details of hold-and-drag swipe
+behavior, to make implementing swipe-related directives more convenient.
+
+Requires the <a href="global.html#ngTouch">`ngTouch`</a> module to be installed.
+
+`$swipe` is used by the `ngSwipeLeft` and `ngSwipeRight` directives in `ngTouch`.
+
+# Usage
+The `$swipe` service is an object with a single method: `bind`. `bind` takes an element
+which is to be watched for swipes, and an object with four handler functions. See the
+documentation for `bind` below.
+    </div>
+    
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt class="name" id="$touchProvider">
+    <h4 id="$touchProvider"><span class="type-signature"></span>$touchProvider<span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        The `$touchProvider` allows enabling / disabling ngTouch's ngClick directive.
+    </div>
+    
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt class="name" id="ngAnimate">
+    <h4 id="ngAnimate"><span class="type-signature"></span>ngAnimate<span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        The `ngAnimate` module provides support for CSS-based animations (keyframes and transitions) as well as JavaScript-based animations viacallback hooks. Animations are not enabled by default, however, by including `ngAnimate` the animation hooks are enabled for an Angular app.<div doc-module-components="ngAnimate"></div># UsageSimply put, there are two ways to make use of animations when ngAnimate is used: by using **CSS** and **JavaScript**. The former works purely basedusing CSS (by using matching CSS selectors/styles) and the latter triggers animations that are registered via `module.animation()`. Forboth CSS and JS animations the sole requirement is to have a matching `CSS class` that exists both in the registered animation and withinthe HTML element that the animation will be triggered on.## Directive SupportThe following directives are "animation aware":| Directive                                                                                                | Supported Animations                                                     ||----------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|| ngRepeat                                                        | enter, leave and move                                                    || ngView                                                       | enter and leave                                                          || ngInclude                                                      | enter and leave                                                          || ngSwitch                                                        | enter and leave                                                          || ngIf                                                                | enter and leave                                                          || ngClass                                                          | add and remove (the CSS class(es) present)                               || ngShow & ngHide            | add and remove (the ng-hide class value)                                 || form & ngModel    | add and remove (dirty, pristine, valid, invalid & all other validations) || ngMessages                                                          | add and remove (ng-active & ng-inactive)                                 || ngMessage                                                           | enter and leave                                                          |(More information can be found by visiting each the documentation associated with each directive.)## CSS-based AnimationsCSS-based animations with ngAnimate are unique since they require no JavaScript code at all. By using a CSS class that we reference between our HTMLand CSS code we can create an animation that will be picked up by Angular when an the underlying directive performs an operation.The example below shows how an `enter` animation can be made possible on an element using `ng-if`:```html<div ng-if="bool" class="fade">   Fade me in out</div><button ng-click="bool=true">Fade In!</button><button ng-click="bool=false">Fade Out!</button>```Notice the CSS class **fade**? We can now create the CSS transition code that references this class:```css/&#42; The starting CSS styles for the enter animation &#42;/.fade.ng-enter {  transition:0.5s linear all;  opacity:0;}/&#42; The finishing CSS styles for the enter animation &#42;/.fade.ng-enter.ng-enter-active {  opacity:1;}```The key thing to remember here is that, depending on the animation event (which each of the directives above trigger depending on what's going on) twogenerated CSS classes will be applied to the element; in the example above we have `.ng-enter` and `.ng-enter-active`. For CSS transitions, the transitioncode **must** be defined within the starting CSS class (in this case `.ng-enter`). The destination class is what the transition will animate towards.If for example we wanted to create animations for `leave` and `move` (ngRepeat triggers move) then we can do so using the same CSS naming conventions:```css/&#42; now the element will fade out before it is removed from the DOM &#42;/.fade.ng-leave {  transition:0.5s linear all;  opacity:1;}.fade.ng-leave.ng-leave-active {  opacity:0;}```We can also make use of **CSS Keyframes** by referencing the keyframe animation within the starting CSS class:```css/&#42; there is no need to define anything inside of the destinationCSS class since the keyframe will take charge of the animation &#42;/.fade.ng-leave {  animation: my_fade_animation 0.5s linear;  -webkit-animation: my_fade_animation 0.5s linear;}
+    </div>
+    
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt class="name" id="ngAnimateChildren">
+    <h4 id="ngAnimateChildren"><span class="type-signature"></span>ngAnimateChildren<span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        ngAnimateChildren allows you to specify that children of this element should animate even if anyof the children's parents are currently animating. By default, when an element has an active `enter`, `leave`, or `move`(structural) animation, child elements that also have an active structural animation are not animated.Note that even if `ngAnimteChildren` is set, no child animations will run when the parent element is removed from the DOM (`leave` animation).
+    </div>
+    
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+        <h5>Example</h5>
+        
+    <pre class="sunlight-highlight-javascript">&lt;example module=&quot;ngAnimateChildren&quot; name=&quot;ngAnimateChildren&quot; deps=&quot;angular-animate.js&quot; animations=&quot;true&quot;&gt;
+     &lt;file name=&quot;index.html&quot;&gt;
+     &lt;div ng-controller=&quot;mainController as main&quot;&gt;
+     &lt;label&gt;Show container? &lt;input type=&quot;checkbox&quot; ng-model=&quot;main.enterElement&quot; /&gt;&lt;/label&gt;
+     &lt;label&gt;Animate children? &lt;input type=&quot;checkbox&quot; ng-model=&quot;main.animateChildren&quot; /&gt;&lt;/label&gt;
+     &lt;hr&gt;
+     &lt;div ng-animate-children=&quot;{{main.animateChildren}}&quot;&gt;
+     &lt;div ng-if=&quot;main.enterElement&quot; class=&quot;container&quot;&gt;
+     List of items:
+     &lt;div ng-repeat=&quot;item in [0, 1, 2, 3]&quot; class=&quot;item&quot;&gt;Item {{item}}&lt;/div&gt;
+     &lt;/div&gt;
+     &lt;/div&gt;
+     &lt;/div&gt;
+     &lt;/file&gt;
+     &lt;file name=&quot;animations.css&quot;&gt;
+
+     .container.ng-enter,
+     .container.ng-leave {
+        transition: all ease 1.5s;
+      }
+
+     .container.ng-enter,
+     .container.ng-leave-active {
+        opacity: 0;
+      }
+
+     .container.ng-leave,
+     .container.ng-enter-active {
+        opacity: 1;
+      }
+
+     .item {
+        background: firebrick;
+        color: #FFF;
+        margin-bottom: 10px;
+      }
+
+     .item.ng-enter,
+     .item.ng-leave {
+        transition: transform 1.5s ease;
+      }
+
+     .item.ng-enter {
+        transform: translateX(50px);
+      }
+
+     .item.ng-enter-active {
+        transform: translateX(0);
+      }
+     &lt;/file&gt;
+     &lt;file name=&quot;script.js&quot;&gt;
+     angular.module(&#x27;ngAnimateChildren&#x27;, [&#x27;ngAnimate&#x27;])
+     .controller(&#x27;mainController&#x27;, function() {
+          this.animateChildren = false;
+          this.enterElement = false;
+        });
+     &lt;/file&gt;
+     &lt;/example&gt;</pre>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt class="name" id="ngAnimateSwap">
+    <h4 id="ngAnimateSwap"><span class="type-signature"></span>ngAnimateSwap<span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        ngAnimateSwap is a animation-oriented directive that allows for the container tobe removed and entered in whenever the associated expression changes. Acommon usecase for this directive is a rotating banner or slider component whichcontains one image being present at a time. When the active image changesthen the old image will perform a `leave` animation and the new elementwill be inserted via an `enter` animation.
+    </div>
+    
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+        <h5>Example</h5>
+        
+    <pre class="sunlight-highlight-javascript">&lt;example name=&quot;ngAnimateSwap-directive&quot; module=&quot;ngAnimateSwapExample&quot;         deps=&quot;angular-animate.js&quot;         animations=&quot;true&quot; fixBase=&quot;true&quot;&gt;  &lt;file name=&quot;index.html&quot;&gt;    &lt;div class=&quot;container&quot; ng-controller=&quot;AppCtrl&quot;&gt;      &lt;div ng-animate-swap=&quot;number&quot; class=&quot;cell swap-animation&quot; ng-class=&quot;colorClass(number)&quot;&gt;        {{ number }}      &lt;/div&gt;    &lt;/div&gt;  &lt;/file&gt;  &lt;file name=&quot;script.js&quot;&gt;    angular.module(&#x27;ngAnimateSwapExample&#x27;, [&#x27;ngAnimate&#x27;])      .controller(&#x27;AppCtrl&#x27;, [&#x27;$scope&#x27;, &#x27;$interval&#x27;, function($scope, $interval) {        $scope.number = 0;        $interval(function() {          $scope.number++;        }, 1000);        var colors = [&#x27;red&#x27;,&#x27;blue&#x27;,&#x27;green&#x27;,&#x27;yellow&#x27;,&#x27;orange&#x27;];        $scope.colorClass = function(number) {          return colors[number % colors.length];        };      }]);  &lt;/file&gt; &lt;file name=&quot;animations.css&quot;&gt; .container {   height:250px;   width:250px;   position:relative;   overflow:hidden;   border:2px solid black; } .container .cell {   font-size:150px;   text-align:center;   line-height:250px;   position:absolute;   top:0;   left:0;   right:0;   border-bottom:2px solid black; } .swap-animation.ng-enter, .swap-animation.ng-leave {   transition:0.5s linear all; } .swap-animation.ng-enter {   top:-250px; } .swap-animation.ng-enter-active {   top:0px; } .swap-animation.ng-leave {   top:0px; } .swap-animation.ng-leave-active {   top:250px; } .red { background:red; } .green { background:green; } .blue { background:blue; } .yellow { background:yellow; } .orange { background:orange; } &lt;/file&gt;&lt;/example&gt;</pre>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt class="name" id="ngClick">
+    <h4 id="ngClick"><span class="type-signature"></span>ngClick<span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        <div class="alert alert-danger">
+**DEPRECATION NOTICE**: Beginning with Angular 1.5, this directive is deprecated and by default **disabled**.
+The directive will receive no further support and might be removed from future releases.
+If you need the directive, you can enable it with the $touchProvider#ngClickOverrideEnabled
+function. We also recommend that you migrate to [FastClick](https://github.com/ftlabs/fastclick).
+To learn more about the 300ms delay, this [Telerik article](http://developer.telerik.com/featured/300-ms-click-delay-ios-8/)
+gives a good overview.
+</div>
+A more powerful replacement for the default ngClick designed to be used on touchscreen
+devices. Most mobile browsers wait about 300ms after a tap-and-release before sending
+the click event. This version handles them immediately, and then prevents the
+following click event from propagating.
+
+Requires the <a href="global.html#ngTouch">`ngTouch`</a> module to be installed.
+
+This directive can fall back to using an ordinary click event, and so works on desktop
+browsers as well as mobile.
+
+This directive also sets the CSS class `ng-click-active` while the element is being held
+down (by a mouse click or touch) so you can restyle the depressed element if you wish.
+    </div>
+    
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+	<dt class="important tag-deprecated method-doc-label method-doc-details-label">Deprecated:</dt>
+	
+    <dd class="yes-def tag-deprecated">
+        <ul class="dummy">
+            <li>Yes</li>
+        </ul>
+    </dd>
+    
+    
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+        <h5>Example</h5>
+        
+    <pre class="sunlight-highlight-javascript">&lt;example module=&quot;ngClickExample&quot; deps=&quot;angular-touch.js&quot;&gt;
+     &lt;file name=&quot;index.html&quot;&gt;
+     &lt;button ng-click=&quot;count = count + 1&quot; ng-init=&quot;count=0&quot;&gt;
+     Increment
+     &lt;/button&gt;
+     count: {{ count }}
+     &lt;/file&gt;
+     &lt;file name=&quot;script.js&quot;&gt;
+     angular.module(&#x27;ngClickExample&#x27;, [&#x27;ngTouch&#x27;]);
+     &lt;/file&gt;
+     &lt;/example&gt;</pre>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt class="name" id="ngRoute">
+    <h4 id="ngRoute"><span class="type-signature"></span>ngRoute<span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        # ngRouteThe `ngRoute` module provides routing and deeplinking services and directives for angular apps.## ExampleSee $route for an example of configuring and using `ngRoute`.<div doc-module-components="ngRoute"></div>
+    </div>
+    
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt class="name" id="ngSanitize">
+    <h4 id="ngSanitize"><span class="type-signature"></span>ngSanitize<span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        # ngSanitizeThe `ngSanitize` module provides functionality to sanitize HTML.<div doc-module-components="ngSanitize"></div>See `$sanitize` for usage.
+    </div>
+    
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt class="name" id="ngSwipeLeft">
+    <h4 id="ngSwipeLeft"><span class="type-signature"></span>ngSwipeLeft<span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Specify custom behavior when an element is swiped to the left on a touchscreen device.
+A leftward swipe is a quick, right-to-left slide of the finger.
+Though ngSwipeLeft is designed for touch-based devices, it will work with a mouse click and drag
+too.
+
+To disable the mouse click and drag functionality, add `ng-swipe-disable-mouse` to
+the `ng-swipe-left` or `ng-swipe-right` DOM Element.
+
+Requires the <a href="global.html#ngTouch">`ngTouch`</a> module to be installed.
+    </div>
+    
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+        <h5>Example</h5>
+        
+    <pre class="sunlight-highlight-javascript">&lt;example module=&quot;ngSwipeLeftExample&quot; deps=&quot;angular-touch.js&quot;&gt;
+     &lt;file name=&quot;index.html&quot;&gt;
+     &lt;div ng-show=&quot;!showActions&quot; ng-swipe-left=&quot;showActions = true&quot;&gt;
+     Some list content, like an email in the inbox
+     &lt;/div&gt;
+     &lt;div ng-show=&quot;showActions&quot; ng-swipe-right=&quot;showActions = false&quot;&gt;
+     &lt;button ng-click=&quot;reply()&quot;&gt;Reply&lt;/button&gt;
+     &lt;button ng-click=&quot;delete()&quot;&gt;Delete&lt;/button&gt;
+     &lt;/div&gt;
+     &lt;/file&gt;
+     &lt;file name=&quot;script.js&quot;&gt;
+     angular.module(&#x27;ngSwipeLeftExample&#x27;, [&#x27;ngTouch&#x27;]);
+     &lt;/file&gt;
+     &lt;/example&gt;</pre>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt class="name" id="ngSwipeRight">
+    <h4 id="ngSwipeRight"><span class="type-signature"></span>ngSwipeRight<span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Specify custom behavior when an element is swiped to the right on a touchscreen device.
+A rightward swipe is a quick, left-to-right slide of the finger.
+Though ngSwipeRight is designed for touch-based devices, it will work with a mouse click and drag
+too.
+
+Requires the <a href="global.html#ngTouch">`ngTouch`</a> module to be installed.
+    </div>
+    
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+        <h5>Example</h5>
+        
+    <pre class="sunlight-highlight-javascript">&lt;example module=&quot;ngSwipeRightExample&quot; deps=&quot;angular-touch.js&quot;&gt;
+     &lt;file name=&quot;index.html&quot;&gt;
+     &lt;div ng-show=&quot;!showActions&quot; ng-swipe-left=&quot;showActions = true&quot;&gt;
+     Some list content, like an email in the inbox
+     &lt;/div&gt;
+     &lt;div ng-show=&quot;showActions&quot; ng-swipe-right=&quot;showActions = false&quot;&gt;
+     &lt;button ng-click=&quot;reply()&quot;&gt;Reply&lt;/button&gt;
+     &lt;button ng-click=&quot;delete()&quot;&gt;Delete&lt;/button&gt;
+     &lt;/div&gt;
+     &lt;/file&gt;
+     &lt;file name=&quot;script.js&quot;&gt;
+     angular.module(&#x27;ngSwipeRightExample&#x27;, [&#x27;ngTouch&#x27;]);
+     &lt;/file&gt;
+     &lt;/example&gt;</pre>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt class="name" id="ngTouch">
+    <h4 id="ngTouch"><span class="type-signature"></span>ngTouch<span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        # ngTouch
+
+The `ngTouch` module provides touch events and other helpers for touch-enabled devices.
+The implementation is based on jQuery Mobile touch event handling
+([jquerymobile.com](http://jquerymobile.com/)).
+
+
+See `$swipe` for usage.
+
+<div doc-module-components="ngTouch"></div>
+    </div>
+    
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt class="name" id="ngView">
+    <h4 id="ngView"><span class="type-signature"></span>ngView<span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        # Overview`ngView` is a directive that complements the $route service byincluding the rendered template of the current route into the main layout (`index.html`) file.Every time the current route changes, the included view changes with it according to theconfiguration of the `$route` service.Requires the <a href="global.html#ngRoute">`ngRoute`</a> module to be installed.
+    </div>
+    
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+        <h5>Example</h5>
+        
+    <pre class="sunlight-highlight-javascript">&lt;example name=&quot;ngView-directive&quot; module=&quot;ngViewExample&quot;
+     deps=&quot;angular-route.js;angular-animate.js&quot;
+     animations=&quot;true&quot; fixBase=&quot;true&quot;&gt;
+     &lt;file name=&quot;index.html&quot;&gt;
+     &lt;div ng-controller=&quot;MainCtrl as main&quot;&gt;
+     Choose:
+     &lt;a href=&quot;Book/Moby&quot;&gt;Moby&lt;/a&gt; |
+     &lt;a href=&quot;Book/Moby/ch/1&quot;&gt;Moby: Ch1&lt;/a&gt; |
+     &lt;a href=&quot;Book/Gatsby&quot;&gt;Gatsby&lt;/a&gt; |
+     &lt;a href=&quot;Book/Gatsby/ch/4?key=value&quot;&gt;Gatsby: Ch4&lt;/a&gt; |
+     &lt;a href=&quot;Book/Scarlet&quot;&gt;Scarlet Letter&lt;/a&gt;&lt;br/&gt;
+
+     &lt;div class=&quot;view-animate-container&quot;&gt;
+     &lt;div ng-view class=&quot;view-animate&quot;&gt;&lt;/div&gt;
+     &lt;/div&gt;
+     &lt;hr /&gt;
+
+     &lt;pre&gt;$location.path() = {{main.$location.path()}}&lt;/pre&gt;
+     &lt;pre&gt;$route.current.templateUrl = {{main.$route.current.templateUrl}}&lt;/pre&gt;
+     &lt;pre&gt;$route.current.params = {{main.$route.current.params}}&lt;/pre&gt;
+     &lt;pre&gt;$routeParams = {{main.$routeParams}}&lt;/pre&gt;
+     &lt;/div&gt;
+     &lt;/file&gt;
+
+     &lt;file name=&quot;book.html&quot;&gt;
+     &lt;div&gt;
+     controller: {{book.name}}&lt;br /&gt;
+     Book Id: {{book.params.bookId}}&lt;br /&gt;
+     &lt;/div&gt;
+     &lt;/file&gt;
+
+     &lt;file name=&quot;chapter.html&quot;&gt;
+     &lt;div&gt;
+     controller: {{chapter.name}}&lt;br /&gt;
+     Book Id: {{chapter.params.bookId}}&lt;br /&gt;
+     Chapter Id: {{chapter.params.chapterId}}
+     &lt;/div&gt;
+     &lt;/file&gt;
+
+     &lt;file name=&quot;animations.css&quot;&gt;
+     .view-animate-container {
+          position:relative;
+          height:100px!important;
+          background:white;
+          border:1px solid black;
+          height:40px;
+          overflow:hidden;
+        }
+
+     .view-animate {
+          padding:10px;
+        }
+
+     .view-animate.ng-enter, .view-animate.ng-leave {
+          transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 1.5s;
+
+          display:block;
+          width:100%;
+          border-left:1px solid black;
+
+          position:absolute;
+          top:0;
+          left:0;
+          right:0;
+          bottom:0;
+          padding:10px;
+        }
+
+     .view-animate.ng-enter {
+          left:100%;
+        }
+     .view-animate.ng-enter.ng-enter-active {
+          left:0;
+        }
+     .view-animate.ng-leave.ng-leave-active {
+          left:-100%;
+        }
+     &lt;/file&gt;
+
+     &lt;file name=&quot;script.js&quot;&gt;
+     angular.module(&#x27;ngViewExample&#x27;, [&#x27;ngRoute&#x27;, &#x27;ngAnimate&#x27;])
+     .config([&#x27;$routeProvider&#x27;, &#x27;$locationProvider&#x27;,
+     function($routeProvider, $locationProvider) {
+              $routeProvider
+                .when(&#x27;/Book/:bookId&#x27;, {
+                  templateUrl: &#x27;book.html&#x27;,
+                  controller: &#x27;BookCtrl&#x27;,
+                  controllerAs: &#x27;book&#x27;
+                })
+                .when(&#x27;/Book/:bookId/ch/:chapterId&#x27;, {
+                  templateUrl: &#x27;chapter.html&#x27;,
+                  controller: &#x27;ChapterCtrl&#x27;,
+                  controllerAs: &#x27;chapter&#x27;
+                });
+
+              $locationProvider.html5Mode(true);
+          }])
+     .controller(&#x27;MainCtrl&#x27;, [&#x27;$route&#x27;, &#x27;$routeParams&#x27;, &#x27;$location&#x27;,
+     function($route, $routeParams, $location) {
+              this.$route = $route;
+              this.$location = $location;
+              this.$routeParams = $routeParams;
+          }])
+     .controller(&#x27;BookCtrl&#x27;, [&#x27;$routeParams&#x27;, function($routeParams) {
+            this.name = &quot;BookCtrl&quot;;
+            this.params = $routeParams;
+          }])
+     .controller(&#x27;ChapterCtrl&#x27;, [&#x27;$routeParams&#x27;, function($routeParams) {
+            this.name = &quot;ChapterCtrl&quot;;
+            this.params = $routeParams;
+          }]);
+
+     &lt;/file&gt;
+
+     &lt;file name=&quot;protractor.js&quot; type=&quot;protractor&quot;&gt;
+     it(&#x27;should load and compile correct template&#x27;, function() {
+          element(by.linkText(&#x27;Moby: Ch1&#x27;)).click();
+          var content = element(by.css(&#x27;[ng-view]&#x27;)).getText();
+          expect(content).toMatch(/controller\: ChapterCtrl/);
+          expect(content).toMatch(/Book Id\: Moby/);
+          expect(content).toMatch(/Chapter Id\: 1/);
+
+          element(by.partialLinkText(&#x27;Scarlet&#x27;)).click();
+
+          content = element(by.css(&#x27;[ng-view]&#x27;)).getText();
+          expect(content).toMatch(/controller\: BookCtrl/);
+          expect(content).toMatch(/Book Id\: Scarlet/);
+        });
+     &lt;/file&gt;
+     &lt;/example&gt;</pre>
+
+
+    
+</dd>
+
+        </dl>
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        <dl>
+            
+<hr>
+<dt>
+    <h4 class="name" id="$sanitize"><span class="type-signature"></span>$sanitize(html)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Sanitizes an html string by stripping all potentially dangerous tokens.  The input is sanitized by parsing the HTML into tokens. All safe tokens (from a whitelist) are  then serialized back to properly escaped html string. This means that no unsafe input can make  it into the returned string.  The whitelist for URL sanitization of attribute values is configured using the functions  `aHrefSanitizationWhitelist` and `imgSrcSanitizationWhitelist` of {@link ng.$compileProvider  `$compileProvider`}.  The input may also contain SVG markup if this is enabled via <a href="global.html#$sanitizeProvider">$sanitizeProvider</a>.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>html</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">HTML input.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    Sanitized HTML.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+        <h5>Example</h5>
+        
+    <pre class="sunlight-highlight-javascript">&lt;example module=&quot;sanitizeExample&quot; deps=&quot;angular-sanitize.js&quot;&gt;
+     &lt;file name=&quot;index.html&quot;&gt;
+     &lt;script&gt;
+     angular.module(&#x27;sanitizeExample&#x27;, [&#x27;ngSanitize&#x27;])
+     .controller(&#x27;ExampleController&#x27;, [&#x27;$scope&#x27;, &#x27;$sce&#x27;, function($scope, $sce) {
+             $scope.snippet =
+               &#x27;&lt;p style=&quot;color:blue&quot;&gt;an html\n&#x27; +
+               &#x27;&lt;em onmouseover=&quot;this.textContent=\&#x27;PWN3D!\&#x27;&quot;&gt;click here&lt;/em&gt;\n&#x27; +
+               &#x27;snippet&lt;/p&gt;&#x27;;
+             $scope.deliberatelyTrustDangerousSnippet = function() {
+               return $sce.trustAsHtml($scope.snippet);
+             };
+           }]);
+     &lt;/script&gt;
+     &lt;div ng-controller=&quot;ExampleController&quot;&gt;
+     Snippet: &lt;textarea ng-model=&quot;snippet&quot; cols=&quot;60&quot; rows=&quot;3&quot;&gt;&lt;/textarea&gt;
+     &lt;table&gt;
+     &lt;tr&gt;
+     &lt;td&gt;Directive&lt;/td&gt;
+     &lt;td&gt;How&lt;/td&gt;
+     &lt;td&gt;Source&lt;/td&gt;
+     &lt;td&gt;Rendered&lt;/td&gt;
+     &lt;/tr&gt;
+     &lt;tr id=&quot;bind-html-with-sanitize&quot;&gt;
+     &lt;td&gt;ng-bind-html&lt;/td&gt;
+     &lt;td&gt;Automatically uses $sanitize&lt;/td&gt;
+     &lt;td&gt;&lt;pre&gt;&amp;lt;div ng-bind-html=&quot;snippet&quot;&amp;gt;&lt;br/&gt;&amp;lt;/div&amp;gt;&lt;/pre&gt;&lt;/td&gt;
+     &lt;td&gt;&lt;div ng-bind-html=&quot;snippet&quot;&gt;&lt;/div&gt;&lt;/td&gt;
+     &lt;/tr&gt;
+     &lt;tr id=&quot;bind-html-with-trust&quot;&gt;
+     &lt;td&gt;ng-bind-html&lt;/td&gt;
+     &lt;td&gt;Bypass $sanitize by explicitly trusting the dangerous value&lt;/td&gt;
+     &lt;td&gt;
+     &lt;pre&gt;&amp;lt;div ng-bind-html=&quot;deliberatelyTrustDangerousSnippet()&quot;&amp;gt;
+     &amp;lt;/div&amp;gt;&lt;/pre&gt;
+     &lt;/td&gt;
+     &lt;td&gt;&lt;div ng-bind-html=&quot;deliberatelyTrustDangerousSnippet()&quot;&gt;&lt;/div&gt;&lt;/td&gt;
+     &lt;/tr&gt;
+     &lt;tr id=&quot;bind-default&quot;&gt;
+     &lt;td&gt;ng-bind&lt;/td&gt;
+     &lt;td&gt;Automatically escapes&lt;/td&gt;
+     &lt;td&gt;&lt;pre&gt;&amp;lt;div ng-bind=&quot;snippet&quot;&amp;gt;&lt;br/&gt;&amp;lt;/div&amp;gt;&lt;/pre&gt;&lt;/td&gt;
+     &lt;td&gt;&lt;div ng-bind=&quot;snippet&quot;&gt;&lt;/div&gt;&lt;/td&gt;
+     &lt;/tr&gt;
+     &lt;/table&gt;
+     &lt;/div&gt;
+     &lt;/file&gt;
+     &lt;file name=&quot;protractor.js&quot; type=&quot;protractor&quot;&gt;
+     it(&#x27;should sanitize the html snippet by default&#x27;, function() {
+       expect(element(by.css(&#x27;#bind-html-with-sanitize div&#x27;)).getInnerHtml()).
+         toBe(&#x27;&lt;p&gt;an html\n&lt;em&gt;click here&lt;/em&gt;\nsnippet&lt;/p&gt;&#x27;);
+     });
+
+     it(&#x27;should inline raw snippet if bound to a trusted value&#x27;, function() {
+       expect(element(by.css(&#x27;#bind-html-with-trust div&#x27;)).getInnerHtml()).
+         toBe(&quot;&lt;p style=\&quot;color:blue\&quot;&gt;an html\n&quot; +
+              &quot;&lt;em onmouseover=\&quot;this.textContent=&#x27;PWN3D!&#x27;\&quot;&gt;click here&lt;/em&gt;\n&quot; +
+              &quot;snippet&lt;/p&gt;&quot;);
+     });
+
+     it(&#x27;should escape snippet without any filter&#x27;, function() {
+       expect(element(by.css(&#x27;#bind-default div&#x27;)).getInnerHtml()).
+         toBe(&quot;&amp;lt;p style=\&quot;color:blue\&quot;&amp;gt;an html\n&quot; +
+              &quot;&amp;lt;em onmouseover=\&quot;this.textContent=&#x27;PWN3D!&#x27;\&quot;&amp;gt;click here&amp;lt;/em&amp;gt;\n&quot; +
+              &quot;snippet&amp;lt;/p&amp;gt;&quot;);
+     });
+
+     it(&#x27;should update&#x27;, function() {
+       element(by.model(&#x27;snippet&#x27;)).clear();
+       element(by.model(&#x27;snippet&#x27;)).sendKeys(&#x27;new &lt;b onclick=&quot;alert(1)&quot;&gt;text&lt;/b&gt;&#x27;);
+       expect(element(by.css(&#x27;#bind-html-with-sanitize div&#x27;)).getInnerHtml()).
+         toBe(&#x27;new &lt;b&gt;text&lt;/b&gt;&#x27;);
+       expect(element(by.css(&#x27;#bind-html-with-trust div&#x27;)).getInnerHtml()).toBe(
+         &#x27;new &lt;b onclick=&quot;alert(1)&quot;&gt;text&lt;/b&gt;&#x27;);
+       expect(element(by.css(&#x27;#bind-default div&#x27;)).getInnerHtml()).toBe(
+         &quot;new &amp;lt;b onclick=\&quot;alert(1)\&quot;&amp;gt;text&amp;lt;/b&amp;gt;&quot;);
+     });
+     &lt;/file&gt;
+     &lt;/example&gt;</pre>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="adjustTop"><span class="type-signature"></span>adjustTop(placementClasses, containerPosition, initialHeight, currentHeight)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Provides a way to adjust the top positioning after first
+render to correctly align element to top after content
+rendering causes resized element height
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>placementClasses</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">array</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The array of strings of classes
+element should have.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>containerPosition</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The object with container
+position information</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>initialHeight</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The initial height for the elem.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>currentHeight</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The current height for the elem.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="browserClient"><span class="type-signature"></span>browserClient()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        The minimal browser client for form fills
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="browserClient"><span class="type-signature"></span>browserClient()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        The minimal browser client for form fills
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="ClassClient"><span class="type-signature"></span>ClassClient()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Some words in advance before you start implementing your own client that are really important:
+ - Keep the clients password hidden at all costs
+ - Keep the clients passwords sha256 hidden at all cost
+ - Keep the clients passwords sha512 hidden at all cost
+ ... and all other "weak" hashes of the users password! If you really really really need something coming from
+ the users password, use "strong" hashes bcrypt / scrypt / ...
+ - Never use a nonce twice
+ - Never use the special sauce in any sha256 / sha512 besides for the reasons below as its an additional
+ "hardening" of our implementation.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="decrypt_data"><span class="type-signature"></span>decrypt_data(ciphertext, nonce, secret_key)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Takes the cipher text and decrypts that with the nonce and the secret_key.Returns the initial data.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>ciphertext</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>nonce</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>secret_key</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    data
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="decrypt_data_public_key"><span class="type-signature"></span>decrypt_data_public_key(ciphertext, nonce, public_key, private_key)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Takes the cipher text and decrypts that with the nonce, the senders public key and users private key.Returns the initial data.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>ciphertext</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>nonce</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>public_key</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>private_key</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    data
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="decrypt_secret"><span class="type-signature"></span>decrypt_secret(ciphertext, nonce, password, user_sauce)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Takes the cipher text and decrypts that with the nonce and the sha256(password+user_sauce).Returns the initial secret.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>ciphertext</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>nonce</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>password</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>user_sauce</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    secret
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="encrypt_data"><span class="type-signature"></span>encrypt_data(data, secret_key)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Takes the data and the secret_key as hex and encrypts the data.Returns the nonce and the cipher text as hex.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>secret_key</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="encrypt_data_public_key"><span class="type-signature"></span>encrypt_data_public_key(data, public_key, private_key)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Takes the data and encrypts that with a random nonce, the receivers public key and users private key.Returns the nonce and the cipher text as hex.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>public_key</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>private_key</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="encrypt_secret"><span class="type-signature"></span>encrypt_secret(secret, password, user_sauce)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Takes the secret and encrypts that with the provided password. The crypto_box takes only 256 bits, therefore weare using sha256(password+user_sauce) as key for encryption.Returns the nonce and the cipher text as hex.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>secret</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>password</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>user_sauce</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="endsWith"><span class="type-signature"></span>endsWith(to_test, suffix)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        checks if a string ends with a special suffix
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>to_test</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>suffix</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="endsWith"><span class="type-signature"></span>endsWith(to_test, suffix)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        checks if a string ends with a special suffix
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>to_test</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>suffix</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="fromFnPromise"><span class="type-signature"></span>fromFnPromise(fnPromise)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Create a wrapped datatables options with the data promise.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>fnPromise</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the function that returns a promise to fetch the data</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    a wrapped datatables option
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">DTOptions</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="fromSource"><span class="type-signature"></span>fromSource(ajax)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Create a wrapped datatables options with the ajax source setted
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>ajax</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the ajax source</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    a wrapped datatables option
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">DTOptions</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="generate_authkey"><span class="type-signature"></span>generate_authkey(username, password)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        takes the sha512 of lowercase email (+ special sauce) as salt to generate scrypt password hash in hex called theauthkey, so basically:hex(scrypt(password, hex(sha512(lower(email)+special_sauce))))For compatibility reasons with other clients please use the following parameters if you create your own client:var n = 16384 // 2^14;var r = 8;var p = 1;var l = 64;
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>username</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">username of the user (in email format)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>password</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">password of the user</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    auth_key - scrypt hex value of the password with the sha512 of lowercase email as salt
+</div>
+
+
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="generate_public_private_keypair"><span class="type-signature"></span>generate_public_private_keypair()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        generates public and private key pairAll keys are 32 Bytes or 256 Bits long and represented as hex
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="generate_secret_key"><span class="type-signature"></span>generate_secret_key()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        generates secret keys that is 32 Bytes or 256 Bits long and represented as hex
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="getRawNode"><span class="type-signature"></span>getRawNode(elem)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Provides a raw DOM element from a jQuery/jQLite element.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>elem</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">element</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The element to convert.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    A HTML element.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">element</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="isScrollable"><span class="type-signature"></span>isScrollable(elem [, includeHidden])</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Checks to see if the element is scrollable.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Argument</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>elem</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">element</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">The element to check.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>includeHidden</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    false
+                
+                </td>
+            
+
+            <td class="description last">Should scroll style of 'hidden' be considered,
+  default is false.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    Whether the element is scrollable.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="linky"><span class="type-signature"></span>linky(text, target [, attributes])</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Finds links in text input and turns them into html links. Supports `http/https/ftp/mailto` andplain email address links.Requires the <a href="global.html#ngSanitize">`ngSanitize`</a> module to be installed.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Argument</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>text</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Input text.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>target</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Window (`_blank|_self|_parent|_top`) or named frame to open links in.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>attributes</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+|
+
+<span class="param-type">function</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Add custom attributes to the link element.   Can be one of:   - `object`: A map of attributes   - `function`: Takes the url as a parameter and returns a map of attributes   If the map of attributes contains a value for `target`, it overrides the value of   the target parameter.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    Html-linkified and <a href="global.html#$sanitize">sanitized</a> text.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+        <h5>Example</h5>
+        
+    <pre class="sunlight-highlight-javascript">&lt;example module=&quot;linkyExample&quot; deps=&quot;angular-sanitize.js&quot;&gt;
+     &lt;file name=&quot;index.html&quot;&gt;
+     &lt;div ng-controller=&quot;ExampleController&quot;&gt;
+     Snippet: &lt;textarea ng-model=&quot;snippet&quot; cols=&quot;60&quot; rows=&quot;3&quot;&gt;&lt;/textarea&gt;
+     &lt;table&gt;
+     &lt;tr&gt;
+     &lt;th&gt;Filter&lt;/th&gt;
+     &lt;th&gt;Source&lt;/th&gt;
+     &lt;th&gt;Rendered&lt;/th&gt;
+     &lt;/tr&gt;
+     &lt;tr id=&quot;linky-filter&quot;&gt;
+     &lt;td&gt;linky filter&lt;/td&gt;
+     &lt;td&gt;
+     &lt;pre&gt;&amp;lt;div ng-bind-html=&quot;snippet | linky&quot;&amp;gt;&lt;br&gt;&amp;lt;/div&amp;gt;&lt;/pre&gt;
+     &lt;/td&gt;
+     &lt;td&gt;
+     &lt;div ng-bind-html=&quot;snippet | linky&quot;&gt;&lt;/div&gt;
+     &lt;/td&gt;
+     &lt;/tr&gt;
+     &lt;tr id=&quot;linky-target&quot;&gt;
+     &lt;td&gt;linky target&lt;/td&gt;
+     &lt;td&gt;
+     &lt;pre&gt;&amp;lt;div ng-bind-html=&quot;snippetWithSingleURL | linky:&#x27;_blank&#x27;&quot;&amp;gt;&lt;br&gt;&amp;lt;/div&amp;gt;&lt;/pre&gt;
+     &lt;/td&gt;
+     &lt;td&gt;
+     &lt;div ng-bind-html=&quot;snippetWithSingleURL | linky:&#x27;_blank&#x27;&quot;&gt;&lt;/div&gt;
+     &lt;/td&gt;
+     &lt;/tr&gt;
+     &lt;tr id=&quot;linky-custom-attributes&quot;&gt;
+     &lt;td&gt;linky custom attributes&lt;/td&gt;
+     &lt;td&gt;
+     &lt;pre&gt;&amp;lt;div ng-bind-html=&quot;snippetWithSingleURL | linky:&#x27;_self&#x27;:{rel: &#x27;nofollow&#x27;}&quot;&amp;gt;&lt;br&gt;&amp;lt;/div&amp;gt;&lt;/pre&gt;
+     &lt;/td&gt;
+     &lt;td&gt;
+     &lt;div ng-bind-html=&quot;snippetWithSingleURL | linky:&#x27;_self&#x27;:{rel: &#x27;nofollow&#x27;}&quot;&gt;&lt;/div&gt;
+     &lt;/td&gt;
+     &lt;/tr&gt;
+     &lt;tr id=&quot;escaped-html&quot;&gt;
+     &lt;td&gt;no filter&lt;/td&gt;
+     &lt;td&gt;&lt;pre&gt;&amp;lt;div ng-bind=&quot;snippet&quot;&amp;gt;&lt;br&gt;&amp;lt;/div&amp;gt;&lt;/pre&gt;&lt;/td&gt;
+     &lt;td&gt;&lt;div ng-bind=&quot;snippet&quot;&gt;&lt;/div&gt;&lt;/td&gt;
+     &lt;/tr&gt;
+     &lt;/table&gt;
+     &lt;/file&gt;
+     &lt;file name=&quot;script.js&quot;&gt;
+     angular.module(&#x27;linkyExample&#x27;, [&#x27;ngSanitize&#x27;])
+     .controller(&#x27;ExampleController&#x27;, [&#x27;$scope&#x27;, function($scope) {
+           $scope.snippet =
+             &#x27;Pretty text with some links:\n&#x27;+
+             &#x27;http://angularjs.org/,\n&#x27;+
+             &#x27;mailto:us@somewhere.org,\n&#x27;+
+             &#x27;another@somewhere.org,\n&#x27;+
+             &#x27;and one more: ftp://127.0.0.1/.&#x27;;
+           $scope.snippetWithSingleURL = &#x27;http://angularjs.org/&#x27;;
+         }]);
+     &lt;/file&gt;
+     &lt;file name=&quot;protractor.js&quot; type=&quot;protractor&quot;&gt;
+     it(&#x27;should linkify the snippet with urls&#x27;, function() {
+         expect(element(by.id(&#x27;linky-filter&#x27;)).element(by.binding(&#x27;snippet | linky&#x27;)).getText()).
+             toBe(&#x27;Pretty text with some links: http://angularjs.org/, us@somewhere.org, &#x27; +
+                  &#x27;another@somewhere.org, and one more: ftp://127.0.0.1/.&#x27;);
+         expect(element.all(by.css(&#x27;#linky-filter a&#x27;)).count()).toEqual(4);
+       });
+
+     it(&#x27;should not linkify snippet without the linky filter&#x27;, function() {
+         expect(element(by.id(&#x27;escaped-html&#x27;)).element(by.binding(&#x27;snippet&#x27;)).getText()).
+             toBe(&#x27;Pretty text with some links: http://angularjs.org/, mailto:us@somewhere.org, &#x27; +
+                  &#x27;another@somewhere.org, and one more: ftp://127.0.0.1/.&#x27;);
+         expect(element.all(by.css(&#x27;#escaped-html a&#x27;)).count()).toEqual(0);
+       });
+
+     it(&#x27;should update&#x27;, function() {
+         element(by.model(&#x27;snippet&#x27;)).clear();
+         element(by.model(&#x27;snippet&#x27;)).sendKeys(&#x27;new http://link.&#x27;);
+         expect(element(by.id(&#x27;linky-filter&#x27;)).element(by.binding(&#x27;snippet | linky&#x27;)).getText()).
+             toBe(&#x27;new http://link.&#x27;);
+         expect(element.all(by.css(&#x27;#linky-filter a&#x27;)).count()).toEqual(1);
+         expect(element(by.id(&#x27;escaped-html&#x27;)).element(by.binding(&#x27;snippet&#x27;)).getText())
+             .toBe(&#x27;new http://link.&#x27;);
+       });
+
+     it(&#x27;should work with the target property&#x27;, function() {
+        expect(element(by.id(&#x27;linky-target&#x27;)).
+            element(by.binding(&quot;snippetWithSingleURL | linky:&#x27;_blank&#x27;&quot;)).getText()).
+            toBe(&#x27;http://angularjs.org/&#x27;);
+        expect(element(by.css(&#x27;#linky-target a&#x27;)).getAttribute(&#x27;target&#x27;)).toEqual(&#x27;_blank&#x27;);
+       });
+
+     it(&#x27;should optionally add custom attributes&#x27;, function() {
+        expect(element(by.id(&#x27;linky-custom-attributes&#x27;)).
+            element(by.binding(&quot;snippetWithSingleURL | linky:&#x27;_self&#x27;:{rel: &#x27;nofollow&#x27;}&quot;)).getText()).
+            toBe(&#x27;http://angularjs.org/&#x27;);
+        expect(element(by.css(&#x27;#linky-custom-attributes a&#x27;)).getAttribute(&#x27;rel&#x27;)).toEqual(&#x27;nofollow&#x27;);
+       });
+     &lt;/file&gt;
+     &lt;/example&gt;</pre>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="newColumn"><span class="type-signature"></span>newColumn(mData, sTitle)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Create a new wrapped datatables column
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>mData</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the data of the column to display</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>sTitle</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the sTitle of the column title to display in the DOM</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    the wrapped datatables column
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">DTColumn</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="newOptions"><span class="type-signature"></span>newOptions()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Create a wrapped datatables options
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    a wrapped datatables option
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">DTOptions</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="offset"><span class="type-signature"></span>offset(elem)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Provides read-only equivalent of jQuery's offset function:
+http://api.jquery.com/offset/ - distance to viewport.  Does
+not account for borders, margins, or padding on the body
+element.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>elem</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">element</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The element to calculate the offset on.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    An object with the following properties:
+  <ul>
+    <li>**width**: the width of the element</li>
+    <li>**height**: the height of the element</li>
+    <li>**top**: distance to top edge of viewport</li>
+    <li>**right**: distance to bottom edge of viewport</li>
+  </ul>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">object</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="offsetParent"><span class="type-signature"></span>offsetParent(element)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Provides the closest positioned ancestor.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>element</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">element</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The element to get the offest parent for.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    The closest positioned ancestor.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">element</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="on_copy_to_clipboard"><span class="type-signature"></span>on_copy_to_clipboard(payload)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        updates the clipboard
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>payload</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="on_get_active_tab_url"><span class="type-signature"></span>on_get_active_tab_url()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        returns the url of the active tab
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="on_secret_get_item"><span class="type-signature"></span>on_secret_get_item(payload)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        forwards the decrypted secret to the sender
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>payload</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="on_storage_get_item"><span class="type-signature"></span>on_storage_get_item(payload)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        filters the leafs for a given url and returns the leafs to the panel for search
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>payload</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="openTab"><span class="type-signature"></span>openTab(data)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Opens a tab
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="options"><span class="type-signature"></span>options()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        `options({})` allows global configuration of all tooltips in the
+application.
+
+  var app = angular.module( 'App', ['ui.bootstrap.tooltip'], function( $tooltipProvider ) {
+    // place tooltips left instead of top by default
+    $tooltipProvider.options( { placement: 'left' } );
+  });
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="parse_url"><span class="type-signature"></span>parse_url(url)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        parse an url and returns a structured object
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>url</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="parse_url"><span class="type-signature"></span>parse_url(url)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        parse an url and returns a structured object
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>url</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="parsePlacement"><span class="type-signature"></span>parsePlacement(placement)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Provides an array of placement values parsed from a placement string.
+Along with the 'auto' indicator, supported placement strings are:
+  <ul>
+    <li>top: element on top, horizontally centered on host element.</li>
+    <li>top-left: element on top, left edge aligned with host element left edge.</li>
+    <li>top-right: element on top, lerightft edge aligned with host element right edge.</li>
+    <li>bottom: element on bottom, horizontally centered on host element.</li>
+    <li>bottom-left: element on bottom, left edge aligned with host element left edge.</li>
+    <li>bottom-right: element on bottom, right edge aligned with host element right edge.</li>
+    <li>left: element on left, vertically centered on host element.</li>
+    <li>left-top: element on left, top edge aligned with host element top edge.</li>
+    <li>left-bottom: element on left, bottom edge aligned with host element bottom edge.</li>
+    <li>right: element on right, vertically centered on host element.</li>
+    <li>right-top: element on right, top edge aligned with host element top edge.</li>
+    <li>right-bottom: element on right, bottom edge aligned with host element bottom edge.</li>
+  </ul>
+A placement string with an 'auto' indicator is expected to be
+space separated from the placement, i.e: 'auto bottom-left'  If
+the primary and secondary placement values do not match 'top,
+bottom, left, right' then 'top' will be the primary placement and
+'center' will be the secondary placement.  If 'auto' is passed, true
+will be returned as the 3rd value of the array.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>placement</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The placement string to parse.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    An array with the following values
+<ul>
+  <li>**[0]**: The primary placement.</li>
+  <li>**[1]**: The secondary placement.</li>
+  <li>**[2]**: If auto is passed: true, else undefined.</li>
+</ul>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">array</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="parseStyle"><span class="type-signature"></span>parseStyle(value)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Provides a parsed number for a style property.  Strips
+units and casts invalid numbers to 0.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The style value to parse.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    A valid number.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">number</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="position"><span class="type-signature"></span>position(elem [, includeMargins])</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Provides read-only equivalent of jQuery's position function:
+http://api.jquery.com/position/ - distance to closest positioned
+ancestor.  Does not account for margins by default like jQuery position.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Argument</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>elem</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">element</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">The element to caclulate the position on.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>includeMargins</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    false
+                
+                </td>
+            
+
+            <td class="description last">Should margins be accounted
+for, default is false.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    An object with the following properties:
+  <ul>
+    <li>**width**: the width of the element</li>
+    <li>**height**: the height of the element</li>
+    <li>**top**: distance to top edge of offset parent</li>
+    <li>**left**: distance to left edge of offset parent</li>
+  </ul>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">object</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="positionArrow"><span class="type-signature"></span>positionArrow(elem, placement)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Provides a way for positioning tooltip & dropdown
+arrows when using placement options beyond the standard
+left, right, top, or bottom.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>elem</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">element</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The tooltip/dropdown element.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>placement</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The placement for the elem.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="positionElements"><span class="type-signature"></span>positionElements(hostElem, targetElem [, placement] [, appendToBody])</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Provides coordinates for an element to be positioned relative to
+another element.  Passing 'auto' as part of the placement parameter
+will enable smart placement - where the element fits. i.e:
+'auto left-top' will check to see if there is enough space to the left
+of the hostElem to fit the targetElem, if not place right (same for secondary
+top placement).  Available space is calculated using the viewportOffset
+function.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Argument</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>hostElem</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">element</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">The element to position against.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>targetElem</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">element</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">The element to position.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>placement</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    top
+                
+                </td>
+            
+
+            <td class="description last">The placement for the targetElem,
+  default is 'top'. 'center' is assumed as secondary placement for
+  'top', 'left', 'right', and 'bottom' placements.  Available placements are:
+  <ul>
+    <li>top</li>
+    <li>top-right</li>
+    <li>top-left</li>
+    <li>bottom</li>
+    <li>bottom-left</li>
+    <li>bottom-right</li>
+    <li>left</li>
+    <li>left-top</li>
+    <li>left-bottom</li>
+    <li>right</li>
+    <li>right-top</li>
+    <li>right-bottom</li>
+  </ul></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>appendToBody</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    false
+                
+                </td>
+            
+
+            <td class="description last">Should the top and left values returned
+  be calculated from the body element, default is false.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    An object with the following properties:
+  <ul>
+    <li>**top**: Value for targetElem top.</li>
+    <li>**left**: Value for targetElem left.</li>
+    <li>**placement**: The resolved placement.</li>
+  </ul>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">object</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="read_secret"><span class="type-signature"></span>read_secret(token [, secret_id])</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Ajax GET request with the token as authentication to get the current user's secret
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Argument</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>token</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">authentication token of the user, returned by authentication_login(email, authkey)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>secret_id</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">uuid</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
+
+            <td class="description last">the secret ID</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">promise</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="scrollbarPadding"><span class="type-signature"></span>scrollbarPadding()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Provides the padding required on an element to replace the scrollbar.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    An object with the following properties:
+  <ul>
+    <li>**scrollbarWidth**: the width of the scrollbar</li>
+    <li>**widthOverflow**: whether the the width is overflowing</li>
+    <li>**right**: the amount of right padding on the element needed to replace the scrollbar</li>
+    <li>**rightOriginal**: the amount of right padding currently on the element</li>
+    <li>**heightOverflow**: whether the the height is overflowing</li>
+    <li>**bottom**: the amount of bottom padding on the element needed to replace the scrollbar</li>
+    <li>**bottomOriginal**: the amount of bottom padding currently on the element</li>
+  </ul>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">object</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="scrollbarWidth"><span class="type-signature"></span>scrollbarWidth()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Provides the scrollbar width, concept from TWBS measureScrollbar()
+function in https://github.com/twbs/bootstrap/blob/master/js/modal.js
+In IE and Edge, scollbar on body and html element overlay and should
+return a width of 0.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    The width of the browser scollbar.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">number</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="scrollParent"><span class="type-signature"></span>scrollParent(elem [, includeHidden] [, includeSelf])</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Provides the closest scrollable ancestor.
+A port of the jQuery UI scrollParent method:
+https://github.com/jquery/jquery-ui/blob/master/ui/scroll-parent.js
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Argument</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>elem</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">element</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">The element to find the scroll parent of.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>includeHidden</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    false
+                
+                </td>
+            
+
+            <td class="description last">Should scroll style of 'hidden' be considered,
+  default is false.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>includeSelf</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    false
+                
+                </td>
+            
+
+            <td class="description last">Should the element being passed be
+included in the scrollable llokup.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    A HTML element.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">element</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="searchLocalStorage"><span class="type-signature"></span>searchLocalStorage(storage, collection)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        search the loki structured localStorage
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>storage</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>collection</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">*</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="setTriggers"><span class="type-signature"></span>setTriggers()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        This allows you to extend the set of trigger mappings available. E.g.:
+
+  $tooltipProvider.setTriggers( { 'openTrigger': 'closeTrigger' } );
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="viewportOffset"><span class="type-signature"></span>viewportOffset(elem [, useDocument] [, includePadding])</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Provides offset distance to the closest scrollable ancestor
+or viewport.  Accounts for border and scrollbar width.
+
+Right and bottom dimensions represent the distance to the
+respective edge of the viewport element.  If the element
+edge extends beyond the viewport, a negative value will be
+reported.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Argument</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>elem</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">element</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">The element to get the viewport offset for.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>useDocument</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    false
+                
+                </td>
+            
+
+            <td class="description last">Should the viewport be the document element instead
+of the first scrollable element, default is false.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>includePadding</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    true
+                
+                </td>
+            
+
+            <td class="description last">Should the padding on the offset parent element
+be accounted for, default is true.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    An object with the following properties:
+  <ul>
+    <li>**top**: distance to the top content edge of viewport element</li>
+    <li>**bottom**: distance to the bottom content edge of viewport element</li>
+    <li>**left**: distance to the left content edge of viewport element</li>
+    <li>**right**: distance to the right content edge of viewport element</li>
+  </ul>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">object</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        </dl>
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+		<div class="col-md-3">
+			<div id="toc" class="col-md-3 hidden-xs hidden-sm hidden-md"></div>
+		</div>
+	
+
+</div>
+</div>
+
+
+    <div class="modal fade" id="searchResults">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Search results</h4>
+          </div>
+          <div class="modal-body"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div>
+
+
+<footer>
+
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a>
+	
+		on 2016-11-19T09:50:00+01:00
+	
+	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+
+    <script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre, pre.prettyprint.source" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( "sunlight-highlight-" + lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	Sunlight.highlightAll( {
+		lineNumbers : false,
+		showMenu : true,
+		enableDoclinks : true
+	} );
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			return $( heading ).attr( "id" ) || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            SearcherDisplay.init();
+        });
+    </script>
+
+
+</body>
+</html>

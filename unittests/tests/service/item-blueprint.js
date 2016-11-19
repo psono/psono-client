@@ -1,7 +1,7 @@
 (function () {
     describe('Service: itemBlueprint test suite', function () {
 
-        beforeEach(module('passwordManagerApp'));
+        beforeEach(module('psonocli'));
 
         it('itemBlueprint exists', inject(function (itemBlueprint) {
             expect(itemBlueprint).toBeDefined();

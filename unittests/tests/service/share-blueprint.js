@@ -1,7 +1,7 @@
 (function () {
     describe('Service: shareBlueprint test suite', function () {
 
-        beforeEach(module('passwordManagerApp'));
+        beforeEach(module('psonocli'));
 
         var shareBlueprint;
         beforeEach(inject(function($injector){

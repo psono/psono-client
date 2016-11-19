@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for js\service\browser-client.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../index.html">all files</a> / <a href="index.html">js/service/</a> browser-client.js
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">42% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>21/50</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">12.5% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>1/8</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">15% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>3/20</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">42% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>21/50</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">(function(angular, $, window) {
+    'use strict';
+&nbsp;
+    var events = [
+        'login',
+        'logout'
+    ];
+&nbsp;
+    var browserClient = function($rootScope, $q, $templateRequest, $http) {
+        /**
+         * Resize the panel according to the provided width and height
+         *
+         * @param height
+         * @param width
+         */
+        var resize = <span class="fstat-no" title="function not covered" >function (height, width) {</span>
+<span class="cstat-no" title="statement not covered" >            console.log("addon.js browserClient.resize triggered");</span>
+        };
+&nbsp;
+        /**
+         * Opens the URL in a new browser tab
+         * @param url
+         */
+        var openTab = <span class="fstat-no" title="function not covered" >function(url) {</span>
+<span class="cstat-no" title="statement not covered" >            window.open(url, '_blank');</span>
+        };
+&nbsp;
+        /**
+         * returns the base url which can be used to generate activation links
+         *
+         * @returns {string}
+         */
+        var getBaseUrl = <span class="fstat-no" title="function not covered" >function() {</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var onSuccess = <span class="fstat-no" title="function not covered" >function(base_url) {</span></span>
+<span class="cstat-no" title="statement not covered" >                return base_url;</span>
+            };
+<span class="cstat-no" title="statement not covered" >            var onError = <span class="fstat-no" title="function not covered" >function() {</span></span>
+&nbsp;
+            };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            return get_config('base_url').then(onSuccess, onError);</span>
+        };
+&nbsp;
+        /**
+         * returns a promise with the version string
+         *
+         * @returns {Promise}
+         */
+        var loadVersion = <span class="fstat-no" title="function not covered" >function() {</span>
+<span class="cstat-no" title="statement not covered" >            return $templateRequest('./VERSION.txt');</span>
+        };
+&nbsp;
+        /**
+         * returns a promise with the version string
+         *
+         * @returns {Promise}
+         */
+        var loadConfig = <span class="fstat-no" title="function not covered" >function() {</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            var req = {</span>
+                method: 'GET',
+                url: "config.json"
+            };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            return $http(req);</span>
+        };
+&nbsp;
+        /**
+         * returns a promise which will return the active tabs url
+         *
+         * @returns {promise}
+         */
+        var getActiveTabUrl = <span class="fstat-no" title="function not covered" >function() {</span>
+<span class="cstat-no" title="statement not covered" >            return $q(<span class="fstat-no" title="function not covered" >function (resolve) {</span></span>
+<span class="cstat-no" title="statement not covered" >                resolve(window.location.href);</span>
+            });
+        };
+&nbsp;
+        /**
+         * Dummy function to see if the background page works
+         */
+        var testBackgroundPage = <span class="fstat-no" title="function not covered" >function () {</span>
+<span class="cstat-no" title="statement not covered" >            return false;</span>
+        };
+&nbsp;
+        /**
+         * sends an event message to browser
+         *
+         * @param event
+         * @param data
+         */
+        var emit = <span class="fstat-no" title="function not covered" >function (event, data) {</span>
+<span class="cstat-no" title="statement not covered" >            console.log("browser-client.js $rootScope.$broadcast " + event);</span>
+<span class="cstat-no" title="statement not covered" >            $rootScope.$broadcast(event, '');</span>
+        };
+&nbsp;
+        /**
+         * emits sensitive data only to secure locations
+         *
+         * @param event
+         * @param data
+         */
+        var emitSec = <span class="fstat-no" title="function not covered" >function(event, data) {</span>
+&nbsp;
+        };
+&nbsp;
+        /**
+         * registers for an event with a function
+         *
+         * @param event
+         * @param myFunction
+         *
+         * @returns {boolean}
+         */
+        var on = function (event, myFunction) {
+&nbsp;
+            <span class="missing-if-branch" title="if path not taken" >I</span>if(events.indexOf(event) == -1)
+<span class="cstat-no" title="statement not covered" >                return false;</span>
+&nbsp;
+            $rootScope.$on(event, myFunction);
+        };
+&nbsp;
+&nbsp;
+        var config = {};
+&nbsp;
+        /**
+         * helper function to return either the config itself or if key has been specified only the config part for the key
+         *
+         * @param key
+         * @returns {*}
+         * @private
+         */
+        var _get_config = <span class="fstat-no" title="function not covered" >function(key) {</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            if (typeof(key) == 'undefined') {</span>
+<span class="cstat-no" title="statement not covered" >                return config;</span>
+            }
+<span class="cstat-no" title="statement not covered" >            if (config.hasOwnProperty(key)) {</span>
+<span class="cstat-no" title="statement not covered" >                return config[key];</span>
+            }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            return null;</span>
+        };
+&nbsp;
+        /**
+         * Loads the config (or only the part specified by the "key") fresh or from "cache"
+         *
+         * @param key
+         * @returns {*}
+         */
+        var get_config = <span class="fstat-no" title="function not covered" >function (key) {</span>
+<span class="cstat-no" title="statement not covered" >            return $q(<span class="fstat-no" title="function not covered" >function(resolve, reject) {</span></span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >                if (Object.keys(config).length === 0) {</span>
+&nbsp;
+&nbsp;
+<span class="cstat-no" title="statement not covered" >                    var onSuccess = <span class="fstat-no" title="function not covered" >function(data) {</span></span>
+<span class="cstat-no" title="statement not covered" >                        config = data.data;</span>
+<span class="cstat-no" title="statement not covered" >                        return resolve(_get_config(key));</span>
+                    };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >                    var onError = <span class="fstat-no" title="function not covered" >function(data) {</span></span>
+<span class="cstat-no" title="statement not covered" >                        reject(data);</span>
+                    };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >                    loadConfig()</span>
+                        .then(onSuccess, onError);
+&nbsp;
+                } else {
+<span class="cstat-no" title="statement not covered" >                    return resolve(_get_config(key));</span>
+                }
+            });
+&nbsp;
+        };
+&nbsp;
+        return {
+            resize: resize,
+            openTab: openTab,
+            getBaseUrl: getBaseUrl,
+            loadVersion: loadVersion,
+            loadConfig: loadConfig,
+            getActiveTabUrl: getActiveTabUrl,
+            testBackgroundPage: testBackgroundPage,
+            emit: emit,
+            emitSec: emitSec,
+            on: on,
+            get_config:get_config
+        };
+    };
+&nbsp;
+    var app = angular.module('psonocli');
+    app.factory("browserClient", ['$rootScope', '$q', '$templateRequest', '$http', browserClient]);
+&nbsp;
+}(angular, $, window));
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Sat Nov 12 2016 15:56:45 GMT+0100 (W. Europe Standard Time)
+</div>
+</div>
+<script src="../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../sorter.js"></script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 (function () {
     describe('Service: cryptoLibrary test suite', function () {
 
-        beforeEach(module('passwordManagerApp'));
+        beforeEach(module('psonocli'));
 
         it('cryptoLibrary exists', inject(function (cryptoLibrary) {
             expect(cryptoLibrary).toBeDefined();

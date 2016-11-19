@@ -559,7 +559,7 @@
         };
     };
 
-    var app = angular.module('passwordManagerApp');
+    var app = angular.module('psonocli');
     app.factory("itemBlueprint", ['$rootScope', '$window', '$uibModal', 'helper', itemBlueprint]);
 
 }(angular));

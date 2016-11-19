@@ -13,6 +13,7 @@
     "gulp-json-editor": "^2.2.1",
     "gulp-json-modify": "^1.0.2",
     "gulp-minify": "0.0.14",
+    "gulp-ngdocs": "^0.3.0",
     "gulp-remove-code": "^1.0.2",
     "gulp-remove-files": "0.0.3",
     "gulp-sass": "*",

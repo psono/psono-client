@@ -11,7 +11,7 @@ stages:
 unittests:
   stage: test
   script:
-    - sh build-ubuntu.sh
+    - sh ./var/build-ubuntu.sh
     - karma start ./unittests/karma-phantom.conf.js
 
 
@@ -27,7 +27,7 @@ docker-image:
   - apt-get install -y apt-transport-https ca-certificates curl openssl
   - set -x && curl -fSL "https://get.docker.com/builds/Linux/x86_64/docker-1.12.0.tgz" -o docker.tgz && echo "3dd07f65ea4a7b4c8829f311ab0213bca9ac551b5b24706f3e79a97e22097f8b *docker.tgz" | sha256sum -c - && tar -xzvf docker.tgz && mv docker/* /usr/local/bin/
   - docker info
-  - sh build-ubuntu.sh
+  - sh ./var/build-ubuntu.sh
   - gulp
   - docker login -u gitlab-ci-token -p "$CI_BUILD_TOKEN" registry.gitlab.com
   - docker build -t $CONTAINER_TEST_IMAGE .
@@ -36,7 +36,7 @@ docker-image:
 firefox-extension:
   stage: build
   script:
-  - sh build-ubuntu.sh
+  - sh ./var/build-ubuntu.sh
   - cd build/firefox/ && jpm xpi && cd ../../ && cp /builds/psono/psono-client/build/firefox/psonopw.xpi "$CI_BUILD_REF_NAME.psono.PW.firefox.xpi"
   artifacts:
     name: "firefox_$CI_BUILD_REF_NAME"
@@ -46,7 +46,7 @@ firefox-extension:
 chrome-extension:
   stage: build
   script:
-  - sh build-ubuntu.sh
+  - sh ./var/build-ubuntu.sh
   artifacts:
     name: "chrome_$CI_BUILD_REF_NAME"
     paths:

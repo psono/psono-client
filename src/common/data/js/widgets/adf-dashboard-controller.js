@@ -1,7 +1,7 @@
 (function(angular) {
     'use strict';
 
-    var app = angular.module('passwordManagerApp');
+    var app = angular.module('psonocli');
 
     app.controller('HomeDashboardController', ['$scope', 'localStorageService',
     function ($scope, localStorageService) {

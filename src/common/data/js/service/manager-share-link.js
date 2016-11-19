@@ -111,7 +111,7 @@
         };
     };
 
-    var app = angular.module('passwordManagerApp');
+    var app = angular.module('psonocli');
     app.factory("managerShareLink", ['managerBase', 'apiClient', managerShareLink]);
 
 }(angular));

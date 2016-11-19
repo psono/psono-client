@@ -103,7 +103,7 @@
 
                 var msg = itemBlueprint.blueprint_msg_before_open_secret(type, decrypted_secret);
 
-                browserClient.emitSec(msg.key, msg.content);
+                browserClient.emit_sec(msg.key, msg.content);
 
                 itemBlueprint.blueprint_on_open_secret(type, decrypted_secret);
             };
@@ -120,7 +120,7 @@
          */
         var onItemClick = function(item) {
             if (itemBlueprint.blueprint_has_on_click_new_tab(item.type)) {
-                browserClient.openTab('open-secret.html#/secret/'+item.type+'/'+item.secret_id);
+                browserClient.open_tab('open-secret.html#/secret/'+item.type+'/'+item.secret_id);
             }
         };
 
@@ -133,7 +133,7 @@
         };
     };
 
-    var app = angular.module('passwordManagerApp');
+    var app = angular.module('psonocli');
     app.factory("managerSecret", ['managerBase', 'apiClient', 'cryptoLibrary',
         'itemBlueprint', 'browserClient', managerSecret]);
 
