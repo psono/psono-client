@@ -4,8 +4,10 @@
     /**
      * @ngdoc service
      * @name psonocli.shareBlueprint
-     * @description
+     * @requires $window
+     * @requires psonocli.helper
      *
+     * @description
      * Service that provides the possible sharing partner blueprints, currently only "users".
      *
      * Should later be extended to groups or multi users.

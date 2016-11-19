@@ -4,8 +4,8 @@
     /**
      * @ngdoc service
      * @name psonocli.storage
-     * @description
      *
+     * @description
      * Service that handles local storage access
      */
 

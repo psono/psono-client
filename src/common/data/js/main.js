@@ -28,6 +28,15 @@
      * @property {string} port The query, evething after '?' e.g. 'myFunnyParameter=test'
      * @property {string} port The query, evething after '#' e.g. 'anotherParameter=test'
      *
+     * @typedef {Object} TreeObject
+     * @property {uuid} [datastore_id] The datastore id if its the top
+     * @property {uuid} [parent_datastore_id] The parent datastore id
+     * @property {uuid} [parent_share_id] The parent share id
+     * @property {object} [share_rights] All the share rights in an object
+     * @property {boolean} [expanded] Is the folder expanded or not
+     * @property {Array} [items] The items in the tree object
+     * @property {Array} [folders] The folders in the tree object containing other TreeObject
+     * @property {Object} [share_index] The share index
      *
      */
 

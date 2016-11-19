@@ -4,8 +4,12 @@
     /**
      * @ngdoc service
      * @name psonocli.browserClient
-     * @description
+     * @requires $rootScope
+     * @requires $q
+     * @requires $templateRequest
+     * @requires $http
      *
+     * @description
      * The browser interface, responsible for the cross browser / platform compatibility.
      */
 

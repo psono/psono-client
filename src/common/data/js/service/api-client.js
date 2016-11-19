@@ -4,6 +4,12 @@
     /**
      * @ngdoc service
      * @name psonocli.apiClient
+     * @requires $http
+     * @requires $q
+     * @requires $rootScope
+     * @requires psonocli.storage
+     * @requires psonocli.cryptoLibrary
+     *
      * @description
      * Service to talk to the psono REST api
      */

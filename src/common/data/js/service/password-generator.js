@@ -4,8 +4,9 @@
     /**
      * @ngdoc service
      * @name psonocli.passwordGenerator
-     * @description
+     * @requires psonocli.settings
      *
+     * @description
      * Service to generate passwords with a specific complexity
      */
 

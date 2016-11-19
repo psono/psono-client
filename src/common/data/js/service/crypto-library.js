@@ -4,6 +4,7 @@
     /**
      * @ngdoc service
      * @name psonocli.cryptoLibrary
+     *
      * @description
      * Service with all the cryptographic operations
      */
@@ -303,6 +304,7 @@
      *
      * @param {string} data The data you want to encrypt
      * @param {string} secret_key The secret key you want to use to encrypt the data
+     *
      * @returns {EncryptedValue} The encrypted text and the nonce
      */
     var encrypt_data = function (data, secret_key) {

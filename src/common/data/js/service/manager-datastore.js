@@ -1,17 +1,39 @@
 (function(angular) {
     'use strict';
 
+    /**
+     * @ngdoc service
+     * @name psonocli.managerDatastore
+     * @requires $q
+     * @requires $timeout
+     * @requires psonocli.browserClient
+     * @requires psonocli.managerBase
+     * @requires psonocli.apiClient
+     * @requires psonocli.cryptoLibrary
+     * @requires psonocli.storage
+     * @requires psonocli.helper
+     *
+     * @description
+     * managerBase is 'like' a base class for all managers. It contains functions that should be accessible by several
+     * managers but should never be added in any other services (because of design pattern and security reasons)
+     */
+
     var managerDatastore = function($q, $timeout, browserClient, managerBase, apiClient, cryptoLibrary, storage, helper) {
 
         var temp_datastore_key_storage = {};
         var temp_datastore_overview = false;
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastore#get_datastore_overview
+         * @methodOf psonocli.managerDatastore
+         *
+         * @description
          * Returns the overview of all datastores that belong to this user
          *
-         * @param force_fresh
-         * @returns {promise}
-         * @private
+         * @param {boolean} force_fresh Force fresh call to the backend
+         *
+         * @returns {promise} Promise with the datastore overview
          */
         var get_datastore_overview = function(force_fresh) {
 
@@ -38,14 +60,18 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastore#get_datastore_id
+         * @methodOf psonocli.managerDatastore
+         *
+         * @description
          * Returns the datastore_id for the given type and description
          *
-         * @param type
-         * @param description
-         * @param force_fresh (optional) if you want to force a fresh query to the backend
+         * @param {string} type The type of the datastore that we are looking for
+         * @param {string} description The description of the datastore that we are looking for
+         * @param {boolean} [force_fresh] if you want to force a fresh query to the backend
          *
-         * @returns {promise}
-         * @private
+         * @returns {promise} Promise with the datastore id
          */
         var get_datastore_id = function (type, description, force_fresh) {
 
@@ -74,12 +100,16 @@
                 .then(onSuccess, onError);
         };
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastore#get_datastore_with_id
+         * @methodOf psonocli.managerDatastore
+         *
+         * @description
          * Returns the datastore for a given id
          *
-         * @param datastore_id
+         * @param {uuid} datastore_id The datastore id
          *
-         * @returns {promise}
-         * @private
+         * @returns {promise} Promise with the datastore that belongs to the given id
          */
         var get_datastore_with_id = function (datastore_id) {
 
@@ -120,13 +150,17 @@
 
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastore#get_datastore
+         * @methodOf psonocli.managerDatastore
+         *
+         * @description
          * Returns the datastore for the given type and and description
          *
-         * @param type
-         * @param description
+         * @param {string} type The type of the datastore
+         * @param {string} description The description of the datastore
          *
-         * @returns {promise}
-         * @private
+         * @returns {promise} Promise with the datastore's content
          */
         var get_datastore = function(type, description) {
 
@@ -182,62 +216,74 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastore#add_node_to_storage
+         * @methodOf psonocli.managerDatastore
+         *
+         * @description
          * Adds a node to the storage
          *
-         * @param name
-         * @param folder
-         * @param map
-         * @private
+         * @param {string} db The database to add the item to
+         * @param {TreeObject} folder The Tree object
+         * @param {Array} map The map with key / value
          */
-        var addNodeToStorage = function (name, folder, map) {
+        var add_node_to_storage = function (db, folder, map) {
             if(typeof folder === 'undefined') {
                 return;
             }
             var i;
             for (i = 0; folder.hasOwnProperty("folders") && i < folder.folders.length; i ++) {
-                addNodeToStorage(name, folder.folders[i], map);
+                add_node_to_storage(db, folder.folders[i], map);
             }
             for (i = 0; folder.hasOwnProperty("items") && i < folder.items.length; i++) {
 
-                var value = {};
+                var item = {};
 
                 for (var m = 0; m < map.length; m++) {
-                    value[map[m][0]] = folder.items[i][map[m][1]];
+                    item[map[m][0]] = folder.items[i][map[m][1]];
                 }
 
-                value['type'] = folder.items[i].type;
+                item['type'] = folder.items[i].type;
 
-                storage.insert(name, value);
+                storage.insert(db, item);
             }
 
         };
 
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastore#fill_storage
+         * @methodOf psonocli.managerDatastore
+         *
+         * @description
          * Fills the local datastore with given name
          *
-         * @param name
-         * @param datastore
-         * @param map
-         * @private
+         * @param {string} db The database to add the item to
+         * @param {TreeObject} datastore The Tree object
+         * @param {Array} map The map with key / value
          */
-        var fill_storage = function(name, datastore, map) {
-            storage.remove_all(name);
+        var fill_storage = function(db, datastore, map) {
+            storage.remove_all(db);
 
-            addNodeToStorage(name, datastore, map);
+            add_node_to_storage(db, datastore, map);
 
             storage.save();
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastore#encrypt_datastore
+         * @methodOf psonocli.managerDatastore
+         *
+         * @description
          * Encrypts the content for a datastore with given id. The function will check if the secret key of the
          * datastore is already known, otherwise it will query the server for the details.
          *
-         * @param datastore_id The datastore id
-         * @param content The real object you want to encrypt in the datastore
+         * @param {uuid} datastore_id The datastore id
+         * @param {TreeObject} content The real object you want to encrypt in the datastore
          *
-         * @returns {promise}
-         * @private
+         * @returns {promise} Promise with the status of the save
          */
         var encrypt_datastore = function (datastore_id, content) {
 
@@ -272,10 +318,16 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastore#filter_datastore_content
+         * @methodOf psonocli.managerDatastore
+         *
+         * @description
          * Creates a copy of content and filters some attributes out, to save some storage or fix some missbehaviour
          *
-         * @param content
-         * @private
+         * @param {TreeObject} content The datastore content to filter
+         *
+         * @returns {TreeObject} Filtered copy of the content
          */
         var filter_datastore_content = function(content) {
 
@@ -315,13 +367,17 @@
 
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastore#save_datastore_with_id
+         * @methodOf psonocli.managerDatastore
+         *
+         * @description
          * Saves some content in a datastore
          *
-         * @param datastore_id The datastore id
-         * @param content The real object you want to encrypt in the datastore
+         * @param {uuid} datastore_id The datastore id
+         * @param {TreeObject} content The real object you want to encrypt in the datastore
          *
-         * @returns {promise}
-         * @private
+         * @returns {promise} Promise with the status of the save
          */
         var save_datastore_with_id = function (datastore_id, content) {
 
@@ -347,15 +403,18 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastore#save_datastore
+         * @methodOf psonocli.managerDatastore
          *
+         * @description
          * Saves some content in a datastore specified with type and description
          *
-         * @param type
-         * @param description
-         * @param content The real object you want to encrypt in the datastore
+         * @param {string} type The type of the datastore that we want to save
+         * @param {string} description The description of the datastore we want to save
+         * @param {TreeObject} content The content of the datastore
          *
-         * @returns {promise}
-         * @private
+         * @returns {promise} Promise with the status of the save
          */
         var save_datastore = function (type, description, content) {
 
@@ -385,7 +444,7 @@
             get_datastore_id: get_datastore_id,
             get_datastore_with_id: get_datastore_with_id,
             get_datastore: get_datastore,
-            addNodeToStorage: addNodeToStorage,
+            add_node_to_storage: add_node_to_storage,
             fill_storage: fill_storage,
             save_datastore: save_datastore,
             save_datastore_with_id: save_datastore_with_id,

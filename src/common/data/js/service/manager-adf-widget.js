@@ -2,8 +2,18 @@
     'use strict';
 
     /**
-     * managerAdfWidget is a base class for adf widgets
+     * @ngdoc service
+     * @name psonocli.managerAdfWidget
+     * @requires $uibModal
+     * @requires psonocli.managerDatastorePassword
+     * @requires psonocli.managerShare
+     * @requires psonocli.managerSecret
+     * @requires psonocli.managerShareLink
+     * @requires psonocli.managerSecretLink
+     * @requires psonocli.itemBlueprint
      *
+     * @description
+     * Service that is something like the base class for adf widgets
      */
 
     var managerAdfWidget = function ($uibModal, managerDatastorePassword, managerShare, managerSecret, managerShareLink,
@@ -11,12 +21,17 @@
 
 
         /**
+         * @ngdoc
+         * @name psonocli.managerAdfWidget#openNewFolder
+         * @methodOf psonocli.managerAdfWidget
+         *
+         * @description
          * Opens the modal to create a new folder
          *
-         * @param parent The parent of the new folder
-         * @param path The path to the parent of the new folder
-         * @param data_structure the data structure
-         * @param manager manager responsible for
+         * @param {TreeObject} parent The parent of the new folder
+         * @param {Array} path The path to the parent of the new folder
+         * @param {TreeObject} data_structure the data structure
+         * @param {Object} manager manager responsible for
          */
         var openNewFolder = function (parent, path, data_structure, manager) {
 
@@ -54,13 +69,18 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerAdfWidget#openEditFolder
+         * @methodOf psonocli.managerAdfWidget
+         *
+         * @description
          * Opens the modal to edit a folder
          *
-         * @param node The node you want to edit
-         * @param path The path to the node
-         * @param data_structure the data structure
-         * @param manager manager responsible for
-         * @param size The size of the modal
+         * @param {object} node The node you want to edit
+         * @param {Array} path The path to the node
+         * @param {TreeObject} data_structure the data structure
+         * @param {Object} manager manager responsible for
+         * @param {string} size The size of the modal
          */
         var openEditFolder = function (node, path, data_structure, manager, size) {
 
@@ -89,12 +109,17 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerAdfWidget#openNewItem
+         * @methodOf psonocli.managerAdfWidget
+         *
+         * @description
          * Opens the modal for a new entry
          *
-         * @param datastore
-         * @param parent
-         * @param path
-         * @param size
+         * @param {TreeObject} datastore The Datastore object
+         * @param {TreeObject} parent The parent
+         * @param {Array} path The path to the parent
+         * @param {string} size The size of the modal
          */
         var openNewItem = function (datastore, parent, path, size) {
             var modalInstance = $uibModal.open({
@@ -180,12 +205,17 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerAdfWidget#openEditItem
+         * @methodOf psonocli.managerAdfWidget
+         *
+         * @description
          * Opens the modal for a the edit entry
          *
-         * @param datastore
-         * @param node
-         * @param path
-         * @param size
+         * @param {TreeObject} datastore The Datastore object
+         * @param {object} node The node to edit
+         * @param {Array} path The path to the parent
+         * @param {string} size The size of the modal
          */
         var openEditItem = function(datastore, node, path, size) {
 
@@ -254,12 +284,17 @@
 
 
         /**
-         * Move an item
+         * @ngdoc
+         * @name psonocli.managerAdfWidget#moveItem
+         * @methodOf psonocli.managerAdfWidget
          *
-         * @param datastore the scope
-         * @param item_path the path of the item
-         * @param target_path the path where we want to put the item
-         * @param type type of the item (item or folder)
+         * @description
+         * Move an item from one position to anther
+         *
+         * @param {TreeObject} datastore The datastore
+         * @param {Array} item_path the current path of the item
+         * @param {Array} target_path the path where we want to put the item
+         * @param {string} type type of the item ('item' or 'folder')
          */
         var moveItem = function(datastore, item_path, target_path, type) {
 
@@ -458,11 +493,16 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerAdfWidget#deleteItem
+         * @methodOf psonocli.managerAdfWidget
+         *
+         * @description
          * Deletes and item from datastore
          *
-         * @param datastore
-         * @param item
-         * @param path
+         * @param {TreeObject} datastore The datastore
+         * @param {object} item The item to delete
+         * @param {Array} path The path to the item
          */
         var deleteItem = function(datastore, item, path) {
 
@@ -519,11 +559,16 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerAdfWidget#findInStructure
+         * @methodOf psonocli.managerAdfWidget
+         *
+         * @description
          * Go through the structure to find the object specified with the path
          *
-         * @param path The path to the object you search as list of ids
-         * @param structure The structure object tree
-         * @returns {*} False if not present or a list of two objects where the first is the List Object containing the searchable object and the second the index
+         * @param {Array} path The path to the object you search as list of ids
+         * @param {TreeObject} structure The structure object tree
+         * @returns {boolean|Array} False if not present or a list of two objects where the first is the List Object containing the searchable object and the second the index
          */
         var findInStructure = function (path, structure) {
             var to_search = path.shift();
@@ -564,10 +609,16 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerAdfWidget#itemIcon
+         * @methodOf psonocli.managerAdfWidget
+         *
+         * @description
          * Returns the class of the icon used to display a specific item
          *
-         * @param item
-         * @returns {*|string}
+         * @param {object} item An item from the datastore
+         *
+         * @returns {string} Returns the css class
          */
         var itemIcon = function (item) {
             var iconClassMap = {
@@ -641,6 +692,12 @@
 
 
     /**
+     * @ngdoc controller
+     * @name psonocli.controller:ModalNewFolderCtrl
+     * @requires $scope
+     * @requires $uibModalInstance
+     *
+     * @description
      * Controller for the "New Folder" modal
      */
     app.controller('ModalNewFolderCtrl', ['$scope', '$uibModalInstance', 'parent', 'path',
@@ -651,6 +708,11 @@
             $scope.name = '';
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ModalNewFolderCtrl#save
+             * @methodOf psonocli.controller:ModalNewFolderCtrl
+             *
+             * @description
              * Triggered once someone clicks the save button in the modal
              */
             $scope.save = function () {
@@ -663,6 +725,11 @@
             };
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ModalNewFolderCtrl#cancel
+             * @methodOf psonocli.controller:ModalNewFolderCtrl
+             *
+             * @description
              * Triggered once someone clicks the cancel button in the modal
              */
             $scope.cancel = function () {
@@ -671,6 +738,12 @@
         }]);
 
     /**
+     * @ngdoc controller
+     * @name psonocli.controller:ModalEditFolderCtrl
+     * @requires $scope
+     * @requires $uibModalInstance
+     *
+     * @description
      * Controller for the "Edit Folder" modal
      */
     app.controller('ModalEditFolderCtrl', ['$scope', '$uibModalInstance', 'node', 'path',
@@ -681,6 +754,11 @@
             $scope.name = node.name;
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ModalEditFolderCtrl#save
+             * @methodOf psonocli.controller:ModalEditFolderCtrl
+             *
+             * @description
              * Triggered once someone clicks the save button in the modal
              */
             $scope.save = function () {
@@ -693,6 +771,11 @@
             };
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ModalEditFolderCtrl#cancel
+             * @methodOf psonocli.controller:ModalEditFolderCtrl
+             *
+             * @description
              * Triggered once someone clicks the cancel button in the modal
              */
             $scope.cancel = function () {
@@ -702,6 +785,13 @@
 
 
     /**
+     * @ngdoc controller
+     * @name psonocli.controller:ModalDatastoreNewEntryCtrl
+     * @requires $scope
+     * @requires $uibModalInstance
+     * @requires itemBlueprint
+     *
+     * @description
      * Controller for the "New Entry" modal
      */
     app.controller('ModalDatastoreNewEntryCtrl', ['$scope', '$uibModalInstance', 'itemBlueprint', 'parent', 'path',
@@ -715,6 +805,14 @@
 
             $scope.errors = [];
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalDatastoreNewEntryCtrl#reset
+             * @methodOf psonocli.controller:ModalDatastoreNewEntryCtrl
+             *
+             * @description
+             * Triggered once someone clicks the cancel button in the modal
+             */
             $scope.reset = function() {
                 $scope.submitted = false;
             };
@@ -724,9 +822,22 @@
                 selected: itemBlueprint.get_default_blueprint()
             };
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalDatastoreNewEntryCtrl#has_advanced
+             * @methodOf psonocli.controller:ModalDatastoreNewEntryCtrl
+             *
+             * @description
+             * Forwards itemBlueprint.has_advanced
+             */
             $scope.has_advanced = itemBlueprint.has_advanced;
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ModalDatastoreNewEntryCtrl#save
+             * @methodOf psonocli.controller:ModalDatastoreNewEntryCtrl
+             *
+             * @description
              * Triggered once someone clicks the save button in the modal
              */
             $scope.save = function () {
@@ -739,6 +850,11 @@
             };
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ModalDatastoreNewEntryCtrl#cancel
+             * @methodOf psonocli.controller:ModalDatastoreNewEntryCtrl
+             *
+             * @description
              * Triggered once someone clicks the cancel button in the modal
              */
             $scope.cancel = function () {
@@ -748,6 +864,13 @@
 
 
     /**
+     * @ngdoc controller
+     * @name psonocli.controller:ModalEditEntryCtrl
+     * @requires $scope
+     * @requires $uibModalInstance
+     * @requires itemBlueprint
+     *
+     * @description
      * Controller for the "Edit Entry" modal
      */
     app.controller('ModalEditEntryCtrl', ['$scope', '$uibModalInstance', 'itemBlueprint', 'node', 'path', 'data',
@@ -761,6 +884,14 @@
 
             $scope.errors = [];
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalEditEntryCtrl#reset
+             * @methodOf psonocli.controller:ModalEditEntryCtrl
+             *
+             * @description
+             * Triggered once someone clicks the cancel button in the modal
+             */
             $scope.reset = function() {
                 $scope.submitted = false;
             };
@@ -776,9 +907,22 @@
                 }
             }
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalEditEntryCtrl#has_advanced
+             * @methodOf psonocli.controller:ModalEditEntryCtrl
+             *
+             * @description
+             * Forwards itemBlueprint.has_advanced
+             */
             $scope.has_advanced = itemBlueprint.has_advanced;
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ModalEditEntryCtrl#save
+             * @methodOf psonocli.controller:ModalEditEntryCtrl
+             *
+             * @description
              * Triggered once someone clicks the save button in the modal
              */
             $scope.save = function () {
@@ -791,6 +935,11 @@
             };
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ModalEditEntryCtrl#cancel
+             * @methodOf psonocli.controller:ModalEditEntryCtrl
+             *
+             * @description
              * Triggered once someone clicks the cancel button in the modal
              */
             $scope.cancel = function () {
@@ -804,9 +953,19 @@
 
 
     /**
+     * @ngdoc controller
+     * @name psonocli.controller:ModalShareEntryCtrl
+     * @requires $scope
+     * @requires $uibModalInstance
+     * @requires $uibModal
+     * @requires shareBlueprint
+     * @requires managerDatastoreUser
+     *
+     * @description
      * Controller for the "Share Entry" modal
      */
-    app.controller('ModalShareEntryCtrl', ['$scope', '$uibModalInstance', '$uibModal', 'shareBlueprint', 'managerDatastoreUser', 'node', 'path', 'users', 'DTOptionsBuilder', 'DTColumnDefBuilder',
+    app.controller('ModalShareEntryCtrl', ['$scope', '$uibModalInstance', '$uibModal', 'shareBlueprint',
+        'managerDatastoreUser', 'node', 'path', 'users', 'DTOptionsBuilder', 'DTColumnDefBuilder',
         function ($scope, $uibModalInstance, $uibModal, shareBlueprint, managerDatastoreUser, node, path, users, DTOptionsBuilder, DTColumnDefBuilder) {
 
 
@@ -846,6 +1005,11 @@
             $scope.errors = [];
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ModalShareEntryCtrl#addUser
+             * @methodOf psonocli.controller:ModalShareEntryCtrl
+             *
+             * @description
              * responsible to add a user to the known users datastore
              */
             $scope.addUser = function() {
@@ -914,13 +1078,18 @@
 
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ModalShareEntryCtrl#toggle_select
+             * @methodOf psonocli.controller:ModalShareEntryCtrl
+             *
+             * @description
              * responsible to toggle selections of rights and users and adding it to the selected_rights / selected_users
              * array
              *
-             * @param id
-             * @param type
+             * @param {int} index The index of the right in the array
+             * @param {string} type The type of the toggle
              */
-            $scope.toggleSelect = function(id, type) {
+            $scope.toggle_select = function(index, type) {
 
                 var search_array;
                 if (type === 'right') {
@@ -929,16 +1098,21 @@
                     search_array = $scope.selected_users;
                 }
 
-                var array_index = search_array.indexOf(id);
+                var array_index = search_array.indexOf(index);
                 if (array_index > -1) {
                     //its selected, lets deselect it
                     search_array.splice(array_index, 1);
                 } else {
-                    search_array.push(id);
+                    search_array.push(index);
                 }
             };
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ModalShareEntryCtrl#save
+             * @methodOf psonocli.controller:ModalShareEntryCtrl
+             *
+             * @description
              * Triggered once someone clicks the save button in the modal
              */
             $scope.save = function () {
@@ -953,6 +1127,11 @@
             };
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ModalShareEntryCtrl#cancel
+             * @methodOf psonocli.controller:ModalShareEntryCtrl
+             *
+             * @description
              * Triggered once someone clicks the cancel button in the modal
              */
             $scope.cancel = function () {
@@ -962,9 +1141,17 @@
 
 
     /**
+     * @ngdoc controller
+     * @name psonocli.controller:ModalDisplayShareRightsCtrl
+     * @requires $scope
+     * @requires $uibModalInstance
+     * @requires itemBlueprint
+     *
+     * @description
      * Controller for the "Display share rights" modal
      */
-    app.controller('ModalDisplayShareRightsCtrl', ['$scope', '$uibModalInstance', 'itemBlueprint', 'node', 'path', 'share_details', 'managerShare', 'DTOptionsBuilder', 'DTColumnDefBuilder',
+    app.controller('ModalDisplayShareRightsCtrl', ['$scope', '$uibModalInstance', 'itemBlueprint', 'node', 'path',
+        'share_details', 'managerShare', 'DTOptionsBuilder', 'DTColumnDefBuilder',
         function ($scope, $uibModalInstance, itemBlueprint, node, path, share_details, managerShare, DTOptionsBuilder, DTColumnDefBuilder) {
 
             $scope.dtOptions = DTOptionsBuilder.newOptions();
@@ -984,6 +1171,11 @@
 
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ModalDisplayShareRightsCtrl#cancel
+             * @methodOf psonocli.controller:ModalDisplayShareRightsCtrl
+             *
+             * @description
              * Triggered once someone clicks the cancel button in the modal
              */
             $scope.cancel = function () {
@@ -991,9 +1183,14 @@
             };
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ModalDisplayShareRightsCtrl#delete
+             * @methodOf psonocli.controller:ModalDisplayShareRightsCtrl
+             *
+             * @description
              * Triggered once someone clicks on the delete button for a share right
              *
-             * @param right
+             * @param {object} right The right to delete
              */
             $scope.delete = function (right) {
 
@@ -1008,10 +1205,15 @@
             };
 
             /**
-             * Triggerec once someone clicks on the right toggle button for a share right
+             * @ngdoc
+             * @name psonocli.controller:ModalDisplayShareRightsCtrl#toggle_right
+             * @methodOf psonocli.controller:ModalDisplayShareRightsCtrl
              *
-             * @param type
-             * @param right
+             * @description
+             * Triggered once someone clicks on the right toggle button for a share right
+             *
+             * @param {string} type The type of the right e.g. 'read' or 'grant'
+             * @param {object} right The right holding object
              */
             $scope.toggle_right = function(type, right) {
 

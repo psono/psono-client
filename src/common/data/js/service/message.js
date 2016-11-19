@@ -4,8 +4,8 @@
     /**
      * @ngdoc service
      * @name psonocli.message
-     * @description
      *
+     * @description
      * Service for general message. Relays messages and information across the application
      * Might be later extended with WebSocket Client capabilities.
      */

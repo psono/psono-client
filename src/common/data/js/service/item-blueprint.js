@@ -4,8 +4,12 @@
     /**
      * @ngdoc service
      * @name psonocli.itemBlueprint
-     * @description
+     * @requires $rootScope
+     * @requires $window
+     * @requires $uibModal
+     * @requires psonocli.helper
      *
+     * @description
      * Service that provides the possible item blueprints e.g.:
      * - website_password
      * - note

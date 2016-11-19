@@ -4,8 +4,13 @@
     /**
      * @ngdoc service
      * @name psonocli.settings
-     * @description
+     * @requires $q
+     * @requires psonocli.storage
+     * @requires psonocli.managerDatastoreUser
+     * @requires psonocli.managerDatastoreSetting
+     * @requires psonocli.apiClient
      *
+     * @description
      * Service that handles all the settings
      */
 

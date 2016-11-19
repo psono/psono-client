@@ -4,8 +4,12 @@
     /**
      * @ngdoc service
      * @name psonocli.manager
-     * @description
+     * @requires managerBase
+     * @requires apiClient
+     * @requires cryptoLibrary
+     * @requires storage
      *
+     * @description
      * Service for functions that do not belong in any other manager nor can be
      * grouped in independent managers.
      */

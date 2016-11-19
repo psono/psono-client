@@ -16,7 +16,7 @@
         <div class="row" style="font-weight: bold">
             <div class="col-xs-4 col-sm-4" ng-repeat="right in rights">
                 {{ right.name }}
-                <button type="button" class="btn btn-default btn-sm" ng-click="toggleSelect(right.id, 'right')" >
+                <button type="button" class="btn btn-default btn-sm" ng-click="toggle_select(right.id, 'right')" >
                     <i ng-class="selected_rights.indexOf(right.id) > -1 ? 'fa fa-check-square-o' : 'fa fa-square-o'"></i>
                 </button>
             </div>
@@ -40,7 +40,7 @@
                         <tr ng-repeat="user in users">
                             <td>{{user.name | limitTo: 60 }}{{user.name.length > 60 ? '...)' : ''}}</td>
                             <td>
-                                <button type="button" class="btn btn-default btn-sm" ng-click="toggleSelect(user.id, 'user')">
+                                <button type="button" class="btn btn-default btn-sm" ng-click="toggle_select(user.id, 'user')">
                                     <i ng-class="selected_users.indexOf(user.id) > -1 ? 'fa fa-check-square-o' : 'fa fa-square-o'"></i>
                                 </button>
                             </td>
