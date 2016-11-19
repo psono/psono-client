@@ -1,4 +1,6 @@
 .idea
+docs
+out
 node_modules
 build/
 dist/
