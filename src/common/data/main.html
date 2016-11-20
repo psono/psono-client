@@ -37,7 +37,7 @@
         <hr>
         <ul class="navigations">
             <li ng-repeat="searchEntry in datastore.filteredSearcArray = (searchArray | filter:filterBySearch)">
-                <a href="#" ng-click="onItemClick(searchEntry)">{{ searchEntry.name }}</a>
+                <a href="#" ng-click="on_item_click(searchEntry)">{{ searchEntry.name }}</a>
             </li>
             <li ng-if="datastore.filteredSearcArray.length === 0 && datastore.search !== ''">
                 <a href="#" onclick="return false;">No entry found ...</a>

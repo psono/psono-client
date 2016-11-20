@@ -42,6 +42,7 @@
          *
          * @description
          * Opens the URL in a new browser tab
+         *
          * @param {string} url The url to open
          */
         var open_tab = function(url) {

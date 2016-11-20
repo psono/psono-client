@@ -118,7 +118,7 @@
          *
          * @param item
          */
-        var onItemClick = function(item) {
+        var on_item_click = function(item) {
             if (itemBlueprint.blueprint_has_on_click_new_tab(item.type)) {
                 browserClient.open_tab('open-secret.html#/secret/'+item.type+'/'+item.secret_id);
             }
@@ -129,7 +129,7 @@
             read_secret: read_secret,
             write_secret: write_secret,
             redirectSecret: redirectSecret,
-            onItemClick: onItemClick
+            on_item_click: on_item_click
         };
     };
 

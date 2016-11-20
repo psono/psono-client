@@ -278,7 +278,8 @@ gulp.task('docs', [], function () {
 
     var options = {
         html5Mode: false,
-        title: "Psono Client"
+        title: "Psono Client",
+        styles: ['var/ngdocs/style.css']
     };
 
     return gulp.src([

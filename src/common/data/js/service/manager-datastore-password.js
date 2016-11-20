@@ -499,7 +499,7 @@
          *
          * @returns {promise}
          */
-        var generatePasswordActiveTab = function() {
+        var generate_password_active_tab = function() {
 
             var onError = function() {
                 alert("could not find out the url of the active tab");
@@ -916,7 +916,7 @@
             get_password_datastore: get_password_datastore,
             save_datastore: save_datastore,
             generatePassword: generatePassword,
-            generatePasswordActiveTab: generatePasswordActiveTab,
+            generate_password_active_tab: generate_password_active_tab,
             find_in_datastore: find_in_datastore,
             get_all_child_shares: get_all_child_shares,
             get_all_secret_links: get_all_secret_links,

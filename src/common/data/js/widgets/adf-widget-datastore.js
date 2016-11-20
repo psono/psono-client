@@ -166,8 +166,8 @@
                  * @param item The item in question
                  * @param path The path to the item
                  */
-                onItemClick: function (item, path) {
-                    return managerSecret.onItemClick(item, path);
+                on_item_click: function (item, path) {
+                    return managerSecret.on_item_click(item, path);
                 },
 
                 /**

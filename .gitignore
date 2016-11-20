@@ -2,6 +2,7 @@
 docs
 out
 unittests/coverage
+var/ngdocs/templates
 node_modules
 build/
 dist/

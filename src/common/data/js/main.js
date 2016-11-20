@@ -210,7 +210,16 @@
 
             browserClient.get_config().then(onSuccess, onError);
 
-
+            /**
+             * @ngdoc
+             * @name psonocli.controller:RegisterCtrl#select_server
+             * @methodOf psonocli.controller:RegisterCtrl
+             *
+             * @description
+             * Select a server from the offered choices
+             *
+             * @param {object} server The selected server
+             */
             $scope.select_server = function (server) {
                 //triggered when selecting an server
                 $scope.selected_server = server;
@@ -218,6 +227,17 @@
                 $scope.selected_server_url = server.url;
                 $scope.selected_server_domain = helper.get_domain(server.url);
             };
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:RegisterCtrl#changing
+             * @methodOf psonocli.controller:RegisterCtrl
+             *
+             * @description
+             * Triggered automatically once someone types something into the "Server" Field
+             *
+             * @param {url} url The typed url
+             */
             $scope.changing = function (url) {
                 //triggered when typing an url
                 $scope.selected_server = {title: url, url: url};
@@ -226,13 +246,25 @@
                 $scope.filtered_servers = $filter('filter')($scope.servers, {url: url});
             };
 
-
             /* preselected values */
             $scope.registerFormEmail = "register@saschapfeiffer.com";
             $scope.registerFormUsername = "register";
             $scope.registerFormPassword = "myPassword";
             $scope.registerFormPasswordRepeat = "myPassword";
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:RegisterCtrl#register
+             * @methodOf psonocli.controller:RegisterCtrl
+             *
+             * @description
+             * Triggered once someone clicks the register button
+             *
+             * @param {email} email The email one wants to register with
+             * @param {string} username The username one wants to register with
+             * @param {string} password The password one wants to register with
+             * @param {string} password2 The password repeated
+             */
             $scope.register = function (email, username, password, password2) {
 
                 $scope.errors = [];
@@ -335,6 +367,16 @@
 
             browserClient.get_config().then(onSuccess, onError);
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ActivationCtrl#select_server
+             * @methodOf psonocli.controller:ActivationCtrl
+             *
+             * @description
+             * Select a server from the offered choices
+             *
+             * @param {object} server The selected server
+             */
             $scope.select_server = function (server) {
                 //triggered when selecting an server
                 $scope.selected_server = server;
@@ -342,6 +384,17 @@
                 $scope.selected_server_url = server.url;
                 $scope.selected_server_domain = helper.get_domain(server.url);
             };
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ActivationCtrl#changing
+             * @methodOf psonocli.controller:ActivationCtrl
+             *
+             * @description
+             * Triggered automatically once someone types something into the "Server" Field
+             *
+             * @param {url} url The typed url
+             */
             $scope.changing = function (url) {
                 //triggered when typing an url
                 $scope.selected_server = {title: url, url: url};
@@ -350,6 +403,16 @@
                 $scope.filtered_servers = $filter('filter')($scope.servers, {url: url});
             };
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ActivationCtrl#activate
+             * @methodOf psonocli.controller:ActivationCtrl
+             *
+             * @description
+             * Triggered either automatically or by pressing the activate button
+             *
+             * @param {string} activation_code The activation code
+             */
             var activate = function (activation_code) {
                 function onError() {
                     alert("Error, should not happen.");
@@ -577,13 +640,32 @@
                   managerDatastorePassword, managerDatastoreUser, managerSecret, browserClient, storage,
                   snapRemote, $window, $route, $routeParams, $location ) {
 
-            /* open_tab function to pass through */
+            /**
+             * @ngdoc
+             * @name psonocli.controller:MainCtrl#open_tab
+             * @methodOf psonocli.controller:MainCtrl
+             *
+             * @description
+             * browserClient.open_tab function to pass through
+             *
+             * @param {url} url The url to open
+             */
             $scope.open_tab = browserClient.open_tab;
 
             /* test background page */
             //console.log(browserClient.test_background_page());
 
-            /* for navigation, can maybe moved to another controller */
+            /**
+             * @ngdoc
+             * @name psonocli.controller:MainCtrl#getLinkState
+             * @methodOf psonocli.controller:MainCtrl
+             *
+             * @description
+             * Returns the link state ('active' or '')
+             * for navigation, can maybe moved to another controller
+             *
+             * @param {string} path The current path
+             */
             $scope.getLinkState = function (path) {
                 if (path === '/' && $location.path().length == 0) {
                     return 'active';
@@ -594,15 +676,38 @@
                 }
             };
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:MainCtrl#logout
+             * @methodOf psonocli.controller:MainCtrl
+             *
+             * @description
+             * managerDatastoreUser.logout function to pass through
+             */
             $scope.logout = managerDatastoreUser.logout;
-            $scope.generatePassword = managerDatastorePassword.generatePasswordActiveTab;
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:MainCtrl#generatePassword
+             * @methodOf psonocli.controller:MainCtrl
+             *
+             * @description
+             * managerDatastorePassword.generate_password_active_tab function to pass through
+             */
+            $scope.generatePassword = managerDatastorePassword.generate_password_active_tab;
 
             $scope.user_username = manager.find_one('config', 'user_username');
 
-            $scope.onItemClick = managerSecret.onItemClick;
-
+            /**
+             * @ngdoc
+             * @name psonocli.controller:MainCtrl#on_item_click
+             * @methodOf psonocli.controller:MainCtrl
+             *
+             * @description
+             * managerSecret.on_item_click function to pass through
+             */
+            $scope.on_item_click = managerSecret.on_item_click;
             $scope.messages = [];
-
             browserClient.load_version().then(function(version) {
                 $scope.version = version;
             });
@@ -635,11 +740,38 @@
                   managerDatastorePassword, managerDatastoreUser, managerSecret, browserClient,
                   snapRemote, $window, $route, $routeParams, $location) {
 
-            /* open_tab function to pass through */
+            /**
+             * @ngdoc
+             * @name psonocli.controller:PanelCtrl#open_tab
+             * @methodOf psonocli.controller:PanelCtrl
+             *
+             * @description
+             * browserClient.open_tab function to pass through
+             *
+             * @param {url} url The url to open
+             */
             $scope.open_tab = browserClient.open_tab;
 
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:PanelCtrl#logout
+             * @methodOf psonocli.controller:PanelCtrl
+             *
+             * @description
+             * managerDatastoreUser.logout function to pass through
+             */
             $scope.logout = managerDatastoreUser.logout;
-            $scope.generatePassword = managerDatastorePassword.generatePasswordActiveTab;
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:PanelCtrl#generatePassword
+             * @methodOf psonocli.controller:PanelCtrl
+             *
+             * @description
+             * managerDatastorePassword.generate_password_active_tab function to pass through
+             */
+            $scope.generatePassword = managerDatastorePassword.generate_password_active_tab;
 
             /* datastore search */
 
@@ -702,7 +834,15 @@
                 return regex.test(searchEntry.name) || regex.test(searchEntry.urlfilter);
             };
 
-            $scope.onItemClick = managerSecret.onItemClick;
+            /**
+             * @ngdoc
+             * @name psonocli.controller:PanelCtrl#on_item_click
+             * @methodOf psonocli.controller:PanelCtrl
+             *
+             * @description
+             * managerSecret.on_item_click function to pass through
+             */
+            $scope.on_item_click = managerSecret.on_item_click;
 
         }]);
 
@@ -730,7 +870,16 @@
         function ($scope, $rootScope, $filter, $timeout, managerDatastoreUser, browserClient, storage,
                   snapRemote, $window, $route, $routeParams, $location, helper) {
 
-            /* open_tab function to pass through */
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LoginCtrl#open_tab
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * browserClient.open_tab function to pass through
+             *
+             * @param {url} url The url to open
+             */
             $scope.open_tab = browserClient.open_tab;
 
             /* test background page */
@@ -756,6 +905,16 @@
 
             browserClient.get_config().then(onSuccess, onError);
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LoginCtrl#select_server
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Select a server from the offered choices
+             *
+             * @param {object} server The selected server
+             */
             $scope.select_server = function (server) {
                 //triggered when selecting an server
                 $scope.selected_server = server;
@@ -763,6 +922,17 @@
                 $scope.selected_server_url = server.url;
                 $scope.selected_server_domain = helper.get_domain(server.url);
             };
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LoginCtrl#changing
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Triggered automatically once someone types something into the "Server" Field
+             *
+             * @param {url} url The typed url
+             */
             $scope.changing = function (url) {
                 //triggered when typing an url
                 $scope.selected_server = {title: url, url: url};
@@ -775,6 +945,17 @@
             $scope.loginFormUsername = "test";
             $scope.loginFormPassword = "myPassword";
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LoginCtrl#login
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Triggered once someone clicks the login button
+             *
+             * @param {string} username The username
+             * @param {string} password The password
+             */
             $scope.login = function (username, password) {
                 function onError() {
                     alert("Error, should not happen.");
@@ -850,6 +1031,14 @@
 
             $scope.tabs = settings.get_tabs();
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:SettingsCtrl#save
+             * @methodOf psonocli.controller:SettingsCtrl
+             *
+             * @description
+             * Triggered once someone clicks the save button
+             */
             $scope.save = function () {
 
                 var onSuccess = function (data) {
@@ -911,13 +1100,19 @@
             };
 
 
+
             /**
+             * @ngdoc
+             * @name psonocli.controller:ShareCtrl#accept
+             * @methodOf psonocli.controller:ShareCtrl
+             *
+             * @description
              * accepts a share offer
              *
-             * @param item
-             * @param shares
+             * @param {object} item The item to accept
+             * @param {Array} pending_shares List of all pending shares
              */
-            $scope.accept = function (item, shares) {
+            $scope.accept = function (item, pending_shares) {
 
                 var modalInstance = $uibModal.open({
                     templateUrl: 'view/modal-accept-share.html',
@@ -999,7 +1194,7 @@
                             
                             managerDatastorePassword.save_datastore(datastore, changed_paths);
 
-                            remove_item_from_pending_list(item, shares);
+                            remove_item_from_pending_list(item, pending_shares);
                         };
 
                         var onError = function (data) {
@@ -1026,16 +1221,31 @@
             };
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ShareCtrl#decline
+             * @methodOf psonocli.controller:ShareCtrl
+             *
+             * @description
              * declines a share offer
              *
-             * @param item
-             * @param shares
+             * @param {object} item The item to decline
+             * @param {Array} pending_shares List of all pending shares
              */
-            $scope.decline = function (item, shares) {
+            $scope.decline = function (item, pending_shares) {
                 managerShare.decline_share_right(item.share_right_id);
-                remove_item_from_pending_list(item, shares);
+                remove_item_from_pending_list(item, pending_shares);
             };
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ShareCtrl#pendingApprovalFilter
+             * @methodOf psonocli.controller:ShareCtrl
+             *
+             * @description
+             * Filter function that returns if an item has already been accepted
+             *
+             * @param {object} item The item to check
+             */
             $scope.pendingApprovalFilter = function (item) {
                 return item.share_right_accepted === null;
             };
@@ -1071,10 +1281,15 @@
             });
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ModalAcceptShareCtrl#cut_breadcrumbs
+             * @methodOf psonocli.controller:ModalAcceptShareCtrl
+             *
+             * @description
              * triggered once someone clicks on one of the breadcrumbs in the path
              *
-             * @param index
-             * @param node
+             * @param {int} index The index to jump to
+             * @param {object} node The node to jump to
              */
             $scope.cut_breadcrumbs = function (index, node) {
 
@@ -1088,7 +1303,12 @@
             };
 
             /**
-             * triggered once someone clicks the "delete" button near path
+             * @ngdoc
+             * @name psonocli.controller:ModalAcceptShareCtrl#clearBreadcrumbs
+             * @methodOf psonocli.controller:ModalAcceptShareCtrl
+             *
+             * @description
+             * triggered once someone clicks the "delete" button near path. The function will clear the breadcrumbs.
              */
             $scope.clearBreadcrumbs = function () {
                 $scope.breadcrumbs = {};
@@ -1134,11 +1354,16 @@
                 });
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ModalAcceptShareCtrl#trust
+             * @methodOf psonocli.controller:ModalAcceptShareCtrl
+             *
+             * @description
              * triggered once a users clicks the "trust this user" button and adds the user to the trusted datastore
              *
-             * @param user
+             * @param {Array} users List of users to trust
              */
-            $scope.trust = function (user) {
+            $scope.trust = function (users) {
 
                 var onSuccess = function (user_data_store) {
 
@@ -1153,25 +1378,25 @@
                     };
 
                     if (shareBlueprint.get_blueprint("user").getName) {
-                        user_object.name = shareBlueprint.get_blueprint("user").getName(user);
+                        user_object.name = shareBlueprint.get_blueprint("user").getName(users);
                     }
 
-                    for (var i = 0; i < user.length; i++) {
+                    for (var i = 0; i < users.length; i++) {
 
-                        if (!user[i].hasOwnProperty("value")) {
+                        if (!users[i].hasOwnProperty("value")) {
                             continue;
                         }
-                        if (!user_object.name && shareBlueprint.get_blueprint("user").title_field == user[i].name) {
+                        if (!user_object.name && shareBlueprint.get_blueprint("user").title_field == users[i].name) {
                             user_object.name = user[i].value;
                         }
                         if (shareBlueprint.get_blueprint("user").hasOwnProperty("urlfilter_field")
-                            && shareBlueprint.get_blueprint("user").urlfilter_field == user[i].name) {
-                            user_object.urlfilter = user[i].value;
+                            && shareBlueprint.get_blueprint("user").urlfilter_field == users[i].name) {
+                            user_object.urlfilter = users[i].value;
                         }
-                        user_object.data[user[i].name] = user[i].value;
-                    }
+                        user_object.data[users[i].name] = users[i].value;
 
-                    user_data_store.items.push(user_object);
+                        user_data_store.items.push(user_object);
+                    }
 
                     managerDatastoreUser.save_datastore(user_data_store);
                     $scope.user_is_trusted = true;
@@ -1186,6 +1411,11 @@
             };
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ModalAcceptShareCtrl#save
+             * @methodOf psonocli.controller:ModalAcceptShareCtrl
+             *
+             * @description
              * Triggered once someone clicks the save button in the modal
              */
             $scope.save = function () {
@@ -1198,6 +1428,11 @@
             };
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ModalAcceptShareCtrl#cancel
+             * @methodOf psonocli.controller:ModalAcceptShareCtrl
+             *
+             * @description
              * Triggered once someone clicks the cancel button in the modal
              */
             $scope.cancel = function () {

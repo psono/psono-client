@@ -186,8 +186,8 @@
                  * @param item
                  */
                 self.clickItem = function (item) {
-                    if (typeof options.onItemClick === "function") {
-                        options.onItemClick(item);
+                    if (typeof options.on_item_click === "function") {
+                        options.on_item_click(item);
                     }
                 };
 
