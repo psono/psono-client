@@ -16,7 +16,7 @@
                 title: 'Datastore',
                 description: 'provides the datastore',
                 templateUrl: 'view/datastore-view.html',
-                controller: 'datastoreController',
+                controller: 'datastoreCtrl',
                 controllerAs: 'datastore',
                 edit: {
                     templateUrl: 'view/datastore-edit.html'
@@ -26,9 +26,22 @@
 
 
     /**
+     * @ngdoc controller
+     * @name psonocli.controller:datastoreCtrl
+     * @requires $scope
+     * @requires config
+     * @requires $uibModal
+     * @requires $timeout
+     * @requires psonocli.manager
+     * @requires psonocli.managerDatastorePassword
+     * @requires psonocli.itemBlueprint
+     * @requires psonocli.managerAdfWidget
+     * @requires psonocli.managerSecret
+     *
+     * @description
      * Main Controller for the datastore widget
      */
-    module.controller('datastoreController', ["$scope", "config", "manager", "managerDatastorePassword",
+    module.controller('datastoreCtrl', ["$scope", "config", "manager", "managerDatastorePassword",
         "$uibModal", "itemBlueprint", "managerAdfWidget", "managerSecret", "$timeout",
         function($scope, config, manager, managerDatastorePassword,
                  $uibModal, itemBlueprint, managerAdfWidget, managerSecret, $timeout){

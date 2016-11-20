@@ -3,6 +3,15 @@
 
     var app = angular.module('psonocli');
 
+    /**
+     * @ngdoc controller
+     * @name psonocli.controller:HomeDashboardCtrl
+     * @requires $scope
+     * @requires localStorageService
+     *
+     * @description
+     * Controller for the "Home Dashboard"
+     */
     app.controller('HomeDashboardCtrl', ['$scope', 'localStorageService',
     function ($scope, localStorageService) {
         var model = localStorageService.get('widgetHomeDashboard');
@@ -31,6 +40,15 @@
         });
     }]);
 
+    /**
+     * @ngdoc controller
+     * @name psonocli.controller:ShareusersDashboardCtrl
+     * @requires $scope
+     * @requires localStorageService
+     *
+     * @description
+     * Controller for the "Shareuser Dashboard"
+     */
     app.controller('ShareusersDashboardCtrl', ['$scope', 'localStorageService',
     function ($scope, localStorageService) {
         var model = localStorageService.get('widgetShareusersDashboard');
@@ -59,6 +77,15 @@
         });
     }]);
 
+    /**
+     * @ngdoc controller
+     * @name psonocli.controller:AcceptshareDashboardCtrl
+     * @requires $scope
+     * @requires localStorageService
+     *
+     * @description
+     * Controller for the "Acceptshare Dashboard"
+     */
     app.controller('AcceptshareDashboardCtrl', ['$scope', 'localStorageService',
     function ($scope, localStorageService) {
 

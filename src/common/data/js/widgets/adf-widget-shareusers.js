@@ -15,7 +15,7 @@
                 title: 'Trusted Users',
                 description: 'provides the shareusers',
                 templateUrl: 'view/shareusers-view.html',
-                controller: 'shareusersController',
+                controller: 'shareusersCtrl',
                 controllerAs: 'shareusers',
                 edit: {
                     templateUrl: 'view/shareusers-edit.html'
@@ -24,9 +24,22 @@
     }]);
 
     /**
+     * @ngdoc controller
+     * @name psonocli.controller:shareusersCtrl
+     * @requires $scope
+     * @requires $interval
+     * @requires config
+     * @requires $uibModal
+     * @requires $timeout
+     * @requires psonocli.managerSecret
+     * @requires psonocli.managerDatastoreUser
+     * @requires psonocli.shareBlueprint
+     * @requires psonocli.managerAdfWidget
+     *
+     * @description
      * Main Controller for the shareusers widget
      */
-    module.controller('shareusersController', ["$scope", "$interval", "config", "managerSecret", "managerDatastoreUser",
+    module.controller('shareusersCtrl', ["$scope", "$interval", "config", "managerSecret", "managerDatastoreUser",
         "$uibModal", "shareBlueprint", "managerAdfWidget", "$timeout",
         function ($scope, $interval, config, managerSecret, managerDatastoreUser, $uibModal, shareBlueprint,
                   managerAdfWidget, $timeout) {
@@ -404,6 +417,13 @@
     
 
     /**
+     * @ngdoc controller
+     * @name psonocli.controller:ModalShareNewEntryCtrl
+     * @requires $scope
+     * @requires $uibModalInstance
+     * @requires psonocli.shareBlueprint
+     *
+     * @description
      * Controller for the "New Entry" modal
      */
     module.controller('ModalShareNewEntryCtrl', ['$scope', '$uibModalInstance', 'shareBlueprint', 'parent', 'path',
@@ -449,6 +469,13 @@
         }]);
 
     /**
+     * @ngdoc controller
+     * @name psonocli.controller:ModalShareEditEntryCtrl
+     * @requires $scope
+     * @requires $uibModalInstance
+     * @requires psonocli.shareBlueprint
+     *
+     * @description
      * Controller for the "Edit Entry" modal
      */
     module.controller('ModalShareEditEntryCtrl', ['$scope', '$uibModalInstance', 'shareBlueprint', 'node', 'path', 'data',

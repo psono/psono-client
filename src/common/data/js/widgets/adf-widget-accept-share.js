@@ -15,7 +15,7 @@
                 title: 'Accept Share',
                 description: 'provides the accept share',
                 templateUrl: 'view/accept-share-view.html',
-                controller: 'acceptShareController',
+                controller: 'acceptShareCtrl',
                 controllerAs: 'acceptShare',
                 edit: {
                     templateUrl: 'view/accept-share-edit.html'
@@ -24,9 +24,21 @@
     }]);
 
     /**
+     * @ngdoc controller
+     * @name psonocli.controller:acceptShareCtrl
+     * @requires $scope
+     * @requires $uibModal
+     * @requires $timeout
+     * @requires psonocli.manager
+     * @requires psonocli.managerDatastorePassword
+     * @requires psonocli.itemBlueprint
+     * @requires psonocli.managerAdfWidget
+     * @requires psonocli.message
+     *
+     * @description
      * Main Controller for the acceptshare widget
      */
-    module.controller('acceptShareController', ["$scope", "manager", "managerDatastorePassword",
+    module.controller('acceptShareCtrl', ["$scope", "manager", "managerDatastorePassword",
         "$uibModal", "itemBlueprint", "managerAdfWidget",
         "message", "$timeout",
         function($scope, manager, managerDatastorePassword,
