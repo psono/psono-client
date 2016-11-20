@@ -1,15 +1,38 @@
 (function(angular, uuid) {
     'use strict';
 
+    /**
+     * @ngdoc service
+     * @name psonocli.managerDatastorePassword
+     * @requires $q
+     * @requires $rootScope
+     * @requires psonocli.managerSecret
+     * @requires psonocli.managerDatastore
+     * @requires psonocli.managerShare
+     * @requires psonocli.passwordGenerator
+     * @requires psonocli.itemBlueprint
+     * @requires psonocli.helper
+     * @requires psonocli.browserClient
+     *
+     * @description
+     * Service to manage the password datastore
+     */
+
     var managerDatastorePassword = function($q, $rootScope, managerSecret, managerDatastore, managerShare, passwordGenerator, itemBlueprint, helper, browserClient) {
 
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#calculate_user_share_rights
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
          * Takes a "share" object that has share rights and inherited share rights.
          * Out of those the function calculates the total rights and returns them
          *
-         * @param share
-         * @returns {{read: boolean, write: boolean, grant: boolean}}
+         * @param {object} share The share object to calculate the rights of
+         *
+         * @returns {RightObject} Returns the calculated rights
          */
         var calculate_user_share_rights = function(share) {
 
@@ -38,12 +61,17 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#update_parents
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
          * Sets the parent for folders and items, based on the obj and obj parents.
          * Calls recursive itself for all folders and skips nested shares
          *
-         * @param obj
-         * @param parent_share_id
-         * @param parent_datastore_id
+         * @param {TreeObject} obj The tree object to update
+         * @param {uuid} parent_share_id The id of the parent share
+         * @param {uuid} parent_datastore_id The id of the parent datastore
          */
         var update_parents = function(obj, parent_share_id, parent_datastore_id) {
             var n;
@@ -89,11 +117,16 @@
         };
 
         /**
-         * Sets the share_rights for folders and items, based on the users rights on the share.
-         * Calls recursive itself for all folders and skips nested shares
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#update_share_rights_of_folders_and_items
+         * @methodOf psonocli.managerDatastorePassword
          *
-         * @param obj
-         * @param share_rights
+         * @description
+         * Sets the share_rights for folders and items, based on the users rights on the share.
+         * Calls recursive itself for all folders and skips nested shares.
+         *
+         * @param {TreeObject} obj The tree object to update
+         * @param {RightObject} share_rights The share rights to update it with.
          */
         var update_share_rights_of_folders_and_items = function(obj, share_rights) {
             var n;
@@ -131,14 +164,20 @@
 
 
         /**
-         * updates some datastore folders or share folders with content
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#update_paths_with_data
+         * @methodOf psonocli.managerDatastorePassword
          *
-         * @param datastore
-         * @param path
-         * @param content the actual data for this path
-         * @param parent_share_rights
-         * @param parent_share_id
-         * @param parent_datastore_id
+         * @description
+         * Updates some datastore folders or share folders with content.
+         * Will calculate the delete property in the right object.
+         *
+         * @param {TreeObject} datastore The current datastore to update
+         * @param {Array} path The location of the new subtree
+         * @param {TreeObject} content The actual data for this path
+         * @param {RightObject} parent_share_rights The parental rights
+         * @param {uuid} parent_share_id The parent's share id
+         * @param {uuid} parent_datastore_id THe parent's datastore id
          */
         var update_paths_with_data = function(datastore, path, content, parent_share_rights, parent_share_id, parent_datastore_id) {
             var path_copy = path.slice();
@@ -168,14 +207,19 @@
         };
 
         /**
-         * queries shares recursive
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#read_shares
+         * @methodOf psonocli.managerDatastorePassword
          *
-         * @param datastore
-         * @param share_rights_dict
-         * @param share_index
-         * @param all_share_data
-         * @param [blocking]
-         * @returns {*}
+         * @description
+         * Queries shares recursive
+         *
+         * @param {TreeObject} datastore The datastore tree
+         * @param {object} share_rights_dict Dictionary of shares and their share rights
+         * @param {object} share_index The share index
+         * @param {object} all_share_data The shared cache to not query every share multiple times
+         * @param {boolean} [blocking] (optional) Should block till all shares with subshares are handled
+         * @returns {promise} Returns promise that resolves either when the initial datastore is loaded or when all shares with subshares are loaded
          */
         var read_shares = function(datastore, share_rights_dict, share_index, all_share_data, blocking) {
             var open_calls = 0;
@@ -280,9 +324,14 @@
         };
 
         /**
-         * searches all sub shares and hides the content of those
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#hide_sub_share_content
+         * @methodOf psonocli.managerDatastorePassword
          *
-         * @param share
+         * @description
+         * Searches all sub shares and hides (deletes) the content of those
+         *
+         * @param {TreeObject} share The share tree object which we want to modify
          */
         var hide_sub_share_content = function (share) {
 
@@ -315,11 +364,17 @@
 
 
         /**
-         * Returns the password datastore. In addition this function triggers the generation of the local datastore
-         * storage to
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#get_password_datastore
+         * @methodOf psonocli.managerDatastorePassword
          *
-         * @param [blocking]
-         * @returns {promise}
+         * @description
+         * Returns the password datastore. In addition this function triggers the generation of the local datastore
+         * storage to.
+         *
+         * @param {boolean} [blocking] (optional) Wait till all sub-shares are also loaded or do we want some more async approach
+         *
+         * @returns {promise} Returns a promise with the datastore
          */
         var get_password_datastore = function(blocking) {
             var type = "password";
@@ -376,13 +431,18 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#save_datastore
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
          * Saves the password datastore with given content (including shares) based on the "paths" of all changed
          * elements
          *
          * Responsible for hiding content that doesn't belong into the datastore (like the content of secrets).
          *
-         * @param datastore The real object you want to encrypt in the datastore
-         * @param paths The list of paths to the changed elements
+         * @param {TreeObject} datastore The real tree object you want to encrypt in the datastore
+         * @param {Array} paths The list of paths to the changed elements
          */
         var save_datastore = function (datastore, paths) {
             var type = "password";
@@ -438,12 +498,16 @@
         };
 
         /**
-         * Generates a new password for a given url and saves the password in the datastore.
-         * Returns a promise with the new password
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#generate_password
+         * @methodOf psonocli.managerDatastorePassword
          *
-         * @returns {promise}
+         * @description
+         * Generates a new password for a given url and saves the password in the datastore.
+         *
+         * @returns {promise} Returns a promise with the new password
          */
-        var generatePassword = function(url) {
+        var generate_password = function(url) {
 
             var password = passwordGenerator.generate();
 
@@ -495,9 +559,14 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#generate_password_active_tab
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
          * Generates a password for the active tab
          *
-         * @returns {promise}
+         * @returns {promise} Returns a promise with the new password
          */
         var generate_password_active_tab = function() {
 
@@ -518,7 +587,7 @@
                     return password;
                 };
 
-                return generatePassword(url)
+                return generate_password(url)
                     .then(onSuccess, onError);
 
             };
@@ -530,11 +599,17 @@
 
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#find_in_datastore
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
          * Go through the datastore to find the object specified with the path
          *
-         * @param path The path to the object you search as list of ids
-         * @param datastore The datastore object tree
-         * @returns {*} False if not present or a list of two objects where the first is the List Object (items or folder container) containing the searchable object and the second the index
+         * @param {Array} path The path to the object you search as list of ids
+         * @param {TreeObject} datastore The datastore object tree
+         *
+         * @returns {boolean|Array} False if not present or a list of two objects where the first is the List Object (items or folder container) containing the searchable object and the second the index
          */
         var find_in_datastore = function (path, datastore) {
 
@@ -586,13 +661,18 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#get_all_child_shares
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
          * fills other_children with all child shares of a given path
          *
-         * @param path
-         * @param [datastore] optional if obj provided
-         * @param other_children
-         * @param [share_distance] share_distance the distance in shares to search (-1 = unlimited search, 0 stop search)
-         * @param [obj] optional if not provided we will search it in the datastore according to the provided path first
+         * @param {Array} path The path to search for child shares
+         * @param {TreeObject} [datastore] (optional) if obj provided
+         * @param {Array} other_children The list of found children
+         * @param {int} [share_distance] (optional) share_distance the distance in shares to search (-1 = unlimited search, 0 stop search)
+         * @param {TreeObject} [obj] (optional)  if not provided we will search it in the datastore according to the provided path first
          */
         var get_all_child_shares = function(path, datastore, other_children, share_distance, obj) {
 
@@ -643,11 +723,15 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#get_all_secret_links
+         * @methodOf psonocli.managerDatastorePassword
          *
+         * @description
          * returns all secret links in element. Doesn't cross share borders.
          *
-         * @param {obj} element the element to search
-         * @returns {Array}
+         * @param {object} element the element to search
+         * @returns {Array} List of secret links
          */
         var get_all_secret_links = function(element) {
 
@@ -656,7 +740,7 @@
             /**
              * helper function, that searches an element recursive for secret links. Doesn't cross share borders.
              *
-             * @param {obj } element the element to search
+             * @param {object} element the element to search
              * @param {Array} links
              * @param {Array} path
              */
@@ -700,11 +784,16 @@
         };
 
         /**
-         * returns the relative path
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#get_relative_path
+         * @methodOf psonocli.managerDatastorePassword
          *
-         * @param share
-         * @param absolute_path
-         * @returns {Array}
+         * @description
+         * Translates the absolute path to a relative path
+         *
+         * @param {TreeObject} share The share to search in the absolute path
+         * @param {Array} absolute_path The absolute path
+         * @returns {Array} Returns the relative path
          */
         var get_relative_path = function(share, absolute_path) {
 
@@ -732,14 +821,20 @@
 
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#on_share_added
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
          * triggered once a new share is added. Searches the datastore for the closest share (or the datastore if no
          * share) and adds it to the share_index
          *
-         * @param share_id
-         * @param path path to the new share
-         * @param datastore
-         * @param distance
-         * @returns [] paths to update
+         * @param {uuid} share_id The share id that was added
+         * @param {Array} path The path to the new share
+         * @param {TreeObject} datastore The datastore it was added to
+         * @param {int} distance Some logic to get the correct parent share to update
+         *
+         * @returns {Array} Returns the paths to update
          */
         var on_share_added = function (share_id, path, datastore, distance) {
 
@@ -833,14 +928,20 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#on_share_deleted
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
          * triggered once a new share is deleted. Searches the datastore for the closest share (or the datastore if no
          * share) and removes it from the share_index
          *
-         * @param share_id the share_id to delete
-         * @param path path to the deleted share
-         * @param datastore
-         * @param distance
-         * @returns [] paths to update
+         * @param {uuid} share_id the share_id to delete
+         * @param {Array} path The path to the deleted share
+         * @param {TreeObject} datastore The datastore it was deleted from
+         * @param {int} distance Some logic to get the correct parent share to update
+         *
+         * @returns {Array} Returns the paths to update
          */
         var on_share_deleted = function (share_id, path, datastore, distance) {
 
@@ -887,15 +988,20 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#on_share_deleted
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
          * triggered once a share moved. handles the update of the share_index
          *
-         * @param share_id
-         * @param old_path
-         * @param new_path
-         * @param datastore
-         * @param add_distance
-         * @param delete_distance
-         * @returns [] paths to update
+         * @param {uuid} share_id The id of the share that moved
+         * @param {Array} old_path The old path
+         * @param {Array} new_path The new path
+         * @param {TreeObject} datastore The affected datastore
+         * @param {int} add_distance Some logic to get the correct parent share to update in on_share_added()
+         * @param {int} delete_distanceSome logic to get the correct parent share to update in on_share_deleted()
+         * @returns {Array} Returns the paths to update
          */
         var on_share_moved = function(share_id, old_path, new_path, datastore, add_distance, delete_distance) {
 
@@ -915,7 +1021,7 @@
         return {
             get_password_datastore: get_password_datastore,
             save_datastore: save_datastore,
-            generatePassword: generatePassword,
+            generate_password: generate_password,
             generate_password_active_tab: generate_password_active_tab,
             find_in_datastore: find_in_datastore,
             get_all_child_shares: get_all_child_shares,

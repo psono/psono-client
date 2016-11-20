@@ -1,4 +1,4 @@
-(function(angular, generatePassword) {
+(function(angular, generate_password) {
     'use strict';
 
     /**
@@ -72,7 +72,7 @@
         var generate = function () {
             var password = "";
             while (!is_strong_enough(password)) {
-                password = generatePassword(settings.get_setting('setting_password_length'), memorable,
+                password = generate_password(settings.get_setting('setting_password_length'), memorable,
                     new RegExp('['+escape_reg_exp(settings.get_setting('setting_password_letters_uppercase') +
                             settings.get_setting('setting_password_letters_lowercase') +
                             settings.get_setting('setting_password_numbers') +

@@ -479,8 +479,8 @@
                  *
                  * @type {Function}
                  */
-                scope.getItemIconClass = typeof options.itemIcon === 'function'
-                    ? options.itemIcon
+                scope.getItemIconClass = typeof options.item_icon === 'function'
+                    ? options.item_icon
                     : function (item) {
                     return 'fa fa-item';
                 };
@@ -711,7 +711,7 @@
                  * @param item
                  * @param event
                  */
-                scope.deleteItem  = function (item, event) {
+                scope.delete_item  = function (item, event) {
                     event.preventDefault();
 
                     if (typeof options.onDeleteItem === "function") {
@@ -1004,7 +1004,7 @@
                         '       ng-class="{hidden: item.share_rights.delete == false || item.share_rights.read == false}"></li>' +
                         '    <li role="menuitem"' +
                         '       ng-class="{hidden: item.share_rights.delete == false}"' +
-                        '       ng-click="deleteItem(item, $event)">' +
+                        '       ng-click="delete_item(item, $event)">' +
                         '       <a href="#"><i class="fa fa-trash"></i>Delete</a>' +
                         '    </li>' +
                         '</ul>' +
@@ -1034,7 +1034,7 @@
                         '       ng-class="{hidden: item.share_rights.delete == false || item.share_rights.read == false}"></li>' +
                         '    <li role="menuitem"' +
                         '       ng-class="{hidden: item.share_rights.delete == false}"' +
-                        '       ng-click="deleteItem(item, $event)">' +
+                        '       ng-click="delete_item(item, $event)">' +
                         '       <a href="#"><i class="fa fa-trash"></i>Delete</a>' +
                         '    </li>' +
                         '</ul>' +

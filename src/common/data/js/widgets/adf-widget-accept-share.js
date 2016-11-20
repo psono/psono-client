@@ -47,8 +47,8 @@
 
             // Modals
 
-            $scope.openNewFolder = function (event) {
-                managerAdfWidget.openNewFolder(undefined, [], $scope.structure.data, managerDatastorePassword);
+            $scope.open_new_folder = function (event) {
+                managerAdfWidget.open_new_folder(undefined, [], $scope.structure.data, managerDatastorePassword);
             };
 
             /**
@@ -58,12 +58,12 @@
              * @param path
              * @param size
              */
-            var openNewItem = function (parent, path, size) {
-                managerAdfWidget.openNewItem($scope.structure.data, parent, path, size);
+            var open_new_item = function (parent, path, size) {
+                managerAdfWidget.open_new_item($scope.structure.data, parent, path, size);
             };
 
             $scope.openNewItem = function (event) {
-                openNewItem(undefined, []);
+                open_new_item(undefined, []);
             };
 
             /**
@@ -73,8 +73,8 @@
              * @param path
              * @param size
              */
-            var openEditItem = function (node, path, size) {
-                managerAdfWidget.openEditItem($scope.structure.data, node, path, size);
+            var open_edit_item = function (node, path, size) {
+                managerAdfWidget.open_edit_item($scope.structure.data, node, path, size);
             };
 
             // Datastore Structure Management
@@ -96,8 +96,8 @@
              * @param target_path the path where we want to put the item
              * @param type type of the item (item or folder)
              */
-            var moveItem = function(scope, item_path, target_path, type) {
-                managerAdfWidget.moveItem(scope.structure.data, item_path, target_path, type);
+            var move_item = function(scope, item_path, target_path, type) {
+                managerAdfWidget.move_item(scope.structure.data, item_path, target_path, type);
             };
 
             /**
@@ -107,8 +107,8 @@
              * @param item the item
              * @param path the path to the item
              */
-            var deleteItem = function(scope, item, path) {
-                managerAdfWidget.deleteItem(scope.structure.data, item, path);
+            var delete_item = function(scope, item, path) {
+                managerAdfWidget.delete_item(scope.structure.data, item, path);
             };
 
             $scope.options = {
@@ -132,7 +132,7 @@
                  * @param path The path to the node
                  */
                 onDeleteNode: function (node, path) {
-                    return deleteItem($scope, node, path);
+                    return delete_item($scope, node, path);
                 },
 
                 /**
@@ -142,7 +142,7 @@
                  * @param path The path to the node
                  */
                 onEditNode: function (node, path) {
-                    managerAdfWidget.openEditFolder(node, path, $scope.structure.data, managerDatastorePassword)
+                    managerAdfWidget.open_edit_folder(node, path, $scope.structure.data, managerDatastorePassword)
                 },
 
                 /**
@@ -152,7 +152,7 @@
                  * @param path The path to the item
                  */
                 onDeleteItem: function (item, path) {
-                    return deleteItem($scope, item, path);
+                    return delete_item($scope, item, path);
                 },
 
                 /**
@@ -162,7 +162,7 @@
                  * @param path The path to the item
                  */
                 onEditItem: function (item, path) {
-                    openEditItem(item, path)
+                    open_edit_item(item, path);
                 },
 
                 /**
@@ -172,7 +172,7 @@
                  * @param path The path to the parent
                  */
                 onNewFolder: function (parent, path) {
-                    managerAdfWidget.openNewFolder(parent, path, $scope.structure.data, managerDatastorePassword);
+                    managerAdfWidget.open_new_folder(parent, path, $scope.structure.data, managerDatastorePassword);
                 },
 
                 /**
@@ -182,7 +182,7 @@
                  * @param path The path to the parent
                  */
                 onNewItem: function (parent, path) {
-                    openNewItem(parent, path)
+                    open_new_item(parent, path)
                 },
 
                 /**
@@ -203,7 +203,7 @@
                  * @param target_path
                  */
                 onItemDropComplete: function (item_path, target_path) {
-                    return moveItem($scope, item_path, target_path, 'items');
+                    return move_item($scope, item_path, target_path, 'items');
                 },
 
                 /**
@@ -226,7 +226,7 @@
                  * @param target_path
                  */
                 onFolderDropComplete: function (item_path, target_path) {
-                    return moveItem($scope, item_path, target_path, 'folders');
+                    return move_item($scope, item_path, target_path, 'folders');
                 },
                 /**
                  * blocks move if context menus are open
@@ -240,7 +240,7 @@
                 contextMenuOnClose: $scope.contextMenuOnClose,
 
                 getAdditionalButtons: itemBlueprint.get_additional_functions,
-                itemIcon: managerAdfWidget.itemIcon
+                item_icon: managerAdfWidget.item_icon
             };
 
         }]);

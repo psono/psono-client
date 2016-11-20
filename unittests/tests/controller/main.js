@@ -34,14 +34,14 @@
             expect($scope.version).toEqual(version);
         });
 
-        it('getLinkState', function() {
+        it('get_link_state', function() {
             // $location.path() == ''
             expect($location.path()).toEqual('');
-            expect($scope.getLinkState('/')).toEqual('active');
-            expect($scope.getLinkState('/share/pendingshares')).toEqual('');
+            expect($scope.get_link_state('/')).toEqual('active');
+            expect($scope.get_link_state('/share/pendingshares')).toEqual('');
 
             spyOn($location, 'path').and.returnValue('/share/pendingsharest');
-            expect($scope.getLinkState('/share/pendingshares')).toEqual('active');
+            expect($scope.get_link_state('/share/pendingshares')).toEqual('active');
         });
 
     });

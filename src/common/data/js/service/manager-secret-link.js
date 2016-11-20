@@ -1,16 +1,31 @@
 (function(angular) {
     'use strict';
 
+    /**
+     * @ngdoc service
+     * @name psonocli.managerSecretLink
+     * @requires psonocli.managerBase
+     * @requires psonocli.apiClient
+     *
+     * @description
+     * Service to handle all secret links related tasks
+     */
+
     var managerSecretLink = function(managerBase, apiClient) {
 
         /**
+         * @ngdoc
+         * @name psonocli.managerSecretLink#move_secret_link
+         * @methodOf psonocli.managerSecretLink
+         *
+         * @description
          * Moves a secret to a new parent share or datastore
          *
-         * @param {uuid} link_id - the link id
-         * @param {uuid} [new_parent_share_id=null] - optional new parent share ID, necessary if no new_parent_datastore_id is provided
-         * @param {uuid} [new_parent_datastore_id=null] - optional new datastore ID, necessary if no new_parent_share_id is provided
+         * @param {uuid} link_id The id of the link that should be moved
+         * @param {uuid} [new_parent_share_id=null] (optional) New parent share ID, necessary if no new_parent_datastore_id is provided
+         * @param {uuid} [new_parent_datastore_id=null] (optional) New datastore ID, necessary if no new_parent_share_id is provided
          *
-         * @returns {promise}
+         * @returns {promise} Returns promise with the status of the move
          */
         var move_secret_link = function(link_id, new_parent_share_id, new_parent_datastore_id) {
 
@@ -28,11 +43,16 @@
         };
 
         /**
-         * Deletes a secret
+         * @ngdoc
+         * @name psonocli.managerSecretLink#delete_secret_link
+         * @methodOf psonocli.managerSecretLink
          *
-         * @param {uuid} link_id - the link id
+         * @description
+         * Deletes a link to a secret
          *
-         * @returns {promise}
+         * @param {uuid} link_id The id of the link that should be deleted
+         *
+         * @returns {promise} Returns a promise with the status of the delete operation
          */
         var delete_secret_link = function(link_id) {
 
@@ -50,19 +70,26 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerSecretLink#on_secret_moved
+         * @methodOf psonocli.managerSecretLink
+         *
+         * @description
          * triggered once a secret moved. handles the update of links
          *
-         * @param link_id
-         * @param parent_share
+         * @param {uuid} link_id The id of the link
+         * @param {object} parent The new parent (share or datastore)
+         *
+         * @returns {promise} Returns promise with the status of the move
          */
-        var on_secret_moved = function(link_id, parent_share) {
+        var on_secret_moved = function(link_id, parent) {
             var new_parent_share_id = null,
                 new_parent_datastore_id = null;
 
-            if (parent_share.hasOwnProperty("share_id")) {
-                new_parent_share_id = parent_share.share_id;
-            } else if(parent_share.hasOwnProperty("datastore_id")) {
-                new_parent_datastore_id = parent_share.datastore_id;
+            if (parent.hasOwnProperty("share_id")) {
+                new_parent_share_id = parent.share_id;
+            } else if(parent.hasOwnProperty("datastore_id")) {
+                new_parent_datastore_id = parent.datastore_id;
             } else {
                 console.log("error, couldn't find a share_id nor a datastore_id");
                 console.log(parent);
@@ -72,9 +99,16 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerSecretLink#on_secret_deleted
+         * @methodOf psonocli.managerSecretLink
+         *
+         * @description
          * triggered once a secret is deleted.
          *
-         * @param {uuid} link_id the link_id to delete
+         * @param {uuid} link_id The link_id to delete
+         *
+         * @returns {promise} Returns a promise with the status of the delete operation
          */
         var on_secret_deleted = function (link_id) {
             return delete_secret_link(link_id);

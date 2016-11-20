@@ -22,7 +22,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerAdfWidget#openNewFolder
+         * @name psonocli.managerAdfWidget#open_new_folder
          * @methodOf psonocli.managerAdfWidget
          *
          * @description
@@ -33,7 +33,7 @@
          * @param {TreeObject} data_structure the data structure
          * @param {Object} manager manager responsible for
          */
-        var openNewFolder = function (parent, path, data_structure, manager) {
+        var open_new_folder = function (parent, path, data_structure, manager) {
 
             var modalInstance = $uibModal.open({
                 templateUrl: 'view/modal-new-folder.html',
@@ -70,7 +70,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerAdfWidget#openEditFolder
+         * @name psonocli.managerAdfWidget#open_edit_folder
          * @methodOf psonocli.managerAdfWidget
          *
          * @description
@@ -82,7 +82,7 @@
          * @param {Object} manager manager responsible for
          * @param {string} size The size of the modal
          */
-        var openEditFolder = function (node, path, data_structure, manager, size) {
+        var open_edit_folder = function (node, path, data_structure, manager, size) {
 
             var modalInstance = $uibModal.open({
                 templateUrl: 'view/modal-edit-folder.html',
@@ -110,7 +110,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerAdfWidget#openNewItem
+         * @name psonocli.managerAdfWidget#open_new_item
          * @methodOf psonocli.managerAdfWidget
          *
          * @description
@@ -121,7 +121,7 @@
          * @param {Array} path The path to the parent
          * @param {string} size The size of the modal
          */
-        var openNewItem = function (datastore, parent, path, size) {
+        var open_new_item = function (datastore, parent, path, size) {
             var modalInstance = $uibModal.open({
                 templateUrl: 'view/modal-new-entry.html',
                 controller: 'ModalDatastoreNewEntryCtrl',
@@ -206,7 +206,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerAdfWidget#openEditItem
+         * @name psonocli.managerAdfWidget#open_edit_item
          * @methodOf psonocli.managerAdfWidget
          *
          * @description
@@ -217,7 +217,7 @@
          * @param {Array} path The path to the parent
          * @param {string} size The size of the modal
          */
-        var openEditItem = function(datastore, node, path, size) {
+        var open_edit_item = function(datastore, node, path, size) {
 
             var onError = function(result) {
                 // pass
@@ -285,7 +285,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerAdfWidget#moveItem
+         * @name psonocli.managerAdfWidget#move_item
          * @methodOf psonocli.managerAdfWidget
          *
          * @description
@@ -296,7 +296,7 @@
          * @param {Array} target_path the path where we want to put the item
          * @param {string} type type of the item ('item' or 'folder')
          */
-        var moveItem = function(datastore, item_path, target_path, type) {
+        var move_item = function(datastore, item_path, target_path, type) {
 
             /**
              * takes any element like shares, folders, items ... and checks if they can be moved
@@ -494,7 +494,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerAdfWidget#deleteItem
+         * @name psonocli.managerAdfWidget#delete_item
          * @methodOf psonocli.managerAdfWidget
          *
          * @description
@@ -504,7 +504,7 @@
          * @param {object} item The item to delete
          * @param {Array} path The path to the item
          */
-        var deleteItem = function(datastore, item, path) {
+        var delete_item = function(datastore, item, path) {
 
             var i;
             // TODO ask for confirmation
@@ -560,7 +560,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerAdfWidget#findInStructure
+         * @name psonocli.managerAdfWidget#find_in_structure
          * @methodOf psonocli.managerAdfWidget
          *
          * @description
@@ -570,7 +570,7 @@
          * @param {TreeObject} structure The structure object tree
          * @returns {boolean|Array} False if not present or a list of two objects where the first is the List Object containing the searchable object and the second the index
          */
-        var findInStructure = function (path, structure) {
+        var find_in_structure = function (path, structure) {
             var to_search = path.shift();
             var n = undefined;
 
@@ -602,7 +602,7 @@
 
             for (n = 0; n < structure.folders.length; n++) {
                 if (structure.folders[n].id == to_search) {
-                    return findInStructure(path, structure.folders[n]);
+                    return find_in_structure(path, structure.folders[n]);
                 }
             }
             return false;
@@ -610,7 +610,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerAdfWidget#itemIcon
+         * @name psonocli.managerAdfWidget#item_icon
          * @methodOf psonocli.managerAdfWidget
          *
          * @description
@@ -620,7 +620,7 @@
          *
          * @returns {string} Returns the css class
          */
-        var itemIcon = function (item) {
+        var item_icon = function (item) {
             var iconClassMap = {
                     txt: 'fa fa-file-text-o',
                     log: 'fa fa-file-text-o',
@@ -675,14 +675,14 @@
         };
 
         return {
-            openNewFolder: openNewFolder,
-            openEditFolder: openEditFolder,
-            findInStructure: findInStructure,
-            openNewItem: openNewItem,
-            openEditItem: openEditItem,
-            moveItem: moveItem,
-            deleteItem: deleteItem,
-            itemIcon: itemIcon
+            open_new_folder: open_new_folder,
+            open_edit_folder: open_edit_folder,
+            find_in_structure: find_in_structure,
+            open_new_item: open_new_item,
+            open_edit_item: open_edit_item,
+            move_item: move_item,
+            delete_item: delete_item,
+            item_icon: item_icon
         };
     };
 
@@ -1006,13 +1006,13 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:ModalShareEntryCtrl#addUser
+             * @name psonocli.controller:ModalShareEntryCtrl#add_user
              * @methodOf psonocli.controller:ModalShareEntryCtrl
              *
              * @description
              * responsible to add a user to the known users datastore
              */
-            $scope.addUser = function() {
+            $scope.add_user = function() {
 
                 var modalInstance = $uibModal.open({
                     templateUrl: 'view/modal-new-entry.html',

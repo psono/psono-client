@@ -1,17 +1,35 @@
 (function(angular) {
     'use strict';
 
+    /**
+     * @ngdoc service
+     * @name psonocli.managerSecret
+     * @requires psonocli.managerBase
+     * @requires psonocli.apiClient
+     * @requires psonocli.cryptoLibrary
+     * @requires psonocli.itemBlueprint
+     * @requires psonocli.browserClient
+     *
+     * @description
+     * Service to handle all secret related tasks
+     */
+
     var managerSecret = function(managerBase, apiClient, cryptoLibrary,
                            itemBlueprint, browserClient) {
 
         /**
-         * Creates a secret for the given content and returns the id
+         * @ngdoc
+         * @name psonocli.managerSecret#create_secret
+         * @methodOf psonocli.managerSecret
          *
-         * @param {object} content
-         * @param {uuid} link_id - the local id of the share in the datastructure
-         * @param {uuid} [parent_datastore_id] - optional id of the parent datastore, may be left empty if the share resides in a share
-         * @param {uuid} [parent_share_id] - optional id of the parent share, may be left empty if the share resides in the datastore
-         * @returns {promise}
+         * @description
+         * Encrypts the content and creates a new secret out of it.
+         *
+         * @param {object} content The content of the new secret
+         * @param {uuid} link_id the local id of the share in the data structure
+         * @param {uuid} [parent_datastore_id] (optional) The id of the parent datastore, may be left empty if the share resides in a share
+         * @param {uuid} [parent_share_id] (optional) The id of the parent share, may be left empty if the share resides in the datastore
+         * @returns {promise} Returns a promise with the new secret_id
          */
         var create_secret = function (content, link_id, parent_datastore_id, parent_share_id) {
             var secret_key = cryptoLibrary.generate_secret_key();
@@ -34,12 +52,17 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerSecret#read_secret
+         * @methodOf psonocli.managerSecret
+         *
+         * @description
          * Reads a secret and decrypts it. Returns the decrypted object
          *
-         * @param {uuid} secret_id
-         * @param {string} secret_key
+         * @param {uuid} secret_id The secret id one wants to fetch
+         * @param {string} secret_key The secret key to decrypt the content
          *
-         * @returns {promise}
+         * @returns {promise} Returns a promise withe decrypted content of the secret
          */
         var read_secret = function(secret_id, secret_key) {
 
@@ -57,13 +80,18 @@
         };
 
         /**
-         * Writes a secret after encrypting the object. returns the secret id
+         * @ngdoc
+         * @name psonocli.managerSecret#write_secret
+         * @methodOf psonocli.managerSecret
          *
-         * @param {uuid} secret_id
-         * @param {string} secret_key
-         * @param {object} content
+         * @description
+         * Encrypts some content and updates a secret with it. returns the secret id
          *
-         * @returns {promise}
+         * @param {uuid} secret_id The id of the secret
+         * @param {string} secret_key The secret key of the secret
+         * @param {object} content The new content for the given secret
+         *
+         * @returns {promise} Returns a promise with the secret id
          */
         var write_secret = function(secret_id, secret_key, content) {
 
@@ -85,12 +113,17 @@
         };
 
         /**
-         * Decrypts a secret and initiates the redirect
+         * @ngdoc
+         * @name psonocli.managerSecret#redirect_secret
+         * @methodOf psonocli.managerSecret
          *
-         * @param type
-         * @param secret_id
+         * @description
+         * Fetches and decrypts a secret and initiates the redirect for the secret
+         *
+         * @param {string} type The type of the secret
+         * @param {uuid} secret_id The id of the secret to read
          */
-        var redirectSecret = function(type, secret_id) {
+        var redirect_secret = function(type, secret_id) {
 
             var onError = function(result) {
                 // pass
@@ -114,9 +147,14 @@
 
         };
         /**
+         * @ngdoc
+         * @name psonocli.managerSecret#on_item_click
+         * @methodOf psonocli.managerSecret
+         *
+         * @description
          * Handles item clicks and triggers behaviour
          *
-         * @param item
+         * @param {object} item The item one has clicked on
          */
         var on_item_click = function(item) {
             if (itemBlueprint.blueprint_has_on_click_new_tab(item.type)) {
@@ -128,7 +166,7 @@
             create_secret: create_secret,
             read_secret: read_secret,
             write_secret: write_secret,
-            redirectSecret: redirectSecret,
+            redirect_secret: redirect_secret,
             on_item_click: on_item_click
         };
     };

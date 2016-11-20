@@ -38,6 +38,12 @@
      * @property {Array} [folders] The folders in the tree object containing other TreeObject
      * @property {Object} [share_index] The share index
      *
+     * @typedef {Object} RightObject
+     * @property {boolean} read The read rights
+     * @property {boolean} write The write rights
+     * @property {boolean} grant The grant rights
+     * @property {boolean} [delete] The delete rights
+     *
      */
 
 
@@ -168,7 +174,7 @@
         $rootScope.$on('$routeChangeSuccess', function () {
             var redirect = '/secret/';
             if ($location.path().substring(0, redirect.length) == redirect && $routeParams.hasOwnProperty('secret_id')) {
-                managerSecret.redirectSecret($routeParams.type, $routeParams.secret_id);
+                managerSecret.redirect_secret($routeParams.type, $routeParams.secret_id);
             }
 
         });
@@ -657,7 +663,7 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:MainCtrl#getLinkState
+             * @name psonocli.controller:MainCtrl#get_link_state
              * @methodOf psonocli.controller:MainCtrl
              *
              * @description
@@ -666,7 +672,7 @@
              *
              * @param {string} path The current path
              */
-            $scope.getLinkState = function (path) {
+            $scope.get_link_state = function (path) {
                 if (path === '/' && $location.path().length == 0) {
                     return 'active';
                 } else if (path !== '/' && $location.path().substr(0, path.length) === path) {
@@ -688,13 +694,13 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:MainCtrl#generatePassword
+             * @name psonocli.controller:MainCtrl#generate_password
              * @methodOf psonocli.controller:MainCtrl
              *
              * @description
              * managerDatastorePassword.generate_password_active_tab function to pass through
              */
-            $scope.generatePassword = managerDatastorePassword.generate_password_active_tab;
+            $scope.generate_password = managerDatastorePassword.generate_password_active_tab;
 
             $scope.user_username = manager.find_one('config', 'user_username');
 
@@ -765,13 +771,13 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:PanelCtrl#generatePassword
+             * @name psonocli.controller:PanelCtrl#generate_password
              * @methodOf psonocli.controller:PanelCtrl
              *
              * @description
              * managerDatastorePassword.generate_password_active_tab function to pass through
              */
-            $scope.generatePassword = managerDatastorePassword.generate_password_active_tab;
+            $scope.generate_password = managerDatastorePassword.generate_password_active_tab;
 
             /* datastore search */
 
@@ -1238,7 +1244,7 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:ShareCtrl#pendingApprovalFilter
+             * @name psonocli.controller:ShareCtrl#pending_approval_filter
              * @methodOf psonocli.controller:ShareCtrl
              *
              * @description
@@ -1246,7 +1252,7 @@
              *
              * @param {object} item The item to check
              */
-            $scope.pendingApprovalFilter = function (item) {
+            $scope.pending_approval_filter = function (item) {
                 return item.share_right_accepted === null;
             };
         }]);
@@ -1304,13 +1310,13 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:ModalAcceptShareCtrl#clearBreadcrumbs
+             * @name psonocli.controller:ModalAcceptShareCtrl#clear_breadcrumbs
              * @methodOf psonocli.controller:ModalAcceptShareCtrl
              *
              * @description
              * triggered once someone clicks the "delete" button near path. The function will clear the breadcrumbs.
              */
-            $scope.clearBreadcrumbs = function () {
+            $scope.clear_breadcrumbs = function () {
                 $scope.breadcrumbs = {};
             };
 

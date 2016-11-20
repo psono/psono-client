@@ -1,15 +1,38 @@
 (function(angular) {
     'use strict';
 
+    /**
+     * @ngdoc service
+     * @name psonocli.managerDatastoreUser
+     * @requires $q
+     * @requires $rootScope
+     * @requires psonocli.apiClient
+     * @requires psonocli.browserClient
+     * @requires psonocli.storage
+     * @requires psonocli.helper
+     * @requires psonocli.managerBase
+     * @requires psonocli.managerDatastore
+     * @requires psonocli.shareBlueprint
+     * @requires psonocli.itemBlueprint
+     * @requires psonocli.cryptoLibrary
+     *
+     * @description
+     * Service to manage the user datastore and user related functions
+     */
+
     var managerDatastoreUser = function($q, $rootScope, apiClient, browserClient, storage,
                                         helper, managerBase, managerDatastore, shareBlueprint,
                                         itemBlueprint, cryptoLibrary) {
 
         /**
-         * Checks if the user is logged in.
-         * Returns either true or false
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#is_logged_in
+         * @methodOf psonocli.managerDatastoreUser
          *
-         * @return {boolean} is the user logged in
+         * @description
+         * Checks if the user is logged in.
+         *
+         * @return {boolean} Returns either if the user is logged in
          */
         var is_logged_in = function () {
             var token = managerBase.get_token();
@@ -17,12 +40,18 @@
         };
 
         /**
-         * Ajax POST request to the backend with email and authkey for registration
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#register
+         * @methodOf psonocli.managerDatastoreUser
          *
-         * @param email
-         * @param username
-         * @param password
-         * @param server server object
+         * @description
+         * Responsible for the registration. Generates the users public-private-key-pair together with the secret
+         * key and the user sauce. Encrypts the sensible data before initiating the register call with the api client.
+         *
+         * @param {email} email The email to register with
+         * @param {string} username The username to register with
+         * @param {string} password The password to register with
+         * @param {string} server The server object
          *
          * @returns {promise} promise
          */
@@ -80,12 +109,17 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#activate
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
          * Activates a user account with the provided activation code
          *
-         * @param activate_code
-         * @param server
+         * @param {string} activate_code The activation code sent via mail
+         * @param {string} server The server to send the activation code to
          *
-         * @returns {promise}
+         * @returns {promise} Returns a promise with the activation status
          */
         var activate = function(activate_code, server) {
 
@@ -116,14 +150,20 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#login
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
          * Ajax POST request to the backend with username and authkey for login, saves a token together with user_id
-         * and all the different keys of a user in the apidata storage
+         * and all the different keys of a user in the api data storage.
+         * Also handles the validation of the token with the server by solving the cryptographic puzzle
          *
-         * @param username
-         * @param password
-         * @param server server object
+         * @param {string} username The username to login with
+         * @param {string} password The password to login with
+         * @param {object} server The server object to send the login request to
          *
-         * @returns {promise} promise
+         * @returns {promise} Returns a promise with the login status
          */
         var login = function(username, password, server) {
 
@@ -220,9 +260,14 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#logout
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
          * Ajax POST request to destroy the token and logout the user
          *
-         * @returns {promise}
+         * @returns {promise} Returns a promise with the logout status
          */
         var logout = function () {
 
@@ -264,18 +309,23 @@
         });
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#update_user
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
          * Update user base settings
          *
-         * @param email
-         * @param authkey
-         * @param authkey_old
-         * @param private_key
-         * @param private_key_nonce
-         * @param secret_key
-         * @param secret_key_nonce
-         * @param user_sauce
+         * @param {email} email The email of the user
+         * @param {string} authkey The new authkey of the user
+         * @param {string} authkey_old The old authkey of the user
+         * @param {string} private_key The encrypted private key of the user (hex format)
+         * @param {string} private_key_nonce The nonce of the private key (hex format)
+         * @param {string} secret_key The encrypted secret key of the user (hex format)
+         * @param {string} secret_key_nonce The nonce of the secret key (hex format)
+         * @param {string} user_sauce The user sauce (hex format)
          *
-         * @returns {promise}
+         * @returns {promise} Returns a promise with the update status
          */
         var update_user = function(email, authkey, authkey_old, private_key, private_key_nonce, secret_key,
                                   secret_key_nonce, user_sauce) {
@@ -284,10 +334,15 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#get_user_datastore
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
          * Returns the user datastore. In addition this function triggers the generation of the local datastore
          * storage to
          *
-         * @returns {promise}
+         * @returns {promise} Returns a promise with the user datastore
          */
         var get_user_datastore = function() {
             var type = "user";
@@ -315,14 +370,18 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#search_user_datastore
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
          * searches the user datastore for a user, based on the id or email
          *
-         * @param [user_id] (optional) user_id to search for
-         * @param [email] (optional) email to search for
-         * @returns {promise}
+         * @param {uuid} [user_id] (optional) user_id to search for
+         * @param {email} [email] (optional) email to search for
+         * @returns {promise} Returns a promise with the user
          */
         var search_user_datastore = function(user_id, email) {
-
 
             var onSuccess = function (user_data_store) {
 
@@ -369,11 +428,16 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#save_datastore
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
          * Saves the user datastore with given content
          *
-         * @param content The real object you want to encrypt in the datastore
-         * @param paths The list of paths to the changed elements
-         * @returns {promise}
+         * @param {TreeObject} content The real object you want to encrypt in the datastore
+         * @param {Array} paths The list of paths to the changed elements
+         * @returns {promise} Promise with the status of the save
          */
         var save_datastore = function (content, paths) {
             var type = "user";
@@ -385,10 +449,15 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#search_user
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
          * searches a user in the database according to his username
          *
-         * @param username
-         * @returns {promise}
+         * @param {string} username The username to search
+         * @returns {promise} Returns a promise with the user information
          */
         var search_user = function(username) {
 

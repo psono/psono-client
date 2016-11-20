@@ -69,7 +69,7 @@
          *
          * @param {string} type The type of the datastore that we are looking for
          * @param {string} description The description of the datastore that we are looking for
-         * @param {boolean} [force_fresh] if you want to force a fresh query to the backend
+         * @param {boolean} [force_fresh] (optional) if you want to force a fresh query to the backend
          *
          * @returns {promise} Promise with the datastore id
          */

@@ -45,8 +45,8 @@
 
             // Modals
 
-            $scope.openNewFolder = function (event) {
-                managerAdfWidget.openNewFolder(undefined, [], $scope.structure.data, managerDatastoreUser);
+            $scope.open_new_folder = function (event) {
+                managerAdfWidget.open_new_folder(undefined, [], $scope.structure.data, managerDatastoreUser);
             };
 
             /**
@@ -56,7 +56,7 @@
              * @param path
              * @param size
              */
-            var openNewItem = function (parent, path, size) {
+            var open_new_item = function (parent, path, size) {
 
                 var modalInstance = $uibModal.open({
                     templateUrl: 'view/modal-new-entry.html',
@@ -116,8 +116,8 @@
                 });
             };
 
-            $scope.openNewItem = function (event) {
-                openNewItem(undefined, []);
+            $scope.open_new_item = function (event) {
+                open_new_item(undefined, []);
             };
 
             /**
@@ -127,7 +127,7 @@
              * @param path
              * @param size
              */
-            var openEditItem = function (node, path, size) {
+            var open_edit_item = function (node, path, size) {
 
                 var modalInstance = $uibModal.open({
                     templateUrl: 'view/modal-edit-entry.html',
@@ -236,7 +236,7 @@
                 onDeleteNode: function (node, path) {
                     // TODO ask for confirmation
 
-                    var val = managerAdfWidget.findInStructure(path, $scope.structure.data);
+                    var val = managerAdfWidget.find_in_structure(path, $scope.structure.data);
                     if (val)
                         val[0].splice(val[1], 1);
                     managerDatastoreUser.save_datastore($scope.structure.data);
@@ -249,7 +249,7 @@
                  * @param path The path to the node
                  */
                 onEditNode: function (node, path) {
-                    managerAdfWidget.openEditFolder(node, path, $scope.structure.data, managerDatastoreUser);
+                    managerAdfWidget.open_edit_folder(node, path, $scope.structure.data, managerDatastoreUser);
                 },
 
                 /**
@@ -271,7 +271,7 @@
                 onDeleteItem: function (item, path) {
                     // TODO ask for confirmation
 
-                    var val = managerAdfWidget.findInStructure(path, $scope.structure.data);
+                    var val = managerAdfWidget.find_in_structure(path, $scope.structure.data);
                     if (val)
                         val[0].splice(val[1], 1);
 
@@ -285,7 +285,7 @@
                  * @param path The path to the item
                  */
                 onEditItem: function (item, path) {
-                    openEditItem(item, path)
+                    open_edit_item(item, path)
                 },
 
                 /**
@@ -295,7 +295,7 @@
                  * @param path The path to the parent
                  */
                 onNewFolder: function (parent, path) {
-                    managerAdfWidget.openNewFolder(parent, path, $scope.structure.data, managerDatastoreUser);
+                    managerAdfWidget.open_new_folder(parent, path, $scope.structure.data, managerDatastoreUser);
                 },
 
                 /**
@@ -305,7 +305,7 @@
                  * @param path The path to the parent
                  */
                 onNewItem: function (parent, path) {
-                    openNewItem(parent, path)
+                    open_new_item(parent, path)
                 },
 
                 /**
@@ -319,11 +319,11 @@
                     var target = $scope.structure.data;
                     if (target_path !== null) {
                         // find drop zone
-                        var val1 = managerAdfWidget.findInStructure(target_path, $scope.structure.data);
+                        var val1 = managerAdfWidget.find_in_structure(target_path, $scope.structure.data);
                         target = val1[0][val1[1]];
                     }
                     // find element
-                    var val2 = managerAdfWidget.findInStructure(item_path, $scope.structure.data);
+                    var val2 = managerAdfWidget.find_in_structure(item_path, $scope.structure.data);
 
                     if (val2 === false) {
                         return;
@@ -356,12 +356,12 @@
                     var target = $scope.structure.data;
                     if (target_path !== null) {
                         // find drop zone
-                        var val1 = managerAdfWidget.findInStructure(target_path, $scope.structure.data);
+                        var val1 = managerAdfWidget.find_in_structure(target_path, $scope.structure.data);
                         target = val1[0][val1[1]];
                     }
 
                     // find element
-                    var val2 = managerAdfWidget.findInStructure(item_path, $scope.structure.data);
+                    var val2 = managerAdfWidget.find_in_structure(item_path, $scope.structure.data);
 
                     if (val2 === false) {
                         return;
@@ -397,7 +397,7 @@
                 },
 
                 getAdditionalButtons: shareBlueprint.get_additional_functions,
-                itemIcon: managerAdfWidget.itemIcon
+                item_icon: managerAdfWidget.item_icon
             };
 
         }]);

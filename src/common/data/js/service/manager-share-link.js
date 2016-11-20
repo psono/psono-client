@@ -1,16 +1,32 @@
 (function(angular) {
     'use strict';
 
+    /**
+     * @ngdoc service
+     * @name psonocli.managerShareLink
+     * @requires psonocli.managerBase
+     * @requires psonocli.apiClient
+     *
+     * @description
+     * Service to handle all share links related tasks
+     */
+
     var managerShareLink = function(managerBase, apiClient) {
 
         /**
+         * @ngdoc
+         * @name psonocli.managerShareLink#create_share_link
+         * @methodOf psonocli.managerShareLink
+         *
+         * @description
          * Create a link between a share and a datastore or another (parent-)share
          *
-         * @param {uuid} link_id - the link id
-         * @param {uuid} share_id - the share ID
-         * @param {uuid} [parent_share_id=null] - optional parent share ID, necessary if no datastore_id is provided
-         * @param {uuid} [parent_datastore_id=null] - optional datastore ID, necessary if no parent_share_id is provided
-         * @returns {promise}
+         * @param {uuid} link_id the link id
+         * @param {uuid} share_id the share ID
+         * @param {uuid} [parent_share_id=null] (optional) parent share ID, necessary if no datastore_id is provided
+         * @param {uuid} [parent_datastore_id=null] (optional) datastore ID, necessary if no parent_share_id is provided
+         *
+         * @returns {promise} Returns a promise withe the new share link id
          */
         var create_share_link = function (link_id, share_id, parent_share_id, parent_datastore_id) {
 
@@ -28,12 +44,18 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerShareLink#move_share_link
+         * @methodOf psonocli.managerShareLink
+         *
+         * @description
          * Moves a link between a share and a datastore or another (parent-)share
          *
-         * @param {uuid} link_id - the link id
-         * @param {uuid} [new_parent_share_id=null] - optional new parent share ID, necessary if no new_datastore_id is provided
-         * @param {uuid} [new_parent_datastore_id=null] - optional new datastore ID, necessary if no new_parent_share_id is provided
-         * @returns {promise}
+         * @param {uuid} link_id The link id
+         * @param {uuid} [new_parent_share_id=null] (optional) new parent share ID, necessary if no new_datastore_id is provided
+         * @param {uuid} [new_parent_datastore_id=null] (optional) new datastore ID, necessary if no new_parent_share_id is provided
+         *
+         * @returns {promise} Returns a promise with the status of the move
          */
         var move_share_link = function (link_id, new_parent_share_id, new_parent_datastore_id) {
 
@@ -51,10 +73,15 @@
         };
 
         /**
-         * Delete a link
+         * @ngdoc
+         * @name psonocli.managerShareLink#delete_share_link
+         * @methodOf psonocli.managerShareLink
          *
-         * @param link_id
-         * @returns {promise}
+         * @description
+         * Delete a share link
+         *
+         * @param {uuid} link_id The link id one wants to delete
+         * @returns {promise} Returns a promise with the status of the delete operation
          */
         var delete_share_link = function (link_id) {
 
@@ -72,19 +99,26 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerShareLink#delete_share_link
+         * @methodOf psonocli.managerShareLink
+         *
+         * @description
          * triggered once a share moved. handles the update of links
          *
-         * @param link_id
-         * @param parent_share
+         * @param {uuid} link_id The link id that has moved
+         * @param {TreeObject} parent The parent (either a share or a datastore)
+         *
+         * @returns {promise} Returns a promise with the status of the move
          */
-        var on_share_moved = function(link_id, parent_share) {
+        var on_share_moved = function(link_id, parent) {
             var new_parent_share_id = null,
                 new_parent_datastore_id = null;
 
-            if (parent_share.hasOwnProperty("share_id")) {
-                new_parent_share_id = parent_share.share_id;
-            } else if(parent_share.hasOwnProperty("datastore_id")) {
-                new_parent_datastore_id = parent_share.datastore_id;
+            if (parent.hasOwnProperty("share_id")) {
+                new_parent_share_id = parent.share_id;
+            } else if(parent.hasOwnProperty("datastore_id")) {
+                new_parent_datastore_id = parent.datastore_id;
             } else {
                 console.log("error, couldn't find a share_id nor a datastore_id");
                 console.log(parent);
@@ -94,9 +128,14 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerShareLink#on_share_deleted
+         * @methodOf psonocli.managerShareLink
+         *
+         * @description
          * triggered once a share is deleted.
          *
-         * @param link_id the link_id to delete
+         * @param {uuid} link_id the link_id to delete
          */
         var on_share_deleted = function (link_id) {
             return delete_share_link(link_id);

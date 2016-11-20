@@ -1,15 +1,33 @@
 (function(angular) {
     'use strict';
 
+    /**
+     * @ngdoc service
+     * @name psonocli.managerShare
+     * @requires psonocli.managerBase
+     * @requires psonocli.apiClient
+     * @requires psonocli.cryptoLibrary
+     * @requires psonocli.itemBlueprint
+     *
+     * @description
+     * Service to handle all share related tasks
+     */
+
     var managerShare = function(managerBase, apiClient, cryptoLibrary,
-                                 itemBlueprint, helper) {
+                                 itemBlueprint) {
 
         /**
+         * @ngdoc
+         * @name psonocli.managerShare#read_share
+         * @methodOf psonocli.managerShare
+         *
+         * @description
          * Returns a share object with decrypted data
          *
-         * @param share_id
-         * @param secret_key
-         * @returns {promise}
+         * @param {uuid} share_id The id of the share
+         * @param {string} secret_key The secret key of the share
+         *
+         * @returns {promise} Returns a promise with the decrypted content of the share
          */
         var read_share = function(share_id, secret_key) {
 
@@ -33,9 +51,14 @@
         };
 
         /**
-         * Returns a list of all shares
+         * @ngdoc
+         * @name psonocli.managerShare#read_shares
+         * @methodOf psonocli.managerShare
          *
-         * @returns {promise}
+         * @description
+         * Fetches an overview of all shares
+         *
+         * @returns {promise} Returns a list of all shares
          */
         var read_shares = function() {
 
@@ -65,12 +88,18 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerShare#write_share
+         * @methodOf psonocli.managerShare
+         *
+         * @description
          * updates a share
          *
-         * @param share_id
-         * @param content
-         * @param secret_key
-         * @returns {promise}
+         * @param {uuid} share_id The id of the share
+         * @param {object} content The content that the share should be updated with
+         * @param {string} secret_key The secret key of the share
+         *
+         * @returns {promise} Returns a promise with the status of the update
          */
         var write_share = function(share_id, content, secret_key) {
 
@@ -89,13 +118,19 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerShare#create_share
+         * @methodOf psonocli.managerShare
+         *
+         * @description
          * Creates a share for the given content and returns the id and the secret to decrypt the share secret
          *
-         * @param content
-         * @param [parent_share_id]
-         * @param [parent_datastore_id]
-         * @param link_id
-         * @returns {promise}
+         * @param {object} content The content of the new share
+         * @param {uuid} [parent_share_id] (optional) The parent share's id
+         * @param {uuid} [parent_datastore_id] (optional) The parent datastore's id
+         * @param {uuid} link_id The link id in the parent
+         *
+         * @returns {promise} Returns a promise with the status and the new share id
          */
         var create_share = function (content, parent_share_id,
                                      parent_datastore_id, link_id) {
@@ -126,10 +161,16 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerShare#read_share_rights
+         * @methodOf psonocli.managerShare
+         *
+         * @description
          * Returns share rights for a specific share
          *
-         * @param share_id
-         * @returns {promise}
+         * @param {uuid} share_id The id of the share
+         *
+         * @returns {promise} Returns a promise with all the specific rights
          */
         var read_share_rights = function(share_id) {
 
@@ -147,9 +188,14 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerShare#read_share_rights_overview
+         * @methodOf psonocli.managerShare
+         *
+         * @description
          * Returns all the share rights of the current user
          *
-         * @returns {promise}
+         * @returns {promise} Returns a promise with the share rights overview
          */
         var read_share_rights_overview = function() {
 
@@ -168,18 +214,24 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerShare#create_share_right
+         * @methodOf psonocli.managerShare
+         *
+         * @description
          * creates the rights for a specified share and user
          *
-         * @param title
-         * @param type
-         * @param share_id
-         * @param user_id
-         * @param user_public_key
-         * @param key
-         * @param read
-         * @param write
-         * @param grant
-         * @returns {promise}
+         * @param {string} title The title of the share right
+         * @param {string} type The type of the share right
+         * @param {uuid} share_id The share id
+         * @param {uuid} user_id The user id
+         * @param {string} user_public_key The other users public key
+         * @param {string} key the key of the share
+         * @param {boolean} read The read right
+         * @param {boolean} write The write right
+         * @param {boolean} grant The grant right
+         *
+         * @returns {promise} Returns a promise with the new share right id
          */
         var create_share_right = function(title, type, share_id, user_id, user_public_key, key, read, write, grant) {
 
@@ -203,14 +255,20 @@
         };
 
         /**
-         * updates the rights for a specified share right and user
+         * @ngdoc
+         * @name psonocli.managerShare#update_share_right
+         * @methodOf psonocli.managerShare
          *
-         * @param share_id
-         * @param user_id
-         * @param read
-         * @param write
-         * @param grant
-         * @returns {*}
+         * @description
+         * updates the rights for a specified share and user
+         *
+         * @param {uuid} share_id The share id
+         * @param {uuid} user_id The user id
+         * @param {boolean} read The read right
+         * @param {boolean} write The write right
+         * @param {boolean} grant The grant right
+         *
+         * @returns {promise} Returns a promise with the update status
          */
         var update_share_right = function(share_id, user_id, read, write, grant) {
 
@@ -228,10 +286,16 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerShare#delete_share_right
+         * @methodOf psonocli.managerShare
+         *
+         * @description
          * deletes a specific share right
          *
-         * @param share_right_id
-         * @returns {promise}
+         * @param {uuid} share_right_id The share right id
+         *
+         * @returns {promise} Returns a promise with the status of the delete
          */
         var delete_share_right = function(share_right_id) {
 
@@ -249,16 +313,22 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerShare#accept_share_right
+         * @methodOf psonocli.managerShare
+         *
+         * @description
          * accepts a specific share right
          *
-         * @param share_right_id
-         * @param text
-         * @param nonce
-         * @param public_key
-         * @param link_id
-         * @param parent_share_id
-         * @param parent_datastore_id
-         * @returns {promise}
+         * @param {uuid} share_right_id The share right id that one wants to accept
+         * @param {string} text The encrypted share secret key
+         * @param {string} nonce The nonce of the share secret key
+         * @param {string} public_key The public key of the other user
+         * @param {uuid} link_id The link id in the parent (datastore or share)
+         * @param {uuid} [parent_share_id] (optional) The id of the parent share
+         * @param {uuid} [parent_datastore_id] (optional) The id of the parent datastore
+         *
+         * @returns {promise} Returns a promise with the share content
          */
         var accept_share_right = function(share_right_id, text, nonce, public_key, link_id, parent_share_id,
                                           parent_datastore_id) {
@@ -302,10 +372,16 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerShare#decline_share_right
+         * @methodOf psonocli.managerShare
+         *
+         * @description
          * declines a specific share right
          *
-         * @param share_right_id
-         * @returns {promise}
+         * @param {uuid} share_right_id The share right id of the share right one wants to decline
+         *
+         * @returns {promise} Returns a promise with the status of the decline
          */
         var decline_share_right = function(share_right_id) {
 
@@ -323,14 +399,20 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerShare#get_closest_parent_share
+         * @methodOf psonocli.managerShare
+         *
+         * @description
          * returns the closest share. if no share exists for the specified path, the initially specified closest_share
          * is returned.
          *
-         * @param path
-         * @param datastore
-         * @param closest_share
-         * @param distance
-         * @returns {*}
+         * @param {Array} path The path of the item we want the closest parent of
+         * @param {TreeObject} datastore The datastore to search
+         * @param {TreeObject} closest_share The closest parent (so far)
+         * @param {int} distance The distance to keep to the actual objects path
+         *
+         * @returns {false|TreeObject} Returns the closest parent or false
          */
         var get_closest_parent_share = function(path, datastore, closest_share, distance) {
             var n,l;
@@ -389,6 +471,6 @@
 
     var app = angular.module('psonocli');
     app.factory("managerShare", ['managerBase', 'apiClient', 'cryptoLibrary',
-        'itemBlueprint', 'helper', managerShare]);
+        'itemBlueprint', managerShare]);
 
 }(angular));
