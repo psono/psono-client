@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.5.8
+ * @license AngularJS v1.5.10
  * (c) 2010-2016 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -62,6 +62,7 @@
     /**
      * @ngdoc provider
      * @name $routeProvider
+     * @this
      *
      * @description
      *
@@ -112,12 +113,12 @@
          *
          *    Object properties:
          *
-         *    - `controller` – `{(string|function()=}` – Controller fn that should be associated with
+         *    - `controller` â€“ `{(string|function()=}` â€“ Controller fn that should be associated with
          *      newly created scope or the name of a {@link angular.Module#controller registered
    *      controller} if passed as a string.
-         *    - `controllerAs` – `{string=}` – An identifier name for a reference to the controller.
+         *    - `controllerAs` â€“ `{string=}` â€“ An identifier name for a reference to the controller.
          *      If present, the controller will be published to scope under the `controllerAs` name.
-         *    - `template` – `{string=|function()=}` – html template as a string or a function that
+         *    - `template` â€“ `{string=|function()=}` â€“ html template as a string or a function that
          *      returns an html template as a string which should be used by {@link
             *      ngRoute.directive:ngView ngView} or {@link ng.directive:ngInclude ngInclude} directives.
          *      This property takes precedence over `templateUrl`.
@@ -127,7 +128,7 @@
          *      - `{Array.<Object>}` - route parameters extracted from the current
          *        `$location.path()` by applying the current route
          *
-         *    - `templateUrl` – `{string=|function()=}` – path or function that returns a path to an html
+         *    - `templateUrl` â€“ `{string=|function()=}` â€“ path or function that returns a path to an html
          *      template that should be used by {@link ngRoute.directive:ngView ngView}.
          *
          *      If `templateUrl` is a function, it will be called with the following parameters:
@@ -154,7 +155,7 @@
          *      </div>
          *      The map object is:
          *
-         *      - `key` – `{string}`: a name of a dependency to be injected into the controller.
+         *      - `key` â€“ `{string}`: a name of a dependency to be injected into the controller.
          *      - `factory` - `{string|function}`: If `string` then it is an alias for a service.
          *        Otherwise if function, then it is {@link auto.$injector#invoke injected}
          *        and the return value is treated as the dependency. If the result is a promise, it is
@@ -165,7 +166,7 @@
          *    - `resolveAs` - `{string=}` - The name under which the `resolve` map will be available on
          *      the scope of the route. If omitted, defaults to `$resolve`.
          *
-         *    - `redirectTo` – `{(string|function())=}` – value to update
+         *    - `redirectTo` â€“ `{(string|function())=}` â€“ value to update
          *      {@link ng.$location $location} path with and trigger route redirection.
          *
          *      If `redirectTo` is a function, it will be called with the following parameters:
@@ -210,7 +211,7 @@
 
             // create redirection for trailing slashes
             if (path) {
-                var redirectPath = (path[path.length - 1] == '/')
+                var redirectPath = (path[path.length - 1] === '/')
                     ? path.substr(0, path.length - 1)
                     : path + '/';
 
@@ -255,7 +256,7 @@
 
             path = path
                 .replace(/([().])/g, '\\$1')
-                .replace(/(\/)?:(\w+)(\*\?|[\?\*])?/g, function(_, slash, key, option) {
+                .replace(/(\/)?:(\w+)(\*\?|[?*])?/g, function(_, slash, key, option) {
                     var optional = (option === '?' || option === '*?') ? '?' : null;
                     var star = (option === '*' || option === '*?') ? '*' : null;
                     keys.push({ name: key, optional: !!optional });
@@ -269,7 +270,7 @@
                         + ')'
                         + (optional || '');
                 })
-                .replace(/([\/$\*])/g, '\\$1');
+                .replace(/([/$*])/g, '\\$1');
 
             ret.regexp = new RegExp('^' + path + '$', insensitive ? 'i' : '');
             return ret;
@@ -347,7 +348,7 @@
                  * <example name="$route-service" module="ngRouteExample"
                  *          deps="angular-route.js" fixBase="true">
                  *   <file name="index.html">
-                 *     <div ng-controller="MainCtrl">
+                 *     <div ng-controller="MainController">
                  *       Choose:
                  *       <a href="Book/Moby">Moby</a> |
                  *       <a href="Book/Moby/ch/1">Moby: Ch1</a> |
@@ -381,19 +382,19 @@
                  *   <file name="script.js">
                  *     angular.module('ngRouteExample', ['ngRoute'])
                  *
-                 *      .controller('MainCtrl', function($scope, $route, $routeParams, $location) {
+                 *      .controller('MainController', function($scope, $route, $routeParams, $location) {
      *          $scope.$route = $route;
      *          $scope.$location = $location;
      *          $scope.$routeParams = $routeParams;
      *      })
                  *
                  *      .controller('BookController', function($scope, $routeParams) {
-     *          $scope.name = "BookController";
+     *          $scope.name = 'BookController';
      *          $scope.params = $routeParams;
      *      })
                  *
                  *      .controller('ChapterController', function($scope, $routeParams) {
-     *          $scope.name = "ChapterController";
+     *          $scope.name = 'ChapterController';
      *          $scope.params = $routeParams;
      *      })
                  *
@@ -426,15 +427,15 @@
                  *     it('should load and compile correct template', function() {
      *       element(by.linkText('Moby: Ch1')).click();
      *       var content = element(by.css('[ng-view]')).getText();
-     *       expect(content).toMatch(/controller\: ChapterController/);
-     *       expect(content).toMatch(/Book Id\: Moby/);
-     *       expect(content).toMatch(/Chapter Id\: 1/);
+     *       expect(content).toMatch(/controller: ChapterController/);
+     *       expect(content).toMatch(/Book Id: Moby/);
+     *       expect(content).toMatch(/Chapter Id: 1/);
      *
      *       element(by.partialLinkText('Scarlet')).click();
      *
      *       content = element(by.css('[ng-view]')).getText();
-     *       expect(content).toMatch(/controller\: BookController/);
-     *       expect(content).toMatch(/Book Id\: Scarlet/);
+     *       expect(content).toMatch(/controller: BookController/);
+     *       expect(content).toMatch(/Book Id: Scarlet/);
      *     });
                  *   </file>
                  * </example>
@@ -644,7 +645,7 @@
                         then(resolveLocals).
                         then(function(locals) {
                             // after route change
-                            if (nextRoute == $route.current) {
+                            if (nextRoute === $route.current) {
                                 if (nextRoute) {
                                     nextRoute.locals = locals;
                                     angular.copy(nextRoute.params, $routeParams);
@@ -652,7 +653,7 @@
                                 $rootScope.$broadcast('$routeChangeSuccess', nextRoute, lastRoute);
                             }
                         }, function(error) {
-                            if (nextRoute == $route.current) {
+                            if (nextRoute === $route.current) {
                                 $rootScope.$broadcast('$routeChangeError', nextRoute, lastRoute, error);
                             }
                         });
@@ -741,6 +742,7 @@
      * @ngdoc service
      * @name $routeParams
      * @requires $route
+     * @this
      *
      * @description
      * The `$routeParams` service allows you to retrieve the current set of route parameters.
@@ -917,17 +919,17 @@
               $locationProvider.html5Mode(true);
           }])
      .controller('MainCtrl', ['$route', '$routeParams', '$location',
-     function($route, $routeParams, $location) {
+     function MainCtrl($route, $routeParams, $location) {
               this.$route = $route;
               this.$location = $location;
               this.$routeParams = $routeParams;
           }])
-     .controller('BookCtrl', ['$routeParams', function($routeParams) {
-            this.name = "BookCtrl";
+     .controller('BookCtrl', ['$routeParams', function BookCtrl($routeParams) {
+            this.name = 'BookCtrl';
             this.params = $routeParams;
           }])
-     .controller('ChapterCtrl', ['$routeParams', function($routeParams) {
-            this.name = "ChapterCtrl";
+     .controller('ChapterCtrl', ['$routeParams', function ChapterCtrl($routeParams) {
+            this.name = 'ChapterCtrl';
             this.params = $routeParams;
           }]);
 
@@ -937,15 +939,15 @@
      it('should load and compile correct template', function() {
           element(by.linkText('Moby: Ch1')).click();
           var content = element(by.css('[ng-view]')).getText();
-          expect(content).toMatch(/controller\: ChapterCtrl/);
-          expect(content).toMatch(/Book Id\: Moby/);
-          expect(content).toMatch(/Chapter Id\: 1/);
+          expect(content).toMatch(/controller: ChapterCtrl/);
+          expect(content).toMatch(/Book Id: Moby/);
+          expect(content).toMatch(/Chapter Id: 1/);
 
           element(by.partialLinkText('Scarlet')).click();
 
           content = element(by.css('[ng-view]')).getText();
-          expect(content).toMatch(/controller\: BookCtrl/);
-          expect(content).toMatch(/Book Id\: Scarlet/);
+          expect(content).toMatch(/controller: BookCtrl/);
+          expect(content).toMatch(/Book Id: Scarlet/);
         });
      </file>
      </example>
@@ -988,8 +990,8 @@
                     }
                     if (currentElement) {
                         previousLeaveAnimation = $animate.leave(currentElement);
-                        previousLeaveAnimation.then(function() {
-                            previousLeaveAnimation = null;
+                        previousLeaveAnimation.done(function(response) {
+                            if (response !== false) previousLeaveAnimation = null;
                         });
                         currentElement = null;
                     }
@@ -1010,8 +1012,8 @@
                         // function is called before linking the content, which would apply child
                         // directives to non existing elements.
                         var clone = $transclude(newScope, function(clone) {
-                            $animate.enter(clone, null, currentElement || $element).then(function onNgViewEnter() {
-                                if (angular.isDefined(autoScrollExp)
+                            $animate.enter(clone, null, currentElement || $element).done(function onNgViewEnter(response) {
+                                if (response !== false && angular.isDefined(autoScrollExp)
                                     && (!autoScrollExp || scope.$eval(autoScrollExp))) {
                                     $anchorScroll();
                                 }
