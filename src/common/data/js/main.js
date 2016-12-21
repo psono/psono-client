@@ -347,6 +347,8 @@
      * @requires $route
      * @requires $routeParams
      * @requires $filter
+     * @requires $location
+     * @requires $timeout
      * @requires psonocli.managerDatastoreUser
      * @requires psonocli.browserClient
      * @requires psonocli.helper
@@ -354,9 +356,9 @@
      * @description
      * Controller for the activation view
      */
-    app.controller('ActivationCtrl', ['$scope', '$route', '$routeParams', '$filter', '$location', 'managerDatastoreUser',
-        'browserClient', 'helper',
-        function ($scope, $route, $routeParams, $filter, $location, managerDatastoreUser,
+    app.controller('ActivationCtrl', ['$scope', '$route', '$routeParams', '$filter', '$location', '$timeout',
+        'managerDatastoreUser', 'browserClient', 'helper',
+        function ($scope, $route, $routeParams, $filter, $location, $timeout, managerDatastoreUser,
                   browserClient, helper) {
 
             var onSuccess = function(config) {
@@ -453,8 +455,10 @@
                 }
 
                 if (activation_code !== undefined) {
-                    managerDatastoreUser.activate(activation_code, angular.copy($scope.selected_server))
-                        .then(onRequestReturn, onError);
+                    $timeout(function(){
+                        managerDatastoreUser.activate(activation_code, angular.copy($scope.selected_server))
+                            .then(onRequestReturn, onError);
+                    },200);
                 }
             };
 
