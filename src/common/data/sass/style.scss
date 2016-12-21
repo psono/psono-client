@@ -65,6 +65,9 @@ h1, h2 {
   a {
     color: $dark-normal-color;
   }
+  a.btn-danger {
+    color: $light-link-color;
+  }
 
   h2 {
     padding: 10px 10px;
@@ -74,6 +77,7 @@ h1, h2 {
     background-color: $dark-hightlight-color;
     border-color: $dark-hightlight-color;
   }
+
 
   .form-control:focus {
     border-color: $dark-hightlight-color;

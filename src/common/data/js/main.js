@@ -334,6 +334,10 @@
                 managerDatastoreUser.register(email, username, password, angular.copy($scope.selected_server))
                     .then(onRequestReturn, onError);
             };
+
+            browserClient.get_base_url().then(function(base_url){
+                $scope.base_url = base_url;
+            });
         }]);
 
     /**
@@ -350,8 +354,10 @@
      * @description
      * Controller for the activation view
      */
-    app.controller('ActivationCtrl', ['$scope', '$route', '$routeParams', '$filter', 'managerDatastoreUser', 'browserClient', 'helper',
-        function ($scope, $route, $routeParams, $filter, managerDatastoreUser, browserClient, helper) {
+    app.controller('ActivationCtrl', ['$scope', '$route', '$routeParams', '$filter', '$location', 'managerDatastoreUser',
+        'browserClient', 'helper',
+        function ($scope, $route, $routeParams, $filter, $location, managerDatastoreUser,
+                  browserClient, helper) {
 
             var onSuccess = function(config) {
 
@@ -420,6 +426,7 @@
              * @param {string} activation_code The activation code
              */
             var activate = function (activation_code) {
+
                 function onError() {
                     alert("Error, should not happen.");
                 }
@@ -460,6 +467,10 @@
             });
 
             $scope.activate = activate;
+
+            browserClient.get_base_url().then(function(base_url){
+                $scope.base_url = base_url;
+            });
         }]);
 
     /**

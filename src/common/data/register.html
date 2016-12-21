@@ -42,6 +42,10 @@
                 <div ng-repeat="e in msgs">{{e}}</div>
             </div>
 
+            <div ng-if="success" class="form-group text-center">
+                <a ng-href="{{ base_url }}" class="btn btn-danger" role="button">Back to home</a>
+            </div>
+
             <form name="registerForm" ng-if="!success">
                 <div ng-class="{'input-group': registerFormUsername == null || registerFormUsername.indexOf('@') == -1}">
                     <input type="text" class="form-control" id="registerUsername" placeholder="Username" ng-model="registerFormUsername" required aria-describedby="username-addon">

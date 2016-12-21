@@ -50,6 +50,8 @@ h1, h2 {
   color: #b1b6c1; }
   .dark a {
     color: #b1b6c1; }
+  .dark a.btn-danger {
+    color: #fff; }
   .dark h2 {
     padding: 10px 10px; }
   .dark .btn-danger {
