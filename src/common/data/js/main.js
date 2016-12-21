@@ -432,6 +432,7 @@
                 function onError() {
                     alert("Error, should not happen.");
                 }
+                console.log(activation_code);
 
                 function onRequestReturn(data) {
                     $scope.errors = [];
@@ -455,10 +456,8 @@
                 }
 
                 if (activation_code !== undefined) {
-                    $timeout(function(){
                         managerDatastoreUser.activate(activation_code, angular.copy($scope.selected_server))
                             .then(onRequestReturn, onError);
-                    },200);
                 }
             };
 
@@ -466,7 +465,9 @@
             $scope.$on('$routeChangeSuccess', function () {
                 $scope.activationFormKey = $routeParams['activation_code'];
                 if ($routeParams.hasOwnProperty('activation_code') && $routeParams['activation_code'].length > 0) {
-                    activate($routeParams['activation_code']);
+                    $timeout(function(){
+                        activate($routeParams['activation_code']);
+                    },200);
                 }
             });
 
