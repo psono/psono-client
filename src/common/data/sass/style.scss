@@ -229,6 +229,16 @@ h1, h2 {
   }
 }
 
+.signintext {
+  margin-right: 10px;
+  display:inline;
+}
+
+.progress {
+  background-color: $dark-color-highlight;
+}
+
+
 /* Loading colors */
 
 #loading-bar {

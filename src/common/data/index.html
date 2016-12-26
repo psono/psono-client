@@ -39,7 +39,7 @@
             </div>
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-5">
                 <div  class="navbar-text navbar-right">
-                    Signed in as
+                    <div class="signintext">Signed in as</div>
                     <div class="btn-group" uib-dropdown is-open="status.isopen">
                         <button id="email-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
                             {{user_username}} <span class="caret"></span>
@@ -109,7 +109,7 @@
 
                 <div class="form-group">
                     <button ng-click="login(loginFormUsername, loginFormPassword)" type="submit" class="btn btn-danger">Login</button>
-                    <a href="#" ng-click="open_tab('register.html')">Register</a>
+                    <a href="register.html">Register</a>
                     <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
                 </div>
 

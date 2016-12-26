@@ -19,7 +19,13 @@
     </div>
 
     <div ng-if="!(structure.data.folders || structure.data.items)">
-        No items. Right click here to create one.
+        
+        <div class="big-font-icon-and-msg">
+            <i class="fa fa-plus-circle" aria-hidden="true"></i>
+
+            <div>No items. Right click here to create one.</div>
+        </div>
+
     </div>
     <!--
     <pre>{{ node | json }}</pre>

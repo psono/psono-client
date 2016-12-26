@@ -161,6 +161,13 @@ h1, h2 {
     border-bottom: 1px solid #ddd;
     margin-bottom: 15px; }
 
+.signintext {
+  margin-right: 10px;
+  display: inline; }
+
+.progress {
+  background-color: #223144; }
+
 /* Loading colors */
 #loading-bar .bar {
   background: #2ba880; }
