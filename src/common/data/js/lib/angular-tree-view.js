@@ -434,10 +434,11 @@
                  *
                  * @type {Function}
                  */
-                scope.contextMenuOnShow = typeof options.contextMenuOnShow === 'function'
-                    ? options.contextMenuOnShow
-                    : function() {
-
+                scope.contextMenuOnShow = function(div_id) {
+                    console.log(div_id);
+                    if ( typeof options.contextMenuOnShow === 'function' ) {
+                        return options.contextMenuOnShow();
+                    }
                 };
 
                 /**
@@ -445,10 +446,11 @@
                  *
                  * @type {Function}
                  */
-                scope.contextMenuOnClose = typeof options.contextMenuOnClose === 'function'
-                    ? options.contextMenuOnClose
-                    : function() {
-
+                scope.contextMenuOnClose =  function(div_id) {
+                    console.log(div_id);
+                    if ( typeof options.contextMenuOnClose === 'function' ) {
+                        return options.contextMenuOnClose();
+                    }
                 };
 
                 /**
@@ -459,8 +461,8 @@
                 scope.getFolderIconClass = typeof options.folderIcon === 'function'
                     ? options.folderIcon
                     : function (node) {
-                    return 'fa fa-folder' + (node.expanded ? '-open' : '');
-                };
+                        return 'fa fa-folder' + (node.expanded ? '-open' : '');
+                    };
 
                 /**
                  * returns the edit icon class of folders
@@ -471,8 +473,8 @@
                     ? options.folderEditIcon
                     : function (node) {
 
-                    return 'fa fa-cogs';
-                };
+                        return 'fa fa-cogs';
+                    };
 
                 /**
                  * returns the icon class of items
@@ -482,8 +484,8 @@
                 scope.getItemIconClass = typeof options.item_icon === 'function'
                     ? options.item_icon
                     : function (item) {
-                    return 'fa fa-item';
-                };
+                        return 'fa fa-item';
+                    };
 
                 /**
                  * Configuration for new_entry and new_folder
@@ -493,8 +495,8 @@
                 scope.textConfig = typeof options.textConfig !== 'undefined'
                     ? options.textConfig
                     : {
-                    'new_entry': {name: 'New Entry', icon: 'fa fa-key'}
-                };
+                        'new_entry': {name: 'New Entry', icon: 'fa fa-key'}
+                    };
 
                 /**
                  * returns a list of additional buttons to show, by default none
@@ -730,7 +732,7 @@
                     if (!controller.isSelectable(item)) {
                         return;
                     }
-                    
+
                     controller.selectItem(item, getPropertyPath(displayProperty, item));
                 };
 
@@ -845,12 +847,13 @@
                  * triggered once a dropdown menu opens or closes
                  *
                  * @param open
+                 * @param div_id
                  */
-                scope.toggled = function(open) {
+                scope.toggled = function(open, div_id) {
                     if (open) {
-                        scope.contextMenuOnShow();
+                        scope.contextMenuOnShow(div_id);
                     } else {
-                        scope.contextMenuOnClose();
+                        scope.contextMenuOnClose(div_id);
                     }
                 };
 
@@ -865,8 +868,8 @@
                         'class="tree-folder" ng-repeat="node in ' + attrs.treeViewNode + '.' + foldersProperty + ' track by $index">' +
 
                         '<div class="tree-folder-title" data-target="menu-{{ node.id }}"' +
-                        '   context-menu="contextMenuOnShow()"' +
-                        '   context-menu-close="contextMenuOnClose()">' +
+                        '   context-menu="contextMenuOnShow(\'menu-\'+node.id)"' +
+                        '   context-menu-close="contextMenuOnClose(\'menu-\'+node.id)">' +
                         '<div href="#" class="tree-folder-header"' +
                         '   ng-click="selectNode($event)" ng-class="{ selected: isSelected(node), notSelectable: ! isSelectable(node) }">' +
                         '<span class="fa-stack">' +
@@ -878,7 +881,7 @@
                         '   <a href="#" ng-click="clickNode($event)">{{ node.' + displayProperty + ' }}</a>' +
                         '</span> ' +
                         '</div>' +
-                        '<span class="node-dropdown" uib-dropdown on-toggle="toggled(open)"' +
+                        '<span class="node-dropdown" uib-dropdown on-toggle="toggled(open, \'drop_node_\' + node.id)"' +
                         '   ng-class="{disabled: node.share_rights.write == false && node.share_rights.grant == false && node.share_rights.delete == false}">' +
                         '<a class="btn btn-default editbutton"' +
                         '   ng-class="{disabled: node.share_rights.write == false && node.share_rights.grant == false && node.share_rights.delete == false}"' +
@@ -923,7 +926,7 @@
                         '</div>' +
                         '</div>' +
 
-                        '<div class="dropdown position-fixed droppdown-rightclick" id="menu-{{ node.id }}"' +
+                        '<div class="dropdown position-fixed dropdown-rightclick" id="menu-{{ node.id }}"' +
                         '   ng-hide="node.share_rights.write == false && node.share_rights.grant == false && node.share_rights.delete == false">' +
                         '<ul class="dropdown-menu" role="menu">' +
                         '    <li role="menuitem"' +
@@ -968,8 +971,8 @@
 
                         '<div class="tree-item-object" ng-click="selectItem(item, $event)"' +
                         '   ng-class="{ selected: isSelected(item), notSelectable: ! isSelectable(node) }" data-target="menu-{{ item.id }}"' +
-                        '   context-menu="contextMenuOnShow()"' +
-                        '   context-menu-close="contextMenuOnClose()">' +
+                        '   context-menu="contextMenuOnShow(\'menu-\'+item.id)"' +
+                        '   context-menu-close="contextMenuOnClose(\'menu-\'+item.id)">' +
                         '<span class="fa-stack">' +
                         '<i ng-class="getItemIconClass(item)"></i>' +
                         '<i ng-if="item.share_id" class="fa fa-circle fa-stack-2x text-danger is-shared"></i>' +
@@ -978,7 +981,7 @@
                         '<span class="tree-item-name">' +
                         '   <a href="#" ng-click="clickItem(item, $event)">{{ item.' + displayProperty + ' }}</a>' +
                         '</span>' +
-                        '<span class="node-dropdown" uib-dropdown on-toggle="toggled(open)">' +
+                        '<span class="node-dropdown" uib-dropdown on-toggle="toggled(open, \'drop_item_\' + item.id)">' +
                         '<a class="btn btn-default editbutton" href="#" role="button" id="drop_item_{{item.id}}" uib-dropdown-toggle>' +
                         '    <i ng-class="getFolderEditIconClass(item)"></i>' +
                         '</a>' +
@@ -1011,7 +1014,7 @@
                         '</span>' +
                         '</div>' +
 
-                        '<div class="dropdown position-fixed droppdown-rightclick" id="menu-{{ item.id }}">' +
+                        '<div class="dropdown position-fixed dropdown-rightclick" id="menu-{{ item.id }}">' +
                         '<ul class="dropdown-menu" role="menu">' +
                         '    <li role="menuitem"' +
                         '       ng-click="additionalButtonItem(item, $event, f.onClick, false)"' +

@@ -1,6 +1,6 @@
 <div data-target="menu-datastore-main" context-menu="contextMenuOnShow()" context-menu-close="contextMenuOnClose()" class="expand15">
 
-    <div class="dropdown position-fixed droppdown-rightclick" id="menu-datastore-main">
+    <div class="dropdown position-fixed dropdown-rightclick" id="menu-datastore-main">
     <ul class="dropdown-menu" role="menu">
             <li role="menuitem" ng-click="open_new_folder($event)"><a href="#"><i class="fa fa-folder"></i>New Folder</a></li>
             <li role="menuitem" ng-click="open_new_item($event)"><a href="#"><i class="fa fa-key"></i>New Entry</a></li>
@@ -19,7 +19,7 @@
     </div>
 
     <div ng-if="!(structure.data.folders || structure.data.items)">
-        
+
         <div class="big-font-icon-and-msg">
             <i class="fa fa-plus-circle" aria-hidden="true"></i>
 
