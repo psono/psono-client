@@ -394,6 +394,31 @@
                     dragstarted = false;
                 };
 
+                var drags_in_progress = 0;
+
+                /**
+                 * increments the drag in progress counter.
+                 */
+                self.setDragInProgress = function (){
+                    drags_in_progress = drags_in_progress + 1;
+                };
+
+                /**
+                 * indicates if there is still a drag in progress
+                 */
+                self.isDragInProgress = function (){
+                    return drags_in_progress > 0;
+                };
+
+                /**
+                 * decrements the drag in progress counter.
+                 */
+                self.setDragFinished = function (){
+                    if (self.isDragInProgress()) {
+                        drags_in_progress = drags_in_progress - 1;
+                    }
+                };
+
                 self.draggable_end_timeouts = [];
 
                 /**
@@ -768,8 +793,9 @@
                  */
                 scope.clickItem = function (item, event) {
                     event.preventDefault();
-
-                    controller.clickItem(item, getPropertyPath(idProperty));
+                    if (!controller.isDragInProgress()) {
+                        controller.clickItem(item, getPropertyPath(idProperty));
+                    }
                 };
 
 
@@ -800,6 +826,7 @@
                  * @param type
                  */
                 scope.onDragComplete = function(data, evt, type) {
+                    console.log("onDragComplete");
                     controller.incCounter();
 
                     if (data === null) {
@@ -827,6 +854,7 @@
                  * @param type
                  */
                 scope.onDragStart = function(data, evt, type) {
+                    controller.setDragInProgress();
 
                     if (controller.isDragStarted()) {
                         // Already started, fires a couple of time and only the first one has true data
@@ -846,12 +874,24 @@
                 };
 
                 /**
+                 * executed multiple times when a drag stops and only the first execute holds the true data
+                 *
+                 * @param data
+                 * @param evt
+                 * @param type
+                 */
+                scope.onDragStop = function(data, evt, type) {
+                    controller.setDragFinished();
+                };
+
+                /**
                  * executed once a drop completes after the drag on top of another folder / item
                  *
                  * @param data
                  * @param evt
                  */
                 scope.onDropComplete = function(data, evt) {
+                    console.log("onDropComplete");
                     var counter = controller.decCounter();
                     if (counter !== 0 || evt.data === null) {
                         return;
@@ -886,10 +926,11 @@
                     var template =
                         // Handle folders
                         '<div ng-drag="true" ng-drag-data="node" ng-drag-success="onDragComplete($data, $event, \'folder\')" ' +
-                        'ng-drag-start="onDragStart($data, $event, \'folder\')" prevent-move="blockMove()"' +
-                        'ng-drop="true" ng-drop-success="onDropComplete(node,$event)" ' +
-                        'ng-mousedown="$event.stopPropagation()" ng-show="!node.hidden"' +
-                        'class="tree-folder" ng-repeat="node in ' + attrs.treeViewNode + '.' + foldersProperty + ' track by $index">' +
+                        '    ng-drag-start="onDragStart($data, $event, \'folder\')" prevent-move="blockMove()"' +
+                        '    ng-drag-stop="onDragStop($data, $event, \'folder\')"' +
+                        '    ng-drop="true" ng-drop-success="onDropComplete(node,$event)" ' +
+                        '    ng-mousedown="$event.stopPropagation()" ng-show="!node.hidden"' +
+                        '    class="tree-folder" ng-repeat="node in ' + attrs.treeViewNode + '.' + foldersProperty + ' track by $index">' +
 
                         '<div class="tree-folder-title" data-target="menu-{{ node.id }}"' +
                         '   context-menu="contextMenuOnShow(\'menu-\'+node.id)"' +
@@ -990,6 +1031,7 @@
                         // Handle items
                         '<div ng-drag="true" ng-drag-data="item" ng-drag-success="onDragComplete($data, $event, \'item\')" ' +
                         '   ng-drag-start="onDragStart($data, $event, \'item\')" prevent-move="blockMove()"' +
+                        '   ng-drag-stop="onDragStop($data, $event, \'item\')"' +
                         '   ng-mousedown="$event.stopPropagation()" ng-show="!item.hidden"' +
                         '   class="tree-item" ng-repeat="item in ' + attrs.treeViewNode + '.' + itemsProperty + ' track by $index">' +
 
