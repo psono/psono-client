@@ -460,7 +460,9 @@
                     return;
                 }
 
-                $uibModalInstance.close($scope.bp.selected);
+                console.log($scope.bp.selected);
+
+                //$uibModalInstance.close($scope.bp.selected);
             };
 
             /**
