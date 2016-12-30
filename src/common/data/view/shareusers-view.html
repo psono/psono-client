@@ -1,4 +1,4 @@
-<div data-target="menu-shareusers-main" context-menu="contextMenuOnShow()" context-menu-close="contextMenuOnClose()" class="expand15">
+<div data-target="menu-shareusers-main" context-menu="contextMenuOnShow('menu-shareusers-main')" context-menu-close="contextMenuOnClose('menu-shareusers-main')" class="expand15">
 
     <div class="dropdown position-fixed dropdown-rightclick" id="menu-shareusers-main">
         <ul class="dropdown-menu" role="menu">
@@ -20,7 +20,13 @@
     </div>
 
     <div ng-if="!(structure.data.folders || structure.data.items)">
-        So far no friends. :( Once you share something or receive something, the users will show here
+
+        <div class="big-font-icon-and-msg">
+            <i class="fa fa-plus-circle" aria-hidden="true"></i>
+
+            <div>Your trusted users list is empty. Right click here to add a user to your trusted users list.</div>
+        </div>
+
     </div>
     <!--
     <pre>{{ node | json }}</pre>

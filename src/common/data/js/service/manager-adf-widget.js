@@ -194,6 +194,15 @@
                     parent.items.push(datastore_object);
 
                     managerDatastorePassword.save_datastore(datastore, [path]);
+
+                    // reset form fields
+                    for (var i = content.fields.length - 1; i >= 0; i--) {
+                        if (!content.fields[i].hasOwnProperty("value")) {
+                            continue;
+                        }
+                        content.fields[i].value = '';
+                    }
+
                 };
 
                 managerSecret.create_secret(secret_object, link_id, parent_datastore_id, parent_share_id)

@@ -31,6 +31,7 @@
      * @requires config
      * @requires $uibModal
      * @requires $timeout
+     * @requires ngTree.dropDownMenuWatcher
      * @requires psonocli.managerSecret
      * @requires psonocli.managerDatastoreUser
      * @requires psonocli.shareBlueprint
@@ -40,17 +41,19 @@
      * Main Controller for the shareusers widget
      */
     module.controller('shareusersCtrl', ["$scope", "$interval", "config", "managerSecret", "managerDatastoreUser",
-        "$uibModal", "shareBlueprint", "managerAdfWidget", "$timeout",
+        "$uibModal", "shareBlueprint", "managerAdfWidget", "$timeout", "dropDownMenuWatcher",
         function ($scope, $interval, config, managerSecret, managerDatastoreUser, $uibModal, shareBlueprint,
-                  managerAdfWidget, $timeout) {
+                  managerAdfWidget, $timeout, dropDownMenuWatcher) {
 
             var contextMenusOpen = 0;
 
-            $scope.contextMenuOnShow = function() {
+            $scope.contextMenuOnShow = function(div_id) {
+                dropDownMenuWatcher.on_open(div_id);
                 contextMenusOpen++;
             };
 
-            $scope.contextMenuOnClose = function() {
+            $scope.contextMenuOnClose = function(div_id) {
+                dropDownMenuWatcher.on_close(div_id);
                 $timeout(function() {
                     contextMenusOpen--;
                 }, 0);

@@ -37,6 +37,32 @@
         collapsible: true
     });
 
+
+    var dropDownMenuWatcher = function() {
+
+        var opened_dropdown_menu = '';
+
+        var on_open = function(dropdown_menu_id) {
+            if (opened_dropdown_menu !== '') {
+                angular.element('#' + opened_dropdown_menu).parent().removeClass('open');
+            }
+            opened_dropdown_menu = dropdown_menu_id;
+        };
+
+        var on_close = function(dropdown_menu_id) {
+            if (opened_dropdown_menu == dropdown_menu_id){
+                opened_dropdown_menu = '';
+            }
+        };
+
+        return {
+            on_open: on_open,
+            on_close: on_close
+        };
+    };
+
+    module.factory("dropDownMenuWatcher", [dropDownMenuWatcher]);
+
     module.directive('treeView', ['$q', '$timeout', 'treeViewDefaults', function ($q, $timeout, treeViewDefaults) {
         return {
             restrict: 'A',
@@ -414,7 +440,7 @@
         };
     }]);
 
-    module.directive('treeViewNode', ['$q', '$compile', function ($q, $compile) {
+    module.directive('treeViewNode', ['$q', '$compile', 'dropDownMenuWatcher', function ($q, $compile, dropDownMenuWatcher) {
         return {
             restrict: 'A',
             require: '^treeView',
@@ -435,9 +461,8 @@
                  * @type {Function}
                  */
                 scope.contextMenuOnShow = function(div_id) {
-                    console.log(div_id);
                     if ( typeof options.contextMenuOnShow === 'function' ) {
-                        return options.contextMenuOnShow();
+                        return options.contextMenuOnShow(div_id);
                     }
                 };
 
@@ -447,9 +472,8 @@
                  * @type {Function}
                  */
                 scope.contextMenuOnClose =  function(div_id) {
-                    console.log(div_id);
                     if ( typeof options.contextMenuOnClose === 'function' ) {
-                        return options.contextMenuOnClose();
+                        return options.contextMenuOnClose(div_id);
                     }
                 };
 

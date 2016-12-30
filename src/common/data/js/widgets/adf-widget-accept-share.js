@@ -29,6 +29,7 @@
      * @requires $scope
      * @requires $uibModal
      * @requires $timeout
+     * @requires ngTree.dropDownMenuWatcher
      * @requires psonocli.manager
      * @requires psonocli.managerDatastorePassword
      * @requires psonocli.itemBlueprint
@@ -40,18 +41,20 @@
      */
     module.controller('acceptShareCtrl', ["$scope", "manager", "managerDatastorePassword",
         "$uibModal", "itemBlueprint", "managerAdfWidget",
-        "message", "$timeout",
+        "message", "$timeout", 'dropDownMenuWatcher',
         function($scope, manager, managerDatastorePassword,
                  $uibModal, itemBlueprint, managerAdfWidget, message,
-                 $timeout){
+                 $timeout, dropDownMenuWatcher){
 
             var contextMenusOpen = 0;
 
-            $scope.contextMenuOnShow = function() {
+            $scope.contextMenuOnShow = function(div_id) {
+                dropDownMenuWatcher.on_open(div_id);
                 contextMenusOpen++;
             };
 
-            $scope.contextMenuOnClose = function() {
+            $scope.contextMenuOnClose = function(div_id) {
+                dropDownMenuWatcher.on_close(div_id);
                 $timeout(function() {
                     contextMenusOpen--;
                 }, 0);

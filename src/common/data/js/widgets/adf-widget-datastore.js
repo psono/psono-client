@@ -32,6 +32,7 @@
      * @requires config
      * @requires $uibModal
      * @requires $timeout
+     * @requires ngTree.dropDownMenuWatcher
      * @requires psonocli.manager
      * @requires psonocli.managerDatastorePassword
      * @requires psonocli.itemBlueprint
@@ -42,17 +43,19 @@
      * Main Controller for the datastore widget
      */
     module.controller('datastoreCtrl', ["$scope", "config", "manager", "managerDatastorePassword",
-        "$uibModal", "itemBlueprint", "managerAdfWidget", "managerSecret", "$timeout",
+        "$uibModal", "itemBlueprint", "managerAdfWidget", "managerSecret", "$timeout", "dropDownMenuWatcher",
         function($scope, config, manager, managerDatastorePassword,
-                 $uibModal, itemBlueprint, managerAdfWidget, managerSecret, $timeout){
+                 $uibModal, itemBlueprint, managerAdfWidget, managerSecret, $timeout, dropDownMenuWatcher){
 
             var contextMenusOpen = 0;
 
-            $scope.contextMenuOnShow = function() {
+            $scope.contextMenuOnShow = function(div_id) {
+                dropDownMenuWatcher.on_open(div_id);
                 contextMenusOpen++;
             };
 
-            $scope.contextMenuOnClose = function() {
+            $scope.contextMenuOnClose = function(div_id) {
+                dropDownMenuWatcher.on_close(div_id);
                 $timeout(function() {
                     contextMenusOpen--;
                 }, 0);
