@@ -89,8 +89,9 @@
                  *
                  * @param fields
                  * @param errors
+                 * @param form_control
                  */
-                onClickSearchButton: function(fields, errors){
+                onClickSearchButton: function(fields, errors, form_control){
 
                     var search_username = '';
 
@@ -122,11 +123,31 @@
                             }
                         }
 
-                        errors.splice(0,errors.length)
+                        errors.splice(0,errors.length);
+                        form_control['block_submit'] = false;
                     };
 
                     var onError = function(data) {
+
+                        for (i = 0; i < fields.length; i++) {
+                            if (fields[i].name === "user_name") {
+                                fields[i].hidden = true;
+                            }
+                            if (fields[i].name === "user_id") {
+                                fields[i].value = '';
+                            }
+                            if (fields[i].name === "user_username") {
+                                fields[i].hidden = true;
+                                fields[i].value = '';
+                            }
+                            if (fields[i].name === "user_public_key") {
+                                fields[i].hidden = true;
+                                fields[i].value = '';
+                            }
+                        }
+
                         if (data.status = 404) {
+                            form_control['block_submit'] = true;
                             errors.push("User not found.");
                         } else {
                             alert("Ups, this should not happen. ");

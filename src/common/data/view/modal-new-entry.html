@@ -23,7 +23,7 @@
                    ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
                    ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
 
-            <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](bp.selected.fields, errors)">{{n.title}}</button>
+            <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](bp.selected.fields, errors, form_control)">{{n.title}}</button>
 
             <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
                 <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
@@ -80,7 +80,7 @@
                            ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
                            ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
 
-                    <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](bp.selected.fields, errors)">{{n.title}}</button>
+                    <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](bp.selected.fields, errors, form_control)">{{n.title}}</button>
 
                     <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
                         <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
@@ -136,7 +136,7 @@
                    ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
                    ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
 
-            <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](bp.selected.fields, errors)">{{n.title}}</button>
+            <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](bp.selected.fields, errors, form_control)">{{n.title}}</button>
 
             <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
                 <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
@@ -196,7 +196,7 @@
                        ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
                        ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
 
-                <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](bp.selected.fields, errors)">{{n.title}}</button>
+                <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](bp.selected.fields, errors, form_control)">{{n.title}}</button>
 
                 <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
                     <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
@@ -247,6 +247,6 @@
 
     </div>
     <div class="modal-footer">
-        <button class="btn btn-primary" type="button" ng-click="submitted=true; save();">OK</button>
+        <button class="btn btn-primary" ng-disabled="form_control.block_submit" type="button" ng-click="submitted=true; save();">OK</button>
     </div>
 </form>

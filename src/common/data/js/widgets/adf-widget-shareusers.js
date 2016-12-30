@@ -451,6 +451,8 @@
 
             $scope.has_advanced = shareBlueprint.has_advanced;
 
+            $scope.form_control = {'block_submit': true};
+
             /**
              * Triggered once someone clicks the save button in the modal
              */
