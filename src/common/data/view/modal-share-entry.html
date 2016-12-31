@@ -25,7 +25,7 @@
         <hr>
 
         <uib-tabset>
-            <uib-tab heading="Users">
+            <uib-tab heading="Trusted Users">
                 <div ng-if="users">
 
 
@@ -48,17 +48,11 @@
                         </tbody>
                     </table>
                 </div>
-                <div ng-if="!users">
-                    <p class="text-center">
-                        <a href=""><i class="fa fa-user-plus"></i> Add User</a>
-                    </p>
-                </div>
-
             </uib-tab>
         </uib-tabset>
 
         <div class="row">
-            <button type="button" ng-click="add_user()" class="btn btn-link"><i class="fa fa-user-plus"></i> Add User</button>
+            <button type="button" ng-click="add_user()" class="btn btn-link"><i class="fa fa-user-plus"></i> Search User</button>
         </div>
 
 

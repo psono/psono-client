@@ -107,7 +107,7 @@
 
             <form name="loginForm">
                 <div ng-class="{'input-group': loginFormUsername == null || loginFormUsername.indexOf('@') == -1}">
-                    <input type="text" class="form-control" id="loginUsername" placeholder="Username" ng-model="loginFormUsername" required aria-describedby="username-addon">
+                    <input type="text" class="form-control" id="loginUsername" placeholder="Username" ng-model="loginFormUsername" required aria-describedby="username-addon" autofocus>
                     <span class="input-group-addon" id="username-addon" ng-if="loginFormUsername == null || loginFormUsername.indexOf('@') == -1">@{{selected_server_domain}}</span>
                 </div>
                 <br>
@@ -173,7 +173,7 @@
 <script src="js/lib/angular-sanitize.js" type="application/javascript"></script>
 <script src="js/lib/angular-local-storage.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-snap.min.js" type="application/javascript"></script>
-<script src="js/lib/ui-bootstrap-tpls-2.2.0.js" type="application/javascript"></script>
+<script src="js/lib/ui-bootstrap-tpls-2.4.0.js" type="application/javascript"></script>
 <script src="js/lib/ngdraggable.js" type="application/javascript"></script>
 <script src="js/lib/angular-tree-view.js"></script>
 <script src="js/lib/angular-ui-select.js" type="application/javascript"></script>

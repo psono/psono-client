@@ -269,7 +269,7 @@ mod.PageMod({
         "./js/lib/angular-sanitize.js",
         "./js/lib/angular-local-storage.min.js",
         "./js/lib/angular-snap.min.js",
-        "./js/lib/ui-bootstrap-tpls-2.2.0.js",
+        "./js/lib/ui-bootstrap-tpls-2.4.0.js",
         "./js/lib/ngdraggable.js",
         "./js/lib/angular-tree-view.js",
         "./js/lib/angular-ui-select.js",

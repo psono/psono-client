@@ -23,7 +23,7 @@
                 "../src/common/data/js/lib/angular-sanitize.js",
                 "../src/common/data/js/lib/angular-local-storage.min.js",
                 "../src/common/data/js/lib/angular-snap.min.js",
-                "../src/common/data/js/lib/ui-bootstrap-tpls-2.2.0.js",
+                "../src/common/data/js/lib/ui-bootstrap-tpls-2.4.0.js",
                 "../src/common/data/js/lib/ngdraggable.js",
                 "../src/common/data/js/lib/angular-tree-view.js",
                 "../src/common/data/js/lib/angular-ui-select.js",

@@ -61,6 +61,8 @@
                     name: name
                 });
 
+                parent['expanded'] = true;
+
                 manager.save_datastore(data_structure, [path]);
 
             }, function () {
@@ -192,6 +194,8 @@
                     datastore_object['secret_key'] = e.secret_key;
 
                     parent.items.push(datastore_object);
+
+                    parent['expanded'] = true;
 
                     managerDatastorePassword.save_datastore(datastore, [path]);
 
