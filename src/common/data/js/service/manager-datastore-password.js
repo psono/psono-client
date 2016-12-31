@@ -448,8 +448,6 @@
             var type = "password";
             var description = "default";
 
-            console.log(paths);
-
             // datastore has changed, so lets regenerate local lookup
             managerDatastore.fill_storage('datastore-password-leafs', datastore, [
                 ['key', 'secret_id'],

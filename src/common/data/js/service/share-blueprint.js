@@ -27,7 +27,7 @@
                 title_field: "user_username",
                 search: ['user_name', 'user_username'],
                 fields: [
-                    { name: "user_search_username", field: "input", type: "email", title: "Username", placeholder: "Username", onChange: "onChangeSearchUsername" },
+                    { name: "user_search_username", field: "input", type: "text", title: "Username", placeholder: "Username", onChange: "onChangeSearchUsername", usernameInputGroupAddon: true },
                     { name: "user_search_button", field: "button", type: "button", title: "Search", hidden: true, class: 'btn-primary', onClick:"onClickSearchButton" },
                     { name: "user_name", field: "input", type: "text", title: "Name", placeholder: "Name (optional)", hidden: true},
                     { name: "user_id", field: "input", type: "text", title: "ID", placeholder: "ID", required: true, hidden: true, readonly: true },
@@ -57,18 +57,28 @@
                  * adjusts the visibility of the search button according to the input value
                  *
                  * @param fields
+                 * @param selected_server_domain
                  */
-                onChangeSearchUsername: function(fields){
+                onChangeSearchUsername: function(fields, selected_server_domain){
 
                     var has_search_username = false;
+
+                    var possible_username = '';
 
                     var i;
                     for (i = 0; i < fields.length; i++) {
                         if (fields[i].name === "user_search_username") {
                             if (fields[i].value && fields[i].value.length > 0) {
+
+                                possible_username = fields[i].value;
+
+                                if (fields[i].value.indexOf('@') == -1 && selected_server_domain) {
+                                    possible_username = possible_username + '@' + selected_server_domain;
+                                }
+
                                 // Regex obtained from Angular JS
                                 var regexp = /^[a-z0-9!#$%&'*+\/=?^_`{|}~.-]+@[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/i;
-                                if (regexp.test(fields[i].value)) {
+                                if (regexp.test(possible_username)) {
                                     has_search_username = true;
                                 }
                             }
@@ -90,8 +100,9 @@
                  * @param fields
                  * @param errors
                  * @param form_control
+                 * @param selected_server_domain
                  */
-                onClickSearchButton: function(fields, errors, form_control){
+                onClickSearchButton: function(fields, errors, form_control, selected_server_domain){
 
                     var search_username = '';
 
@@ -101,6 +112,10 @@
                             search_username = fields[i].value;
                             break;
                         }
+                    }
+
+                    if (search_username.indexOf('@') == -1 && selected_server_domain) {
+                        search_username = search_username + '@' + selected_server_domain;
                     }
 
                     var onSuccess = function(data) {

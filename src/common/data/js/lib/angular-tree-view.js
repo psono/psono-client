@@ -826,7 +826,6 @@
                  * @param type
                  */
                 scope.onDragComplete = function(data, evt, type) {
-                    console.log("onDragComplete");
                     controller.incCounter();
 
                     if (data === null) {
@@ -891,7 +890,6 @@
                  * @param evt
                  */
                 scope.onDropComplete = function(data, evt) {
-                    console.log("onDropComplete");
                     var counter = controller.decCounter();
                     if (counter !== 0 || evt.data === null) {
                         return;
