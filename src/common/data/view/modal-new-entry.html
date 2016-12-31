@@ -51,7 +51,7 @@
                 </div>
             </div>
 
-            <uib-progressbar value="n.value | complexify" ng-if="n.type == 'password'">
+            <uib-progressbar value="n.value | complexify" ng-if="n.type == 'password' && (n.value | complexify) > 0">
                 <span complexify="n.value"></span>%
                 <span complexify="n.value" type="verbal"></span>
             </uib-progressbar>
@@ -117,7 +117,7 @@
                         </div>
                     </div>
 
-                    <uib-progressbar value="n.value | complexify" ng-if="n.type == 'password'">
+                    <uib-progressbar value="n.value | complexify" ng-if="n.type == 'password' && (n.value | complexify) > 0">
                         <span complexify="n.value"></span>%
                         <span complexify="n.value" type="verbal"></span>
                     </uib-progressbar>
@@ -182,7 +182,7 @@
                 </div>
             </div>
 
-            <uib-progressbar value="n.value | complexify" ng-if="n.type == 'password'">
+            <uib-progressbar value="n.value | complexify" ng-if="n.type == 'password' && (n.value | complexify) > 0">
                 <span complexify="n.value"></span>%
                 <span complexify="n.value" type="verbal"></span>
             </uib-progressbar>
@@ -251,7 +251,7 @@
                     </div>
                 </div>
 
-                <uib-progressbar value="n.value | complexify" ng-if="n.type == 'password'">
+                <uib-progressbar value="n.value | complexify" ng-if="n.type == 'password' && (n.value | complexify) > 0">
                     <span complexify="n.value"></span>%
                     <span complexify="n.value" type="verbal"></span>
                 </uib-progressbar>

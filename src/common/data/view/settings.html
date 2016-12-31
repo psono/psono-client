@@ -33,7 +33,7 @@
                                        name="{{setting.key}}"
                                        class="form-control">
 
-                                <uib-progressbar value="setting.value | complexify" ng-if="setting.complexify">
+                                <uib-progressbar value="setting.value | complexify" ng-if="setting.complexify && (setting.value | complexify) > 0">
                                     <span complexify="setting.value"></span>%
                                     <span complexify="setting.value" type="verbal"></span>
                                 </uib-progressbar>

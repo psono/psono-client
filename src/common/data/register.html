@@ -66,7 +66,7 @@
                 <div class="form-group">
                     <input type="password" class="form-control" id="registerPassword" placeholder="Password" ng-model="registerFormPassword" required>
 
-                    <uib-progressbar value="registerFormPassword | complexify">
+                    <uib-progressbar value="registerFormPassword | complexify" ng-if="(registerFormPassword | complexify) > 0">
                         <span complexify="registerFormPassword"></span>%
                         <span complexify="registerFormPassword" type="verbal"></span>
                     </uib-progressbar>
