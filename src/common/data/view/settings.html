@@ -29,7 +29,9 @@
                             <label class="control-label col-sm-4 col-md-2" for="settingsForm-{{setting.key}}">{{setting.title}}</label>
                             <div class="col-sm-8 col-md-10">
                                 <input type="{{setting.type}}" ng-model="setting.value"
-                                       ng-required="{{setting.required}}" placeholder="{{setting.placeholder}}" id="settingsForm-{{setting.key}}"
+                                       ng-required="{{setting.required}}"
+                                       ng-readonly="{{setting.readonly}}"
+                                       placeholder="{{setting.placeholder}}" id="settingsForm-{{setting.key}}"
                                        name="{{setting.key}}"
                                        class="form-control">
 
