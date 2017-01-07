@@ -288,6 +288,7 @@ mod.PageMod({
         "./js/service/share-blueprint.js",
         "./js/service/crypto-library.js",
         "./js/service/storage.js",
+        "./js/service/account.js",
         "./js/service/settings.js",
         "./js/service/manager-base.js",
         "./js/service/manager.js",

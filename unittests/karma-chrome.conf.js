@@ -41,6 +41,7 @@
                 "../src/common/data/js/service/share-blueprint.js",
                 "../src/common/data/js/service/crypto-library.js",
                 "../src/common/data/js/service/storage.js",
+                "../src/common/data/js/service/account.js",
                 "../src/common/data/js/service/settings.js",
                 "../src/common/data/js/service/manager-base.js",
                 "../src/common/data/js/service/manager.js",

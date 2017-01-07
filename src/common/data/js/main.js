@@ -64,6 +64,10 @@
                     templateUrl: 'view/settings.html',
                     controller: 'SettingsCtrl'
                 })
+                .when('/account', {
+                    templateUrl: 'view/account.html',
+                    controller: 'AccountCtrl'
+                })
                 .when('/share/pendingshares', {
                     templateUrl: 'view/index-share-shares.html',
                     controller: 'ShareCtrl'
@@ -640,7 +644,7 @@
      * @requires $rootScope
      * @requires $filter
      * @requires $timeout
-     * @requires psonocli.manager
+     * @requires psonocli.account
      * @requires psonocli.managerDatastorePassword
      * @requires psonocli.managerDatastoreUser
      * @requires psonocli.managerSecret
@@ -655,10 +659,10 @@
      * @description
      * Controller for main view
      */
-    app.controller('MainCtrl', ['$scope', '$rootScope', '$filter', '$timeout', 'manager',
+    app.controller('MainCtrl', ['$scope', '$rootScope', '$filter', '$timeout', 'account',
         'managerDatastorePassword', 'managerDatastoreUser', 'managerSecret', 'browserClient', 'storage',
         'snapRemote', '$window', '$route', '$routeParams', '$location',
-        function ($scope, $rootScope, $filter, $timeout, manager,
+        function ($scope, $rootScope, $filter, $timeout, account,
                   managerDatastorePassword, managerDatastoreUser, managerSecret, browserClient, storage,
                   snapRemote, $window, $route, $routeParams, $location ) {
 
@@ -718,7 +722,7 @@
              */
             $scope.generate_password = managerDatastorePassword.generate_password_active_tab;
 
-            $scope.user_username = manager.find_one('config', 'user_username');
+            $scope.user_username = account.get_account_detail('user_username');
 
             /**
              * @ngdoc
@@ -1073,6 +1077,46 @@
                 };
 
                 settings.save().then(onSuccess, onError)
+            };
+        }]);
+
+    /**
+     * @ngdoc controller
+     * @name psonocli.controller:AccountCtrl
+     * @requires $scope
+     * @requires $routeParams
+     * @requires psonocli.account
+     * @requires psonocli.managerDatastoreSetting
+     *
+     * @description
+     * Controller for the Account view
+     */
+    app.controller('AccountCtrl', ['$scope', '$routeParams', 'account',
+        function ($scope, $routeParams, account) {
+
+            $scope.account = account.get_account();
+            $scope.tabs = account.get_tabs();
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:AccountCtrl#save
+             * @methodOf psonocli.controller:AccountCtrl
+             *
+             * @description
+             * Triggered once someone clicks the save button
+             */
+            $scope.save = function () {
+
+                var onSuccess = function (data) {
+                    $scope.msgs = data.msgs;
+                    $scope.errors = [];
+                };
+                var onError = function (data) {
+                    $scope.msgs = [];
+                    $scope.errors = data.errors;
+                };
+
+                account.save().then(onSuccess, onError)
             };
         }]);
 

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<div class="container-fluid">
+    <div class="navi row">
+        <div class="location col-sm-8">
+            <!--
+            <span> <a href="#">/account</a> </span>
+            -->
+        </div>
+        <div class="title col-sm-4">
+            <h1>Account Details</h1>
+        </div>
+    </div>
+
+    <div class="widget panel panel-default">
+        <div class="panel-heading clearfix ng-scope">
+            <h3 class="panel-title ng-binding ng-scope">Configuration</h3>
+        </div>
+        <div class="panel-body" style="height: auto;">
+
+            <form class="form-horizontal" role="form">
+                <uib-tabset class="tabset_expand">
+
+                    <uib-tab ng-repeat="tab in tabs" heading="{{ tab.title }}">
+
+                        <div ng-class="{true: 'has-error'}[submitted &amp;&amp; editEntryForm[n.name].$invalid]"
+                             class="form-group" ng-repeat="acc in account"
+                             ng-if="acc.tab == tab.key">
+
+                            <label class="control-label col-sm-4 col-md-2" for="accountForm-{{acc.key}}">{{acc.title}}</label>
+                            <div class="col-sm-8 col-md-10">
+                                <input type="{{acc.type}}" ng-model="acc.value"
+                                       ng-required="{{acc.required}}"
+                                       ng-readonly="{{acc.readonly}}"
+                                       placeholder="{{acc.placeholder}}" id="accountForm-{{acc.key}}"
+                                       name="{{acc.key}}"
+                                       class="form-control">
+
+                                <uib-progressbar value="acc.value | complexify" ng-if="acc.complexify && (acc.value | complexify) > 0">
+                                    <span complexify="acc.value"></span>%
+                                    <span complexify="acc.value" type="verbal"></span>
+                                </uib-progressbar>
+                            </div>
+                        </div>
+                    </uib-tab>
+                </uib-tabset>
+
+                <div>
+                    <button class="btn btn-primary" type="button" ng-click="submitted=true; save();">Save</button>
+                    <span class="error" ng-repeat="e in errors">{{e}}</span>
+                    <span ng-repeat="m in msgs">{{m}}</span>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</div>
