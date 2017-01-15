@@ -9,7 +9,6 @@
      * Service with all the cryptographic operations
      */
 
-    //var nacl = nacl_factory.instantiate();
     var nacl = require('ecma-nacl');
 
     /**
@@ -19,6 +18,7 @@
      *
      * @description
      * Random byte generator from nacl_factory.js
+     * https://github.com/tonyg/js-nacl
      *
      * @param {int} count The amount of random bytes to return
      *
@@ -48,6 +48,7 @@
      *
      * @description
      * encodes utf8 from nacl_factory.js
+     * https://github.com/tonyg/js-nacl
      *
      * @param {string} to_encode String to encode
      *
@@ -65,6 +66,7 @@
      *
      * @description
      * encodes latin1 from nacl_factory.js
+     * https://github.com/tonyg/js-nacl
      *
      * @param {string} to_encode String to encode
      *
@@ -88,6 +90,7 @@
      *
      * @description
      * decodes utf8 from nacl_factory.js
+     * https://github.com/tonyg/js-nacl
      *
      * @param {string} to_decode encoded utf-8 string
      *
@@ -105,6 +108,7 @@
      *
      * @description
      * decodes latin1 from nacl_factory.js
+     * https://github.com/tonyg/js-nacl
      *
      * @param {string} to_decode encoded latin1 string
      *
@@ -126,6 +130,7 @@
      *
      * @description
      * Uint8Array to hex converter from nacl_factory.js
+     * https://github.com/tonyg/js-nacl
      *
      * @param {Uint8Array} val As Uint8Array encoded value
      *
@@ -148,6 +153,7 @@
      *
      * @description
      * hex to Uint8Array converter from nacl_factory.js
+     * https://github.com/tonyg/js-nacl
      *
      * @param {string} val As hex encoded value
      *
@@ -176,7 +182,7 @@
      *
      * For compatibility reasons with other clients please use the following parameters if you create your own client:
      *
-     * var n = 16384 // 2^14;
+     * var c = 16384 // 2^14;
      * var r = 8;
      * var p = 1;
      * var l = 64;
@@ -188,7 +194,7 @@
      */
     var generate_authkey = function (username, password) {
 
-        var n = 14; //2^14 = 16MB
+        var u = 14; //2^14 = 16MB
         var r = 8;
         var p = 1;
         var l = 64; // 64 Bytes = 512 Bits
@@ -197,7 +203,7 @@
         // var salt = nacl.to_hex(nacl.crypto_hash_string(username.toLowerCase()));
         var salt = sha512(username.toLowerCase());
 
-        return to_hex(nacl.scrypt(encode_utf8(password), encode_utf8(salt), n, r, p, l, function(pDone) {}));
+        return to_hex(nacl.scrypt(encode_utf8(password), encode_utf8(salt), u, r, p, l, function(pDone) {}));
     };
 
     /**
@@ -255,7 +261,17 @@
      */
     var encrypt_secret = function (secret, password, user_sauce) {
 
-        var k = from_hex(sha256(password + user_sauce)); // key
+        // Lets first generate our key from our user_sauce and password
+        var u = 14; //2^14 = 16MB
+        var r = 8;
+        var p = 1;
+        var l = 64; // 64 Bytes = 512 Bits
+
+        var salt = sha512(user_sauce);
+
+        var k = from_hex(sha256(to_hex(nacl.scrypt(encode_utf8(password), encode_utf8(salt), u, r, p, l, function(pDone) {})))); // key
+
+        // and now lets encrypt
         var m = encode_utf8(secret); // message
         var n = randomBytes(24); // nonce
         var c = nacl.secret_box.pack(m, n, k); //encrypted message
@@ -285,7 +301,17 @@
      */
     var decrypt_secret = function (text, nonce, password, user_sauce) {
 
-        var k = from_hex(sha256(password + user_sauce));
+        // Lets first generate our key from our user_sauce and password
+        var u = 14; //2^14 = 16MB
+        var r = 8;
+        var p = 1;
+        var l = 64; // 64 Bytes = 512 Bits
+
+        var salt = sha512(user_sauce);
+
+        var k = from_hex(sha256(to_hex(nacl.scrypt(encode_utf8(password), encode_utf8(salt), u, r, p, l, function(pDone) {})))); // key
+
+        // and now lets decrypt
         var n = from_hex(nonce);
         var c = from_hex(text);
         var m1 = nacl.secret_box.open(c, n, k);
