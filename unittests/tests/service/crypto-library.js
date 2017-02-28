@@ -30,11 +30,53 @@
         */
 
         it('to_hex returns real hex values', inject(function (cryptoLibrary) {
-            return expect(cryptoLibrary.to_hex(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]))).toBe('000102030405060708090a0b0c0d0e0f');
+            return expect(cryptoLibrary.to_hex(new Uint8Array([
+                0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+                10, 11, 12, 13, 14, 15
+            ]))).toBe('000102030405060708090a0b0c0d0e0f');
         }));
 
         it('from_hex returns the true Uint8Array', inject(function (cryptoLibrary) {
             return expect(cryptoLibrary.to_hex(cryptoLibrary.from_hex('000102030405060708090a0b0c0d0e0f'))).toBe('000102030405060708090a0b0c0d0e0f');
+        }));
+
+        it('to_base58 returns the true Uint8Array', inject(function (cryptoLibrary) {
+            return expect(cryptoLibrary.to_base58(new Uint8Array([
+                0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+                10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+                20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+                30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+                40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
+                50, 51, 52, 53, 54, 55, 56, 57
+            ]))).toBe('17zGKMk8LJ2vxPFJLY5ZT29kPLxuY4YedQ2wsCWP5aYENhQ93SGhYcc3XZaWR5w7pEvXozuf3daKVr');
+        }));
+
+        it('from_base58 returns the true Uint8Array', inject(function (cryptoLibrary) {
+            return expect(cryptoLibrary.to_base58(cryptoLibrary.from_base58('17zGKMk8LJ2vxPFJLY5ZT29kPLxuY4YedQ2wsCWP5aYENhQ93SGhYcc3XZaWR5w7pEvXozuf3daKVr'))).toBe('17zGKMk8LJ2vxPFJLY5ZT29kPLxuY4YedQ2wsCWP5aYENhQ93SGhYcc3XZaWR5w7pEvXozuf3daKVr');
+        }));
+
+        it('hex_to_base58', inject(function (cryptoLibrary) {
+            return expect(cryptoLibrary.hex_to_base58('000102030405060708090a0b0c0d0e0f')).toBe('12drXXUifSrRnXLGbXg8E');
+        }));
+
+        it('base58_to_hex', inject(function (cryptoLibrary) {
+            return expect(cryptoLibrary.base58_to_hex('12drXXUifSrRnXLGbXg8E')).toBe('000102030405060708090a0b0c0d0e0f');
+        }));
+
+        it('uuid_to_hex', inject(function (cryptoLibrary) {
+            return expect(cryptoLibrary.uuid_to_hex('3682454d-d080-44c2-b58c-721ef6459e32')).toBe('3682454dd08044c2b58c721ef6459e32');
+        }));
+
+        it('hex_to_uuid', inject(function (cryptoLibrary) {
+            return expect(cryptoLibrary.hex_to_uuid('28b461d094d84a32b546f8cc382d49f0')).toBe('28b461d0-94d8-4a32-b546-f8cc382d49f0');
+        }));
+
+        it('words_to_hex', inject(function (cryptoLibrary) {
+            return expect(cryptoLibrary.words_to_hex(['lazy', 'lock', 'lock', 'price', 'economy', 'enable', 'arctic', 'animal', 'aunt', 'damp', 'novel', 'party'])).toBe('000102030405060708090a0b0c0d0e0f');
+        }));
+
+        it('hex_to_words', inject(function (cryptoLibrary) {
+            return expect(cryptoLibrary.hex_to_words('000102030405060708090a0b0c0d0e0f')).toEqual(['lazy', 'lock', 'lock', 'price', 'economy', 'enable', 'arctic', 'animal', 'aunt', 'damp', 'novel', 'party']);
         }));
 
         it('generate_authkey works', inject(function (cryptoLibrary) {
@@ -74,13 +116,36 @@
             return expect(user_sauce1).not.toBe(user_sauce2);
         }));
 
+        it('get_checksum', inject(function (cryptoLibrary) {
+            return expect(cryptoLibrary.get_checksum('RBLbEDsvgnU', 2)).toBe('4A');
+
+        }));
+
+        it('generate_recovery_code', inject(function (cryptoLibrary, helper) {
+
+            var recovery_code = cryptoLibrary.generate_recovery_code();
+
+            expect(recovery_code.bytes.length).toBe(16);
+            expect(recovery_code.hex).toBe(cryptoLibrary.to_hex(recovery_code.bytes));
+            expect(recovery_code.hex).toBe(cryptoLibrary.words_to_hex(recovery_code.words));
+            expect(recovery_code.hex).toBe(cryptoLibrary.base58_to_hex(recovery_code.base58));
+
+            var chunks = helper.split_string_in_chunks(recovery_code.base58, 11);
+
+            for (var i = 0; i < chunks.length; i++) {
+                chunks[i] += cryptoLibrary.get_checksum(chunks[i], 2);
+            }
+
+            return expect(recovery_code.base58_checksums).toBe(chunks.join(''));
+        }));
+
         it('decrypt_secret', inject(function (cryptoLibrary) {
             var data, nonce, password, text, user_sauce;
             data = '12345';
             password = 'myPassword';
             user_sauce = '6168de45af90c335967a8f9eae76f8f19bcb42fb8c3f602fee35f7617acdc489';
-            nonce = '1f1bffb2aa506fd53913a81a3a04ce5e2d174d0421126a06';
-            text = 'b96dc28175fe79bd394eaf6cc1ce041cea42b02be4';
+            nonce = 'ff786149d8242bb7802379bc5fd2f9ccc744a2e1f18bb0a8';
+            text = 'a92528f78ca1f0812a4fb2ee5de4d16eb75d434318';
             return expect(cryptoLibrary.decrypt_secret(text, nonce, password, user_sauce)).toBe(data);
         }));
 

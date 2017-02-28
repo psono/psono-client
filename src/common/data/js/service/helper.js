@@ -203,13 +203,39 @@
             return true;
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.helper#split_string_in_chunks
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Splits a string into several chunks
+         *
+         * @param {string} str The string to split
+         * @param {int} len The length of the chunks
+         *
+         * @returns {Array} Returns the chunks with length "len" as array
+         */
+        var split_string_in_chunks = function(str, len) {
+            var size = str.length / len + .5 | 0;
+            var chunks  = new Array(size);
+            var offset = 0;
+
+            for(var i = 0; i < size; ++i, offset += len) {
+                chunks[i] = str.substring(offset, offset + len);
+            }
+
+            return chunks;
+        };
+
         return {
             parse_url: parse_url,
             get_domain: get_domain,
             array_starts_with: array_starts_with,
             create_list: create_list,
             duplicate_object: duplicate_object,
-            is_valid_username: is_valid_username
+            is_valid_username: is_valid_username,
+            split_string_in_chunks: split_string_in_chunks
         };
     };
 

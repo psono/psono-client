@@ -15,7 +15,7 @@
                 title: 'Trusted Users',
                 description: 'provides the shareusers',
                 templateUrl: 'view/shareusers-view.html',
-                controller: 'shareusersCtrl',
+                controller: 'ShareusersCtrl',
                 controllerAs: 'shareusers',
                 edit: {
                     templateUrl: 'view/shareusers-edit.html'
@@ -25,7 +25,7 @@
 
     /**
      * @ngdoc controller
-     * @name psonocli.controller:shareusersCtrl
+     * @name psonocli.controller:ShareusersCtrl
      * @requires $scope
      * @requires $interval
      * @requires config
@@ -40,7 +40,7 @@
      * @description
      * Main Controller for the shareusers widget
      */
-    module.controller('shareusersCtrl', ["$scope", "$interval", "config", "managerSecret", "managerDatastoreUser",
+    module.controller('ShareusersCtrl', ["$scope", "$interval", "config", "managerSecret", "managerDatastoreUser",
         "$uibModal", "shareBlueprint", "managerAdfWidget", "$timeout", "dropDownMenuWatcher",
         function ($scope, $interval, config, managerSecret, managerDatastoreUser, $uibModal, shareBlueprint,
                   managerAdfWidget, $timeout, dropDownMenuWatcher) {

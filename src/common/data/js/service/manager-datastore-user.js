@@ -51,7 +51,7 @@
          * @param {email} email The email to register with
          * @param {string} username The username to register with
          * @param {string} password The password to register with
-         * @param {string} server The server object
+         * @param {string} server The server to send the registration to
          *
          * @returns {promise} promise
          */
@@ -335,6 +335,129 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastoreUser#recovery_generate_information
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Encrypts the recovery data and sends it to the server.
+         *
+         * @returns {promise} Returns a promise with the username, recovery_code_id and private_key to decrypt the saved data
+         */
+        var recovery_generate_information = function() {
+
+
+
+            var recovery_password = cryptoLibrary.generate_recovery_code();
+            var recovery_authkey = cryptoLibrary.generate_authkey(managerBase.find_one_nolimit('config', 'user_username'), recovery_password['base58']);
+            var recovery_sauce = cryptoLibrary.generate_user_sauce();
+
+            var recovery_data_dec = {
+                'user_private_key': managerBase.find_one_nolimit('config', 'user_private_key'),
+                'user_secret_key': managerBase.find_one_nolimit('config', 'user_secret_key')
+            };
+
+            var recovery_data = cryptoLibrary.encrypt_secret(JSON.stringify(recovery_data_dec), recovery_password['base58'], recovery_sauce);
+
+            var onSuccess = function(data) {
+                return {
+                    'username': managerBase.find_one_nolimit('config', 'user_username'),
+                    'recovery_password': helper.split_string_in_chunks(recovery_password['base58_checksums'], 13).join('-'),
+                    'recovery_words': recovery_password['words'].join(' ')
+                };
+            };
+
+            return apiClient.write_recoverycode(managerBase.get_token(), managerBase.get_session_secret_key(),
+                recovery_authkey, recovery_data.text, recovery_data.nonce, recovery_sauce)
+                .then(onSuccess);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#recovery_enable
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Ajax POST request to destroy the token and recovery_enable the user
+         *
+         * @param {string} username The username of the user
+         * @param {string} recovery_code The recovery code in base58 format
+         * @param {string} server The server to send the recovery code to
+         *
+         * @returns {promise} Returns a promise with the recovery_enable status
+         */
+        var recovery_enable = function (username, recovery_code, server) {
+
+            storage.upsert('config', {key: 'user_username', value: username});
+            storage.upsert('config', {key: 'server', value: server});
+
+            var onSuccess = function (data) {
+
+                var recovery_data = JSON.parse(cryptoLibrary.decrypt_secret(data.data.recovery_data, data.data.recovery_data_nonce, recovery_code, data.data.recovery_sauce));
+
+                return {
+                    'user_private_key': recovery_data.user_private_key,
+                    'user_secret_key': recovery_data.user_secret_key,
+                    'user_sauce': data.data.user_sauce,
+                    'verifier_public_key': data.data.verifier_public_key,
+                    'verifier_time_valid': data.data.verifier_time_valid
+                }
+            };
+            var recovery_authkey = cryptoLibrary.generate_authkey(username, recovery_code);
+
+            return apiClient.enable_recoverycode(username, recovery_authkey)
+                .then(onSuccess);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#set_password
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Encrypts the recovered data with the new password and initiates the save of this data
+         *
+         * @param {string} username the account's username e.g dummy@example.com
+         * @param {string} recovery_code The recovery code in base58 format
+         * @param {string} password The new password
+         * @param {string} user_private_key The user's private key
+         * @param {string} user_secret_key The user's secret key
+         * @param {string} user_sauce The user's user_sauce
+         * @param {string} verifier_public_key The "verifier" one needs, that the server accepts this new password
+         *
+         * @returns {promise} Returns a promise with the set_password status
+         */
+        var set_password = function (username, recovery_code, password, user_private_key, user_secret_key, user_sauce, verifier_public_key) {
+
+            var priv_key_enc = cryptoLibrary.encrypt_secret(user_private_key, password, user_sauce);
+            var secret_key_enc = cryptoLibrary
+                .encrypt_secret(user_secret_key, password, user_sauce);
+
+            var update_request = JSON.stringify({
+                authkey: cryptoLibrary.generate_authkey(username, password),
+                private_key: priv_key_enc.text,
+                private_key_nonce: priv_key_enc.nonce,
+                secret_key: secret_key_enc.text,
+                secret_key_nonce: secret_key_enc.nonce
+            });
+
+            var update_request_enc = cryptoLibrary.encrypt_data_public_key(update_request, verifier_public_key, user_private_key);
+
+            var onSuccess = function (data) {
+                return data;
+            };
+
+            var onError = function(data){
+                return data;
+            };
+
+            var recovery_authkey = cryptoLibrary.generate_authkey(username, recovery_code);
+
+            return apiClient.set_password(username, recovery_authkey, update_request_enc.text, update_request_enc.nonce)
+                .then(onSuccess, onError);
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastoreUser#get_user_datastore
          * @methodOf psonocli.managerDatastoreUser
          *
@@ -472,8 +595,11 @@
             activate: activate,
             login: login,
             logout: logout,
+            recovery_enable: recovery_enable,
+            set_password: set_password,
             is_logged_in: is_logged_in,
             update_user: update_user,
+            recovery_generate_information: recovery_generate_information,
             get_user_datastore: get_user_datastore,
             search_user_datastore: search_user_datastore,
             save_datastore: save_datastore,

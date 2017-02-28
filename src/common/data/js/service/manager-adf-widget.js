@@ -38,6 +38,7 @@
             var modalInstance = $uibModal.open({
                 templateUrl: 'view/modal-new-folder.html',
                 controller: 'ModalNewFolderCtrl',
+                backdrop: 'static',
                 resolve: {
                     parent: function () {
                         return parent;
@@ -89,6 +90,7 @@
             var modalInstance = $uibModal.open({
                 templateUrl: 'view/modal-edit-folder.html',
                 controller: 'ModalEditFolderCtrl',
+                backdrop: 'static',
                 size: size,
                 resolve: {
                     node: function () {
@@ -127,6 +129,7 @@
             var modalInstance = $uibModal.open({
                 templateUrl: 'view/modal-new-entry.html',
                 controller: 'ModalDatastoreNewEntryCtrl',
+                backdrop: 'static',
                 size: size,
                 resolve: {
                     parent: function () {
@@ -241,6 +244,7 @@
                 var modalInstance = $uibModal.open({
                     templateUrl: 'view/modal-edit-entry.html',
                     controller: 'ModalEditEntryCtrl',
+                    backdrop: 'static',
                     size: size,
                     resolve: {
                         node: function () {
@@ -1030,6 +1034,7 @@
                 var modalInstance = $uibModal.open({
                     templateUrl: 'view/modal-new-entry.html',
                     controller: 'ModalShareNewEntryCtrl',
+                    backdrop: 'static',
                     resolve: {
                         parent: function () {
                         },
@@ -1151,7 +1156,6 @@
                 $uibModalInstance.dismiss('cancel');
             };
         }]);
-
 
     /**
      * @ngdoc controller

@@ -40,7 +40,7 @@
             storage.remove_all();
             storage.save();
         };
-        
+
         /**
          * @ngdoc
          * @name psonocli.managerBase#find_one_nolimit

@@ -7,7 +7,7 @@ body {
   height: 100%;
   overflow: hidden; }
 
-.loginbox, .registerbox, .activationbox {
+.loginbox, .registerbox, .activationbox, .lostpasswordbox {
   width: 340px;
   padding: 20px 20px 0 20px;
   position: absolute;
@@ -15,7 +15,7 @@ body {
   left: 50%;
   margin: -130px 0 0 -170px;
   border-radius: 4px; }
-  .loginbox .progress-bar, .registerbox .progress-bar, .activationbox .progress-bar {
+  .loginbox .progress-bar, .registerbox .progress-bar, .activationbox .progress-bar, .lostpasswordbox .progress-bar {
     background-color: #2dbb93; }
 
 .progress {

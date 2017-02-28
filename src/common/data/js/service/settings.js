@@ -21,15 +21,17 @@
             { key: 'passwordgen', title: 'Password Generator' }
         ];
 
-        var _settings = [
-            // Password Generator
-            { key: "setting_password_length", field: "input", type: "text", title: "Password length", placeholder: "Password length", required: true, default: 16, tab: 'passwordgen'},
-            { key: "setting_password_letters_uppercase", field: "input", type: "text", title: "Letters uppercase", placeholder: "Letters uppercase", default: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', tab: 'passwordgen'},
-            { key: "setting_password_letters_lowercase", field: "input", type: "text", title: "Letters lowercase", placeholder: "Letters lowercase", default: 'abcdefghijklmnopqrstuvwxyz', tab: 'passwordgen'},
-            { key: "setting_password_numbers", field: "input", type: "text", title: "Numbers", placeholder: "Numbers", required: true, default: '0123456789', tab: 'passwordgen'},
-            { key: "setting_password_special_chars", field: "input", type: "text", title: "Special chars", placeholder: "Special chars", default: ',.-;:_#\'+*~!"§$%&/()=?{[]}\\', tab: 'passwordgen'}
-            // General
-        ];
+        var _settings = {
+            fields: [
+                // Password Generator
+                { key: "setting_password_length", field: "input", type: "text", title: "Password length", placeholder: "Password length", required: true, default: 16, tab: 'passwordgen'},
+                { key: "setting_password_letters_uppercase", field: "input", type: "text", title: "Letters uppercase", placeholder: "Letters uppercase", default: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', tab: 'passwordgen'},
+                { key: "setting_password_letters_lowercase", field: "input", type: "text", title: "Letters lowercase", placeholder: "Letters lowercase", default: 'abcdefghijklmnopqrstuvwxyz', tab: 'passwordgen'},
+                { key: "setting_password_numbers", field: "input", type: "text", title: "Numbers", placeholder: "Numbers", required: true, default: '0123456789', tab: 'passwordgen'},
+                { key: "setting_password_special_chars", field: "input", type: "text", title: "Special chars", placeholder: "Special chars", default: ',.-;:_#\'+*~!"§$%&/()=?{[]}\\', tab: 'passwordgen'}
+                // General
+            ]
+        };
 
         // will be handled different, and not saved directly to the settings
         var _config_settings = [
@@ -70,10 +72,10 @@
                     return s.value;
                 } else {
                     // not found in storage, lets look for a default value, otherwise return null
-                    for (var i = _settings.length - 1; i >= 0; i--) {
-                        if (_settings[i].key === key) {
-                            if (typeof _settings[i].default !== 'undefined') {
-                                return _settings[i].default
+                    for (var i = _settings['fields'].length - 1; i >= 0; i--) {
+                        if (_settings['fields'][i].key === key) {
+                            if (typeof _settings['fields'][i].default !== 'undefined') {
+                                return _settings['fields'][i].default
                             } else {
                                 return null;
                             }
@@ -96,8 +98,8 @@
          */
         var get_settings = function() {
 
-            for (var i = _settings.length - 1; i >= 0; i--) {
-                _settings[i].value = get_setting(_settings[i].key)
+            for (var i = _settings['fields'].length - 1; i >= 0; i--) {
+                _settings['fields'][i].value = get_setting(_settings['fields'][i].key)
             }
             return _settings;
         };
@@ -162,7 +164,7 @@
          * @methodOf psonocli.settings
          *
          * @description
-         * Saves the settings and might update the user data (e.g. The password)
+         * Saves the settings and might update the user data.
          *
          * @returns {promise} Returns a promise with the status
          */
@@ -172,9 +174,9 @@
                 var specials = {};
 
                 // lets search our settings for the interesting settings
-                for (var i = _settings.length - 1; i >= 0; i--) {
-                    if (_config_settings.indexOf(_settings[i].key) > -1) {
-                        specials[_settings[i].key] = _settings[i];
+                for (var i = _settings['fields'].length - 1; i >= 0; i--) {
+                    if (_config_settings.indexOf(_settings['fields'][i].key) > -1) {
+                        specials[_settings['fields'][i].key] = _settings['fields'][i];
                     }
                 }
 
@@ -183,7 +185,7 @@
                     for (var i = _config_settings.length - 1; i >= 0; i--) {
                         specials[_config_settings[i]].value = '';
                     }
-                    set_settings(_settings);
+                    set_settings(_settings['fields']);
 
                     return resolve({msgs: ['Saved successfully']})
                 };

@@ -81,6 +81,7 @@
                     <button ng-click="register(registerFormEmail, registerFormUsername, registerFormPassword, registerFormPasswordRepeat)" type="submit" class="btn btn-danger">Register</button>
                     <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
                     <span ng-repeat="e in msgs" class="pull-right">{{e}}</span>
+                    <div class="clearfix"></div>
                 </div>
 
                 <div class="form-group hideinputcharakter">
@@ -88,9 +89,11 @@
                     <script type="text/ng-template" id="myPopoverTemplate.html">
                         <div class="container-fluid">
                             <p>Pick one of the servers below or enter the new url</p>
-                            <li ng-repeat="server in filtered_servers | limitTo:4">
-                                <a href="#" ng-click="select_server(server)">{{ server.title + ' ' + server.url }}</a>
-                            </li>
+                            <ul>
+                                <li ng-repeat="server in filtered_servers | limitTo:4">
+                                    <a href="#" ng-click="select_server(server)">{{ server.title + ' ' + server.url }}</a>
+                                </li>
+                            </ul>
                         </div>
                     </script>
 

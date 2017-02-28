@@ -346,6 +346,271 @@
 
     /**
      * @ngdoc controller
+     * @name psonocli.controller:LostPasswordCtrl
+     * @requires $scope
+     * @requires $route
+     * @requires $filter
+     * @requires psonocli.managerDatastoreUser
+     * @requires psonocli.browserClient
+     * @requires psonocli.helper
+     * @requires psonocli.cryptoLibrary
+     *
+     * @description
+     * Controller for the registration view
+     */
+    app.controller('LostPasswordCtrl', ['$scope', '$route', '$filter', 'managerDatastoreUser', 'browserClient',
+        'helper', 'cryptoLibrary',
+        function ($scope, $route, $filter, managerDatastoreUser, browserClient, helper, cryptoLibrary) {
+
+            var onSuccess = function(config) {
+
+                // TODO interpret "allow_custom_server"
+                // TODO check last visited server for "preselection"
+
+                /* Server selection with preselection */
+                $scope.servers = config['backend_servers'];
+                $scope.filtered_servers = $scope.servers;
+                $scope.selected_server = $scope.servers[0];
+                $scope.selected_server_title = $scope.selected_server.title;
+                $scope.selected_server_url = $scope.selected_server.url;
+                $scope.selected_server_domain = helper.get_domain($scope.selected_server.url);
+            };
+
+            var onError = function() {
+
+            };
+
+            browserClient.get_config().then(onSuccess, onError);
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LostPasswordCtrl#select_server
+             * @methodOf psonocli.controller:LostPasswordCtrl
+             *
+             * @description
+             * Select a server from the offered choices
+             *
+             * @param {object} server The selected server
+             */
+            $scope.select_server = function (server) {
+                //triggered when selecting an server
+                $scope.selected_server = server;
+                $scope.selected_server_title = server.title;
+                $scope.selected_server_url = server.url;
+                $scope.selected_server_domain = helper.get_domain(server.url);
+            };
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LostPasswordCtrl#changing
+             * @methodOf psonocli.controller:LostPasswordCtrl
+             *
+             * @description
+             * Triggered automatically once someone types something into the "Server" Field
+             *
+             * @param {url} url The typed url
+             */
+            $scope.changing = function (url) {
+                //triggered when typing an url
+                $scope.selected_server = {title: url, url: url};
+                $scope.selected_server_url = url;
+                $scope.selected_server_domain = helper.get_domain(url);
+                $scope.filtered_servers = $filter('filter')($scope.servers, {url: url});
+            };
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LostPasswordCtrl#code_changing
+             * @methodOf psonocli.controller:LostPasswordCtrl
+             *
+             * @description
+             * Triggered automatically once someone types something into one of both code fields
+             *
+             * @param {string} code Part of a recovery code
+             */
+            $scope.code_changing = function (code) {
+
+                if (typeof(code['value']) === 'undefined' || code['value'] == '') {
+                    code['class'] = 'form-field-validation-pass';
+                    return;
+                }
+
+                var check = cryptoLibrary.recovery_password_chunk_pass_checksum(code['value']);
+                if (check) {
+                    code['class'] = 'form-field-validation-pass';
+                } else {
+                    code['class'] = 'form-field-validation-fail';
+                }
+            };
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LostPasswordCtrl#words_changing
+             * @methodOf psonocli.controller:LostPasswordCtrl
+             *
+             * @description
+             * Triggered automatically once someone types something into the words fields
+             *
+             * @param {string} words The recovery code as words
+             */
+            $scope.words_changing = function (words) {
+                console.log(words);
+            };
+
+            /* preselected values */
+            $scope.lostpasswordFormUsername = "test";
+            $scope.lostpasswordFormCode1 = {
+                value: '',
+                class: ''
+            };
+            $scope.lostpasswordFormCode2 = {
+                value: '',
+                class: ''
+            };
+            $scope.lostpasswordFormWords = {
+                value: '',
+                class: ''
+            };
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LostPasswordCtrl#recovery_enable
+             * @methodOf psonocli.controller:LostPasswordCtrl
+             *
+             * @description
+             * Triggered once someone clicks the "Request password Reset" button
+             *
+             * @param {string} username The username of the account one wants to reset
+             * @param {string} code1 Part 1 of the reset code
+             * @param {string} code2 Part 2 of the reset code
+             * @param {string} words The word code alternative
+             */
+            $scope.recovery_enable = function (username, code1, code2, words) {
+
+                $scope.errors = [];
+                $scope.msgs = [];
+
+                // a username is mandatory
+                if (username === undefined) {
+                    return;
+                }
+
+                // We need either words or code1 and code2
+                if ((words === undefined || words == '') && (code1 === undefined || code2 === undefined || code1 == '' || code2 == '' )) {
+                    return;
+                }
+
+                // if (password !== password2) {
+                //     $scope.errors.push("Passwords don't match.");
+                //     return;
+                // }
+
+                // Validate now the username
+                if (username.indexOf('@') == -1){
+                    username = username + '@' + $scope.selected_server_domain;
+                }
+
+                if ((username.match(/@/g) || []).length != 1) {
+                    $scope.errors.push("No valid username (must be in email format).");
+                }
+                var res = username.split("@");
+                var username_part = res[0];
+
+                var test_result = helper.is_valid_username(username_part);
+                if (test_result !== true) {
+                    $scope.errors.push(test_result);
+                    return;
+                }
+
+                // Validate now the recovery code information (words and codes)
+                var recovery_code;
+                if (typeof(words) !== 'undefined' && words != '') {
+                    recovery_code = cryptoLibrary.hex_to_base58(cryptoLibrary.words_to_hex(words.split(' ')));
+                } else if (typeof(code1) !== 'undefined' && code1 != '' && typeof(code2) !== 'undefined' && code2 != ''){
+                    if (!cryptoLibrary.recovery_password_chunk_pass_checksum(code1) || !cryptoLibrary.recovery_password_chunk_pass_checksum(code2)) {
+                        $scope.errors.push("At least one of your codes is wrong");
+                        return;
+                    }
+                    recovery_code = cryptoLibrary.recovery_code_strip_checksums(code1+code2);
+                } else {
+                    $scope.errors.push("something strange happened...");
+                    return;
+                }
+
+                // TODO forbid weak and poor passwords
+
+                function onError(data) {
+                    console.log(data);
+                    if (data.hasOwnProperty('data') && data.data.hasOwnProperty('message')) {
+                        $scope.errors = [data.data.message];
+                    } else if (!data.hasOwnProperty('data')) {
+                        $scope.errors = ['Server offline.'];
+                    } else {
+                        alert("Error, should not happen.");
+                    }
+
+                }
+
+                function onSuccess(data) {
+                    if (data.hasOwnProperty('message')) {
+                        $scope.errors.push(data.message);
+                    } else {
+                        $scope.username = username;
+                        $scope.recovery_code = recovery_code;
+                        $scope.recovery_enabled = true;
+                        $scope.errors = [];
+                        $scope.recovery_data = data;
+
+                        // TODO start timer with data.verifier_time_valid seconds
+                    }
+                }
+
+                managerDatastoreUser.recovery_enable(username, recovery_code, angular.copy($scope.selected_server))
+                    .then(onSuccess, onError);
+            };
+
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LostPasswordCtrl#set_new_password
+             * @methodOf psonocli.controller:LostPasswordCtrl
+             *
+             * @description
+             * Triggered once someone clicks the "Set New Password" button
+             *
+             * @param {string} username the account's username e.g dummy@example.com
+             * @param {string} recovery_code The recovery code in base58 format
+             * @param {string} password The password one wants to set
+             * @param {string} password2 The password repeated
+             * @param {object} recovery_data The recovery data with the user's private and public key and the necessary verifier public key and verifier time
+             */
+            $scope.set_new_password = function (username, recovery_code, password, password2, recovery_data) {
+
+                if (password !== password2) {
+                    $scope.errors.push("Passwords don't match.");
+                    return;
+                }
+
+                function onError() {
+                    alert("Error, should not happen.");
+                }
+
+                function onSuccess() {
+                    $scope.success = true;
+                }
+
+                managerDatastoreUser.set_password(username, recovery_code, password, recovery_data.user_private_key,
+                    recovery_data.user_secret_key, recovery_data.user_sauce, recovery_data.verifier_public_key)
+                    .then(onSuccess, onError);
+            };
+
+            browserClient.get_base_url().then(function(base_url){
+                $scope.base_url = base_url;
+            });
+        }]);
+
+    /**
+     * @ngdoc controller
      * @name psonocli.controller:ActivationCtrl
      * @requires $scope
      * @requires $route
@@ -436,9 +701,8 @@
                 function onError() {
                     alert("Error, should not happen.");
                 }
-                console.log(activation_code);
 
-                function onRequestReturn(data) {
+                function onSuccess(data) {
                     $scope.errors = [];
                     $scope.msgs = [];
                     if (data.response === "success") {
@@ -461,7 +725,7 @@
 
                 if (activation_code !== undefined) {
                         managerDatastoreUser.activate(activation_code, angular.copy($scope.selected_server))
-                            .then(onRequestReturn, onError);
+                            .then(onSuccess, onError);
                 }
             };
 
@@ -987,7 +1251,7 @@
                     alert("Error, should not happen.");
                 }
 
-                function onRequestReturn(data) {
+                function onSuccess(data) {
                     // TODO bring message to the user
 
 
@@ -996,12 +1260,15 @@
                         browserClient.emit("login", null);
                         browserClient.resize(295);
                     } else {
+                        console.log(data.error_data);
                         if (data.error_data == null) {
                             $scope.errors = ['Server offline.']
                         } else if (data.error_data.hasOwnProperty('non_field_errors')) {
                             $scope.errors = data.error_data.non_field_errors;
+                        } else if (data.error_data.hasOwnProperty('username')) {
+                            $scope.errors = data.error_data.username;
                         } else {
-                            $scope.errors = ['Username or password incorrect'];
+                            $scope.errors = ['Server offline.']
                         }
                     }
                 }
@@ -1010,7 +1277,7 @@
                     if (username.indexOf('@') === -1) {
                         username = username + '@' + $scope.selected_server_domain;
                     }
-                    managerDatastoreUser.login(username, password, angular.copy($scope.selected_server)).then(onRequestReturn, onError);
+                    managerDatastoreUser.login(username, password, angular.copy($scope.selected_server)).then(onSuccess, onError);
                 }
             };
         }]);

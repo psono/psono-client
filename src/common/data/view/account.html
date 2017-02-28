@@ -23,21 +23,30 @@
                     <uib-tab ng-repeat="tab in tabs" heading="{{ tab.title }}">
 
                         <div ng-class="{true: 'has-error'}[submitted &amp;&amp; editEntryForm[n.name].$invalid]"
-                             class="form-group" ng-repeat="acc in account"
-                             ng-if="acc.tab == tab.key">
+                             class="form-group" ng-repeat="field in account.fields"
+                             ng-if="field.tab == tab.key">
 
-                            <label class="control-label col-sm-4 col-md-2" for="accountForm-{{acc.key}}">{{acc.title}}</label>
+                            <label class="control-label col-sm-4 col-md-2"
+                                   for="accountForm-{{field.key}}">
+                                <span ng-if="field.type != 'button'">{{field.title}}</span>
+                            </label>
                             <div class="col-sm-8 col-md-10">
-                                <input type="{{acc.type}}" ng-model="acc.value"
-                                       ng-required="{{acc.required}}"
-                                       ng-readonly="{{acc.readonly}}"
-                                       placeholder="{{acc.placeholder}}" id="accountForm-{{acc.key}}"
-                                       name="{{acc.key}}"
+                                <input type="{{field.type}}" ng-model="field.value"
+                                       ng-if="field.type != 'button'"
+                                       ng-required="{{field.required}}"
+                                       ng-readonly="{{field.readonly}}"
+                                       placeholder="{{field.placeholder}}" id="accountForm-{{field.key}}"
+                                       name="{{field.key}}"
                                        class="form-control">
 
-                                <uib-progressbar value="acc.value | complexify" ng-if="acc.complexify && (acc.value | complexify) > 0">
-                                    <span complexify="acc.value"></span>%
-                                    <span complexify="acc.value" type="verbal"></span>
+                                <button ng-if="field.type == 'button'" class="btn btn-primary {{field.class}}"
+                                        ng-click="account[field.onClick]()"
+                                        type="{{field.type}}" ng-hide="field.hidden" ng-click="">{{field.title}}</button>
+
+                                <uib-progressbar value="field.value | complexify"
+                                                 ng-if="field.complexify && (field.value | complexify) > 0">
+                                    <span complexify="field.value"></span>%
+                                    <span complexify="field.value" type="verbal"></span>
                                 </uib-progressbar>
                             </div>
                         </div>

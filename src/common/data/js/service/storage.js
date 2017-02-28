@@ -87,6 +87,39 @@
 
         /**
          * @ngdoc
+         * @name psonocli.storage#upsert
+         * @methodOf psonocli.storage
+         *
+         * @description
+         * inserts or updates one or more items in the specified db.
+         * CAUTION: Poor performance. Use direct insert and update wherever possible, especially if you big arrays of items
+         *
+         * @param {string} db The database
+         * @param {object|Array} items One or multiple items to update in the database
+         */
+        var upsert = function(db, items) {
+            var local_items, db_entry;
+
+            if (! (items instanceof Array)) {
+                local_items = [items]
+            } else {
+                local_items = items
+            }
+            for (var i = 0; i < local_items.length; i++) {
+                db_entry = dbs[db].findOne({'key': local_items[i]['key']});
+
+                if (db_entry!== null) {
+                    db_entry.value = local_items[i]['value'];
+                    dbs[db].update(db_entry);
+                } else {
+                    dbs[db].insert(local_items[i]);
+                }
+
+            }
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.storage#data
          * @methodOf psonocli.storage
          *
@@ -100,6 +133,7 @@
         var data = function (db) {
             return dbs[db].data;
         };
+
         /**
          * @ngdoc
          * @name psonocli.storage#find_one
@@ -116,6 +150,24 @@
         var find_one = function (db, query) {
             return dbs[db].findOne(query);
         };
+
+        /**
+         * @ngdoc
+         * @name psonocli.storage#key_exists
+         * @methodOf psonocli.storage
+         *
+         * @description
+         * returns if a specified item exists
+         *
+         * @param {string} db The database
+         * @param {object} key The key of the object
+         *
+         * @returns {boolean} Returns whether the specified key already exists.
+         */
+        var key_exists = function (db, key) {
+            return dbs[db].findOne({'key': key}) !== null;
+        };
+
         /**
          * @ngdoc
          * @name psonocli.storage#remove
@@ -186,6 +238,7 @@
         return {
             insert: insert,
             update: update,
+            upsert: upsert,
             data: data,
             find_one: find_one,
             remove: remove,

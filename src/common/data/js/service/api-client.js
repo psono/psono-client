@@ -266,6 +266,93 @@
 
         /**
          * @ngdoc
+         * @name psonocli.apiClient#write_recoverycode
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * AJAX PUT request to the backend with the encrypted data (private_key, and secret_key) for recovery purposes
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {string} recovery_authkey The recovery_authkey (derivative of the recovery_password)
+         * @param {string} recovery_data The Recovery Data, an encrypted json object
+         * @param {string} recovery_data_nonce The nonce used for the encryption of the data
+         * @param {string} recovery_sauce The random sauce used as salt
+         *
+         * @returns {promise} Returns a promise with the recovery_data_id
+         */
+        var write_recoverycode = function(token, session_secret_key, recovery_authkey, recovery_data, recovery_data_nonce, recovery_sauce) {
+            var endpoint = '/recoverycode/';
+            var connection_type = "POST";
+            var data = {
+                recovery_authkey: recovery_authkey,
+                recovery_data: recovery_data,
+                recovery_data_nonce: recovery_data_nonce,
+                recovery_sauce: recovery_sauce
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#enable_recoverycode
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * AJAX POST request to the backend with the recovery_authkey to initiate the reset of the password
+         *
+         * @param {string} username the account's username e.g dummy@example.com
+         * @param {string} recovery_authkey The recovery_authkey (derivative of the recovery_password)
+         *
+         * @returns {promise} Returns a promise with the recovery_data
+         */
+        var enable_recoverycode = function(username, recovery_authkey) {
+            var endpoint = '/password/';
+            var connection_type = "POST";
+            var data = {
+                username: username,
+                recovery_authkey: recovery_authkey
+            };
+            var headers = null;
+
+            return call(connection_type, endpoint, data, headers);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#set_password
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * AJAX POST request to the backend to actually set the new encrypted private and secret key
+         *
+         * @param {string} username the account's username e.g dummy@example.com
+         * @param {string} recovery_authkey The recovery_authkey (derivative of the recovery_password)
+         * @param {string} update_data The private and secret key object encrypted with the verifier
+         * @param {string} update_data_nonce The nonce of the encrypted private and secret key object
+         *
+         * @returns {promise} Returns a promise with the recovery_data
+         */
+        var set_password = function(username, recovery_authkey, update_data, update_data_nonce) {
+            var endpoint = '/password/';
+            var connection_type = "PUT";
+            var data = {
+                username: username,
+                recovery_authkey: recovery_authkey,
+                update_data: update_data,
+                update_data_nonce: update_data_nonce
+            };
+            var headers = null;
+
+            return call(connection_type, endpoint, data, headers);
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.apiClient#read_datastore
          * @methodOf psonocli.apiClient
          *
@@ -870,7 +957,7 @@
             var headers = {
                 "Authorization": "Token "+ token
             };
-            
+
             return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
@@ -880,8 +967,7 @@
          * @methodOf psonocli.apiClient
          *
          * @description
-         * Ajax POST request with the token as authentication to accept a share right and in the same run updates it
-         * with the re-encrypted key
+         * Ajax POST request with the token as authentication to decline a share right
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
@@ -1092,6 +1178,9 @@
             register: register,
             verify_email: verify_email,
             update_user: update_user,
+            write_recoverycode: write_recoverycode,
+            enable_recoverycode: enable_recoverycode,
+            set_password: set_password,
             read_datastore: read_datastore,
             write_datastore: write_datastore,
             create_datastore: create_datastore,

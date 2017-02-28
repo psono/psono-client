@@ -355,6 +355,7 @@
                         var modalInstance = $uibModal.open({
                             templateUrl: 'view/modal-share-entry.html',
                             controller: 'ModalShareEntryCtrl',
+                            backdrop: 'static',
                             resolve: {
                                 node: function () {
                                     return item;
@@ -400,6 +401,7 @@
                         var modalInstance = $uibModal.open({
                             templateUrl: 'view/modal-display-share-rights.html',
                             controller: 'ModalDisplayShareRightsCtrl',
+                            backdrop: 'static',
                             size: 'lg',
                             resolve: {
                                 node: function () {

@@ -18,6 +18,17 @@ h1, h2 {
 .loginbox span.pull-right {
   line-height: 31px; }
 
+.loginbox .box-footer {
+  position: absolute;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  bottom: -30px; }
+  .loginbox .box-footer a {
+    color: #333333; }
+
 .navigations {
   list-style-type: none;
   padding: 0;
@@ -149,6 +160,12 @@ h1, h2 {
 
 .form-group.has-error .help-block {
   display: block; }
+
+.form-field-validation-pass {
+  background-color: #fff; }
+
+.form-field-validation-fail {
+  background-color: #ff8888; }
 
 /* Bootstrap fixes */
 .tabset_expand {

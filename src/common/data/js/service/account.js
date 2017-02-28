@@ -15,28 +15,63 @@
      */
 
 
-    var account = function($q, storage, managerDatastoreUser, managerDatastoreSetting, cryptoLibrary, apiClient) {
+    var account = function($q, $uibModal, storage, managerDatastoreUser, managerDatastoreSetting, cryptoLibrary, apiClient) {
 
         var _tabs = [
             { key: 'overview', title: 'Overview' },
             { key: 'email', title: 'Change E-Mail' },
-            { key: 'password', title: 'Change Password' }
+            { key: 'password', title: 'Change Password' },
+            { key: 'recovery', title: 'Generate Password Recovery' }
         ];
 
-        var _account = [
-            // Overview
-            { key: "user_id", field: "input", type: "text", title: "User ID", placeholder: "User ID", required: true, readonly: true, tab: 'overview'},
-            { key: "user_username", field: "input", type: "email", title: "Username", placeholder: "Username", required: true, readonly: true, tab: 'overview'},
-            { key: "user_email", field: "input", type: "email", title: "E-Mail", placeholder: "E-Mail", required: true, readonly: true, tab: 'overview'},
-            { key: "user_public_key", field: "input", type: "text", title: "Public Key", placeholder: "Public Key", required: true, readonly: true, tab: 'overview'},
-            // Change E-Mail
-            { key: "setting_email", field: "input", type: "email", title: "E-Mail", placeholder: "E-Mail", required: true, tab: 'email'},
-            { key: "setting_email_password_old", field: "input", type: "password", title: "Old Password", placeholder: "Old Password", tab: 'email'},
-            // Change Password
-            { key: "setting_password", field: "input", type: "password", title: "New Password", placeholder: "New Password", tab: 'password', complexify: true},
-            { key: "setting_password_repeat", field: "input", type: "password", title: "New Password (repeat)", placeholder: "New Password (repeat)", tab: 'password'},
-            { key: "setting_password_password_old", field: "input", type: "password", title: "Old Password", placeholder: "Old Password", tab: 'password'}
-        ];
+        var _account = {
+            fields: [
+                // Overview
+                { key: "user_id", field: "input", type: "text", title: "User ID", placeholder: "User ID", required: true, readonly: true, tab: 'overview'},
+                { key: "user_username", field: "input", type: "email", title: "Username", placeholder: "Username", required: true, readonly: true, tab: 'overview'},
+                { key: "user_email", field: "input", type: "email", title: "E-Mail", placeholder: "E-Mail", required: true, readonly: true, tab: 'overview'},
+                { key: "user_public_key", field: "input", type: "text", title: "Public Key", placeholder: "Public Key", required: true, readonly: true, tab: 'overview'},
+                // Change E-Mail
+                { key: "setting_email", field: "input", type: "email", title: "E-Mail", placeholder: "E-Mail", required: true, tab: 'email'},
+                { key: "setting_email_password_old", field: "input", type: "password", title: "Old Password", placeholder: "Old Password", tab: 'email'},
+                // Change Password
+                { key: "setting_password", field: "input", type: "password", title: "New Password", placeholder: "New Password", tab: 'password', complexify: true},
+                { key: "setting_password_repeat", field: "input", type: "password", title: "New Password (repeat)", placeholder: "New Password (repeat)", tab: 'password'},
+                { key: "setting_password_password_old", field: "input", type: "password", title: "Old Password", placeholder: "Old Password", tab: 'password'},
+                // Password Recovery
+                { name: "generate_password_recovery_button", field: "button", type: "button", title: "Generate New Password Recovery Code", class: 'btn-primary', onClick:"onClickGenerateNewPasswordRecoveryCode", tab: 'recovery' }
+            ],
+            onClickGenerateNewPasswordRecoveryCode: function () {
+
+                var onSuccess = function(recovery_information) {
+
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'view/modal-show-recoverycode.html',
+                        controller: 'ModalShowRecoverycodeCtrl',
+                        backdrop: 'static',
+                        resolve: {
+                            recovery_information: function () {
+                                return recovery_information;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function () {
+                        // User clicked the prime button
+
+                    }, function () {
+                        // cancel triggered
+                    });
+                };
+
+                var onError = function() {
+                    //pass
+                };
+
+                managerDatastoreUser.recovery_generate_information().then(onSuccess, onError);
+
+            }
+        };
 
         // will be handled different, and not saved directly to the account
         var _config_account = [
@@ -68,10 +103,10 @@
          * @methodOf psonocli.account
          *
          * @description
-         * returns the setting with a specific key, applies default values
+         * returns the account detail with a specific key, applies default values
          *
-         * @param {string} key They key of the setting one wants to fetch
-         * @returns {*} Returns the setting
+         * @param {string} key They key of the account detail one wants to fetch
+         * @returns {*} Returns the account detail
          */
         var get_account_detail = function (key) {
 
@@ -104,14 +139,14 @@
          * @methodOf psonocli.account
          *
          * @description
-         * returns all account with structure
+         * returns all account details with structure
          *
          * @returns {Array} Returns a list of all account
          */
         var get_account = function() {
 
-            for (var i = _account.length - 1; i >= 0; i--) {
-                _account[i].value = get_account_detail(_account[i].key)
+            for (var i = _account['fields'].length - 1; i >= 0; i--) {
+                _account['fields'][i].value = get_account_detail(_account['fields'][i].key)
             }
             return _account;
         };
@@ -123,7 +158,7 @@
          * @methodOf psonocli.account
          *
          * @description
-         * Saves the account and might update the user data (e.g. The password)
+         * Saves the account details and might update the user data (e.g. The password)
          *
          * @returns {promise} Returns a promise with the status
          */
@@ -231,6 +266,37 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("account", ['$q', 'storage', 'managerDatastoreUser', 'managerDatastoreSetting', 'cryptoLibrary', 'apiClient', account]);
+    app.factory("account", ['$q', '$uibModal', 'storage', 'managerDatastoreUser', 'managerDatastoreSetting', 'cryptoLibrary', 'apiClient', account]);
+
+
+    /**
+     * @ngdoc controller
+     * @name psonocli.controller:ModalShowRecoverycodeCtrl
+     * @requires $scope
+     * @requires $uibModalInstance
+     *
+     * @description
+     * Controller for the "Show Recoverycode" modal
+     */
+    app.controller('ModalShowRecoverycodeCtrl', ['$scope', '$uibModalInstance', 'recovery_information',
+        function ($scope, $uibModalInstance, recovery_information) {
+
+            $scope.recovery_information = recovery_information;
+
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalShowRecoverycodeCtrl#close
+             * @methodOf psonocli.controller:ModalShowRecoverycodeCtrl
+             *
+             * @description
+             * Triggered once someone clicks the close button in the modal
+             */
+            $scope.close = function () {
+                $uibModalInstance.dismiss('close');
+            };
+
+
+        }]);
 
 }(angular));

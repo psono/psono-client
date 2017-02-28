@@ -1,0 +1,41 @@
+<form name="modalShowRecoverycodeForm" novalidate>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="close()"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title">Recovery Information</h3>
+    </div>
+    <div class="modal-body">
+
+        <div>
+            <p>
+                <strong>Username:</strong>
+            </p>
+            <div class="text-center" style="font-family:monospace;">
+                {{recovery_information.username}}
+            </div>
+            <p>
+                <strong>Code:</strong>
+            </p>
+            <div class="text-center" style="font-family:monospace;">
+                {{recovery_information.recovery_password}}
+            </div>
+            <p>
+                <strong>OR:</strong>
+            </p>
+            <div class="text-center" style="font-family:monospace;">
+                {{recovery_information.recovery_words}}
+            </div>
+            <hr>
+            <p>Please save this information to recover from a lost password.</p>
+        </div>
+
+        <div class="alert alert-warning">
+            <strong>Warning!</strong> Earlier generated recovery codes have been overwritten
+            and will not work anymore!
+        </div>
+
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn" type="button" ng-click="close();">Close</button>
+    </div>
+</form>
