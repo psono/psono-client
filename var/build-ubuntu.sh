@@ -7,4 +7,6 @@ npm install gulp -g && \
 npm install karma-cli -g && \
 npm install jpm --global && \
 apt-get clean && \
+node --version && \
+npm --version && \
 gulp
