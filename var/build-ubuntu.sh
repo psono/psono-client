@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+lsb_release -a && \
 apt-get update && \
 apt-get install -y nodejs npm && \
 ln -s /usr/bin/nodejs /usr/bin/node && \
