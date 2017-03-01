@@ -12,6 +12,8 @@ unittests:
   image: ubuntu:16.04
   stage: test
   script:
+    - apt-get update
+    - apt-get install -y libfontconfig
     - sh ./var/build-ubuntu.sh
     - karma start ./unittests/karma-phantom.conf.js
 
