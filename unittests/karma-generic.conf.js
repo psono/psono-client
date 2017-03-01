@@ -74,6 +74,7 @@
             autoWatch: true,
             browsers: [],
             singleRun: true,
+            browserNoActivityTimeout: 100000,
             concurrency: Infinity
         });
     };
