@@ -179,6 +179,84 @@
             $httpBackend.flush();
         }));
 
+        it('write_recoverycode', inject(function (apiClient) {
+
+            var token = 'a-token';
+            var session_secret_key = 'a-session_secret_key';
+            var recovery_authkey = 'a-recovery_authkey';
+            var recovery_data = 'a-recovery_data';
+            var recovery_data_nonce = 'a-recovery_data_nonce';
+            var recovery_sauce = 'a-recovery_sauce';
+
+            $httpBackend.when('POST', "https://www.psono.pw/server/recoverycode/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    expect(data.recovery_authkey).toEqual(recovery_authkey);
+                    expect(data.recovery_data).toEqual(recovery_data);
+                    expect(data.recovery_data_nonce).toEqual(recovery_data_nonce);
+                    expect(data.recovery_sauce).toEqual(recovery_sauce);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.write_recoverycode(token, session_secret_key, recovery_authkey, recovery_data, recovery_data_nonce, recovery_sauce)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
+        it('enable_recoverycode ', inject(function (apiClient) {
+
+            var username = 'a-username';
+            var recovery_authkey = 'a-recovery_authkey';
+
+            $httpBackend.when('POST', "https://www.psono.pw/server/password/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(data.username).toEqual(username);
+                    expect(data.recovery_authkey).toEqual(recovery_authkey);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.enable_recoverycode(username, recovery_authkey)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
+        it('set_password  ', inject(function (apiClient) {
+
+            var username = 'a-username';
+            var recovery_authkey = 'a-recovery_authkey';
+            var update_data = 'a-update_data';
+            var update_data_nonce = 'a-update_data_nonce';
+
+            $httpBackend.when('PUT', "https://www.psono.pw/server/password/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(data.username).toEqual(username);
+                    expect(data.recovery_authkey).toEqual(recovery_authkey);
+                    expect(data.update_data).toEqual(update_data);
+                    expect(data.update_data_nonce).toEqual(update_data_nonce);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.set_password (username, recovery_authkey, update_data, update_data_nonce)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
         it('read_datastore', inject(function (apiClient) {
 
             var token = 'a-token';

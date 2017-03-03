@@ -67,14 +67,17 @@
             preprocessors: {
                 '../src/**/!(*lib)/*.js': ['coverage']
             },
-            reporters: ['progress'],
+            coverageReporter: {
+                type : 'html',
+                dir : 'coverage/'
+            },
+            reporters: ['progress', 'coverage'],
             port: 9876,
             colors: true,
             logLevel: config.LOG_INFO,
             autoWatch: true,
             browsers: [],
             singleRun: true,
-            browserNoActivityTimeout: 100000,
             concurrency: Infinity
         });
     };

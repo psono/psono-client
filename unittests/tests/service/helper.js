@@ -75,7 +75,7 @@
             expect(helper.array_starts_with('a', ['a'])).toBeFalsy();
         }));
 
-        it('array_starts_with a no array', inject(function (helper) {
+        it('array_starts_with b no array', inject(function (helper) {
             expect(helper.array_starts_with(['a'], 'a')).toBeFalsy();
         }));
 
@@ -85,6 +85,11 @@
 
         it('array_starts_with a = b', inject(function (helper) {
             expect(helper.array_starts_with(['a', 'b'], ['a', 'b'])).toBeTruthy();
+        }));
+
+
+        it('array_starts_with a != b', inject(function (helper) {
+            expect(helper.array_starts_with(['a', 'b'], ['a', 'c'])).toBeFalsy();
         }));
 
         it('array_starts_with a starts with b', inject(function (helper) {

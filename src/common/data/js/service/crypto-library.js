@@ -859,7 +859,8 @@
          * @methodOf psonocli.cryptoLibrary
          *
          * @description
-         * Removes the checksums from a base58 encoded recovery code with checksums
+         * Removes the checksums from a base58 encoded recovery code with checksums.
+         * e.g. 'UaKSKNNixJY2ARqGDKXduo4c2N' becomes 'UaKSKNNixJYRqGDKXduo4c'
          *
          * @param {string} recovery_code_with_checksums The recovery code with checksums
          *
@@ -870,6 +871,7 @@
             var recovery_code_chunks = helper.split_string_in_chunks(recovery_code_with_checksums, 13);
 
             for (var i = 0; i < recovery_code_chunks.length; i++) {
+
                 if (recovery_code_chunks[i].length < 2) {
                     throw new InvalidRecoveryCodeException("Recovery code chunks with a size < 2 are impossible");
                 }
@@ -885,12 +887,13 @@
          *
          * @description
          * Tests if a given recovery password chunk can be valid according to the checksum
+         * e.g. UaKSKNNixJY2A would return true and UaKSKNNixJY2B would return false
          *
          * @returns {boolean} Returns weather the password chunk is valid
          */
-        var recovery_password_chunk_pass_checksum = function(password_with_checksum) {
-            var password = password_with_checksum.substring(0, password_with_checksum.length -2);
-            var checksum = password_with_checksum.substring(password_with_checksum.length -2);
+        var recovery_password_chunk_pass_checksum = function(chunk_with_checksum) {
+            var password = chunk_with_checksum.substring(0, chunk_with_checksum.length -2);
+            var checksum = chunk_with_checksum.substring(chunk_with_checksum.length -2);
             return get_checksum(password, 2) === checksum;
         };
 

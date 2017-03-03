@@ -152,6 +152,14 @@ For unittest you have some additional dependencies.
         gulp unittestwatch
     
     
+# Generate javascript docs
+
+To generate the javascript run
+
+	gulp docs
+	
+
+    
 # Debug
 
 ### Firefox:

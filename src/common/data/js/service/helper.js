@@ -217,7 +217,7 @@
          * @returns {Array} Returns the chunks with length "len" as array
          */
         var split_string_in_chunks = function(str, len) {
-            var size = str.length / len + .5 | 0;
+            var size = Math.ceil(str.length / len);
             var chunks  = new Array(size);
             var offset = 0;
 

@@ -139,6 +139,29 @@
             return expect(recovery_code.base58_checksums).toBe(chunks.join(''));
         }));
 
+        it('recovery_code_strip_checksums', inject(function (cryptoLibrary) {
+            var stripped = cryptoLibrary.recovery_code_strip_checksums('UaKSKNNixJY2ARqGDKXduo4c2N');
+            return expect(stripped).toBe('UaKSKNNixJYRqGDKXduo4c');
+        }));
+
+        it('recovery_code_strip_checksums chunk < 2', inject(function (cryptoLibrary) {
+            try {
+                cryptoLibrary.recovery_code_strip_checksums('A');
+            }
+            catch(err) {
+                return expect(err.name).toBe("InvalidRecoveryCodeException");
+            }
+            return expect("This line").toBe("should never be reached");
+        }));
+
+        it('recovery_password_chunk_pass_checksum positive', inject(function (cryptoLibrary) {
+            return expect(cryptoLibrary.recovery_password_chunk_pass_checksum('UaKSKNNixJY2A')).toBeTruthy();
+        }));
+
+        it('recovery_password_chunk_pass_checksum negative', inject(function (cryptoLibrary) {
+            return expect(cryptoLibrary.recovery_password_chunk_pass_checksum('UaKSKNNixJY2B')).toBeFalsy();
+        }));
+
         it('decrypt_secret', inject(function (cryptoLibrary) {
             var data, nonce, password, text, user_sauce;
             data = '12345';
