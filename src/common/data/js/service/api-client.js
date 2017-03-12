@@ -228,7 +228,7 @@
          * @methodOf psonocli.apiClient
          *
          * @description
-         * AJAX POST request to the backend with new user informations like for example a new password (means new
+         * AJAX PUT request to the backend with new user informations like for example a new password (means new
          * authkey) or new public key
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
@@ -246,7 +246,7 @@
          */
         var update_user = function(token, session_secret_key, email, authkey, authkey_old, private_key, private_key_nonce, secret_key, secret_key_nonce, user_sauce) {
             var endpoint = '/user/update/';
-            var connection_type = "POST";
+            var connection_type = "PUT";
             var data = {
                 email: email,
                 authkey: authkey,
@@ -687,7 +687,7 @@
         var create_share = function (token, session_secret_key, encrypted_data, encrypted_data_nonce, key, key_nonce, parent_share_id,
                                      parent_datastore_id, link_id) {
             var endpoint = '/share/';
-            var connection_type = "PUT";
+            var connection_type = "POST";
             var data = {
                 data: encrypted_data,
                 data_nonce: encrypted_data_nonce,
@@ -723,7 +723,7 @@
          */
         var write_share = function (token, session_secret_key, share_id, encrypted_data, encrypted_data_nonce) {
             var endpoint = '/share/';
-            var connection_type = "POST";
+            var connection_type = "PUT";
             var data = {
                 share_id: share_id,
                 data: encrypted_data,

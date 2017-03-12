@@ -154,7 +154,7 @@
             var secret_key_nonce = 'a-secret_key_nonce';
             var user_sauce = 'a-user_sauce';
 
-            $httpBackend.when('POST', "https://www.psono.pw/server/user/update/").respond(
+            $httpBackend.when('PUT', "https://www.psono.pw/server/user/update/").respond(
                 function(method, url, data, headers, params) {
                     // Validate request parameters:
                     data = JSON.parse(data);
@@ -535,7 +535,7 @@
             var parent_datastore_id = 'a-parent_datastore_id';
             var link_id = 'a-link_id';
 
-            $httpBackend.when('PUT', "https://www.psono.pw/server/share/").respond(
+            $httpBackend.when('POST', "https://www.psono.pw/server/share/").respond(
                 function(method, url, data, headers, params) {
                     // Validate request parameters:
                     data = JSON.parse(data);
@@ -568,7 +568,7 @@
             var encrypted_data = 'a-encrypted_data';
             var encrypted_data_nonce = 'a-encrypted_data_nonce';
 
-            $httpBackend.when('POST', "https://www.psono.pw/server/share/").respond(
+            $httpBackend.when('PUT', "https://www.psono.pw/server/share/").respond(
                 function(method, url, data, headers, params) {
                     // Validate request parameters:
                     data = JSON.parse(data);
