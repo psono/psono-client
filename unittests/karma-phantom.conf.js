@@ -64,7 +64,14 @@
                 '../unittests/tests/**/*.js'
             ],
             exclude: [],
-            reporters: ['progress'],
+            preprocessors: {
+                '../src/**/!(*lib)/*.js': ['coverage']
+            },
+            coverageReporter: {
+                type : 'text-summary',
+                dir : 'coverage/'
+            },
+            reporters: ['progress', 'coverage'],
             port: 9876,
             colors: true,
             browserNoActivityTimeout: 100000,
