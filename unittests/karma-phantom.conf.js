@@ -64,12 +64,10 @@
                 '../unittests/tests/**/*.js'
             ],
             exclude: [],
-            preprocessors: {
-                '../src/**/!(*lib)/*.js': ['coverage']
-            },
             reporters: ['progress'],
             port: 9876,
             colors: true,
+            browserNoActivityTimeout: 100000,
             logLevel: config.LOG_INFO,
             autoWatch: true,
             browsers: ['PhantomJS'],
