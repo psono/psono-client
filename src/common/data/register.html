@@ -1,10 +1,18 @@
 
 
 <!DOCTYPE html>
-<html ng-app="passwordManagerApp" class="datastore">
+<html ng-app="psonocli" class="datastore">
 <head>
     <title>Datastore</title>
     <meta charset="utf-8">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="img/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="img/favicon-16x16.png" sizes="16x16">
+    <link rel="manifest" href="img/manifest.json">
+    <link rel="shortcut icon" href="img/favicon.ico">
+    <meta name="msapplication-config" content="img/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -13,10 +21,13 @@
     <![endif]-->
 
     <link rel="stylesheet" type="text/css" href="css/opensans.css" />
-    <link href="css/lib/bootstrap.min.css" rel="stylesheet">
+    <link href="css/lib/bootstrap.css" rel="stylesheet">
+    <link href="css/lib/jquery.dataTables.min.css" rel="stylesheet">
     <link href="css/lib/angular-snap.css" rel="stylesheet">
     <link href="css/lib/font-awesome.min.css" rel="stylesheet">
     <link href="css/lib/angular-tree-view.css" rel="stylesheet">
+    <link href="css/lib/angular-datatables.css" rel="stylesheet">
+    <link href="css/lib/datatables.bootstrap.css" rel="stylesheet">
     <link href="css/lib/angular-dashboard-framework.css" rel="stylesheet">
     <link href="css/lib/angular-ui-select.css" rel="stylesheet">
     <link href="css/lib/loading-bar.css" rel="stylesheet">
@@ -26,7 +37,7 @@
 </head>
 <body>
 
-<div ng-controller="RegisterController" ng-cloak>
+<div ng-controller="RegisterCtrl" ng-cloak>
     <!-- Not logged in, show the login form -->
     <div class="wrapper">
 
@@ -39,17 +50,26 @@
                 <div ng-repeat="e in msgs">{{e}}</div>
             </div>
 
+            <div ng-if="success" class="form-group text-center">
+                <a ng-href="{{ base_url }}" class="btn btn-danger" role="button">Back to home</a>
+            </div>
+
             <form name="registerForm" ng-if="!success">
+                <div ng-class="{'input-group': registerFormUsername == null || registerFormUsername.indexOf('@') == -1}">
+                    <input type="text" class="form-control" id="registerUsername" placeholder="Username" ng-model="registerFormUsername" required aria-describedby="username-addon" autofocus>
+                    <span class="input-group-addon" id="username-addon" ng-if="registerFormUsername == null || registerFormUsername.indexOf('@') == -1">@{{selected_server_domain}}</span>
+                </div>
+                <br>
                 <div class="form-group">
                     <input type="email" class="form-control" id="registerEmail" placeholder="E-Mail" ng-model="registerFormEmail" required>
                 </div>
                 <div class="form-group">
                     <input type="password" class="form-control" id="registerPassword" placeholder="Password" ng-model="registerFormPassword" required>
 
-                    <progressbar value="registerFormPassword | complexify">
+                    <uib-progressbar value="registerFormPassword | complexify" ng-if="(registerFormPassword | complexify) > 0">
                         <span complexify="registerFormPassword"></span>%
                         <span complexify="registerFormPassword" type="verbal"></span>
-                    </progressbar>
+                    </uib-progressbar>
                 </div>
 
 
@@ -58,9 +78,10 @@
                 </div>
 
                 <div class="form-group">
-                    <button ng-click="register(registerFormEmail, registerFormPassword, registerFormPasswordRepeat)" type="submit" class="btn btn-danger">Register</button>
+                    <button ng-click="register(registerFormEmail, registerFormUsername, registerFormPassword, registerFormPasswordRepeat)" type="submit" class="btn btn-danger">Register</button>
                     <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
                     <span ng-repeat="e in msgs" class="pull-right">{{e}}</span>
+                    <div class="clearfix"></div>
                 </div>
 
                 <div class="form-group hideinputcharakter">
@@ -68,9 +89,11 @@
                     <script type="text/ng-template" id="myPopoverTemplate.html">
                         <div class="container-fluid">
                             <p>Pick one of the servers below or enter the new url</p>
-                            <li ng-repeat="server in filtered_servers | limitTo:4">
-                                <a href="#" ng-click="select_server(server)">{{ server.title + ' ' + server.url }}</a>
-                            </li>
+                            <ul>
+                                <li ng-repeat="server in filtered_servers | limitTo:4">
+                                    <a href="#" ng-click="select_server(server)">{{ server.title + ' ' + server.url }}</a>
+                                </li>
+                            </ul>
                         </div>
                     </script>
 
@@ -89,15 +112,15 @@
 </div>
 
 
-
+<!--removeIf(firefox)-->
 <!-- Start of scripts -->
 <script src="js/lib/ecma-nacl.js" type="text/javascript"></script>
 <script src="js/lib/sha512.js" type="text/javascript"></script>
 <script src="js/lib/sha256.js" type="text/javascript"></script>
 <!--<script src="js/lib/nacl_factory.js" type="text/javascript"></script>-->
-<script src="js/lib/scrypt.js" type="text/javascript"></script>
 <script src="js/lib/uuid.js" type="text/javascript"></script>
 <script src="js/lib/jquery-2.1.4.js" type="text/javascript"></script>
+<script src="js/lib/jquery.dataTables.min.js" type="text/javascript"></script>
 <script src="js/lib/snap.min.js" type="text/javascript"></script>
 <script src="js/lib/jquery.ui.js"></script>
 <script src="js/lib/sortable.js" type="application/javascript"></script>
@@ -108,14 +131,16 @@
 <!-- Angular Juju -->
 <script src="js/lib/angular.js" type="application/javascript"></script>
 <script src="js/lib/angular-animate.js" type="application/javascript"></script>
+<script src="js/lib/angular-touch.js" type="application/javascript"></script>
 <script src="js/lib/angular-complexify.js" type="application/javascript"></script>
 <script src="js/lib/loading-bar.js" type="application/javascript"></script>
 <script src="js/lib/angular-route.js" type="application/javascript"></script>
 <script src="js/lib/angular-sanitize.js" type="application/javascript"></script>
 <script src="js/lib/angular-local-storage.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-snap.min.js" type="application/javascript"></script>
-<script src="js/lib/ui-bootstrap-tpls-0.13.4.min.js" type="application/javascript"></script>
+<script src="js/lib/ui-bootstrap-tpls-2.4.0.js" type="application/javascript"></script>
 <script src="js/lib/angular-dashboard-framework.js" type="application/javascript"></script>
+<script src="js/lib/angular-datatables.js" type="application/javascript"></script>
 <script src="js/lib/ngdraggable.js" type="application/javascript"></script>
 <script src="js/lib/angular-tree-view.js" type="application/javascript"></script>
 <script src="js/lib/angular-ui-select.js" type="application/javascript"></script>
@@ -123,20 +148,35 @@
 
 <script src="js/widgets/adf-widget-datastore.js"></script>
 <script src="js/widgets/adf-widget-shareusers.js"></script>
+<script src="js/widgets/adf-widget-accept-share.js"></script>
 
 <script src="js/main.js" type="application/javascript"></script>
+<script src="js/widgets/adf-dashboard-controller.js" type="application/javascript"></script>
 
 <script src="js/service/api-client.js" type="application/javascript"></script>
 <script src="js/service/helper.js" type="application/javascript"></script>
+<script src="js/service/message.js" type="application/javascript"></script>
 <script src="js/service/item-blueprint.js" type="application/javascript"></script>
+<script src="js/service/share-blueprint.js" type="application/javascript"></script>
 <script src="js/service/crypto-library.js" type="application/javascript"></script>
 <script src="js/service/storage.js" type="application/javascript"></script>
+<script src="js/service/account.js" type="application/javascript"></script>
 <script src="js/service/settings.js" type="application/javascript"></script>
+<script src="js/service/manager-base.js" type="application/javascript"></script>
 <script src="js/service/manager.js" type="application/javascript"></script>
+<script src="js/service/manager-adf-widget.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore.js" type="application/javascript"></script>
+<script src="js/service/manager-secret-link.js" type="application/javascript"></script>
+<script src="js/service/manager-share-link.js" type="application/javascript"></script>
+<script src="js/service/manager-secret.js" type="application/javascript"></script>
+<script src="js/service/manager-share.js" type="application/javascript"></script>
+<script src="js/service/manager-datastore-password.js" type="application/javascript"></script>
+<script src="js/service/manager-datastore-user.js" type="application/javascript"></script>
+<script src="js/service/manager-datastore-setting.js" type="application/javascript"></script>
 <script src="js/service/browser-client.js" type="application/javascript"></script>
 <script src="js/service/password-generator.js" type="application/javascript"></script>
 <script src="view/templates.js" type="application/javascript"></script>
 <!-- End Angular Juju -->
+<!--endRemoveIf(firefox)-->
 </body>
 </html>

@@ -8,7 +8,7 @@ body {
   height: 100%;
   overflow: hidden;
 }
-.loginbox, .registerbox, .activationbox {
+.loginbox, .registerbox, .activationbox, .lostpasswordbox {
   width:340px;
   padding:20px 20px 0 20px;
 
@@ -26,6 +26,20 @@ body {
 .progress {
   margin-bottom: 0;
 }
+
+.tree-container {
+  position: relative;
+  .widget-searchform {
+    position: absolute;
+    right: -13px;
+    top: -52px;
+  }
+}
+
+.note {
+  font-style: italic;
+}
+
 
 .big-font-icon-and-msg {
   text-align: center;
@@ -62,6 +76,11 @@ body {
   margin-top: 8px;
   margin-bottom: 8px;
 }
+
+.text-primary {
+  color: $dark-hightlight-color;
+}
+
 .btn-primary {
   background-color: $dark-hightlight-color;
   border-color: $dark-hightlight-color;
@@ -69,6 +88,64 @@ body {
 .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {
   background-color: $dark-hightlight-hover-color;
   border-color: $dark-hightlight-hover-color;
+}
+
+.btn-primary:active:hover,
+.btn-primary.active:hover,
+.open > .dropdown-toggle.btn-primary:hover,
+.btn-primary:active:focus,
+.btn-primary.active:focus,
+.open > .dropdown-toggle.btn-primary:focus,
+.btn-primary:active.focus,
+.btn-primary.active.focus,
+.open > .dropdown-toggle.btn-primary.focus {
+  background-color: $dark-color;
+  border-color: #122b40;
+}
+
+label.smalllabel {
+  font-size: small;
+  margin-bottom: 0;
+  margin-top: 5px;
+  color: $dark-hightlight-hover-color;
+}
+
+.path_box_parent {
+  margin-bottom: 5px;
+  font-family:'Courier New', Courier, monospace;
+
+  .path_box_breadcrumb{
+    cursor: pointer;
+  }
+  .disabled {
+    cursor: not-allowed;
+  }
+  .path_box_breadcrumb:hover {
+    color: $dark-hightlight-color;
+  }
+}
+
+
+.fa-circle.is-shared {
+  color:$dark-hightlight-color;
+  font-size: 80%;
+  margin-top:50%;
+}
+.fa-group.is-shared {
+  color:$dark-background;
+  font-size: 35%;
+  margin-top:60%;
+}
+
+.small-top-right {
+  font-size: 65%;
+  margin-top:-45%;
+  margin-left:60%;
+}
+
+.fa-circle.small-top-right {
+  font-size: 100%;
+  margin-top:-40%;
 }
 
   /* snap */
@@ -111,5 +188,13 @@ snap-drawers,
 
   .navigations {
     margin: 10px;
+  }
+  .footer {
+    margin: 10px;
+    position: absolute;
+    bottom: 0;
+  }
+  .version {
+    color: $dark-darker-color;
   }
 }

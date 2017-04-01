@@ -1,23 +1,31 @@
 {
-  "name": "password-manager-browser-plugins",
+  "name": "psono-client",
   "version": "1.0.0",
   "private": true,
-  "dependencies": {
-    "gulp": "*",
-    "gulp-sass": "*"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "jpm": "^1.0.4",
-    "gulp-angular-templatecache": "^1.8.0",
-    "gulp-remove-code": "^1.0.2",
-    "gulp-crx-pack": "^1.0.1",
-    "path-extra": "^3.0.0",
+    "gulp": "*",
+    "gulp-angular-templatecache": "^1.9.1",
     "gulp-cfx-xpi": "0.0.4",
-    "karma": "~0.13.19",
-    "karma-chrome-launcher": "~0.2.2",
-    "karma-firefox-launcher": "~0.1.7",
-    "jasmine-core": "~2.4.1",
-    "karma-jasmine": "~0.3.6",
-    "karma-coffee-preprocessor": "~0.3.0"
+    "gulp-clean-css": "~2.3.2",
+    "gulp-crx-pack": "^1.0.1",
+    "gulp-htmlmin": "^3.0.0",
+    "gulp-json-editor": "^2.2.1",
+    "gulp-json-modify": "^1.0.2",
+    "gulp-minify": "0.0.14",
+    "gulp-ngdocs": "^0.3.0",
+    "gulp-remove-code": "^1.0.2",
+    "gulp-remove-files": "0.0.3",
+    "gulp-sass": "*",
+    "jasmine-core": "~2.5.1",
+    "jpm": "^1.0.4",
+    "karma": "~1.2.0",
+    "karma-chrome-launcher": "~2.0.0",
+    "karma-coverage": "~1.1.1",
+    "karma-firefox-launcher": "~1.0.0",
+    "karma-jasmine": "~1.0.2",
+    "karma-phantomjs-launcher": "~1.0.0",
+    "path-extra": "^3.0.0",
+    "phantomjs-prebuilt": "~2.1.4"
   }
 }

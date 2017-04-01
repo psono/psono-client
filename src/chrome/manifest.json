@@ -1,11 +1,9 @@
 {
   "manifest_version": 2,
 
-  "name": "sanso.PW",
-  "description": "Sanso Password Manager",
+  "name": "psono.PW",
+  "description": "Psono Password Manager",
   "version": "1.0",
-
-  "update_url": "https://browserplugins.chickahoona.com/dist/chrome/sanso.PW.update.xml",
 
   "browser_action": {
     "default_icon": "data/img/icon-32.png",
@@ -32,7 +30,6 @@
       "data/js/lib/sha512.js",
       "data/js/lib/sha256.js",
       "data/js/lib/ecma-nacl.js",
-      "data/js/lib/scrypt.js",
       "data/js/jquery-api-client.js",
       "index.js"
     ]

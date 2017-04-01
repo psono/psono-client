@@ -18,6 +18,17 @@ h1, h2 {
 .loginbox span.pull-right {
   line-height: 31px; }
 
+.loginbox .box-footer {
+  position: absolute;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  bottom: -30px; }
+  .loginbox .box-footer a {
+    color: #333333; }
+
 .navigations {
   list-style-type: none;
   padding: 0;
@@ -50,6 +61,8 @@ h1, h2 {
   color: #b1b6c1; }
   .dark a {
     color: #b1b6c1; }
+  .dark a.btn-danger {
+    color: #fff; }
   .dark h2 {
     padding: 10px 10px; }
   .dark .btn-danger {
@@ -101,6 +114,12 @@ h1, h2 {
   .tree .tree-item,
   .tree .tree-folder .tree-folder-title {
     position: relative; }
+  .tree .tree-folder .notSelectable,
+  .tree .tree-item .notSelectable {
+    color: #bbbbbb; }
+    .tree .tree-folder .notSelectable a,
+    .tree .tree-item .notSelectable a {
+      color: #bbbbbb; }
   .tree .node-dropdown {
     position: absolute;
     right: 5px;
@@ -115,10 +134,14 @@ h1, h2 {
     border-color: #151f2b; }
 
 /* for the fixed dropdown menu that pops when someone right clicks an entry*/
-.droppdown-rightclick {
+.dropdown-rightclick {
   margin-left: -265px;
   margin-top: -50px;
   z-index: 20; }
+
+.modal-body .dropdown-rightclick {
+  margin-left: -335px;
+  margin-top: -30px; }
 
 .position-fixed {
   position: fixed; }
@@ -133,10 +156,16 @@ h1, h2 {
 
 /* classes for error handling */
 .form-group .help-block {
-  display: none; }
+  /*  display: none; */ }
 
 .form-group.has-error .help-block {
   display: block; }
+
+.form-field-validation-pass {
+  background-color: #fff; }
+
+.form-field-validation-fail {
+  background-color: #ff8888; }
 
 /* Bootstrap fixes */
 .tabset_expand {
@@ -148,6 +177,13 @@ h1, h2 {
     padding: 20px 20px 5px 20px;
     border-bottom: 1px solid #ddd;
     margin-bottom: 15px; }
+
+.signintext {
+  margin-right: 10px;
+  display: inline; }
+
+.progress {
+  background-color: #223144; }
 
 /* Loading colors */
 #loading-bar .bar {
@@ -162,6 +198,13 @@ h1, h2 {
 #loading-bar-spinner .spinner-icon {
   border-top-color: #2ba880;
   border-left-color: #2ba880; }
+
+/* Fix Bootstrap disabled */
+.dropdown-menu > .disabled > a,
+.dropdown-menu > .disabled > a:hover,
+.dropdown-menu > .disabled > a:focus {
+  cursor: not-allowed;
+  color: #999; }
 
 /* CSS fix for angular-ui explained here: https://angular-ui.github.io/bootstrap/ */
 .nav, .pagination, .carousel, .panel-title a {

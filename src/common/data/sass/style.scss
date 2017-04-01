@@ -20,8 +20,24 @@ h1, h2 {
 #logo {
   margin-bottom: 10px;
 }
-.loginbox span.pull-right {
-  line-height: 31px;
+.loginbox {
+  span.pull-right {
+    line-height: 31px;
+  }
+
+  .box-footer {
+    position: absolute;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    bottom: -30px;
+    a {
+      color: #333333;
+    }
+  }
+
 }
 
 .navigations {
@@ -65,6 +81,9 @@ h1, h2 {
   a {
     color: $dark-normal-color;
   }
+  a.btn-danger {
+    color: $light-link-color;
+  }
 
   h2 {
     padding: 10px 10px;
@@ -74,6 +93,7 @@ h1, h2 {
     background-color: $dark-hightlight-color;
     border-color: $dark-hightlight-color;
   }
+
 
   .form-control:focus {
     border-color: $dark-hightlight-color;
@@ -141,6 +161,17 @@ h1, h2 {
   .tree-folder .tree-folder-title {
     position: relative;
   }
+
+  .tree-folder .notSelectable,
+  .tree-item .notSelectable{
+    color: $disabled;
+    a {
+      color: $disabled;
+    }
+  }
+
+
+
   .node-dropdown {
     position: absolute;
     right: 5px;
@@ -160,12 +191,17 @@ h1, h2 {
   }
 }
 
+
 /* for the fixed dropdown menu that pops when someone right clicks an entry*/
 
-.droppdown-rightclick {
+.dropdown-rightclick {
   margin-left: -265px;
   margin-top: -50px;
   z-index: 20;
+}
+.modal-body .dropdown-rightclick {
+  margin-left: -335px;
+  margin-top: -30px;
 }
 
 .position-fixed {
@@ -185,11 +221,18 @@ h1, h2 {
 
 /* classes for error handling */
 .form-group .help-block {
-  display: none;
+/*  display: none; */
 }
 
 .form-group.has-error .help-block {
   display: block;
+}
+
+.form-field-validation-pass {
+  background-color: $form-field-validation-pass;
+}
+.form-field-validation-fail {
+  background-color: $form-field-validation-fail;
 }
 
 /* Bootstrap fixes */
@@ -208,6 +251,16 @@ h1, h2 {
     margin-bottom: 15px;
   }
 }
+
+.signintext {
+  margin-right: 10px;
+  display:inline;
+}
+
+.progress {
+  background-color: $dark-color-highlight;
+}
+
 
 /* Loading colors */
 
@@ -229,7 +282,13 @@ h1, h2 {
   border-left-color: $dark-hightlight-hover-color;
 }
 
-
+/* Fix Bootstrap disabled */
+.dropdown-menu > .disabled > a,
+.dropdown-menu > .disabled > a:hover,
+.dropdown-menu > .disabled > a:focus{
+  cursor: not-allowed;
+  color: #999;
+}
 
 /* CSS fix for angular-ui explained here: https://angular-ui.github.io/bootstrap/ */
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }

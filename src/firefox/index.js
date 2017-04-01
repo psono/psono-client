@@ -68,6 +68,12 @@ panel.port.on('logout', function(data) {
     onLogout("panel", data);
 });
 
+
+
+panel.port.on('get-config', function() {
+    panel.port.emit('get-config', {data: JSON.parse(self.data.load('config.json'))});
+});
+
 panel.port.on('fillpassword-active-tab', function(data) {
     allPagesByTabID[tabs.activeTab.id].port.emit('fillpassword', data);
 });
@@ -83,15 +89,15 @@ panel.port.on('resize', function (data) {
  * Opens a tab
  * @param data
  */
-var openTab = function (data) {
+var open_tab = function (data) {
 
     var tab = {
-        url: "resource://sansopw" + data.url
+        url: "resource://psonopw/data/" + data.url
     };
 
     tabs.open(tab);
 };
-panel.port.on('openTab', openTab);
+panel.port.on('open_tab', open_tab);
 
 
 var onFillpassword = function (data) {
@@ -113,7 +119,7 @@ var on_storage_get_item = function(payload) {
         var update = [];
         var leafs = payload.data;
         for (var ii = 0; ii < leafs.length; ii++) {
-            if (endsWith(receivers["website-password-refresh"][payload.id].parsed_url.authority, leafs[ii].urlfilter)) {
+            if (typeof(leafs[ii].urlfilter) != 'undefined' && endsWith(receivers["website-password-refresh"][payload.id].parsed_url.authority, leafs[ii].urlfilter)) {
                 update.push({
                     secret_id: leafs[ii].secret_id,
                     name: leafs[ii].name
@@ -139,6 +145,8 @@ var on_get_active_tab_url = function() {
     panel.port.emit('get-active-tab-url', {data: tabs.activeTab.url});
 };
 panel.port.on('get-active-tab-url', on_get_active_tab_url);
+
+
 
 /**
  * forwards the decrypted secret to the sender
@@ -188,8 +196,8 @@ function handleChange(state) {
 }
 
 var button = ToggleButton({
-    id: "my-button",
-    label: "my button",
+    id: "psono-panel",
+    label: "Psono Panel",
     icon: {
         "16": "./img/icon-16.png",
         "32": "./img/icon-32.png",
@@ -234,20 +242,19 @@ var secondMenuItem = contextMenu.Menu({
 mod.PageMod({
     include: [
         self.data.url("./activate.html*"),
-        self.data.url("./datastore.html*"),
+        self.data.url("./index.html*"),
         self.data.url("./main.html*"),
         self.data.url("./open-secret.html*"),
-        self.data.url("./register.html*"),
-        self.data.url("./test.html*")
+        self.data.url("./register.html*")
     ],
     contentScriptFile: [
         "./js/lib/ecma-nacl.js",
         "./js/lib/sha512.js",
         "./js/lib/sha256.js",
         //"./js/lib/nacl_factory.js",
-        "./js/lib/scrypt.js",
         "./js/lib/uuid.js",
         "./js/lib/jquery-2.1.4.js",
+        "./js/lib/jquery.dataTables.min.js",
         "./js/lib/snap.min.js",
         "./js/lib/jquery.ui.js",
         "./js/lib/sortable.js",
@@ -255,32 +262,50 @@ mod.PageMod({
         "./js/lib/password-generator.js",
         "./js/lib/angular.js",
         "./js/lib/angular-animate.js",
+        "./js/lib/angular-touch.js",
         "./js/lib/angular-complexify.js",
         "./js/lib/loading-bar.js",
         "./js/lib/angular-route.js",
         "./js/lib/angular-sanitize.js",
         "./js/lib/angular-local-storage.min.js",
         "./js/lib/angular-snap.min.js",
-        "./js/lib/ui-bootstrap-tpls-0.13.4.min.js",
+        "./js/lib/ui-bootstrap-tpls-2.4.0.js",
         "./js/lib/ngdraggable.js",
         "./js/lib/angular-tree-view.js",
         "./js/lib/angular-ui-select.js",
         "./js/lib/ng-context-menu.js",
         "./js/lib/angular-dashboard-framework.js",
+        "./js/lib/angular-datatables.js",
         "./js/widgets/adf-widget-datastore.js",
         "./js/widgets/adf-widget-shareusers.js",
+        "./js/widgets/adf-widget-accept-share.js",
         "./js/main.js",
+        "./js/widgets/adf-dashboard-controller.js",
         "./js/service/api-client.js",
         "./js/service/helper.js",
+        "./js/service/message.js",
         "./js/service/item-blueprint.js",
+        "./js/service/share-blueprint.js",
         "./js/service/crypto-library.js",
         "./js/service/storage.js",
+        "./js/service/account.js",
         "./js/service/settings.js",
+        "./js/service/manager-base.js",
         "./js/service/manager.js",
+        "./js/service/manager-adf-widget.js",
         "./js/service/manager-datastore.js",
+        "./js/service/manager-secret-link.js",
+        "./js/service/manager-share-link.js",
+        "./js/service/manager-secret.js",
+        "./js/service/manager-share.js",
+        "./js/service/manager-datastore-password.js",
+        "./js/service/manager-datastore-user.js",
+        "./js/service/manager-datastore-setting.js",
         "./js/service/browser-client.js",
         "./js/service/password-generator.js",
         "./view/templates.js"
+        // "./js/lib/tether.js",
+        // "./js/lib/drop.js"
     ],
     onAttach: function(worker) {
 
@@ -292,9 +317,17 @@ mod.PageMod({
             onLogout("worker", data);
         });
 
+        worker.port.on('get-version', function() {
+            worker.port.emit('get-version', {data: self.data.load('VERSION.txt')});
+        });
+
+        worker.port.on('get-config', function() {
+            worker.port.emit('get-config', {data: JSON.parse(self.data.load('config.json'))});
+        });
+
         worker.port.on('fillpassword', onFillpassword);
 
-        worker.port.on('openTab', openTab);
+        worker.port.on('open_tab', open_tab);
 
         // new tabs get a new number
         if (typeof worker.tab.worker_id === 'undefined') {
@@ -327,11 +360,11 @@ mod.PageMod({
         "./css/contentscript.css"
     ],
     contentScriptFile: [
-        self.data.url("./js/lib/tether.js"),
-        self.data.url("./js/lib/drop.js"),
-        self.data.url("./js/lib/jquery-2.1.4.js"),
-        self.data.url("./js/formfill-browser-client.js"),
-        self.data.url("./js/formfill.js")
+        "./js/lib/tether.js",
+        "./js/lib/drop.js",
+        "./js/lib/jquery-2.1.4.js",
+        "./js/formfill-browser-client.js",
+        "./js/formfill.js"
     ],
     onAttach: function(worker) {
         /**

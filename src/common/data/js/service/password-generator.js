@@ -1,5 +1,14 @@
-(function(angular, generatePassword) {
+(function(angular, generate_password) {
     'use strict';
+
+    /**
+     * @ngdoc service
+     * @name psonocli.passwordGenerator
+     * @requires psonocli.settings
+     *
+     * @description
+     * Service to generate passwords with a specific complexity
+     */
 
     var passwordGenerator = function(settings) {
 
@@ -16,17 +25,17 @@
          * @param password
          * @returns {*}
          */
-        var isStrongEnough = function (password) {
+        var is_strong_enough = function (password) {
 
             if (uppercaseMinCount + lowercaseMinCount + numberMinCount + specialMinCount > settings.get_setting('setting_password_length')) {
                 //password can never comply, so we skip check
                 return true;
             }
 
-            var uc = password.match(new RegExp("(["+escapeRegExp(settings.get_setting('setting_password_letters_uppercase'))+"])", "g"));
-            var lc = password.match(new RegExp("(["+escapeRegExp(settings.get_setting('setting_password_letters_lowercase'))+"])", "g"));
-            var n = password.match(new RegExp("(["+escapeRegExp(settings.get_setting('setting_password_numbers'))+"])", "g"));
-            var sc = password.match(new RegExp("(["+escapeRegExp(settings.get_setting('setting_password_special_chars'))+"])", "g"));
+            var uc = password.match(new RegExp("(["+escape_reg_exp(settings.get_setting('setting_password_letters_uppercase'))+"])", "g"));
+            var lc = password.match(new RegExp("(["+escape_reg_exp(settings.get_setting('setting_password_letters_lowercase'))+"])", "g"));
+            var n = password.match(new RegExp("(["+escape_reg_exp(settings.get_setting('setting_password_numbers'))+"])", "g"));
+            var sc = password.match(new RegExp("(["+escape_reg_exp(settings.get_setting('setting_password_special_chars'))+"])", "g"));
 
             return uc && (settings.get_setting('setting_password_letters_uppercase').length == 0 || uc.length >= uppercaseMinCount) &&
                 lc && (settings.get_setting('setting_password_letters_lowercase').length == 0 || lc.length >= lowercaseMinCount) &&
@@ -40,7 +49,7 @@
          * @param str
          * @returns {*}
          */
-        var escapeRegExp = function (str) {
+        var escape_reg_exp = function (str) {
             // from sindresorhus/escape-string-regexp under MIT License
 
             if (typeof str !== 'string') {
@@ -51,15 +60,20 @@
         };
 
         /**
-         * main function to generate a password
+         * @ngdoc
+         * @name psonocli.passwordGenerator#generate
+         * @methodOf psonocli.passwordGenerator
          *
-         * @returns {string}
+         * @description
+         * Main function to generate a random password based on the specified settings.
+         *
+         * @returns {string} Returns the generated random password
          */
         var generate = function () {
             var password = "";
-            while (!isStrongEnough(password)) {
-                password = generatePassword(settings.get_setting('setting_password_length'), memorable,
-                    new RegExp('['+escapeRegExp(settings.get_setting('setting_password_letters_uppercase') +
+            while (!is_strong_enough(password)) {
+                password = generate_password(settings.get_setting('setting_password_length'), memorable,
+                    new RegExp('['+escape_reg_exp(settings.get_setting('setting_password_letters_uppercase') +
                             settings.get_setting('setting_password_letters_lowercase') +
                             settings.get_setting('setting_password_numbers') +
                             settings.get_setting('setting_password_special_chars'))+']'));
@@ -72,7 +86,7 @@
         };
     };
 
-    var app = angular.module('passwordManagerApp');
+    var app = angular.module('psonocli');
     app.factory("passwordGenerator", ['settings', passwordGenerator]);
 
 }(angular, generatePassword));

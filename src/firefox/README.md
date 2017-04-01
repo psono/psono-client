@@ -1,2 +1,2 @@
-#sanso.pw
-Sanso Password Manager
+#psono.pw
+Psono Password Manager

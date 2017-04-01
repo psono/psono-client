@@ -2,7 +2,9 @@
 <div class="container-fluid">
     <div class="navi row">
         <div class="location col-sm-8">
+            <!--
             <span> <a href="#">/settings</a> </span>
+            -->
         </div>
         <div class="title col-sm-4">
             <h1>Settings</h1>
@@ -16,29 +18,30 @@
         <div class="panel-body" style="height: auto;">
 
             <form class="form-horizontal" role="form">
-                <tabset class="tabset_expand">
+                <uib-tabset class="tabset_expand">
 
-                    <tab ng-repeat="tab in tabs" heading="{{ tab.title }}">
-
+                    <uib-tab ng-repeat="tab in tabs" heading="{{ tab.title }}">
                         <div ng-class="{true: 'has-error'}[submitted &amp;&amp; editEntryForm[n.name].$invalid]"
-                             class="form-group" ng-repeat="setting in settings"
-                             ng-if="setting.tab == tab.key">
+                             class="form-group" ng-repeat="field in settings.fields"
+                             ng-if="field.tab == tab.key">
 
-                            <label class="control-label col-sm-4 col-md-2" for="settingsForm-{{setting.key}}">{{setting.title}}</label>
+                            <label class="control-label col-sm-4 col-md-2" for="settingsForm-{{field.key}}">{{field.title}}</label>
                             <div class="col-sm-8 col-md-10">
-                                <input type="{{setting.type}}" ng-model="setting.value"
-                                       ng-required="{{setting.required}}" placeholder="{{setting.placeholder}}" id="settingsForm-{{setting.key}}"
-                                       name="{{setting.key}}"
+                                <input type="{{field.type}}" ng-model="field.value"
+                                       ng-required="{{field.required}}"
+                                       ng-readonly="{{field.readonly}}"
+                                       placeholder="{{field.placeholder}}" id="settingsForm-{{field.key}}"
+                                       name="{{field.key}}"
                                        class="form-control">
 
-                                <progressbar value="setting.value | complexify" ng-if="setting.complexify">
-                                    <span complexify="setting.value"></span>%
-                                    <span complexify="setting.value" type="verbal"></span>
-                                </progressbar>
+                                <uib-progressbar value="field.value | complexify" ng-if="field.complexify && (field.value | complexify) > 0">
+                                    <span complexify="field.value"></span>%
+                                    <span complexify="field.value" type="verbal"></span>
+                                </uib-progressbar>
                             </div>
                         </div>
-                    </tab>
-                </tabset>
+                    </uib-tab>
+                </uib-tabset>
 
                 <div>
                     <button class="btn btn-primary" type="button" ng-click="submitted=true; save();">Save</button>

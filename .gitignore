@@ -1,9 +1,12 @@
 .idea
+docs
+out
+unittests/coverage
+var/ngdocs/templates
 node_modules
 build/
 dist/
-unittests/tests/**/*.js
-unittests/tests/**/*.js.map
+doc/
 test
 *~
 *.py[cod]

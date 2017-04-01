@@ -56,7 +56,7 @@
     color: #80a6cd;
 }
 .tree .tree-folder .tree-folder-header .tree-folder-name {
-    margin-left: 2px;
+    margin-left: 0px;
 }
 
 .tree .tree-folder:last-child:after {
@@ -91,7 +91,7 @@
     cursor: pointer;
 }
 .tree .tree-item .tree-item-name {
-    margin-left: 3px;
+    margin-left: 0px;
 }
 .tree .tree-item .tree-item-name > [class*="icon-"]:first-child {
     margin-right: 3px;

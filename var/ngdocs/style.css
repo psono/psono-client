@@ -1,0 +1,38 @@
+body {
+    font-size: 11px;
+}
+
+.form-search .well li {
+    line-height: 17px;
+}
+
+.table-striped tbody > tr:nth-child(odd) > td,
+.table-striped tbody > tr:nth-child(odd) > th {
+    background-color: #f9f9f9;
+}
+
+.table-striped tbody > tr:nth-child(even) > td,
+.table-striped tbody > tr:nth-child(even) > th {
+    background-color: #ffffff;
+}
+
+
+
+.content h1 {
+    font-size: 30px;
+    line-height: 36px;
+}
+
+.content h2 {
+    font-size: 20px;
+    line-height: 32px;
+}
+
+.content h3 {
+    font-size: 15px;
+    line-height: 24px;
+}
+
+.content h4 {
+    font-size: 15px;
+}

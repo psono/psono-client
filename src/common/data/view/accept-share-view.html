@@ -1,0 +1,27 @@
+<div data-target="menu-acceptshare-main" context-menu="contextMenuOnShow('menu-acceptshare-main')" context-menu-close="contextMenuOnClose('menu-acceptshare-main')" class="expand15">
+
+    <div class="dropdown position-fixed dropdown-rightclick" id="menu-acceptshare-main">
+        <ul class="dropdown-menu" role="menu">
+            <li role="menuitem" ng-click="open_new_folder($event)">
+                <a href="#/share/pendingshares"><i class="fa fa-folder"></i>New Folder</a>
+            </li>
+        </ul>
+    </div>
+
+    <!--
+    <div>
+        <span ng-repeat="b in breadcrumbs track by $index">
+            &gt; {{b}}
+        </span>
+    </div>
+    -->
+
+    <div tree-view="structure.data" tree-view-options="options" ng-if="structure.data.folders || structure.data.items">
+
+    </div>
+
+    <div ng-if="!(structure.data.folders || structure.data.items)">
+        No Folders so far
+    </div>
+
+</div>

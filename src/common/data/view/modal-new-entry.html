@@ -14,22 +14,33 @@
             </ui-select-choices>
         </ui-select>
 
-        <div class="form-group" ng-repeat="n in bp.selected.columns track by $index"
-             ng-class="{true: 'has-error'}[submitted && newEntryForm[n.name].$invalid]"
+        <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
+             ng-class="{'has-error': submitted && newEntryForm[n.name].$invalid}"
              ng-if="!n.tab && (!n.position || n.position == 'before')">
 
-            <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
-                   id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
-                   ng-model="n.value"
-                   ng-change="bp.selected[n.onChange](bp.selected.columns)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
+            <div ng-class="{'input-group': n.usernameInputGroupAddon && (n.value == null || n.value.indexOf('@') == -1)}"
+                 ng-if="n.field == 'input' && !n.dropmenuItems && n.usernameInputGroupAddon">
+                <input type="text" class="form-control" id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                       ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly" aria-describedby="{{n.name}}-addon"
+                       ng-change="bp.selected[n.onChange](bp.selected.fields, selected_server_domain)">
+                <span class="input-group-addon" id="{{n.name}}-addon" ng-if="n.usernameInputGroupAddon && (n.value == null || n.value.indexOf('@') == -1)">@{{selected_server_domain}}</span>
+            </div>
+
+            <input ng-if="n.field == 'input' && !n.dropmenuItems && !n.usernameInputGroupAddon" type="{{n.type}}" name="{{n.name}}"
+                   ng-class="{'form-control': n.type !== 'checkbox'}"
+                   id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                   ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
+                   ng-change="bp.selected[n.onChange](bp.selected.fields)">
+            <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
+            <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](bp.selected.fields, errors, form_control, selected_server_domain)">{{n.title}}</button>
 
             <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
                 <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
-                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
-                       ng-model="n.value"
-                       ng-change="bp.selected[n.onChange](bp.selected.columns)">
-                <div class="input-group-btn" dropdown is-open="status.isopen">
-                    <button id="single-button" type="button" class="btn btn-primary" dropdown-toggle ng-disabled="disabled">
+                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                       ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
+                       ng-change="bp.selected[n.onChange](bp.selected.fields)">
+                <div class="input-group-btn" uib-dropdown is-open="status.isopen">
+                    <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
                         Actions <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" role="menu">
@@ -40,14 +51,16 @@
                 </div>
             </div>
 
-            <progressbar value="n.value | complexify" ng-if="n.type == 'password'">
+            <uib-progressbar value="n.value | complexify" ng-if="n.type == 'password' && (n.value | complexify) > 0">
                 <span complexify="n.value"></span>%
                 <span complexify="n.value" type="verbal"></span>
-            </progressbar>
+            </uib-progressbar>
 
             <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
                       ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
-                      placeholder="{{n.placeholder}}"  ng-required="n.required" ng-model="n.value"></textarea>
+                      placeholder="{{n.placeholder}}"  ng-required="n.required && !n.hidden"
+                      ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
+            <p class="help-block note" ng-hide="n.hidden">{{n.note}}</p>
 
             <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.required">
                 The field is required
@@ -63,26 +76,37 @@
             </p>
         </div>
 
+        <!-- tabs -->
+        <uib-tabset ng-if="bp.selected.tabs" class="tabset_expand">
+            <uib-tab ng-repeat="tab in bp.selected.tabs" heading="{{tab.title}}" active="tab.active" disable="tab.disabled">
 
-        <tabset ng-if="bp.selected.tabs" class="tabset_expand">
-            <tab ng-repeat="tab in bp.selected.tabs" heading="{{tab.title}}" active="tab.active" disable="tab.disabled">
-
-                <div class="form-group" ng-repeat="n in bp.selected.columns track by $index"
-                     ng-class="{true: 'has-error'}[submitted && newEntryForm[n.name].$invalid]"
+                <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
+                     ng-class="{'has-error': submitted && newEntryForm[n.name].$invalid}"
                      ng-if="n.tab == tab.id">
 
-                    <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
-                           id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
-                           ng-model="n.value"
-                           ng-change="bp.selected[n.onChange](bp.selected.columns)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
+                    <div ng-class="{'input-group': n.usernameInputGroupAddon && (n.value == null || n.value.indexOf('@') == -1)}"
+                         ng-if="n.field == 'input' && !n.dropmenuItems && n.usernameInputGroupAddon">
+                        <input type="text" class="form-control" id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                               ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly" aria-describedby="{{n.name}}-addon"
+                               ng-change="bp.selected[n.onChange](bp.selected.fields, selected_server_domain)">
+                        <span class="input-group-addon" id="{{n.name}}-addon" ng-if="n.usernameInputGroupAddon && (n.value == null || n.value.indexOf('@') == -1)">@{{selected_server_domain}}</span>
+                    </div>
+
+                    <input ng-if="n.field == 'input' && !n.dropmenuItems && !n.usernameInputGroupAddon" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                           id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                           ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
+                           ng-change="bp.selected[n.onChange](bp.selected.fields)">
+                    <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
+
+                    <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](bp.selected.fields, errors, form_control, selected_server_domain)">{{n.title}}</button>
 
                     <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
                         <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
-                               id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
-                               ng-model="n.value"
-                               ng-change="bp.selected[n.onChange](bp.selected.columns)">
-                        <div class="input-group-btn" dropdown is-open="status.isopen">
-                            <button id="single-button" type="button" class="btn btn-primary" dropdown-toggle ng-disabled="disabled">
+                               id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                               ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
+                               ng-change="bp.selected[n.onChange](bp.selected.fields)">
+                        <div class="input-group-btn" uib-dropdown is-open="status.isopen">
+                            <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
                                 Actions <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu">
@@ -93,14 +117,16 @@
                         </div>
                     </div>
 
-                    <progressbar value="n.value | complexify" ng-if="n.type == 'password'">
+                    <uib-progressbar value="n.value | complexify" ng-if="n.type == 'password' && (n.value | complexify) > 0">
                         <span complexify="n.value"></span>%
                         <span complexify="n.value" type="verbal"></span>
-                    </progressbar>
+                    </uib-progressbar>
 
                     <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
                               ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
-                              placeholder="{{n.placeholder}}"  ng-required="n.required" ng-model="n.value"></textarea>
+                              placeholder="{{n.placeholder}}"  ng-required="n.required && !n.hidden"
+                              ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
+                    <p class="help-block note" ng-hide="n.hidden">{{n.note}}</p>
 
                     <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.required">
                         The field is required
@@ -115,23 +141,35 @@
                         The field needs to be a valid email address.
                     </p>
                 </div>
-            </tab>
-        </tabset>
+            </uib-tab>
+        </uib-tabset>
 
-        <div class="form-group" ng-repeat="n in bp.selected.columns track by $index"
-             ng-class="{true: 'has-error'}[submitted && newEntryForm[n.name].$invalid]"
+        <!-- below tabs -->
+        <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
+             ng-class="{'has-error': submitted && newEntryForm[n.name].$invalid}"
              ng-if="!n.tab && n.position == 'after'">
 
-            <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
-                   id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
-                   ng-model="n.value"
-                   ng-change="bp.selected[n.onChange](bp.selected.columns)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
+            <div ng-class="{'input-group': n.usernameInputGroupAddon && (n.value == null || n.value.indexOf('@') == -1)}"
+                 ng-if="n.field == 'input' && !n.dropmenuItems && n.usernameInputGroupAddon">
+                <input type="text" class="form-control" id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                       ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly" aria-describedby="{{n.name}}-addon"
+                       ng-change="bp.selected[n.onChange](bp.selected.fields, selected_server_domain)">
+                <span class="input-group-addon" id="{{n.name}}-addon" ng-if="n.usernameInputGroupAddon && (n.value == null || n.value.indexOf('@') == -1)">@{{selected_server_domain}}</span>
+            </div>
+
+            <input ng-if="n.field == 'input' && !n.dropmenuItems && !n.usernameInputGroupAddon" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                   id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                   ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
+                   ng-change="bp.selected[n.onChange](bp.selected.fields)">
+            <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
+
+            <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](bp.selected.fields, errors, form_control, selected_server_domain)">{{n.title}}</button>
 
             <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
                 <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
-                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
-                       ng-model="n.value"
-                       ng-change="bp.selected[n.onChange](bp.selected.columns)">
+                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                       ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
+                       ng-change="bp.selected[n.onChange](bp.selected.fields)">
                 <div class="input-group-btn" dropdown is-open="status.isopen">
                     <button id="single-button" type="button" class="btn btn-primary" dropdown-toggle ng-disabled="disabled">
                         Actions <span class="caret"></span>
@@ -144,14 +182,16 @@
                 </div>
             </div>
 
-            <progressbar value="n.value | complexify" ng-if="n.type == 'password'">
+            <uib-progressbar value="n.value | complexify" ng-if="n.type == 'password' && (n.value | complexify) > 0">
                 <span complexify="n.value"></span>%
                 <span complexify="n.value" type="verbal"></span>
-            </progressbar>
+            </uib-progressbar>
 
             <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
                       ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
-                      placeholder="{{n.placeholder}}"  ng-required="n.required" ng-model="n.value"></textarea>
+                      placeholder="{{n.placeholder}}"  ng-required="n.required && !n.hidden"
+                      ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
+            <p class="help-block note" ng-hide="n.hidden">{{n.note}}</p>
 
             <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.required">
                 The field is required
@@ -167,26 +207,40 @@
             </p>
         </div>
 
-        <a href="#" class="pull-right" ng-click="isCollapsed = !isCollapsed">advanced</a>
+        <!-- Advanced -->
+        <div class="text-right" ng-hide="!has_advanced(bp.selected)">
+            <a href="#" ng-click="isCollapsed = !isCollapsed">advanced</a>
+        </div>
 
-        <div collapse="isCollapsed">
+        <div uib-collapse="isCollapsed">
 
-            <div class="form-group" ng-repeat="n in bp.selected.columns track by $index"
-                 ng-class="{true: 'has-error'}[submitted && newEntryForm[n.name].$invalid]"
+            <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
+                 ng-class="{'has-error': submitted && newEntryForm[n.name].$invalid}"
                  ng-if="!n.tab && n.position == 'advanced'">
 
-                <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
-                       id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
-                       ng-model="n.value"
-                       ng-change="bp.selected[n.onChange](bp.selected.columns)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
+                <div ng-class="{'input-group': n.usernameInputGroupAddon && (n.value == null || n.value.indexOf('@') == -1)}"
+                     ng-if="n.field == 'input' && !n.dropmenuItems && n.usernameInputGroupAddon">
+                    <input type="text" class="form-control" id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                           ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly" aria-describedby="{{n.name}}-addon"
+                           ng-change="bp.selected[n.onChange](bp.selected.fields, selected_server_domain)">
+                    <span class="input-group-addon" id="{{n.name}}-addon" ng-if="n.usernameInputGroupAddon && (n.value == null || n.value.indexOf('@') == -1)">@{{selected_server_domain}}</span>
+                </div>
+
+                <input ng-if="n.field == 'input' && !n.dropmenuItems && !n.usernameInputGroupAddon" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                       id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                       ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
+                       ng-change="bp.selected[n.onChange](bp.selected.fields)">
+                <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
+
+                <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](bp.selected.fields, errors, form_control, selected_server_domain)">{{n.title}}</button>
 
                 <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
                     <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
-                           id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required"
-                           ng-model="n.value"
-                           ng-change="bp.selected[n.onChange](bp.selected.columns)">
-                    <div class="input-group-btn" dropdown is-open="status.isopen">
-                        <button id="single-button" type="button" class="btn btn-primary" dropdown-toggle ng-disabled="disabled">
+                           id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                           ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
+                           ng-change="bp.selected[n.onChange](bp.selected.fields)">
+                    <div class="input-group-btn" uib-dropdown is-open="status.isopen">
+                        <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
                             Actions <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu">
@@ -197,14 +251,16 @@
                     </div>
                 </div>
 
-                <progressbar value="n.value | complexify" ng-if="n.type == 'password'">
+                <uib-progressbar value="n.value | complexify" ng-if="n.type == 'password' && (n.value | complexify) > 0">
                     <span complexify="n.value"></span>%
                     <span complexify="n.value" type="verbal"></span>
-                </progressbar>
+                </uib-progressbar>
 
                 <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
                       ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
-                      placeholder="{{n.placeholder}}"  ng-required="n.required" ng-model="n.value"></textarea>
+                      placeholder="{{n.placeholder}}"  ng-required="n.required && !n.hidden"
+                          ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
+                <p class="help-block note" ng-hide="n.hidden">{{n.note}}</p>
 
                 <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.required">
                     The field is required
@@ -222,8 +278,11 @@
 
         </div>
 
+        <span ng-repeat="e in errors" class="help-block">{{e}}</span>
+        <span ng-repeat="e in msgs" class="help-block">{{e}}</span>
+
     </div>
     <div class="modal-footer">
-        <button class="btn btn-primary" type="button" ng-click="submitted=true; save();">OK</button>
+        <button class="btn btn-primary" ng-disabled="form_control.block_submit" type="button" ng-click="submitted=true; save();">OK</button>
     </div>
 </form>

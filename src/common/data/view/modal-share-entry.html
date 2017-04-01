@@ -1,0 +1,67 @@
+<form name="shareEntryForm" novalidate>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title">Share {{node.name}}</h3>
+    </div>
+    <div class="modal-body">
+
+        <!--
+        <div class="row" style="font-weight: bold">
+            <div class="col-md-4"  ng-repeat="right in rights">
+                {{ right.name }}
+            </div>
+        </div>
+        -->
+
+        <div class="row" style="font-weight: bold">
+            <div class="col-xs-4 col-sm-4" ng-repeat="right in rights">
+                {{ right.name }}
+                <button type="button" class="btn btn-default btn-sm" ng-click="toggle_select(right.id, 'right')" >
+                    <i ng-class="selected_rights.indexOf(right.id) > -1 ? 'fa fa-check-square-o' : 'fa fa-square-o'"></i>
+                </button>
+            </div>
+        </div>
+
+        <hr>
+
+        <uib-tabset>
+            <uib-tab heading="Trusted Users">
+                <div ng-if="users">
+
+
+                    <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
+                        <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="user in users">
+                            <td>{{user.name | limitTo: 60 }}{{user.name.length > 60 ? '...)' : ''}}</td>
+                            <td>
+                                <button type="button" class="btn btn-default btn-sm" ng-click="toggle_select(user.id, 'user')">
+                                    <i ng-class="selected_users.indexOf(user.id) > -1 ? 'fa fa-check-square-o' : 'fa fa-square-o'"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </uib-tab>
+        </uib-tabset>
+
+        <div class="row">
+            <button type="button" ng-click="add_user()" class="btn btn-link"><i class="fa fa-user-plus"></i> Search User</button>
+        </div>
+
+
+        <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
+        <span ng-repeat="e in msgs" class="pull-right">{{e}}</span>
+        <div class="clearfix"></div>
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" type="button" ng-click="submitted=true; save();">OK</button>
+    </div>
+</form>

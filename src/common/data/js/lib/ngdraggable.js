@@ -44,6 +44,7 @@ angular.module("ngDraggable", [])
                 var onDragStartCallback = $parse(attrs.ngDragStart) || null;
                 var onDragStopCallback = $parse(attrs.ngDragStop) || null;
                 var onDragSuccessCallback = $parse(attrs.ngDragSuccess) || null;
+                var preventMove = $parse(attrs.preventMove) || null;
                 var allowTransform = angular.isDefined(attrs.allowTransform) ? scope.$eval(attrs.allowTransform) : true;
 
                 var getDragData = $parse(attrs.ngDragData);
@@ -246,16 +247,22 @@ angular.module("ngDraggable", [])
                 };
 
                 var moveElement = function (x, y) {
-                    if(allowTransform) {
-                        element.css({
-                            transform: 'matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, ' + x + ', ' + y + ', 0, 1)',
-                            'z-index': 99999,
-                            '-webkit-transform': 'matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, ' + x + ', ' + y + ', 0, 1)',
-                            '-ms-transform': 'matrix(1, 0, 0, 1, ' + x + ', ' + y + ')'
-                        });
-                    }else{
-                        element.css({'left':x+'px','top':y+'px', 'position':'fixed'});
-                    }
+
+                    scope.$apply(function () {
+                        if (preventMove(scope)) {
+                            return;
+                        }
+                        if(allowTransform) {
+                            element.css({
+                                transform: 'matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, ' + x + ', ' + y + ', 0, 1)',
+                                'z-index': 99999,
+                                '-webkit-transform': 'matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, ' + x + ', ' + y + ', 0, 1)',
+                                '-ms-transform': 'matrix(1, 0, 0, 1, ' + x + ', ' + y + ')'
+                            });
+                        }else{
+                            element.css({'left':x+'px','top':y+'px', 'position':'fixed'});
+                        }
+                    });
                 };
                 initialize();
             }

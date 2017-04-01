@@ -1,0 +1,77 @@
+variables:
+  CONTAINER_TEST_IMAGE: registry.gitlab.com/psono/psono-client:$CI_BUILD_REF_NAME
+  CONTAINER_RELEASE_IMAGE: registry.gitlab.com/psono/psono-client:latest
+
+stages:
+  - test
+  - build
+  - release
+  - deploy
+
+unittests:
+  image: ubuntu:16.04
+  stage: test
+  script:
+    - apt-get update
+    - apt-get install -y libfontconfig
+    - sh ./var/build-ubuntu.sh
+    - karma start ./unittests/karma-phantom.conf.js
+
+
+docker-image:
+  stage: build
+  image: ubuntu:16.04
+  services:
+  - docker:dind
+  variables:
+    DOCKER_HOST: 'tcp://docker:2375'
+  script:
+  - apt-get update
+  - apt-get install -y apt-transport-https ca-certificates curl openssl
+  - set -x && curl -fSL "https://get.docker.com/builds/Linux/x86_64/docker-1.12.0.tgz" -o docker.tgz && echo "3dd07f65ea4a7b4c8829f311ab0213bca9ac551b5b24706f3e79a97e22097f8b *docker.tgz" | sha256sum -c - && tar -xzvf docker.tgz && mv docker/* /usr/local/bin/
+  - docker info
+  - sh ./var/build-ubuntu.sh
+  - gulp
+  - docker login -u gitlab-ci-token -p "$CI_BUILD_TOKEN" registry.gitlab.com
+  - docker build -t $CONTAINER_TEST_IMAGE .
+  - docker push $CONTAINER_TEST_IMAGE
+
+firefox-extension:
+  stage: build
+  script:
+  - sh ./var/build-ubuntu.sh
+  - cd build/firefox/ && jpm xpi && cd ../../ && cp /builds/psono/psono-client/build/firefox/psonopw.xpi "$CI_BUILD_REF_NAME.psono.PW.firefox.xpi"
+  artifacts:
+    name: "firefox_$CI_BUILD_REF_NAME"
+    paths:
+    - "$CI_BUILD_REF_NAME.psono.PW.firefox.xpi"
+
+chrome-extension:
+  stage: build
+  script:
+  - sh ./var/build-ubuntu.sh
+  artifacts:
+    name: "chrome_$CI_BUILD_REF_NAME"
+    paths:
+    - build/chrome/
+
+job-release-docker:
+  stage: release
+  image: docker:git
+  services:
+  - docker:dind
+  script:
+  - docker info
+  - docker login -u gitlab-ci-token -p "$CI_BUILD_TOKEN" registry.gitlab.com
+  - docker pull $CONTAINER_TEST_IMAGE
+  - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
+  - docker push $CONTAINER_RELEASE_IMAGE
+  only:
+    - master
+
+job-deploy:
+  stage: deploy
+  script:
+    - ./deploy.sh
+  only:
+    - master

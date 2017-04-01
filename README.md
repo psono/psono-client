@@ -1,36 +1,78 @@
-https://developer.mozilla.org/en-US/Add-ons/SDK/Tutorials
+# PSONO Server - Password Manager
+
+Master: [![build status](https://gitlab.com/psono/psono-client/badges/master/build.svg)](https://gitlab.com/psono/psono-client/commits/master) [![coverage report](https://gitlab.com/psono/psono-client/badges/master/coverage.svg)](https://gitlab.com/psono/psono-client/commits/master)
+Develop: [![build status](https://gitlab.com/psono/psono-client/badges/develop/build.svg)](https://gitlab.com/psono/psono-client/commits/develop) [![coverage report](https://gitlab.com/psono/psono-client/badges/develop/coverage.svg)](https://gitlab.com/psono/psono-client/commits/develop)
 
 # Install for "normal" people :D
 
-## Chrome
+## as Chrome Extension
 
 1. Download the crx file here:
 
-    https://browserplugins.chickahoona.com/dist/chrome/sanso.PW.crx
+    https://gitlab.com/psono/psono-client/builds/artifacts/master/download?job=chrome-extension
     
-2. Rename ***sanso.PW.crx*** to ***something.zip***
-
-3. Unpack ***something.zip*** into a folder of your choice ***"folder/of/your/choice"***
+2. Unpack the ***.zip*** into a folder of your choice ***"folder/of/your/choice"***
     
 4. Open following url in your browser:
 
     chrome://chrome/extensions/
     
-5. Click "Open unpacked extension" at the top left and choose ***"folder/of/your/choice"***
+5. Click "Open unpacked extension" at the top left and choose ***"folder/of/your/choice/build/chrome"***
 
 The extension should now be loaded
 
 
-## Firefox
+## as Firefox Extension
 
 1. Click on the following link:
 
-    https://browserplugins.chickahoona.com/dist/firefox/sanso.PW.xpi
+    https://gitlab.com/psono/psono-client/builds/artifacts/master/download?job=firefox-extension
     
     (You will be asked (at the top left) if you want to allow this extension to be installed which you have to permit)
     
 
+## as Docker Web Client
+
+1. Login to the gitlab registry
+
+        docker login -u USERNAME registry.gitlab.com
+    
+    (replace USERNAME with your username and enter your password when prompted)
+
+2. Create config
+
+    The client will offer a pre-filled "Server Address". Its supposed to be the address where you see 
+    
+        {"detail":"Authentication credentials were not provided."}
+        
+    To make it easier for your clients create a config similar to src/common/data/config.json in a location like /opt/docker/psono-client/config.json
+    We will mount this config in the next step, "shadowing" the config in the docker image.
+
+3. Run the docker image and expose the port
+
+        docker run --name psono-client \
+            -v /opt/docker/psono-client/config.json:/usr/share/nginx/html/config.json \
+            -d -p 10101:80 registry.gitlab.com/psono/psono-client:develop
+
+    If you open now http://your-ip:10100 you should see a beautiful login screen.
+    If not, please make sure you have no firewall on the server blocking you.
+    
+# Register / Login
+
+Two things you should be aware of:
+    
+1) As server on the login / registration screen you have to specify the full url to the server which shows this message when you open it directly in the browser:
+    
+        {"detail":"Authentication credentials were not provided."}
+
+2) As username for the registration / login, you have to specify something in the format of an email address, ending e.g in `@example.com` where example.com is in your settings.yaml in the `ALLOWED_DOMAINS` section
+
+
 # Install for developers
+
+To actually htdocs (not minimized) folder that can be used for development is located in
+`src/common/data/`. If you want to pack chrome extensions or modify sass files and recompile the css files
+you may install belows dependencies and execute below mentioned commands.
 
 1. Install dependencies
 
@@ -40,7 +82,7 @@ The extension should now be loaded
         sudo ln -s /usr/bin/nodejs /usr/bin/node
         sudo npm install
         
-2. Build Chrome and Firefox extensions
+2. Build Chrome and Firefox extensions together with the web client
 
         gulp
         
@@ -54,7 +96,7 @@ The extension should now be loaded
 
     (make sure to run gulp without parameter first)
     
-    After this command you will find in ./dist/chrome/sanso.PW.crx (and ./dist/chrome/sanso.PW.update.xml)
+    After this command you will find in ./dist/chrome/psono.PW.crx (and ./dist/chrome/psono.PW.update.xml)
         
 4. Pack Firefox extension for release
 
@@ -62,14 +104,14 @@ The extension should now be loaded
 
     (make sure to run gulp without parameter first)
     
-    After this command you will find ./dist/firefox/sanso.PW.xpi (and the unsigned version
-    ./dist/firefox/sanso.PW.unsigned.xpi)
+    After this command you will find ./dist/firefox/psono.PW.xpi (and the unsigned version
+    ./dist/firefox/psono.PW.unsigned.xpi)
     
     If you do not want to create an official signed version and only want to create the unsigned version you can do:
     
         gulp xpiunsigned
         
-    Only ./dist/firefox/sanso.PW.unsigned.xpi will be created.
+    Only ./dist/firefox/psono.PW.unsigned.xpi will be created.
         
 5. (optional) Pack chrome and firefox for release
         
@@ -82,11 +124,12 @@ The extension should now be loaded
 
 # Install for unit tests
 
+For unittest you have some additional dependencies.
+
 1. Install dependencies
 
         sudo npm install
         sudo npm install -g karma-cli
-        sudo npm install -g coffee-script
         
     If you want unit tests, that run in Chrome / Firefox, you also have to install both browsers
     
@@ -108,4 +151,28 @@ The extension should now be loaded
     
         gulp unittestwatch
     
+    
+# Generate javascript docs
+
+To generate the javascript run
+
+	gulp docs
+	
+
+    
+# Debug
+
+### Firefox:
+
+We assume you have jpm and firefox developer edition intalled, then you can debug the firefox extension with:
+
+        gulp
+        cd ./password-manager-browser-plugins/build/firefox
+        jpm run -b "path/to/developer-firefox-edition"
+    
+    
+
+# Documentation
+
+More information about the code, the used cryptography and design concepts can be found in the [Documentation](docu/DOCUMENTATION.md)
     
