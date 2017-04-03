@@ -33,13 +33,7 @@ The extension should now be loaded
 
 ## as Docker Web Client
 
-1. Login to the gitlab registry
-
-        docker login -u USERNAME registry.gitlab.com
-    
-    (replace USERNAME with your username and enter your password when prompted)
-
-2. Create config
+1. Create config
 
     The client will offer a pre-filled "Server Address". Its supposed to be the address where you see 
     
@@ -48,11 +42,11 @@ The extension should now be loaded
     To make it easier for your clients create a config similar to src/common/data/config.json in a location like /opt/docker/psono-client/config.json
     We will mount this config in the next step, "shadowing" the config in the docker image.
 
-3. Run the docker image and expose the port
+2. Run the docker image and expose the port
 
         docker run --name psono-client \
             -v /opt/docker/psono-client/config.json:/usr/share/nginx/html/config.json \
-            -d -p 10101:80 registry.gitlab.com/psono/psono-client:develop
+            -d -p 10101:80 psono/psono-client:latest
 
     If you open now http://your-ip:10100 you should see a beautiful login screen.
     If not, please make sure you have no firewall on the server blocking you.
@@ -150,7 +144,8 @@ For unittest you have some additional dependencies.
     or if you want to watch for changes and run it automatically:
     
         gulp unittestwatch
-    
+
+
     
 # Generate javascript docs
 
