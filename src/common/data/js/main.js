@@ -257,10 +257,10 @@
             };
 
             /* preselected values */
-            $scope.registerFormEmail = "register@saschapfeiffer.com";
-            $scope.registerFormUsername = "register";
-            $scope.registerFormPassword = "myPassword";
-            $scope.registerFormPasswordRepeat = "myPassword";
+            // $scope.registerFormEmail = "register@saschapfeiffer.com";
+            // $scope.registerFormUsername = "register";
+            // $scope.registerFormPassword = "myPassword";
+            // $scope.registerFormPasswordRepeat = "myPassword";
 
             /**
              * @ngdoc
@@ -1232,8 +1232,8 @@
             };
 
             /* preselected values */
-            $scope.loginFormUsername = "test";
-            $scope.loginFormPassword = "myPassword";
+            // $scope.loginFormUsername = "test";
+            // $scope.loginFormPassword = "myPassword";
 
             /**
              * @ngdoc

@@ -15,3 +15,7 @@ docker tag registry.gitlab.com/psono/psono-client:latest psono/psono-client:late
 docker push psono/psono-client:latest
 curl -X POST https://hooks.microbadger.com/images/psono/psono-client/jMnJgDVZTpT4TUX-RlxTKa38Nc4=
 curl -X POST $psono_image_updater_url
+
+
+
+

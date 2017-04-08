@@ -9,8 +9,8 @@ stages:
   - deploy
 
 unittests:
-  image: ubuntu:16.04
   stage: test
+  image: ubuntu:16.04
   script:
     - apt-get update
     - apt-get install -y libfontconfig
@@ -76,5 +76,16 @@ job-deploy:
   - docker:dind
   script:
     - sh ./var/deploy.sh
+  only:
+    - master
+
+job-deploy-chrome:
+  stage: deploy
+  image: ubuntu:16.04
+  script:
+    - apt-get update
+    - apt-get install -y libfontconfig zip
+    - sh ./var/build-ubuntu.sh
+    - sh ./var/deploy-chrome-extension.sh
   only:
     - master

@@ -1,6 +1,7 @@
 'use strict';
 
 var gulp = require('gulp');
+var gutil = require('gulp-util');
 var htmlmin = require('gulp-htmlmin');
 var cleanCSS = require('gulp-clean-css');
 var minify = require('gulp-minify');
@@ -15,6 +16,7 @@ var jeditor = require("gulp-json-editor");
 var karma_server = require('karma').Server;
 var removeFiles = require('gulp-remove-files');
 var gulpDocs = require('gulp-ngdocs');
+var webstore_upload = require('webstore-upload');
 
 /**
  * Compiles .sass files to css files
@@ -198,6 +200,48 @@ gulp.task('crx', function() {
         }))
         .pipe(gulp.dest('./dist/chrome'));
 });
+
+
+/**
+ * Deploys the Chrome Extension to the Chrome Web Store
+ */
+gulp.task('chrome-deploy', function() {
+
+    var client_id = gutil.env.webstore_client_id;
+    var client_secret = gutil.env.webstore_client_secret;
+    var refresh_token = gutil.env.webstore_refresh_token;
+    var app_id = gutil.env.webstore_app_id;
+
+    var uploadOptions = {
+        accounts: {
+            default: {
+                client_id: client_id,
+                client_secret: client_secret,
+                refresh_token: refresh_token
+            }
+        },
+        extensions: {
+            extension1: {
+                publish: true,
+                appID: app_id,
+                zip: 'dist/chrome/psono.PW.zip'
+            }
+        },
+        uploadExtensions : ['extension1']
+    };
+
+    webstore_upload(uploadOptions, 'default')
+        .then(function(result) {
+            console.log(result);
+            return 'Upload Complete';
+        })
+        .catch(function(err) {
+            console.error(err);
+        });
+});
+
+
+
 
 /**
  * creates the unsigned xpi file for Firefox
