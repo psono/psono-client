@@ -56,10 +56,6 @@
         function ($routeProvider, $locationProvider, dashboardProvider, localStorageServiceProvider) {
             //Router config
             $routeProvider
-                .when('/test', {
-                    templateUrl: 'view/test.html',
-                    controller: 'TestCtrl'
-                })
                 .when('/settings', {
                     templateUrl: 'view/settings.html',
                     controller: 'SettingsCtrl'
@@ -1282,21 +1278,6 @@
             };
         }]);
 
-    /**
-     * @ngdoc controller
-     * @name psonocli.controller:TestCtrl
-     * @requires $scope
-     * @requires $routeParams
-     *
-     * @description
-     * Controller for the Test view
-     */
-    app.controller('TestCtrl', ['$scope', '$routeParams', function ($scope, $routeParams) {
-        $scope.has_head = 'yes';
-        $scope.executor = function() {
-            $scope.has_head = 'no';
-        };
-    }]);
 
     /**
      * @ngdoc controller

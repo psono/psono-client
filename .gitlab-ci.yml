@@ -16,6 +16,7 @@ unittests:
     - apt-get install -y libfontconfig
     - sh ./var/build-ubuntu.sh
     - karma start ./unittests/karma-phantom.conf.js
+    - addons-linter ./build/firefox
 
 
 docker-image:
@@ -40,11 +41,10 @@ firefox-extension:
   stage: build
   script:
   - sh ./var/build-ubuntu.sh
-  - cd build/firefox/ && jpm xpi && cd ../../ && cp /builds/psono/psono-client/build/firefox/psonopw.xpi "$CI_BUILD_REF_NAME.psono.PW.firefox.xpi"
   artifacts:
     name: "firefox_$CI_BUILD_REF_NAME"
     paths:
-    - "$CI_BUILD_REF_NAME.psono.PW.firefox.xpi"
+    - build/firefox/
 
 chrome-extension:
   stage: build
