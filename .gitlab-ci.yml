@@ -23,24 +23,24 @@ docker-image:
   stage: build
   image: ubuntu:16.04
   services:
-  - docker:dind
+    - docker:dind
   variables:
     DOCKER_HOST: 'tcp://docker:2375'
   script:
-  - apt-get update
-  - apt-get install -y apt-transport-https ca-certificates curl openssl
-  - set -x && curl -fSL "https://get.docker.com/builds/Linux/x86_64/docker-1.12.0.tgz" -o docker.tgz && echo "3dd07f65ea4a7b4c8829f311ab0213bca9ac551b5b24706f3e79a97e22097f8b *docker.tgz" | sha256sum -c - && tar -xzvf docker.tgz && mv docker/* /usr/local/bin/
-  - docker info
-  - sh ./var/build-ubuntu.sh
-  - gulp
-  - docker login -u gitlab-ci-token -p "$CI_BUILD_TOKEN" registry.gitlab.com
-  - docker build -t $CONTAINER_TEST_IMAGE .
-  - docker push $CONTAINER_TEST_IMAGE
+    - apt-get update
+    - apt-get install -y apt-transport-https ca-certificates curl openssl
+    - set -x && curl -fSL "https://get.docker.com/builds/Linux/x86_64/docker-1.12.0.tgz" -o docker.tgz && echo "3dd07f65ea4a7b4c8829f311ab0213bca9ac551b5b24706f3e79a97e22097f8b *docker.tgz" | sha256sum -c - && tar -xzvf docker.tgz && mv docker/* /usr/local/bin/
+    - docker info
+    - sh ./var/build-ubuntu.sh
+    - gulp
+    - docker login -u gitlab-ci-token -p "$CI_BUILD_TOKEN" registry.gitlab.com
+    - docker build -t $CONTAINER_TEST_IMAGE .
+    - docker push $CONTAINER_TEST_IMAGE
 
 firefox-extension:
   stage: build
   script:
-  - sh ./var/build-ubuntu.sh
+    - sh ./var/build-ubuntu.sh
   artifacts:
     name: "firefox_$CI_BUILD_REF_NAME"
     paths:
@@ -49,7 +49,7 @@ firefox-extension:
 chrome-extension:
   stage: build
   script:
-  - sh ./var/build-ubuntu.sh
+    - sh ./var/build-ubuntu.sh
   artifacts:
     name: "chrome_$CI_BUILD_REF_NAME"
     paths:
@@ -59,13 +59,13 @@ job-release-docker:
   stage: release
   image: docker:git
   services:
-  - docker:dind
+    - docker:dind
   script:
-  - docker info
-  - docker login -u gitlab-ci-token -p "$CI_BUILD_TOKEN" registry.gitlab.com
-  - docker pull $CONTAINER_TEST_IMAGE
-  - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
-  - docker push $CONTAINER_RELEASE_IMAGE
+    - docker info
+    - docker login -u gitlab-ci-token -p "$CI_BUILD_TOKEN" registry.gitlab.com
+    - docker pull $CONTAINER_TEST_IMAGE
+    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
+    - docker push $CONTAINER_RELEASE_IMAGE
   only:
     - master
 
@@ -73,9 +73,12 @@ job-deploy:
   stage: deploy
   image: docker:git
   services:
-  - docker:dind
+    - docker:dind
   script:
     - sh ./var/deploy.sh
+  environment:
+    name: production
+    url: https://psono.pw
   only:
     - master
 
@@ -87,5 +90,8 @@ job-deploy-chrome:
     - apt-get install -y libfontconfig zip
     - sh ./var/build-ubuntu.sh
     - sh ./var/deploy-chrome-extension.sh
+  environment:
+    name: chrome-webstore
+    url: https://chrome.google.com/webstore/detail/psonopw/eljmjmgjkbmpmfljlmklcfineebidmlo
   only:
     - master
