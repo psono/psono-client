@@ -166,11 +166,14 @@ gulp.task('default', ['sass', 'build-chrome', 'build-firefox', 'build-webserver'
  * - initiates the task for the creation of the chrome build folder
  */
 gulp.task('watch', ['sass', 'build-chrome', 'build-firefox', 'build-webserver'], function() {
-    gulp.watch(['src/common/data/**/*', '!src/common/data/sass/**/*.scss'], ['build-webserver', 'build-firefox', 'build-chrome']);
-    gulp.watch('src/chrome/**/*', ['build-chrome']);
-    gulp.watch('src/firefox/**/*', ['build-firefox']);
-    gulp.watch('src/webserver/**/*', ['build-webserver']);
-    gulp.watch('src/common/data/sass/**/*.scss', ['sass', 'build-chrome', 'build-firefox', 'build-webserver']);
+    gulp.watch([
+        'src/common/data/**/*',
+        'src/chrome/**/*',
+        'src/firefox/**/*',
+        'src/webserver/**/*',
+        '!src/common/data/css/**/*',
+        '!src/common/data/sass/**/*.scss'], ['build-webserver', 'build-firefox', 'build-chrome']);
+    gulp.watch('src/common/data/sass/**/*.scss', ['sass', 'build-webserver', 'build-firefox', 'build-chrome']);
 });
 
 gulp.task('watchpost', function() {
