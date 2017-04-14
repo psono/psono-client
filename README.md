@@ -3,7 +3,7 @@
 Master: [![build status](https://images.microbadger.com/badges/image/psono/psono-client.svg)](https://hub.docker.com/r/psono/psono-client/)[![build status](https://gitlab.com/psono/psono-client/badges/master/build.svg)](https://gitlab.com/psono/psono-client/commits/master) [![coverage report](https://gitlab.com/psono/psono-client/badges/master/coverage.svg)](https://gitlab.com/psono/psono-client/commits/master)
 Develop: [![build status](https://gitlab.com/psono/psono-client/badges/develop/build.svg)](https://gitlab.com/psono/psono-client/commits/develop) [![coverage report](https://gitlab.com/psono/psono-client/badges/develop/coverage.svg)](https://gitlab.com/psono/psono-client/commits/develop)
 
-#Canonical source
+# Canonical source
 
 The canonical source of PSONO Server is [hosted on GitLab.com](https://gitlab.com/psono/psono-client).
 
