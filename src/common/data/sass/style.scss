@@ -5,16 +5,20 @@
 body {
   font-family: 'Open Sans', sans-serif;
   position: relative;
-  min-width: 300px;
   background-color: $dark-background;
   margin: 0;
   padding: 0;
+  min-width: 320px;
 }
 
 
 h1, h2 {
   font-size: 20px;
   margin: 0;
+}
+
+#panel {
+  padding: 10px;
 }
 
 #logo {

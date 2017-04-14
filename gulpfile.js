@@ -1,11 +1,11 @@
 'use strict';
 
 var gulp = require('gulp');
+var gutil = require('gulp-util');
 var htmlmin = require('gulp-htmlmin');
 var cleanCSS = require('gulp-clean-css');
 var minify = require('gulp-minify');
 var sass = require('gulp-sass');
-var remove_code = require('gulp-remove-code');
 var template_cache = require('gulp-angular-templatecache');
 var crx = require('gulp-crx-pack');
 var fs = require("fs");
@@ -15,12 +15,14 @@ var jeditor = require("gulp-json-editor");
 var karma_server = require('karma').Server;
 var removeFiles = require('gulp-remove-files');
 var gulpDocs = require('gulp-ngdocs');
+var webstore_upload = require('webstore-upload');
+var runSequence = require('run-sequence');
 
 /**
  * Compiles .sass files to css files
  */
 gulp.task('sass', function () {
-    gulp.src('src/common/data/sass/**/*.scss')
+    return gulp.src('src/common/data/sass/**/*.scss')
         .pipe(sass().on('error', sass.logError))
         .pipe(gulp.dest('src/common/data/css'));
 });
@@ -56,7 +58,7 @@ gulp.task('build-webserver', function() {
         .pipe(template_cache('templates.js', { module:'psonocli', root: 'view/' }))
         .pipe(gulp.dest('build/webserver/view'));
 
-    gulp.src([
+    return gulp.src([
         'src/common/data/*',
         '!src/common/data/sass'
     ])
@@ -92,7 +94,6 @@ gulp.task('build-firefox', function() {
         .pipe(gulp.dest('build/firefox/data/js'));
 
     gulp.src('src/common/data/view/**/*.html')
-        .pipe(remove_code({ firefox: true }))
         .pipe(template_cache('templates.js', { module:'psonocli', root: 'view/' }))
         .pipe(gulp.dest('build/firefox/data/view'));
 
@@ -100,11 +101,10 @@ gulp.task('build-firefox', function() {
         'src/common/data/*',
         '!src/common/data/sass'
     ])
-        .pipe(remove_code({ firefox: true }))
         .pipe(htmlmin({collapseWhitespace: true}))
         .pipe(gulp.dest('build/firefox/data'));
 
-    gulp.src(['src/firefox/**/*'])
+    return gulp.src(['src/firefox/**/*'])
         .pipe(gulp.dest('build/firefox'));
 
 });
@@ -137,7 +137,6 @@ gulp.task('build-chrome', function() {
         .pipe(gulp.dest('build/chrome/data/js'));
 
     gulp.src('src/common/data/view/**/*.html')
-        .pipe(remove_code({ chrome: true }))
         .pipe(template_cache('templates.js', { module:'psonocli', root: 'view/' }))
         .pipe(gulp.dest('build/chrome/data/view'));
 
@@ -145,16 +144,19 @@ gulp.task('build-chrome', function() {
         'src/common/data/*',
         '!src/common/data/sass'
     ])
-        .pipe(remove_code({ chrome: true }))
         .pipe(htmlmin({collapseWhitespace: true}))
         .pipe(gulp.dest('build/chrome/data'));
 
-    gulp.src(['src/chrome/**/*'])
+    return gulp.src(['src/chrome/**/*'])
         .pipe(gulp.dest('build/chrome'));
 
 });
 
-gulp.task('default', ['sass', 'build-chrome', 'build-firefox', 'build-webserver']);
+gulp.task('default', function(callback) {
+    runSequence('sass',
+        ['build-chrome', 'build-firefox', 'build-webserver'],
+        callback);
+});
 
 /**
  * Watcher to compile the project again once something changes
@@ -163,12 +165,15 @@ gulp.task('default', ['sass', 'build-chrome', 'build-firefox', 'build-webserver'
  * - initiates the task for the creation of the firefox build folder
  * - initiates the task for the creation of the chrome build folder
  */
-gulp.task('watch', ['sass', 'build-chrome', 'build-firefox', 'build-webserver'], function() {
-    gulp.watch(['src/common/data/**/*', '!src/common/data/sass/**/*.scss'], ['build-webserver', 'build-firefox', 'build-chrome']);
-    gulp.watch('src/chrome/**/*', ['build-chrome']);
-    gulp.watch('src/firefox/**/*', ['build-firefox']);
-    gulp.watch('src/webserver/**/*', ['build-webserver']);
-    gulp.watch('src/common/data/sass/**/*.scss', ['sass', 'build-chrome', 'build-firefox', 'build-webserver']);
+gulp.task('watch', ['default'], function() {
+    gulp.watch([
+        'src/common/data/**/*',
+        'src/chrome/**/*',
+        'src/firefox/**/*',
+        'src/webserver/**/*',
+        '!src/common/data/css/**/*',
+        '!src/common/data/sass/**/*.scss'], ['build-webserver', 'build-firefox', 'build-chrome']);
+    gulp.watch('src/common/data/sass/**/*.scss', ['default']);
 });
 
 gulp.task('watchpost', function() {
@@ -199,50 +204,46 @@ gulp.task('crx', function() {
         .pipe(gulp.dest('./dist/chrome'));
 });
 
-/**
- * creates the unsigned xpi file for Firefox
- */
-gulp.task('xpiunsigned', function (cb) {
-
-    child_process.exec('cd build/firefox/ && jpm xpi && cd ../../ && mv build/firefox/@psonopw-*.xpi dist/firefox/psono.PW.unsigned.xpi', function (err, stdout, stderr) {
-        console.log(stdout);
-        console.log(stderr);
-        cb(err);
-    });
-});
 
 /**
- * signs an xpi file with addons.mozilla.org api credentials
- * To obtain your api credentials visit https://addons.mozilla.org/en-US/developers/addon/api/key/
- *
- * create the following file (if not already exist):
- * ~/.psono_client/apikey_addons_mozilla_org/key.json
- *
- * As content put the following (replace the values with your api credentials from addons.mozilla.org):
- * {
- *       "issuer": "user:123467:789",
- *       "secret": "15c686fea..."
- * }
- *
- * Side note: This command requires jpm 1.0.4 or later to work.
- *            You can check with "jpm --version"
- *            Try to update it or install the version directly from git like:
- *
- *            git clone https://github.com/mozilla-jetpack/jpm.git
- *            cd jpm
- *            npm install
- *            npm link
+ * Deploys the Chrome Extension to the Chrome Web Store
  */
-gulp.task('xpi', ['xpiunsigned'], function (cb) {
+gulp.task('chrome-deploy', function() {
 
-    var key = require(path.homedir() + '/.psono_client/apikey_addons_mozilla_org/key.json');
+    var client_id = gutil.env.webstore_client_id;
+    var client_secret = gutil.env.webstore_client_secret;
+    var refresh_token = gutil.env.webstore_refresh_token;
+    var app_id = gutil.env.webstore_app_id;
 
-    child_process.exec('jpm sign --api-key '+key.issuer+' --api-secret '+key.secret+' --xpi dist/firefox/psono.PW.unsigned.xpi && mv psonopw*.xpi dist/firefox/psono.PW.xpi', function (err, stdout, stderr) {
-        console.log(stdout);
-        console.log(stderr);
-        cb(err);
-    });
+    var uploadOptions = {
+        accounts: {
+            default: {
+                client_id: client_id,
+                client_secret: client_secret,
+                refresh_token: refresh_token
+            }
+        },
+        extensions: {
+            extension1: {
+                publish: true,
+                appID: app_id,
+                zip: 'dist/chrome/psono.PW.zip'
+            }
+        },
+        uploadExtensions : ['extension1']
+    };
+
+    webstore_upload(uploadOptions, 'default')
+        .then(function(result) {
+            console.log(result);
+            return 'Upload Complete';
+        })
+        .catch(function(err) {
+            console.error(err);
+        });
 });
+
+
 
 gulp.task('dist', ['default', 'crx', 'xpi']);
 
