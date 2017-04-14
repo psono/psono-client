@@ -16,12 +16,13 @@ var karma_server = require('karma').Server;
 var removeFiles = require('gulp-remove-files');
 var gulpDocs = require('gulp-ngdocs');
 var webstore_upload = require('webstore-upload');
+var runSequence = require('run-sequence');
 
 /**
  * Compiles .sass files to css files
  */
 gulp.task('sass', function () {
-    gulp.src('src/common/data/sass/**/*.scss')
+    return gulp.src('src/common/data/sass/**/*.scss')
         .pipe(sass().on('error', sass.logError))
         .pipe(gulp.dest('src/common/data/css'));
 });
@@ -57,7 +58,7 @@ gulp.task('build-webserver', function() {
         .pipe(template_cache('templates.js', { module:'psonocli', root: 'view/' }))
         .pipe(gulp.dest('build/webserver/view'));
 
-    gulp.src([
+    return gulp.src([
         'src/common/data/*',
         '!src/common/data/sass'
     ])
@@ -103,7 +104,7 @@ gulp.task('build-firefox', function() {
         .pipe(htmlmin({collapseWhitespace: true}))
         .pipe(gulp.dest('build/firefox/data'));
 
-    gulp.src(['src/firefox/**/*'])
+    return gulp.src(['src/firefox/**/*'])
         .pipe(gulp.dest('build/firefox'));
 
 });
@@ -146,12 +147,16 @@ gulp.task('build-chrome', function() {
         .pipe(htmlmin({collapseWhitespace: true}))
         .pipe(gulp.dest('build/chrome/data'));
 
-    gulp.src(['src/chrome/**/*'])
+    return gulp.src(['src/chrome/**/*'])
         .pipe(gulp.dest('build/chrome'));
 
 });
 
-gulp.task('default', ['sass', 'build-chrome', 'build-firefox', 'build-webserver']);
+gulp.task('default', function(callback) {
+    runSequence('sass',
+        ['build-chrome', 'build-firefox', 'build-webserver'],
+        callback);
+});
 
 /**
  * Watcher to compile the project again once something changes
@@ -160,7 +165,7 @@ gulp.task('default', ['sass', 'build-chrome', 'build-firefox', 'build-webserver'
  * - initiates the task for the creation of the firefox build folder
  * - initiates the task for the creation of the chrome build folder
  */
-gulp.task('watch', ['sass', 'build-chrome', 'build-firefox', 'build-webserver'], function() {
+gulp.task('watch', ['default'], function() {
     gulp.watch([
         'src/common/data/**/*',
         'src/chrome/**/*',
@@ -168,7 +173,7 @@ gulp.task('watch', ['sass', 'build-chrome', 'build-firefox', 'build-webserver'],
         'src/webserver/**/*',
         '!src/common/data/css/**/*',
         '!src/common/data/sass/**/*.scss'], ['build-webserver', 'build-firefox', 'build-chrome']);
-    gulp.watch('src/common/data/sass/**/*.scss', ['sass', 'build-webserver', 'build-firefox', 'build-chrome']);
+    gulp.watch('src/common/data/sass/**/*.scss', ['default']);
 });
 
 gulp.task('watchpost', function() {

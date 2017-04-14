@@ -27,6 +27,7 @@
     "karma-phantomjs-launcher": "~1.0.0",
     "path-extra": "^3.0.0",
     "phantomjs-prebuilt": "~2.1.4",
+    "run-sequence": "^1.2.2",
     "webstore-upload": "0.0.7"
   }
 }
