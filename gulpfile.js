@@ -6,7 +6,6 @@ var htmlmin = require('gulp-htmlmin');
 var cleanCSS = require('gulp-clean-css');
 var minify = require('gulp-minify');
 var sass = require('gulp-sass');
-var remove_code = require('gulp-remove-code');
 var template_cache = require('gulp-angular-templatecache');
 var crx = require('gulp-crx-pack');
 var fs = require("fs");
@@ -94,7 +93,6 @@ gulp.task('build-firefox', function() {
         .pipe(gulp.dest('build/firefox/data/js'));
 
     gulp.src('src/common/data/view/**/*.html')
-        .pipe(remove_code({ firefox: true }))
         .pipe(template_cache('templates.js', { module:'psonocli', root: 'view/' }))
         .pipe(gulp.dest('build/firefox/data/view'));
 
@@ -102,7 +100,6 @@ gulp.task('build-firefox', function() {
         'src/common/data/*',
         '!src/common/data/sass'
     ])
-        .pipe(remove_code({ firefox: true }))
         .pipe(htmlmin({collapseWhitespace: true}))
         .pipe(gulp.dest('build/firefox/data'));
 
@@ -139,7 +136,6 @@ gulp.task('build-chrome', function() {
         .pipe(gulp.dest('build/chrome/data/js'));
 
     gulp.src('src/common/data/view/**/*.html')
-        .pipe(remove_code({ chrome: true }))
         .pipe(template_cache('templates.js', { module:'psonocli', root: 'view/' }))
         .pipe(gulp.dest('build/chrome/data/view'));
 
@@ -147,7 +143,6 @@ gulp.task('build-chrome', function() {
         'src/common/data/*',
         '!src/common/data/sass'
     ])
-        .pipe(remove_code({ chrome: true }))
         .pipe(htmlmin({collapseWhitespace: true}))
         .pipe(gulp.dest('build/chrome/data'));
 

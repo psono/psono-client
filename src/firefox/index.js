@@ -94,7 +94,7 @@ var fillpassword = [];
 // End helper functions
 
 // Actual messaging stuff
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+browser.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
     /**
      * we received a ready event from a content script that finished loading
@@ -135,7 +135,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
      * lets send a fillpassword event to the to the active tab
      */
     var on_fillpassword_active_tab = function () {
-        chrome.tabs.sendMessage(activeTabId, {event: "fillpassword", data: request.data}, function(response) {
+        browser.tabs.sendMessage(activeTabId, {event: "fillpassword", data: request.data}, function(response) {
             // pass
         });
     };

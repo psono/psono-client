@@ -38,7 +38,7 @@
       "matches": ["*://*/*"],
       "css": [
         "data/css/lib/cssreset-context-min.css",
-        "data/css/lib/opensans.css",
+        "data/css/opensans.css",
         "data/css/contentscript.css"
       ],
       "js": [
@@ -52,5 +52,6 @@
   ],
   "web_accessible_resources": [
     "data/css/fonts/*.woff2"
-  ]
+  ],
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self';"
 }

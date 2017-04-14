@@ -12,10 +12,14 @@ unittests:
   stage: test
   image: ubuntu:16.04
   script:
-    - apt-get update
-    - apt-get install -y libfontconfig
     - sh ./var/build-ubuntu.sh
     - karma start ./unittests/karma-phantom.conf.js
+
+linter:
+  stage: test
+  image: ubuntu:16.04
+  script:
+    - sh ./var/build-ubuntu.sh
     - addons-linter ./build/firefox
 
 
@@ -27,11 +31,9 @@ docker-image:
   variables:
     DOCKER_HOST: 'tcp://docker:2375'
   script:
-    - apt-get update
-    - apt-get install -y apt-transport-https ca-certificates curl openssl
+    - sh ./var/build-ubuntu.sh
     - set -x && curl -fSL "https://get.docker.com/builds/Linux/x86_64/docker-1.12.0.tgz" -o docker.tgz && echo "3dd07f65ea4a7b4c8829f311ab0213bca9ac551b5b24706f3e79a97e22097f8b *docker.tgz" | sha256sum -c - && tar -xzvf docker.tgz && mv docker/* /usr/local/bin/
     - docker info
-    - sh ./var/build-ubuntu.sh
     - gulp
     - docker login -u gitlab-ci-token -p "$CI_BUILD_TOKEN" registry.gitlab.com
     - docker build -t $CONTAINER_TEST_IMAGE .
@@ -86,12 +88,11 @@ job-deploy-chrome:
   stage: deploy
   image: ubuntu:16.04
   script:
-    - apt-get update
-    - apt-get install -y libfontconfig zip
     - sh ./var/build-ubuntu.sh
     - sh ./var/deploy-chrome-extension.sh
   environment:
     name: chrome-webstore
     url: https://chrome.google.com/webstore/detail/psonopw/eljmjmgjkbmpmfljlmklcfineebidmlo
+  when: manual
   only:
     - master

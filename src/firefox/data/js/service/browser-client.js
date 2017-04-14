@@ -5,7 +5,7 @@
 
         var registrations = {};
 
-        chrome.runtime.onMessage.addListener(
+        browser.runtime.onMessage.addListener(
         function(request, sender, sendResponse) {
             console.log(sender.tab ?
             "from a content script:" + sender.tab.url :
@@ -79,7 +79,7 @@
          */
         var get_active_tab_url = function() {
             return $q(function (resolve) {
-                chrome.tabs.query({active: true, currentWindow: true}, function(arrayOfTabs) {
+                browser.tabs.query({active: true, currentWindow: true}, function(arrayOfTabs) {
                     resolve(arrayOfTabs[0].url)}
                 );
             });
@@ -99,7 +99,7 @@
          * @param data
          */
         var emit = function (event, data) {
-            chrome.runtime.sendMessage({event: event, data: data}, function(response) {
+            browser.runtime.sendMessage({event: event, data: data}, function(response) {
                 console.log(response);
             });
             $rootScope.$broadcast(event, '');
@@ -112,7 +112,7 @@
          * @param data
          */
         var emit_sec = function(event, data) {
-            chrome.runtime.sendMessage({event: event, data: data}, function(response) {
+            browser.runtime.sendMessage({event: event, data: data}, function(response) {
                 console.log(response);
             });
         };
