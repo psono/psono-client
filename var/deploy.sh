@@ -24,5 +24,5 @@ mkdir -p /root/.ssh
 echo $github_deploy_key > /root/.ssh/id_rsa
 git clone https://gitlab.com/psono/psono-client.git
 cd psono-client
-git remote set-url origin git@github.com:psono/psono-server.git
+git remote set-url origin git@github.com:psono/psono-client.git
 git push -u origin master
