@@ -11,28 +11,16 @@ The canonical source of PSONO Server is [hosted on GitLab.com](https://gitlab.co
 
 ## as Chrome Extension
 
-1. Download the crx file here:
+1. Download the Chrome extension from the store here:
 
-    https://gitlab.com/psono/psono-client/builds/artifacts/master/download?job=chrome-extension
-    
-2. Unpack the ***.zip*** into a folder of your choice ***"folder/of/your/choice"***
-    
-4. Open following url in your browser:
-
-    chrome://chrome/extensions/
-    
-5. Click "Open unpacked extension" at the top left and choose ***"folder/of/your/choice/build/chrome"***
-
-The extension should now be loaded
+    https://chrome.google.com/webstore/detail/psonopw/eljmjmgjkbmpmfljlmklcfineebidmlo
 
 
 ## as Firefox Extension
 
-1. Click on the following link:
+1. Download the Firefox extension from the store here:
 
-    https://gitlab.com/psono/psono-client/builds/artifacts/master/download?job=firefox-extension
-    
-    (You will be asked (at the top left) if you want to allow this extension to be installed which you have to permit)
+    https://addons.mozilla.org/de/firefox/addon/psono-pw-password-manager/
     
 
 ## as Docker Web Client
