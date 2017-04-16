@@ -29,22 +29,25 @@ gulp.task('sass', function () {
 });
 
 
-/**
- * Creates the Webserver build folder
- */
-gulp.task('build-webserver', function() {
-
+var build = function(build_path, remove_default_browser_client) {
     gulp.src(['src/common/data/css/**/*'])
         .pipe(cleanCSS({compatibility: 'ie8'}))
-        .pipe(gulp.dest('build/webserver/css'));
+        .pipe(gulp.dest(path.join(build_path, 'css')));
 
     gulp.src(['src/common/data/fonts/**/*'])
-        .pipe(gulp.dest('build/webserver/fonts'));
+        .pipe(gulp.dest(path.join(build_path, 'fonts')));
 
     gulp.src(['src/common/data/img/**/*'])
-        .pipe(gulp.dest('build/webserver/img'));
+        .pipe(gulp.dest(path.join(build_path, 'img')));
 
-    gulp.src(['src/common/data/js/**/*'])
+
+    var js_source = ['src/common/data/js/**/*'];
+
+    if(remove_default_browser_client) {
+        js_source.push('!src/common/data/js/service/browser-client.js');
+    }
+
+    gulp.src(js_source)
         .pipe(minify({
             ext:{
                 min:'.js'
@@ -53,18 +56,27 @@ gulp.task('build-webserver', function() {
             noSource: true,
             preserveComments: 'some'
         }))
-        .pipe(gulp.dest('build/webserver/js'));
+        .pipe(gulp.dest(path.join(build_path, 'js')));
 
     gulp.src('src/common/data/view/**/*.html')
         .pipe(template_cache('templates.js', { module:'psonocli', root: 'view/' }))
-        .pipe(gulp.dest('build/webserver/view'));
+        .pipe(gulp.dest(path.join(build_path, 'view')));
 
     return gulp.src([
         'src/common/data/*',
         '!src/common/data/sass'
     ])
         .pipe(htmlmin({collapseWhitespace: true}))
-        .pipe(gulp.dest('build/webserver'));
+        .pipe(gulp.dest(build_path));
+};
+
+
+
+/**
+ * Creates the Webserver build folder
+ */
+gulp.task('build-webserver', function() {
+    return build('build/webserver', false);
 });
 
 /**
@@ -72,38 +84,7 @@ gulp.task('build-webserver', function() {
  */
 gulp.task('build-firefox', function() {
 
-    gulp.src(['src/common/data/css/**/*'])
-        .pipe(cleanCSS({compatibility: 'ie8'}))
-        .pipe(gulp.dest('build/firefox/data/css'));
-
-    gulp.src(['src/common/data/fonts/**/*'])
-        .pipe(gulp.dest('build/firefox/data/fonts'));
-
-    gulp.src(['src/common/data/img/**/*'])
-        .pipe(gulp.dest('build/firefox/data/img'));
-
-    gulp.src(['src/common/data/js/**/*',
-        '!src/common/data/js/service/browser-client.js'])
-        .pipe(minify({
-            ext:{
-                min:'.js'
-            },
-            ignoreFiles: ['.min.js'],
-            noSource: true,
-            preserveComments: 'some'
-        }))
-        .pipe(gulp.dest('build/firefox/data/js'));
-
-    gulp.src('src/common/data/view/**/*.html')
-        .pipe(template_cache('templates.js', { module:'psonocli', root: 'view/' }))
-        .pipe(gulp.dest('build/firefox/data/view'));
-
-    gulp.src([
-        'src/common/data/*',
-        '!src/common/data/sass'
-    ])
-        .pipe(htmlmin({collapseWhitespace: true}))
-        .pipe(gulp.dest('build/firefox/data'));
+    build('build/firefox/data', true);
 
     return gulp.src(['src/firefox/**/*'])
         .pipe(gulp.dest('build/firefox'));
@@ -115,38 +96,7 @@ gulp.task('build-firefox', function() {
  */
 gulp.task('build-chrome', function() {
 
-    gulp.src(['src/common/data/css/**/*'])
-        .pipe(cleanCSS({compatibility: 'ie8'}))
-        .pipe(gulp.dest('build/chrome/data/css'));
-
-    gulp.src(['src/common/data/fonts/**/*'])
-        .pipe(gulp.dest('build/chrome/data/fonts'));
-
-    gulp.src(['src/common/data/img/**/*'])
-        .pipe(gulp.dest('build/chrome/data/img'));
-
-    gulp.src(['src/common/data/js/**/*',
-        '!src/common/data/js/service/browser-client.js'])
-        .pipe(minify({
-            ext:{
-                min:'.js'
-            },
-            ignoreFiles: ['.min.js'],
-            noSource: true,
-            preserveComments: 'some'
-        }))
-        .pipe(gulp.dest('build/chrome/data/js'));
-
-    gulp.src('src/common/data/view/**/*.html')
-        .pipe(template_cache('templates.js', { module:'psonocli', root: 'view/' }))
-        .pipe(gulp.dest('build/chrome/data/view'));
-
-    gulp.src([
-        'src/common/data/*',
-        '!src/common/data/sass'
-    ])
-        .pipe(htmlmin({collapseWhitespace: true}))
-        .pipe(gulp.dest('build/chrome/data'));
+    build('build/chrome/data', true);
 
     return gulp.src(['src/chrome/**/*'])
         .pipe(gulp.dest('build/chrome'));
@@ -248,26 +198,20 @@ gulp.task('chrome-deploy', function() {
 gulp.task('dist', ['default', 'crx', 'xpi']);
 
 gulp.task('updateversion', function() {
+
     var fileContent = fs.readFileSync("./src/common/data/VERSION.txt", "utf8");
 
+    var all_browsers = ['chrome', 'firefox'];
+    all_browsers.forEach(function(browser) {
+        gulp.src(path.join("./build", browser, "manifest.json"))
+            .pipe(removeFiles());
 
-    gulp.src("./build/chrome/manifest.json")
-        .pipe(removeFiles());
-
-    gulp.src("./build/firefox/package.json")
-        .pipe(removeFiles());
-
-    gulp.src("./src/chrome/manifest.json")
-        .pipe(jeditor({
-            'version': fileContent.trim()
-        }))
-        .pipe(gulp.dest("./build/chrome"));
-
-    gulp.src("./src/firefox/package.json")
-        .pipe(jeditor({
-            'version': fileContent.trim()
-        }))
-        .pipe(gulp.dest("./build/firefox"));
+        gulp.src(path.join("./src", browser, "manifest.json"))
+            .pipe(jeditor({
+                'version': fileContent.trim()
+            }))
+            .pipe(gulp.dest(path.join("./build/", browser)));
+    });
 });
 
 
