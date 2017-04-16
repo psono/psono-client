@@ -38,7 +38,7 @@
       "matches": ["*://*/*"],
       "css": [
         "data/css/lib/cssreset-context-min.css",
-        "data/css/opensans.css",
+        "data/css/lib/opensans.css",
         "data/css/contentscript.css"
       ],
       "js": [

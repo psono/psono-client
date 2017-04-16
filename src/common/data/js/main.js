@@ -173,7 +173,7 @@
     app.run(['$rootScope', '$location', '$routeParams', 'managerSecret', function ($rootScope, $location, $routeParams, managerSecret) {
         $rootScope.$on('$routeChangeSuccess', function () {
             var redirect = '/secret/';
-            if ($location.path().substring(0, redirect.length) == redirect && $routeParams.hasOwnProperty('secret_id')) {
+            if ($location.path().substring(0, redirect.length) === redirect && $routeParams.hasOwnProperty('secret_id')) {
                 managerSecret.redirect_secret($routeParams.type, $routeParams.secret_id);
             }
 
@@ -286,7 +286,7 @@
                         $scope.msgs.push('Successful, check your e-mail.');
                     } else {
                         // handle server is offline
-                        if (data.error_data == null) {
+                        if (data.error_data === null) {
                             $scope.errors.push('Server offline.');
                             return;
                         }
@@ -313,11 +313,11 @@
                     return;
                 }
 
-                if (username.indexOf('@') == -1){
+                if (username.indexOf('@') === -1){
                     username = username + '@' + $scope.selected_server_domain;
                 }
 
-                if ((username.match(/@/g) || []).length != 1) {
+                if ((username.match(/@/g) || []).length !== 1) {
                     $scope.errors.push("No valid username (must be in email format).");
                 }
                 var res = username.split("@");
@@ -426,7 +426,7 @@
              */
             $scope.code_changing = function (code) {
 
-                if (typeof(code['value']) === 'undefined' || code['value'] == '') {
+                if (typeof(code['value']) === 'undefined' || code['value'] === '') {
                     code['class'] = 'form-field-validation-pass';
                     return;
                 }
@@ -492,7 +492,7 @@
                 }
 
                 // We need either words or code1 and code2
-                if ((words === undefined || words == '') && (code1 === undefined || code2 === undefined || code1 == '' || code2 == '' )) {
+                if ((words === undefined || words === '') && (code1 === undefined || code2 === undefined || code1 === '' || code2 === '' )) {
                     return;
                 }
 
@@ -502,11 +502,11 @@
                 // }
 
                 // Validate now the username
-                if (username.indexOf('@') == -1){
+                if (username.indexOf('@') === -1){
                     username = username + '@' + $scope.selected_server_domain;
                 }
 
-                if ((username.match(/@/g) || []).length != 1) {
+                if ((username.match(/@/g) || []).length !== 1) {
                     $scope.errors.push("No valid username (must be in email format).");
                 }
                 var res = username.split("@");
@@ -520,9 +520,9 @@
 
                 // Validate now the recovery code information (words and codes)
                 var recovery_code;
-                if (typeof(words) !== 'undefined' && words != '') {
+                if (typeof(words) !== 'undefined' && words !== '') {
                     recovery_code = cryptoLibrary.hex_to_base58(cryptoLibrary.words_to_hex(words.split(' ')));
-                } else if (typeof(code1) !== 'undefined' && code1 != '' && typeof(code2) !== 'undefined' && code2 != ''){
+                } else if (typeof(code1) !== 'undefined' && code1 !== '' && typeof(code2) !== 'undefined' && code2 !== ''){
                     if (!cryptoLibrary.recovery_password_chunk_pass_checksum(code1) || !cryptoLibrary.recovery_password_chunk_pass_checksum(code2)) {
                         $scope.errors.push("At least one of your codes is wrong");
                         return;
@@ -705,7 +705,7 @@
                         $scope.msgs.push('Successful, please login.');
                         $scope.success = true;
                     } else {
-                        if (data.error_data == null) {
+                        if (data.error_data === null) {
                             $scope.errors.push('Server offline.');
                         } else {
                             for (var property in data.error_data) {
@@ -789,7 +789,7 @@
                 function adjustWith(snapper, behave_inverse) {
                     //console.log('adjustWith');
                     var total_width = angular.element(document.querySelectorAll(".snap-content")[0])[0].clientWidth;
-                    if ((snapper.state().state !== 'closed') != behave_inverse) {
+                    if ((snapper.state().state !== 'closed') !== behave_inverse) {
                         $scope.snap_content_with = (total_width - scrollWidth) + 'px';
                     } else {
                         $scope.snap_content_with = total_width + 'px';
@@ -953,7 +953,7 @@
              * @param {string} path The current path
              */
             $scope.get_link_state = function (path) {
-                if (path === '/' && $location.path().length == 0) {
+                if (path === '/' && $location.path().length === 0) {
                     return 'active';
                 } else if (path !== '/' && $location.path().substr(0, path.length) === path) {
                     return 'active';
@@ -1257,7 +1257,7 @@
                         browserClient.resize(295);
                     } else {
                         console.log(data.error_data);
-                        if (data.error_data == null) {
+                        if (data.error_data === null) {
                             $scope.errors = ['Server offline.']
                         } else if (data.error_data.hasOwnProperty('non_field_errors')) {
                             $scope.errors = data.error_data.non_field_errors;
@@ -1476,7 +1476,7 @@
                             datastore_id = target.datastore_id;
                         }
 
-                        if (item.share_right_grant == false && typeof(parent_share_id) != 'undefined') {
+                        if (item.share_right_grant === false && typeof(parent_share_id) !== 'undefined') {
                             // No grant right, yet the parent is a a share?!?
                             alert("Wups, this should not happen. Error: 781f3da7-d38b-470e-a3c8-dd5787642230");
                         }
@@ -1700,11 +1700,11 @@
                         if (!users[i].hasOwnProperty("value")) {
                             continue;
                         }
-                        if (!user_object.name && shareBlueprint.get_blueprint("user").title_field == users[i].name) {
+                        if (!user_object.name && shareBlueprint.get_blueprint("user").title_field === users[i].name) {
                             user_object.name = user[i].value;
                         }
                         if (shareBlueprint.get_blueprint("user").hasOwnProperty("urlfilter_field")
-                            && shareBlueprint.get_blueprint("user").urlfilter_field == users[i].name) {
+                            && shareBlueprint.get_blueprint("user").urlfilter_field === users[i].name) {
                             user_object.urlfilter = users[i].value;
                         }
                         user_object.data[users[i].name] = users[i].value;

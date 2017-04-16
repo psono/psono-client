@@ -69,7 +69,7 @@
             var onSuccess = function(content) {
 
                 for (var i = content.data.shares.length - 1; i >= 0; i--) {
-                    if (content.data.shares[i].share_right_title != '') {
+                    if (content.data.shares[i].share_right_title !== '') {
                         content.data.shares[i].share_right_title = managerBase.decrypt_private_key(
                             content.data.shares[i].share_right_title,
                             content.data.shares[i].share_right_title_nonce,
@@ -347,12 +347,12 @@
                 }
 
 
-                if (typeof share.type == 'undefined' && typeof content.data.share_type !== "undefined") {
+                if (typeof share.type === 'undefined' && typeof content.data.share_type !== "undefined") {
 
                     var type = managerBase.decrypt_private_key(content.data.share_type,
                         content.data.share_type_nonce, public_key);
 
-                    if (type != 'folder') {
+                    if (type !== 'folder') {
                         share.type = type;
                     }
                 }
@@ -417,7 +417,7 @@
         var get_closest_parent_share = function(path, datastore, closest_share, distance) {
             var n,l;
 
-            if (path.length == distance) {
+            if (path.length === distance) {
                 return closest_share;
             }
 
@@ -425,7 +425,7 @@
 
             if (datastore.hasOwnProperty('folders')) {
                 for (n = 0, l = datastore.folders.length; n < l; n++) {
-                    if (datastore.folders[n].id == to_search) {
+                    if (datastore.folders[n].id === to_search) {
                         if (typeof(datastore.folders[n].share_id) !== 'undefined') {
                             return get_closest_parent_share(path.slice(), datastore.folders[n], datastore.folders[n], distance);
                         } else {
@@ -437,7 +437,7 @@
 
             if (datastore.hasOwnProperty('items')) {
                 for (n = 0, l = datastore.items.length; n < l; n++) {
-                    if (datastore.items[n].id == to_search) {
+                    if (datastore.items[n].id === to_search) {
                         return closest_share;
                     }
                 }

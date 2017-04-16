@@ -167,11 +167,11 @@
                     if (!content.fields[i].hasOwnProperty("value")) {
                         continue;
                     }
-                    if (!datastore_object.name && content.title_field == content.fields[i].name) {
+                    if (!datastore_object.name && content.title_field === content.fields[i].name) {
                         datastore_object.name = content.fields[i].value;
                     }
                     if (content.hasOwnProperty("urlfilter_field")
-                        && content.urlfilter_field == content.fields[i].name) {
+                        && content.urlfilter_field === content.fields[i].name) {
                         datastore_object.urlfilter = content.fields[i].value;
                     }
                     secret_object[content.fields[i].name] = content.fields[i].value;
@@ -268,11 +268,11 @@
                         if (!content.fields[i].hasOwnProperty("value")) {
                             continue;
                         }
-                        if (content.title_field == content.fields[i].name) {
+                        if (content.title_field === content.fields[i].name) {
                             node.name = content.fields[i].value;
                         }
                         if (content.hasOwnProperty("urlfilter_field")
-                            && content.urlfilter_field == content.fields[i].name) {
+                            && content.urlfilter_field === content.fields[i].name) {
                             node.urlfilter = content.fields[i].value;
                         }
                         secret_object[content.fields[i].name] = content.fields[i].value;
@@ -335,7 +335,7 @@
                 var canMoveHelper = function(element, target) {
 
                     // prevent the move of shares without grant rights into different shares
-                    if (element.share_rights.grant == false && element.hasOwnProperty('parent_share_id')
+                    if (element.share_rights.grant === false && element.hasOwnProperty('parent_share_id')
                         && target.hasOwnProperty('share_id') && target['share_id'] !== element['parent_share_id']) {
 
                         alert("Sorry, but you you cannot move a share without grant rights into another share.");
@@ -344,7 +344,7 @@
 
 
                     // prevent the move of shares without grant rights into different shares
-                    if (element.share_rights.grant == false && element.hasOwnProperty('parent_share_id')
+                    if (element.share_rights.grant === false && element.hasOwnProperty('parent_share_id')
                         && !target.hasOwnProperty('share_id') && target.hasOwnProperty('parent_share_id') && target['parent_share_id'] !== element['parent_share_id']) {
 
                         alert("Sorry, but you you cannot move a share without grant rights into another share.");
@@ -357,7 +357,7 @@
                 // Start of the actual rights checking
 
                 // prevent the move of anything into a target without right writes
-                if (target.hasOwnProperty("share_rights") && target.share_rights.write == false) {
+                if (target.hasOwnProperty("share_rights") && target.share_rights.write === false) {
                     alert("Sorry, but you don't have write rights on target");
                     return false;
                 }
@@ -369,7 +369,7 @@
 
                 // checks if we maybe have an item itself
                 if (element.hasOwnProperty('type')) {
-                    if (canMoveHelper(element, target) == false) {
+                    if (canMoveHelper(element, target) === false) {
                         return false;
                     }
                 }
@@ -377,7 +377,7 @@
                 // checks if we have a folder with items
                 if (element.hasOwnProperty('items') && element.items.length > 0) {
                     for (i = element.items.length - 1; i >= 0; i--) {
-                        if (canMoveHelper(element.items[i], target) == false) {
+                        if (canMoveHelper(element.items[i], target) === false) {
                             return false;
                         }
                     }
@@ -386,7 +386,7 @@
                 // checks if we have a folder with folders
                 if (element.hasOwnProperty('folders') && element.folders.length > 0) {
                     for (i = element.folders.length - 1; i >= 0; i--) {
-                        if (canMove(element.folders[i], target) == false) {
+                        if (canMove(element.folders[i], target) === false) {
                             return false;
                         }
                     }
@@ -485,15 +485,15 @@
 
             // if parent_share did not change, then we are done here
             if (element.hasOwnProperty("parent_share_id") && target.hasOwnProperty("parent_share_id")
-                && (target['parent_share_id'] == element['parent_share_id']
-                || (target.hasOwnProperty('share_id') && target['share_id'] == element['parent_share_id']))) {
+                && (target['parent_share_id'] === element['parent_share_id']
+                || (target.hasOwnProperty('share_id') && target['share_id'] === element['parent_share_id']))) {
                 return;
             }
 
             // if parent_datastore did not change, then we are done here
             if (element.hasOwnProperty("parent_datastore_id") && target.hasOwnProperty("parent_datastore_id")
-                && (target['parent_datastore_id'] == element['parent_datastore_id']
-                || (target.hasOwnProperty('datatstore_id') && target['datatstore_id'] == element['parent_datastore_id']))) {
+                && (target['parent_datastore_id'] === element['parent_datastore_id']
+                || (target.hasOwnProperty('datatstore_id') && target['datatstore_id'] === element['parent_datastore_id']))) {
                 return;
             }
 
@@ -591,12 +591,12 @@
             var to_search = path.shift();
             var n = undefined;
 
-            if (path.length == 0) {
+            if (path.length === 0) {
                 // found the object
                 // check if its a folder, if yes return the folder list and the index
                 if (structure.hasOwnProperty('folders')) {
                     for (n = 0; n < structure.folders.length; n++) {
-                        if (structure.folders[n].id == to_search) {
+                        if (structure.folders[n].id === to_search) {
                             return [structure.folders, n];
                             // structure.folders.splice(n, 1);
                             // return true;
@@ -606,7 +606,7 @@
                 // check if its a file, if yes return the file list and the index
                 if (structure.hasOwnProperty('items')) {
                     for (n = 0; n < structure.items.length; n++) {
-                        if (structure.items[n].id == to_search) {
+                        if (structure.items[n].id === to_search) {
                             return [structure.items, n];
                             // structure.items.splice(n, 1);
                             // return true;
@@ -618,7 +618,7 @@
             }
 
             for (n = 0; n < structure.folders.length; n++) {
-                if (structure.folders[n].id == to_search) {
+                if (structure.folders[n].id === to_search) {
                     return find_in_structure(path, structure.folders[n]);
                 }
             }
@@ -1068,11 +1068,11 @@
                                 if (!content.fields[i].hasOwnProperty("value")) {
                                     continue;
                                 }
-                                if (!user_object.name && content.title_field == content.fields[i].name) {
+                                if (!user_object.name && content.title_field === content.fields[i].name) {
                                     user_object.name = content.fields[i].value;
                                 }
                                 if (content.hasOwnProperty("urlfilter_field")
-                                    && content.urlfilter_field == content.fields[i].name) {
+                                    && content.urlfilter_field === content.fields[i].name) {
                                     user_object.urlfilter = content.fields[i].value;
                                 }
                                 user_object.data[content.fields[i].name] = content.fields[i].value;

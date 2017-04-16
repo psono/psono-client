@@ -160,9 +160,9 @@
                 };
 
                 for (var r = i - 1; r > -1; r--) {
-                    if (inputs[r].type == 'password')
+                    if (inputs[r].type === 'password')
                         continue;
-                    if (inputs[r].style.display == 'none')
+                    if (inputs[r].style.display === 'none')
                         continue;
 
                     // username field is inputs[r]
@@ -199,7 +199,7 @@
                     parent = parent.parentNode;
                 }
 
-                if (parent.nodeName == "FORM") {
+                if (parent.nodeName === "FORM") {
                     //parent is surrounding form
                     //parent.style.backgroundColor = "green";
                     newForm.form = parent;
@@ -237,7 +237,7 @@
                         jQuery(myForms[i].password).keyup();
                         jQuery(myForms[i].password).change();
                     }
-                    if (myForms.length == 1 //only 1 form
+                    if (myForms.length === 1 //only 1 form
                         && myForms[i].form !== null //we found the form
                         && data.hasOwnProperty('submit')
                         && data.submit //https website

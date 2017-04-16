@@ -40,7 +40,7 @@
                 splitted_authority = authority.split(":");
             }
 
-            if (typeof(splitted_authority) !== 'undefined' && splitted_authority.length == 2) {
+            if (typeof(splitted_authority) !== 'undefined' && splitted_authority.length === 2) {
                 port = splitted_authority[splitted_authority.length - 1];
             }
             if (typeof(splitted_authority) !== 'undefined') {
@@ -106,14 +106,14 @@
             }
 
             for (var i = 0; i < array1.length; i++) {
-                if (i == array2.length) {
+                if (i === array2.length) {
                     return true;
                 }
                 if (array1[i] instanceof Array && array2[i] instanceof Array) {
                     if (!array1[i].equals(array2[i])){
                         return false;
                     }
-                } else if (array1[i] != array2[i]) {
+                } else if (array1[i] !== array2[i]) {
                     return false;
                 }
             }
@@ -176,16 +176,16 @@
             if (username.length < 3) {
                 return 'Usernames may not be shorter than 3 chars.';
             }
-            if (username.substring(0, 1) == ".") {
+            if (username.substring(0, 1) === ".") {
                 return 'Usernames may not start with a period.';
             }
-            if (username.substring(0, 1) == "-") {
+            if (username.substring(0, 1) === "-") {
                 return 'Usernames may not start with a dash.';
             }
-            if (username.substring(username.length -1) == '.') {
+            if (username.substring(username.length -1) === '.') {
                 return 'Usernames may not end with a period.';
             }
-            if (username.substring(username.length -1) == '-') {
+            if (username.substring(username.length -1) === '-') {
                 return 'Usernames may not end with a dash.';
             }
             if (username.indexOf('..') !== -1) {
