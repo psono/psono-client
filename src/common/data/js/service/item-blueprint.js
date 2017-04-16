@@ -41,7 +41,7 @@
                                 icon: "fa fa-eye-slash",
                                 text:"Show Password",
                                 onclick:function(id) {
-                                    document.getElementById(id).type = document.getElementById(id).type == 'text' ? 'password' : 'text';
+                                    document.getElementById(id).type = document.getElementById(id).type === 'text' ? 'password' : 'text';
                                 }
                             },
                             {
@@ -91,7 +91,7 @@
                     // get only toplevel domain
                     var parsed_url = helper.parse_url(url);
 
-                    if (typeof(parsed_url.authority) == 'undefined') {
+                    if (typeof(parsed_url.authority) === 'undefined') {
                         domain_filter_col.value = "";
                         return '';
                     }
@@ -190,13 +190,13 @@
                 name: 'Share',
                 icon: 'fa fa-user-plus',
                 ngClass: function(item) {
-                    if (item.hasOwnProperty('share_rights') && item.share_rights.grant == false) {
+                    if (item.hasOwnProperty('share_rights') && item.share_rights.grant === false) {
                         return 'hidden';
                     }
                 },
                 onClick: function(item, path) {
 
-                    if (item.hasOwnProperty('share_rights') && item.share_rights.grant == false) {
+                    if (item.hasOwnProperty('share_rights') && item.share_rights.grant === false) {
                         return;
                     }
 
@@ -228,7 +228,7 @@
                             // TODO create form field with this default value and read value from form
 
                             var title = "";
-                            if (typeof(node.type) == 'undefined') {
+                            if (typeof(node.type) === 'undefined') {
                                 // we have a folder
                                 title = "Folder with title '" + node.name + "'";
                             } else {
@@ -238,7 +238,7 @@
 
                             // get the type
                             var type = "";
-                            if (typeof(node.type) == 'undefined') {
+                            if (typeof(node.type) === 'undefined') {
                                 // we have a folder
                                 type = 'folder';
                             } else {
@@ -277,7 +277,7 @@
 
                         var i;
                         for (i = 0; i < content.users.length; i++) {
-                            if (content.selected_users.indexOf(content.users[i].id) != -1) {
+                            if (content.selected_users.indexOf(content.users[i].id) !== -1) {
                                 users.push(content.users[i]);
                             }
                         }
@@ -382,7 +382,7 @@
                 name: 'Rights Overview',
                 icon: 'fa fa-list',
                 ngClass: function(item) {
-                    if (item.hasOwnProperty('share_rights') && item.share_rights.grant == false) {
+                    if (item.hasOwnProperty('share_rights') && item.share_rights.grant === false) {
                         return 'hidden';
                     }
                 },
@@ -391,7 +391,7 @@
                 },
                 onClick: function(item, path) {
 
-                    if (item.hasOwnProperty('share_rights') && item.share_rights.grant == false) {
+                    if (item.hasOwnProperty('share_rights') && item.share_rights.grant === false) {
                         return;
                     }
 
@@ -446,7 +446,7 @@
                     continue;
                 }
 
-                if (_additionalFunction[property].hasOwnProperty('ngClass') && _additionalFunction[property].ngClass(item) == 'hidden') {
+                if (_additionalFunction[property].hasOwnProperty('ngClass') && _additionalFunction[property].ngClass(item) === 'hidden') {
                     continue;
                 }
 

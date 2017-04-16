@@ -516,10 +516,10 @@
 
                 for (var i = users.length - 1; i >= 0; i--) {
 
-                    if (users[i].data.user_id == user_id) {
+                    if (users[i].data.user_id === user_id) {
                         id_match = users[i];
                     }
-                    if (users[i].data.user_email == email) {
+                    if (users[i].data.user_email === email) {
                         email_match = users[i];
                     }
                 }

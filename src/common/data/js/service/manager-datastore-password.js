@@ -310,7 +310,7 @@
                         $rootScope.$watch(function() {
                             return open_calls;
                         }, function watchCallback(open_calls) {
-                            if (open_calls == 0) {
+                            if (open_calls === 0) {
                                 resolve(datastore);
                             }
                         });
@@ -385,7 +385,7 @@
 
                 var onSuccess = function (data) {
 
-                    if (typeof data == 'undefined') {
+                    if (typeof data === 'undefined') {
                         return;
                     }
 
@@ -617,19 +617,19 @@
 
             var rest = [];
             for (i = 0, l = path.length; i < l; i++) {
-                if (i == 0) {
+                if (i === 0) {
                     to_search = path[i];
                 } else {
                     rest.push(path[i]);
                 }
             }
 
-            if (rest.length == 0) {
+            if (rest.length === 0) {
                 // found the parent
                 // check if the object is a folder, if yes return the folder list and the index
                 if (datastore.hasOwnProperty('folders')) {
                     for (n = 0, l = datastore.folders.length; n < l; n++) {
-                        if (datastore.folders[n].id == to_search) {
+                        if (datastore.folders[n].id === to_search) {
                             return [datastore.folders, n];
                             // datastore.folders.splice(n, 1);
                             // return true;
@@ -639,7 +639,7 @@
                 // check if its a file, if yes return the file list and the index
                 if (datastore.hasOwnProperty('items')) {
                     for (n = 0, l = datastore.items.length; n < l; n++) {
-                        if (datastore.items[n].id == to_search) {
+                        if (datastore.items[n].id === to_search) {
                             return [datastore.items, n];
                             // datastore.items.splice(n, 1);
                             // return true;
@@ -651,7 +651,7 @@
             }
 
             for (n = 0, l= datastore.folders.length; n < l; n++) {
-                if (datastore.folders[n].id == to_search) {
+                if (datastore.folders[n].id === to_search) {
                     return find_in_datastore(rest, datastore.folders[n]);
                 }
             }
@@ -808,7 +808,7 @@
                 for (var i = 0, l = path_copy.length; i < l; i++) {
                     if (passed) {
                         relative_path.push(path_copy[i]);
-                    } else if (share.id == path_copy[i]) {
+                    } else if (share.id === path_copy[i]) {
                         passed = true;
                     }
                 }
@@ -847,12 +847,12 @@
             var parent_share = managerShare.get_closest_parent_share(path_copy, datastore, datastore, distance);
 
             // create share_index object if not exists
-            if (typeof(parent_share.share_index) == 'undefined') {
+            if (typeof(parent_share.share_index) === 'undefined') {
                 parent_share.share_index = {};
             }
 
             // add the the entry for the share in the share_index if not yet exists
-            if (typeof(parent_share.share_index[share_id]) == 'undefined') {
+            if (typeof(parent_share.share_index[share_id]) === 'undefined') {
 
                 var search = find_in_datastore(path_copy2, datastore);
                 var share = search[0][search[1]];
@@ -895,11 +895,11 @@
 
                     parent_share.share_index[old_share_id].paths.splice(i, 1);
 
-                    if (typeof(share.share_index) == 'undefined') {
+                    if (typeof(share.share_index) === 'undefined') {
                         share.share_index = {};
                     }
 
-                    if (typeof(share.share_index[old_share_id]) == 'undefined') {
+                    if (typeof(share.share_index[old_share_id]) === 'undefined') {
                         share.share_index[old_share_id] = {
                             paths: [],
                             secret_key: parent_share.share_index[old_share_id].secret_key
@@ -907,11 +907,11 @@
                     }
                     share.share_index[old_share_id].paths.push(new_relative_path);
 
-                    if (parent_share.share_index[old_share_id].paths.length == 0) {
+                    if (parent_share.share_index[old_share_id].paths.length === 0) {
                         delete parent_share.share_index[old_share_id];
                     }
 
-                    if (Object.keys(parent_share.share_index).length == 0) {
+                    if (Object.keys(parent_share.share_index).length === 0) {
                         delete parent_share.share_index;
                     }
                     share_changed = true;
@@ -965,11 +965,11 @@
                         already_found = true;
                     }
                     // if no paths are empty, we delete the whole share_index entry
-                    if (share.share_index[share_id].paths.length == 0) {
+                    if (share.share_index[share_id].paths.length === 0) {
                         delete share.share_index[share_id];
                     }
                     // if the share_index holds no entries anymore, we delete the share_index
-                    if (Object.keys(share.share_index).length == 0) {
+                    if (Object.keys(share.share_index).length === 0) {
                         delete share.share_index;
                     }
                     

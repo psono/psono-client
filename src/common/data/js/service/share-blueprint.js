@@ -72,7 +72,7 @@
 
                                 possible_username = fields[i].value;
 
-                                if (fields[i].value.indexOf('@') == -1 && selected_server_domain) {
+                                if (fields[i].value.indexOf('@') === -1 && selected_server_domain) {
                                     possible_username = possible_username + '@' + selected_server_domain;
                                 }
 
@@ -114,7 +114,7 @@
                         }
                     }
 
-                    if (search_username.indexOf('@') == -1 && selected_server_domain) {
+                    if (search_username.indexOf('@') === -1 && selected_server_domain) {
                         search_username = search_username + '@' + selected_server_domain;
                     }
 
@@ -218,7 +218,7 @@
                     continue;
                 }
 
-                if (_additionalFunction[property].hasOwnProperty('ngClass') && _additionalFunction[property].ngClass(item) == 'hidden') {
+                if (_additionalFunction[property].hasOwnProperty('ngClass') && _additionalFunction[property].ngClass(item) === 'hidden') {
                     continue;
                 }
 

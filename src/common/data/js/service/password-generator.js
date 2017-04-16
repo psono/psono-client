@@ -37,10 +37,10 @@
             var n = password.match(new RegExp("(["+escape_reg_exp(settings.get_setting('setting_password_numbers'))+"])", "g"));
             var sc = password.match(new RegExp("(["+escape_reg_exp(settings.get_setting('setting_password_special_chars'))+"])", "g"));
 
-            return uc && (settings.get_setting('setting_password_letters_uppercase').length == 0 || uc.length >= uppercaseMinCount) &&
-                lc && (settings.get_setting('setting_password_letters_lowercase').length == 0 || lc.length >= lowercaseMinCount) &&
-                n && (settings.get_setting('setting_password_numbers').length == 0 || n.length >= numberMinCount) &&
-                sc && (settings.get_setting('setting_password_special_chars').length == 0 || sc.length >= specialMinCount);
+            return uc && (settings.get_setting('setting_password_letters_uppercase').length === 0 || uc.length >= uppercaseMinCount) &&
+                lc && (settings.get_setting('setting_password_letters_lowercase').length === 0 || lc.length >= lowercaseMinCount) &&
+                n && (settings.get_setting('setting_password_numbers').length === 0 || n.length >= numberMinCount) &&
+                sc && (settings.get_setting('setting_password_special_chars').length === 0 || sc.length >= specialMinCount);
         };
 
         /**

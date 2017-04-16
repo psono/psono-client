@@ -110,23 +110,23 @@
          */
         var get_account_detail = function (key) {
 
-            if (key == 'user_id') {
+            if (key === 'user_id') {
                 return storage.find_one('config', {key: 'user_id'}).value;
             }
 
-            if (key == 'user_username') {
+            if (key === 'user_username') {
                 return storage.find_one('config', {key: 'user_username'}).value;
             }
 
-            if (key == 'user_public_key') {
+            if (key === 'user_public_key') {
                 return storage.find_one('config', {key: 'user_public_key'}).value;
             }
 
-            if (key == 'user_email') {
+            if (key === 'user_email') {
                 return storage.find_one('config', {key: 'user_email'}).value;
             }
 
-            if (key == 'setting_email') {
+            if (key === 'setting_email') {
                 return storage.find_one('config', {key: 'user_email'}).value;
             }
 
@@ -188,7 +188,7 @@
                 // lets check for a correct old password and then update our backend
                 if (config_email !== specials['setting_email'].value) {
 
-                    if (specials['setting_email_password_old'].value == null || specials['setting_email_password_old'].value.length == 0) {
+                    if (specials['setting_email_password_old'].value === null || specials['setting_email_password_old'].value.length === 0) {
                         return reject({errors: ['Old password empty']})
                     }
 
@@ -226,7 +226,7 @@
                         console.log("reject");
                         return reject({errors: ['Passwords mismatch']})
                     }
-                    if (specials['setting_password_password_old'].value == null || specials['setting_password_password_old'].value.length == 0) {
+                    if (specials['setting_password_password_old'].value === null || specials['setting_password_password_old'].value.length === 0) {
                         return reject({errors: ['Old password empty']})
                     }
 

@@ -106,7 +106,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
         for(var i = fillpassword.length - 1; i >= 0; i--) {
             if( endsWith(parsed_url.authority, fillpassword[i].authority)) {
-                fillpassword[i].submit = parsed_url.scheme == 'https';
+                fillpassword[i].submit = parsed_url.scheme === 'https';
                 sendResponse({event: "fillpassword", data: fillpassword[i]});
                 fillpassword.splice(i, 1);
                 break;
@@ -114,7 +114,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         }
     };
 
-    if (sender.tab && request.event == "ready") {
+    if (sender.tab && request.event === "ready") {
         console.log("background script received    'ready'");
         return on_ready();
     }
@@ -125,7 +125,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     var on_fillpassword = function () {
         fillpassword.push(request.data);
     };
-    if (request.event == "fillpassword") {
+    if (request.event === "fillpassword") {
         console.log("background script received    'fillpassword'");
         return on_fillpassword();
     }
@@ -139,7 +139,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             // pass
         });
     };
-    if (request.event == "fillpassword-active-tab") {
+    if (request.event === "fillpassword-active-tab") {
         console.log("background script received    'fillpassword-active-tab'");
         return on_fillpassword_active_tab();
     }
@@ -158,7 +158,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             chrome.tabs.remove(tabids)
         });
     };
-    if (request.event == "logout") {
+    if (request.event === "logout") {
         console.log("background script received    'logout'");
         return on_logout();
     }
@@ -186,7 +186,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
         sendResponse({event: "website-password-update", data: update});
     };
-    if (sender.tab && request.event == "website-password-refresh") {
+    if (sender.tab && request.event === "website-password-refresh") {
         console.log("background script received    'website-password-refresh'");
         return on_website_password_refresh();
     }
@@ -237,7 +237,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
         return true; // return true because of async response
     };
-    if (request.event == "request-secret") {
+    if (request.event === "request-secret") {
         return on_request_secret();
     }
 
@@ -254,7 +254,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         document.execCommand('copy');
         body.removeChild(copyFrom);
     };
-    if (request.event == "copy-to-clipboard") {
+    if (request.event === "copy-to-clipboard") {
         return on_copy_to_clipboard();
     }
 

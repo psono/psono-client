@@ -77,7 +77,7 @@
 
             var onSuccess = function (result) {
 
-                if (typeof(result) == 'undefined') {
+                if (typeof(result) === 'undefined') {
                     return;
                 }
 
