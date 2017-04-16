@@ -9,7 +9,8 @@ var sass = require('gulp-sass');
 var template_cache = require('gulp-angular-templatecache');
 var crx = require('gulp-crx-pack');
 var fs = require("fs");
-var path = require('path-extra');
+var path = require('path');
+var ospath = require('ospath');
 var child_process = require('child_process');
 var jeditor = require("gulp-json-editor");
 var karma_server = require('karma').Server;
@@ -188,15 +189,14 @@ gulp.task('watchpost', function() {
  * creates the crx and update file for Chrome
  */
 gulp.task('crx', function() {
-    var manifest = require('./build/chrome/manifest.json');
+    var manifest = JSON.parse(fs.readFileSync('./build/chrome/manifest.json'));
 
     var codebase = manifest.codebase;
     var updateXmlFilename = 'psono.PW.update.xml';
 
-
     return gulp.src('./build/chrome')
         .pipe(crx({
-            privateKey: fs.readFileSync(path.homedir() + '/.psono_client/certs/key', 'utf8'),
+            privateKey: fs.readFileSync(ospath.home() + '/.psono_client/certs/key', 'utf8'),
             filename: manifest.name + '.crx',
             codebase: codebase,
             updateXmlFilename: updateXmlFilename
@@ -298,7 +298,7 @@ gulp.task('docs', [], function () {
  */
 gulp.task('unittest', function (done) {
     new karma_server({
-        configFile: __dirname + '/unittests/karma-chrome.conf.js',
+        configFile: path.join(__dirname, 'unittests', 'karma-chrome.conf.js'),
         singleRun: true
     }, done).start();
 });
@@ -308,7 +308,7 @@ gulp.task('unittest', function (done) {
  */
 gulp.task('unittestwatch', function (done) {
     new karma_server({
-        configFile: __dirname + '/unittests/karma-chrome.conf.js',
+        configFile: path.join(__dirname, 'unittests', 'karma-chrome.conf.js'),
         singleRun: false
     }, done).start();
 });

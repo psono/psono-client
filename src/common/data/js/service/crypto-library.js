@@ -413,7 +413,7 @@
             return uuid.unparse(from_hex(val));
         };
 
-        var Mnemonic = function () {
+        var Mnemonic = (function () {
 
             // Mnemonic.js v. 1.1.0
 
@@ -495,7 +495,7 @@
             };
 
             return Mnemonic;
-        }();
+        }());
 
         /**
          * @ngdoc

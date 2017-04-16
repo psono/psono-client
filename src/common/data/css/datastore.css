@@ -78,7 +78,7 @@ body {
   background-color: #151f2b;
   border-color: #122b40; }
 
-label.smalllabel {
+.smalllabel {
   font-size: small;
   margin-bottom: 0;
   margin-top: 5px;

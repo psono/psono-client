@@ -262,4 +262,4 @@
 
 
 
-})(angular);
+}(angular));
