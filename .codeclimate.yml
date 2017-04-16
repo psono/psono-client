@@ -1,0 +1,6 @@
+exclude_paths:
+- docu/**/*
+- var/**/*
+- unittests/**/*
+- src/common/data/js/lib/**/*
+- src/common/data/css/lib/**/*
