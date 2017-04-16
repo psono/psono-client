@@ -298,6 +298,88 @@
                 .then(onSuccess, onError);
         };
 
+        /**
+         * our little helper function that actually checks if and item can move
+         *
+         * @param element The item to move
+         * @param target The target where to put it
+         *
+         * @returns {boolean} Returns weather its ok to move the item or not
+         */
+        var canMoveItem = function(element, target) {
+
+            // prevent the move of shares without grant rights into different shares
+            if (element.share_rights.grant === false && element.hasOwnProperty('parent_share_id')
+                && target.hasOwnProperty('share_id') && target['share_id'] !== element['parent_share_id']) {
+
+                alert("Sorry, but you you cannot move a share without grant rights into another share.");
+                return false;
+            }
+
+
+            // prevent the move of shares without grant rights into different shares
+            if (element.share_rights.grant === false && element.hasOwnProperty('parent_share_id')
+                && !target.hasOwnProperty('share_id') && target.hasOwnProperty('parent_share_id') && target['parent_share_id'] !== element['parent_share_id']) {
+
+                alert("Sorry, but you you cannot move a share without grant rights into another share.");
+                return false;
+            }
+
+            return true;
+        };
+
+        /**
+         * takes any element like shares, folders, items ... and checks if they can be moved
+         *
+         * @param element The element (shares, folders, items ...) to move
+         * @param target The target where to put it
+         *
+         * @returns {boolean} Returns weather its ok to move the element or not
+         */
+        var canMoveFolder = function(element, target) {
+            var i;
+
+            // Start of the actual rights checking
+
+            // prevent the move of anything into a target without right writes
+            if (target.hasOwnProperty("share_rights") && target.share_rights.write === false) {
+                alert("Sorry, but you don't have write rights on target");
+                return false;
+            }
+
+            // we are moving a share, so its unnecessary to check any lower item / folder rights
+            if (element.hasOwnProperty('share_id')) {
+                return canMoveItem(element, target);
+            }
+
+            // checks if we maybe have an item itself
+            if (element.hasOwnProperty('type')) {
+                if (canMoveItem(element, target) === false) {
+                    return false;
+                }
+            }
+
+            // checks if we have a folder with items
+            if (element.hasOwnProperty('items') && element.items.length > 0) {
+                for (i = element.items.length - 1; i >= 0; i--) {
+                    if (canMoveItem(element.items[i], target) === false) {
+                        return false;
+                    }
+                }
+            }
+
+            // checks if we have a folder with folders
+            if (element.hasOwnProperty('folders') && element.folders.length > 0) {
+                for (i = element.folders.length - 1; i >= 0; i--) {
+                    if (canMoveFolder(element.folders[i], target) === false) {
+                        return false;
+                    }
+                }
+            }
+
+            // Nothing is blocking our move
+            return true;
+        };
 
 
         /**
@@ -314,87 +396,6 @@
          * @param {string} type type of the item ('item' or 'folder')
          */
         var move_item = function(datastore, item_path, target_path, type) {
-
-            /**
-             * takes any element like shares, folders, items ... and checks if they can be moved
-             *
-             * @param element
-             * @param target
-             * @returns {boolean}
-             */
-            var canMove = function(element, target) {
-                var i;
-
-                /**
-                 * our little helper function that actually checks if an element can be moved
-                 *
-                 * @param element
-                 * @param target
-                 * @returns {boolean}
-                 */
-                var canMoveHelper = function(element, target) {
-
-                    // prevent the move of shares without grant rights into different shares
-                    if (element.share_rights.grant === false && element.hasOwnProperty('parent_share_id')
-                        && target.hasOwnProperty('share_id') && target['share_id'] !== element['parent_share_id']) {
-
-                        alert("Sorry, but you you cannot move a share without grant rights into another share.");
-                        return false;
-                    }
-
-
-                    // prevent the move of shares without grant rights into different shares
-                    if (element.share_rights.grant === false && element.hasOwnProperty('parent_share_id')
-                        && !target.hasOwnProperty('share_id') && target.hasOwnProperty('parent_share_id') && target['parent_share_id'] !== element['parent_share_id']) {
-
-                        alert("Sorry, but you you cannot move a share without grant rights into another share.");
-                        return false;
-                    }
-
-                    return true;
-                };
-
-                // Start of the actual rights checking
-
-                // prevent the move of anything into a target without right writes
-                if (target.hasOwnProperty("share_rights") && target.share_rights.write === false) {
-                    alert("Sorry, but you don't have write rights on target");
-                    return false;
-                }
-
-                // we are moving a share, so its unnecessary to check any lower item / folder rights
-                if (element.hasOwnProperty('share_id')) {
-                    return canMoveHelper(element, target);
-                }
-
-                // checks if we maybe have an item itself
-                if (element.hasOwnProperty('type')) {
-                    if (canMoveHelper(element, target) === false) {
-                        return false;
-                    }
-                }
-
-                // checks if we have a folder with items
-                if (element.hasOwnProperty('items') && element.items.length > 0) {
-                    for (i = element.items.length - 1; i >= 0; i--) {
-                        if (canMoveHelper(element.items[i], target) === false) {
-                            return false;
-                        }
-                    }
-                }
-
-                // checks if we have a folder with folders
-                if (element.hasOwnProperty('folders') && element.folders.length > 0) {
-                    for (i = element.folders.length - 1; i >= 0; i--) {
-                        if (canMove(element.folders[i], target) === false) {
-                            return false;
-                        }
-                    }
-                }
-
-                // Nothing is blocking our move
-                return true;
-            };
 
 
             var i;
@@ -433,7 +434,7 @@
             }
 
             //prevent the move of shares if rights are not sufficient
-            if (!canMove(element, target)) {
+            if (!canMoveFolder(element, target)) {
                 return;
             }
 
@@ -483,17 +484,15 @@
                 managerShareLink.on_share_moved(child_shares[i].share.id, closest_parent);
             }
 
-            // if parent_share did not change, then we are done here
-            if (element.hasOwnProperty("parent_share_id") && target.hasOwnProperty("parent_share_id")
-                && (target['parent_share_id'] === element['parent_share_id']
-                || (target.hasOwnProperty('share_id') && target['share_id'] === element['parent_share_id']))) {
-                return;
-            }
+            var check_parent = function (element, target, type) {
+                return element.hasOwnProperty("parent_" + type + "_id") && target.hasOwnProperty("parent_" + type + "_id")
+                    && (target['parent_' + type + '_id'] === element['parent_' + type + '_id']
+                    || (target.hasOwnProperty('share_id') && target[type + '_id'] === element['parent_' + type + '_id']));
+            };
 
-            // if parent_datastore did not change, then we are done here
-            if (element.hasOwnProperty("parent_datastore_id") && target.hasOwnProperty("parent_datastore_id")
-                && (target['parent_datastore_id'] === element['parent_datastore_id']
-                || (target.hasOwnProperty('datatstore_id') && target['datatstore_id'] === element['parent_datastore_id']))) {
+
+            // if parent_share or parent_datastore did not change, then we are done here
+            if (check_parent(element, target, 'share') || check_parent(element, target, 'datastore')) {
                 return;
             }
 
