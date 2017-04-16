@@ -1770,7 +1770,7 @@
         $scope.routeParams = $routeParams;
     }]);
 
-})(angular, uuid);
+}(angular, uuid));
 
 
 /* creates the base href tag for angular location */

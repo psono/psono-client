@@ -289,4 +289,4 @@
 
         main();
     });
-})(browserClient, jQuery);
+}(browserClient, jQuery));

@@ -238,6 +238,26 @@
                     return datastore;
                 }
 
+                var read_share_helper = function (share_id, sub_datastore, path, parent_share_id, parent_datastore_id) {
+                    var onSuccess = function (content) {
+                        all_share_data[share_id] = content;
+
+                        update_paths_with_data(datastore, path, content, parent_share_rights, parent_share_id, parent_datastore_id);
+
+                        rights = calculate_user_share_rights(content);
+
+                        read_shares_recursive(sub_datastore, share_rights_dict, content.data.share_index, all_share_data, rights, share_id, undefined);
+                        open_calls--;
+                    };
+
+                    var onError = function () {
+                        open_calls--;
+                    };
+                    open_calls++;
+                    return managerShare.read_share(share_id, share_index[share_id].secret_key)
+                        .then(onSuccess, onError);
+                };
+
                 for (var share_id in share_index) {
                     if (!share_index.hasOwnProperty(share_id)) {
                         continue;
@@ -270,25 +290,7 @@
                             continue;
                         }
 
-                        all_calls.push((function (share_id, sub_datastore, path, parent_share_id, parent_datastore_id) {
-                            var onSuccess = function (content) {
-                                all_share_data[share_id] = content;
-
-                                update_paths_with_data(datastore, path, content, parent_share_rights, parent_share_id, parent_datastore_id);
-
-                                rights = calculate_user_share_rights(content);
-
-                                read_shares_recursive(sub_datastore, share_rights_dict, content.data.share_index, all_share_data, rights, share_id, undefined);
-                                open_calls--;
-                            };
-
-                            var onError = function () {
-                                open_calls--;
-                            };
-                            open_calls++;
-                            return managerShare.read_share(share_id, share_index[share_id].secret_key)
-                                .then(onSuccess, onError);
-                        })(share_id, sub_datastore, share_index[share_id].paths[i], parent_share_id, parent_datastore_id));
+                        all_calls.push(read_share_helper(share_id, sub_datastore, share_index[share_id].paths[i], parent_share_id, parent_datastore_id));
 
                     }
                 }
@@ -611,7 +613,7 @@
          */
         var find_in_datastore = function (path, datastore) {
 
-            var to_search = undefined;
+            var to_search;
 
             var i, n, l;
 

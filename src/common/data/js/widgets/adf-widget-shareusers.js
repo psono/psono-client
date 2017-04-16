@@ -113,11 +113,11 @@
                         if (!content.fields[i].hasOwnProperty("value")) {
                             continue;
                         }
-                        if (!user_object.name && content.title_field == content.fields[i].name) {
+                        if (!user_object.name && content.title_field === content.fields[i].name) {
                             user_object.name = content.fields[i].value;
                         }
                         if (content.hasOwnProperty("urlfilter_field")
-                            && content.urlfilter_field == content.fields[i].name) {
+                            && content.urlfilter_field === content.fields[i].name) {
                             user_object.urlfilter = content.fields[i].value;
                         }
                         user_object.data[content.fields[i].name] = content.fields[i].value;
@@ -179,13 +179,13 @@
                         }
 
                         // found title and if title not yet set , lets save it as title
-                        if (!new_name && content.title_field == content.fields[i].name) {
+                        if (!new_name && content.title_field === content.fields[i].name) {
                             node.name = content.fields[i].value;
                         }
 
                         // found a urlfilter field, lets put it into our urlfilter
                         if (content.hasOwnProperty("urlfilter_field")
-                            && content.urlfilter_field == content.fields[i].name) {
+                            && content.urlfilter_field === content.fields[i].name) {
                             node.urlfilter = content.fields[i].value;
                         }
 
@@ -554,4 +554,4 @@
             }
         }]);
 
-})(angular, uuid);
+}(angular, uuid));

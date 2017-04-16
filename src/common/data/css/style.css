@@ -3,19 +3,22 @@
 body {
   font-family: 'Open Sans', sans-serif;
   position: relative;
-  min-width: 180px;
   background-color: #0f1118;
   margin: 0;
-  padding: 0; }
+  padding: 0;
+  min-width: 320px; }
 
 h1, h2 {
   font-size: 20px;
   margin: 0; }
 
+#panel {
+  padding: 10px; }
+
 #logo {
   margin-bottom: 10px; }
 
-.loginbox span.pull-right {
+.loginbox .pull-right {
   line-height: 31px; }
 
 .loginbox .box-footer {
@@ -155,9 +158,6 @@ h1, h2 {
   width: 15px; }
 
 /* classes for error handling */
-.form-group .help-block {
-  /*  display: none; */ }
-
 .form-group.has-error .help-block {
   display: block; }
 

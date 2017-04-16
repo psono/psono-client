@@ -147,7 +147,7 @@
          */
         var _get_config = function(key) {
 
-            if (typeof(key) == 'undefined') {
+            if (typeof(key) === 'undefined') {
                 return config;
             }
             if (config.hasOwnProperty(key)) {

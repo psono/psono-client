@@ -589,7 +589,7 @@
          */
         var find_in_structure = function (path, structure) {
             var to_search = path.shift();
-            var n = undefined;
+            var n;
 
             if (path.length === 0) {
                 // found the object

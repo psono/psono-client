@@ -7,6 +7,9 @@ engines:
         enabled: false
   duplication:
     enabled: true
+    checks:
+      Identical code:
+        enabled: false
     config:
       languages:
       - javascript
@@ -14,6 +17,9 @@ engines:
     enabled: true
   fixme:
     enabled: true
+    checks:
+      TODO:
+        enabled: false
 ratings:
   paths:
   - "**.css"
