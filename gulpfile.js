@@ -194,6 +194,53 @@ gulp.task('chrome-deploy', function() {
 });
 
 
+/**
+ * creates the unsigned xpi file for Firefox
+ */
+gulp.task('xpiunsigned', function (cb) {
+
+    child_process.exec('cd build/firefox/ && jpm xpi && cd ../../ && mv build/firefox/@psonopw-*.xpi dist/firefox/psono.PW.unsigned.xpi', function (err, stdout, stderr) {
+        console.log(stdout);
+        console.log(stderr);
+        cb(err);
+    });
+});
+
+/**
+ * signs an xpi file with addons.mozilla.org api credentials
+ * To obtain your api credentials visit https://addons.mozilla.org/en-US/developers/addon/api/key/
+ *
+ * create the following file (if not already exist):
+ * ~/.psono_client/apikey_addons_mozilla_org/key.json
+ *
+ * As content put the following (replace the values with your api credentials from addons.mozilla.org):
+ * {
+ *       "issuer": "user:123467:789",
+ *       "secret": "15c686fea..."
+ * }
+ *
+ * Side note: This command requires jpm 1.0.4 or later to work.
+ *            You can check with "jpm --version"
+ *            Try to update it or install the version directly from git like:
+ *
+ *            git clone https://github.com/mozilla-jetpack/jpm.git
+ *            cd jpm
+ *            npm install
+ *            npm link
+ */
+gulp.task('xpi', ['xpiunsigned'], function (cb) {
+
+    var key = require(path.homedir() + '/.psono_client/apikey_addons_mozilla_org/key.json');
+
+    child_process.exec('jpm sign --api-key '+key.issuer+' --api-secret '+key.secret+' --xpi dist/firefox/psono.PW.unsigned.xpi && mv psonopw*.xpi dist/firefox/psono.PW.xpi', function (err, stdout, stderr) {
+        console.log(stdout);
+        console.log(stderr);
+        cb(err);
+    });
+});
+
+
+
 
 gulp.task('dist', ['default', 'crx', 'xpi']);
 

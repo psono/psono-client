@@ -69,7 +69,7 @@ job-release-docker:
     - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
     - docker push $CONTAINER_RELEASE_IMAGE
   only:
-    - master
+    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
 job-deploy:
   stage: deploy
@@ -82,7 +82,7 @@ job-deploy:
     name: production
     url: https://psono.pw
   only:
-    - master
+    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
 job-deploy-chrome:
   stage: deploy
@@ -95,4 +95,4 @@ job-deploy-chrome:
     url: https://chrome.google.com/webstore/detail/psonopw/eljmjmgjkbmpmfljlmklcfineebidmlo
   when: manual
   only:
-    - master
+    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
