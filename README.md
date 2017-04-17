@@ -54,6 +54,10 @@ Two things you should be aware of:
 2) As username for the registration / login, you have to specify something in the format of an email address, ending e.g
 in `@example.com` where `example.com` is in your `settings.yaml` in the `ALLOWED_DOMAINS` section
 
+# Preamble
+
+    The following steps are verified on Ubuntu 16.04 LTS. Ubuntu 12.04+ LTS and Debian based systems should be similar if not
+    even identical.
 
 # Install for developers
 
@@ -63,19 +67,69 @@ you may install belows dependencies and execute below mentioned commands.
 
 1. Install dependencies
 
-        sudo apt-get update
-        sudo apt-get install nodejs
-        sudo apt-get install npm
-        sudo ln -s /usr/bin/nodejs /usr/bin/node
-        sudo npm install
+    To install all dependencies and make a small gulp test run, run the following script
+
+        sudo var/build-ubuntu.sh
+    
+    (You should  not blindly execute scripts, so check what it does before you execute it)
         
-2. Build Chrome and Firefox extensions together with the web client
+2. Test if the installation was successful
+
+	To test we can build Chrome and Firefox extensions together with the web client
 
         gulp
         
     While developing you can also use the following instead, which will rebuild everything once something changes:
         
         gulp watch
+
+# How to create a release
+
+0. Preamble
+
+    This whole guide is based on Ubuntu 16.04 LTS. Ubuntu 12.04+ LTS and Debian based systems should be similar if not
+    even identical.
+    
+1. Pre-requirements
+
+    Follow the steps of the `Install for developers` section
+    
+2. Update your Firefox API key
+    
+    Make sure that your Firefox API key is in located in `~/.psono_client/apikey_addons_mozilla_org/key.json` in the
+    following format
+
+		{
+			"issuer": "user:123467:789",
+			"secret": "15c686fea..."
+		}
+ 
+	(replace the values with your api credentials from addons.mozilla.org)
+	
+3. Execute Script
+
+    The following script will create a new firefox and chrome update with a new version. In addition it will create
+    the appropriate tags and update the develop and master branch.
+    
+        ./var/release.sh 
+
+# How to build extensions 
+
+1. Pre-requirements
+
+    Make sure that your Firefox API key is in 
+    
+2. Update your Firefox API key
+    
+    Make sure that your Firefox API key is in located in `~/.psono_client/apikey_addons_mozilla_org/key.json` in the
+    following format
+
+		{
+			"issuer": "user:123467:789",
+			"secret": "15c686fea..."
+		}
+ 
+	(replace the values with your api credentials from addons.mozilla.org)
 
 3. Pack Chrome extension for release
 
@@ -113,14 +167,11 @@ you may install belows dependencies and execute below mentioned commands.
 
 For unittest you have some additional dependencies.
 
-1. Install dependencies
+0. Prerequirements
 
-        sudo npm install
-        sudo npm install -g karma-cli
-        
-    If you want unit tests, that run in Chrome / Firefox, you also have to install both browsers
+    Follow the steps of the `Install for developers` section
     
-2. Run the tests
+1. Run the tests
 
     directly from command line:
 
@@ -142,17 +193,16 @@ For unittest you have some additional dependencies.
     
 # Generate javascript docs
 
-To generate the javascript run
+To generate the javascript run the following command
 
 	gulp docs
-	
 
     
 # Debug
 
 ### Firefox:
 
-We assume you have jpm and firefox developer edition intalled, then you can debug the firefox extension with:
+We assume you have jpm and firefox developer edition installed, then you can debug the firefox extension with:
 
         gulp
         cd ./password-manager-browser-plugins/build/firefox
