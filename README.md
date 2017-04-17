@@ -44,7 +44,6 @@ The canonical source of PSONO Server is [hosted on GitLab.com](https://gitlab.co
     If you open now http://your-ip:10100 you should see a beautiful login screen.
     If not, please make sure you have no firewall on the server blocking you.
     
-# Register / Login
 
 Two things you should be aware of:
     
@@ -52,7 +51,8 @@ Two things you should be aware of:
     
         {"detail":"Authentication credentials were not provided."}
 
-2) As username for the registration / login, you have to specify something in the format of an email address, ending e.g in `@example.com` where example.com is in your settings.yaml in the `ALLOWED_DOMAINS` section
+2) As username for the registration / login, you have to specify something in the format of an email address, ending e.g
+in `@example.com` where `example.com` is in your `settings.yaml` in the `ALLOWED_DOMAINS` section
 
 
 # Install for developers
