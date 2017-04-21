@@ -26,7 +26,7 @@
   "background": {
     "scripts": [
       "data/js/lib/jquery.min.js",
-      "data/js/lib/sha512.js",
+      "data/js/lib/sha512.min.js",
       "data/js/lib/sha256.js",
       "data/js/lib/ecma-nacl.js",
       "data/js/jquery-api-client.js",
@@ -42,7 +42,7 @@
         "data/css/contentscript.css"
       ],
       "js": [
-        "data/js/lib/tether.js",
+        "data/js/lib/tether.min.js",
         "data/js/lib/drop.js",
         "data/js/lib/jquery.min.js",
         "data/js/formfill-browser-client.js",
