@@ -12,8 +12,6 @@ unittests:
   stage: test
   image: ubuntu:16.04
   script:
-    - pwd
-    - ls -la
     - sh ./var/build-ubuntu.sh
     - karma start ./unittests/karma-phantom.conf.js
 
