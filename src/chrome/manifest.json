@@ -3,7 +3,7 @@
 
   "name": "psono.PW",
   "description": "Psono Password Manager",
-  "version": "1.0.2",
+  "version": "1.0.3",
 
   "browser_action": {
     "default_icon": "data/img/icon-32.png",
@@ -25,7 +25,7 @@
   },
   "background": {
     "scripts": [
-      "data/js/lib/jquery-2.1.4.js",
+      "data/js/lib/jquery.min.js",
       "data/js/lib/sha512.js",
       "data/js/lib/sha256.js",
       "data/js/lib/ecma-nacl.js",
@@ -44,7 +44,7 @@
       "js": [
         "data/js/lib/tether.js",
         "data/js/lib/drop.js",
-        "data/js/lib/jquery-2.1.4.js",
+        "data/js/lib/jquery.min.js",
         "data/js/formfill-browser-client.js",
         "data/js/formfill.js"
       ]
@@ -52,6 +52,5 @@
   ],
   "web_accessible_resources": [
     "data/css/fonts/*.woff2"
-  ],
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self';"
+  ]
 }

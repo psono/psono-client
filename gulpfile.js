@@ -29,7 +29,7 @@ gulp.task('sass', function () {
 });
 
 
-var build = function(build_path, remove_default_browser_client) {
+var build = function(build_path, remove_default_browser_client, minify_js) {
     gulp.src(['src/common/data/css/**/*'])
         .pipe(cleanCSS({compatibility: 'ie8'}))
         .pipe(gulp.dest(path.join(build_path, 'css')));
@@ -46,17 +46,21 @@ var build = function(build_path, remove_default_browser_client) {
     if(remove_default_browser_client) {
         js_source.push('!src/common/data/js/service/browser-client.js');
     }
-
-    gulp.src(js_source)
-        .pipe(minify({
-            ext:{
-                min:'.js'
-            },
-            ignoreFiles: ['.min.js'],
-            noSource: true,
-            preserveComments: 'some'
-        }))
-        .pipe(gulp.dest(path.join(build_path, 'js')));
+    if (minify_js) {
+        gulp.src(js_source)
+            .pipe(minify({
+                ext:{
+                    min:'.js'
+                },
+                ignoreFiles: ['.min.js'],
+                noSource: true,
+                preserveComments: 'some'
+            }))
+            .pipe(gulp.dest(path.join(build_path, 'js')));
+    } else {
+        gulp.src(js_source)
+            .pipe(gulp.dest(path.join(build_path, 'js')));
+    }
 
     gulp.src('src/common/data/view/**/*.html')
         .pipe(template_cache('templates.js', { module:'psonocli', root: 'view/' }))
@@ -76,7 +80,7 @@ var build = function(build_path, remove_default_browser_client) {
  * Creates the Webserver build folder
  */
 gulp.task('build-webserver', function() {
-    return build('build/webserver', false);
+    return build('build/webserver', false, true);
 });
 
 /**
@@ -84,7 +88,7 @@ gulp.task('build-webserver', function() {
  */
 gulp.task('build-firefox', function() {
 
-    build('build/firefox/data', true);
+    build('build/firefox/data', true, false);
 
     return gulp.src(['src/firefox/**/*'])
         .pipe(gulp.dest('build/firefox'));
@@ -96,7 +100,7 @@ gulp.task('build-firefox', function() {
  */
 gulp.task('build-chrome', function() {
 
-    build('build/chrome/data', true);
+    build('build/chrome/data', true, false);
 
     return gulp.src(['src/chrome/**/*'])
         .pipe(gulp.dest('build/chrome'));
