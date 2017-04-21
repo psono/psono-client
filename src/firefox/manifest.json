@@ -27,8 +27,8 @@
     "scripts": [
       "data/js/lib/jquery.min.js",
       "data/js/lib/sha512.min.js",
-      "data/js/lib/sha256.js",
-      "data/js/lib/ecma-nacl.js",
+      "data/js/lib/sha256.min.js",
+      "data/js/lib/ecma-nacl.min.js",
       "data/js/jquery-api-client.js",
       "index.js"
     ]
@@ -43,7 +43,7 @@
       ],
       "js": [
         "data/js/lib/tether.min.js",
-        "data/js/lib/drop.js",
+        "data/js/lib/drop.min.js",
         "data/js/lib/jquery.min.js",
         "data/js/formfill-browser-client.js",
         "data/js/formfill.js"
