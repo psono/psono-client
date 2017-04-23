@@ -3,7 +3,7 @@
 
   "name": "psono.PW",
   "description": "Psono Password Manager",
-  "version": "1.0.3",
+  "version": "1.0.4",
 
   "browser_action": {
     "default_icon": "data/img/icon-32.png",
