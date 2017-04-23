@@ -1242,7 +1242,7 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:LoginCtrl#gaVerify
+             * @name psonocli.controller:LoginCtrl#ga_verify
              * @methodOf psonocli.controller:LoginCtrl
              *
              * @description
@@ -1277,6 +1277,45 @@
                 };
 
                 managerDatastoreUser.ga_verify(ga_token, angular.copy($scope.selected_server)).then(onSuccess, onError);
+            };
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LoginCtrl#yubikey_otp_verify
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Triggered once someone clicks the "Send" Button on the YubiKey OTP request screen
+             *
+             * @param {string} yubikey_otp_token The Yubikey OTP Token
+             */
+            $scope.yubikey_otp_verify = function(yubikey_otp_token) {
+
+                if (typeof(yubikey_otp_token) === 'undefined') {
+                    // Dont do anything if the token is not 6 digits long
+                    // because the html5 form validation will tell the user
+                    // whats wrong
+                    return;
+                }
+
+                var onError = function(data) {
+                    console.log(data);
+                    if (data.error_data === null) {
+                        $scope.errors = ['Server offline.']
+                    } else if (data.error_data.hasOwnProperty('non_field_errors')) {
+                        $scope.errors = data.error_data.non_field_errors;
+                    } else if (data.error_data.hasOwnProperty('username')) {
+                        $scope.errors = data.error_data.username;
+                    } else {
+                        $scope.errors = ['Server offline.']
+                    }
+                };
+
+                var onSuccess = function(required_multifactors) {
+                    return next_login_step(required_multifactors);
+                };
+
+                managerDatastoreUser.yubikey_otp_verify(yubikey_otp_token, angular.copy($scope.selected_server)).then(onSuccess, onError);
             };
 
             /**
@@ -1319,6 +1358,9 @@
 
                 if (multifactor_method === 'google_authenticator_2fa') {
                     $scope.view = 'google_authenticator_2fa';
+
+                } else if (multifactor_method === 'yubikey_otp_2fa') {
+                    $scope.view = 'yubikey_otp_2fa';
                 } else {
                     alert('Unknown Multifactor Method requested. Please upgrade your client.')
                 }
