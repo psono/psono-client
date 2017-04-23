@@ -22,7 +22,7 @@
             { key: 'email', title: 'Change E-Mail' },
             { key: 'password', title: 'Change Password' },
             { key: 'recovery', title: 'Generate Password Recovery' },
-            { key: 'multi_factor', title: 'Setup Multifactor Authentication' }
+            { key: 'multi_factor', title: 'Multifactor Authentication' }
         ];
 
         var _account = {
@@ -42,7 +42,8 @@
                 // Password Recovery
                 { name: "generate_password_recovery_button", field: "button", type: "button", title: "New Password Recovery Code", btnLabel: "Generate", class: 'btn-primary', onClick:"onClickGenerateNewPasswordRecoveryCode", tab: 'recovery' },
                 // Password Recovery
-                { name: "google_authenticator_setup", field: "button", type: "button", title: "Google Authenticator", btnLabel: "Setup", class: 'btn-primary', onClick:"onClickSetupGoogleAuthenticator", tab: 'multi_factor' }
+                { name: "google_authenticator_setup", field: "button", type: "button", title: "Google Authenticator", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureGoogleAuthenticator", tab: 'multi_factor' },
+                { name: "yubikey_otp_setup", field: "button", type: "button", title: "YubiKey OTP", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureYubiKeyOTP", tab: 'multi_factor' }
             ],
             onClickGenerateNewPasswordRecoveryCode: function () {
 
@@ -74,11 +75,28 @@
                 managerDatastoreUser.recovery_generate_information().then(onSuccess, onError);
 
             },
-            onClickSetupGoogleAuthenticator: function () {
+            onClickConfigureGoogleAuthenticator: function () {
 
                 var modalInstance = $uibModal.open({
                     templateUrl: 'view/modal-setup-google-authenticator.html',
-                    controller: 'ModalSetupGoogleAuthenticatorCtrl',
+                    controller: 'ModalConfigureGoogleAuthenticatorCtrl',
+                    backdrop: 'static',
+                    resolve: {}
+                });
+
+                modalInstance.result.then(function () {
+                    // User clicked the prime button
+
+                }, function () {
+                    // cancel triggered
+                });
+
+            },
+            onClickConfigureYubiKeyOTP: function () {
+
+                var modalInstance = $uibModal.open({
+                    templateUrl: 'view/modal-setup-yubikey-otp.html',
+                    controller: 'ModalConfigureYubiKeyOTPCtrl',
                     backdrop: 'static',
                     resolve: {}
                 });
@@ -320,15 +338,15 @@
         }]);
     /**
      * @ngdoc controller
-     * @name psonocli.controller:ModalSetupGoogleAuthenticatorCtrl
+     * @name psonocli.controller:ModalConfigureGoogleAuthenticatorCtrl
      * @requires $scope
      * @requires $uibModalInstance
      *
      * @description
      * Controller for the "Setup Google Authenticator" modal
      */
-    app.controller('ModalSetupGoogleAuthenticatorCtrl', ['$scope', '$uibModalInstance', 'managerDatastoreUser',
-        function ($scope, $uibModalInstance, managerDatastoreUser) {
+    app.controller('ModalConfigureGoogleAuthenticatorCtrl', ['$scope', '$uibModalInstance', 'managerDatastoreUser', 'helper',
+        function ($scope, $uibModalInstance, managerDatastoreUser, helper) {
 
             $scope.new_ga = {
                 'title': undefined
@@ -338,8 +356,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:ModalSetupGoogleAuthenticatorCtrl#new_ga
-             * @methodOf psonocli.controller:ModalSetupGoogleAuthenticatorCtrl
+             * @name psonocli.controller:ModalConfigureGoogleAuthenticatorCtrl#create_ga
+             * @methodOf psonocli.controller:ModalConfigureGoogleAuthenticatorCtrl
              *
              * @description
              * Triggered once someone clicks the "New Google Authenticator" button in the modal
@@ -352,7 +370,7 @@
 
                 if (typeof(new_ga.title) === 'undefined') {
                     $scope.errors = ['Title is required'];
-                    return;
+                    return $q.resolve();
                 } else {
                     $scope.errors = [];
                 }
@@ -380,8 +398,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:ModalSetupGoogleAuthenticatorCtrl#delete_ga
-             * @methodOf psonocli.controller:ModalSetupGoogleAuthenticatorCtrl
+             * @name psonocli.controller:ModalConfigureGoogleAuthenticatorCtrl#delete_ga
+             * @methodOf psonocli.controller:ModalConfigureGoogleAuthenticatorCtrl
              *
              * @description
              * Triggered once someone clicks on a delete link
@@ -394,12 +412,7 @@
             $scope.delete_ga = function (gas, ga_id) {
 
                 var onSuccess = function() {
-                    for (var i = 0; i < gas.length; i++) {
-                        if (gas[i].id !== ga_id) {
-                            continue;
-                        }
-                        gas.splice(i, 1);
-                    }
+                    helper.remove_from_array(gas, ga_id, function(a, b){ return a.id === b});
                     return true;
                 };
 
@@ -412,8 +425,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:ModalSetupGoogleAuthenticatorCtrl#close
-             * @methodOf psonocli.controller:ModalSetupGoogleAuthenticatorCtrl
+             * @name psonocli.controller:ModalConfigureGoogleAuthenticatorCtrl#close
+             * @methodOf psonocli.controller:ModalConfigureGoogleAuthenticatorCtrl
              *
              * @description
              * Triggered once someone clicks the close button in the modal
@@ -431,6 +444,108 @@
             };
 
             managerDatastoreUser.read_ga()
+                .then(onSuccess, onError);
+
+        }]);
+    /**
+     * @ngdoc controller
+     * @name psonocli.controller:ModalConfigureYubiKeyOTPCtrl
+     * @requires $scope
+     * @requires $uibModalInstance
+     *
+     * @description
+     * Controller for the "Setup Google Authenticator" modal
+     */
+    app.controller('ModalConfigureYubiKeyOTPCtrl', ['$scope', '$q', '$uibModalInstance', 'managerDatastoreUser', 'helper',
+        function ($scope, $q, $uibModalInstance, managerDatastoreUser, helper) {
+
+            $scope.new_yubikey_otp = {
+                'title': undefined,
+                'otp': undefined
+            };
+
+            $scope.gas = [];
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalConfigureYubiKeyOTPCtrl#create_yubikey_otp
+             * @methodOf psonocli.controller:ModalConfigureYubiKeyOTPCtrl
+             *
+             * @description
+             * Triggered once someone clicks the "New Google Authenticator" button in the modal
+             *
+             * @param {string} new_yubikey_otp The new Google Authenticator object with title attribute
+             *
+             * @return {promise} Returns a promise with the new Google authenticator secret
+             */
+            $scope.create_yubikey_otp = function (new_yubikey_otp) {
+
+                if (typeof(new_yubikey_otp.title) === 'undefined') {
+                    $scope.errors = ['Title is required'];
+                    return $q.resolve();
+                } else {
+                    $scope.errors = [];
+                }
+
+                var onSuccess = function() {
+                    $uibModalInstance.dismiss('close');
+                };
+
+                var onError = function() {
+                    //pass
+                };
+
+                return managerDatastoreUser.create_yubikey_otp(new_yubikey_otp.title, new_yubikey_otp.otp).then(onSuccess, onError);
+            };
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalConfigureYubiKeyOTPCtrl#delete_ga
+             * @methodOf psonocli.controller:ModalConfigureYubiKeyOTPCtrl
+             *
+             * @description
+             * Triggered once someone clicks on a delete link
+             *
+             * @param {string} yubikey_otps A list of all current Yubikey
+             * @param {string} yubikey_otp_id The id of the Yubikey to delete
+             *
+             * @return {promise} Returns a promise which can result either to true of false
+             */
+            $scope.delete_yubikey_otp = function (yubikey_otps, yubikey_otp_id) {
+
+                var onSuccess = function() {
+                    helper.remove_from_array(yubikey_otps, yubikey_otp_id, function(a, b){ return a.id === b});
+                    return true;
+                };
+
+                var onError = function() {
+                    return false;
+                };
+
+                return managerDatastoreUser.delete_yubikey_otp(yubikey_otp_id).then(onSuccess, onError);
+            };
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalConfigureYubiKeyOTPCtrl#close
+             * @methodOf psonocli.controller:ModalConfigureYubiKeyOTPCtrl
+             *
+             * @description
+             * Triggered once someone clicks the close button in the modal
+             */
+            $scope.close = function () {
+                $uibModalInstance.dismiss('close');
+            };
+
+            var onSuccess = function(yubikey_otps) {
+                $scope.yubikey_otps = yubikey_otps;
+            };
+
+            var onError = function() {
+                //pass
+            };
+
+            managerDatastoreUser.read_yubikey_otp()
                 .then(onSuccess, onError);
 
         }]);

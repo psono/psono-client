@@ -270,6 +270,37 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastoreUser#yubikey_otp_verify
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Ajax POST request to the backend with the token
+         *
+         * @param {string} yubikey_otp The YubiKey OTP token
+         *
+         * @returns {promise} Returns a promise with the login status
+         */
+        var yubikey_otp_verify = function(yubikey_otp) {
+
+
+            var onError = function(response){
+                return $q.reject({
+                    response:"error",
+                    error_data: response.data
+                });
+            };
+
+            var onSuccess = function () {
+                helper.remove_from_array(required_multifactors, 'google_authenticator_2fa');
+                return required_multifactors;
+            };
+
+            return apiClient.yubikey_otp_verify(token, yubikey_otp)
+                .then(onSuccess, onError);
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastoreUser#login
          * @methodOf psonocli.managerDatastoreUser
          *
@@ -690,11 +721,11 @@
          * @description
          * creates a google authenticator
          *
-         * @param {string} title The username to search
+         * @param {string} title The title of the Google Authenticator
+         *
          * @returns {promise} Returns a promise with the user information
          */
         var create_ga = function(title) {
-
 
             var onSuccess = function (request) {
 
@@ -761,6 +792,82 @@
                 .then(onSuccess, onError)
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#create_yubikey_otp
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * creates a yubikey otp
+         *
+         * @param {string} title The title of the YubiKey OTP
+         * @param {string} otp One YubikeKey OTP Code
+         *
+         * @returns {promise} Returns a promise with the user information
+         */
+        var create_yubikey_otp = function(title, otp) {
+
+            var onSuccess = function (request) {
+
+                return {
+                    'id': request.data['id']
+                };
+
+            };
+            var onError = function () {
+                // pass
+            };
+            return apiClient.create_yubikey_otp(managerBase.get_token(), managerBase.get_session_secret_key(), title, otp)
+                .then(onSuccess, onError)
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#read_yubikey_otp
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Gets a list of all active yubikey otps
+         *
+         * @returns {promise} Returns a promise with a list of all yubikey otps
+         */
+        var read_yubikey_otp = function() {
+
+            var onSuccess = function (request) {
+
+                return request.data['yubikey_otps'];
+
+            };
+            var onError = function () {
+                // pass
+            };
+            return apiClient.read_yubikey_otp(managerBase.get_token(), managerBase.get_session_secret_key())
+                .then(onSuccess, onError)
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#delete_yubikey_otp
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Deletes a given YubiKey OTP
+         *
+         * @param {string} yubikey_otp_id Yubikey OTP ID
+         *
+         * @returns {promise} Returns a promise with true or false
+         */
+        var delete_yubikey_otp = function(yubikey_otp_id) {
+            var onSuccess = function () {
+                return true;
+            };
+            var onError = function () {
+                return false;
+            };
+            return apiClient.delete_yubikey_otp(managerBase.get_token(), managerBase.get_session_secret_key(), yubikey_otp_id)
+                .then(onSuccess, onError)
+        };
+
         shareBlueprint.register('search_user', search_user);
         itemBlueprint.register('get_user_datastore', get_user_datastore);
 
@@ -769,6 +876,7 @@
             activate: activate,
             login: login,
             ga_verify: ga_verify,
+            yubikey_otp_verify: yubikey_otp_verify,
             activate_token: activate_token,
             logout: logout,
             recovery_enable: recovery_enable,
@@ -782,7 +890,10 @@
             search_user: search_user,
             create_ga: create_ga,
             read_ga: read_ga,
-            delete_ga: delete_ga
+            delete_ga: delete_ga,
+            create_yubikey_otp: create_yubikey_otp,
+            read_yubikey_otp: read_yubikey_otp,
+            delete_yubikey_otp: delete_yubikey_otp
         };
     };
 
