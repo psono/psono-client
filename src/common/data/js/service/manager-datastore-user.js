@@ -133,7 +133,7 @@
          */
         var activate = function(activate_code, server) {
 
-            storage.insert('config', {key: 'server', value: server});
+            storage.upsert('config', {key: 'server', value: server});
 
             var onSuccess = function () {
 
