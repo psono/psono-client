@@ -104,6 +104,32 @@
             return call(connection_type, endpoint, data, headers);
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#ga_verify
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax POST request to the backend the the OATH-TOTP Token
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} ga_token The OATH-TOTP Token
+         *
+         * @returns {promise} Returns a promise with the verification status
+         */
+        var ga_verify = function(token, ga_token) {
+
+            var endpoint = '/authentication/ga-verify/';
+            var connection_type = "POST";
+            var data = {
+                token: token,
+                ga_token: ga_token
+            };
+            var headers = null;
+
+            return call(connection_type, endpoint, data, headers);
+        };
+
 
         /**
          * @ngdoc
@@ -994,7 +1020,7 @@
          * @methodOf psonocli.apiClient
          *
          * @description
-         * Ajax GET request with the token as authentication to get the public key of a user by user_id or user_email
+         * Ajax POST request with the token as authentication to get the public key of a user by user_id or user_email
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
@@ -1011,6 +1037,87 @@
                 user_username: user_username
             };
             var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#create_ga
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax PUT request with the token as authentication to generate a google authenticator
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {string} title The title of the new GA
+         *
+         * @returns {promise} Returns a promise with the secret
+         */
+        var create_ga = function (token, session_secret_key, title) {
+            var endpoint = '/user/ga/';
+            var connection_type = "PUT";
+            var data = {
+                title: title
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#read_ga
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax GET request to get a list of all registered google authenticators
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         *
+         * @returns {promise} Returns a promise with a list of all google authenticators
+         */
+        var read_ga = function (token, session_secret_key) {
+            var endpoint = '/user/ga/';
+            var connection_type = "GET";
+            var data = null;
+
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#delete_ga
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax DELETE request to delete a given Google authenticator
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} google_authenticator_id The google authenticator id to delete
+         *
+         * @returns {promise} Returns a promise which can succeed or fail
+         */
+        var delete_ga = function (token, session_secret_key, google_authenticator_id) {
+            var endpoint = '/user/ga/';
+            var connection_type = "DELETE";
+            var data = {
+                google_authenticator_id: google_authenticator_id
+            };
+
+            var headers = {
+                "Content-Type": "application/json",
                 "Authorization": "Token "+ token
             };
 
@@ -1173,6 +1280,7 @@
 
         return {
             login: login,
+            ga_verify: ga_verify,
             activate_token: activate_token,
             logout: logout,
             register: register,
@@ -1202,6 +1310,9 @@
             accept_share_right: accept_share_right,
             decline_share_right: decline_share_right,
             get_users_public_key: get_users_public_key,
+            read_ga: read_ga,
+            delete_ga: delete_ga,
+            create_ga: create_ga,
             create_share_link: create_share_link,
             move_share_link: move_share_link,
             delete_share_link: delete_share_link

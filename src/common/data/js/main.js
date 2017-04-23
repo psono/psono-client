@@ -307,6 +307,10 @@
                     return;
                 }
 
+                if (password.length < 12) {
+                    $scope.errors.push("Password too short (min 12 chars).");
+                    return;
+                }
 
                 if (password !== password2) {
                     $scope.errors.push("Passwords don't match.");
@@ -582,6 +586,12 @@
              */
             $scope.set_new_password = function (username, recovery_code, password, password2, recovery_data) {
 
+
+                if (password.length < 12) {
+                    $scope.errors.push("Password too short (min 12 chars).");
+                    return;
+                }
+
                 if (password !== password2) {
                     $scope.errors.push("Passwords don't match.");
                     return;
@@ -853,24 +863,22 @@
 
             });
 
-            /* login / logout */
-            $scope.data = {
-                loggedin: managerDatastoreUser.is_logged_in()
-            };
-
-            if ($scope.data.loggedin) {
+            if (managerDatastoreUser.is_logged_in()) {
+                $scope.view = "logged_in";
                 browserClient.resize(295);
+            } else {
+                $scope.view = "logged_out";
             }
 
             browserClient.on("login", function () {
                 $timeout(function () {
-                    $scope.data.loggedin = true;
+                    $scope.view = "logged_in";
                 });
             });
 
             browserClient.on("logout", function () {
                 $timeout(function () {
-                    $scope.data.loggedin = false;
+                    $scope.view = "logged_out";
                     browserClient.resize(250);
                 });
             });
@@ -1167,6 +1175,7 @@
              * @param {url} url The url to open
              */
             $scope.open_tab = browserClient.open_tab;
+            $scope.view = 'default';
 
             /* test background page */
             //console.log(browserClient.test_background_page());
@@ -1233,6 +1242,90 @@
 
             /**
              * @ngdoc
+             * @name psonocli.controller:LoginCtrl#gaVerify
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Triggered once someone clicks the "Send" Button on the google authenticator request screen
+             *
+             * @param {string} ga_token The GA Token
+             */
+            $scope.ga_verify = function(ga_token) {
+
+                if (typeof(ga_token) === 'undefined' || ga_token.length !== 6) {
+                    // Dont do anything if the token is not 6 digits long
+                    // because the html5 form validation will tell the user
+                    // whats wrong
+                    return;
+                }
+
+                var onError = function(data) {
+                    console.log(data);
+                    if (data.error_data === null) {
+                        $scope.errors = ['Server offline.']
+                    } else if (data.error_data.hasOwnProperty('non_field_errors')) {
+                        $scope.errors = data.error_data.non_field_errors;
+                    } else if (data.error_data.hasOwnProperty('username')) {
+                        $scope.errors = data.error_data.username;
+                    } else {
+                        $scope.errors = ['Server offline.']
+                    }
+                };
+
+                var onSuccess = function(required_multifactors) {
+                    return next_login_step(required_multifactors);
+                };
+
+                managerDatastoreUser.ga_verify(ga_token, angular.copy($scope.selected_server)).then(onSuccess, onError);
+            };
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LoginCtrl#next_login_step
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Triggered once someone clicks the login button
+             *
+             * @param {array} required_multifactors The username
+             */
+            var next_login_step = function(required_multifactors) {
+
+                if (required_multifactors.length === 0) {
+
+                    var onError = function(data) {
+                        console.log(data);
+                        if (data.error_data === null) {
+                            $scope.errors = ['Server offline.']
+                        } else if (data.error_data.hasOwnProperty('non_field_errors')) {
+                            $scope.errors = data.error_data.non_field_errors;
+                        } else if (data.error_data.hasOwnProperty('username')) {
+                            $scope.errors = data.error_data.username;
+                        } else {
+                            $scope.errors = ['Server offline.']
+                        }
+                    };
+
+                    var onSuccess = function(data) {
+                        $scope.errors = [];
+                        browserClient.emit("login", null);
+                        browserClient.resize(295);
+                    };
+
+                    return managerDatastoreUser.activate_token().then(onSuccess, onError);
+                }
+
+                var multifactor_method = required_multifactors.shift();
+
+                if (multifactor_method === 'google_authenticator_2fa') {
+                    $scope.view = 'google_authenticator_2fa';
+                } else {
+                    alert('Unknown Multifactor Method requested. Please upgrade your client.')
+                }
+            };
+
+            /**
+             * @ngdoc
              * @name psonocli.controller:LoginCtrl#login
              * @methodOf psonocli.controller:LoginCtrl
              *
@@ -1243,38 +1336,35 @@
              * @param {string} password The password
              */
             $scope.login = function (username, password) {
-                function onError() {
-                    alert("Error, should not happen.");
+
+                if (username === undefined || password === undefined) {
+                    // Dont do anything if username or password is wrong,
+                    // because the html5 form validation will tell the user
+                    // whats wrong
+                    return;
                 }
 
-                function onSuccess(data) {
-                    // TODO bring message to the user
+                if (username.indexOf('@') === -1) {
+                    username = username + '@' + $scope.selected_server_domain;
+                }
 
-
-                    if (data.response === "success") {
-                        $scope.errors = [];
-                        browserClient.emit("login", null);
-                        browserClient.resize(295);
+                var onError = function(data) {
+                    if (data.error_data === null) {
+                        $scope.errors = ['Server offline.']
+                    } else if (data.error_data.hasOwnProperty('non_field_errors')) {
+                        $scope.errors = data.error_data.non_field_errors;
+                    } else if (data.error_data.hasOwnProperty('username')) {
+                        $scope.errors = data.error_data.username;
                     } else {
-                        console.log(data.error_data);
-                        if (data.error_data === null) {
-                            $scope.errors = ['Server offline.']
-                        } else if (data.error_data.hasOwnProperty('non_field_errors')) {
-                            $scope.errors = data.error_data.non_field_errors;
-                        } else if (data.error_data.hasOwnProperty('username')) {
-                            $scope.errors = data.error_data.username;
-                        } else {
-                            $scope.errors = ['Server offline.']
-                        }
+                        $scope.errors = ['Server offline.']
                     }
-                }
+                };
 
-                if (username !== undefined && password !== undefined) {
-                    if (username.indexOf('@') === -1) {
-                        username = username + '@' + $scope.selected_server_domain;
-                    }
-                    managerDatastoreUser.login(username, password, angular.copy($scope.selected_server)).then(onSuccess, onError);
-                }
+                var onSuccess = function(required_multifactors) {
+                    return next_login_step(required_multifactors);
+                };
+
+                managerDatastoreUser.login(username, password, angular.copy($scope.selected_server)).then(onSuccess, onError);
             };
         }]);
 

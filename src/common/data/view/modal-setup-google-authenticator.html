@@ -1,0 +1,73 @@
+<form name="modalSetupGoogleAuthenticatorForm" novalidate>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="close()"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title">Google Authenticator</h3>
+    </div>
+    <div class="modal-body">
+
+
+        <uib-tabset>
+
+            <uib-tab heading="Existing GAs">
+
+
+                <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
+                    <thead>
+                    <tr>
+                        <th>GA Title</th>
+                        <th>Delete</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="ga in gas">
+                        <td>{{ ga.title }}</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-sm" ng-click="delete_ga(gas, ga.id)">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </uib-tab>
+
+            <uib-tab heading="New GA">
+                <br>
+                <div class="text-center" ng-bind-html="google_authenticator_html"></div>
+
+                <div class="form-horizontal" ng-if="!google_authenticator_html">
+                    <div class="form-group">
+
+                        <label class="control-label col-sm-6 col-md-4"
+                               for="newGAForm-title">
+                            <span>Title</span>
+                        </label>
+
+                        <div class="col-sm-6 col-md-8">
+                            <input type="text" ng-model="new_ga.title"
+                                   ng-required="true"
+                                   placeholder="Title of your GA" id="newGAForm-title"
+                                   name="title"
+                                   class="form-control">
+                            <span ng-repeat="e in errors" class="help-block">{{e}}</span>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label class="control-label col-sm-6 col-md-4">
+                            &nbsp;
+                        </label>
+
+                        <div class="col-sm-6 col-md-8">
+                            <button class="btn btn-primary btn-primary" ng-click="create_ga(new_ga)" type="button">Generate</button>
+                        </div>
+                    </div>
+
+                </div>
+            </uib-tab>
+        </uib-tabset>
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn" type="button" ng-click="close();">Close</button>
+    </div>
+</form>

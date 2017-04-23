@@ -24,6 +24,16 @@
                                         helper, managerBase, managerDatastore, shareBlueprint,
                                         itemBlueprint, cryptoLibrary) {
 
+        var required_multifactors = [];
+        var session_keys;
+        var session_secret_key;
+        var token;
+        var user_sauce;
+        var user_public_key;
+        var user_private_key;
+        var session_password;
+        var verification;
+
         /**
          * @ngdoc
          * @name psonocli.managerDatastoreUser#is_logged_in
@@ -114,7 +124,7 @@
          * @methodOf psonocli.managerDatastoreUser
          *
          * @description
-         * Activates a user account with the provided activation code
+         * Activates a user account with the provided activation code after registration
          *
          * @param {string} activate_code The activation code sent via mail
          * @param {string} server The server to send the activation code to
@@ -123,7 +133,7 @@
          */
         var activate = function(activate_code, server) {
 
-            storage.insert('config', {key: 'server', value: server});
+            storage.upsert('config', {key: 'server', value: server});
 
             var onSuccess = function () {
 
@@ -146,6 +156,115 @@
             };
 
             return apiClient.verify_email(activate_code)
+                .then(onSuccess, onError);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#activate_token
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Handles the validation of the token with the server by solving the cryptographic puzzle
+         *
+         * @returns {promise} Returns a promise with the the final activate token was successful or not
+         */
+        var activate_token = function() {
+
+            var onError = function(response){
+
+                // in case of any error we remove the items we already added to our storage
+                // maybe we adjust this behaviour at some time
+                storage.remove('config', storage.find_one('config', {'key': 'user_username'}));
+                storage.remove('config', storage.find_one('config', {'key': 'server'}));
+
+                storage.save();
+
+                // no need anymore for the public / private session keys
+                session_keys = null;
+                session_secret_key = null;
+                token = null;
+                user_sauce = null;
+                user_public_key = null;
+                user_private_key = null;
+                session_password = null;
+                verification = null;
+
+                return $q.reject({
+                    response:"error",
+                    error_data: response.data
+                });
+            };
+
+            var onSuccess = function (activation_data) {
+
+                // decrypt user secret key
+                var user_secret_key = cryptoLibrary.decrypt_secret(
+                    activation_data.data.user.secret_key,
+                    activation_data.data.user.secret_key_nonce,
+                    session_password,
+                    user_sauce
+                );
+
+                storage.insert('config', {key: 'user_id', value: activation_data.data.user.id});
+                storage.insert('config', {key: 'user_token', value: token});
+                storage.insert('config', {key: 'user_email', value: activation_data.data.user.email});
+                storage.insert('config', {key: 'session_secret_key', value: session_secret_key});
+                storage.insert('config', {key: 'user_public_key', value: user_public_key});
+                storage.insert('config', {key: 'user_private_key', value: user_private_key});
+                storage.insert('config', {key: 'user_secret_key', value: user_secret_key});
+                storage.insert('config', {key: 'user_sauce', value: user_sauce});
+
+                storage.save();
+
+                // no need anymore for the public / private session keys
+                session_keys = null;
+                session_secret_key = null;
+                token = null;
+                user_sauce = null;
+                user_public_key = null;
+                user_private_key = null;
+                session_password = null;
+                verification = null;
+
+                return {
+                    response:"success"
+                };
+
+            };
+
+            return apiClient.activate_token(token, verification.text, verification.nonce)
+                .then(onSuccess, onError);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#ga_verify
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Ajax POST request to the backend with the token
+         *
+         * @param {string} ga_token The GA Token
+         *
+         * @returns {promise} Returns a promise with the login status
+         */
+        var ga_verify = function(ga_token) {
+
+
+            var onError = function(response){
+                return $q.reject({
+                    response:"error",
+                    error_data: response.data
+                });
+            };
+
+            var onSuccess = function () {
+                helper.remove_from_array(required_multifactors, 'google_authenticator_2fa');
+                return required_multifactors;
+            };
+
+            return apiClient.ga_verify(token, ga_token)
                 .then(onSuccess, onError);
         };
 
@@ -174,7 +293,7 @@
             storage.insert('config', {key: 'user_username', value: username});
             storage.insert('config', {key: 'server', value: server});
 
-            var session_keys = cryptoLibrary.generate_public_private_keypair();
+            session_keys = cryptoLibrary.generate_public_private_keypair();
 
             var onError = function(response){
 
@@ -184,30 +303,33 @@
                 storage.remove('config', storage.find_one('config', {'key': 'server'}));
                 storage.save();
 
-                return {
+                return $q.reject({
                     response:"error",
                     error_data: response.data
-                };
+                });
             };
 
             var onSuccess = function (response) {
 
+                token = response.data.token;
+                user_sauce = response.data.user.user_sauce;
+                user_public_key = response.data.user.public_key;
+                session_password = password;
+
                 // decrypt the session key
-                var session_secret_key = cryptoLibrary.decrypt_data_public_key(
+                session_secret_key = cryptoLibrary.decrypt_data_public_key(
                     response.data.session_secret_key,
                     response.data.session_secret_key_nonce,
                     response.data.session_public_key,
                     session_keys.private_key
                 );
-                // no need anymore for the public / private session keys
-                session_keys = null;
 
                 // decrypt user private key
-                var user_private_key = cryptoLibrary.decrypt_secret(
+                user_private_key = cryptoLibrary.decrypt_secret(
                     response.data.user.private_key,
                     response.data.user.private_key_nonce,
                     password,
-                    response.data.user.user_sauce
+                    user_sauce
                 );
 
                 // decrypt the user_validator
@@ -219,40 +341,13 @@
                 );
 
                 // encrypt the validator as verification
-                var verification = cryptoLibrary.encrypt_data(
+                verification = cryptoLibrary.encrypt_data(
                     user_validator,
                     session_secret_key
                 );
 
-                var onSuccess = function (activation_data) {
-
-                    // decrypt user secret key
-                    var user_secret_key = cryptoLibrary.decrypt_secret(
-                        activation_data.data.user.secret_key,
-                        activation_data.data.user.secret_key_nonce,
-                        password,
-                        response.data.user.user_sauce
-                    );
-
-                    storage.insert('config', {key: 'user_id', value: activation_data.data.user.id});
-                    storage.insert('config', {key: 'user_token', value: response.data.token});
-                    storage.insert('config', {key: 'user_email', value: activation_data.data.user.email});
-                    storage.insert('config', {key: 'session_secret_key', value: session_secret_key});
-                    storage.insert('config', {key: 'user_public_key', value: response.data.user.public_key});
-                    storage.insert('config', {key: 'user_private_key', value: user_private_key});
-                    storage.insert('config', {key: 'user_secret_key', value: user_secret_key});
-                    storage.insert('config', {key: 'user_sauce', value: response.data.user.user_sauce});
-
-                    storage.save();
-
-                    return {
-                        response:"success"
-                    };
-
-                };
-
-                return apiClient.activate_token(response.data.token, verification.text, verification.nonce)
-                    .then(onSuccess, onError);
+                required_multifactors = response.data['required_multifactors']
+                return required_multifactors;
             };
 
             return apiClient.login(username, authkey, session_keys.public_key)
@@ -587,6 +682,85 @@
             return apiClient.get_users_public_key(managerBase.get_token(), managerBase.get_session_secret_key(), undefined, username);
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#create_ga
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * creates a google authenticator
+         *
+         * @param {string} title The username to search
+         * @returns {promise} Returns a promise with the user information
+         */
+        var create_ga = function(title) {
+
+
+            var onSuccess = function (request) {
+
+                var server = storage.find_one('config', {'key': 'server'});
+                var backend = server['value']['url'];
+                var parsed_url = helper.parse_url(backend);
+
+                return {
+                    'id': request.data['id'],
+                    'uri': 'otpauth://totp/' + parsed_url['top_domain'] + ':' + managerBase.find_one_nolimit('config', 'user_username')+'?secret=' + request.data['secret']
+                };
+
+            };
+            var onError = function () {
+                // pass
+            };
+            return apiClient.create_ga(managerBase.get_token(), managerBase.get_session_secret_key(), title)
+                .then(onSuccess, onError)
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#read_ga
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Gets a list of all active google authenticators
+         *
+         * @returns {promise} Returns a promise with a list of all google authenticators
+         */
+        var read_ga = function() {
+
+
+            var onSuccess = function (request) {
+
+                return request.data['google_authenticators'];
+
+            };
+            var onError = function () {
+                // pass
+            };
+            return apiClient.read_ga(managerBase.get_token(), managerBase.get_session_secret_key())
+                .then(onSuccess, onError)
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#delete_ga
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Deletes a given Google authenticator
+         *
+         * @returns {promise} Returns a promise with true or false
+         */
+        var delete_ga = function(ga_id) {
+            var onSuccess = function () {
+                return true;
+            };
+            var onError = function () {
+                return false;
+            };
+            return apiClient.delete_ga(managerBase.get_token(), managerBase.get_session_secret_key(), ga_id)
+                .then(onSuccess, onError)
+        };
+
         shareBlueprint.register('search_user', search_user);
         itemBlueprint.register('get_user_datastore', get_user_datastore);
 
@@ -594,6 +768,8 @@
             register: register,
             activate: activate,
             login: login,
+            ga_verify: ga_verify,
+            activate_token: activate_token,
             logout: logout,
             recovery_enable: recovery_enable,
             set_password: set_password,
@@ -603,7 +779,10 @@
             get_user_datastore: get_user_datastore,
             search_user_datastore: search_user_datastore,
             save_datastore: save_datastore,
-            search_user: search_user
+            search_user: search_user,
+            create_ga: create_ga,
+            read_ga: read_ga,
+            delete_ga: delete_ga
         };
     };
 

@@ -1,4 +1,5 @@
 /*
+ *  Original:
  *  https://github.com/axel-zarate/angular-tree-view/
  *
  *  The MIT License (MIT)

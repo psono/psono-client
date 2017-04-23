@@ -106,6 +106,7 @@
 
                     // return answer
                     return [200, {
+                        'required_multifactors': [],
                         'session_public_key': session_key_pair.public_key,
                         'session_secret_key': session_secret_key_enc.text,
                         'session_secret_key_nonce': session_secret_key_enc.nonce,
