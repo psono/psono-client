@@ -14,6 +14,7 @@
                 "../src/common/data/js/lib/jquery-ui.min.js",
                 "../src/common/data/js/lib/sortable.min.js",
                 "../src/common/data/js/lib/lokijs.min.js",
+                "../src/common/data/js/lib/qrcode.min.js",
                 "../src/common/data/js/lib/password-generator.js",
                 "../src/common/data/js/lib/angular.min.js",
                 "../src/common/data/js/lib/angular-animate.min.js",

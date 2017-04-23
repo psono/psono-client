@@ -47,7 +47,8 @@
         "data/js/lib/jquery.min.js",
         "data/js/formfill-browser-client.js",
         "data/js/formfill.js"
-      ]
+      ],
+      "run_at": "document_idle"
     }
   ],
   "web_accessible_resources": [

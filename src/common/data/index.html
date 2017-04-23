@@ -35,8 +35,7 @@
 </head>
 <body>
 <div  ng-controller="WrapperCtrl" ng-cloak>
-
-<div ng-if="data.loggedin" ng-controller="MainCtrl">
+<div ng-if="view === 'logged_in'" ng-controller="MainCtrl">
 
     <nav class="navbar navbar-default navbar-static-top">
         <div class="container">
@@ -99,14 +98,15 @@
     </div>
 
 </div>
-<div ng-if="!data.loggedin" ng-controller="LoginCtrl">
+<div ng-if="view === 'logged_out'" ng-controller="LoginCtrl">
     <!-- Not logged in, show the login form -->
     <div class="wrapper">
 
         <div class="loginbox dark">
             <img src="img/logo.png" id="logo">
 
-            <form name="loginForm">
+            <form name="loginForm" ng-if="view === 'default'">
+                <!-- default View -->
                 <div ng-class="{'input-group': loginFormUsername == null || loginFormUsername.indexOf('@') == -1}">
                     <input type="text" class="form-control" id="loginUsername" placeholder="Username" ng-model="loginFormUsername" required aria-describedby="username-addon" autofocus>
                     <span class="input-group-addon" id="username-addon" ng-if="loginFormUsername == null || loginFormUsername.indexOf('@') == -1">@{{selected_server_domain}}</span>
@@ -145,6 +145,20 @@
                            class="form-control">
                 </div>
             </form>
+
+            <form name="googleAuthenticatorForm" ng-if="view === 'google_authenticator_2fa'">
+                <!-- google_authenticator_2fa View -->
+                <div class="form-group">
+                    <input type="text" class="form-control" id="gaToken" placeholder="Token" ng-model="googleAuthenticatorFormGAToken" required maxlength="6" minlength="6">
+                </div>
+
+                <div class="form-group">
+                    <button ng-click="ga_verify(googleAuthenticatorFormGAToken)" type="submit" class="btn btn-danger">Send</button>
+                    <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
+                    <div class="clearfix"></div>
+                </div>
+            </form>
+
             <div class="box-footer">
                 <a href="lost-password.html"> Lost password?</a>
             </div>
@@ -166,6 +180,7 @@
 <script src="js/lib/jquery-ui.min.js"></script>
 <script src="js/lib/sortable.min.js" type="application/javascript"></script>
 <script src="js/lib/lokijs.min.js" type="application/javascript"></script>
+<script src="js/lib/qrcode.min.js" type="application/javascript"></script>
 <script src="js/lib/password-generator.js" type="application/javascript"></script>
 
 <!-- Angular Juju -->

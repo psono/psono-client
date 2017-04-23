@@ -1,4 +1,4 @@
-(function(angular) {
+(function(angular, qrcode) {
     'use strict';
 
     /**
@@ -21,7 +21,8 @@
             { key: 'overview', title: 'Overview' },
             { key: 'email', title: 'Change E-Mail' },
             { key: 'password', title: 'Change Password' },
-            { key: 'recovery', title: 'Generate Password Recovery' }
+            { key: 'recovery', title: 'Generate Password Recovery' },
+            { key: 'multi_factor', title: 'Setup Multifactor Authentication' }
         ];
 
         var _account = {
@@ -32,14 +33,16 @@
                 { key: "user_email", field: "input", type: "email", title: "E-Mail", placeholder: "E-Mail", required: true, readonly: true, tab: 'overview'},
                 { key: "user_public_key", field: "input", type: "text", title: "Public Key", placeholder: "Public Key", required: true, readonly: true, tab: 'overview'},
                 // Change E-Mail
-                { key: "setting_email", field: "input", type: "email", title: "E-Mail", placeholder: "E-Mail", required: true, tab: 'email'},
+                { key: "setting_email", field: "input", type: "email", title: "New E-Mail", placeholder: "New E-Mail", required: true, tab: 'email'},
                 { key: "setting_email_password_old", field: "input", type: "password", title: "Old Password", placeholder: "Old Password", tab: 'email'},
                 // Change Password
                 { key: "setting_password", field: "input", type: "password", title: "New Password", placeholder: "New Password", tab: 'password', complexify: true},
                 { key: "setting_password_repeat", field: "input", type: "password", title: "New Password (repeat)", placeholder: "New Password (repeat)", tab: 'password'},
                 { key: "setting_password_password_old", field: "input", type: "password", title: "Old Password", placeholder: "Old Password", tab: 'password'},
                 // Password Recovery
-                { name: "generate_password_recovery_button", field: "button", type: "button", title: "Generate New Password Recovery Code", class: 'btn-primary', onClick:"onClickGenerateNewPasswordRecoveryCode", tab: 'recovery' }
+                { name: "generate_password_recovery_button", field: "button", type: "button", title: "New Password Recovery Code", btnLabel: "Generate", class: 'btn-primary', onClick:"onClickGenerateNewPasswordRecoveryCode", tab: 'recovery' },
+                // Password Recovery
+                { name: "google_authenticator_setup", field: "button", type: "button", title: "Google Authenticator", btnLabel: "Setup", class: 'btn-primary', onClick:"onClickSetupGoogleAuthenticator", tab: 'multi_factor' }
             ],
             onClickGenerateNewPasswordRecoveryCode: function () {
 
@@ -69,6 +72,23 @@
                 };
 
                 managerDatastoreUser.recovery_generate_information().then(onSuccess, onError);
+
+            },
+            onClickSetupGoogleAuthenticator: function () {
+
+                var modalInstance = $uibModal.open({
+                    templateUrl: 'view/modal-setup-google-authenticator.html',
+                    controller: 'ModalSetupGoogleAuthenticatorCtrl',
+                    backdrop: 'static',
+                    resolve: {}
+                });
+
+                modalInstance.result.then(function () {
+                    // User clicked the prime button
+
+                }, function () {
+                    // cancel triggered
+                });
 
             }
         };
@@ -298,5 +318,121 @@
 
 
         }]);
+    /**
+     * @ngdoc controller
+     * @name psonocli.controller:ModalSetupGoogleAuthenticatorCtrl
+     * @requires $scope
+     * @requires $uibModalInstance
+     *
+     * @description
+     * Controller for the "Setup Google Authenticator" modal
+     */
+    app.controller('ModalSetupGoogleAuthenticatorCtrl', ['$scope', '$uibModalInstance', 'managerDatastoreUser',
+        function ($scope, $uibModalInstance, managerDatastoreUser) {
 
-}(angular));
+            $scope.new_ga = {
+                'title': undefined
+            };
+
+            $scope.gas = [];
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalSetupGoogleAuthenticatorCtrl#new_ga
+             * @methodOf psonocli.controller:ModalSetupGoogleAuthenticatorCtrl
+             *
+             * @description
+             * Triggered once someone clicks the "New Google Authenticator" button in the modal
+             *
+             * @param {string} new_ga The new Google Authenticator object with title attribute
+             *
+             * @return {promise} Returns a promise with the new Google authenticator secret
+             */
+            $scope.create_ga = function (new_ga) {
+
+                if (typeof(new_ga.title) === 'undefined') {
+                    $scope.errors = ['Title is required'];
+                    return;
+                } else {
+                    $scope.errors = [];
+                }
+
+                var onSuccess = function(ga) {
+
+                    var typeNumber = 6;
+                    var errorCorrectionLevel = 'L';
+                    var qr = qrcode(typeNumber, errorCorrectionLevel);
+                    qr.addData(ga.uri);
+                    qr.make();
+                    $scope.google_authenticator_html = qr.createImgTag(4, 16);
+                    $scope.gas.push({
+                        'id': ga.id,
+                        'title': new_ga['title']
+                    });
+                };
+
+                var onError = function() {
+                    //pass
+                };
+
+                return managerDatastoreUser.create_ga(new_ga.title).then(onSuccess, onError);
+            };
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalSetupGoogleAuthenticatorCtrl#delete_ga
+             * @methodOf psonocli.controller:ModalSetupGoogleAuthenticatorCtrl
+             *
+             * @description
+             * Triggered once someone clicks on a delete link
+             *
+             * @param {string} gas A list of all current google authenticator
+             * @param {string} ga_id The id of the google Authenticator to delete
+             *
+             * @return {promise} Returns a promise which can result either to true of false
+             */
+            $scope.delete_ga = function (gas, ga_id) {
+
+                var onSuccess = function() {
+                    for (var i = 0; i < gas.length; i++) {
+                        if (gas[i].id !== ga_id) {
+                            continue;
+                        }
+                        gas.splice(i, 1);
+                    }
+                    return true;
+                };
+
+                var onError = function() {
+                    return false;
+                };
+
+                return managerDatastoreUser.delete_ga(ga_id).then(onSuccess, onError);
+            };
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalSetupGoogleAuthenticatorCtrl#close
+             * @methodOf psonocli.controller:ModalSetupGoogleAuthenticatorCtrl
+             *
+             * @description
+             * Triggered once someone clicks the close button in the modal
+             */
+            $scope.close = function () {
+                $uibModalInstance.dismiss('close');
+            };
+
+            var onSuccess = function(gas) {
+                $scope.gas = gas;
+            };
+
+            var onError = function() {
+                //pass
+            };
+
+            managerDatastoreUser.read_ga()
+                .then(onSuccess, onError);
+
+        }]);
+
+}(angular, qrcode));

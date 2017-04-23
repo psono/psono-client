@@ -228,6 +228,31 @@
             return chunks;
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.helper#remove_from_array
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Search an array for an item
+         *
+         * @param array The array to search
+         * @param search The item to remove
+         * @param [cmp_fct] (optional) Compare function
+         */
+        var remove_from_array = function (array, search, cmp_fct) {
+            if (typeof(cmp_fct) === 'undefined') {
+                cmp_fct = function(a, b) {
+                    return a === b;
+                }
+            }
+            for(var i = array.length - 1; i >= 0; i--) {
+                if(cmp_fct(array[i], search)) {
+                    array.splice(i, 1);
+                }
+            }
+        };
+
         return {
             parse_url: parse_url,
             get_domain: get_domain,
@@ -235,7 +260,8 @@
             create_list: create_list,
             duplicate_object: duplicate_object,
             is_valid_username: is_valid_username,
-            split_string_in_chunks: split_string_in_chunks
+            split_string_in_chunks: split_string_in_chunks,
+            remove_from_array: remove_from_array
         };
     };
 

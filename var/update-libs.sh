@@ -28,3 +28,4 @@ wget https://raw.githubusercontent.com/3nsoft/ecma-nacl/master/dist/lib-browser/
 
 wget https://raw.githubusercontent.com/chieffancypants/angular-loading-bar/master/build/loading-bar.min.css -O src/common/data/css/lib/loading-bar.min.css
 wget https://raw.githubusercontent.com/chieffancypants/angular-loading-bar/master/build/loading-bar.min.js -O src/common/data/js/lib/loading-bar.min.js
+wget https://raw.githubusercontent.com/kazuhikoarase/qrcode-generator/master/js/qrcode.js -O src/common/data/js/lib/qrcode.min.js
