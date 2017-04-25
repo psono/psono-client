@@ -24,7 +24,6 @@
                         case 'setting_email':
                             return { 'value': 'fake_setting_email' };
                         default:
-                            console.log(search['key']);
                             return null;
                     }
 
