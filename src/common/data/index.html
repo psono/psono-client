@@ -149,7 +149,7 @@
             <form name="googleAuthenticatorForm" ng-if="view === 'google_authenticator_2fa'">
                 <!-- google_authenticator_2fa View -->
                 <div class="form-group">
-                    <input type="text" class="form-control" id="gaToken" placeholder="Token"
+                    <input type="text" class="form-control" id="gaToken" placeholder="Google Authenticator Token"
                            ng-model="googleAuthenticatorFormGAToken" required maxlength="6" minlength="6">
                 </div>
 
@@ -164,7 +164,7 @@
             <form name="yubikeyOTPForm" ng-if="view === 'yubikey_otp_2fa'">
                 <!-- yubikey_otp_2fa View -->
                 <div class="form-group">
-                    <input type="text" class="form-control" id="yubikeyOTPToken" placeholder="Token"
+                    <input type="text" class="form-control" id="yubikeyOTPToken" placeholder="YubiKey Token"
                            ng-model="yubikeyOTPFormToken" required ng-keyup="$event.keyCode == 13 && yubikey_otp_verify(yubikeyOTPFormToken)">
                 </div>
 
