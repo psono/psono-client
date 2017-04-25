@@ -184,6 +184,34 @@
             expect(helper.is_valid_username('abc') === true).toBeTruthy();
         }));
 
+
+        it('remove_from_array', inject(function (helper) {
+
+            var array = [1, 2, 5, 7];
+            var search = 5;
+            var target = [1, 2, 7];
+
+            helper.remove_from_array(array, search);
+
+            expect(array).toEqual(target);
+        }));
+
+
+        it('remove_from_array_own_cmp_fct', inject(function (helper) {
+
+            var array = [1, 2, 5, 5, 7];
+            var search = 5;
+            var target = [5, 5];
+
+            var cmp_fct = function(a, b) {
+                return a !== b;
+            };
+
+            helper.remove_from_array(array, search, cmp_fct);
+
+            expect(array).toEqual(target);
+        }));
+
     });
 
 }).call();

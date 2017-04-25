@@ -145,6 +145,19 @@
 
             var inputs = document.querySelectorAll("input:not(:disabled):not([readonly]):not([type=hidden])");
 
+
+            var modify_input_field = function(input) {
+                input.style.backgroundImage = 'url("'+background_image+'")';
+                input.style.backgroundPosition = 'center right';
+                input.style.backgroundRepeat = 'no-repeat';
+
+                input.addEventListener('mouseover', mouseOver);
+                input.addEventListener('mouseout', mouseOut);
+                input.addEventListener('mousemove', mouseMove);
+                input.addEventListener('click', click);
+            };
+
+
             for (var i = 0; i < inputs.length; ++i) {
 
                 if (inputs[i].type !== 'password') {
@@ -166,30 +179,14 @@
                         continue;
 
                     // username field is inputs[r]
-                    //inputs[r].style.backgroundColor = "blue";
-                    inputs[r].style.backgroundImage = 'url("'+background_image+'")';
-                    inputs[r].style.backgroundPosition = 'center right';
-                    inputs[r].style.backgroundRepeat = 'no-repeat';
-
-                    inputs[r].addEventListener('mouseover', mouseOver);
-                    inputs[r].addEventListener('mouseout', mouseOut);
-                    inputs[r].addEventListener('mousemove', mouseMove);
-                    inputs[r].addEventListener('click', click);
+                    modify_input_field(inputs[r]);
 
                     newForm.username = inputs[r];
                     break;
                 }
 
                 // Password field is inputs[i]
-                //inputs[i].style.backgroundColor = "yellow";
-                inputs[i].style.backgroundImage = 'url("'+background_image+'")';
-                inputs[i].style.backgroundPosition = 'center right';
-                inputs[i].style.backgroundRepeat = 'no-repeat';
-
-                inputs[i].addEventListener('mouseover', mouseOver);
-                inputs[i].addEventListener('mouseout', mouseOut);
-                inputs[i].addEventListener('mousemove', mouseMove);
-                inputs[i].addEventListener('click', click);
+                modify_input_field(inputs[i]);
 
                 newForm.password = inputs[i];
 
@@ -220,22 +217,22 @@
              */
             var on_fillpassword = function (data) {
 
+                var fill_field_helper = function(field, value) {
+
+                    jQuery(field).focus();
+                    field.value = value;
+                    jQuery(field).blur();
+                    jQuery(field).keydown();
+                    jQuery(field).keyup();
+                    jQuery(field).change();
+                };
+
                 for (var i = 0; i < myForms.length; i++) {
                     if(data.hasOwnProperty('username') && data.username !== '') {
-                        jQuery(myForms[i].username).focus();
-                        myForms[i].username.value = data.username;
-                        jQuery(myForms[i].username).blur();
-                        jQuery(myForms[i].username).keydown();
-                        jQuery(myForms[i].username).keyup();
-                        jQuery(myForms[i].username).change();
+                        fill_field_helper(myForms[i].username, data.username);
                     }
                     if(data.hasOwnProperty('password') && data.password !== '') {
-                        jQuery(myForms[i].password).focus();
-                        myForms[i].password.value = data.password;
-                        jQuery(myForms[i].password).blur();
-                        jQuery(myForms[i].password).keydown();
-                        jQuery(myForms[i].password).keyup();
-                        jQuery(myForms[i].password).change();
+                        fill_field_helper(myForms[i].password, data.password);
                     }
                     if (myForms.length === 1 //only 1 form
                         && myForms[i].form !== null //we found the form

@@ -39,6 +39,50 @@
             $httpBackend.flush();
         }));
 
+        it('ga_verify', inject(function (apiClient) {
+
+            var token = 'a-token';
+            var ga_token = 'a-ga_token';
+
+            $httpBackend.when('POST', "https://www.psono.pw/server/authentication/ga-verify/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(data.token).toEqual(token);
+                    expect(data.ga_token).toEqual(ga_token);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.ga_verify(token, ga_token)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
+        it('yubikey_otp_verify', inject(function (apiClient) {
+
+            var token = 'a-token';
+            var yubikey_otp = 'a-yubikey_otp';
+
+            $httpBackend.when('POST', "https://www.psono.pw/server/authentication/yubikey-otp-verify/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(data.token).toEqual(token);
+                    expect(data.yubikey_otp).toEqual(yubikey_otp);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.yubikey_otp_verify(token, yubikey_otp)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
         it('activate_token', inject(function (apiClient) {
 
             var token = 'a-token';
@@ -364,6 +408,27 @@
                 });
 
             expect(apiClient.read_secret(token, session_secret_key, secret_id)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
+        it('read_secret_undefined_secret_id', inject(function (apiClient) {
+
+            var token = 'a-token';
+            var session_secret_key = 'a-session_secret_key';
+
+            $httpBackend.when('GET', "https://www.psono.pw/server/secret/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.read_secret(token, session_secret_key)).toBeDefined();
 
             $httpBackend.flush();
         }));
@@ -834,6 +899,148 @@
                 });
 
             expect(apiClient.get_users_public_key(token, session_secret_key, user_id, user_username)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
+        it('create_ga', inject(function (apiClient) {
+
+            var token = 'a-token';
+            var session_secret_key = 'a-session_secret_key';
+            var title = 'a-title';
+
+            $httpBackend.when('PUT', "https://www.psono.pw/server/user/ga/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    expect(data.title).toEqual(title);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.create_ga(token, session_secret_key, title)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
+        it('read_ga', inject(function (apiClient) {
+
+            var token = 'a-token';
+            var session_secret_key = 'a-session_secret_key';
+
+            $httpBackend.when('GET', "https://www.psono.pw/server/user/ga/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.read_ga(token, session_secret_key)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
+        it('delete_ga', inject(function (apiClient) {
+
+            var token = 'a-token';
+            var session_secret_key = 'a-session_secret_key';
+            var google_authenticator_id = 'a-google_authenticator_id';
+
+            $httpBackend.when('DELETE', "https://www.psono.pw/server/user/ga/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    expect(data.google_authenticator_id).toEqual(google_authenticator_id);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.delete_ga(token, session_secret_key, google_authenticator_id)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
+        it('create_yubikey_otp', inject(function (apiClient) {
+
+            var token = 'a-token';
+            var session_secret_key = 'a-session_secret_key';
+            var title = 'a-title';
+            var yubikey_otp = 'a-yubikey_otp';
+
+            $httpBackend.when('PUT', "https://www.psono.pw/server/user/yubikey-otp/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    expect(data.title).toEqual(title);
+                    expect(data.yubikey_otp).toEqual(yubikey_otp);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.create_yubikey_otp(token, session_secret_key, title, yubikey_otp)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
+        it('read_yubikey_otp', inject(function (apiClient) {
+
+            var token = 'a-token';
+            var session_secret_key = 'a-session_secret_key';
+
+            $httpBackend.when('GET', "https://www.psono.pw/server/user/yubikey-otp/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.read_yubikey_otp(token, session_secret_key)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
+        it('delete_yubikey_otp', inject(function (apiClient) {
+
+            var token = 'a-token';
+            var session_secret_key = 'a-session_secret_key';
+            var yubikey_otp_id = 'a-yubikey_otp_id';
+
+            $httpBackend.when('DELETE', "https://www.psono.pw/server/user/yubikey-otp/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    expect(data.yubikey_otp_id).toEqual(yubikey_otp_id);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.delete_yubikey_otp(token, session_secret_key, yubikey_otp_id)).toBeDefined();
 
             $httpBackend.flush();
         }));
