@@ -1,5 +1,40 @@
 (function () {
-    describe('Service: cryptoLibrary test suite', function () {
+    describe('Service: cryptoLibrary test suite #1', function () {
+
+        beforeEach(module('psonocli'));
+
+        it('cryptoLibrary exists', inject(function (cryptoLibrary) {
+            expect(cryptoLibrary).toBeDefined();
+        }));
+
+
+        var mockedWindow;
+        beforeEach(function () {
+            mockedWindow = {
+                crypto: {
+                    // No window.crypto.getRandomValues
+                }
+            };
+
+            module(function ($provide) {
+                $provide.value('$window', mockedWindow);
+            });
+
+        });
+
+        return it('cryptoLibrary randomBytes', inject(function (cryptoLibrary) {
+            expect( function(){ cryptoLibrary.randomBytes(64); } ).toThrow(
+                new Error("No cryptographic random number generator")
+            );
+        }));
+    });
+
+}).call();
+
+
+
+(function () {
+    describe('Service: cryptoLibrary test suite #2', function () {
 
         beforeEach(module('psonocli'));
 
@@ -52,7 +87,8 @@
         }));
 
         it('from_base58 returns the true Uint8Array', inject(function (cryptoLibrary) {
-            return expect(cryptoLibrary.to_base58(cryptoLibrary.from_base58('17zGKMk8LJ2vxPFJLY5ZT29kPLxuY4YedQ2wsCWP5aYENhQ93SGhYcc3XZaWR5w7pEvXozuf3daKVr'))).toBe('17zGKMk8LJ2vxPFJLY5ZT29kPLxuY4YedQ2wsCWP5aYENhQ93SGhYcc3XZaWR5w7pEvXozuf3daKVr');
+            return expect(cryptoLibrary.to_base58(cryptoLibrary.from_base58('17zGKMk8LJ2vxPFJLY5ZT29kPLxuY4YedQ2wsCWP5aYENhQ93SGhYcc3XZaWR5w7pEvXozuf3daKVr')))
+                .toBe('17zGKMk8LJ2vxPFJLY5ZT29kPLxuY4YedQ2wsCWP5aYENhQ93SGhYcc3XZaWR5w7pEvXozuf3daKVr');
         }));
 
         it('hex_to_base58', inject(function (cryptoLibrary) {
@@ -64,24 +100,30 @@
         }));
 
         it('uuid_to_hex', inject(function (cryptoLibrary) {
-            return expect(cryptoLibrary.uuid_to_hex('3682454d-d080-44c2-b58c-721ef6459e32')).toBe('3682454dd08044c2b58c721ef6459e32');
+            return expect(cryptoLibrary.uuid_to_hex('3682454d-d080-44c2-b58c-721ef6459e32'))
+                .toBe('3682454dd08044c2b58c721ef6459e32');
         }));
 
         it('hex_to_uuid', inject(function (cryptoLibrary) {
-            return expect(cryptoLibrary.hex_to_uuid('28b461d094d84a32b546f8cc382d49f0')).toBe('28b461d0-94d8-4a32-b546-f8cc382d49f0');
+            return expect(cryptoLibrary.hex_to_uuid('28b461d094d84a32b546f8cc382d49f0'))
+                .toBe('28b461d0-94d8-4a32-b546-f8cc382d49f0');
         }));
 
         it('words_to_hex', inject(function (cryptoLibrary) {
-            return expect(cryptoLibrary.words_to_hex(['lazy', 'lock', 'lock', 'price', 'economy', 'enable', 'arctic', 'animal', 'aunt', 'damp', 'novel', 'party'])).toBe('000102030405060708090a0b0c0d0e0f');
+            return expect(cryptoLibrary.words_to_hex(['lazy', 'lock', 'lock', 'price', 'economy', 'enable', 'arctic', 'animal', 'aunt', 'damp', 'novel', 'party']))
+                .toBe('000102030405060708090a0b0c0d0e0f');
         }));
 
         it('hex_to_words', inject(function (cryptoLibrary) {
-            return expect(cryptoLibrary.hex_to_words('000102030405060708090a0b0c0d0e0f')).toEqual(['lazy', 'lock', 'lock', 'price', 'economy', 'enable', 'arctic', 'animal', 'aunt', 'damp', 'novel', 'party']);
+            return expect(cryptoLibrary.hex_to_words('000102030405060708090a0b0c0d0e0f'))
+                .toEqual(['lazy', 'lock', 'lock', 'price', 'economy', 'enable', 'arctic', 'animal', 'aunt', 'damp', 'novel', 'party']);
         }));
 
         it('generate_authkey works', inject(function (cryptoLibrary) {
-            expect(cryptoLibrary.generate_authkey('test@example.com', '123456')).toBe('1ad635d464917db74a127b3de19c5bec9df932472c3e31ca8b18e872c641e8c828e9da35543ef36c0b013ab6c549a7ddbfe7b52b08e9e8704aca69f4c2fd68ea');
-            return expect(cryptoLibrary.generate_authkey('test2@example.com', '1234567')).toBe('3d97a9354e99760d543761c168b655ccc7e565ddd6ef1d6b83df66d8b50bc62708dfe2c2dc56a628fa24b71bf75fc49db85ce11fd64fadb0e458f3780dde1899');
+            expect(cryptoLibrary.generate_authkey('test@example.com', '123456'))
+                .toBe('1ad635d464917db74a127b3de19c5bec9df932472c3e31ca8b18e872c641e8c828e9da35543ef36c0b013ab6c549a7ddbfe7b52b08e9e8704aca69f4c2fd68ea');
+            return expect(cryptoLibrary.generate_authkey('test2@example.com', '1234567'))
+                .toBe('3d97a9354e99760d543761c168b655ccc7e565ddd6ef1d6b83df66d8b50bc62708dfe2c2dc56a628fa24b71bf75fc49db85ce11fd64fadb0e458f3780dde1899');
         }));
 
         it('generate_secret_key returns a 32 bytes long key', inject(function (cryptoLibrary) {
@@ -226,6 +268,33 @@
             nonce = '538a2fc024e1ff7a791da88874099709bdb60ad62653529b';
             text = '0eedec49906748988b011741c8df4214e4dbeeda76';
             return expect(cryptoLibrary.decrypt_data_public_key(text, nonce, pair2.public_key, pair.private_key)).toBe(data);
+        }));
+
+        it('from_base_x:ambiguous alphabet', inject(function (cryptoLibrary) {
+            return expect(function() { cryptoLibrary.from_base_x('ABAAAB', 'ABB') }).toThrow(
+                new TypeError('B is ambiguous')
+            );
+        }));
+
+        it('from_base_x:value not in alphabet', inject(function (cryptoLibrary) {
+            return expect(function() { cryptoLibrary.from_base_x('AZB', 'AB') }).toThrow(
+                new Error('Non-base2 character')
+            );
+        }));
+
+        it('from_base_x:val.length = 0', inject(function (cryptoLibrary) {
+            return expect(cryptoLibrary.from_base_x('', 'AB')).toEqual(new Uint8Array(0));
+        }));
+
+        it('to_base_x', inject(function (cryptoLibrary) {
+            return expect(cryptoLibrary.to_base_x('', 'AB')).toBe('');
+        }));
+
+        it('encode_latin1', inject(function (cryptoLibrary) {
+            var to_encode = String.fromCharCode(0x100);
+            return expect(function(){ cryptoLibrary.encode_latin1(to_encode) }).toThrow(
+                new Error("Cannot encode string in Latin1:" + to_encode)
+            );
         }));
 
         return it('encrypt_data_public_key works', inject(function (cryptoLibrary) {

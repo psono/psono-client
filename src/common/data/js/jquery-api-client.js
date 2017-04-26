@@ -35,8 +35,7 @@ var ClassClient = function (backend, require, jQuery, sha512) {
             window.crypto.getRandomValues(bs);
             return bs;
         } else {
-            throw { name: "No cryptographic random number generator",
-                message: "Your browser does not support cryptographic random number generation." };
+            throw new Error("No cryptographic random number generator");
         }
     };
 

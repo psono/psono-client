@@ -34,7 +34,7 @@
             var dummy_data = "1234";
 
             message.emit('test_event', dummy_data);
-            
+
         }));
     });
 

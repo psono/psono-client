@@ -71,6 +71,10 @@
             expect(settings.get_setting('setting_password_special_chars')).toBe(',.-;:_#\'+*~!"§$%&/()=?{[]}\\');
         }));
 
+        it('get_setting(undefined) = null', inject(function (settings) {
+            expect(settings.get_setting()).toBeNull();
+        }));
+
         it('default get_settings', inject(function (settings) {
             var set = settings.get_settings();
             expect(set.hasOwnProperty('fields')).toBeTruthy();
@@ -89,6 +93,16 @@
             settings.set_settings('my_settings_key', 'my_settings_value');
             settings.set_settings('my_settings_key', 'my_settings_value2');
             expect(settings.get_setting('my_settings_key')).toBe('my_settings_value2');
+        }));
+
+        it('save', inject(function (storage, settings) {
+            spyOn(storage, 'insert');
+            settings.save();
+            expect(storage.insert).toHaveBeenCalledWith('settings', {key: 'setting_password_special_chars', value: undefined});
+            expect(storage.insert).toHaveBeenCalledWith('settings', {key: 'setting_password_numbers', value: undefined});
+            expect(storage.insert).toHaveBeenCalledWith('settings', {key: 'setting_password_letters_lowercase', value: undefined});
+            expect(storage.insert).toHaveBeenCalledWith('settings', {key: 'setting_password_letters_uppercase', value: undefined});
+            expect(storage.insert).toHaveBeenCalledWith('settings', {key: 'setting_password_length', value: undefined});
         }));
 
 

@@ -1,4 +1,4 @@
-(function(angular, $, window) {
+(function(angular, $) {
     'use strict';
 
     /**
@@ -13,7 +13,7 @@
      * The browser interface, responsible for the cross browser / platform compatibility.
      */
 
-    var browserClient = function($rootScope, $q, $templateRequest, $http) {
+    var browserClient = function($rootScope, $q, $templateRequest, $http, $window) {
 
         var events = [
             'login',
@@ -46,7 +46,7 @@
          * @param {string} url The url to open
          */
         var open_tab = function(url) {
-            window.open(url, '_blank');
+            $window.open(url, '_blank');
         };
 
         /**
@@ -117,7 +117,7 @@
          */
         var get_active_tab_url = function() {
             return $q(function (resolve) {
-                resolve(window.location.href);
+                resolve($window.location.href);
             });
         };
 
@@ -266,6 +266,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("browserClient", ['$rootScope', '$q', '$templateRequest', '$http', browserClient]);
+    app.factory("browserClient", ['$rootScope', '$q', '$templateRequest', '$http', '$window', browserClient]);
 
-}(angular, $, window));
+}(angular, $));
