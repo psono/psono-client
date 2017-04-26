@@ -72,8 +72,8 @@
         }));
 
         it('default get_settings', inject(function (settings) {
-            var acc = settings.get_settings();
-            expect(acc.hasOwnProperty('fields')).toBeTruthy();
+            var set = settings.get_settings();
+            expect(set.hasOwnProperty('fields')).toBeTruthy();
         }));
 
         it('default get_account_detail:user_id', inject(function (settings) {

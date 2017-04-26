@@ -35,10 +35,37 @@
             });
 
         });
+        //
+        // var fakeModal = {
+        //     result: {
+        //         then: function (confirmCallback, cancelCallback) {
+        //             this.confirmCallBack = confirmCallback;
+        //             this.cancelCallback = cancelCallback;
+        //             return this;
+        //         },
+        //         catch: function (cancelCallback) {
+        //             this.cancelCallback = cancelCallback;
+        //             return this;
+        //         },
+        //         finally: function (finallyCallback) {
+        //             this.finallyCallback = finallyCallback;
+        //             return this;
+        //         }
+        //     },
+        //     close: function (item) {
+        //         this.result.confirmCallBack(item);
+        //     },
+        //     dismiss: function (item) {
+        //         this.result.cancelCallback(item);
+        //     },
+        //     finally: function () {
+        //         this.result.finallyCallback();
+        //     }
+        // };
 
         // Test Default account
 
-        it('default get_tabs', inject(function (account) {
+        it('get_tabs', inject(function (account) {
             var tabs = account.get_tabs();
 
             expect(Object.prototype.toString.call( tabs ) === '[object Array]').toBeTruthy();
@@ -48,30 +75,70 @@
             }
         }));
 
-        it('default get_account_detail:user_id', inject(function (account) {
+        it('get_account_detail:user_id', inject(function (account) {
             expect(account.get_account_detail('user_id')).toBe('fake_user_id');
         }));
 
-        it('default get_account_detail:user_username', inject(function (account) {
+        it('get_account_detail:user_username', inject(function (account) {
             expect(account.get_account_detail('user_username')).toBe('fake_user_username');
         }));
 
-        it('default get_account_detail:user_public_key', inject(function (account) {
+        it('get_account_detail:user_public_key', inject(function (account) {
             expect(account.get_account_detail('user_public_key')).toBe('fake_user_public_key');
         }));
 
-        it('default get_account_detail:user_email', inject(function (account) {
+        it('get_account_detail:user_email', inject(function (account) {
             expect(account.get_account_detail('user_email')).toBe('fake_user_email');
         }));
 
-        it('default get_account_detail:setting_email', inject(function (account) {
+        it('get_account_detail:setting_email', inject(function (account) {
             expect(account.get_account_detail('setting_email')).toBe('fake_user_email');
         }));
 
-        it('default get_account ', inject(function (account) {
+        it('get_account ', inject(function (account) {
             var acc = account.get_account();
             expect(acc.hasOwnProperty('fields')).toBeTruthy();
         }));
+
+        it('check all onClicks existence', inject(function (account) {
+            var acc = account.get_account();
+
+            for (var i = 0; i < acc['fields'].length; i++) {
+                if (acc['fields'][i].hasOwnProperty('onClick')) {
+                    expect(acc.hasOwnProperty(acc['fields'][i]['onClick'])).toBeTruthy();
+                }
+            }
+        }));
+
+        it('check all onClicks to be functions', inject(function (account) {
+            var acc = account.get_account();
+
+            for (var i = 0; i < acc['fields'].length; i++) {
+                if (acc['fields'][i].hasOwnProperty('onClick')) {
+                    expect(typeof acc[acc['fields'][i]['onClick']] === "function").toBeTruthy();
+                }
+            }
+        }));
+
+        it('onClickGenerateNewPasswordRecoveryCode', inject(function (account) {
+            var acc = account.get_account();
+
+            acc['onClickGenerateNewPasswordRecoveryCode']();
+        }));
+
+        it('onClickConfigureGoogleAuthenticator', inject(function (account) {
+            var acc = account.get_account();
+
+            acc['onClickConfigureGoogleAuthenticator']();
+        }));
+
+        it('onClickConfigureYubiKeyOTP', inject(function (account) {
+            var acc = account.get_account();
+
+            acc['onClickConfigureYubiKeyOTP']();
+        }));
+
+
 
     });
 
