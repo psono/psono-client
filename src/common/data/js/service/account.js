@@ -43,7 +43,7 @@
                 { name: "generate_password_recovery_button", field: "button", type: "button", title: "New Password Recovery Code", btnLabel: "Generate", class: 'btn-primary', onClick:"onClickGenerateNewPasswordRecoveryCode", tab: 'recovery' },
                 // Password Recovery
                 { name: "google_authenticator_setup", field: "button", type: "button", title: "Google Authenticator", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureGoogleAuthenticator", tab: 'multi_factor' },
-                { name: "yubikey_otp_setup", field: "button", type: "button", title: "YubiKey OTP", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureYubiKeyOTP", tab: 'multi_factor' }
+                { name: "yubikey_otp_setup", field: "button", type: "button", title: "YubiKey (OTP)", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureYubiKeyOTP", tab: 'multi_factor' }
             ],
             onClickGenerateNewPasswordRecoveryCode: function () {
 
@@ -76,36 +76,20 @@
 
             },
             onClickConfigureGoogleAuthenticator: function () {
-
-                var modalInstance = $uibModal.open({
+                $uibModal.open({
                     templateUrl: 'view/modal-setup-google-authenticator.html',
                     controller: 'ModalConfigureGoogleAuthenticatorCtrl',
                     backdrop: 'static',
                     resolve: {}
                 });
 
-                modalInstance.result.then(function () {
-                    // User clicked the prime button
-
-                }, function () {
-                    // cancel triggered
-                });
-
             },
             onClickConfigureYubiKeyOTP: function () {
-
-                var modalInstance = $uibModal.open({
+                $uibModal.open({
                     templateUrl: 'view/modal-setup-yubikey-otp.html',
                     controller: 'ModalConfigureYubiKeyOTPCtrl',
                     backdrop: 'static',
                     resolve: {}
-                });
-
-                modalInstance.result.then(function () {
-                    // User clicked the prime button
-
-                }, function () {
-                    // cancel triggered
                 });
 
             }
@@ -210,6 +194,7 @@
 
                 // lets search our account for the interesting account
                 for (var i = _account.length - 1; i >= 0; i--) {
+                    console.log("1");
                     if (_config_account.indexOf(_account[i].key) > -1) {
                         specials[_account[i].key] = _account[i];
                     }
@@ -225,6 +210,7 @@
                 // change email
                 // lets check for a correct old password and then update our backend
                 if (config_email !== specials['setting_email'].value) {
+                    console.log("4");
 
                     if (specials['setting_email_password_old'].value === null || specials['setting_email_password_old'].value.length === 0) {
                         return reject({errors: ['Old password empty']})

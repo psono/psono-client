@@ -6,7 +6,7 @@
         this.name = "InvalidRecoveryCodeException";
     }
 
-    var cryptoLibrary = function(helper) {
+    var cryptoLibrary = function($window, helper) {
 
         /**
          * @ngdoc service
@@ -33,19 +33,17 @@
          * @returns {Uint8Array} Random byte array
          */
         var randomBytes = function (count) {
-
             if (typeof module !== 'undefined' && module.exports) {
                 // add node.js implementations
                 var crypto = require('crypto');
                 return crypto.randomBytes(count)
-            } else if (window && window.crypto && window.crypto.getRandomValues) {
+            } else if ($window && $window.crypto && $window.crypto.getRandomValues) {
                 // add in-browser implementation
                 var bs = new Uint8Array(count);
-                window.crypto.getRandomValues(bs);
+                $window.crypto.getRandomValues(bs);
                 return bs;
             } else {
-                throw { name: "No cryptographic random number generator",
-                    message: "Your browser does not support cryptographic random number generation." };
+                throw new Error("No cryptographic random number generator");
             }
         };
 
@@ -85,7 +83,7 @@
             var result = new Uint8Array(to_encode.length);
             for (var i = 0; i < to_encode.length; i++) {
                 var c = to_encode.charCodeAt(i);
-                if ((c & 0xff) !== c) throw {message: "Cannot encode string in Latin1", str: to_encode};
+                if ((c & 0xff) !== c) throw new Error("Cannot encode string in Latin1:" + to_encode);
                 result[i] = (c & 0xff);
             }
             return result;
@@ -564,6 +562,7 @@
             // var salt = nacl.to_hex(nacl.crypto_hash_string(username.toLowerCase()));
             var salt = sha512(username.toLowerCase());
 
+
             return to_hex(nacl.scrypt(encode_utf8(password), encode_utf8(salt), u, r, p, l, function(pDone) {}));
         };
 
@@ -900,10 +899,16 @@
 
         return {
             // Conversion functions
+            encode_utf8: encode_utf8,
+            encode_latin1: encode_latin1,
+            decode_utf8: decode_utf8,
+            decode_latin1: decode_latin1,
             to_hex: to_hex,
             from_hex: from_hex,
             to_base58: to_base58,
             from_base58: from_base58,
+            to_base_x: to_base_x,
+            from_base_x: from_base_x,
             hex_to_base58: hex_to_base58,
             base58_to_hex: base58_to_hex,
             uuid_to_hex: uuid_to_hex,
@@ -935,7 +940,7 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("cryptoLibrary", ['helper', cryptoLibrary]);
+    app.factory("cryptoLibrary", ['$window', 'helper', cryptoLibrary]);
 
 }(angular, require, sha512, sha256, uuid));
 

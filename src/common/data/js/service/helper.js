@@ -205,6 +205,31 @@
 
         /**
          * @ngdoc
+         * @name psonocli.helper#is_valid_password
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Determines if the password is a valid password.
+         * If yes the function returns true. If not, the function returns an error string
+         *
+         * @param {string} password A string that could be a valid password
+         * @param {string} password2 The second password that needs to match the first
+         * @returns {true|string} Returns true or a string with the error
+         */
+        var is_valid_password = function(password, password2) {
+
+            if (password.length < 12) {
+                return "Password too short (min 12 chars).";
+            }
+
+            if (password !== password2) {
+                return "Passwords don't match.";
+            }
+            return true;
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.helper#split_string_in_chunks
          * @methodOf psonocli.helper
          *
@@ -260,6 +285,7 @@
             create_list: create_list,
             duplicate_object: duplicate_object,
             is_valid_username: is_valid_username,
+            is_valid_password: is_valid_password,
             split_string_in_chunks: split_string_in_chunks,
             remove_from_array: remove_from_array
         };

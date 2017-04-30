@@ -275,6 +275,7 @@
 
                 $scope.errors = [];
                 $scope.msgs = [];
+                var test_result;
 
                 function onError() {
                     alert("Error, should not happen.");
@@ -307,13 +308,9 @@
                     return;
                 }
 
-                if (password.length < 12) {
-                    $scope.errors.push("Password too short (min 12 chars).");
-                    return;
-                }
-
-                if (password !== password2) {
-                    $scope.errors.push("Passwords don't match.");
+                test_result = helper.is_valid_password(password, password2);
+                if (test_result !== true) {
+                    $scope.errors.push(test_result);
                     return;
                 }
 
@@ -321,13 +318,10 @@
                     username = username + '@' + $scope.selected_server_domain;
                 }
 
-                if ((username.match(/@/g) || []).length !== 1) {
-                    $scope.errors.push("No valid username (must be in email format).");
-                }
                 var res = username.split("@");
                 var username_part = res[0];
 
-                var test_result = helper.is_valid_username(username_part);
+                test_result = helper.is_valid_username(username_part);
                 if (test_result !== true) {
                     $scope.errors.push(test_result);
                     return;
@@ -489,6 +483,7 @@
 
                 $scope.errors = [];
                 $scope.msgs = [];
+                var test_result;
 
                 // a username is mandatory
                 if (username === undefined) {
@@ -500,23 +495,15 @@
                     return;
                 }
 
-                // if (password !== password2) {
-                //     $scope.errors.push("Passwords don't match.");
-                //     return;
-                // }
-
                 // Validate now the username
                 if (username.indexOf('@') === -1){
                     username = username + '@' + $scope.selected_server_domain;
                 }
 
-                if ((username.match(/@/g) || []).length !== 1) {
-                    $scope.errors.push("No valid username (must be in email format).");
-                }
                 var res = username.split("@");
                 var username_part = res[0];
 
-                var test_result = helper.is_valid_username(username_part);
+                test_result = helper.is_valid_username(username_part);
                 if (test_result !== true) {
                     $scope.errors.push(test_result);
                     return;
@@ -586,14 +573,9 @@
              */
             $scope.set_new_password = function (username, recovery_code, password, password2, recovery_data) {
 
-
-                if (password.length < 12) {
-                    $scope.errors.push("Password too short (min 12 chars).");
-                    return;
-                }
-
-                if (password !== password2) {
-                    $scope.errors.push("Passwords don't match.");
+                var test_result = helper.is_valid_password(password, password2);
+                if (test_result !== true) {
+                    $scope.errors.push(test_result);
                     return;
                 }
 
@@ -1184,6 +1166,13 @@
 
                 // TODO interpret "allow_custom_server"
                 // TODO check last visited server for "preselection"
+
+                if (config.hasOwnProperty("default_username")) {
+                    $scope.loginFormUsername = config['default_username'];
+                }
+                if (config.hasOwnProperty("default_password")) {
+                    $scope.loginFormPassword = config['default_password'];
+                }
 
                 /* Server selection with preselection */
                 $scope.servers = config['backend_servers'];

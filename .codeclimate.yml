@@ -6,7 +6,7 @@ engines:
       box-sizing:
         enabled: false
   duplication:
-    enabled: true
+    enabled: false
     checks:
       Identical code:
         enabled: false
