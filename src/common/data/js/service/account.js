@@ -43,7 +43,7 @@
                 { name: "generate_password_recovery_button", field: "button", type: "button", title: "New Password Recovery Code", btnLabel: "Generate", class: 'btn-primary', onClick:"onClickGenerateNewPasswordRecoveryCode", tab: 'recovery' },
                 // Password Recovery
                 { name: "google_authenticator_setup", field: "button", type: "button", title: "Google Authenticator", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureGoogleAuthenticator", tab: 'multi_factor' },
-                { name: "yubikey_otp_setup", field: "button", type: "button", title: "YubiKey OTP", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureYubiKeyOTP", tab: 'multi_factor' }
+                { name: "yubikey_otp_setup", field: "button", type: "button", title: "YubiKey (OTP)", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureYubiKeyOTP", tab: 'multi_factor' }
             ],
             onClickGenerateNewPasswordRecoveryCode: function () {
 

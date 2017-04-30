@@ -66,6 +66,9 @@
                     if (data.status === 401) {
                         $rootScope.$broadcast('force_logout', '');
                     }
+                    if (data.status === 503) {
+                        $rootScope.$broadcast('force_logout', '');
+                    }
                     return reject(decrypt_data(data));
                 };
 

@@ -562,6 +562,7 @@
             // var salt = nacl.to_hex(nacl.crypto_hash_string(username.toLowerCase()));
             var salt = sha512(username.toLowerCase());
 
+
             return to_hex(nacl.scrypt(encode_utf8(password), encode_utf8(salt), u, r, p, l, function(pDone) {}));
         };
 
