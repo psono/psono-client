@@ -1,0 +1,195 @@
+
+
+<!DOCTYPE html>
+<html ng-app="psonocli" class="datastore">
+<head>
+    <title>Datastore</title>
+    <meta charset="utf-8">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="img/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="img/favicon-16x16.png" sizes="16x16">
+    <link rel="manifest" href="img/manifest.json">
+    <link rel="shortcut icon" href="img/favicon.ico">
+    <meta name="msapplication-config" content="img/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="js/lib/html5shiv.min.js"></script>
+    <script src="js/lib/respond.min.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="css/lib/opensans.css" />
+    <link href="css/lib/bootstrap.css" rel="stylesheet">
+    <link href="css/lib/datatables.min.css" rel="stylesheet">
+    <link href="css/lib/angular-snap.css" rel="stylesheet">
+    <link href="css/lib/font-awesome.min.css" rel="stylesheet">
+    <link href="css/angular-tree-view.css" rel="stylesheet">
+    <link href="css/lib/angular-datatables.css" rel="stylesheet">
+    <link href="css/lib/datatables.bootstrap.css" rel="stylesheet">
+    <link href="css/lib/angular-dashboard-framework.css" rel="stylesheet">
+    <link href="css/lib/angular-ui-select.css" rel="stylesheet">
+    <link href="css/lib/loading-bar.min.css" rel="stylesheet">
+
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/datastore.css" rel="stylesheet">
+</head>
+<body>
+
+<div ng-cloak>
+    <!-- Not logged in, show the login form -->
+    <div class="wrapper">
+
+        <div class="privacypolicybox container dark">
+            <img src="img/logo.png" id="logo">
+
+            <div >
+                <h3>Privacy Policy:</h3><br>
+                <p>Your privacy is important to us. Psono follows some fundamental principles:</p>
+                <ul>
+                    <li>We do not ask for any information that we do not really need</li>
+                    <li>We do not share your information with anyone except to comply with the German law, protect our
+                        rights and develop our product.</li>
+                    <li>No sensitive data like your passwords will ever leave your computer without being encrypted
+                        before</li>
+                </ul>
+
+                <p>
+                    Your personal data is processed by us only in accordance with the German data privacy law. The following
+                    passages describes the type and purpose of the use of the gathered personal data. This privacy policy
+                    only applies to "psono.com" and no other linked domains.
+                </p><br>
+
+                <h4>Personal Data</h4>
+                <p>
+                    Any data (name, address, billing information, IP-address, ...) is only used to fulfill the service
+                    and without a legal basis or your explicit consent, not given to any third parties.
+                </p>
+                <p>
+                    Psono collects personal-identifying information like for example the IP address while using our
+                    service, to ensure the service availability and to protect your account. Psono may use that
+                    information for statistical analyze and may display this anonymized statistical analyze publicly or
+                    provide it to others.
+                </p>
+                <p>
+                    Account holders in addition must specify some additional information during registration, like for
+                    example their e-mail address. That information is used to prevent service disruptions and to inform
+                    users about security relevant information.
+                </p><br>
+
+                <h4>Browser Storage</h4>
+                <p>
+                    For technical reason (login, sessions, ...) we are using browser storage
+                    (e.g. cookies, local storage, ...), which stores data in your browser.
+                </p><br>
+
+                <h4>Google Analytics</h4>
+                <p>
+                    This website uses Google Analytics (GA) (by Google Inc), to analyse customer behaviour on the
+                    website. GA for that reason uses cookies to identify and track users and user behaviour. GA offers
+                    the possibility to opt out of this data collection by installing a browser plug-in here:
+                </p>
+                <p>
+                    <a href="http://tools.google.com/dlpage/gaoptout?hl=en" rel="nofollow">
+                        http://tools.google.com/dlpage/gaoptout?hl=en
+                    </a>
+                </p>
+                <p>
+                    Psono uses the GA's "nonymizeIP()" function, to truncate IPs before processing them to prevent
+                    direct associations to persons.
+                </p><br>
+
+                <h4>Yubico</h4>
+                <p>
+                    This website offers the use of YubiKey OTP for multifactor login. When using this feature the server
+                    will send your OTP token to the Yubico Validation Service to authenticate your token.
+                </p><br>
+                <p>
+                    Psono may update its privacy statement from time to time and we encourage everyone to check
+                    regularly.
+                </p><br>
+
+                <h3>Address:</h3>
+                Sascha Pfeiffer<br>
+                Hofmannstraße 48<br>
+                91058 Erlangen<br>
+                Germany<br>
+                <br>
+                <h3>E-Mail:</h3>
+                contact(a)psono.com<br>
+                <br>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- Start of scripts -->
+<script src="js/lib/ecma-nacl.min.js" type="text/javascript"></script>
+<script src="js/lib/sha512.min.js" type="text/javascript"></script>
+<script src="js/lib/sha256.min.js" type="text/javascript"></script>
+<!--<script src="js/lib/nacl_factory.js" type="text/javascript"></script>-->
+<script src="js/lib/uuid.js" type="text/javascript"></script>
+<script src="js/lib/jquery.min.js" type="text/javascript"></script>
+<script src="js/lib/datatables.min.js" type="text/javascript"></script>
+<script src="js/lib/snap.min.js" type="text/javascript"></script>
+<script src="js/lib/jquery-ui.min.js"></script>
+<script src="js/lib/sortable.min.js" type="application/javascript"></script>
+<script src="js/lib/lokijs.min.js" type="application/javascript"></script>
+<script src="js/lib/qrcode.min.js" type="application/javascript"></script>
+<script src="js/lib/password-generator.js" type="application/javascript"></script>
+
+
+<!-- Angular Juju -->
+<script src="js/lib/angular.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-animate.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-touch.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-complexify.min.js" type="application/javascript"></script>
+<script src="js/lib/loading-bar.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-route.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-sanitize.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-local-storage.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-snap.min.js" type="application/javascript"></script>
+<script src="js/lib/ui-bootstrap-tpls.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-dashboard-framework.js" type="application/javascript"></script>
+<script src="js/lib/angular-datatables.js" type="application/javascript"></script>
+<script src="js/lib/ngdraggable.js" type="application/javascript"></script>
+<script src="js/angular-tree-view.js" type="application/javascript"></script>
+<script src="js/lib/angular-ui-select.js" type="application/javascript"></script>
+<script src="js/lib/ng-context-menu.js" type="application/javascript"></script>
+
+<script src="js/widgets/adf-widget-datastore.js"></script>
+<script src="js/widgets/adf-widget-shareusers.js"></script>
+<script src="js/widgets/adf-widget-accept-share.js"></script>
+
+<script src="js/main.js" type="application/javascript"></script>
+<script src="js/widgets/adf-dashboard-controller.js" type="application/javascript"></script>
+
+<script src="js/service/api-client.js" type="application/javascript"></script>
+<script src="js/service/helper.js" type="application/javascript"></script>
+<script src="js/service/message.js" type="application/javascript"></script>
+<script src="js/service/item-blueprint.js" type="application/javascript"></script>
+<script src="js/service/share-blueprint.js" type="application/javascript"></script>
+<script src="js/service/crypto-library.js" type="application/javascript"></script>
+<script src="js/service/storage.js" type="application/javascript"></script>
+<script src="js/service/account.js" type="application/javascript"></script>
+<script src="js/service/settings.js" type="application/javascript"></script>
+<script src="js/service/manager-base.js" type="application/javascript"></script>
+<script src="js/service/manager.js" type="application/javascript"></script>
+<script src="js/service/manager-adf-widget.js" type="application/javascript"></script>
+<script src="js/service/manager-datastore.js" type="application/javascript"></script>
+<script src="js/service/manager-secret-link.js" type="application/javascript"></script>
+<script src="js/service/manager-share-link.js" type="application/javascript"></script>
+<script src="js/service/manager-secret.js" type="application/javascript"></script>
+<script src="js/service/manager-share.js" type="application/javascript"></script>
+<script src="js/service/manager-datastore-password.js" type="application/javascript"></script>
+<script src="js/service/manager-datastore-user.js" type="application/javascript"></script>
+<script src="js/service/manager-datastore-setting.js" type="application/javascript"></script>
+<script src="js/service/browser-client.js" type="application/javascript"></script>
+<script src="js/service/password-generator.js" type="application/javascript"></script>
+<script src="view/templates.js" type="application/javascript"></script>
+<!-- End Angular Juju -->
+</body>
+</html>
