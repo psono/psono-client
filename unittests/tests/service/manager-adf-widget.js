@@ -1,10 +1,10 @@
 (function () {
-    describe('Service: managerAdfWidget test suite', function () {
+    describe('Service: managerWidget test suite', function () {
 
         beforeEach(module('psonocli'));
 
-        it('managerAdfWidget exists', inject(function (managerAdfWidget) {
-            expect(managerAdfWidget).toBeDefined();
+        it('managerWidget exists', inject(function (managerWidget) {
+            expect(managerWidget).toBeDefined();
         }));
     });
 

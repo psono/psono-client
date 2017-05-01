@@ -26,7 +26,6 @@
     <link href="css/angular-tree-view.css" rel="stylesheet">
     <link href="css/lib/angular-datatables.css" rel="stylesheet">
     <link href="css/lib/datatables.bootstrap.css" rel="stylesheet">
-    <link href="css/lib/angular-dashboard-framework.css" rel="stylesheet">
     <link href="css/lib/angular-ui-select.css" rel="stylesheet">
     <link href="css/lib/loading-bar.min.css" rel="stylesheet">
 
@@ -52,8 +51,8 @@
                             {{user_username}} <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu" aria-labelledby="email-button">
-                            <li role="menuitem"><a href="#/account">Account</a></li>
-                            <li role="menuitem"><a href="#/settings">Settings</a></li>
+                            <li role="menuitem"><a href="#!/account">Account</a></li>
+                            <li role="menuitem"><a href="#!/settings">Settings</a></li>
                             <li class="divider"></li>
                             <li role="menuitem"><a href="#" ng-click="logout()">Logout</a></li>
                         </ul>
@@ -76,12 +75,12 @@
         <h2>Navigation</h2>
         <ul class="navigations">
             <li ng-class="get_link_state('/')"><a href="#">Home</a></li>
-            <!--<li ng-class="get_link_state('/test')"><a href="#/test">Test</a></li>-->
+            <!--<li ng-class="get_link_state('/test')"><a href="#!/test">Test</a></li>-->
         </ul>
         <h2>Share Details</h2>
         <ul class="navigations">
-            <li ng-class="get_link_state('/share/pendingshares')"><a href="#/share/pendingshares">Pending Requests</a></li>
-            <li ng-class="get_link_state('/share/users')"><a href="#/share/users">Trusted Users</a></li>
+            <li ng-class="get_link_state('/share/pendingshares')"><a href="#!/share/pendingshares">Pending Requests</a></li>
+            <li ng-class="get_link_state('/share/users')"><a href="#!/share/users">Trusted Users</a></li>
         </ul>
         <h2>More</h2>
         <ul class="navigations">
@@ -214,15 +213,13 @@
 <script src="js/angular-tree-view.js"></script>
 <script src="js/lib/angular-ui-select.js" type="application/javascript"></script>
 <script src="js/lib/ng-context-menu.js" type="application/javascript"></script>
-<script src="js/lib/angular-dashboard-framework.js" type="application/javascript"></script>
 <script src="js/lib/angular-datatables.js" type="application/javascript"></script>
 
-<script src="js/widgets/adf-widget-datastore.js"></script>
-<script src="js/widgets/adf-widget-shareusers.js"></script>
-<script src="js/widgets/adf-widget-accept-share.js"></script>
-
 <script src="js/main.js" type="application/javascript"></script>
-<script src="js/widgets/adf-dashboard-controller.js" type="application/javascript"></script>
+
+<script src="js/widgets/widget-datastore.js"></script>
+<script src="js/widgets/widget-shareusers.js"></script>
+<script src="js/widgets/widget-accept-share.js"></script>
 
 <script src="js/service/api-client.js" type="application/javascript"></script>
 <script src="js/service/helper.js" type="application/javascript"></script>
@@ -235,7 +232,7 @@
 <script src="js/service/settings.js" type="application/javascript"></script>
 <script src="js/service/manager-base.js" type="application/javascript"></script>
 <script src="js/service/manager.js" type="application/javascript"></script>
-<script src="js/service/manager-adf-widget.js" type="application/javascript"></script>
+<script src="js/service/manager-widget.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore.js" type="application/javascript"></script>
 <script src="js/service/manager-secret-link.js" type="application/javascript"></script>
 <script src="js/service/manager-share-link.js" type="application/javascript"></script>

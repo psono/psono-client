@@ -26,28 +26,54 @@
             </span>
         </div>
 
-        <!--
-        <label for="modalAcceptShareForm-path" class="smalllabel">Path</label>
-        <div id="modalAcceptShareForm-path" class="path_box form-control">
-            <span ng-if="!breadcrumbs.breadcrumbs">\</span>
-            <span class="path_box_breadcrumb" ng-click="cut_breadcrumbs($index, b)" ng-repeat="b in breadcrumbs.breadcrumbs track by $index">\{{b}}</span>
-        </div>
-        -->
+        <div ng-controller="AcceptShareCtrl" class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Accept Share</h3>
+            </div>
+            <div class="panel-body">
+                <div data-target="menu-acceptshare-main" context-menu="contextMenuOnShow('menu-acceptshare-main')" context-menu-close="contextMenuOnClose('menu-acceptshare-main')" class="expand15">
 
+                    <div class="dropdown position-fixed dropdown-rightclick" id="menu-acceptshare-main">
+                        <ul class="dropdown-menu" role="menu">
+                            <li role="menuitem" ng-click="open_new_folder($event)">
+                                <a href="#!/share/pendingshares"><i class="fa fa-folder"></i>New Folder</a>
+                            </li>
+                        </ul>
+                    </div>
 
-        <div ng-controller="AcceptshareDashboardCtrl" ng-init="init(item)">
-            <!-- Start Acceptshare Widget -->
-            <adf-dashboard
-                    name="widgetAcceptshareDashboard"
-                    structure="4-8"
-                    editable="false"
-                    collapsible="false"
-                    maximizable="false"
-                    enableConfirmDelete="true"
-                    adf-model="acceptshare.model">
-            </adf-dashboard>
-            <!-- End Acceptshare Widget -->
+                    <!--
+                    <div>
+                        <span ng-repeat="b in breadcrumbs track by $index">
+                            &gt; {{b}}
+                        </span>
+                    </div>
+                    -->
+
+                    <div tree-view="structure.data" tree-view-options="options" ng-if="structure.data.folders || structure.data.items">
+
+                    </div>
+
+                    <div ng-if="!(structure.data.folders || structure.data.items)">
+                        No Folders so far
+                    </div>
+
+                </div>
+            </div>
         </div>
+
+        <!--<div ng-controller="AcceptshareDashboardCtrl" ng-init="init(item)">-->
+            <!--&lt;!&ndash; Start Acceptshare Widget &ndash;&gt;-->
+            <!--<adf-dashboard-->
+                    <!--name="widgetAcceptshareDashboard"-->
+                    <!--structure="4-8"-->
+                    <!--editable="false"-->
+                    <!--collapsible="false"-->
+                    <!--maximizable="false"-->
+                    <!--enableConfirmDelete="true"-->
+                    <!--adf-model="acceptshare.model">-->
+            <!--</adf-dashboard>-->
+            <!--&lt;!&ndash; End Acceptshare Widget &ndash;&gt;-->
+        <!--</div>-->
 
         <h4>shared by:</h4>
 
@@ -73,7 +99,7 @@
             <span class="text-danger"><strong>Attention:</strong></span> You never confirmed this user's identity. Please ask the user on a "secure" channel if that
             really is his public key.
             If you confirmed this public key and want to add it to your trusted user datastore click here:
-            <a href="#/share/pendingshares" ng-click="trust(user_list)">Add to trusted users</a>.
+            <a href="#!/share/pendingshares" ng-click="trust(user_list)">Add to trusted users</a>.
         </div>
 
     </div>
