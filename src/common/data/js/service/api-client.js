@@ -90,17 +90,21 @@
          * @param {string} username the username e.g dummy@example.com
          * @param {string} authkey the authkey as scrypt(password + username + sauce)
          * @param {string} public_key session public key
+         * @param {string} device_fingerprint The fingerprint of the device
+         * @param {string} device_description The device description
          *
          * @returns {promise} Returns a promise with the login status
          */
-        var login = function(username, authkey, public_key) {
+        var login = function(username, authkey, public_key, device_fingerprint, device_description) {
 
             var endpoint = '/authentication/login/';
             var connection_type = "POST";
             var data = {
                 username: username,
                 authkey: authkey,
-                public_key: public_key
+                public_key: public_key,
+                device_fingerprint: device_fingerprint,
+                device_description: device_description
             };
             var headers = null;
 

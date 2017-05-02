@@ -34,6 +34,7 @@
         var session_password;
         var verification;
 
+
         /**
          * @ngdoc
          * @name psonocli.managerDatastoreUser#is_logged_in
@@ -377,11 +378,11 @@
                     session_secret_key
                 );
 
-                required_multifactors = response.data['required_multifactors']
+                required_multifactors = response.data['required_multifactors'];
                 return required_multifactors;
             };
 
-            return apiClient.login(username, authkey, session_keys.public_key)
+            return apiClient.login(username, authkey, session_keys.public_key, helper.get_device_fingerprint(), helper.get_device_description())
                 .then(onSuccess, onError);
         };
 

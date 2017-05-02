@@ -25,6 +25,7 @@ wget https://raw.githubusercontent.com/scottjehl/Respond/master/dest/respond.min
 wget https://raw.githubusercontent.com/aFarkas/html5shiv/master/dist/html5shiv.min.js -O src/common/data/js/lib/html5shiv.min.js
 wget https://raw.githubusercontent.com/HubSpot/drop/master/dist/js/drop.min.js -O src/common/data/js/lib/drop.min.js
 wget https://raw.githubusercontent.com/3nsoft/ecma-nacl/master/dist/lib-browser/ecma-nacl.min.js -O src/common/data/js/lib/ecma-nacl.min.js
+wget https://raw.githubusercontent.com/jackspirou/clientjs/master/dist/client.min.js -O src/common/data/js/lib/client.min.js
 
 wget https://raw.githubusercontent.com/chieffancypants/angular-loading-bar/master/build/loading-bar.min.css -O src/common/data/css/lib/loading-bar.min.css
 wget https://raw.githubusercontent.com/chieffancypants/angular-loading-bar/master/build/loading-bar.min.js -O src/common/data/js/lib/loading-bar.min.js
