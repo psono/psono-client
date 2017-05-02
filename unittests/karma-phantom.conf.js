@@ -9,6 +9,7 @@
                 "../src/common/data/js/lib/sha256.min.js",
                 "../src/common/data/js/lib/uuid.js",
                 "../src/common/data/js/lib/jquery.min.js",
+                "../src/common/data/js/lib/client.min.js",
                 "../src/common/data/js/lib/datatables.min.js",
                 "../src/common/data/js/lib/snap.min.js",
                 "../src/common/data/js/lib/jquery-ui.min.js",
