@@ -63,6 +63,10 @@
                     templateUrl: 'view/account.html',
                     controller: 'AccountCtrl'
                 })
+                .when('/other', {
+                    templateUrl: 'view/other.html',
+                    controller: 'OtherCtrl'
+                })
                 .when('/share/pendingshares', {
                     templateUrl: 'view/index-share-shares.html',
                     controller: 'ShareCtrl'
@@ -1398,6 +1402,44 @@
                 account.save().then(onSuccess, onError)
             };
         }]);
+
+    /**
+     * @ngdoc controller
+     * @name psonocli.controller:OtherCtrl
+     * @requires $scope
+     * @requires $routeParams
+     * @requires psonocli.account
+     *
+     * @description
+     * Controller for the Account view
+     */
+    app.controller('OtherCtrl', ['$scope', '$routeParams', 'managerDatastoreUser', 'helper',
+        function ($scope, $routeParams, managerDatastoreUser, helper) {
+
+            $scope.sessions=[];
+
+            $scope.delete_open_session = function (session_id) {
+
+                var onSuccess = function () {
+                    helper.remove_from_array($scope.sessions, session_id, function(session, session_id) {
+                        return session['id'] === session_id;
+                    });
+                };
+                var onError = function () {
+                };
+
+                managerDatastoreUser.delete_open_session(session_id).then(onSuccess, onError);
+            };
+
+            var onSuccess = function (sessions) {
+                $scope.sessions = sessions;
+            };
+            var onError = function () {
+            };
+
+            managerDatastoreUser.get_open_sessions().then(onSuccess, onError)
+        }
+    ]);
 
     /**
      * @ngdoc controller

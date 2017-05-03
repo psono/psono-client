@@ -869,6 +869,54 @@
                 .then(onSuccess, onError)
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#get_open_sessions
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * loads the open sessions
+         *
+         * @returns {promise} Returns a promise with the open sessions
+         */
+        var get_open_sessions = function() {
+
+            var onSuccess = function (request) {
+
+                return request.data['sessions'];
+
+            };
+            var onError = function () {
+                // pass
+            };
+            return apiClient.get_open_sessions(managerBase.get_token(), managerBase.get_session_secret_key())
+                .then(onSuccess, onError)
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#delete_open_session
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Deletes an open sessions
+         *
+         * @param {string} session_id The id of the session to delete
+         *
+         * @returns {promise} Returns a promise with true or false
+         */
+        var delete_open_session = function(session_id) {
+
+            var onSuccess = function (request) {
+                // pass
+            };
+            var onError = function () {
+                // pass
+            };
+            return apiClient.logout(managerBase.get_token(), managerBase.get_session_secret_key(), session_id)
+                .then(onSuccess, onError)
+        };
+
         shareBlueprint.register('search_user', search_user);
         itemBlueprint.register('get_user_datastore', get_user_datastore);
 
@@ -894,7 +942,9 @@
             delete_ga: delete_ga,
             create_yubikey_otp: create_yubikey_otp,
             read_yubikey_otp: read_yubikey_otp,
-            delete_yubikey_otp: delete_yubikey_otp
+            delete_yubikey_otp: delete_yubikey_otp,
+            get_open_sessions: get_open_sessions,
+            delete_open_session: delete_open_session
         };
     };
 
