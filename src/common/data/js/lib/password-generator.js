@@ -20,16 +20,16 @@
 
         password = function (length, memorable, pattern, prefix) {
             var char = "", n, i, validChars = [];
-            if (length === null) {
+            if (length == null) {
                 length = 10;
             }
-            if (memorable === null) {
+            if (memorable == null) {
                 memorable = true;
             }
-            if (pattern === null) {
+            if (pattern == null) {
                 pattern = /\w/;
             }
-            if (prefix === null) {
+            if (prefix == null) {
                 prefix = '';
             }
 
