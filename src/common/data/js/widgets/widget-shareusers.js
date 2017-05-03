@@ -204,7 +204,7 @@
                 onNodeSelect: function (node, breadcrumbs, id_breadcrumbs) {
                     $scope.breadcrumbs = breadcrumbs;
                     $scope.node = node;
-                    managerSecret.onNodeSelect(node);
+                    //managerSecret.onNodeSelect(node);
                 },
                 /**
                  * Triggered once someone selects an item
@@ -215,7 +215,7 @@
                 onItemSelect: function (item, breadcrumbs, id_breadcrumbs) {
                     $scope.breadcrumbs = breadcrumbs;
                     $scope.node = item;
-                    managerSecret.onItemSelect(item);
+                    //managerSecret.onItemSelect(item);
                 },
                 /**
                  * Triggered once someone clicks on a node
@@ -224,7 +224,7 @@
                  * @param path
                  */
                 onNodeClick: function (node, path) {
-                    managerSecret.onNodeClick(node, path);
+                    //managerSecret.onNodeClick(node, path);
                 },
                 /**
                  * Triggered once someone clicks the delete node entry

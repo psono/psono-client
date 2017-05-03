@@ -51,7 +51,7 @@
         };
 
         var on_close = function(dropdown_menu_id) {
-            if (opened_dropdown_menu == dropdown_menu_id){
+            if (opened_dropdown_menu === dropdown_menu_id){
                 opened_dropdown_menu = '';
             }
         };
@@ -361,11 +361,11 @@
                         return;
                     }
 
-                    if (node_type == 'item' && typeof options.onItemDropComplete === "function") {
+                    if (node_type === 'item' && typeof options.onItemDropComplete === "function") {
                         options.onItemDropComplete(dragged_item.path, target_path);
                     }
 
-                    if (node_type == 'folder' && typeof options.onFolderDropComplete === "function") {
+                    if (node_type === 'folder' && typeof options.onFolderDropComplete === "function") {
                         options.onFolderDropComplete(dragged_item.path, target_path);
                     }
                 };
@@ -607,7 +607,7 @@
                 scope.editNode = function (node, event) {
                     event.preventDefault();
 
-                    if (node.hasOwnProperty('share_rights') && node.share_rights.write == false) {
+                    if (node.hasOwnProperty('share_rights') && node.share_rights.write === false) {
                         return;
                     }
 
@@ -647,7 +647,7 @@
                 scope.newFolderNode = function (node, event) {
                     event.preventDefault();
 
-                    if (node.hasOwnProperty('share_rights') && node.share_rights.write == false) {
+                    if (node.hasOwnProperty('share_rights') && node.share_rights.write === false) {
                         return;
                     }
 
@@ -665,7 +665,7 @@
                 scope.newEntryNode = function (node, event) {
                     event.preventDefault();
 
-                    if (node.hasOwnProperty('share_rights') && node.share_rights.write == false) {
+                    if (node.hasOwnProperty('share_rights') && node.share_rights.write === false) {
                         return;
                     }
 
@@ -897,7 +897,7 @@
                     }
 
                     var target_path = getPropertyPath(idProperty);
-                    if (evt.data.id == target_path[target_path.length - 1]) {
+                    if (evt.data.id === target_path[target_path.length - 1]) {
                         return;
                     }
 
@@ -946,9 +946,9 @@
                         '</span> ' +
                         '</div>' +
                         '<span class="node-dropdown" uib-dropdown on-toggle="toggled(open, \'drop_node_\' + node.id)"' +
-                        '   ng-class="{disabled: node.share_rights.write == false && node.share_rights.grant == false && node.share_rights.delete == false}">' +
+                        '   ng-class="{disabled: node.share_rights.write === false && node.share_rights.grant === false && node.share_rights.delete === false}">' +
                         '<a class="btn btn-default editbutton"' +
-                        '   ng-class="{disabled: node.share_rights.write == false && node.share_rights.grant == false && node.share_rights.delete == false}"' +
+                        '   ng-class="{disabled: node.share_rights.write === false && node.share_rights.grant === false && node.share_rights.delete === false}"' +
                         '   href="#" role="button" id="drop_node_{{node.id}}" uib-dropdown-toggle>' +
                         '    <i ng-class="getFolderEditIconClass(node)"></i>' +
                         '</a>' +
@@ -962,23 +962,23 @@
                         '    <li ng-if="getAdditionalButtons(node) && getAdditionalButtons(node).length > 0" class="divider"></li>' +
                         '    <li role="menuitem"' +
                         '       ng-click="editNode(node, $event)"' +
-                        '       ng-class="{hidden: node.share_rights.write == false}">' +
+                        '       ng-class="{hidden: node.share_rights.write === false}">' +
                         '       <a href="#"><i class="fa fa-wrench"></i>Edit</a>' +
                         '    </li>' +
                         '    <li role="menuitem"' +
                         '       ng-click="newFolderNode(node, $event)"' +
-                        '       ng-class="{hidden: node.share_rights.write == false}">' +
+                        '       ng-class="{hidden: node.share_rights.write === false}">' +
                         '       <a href="#"><i class="fa fa-folder"></i>New Folder</a>' +
                         '    </li>' +
                         '    <li role="menuitem"' +
                         '       ng-click="newEntryNode(node, $event)"' +
-                        '       ng-class="{hidden: node.share_rights.write == false}">' +
+                        '       ng-class="{hidden: node.share_rights.write === false}">' +
                         '       <a href="#"><i class="{{ textConfig.new_entry.icon }}"></i>{{ textConfig.new_entry.name }}</a>' +
                         '    </li>' +
                         '    <li class="divider"' +
-                        '       ng-class="{hidden: node.share_rights.delete == false || node.share_rights.write == false}"></li>' +
+                        '       ng-class="{hidden: node.share_rights.delete === false || node.share_rights.write === false}"></li>' +
                         '    <li role="menuitem"' +
-                        '       ng-class="{hidden: node.share_rights.delete == false}"' +
+                        '       ng-class="{hidden: node.share_rights.delete === false}"' +
                         '       ng-click="deleteNode(node, $event)">' +
                         '       <a href="#"><i class="fa fa-trash"></i>Delete</a>' +
                         '    </li>' +
@@ -991,7 +991,7 @@
                         '</div>' +
 
                         '<div class="dropdown position-fixed dropdown-rightclick" id="menu-{{ node.id }}"' +
-                        '   ng-hide="node.share_rights.write == false && node.share_rights.grant == false && node.share_rights.delete == false">' +
+                        '   ng-hide="node.share_rights.write === false && node.share_rights.grant === false && node.share_rights.delete === false">' +
                         '<ul class="dropdown-menu" role="menu">' +
                         '    <li role="menuitem"' +
                         '       ng-click="additionalButtonItem(node, $event, f.onClick, true)"' +
@@ -1002,23 +1002,23 @@
                         '    <li ng-if="getAdditionalButtons(node) && getAdditionalButtons(node).length > 0" class="divider"></li>' +
                         '    <li role="menuitem"' +
                         '       ng-click="editNode(node, $event)"' +
-                        '       ng-class="{hidden: node.share_rights.write == false}">' +
+                        '       ng-class="{hidden: node.share_rights.write === false}">' +
                         '       <a href="#"><i class="fa fa-wrench"></i>Edit</a>' +
                         '    </li>' +
                         '    <li role="menuitem"' +
                         '       ng-click="newFolderNode(node, $event)"' +
-                        '       ng-class="{hidden: node.share_rights.write == false}">' +
+                        '       ng-class="{hidden: node.share_rights.write === false}">' +
                         '       <a href="#"><i class="fa fa-folder"></i>New Folder</a>' +
                         '    </li>' +
                         '    <li role="menuitem"' +
                         '       ng-click="newEntryNode(node, $event)"' +
-                        '       ng-class="{hidden: node.share_rights.write == false}">' +
+                        '       ng-class="{hidden: node.share_rights.write === false}">' +
                         '       <a href="#"><i class="{{ textConfig.new_entry.icon }}"></i>{{ textConfig.new_entry.name }}</a>' +
                         '    </li>' +
                         '    <li class="divider"' +
-                        '       ng-class="{hidden: node.share_rights.delete == false || node.share_rights.write == false}"></li>' +
+                        '       ng-class="{hidden: node.share_rights.delete === false || node.share_rights.write === false}"></li>' +
                         '    <li role="menuitem"' +
-                        '       ng-class="{hidden: node.share_rights.delete == false}"' +
+                        '       ng-class="{hidden: node.share_rights.delete === false}"' +
                         '       ng-click="deleteNode(node, $event)">' +
                         '       <a href="#"><i class="fa fa-trash"></i>Delete</a>' +
                         '    </li>' +
@@ -1060,18 +1060,18 @@
                         '    <li ng-if="getAdditionalButtons(item) && getAdditionalButtons(item).length > 0" class="divider"></li>' +
                         '    <li role="menuitem"' +
                         '       ng-click="editItem(item, $event)"' +
-                        '       ng-class="{hidden: item.share_rights.write == false || item.share_rights.read == false}">' +
+                        '       ng-class="{hidden: item.share_rights.write === false || item.share_rights.read === false}">' +
                         '       <a href="#"><i class="fa fa-wrench"></i>Show / Edit</a>' +
                         '    </li>' +
                         '    <li role="menuitem"' +
                         '       ng-click="editItem(item, $event)"' +
-                        '       ng-class="{hidden: item.share_rights.write == true || item.share_rights.read == false}">' +
+                        '       ng-class="{hidden: item.share_rights.write === true || item.share_rights.read === false}">' +
                         '       <a href="#"><i class="fa fa-eye"></i>Show</a>' +
                         '    </li>' +
                         '    <li class="divider"' +
-                        '       ng-class="{hidden: item.share_rights.delete == false || item.share_rights.read == false}"></li>' +
+                        '       ng-class="{hidden: item.share_rights.delete === false || item.share_rights.read === false}"></li>' +
                         '    <li role="menuitem"' +
-                        '       ng-class="{hidden: item.share_rights.delete == false}"' +
+                        '       ng-class="{hidden: item.share_rights.delete === false}"' +
                         '       ng-click="delete_item(item, $event)">' +
                         '       <a href="#"><i class="fa fa-trash"></i>Delete</a>' +
                         '    </li>' +
@@ -1090,18 +1090,18 @@
                         '    <li ng-if="getAdditionalButtons(item) && getAdditionalButtons(item).length > 0" class="divider"></li>' +
                         '    <li role="menuitem"' +
                         '       ng-click="editItem(item, $event)"' +
-                        '       ng-class="{hidden: item.share_rights.write == false || item.share_rights.read == false}">' +
+                        '       ng-class="{hidden: item.share_rights.write === false || item.share_rights.read === false}">' +
                         '       <a href="#"><i class="fa fa-wrench"></i>Show / Edit</a>' +
                         '    </li>' +
                         '    <li role="menuitem"' +
                         '       ng-click="editItem(item, $event)"' +
-                        '       ng-class="{hidden: item.share_rights.write == true || item.share_rights.read == false}">' +
+                        '       ng-class="{hidden: item.share_rights.write === true || item.share_rights.read === false}">' +
                         '       <a href="#"><i class="fa fa-eye"></i>Show</a>' +
                         '    </li>' +
                         '    <li class="divider"' +
-                        '       ng-class="{hidden: item.share_rights.delete == false || item.share_rights.read == false}"></li>' +
+                        '       ng-class="{hidden: item.share_rights.delete === false || item.share_rights.read === false}"></li>' +
                         '    <li role="menuitem"' +
-                        '       ng-class="{hidden: item.share_rights.delete == false}"' +
+                        '       ng-class="{hidden: item.share_rights.delete === false}"' +
                         '       ng-click="delete_item(item, $event)">' +
                         '       <a href="#"><i class="fa fa-trash"></i>Delete</a>' +
                         '    </li>' +
@@ -1118,4 +1118,4 @@
             }
         };
     }]);
-})(angular);
+}(angular));

@@ -16,9 +16,9 @@
 
         <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
              ng-class="{'has-error': submitted && newEntryForm[n.name].$invalid}"
-             ng-if="!n.tab && (!n.position || n.position == 'before')">
+             ng-if="!n.tab && (!n.position || n.position === 'before')">
 
-            <div ng-class="{'input-group': n.usernameInputGroupAddon && (n.value == null || n.value.indexOf('@') == -1)}"
+            <div ng-class="{'input-group': n.usernameInputGroupAddon && (n.value === null || n.value.indexOf('@') === -1)}"
                  ng-if="n.field == 'input' && !n.dropmenuItems && n.usernameInputGroupAddon">
                 <input type="text" class="form-control" id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
                        ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly" aria-describedby="{{n.name}}-addon"
