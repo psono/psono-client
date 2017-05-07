@@ -15,6 +15,10 @@ var browserClient = function() {
      */
     var emit = function (event, data) {
         chrome.runtime.sendMessage({event: event, data: data}, function(response) {
+            console.log(response);
+            if (!response.hasOwnProperty('event')) {
+                return;
+            }
             for (var i = 0; registrations.hasOwnProperty(response.event) && i < registrations[response.event].length; i++) {
                 registrations[response.event][i](response.data);
             }

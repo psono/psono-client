@@ -6,12 +6,12 @@ wget https://raw.githubusercontent.com/angular-ui/bootstrap-bower/master/ui-boot
 wget http://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js -O src/common/data/js/lib/datatables.min.js
 wget https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css -O src/common/data/css/lib/datatables.min.css
 
-wget https://code.angularjs.org/1.5.10/angular.min.js -O src/common/data/js/lib/angular.min.js
-wget https://code.angularjs.org/1.5.10/angular-animate.min.js -O src/common/data/js/lib/angular-animate.min.js
-wget https://code.angularjs.org/1.5.10/angular-route.min.js -O src/common/data/js/lib/angular-route.min.js
-wget https://code.angularjs.org/1.5.10/angular-sanitize.min.js -O src/common/data/js/lib/angular-sanitize.min.js
-wget https://code.angularjs.org/1.5.10/angular-touch.min.js -O src/common/data/js/lib/angular-touch.min.js
-wget https://code.angularjs.org/1.5.10/angular-mocks.js -O unittests/data/js/lib/angular-mocks.js
+wget https://code.angularjs.org/1.6.3/angular.min.js -O src/common/data/js/lib/angular.min.js
+wget https://code.angularjs.org/1.6.3/angular-animate.min.js -O src/common/data/js/lib/angular-animate.min.js
+wget https://code.angularjs.org/1.6.3/angular-route.min.js -O src/common/data/js/lib/angular-route.min.js
+wget https://code.angularjs.org/1.6.3/angular-sanitize.min.js -O src/common/data/js/lib/angular-sanitize.min.js
+wget https://code.angularjs.org/1.6.3/angular-touch.min.js -O src/common/data/js/lib/angular-touch.min.js
+wget https://code.angularjs.org/1.6.3/angular-mocks.js -O unittests/data/js/lib/angular-mocks.js
 
 wget https://raw.githubusercontent.com/Kraku/angular-complexify/master/build/angular-complexify.min.js -O src/common/data/js/lib/angular-complexify.min.js
 wget https://raw.githubusercontent.com/grevory/angular-local-storage/master/dist/angular-local-storage.min.js -O src/common/data/js/lib/angular-local-storage.min.js
@@ -25,6 +25,7 @@ wget https://raw.githubusercontent.com/scottjehl/Respond/master/dest/respond.min
 wget https://raw.githubusercontent.com/aFarkas/html5shiv/master/dist/html5shiv.min.js -O src/common/data/js/lib/html5shiv.min.js
 wget https://raw.githubusercontent.com/HubSpot/drop/master/dist/js/drop.min.js -O src/common/data/js/lib/drop.min.js
 wget https://raw.githubusercontent.com/3nsoft/ecma-nacl/master/dist/lib-browser/ecma-nacl.min.js -O src/common/data/js/lib/ecma-nacl.min.js
+wget https://raw.githubusercontent.com/jackspirou/clientjs/master/dist/client.min.js -O src/common/data/js/lib/client.min.js
 
 wget https://raw.githubusercontent.com/chieffancypants/angular-loading-bar/master/build/loading-bar.min.css -O src/common/data/css/lib/loading-bar.min.css
 wget https://raw.githubusercontent.com/chieffancypants/angular-loading-bar/master/build/loading-bar.min.js -O src/common/data/js/lib/loading-bar.min.js

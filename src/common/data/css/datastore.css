@@ -18,6 +18,10 @@ body {
   .loginbox .progress-bar, .registerbox .progress-bar, .activationbox .progress-bar, .lostpasswordbox .progress-bar {
     background-color: #2dbb93; }
 
+.privacypolicybox {
+  padding: 20px 20px 20px 20px;
+  border-radius: 4px; }
+
 .progress {
   margin-bottom: 0; }
 

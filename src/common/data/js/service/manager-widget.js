@@ -3,7 +3,7 @@
 
     /**
      * @ngdoc service
-     * @name psonocli.managerAdfWidget
+     * @name psonocli.managerWidget
      * @requires $uibModal
      * @requires psonocli.managerDatastorePassword
      * @requires psonocli.managerShare
@@ -16,14 +16,14 @@
      * Service that is something like the base class for adf widgets
      */
 
-    var managerAdfWidget = function ($uibModal, managerDatastorePassword, managerShare, managerSecret, managerShareLink,
+    var managerWidget = function ($uibModal, managerDatastorePassword, managerShare, managerSecret, managerShareLink,
                                      managerSecretLink, itemBlueprint) {
 
 
         /**
          * @ngdoc
-         * @name psonocli.managerAdfWidget#open_new_folder
-         * @methodOf psonocli.managerAdfWidget
+         * @name psonocli.managerWidget#open_new_folder
+         * @methodOf psonocli.managerWidget
          *
          * @description
          * Opens the modal to create a new folder
@@ -73,8 +73,8 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerAdfWidget#open_edit_folder
-         * @methodOf psonocli.managerAdfWidget
+         * @name psonocli.managerWidget#open_edit_folder
+         * @methodOf psonocli.managerWidget
          *
          * @description
          * Opens the modal to edit a folder
@@ -114,8 +114,8 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerAdfWidget#open_new_item
-         * @methodOf psonocli.managerAdfWidget
+         * @name psonocli.managerWidget#open_new_item
+         * @methodOf psonocli.managerWidget
          *
          * @description
          * Opens the modal for a new entry
@@ -222,8 +222,8 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerAdfWidget#open_edit_item
-         * @methodOf psonocli.managerAdfWidget
+         * @name psonocli.managerWidget#open_edit_item
+         * @methodOf psonocli.managerWidget
          *
          * @description
          * Opens the modal for a the edit entry
@@ -384,8 +384,8 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerAdfWidget#move_item
-         * @methodOf psonocli.managerAdfWidget
+         * @name psonocli.managerWidget#move_item
+         * @methodOf psonocli.managerWidget
          *
          * @description
          * Move an item from one position to anther
@@ -397,10 +397,8 @@
          */
         var move_item = function(datastore, item_path, target_path, type) {
 
-
             var i;
             var closest_parent;
-            // TODO ask for confirmation
 
             var orig_item_path = item_path.slice();
             orig_item_path.pop();
@@ -510,8 +508,8 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerAdfWidget#delete_item
-         * @methodOf psonocli.managerAdfWidget
+         * @name psonocli.managerWidget#delete_item
+         * @methodOf psonocli.managerWidget
          *
          * @description
          * Deletes and item from datastore
@@ -576,8 +574,8 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerAdfWidget#find_in_structure
-         * @methodOf psonocli.managerAdfWidget
+         * @name psonocli.managerWidget#find_in_structure
+         * @methodOf psonocli.managerWidget
          *
          * @description
          * Go through the structure to find the object specified with the path
@@ -626,8 +624,8 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerAdfWidget#item_icon
-         * @methodOf psonocli.managerAdfWidget
+         * @name psonocli.managerWidget#item_icon
+         * @methodOf psonocli.managerWidget
          *
          * @description
          * Returns the class of the icon used to display a specific item
@@ -703,8 +701,8 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerAdfWidget", ['$uibModal', 'managerDatastorePassword', 'managerShare', 'managerSecret',
-        'managerShareLink', 'managerSecretLink', 'itemBlueprint', managerAdfWidget]);
+    app.factory("managerWidget", ['$uibModal', 'managerDatastorePassword', 'managerShare', 'managerSecret',
+        'managerShareLink', 'managerSecretLink', 'itemBlueprint', managerWidget]);
 
 
     /**

@@ -2,7 +2,7 @@
     <div class="navi row">
         <div class="location col-sm-8">
             <!--
-            <span> <a href="#/share/users">/share/users</a> </span>
+            <span> <a href="#!/share/users">/share/users</a> </span>
             -->
         </div>
         <div class="title col-sm-4">
@@ -10,19 +10,49 @@
         </div>
     </div>
 
+    <div ng-controller="ShareusersCtrl" class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Trusted Users</h3>
+        </div>
+        <div class="panel-body">
 
-    <div ng-controller="ShareusersDashboardCtrl">
-        <!-- Start Shareusers Widget -->
-        <adf-dashboard
-                name="widgetShareusersDashboard"
-                structure="4-8"
-                editable="false"
-                collapsible="false"
-                maximizable="false"
-                enableConfirmDelete="true"
-                adf-model="shareuser.model">
-        </adf-dashboard>
-        <!-- End Shareusers Widget -->
+            <div data-target="menu-shareusers-main" context-menu="contextMenuOnShow('menu-shareusers-main')" context-menu-close="contextMenuOnClose('menu-shareusers-main')" class="expand15">
+
+                <div class="dropdown position-fixed dropdown-rightclick" id="menu-shareusers-main">
+                    <ul class="dropdown-menu" role="menu">
+                        <li role="menuitem" ng-click="open_new_folder($event)"><a href="#!/share/users"><i class="fa fa-folder"></i>New Folder</a></li>
+                        <li role="menuitem" ng-click="open_new_item($event)"><a href="#!/share/users"><i class="fa fa-user-plus"></i>New User</a></li>
+                    </ul>
+                </div>
+
+                <!--
+                <div>
+                    <span ng-repeat="b in breadcrumbs track by $index">
+                        &gt; {{b}}
+                    </span>
+                </div>
+                -->
+
+                <div tree-view="structure.data" tree-view-options="options" ng-if="structure.data.folders || structure.data.items">
+
+                </div>
+
+                <div ng-if="!(structure.data.folders || structure.data.items)">
+
+                    <div class="big-font-icon-and-msg">
+                        <i class="fa fa-plus-circle" aria-hidden="true"></i>
+
+                        <div>Your trusted users list is empty. Right click here to add a user to your trusted users list.</div>
+                    </div>
+
+                </div>
+                <!--
+                <pre>{{ node | json }}</pre>
+                <pre>{{ structure.data | json }}</pre>
+                -->
+            </div>
+
+        </div>
     </div>
 
 </div>

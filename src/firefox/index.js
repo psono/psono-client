@@ -100,55 +100,44 @@ browser.runtime.onMessage.addListener(function(request, sender, sendResponse) {
      * we received a ready event from a content script that finished loading
      * lets provide the possible passwords
      */
-    var on_ready = function() {
-        var url = sender.tab.url;
-        var parsed_url = parse_url(url);
+    var on_ready = function(request, sender, sendResponse) {
+        if (sender.tab) {
+            var url = sender.tab.url;
+            var parsed_url = parse_url(url);
 
-        for(var i = fillpassword.length - 1; i >= 0; i--) {
-            if( endsWith(parsed_url.authority, fillpassword[i].authority)) {
-                fillpassword[i].submit = parsed_url.scheme === 'https';
-                sendResponse({event: "fillpassword", data: fillpassword[i]});
-                fillpassword.splice(i, 1);
-                break;
+            for(var i = fillpassword.length - 1; i >= 0; i--) {
+                if( endsWith(parsed_url.authority, fillpassword[i].authority)) {
+                    fillpassword[i].submit = parsed_url.scheme === 'https';
+                    sendResponse({event: "fillpassword", data: fillpassword[i]});
+                    fillpassword.splice(i, 1);
+                    break;
+                }
             }
         }
     };
-
-    if (sender.tab && request.event === "ready") {
-        console.log("background script received    'ready'");
-        return on_ready();
-    }
     /**
      * we received a fillpassword event
      * lets remember it
      */
-    var on_fillpassword = function () {
+    var on_fillpassword = function(request, sender, sendResponse) {
         fillpassword.push(request.data);
     };
-    if (request.event === "fillpassword") {
-        console.log("background script received    'fillpassword'");
-        return on_fillpassword();
-    }
 
     /**
      * we received a fillpassword active tab event
      * lets send a fillpassword event to the to the active tab
      */
-    var on_fillpassword_active_tab = function () {
+    var on_fillpassword_active_tab = function(request, sender, sendResponse) {
         browser.tabs.sendMessage(activeTabId, {event: "fillpassword", data: request.data}, function(response) {
             // pass
         });
     };
-    if (request.event === "fillpassword-active-tab") {
-        console.log("background script received    'fillpassword-active-tab'");
-        return on_fillpassword_active_tab();
-    }
 
     /**
      * we received a logout event
      * lets close all extension tabs
      */
-    var on_logout = function () {
+    var on_logout = function(request, sender, sendResponse) {
         chrome.tabs.query({url: 'chrome-extension://'+chrome.runtime.id+'/*'}, function(tabs) {
             var tabids = [];
             for (var i = 0; i < tabs.length; i++) {
@@ -158,38 +147,32 @@ browser.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             chrome.tabs.remove(tabids)
         });
     };
-    if (request.event === "logout") {
-        console.log("background script received    'logout'");
-        return on_logout();
-    }
 
     /**
      * a page finished loading, and wants to know if we have passwords for this page to display to the customer
      * in the input popup menu
      */
-    var on_website_password_refresh = function () {
-        var url = sender.tab.url;
-        var parsed_url = parse_url(url);
+    var on_website_password_refresh = function(request, sender, sendResponse) {
+        if (sender.tab) {
+            var url = sender.tab.url;
+            var parsed_url = parse_url(url);
 
-        var update = [];
+            var update = [];
 
-        var leafs = searchLocalStorage('password_manager_local_storage', 'datastore-password-leafs');
+            var leafs = searchLocalStorage('password_manager_local_storage', 'datastore-password-leafs');
 
-        for (var ii = 0; ii < leafs.length; ii++) {
-            if (endsWith(parsed_url.authority, leafs[ii].urlfilter)) {
-                update.push({
-                    secret_id: leafs[ii].secret_id,
-                    name: leafs[ii].name
-                })
+            for (var ii = 0; ii < leafs.length; ii++) {
+                if (endsWith(parsed_url.authority, leafs[ii].urlfilter)) {
+                    update.push({
+                        secret_id: leafs[ii].secret_id,
+                        name: leafs[ii].name
+                    })
+                }
             }
-        }
 
-        sendResponse({event: "website-password-update", data: update});
+            sendResponse({event: "website-password-update", data: update});
+        }
     };
-    if (sender.tab && request.event === "website-password-refresh") {
-        console.log("background script received    'website-password-refresh'");
-        return on_website_password_refresh();
-    }
 
     /**
      * some content script requested a secret
@@ -198,7 +181,7 @@ browser.runtime.onMessage.addListener(function(request, sender, sendResponse) {
      *
      * @returns {boolean}
      */
-    var on_request_secret = function () {
+    var on_request_secret = function(request, sender, sendResponse) {
         var _config = searchLocalStorage('password_manager_local_storage', 'config');
 
         var config = {};
@@ -237,15 +220,12 @@ browser.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
         return true; // return true because of async response
     };
-    if (request.event === "request-secret") {
-        return on_request_secret();
-    }
 
     /**
      * copies to the clipboard
      * lets create and element, put the content there, and call the normal execCommand('copy') function
      */
-    var on_copy_to_clipboard = function() {
+    var on_copy_to_clipboard = function(request, sender, sendResponse) {
         var copyFrom = document.createElement("textarea");
         copyFrom.textContent = request.data.text;
         var body = document.getElementsByTagName('body')[0];
@@ -254,14 +234,25 @@ browser.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         document.execCommand('copy');
         body.removeChild(copyFrom);
     };
-    if (request.event === "copy-to-clipboard") {
-        return on_copy_to_clipboard();
+
+    var event_functions = {
+        'fillpassword': on_fillpassword,
+        'ready': on_ready,
+        'fillpassword-active-tab': on_fillpassword_active_tab,
+        'logout': on_logout,
+        'website-password-refresh': on_website_password_refresh,
+        'request-secret': on_request_secret,
+        'copy-to-clipboard': on_copy_to_clipboard
+    };
+
+
+    if (event_functions.hasOwnProperty(request.event)){
+        return event_functions[request.event](request, sender, sendResponse);
+    } else {
+        // not catchable event
+        console.log(sender.tab);
+        console.log("background script received (uncaptured)    " + request.event);
     }
-
-
-    // not catchable event
-    console.log(sender.tab);
-    console.log("background script received (uncaptured)    " + request.event);
 
 });
 

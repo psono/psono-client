@@ -1,4 +1,4 @@
-(function(angular) {
+(function(angular, ClientJS) {
     'use strict';
 
     /**
@@ -11,6 +11,8 @@
 
 
     var helper = function() {
+
+        var client_js = new ClientJS();
 
         /**
          * @ngdoc
@@ -278,6 +280,34 @@
             }
         };
 
+        var get_device_fingerprint = function() {
+            return client_js.getFingerprint()
+        };
+
+        var get_device_description = function() {
+            var description = '';
+            if (typeof(client_js.getDeviceVendor()) !== 'undefined') {
+                description = description + client_js.getDeviceVendor() + ' ';
+            }
+            if (typeof(client_js.getDevice()) !== 'undefined') {
+                description = description + client_js.getDevice() + ' ';
+            }
+            if (typeof(client_js.getOS()) !== 'undefined') {
+                description = description + client_js.getOS() + ' ';
+            }
+            if (typeof(client_js.getOSVersion()) !== 'undefined') {
+                description = description + client_js.getOSVersion() + ' ';
+            }
+            if (typeof(client_js.getBrowser()) !== 'undefined') {
+                description = description + client_js.getBrowser() + ' ';
+            }
+            if (typeof(client_js.getBrowserVersion()) !== 'undefined') {
+                description = description + client_js.getBrowserVersion() + ' ';
+            }
+            return description
+        };
+
+
         return {
             parse_url: parse_url,
             get_domain: get_domain,
@@ -287,11 +317,13 @@
             is_valid_username: is_valid_username,
             is_valid_password: is_valid_password,
             split_string_in_chunks: split_string_in_chunks,
-            remove_from_array: remove_from_array
+            remove_from_array: remove_from_array,
+            get_device_fingerprint: get_device_fingerprint,
+            get_device_description: get_device_description,
         };
     };
 
     var app = angular.module('psonocli');
     app.factory("helper", [helper]);
 
-}(angular));
+}(angular, ClientJS));

@@ -4,46 +4,29 @@
     /**
      * Module for the shareusers widget
      */
-    var module = angular.module('adf.widget.shareusers', ['adf.provider']);
+    var module = angular.module('psonocli');
 
-    /**
-     * Config for the shareusers widget
-     */
-    module.config(['dashboardProvider', function(dashboardProvider){
-        dashboardProvider
-            .widget('shareusers', {
-                title: 'Trusted Users',
-                description: 'provides the shareusers',
-                templateUrl: 'view/shareusers-view.html',
-                controller: 'ShareusersCtrl',
-                controllerAs: 'shareusers',
-                edit: {
-                    templateUrl: 'view/shareusers-edit.html'
-                }
-            });
-    }]);
 
     /**
      * @ngdoc controller
      * @name psonocli.controller:ShareusersCtrl
      * @requires $scope
      * @requires $interval
-     * @requires config
      * @requires $uibModal
      * @requires $timeout
      * @requires ngTree.dropDownMenuWatcher
      * @requires psonocli.managerSecret
      * @requires psonocli.managerDatastoreUser
      * @requires psonocli.shareBlueprint
-     * @requires psonocli.managerAdfWidget
+     * @requires psonocli.managerWidget
      *
      * @description
      * Main Controller for the shareusers widget
      */
-    module.controller('ShareusersCtrl', ["$scope", "$interval", "config", "managerSecret", "managerDatastoreUser",
-        "$uibModal", "shareBlueprint", "managerAdfWidget", "$timeout", "dropDownMenuWatcher",
-        function ($scope, $interval, config, managerSecret, managerDatastoreUser, $uibModal, shareBlueprint,
-                  managerAdfWidget, $timeout, dropDownMenuWatcher) {
+    module.controller('ShareusersCtrl', ["$scope", "$interval", "managerSecret", "managerDatastoreUser",
+        "$uibModal", "shareBlueprint", "managerWidget", "$timeout", "dropDownMenuWatcher",
+        function ($scope, $interval, managerSecret, managerDatastoreUser, $uibModal, shareBlueprint,
+                  managerWidget, $timeout, dropDownMenuWatcher) {
 
             var contextMenusOpen = 0;
 
@@ -62,7 +45,7 @@
             // Modals
 
             $scope.open_new_folder = function (event) {
-                managerAdfWidget.open_new_folder(undefined, [], $scope.structure.data, managerDatastoreUser);
+                managerWidget.open_new_folder(undefined, [], $scope.structure.data, managerDatastoreUser);
             };
 
             /**
@@ -221,7 +204,7 @@
                 onNodeSelect: function (node, breadcrumbs, id_breadcrumbs) {
                     $scope.breadcrumbs = breadcrumbs;
                     $scope.node = node;
-                    managerSecret.onNodeSelect(node);
+                    //managerSecret.onNodeSelect(node);
                 },
                 /**
                  * Triggered once someone selects an item
@@ -232,7 +215,7 @@
                 onItemSelect: function (item, breadcrumbs, id_breadcrumbs) {
                     $scope.breadcrumbs = breadcrumbs;
                     $scope.node = item;
-                    managerSecret.onItemSelect(item);
+                    //managerSecret.onItemSelect(item);
                 },
                 /**
                  * Triggered once someone clicks on a node
@@ -241,7 +224,7 @@
                  * @param path
                  */
                 onNodeClick: function (node, path) {
-                    managerSecret.onNodeClick(node, path);
+                    //managerSecret.onNodeClick(node, path);
                 },
                 /**
                  * Triggered once someone clicks the delete node entry
@@ -252,7 +235,7 @@
                 onDeleteNode: function (node, path) {
                     // TODO ask for confirmation
 
-                    var val = managerAdfWidget.find_in_structure(path, $scope.structure.data);
+                    var val = managerWidget.find_in_structure(path, $scope.structure.data);
                     if (val)
                         val[0].splice(val[1], 1);
                     managerDatastoreUser.save_datastore($scope.structure.data);
@@ -265,7 +248,7 @@
                  * @param path The path to the node
                  */
                 onEditNode: function (node, path) {
-                    managerAdfWidget.open_edit_folder(node, path, $scope.structure.data, managerDatastoreUser);
+                    managerWidget.open_edit_folder(node, path, $scope.structure.data, managerDatastoreUser);
                 },
 
                 /**
@@ -287,7 +270,7 @@
                 onDeleteItem: function (item, path) {
                     // TODO ask for confirmation
 
-                    var val = managerAdfWidget.find_in_structure(path, $scope.structure.data);
+                    var val = managerWidget.find_in_structure(path, $scope.structure.data);
                     if (val)
                         val[0].splice(val[1], 1);
 
@@ -311,7 +294,7 @@
                  * @param path The path to the parent
                  */
                 onNewFolder: function (parent, path) {
-                    managerAdfWidget.open_new_folder(parent, path, $scope.structure.data, managerDatastoreUser);
+                    managerWidget.open_new_folder(parent, path, $scope.structure.data, managerDatastoreUser);
                 },
 
                 /**
@@ -335,11 +318,11 @@
                     var target = $scope.structure.data;
                     if (target_path !== null) {
                         // find drop zone
-                        var val1 = managerAdfWidget.find_in_structure(target_path, $scope.structure.data);
+                        var val1 = managerWidget.find_in_structure(target_path, $scope.structure.data);
                         target = val1[0][val1[1]];
                     }
                     // find element
-                    var val2 = managerAdfWidget.find_in_structure(item_path, $scope.structure.data);
+                    var val2 = managerWidget.find_in_structure(item_path, $scope.structure.data);
 
                     if (val2 === false) {
                         return;
@@ -372,12 +355,12 @@
                     var target = $scope.structure.data;
                     if (target_path !== null) {
                         // find drop zone
-                        var val1 = managerAdfWidget.find_in_structure(target_path, $scope.structure.data);
+                        var val1 = managerWidget.find_in_structure(target_path, $scope.structure.data);
                         target = val1[0][val1[1]];
                     }
 
                     // find element
-                    var val2 = managerAdfWidget.find_in_structure(item_path, $scope.structure.data);
+                    var val2 = managerWidget.find_in_structure(item_path, $scope.structure.data);
 
                     if (val2 === false) {
                         return;
@@ -413,7 +396,7 @@
                 },
 
                 getAdditionalButtons: shareBlueprint.get_additional_functions,
-                item_icon: managerAdfWidget.item_icon
+                item_icon: managerWidget.item_icon
             };
 
         }]);

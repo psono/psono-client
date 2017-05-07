@@ -571,7 +571,7 @@
         var generate_password_active_tab = function() {
 
             var onError = function() {
-                alert("could not find out the url of the active tab");
+                console.log("could not find out the url of the active tab");
             };
 
             var onSuccess = function(url) {
@@ -688,7 +688,7 @@
                 return get_all_child_shares(path, datastore, other_children, share_distance, obj)
             } else if (obj === false) {
                 // TODO Handle not found
-                alert("HANDLE not found!");
+                console.log("HANDLE not found!");
             } else {
                 //search in folders
                 if (obj.hasOwnProperty('folders')) {

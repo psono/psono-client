@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<div class="container-fluid">
+    <div class="navi row">
+        <div class="location col-sm-8">
+            <!--
+            <span> <a href="#">/other</a> </span>
+            -->
+        </div>
+        <div class="title col-sm-4">
+            <h1>Other</h1>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading clearfix ng-scope">
+            <h3 class="panel-title ng-binding ng-scope">Other</h3>
+        </div>
+        <div class="panel-body" style="height: auto;">
+            <uib-tabset class="tabset_expand">
+
+                <uib-tab heading="Open Sessions">
+
+                    <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
+                        <thead>
+                        <tr>
+                            <th>Device</th>
+                            <th>Created</th>
+                            <th>Current Session</th>
+                            <th>Delete</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="session in sessions">
+                            <td>{{ session.device_description }}</td>
+                            <td>{{ session.create_date }}</td>
+                            <td>
+                                <i ng-if="session.current_session" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-default btn-sm" ng-if="!session.current_session" ng-click="delete_open_session(session.id)" >
+                                    <i class="fa fa-trash" aria-hidden="true"><span style="display: none">0</span></i>
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                </uib-tab>
+            </uib-tabset>
+        </div>
+    </div>
+
+</div>

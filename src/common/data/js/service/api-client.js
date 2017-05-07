@@ -90,17 +90,21 @@
          * @param {string} username the username e.g dummy@example.com
          * @param {string} authkey the authkey as scrypt(password + username + sauce)
          * @param {string} public_key session public key
+         * @param {string} device_fingerprint The fingerprint of the device
+         * @param {string} device_description The device description
          *
          * @returns {promise} Returns a promise with the login status
          */
-        var login = function(username, authkey, public_key) {
+        var login = function(username, authkey, public_key, device_fingerprint, device_description) {
 
             var endpoint = '/authentication/login/';
             var connection_type = "POST";
             var data = {
                 username: username,
                 authkey: authkey,
-                public_key: public_key
+                public_key: public_key,
+                device_fingerprint: device_fingerprint,
+                device_description: device_description
             };
             var headers = null;
 
@@ -188,6 +192,34 @@
             return call(connection_type, endpoint, data, headers);
         };
 
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#get_sessions
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax GET request get all open sessions
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         *
+         * @returns {promise} promise
+         */
+        var get_open_sessions = function(token, session_secret_key) {
+
+            var endpoint = '/authentication/sessions/';
+            var connection_type = "GET";
+            var data = null;
+
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
         /**
          * @ngdoc
          * @name psonocli.apiClient#logout
@@ -197,18 +229,22 @@
          * Ajax POST request to destroy the token and logout the user
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {string} [session_id] An optional session ID to logout
          *
          * @returns {promise} Returns a promise with the logout status
          */
-        var logout = function (token) {
+        var logout = function (token, session_secret_key, session_id) {
             var endpoint = '/authentication/logout/';
             var connection_type = "POST";
-            var data = null;
+            var data = {
+                'session_id': session_id
+            };
             var headers = {
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
         /**
@@ -1395,6 +1431,7 @@
             ga_verify: ga_verify,
             yubikey_otp_verify: yubikey_otp_verify,
             activate_token: activate_token,
+            get_open_sessions: get_open_sessions,
             logout: logout,
             register: register,
             verify_email: verify_email,

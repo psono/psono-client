@@ -12,40 +12,56 @@
     var loki_storage = new loki("password_manager_local_storage");
     var dbs = [];
 
-    var dbconfig = [
-        {
+    var db_config = {
+        'config': {
             name: 'config',
             indices: ['key'],
             uniques: ['key']
         },
-        {
+        'settings': {
             name: 'settings',
-            indices: ['key'],
+                indices: ['key'],
             uniques: ['key']
         },
-        {
+        'datastore-password-leafs': {
             name: 'datastore-password-leafs',
-            indices: ['key', 'urlfilter', 'name'],
+                indices: ['key', 'urlfilter', 'name'],
             uniques: ['key']
         },
-        {
+        'datastore-user-leafs': {
             name: 'datastore-user-leafs',
-            indices: ['key', 'filter', 'name'],
-            uniques: ['key']
+                indices: ['key', 'filter', 'name'],
+            uniques: ['key'],
+            subscribers: {
+                update: {
+                    current: 0,
+                    max: 1
+                },
+                insert: {
+                    current: 0,
+                    max: 1
+                },
+                delete: {
+                    current: 0,
+                    max: 1
+                }
+            }
         }
-
-    ];
+    };
 
     loki_storage.loadDatabase({}, function () {
 
-        for (var i = dbconfig.length - 1; i >= 0; i--) {
+        for (var db_name in db_config) {
+            if (!db_config.hasOwnProperty(db_name)) {
+                continue;
+            }
 
-            dbs[dbconfig[i].name] = loki_storage.getCollection(dbconfig[i].name);
+            dbs[db_name] = loki_storage.getCollection(db_name);
 
-            if (dbs[dbconfig[i].name] === null) {
-                dbs[dbconfig[i].name] = loki_storage.addCollection(dbconfig[i].name, { indices: dbconfig[i].indices});
-                for (var t = 0; t < dbconfig[i].uniques.length; t++) {
-                    dbs[dbconfig[i].name].ensureUniqueIndex(dbconfig[i].uniques[t]);
+            if (dbs[db_name] === null) {
+                dbs[db_name] = loki_storage.addCollection(db_name, { indices: db_config[db_name].indices});
+                for (var t = 0; t < db_config[db_name].uniques.length; t++) {
+                    dbs[db_name].ensureUniqueIndex(db_config[db_name].uniques[t]);
                 }
             }
         }
@@ -67,7 +83,7 @@
          */
         var insert = function (db, items) {
 
-            dbs[db].insert(items);
+            return dbs[db].insert(items);
         };
 
         /**
@@ -82,7 +98,7 @@
          * @param {object|Array} items One or multiple items to update in the database
          */
         var update = function (db, items) {
-            dbs[db].update(items);
+            return dbs[db].update(items);
         };
 
         /**
@@ -99,6 +115,7 @@
          */
         var upsert = function(db, items) {
             var local_items, db_entry;
+            var return_values = [];
 
             if (! (items instanceof Array)) {
                 local_items = [items]
@@ -110,28 +127,17 @@
 
                 if (db_entry!== null) {
                     db_entry.value = local_items[i]['value'];
-                    dbs[db].update(db_entry);
+                    return_values.push(dbs[db].update(db_entry));
                 } else {
-                    dbs[db].insert(local_items[i]);
+                    return_values.push(dbs[db].insert(local_items[i]));
                 }
-
             }
-        };
 
-        /**
-         * @ngdoc
-         * @name psonocli.storage#data
-         * @methodOf psonocli.storage
-         *
-         * @description
-         * gets the data of a database
-         *
-         * @param {string} db The database
-         *
-         * @returns {*} Returns the data
-         */
-        var data = function (db) {
-            return dbs[db].data;
+            if (! (items instanceof Array)) {
+                return return_values;
+            } else {
+                return return_values[0]
+            }
         };
 
         /**
@@ -199,10 +205,15 @@
                     return true;
                 })
             } else {
-                for (var i = dbconfig.length - 1; i >= 0; i--) {
-                    dbs[dbconfig[i].name].removeWhere(function() {
+
+                for (var db_name in dbs) {
+                    if (!dbs.hasOwnProperty(db_name)) {
+                        continue;
+                    }
+                    dbs[db_name].removeWhere(function() {
                         return true;
                     })
+
                 }
             }
 
@@ -221,6 +232,19 @@
          * @param {function} callback The callback function
          */
         var on = function (db, event, callback) {
+
+            if (!db_config.hasOwnProperty(db)) {
+                return;
+            }
+            if (db_config[db].hasOwnProperty('subscribers') &&
+                db_config[db]['subscribers'].hasOwnProperty(event) &&
+                db_config[db]['subscribers'] &&
+                db_config[db]['subscribers']['current'] >= db_config[db]['subscribers']['max']) {
+
+                console.log("already reached maximum subscribers");
+                return;
+            }
+
             dbs[db].on(event, callback);
         };
         /**
@@ -239,8 +263,8 @@
             insert: insert,
             update: update,
             upsert: upsert,
-            data: data,
             find_one: find_one,
+            key_exists: key_exists,
             remove: remove,
             remove_all: remove_all,
             on: on,
