@@ -784,19 +784,31 @@
     /**
      * @ngdoc controller
      * @name psonocli.controller:OpenSecretCtrl
-     * @requires $scope
-     * @requires cfpLoadingBar
+     * @requires $rootScope
      * @requires $route
      *
      * @description
      * Controller for the open secret view
      */
-    app.controller('OpenSecretCtrl', ['$scope', 'cfpLoadingBar', '$route',
-        function ($scope, cfpLoadingBar, $route) {
+    app.controller('OpenSecretCtrl', ['$rootScope', '$route',
+        function ($rootScope, $route) {
             var lock = angular.element(document.querySelector('#loading-lock-logo-loaded-fa'));
-            cfpLoadingBar.on("set", function (status) {
-                lock.css('width', (status * 100) + '%');
-                lock.css('marginLeft', (-200 + status * 100) + '%');
+
+            var show_lock = function (percent) {
+                lock.css('width', (percent) + '%');
+                lock.css('marginLeft', (-200 + percent) + '%');
+            };
+
+            $rootScope.$on("cfpLoadingBar:loading", function () {
+                show_lock(20);
+            });
+
+            $rootScope.$on("cfpLoadingBar:loaded", function (status) {
+                show_lock(80);
+            });
+
+            $rootScope.$on("cfpLoadingBar:completed", function () {
+                show_lock(100);
             })
 
         }]);

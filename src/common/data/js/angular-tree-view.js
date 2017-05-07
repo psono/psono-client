@@ -854,12 +854,12 @@
                  * @param type
                  */
                 scope.onDragStart = function(data, evt, type) {
-                    controller.setDragInProgress();
 
                     if (controller.isDragStarted()) {
                         // Already started, fires a couple of time and only the first one has true data
                         return;
                     }
+                    controller.setDragInProgress();
 
                     controller.setDragStarted();
 
