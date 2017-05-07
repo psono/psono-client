@@ -234,7 +234,8 @@ gulp.task('xpiunsigned', function (cb) {
  */
 gulp.task('xpi', ['xpiunsigned'], function (cb) {
 
-    var key = require(path.homedir() + '/.psono_client/apikey_addons_mozilla_org/key.json');
+    var fileContent = fs.readFileSync("/.psono_client/apikey_addons_mozilla_org/key.json", "utf8");
+    var key = JSON.parse(fileContent);
 
     child_process.exec('jpm sign --api-key '+key.issuer+' --api-secret '+key.secret+' --xpi dist/firefox/psono.PW.unsigned.xpi && mv psonopw*.xpi dist/firefox/psono.PW.xpi', function (err, stdout, stderr) {
         console.log(stdout);
