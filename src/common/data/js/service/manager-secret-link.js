@@ -11,7 +11,7 @@
      * Service to handle all secret links related tasks
      */
 
-    var managerSecretLink = function(managerBase, apiClient) {
+    var managerSecretLink = function($q, managerBase, apiClient) {
 
         /**
          * @ngdoc
@@ -91,8 +91,10 @@
             } else if(parent.hasOwnProperty("datastore_id")) {
                 new_parent_datastore_id = parent.datastore_id;
             } else {
-                console.log("error, couldn't find a share_id nor a datastore_id");
-                console.log(parent);
+                return $q.reject({
+                    response:"error",
+                    error_data: 'Could not determine if its a share or datastore parent'
+                });
             }
 
             return move_secret_link(link_id, new_parent_share_id, new_parent_datastore_id);
@@ -123,6 +125,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerSecretLink", ['managerBase', 'apiClient', managerSecretLink]);
+    app.factory("managerSecretLink", ['$q', 'managerBase', 'apiClient', managerSecretLink]);
 
 }(angular));

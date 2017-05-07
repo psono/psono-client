@@ -11,7 +11,7 @@
      * Service to handle all share links related tasks
      */
 
-    var managerShareLink = function(managerBase, apiClient) {
+    var managerShareLink = function($q, managerBase, apiClient) {
 
         /**
          * @ngdoc
@@ -68,7 +68,7 @@
             };
 
             return apiClient.move_share_link(managerBase.get_token(),
-                managerBase.find_one_nolimit('config', 'session_secret_key'), link_id, new_parent_share_id, new_parent_datastore_id)
+                managerBase.get_session_secret_key(), link_id, new_parent_share_id, new_parent_datastore_id)
                 .then(onSuccess, onError);
         };
 
@@ -94,7 +94,7 @@
             };
 
             return apiClient.delete_share_link(managerBase.get_token(),
-                managerBase.find_one_nolimit('config', 'session_secret_key'), link_id)
+                managerBase.get_session_secret_key(), link_id)
                 .then(onSuccess, onError);
         };
 
@@ -120,8 +120,10 @@
             } else if(parent.hasOwnProperty("datastore_id")) {
                 new_parent_datastore_id = parent.datastore_id;
             } else {
-                console.log("error, couldn't find a share_id nor a datastore_id");
-                console.log(parent);
+                return $q.reject({
+                    response: "error",
+                    error_data: 'Could not determine if its a share or datastore parent'
+                });
             }
 
             return move_share_link(link_id, new_parent_share_id, new_parent_datastore_id);
@@ -151,6 +153,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerShareLink", ['managerBase', 'apiClient', managerShareLink]);
+    app.factory("managerShareLink", ['$q', 'managerBase', 'apiClient', managerShareLink]);
 
 }(angular));

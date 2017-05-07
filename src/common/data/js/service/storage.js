@@ -67,7 +67,7 @@
          */
         var insert = function (db, items) {
 
-            dbs[db].insert(items);
+            return dbs[db].insert(items);
         };
 
         /**
@@ -82,7 +82,7 @@
          * @param {object|Array} items One or multiple items to update in the database
          */
         var update = function (db, items) {
-            dbs[db].update(items);
+            return dbs[db].update(items);
         };
 
         /**
@@ -99,6 +99,7 @@
          */
         var upsert = function(db, items) {
             var local_items, db_entry;
+            var return_values = [];
 
             if (! (items instanceof Array)) {
                 local_items = [items]
@@ -110,28 +111,17 @@
 
                 if (db_entry!== null) {
                     db_entry.value = local_items[i]['value'];
-                    dbs[db].update(db_entry);
+                    return_values.push(dbs[db].update(db_entry));
                 } else {
-                    dbs[db].insert(local_items[i]);
+                    return_values.push(dbs[db].insert(local_items[i]));
                 }
-
             }
-        };
 
-        /**
-         * @ngdoc
-         * @name psonocli.storage#data
-         * @methodOf psonocli.storage
-         *
-         * @description
-         * gets the data of a database
-         *
-         * @param {string} db The database
-         *
-         * @returns {*} Returns the data
-         */
-        var data = function (db) {
-            return dbs[db].data;
+            if (! (items instanceof Array)) {
+                return return_values;
+            } else {
+                return return_values[0]
+            }
         };
 
         /**
@@ -239,8 +229,8 @@
             insert: insert,
             update: update,
             upsert: upsert,
-            data: data,
             find_one: find_one,
+            key_exists: key_exists,
             remove: remove,
             remove_all: remove_all,
             on: on,

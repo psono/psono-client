@@ -397,10 +397,8 @@
          */
         var move_item = function(datastore, item_path, target_path, type) {
 
-
             var i;
             var closest_parent;
-            // TODO ask for confirmation
 
             var orig_item_path = item_path.slice();
             orig_item_path.pop();

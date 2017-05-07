@@ -64,60 +64,7 @@
         }));
         */
 
-        it('to_hex returns real hex values', inject(function (cryptoLibrary) {
-            return expect(cryptoLibrary.to_hex(new Uint8Array([
-                0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-                10, 11, 12, 13, 14, 15
-            ]))).toBe('000102030405060708090a0b0c0d0e0f');
-        }));
 
-        it('from_hex returns the true Uint8Array', inject(function (cryptoLibrary) {
-            return expect(cryptoLibrary.to_hex(cryptoLibrary.from_hex('000102030405060708090a0b0c0d0e0f'))).toBe('000102030405060708090a0b0c0d0e0f');
-        }));
-
-        it('to_base58 returns the true Uint8Array', inject(function (cryptoLibrary) {
-            return expect(cryptoLibrary.to_base58(new Uint8Array([
-                0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-                10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-                20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
-                30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
-                40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
-                50, 51, 52, 53, 54, 55, 56, 57
-            ]))).toBe('17zGKMk8LJ2vxPFJLY5ZT29kPLxuY4YedQ2wsCWP5aYENhQ93SGhYcc3XZaWR5w7pEvXozuf3daKVr');
-        }));
-
-        it('from_base58 returns the true Uint8Array', inject(function (cryptoLibrary) {
-            return expect(cryptoLibrary.to_base58(cryptoLibrary.from_base58('17zGKMk8LJ2vxPFJLY5ZT29kPLxuY4YedQ2wsCWP5aYENhQ93SGhYcc3XZaWR5w7pEvXozuf3daKVr')))
-                .toBe('17zGKMk8LJ2vxPFJLY5ZT29kPLxuY4YedQ2wsCWP5aYENhQ93SGhYcc3XZaWR5w7pEvXozuf3daKVr');
-        }));
-
-        it('hex_to_base58', inject(function (cryptoLibrary) {
-            return expect(cryptoLibrary.hex_to_base58('000102030405060708090a0b0c0d0e0f')).toBe('12drXXUifSrRnXLGbXg8E');
-        }));
-
-        it('base58_to_hex', inject(function (cryptoLibrary) {
-            return expect(cryptoLibrary.base58_to_hex('12drXXUifSrRnXLGbXg8E')).toBe('000102030405060708090a0b0c0d0e0f');
-        }));
-
-        it('uuid_to_hex', inject(function (cryptoLibrary) {
-            return expect(cryptoLibrary.uuid_to_hex('3682454d-d080-44c2-b58c-721ef6459e32'))
-                .toBe('3682454dd08044c2b58c721ef6459e32');
-        }));
-
-        it('hex_to_uuid', inject(function (cryptoLibrary) {
-            return expect(cryptoLibrary.hex_to_uuid('28b461d094d84a32b546f8cc382d49f0'))
-                .toBe('28b461d0-94d8-4a32-b546-f8cc382d49f0');
-        }));
-
-        it('words_to_hex', inject(function (cryptoLibrary) {
-            return expect(cryptoLibrary.words_to_hex(['lazy', 'lock', 'lock', 'price', 'economy', 'enable', 'arctic', 'animal', 'aunt', 'damp', 'novel', 'party']))
-                .toBe('000102030405060708090a0b0c0d0e0f');
-        }));
-
-        it('hex_to_words', inject(function (cryptoLibrary) {
-            return expect(cryptoLibrary.hex_to_words('000102030405060708090a0b0c0d0e0f'))
-                .toEqual(['lazy', 'lock', 'lock', 'price', 'economy', 'enable', 'arctic', 'animal', 'aunt', 'damp', 'novel', 'party']);
-        }));
 
         it('generate_authkey works', inject(function (cryptoLibrary) {
             expect(cryptoLibrary.generate_authkey('test@example.com', '123456'))
@@ -126,18 +73,18 @@
                 .toBe('3d97a9354e99760d543761c168b655ccc7e565ddd6ef1d6b83df66d8b50bc62708dfe2c2dc56a628fa24b71bf75fc49db85ce11fd64fadb0e458f3780dde1899');
         }));
 
-        it('generate_secret_key returns a 32 bytes long key', inject(function (cryptoLibrary) {
+        it('generate_secret_key returns a 32 bytes long key', inject(function (cryptoLibrary, converter) {
             var bytes;
             bytes = 32;
-            return expect(cryptoLibrary.from_hex(cryptoLibrary.generate_secret_key()).length).toBe(bytes);
+            return expect(converter.from_hex(cryptoLibrary.generate_secret_key()).length).toBe(bytes);
         }));
 
-        it('generate_public_private_keypair returns a pair of 32 bytes long keys', inject(function (cryptoLibrary) {
+        it('generate_public_private_keypair returns a pair of 32 bytes long keys', inject(function (cryptoLibrary, converter) {
             var bytes, pair;
             bytes = 32;
             pair = cryptoLibrary.generate_public_private_keypair();
-            expect(cryptoLibrary.from_hex(pair.private_key).length).toBe(bytes);
-            return expect(cryptoLibrary.from_hex(pair.public_key).length).toBe(bytes);
+            expect(converter.from_hex(pair.private_key).length).toBe(bytes);
+            return expect(converter.from_hex(pair.public_key).length).toBe(bytes);
         }));
 
         it('generate_public_private_keypair returned pairs are different', inject(function (cryptoLibrary) {
@@ -149,12 +96,12 @@
             return expect(pair1.public_key).not.toBe(pair2.public_key);
         }));
 
-        it('generate_user_sauce', inject(function (cryptoLibrary) {
+        it('generate_user_sauce', inject(function (cryptoLibrary, converter) {
             var bytes, user_sauce1, user_sauce2;
             bytes = 32;
             user_sauce1 = cryptoLibrary.generate_user_sauce();
             user_sauce2 = cryptoLibrary.generate_user_sauce();
-            expect(cryptoLibrary.from_hex(user_sauce1).length).toBe(bytes);
+            expect(converter.from_hex(user_sauce1).length).toBe(bytes);
             return expect(user_sauce1).not.toBe(user_sauce2);
         }));
 
@@ -163,14 +110,14 @@
 
         }));
 
-        it('generate_recovery_code', inject(function (cryptoLibrary, helper) {
+        it('generate_recovery_code', inject(function (cryptoLibrary, helper, converter) {
 
             var recovery_code = cryptoLibrary.generate_recovery_code();
 
             expect(recovery_code.bytes.length).toBe(16);
-            expect(recovery_code.hex).toBe(cryptoLibrary.to_hex(recovery_code.bytes));
-            expect(recovery_code.hex).toBe(cryptoLibrary.words_to_hex(recovery_code.words));
-            expect(recovery_code.hex).toBe(cryptoLibrary.base58_to_hex(recovery_code.base58));
+            expect(recovery_code.hex).toBe(converter.to_hex(recovery_code.bytes));
+            expect(recovery_code.hex).toBe(converter.words_to_hex(recovery_code.words));
+            expect(recovery_code.hex).toBe(converter.base58_to_hex(recovery_code.base58));
 
             var chunks = helper.split_string_in_chunks(recovery_code.base58, 11);
 
@@ -214,7 +161,7 @@
             return expect(cryptoLibrary.decrypt_secret(text, nonce, password, user_sauce)).toBe(data);
         }));
 
-        it('encrypt_secret', inject(function (cryptoLibrary) {
+        it('encrypt_secret', inject(function (cryptoLibrary, converter) {
             var bytes_nonce, data, encrypted_data, encrypted_data2, password, user_sauce;
             bytes_nonce = 24;
             data = '12345';
@@ -223,8 +170,8 @@
             encrypted_data = cryptoLibrary.encrypt_secret(data, password, user_sauce);
             expect(encrypted_data.text).not.toBe(void 0);
             expect(encrypted_data.nonce).not.toBe(void 0);
-            expect(cryptoLibrary.from_hex(encrypted_data.text).length).toBeGreaterThan(0);
-            expect(cryptoLibrary.from_hex(encrypted_data.nonce).length).toBe(bytes_nonce);
+            expect(converter.from_hex(encrypted_data.text).length).toBeGreaterThan(0);
+            expect(converter.from_hex(encrypted_data.nonce).length).toBe(bytes_nonce);
             expect(cryptoLibrary.decrypt_secret(encrypted_data.text, encrypted_data.nonce, password, user_sauce)).toBe(data);
             encrypted_data2 = cryptoLibrary.encrypt_secret(data, password, user_sauce);
             return expect(encrypted_data.nonce).not.toBe(encrypted_data2.nonce);
@@ -239,7 +186,7 @@
             return expect(cryptoLibrary.decrypt_data(text, nonce, secret_key)).toBe(data);
         }));
 
-        it('encrypt_data works', inject(function (cryptoLibrary) {
+        it('encrypt_data works', inject(function (cryptoLibrary, converter) {
             var bytes_nonce, data, encrypted_data, encrypted_data2, secret_key;
             bytes_nonce = 24;
             data = "12345";
@@ -247,8 +194,8 @@
             encrypted_data = cryptoLibrary.encrypt_data(data, secret_key);
             expect(encrypted_data.text).not.toBe(void 0);
             expect(encrypted_data.nonce).not.toBe(void 0);
-            expect(cryptoLibrary.from_hex(encrypted_data.text).length).toBeGreaterThan(0);
-            expect(cryptoLibrary.from_hex(encrypted_data.nonce).length).toBe(bytes_nonce);
+            expect(converter.from_hex(encrypted_data.text).length).toBeGreaterThan(0);
+            expect(converter.from_hex(encrypted_data.nonce).length).toBe(bytes_nonce);
             expect(cryptoLibrary.decrypt_data(encrypted_data.text, encrypted_data.nonce, secret_key)).toBe(data);
             encrypted_data2 = cryptoLibrary.encrypt_data(data, secret_key);
             return expect(encrypted_data.nonce).not.toBe(encrypted_data2.nonce);
@@ -270,34 +217,7 @@
             return expect(cryptoLibrary.decrypt_data_public_key(text, nonce, pair2.public_key, pair.private_key)).toBe(data);
         }));
 
-        it('from_base_x:ambiguous alphabet', inject(function (cryptoLibrary) {
-            return expect(function() { cryptoLibrary.from_base_x('ABAAAB', 'ABB') }).toThrow(
-                new TypeError('B is ambiguous')
-            );
-        }));
-
-        it('from_base_x:value not in alphabet', inject(function (cryptoLibrary) {
-            return expect(function() { cryptoLibrary.from_base_x('AZB', 'AB') }).toThrow(
-                new Error('Non-base2 character')
-            );
-        }));
-
-        it('from_base_x:val.length = 0', inject(function (cryptoLibrary) {
-            return expect(cryptoLibrary.from_base_x('', 'AB')).toEqual(new Uint8Array(0));
-        }));
-
-        it('to_base_x', inject(function (cryptoLibrary) {
-            return expect(cryptoLibrary.to_base_x('', 'AB')).toBe('');
-        }));
-
-        it('encode_latin1', inject(function (cryptoLibrary) {
-            var to_encode = String.fromCharCode(0x100);
-            return expect(function(){ cryptoLibrary.encode_latin1(to_encode) }).toThrow(
-                new Error("Cannot encode string in Latin1:" + to_encode)
-            );
-        }));
-
-        return it('encrypt_data_public_key works', inject(function (cryptoLibrary) {
+        return it('encrypt_data_public_key works', inject(function (cryptoLibrary, converter) {
             var bytes_nonce, data, encrypted_data, encrypted_data2, pair, pair2;
             bytes_nonce = 24;
             data = "12345";
@@ -312,8 +232,8 @@
             encrypted_data = cryptoLibrary.encrypt_data_public_key(data, pair.public_key, pair2.private_key);
             expect(encrypted_data.text).not.toBe(void 0);
             expect(encrypted_data.nonce).not.toBe(void 0);
-            expect(cryptoLibrary.from_hex(encrypted_data.text).length).toBeGreaterThan(0);
-            expect(cryptoLibrary.from_hex(encrypted_data.nonce).length).toBe(bytes_nonce);
+            expect(converter.from_hex(encrypted_data.text).length).toBeGreaterThan(0);
+            expect(converter.from_hex(encrypted_data.nonce).length).toBe(bytes_nonce);
             expect(cryptoLibrary.decrypt_data_public_key(encrypted_data.text, encrypted_data.nonce, pair2.public_key, pair.private_key)).toBe(data);
             encrypted_data2 = cryptoLibrary.encrypt_data_public_key(data, pair.public_key, pair2.private_key);
             return expect(encrypted_data.nonce).not.toBe(encrypted_data2.nonce);
