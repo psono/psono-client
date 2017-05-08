@@ -7,13 +7,6 @@
 
         chrome.runtime.onMessage.addListener(
         function(request, sender, sendResponse) {
-            console.log(sender.tab ?
-            "from a content script:" + sender.tab.url :
-                "from the extension");
-
-            console.log("received something");
-            console.log(request);
-
             for (var i = 0; registrations.hasOwnProperty(request.event) && i < registrations[request.event].length; i++) {
                 registrations[request.event][i](request.data);
             }

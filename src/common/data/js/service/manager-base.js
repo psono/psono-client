@@ -58,7 +58,7 @@
         var find_one_nolimit = function(db, key) {
 
             var obj = storage.find_one(db, {'key': key});
-            if (obj === null) {
+            if (obj === null || typeof(obj) === 'undefined') {
                 return ''
             }
             return obj['value'];

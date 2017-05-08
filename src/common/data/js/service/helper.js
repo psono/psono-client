@@ -152,6 +152,7 @@
          * Takes an object and duplicates it
          *
          * @param {*} obj initial object that we want to duplicate
+         *
          * @returns {*} Returns a duplicate of object
          */
         var duplicate_object = function(obj) {
@@ -168,6 +169,7 @@
          * If yes the function returns true. If not, the function returns an error string
          *
          * @param {string} username A string that could be a valid username
+         *
          * @returns {true|string} Returns true or a string with the error
          */
         var is_valid_username = function(username) {
@@ -216,7 +218,8 @@
          *
          * @param {string} password A string that could be a valid password
          * @param {string} password2 The second password that needs to match the first
-         * @returns {true|string} Returns true or a string with the error
+         *
+         * @returns {boolean|string} Returns true or a string with the error
          */
         var is_valid_password = function(password, password2) {
 
@@ -280,10 +283,30 @@
             }
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.helper#get_device_fingerprint
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Returns the device fingerprint
+         *
+         * @returns {string} Fingerprint of the device
+         */
         var get_device_fingerprint = function() {
             return client_js.getFingerprint()
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.helper#get_device_fingerprint
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Returns the device's description
+         *
+         * @returns {string}
+         */
         var get_device_description = function() {
             var description = '';
             if (typeof(client_js.getDeviceVendor()) !== 'undefined') {

@@ -19,6 +19,9 @@
                 },
                 get_token: function() {
                     return token
+                },
+                find_one_nolimit: function(db, key) {
+
                 }
             };
 
@@ -28,8 +31,32 @@
 
         });
 
+        var mockedWindow;
+        beforeEach(function () {
+
+            mockedWindow = {
+                location: {
+                    href: 'asdf'
+                },
+                open: function(url, target) {
+
+                }
+            };
+
+            module(function ($provide) {
+                $provide.value('$window', mockedWindow);
+            });
+
+        });
+
         var secret_key = '77285ecc77ff7c8475d7866e1c7bcb382b7fdf9239b7f326299f1abf8d17dd81';
-        var decrypted_data = 'dummy_decrypted_data';
+        var decrypted_data = {
+            website_password_username: 'my-user',
+            website_password_password: 'my-password',
+            website_password_url_filter: 'example2.com',
+            website_password_auto_submit: true,
+            website_password_url: 'http://example2.com'
+        };
         var encrypted_data = 'dummy_encrypt_data_text';
         var encrypted_data_nonce = 'dummy_encrypt_data_nonce';
 
@@ -114,7 +141,7 @@
                 });
 
             managerSecret.read_secret(secret_id, secret_key).then(function(data){
-                expect(data).toEqual('dummy_decrypted_data');
+                expect(data).toEqual(decrypted_data);
             },function(){
                 // should never be reached
                 expect(true).toBeFalsy();
@@ -153,6 +180,71 @@
             });
 
             $httpBackend.flush();
+
+        }));
+
+        it('redirect_secret', inject(function (managerSecret, cryptoLibrary, $window, browserClient) {
+
+            var secret_id = '05ee5340-7171-41e7-b827-2546ee742466';
+            var type = 'website_password';
+
+            $window.location.href = 'http://example1.com';
+
+            spyOn(browserClient, 'emit_sec');
+
+            $httpBackend.when('GET', "https://www.psono.pw/server/secret/" + secret_id + "/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            managerSecret.redirect_secret(type, secret_id);
+
+            $httpBackend.flush();
+
+            expect($window.location.href).toBe(decrypted_data.website_password_url);
+
+            expect(browserClient.emit_sec).toHaveBeenCalledWith("fillpassword", {
+                username: decrypted_data.website_password_username,
+                password: decrypted_data.website_password_password,
+                authority: decrypted_data.website_password_url_filter,
+                auto_submit: decrypted_data.website_password_auto_submit
+            });
+
+        }));
+
+        it('on_item_click_with_new_window', inject(function (managerSecret, cryptoLibrary, $window) {
+
+            spyOn($window, 'open');
+
+            var item = {
+                type: 'website_password',
+                secret_id: '8584a986-f5c5-4adc-928b-c0eab9f2d550'
+            };
+
+            managerSecret.on_item_click(item);
+
+            expect($window.open).toHaveBeenCalledWith('open-secret.html#!/secret/'+item.type+'/'+item.secret_id, '_blank');
+
+        }));
+
+        it('on_item_click_with_no_new_window', inject(function (managerSecret, cryptoLibrary, $window) {
+
+            spyOn($window, 'open');
+
+            var item = {
+                type: 'note',
+                secret_id: '8584a986-f5c5-4adc-928b-c0eab9f2d550'
+            };
+
+            managerSecret.on_item_click(item);
+
+            expect($window.open).not.toHaveBeenCalled();
 
         }));
 

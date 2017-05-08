@@ -15,6 +15,9 @@ var browserClient = function() {
      */
     var emit = function (event, data) {
         browser.runtime.sendMessage({event: event, data: data}, function(response) {
+            if (typeof(response) === 'undefined' || !response.hasOwnProperty('event')) {
+                return;
+            }
             for (var i = 0; registrations.hasOwnProperty(response.event) && i < registrations[response.event].length; i++) {
                 registrations[response.event][i](response.data);
             }
