@@ -21,7 +21,12 @@
                     return token
                 },
                 find_one_nolimit: function(db, key) {
-
+                    if (key === 'user_private_key') {
+                        return 'user_private_key';
+                    }
+                },
+                decrypt_private_key: function(text, nonce, public_key) {
+                    return "decrypt_private_key return value"
                 }
             };
 
@@ -99,6 +104,185 @@
                     user_share_rights_inherited: ['an-inherited-right-obj', 'another-inherited-right-obj']
                 });
             },function(){
+                // should never be reached
+                expect(true).toBeFalsy();
+            });
+
+            $httpBackend.flush();
+
+        }));
+
+        it('read_shares', inject(function (managerShare) {
+
+            $httpBackend.when('GET', "https://www.psono.pw/server/share/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    // return answer
+                    return [200, {
+                        shares: [{
+                            share_right_title: "share_right_title",
+                            share_right_title_nonce: "share_right_title_nonce",
+                            share_right_create_user_public_key: "share_right_create_user_public_key",
+                        }]
+                    }];
+                });
+
+
+            managerShare.read_shares().then(function(data){
+                expect(data).toEqual({
+                    shares: [{
+                        share_right_title: 'decrypt_private_key return value',
+                        share_right_title_nonce: 'share_right_title_nonce',
+                        share_right_create_user_public_key: 'share_right_create_user_public_key'
+                    }]
+                });
+            },function(){
+                // should never be reached
+                expect(true).toBeFalsy();
+            });
+
+            $httpBackend.flush();
+
+        }));
+
+        it('write_share_with_content_id', inject(function (managerShare, cryptoLibrary) {
+
+            var share_id = '2a33b3a1-a95f-4392-856a-5d5153bca78f';
+            var content = {
+                id: "b56be9dc-62ae-4610-8c71-e26b00b3263b",
+                bla: "blu"
+            };
+            var content_without_id = {
+                bla: "blu"
+            };
+
+            spyOn(cryptoLibrary, 'encrypt_data').and.returnValue({
+                text: encrypted_data,
+                nonce: encrypted_data_nonce
+            });
+
+            $httpBackend.when('PUT', "https://www.psono.pw/server/share/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    expect(data.share_id).toEqual(share_id);
+                    expect(data.data).toEqual(encrypted_data);
+                    expect(data.data_nonce).toEqual(encrypted_data_nonce);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+
+            managerShare.write_share(share_id, content, secret_key).then(function(data){
+                expect(data.data).toEqual({});
+            },function(data){
+                console.log(data);
+                // should never be reached
+                expect(true).toBeFalsy();
+            });
+
+            $httpBackend.flush();
+
+            expect(cryptoLibrary.encrypt_data).toHaveBeenCalledWith(JSON.stringify(content_without_id), secret_key);
+
+        }));
+
+        it('write_share_without_content_id', inject(function (managerShare, cryptoLibrary) {
+
+            var share_id = '2a33b3a1-a95f-4392-856a-5d5153bca78f';
+            var content = {
+                bla: "blu"
+            };
+            var content_without_id = {
+                bla: "blu"
+            };
+
+            spyOn(cryptoLibrary, 'encrypt_data').and.returnValue({
+                text: encrypted_data,
+                nonce: encrypted_data_nonce
+            });
+
+            $httpBackend.when('PUT', "https://www.psono.pw/server/share/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    expect(data.share_id).toEqual(share_id);
+                    expect(data.data).toEqual(encrypted_data);
+                    expect(data.data_nonce).toEqual(encrypted_data_nonce);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+
+            managerShare.write_share(share_id, content, secret_key).then(function(data){
+                expect(data.data).toEqual({});
+            },function(data){
+                // should never be reached
+                expect(true).toBeFalsy();
+            });
+
+            $httpBackend.flush();
+
+            expect(cryptoLibrary.encrypt_data).toHaveBeenCalledWith(JSON.stringify(content_without_id), secret_key);
+
+        }));
+
+        it('read_share_rights', inject(function (managerShare, cryptoLibrary) {
+
+            var share_id = '2a33b3a1-a95f-4392-856a-5d5153bca78f';
+
+            $httpBackend.when('GET', "https://www.psono.pw/server/share/rights/" + share_id + "/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+
+            managerShare.read_share_rights(share_id).then(function(data){
+                expect(data).toEqual({});
+            },function(data){
+                // should never be reached
+                expect(true).toBeFalsy();
+            });
+
+            $httpBackend.flush();
+
+        }));
+
+        it('read_share_rights_overview', inject(function (managerShare, cryptoLibrary) {
+
+            $httpBackend.when('GET', "https://www.psono.pw/server/share/right/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+
+            managerShare.read_share_rights_overview().then(function(data){
+                expect(data).toEqual({});
+            },function(data){
                 // should never be reached
                 expect(true).toBeFalsy();
             });
