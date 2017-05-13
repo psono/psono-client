@@ -72,7 +72,7 @@
             expect($scope.selected_server_domain).toEqual('example.com');
         });
 
-        it('activate', function() {
+        it('activate_code', function() {
 
             var activation_code = '1234567890';
 
@@ -86,7 +86,7 @@
                     return [200, {"success": "Successfully activated."}];
                 });
 
-            $scope.activate(activation_code);
+            $scope.activate_code(activation_code);
             $httpBackend.flush();
         });
 
