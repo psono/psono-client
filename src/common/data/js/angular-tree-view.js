@@ -27,7 +27,7 @@
  *  (modified by chickahoona)
  */
 
-(function (angular, undefined) {
+(function (angular) {
     var module = angular.module('ngTree', []);
 
     module.value('treeViewDefaults', {

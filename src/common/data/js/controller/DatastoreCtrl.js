@@ -2,12 +2,6 @@
     'use strict';
 
     /**
-     * Module for the datastore widget
-     */
-    var module = angular.module('psonocli');
-
-
-    /**
      * @ngdoc controller
      * @name psonocli.controller:DatastoreCtrl
      * @requires $scope
@@ -23,88 +17,19 @@
      * @description
      * Main Controller for the datastore widget
      */
-    module.controller('DatastoreCtrl', ["$scope", "manager", "managerDatastorePassword",
+    angular.module('psonocli').controller('DatastoreCtrl', ["$scope", "manager", "managerDatastorePassword",
         "$uibModal", "itemBlueprint", "managerWidget", "managerSecret", "$timeout", "dropDownMenuWatcher",
         function($scope, manager, managerDatastorePassword,
                  $uibModal, itemBlueprint, managerWidget, managerSecret, $timeout, dropDownMenuWatcher){
 
             var contextMenusOpen = 0;
 
-            $scope.contextMenuOnShow = function(div_id) {
-                dropDownMenuWatcher.on_open(div_id);
-                contextMenusOpen++;
-            };
+            $scope.contextMenuOnShow = contextMenuOnShow;
+            $scope.contextMenuOnClose = contextMenuOnClose;
+            $scope.openNewFolder = openNewFolder;
+            $scope.openNewItem = openNewItem;
 
-            $scope.contextMenuOnClose = function(div_id) {
-                dropDownMenuWatcher.on_close(div_id);
-                $timeout(function() {
-                    contextMenusOpen--;
-                }, 0);
-            };
-
-            // Modals
-            $scope.open_new_folder = function (event) {
-                managerWidget.open_new_folder(undefined, [], $scope.structure.data, managerDatastorePassword);
-            };
-
-            /**
-             * Opens the modal for a new entry
-             *
-             * @param parent
-             * @param path
-             * @param size
-             */
-            var open_new_item = function (parent, path, size) {
-                managerWidget.open_new_item($scope.structure.data, parent, path, size);
-            };
-            $scope.open_new_item = function (event) {
-                open_new_item(undefined, []);
-            };
-
-            /**
-             * Opens the modal to edit a entry
-             *
-             * @param node
-             * @param path
-             * @param size
-             */
-            var open_edit_item = function (node, path, size) {
-                managerWidget.open_edit_item($scope.structure.data, node, path, size);
-            };
-
-            // Datastore Structure Management
             $scope.structure = { data: {}} ;
-
-            var fill_password_datastore = function(data) {
-                $scope.structure.data = data;
-            };
-
-            managerDatastorePassword.get_password_datastore()
-                .then(fill_password_datastore);
-
-            /**
-             * Move an item
-             *
-             * @param scope the scope
-             * @param item_path the path of the item
-             * @param target_path the path where we want to put the item
-             * @param type type of the item (item or folder)
-             */
-            var move_item = function(scope, item_path, target_path, type) {
-                managerWidget.move_item(scope.structure.data, item_path, target_path, type);
-            };
-
-            /**
-             * Deletes an item from the datastore
-             *
-             * @param scope the scope
-             * @param item the item
-             * @param path the path to the item
-             */
-            var delete_item = function(scope, item, path) {
-                managerWidget.delete_item(scope.structure.data, item, path);
-            };
-
             $scope.options = {
                 /**
                  * Triggered once someone selects a node
@@ -251,6 +176,81 @@
                 getAdditionalButtons: itemBlueprint.get_additional_functions,
                 item_icon: managerWidget.item_icon
             };
+
+            activate();
+
+            function activate() {
+                managerDatastorePassword.get_password_datastore()
+                    .then(function(data) {
+                        $scope.structure.data = data;
+                    });
+            }
+
+            function contextMenuOnShow(div_id) {
+                dropDownMenuWatcher.on_open(div_id);
+                contextMenusOpen++;
+            }
+
+            function contextMenuOnClose(div_id) {
+                dropDownMenuWatcher.on_close(div_id);
+                $timeout(function() {
+                    contextMenusOpen--;
+                }, 0);
+            }
+
+            // Modals
+            function openNewFolder (event) {
+                managerWidget.open_new_folder(undefined, [], $scope.structure.data, managerDatastorePassword);
+            }
+
+            /**
+             * Opens the modal for a new entry
+             *
+             * @param parent
+             * @param path
+             * @param size
+             */
+            function open_new_item (parent, path, size) {
+                managerWidget.open_new_item($scope.structure.data, parent, path, size);
+            }
+
+            function openNewItem(event) {
+                open_new_item(undefined, []);
+            }
+
+            /**
+             * Opens the modal to edit a entry
+             *
+             * @param node
+             * @param path
+             * @param size
+             */
+            function open_edit_item (node, path, size) {
+                managerWidget.open_edit_item($scope.structure.data, node, path, size);
+            }
+
+            /**
+             * Move an item
+             *
+             * @param scope the scope
+             * @param item_path the path of the item
+             * @param target_path the path where we want to put the item
+             * @param type type of the item (item or folder)
+             */
+            function move_item(scope, item_path, target_path, type) {
+                managerWidget.move_item(scope.structure.data, item_path, target_path, type);
+            }
+
+            /**
+             * Deletes an item from the datastore
+             *
+             * @param scope the scope
+             * @param item the item
+             * @param path the path to the item
+             */
+            function delete_item(scope, item, path) {
+                managerWidget.delete_item(scope.structure.data, item, path);
+            }
 
         }]);
 
