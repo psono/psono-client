@@ -110,11 +110,14 @@
         it('logout', inject(function (apiClient) {
 
             var token = 'a-token';
+            var session_secret_key = 'a-session_secret_key';
 
             $httpBackend.when('POST', "https://www.psono.pw/server/authentication/logout/").respond(
                 function(method, url, data, headers, params) {
                     // Validate request parameters:
                     data = JSON.parse(data);
+
+                    expect(data).toEqual({});
 
                     expect(headers.Authorization).toEqual('Token ' + token);
 
@@ -122,7 +125,33 @@
                     return [200, {}];
                 });
 
-            expect(apiClient.logout(token)).toBeDefined();
+            expect(apiClient.logout(token, session_secret_key)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
+        it('logout other session', inject(function (apiClient) {
+
+            var token = 'a-token';
+            var session_secret_key = 'a-session_secret_key';
+            var session_id = '82dc7d4b-1078-4df4-86b4-9deaccb75de9';
+
+            $httpBackend.when('POST', "https://www.psono.pw/server/authentication/logout/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(data).toEqual({
+                        'session_id': session_id
+                    });
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.logout(token, session_secret_key, session_id)).toBeDefined();
 
             $httpBackend.flush();
         }));
