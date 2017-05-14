@@ -77,6 +77,15 @@ body {
 /* bootstrap */
 .navbar-default {
   background-color: $light-link-color;
+  .navbar-toggle:hover, .navbar-toggle:focus {
+    background-color: $dark-color;
+  }
+  .navbar-toggle {
+    border-color: $light-link-color;
+    .icon-bar {
+      background-color: $light-link-color;
+    }
+  }
 }
 .navbar .navbar-text {
   margin-top: 8px;
@@ -86,6 +95,8 @@ body {
 .text-primary {
   color: $dark-hightlight-color;
 }
+
+
 
 .btn-primary {
   background-color: $dark-hightlight-color;

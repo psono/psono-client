@@ -26,6 +26,7 @@
                   snapRemote, $window, $route, $routeParams, $location) {
 
             $scope.open_tab = browserClient.open_tab;
+            $scope.isNavCollapsed = true;
 
             activate();
 

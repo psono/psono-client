@@ -10,6 +10,7 @@
     <link rel="shortcut icon" href="img/favicon.ico">
     <meta name="msapplication-config" content="img/browserconfig.xml">
     <meta name="theme-color" content="#ffffff">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -41,12 +42,18 @@
                 <a class="navbar-brand" href="#">
                     <img alt="Brand" src="img/logo-inverse.png" height="100%">
                 </a>
+                <button type="button" class="navbar-toggle collapsed btn btn-primary" ng-click="isNavCollapsed = !isNavCollapsed">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
             </div>
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-5">
+            <div class="collapse navbar-collapse" uib-collapse="isNavCollapsed">
                 <div  class="navbar-text navbar-right">
-                    <div class="signintext">Signed in as</div>
-                    <div class="btn-group" uib-dropdown is-open="status.isopen">
-                        <button id="email-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
+                    <div class="signintext hidden-xs">Signed in as</div>
+                    <div class="btn-group" uib-dropdown is-open="status.isopen" ng-if="isNavCollapsed">
+                        <button id="email-button" type="button" class="btn btn-primary hidden-xs" uib-dropdown-toggle>
                             {{user_username}} <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu" aria-labelledby="email-button">
@@ -57,15 +64,14 @@
                             <li role="menuitem"><a href="#" ng-click="logout()">Logout</a></li>
                         </ul>
                     </div>
-                    <!--
-                    <button type="button" class="btn btn-primary">
-                        <span class="fa-stack" style="line-height:1em; height:1em; width: 1em;">
-                          <i class="fa fa-envelope-o fa-stack-1x"></i>
-                          <i class="fa fa-circle fa-stack-1x small-top-right ng-scope" ng-if="messages.length > 0"></i>
-                          <strong class="fa-stack-1x text-primary small-top-right" ng-if="messages.length > 0">{{messages.length}}</strong>
-                        </span>
-                    </button>
-                    -->
+                    <div ng-if="! isNavCollapsed">
+                        <ul class="nav navbar-nav" ng-if="! isNavCollapsed">
+                            <li role="menuitem"><a href="#!/account">Account</a></li>
+                            <li role="menuitem"><a href="#!/settings">Settings</a></li>
+                            <li role="menuitem"><a href="#!/other">Other</a></li>
+                            <li role="menuitem"><a href="#" ng-click="logout()">Logout</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
