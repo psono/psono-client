@@ -3,7 +3,7 @@
 
   "name": "psono.PW",
   "description": "Psono Password Manager",
-  "version": "1.0.8",
+  "version": "1.0.9",
 
   "browser_action": {
     "default_icon": "data/img/icon-32.png",
@@ -53,5 +53,10 @@
   ],
   "web_accessible_resources": [
     "data/css/fonts/*.woff2"
-  ]
+  ],
+  "applications": {
+    "gecko": {
+      "id": "psono@psono.pw"
+    }
+  }
 }

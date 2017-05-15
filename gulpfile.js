@@ -18,6 +18,8 @@ var removeFiles = require('gulp-remove-files');
 var gulpDocs = require('gulp-ngdocs');
 var webstore_upload = require('webstore-upload');
 var runSequence = require('run-sequence');
+var jwt = require('jsonwebtoken');
+var run = require('gulp-run');
 
 /**
  * Compiles .sass files to css files
@@ -195,6 +197,32 @@ gulp.task('chrome-deploy', function() {
         .catch(function(err) {
             console.error(err);
         });
+});
+
+/**
+ * Deploys the Firefox Extension to the Firefox Web Store
+ */
+gulp.task('firefox-deploy', function() {
+
+    var jwt_issuer = gutil.env.mozilla_jwt_issuer;
+    var jwt_secret = gutil.env.mozilla_jwt_secret;
+    var addon_id = gutil.env.mozilla_addon_id;
+    var version = gutil.env.mozilla_version;
+
+    var issuedAt = Math.floor(Date.now() / 1000);
+    var payload = {
+        iss: jwt_issuer,
+        jti: Math.random().toString(),
+        iat: issuedAt,
+        exp: issuedAt + 60
+    };
+
+    var token = jwt.sign(payload, jwt_secret, {
+        algorithm: 'HS256'  // HMAC-SHA256 signing algorithm
+    });
+
+    return run('curl "https://addons.mozilla.org/api/v3/addons/' + addon_id + '/versions/' + version + '/" -g -XPUT --form "upload=@dist/firefox/psono.PW.zip" -H "Authorization: JWT '+ token +'"').exec()    // prints "Hello World\n".
+        .pipe(gulp.dest('output'));
 });
 
 

@@ -54,6 +54,12 @@ body {
 /* bootstrap */
 .navbar-default {
   background-color: #fff; }
+  .navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {
+    background-color: #151f2b; }
+  .navbar-default .navbar-toggle {
+    border-color: #fff; }
+    .navbar-default .navbar-toggle .icon-bar {
+      background-color: #fff; }
 
 .navbar .navbar-text {
   margin-top: 8px;

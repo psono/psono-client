@@ -410,6 +410,7 @@
          * @returns {boolean} Returns weather the password chunk is valid
          */
         var recovery_password_chunk_pass_checksum = function(chunk_with_checksum) {
+            if (chunk_with_checksum.length < 2) return false;
             var password = chunk_with_checksum.substring(0, chunk_with_checksum.length -2);
             var checksum = chunk_with_checksum.substring(chunk_with_checksum.length -2);
             return get_checksum(password, 2) === checksum;

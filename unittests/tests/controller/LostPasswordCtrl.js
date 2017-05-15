@@ -1,5 +1,5 @@
 (function () {
-    describe('Controller: ActivationCtrl test suite', function () {
+    describe('Controller: LostPasswordCtrl test suite', function () {
 
         beforeEach(module('psonocli'));
 
@@ -14,7 +14,7 @@
             storage = $injector.get('storage');
 
             $scope = $rootScope.$new();
-            $controller('ActivationCtrl', {
+            $controller('LostPasswordCtrl', {
                 $scope: $scope
             });
 
@@ -72,22 +72,42 @@
             expect($scope.selected_server_domain).toEqual('example.com');
         });
 
-        it('activate', function() {
 
-            var activation_code = '1234567890';
+        it('code_changing with no value', function() {
+            var code = {};
+            $scope.code_changing(code);
 
-            $httpBackend.when('POST', "https://www.psono.pw/server/authentication/verify-email/").respond(
-                function(method, url, data) {
-                    // Validate request parameters:
-                    data = JSON.parse(data);
+            expect(code['class']).toEqual('form-field-validation-pass');
+        });
 
-                    expect(data.activation_code).toEqual(activation_code);
 
-                    return [200, {"success": "Successfully activated."}];
-                });
+        it('code_changing with empty value', function() {
+            var code = {
+                'value': ''
+            };
+            $scope.code_changing(code);
 
-            $scope.activate(activation_code);
-            $httpBackend.flush();
+            expect(code['class']).toEqual('form-field-validation-pass');
+        });
+
+
+        it('code_changing with wrong checksum value', function() {
+            var code = {
+                'value': '1234'
+            };
+            $scope.code_changing(code);
+
+            expect(code['class']).toEqual('form-field-validation-fail');
+        });
+
+
+        it('code_changing with correct checksum value', function() {
+            var code = {
+                'value': '59' //empty string has an checksum of 59
+            };
+            $scope.code_changing(code);
+
+            expect(code['class']).toEqual('form-field-validation-pass');
         });
 
     });

@@ -121,18 +121,18 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastoreUser#activate
+         * @name psonocli.managerDatastoreUser#activate_code
          * @methodOf psonocli.managerDatastoreUser
          *
          * @description
          * Activates a user account with the provided activation code after registration
          *
-         * @param {string} activate_code The activation code sent via mail
+         * @param {string} activation_code The activation code sent via mail
          * @param {string} server The server to send the activation code to
          *
          * @returns {promise} Returns a promise with the activation status
          */
-        var activate = function(activate_code, server) {
+        var activate_code = function(activation_code, server) {
 
             storage.upsert('config', {key: 'server', value: server});
 
@@ -156,7 +156,7 @@
                 };
             };
 
-            return apiClient.verify_email(activate_code)
+            return apiClient.verify_email(activation_code)
                 .then(onSuccess, onError);
         };
 
@@ -922,7 +922,7 @@
 
         return {
             register: register,
-            activate: activate,
+            activate_code: activate_code,
             login: login,
             ga_verify: ga_verify,
             yubikey_otp_verify: yubikey_otp_verify,
