@@ -45,18 +45,14 @@ firefox-extension:
   script:
     - sh ./var/build-ubuntu.sh
     - sh ./var/build-firefox-extension.sh
-  artifacts:
-    paths:
-    - dist/chrome/psono.firefox.PW.zip
+    - curl --request POST "https://gitlab.com/ci/api/v1/builds/${CI_JOB_ID}/artifacts" --form "token=${CI_JOB_TOKEN}" --form "file=@dist/chrome/psono.firefox.PW.zip"
 
 chrome-extension:
   stage: build
   script:
     - sh ./var/build-ubuntu.sh
     - sh ./var/build-chrome-extension.sh
-  artifacts:
-    paths:
-    - dist/chrome/psono.chrome.PW.zip
+    - curl --request POST "https://gitlab.com/ci/api/v1/builds/${CI_JOB_ID}/artifacts" --form "token=${CI_JOB_TOKEN}" --form "file=@dist/chrome/psono.chrome.PW.zip"
 
 job-release-docker:
   stage: release
