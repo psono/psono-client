@@ -44,19 +44,19 @@ firefox-extension:
   stage: build
   script:
     - sh ./var/build-ubuntu.sh
+    - sh ./var/build-firefox-extension.sh
   artifacts:
-    name: "firefox_$CI_BUILD_REF_NAME"
     paths:
-    - build/firefox/
+    - dist/chrome/psono.firefox.PW.zip
 
 chrome-extension:
   stage: build
   script:
     - sh ./var/build-ubuntu.sh
+    - sh ./var/build-chrome-extension.sh
   artifacts:
-    name: "chrome_$CI_BUILD_REF_NAME"
     paths:
-    - build/chrome/
+    - dist/chrome/psono.chrome.PW.zip
 
 job-release-docker:
   stage: release
@@ -90,6 +90,7 @@ job-deploy-chrome:
   image: ubuntu:16.04
   script:
     - sh ./var/build-ubuntu.sh
+    - sh ./var/build-chrome-extension.sh
     - sh ./var/deploy-chrome-extension.sh
   environment:
     name: chrome-webstore
@@ -103,6 +104,7 @@ job-deploy-firefox:
   image: ubuntu:16.04
   script:
     - sh ./var/build-ubuntu.sh
+    - sh ./var/build-firefox-extension.sh
     - sh ./var/deploy-firefox-extension.sh
   environment:
     name: firefox-webstore
