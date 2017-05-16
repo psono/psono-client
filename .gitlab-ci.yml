@@ -46,6 +46,7 @@ firefox-extension:
     - sh ./var/build-ubuntu.sh
     - mv /builds/psono/psono-client/build/firefox ../
     - rm -Rf *
+    - rm -Rf .* 2> /dev/null || true
     - mv ../firefox/* ./
   artifacts:
     name: "firefox_$CI_BUILD_REF_NAME"
@@ -58,6 +59,7 @@ chrome-extension:
     - sh ./var/build-ubuntu.sh
     - mv /builds/psono/psono-client/build/chrome ../
     - rm -Rf *
+    - rm -Rf .* 2> /dev/null || true
     - mv ../chrome/* ./
   artifacts:
     name: "chrome_$CI_BUILD_REF_NAME"
