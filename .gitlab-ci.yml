@@ -50,7 +50,7 @@ firefox-extension:
   artifacts:
     name: "firefox_$CI_BUILD_REF_NAME"
     paths:
-    - *
+    - ./*
 
 chrome-extension:
   stage: build
@@ -62,7 +62,7 @@ chrome-extension:
   artifacts:
     name: "chrome_$CI_BUILD_REF_NAME"
     paths:
-    - *
+    - ./*
 
 job-release-docker:
   stage: release
