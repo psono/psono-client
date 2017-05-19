@@ -183,7 +183,7 @@ gulp.task('chrome-deploy', function() {
             extension1: {
                 publish: true,
                 appID: app_id,
-                zip: 'dist/chrome/psono.PW.zip'
+                zip: 'dist/chrome/psono.chrome.PW.zip'
             }
         },
         uploadExtensions : ['extension1']
@@ -221,7 +221,7 @@ gulp.task('firefox-deploy', function() {
         algorithm: 'HS256'  // HMAC-SHA256 signing algorithm
     });
 
-    return run('curl "https://addons.mozilla.org/api/v3/addons/' + addon_id + '/versions/' + version + '/" -g -XPUT --form "upload=@dist/firefox/psono.PW.zip" -H "Authorization: JWT '+ token +'"').exec()    // prints "Hello World\n".
+    return run('curl "https://addons.mozilla.org/api/v3/addons/' + addon_id + '/versions/' + version + '/" -g -XPUT --form "upload=@dist/firefox/psono.firefox.PW.zip" -H "Authorization: JWT '+ token +'"').exec()    // prints "Hello World\n".
         .pipe(gulp.dest('output'));
 });
 
