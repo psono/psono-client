@@ -279,16 +279,41 @@ gulp.task('dist', ['default', 'crx', 'xpi']);
 
 gulp.task('updateversion', function() {
 
-    var fileContent = fs.readFileSync("./src/common/data/VERSION.txt", "utf8");
+
+    var commit_tag = gutil.env.commit_tag;
+    var commit_hash = gutil.env.commit_hash;
+
+
+    if (! /^v\d*\.\d*\.\d*$/.test(commit_tag)) {
+        return;
+    }
+
+    var version = commit_tag.substring(1);
+    var hash = commit_hash.substring(0,8);
+    var version_long = version+ ' (Build '+hash+')';
+
+    fs.writeFile("./build/webserver/data/VERSION.txt", version_long, function(err) {
+        if(err) {
+            return console.log(err);
+        }
+    });
 
     var all_browsers = ['chrome', 'firefox'];
     all_browsers.forEach(function(browser) {
+
+        fs.writeFile("./build/" + browser + "/data/VERSION.txt", version_long, function(err) {
+            if(err) {
+                return console.log(err);
+            }
+        });
+
+
         gulp.src(path.join("./build", browser, "manifest.json"))
             .pipe(removeFiles());
 
         gulp.src(path.join("./src", browser, "manifest.json"))
             .pipe(jeditor({
-                'version': fileContent.trim()
+                'version': version
             }))
             .pipe(gulp.dest(path.join("./build/", browser)));
     });
