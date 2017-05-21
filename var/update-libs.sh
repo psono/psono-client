@@ -11,6 +11,7 @@ wget https://code.angularjs.org/1.6.4/angular-animate.min.js -O src/common/data/
 wget https://code.angularjs.org/1.6.4/angular-route.min.js -O src/common/data/js/lib/angular-route.min.js
 wget https://code.angularjs.org/1.6.4/angular-sanitize.min.js -O src/common/data/js/lib/angular-sanitize.min.js
 wget https://code.angularjs.org/1.6.4/angular-touch.min.js -O src/common/data/js/lib/angular-touch.min.js
+wget https://code.angularjs.org/1.6.4/angular-csp.css -O src/common/data/css/lib/angular-csp.css
 wget https://code.angularjs.org/1.6.4/angular-mocks.js -O unittests/data/js/lib/angular-mocks.js
 
 wget https://raw.githubusercontent.com/Kraku/angular-complexify/master/build/angular-complexify.min.js -O src/common/data/js/lib/angular-complexify.min.js
@@ -31,3 +32,5 @@ wget https://raw.githubusercontent.com/jackspirou/clientjs/master/dist/client.mi
 wget https://raw.githubusercontent.com/chieffancypants/angular-loading-bar/master/build/loading-bar.min.css -O src/common/data/css/lib/loading-bar.min.css
 wget https://raw.githubusercontent.com/chieffancypants/angular-loading-bar/master/build/loading-bar.min.js -O src/common/data/js/lib/loading-bar.min.js
 wget https://raw.githubusercontent.com/kazuhikoarase/qrcode-generator/master/js/qrcode.js -O src/common/data/js/lib/qrcode.min.js
+
+wget https://raw.githubusercontent.com/ftlabs/fastclick/master/lib/fastclick.js -O src/common/data/js/lib/fastclick.js

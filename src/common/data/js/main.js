@@ -97,3 +97,8 @@
 
 /* creates the base href tag for angular location */
 angular.element(document.getElementsByTagName('head')).append(angular.element('<base href="' + encodeURI(window.location.pathname) + '" />'));
+
+/* Fastclick */
+document.addEventListener('DOMContentLoaded', function() {
+    FastClick.attach(document.body);
+}, false);
