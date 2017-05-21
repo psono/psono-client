@@ -112,7 +112,11 @@
 
                 last_request_element = evt.target;
 
-                var dropInstance = new Drop({
+                var DropContext = Drop.createContext({
+                    classPrefix: 'psono-pw-drop'
+                });
+
+                var dropInstance = new DropContext({
                     target: evt.target,
                     content: dropcontent,
                     classes: 'psono-pw-drop-theme-arrows yui3-cssreset',
