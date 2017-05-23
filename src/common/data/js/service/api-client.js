@@ -31,8 +31,7 @@
             var backend = server['value']['url'];
 
             if (session_secret_key && data !== null) {
-                // TODO remove the // before putting in production
-                // data = cryptoLibrary.encrypt_data(JSON.stringify(data), session_secret_key);
+                data = cryptoLibrary.encrypt_data(JSON.stringify(data), session_secret_key);
             }
 
             var req = {

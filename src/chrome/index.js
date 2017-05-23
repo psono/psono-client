@@ -205,6 +205,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                 }
 
                 value = JSON.parse(value);
+                value = JSON.parse(client.decrypt_data(value.text, value.nonce, config.session_secret_key));
+
                 var plaintext_json = client.decrypt_data(
                     value.data,
                     value.data_nonce,
@@ -235,6 +237,15 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         body.removeChild(copyFrom);
     };
 
+    /**
+     * Opens a new tab
+     */
+    var on_open_tab = function(request, sender, sendResponse) {
+        chrome.tabs.create({
+            url: request.data.url
+        });
+    };
+
     var event_functions = {
         'fillpassword': on_fillpassword,
         'ready': on_ready,
@@ -242,7 +253,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         'logout': on_logout,
         'website-password-refresh': on_website_password_refresh,
         'request-secret': on_request_secret,
-        'copy-to-clipboard': on_copy_to_clipboard
+        'copy-to-clipboard': on_copy_to_clipboard,
+        'open-tab': on_open_tab
     };
 
 

@@ -72,6 +72,15 @@
         };
 
         /**
+         * Opens the datastore
+         */
+        var open_datastore = function() {
+            bc.emit('open-tab', {
+                url: '/data/index.html'
+            });
+        };
+
+        /**
          * closes dropinstances if a click outside of a dropinstance happens.
          *
          * @param event
@@ -103,7 +112,7 @@
                 var dropcontent = '';
                 dropcontent += '<div class="psono-pw-drop-content-inner">';
                 dropcontent += '<ul class="navigations">';
-                dropcontent += '<li><a href="#">Open Datastore</a></li>';
+                dropcontent += '<li><a class="open-datastore" href="#">Open Datastore</a></li>';
                 for (var i = 0; i < website_passwords.length; i++) {
                     dropcontent += '<li><a class="request-secret" href="#" data-secret-id="'+website_passwords[i].secret_id+'" onclick="return false;">'+website_passwords[i].name+'</a></li>';
                 }
@@ -131,6 +140,10 @@
 
                     $( ".psono-pw-drop-content-inner .request-secret" ).on( "click", function() {
                         requestSecret($(this).attr('data-secret-id'));
+                    });
+
+                    $( ".psono-pw-drop-content-inner .open-datastore" ).on( "click", function() {
+                        open_datastore();
                     });
                     $(window).one("click", close);
 
@@ -267,6 +280,7 @@
              * @param data
              */
             var on_return_secret = function (data) {
+
                 for (var i = 0; i < myForms.length; i++) {
                     if (myForms[i].username.isEqualNode(last_request_element) || myForms[i].password.isEqualNode(last_request_element)) {
                         myForms[i].username.value = data.website_password_username;
