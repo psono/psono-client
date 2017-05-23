@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="psonocli" class="datastore">
+<html ng-app="psonocli" class="datastore" ng-csp>
 <head>
     <title>Datastore</title>
     <meta charset="utf-8">
@@ -19,6 +19,7 @@
     <![endif]-->
 
     <link rel="stylesheet" type="text/css" href="css/lib/opensans.css" />
+    <link href="css/lib/angular-csp.css" rel="stylesheet">
     <link href="css/lib/bootstrap.css" rel="stylesheet">
     <link href="css/lib/datatables.min.css" rel="stylesheet">
     <link href="css/lib/angular-snap.css" rel="stylesheet">
@@ -34,7 +35,7 @@
 </head>
 <body>
 
-<div ng-controller="RegisterCtrl" ng-cloak>
+<div ng-controller="RegisterCtrl" class="ng-cloak">
     <!-- Not logged in, show the login form -->
     <div class="wrapper">
 
@@ -107,6 +108,18 @@
         </div>
     </div>
 </div>
+<div ng-show="::false" style="position: fixed; height: 100%; width: 100%; background-color: #0f1118; top: 0; left: 0; z-index: 10000;">
+    <div style="position: absolute; font-size: 26px; color: #2dbb93; background-color: #151f2b; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 60px 80px 60px 60px;">
+        <i style="
+           display: inline-block;
+           font: normal normal normal 14px/1 FontAwesome;
+           text-rendering: auto;
+           font-size: 3em;
+           text-align: center;
+           animation: fa-spin 2s infinite linear;
+           vertical-align: middle;">&#xf110;</i> Loading
+    </div>
+</div>
 
 
 <!-- Start of scripts -->
@@ -123,6 +136,7 @@
 <script src="js/lib/sortable.min.js" type="application/javascript"></script>
 <script src="js/lib/lokijs.min.js" type="application/javascript"></script>
 <script src="js/lib/qrcode.min.js" type="application/javascript"></script>
+<script src="js/lib/fastclick.js" type="application/javascript"></script>
 <script src="js/lib/password-generator.js" type="application/javascript"></script>
 
 

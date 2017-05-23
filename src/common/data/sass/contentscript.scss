@@ -1,7 +1,7 @@
 @import "variables";
 
 .psono-pw-drop {
-  z-index:1000;
+  z-index: 2147483647 !important;
 }
 
 .psono-pw-drop-element,

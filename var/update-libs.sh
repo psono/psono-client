@@ -11,6 +11,7 @@ wget https://code.angularjs.org/1.6.4/angular-animate.min.js -O src/common/data/
 wget https://code.angularjs.org/1.6.4/angular-route.min.js -O src/common/data/js/lib/angular-route.min.js
 wget https://code.angularjs.org/1.6.4/angular-sanitize.min.js -O src/common/data/js/lib/angular-sanitize.min.js
 wget https://code.angularjs.org/1.6.4/angular-touch.min.js -O src/common/data/js/lib/angular-touch.min.js
+wget https://code.angularjs.org/1.6.4/angular-csp.css -O src/common/data/css/lib/angular-csp.css
 wget https://code.angularjs.org/1.6.4/angular-mocks.js -O unittests/data/js/lib/angular-mocks.js
 
 wget https://raw.githubusercontent.com/Kraku/angular-complexify/master/build/angular-complexify.min.js -O src/common/data/js/lib/angular-complexify.min.js
@@ -24,9 +25,12 @@ wget https://raw.githubusercontent.com/emn178/js-sha256/master/build/sha256.min.
 wget https://raw.githubusercontent.com/scottjehl/Respond/master/dest/respond.min.js -O src/common/data/js/lib/respond.min.js
 wget https://raw.githubusercontent.com/aFarkas/html5shiv/master/dist/html5shiv.min.js -O src/common/data/js/lib/html5shiv.min.js
 wget https://raw.githubusercontent.com/HubSpot/drop/master/dist/js/drop.min.js -O src/common/data/js/lib/drop.min.js
+wget https://raw.githubusercontent.com/HubSpot/drop/master/dist/css/drop-theme-arrows.css -O src/common/data/css/lib/drop-theme-arrows.css
 wget https://raw.githubusercontent.com/3nsoft/ecma-nacl/master/dist/lib-browser/ecma-nacl.min.js -O src/common/data/js/lib/ecma-nacl.min.js
 wget https://raw.githubusercontent.com/jackspirou/clientjs/master/dist/client.min.js -O src/common/data/js/lib/client.min.js
 
 wget https://raw.githubusercontent.com/chieffancypants/angular-loading-bar/master/build/loading-bar.min.css -O src/common/data/css/lib/loading-bar.min.css
 wget https://raw.githubusercontent.com/chieffancypants/angular-loading-bar/master/build/loading-bar.min.js -O src/common/data/js/lib/loading-bar.min.js
 wget https://raw.githubusercontent.com/kazuhikoarase/qrcode-generator/master/js/qrcode.js -O src/common/data/js/lib/qrcode.min.js
+
+wget https://raw.githubusercontent.com/ftlabs/fastclick/master/lib/fastclick.js -O src/common/data/js/lib/fastclick.js

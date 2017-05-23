@@ -9,4 +9,5 @@ npm install karma-cli -g && \
 npm install jpm --global && \
 node --version && \
 npm --version && \
-gulp
+gulp && \
+gulp --commit_tag=$CI_COMMIT_TAG --commit_hash=$CI_COMMIT_HASH updateversion
