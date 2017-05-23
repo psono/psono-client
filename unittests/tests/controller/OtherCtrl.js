@@ -58,6 +58,10 @@
             cryptoLibrary = $injector.get('cryptoLibrary');
             storage = $injector.get('storage');
 
+            spyOn(cryptoLibrary, "encrypt_data").and.callFake(function(json_data, session_secret_key) {
+                return JSON.parse(json_data);
+            });
+
             $scope = $rootScope.$new();
             $controller('OtherCtrl', {
                 $scope: $scope

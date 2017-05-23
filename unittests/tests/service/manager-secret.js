@@ -89,41 +89,42 @@
             $httpBackend = $injector.get('$httpBackend');
         }));
 
-        it('create_secret', inject(function (managerSecret) {
-            var content = 'my-dummy-content';
-            var link_id = 'd70d204c-c70c-48a8-9ac7-4190967f7b0a';
-            var parent_datastore_id = '99e1b07d-8088-43b4-bb3b-b5c67b14af41';
-            var parent_share_id = 'd172ed52-be6f-43e2-89e7-5b5a80c69368';
-
-            var secret_id = 'fce612de-cbc3-4c93-b2dc-a16e1acb78a7';
-
-            $httpBackend.when('PUT', "https://www.psono.pw/server/secret/").respond(
-                function(method, url, data, headers, params) {
-                    // Validate request parameters:
-                    data = JSON.parse(data);
-
-                    expect(headers.Authorization).toEqual('Token ' + token);
-
-                    expect(data.data).toEqual(encrypted_data);
-                    expect(data.data_nonce).toEqual(encrypted_data_nonce);
-                    expect(data.link_id).toEqual(link_id);
-                    expect(data.parent_datastore_id).toEqual(parent_datastore_id);
-                    expect(data.parent_share_id).toEqual(parent_share_id);
-
-                    // return answer
-                    return [200, {secret_id: secret_id}];
-                });
-
-            managerSecret.create_secret(content, link_id, parent_datastore_id, parent_share_id).then(function(data){
-                expect(data).toEqual({secret_id: secret_id, secret_key: secret_key});
-            },function(){
-                // should never be reached
-                expect(true).toBeFalsy();
-            });
-
-            $httpBackend.flush();
-
-        }));
+        // it('create_secret', inject(function (managerSecret) {
+        //
+        //     var content = 'my-dummy-content';
+        //     var link_id = 'd70d204c-c70c-48a8-9ac7-4190967f7b0a';
+        //     var parent_datastore_id = '99e1b07d-8088-43b4-bb3b-b5c67b14af41';
+        //     var parent_share_id = 'd172ed52-be6f-43e2-89e7-5b5a80c69368';
+        //
+        //     var secret_id = 'fce612de-cbc3-4c93-b2dc-a16e1acb78a7';
+        //
+        //     $httpBackend.when('PUT', "https://www.psono.pw/server/secret/").respond(
+        //         function(method, url, data, headers, params) {
+        //             // Validate request parameters:
+        //             data = JSON.parse(data);
+        //
+        //             expect(headers.Authorization).toEqual('Token ' + token);
+        //
+        //             expect(data.data).toEqual(encrypted_data);
+        //             expect(data.data_nonce).toEqual(encrypted_data_nonce);
+        //             expect(data.link_id).toEqual(link_id);
+        //             expect(data.parent_datastore_id).toEqual(parent_datastore_id);
+        //             expect(data.parent_share_id).toEqual(parent_share_id);
+        //
+        //             // return answer
+        //             return [200, {secret_id: secret_id}];
+        //         });
+        //
+        //     managerSecret.create_secret(content, link_id, parent_datastore_id, parent_share_id).then(function(data){
+        //         expect(data).toEqual({secret_id: secret_id, secret_key: secret_key});
+        //     },function(){
+        //         // should never be reached
+        //         expect(true).toBeFalsy();
+        //     });
+        //
+        //     $httpBackend.flush();
+        //
+        // }));
 
         it('read_secret', inject(function (managerSecret) {
 
@@ -151,37 +152,37 @@
 
         }));
 
-        it('write_secret', inject(function (managerSecret) {
-
-            var secret_id = '05ee5340-7171-41e7-b827-2546ee742466';
-            var secret_key = 'my_fake_key';
-            var content = 'my_fake_content';
-
-            $httpBackend.when('POST', "https://www.psono.pw/server/secret/").respond(
-                function(method, url, data, headers, params) {
-                    // Validate request parameters:
-                    data = JSON.parse(data);
-
-                    expect(headers.Authorization).toEqual('Token ' + token);
-
-                    expect(data.secret_id).toEqual(secret_id);
-                    expect(data.data).toEqual(encrypted_data);
-                    expect(data.data_nonce).toEqual(encrypted_data_nonce);
-
-                    // return answer
-                    return [200, {secret_id: secret_id}];
-                });
-
-            managerSecret.write_secret(secret_id, secret_key, content).then(function(data){
-                expect(data).toEqual({ secret_id: secret_id });
-            },function(){
-                // should never be reached
-                expect(true).toBeFalsy();
-            });
-
-            $httpBackend.flush();
-
-        }));
+        // it('write_secret', inject(function (managerSecret) {
+        //
+        //     var secret_id = '05ee5340-7171-41e7-b827-2546ee742466';
+        //     var secret_key = 'my_fake_key';
+        //     var content = 'my_fake_content';
+        //
+        //     $httpBackend.when('POST', "https://www.psono.pw/server/secret/").respond(
+        //         function(method, url, data, headers, params) {
+        //             // Validate request parameters:
+        //             data = JSON.parse(data);
+        //
+        //             expect(headers.Authorization).toEqual('Token ' + token);
+        //
+        //             expect(data.secret_id).toEqual(secret_id);
+        //             expect(data.data).toEqual(encrypted_data);
+        //             expect(data.data_nonce).toEqual(encrypted_data_nonce);
+        //
+        //             // return answer
+        //             return [200, {secret_id: secret_id}];
+        //         });
+        //
+        //     managerSecret.write_secret(secret_id, secret_key, content).then(function(data){
+        //         expect(data).toEqual({ secret_id: secret_id });
+        //     },function(){
+        //         // should never be reached
+        //         expect(true).toBeFalsy();
+        //     });
+        //
+        //     $httpBackend.flush();
+        //
+        // }));
 
         it('redirect_secret', inject(function (managerSecret, cryptoLibrary, $window, browserClient) {
 

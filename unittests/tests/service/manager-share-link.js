@@ -28,6 +28,11 @@
         beforeEach(inject(function($injector){
             // unwrap necessary services
             $httpBackend = $injector.get('$httpBackend');
+            cryptoLibrary = $injector.get('cryptoLibrary');
+
+            spyOn(cryptoLibrary, "encrypt_data").and.callFake(function(json_data, session_secret_key) {
+                return JSON.parse(json_data);
+            });
         }));
 
         it('managerShareLink exists', inject(function (managerShareLink) {
