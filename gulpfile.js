@@ -292,7 +292,7 @@ gulp.task('updateversion', function() {
     var hash = commit_hash.substring(0,8);
     var version_long = version+ ' (Build '+hash+')';
 
-    fs.writeFile("./build/webserver/data/VERSION.txt", version_long, function(err) {
+    fs.writeFile("./build/webserver/VERSION.txt", version_long, function(err) {
         if(err) {
             return console.log(err);
         }
