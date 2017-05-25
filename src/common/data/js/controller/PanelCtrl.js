@@ -94,10 +94,10 @@
             /**
              * filters search_entry object and tests if either the urlfilter or the name match our search
              *
-             * @param search_entry the search entry object
+             * @param datastore_entry the datastore entry to test
              * @returns {boolean}
              */
-            function filterBySearch(search_entry) {
+            function filterBySearch(datastore_entry) {
                 var match;
                 if (!$scope.datastore.search) {
                     // Hide all entries if we have not typed anything into the "search datastore..." field
@@ -105,7 +105,7 @@
                 } else {
                     // check if either the name or the urlfilter of our entry match our search input of the
                     // "search datastore..." field
-                    match = regex.test(search_entry.name) || regex.test(search_entry.urlfilter);
+                    match = regex.test(datastore_entry.name) || regex.test(datastore_entry.urlfilter);
                 }
                 return match;
             }

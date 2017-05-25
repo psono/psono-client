@@ -76,6 +76,10 @@
                 })
                 .when('/secret/:type/:secret_id', {})
                 .when('/activation-code/:activation_code', {})
+                .when('/datastore/search/:default_search', {
+                    templateUrl: 'view/index.html',
+                    controller: 'IndexCtrl'
+                })
                 .otherwise({
                     templateUrl: 'view/index.html',
                     controller: 'IndexCtrl'

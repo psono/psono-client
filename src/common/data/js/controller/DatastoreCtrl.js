@@ -6,6 +6,7 @@
      * @name psonocli.controller:DatastoreCtrl
      * @requires $scope
      * @requires $uibModal
+     * @requires $routeParams
      * @requires $timeout
      * @requires ngTree.dropDownMenuWatcher
      * @requires psonocli.manager
@@ -17,11 +18,12 @@
      * @description
      * Main Controller for the datastore widget
      */
-    angular.module('psonocli').controller('DatastoreCtrl', ["$scope", "manager", "managerDatastorePassword",
-        "$uibModal", "itemBlueprint", "managerWidget", "managerSecret", "$timeout", "dropDownMenuWatcher",
-        function($scope, manager, managerDatastorePassword,
-                 $uibModal, itemBlueprint, managerWidget, managerSecret, $timeout, dropDownMenuWatcher){
-
+    angular.module('psonocli').controller('DatastoreCtrl', ["$scope", "$uibModal", "$routeParams", "$timeout",
+        "manager", "managerDatastorePassword",
+        "itemBlueprint", "managerWidget", "managerSecret", "dropDownMenuWatcher",
+        function($scope, $uibModal, $routeParams, $timeout,
+                 manager, managerDatastorePassword,
+                 itemBlueprint, managerWidget, managerSecret, dropDownMenuWatcher){
             var contextMenusOpen = 0;
 
             $scope.contextMenuOnShow = contextMenuOnShow;
@@ -31,6 +33,15 @@
 
             $scope.structure = { data: {}} ;
             $scope.options = {
+
+                /**
+                 * Returns the default value for the search if it exists
+                 * @returns {*}
+                 */
+                getDefaultSearch: function() {
+                    return $routeParams.default_search;
+                },
+
                 /**
                  * Triggered once someone selects a node
                  *

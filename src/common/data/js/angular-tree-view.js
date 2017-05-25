@@ -98,6 +98,10 @@
 
                 var options = angular.extend({}, treeViewDefaults, $scope.treeViewOptions);
 
+                if (typeof options.getDefaultSearch === "function") {
+                    $scope.tosearchTreeFilter = options.getDefaultSearch();
+                }
+
                 /**
                  * searches a tree and marks all folders / items as invisible, only leaving nodes with search
                  *
