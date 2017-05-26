@@ -50,8 +50,8 @@
     angular.module('psonocli', ['ngRoute', 'ng', 'ui.bootstrap', 'snap', 'chieffancypants.loadingBar', 'ngAnimate',
             'LocalStorageModule', 'ngTree', 'ngDraggable', 'ng-context-menu', 'ui.select', 'ngSanitize',
             'angular-complexify', 'datatables'])
-        .config(['$routeProvider', '$locationProvider', 'localStorageServiceProvider',
-        function ($routeProvider, $locationProvider, localStorageServiceProvider) {
+        .config(['$routeProvider', '$locationProvider', '$compileProvider', 'localStorageServiceProvider',
+        function ($routeProvider, $locationProvider, $compileProvider, localStorageServiceProvider) {
             //Router config
             $routeProvider
                 .when('/settings', {
@@ -84,6 +84,8 @@
                     templateUrl: 'view/index.html',
                     controller: 'IndexCtrl'
                 });
+
+            $compileProvider.aHrefSanitizationWhitelist(/^\s*(|blob|):/);
 
         }])
         .run(['$rootScope', '$location', '$routeParams', 'managerSecret', function ($rootScope, $location, $routeParams, managerSecret) {
