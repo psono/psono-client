@@ -23,6 +23,9 @@
     "64": "data/img/icon-64.png",
     "128": "data/img/icon-128.png"
   },
+  "omnibox": {
+    "keyword": "psono"
+  },
   "background": {
     "scripts": [
       "data/js/lib/jquery.min.js",

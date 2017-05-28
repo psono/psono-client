@@ -1,4 +1,4 @@
-(function(angular, uuid) {
+(function(angular) {
     'use strict';
 
     /**
@@ -11,13 +11,15 @@
      * @requires psonocli.message
      * @requires psonocli.shareBlueprint
      * @requires psonocli.item
+     * @requires psonocli.cryptoLibrary
      *
      * @description
      * Controller for the "AcceptShare" modal
      */
-    angular.module('psonocli').controller('ModalAcceptShareCtrl', ['$scope', '$uibModalInstance', '$uibModal', 'managerDatastoreUser',
-        'message', 'shareBlueprint', 'item',
-        function ($scope, $uibModalInstance, $uibModal, managerDatastoreUser, message, shareBlueprint, item) {
+    angular.module('psonocli').controller('ModalAcceptShareCtrl', ['$scope', '$uibModalInstance', '$uibModal',
+        'managerDatastoreUser', 'message', 'shareBlueprint', 'item', 'cryptoLibrary',
+        function ($scope, $uibModalInstance, $uibModal,
+                  managerDatastoreUser, message, shareBlueprint, item, cryptoLibrary) {
 
             $scope.cut_breadcrumbs = cut_breadcrumbs;
             $scope.clear_breadcrumbs = clear_breadcrumbs;
@@ -132,7 +134,7 @@
                     }
 
                     var user_object = {
-                        id: uuid.v4(),
+                        id: cryptoLibrary.generate_uuid(),
                         type: "user",
                         data: {}
                     };
@@ -201,4 +203,4 @@
 
         }]
     );
-}(angular, uuid));
+}(angular));

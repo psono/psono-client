@@ -235,8 +235,8 @@
             for (i = 0; folder.hasOwnProperty("folders") && i < folder.folders.length; i ++) {
                 add_node_to_storage(db, folder.folders[i], map);
             }
-            for (i = 0; folder.hasOwnProperty("items") && i < folder.items.length; i++) {
 
+            for (i = 0; folder.hasOwnProperty("items") && i < folder.items.length; i++) {
                 var item = {};
 
                 for (var m = 0; m < map.length; m++) {

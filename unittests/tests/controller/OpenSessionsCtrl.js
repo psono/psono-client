@@ -1,5 +1,5 @@
 (function () {
-    describe('Controller: OtherCtrl test suite', function () {
+    describe('Controller: OpenSessionsCtrl test suite', function () {
 
         beforeEach(module('psonocli'));
 
@@ -63,7 +63,7 @@
             });
 
             $scope = $rootScope.$new();
-            $controller('OtherCtrl', {
+            $controller('OpenSessionsCtrl', {
                 $scope: $scope
             });
 

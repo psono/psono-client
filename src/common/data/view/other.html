@@ -19,31 +19,100 @@
             <uib-tabset class="tabset_expand">
 
                 <uib-tab heading="Open Sessions">
+                    <div ng-controller="OpenSessionsCtrl">
+                        <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
+                            <thead>
+                            <tr>
+                                <th>Device</th>
+                                <th>Created</th>
+                                <th>Current Session</th>
+                                <th>Delete</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="session in sessions">
+                                <td>{{ session.device_description }}</td>
+                                <td>{{ session.create_date }}</td>
+                                <td>
+                                    <i ng-if="session.current_session" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-default btn-sm" ng-if="!session.current_session" ng-click="delete_open_session(session.id)" >
+                                        <i class="fa fa-trash" aria-hidden="true"><span style="display: none">0</span></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-                    <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
-                        <thead>
-                        <tr>
-                            <th>Device</th>
-                            <th>Created</th>
-                            <th>Current Session</th>
-                            <th>Delete</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr ng-repeat="session in sessions">
-                            <td>{{ session.device_description }}</td>
-                            <td>{{ session.create_date }}</td>
-                            <td>
-                                <i ng-if="session.current_session" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
-                            </td>
-                            <td>
-                                <button type="button" class="btn btn-default btn-sm" ng-if="!session.current_session" ng-click="delete_open_session(session.id)" >
-                                    <i class="fa fa-trash" aria-hidden="true"><span style="display: none">0</span></i>
-                                </button>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
+                </uib-tab>
+
+                <uib-tab heading="Export">
+                    <div ng-controller="ExportCtrl">
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <label class="control-label col-sm-2" for="export_type">Type:</label>
+                                <div class="col-sm-10">
+                                    <select id="export_type" name="export_type" class="form-control"
+                                            ng-model="export_options.selected_option"
+                                            ng-init="export_options.selected_option = export_options.options[0]"
+                                            ng-options="option.name for option in export_options.options">
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button type="submit" class="btn btn-primary btn-primary" ng-click="export_datastore(export_options.selected_option.value)">Export</button>
+                                </div>
+                            </div>
+
+                            <uib-progressbar max="state.open_secret_requests" value="state.closed_secret_request" ng-if="state.download_ongoing">
+                                <span style="color:white; white-space:nowrap;">{{ state.closed_secret_request }} / {{ state.open_secret_requests }}</span>
+                            </uib-progressbar>
+
+                            <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
+                            <span ng-repeat="e in msgs" class="pull-right">{{e}}</span>
+                            <div class="clearfix"></div>
+                        </form>
+                    </div>
+
+                </uib-tab>
+
+                <uib-tab heading="Import">
+                    <div ng-controller="ImportCtrl">
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <label class="control-label col-sm-2" for="import_type">Type:</label>
+                                <div class="col-sm-10">
+                                    <select id="import_type" name="import_type" class="form-control"
+                                            ng-model="import_options.selected_option"
+                                            ng-init="import_options.selected_option = import_options.options[0]"
+                                            ng-options="option.name for option in import_options.options">
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-sm-2" for="import_type">File:</label>
+                                <div class="col-sm-10">
+                                    <input type="file" file-reader="fileContent" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button type="submit" class="btn btn-primary btn-primary" ng-click="import_datastore(import_options.selected_option.value, fileContent)">Import</button>
+                                </div>
+                            </div>
+
+                            <uib-progressbar max="state.open_secret_requests" value="state.closed_secret_request" ng-if="state.upload_ongoing">
+                                <span style="color:white; white-space:nowrap;">{{ state.closed_secret_request }} / {{ state.open_secret_requests }}</span>
+                            </uib-progressbar>
+
+                            <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
+                            <span ng-repeat="e in msgs" class="pull-right">{{e}}</span>
+                            <div class="clearfix"></div>
+                        </form>
+                    </div>
 
                 </uib-tab>
             </uib-tabset>

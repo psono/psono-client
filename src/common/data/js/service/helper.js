@@ -299,7 +299,77 @@
 
         /**
          * @ngdoc
-         * @name psonocli.helper#get_device_fingerprint
+         * @name psonocli.helper#is_ie
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Returns weather we have an IE or not
+         *
+         * @returns {boolean} Is this an IE user
+         */
+        var is_ie = function() {
+            return client_js.isIE();
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.helper#is_chrome
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Returns weather we have a Chrome or not
+         *
+         * @returns {boolean} Is this an Chrome user
+         */
+        var is_chrome = function() {
+            return client_js.isChrome();
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.helper#is_firefox
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Returns weather we have a Firefox or not
+         *
+         * @returns {boolean} Is this an Firefox user
+         */
+        var is_firefox = function() {
+            return client_js.isFirefox();
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.helper#is_safari
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Returns weather we have a Safari or not
+         *
+         * @returns {boolean} Is this an Safari user
+         */
+        var is_safari = function() {
+            return client_js.isSafari();
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.helper#is_opera
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Returns weather we have a Opera or not
+         *
+         * @returns {boolean} Is this an Opera user
+         */
+        var is_opera = function() {
+            return client_js.isOpera();
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.helper#get_device_description
          * @methodOf psonocli.helper
          *
          * @description
@@ -342,6 +412,11 @@
             split_string_in_chunks: split_string_in_chunks,
             remove_from_array: remove_from_array,
             get_device_fingerprint: get_device_fingerprint,
+            is_ie: is_ie,
+            is_chrome: is_chrome,
+            is_firefox: is_firefox,
+            is_safari: is_safari,
+            is_opera: is_opera,
             get_device_description: get_device_description,
         };
     };

@@ -1,4 +1,4 @@
-(function(angular, uuid) {
+(function(angular) {
     'use strict';
 
     /**
@@ -13,14 +13,15 @@
      * @requires psonocli.managerDatastoreUser
      * @requires psonocli.shareBlueprint
      * @requires psonocli.managerWidget
+     * @requires psonocli.cryptoLibrary
      *
      * @description
      * Main Controller for the shareusers widget
      */
     angular.module('psonocli').controller('ShareusersCtrl', ["$scope", "$interval", "managerSecret", "managerDatastoreUser",
-        "$uibModal", "shareBlueprint", "managerWidget", "$timeout", "dropDownMenuWatcher",
+        "$uibModal", "shareBlueprint", "managerWidget", "$timeout", "dropDownMenuWatcher", 'cryptoLibrary',
         function ($scope, $interval, managerSecret, managerDatastoreUser, $uibModal, shareBlueprint,
-                  managerWidget, $timeout, dropDownMenuWatcher) {
+                  managerWidget, $timeout, dropDownMenuWatcher, cryptoLibrary) {
 
             var contextMenusOpen = 0;
 
@@ -298,7 +299,7 @@
                     }
 
                     var user_object = {
-                        id: uuid.v4(),
+                        id: cryptoLibrary.generate_uuid(),
                         type: content.id,
                         data: {}
                     };
@@ -401,4 +402,4 @@
 
         }]);
 
-}(angular, uuid));
+}(angular));

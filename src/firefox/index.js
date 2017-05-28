@@ -74,6 +74,9 @@ function searchLocalStorage(storage, collection) {
 
     var data = localStorage.getItem(storage);
     var db = JSON.parse(data);
+    if (db === null) {
+        return [];
+    }
     for (var i = 0; i < db.collections.length; i++) {
         if (db.collections[i].name !== collection) {
             continue;
@@ -184,6 +187,10 @@ browser.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     var on_request_secret = function(request, sender, sendResponse) {
         var _config = searchLocalStorage('password_manager_local_storage', 'config');
 
+        if (_config.length === 0) {
+            return false;
+        }
+
         var config = {};
         for (var ii = 0; ii < _config.length; ii++) {
             config[_config[ii].key] = _config[ii].value;
@@ -268,6 +275,73 @@ browser.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
 });
 
+/**
+ * Omnibox feauture
+ */
+(function(chrome) {
+    'use strict';
 
+    var hits_additional_info = {
 
+    };
 
+    /**
+     * searches the datastore for all entries that either match the searched text either with their urlfilter or name
+     * and returns the found results
+     *
+     * @param text
+     * @returns {Array}
+     */
+    function search_datastore(text) {
+
+        var regex = new RegExp(text.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1"), 'i');
+        var hits = [];
+        var datastore_entry;
+
+        var leafs = searchLocalStorage('password_manager_local_storage', 'datastore-password-leafs');
+
+        for (var ii = 0; ii < leafs.length; ii++) {
+            datastore_entry = leafs[ii];
+            if (regex.test(datastore_entry.name) || regex.test(datastore_entry.urlfilter)) {
+                hits.push({
+                    content: datastore_entry.name + ' [Secret: ' + datastore_entry.secret_id + ']',
+                    description: datastore_entry.name
+                });
+
+                hits_additional_info[datastore_entry.secret_id] = {type: datastore_entry.type}
+            }
+        }
+
+        return hits;
+    }
+
+    chrome.omnibox.onInputChanged.addListener(function(text, suggest) {
+        suggest(search_datastore(text));
+    });
+
+    chrome.omnibox.onInputEntered.addListener(function(text) {
+        var to_open = '';
+
+        try {
+            to_open = text.split(/Secret: /).pop().split("]")[0];
+        }
+        catch(err) {
+            return;
+        }
+
+        if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(to_open)) {
+            chrome.tabs.create({
+                url: '/data/open-secret.html#!/secret/' + hits_additional_info[to_open]['type'] + '/' + to_open
+            });
+        } else {
+            chrome.tabs.create({
+                url: '/data/index.html#!/datastore/search/' + encodeURIComponent(to_open)
+            });
+        }
+    });
+
+    chrome.omnibox.setDefaultSuggestion({
+        description: "Search datastore: <match>%s</match>"
+    });
+
+}(chrome));

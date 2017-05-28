@@ -1,4 +1,4 @@
-(function(angular, uuid) {
+(function(angular) {
     'use strict';
 
     /**
@@ -14,8 +14,9 @@
      * Controller for the "Share Entry" modal
      */
     angular.module('psonocli').controller('ModalShareEntryCtrl', ['$scope', '$uibModalInstance', '$uibModal', 'shareBlueprint',
-        'managerDatastoreUser', 'node', 'path', 'users', 'DTOptionsBuilder', 'DTColumnDefBuilder',
-        function ($scope, $uibModalInstance, $uibModal, shareBlueprint, managerDatastoreUser, node, path, users, DTOptionsBuilder, DTColumnDefBuilder) {
+        'managerDatastoreUser', 'node', 'path', 'users', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'cryptoLibrary',
+        function ($scope, $uibModalInstance, $uibModal, shareBlueprint,
+                  managerDatastoreUser, node, path, users, DTOptionsBuilder, DTColumnDefBuilder, cryptoLibrary) {
 
             $scope.add_user = add_user;
             $scope.toggle_select = toggle_select;
@@ -96,7 +97,7 @@
                             }
 
                             var user_object = {
-                                id: uuid.v4(),
+                                id: cryptoLibrary.generate_uuid(),
                                 type: content.id,
                                 data: {}
                             };
@@ -199,4 +200,4 @@
             }
         }]);
 
-}(angular, uuid));
+}(angular));
