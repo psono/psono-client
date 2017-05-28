@@ -76,6 +76,9 @@
                         for (i = searchTree.items.length - 1; searchTree.items && i >= 0; i--) {
                             containCounter = 0;
                             for (ii = searchStrings.length - 1; ii >= 0; ii--) {
+                                if (typeof(searchTree.items[i].name) === 'undefined') {
+                                    continue;
+                                }
                                 if (searchTree.items[i].name.toLowerCase().indexOf(searchStrings[ii]) > -1) {
                                     containCounter++
                                 }

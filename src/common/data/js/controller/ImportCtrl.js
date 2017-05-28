@@ -18,6 +18,9 @@
                 options: managerImport.get_importer()
             };
             $scope.state = {
+                open_secret_requests: 0,
+                closed_secret_request: 0,
+                upload_ongoing: false
             };
 
             $scope.import_datastore = import_datastore;
@@ -25,7 +28,23 @@
             activate();
 
             function activate() {
+                managerImport.on('import-started', function(){
+                    $scope.state.upload_ongoing = true;
+                });
 
+                managerImport.on('create-secret-started', function(){
+                    $scope.state.open_secret_requests = $scope.state.open_secret_requests + 1;
+                });
+
+                managerImport.on('create-secret-complete', function(){
+                    $scope.state.closed_secret_request = $scope.state.closed_secret_request + 1;
+                });
+
+                managerImport.on('import-complete', function(){
+                    $scope.state.open_secret_requests = 0;
+                    $scope.state.closed_secret_request = 0;
+                    $scope.state.upload_ongoing = false;
+                });
             }
 
             /**

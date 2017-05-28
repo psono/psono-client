@@ -67,6 +67,10 @@
                                 </div>
                             </div>
 
+                            <uib-progressbar max="state.open_secret_requests" value="state.closed_secret_request" ng-if="state.download_ongoing">
+                                <span style="color:white; white-space:nowrap;">{{ state.closed_secret_request }} / {{ state.open_secret_requests }}</span>
+                            </uib-progressbar>
+
                             <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
                             <span ng-repeat="e in msgs" class="pull-right">{{e}}</span>
                             <div class="clearfix"></div>
@@ -99,6 +103,10 @@
                                     <button type="submit" class="btn btn-primary btn-primary" ng-click="import_datastore(import_options.selected_option.value, fileContent)">Import</button>
                                 </div>
                             </div>
+
+                            <uib-progressbar max="state.open_secret_requests" value="state.closed_secret_request" ng-if="state.upload_ongoing">
+                                <span style="color:white; white-space:nowrap;">{{ state.closed_secret_request }} / {{ state.open_secret_requests }}</span>
+                            </uib-progressbar>
 
                             <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
                             <span ng-repeat="e in msgs" class="pull-right">{{e}}</span>

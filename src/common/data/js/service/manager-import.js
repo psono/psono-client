@@ -149,6 +149,8 @@
 
                 managerDatastorePassword.save_datastore(datastore, [[]]);
 
+                emit('import-complete', {});
+
                 return $q.resolve(parsed_data)
             })
         };
@@ -190,6 +192,8 @@
             return managerSecret.create_secret(secret, popped_secret['id'], datastore_id, null).then(function(e) {
                 popped_secret['secret_id'] = e.secret_id;
                 popped_secret['secret_key'] = e.secret_key;
+
+                emit('create-secret-complete', {});
                 return create_secret(parsed_data, datastore_id);
             });
         };
@@ -208,6 +212,11 @@
          * @returns {*} Returns the parsed data on completion
          */
         var create_secrets = function(parsed_data) {
+
+            for (var i = 0; i < parsed_data['data']['secrets'].length; i++) {
+                emit('create-secret-started', {});
+            }
+
             return managerDatastorePassword.get_password_datastore().then(function(datastore){
                 return create_secret(parsed_data, datastore['datastore_id']);
             });

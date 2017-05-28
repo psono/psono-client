@@ -36,10 +36,12 @@
                 });
 
                 managerExport.on('get-secret-complete', function(){
-                    $scope.state.closed_secret_request = $scope.state.closed_secret_request - 1;
+                    $scope.state.closed_secret_request = $scope.state.closed_secret_request + 1;
                 });
 
                 managerExport.on('export-complete', function(){
+                    $scope.state.open_secret_requests = 0;
+                    $scope.state.closed_secret_request = 0;
                     $scope.state.download_ongoing = false;
                 });
             }

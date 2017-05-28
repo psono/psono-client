@@ -112,6 +112,10 @@
                 note_notes = note_notes + line[INDEX_EXTRA] + "\n";
             }
 
+            if (! line[INDEX_NAME] && ! note_notes) {
+                return null
+            }
+
             return {
                 id : cryptoLibrary.generate_uuid(),
                 type : "note",
@@ -198,6 +202,10 @@
 
                 folder_name = get_folder_name(line);
                 var secret = transform_to_secret(line);
+                if (secret === null) {
+                    //empty line
+                    continue;
+                }
 
                 if (! folder_index.hasOwnProperty(folder_name)) {
                     folder_index[folder_name] = []
