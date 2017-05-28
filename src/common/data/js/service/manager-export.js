@@ -16,7 +16,10 @@
 
     var managerExport = function($q, $window, $timeout, managerSecret, managerDatastorePassword) {
 
-
+        var _exporter = [{
+            name: 'JSON (import compatible)',
+            value: 'json'
+        }];
 
         var registrations = {};
 
@@ -160,6 +163,29 @@
             return folder;
         };
 
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerExport#compose_export
+         * @methodOf psonocli.managerExport
+         *
+         * @description
+         * compose the export structure
+         *
+         * @param data The datastore data to compose
+         * @param type The selected type of the export
+         *
+         * @returns {*} filtered folder
+         */
+        var compose_export = function(data, type) {
+            if (type === 'json') {
+                return JSON.stringify(data);
+            } else {
+                // default json
+                return JSON.stringify(data);
+            }
+        };
+
         /**
          * @ngdoc
          * @name psonocli.managerExport#get_all_secrets
@@ -248,6 +274,21 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerExport#get_exporter
+         * @methodOf psonocli.managerExport
+         *
+         * @description
+         * Returns a list with all possible exporter
+         *
+         * @returns {[*]}
+         */
+        var get_exporter = function() {
+            return _exporter;
+
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerExport#export_datastore
          * @methodOf psonocli.managerExport
          *
@@ -260,24 +301,21 @@
 
             emit('export-started', {});
 
-            return managerDatastorePassword.get_password_datastore(true)
+            return managerDatastorePassword.get_password_datastore()
                 .then(get_all_secrets)
                 .then(filter_datastore_export)
-                .then(function(data) {
-                    if (type === 'json') {
-                        return JSON.stringify(data);
-                    } else {
-                        // default json
-                        return JSON.stringify(data);
-                    }
-                })
-                .then(download_export);
+                .then(function(data){ return compose_export(data, type) })
+                .then(download_export)
+                .then(function() {
+                    return {msgs: ['Export successful.']}
+                });
 
         };
 
         return {
             on:on,
             emit:emit,
+            get_exporter:get_exporter,
             export_datastore:export_datastore
         };
     };

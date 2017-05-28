@@ -1,4 +1,4 @@
-(function(angular, uuid) {
+(function(angular) {
     'use strict';
 
     /**
@@ -13,12 +13,13 @@
      * @requires psonocli.itemBlueprint
      * @requires psonocli.helper
      * @requires psonocli.browserClient
+     * @requires psonocli.cryptoLibrary
      *
      * @description
      * Service to manage the password datastore
      */
 
-    var managerDatastorePassword = function($q, $rootScope, managerSecret, managerDatastore, managerShare, passwordGenerator, itemBlueprint, helper, browserClient) {
+    var managerDatastorePassword = function($q, $rootScope, managerSecret, managerDatastore, managerShare, passwordGenerator, itemBlueprint, helper, browserClient, cryptoLibrary) {
 
 
         /**
@@ -218,10 +219,9 @@
          * @param {object} share_rights_dict Dictionary of shares and their share rights
          * @param {object} share_index The share index
          * @param {object} all_share_data The shared cache to not query every share multiple times
-         * @param {boolean} [blocking] (optional) Should block till all shares with subshares are handled
          * @returns {promise} Returns promise that resolves either when the initial datastore is loaded or when all shares with subshares are loaded
          */
-        var read_shares = function(datastore, share_rights_dict, share_index, all_share_data, blocking) {
+        var read_shares = function(datastore, share_rights_dict, share_index, all_share_data) {
             var open_calls = 0;
             var all_calls = [];
             var rights;
@@ -306,23 +306,17 @@
                 'delete': true
             });
 
-            if (blocking) {
-                return $q.all(all_calls).then(function (ret) {
-                    return $q(function(resolve) {
-                        $rootScope.$watch(function() {
-                            return open_calls;
-                        }, function watchCallback(open_calls) {
-                            if (open_calls === 0) {
-                                resolve(datastore);
-                            }
-                        });
+            return $q.all(all_calls).then(function (ret) {
+                return $q(function(resolve) {
+                    $rootScope.$watch(function() {
+                        return open_calls;
+                    }, function watchCallback(open_calls) {
+                        if (open_calls === 0) {
+                            resolve(datastore);
+                        }
                     });
                 });
-            } else {
-                return $q(function(resolve, reject) {
-                    resolve(datastore);
-                });
-            }
+            });
         };
 
         /**
@@ -374,14 +368,11 @@
          * Returns the password datastore. In addition this function triggers the generation of the local datastore
          * storage to.
          *
-         * @param {boolean} [blocking] (optional) Wait till all sub-shares are also loaded or do we want some more async approach
-         *
          * @returns {promise} Returns a promise with the datastore
          */
-        var get_password_datastore = function(blocking) {
+        var get_password_datastore = function() {
             var type = "password";
             var description = "default";
-
 
             var onSuccess = function (datastore) {
 
@@ -398,7 +389,6 @@
 
                     var onSuccess = function (datastore) {
 
-
                         managerDatastore.fill_storage('datastore-password-leafs', datastore, [
                             ['key', 'secret_id'],
                             ['secret_id', 'secret_id'],
@@ -412,7 +402,7 @@
                     };
                     var onError = function (datastore) {};
 
-                    return read_shares(datastore, share_rights_dict, datastore.share_index, {}, blocking)
+                    return read_shares(datastore, share_rights_dict, datastore.share_index, {})
                         .then(onSuccess, onError);
 
                 };
@@ -523,7 +513,7 @@
                 website_password_url_filter: parsed_url.authority
             };
 
-            var link_id = uuid.v4();
+            var link_id = cryptoLibrary.generate_uuid();
 
             var onError = function(result) {
                 // pass
@@ -1034,6 +1024,7 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerDatastorePassword", ['$q', '$rootScope', 'managerSecret', 'managerDatastore', 'managerShare', 'passwordGenerator', 'itemBlueprint', 'helper', 'browserClient', managerDatastorePassword]);
+    app.factory("managerDatastorePassword", ['$q', '$rootScope', 'managerSecret', 'managerDatastore', 'managerShare',
+        'passwordGenerator', 'itemBlueprint', 'helper', 'browserClient', 'cryptoLibrary', managerDatastorePassword]);
 
-}(angular, uuid));
+}(angular));

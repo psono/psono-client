@@ -68,7 +68,7 @@
                     }
                 });
 
-                managerDatastorePassword.get_password_datastore(true);
+                managerDatastorePassword.get_password_datastore();
 
                 $scope.$watch('datastore.search', function (value) {
                     regex = new RegExp(value.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1"), 'i');

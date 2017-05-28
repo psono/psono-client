@@ -1,4 +1,4 @@
-(function(angular, require, sha512, sha256) {
+(function(angular, require, sha512, sha256, uuid) {
     'use strict';
 
     function InvalidRecoveryCodeException(message) {
@@ -416,6 +416,21 @@
             return get_checksum(password, 2) === checksum;
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.cryptoLibrary#generate_uuid
+         * @methodOf psonocli.cryptoLibrary
+         *
+         * @description
+         * Generates a uuid
+         *
+         * @returns {boolean} Returns weather the password chunk is valid
+         */
+        var generate_uuid = function() {
+            return uuid.v4();
+        };
+
+
 
         return {
             randomBytes: randomBytes,
@@ -434,12 +449,13 @@
             get_checksum: get_checksum,
             generate_recovery_code: generate_recovery_code,
             recovery_code_strip_checksums: recovery_code_strip_checksums,
-            recovery_password_chunk_pass_checksum: recovery_password_chunk_pass_checksum
+            recovery_password_chunk_pass_checksum: recovery_password_chunk_pass_checksum,
+            generate_uuid: generate_uuid
         };
     };
 
     var app = angular.module('psonocli');
     app.factory("cryptoLibrary", ['$window', 'converter', 'helper', cryptoLibrary]);
 
-}(angular, require, sha512, sha256));
+}(angular, require, sha512, sha256, uuid));
 

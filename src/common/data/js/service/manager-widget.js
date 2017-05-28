@@ -1,4 +1,4 @@
-(function (angular, uuid) {
+(function (angular) {
     'use strict';
 
     /**
@@ -11,13 +11,14 @@
      * @requires psonocli.managerShareLink
      * @requires psonocli.managerSecretLink
      * @requires psonocli.itemBlueprint
+     * @requires psonocli.cryptoLibrary
      *
      * @description
      * Service that is something like the base class for adf widgets
      */
 
     var managerWidget = function ($uibModal, managerDatastorePassword, managerShare, managerSecret, managerShareLink,
-                                     managerSecretLink, itemBlueprint) {
+                                     managerSecretLink, itemBlueprint, cryptoLibrary) {
 
 
         /**
@@ -58,7 +59,7 @@
                     parent.folders = [];
                 }
                 parent.folders.push({
-                    id: uuid.v4(),
+                    id: cryptoLibrary.generate_uuid(),
                     name: name
                 });
 
@@ -150,7 +151,7 @@
                 if (typeof parent.items === 'undefined') {
                     parent.items = [];
                 }
-                var link_id = uuid.v4();
+                var link_id = cryptoLibrary.generate_uuid();
 
                 var datastore_object = {
                     id: link_id,
@@ -702,6 +703,6 @@
 
     var app = angular.module('psonocli');
     app.factory("managerWidget", ['$uibModal', 'managerDatastorePassword', 'managerShare', 'managerSecret',
-        'managerShareLink', 'managerSecretLink', 'itemBlueprint', managerWidget]);
+        'managerShareLink', 'managerSecretLink', 'itemBlueprint', 'cryptoLibrary', managerWidget]);
 
-}(angular, uuid));
+}(angular));

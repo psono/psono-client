@@ -1,4 +1,4 @@
-(function(angular, uuid) {
+(function(angular) {
     'use strict';
 
     /**
@@ -9,12 +9,13 @@
      * @requires $uibModal
      * @requires psonocli.managerShare
      * @requires psonocli.managerDatastorePassword
+     * @requires psonocli.cryptoLibrary
      *
      * @description
      * Controller for the Share view
      */
-    angular.module('psonocli').controller('ShareCtrl', ['$scope', '$routeParams', '$uibModal', 'managerShare', 'managerDatastorePassword',
-        function ($scope, $routeParams, $uibModal, managerShare, managerDatastorePassword) {
+    angular.module('psonocli').controller('ShareCtrl', ['$scope', '$routeParams', '$uibModal', 'managerShare', 'managerDatastorePassword', 'cryptoLibrary',
+        function ($scope, $routeParams, $uibModal, managerShare, managerDatastorePassword, cryptoLibrary) {
 
             $scope.accept = accept;
             $scope.decline = decline;
@@ -85,7 +86,7 @@
 
                     var onSuccess = function (datastore) {
 
-                        var link_id = uuid.v4();
+                        var link_id = cryptoLibrary.generate_uuid();
 
                         var path;
                         var parent_path;
@@ -207,4 +208,4 @@
             }
         }]
     );
-}(angular, uuid));
+}(angular));

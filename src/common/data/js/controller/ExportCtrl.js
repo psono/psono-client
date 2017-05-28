@@ -14,10 +14,7 @@
         function ($scope, $window, $timeout, managerExport) {
 
             $scope.export_options = {
-                options: [{
-                    name: 'JSON (import compatible)',
-                    value: 'json'
-                }]
+                options: managerExport.get_exporter()
             };
             $scope.state = {
                 open_secret_requests: 0,
@@ -53,7 +50,20 @@
              * @param type The type of the export
              */
             function export_datastore(type) {
-                managerExport.export_datastore(type);
+                $scope.msgs = [];
+                $scope.errors = [];
+
+                var onSuccess = function (data) {
+                    $scope.msgs = data.msgs;
+                    $scope.errors = [];
+                };
+                var onError = function (data) {
+                    $scope.msgs = [];
+                    $scope.errors = data.errors;
+                };
+
+                managerExport.export_datastore(type)
+                    .then(onSuccess, onError);
             }
         }]
     );

@@ -51,53 +51,53 @@
             'LocalStorageModule', 'ngTree', 'ngDraggable', 'ng-context-menu', 'ui.select', 'ngSanitize',
             'angular-complexify', 'datatables'])
         .config(['$routeProvider', '$locationProvider', '$compileProvider', 'localStorageServiceProvider',
-        function ($routeProvider, $locationProvider, $compileProvider, localStorageServiceProvider) {
-            //Router config
-            $routeProvider
-                .when('/settings', {
-                    templateUrl: 'view/settings.html',
-                    controller: 'SettingsCtrl'
-                })
-                .when('/account', {
-                    templateUrl: 'view/account.html',
-                    controller: 'AccountCtrl'
-                })
-                .when('/other', {
-                    templateUrl: 'view/other.html',
-                    controller: 'OtherCtrl'
-                })
-                .when('/share/pendingshares', {
-                    templateUrl: 'view/index-share-shares.html',
-                    controller: 'ShareCtrl'
-                })
-                .when('/share/users', {
-                    templateUrl: 'view/index-share-users.html',
-                    controller: 'IndexCtrl'
-                })
-                .when('/secret/:type/:secret_id', {})
-                .when('/activation-code/:activation_code', {})
-                .when('/datastore/search/:default_search', {
-                    templateUrl: 'view/index.html',
-                    controller: 'IndexCtrl'
-                })
-                .otherwise({
-                    templateUrl: 'view/index.html',
-                    controller: 'IndexCtrl'
+            function ($routeProvider, $locationProvider, $compileProvider, localStorageServiceProvider) {
+                //Router config
+                $routeProvider
+                    .when('/settings', {
+                        templateUrl: 'view/settings.html',
+                        controller: 'SettingsCtrl'
+                    })
+                    .when('/account', {
+                        templateUrl: 'view/account.html',
+                        controller: 'AccountCtrl'
+                    })
+                    .when('/other', {
+                        templateUrl: 'view/other.html',
+                        controller: 'OtherCtrl'
+                    })
+                    .when('/share/pendingshares', {
+                        templateUrl: 'view/index-share-shares.html',
+                        controller: 'ShareCtrl'
+                    })
+                    .when('/share/users', {
+                        templateUrl: 'view/index-share-users.html',
+                        controller: 'IndexCtrl'
+                    })
+                    .when('/secret/:type/:secret_id', {})
+                    .when('/activation-code/:activation_code', {})
+                    .when('/datastore/search/:default_search', {
+                        templateUrl: 'view/index.html',
+                        controller: 'IndexCtrl'
+                    })
+                    .otherwise({
+                        templateUrl: 'view/index.html',
+                        controller: 'IndexCtrl'
+                    });
+
+                $compileProvider.aHrefSanitizationWhitelist(/^\s*(|blob|):/);
+
+            }])
+        .run(['$rootScope', '$location', '$routeParams', 'managerSecret',
+            function ($rootScope, $location, $routeParams, managerSecret) {
+                $rootScope.$on('$routeChangeSuccess', function () {
+                    var redirect = '/secret/';
+                    if ($location.path().substring(0, redirect.length) === redirect && $routeParams.hasOwnProperty('secret_id')) {
+                        managerSecret.redirect_secret($routeParams.type, $routeParams.secret_id);
+                    }
+
                 });
-
-            $compileProvider.aHrefSanitizationWhitelist(/^\s*(|blob|):/);
-
-        }])
-        .run(['$rootScope', '$location', '$routeParams', 'managerSecret', function ($rootScope, $location, $routeParams, managerSecret) {
-        $rootScope.$on('$routeChangeSuccess', function () {
-            var redirect = '/secret/';
-            if ($location.path().substring(0, redirect.length) === redirect && $routeParams.hasOwnProperty('secret_id')) {
-                managerSecret.redirect_secret($routeParams.type, $routeParams.secret_id);
-            }
-
-        });
-    }]);
-
+            }]);
 }(angular));
 
 
