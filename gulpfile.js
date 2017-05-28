@@ -220,7 +220,7 @@ gulp.task('firefox-deploy', function() {
         algorithm: 'HS256'  // HMAC-SHA256 signing algorithm
     });
 
-    return run('curl "https://addons.mozilla.org/api/v3/addons/" -g -XPOST --form "upload=@dist/firefox/psono.firefox.PW.zip" -F "version=1.0" -H "Authorization: JWT '+ token +'"').exec()    // prints "Hello World\n".
+    return run('curl "https://addons.mozilla.org/api/v3/addons/" -g -XPOST --form "upload=@dist/firefox/psono.firefox.PW.zip" -F "version='+ version +'" -H "Authorization: JWT '+ token +'"').exec()    // prints "Hello World\n".
         .pipe(gulp.dest('output'));
 });
 
