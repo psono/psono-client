@@ -446,7 +446,6 @@ var ClassWorkerBackgroundScript = function (chrome, browser) {
      * @returns {{}}
      */
     function onAuthRequired(details, callbackFn) {
-        console.log("onAuthRequired");
         var return_value = {};
         var entries;
         entries = search_website_passwords_by_urlfilter(details.url);
