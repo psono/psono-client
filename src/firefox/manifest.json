@@ -15,6 +15,7 @@
     "contextMenus",
     "tabs",
     "clipboardWrite",
+    "webRequest",
     "webRequestBlocking",
     "http://*/*",
     "https://*/*"
