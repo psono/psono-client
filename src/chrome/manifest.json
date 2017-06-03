@@ -14,7 +14,11 @@
     "storage",
     "contextMenus",
     "tabs",
-    "clipboardWrite"
+    "clipboardWrite",
+    "webRequest",
+    "webRequestBlocking",
+    "http://*/*",
+    "https://*/*"
   ],
   "icons": {
     "16": "data/img/icon-16.png",
@@ -32,8 +36,9 @@
       "data/js/lib/sha512.min.js",
       "data/js/lib/sha256.min.js",
       "data/js/lib/ecma-nacl.min.js",
-      "data/js/jquery-api-client.js",
-      "index.js"
+      "data/js/extension/jquery-api-client.js",
+      "data/js/extension/worker-background-script.js",
+      "data/js/background-script.js"
     ]
   },
   "content_scripts": [
@@ -48,8 +53,8 @@
         "data/js/lib/tether.min.js",
         "data/js/lib/drop.min.js",
         "data/js/lib/jquery.min.js",
-        "data/js/formfill-browser-client.js",
-        "data/js/formfill.js"
+        "data/js/extension/worker-content-script.js",
+        "data/js/content-script.js"
       ],
       "run_at": "document_idle"
     }

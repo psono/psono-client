@@ -31,7 +31,7 @@ gulp.task('sass', function () {
 });
 
 
-var build = function(build_path, remove_default_browser_client, minify_js) {
+var build = function(build_path, type) {
     gulp.src(['src/common/data/css/**/*'])
         .pipe(cleanCSS({compatibility: 'ie8'}))
         .pipe(gulp.dest(path.join(build_path, 'css')));
@@ -45,10 +45,18 @@ var build = function(build_path, remove_default_browser_client, minify_js) {
 
     var js_source = ['src/common/data/js/**/*'];
 
-    if(remove_default_browser_client) {
+    if(type === 'firefox' || type === 'chrome') {
+        // remove default browser client
         js_source.push('!src/common/data/js/service/browser-client.js');
     }
-    if (minify_js) {
+
+    if(type === 'webserver') {
+        // remove extension specific javascript
+        js_source.push('!src/common/data/js/extension/');
+    }
+
+    if (type === 'webserver') {
+        // minify
         gulp.src(js_source)
             .pipe(minify({
                 ext:{
@@ -82,7 +90,7 @@ var build = function(build_path, remove_default_browser_client, minify_js) {
  * Creates the Webserver build folder
  */
 gulp.task('build-webserver', function() {
-    return build('build/webserver', false, true);
+    return build('build/webserver', 'webserver');
 });
 
 /**
@@ -90,7 +98,7 @@ gulp.task('build-webserver', function() {
  */
 gulp.task('build-firefox', function() {
 
-    build('build/firefox/data', true, false);
+    build('build/firefox/data', 'firefox');
 
     return gulp.src(['src/firefox/**/*'])
         .pipe(gulp.dest('build/firefox'));
@@ -102,7 +110,7 @@ gulp.task('build-firefox', function() {
  */
 gulp.task('build-chrome', function() {
 
-    build('build/chrome/data', true, false);
+    build('build/chrome/data', 'chrome');
 
     return gulp.src(['src/chrome/**/*'])
         .pipe(gulp.dest('build/chrome'));
