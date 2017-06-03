@@ -1,4 +1,4 @@
-(function(angular, $) {
+(function(angular) {
     'use strict';
 
     /**
@@ -268,4 +268,4 @@
     var app = angular.module('psonocli');
     app.factory("browserClient", ['$rootScope', '$q', '$templateRequest', '$http', '$window', browserClient]);
 
-}(angular, $));
+}(angular));
