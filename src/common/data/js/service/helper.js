@@ -417,7 +417,7 @@
             is_firefox: is_firefox,
             is_safari: is_safari,
             is_opera: is_opera,
-            get_device_description: get_device_description,
+            get_device_description: get_device_description
         };
     };
 

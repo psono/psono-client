@@ -122,9 +122,12 @@
                 <div class="form-group">
                     <input type="password" class="form-control" id="loginPassword" placeholder="Password" ng-model="loginFormPassword" required>
                 </div>
+                <div class="checkbox">
+                    <label><input type="checkbox" ng-model="loginFormRemember"> Remember Username and Server</label>
+                </div>
 
                 <div class="form-group">
-                    <button ng-click="login(loginFormUsername, loginFormPassword)" type="submit" class="btn btn-danger">Login</button>
+                    <button ng-click="login(loginFormUsername, loginFormPassword, loginFormRemember)" type="submit" class="btn btn-danger">Login</button>
                     <a href="register.html">Register</a>
                     <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
                     <div class="clearfix"></div>
