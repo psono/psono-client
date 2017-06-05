@@ -28,7 +28,7 @@
     "128": "data/img/icon-128.png"
   },
   "omnibox": {
-    "keyword": "psono"
+    "keyword": "pp"
   },
   "background": {
     "scripts": [
@@ -59,6 +59,7 @@
       "run_at": "document_idle"
     }
   ],
+  "options_page": "data/index.html#!/settings",
   "web_accessible_resources": [
     "data/css/fonts/*.woff2"
   ],
