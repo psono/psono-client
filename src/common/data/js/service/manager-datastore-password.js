@@ -48,11 +48,11 @@
                 // share has direct rights
                 rights = share.user_share_rights;
             } else {
-                // share has inherited rights
+                // share has only inherited rights
                 rights = share.user_share_rights_inherited;
             }
 
-            for (var i = share_rights.length - 1; i >= 0; i--) {
+            for (var i = rights.length - 1; i >= 0; i--) {
                 right['read'] = right['read'] || rights[i].read;
                 right['write'] = right['write'] || rights[i].write;
                 right['grant'] = right['grant'] || rights[i].grant;
@@ -969,7 +969,7 @@
                     if (Object.keys(share.share_index).length === 0) {
                         delete share.share_index;
                     }
-                    
+
                     if (already_found) {
                         return;
                     }
