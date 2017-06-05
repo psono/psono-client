@@ -35,6 +35,8 @@
             $scope.filterBySearch = filterBySearch;
             $scope.on_item_click = managerSecret.on_item_click;
             $scope.generate_password = managerDatastorePassword.generate_password_active_tab;
+            $scope.copy_username = managerSecret.copy_username;
+            $scope.copy_password = managerSecret.copy_password;
 
             $scope.searchArray = [];
             $scope.datastore = {

@@ -37,13 +37,17 @@ h1, h2 {
   padding: 0;
   margin: 0; }
   .navigations li {
+    position: relative;
     margin-top: 1px;
     border-radius: 4px; }
-  .navigations li a {
+  .navigations li a.navigationitem {
     text-decoration: none;
     display: inline-block;
-    padding: 10px;
+    padding: 10px 50px 10px 10px;
     width: 100%; }
+  .navigations .dropdown-button-menu {
+    right: 0;
+    left: auto; }
 
 .hideinputcharakter label {
   font-weight: inherit;
@@ -73,6 +77,10 @@ h1, h2 {
     border-color: #2dbb93; }
   .dark .form-control:focus {
     border-color: #2dbb93; }
+  .dark .navigations .dropdown {
+    position: absolute;
+    right: 3px;
+    top: 3px; }
   .dark .navigations li:hover {
     background-color: #fff;
     color: #151f2b; }

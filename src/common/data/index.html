@@ -81,19 +81,19 @@
     <div snap-drawer class="dark">
         <h2>Navigation</h2>
         <ul class="navigations">
-            <li ng-class="get_link_state('/')"><a href="#">Home</a></li>
+            <li ng-class="get_link_state('/')"><a class="navigationitem" href="#">Home</a></li>
             <!--<li ng-class="get_link_state('/test')"><a href="#!/test">Test</a></li>-->
         </ul>
         <h2>Share Details</h2>
         <ul class="navigations">
-            <li ng-class="get_link_state('/share/pendingshares')"><a href="#!/share/pendingshares">Pending Requests</a></li>
-            <li ng-class="get_link_state('/share/users')"><a href="#!/share/users">Trusted Users</a></li>
+            <li ng-class="get_link_state('/share/pendingshares')"><a class="navigationitem" href="#!/share/pendingshares">Pending Requests</a></li>
+            <li ng-class="get_link_state('/share/users')"><a class="navigationitem" href="#!/share/users">Trusted Users</a></li>
         </ul>
         <h2>More</h2>
         <ul class="navigations">
             <!--<li><a href="https://www.psono.pw/help" target="_blank">Help</a></li>-->
-            <li><a href="https://www.psono.com" target="_blank">About Us</a></li>
-            <li><a href="privacy-policy.html" target="_blank">Privacy Policy</a></li>
+            <li><a class="navigationitem" href="https://www.psono.com" target="_blank">About Us</a></li>
+            <li><a class="navigationitem" href="privacy-policy.html" target="_blank">Privacy Policy</a></li>
         </ul>
         <div class="footer version">
             PSONO: {{ version }}

@@ -44,7 +44,23 @@
         <hr>
         <ul class="navigations">
             <li ng-repeat="searchEntry in datastore.filteredSearcArray = (searchArray | filter:filterBySearch)">
-                <a href="#" ng-click="on_item_click(searchEntry)">{{ searchEntry.name }}</a>
+                <a href="#" class="navigationitem" ng-click="on_item_click(searchEntry)">{{ searchEntry.name }}</a>
+                <span class="node-dropdown dropdown" uib-dropdown="" on-toggle="toggled(open, 'drop_node_' + node.id)">
+                    <a class="btn btn-default dropdown-toggle" href="#" role="button"
+                       id="drop_node_{{searchEntry.key}}" uib-dropdown-toggle=""
+                       aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-cogs"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-button-menu"
+                        aria-labelledby="drop_node_{{searchEntry.key}}">
+                        <li role="menuitem" ng-click="copy_username(searchEntry)">
+                            <a href="#"><i class="fa fa-clipboard"></i>Copy Username</a>
+                        </li>
+                        <li role="menuitem" ng-click="copy_password(searchEntry)">
+                            <a href="#"><i class="fa fa-clipboard"></i>Copy Password</a>
+                        </li>
+                    </ul>
+                </span>
             </li>
             <li ng-if="datastore.filteredSearcArray.length === 0 && datastore.search !== ''">
                 <a href="#" onclick="return false;">No entry found ...</a>
@@ -52,8 +68,8 @@
         </ul>
 
         <ul class="navigations" ng-if="!datastore.search">
-            <li><a href="#" ng-click="open_tab('index.html')">Open Datastore</a></li>
-            <li><a href="#" ng-click="generate_password()">Generate Password</a></li>
+            <li><a href="#" class="navigationitem" ng-click="open_tab('index.html')">Open Datastore</a></li>
+            <li><a href="#" class="navigationitem" ng-click="generate_password()">Generate Password</a></li>
             <!--<li><a href="https://www.psono.pw/help" target="_blank">Help</a></li>-->
 
         </ul>
