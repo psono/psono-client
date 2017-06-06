@@ -521,7 +521,7 @@
 
             var onSuccess = function(data) {
                 return {
-                    'username': managerBase.find_one_nolimit('config', 'user_username'),
+                    'username': managerBase.find_one('config', 'user_username'),
                     'recovery_password': helper.split_string_in_chunks(recovery_password['base58_checksums'], 13).join('-'),
                     'recovery_words': recovery_password['words'].join(' ')
                 };
@@ -745,7 +745,7 @@
          */
         var search_user = function(username) {
 
-            return apiClient.get_users_public_key(managerBase.get_token(), managerBase.get_session_secret_key(), undefined, username);
+            return apiClient.search_user(managerBase.get_token(), managerBase.get_session_secret_key(), undefined, username);
         };
 
         /**

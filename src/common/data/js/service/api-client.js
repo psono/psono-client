@@ -1105,7 +1105,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.apiClient#get_users_public_key
+         * @name psonocli.apiClient#search_user
          * @methodOf psonocli.apiClient
          *
          * @description
@@ -1118,7 +1118,7 @@
          *
          * @returns {promise} Returns a promise with the user information
          */
-        var get_users_public_key = function (token, session_secret_key, user_id, user_username) {
+        var search_user = function (token, session_secret_key, user_id, user_username) {
             var endpoint = '/user/search/';
             var connection_type = "POST";
             var data = {
@@ -1483,7 +1483,7 @@
             read_share_rights_inherit_overview: read_share_rights_inherit_overview,
             accept_share_right: accept_share_right,
             decline_share_right: decline_share_right,
-            get_users_public_key: get_users_public_key,
+            search_user: search_user,
             read_ga: read_ga,
             delete_ga: delete_ga,
             create_ga: create_ga,

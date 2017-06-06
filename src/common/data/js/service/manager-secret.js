@@ -66,13 +66,15 @@
          * @returns {promise} Returns a promise withe decrypted content of the secret
          */
         var read_secret = function(secret_id, secret_key, synchronous) {
-
             var onError = function(result) {
                 // pass
             };
 
             var onSuccess = function(content) {
-                return JSON.parse(cryptoLibrary.decrypt_data(content.data.data, content.data.data_nonce, secret_key));
+                var secret = JSON.parse(cryptoLibrary.decrypt_data(content.data.data, content.data.data_nonce, secret_key));
+                secret['create_date'] = content.data['create_date'];
+                secret['write_date'] = content.data['write_date'];
+                return secret;
             };
 
             return apiClient.read_secret(managerBase.get_token(),

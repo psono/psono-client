@@ -100,18 +100,23 @@
                     <span class="fa-stack"><i class="fa fa-lock fa-fw"></i></i></span>Trusted Users
                 </a>
             </li>
+            <li ng-class="get_link_state('/security-report')">
+                <a class="navigationitem" href="#!/security-report">
+                    <span class="fa-stack"><i class="fa fa-file-text fa-fw"></i></i></span>Security Report
+                </a>
+            </li>
         </ul>
         <h2>More</h2>
         <ul class="navigations">
             <!--<li><a href="https://www.psono.pw/help" target="_blank">Help</a></li>-->
             <li>
-                <a class="navigationitem" href="https://www.psono.com" target="_blank">
-                    <span class="fa-stack"><i class="fa fa-users fa-fw" aria-hidden="true"></i></span>About Us
+                <a class="navigationitem" href="privacy-policy.html" target="_blank">
+                    <span class="fa-stack"><i class="fa fa-user-secret fa-fw" aria-hidden="true"></i></span>Privacy Policy
                 </a>
             </li>
             <li>
-                <a class="navigationitem" href="privacy-policy.html" target="_blank">
-                    <span class="fa-stack"><i class="fa fa-user-secret fa-fw" aria-hidden="true"></i></span>Privacy Policy
+                <a class="navigationitem" href="https://www.psono.com" target="_blank">
+                    <span class="fa-stack"><i class="fa fa-info-circle fa-fw" aria-hidden="true"></i></span>About Us
                 </a>
             </li>
         </ul>
@@ -231,6 +236,7 @@
 <script src="js/lib/sha256.min.js" type="text/javascript"></script>
 <!--<script src="js/lib/nacl_factory.js" type="text/javascript"></script>-->
 <script src="js/lib/uuid.js" type="text/javascript"></script>
+<script src="js/lib/chart.min.js" type="text/javascript"></script>
 <script src="js/lib/client.min.js" type="text/javascript"></script>
 <script src="js/lib/jquery.min.js" type="text/javascript"></script>
 <script src="js/lib/datatables.min.js" type="text/javascript"></script>
@@ -250,6 +256,7 @@
 <script src="js/lib/angular-touch.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-complexify.min.js" type="application/javascript"></script>
 <script src="js/lib/loading-bar.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-chart.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-route.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-sanitize.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-local-storage.min.js" type="application/javascript"></script>
@@ -272,6 +279,7 @@
 <script src="js/controller/AccountCtrl.js" type="application/javascript"></script>
 <script src="js/controller/ActivationCtrl.js" type="application/javascript"></script>
 <script src="js/controller/DatastoreCtrl.js"></script>
+<script src="js/controller/SecurityReportCtrl.js" type="application/javascript"></script>
 <script src="js/controller/IndexCtrl.js" type="application/javascript"></script>
 <script src="js/controller/LoginCtrl.js" type="application/javascript"></script>
 <script src="js/controller/LostPasswordCtrl.js" type="application/javascript"></script>
@@ -318,6 +326,7 @@
 <script src="js/service/manager-share-link.js" type="application/javascript"></script>
 <script src="js/service/manager-export.js" type="application/javascript"></script>
 <script src="js/service/manager-import.js" type="application/javascript"></script>
+<script src="js/service/manager-security-report.js" type="application/javascript"></script>
 <script src="js/service/import-psono-pw-json.js" type="application/javascript"></script>
 <script src="js/service/import-lastpass-com-csv.js" type="application/javascript"></script>
 <script src="js/service/manager-secret.js" type="application/javascript"></script>

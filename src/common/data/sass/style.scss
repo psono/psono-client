@@ -44,6 +44,11 @@ h1, h2 {
 
 }
 
+.wrapper {
+  overflow: auto;
+  max-height: 100vh;
+}
+
 .navigations {
   list-style-type: none;
   padding:0;

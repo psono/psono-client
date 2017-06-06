@@ -32,6 +32,10 @@ h1, h2 {
   .loginbox .box-footer a {
     color: #333333; }
 
+.wrapper {
+  overflow: auto;
+  max-height: 100vh; }
+
 .navigations {
   list-style-type: none;
   padding: 0;

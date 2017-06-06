@@ -161,7 +161,7 @@
                             }
                         }
 
-                        if (data.status === 404) {
+                        if (data.status === 403) {
                             form_control['block_submit'] = true;
                             errors.push("User not found.");
                         } else {

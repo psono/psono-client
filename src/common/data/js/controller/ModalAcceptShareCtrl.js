@@ -55,7 +55,6 @@
                         }
 
                         var onSuccess = function (data) {
-
                             $scope.user = {
                                 data: {
                                     user_search_username: data.data.username,
@@ -75,7 +74,6 @@
                         var onError = function (data) {
                             //pass
                         };
-
                         managerDatastoreUser.search_user(item.share_right_create_user_username)
                             .then(onSuccess, onError);
                     });
