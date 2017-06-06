@@ -34,8 +34,8 @@
                             chart-data="password_strength_data"
                             chart-labels="password_strength_labels">
                     </canvas>
-                    <p class="text-center" ng-if="analysis.password_summary.week">{{ analysis.password_summary.weak }} weak passwords</p>
-                    <p class="text-center" ng-if="!analysis.password_summary.week">No weak passwords</p>
+                    <p class="text-center" ng-if="analysis.password_summary.weak">{{ analysis.password_summary.weak }} weak passwords</p>
+                    <p class="text-center" ng-if="!analysis.password_summary.weak">No weak passwords</p>
                 </div>
                 <div class="col-xs-3">
                     <h5>Duplicates</h5>

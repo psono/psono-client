@@ -79,9 +79,9 @@
                     $scope.state.report_complete = true;
                     $scope.analysis = data.analysis;
                     $scope.password_strength_colors = ["#ff7a55", "#ffb855", "#00aaaa"];
-                    $scope.password_strength_labels = ["week", "good", "strong"];
+                    $scope.password_strength_labels = ["weak", "good", "strong"];
                     $scope.password_strength_data = [
-                        data.analysis['password_summary']['week'],
+                        data.analysis['password_summary']['weak'],
                         data.analysis['password_summary']['good'],
                         data.analysis['password_summary']['strong']
                     ];
