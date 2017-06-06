@@ -931,7 +931,7 @@
                     return [200, {}];
                 });
 
-            expect(apiClient.get_users_public_key(token, session_secret_key, user_id, user_username)).toBeDefined();
+            expect(apiClient.search_user(token, session_secret_key, user_id, user_username)).toBeDefined();
 
             $httpBackend.flush();
         }));

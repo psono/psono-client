@@ -142,6 +142,10 @@
                 });
 
             managerSecret.read_secret(secret_id, secret_key).then(function(data){
+
+                decrypted_data.create_date = undefined;
+                decrypted_data.write_date = undefined;
+
                 expect(data).toEqual(decrypted_data);
             },function(){
                 // should never be reached
