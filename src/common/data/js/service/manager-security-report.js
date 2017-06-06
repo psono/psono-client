@@ -319,7 +319,7 @@
                 total: 0,
                 duplicate: 0,
                 no_duplicate: 0,
-                week: 0,
+                weak: 0,
                 good: 0,
                 strong: 0,
                 average_rating: 0,
@@ -342,7 +342,7 @@
                 }
 
                 if (analysis.passwords[i].rating <= 40) {
-                    analysis['password_summary']['week'] ++;
+                    analysis['password_summary']['weak'] ++;
                 } else if (analysis.passwords[i].rating < 80) {
                     analysis['password_summary']['good'] ++;
                 } else {
