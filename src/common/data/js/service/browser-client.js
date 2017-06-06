@@ -250,32 +250,6 @@
 
         };
 
-        /**
-         * @ngdoc
-         * @name psonocli.browserClient#copy_to_clipboard
-         * @methodOf psonocli.browserClient
-         *
-         * @description
-         * Copies some content to the clipboard
-         *
-         * @param {string} content The content to copy
-         */
-        var copy_to_clipboard = function (content) {
-
-            var copy = function (e) {
-                e.preventDefault();
-                if (e.clipboardData) {
-                    e.clipboardData.setData('text/plain', content);
-                } else if (window.clipboardData) {
-                    window.clipboardData.setData('Text', content);
-                }
-
-            };
-            document.addEventListener('copy', copy);
-            document.execCommand('copy');
-            document.removeEventListener('copy', copy);
-        };
-
         return {
             resize: resize,
             open_tab: open_tab,
@@ -287,8 +261,7 @@
             emit: emit,
             emit_sec: emit_sec,
             on: on,
-            get_config:get_config,
-            copy_to_clipboard:copy_to_clipboard
+            get_config:get_config
         };
     };
 

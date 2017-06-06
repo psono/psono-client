@@ -400,6 +400,32 @@
             return description
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.helper#copy_to_clipboard
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Copies some content to the clipboard
+         *
+         * @param {string} content The content to copy
+         */
+        var copy_to_clipboard = function (content) {
+
+            var copy = function (e) {
+                e.preventDefault();
+                if (e.clipboardData) {
+                    e.clipboardData.setData('text/plain', content);
+                } else if (window.clipboardData) {
+                    window.clipboardData.setData('Text', content);
+                }
+
+            };
+            document.addEventListener('copy', copy);
+            document.execCommand('copy');
+            document.removeEventListener('copy', copy);
+        };
+
 
         return {
             parse_url: parse_url,
@@ -417,7 +443,8 @@
             is_firefox: is_firefox,
             is_safari: is_safari,
             is_opera: is_opera,
-            get_device_description: get_device_description
+            get_device_description: get_device_description,
+            copy_to_clipboard: copy_to_clipboard
         };
     };
 

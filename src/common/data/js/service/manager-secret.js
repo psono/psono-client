@@ -15,7 +15,7 @@
      */
 
     var managerSecret = function(managerBase, apiClient, cryptoLibrary,
-                           itemBlueprint, browserClient) {
+                           itemBlueprint, browserClient, helper) {
 
         /**
          * @ngdoc
@@ -179,7 +179,7 @@
             };
 
             var onSuccess = function(decrypted_secret) {
-                browserClient.copy_to_clipboard(decrypted_secret['website_password_username']);
+                helper.copy_to_clipboard(decrypted_secret['website_password_username']);
             };
 
             read_secret(item.secret_id, secret_key, true)
@@ -206,7 +206,7 @@
             };
 
             var onSuccess = function(decrypted_secret) {
-                browserClient.copy_to_clipboard(decrypted_secret['website_password_password']);
+                helper.copy_to_clipboard(decrypted_secret['website_password_password']);
             };
 
             read_secret(item.secret_id, secret_key, true)
@@ -226,6 +226,6 @@
 
     var app = angular.module('psonocli');
     app.factory("managerSecret", ['managerBase', 'apiClient', 'cryptoLibrary',
-        'itemBlueprint', 'browserClient', managerSecret]);
+        'itemBlueprint', 'browserClient', 'helper', managerSecret]);
 
 }(angular));
