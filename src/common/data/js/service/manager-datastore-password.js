@@ -489,17 +489,18 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastorePassword#generate_password
+         * @name psonocli.managerDatastorePassword#save_autogenerate_password
          * @methodOf psonocli.managerDatastorePassword
          *
          * @description
          * Generates a new password for a given url and saves the password in the datastore.
          *
+         * @param {string} url The URL of the site for which the password has been generated
+         * @param {string} password The password to store
+         *
          * @returns {promise} Returns a promise with the new password
          */
-        var generate_password = function(url) {
-
-            var password = passwordGenerator.generate();
+        var save_autogenerate_password = function(url, password) {
 
             var parsed_url = helper.parse_url(url);
 
@@ -560,6 +561,9 @@
          */
         var generate_password_active_tab = function() {
 
+            var password = passwordGenerator.generate();
+            helper.copy_to_clipboard(password);
+
             var onError = function() {
                 console.log("could not find out the url of the active tab");
             };
@@ -577,7 +581,8 @@
                     return password;
                 };
 
-                return generate_password(url)
+
+                return save_autogenerate_password(url, password)
                     .then(onSuccess, onError);
 
             };
@@ -1016,7 +1021,7 @@
         return {
             get_password_datastore: get_password_datastore,
             save_datastore: save_datastore,
-            generate_password: generate_password,
+            generate_password: save_autogenerate_password,
             generate_password_active_tab: generate_password_active_tab,
             find_in_datastore: find_in_datastore,
             get_all_child_shares: get_all_child_shares,
