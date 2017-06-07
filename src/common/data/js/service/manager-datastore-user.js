@@ -228,6 +228,9 @@
                 session_password = null;
                 verification = null;
 
+                browserClient.emit("login", null);
+                browserClient.resize(295);
+
                 return {
                     response:"success"
                 };
@@ -331,13 +334,16 @@
          * Also handles the validation of the token with the server by solving the cryptographic puzzle
          *
          * @param {string} username The username to login with
+         * @param {string} domain The domain which we append if necessary to the username
          * @param {string} password The password to login with
          * @param {boolean|undefined} remember Remember the username and server
          * @param {object} server The server object to send the login request to
          *
          * @returns {promise} Returns a promise with the login status
          */
-        var login = function(username, password, remember, server) {
+        var login = function(username, domain, password, remember, server) {
+
+            username = helper.form_full_username(username, domain);
 
             managerBase.delete_local_data();
 

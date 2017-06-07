@@ -25,7 +25,7 @@
          * @param {url} url The url to be parsed
          * @returns {SplittedUrl} Returns the split up url
          */
-        var parse_url = function (url) {
+        function parse_url(url) {
             var authority;
             var splitted_authority;
             var splitted_domain;
@@ -64,7 +64,7 @@
                 query: matches[7],
                 fragment: matches[9]
             };
-        };
+        }
 
         /**
          * @ngdoc
@@ -78,10 +78,10 @@
          * @param {url} url The URL we want to parse
          * @returns {string} The full domain of the url
          */
-        var get_domain = function (url) {
+        function get_domain (url) {
             var parsed_url = parse_url(url);
             return parsed_url.full_domain;
-        };
+        }
 
         /**
          * @ngdoc
@@ -95,7 +95,7 @@
          * @param {array} array2 The array that should be part of array1
          * @returns {boolean} Returns if array1 starts with array2
          */
-        var array_starts_with = function(array1, array2) {
+        function array_starts_with(array1, array2) {
             if (! (array1 instanceof Array)){
                 return false;
             }
@@ -120,7 +120,7 @@
                 }
             }
             return true;
-        };
+        }
 
         /**
          * @ngdoc
@@ -133,7 +133,7 @@
          * @param {object} obj The datastore tree object
          * @param {array} list The list object we want to fill
          */
-        var create_list = function (obj, list) {
+        function create_list(obj, list) {
             var i;
             for (i = 0; obj.items && i < obj.items.length; i++) {
                 list.push(obj.items[i]);
@@ -141,7 +141,7 @@
             for (i = 0; obj.folders && i < obj.folders.length; i++) {
                 create_list(obj.folders[i], list);
             }
-        };
+        }
 
         /**
          * @ngdoc
@@ -155,9 +155,89 @@
          *
          * @returns {*} Returns a duplicate of object
          */
-        var duplicate_object = function(obj) {
+        function duplicate_object(obj) {
             return JSON.parse(JSON.stringify(obj));
-        };
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.helper#validate_username_start
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Checks that the username does not start with forbidden chars
+         *
+         * @param username The username
+         * @param forbidden_chars The forbidden chars
+         * @returns {string} The error message, if it matches
+         */
+        function validate_username_start(username, forbidden_chars) {
+            for (var i = 0; i < forbidden_chars.length; i++) {
+                if (username.substring(0, forbidden_chars[i].length) === forbidden_chars[i]) {
+                    return 'Usernames may not start with "'+ forbidden_chars[i] +'"';
+                }
+            }
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.helper#validate_username_end
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Checks that the username does not end with forbidden chars
+         *
+         * @param username The username
+         * @param forbidden_chars The forbidden chars
+         * @returns {string} The error message, if it matches
+         */
+        function validate_username_end(username, forbidden_chars) {
+            for (var i = 0; i < forbidden_chars.length; i++) {
+                if (username.substring(username.length - forbidden_chars[i].length) === forbidden_chars[i]) {
+                    return 'Usernames may not end with "'+ forbidden_chars[i] +'"';
+                }
+            }
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.helper#validate_username_contain
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Checks that the username does not contain forbidden chars
+         *
+         * @param username The username
+         * @param forbidden_chars The forbidden chars
+         * @returns {string} The error message, if it matches
+         */
+        function validate_username_contain(username, forbidden_chars) {
+            for (var i = 0; i < forbidden_chars.length; i++) {
+                if (username.indexOf(forbidden_chars[i]) !== -1) {
+                    return 'Usernames may not contain "'+ forbidden_chars[i] +'"';
+                }
+            }
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.helper#form_full_username
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Forms the full username out of the username (potentially already containing an  @domain part) and a domain
+         *
+         * @param username The username
+         * @param domain The domain part of the username
+         * @returns {string} The full username
+         */
+        function form_full_username(username, domain) {
+            if (username.indexOf('@') === -1){
+                return username + '@' + domain;
+            } else {
+                return username;
+            }
+        }
 
         /**
          * @ngdoc
@@ -165,47 +245,45 @@
          * @methodOf psonocli.helper
          *
          * @description
-         * Determines if the username is a valid username.
+         * Determines if the username is a valid username (validates only the front part before any @).
          * If yes the function returns true. If not, the function returns an error string
          *
          * @param {string} username A string that could be a valid username
          *
-         * @returns {true|string} Returns true or a string with the error
+         * @returns {boolean|string} Returns true or a string with the error
          */
-        var is_valid_username = function(username) {
+        function is_valid_username(username) {
+
+            var res = username.split("@");
+            username = res[0];
+
             var USERNAME_REGEXP = /^[a-z0-9.\-]*$/i;
+            var error;
             if( ! USERNAME_REGEXP.test(username)) {
-                return 'Usernames may only contain letters, numbers, periods and dashes.';
+                return 'Usernames may only contain letters, numbers, periods and dashes';
             }
+
             if (username.length < 3) {
-                return 'Usernames may not be shorter than 3 chars.';
+                return 'Usernames may not be shorter than 3 chars';
             }
-            if (username.substring(0, 1) === ".") {
-                return 'Usernames may not start with a period.';
+
+            error = validate_username_start(username, [".", "-"]);
+            if (error) {
+                return error;
             }
-            if (username.substring(0, 1) === "-") {
-                return 'Usernames may not start with a dash.';
+
+            error = validate_username_end(username, [".", "-"]);
+            if (error) {
+                return error;
             }
-            if (username.substring(username.length -1) === '.') {
-                return 'Usernames may not end with a period.';
+
+            error = validate_username_contain(username, ["..", "--", '.-', '-.']);
+            if (error) {
+                return error;
             }
-            if (username.substring(username.length -1) === '-') {
-                return 'Usernames may not end with a dash.';
-            }
-            if (username.indexOf('..') !== -1) {
-                return 'Usernames may not contain consecutive periods.';
-            }
-            if (username.indexOf('--') !== -1) {
-                return 'Usernames may not contain consecutive dashes.';
-            }
-            if (username.indexOf('.-') !== -1) {
-                return 'Usernames may not contain periods followed by dashes.';
-            }
-            if (username.indexOf('-.') !== -1) {
-                return 'Usernames may not contain dashes followed by periods.';
-            }
+
             return true;
-        };
+        }
 
         /**
          * @ngdoc
@@ -221,7 +299,7 @@
          *
          * @returns {boolean|string} Returns true or a string with the error
          */
-        var is_valid_password = function(password, password2) {
+        function is_valid_password(password, password2) {
 
             if (password.length < 12) {
                 return "Password too short (min 12 chars).";
@@ -231,7 +309,7 @@
                 return "Passwords don't match.";
             }
             return true;
-        };
+        }
 
         /**
          * @ngdoc
@@ -246,7 +324,7 @@
          *
          * @returns {Array} Returns the chunks with length "len" as array
          */
-        var split_string_in_chunks = function(str, len) {
+        function split_string_in_chunks(str, len) {
             var size = Math.ceil(str.length / len);
             var chunks  = new Array(size);
             var offset = 0;
@@ -256,7 +334,7 @@
             }
 
             return chunks;
-        };
+        }
 
         /**
          * @ngdoc
@@ -270,7 +348,7 @@
          * @param search The item to remove
          * @param [cmp_fct] (optional) Compare function
          */
-        var remove_from_array = function (array, search, cmp_fct) {
+        function remove_from_array(array, search, cmp_fct) {
             if (typeof(cmp_fct) === 'undefined') {
                 cmp_fct = function(a, b) {
                     return a === b;
@@ -281,7 +359,7 @@
                     array.splice(i, 1);
                 }
             }
-        };
+        }
 
         /**
          * @ngdoc
@@ -293,9 +371,9 @@
          *
          * @returns {string} Fingerprint of the device
          */
-        var get_device_fingerprint = function() {
+        function get_device_fingerprint() {
             return client_js.getFingerprint()
-        };
+        }
 
         /**
          * @ngdoc
@@ -307,9 +385,9 @@
          *
          * @returns {boolean} Is this an IE user
          */
-        var is_ie = function() {
+        function is_ie() {
             return client_js.isIE();
-        };
+        }
 
         /**
          * @ngdoc
@@ -321,9 +399,9 @@
          *
          * @returns {boolean} Is this an Chrome user
          */
-        var is_chrome = function() {
+        function is_chrome() {
             return client_js.isChrome();
-        };
+        }
 
         /**
          * @ngdoc
@@ -335,9 +413,9 @@
          *
          * @returns {boolean} Is this an Firefox user
          */
-        var is_firefox = function() {
+        function is_firefox() {
             return client_js.isFirefox();
-        };
+        }
 
         /**
          * @ngdoc
@@ -349,9 +427,9 @@
          *
          * @returns {boolean} Is this an Safari user
          */
-        var is_safari = function() {
+        function is_safari() {
             return client_js.isSafari();
-        };
+        }
 
         /**
          * @ngdoc
@@ -363,9 +441,9 @@
          *
          * @returns {boolean} Is this an Opera user
          */
-        var is_opera = function() {
+        function is_opera() {
             return client_js.isOpera();
-        };
+        }
 
         /**
          * @ngdoc
@@ -377,7 +455,7 @@
          *
          * @returns {string}
          */
-        var get_device_description = function() {
+        function get_device_description() {
             var description = '';
             if (typeof(client_js.getDeviceVendor()) !== 'undefined') {
                 description = description + client_js.getDeviceVendor() + ' ';
@@ -398,7 +476,7 @@
                 description = description + client_js.getBrowserVersion() + ' ';
             }
             return description
-        };
+        }
 
         /**
          * @ngdoc
@@ -410,7 +488,7 @@
          *
          * @param {string} content The content to copy
          */
-        var copy_to_clipboard = function (content) {
+        function copy_to_clipboard(content) {
 
             var copy = function (e) {
                 e.preventDefault();
@@ -424,7 +502,7 @@
             document.addEventListener('copy', copy);
             document.execCommand('copy');
             document.removeEventListener('copy', copy);
-        };
+        }
 
 
         return {
@@ -433,6 +511,7 @@
             array_starts_with: array_starts_with,
             create_list: create_list,
             duplicate_object: duplicate_object,
+            form_full_username: form_full_username,
             is_valid_username: is_valid_username,
             is_valid_password: is_valid_password,
             split_string_in_chunks: split_string_in_chunks,

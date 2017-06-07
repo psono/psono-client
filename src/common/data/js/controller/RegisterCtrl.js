@@ -148,14 +148,9 @@
                     return;
                 }
 
-                if (username.indexOf('@') === -1){
-                    username = username + '@' + $scope.selected_server_domain;
-                }
+                username = helper.form_full_username(username, $scope.selected_server_domain);
 
-                var res = username.split("@");
-                var username_part = res[0];
-
-                test_result = helper.is_valid_username(username_part);
+                test_result = helper.is_valid_username(username);
                 if (test_result !== true) {
                     $scope.errors.push(test_result);
                     return;

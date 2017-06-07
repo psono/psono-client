@@ -220,8 +220,6 @@
 
                     var onSuccess = function(data) {
                         $scope.errors = [];
-                        browserClient.emit("login", null);
-                        browserClient.resize(295);
                     };
 
                     return managerDatastoreUser.activate_token().then(onSuccess, onError);
@@ -260,10 +258,6 @@
                     return;
                 }
 
-                if (username.indexOf('@') === -1) {
-                    username = username + '@' + $scope.selected_server_domain;
-                }
-
                 var onError = function(data) {
                     if (data.error_data === null) {
                         $scope.errors = ['Server offline.']
@@ -280,7 +274,8 @@
                     return next_login_step(required_multifactors);
                 };
 
-                managerDatastoreUser.login(username, password, remember, angular.copy($scope.selected_server)).then(onSuccess, onError);
+                managerDatastoreUser.login(username, $scope.selected_server_domain, password, remember, angular.copy($scope.selected_server))
+                    .then(onSuccess, onError);
             }
         }]
     );
