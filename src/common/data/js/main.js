@@ -49,7 +49,7 @@
 
     angular.module('psonocli', ['ngRoute', 'ng', 'ui.bootstrap', 'snap', 'chieffancypants.loadingBar', 'ngAnimate',
             'LocalStorageModule', 'ngTree', 'ngDraggable', 'ng-context-menu', 'ui.select', 'ngSanitize',
-            'angular-complexify', 'datatables'])
+            'angular-complexify', 'datatables', 'chart.js'])
         .config(['$routeProvider', '$locationProvider', '$compileProvider', 'localStorageServiceProvider',
             function ($routeProvider, $locationProvider, $compileProvider, localStorageServiceProvider) {
                 //Router config
@@ -74,6 +74,10 @@
                         templateUrl: 'view/index-share-users.html',
                         controller: 'IndexCtrl'
                     })
+                    .when('/security-report', {
+                        templateUrl: 'view/index-security-report.html',
+                        controller: 'SecurityReportCtrl'
+                    })
                     .when('/secret/:type/:secret_id', {})
                     .when('/activation-code/:activation_code', {})
                     .when('/datastore/search/:default_search', {
@@ -88,6 +92,11 @@
                 $compileProvider.aHrefSanitizationWhitelist(/^\s*(|blob|):/);
 
             }])
+        .filter('typeof', function() {
+            return function(obj) {
+                return typeof obj
+            };
+        })
         .run(['$rootScope', '$location', '$routeParams', 'managerSecret',
             function ($rootScope, $location, $routeParams, managerSecret) {
                 $rootScope.$on('$routeChangeSuccess', function () {

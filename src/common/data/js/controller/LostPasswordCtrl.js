@@ -160,6 +160,8 @@
              */
             function recovery_enable(username, code1, code2, words) {
 
+                // TODO refactor this function and put logic into a service
+
                 $scope.errors = [];
                 $scope.msgs = [];
                 var test_result;
@@ -175,14 +177,8 @@
                 }
 
                 // Validate now the username
-                if (username.indexOf('@') === -1){
-                    username = username + '@' + $scope.selected_server_domain;
-                }
-
-                var res = username.split("@");
-                var username_part = res[0];
-
-                test_result = helper.is_valid_username(username_part);
+                username = helper.form_full_username(username, $scope.selected_server_domain);
+                test_result = helper.is_valid_username(username);
                 if (test_result !== true) {
                     $scope.errors.push(test_result);
                     return;

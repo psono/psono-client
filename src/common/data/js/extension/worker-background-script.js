@@ -127,7 +127,6 @@ var ClassWorkerBackgroundScript = function (chrome, browser) {
             'logout': on_logout,
             'website-password-refresh': on_website_password_refresh,
             'request-secret': on_request_secret,
-            'copy-to-clipboard': on_copy_to_clipboard,
             'open-tab': on_open_tab
         };
 
@@ -335,24 +334,6 @@ var ClassWorkerBackgroundScript = function (chrome, browser) {
     }
 
     /**
-     * copies to the clipboard
-     * lets create and element, put the content there, and call the normal execCommand('copy') function
-     *
-     * @param request
-     * @param sender
-     * @param sendResponse
-     */
-    function on_copy_to_clipboard (request, sender, sendResponse) {
-        var copyFrom = document.createElement("textarea");
-        copyFrom.textContent = request.data.text;
-        var body = document.getElementsByTagName('body')[0];
-        body.appendChild(copyFrom);
-        copyFrom.select();
-        document.execCommand('copy');
-        body.removeChild(copyFrom);
-    }
-
-    /**
      * Opens a new tab
      *
      * @param request
@@ -446,7 +427,6 @@ var ClassWorkerBackgroundScript = function (chrome, browser) {
      * @returns {{}}
      */
     function onAuthRequired(details, callbackFn) {
-        console.log("onAuthRequired");
         var return_value = {};
         var entries;
         entries = search_website_passwords_by_urlfilter(details.url);

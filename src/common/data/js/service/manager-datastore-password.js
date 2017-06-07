@@ -37,28 +37,28 @@
          */
         var calculate_user_share_rights = function(share) {
 
-            var i;
-            var rights = {
+            var rights;
+            var right = {
                 'read': false,
                 'write': false,
                 'grant': false
             };
 
             if (share.user_share_rights.length > 0) {
-                for (i = share.user_share_rights.length - 1; i >= 0; i--) {
-                    rights['read'] = rights['read'] || share.user_share_rights[i].read;
-                    rights['write'] = rights['write'] || share.user_share_rights[i].write;
-                    rights['grant'] = rights['grant'] || share.user_share_rights[i].grant;
-                }
+                // share has direct rights
+                rights = share.user_share_rights;
             } else {
-                for (i = share.user_share_rights_inherited.length - 1; i >= 0; i--) {
-                    rights['read'] = rights['read'] || share.user_share_rights_inherited[i].read;
-                    rights['write'] = rights['write'] || share.user_share_rights_inherited[i].write;
-                    rights['grant'] = rights['grant'] || share.user_share_rights_inherited[i].grant;
-                }
+                // share has only inherited rights
+                rights = share.user_share_rights_inherited;
             }
 
-            return rights;
+            for (var i = rights.length - 1; i >= 0; i--) {
+                right['read'] = right['read'] || rights[i].read;
+                right['write'] = right['write'] || rights[i].write;
+                right['grant'] = right['grant'] || rights[i].grant;
+            }
+
+            return right;
         };
 
         /**
@@ -489,17 +489,18 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastorePassword#generate_password
+         * @name psonocli.managerDatastorePassword#save_autogenerate_password
          * @methodOf psonocli.managerDatastorePassword
          *
          * @description
          * Generates a new password for a given url and saves the password in the datastore.
          *
+         * @param {string} url The URL of the site for which the password has been generated
+         * @param {string} password The password to store
+         *
          * @returns {promise} Returns a promise with the new password
          */
-        var generate_password = function(url) {
-
-            var password = passwordGenerator.generate();
+        var save_autogenerate_password = function(url, password) {
 
             var parsed_url = helper.parse_url(url);
 
@@ -560,6 +561,9 @@
          */
         var generate_password_active_tab = function() {
 
+            var password = passwordGenerator.generate();
+            helper.copy_to_clipboard(password);
+
             var onError = function() {
                 console.log("could not find out the url of the active tab");
             };
@@ -577,7 +581,8 @@
                     return password;
                 };
 
-                return generate_password(url)
+
+                return save_autogenerate_password(url, password)
                     .then(onSuccess, onError);
 
             };
@@ -590,56 +595,61 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastorePassword#find_object
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * Searches a folder and expects to find an element (item or folder) with a specific search_id.
+         * It will return a tuple with the list of elements holding the element together with the index.
+         *
+         * @param folder The folder to search
+         * @param search_id The id of the element one is looking for
+         *
+         * @returns {[]|boolean} Returns a tuple of the containing list and index or false if not found
+         */
+        var find_object = function(folder, search_id) {
+
+            var n, l;
+
+            // check if the object is a folder, if yes return the folder list and the index
+            for (n = 0, l = folder.folders.length; folder.hasOwnProperty('folders') && n < l; n++) {
+                if (folder.folders[n].id === search_id) {
+                    return [folder.folders, n];
+                }
+            }
+            // check if its a file, if yes return the file list and the index
+            for (n = 0, l = folder.items.length; folder.hasOwnProperty('items') && n < l; n++) {
+                if (folder.items[n].id === search_id) {
+                    return [folder.items, n];
+                }
+            }
+            // something went wrong, couldn't find the item / folder here
+            return false;
+        };
+
+
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastorePassword#find_in_datastore
          * @methodOf psonocli.managerDatastorePassword
          *
          * @description
-         * Go through the datastore to find the object specified with the path
+         * Go through the datastore recursive to find the object specified with the path
          *
-         * @param {Array} path The path to the object you search as list of ids
+         * @param {Array} path The path to the object you search as list of ids (length > 0)
          * @param {TreeObject} datastore The datastore object tree
          *
          * @returns {boolean|Array} False if not present or a list of two objects where the first is the List Object (items or folder container) containing the searchable object and the second the index
          */
         var find_in_datastore = function (path, datastore) {
 
-            var to_search;
-
-            var i, n, l;
-
-            var rest = [];
-            for (i = 0, l = path.length; i < l; i++) {
-                if (i === 0) {
-                    to_search = path[i];
-                } else {
-                    rest.push(path[i]);
-                }
-            }
+            var to_search = path[0];
+            var n, l;
+            var rest = path.slice(1);
 
             if (rest.length === 0) {
                 // found the parent
-                // check if the object is a folder, if yes return the folder list and the index
-                if (datastore.hasOwnProperty('folders')) {
-                    for (n = 0, l = datastore.folders.length; n < l; n++) {
-                        if (datastore.folders[n].id === to_search) {
-                            return [datastore.folders, n];
-                            // datastore.folders.splice(n, 1);
-                            // return true;
-                        }
-                    }
-                }
-                // check if its a file, if yes return the file list and the index
-                if (datastore.hasOwnProperty('items')) {
-                    for (n = 0, l = datastore.items.length; n < l; n++) {
-                        if (datastore.items[n].id === to_search) {
-                            return [datastore.items, n];
-                            // datastore.items.splice(n, 1);
-                            // return true;
-                        }
-                    }
-                }
-                // something went wrong, couldn't find the file / folder here
-                return false;
+                return find_object(datastore, to_search);
             }
 
             for (n = 0, l= datastore.folders.length; n < l; n++) {
@@ -964,7 +974,7 @@
                     if (Object.keys(share.share_index).length === 0) {
                         delete share.share_index;
                     }
-                    
+
                     if (already_found) {
                         return;
                     }
@@ -1011,7 +1021,7 @@
         return {
             get_password_datastore: get_password_datastore,
             save_datastore: save_datastore,
-            generate_password: generate_password,
+            generate_password: save_autogenerate_password,
             generate_password_active_tab: generate_password_active_tab,
             find_in_datastore: find_in_datastore,
             get_all_child_shares: get_all_child_shares,

@@ -26,6 +26,9 @@ The canonical source of PSONO Client is [hosted on GitLab.com](https://gitlab.co
 
 ## as Docker Web Client
 
+The latest build of our Web Client as a docker image can be found here: https://hub.docker.com/r/psono/psono-client/
+Follow belows instructions to bring it online.
+
 1. Create config
 
     The client will offer a pre-filled "Server Address". Its supposed to be the address where you see 
@@ -43,7 +46,12 @@ The canonical source of PSONO Client is [hosted on GitLab.com](https://gitlab.co
 
     If you open now http://your-ip:10100 you should see a beautiful login screen.
     If not, please make sure you have no firewall on the server blocking you.
+
+3. Setup nginx (or apache) relay
+
+    For a config that is suitable for production use take a look at:
     
+        ./configs/nginx-docker.conf
 
 Two things you should be aware of:
     
@@ -56,8 +64,8 @@ in `@example.com` where `example.com` is in your `settings.yaml` in the `ALLOWED
 
 # Preamble
 
-    The following steps are verified on Ubuntu 16.04 LTS. Ubuntu 12.04+ LTS and Debian based systems should be similar if not
-    even identical.
+The following steps are verified on Ubuntu 16.04 LTS. Ubuntu 12.04+ LTS and Debian based systems should be similar if not
+even identical.
 
 # Install for developers
 
@@ -85,83 +93,79 @@ you may install belows dependencies and execute below mentioned commands.
 
 # How to create a release
 
-0. Preamble
+1. Wait for the build / tests to finish on the develop branch
+2. Merge develop branch into master branch
+3. Wait for the build / tests to finish on the master branch
+4. Create new Tag with the version information e.g v1.0.14 and provide adequate information for the Changelog
 
-    This whole guide is based on Ubuntu 16.04 LTS. Ubuntu 12.04+ LTS and Debian based systems should be similar if not
-    even identical.
+# How to build and deploy extensions 
+
+Build and deployment are automated in the build pipeline and distributed as artifacts, but if someone wants
+to build / publish his own version of this extension, then follow the following guide.
     
 1. Pre-requirements
 
     Follow the steps of the `Install for developers` section
     
-2. Update your Firefox API key
+2. (optional) Update the manifest
+
+    If you want to publish an own version in the chrome / firefox app store, then you have to update
+    the name / description / version before, otherwise you will run into naming conflicts.
+    You can skip this step if you do not want to upload it to the official app stores.
     
-    Make sure that your Firefox API key is in located in `~/.psono_client/apikey_addons_mozilla_org/key.json` in the
-    following format
+2. Build
 
-		{
-			"issuer": "user:123467:789",
-			"secret": "15c686fea..."
-		}
- 
-	(replace the values with your api credentials from addons.mozilla.org)
-	
-3. Execute Script
-
-    The following script will create a new firefox and chrome update with a new version. In addition it will create
-    the appropriate tags and update the develop and master branch.
+    To build the Chrome and Firefox extensions (and Web Client) execute the following command:
     
-        ./var/release.sh 
+        gulp
 
-# How to build extensions 
+    This will build the raw extension folders (which you can use to load as unpacked extension for previews in your browser)
+    
+3. Packaging
 
+    The packaging is done nowadays in a simple zip file. You can do so manually, or execute:
+    
+        ./var/package-chrome-extension.sh
+        
+    or for firefox:
+        
+        ./var/package-firefox-extension.sh
+
+4. Deploy
+
+    The deployment is a simple upload to:
+    
+    - https://chrome.google.com/webstore/developer/dashboard
+        
+    or for firefox:
+    
+    - https://addons.mozilla.org/de/developers/addons
+        
+    This process has been automated in our build pipeline and needs some investment on your side to gather all keys and
+    so on if to replicate it (if you want it). The scripts responsible here are:
+    
+        ./var/deploy-chrome-extension.sh
+        
+    or for firefox:
+        
+        ./var/deploy-firefox-extension.sh
+
+# How to build and deploy the Web Client 
+
+Build and deployment are automated in the build pipeline and distributed as docker image but if you want to 
+create the package for the Web Client, then follow the following guide.
+    
 1. Pre-requirements
 
-    Make sure that your Firefox API key is in 
+    Follow the steps of the `Install for developers` section
     
-2. Update your Firefox API key
+2. Build
+
+    To build the Web Client execute the following command:
     
-    Make sure that your Firefox API key is in located in `~/.psono_client/apikey_addons_mozilla_org/key.json` in the
-    following format
+        gulp
 
-		{
-			"issuer": "user:123467:789",
-			"secret": "15c686fea..."
-		}
- 
-	(replace the values with your api credentials from addons.mozilla.org)
-
-3. Pack Chrome extension for release
-
-        gulp crx
-
-    (make sure to run gulp without parameter first)
-    
-    After this command you will find in ./dist/chrome/psono.PW.crx (and ./dist/chrome/psono.PW.update.xml)
-        
-4. Pack Firefox extension for release
-
-        gulp xpi
-
-    (make sure to run gulp without parameter first)
-    
-    After this command you will find ./dist/firefox/psono.PW.xpi (and the unsigned version
-    ./dist/firefox/psono.PW.unsigned.xpi)
-    
-    If you do not want to create an official signed version and only want to create the unsigned version you can do:
-    
-        gulp xpiunsigned
-        
-    Only ./dist/firefox/psono.PW.unsigned.xpi will be created.
-        
-5. (optional) Pack chrome and firefox for release
-        
-    The "All In One" command is:
-    
-        gulp dist
-        
-    This command will execute gulp, gulp crx and gulp xpi
-
+    This will build the raw web client folder which you can serve with any webserver e.g. nginx
 
 # Install for unit tests
 
@@ -177,8 +181,8 @@ For unittest you have some additional dependencies.
 
         karma start ./unittests/karma-chrome.conf.js
         
-    if you want to use another browser like firefox you can also use ./unittests/karma-firefox.conf.js instead or for
-    something more generic ./unittests/karma-generic.conf.js. If you use "generic" point the browser of your choice
+    if you want to use another browser like firefox you can also use `./unittests/karma-firefox.conf.js` instead or for
+    something more generic `./unittests/karma-generic.conf.js`. If you use "generic" point the browser of your choice
     to the shown url.
         
     or more sexy with gulp:
@@ -188,7 +192,11 @@ For unittest you have some additional dependencies.
     or if you want to watch for changes and run it automatically:
     
         gulp unittestwatch
+        
+2. Coverage
 
+    The `./unittests/karma-generic.conf.js` config automatically generates an karma coverage report in html format
+    in `unittests/coverage`
 
     
 # Generate javascript docs
@@ -196,19 +204,6 @@ For unittest you have some additional dependencies.
 To generate the javascript run the following command
 
 	gulp docs
-
-    
-# Debug
-
-### Firefox:
-
-We assume you have jpm and firefox developer edition installed, then you can debug the firefox extension with:
-
-        gulp
-        cd ./password-manager-browser-plugins/build/firefox
-        jpm run -b "path/to/developer-firefox-edition"
-    
-    
 
 # Documentation
 

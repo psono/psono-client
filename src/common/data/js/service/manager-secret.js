@@ -15,7 +15,7 @@
      */
 
     var managerSecret = function(managerBase, apiClient, cryptoLibrary,
-                           itemBlueprint, browserClient) {
+                           itemBlueprint, browserClient, helper) {
 
         /**
          * @ngdoc
@@ -61,21 +61,24 @@
          *
          * @param {uuid} secret_id The secret id one wants to fetch
          * @param {string} secret_key The secret key to decrypt the content
+         * @param {boolean} [synchronous] (optional) Synchronous or Asynchronous
          *
          * @returns {promise} Returns a promise withe decrypted content of the secret
          */
-        var read_secret = function(secret_id, secret_key) {
-
+        var read_secret = function(secret_id, secret_key, synchronous) {
             var onError = function(result) {
                 // pass
             };
 
             var onSuccess = function(content) {
-                return JSON.parse(cryptoLibrary.decrypt_data(content.data.data, content.data.data_nonce, secret_key));
+                var secret = JSON.parse(cryptoLibrary.decrypt_data(content.data.data, content.data.data_nonce, secret_key));
+                secret['create_date'] = content.data['create_date'];
+                secret['write_date'] = content.data['write_date'];
+                return secret;
             };
 
             return apiClient.read_secret(managerBase.get_token(),
-                managerBase.get_session_secret_key(), secret_id)
+                managerBase.get_session_secret_key(), secret_id, synchronous)
                 .then(onSuccess, onError);
         };
 
@@ -124,15 +127,13 @@
          * @param {uuid} secret_id The id of the secret to read
          */
         var redirect_secret = function(type, secret_id) {
+            var secret_key = managerBase.find_one_nolimit('datastore-password-leafs', secret_id);
 
             var onError = function(result) {
                 // pass
             };
 
-            var onSuccess = function(content) {
-                var secret_key = managerBase.find_one_nolimit('datastore-password-leafs', secret_id);
-
-                var decrypted_secret = JSON.parse(cryptoLibrary.decrypt_data(content.data.data, content.data.data_nonce, secret_key));
+            var onSuccess = function(decrypted_secret) {
 
                 var msg = itemBlueprint.blueprint_msg_before_open_secret(type, decrypted_secret);
 
@@ -141,8 +142,7 @@
                 itemBlueprint.blueprint_on_open_secret(type, decrypted_secret);
             };
 
-            apiClient.read_secret(managerBase.get_token(),
-                managerBase.get_session_secret_key(), secret_id)
+            read_secret(secret_id, secret_key)
                 .then(onSuccess, onError);
 
         };
@@ -157,9 +157,62 @@
          * @param {object} item The item one has clicked on
          */
         var on_item_click = function(item) {
-            if (itemBlueprint.blueprint_has_on_click_new_tab(item.type)) {
+            if (item.hasOwnProperty("urlfilter") && item['urlfilter'] !== '' && itemBlueprint.blueprint_has_on_click_new_tab(item.type)) {
                 browserClient.open_tab('open-secret.html#!/secret/'+item.type+'/'+item.secret_id);
             }
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#copy_username
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * Copies the username of a given secret to the clipboard
+         *
+         * @param {object} item The item of which we want to load the username into our clipboard
+         */
+        var copy_username = function(item) {
+
+            var secret_key = managerBase.find_one_nolimit('datastore-password-leafs', item.secret_id);
+
+            var onError = function(result) {
+                // pass
+            };
+
+            var onSuccess = function(decrypted_secret) {
+                helper.copy_to_clipboard(decrypted_secret['website_password_username']);
+            };
+
+            read_secret(item.secret_id, secret_key, true)
+                .then(onSuccess, onError);
+
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#copy_password
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * Copies the password of a given secret to the clipboard
+         *
+         * @param {object} item The item of which we want to load the password into our clipboard
+         */
+        var copy_password = function(item) {
+
+            var secret_key = managerBase.find_one_nolimit('datastore-password-leafs', item.secret_id);
+
+            var onError = function(result) {
+                // pass
+            };
+
+            var onSuccess = function(decrypted_secret) {
+                helper.copy_to_clipboard(decrypted_secret['website_password_password']);
+            };
+
+            read_secret(item.secret_id, secret_key, true)
+                .then(onSuccess, onError);
         };
 
         return {
@@ -167,12 +220,14 @@
             read_secret: read_secret,
             write_secret: write_secret,
             redirect_secret: redirect_secret,
-            on_item_click: on_item_click
+            on_item_click: on_item_click,
+            copy_username: copy_username,
+            copy_password: copy_password
         };
     };
 
     var app = angular.module('psonocli');
     app.factory("managerSecret", ['managerBase', 'apiClient', 'cryptoLibrary',
-        'itemBlueprint', 'browserClient', managerSecret]);
+        'itemBlueprint', 'browserClient', 'helper', managerSecret]);
 
 }(angular));

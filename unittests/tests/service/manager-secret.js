@@ -142,6 +142,10 @@
                 });
 
             managerSecret.read_secret(secret_id, secret_key).then(function(data){
+
+                decrypted_data.create_date = undefined;
+                decrypted_data.write_date = undefined;
+
                 expect(data).toEqual(decrypted_data);
             },function(){
                 // should never be reached
@@ -225,7 +229,8 @@
 
             var item = {
                 type: 'website_password',
-                secret_id: '8584a986-f5c5-4adc-928b-c0eab9f2d550'
+                secret_id: '8584a986-f5c5-4adc-928b-c0eab9f2d550',
+                urlfilter: 'example.com'
             };
 
             managerSecret.on_item_click(item);

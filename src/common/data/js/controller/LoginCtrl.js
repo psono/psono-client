@@ -42,9 +42,13 @@
             function activate() {
                 var onSuccess = function(config) {
 
+                    var persistent_username = managerDatastoreUser.get_default('username');
+                    var persistent_server = managerDatastoreUser.get_default('server');
+
                     /* preselected values */
-                    // $scope.loginFormUsername = "test";
+                    $scope.loginFormUsername = persistent_username;
                     // $scope.loginFormPassword = "myPassword";
+                    $scope.loginFormRemember = persistent_username !== "";
 
                     // TODO interpret "allow_custom_server"
                     // TODO check last visited server for "preselection"
@@ -59,10 +63,11 @@
                     /* Server selection with preselection */
                     $scope.servers = config['backend_servers'];
                     $scope.filtered_servers = $scope.servers;
-                    $scope.selected_server = $scope.servers[0];
-                    $scope.selected_server_title = $scope.selected_server.title;
-                    $scope.selected_server_url = $scope.selected_server.url;
-                    $scope.selected_server_domain = helper.get_domain($scope.selected_server.url);
+                    if (persistent_server) {
+                        select_server(persistent_server);
+                    } else {
+                        select_server($scope.servers[0]);
+                    }
                 };
 
                 var onError = function() {
@@ -198,6 +203,8 @@
              */
             function next_login_step(required_multifactors) {
 
+                $scope.errors = [];
+
                 if (required_multifactors.length === 0) {
 
                     var onError = function(data) {
@@ -215,8 +222,6 @@
 
                     var onSuccess = function(data) {
                         $scope.errors = [];
-                        browserClient.emit("login", null);
-                        browserClient.resize(295);
                     };
 
                     return managerDatastoreUser.activate_token().then(onSuccess, onError);
@@ -244,18 +249,15 @@
              *
              * @param {string} username The username
              * @param {string} password The password
+             * @param {boolean|undefined} remember Remember username and server
              */
-            function login(username, password) {
+            function login(username, password, remember) {
 
                 if (username === undefined || password === undefined) {
                     // Dont do anything if username or password is wrong,
                     // because the html5 form validation will tell the user
                     // whats wrong
                     return;
-                }
-
-                if (username.indexOf('@') === -1) {
-                    username = username + '@' + $scope.selected_server_domain;
                 }
 
                 var onError = function(data) {
@@ -274,7 +276,8 @@
                     return next_login_step(required_multifactors);
                 };
 
-                managerDatastoreUser.login(username, password, angular.copy($scope.selected_server)).then(onSuccess, onError);
+                managerDatastoreUser.login(username, $scope.selected_server_domain, password, remember, angular.copy($scope.selected_server))
+                    .then(onSuccess, onError);
             }
         }]
     );

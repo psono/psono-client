@@ -70,11 +70,7 @@
                         if (fields[i].name === "user_search_username") {
                             if (fields[i].value && fields[i].value.length > 0) {
 
-                                possible_username = fields[i].value;
-
-                                if (fields[i].value.indexOf('@') === -1 && selected_server_domain) {
-                                    possible_username = possible_username + '@' + selected_server_domain;
-                                }
+                                possible_username = helper.form_full_username(fields[i].value, selected_server_domain);
 
                                 // Regex obtained from Angular JS
                                 var regexp = /^[a-z0-9!#$%&'*+\/=?^_`{|}~.-]+@[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/i;
@@ -114,9 +110,7 @@
                         }
                     }
 
-                    if (search_username.indexOf('@') === -1 && selected_server_domain) {
-                        search_username = search_username + '@' + selected_server_domain;
-                    }
+                    search_username = helper.form_full_username(search_username, selected_server_domain);
 
                     var onSuccess = function(data) {
                         data = data.data;
@@ -161,7 +155,7 @@
                             }
                         }
 
-                        if (data.status === 404) {
+                        if (data.status === 403) {
                             form_control['block_submit'] = true;
                             errors.push("User not found.");
                         } else {

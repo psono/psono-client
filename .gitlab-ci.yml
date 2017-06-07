@@ -97,7 +97,7 @@ job-deploy-chrome:
   image: ubuntu:16.04
   script:
     - sh ./var/build-ubuntu.sh
-    - sh ./var/build-chrome-extension.sh
+    - sh ./var/package-chrome-extension.sh
     - sh ./var/deploy-chrome-extension.sh
   environment:
     name: chrome-webstore
@@ -111,7 +111,7 @@ job-deploy-firefox:
   image: ubuntu:16.04
   script:
     - sh ./var/build-ubuntu.sh
-    - sh ./var/build-firefox-extension.sh
+    - sh ./var/package-firefox-extension.sh
     - sh ./var/deploy-firefox-extension.sh
   environment:
     name: firefox-webstore

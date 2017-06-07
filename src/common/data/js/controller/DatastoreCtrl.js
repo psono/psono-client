@@ -100,6 +100,7 @@
                  * @param path The path to the item
                  */
                 on_item_click: function (item, path) {
+
                     return managerSecret.on_item_click(item, path);
                 },
 

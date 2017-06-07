@@ -1,0 +1,149 @@
+<div class="container-fluid">
+    <div class="navi row">
+        <div class="location col-sm-8">
+            <!--
+            <span> <a href="#!/share/pendingshares">/share/pendingshares</a> </span>
+            -->
+        </div>
+        <div class="title col-sm-4">
+            <h1>Security Report</h1>
+        </div>
+    </div>
+
+    <div class="panel panel-default" ng-if="state.report_complete">
+        <div class="panel-heading clearfix">
+            <h3 class="panel-title">Security Report</h3>
+        </div>
+        <div class="panel-body in" aria-expanded="true" aria-hidden="false" style="height: auto;">
+
+            <div class="alert alert-warning" ng-if="!analysis.user_summary.multifactor_auth_enabled">
+                <strong>Warning!</strong> Please consider enabling multifactor authentication as it significantly
+                improves your account's security.
+            </div>
+
+            <div class="alert alert-warning" ng-if="!analysis.user_summary.recovery_code_enabled">
+                <strong>Warning!</strong> Please consider creating a recovery code to recover your account in case of a
+                lost passwords.
+            </div>
+
+            <div class="row">
+                <div class="col-xs-3">
+                    <h5>Password Strength</h5>
+                    <canvas id="doughnut_password_strength" class="chart chart-doughnut"
+                            chart-colors="password_strength_colors"
+                            chart-data="password_strength_data"
+                            chart-labels="password_strength_labels">
+                    </canvas>
+                    <p class="text-center" ng-if="analysis.password_summary.weak">{{ analysis.password_summary.weak }} weak passwords</p>
+                    <p class="text-center" ng-if="!analysis.password_summary.weak">No weak passwords</p>
+                </div>
+                <div class="col-xs-3">
+                    <h5>Duplicates</h5>
+                    <canvas id="doughnut_duplicate" class="chart chart-doughnut"
+                            chart-colors="duplicate_colors"
+                            chart-data="duplicate_data"
+                            chart-labels="duplicate_labels">
+                    </canvas>
+                    <p class="text-center" ng-if="analysis.password_summary.duplicate">{{ analysis.password_summary.duplicate }} duplicates</p>
+                    <p class="text-center" ng-if="!analysis.password_summary.duplicate">No duplicates</p>
+                </div>
+                <div class="col-xs-3">
+                    <h5>Average Score</h5>
+                    <canvas id="doughnut_average_score" class="chart chart-doughnut"
+                            chart-colors="average_score_colors"
+                            chart-data="average_score_data"
+                            chart-labels="average_score_labels">
+                    </canvas>
+                    <p class="text-center">{{ analysis.password_summary.average_rating }}% score</p>
+                </div>
+                <div class="col-xs-3">
+                    <h5>Password Age</h5>
+                    <canvas id="doughnut_password_update_age" class="chart chart-doughnut"
+                            chart-colors="password_update_age_colors"
+                            chart-data="password_update_age_data"
+                            chart-labels="password_update_age_labels">
+                    </canvas>
+                    <p class="text-center">{{ analysis.password_summary.average_update_age }} days</p>
+                </div>
+            </div>
+
+            <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Password</th>
+                    <th>Rating</th>
+                    <th>Age</th>
+                    <th>Duplicate</th>
+                    <th>Advise</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="pw in analysis.passwords">
+                    <td>{{ pw.name }}</td>
+                    <td>
+                        <div class="input-group">
+                            <input type="{{pw.input_type}}" name="password" class="form-control"
+                                   ng-model="pw.password" >
+                            <div class="input-group-btn" uib-dropdown is-open="status.isopen">
+                                <button id="single-button" type="button" class="btn btn-primary"
+                                        ng-click="toggle_input_type(pw)">
+                                    <i class="fa fa-eye-slash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ pw.rating }}</td>
+                    <td>{{ pw.write_age }} days</td>
+                    <td>
+                        <i class="fa fa-exclamation-triangle" aria-hidden="true" ng-if="pw.duplicate"></i>
+                        <span style="display: none" ng-if="!pw.duplicate">0</span>
+                        <span style="display: none" ng-if="pw.duplicate">1</span>
+                    </td>
+                    <td>{{ pw.advise }}</td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <div class="panel panel-default" ng-if="!state.report_complete">
+        <div class="panel-heading clearfix">
+            <h3 class="panel-title">Generate Security Report</h3>
+        </div>
+        <div class="panel-body in" aria-expanded="true" aria-hidden="false" style="height: auto;">
+
+            <div class="alert alert-info">
+                <strong>Info!</strong> Psono's goal is to increase your security awareness with this report. We will
+                analyze all passwords for their strength and complexity, and give you tips how to improve security and
+                which passwords you should change. In the process we will read all passwords and other information from
+                the server and then decrypt and analyse them completely in your browser.
+            </div>
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="btn btn-primary btn-primary" ng-click="generate_security_report()">Start Analysis</button>
+                    </div>
+                </div>
+
+                <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
+                <span ng-repeat="e in msgs" class="pull-right">{{e}}</span>
+                <div class="clearfix"></div>
+
+                <div ng-if="state.download_ongoing">
+                    <uib-progressbar max="state.open_secret_requests" value="state.closed_secret_request" ng-if="state.download_ongoing">
+                        <span style="color:white; white-space:nowrap;">{{ state.closed_secret_request }} / {{ state.open_secret_requests }}</span>
+                    </uib-progressbar>
+                    <br>
+                </div>
+            </form>
+            <div class="alert alert-warning">
+                <strong>Warning!</strong> This analysis can take several minutes to complete.
+            </div>
+
+        </div>
+    </div>
+
+
+</div>

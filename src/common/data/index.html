@@ -81,19 +81,44 @@
     <div snap-drawer class="dark">
         <h2>Navigation</h2>
         <ul class="navigations">
-            <li ng-class="get_link_state('/')"><a href="#">Home</a></li>
+            <li ng-class="get_link_state('/')">
+                <a class="navigationitem" href="#">
+                    <span class="fa-stack"><i class="fa fa-home fa-fw" aria-hidden="true"></i></span>Home
+                </a>
+            </li>
             <!--<li ng-class="get_link_state('/test')"><a href="#!/test">Test</a></li>-->
         </ul>
         <h2>Share Details</h2>
         <ul class="navigations">
-            <li ng-class="get_link_state('/share/pendingshares')"><a href="#!/share/pendingshares">Pending Requests</a></li>
-            <li ng-class="get_link_state('/share/users')"><a href="#!/share/users">Trusted Users</a></li>
+            <li ng-class="get_link_state('/share/pendingshares')">
+                <a class="navigationitem" href="#!/share/pendingshares">
+                    <span class="fa-stack"><i class="fa fa-share-alt fa-fw"></i></span>Pending Requests
+                </a>
+            </li>
+            <li ng-class="get_link_state('/share/users')">
+                <a class="navigationitem" href="#!/share/users">
+                    <span class="fa-stack"><i class="fa fa-lock fa-fw"></i></i></span>Trusted Users
+                </a>
+            </li>
+            <li ng-class="get_link_state('/security-report')">
+                <a class="navigationitem" href="#!/security-report">
+                    <span class="fa-stack"><i class="fa fa-file-text fa-fw"></i></i></span>Security Report
+                </a>
+            </li>
         </ul>
         <h2>More</h2>
         <ul class="navigations">
             <!--<li><a href="https://www.psono.pw/help" target="_blank">Help</a></li>-->
-            <li><a href="https://www.psono.com" target="_blank">About Us</a></li>
-            <li><a href="privacy-policy.html" target="_blank">Privacy Policy</a></li>
+            <li>
+                <a class="navigationitem" href="privacy-policy.html" target="_blank">
+                    <span class="fa-stack"><i class="fa fa-user-secret fa-fw" aria-hidden="true"></i></span>Privacy Policy
+                </a>
+            </li>
+            <li>
+                <a class="navigationitem" href="https://www.psono.com" target="_blank">
+                    <span class="fa-stack"><i class="fa fa-info-circle fa-fw" aria-hidden="true"></i></span>About Us
+                </a>
+            </li>
         </ul>
         <div class="footer version">
             PSONO: {{ version }}
@@ -122,9 +147,12 @@
                 <div class="form-group">
                     <input type="password" class="form-control" id="loginPassword" placeholder="Password" ng-model="loginFormPassword" required>
                 </div>
+                <div class="checkbox">
+                    <label><input type="checkbox" ng-model="loginFormRemember"> Remember Username and Server</label>
+                </div>
 
                 <div class="form-group">
-                    <button ng-click="login(loginFormUsername, loginFormPassword)" type="submit" class="btn btn-danger">Login</button>
+                    <button ng-click="login(loginFormUsername, loginFormPassword, loginFormRemember)" type="submit" class="btn btn-danger">Login</button>
                     <a href="register.html">Register</a>
                     <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
                     <div class="clearfix"></div>
@@ -208,6 +236,7 @@
 <script src="js/lib/sha256.min.js" type="text/javascript"></script>
 <!--<script src="js/lib/nacl_factory.js" type="text/javascript"></script>-->
 <script src="js/lib/uuid.js" type="text/javascript"></script>
+<script src="js/lib/chart.min.js" type="text/javascript"></script>
 <script src="js/lib/client.min.js" type="text/javascript"></script>
 <script src="js/lib/jquery.min.js" type="text/javascript"></script>
 <script src="js/lib/datatables.min.js" type="text/javascript"></script>
@@ -227,6 +256,7 @@
 <script src="js/lib/angular-touch.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-complexify.min.js" type="application/javascript"></script>
 <script src="js/lib/loading-bar.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-chart.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-route.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-sanitize.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-local-storage.min.js" type="application/javascript"></script>
@@ -249,6 +279,7 @@
 <script src="js/controller/AccountCtrl.js" type="application/javascript"></script>
 <script src="js/controller/ActivationCtrl.js" type="application/javascript"></script>
 <script src="js/controller/DatastoreCtrl.js"></script>
+<script src="js/controller/SecurityReportCtrl.js" type="application/javascript"></script>
 <script src="js/controller/IndexCtrl.js" type="application/javascript"></script>
 <script src="js/controller/LoginCtrl.js" type="application/javascript"></script>
 <script src="js/controller/LostPasswordCtrl.js" type="application/javascript"></script>
@@ -295,8 +326,11 @@
 <script src="js/service/manager-share-link.js" type="application/javascript"></script>
 <script src="js/service/manager-export.js" type="application/javascript"></script>
 <script src="js/service/manager-import.js" type="application/javascript"></script>
+<script src="js/service/manager-security-report.js" type="application/javascript"></script>
 <script src="js/service/import-psono-pw-json.js" type="application/javascript"></script>
 <script src="js/service/import-lastpass-com-csv.js" type="application/javascript"></script>
+<script src="js/service/import-keepassx-org-csv.js" type="application/javascript"></script>
+<script src="js/service/import-keepass-info-csv.js" type="application/javascript"></script>
 <script src="js/service/manager-secret.js" type="application/javascript"></script>
 <script src="js/service/manager-share.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore-password.js" type="application/javascript"></script>

@@ -80,8 +80,6 @@
             a.attr('download', file_name);
             angular.element(document.body).append(a);
             a[0].click();
-
-            emit('export-complete', {});
         };
 
 
@@ -181,8 +179,7 @@
             if (type === 'json') {
                 return JSON.stringify(data);
             } else {
-                // default json
-                return JSON.stringify(data);
+                return data;
             }
         };
 
@@ -289,22 +286,44 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerExport#export_datastore
+         * @name psonocli.managerExport#fetch_datastore
          * @methodOf psonocli.managerExport
          *
          * @description
-         * Returns a copy of the datastore
+         * Fetches the datastore with all secrets ready to download or analyze
+         *
+         * @param type The selected type of the export
          *
          * @returns {promise} Returns a promise with the exportable datastore content
          */
-        var export_datastore = function(type) {
+        var fetch_datastore = function(type) {
 
             emit('export-started', {});
 
             return managerDatastorePassword.get_password_datastore()
                 .then(get_all_secrets)
                 .then(filter_datastore_export)
-                .then(function(data){ return compose_export(data, type) })
+                .then(function(data){
+                    emit('export-complete', {});
+                    return compose_export(data, type);
+                });
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerExport#export_datastore
+         * @methodOf psonocli.managerExport
+         *
+         * @description
+         * Returns a copy of the datastore
+         *
+         * @param type The selected type of the export
+         *
+         * @returns {promise} Returns a promise once the export is successful
+         */
+        var export_datastore = function(type) {
+
+            return fetch_datastore(type)
                 .then(download_export)
                 .then(function() {
                     return {msgs: ['Export successful.']}
@@ -316,6 +335,7 @@
             on:on,
             emit:emit,
             get_exporter:get_exporter,
+            fetch_datastore:fetch_datastore,
             export_datastore:export_datastore
         };
     };

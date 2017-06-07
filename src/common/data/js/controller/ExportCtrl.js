@@ -10,8 +10,8 @@
      * @description
      * Controller for the "Export" tab in the "Others" menu
      */
-    angular.module('psonocli').controller('ExportCtrl', ['$scope', '$window', '$timeout', 'managerExport',
-        function ($scope, $window, $timeout, managerExport) {
+    angular.module('psonocli').controller('ExportCtrl', ['$scope', 'managerExport',
+        function ($scope, managerExport) {
 
             $scope.export_options = {
                 options: managerExport.get_exporter()

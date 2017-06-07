@@ -44,7 +44,23 @@
         <hr>
         <ul class="navigations">
             <li ng-repeat="searchEntry in datastore.filteredSearcArray = (searchArray | filter:filterBySearch)">
-                <a href="#" ng-click="on_item_click(searchEntry)">{{ searchEntry.name }}</a>
+                <a href="#" class="navigationitem" ng-click="on_item_click(searchEntry)">{{ searchEntry.name }}</a>
+                <span class="node-dropdown dropdown" uib-dropdown="" on-toggle="toggled(open, 'drop_node_' + node.id)">
+                    <a class="btn btn-default dropdown-toggle" href="#" role="button"
+                       id="drop_node_{{searchEntry.key}}" uib-dropdown-toggle=""
+                       aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-cogs"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-button-menu"
+                        aria-labelledby="drop_node_{{searchEntry.key}}">
+                        <li role="menuitem" ng-click="copy_username(searchEntry)">
+                            <a href="#"><i class="fa fa-clipboard"></i>Copy Username</a>
+                        </li>
+                        <li role="menuitem" ng-click="copy_password(searchEntry)">
+                            <a href="#"><i class="fa fa-clipboard"></i>Copy Password</a>
+                        </li>
+                    </ul>
+                </span>
             </li>
             <li ng-if="datastore.filteredSearcArray.length === 0 && datastore.search !== ''">
                 <a href="#" onclick="return false;">No entry found ...</a>
@@ -52,8 +68,8 @@
         </ul>
 
         <ul class="navigations" ng-if="!datastore.search">
-            <li><a href="#" ng-click="open_tab('index.html')">Open Datastore</a></li>
-            <li><a href="#" ng-click="generate_password()">Generate Password</a></li>
+            <li><a href="#" class="navigationitem" ng-click="open_tab('index.html')">Open Datastore</a></li>
+            <li><a href="#" class="navigationitem" ng-click="generate_password()">Generate Password</a></li>
             <!--<li><a href="https://www.psono.pw/help" target="_blank">Help</a></li>-->
 
         </ul>
@@ -78,9 +94,12 @@
         <div class="form-group">
             <input type="password" class="form-control" id="loginPassword" placeholder="Password" ng-model="loginFormPassword" required>
         </div>
+        <div class="checkbox">
+            <label><input type="checkbox" ng-model="loginFormRemember"> Remember Username and Server</label>
+        </div>
 
         <div class="form-group">
-            <button ng-click="login(loginFormUsername, loginFormPassword)" type="submit" class="btn btn-danger">Login</button>
+            <button ng-click="login(loginFormUsername, loginFormPassword, loginFormRemember)" type="submit" class="btn btn-danger">Login</button>
             <a href="#" ng-click="open_tab('register.html')">Register</a>
             <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
             <div class="clearfix"></div>
@@ -160,6 +179,7 @@
 <script src="js/lib/sha256.min.js" type="text/javascript"></script>
 <!--<script src="js/lib/nacl_factory.js" type="text/javascript"></script>-->
 <script src="js/lib/uuid.js" type="text/javascript"></script>
+<script src="js/lib/chart.min.js" type="text/javascript"></script>
 <script src="js/lib/client.min.js" type="text/javascript"></script>
 <script src="js/lib/jquery.min.js" type="text/javascript"></script>
 <script src="js/lib/datatables.min.js" type="text/javascript"></script>
@@ -179,6 +199,7 @@
 <script src="js/lib/angular-touch.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-complexify.min.js" type="application/javascript"></script>
 <script src="js/lib/loading-bar.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-chart.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-route.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-sanitize.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-local-storage.min.js" type="application/javascript"></script>
@@ -201,6 +222,7 @@
 <script src="js/controller/AccountCtrl.js" type="application/javascript"></script>
 <script src="js/controller/ActivationCtrl.js" type="application/javascript"></script>
 <script src="js/controller/DatastoreCtrl.js"></script>
+<script src="js/controller/SecurityReportCtrl.js" type="application/javascript"></script>
 <script src="js/controller/IndexCtrl.js" type="application/javascript"></script>
 <script src="js/controller/LoginCtrl.js" type="application/javascript"></script>
 <script src="js/controller/LostPasswordCtrl.js" type="application/javascript"></script>
@@ -247,8 +269,11 @@
 <script src="js/service/manager-share-link.js" type="application/javascript"></script>
 <script src="js/service/manager-export.js" type="application/javascript"></script>
 <script src="js/service/manager-import.js" type="application/javascript"></script>
+<script src="js/service/manager-security-report.js" type="application/javascript"></script>
 <script src="js/service/import-psono-pw-json.js" type="application/javascript"></script>
 <script src="js/service/import-lastpass-com-csv.js" type="application/javascript"></script>
+<script src="js/service/import-keepassx-org-csv.js" type="application/javascript"></script>
+<script src="js/service/import-keepass-info-csv.js" type="application/javascript"></script>
 <script src="js/service/manager-secret.js" type="application/javascript"></script>
 <script src="js/service/manager-share.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore-password.js" type="application/javascript"></script>

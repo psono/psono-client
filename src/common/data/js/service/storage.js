@@ -18,6 +18,11 @@
             indices: ['key'],
             uniques: ['key']
         },
+        'persistent': {
+            name: 'persistent',
+            indices: ['key'],
+            uniques: ['key']
+        },
         'settings': {
             name: 'settings',
                 indices: ['key'],
@@ -195,7 +200,7 @@
          * @methodOf psonocli.storage
          *
          * @description
-         * removes all objects in all dbs or only in the specified one
+         * removes all objects in all dbs (excluding the persistent one) or only in the specified one
          *
          * @param {string} db The database
          */
@@ -208,6 +213,9 @@
 
                 for (var db_name in dbs) {
                     if (!dbs.hasOwnProperty(db_name)) {
+                        continue;
+                    }
+                    if (db_name === 'persistent') {
                         continue;
                     }
                     dbs[db_name].removeWhere(function() {

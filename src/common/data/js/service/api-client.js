@@ -16,7 +16,19 @@
 
     var apiClient = function($http, $q, $rootScope, storage, cryptoLibrary) {
 
-        var call = function(type, endpoint, data, headers, session_secret_key) {
+        var decrypt_data = function(session_secret_key, data) {
+
+            if (session_secret_key && data !== null
+                && data.hasOwnProperty('data')
+                && data.data.hasOwnProperty('text')
+                && data.data.hasOwnProperty('nonce')) {
+                data.data = JSON.parse(cryptoLibrary.decrypt_data(data.data.text, data.data.nonce, session_secret_key));
+            }
+
+            return data;
+        };
+
+        var call = function(connection_type, endpoint, data, headers, session_secret_key, synchronous) {
 
             var server = storage.find_one('config', {'key': 'server'});
 
@@ -35,46 +47,58 @@
             }
 
             var req = {
-                method: type,
+                method: connection_type,
                 url: backend + endpoint,
                 data: data
             };
 
             req.headers = headers;
 
-            return $q(function(resolve, reject) {
-
-                var decrypt_data = function(data) {
-
-                    if (session_secret_key && data !== null
-                        && data.hasOwnProperty('data')
-                        && data.data.hasOwnProperty('text')
-                        && data.data.hasOwnProperty('nonce')) {
-                        data.data = JSON.parse(cryptoLibrary.decrypt_data(data.data.text, data.data.nonce, session_secret_key));
+            if (synchronous) {
+                /**
+                 * Necessary evil... used to copy data to the clipboard which can only happen on user interaction,
+                 * which means that we need a user event for it, which means that we have to block the thread with a
+                 * synchronous wait... If someone has a better idea let me know!
+                 */
+                return jQuery.ajax({
+                    type: connection_type,
+                    url: backend + endpoint,
+                    async: false,
+                    data: data, // No data required for get
+                    dataType: 'text', // will be json but for the demo purposes we insist on text
+                    beforeSend: function (xhr) {
+                        for (var header in headers) {
+                            if (!headers.hasOwnProperty(header)) {
+                                continue;
+                            }
+                        }
+                        xhr.setRequestHeader(header, headers[header]);
                     }
+                }).then(function(data) {
+                    return decrypt_data(session_secret_key, {data: JSON.parse(data)});
+                });
+            } else {
+                return $q(function(resolve, reject) {
 
-                    //console.log(data);
-                    return data;
-                };
+                    var onSuccess = function(data) {
+                        return resolve(decrypt_data(session_secret_key, data));
+                    };
 
-                var onSuccess = function(data) {
-                    return resolve(decrypt_data(data));
-                };
+                    var onError = function(data) {
+                        if (data.status === 401) {
+                            $rootScope.$broadcast('force_logout', '');
+                        }
+                        if (data.status === 503) {
+                            $rootScope.$broadcast('force_logout', '');
+                        }
+                        return reject(decrypt_data(session_secret_key, data));
+                    };
 
-                var onError = function(data) {
-                    if (data.status === 401) {
-                        $rootScope.$broadcast('force_logout', '');
-                    }
-                    if (data.status === 503) {
-                        $rootScope.$broadcast('force_logout', '');
-                    }
-                    return reject(decrypt_data(data));
-                };
+                    $http(req)
+                        .then(onSuccess, onError);
 
-                $http(req)
-                    .then(onSuccess, onError);
-
-            });
+                });
+            }
         };
 
         /**
@@ -556,10 +580,11 @@
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
          * @param {uuid} [secret_id=null] (optional) secret ID
+         * @param {boolean} [synchronous] (optional) Synchronous or Asynchronous
          *
          * @returns {promise} promise
          */
-        var read_secret = function (token, session_secret_key, secret_id) {
+        var read_secret = function (token, session_secret_key, secret_id, synchronous) {
 
             //optional parameter secret_id
             if (secret_id === undefined) { secret_id = null; }
@@ -571,7 +596,7 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers, session_secret_key);
+            return call(connection_type, endpoint, data, headers, session_secret_key, synchronous);
         };
 
 
@@ -1080,7 +1105,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.apiClient#get_users_public_key
+         * @name psonocli.apiClient#search_user
          * @methodOf psonocli.apiClient
          *
          * @description
@@ -1093,7 +1118,7 @@
          *
          * @returns {promise} Returns a promise with the user information
          */
-        var get_users_public_key = function (token, session_secret_key, user_id, user_username) {
+        var search_user = function (token, session_secret_key, user_id, user_username) {
             var endpoint = '/user/search/';
             var connection_type = "POST";
             var data = {
@@ -1458,7 +1483,7 @@
             read_share_rights_inherit_overview: read_share_rights_inherit_overview,
             accept_share_right: accept_share_right,
             decline_share_right: decline_share_right,
-            get_users_public_key: get_users_public_key,
+            search_user: search_user,
             read_ga: read_ga,
             delete_ga: delete_ga,
             create_ga: create_ga,

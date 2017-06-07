@@ -228,6 +228,9 @@
                 session_password = null;
                 verification = null;
 
+                browserClient.emit("login", null);
+                browserClient.resize(295);
+
                 return {
                     response:"success"
                 };
@@ -302,6 +305,26 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastoreUser#get_default
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Returns the default value for the specified item (username or server)
+         *
+         * @param {string} item The saved item to return
+         *
+         * @returns {promise} Returns the saved default value
+         */
+        var get_default = function(item) {
+            if (item === 'username') {
+                return managerBase.find_one('persistent', 'username');
+            } else if (item === 'server') {
+                return managerBase.find_one('persistent', 'server');
+            }
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastoreUser#login
          * @methodOf psonocli.managerDatastoreUser
          *
@@ -311,16 +334,33 @@
          * Also handles the validation of the token with the server by solving the cryptographic puzzle
          *
          * @param {string} username The username to login with
+         * @param {string} domain The domain which we append if necessary to the username
          * @param {string} password The password to login with
+         * @param {boolean|undefined} remember Remember the username and server
          * @param {object} server The server object to send the login request to
          *
          * @returns {promise} Returns a promise with the login status
          */
-        var login = function(username, password, server) {
+        var login = function(username, domain, password, remember, server) {
+
+            username = helper.form_full_username(username, domain);
 
             managerBase.delete_local_data();
 
             var authkey = cryptoLibrary.generate_authkey(username, password);
+
+            if (remember) {
+                storage.upsert('persistent', {key: 'username', value: username});
+                storage.upsert('persistent', {key: 'server', value: server});
+            } else {
+                if (storage.key_exists('persistent', 'username')) {
+                    storage.remove('persistent', storage.find_one('persistent', {'key': 'username'}));
+                }
+                if (storage.key_exists('persistent', 'server')) {
+                    storage.remove('persistent', storage.find_one('persistent', {'key': 'server'}));
+                }
+                storage.save();
+            }
 
             storage.insert('config', {key: 'user_username', value: username});
             storage.insert('config', {key: 'server', value: server});
@@ -487,7 +527,7 @@
 
             var onSuccess = function(data) {
                 return {
-                    'username': managerBase.find_one_nolimit('config', 'user_username'),
+                    'username': managerBase.find_one('config', 'user_username'),
                     'recovery_password': helper.split_string_in_chunks(recovery_password['base58_checksums'], 13).join('-'),
                     'recovery_words': recovery_password['words'].join(' ')
                 };
@@ -711,7 +751,7 @@
          */
         var search_user = function(username) {
 
-            return apiClient.get_users_public_key(managerBase.get_token(), managerBase.get_session_secret_key(), undefined, username);
+            return apiClient.search_user(managerBase.get_token(), managerBase.get_session_secret_key(), undefined, username);
         };
 
         /**
@@ -923,6 +963,7 @@
         return {
             register: register,
             activate_code: activate_code,
+            get_default: get_default,
             login: login,
             ga_verify: ga_verify,
             yubikey_otp_verify: yubikey_otp_verify,
