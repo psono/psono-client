@@ -141,43 +141,43 @@
         }));
 
         it('is_valid_username not allowed chars', inject(function (helper) {
-            expect(helper.is_valid_username('ab@cd') === true).not.toBeTruthy();
+            expect(helper.is_valid_username('ab@cd') === true).toBeFalsy();
         }));
 
         it('is_valid_username too small', inject(function (helper) {
-            expect(helper.is_valid_username('ab') === true).not.toBeTruthy();
+            expect(helper.is_valid_username('ab') === true).toBeFalsy();
         }));
 
         it('is_valid_username start with .', inject(function (helper) {
-            expect(helper.is_valid_username('.abcd') === true).not.toBeTruthy();
+            expect(helper.is_valid_username('.abcd') === true).toBeFalsy();
         }));
 
         it('is_valid_username start with -', inject(function (helper) {
-            expect(helper.is_valid_username('-abcd') === true).not.toBeTruthy();
+            expect(helper.is_valid_username('-abcd') === true).toBeFalsy();
         }));
 
         it('is_valid_username end with .', inject(function (helper) {
-            expect(helper.is_valid_username('abcd.') === true).not.toBeTruthy();
+            expect(helper.is_valid_username('abcd.') === true).toBeFalsy();
         }));
 
         it('is_valid_username end with -', inject(function (helper) {
-            expect(helper.is_valid_username('abcd-') === true).not.toBeTruthy();
+            expect(helper.is_valid_username('abcd-') === true).toBeFalsy();
         }));
 
         it('is_valid_username double occurrence of .', inject(function (helper) {
-            expect(helper.is_valid_username('abc..def') === true).not.toBeTruthy();
+            expect(helper.is_valid_username('abc..def') === true).toBeFalsy();
         }));
 
         it('is_valid_username double occurrence of -', inject(function (helper) {
-            expect(helper.is_valid_username('abc--def') === true).not.toBeTruthy();
+            expect(helper.is_valid_username('abc--def') === true).toBeFalsy();
         }));
 
         it('is_valid_username occurrence of .-', inject(function (helper) {
-            expect(helper.is_valid_username('abc.-def') === true).not.toBeTruthy();
+            expect(helper.is_valid_username('abc.-def') === true).toBeFalsy();
         }));
 
         it('is_valid_username occurrence of -.', inject(function (helper) {
-            expect(helper.is_valid_username('abc-.def') === true).not.toBeTruthy();
+            expect(helper.is_valid_username('abc-.def') === true).toBeFalsy();
         }));
 
         it('is_valid_username valid', inject(function (helper) {
@@ -210,6 +210,49 @@
             helper.remove_from_array(array, search, cmp_fct);
 
             expect(array).toEqual(target);
+        }));
+
+
+        it('form_full_username_without_email_syntax', inject(function (helper) {
+
+            var username = 'test';
+            var domain = 'example.com';
+
+            var full_username = helper.form_full_username(username, domain);
+
+            expect(full_username).toEqual(username + '@' + domain);
+        }));
+
+
+        it('form_full_username_with_email_syntax', inject(function (helper) {
+
+            var username = 'test@example1.com';
+            var domain = 'example.com';
+
+            var full_username = helper.form_full_username(username, domain);
+
+            expect(full_username).toEqual(username);
+        }));
+
+
+        it('is_valid_password_too_short', inject(function (helper) {
+
+            var password1 = '12345678901';
+
+            var is_valid = helper.is_valid_password(password1, password1);
+
+            expect(is_valid).toEqual("Password too short (min 12 chars).");
+        }));
+
+
+        it('is_valid_password_no_match', inject(function (helper) {
+
+            var password1 = '123456789012';
+            var password2 = '123456789013';
+
+            var is_valid = helper.is_valid_password(password1, password2);
+
+            expect(is_valid).toEqual("Passwords don't match.");
         }));
 
     });

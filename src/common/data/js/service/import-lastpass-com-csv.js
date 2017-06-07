@@ -77,11 +77,10 @@
                 // its a license, so lets return a note as we don't have this object class yet
                 return 'note'
             }
-            if (line[INDEX_URL] === '') {
+            if (line[INDEX_URL].trim() === '') {
                 // empty url, should be a note
                 return 'note'
-            }
-            if (line[INDEX_URL] === '') {
+            } else {
                 // Should have an url, so should be a password
                 return 'website_password'
             }
@@ -237,7 +236,7 @@
             var csv = Papa.parse(data);
 
             if (csv['errors'].length > 0) {
-                throw new Error(csv['errors']);
+                throw new Error(csv['errors'][0]['message']);
             }
 
             return csv['data'];
@@ -288,7 +287,9 @@
             }
         }
 
-        return {};
+        return {
+            parser: parser
+        };
     };
 
     var app = angular.module('psonocli');

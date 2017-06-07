@@ -100,7 +100,9 @@
             }
         }
 
-        return {};
+        return {
+            parser: parser
+        };
     };
 
     var app = angular.module('psonocli');

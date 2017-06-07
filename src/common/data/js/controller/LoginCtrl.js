@@ -203,6 +203,8 @@
              */
             function next_login_step(required_multifactors) {
 
+                $scope.errors = [];
+
                 if (required_multifactors.length === 0) {
 
                     var onError = function(data) {
