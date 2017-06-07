@@ -212,7 +212,7 @@
                 }]
             };
 
-            expect(output).toEqual(expected_output);
+            expect(JSON.parse(JSON.stringify(output))).toEqual(expected_output);
         }));
 
     });

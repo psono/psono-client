@@ -229,7 +229,8 @@
 
             var item = {
                 type: 'website_password',
-                secret_id: '8584a986-f5c5-4adc-928b-c0eab9f2d550'
+                secret_id: '8584a986-f5c5-4adc-928b-c0eab9f2d550',
+                urlfilter: 'example.com'
             };
 
             managerSecret.on_item_click(item);

@@ -157,7 +157,7 @@
          * @param {object} item The item one has clicked on
          */
         var on_item_click = function(item) {
-            if (itemBlueprint.blueprint_has_on_click_new_tab(item.type)) {
+            if (item.hasOwnProperty("urlfilter") && item['urlfilter'] !== '' && itemBlueprint.blueprint_has_on_click_new_tab(item.type)) {
                 browserClient.open_tab('open-secret.html#!/secret/'+item.type+'/'+item.secret_id);
             }
         };
