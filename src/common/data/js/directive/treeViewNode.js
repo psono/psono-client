@@ -3,7 +3,8 @@
 
     /**
      * @ngdoc directive
-     * @name ngTree.treeViewNode
+     * @name ngTree.directive:treeViewNode
+     * @restrict A
      *
      * @description
      * Directive for the node in a tree structure

@@ -75,7 +75,7 @@
          *
          * @param {*} secret The secret to rate
          *
-         * @returns {{}} Returns the rating with a score [0-100] and the advise what to improve
+         * @returns {object} Returns the rating with a score [0-100] and the advise what to improve
          */
         var rate_secret = function (secret) {
 
@@ -144,7 +144,7 @@
          * Little helper functions that will filter a folder object recursive and fills all found website passwords
          * into the provided website_passwords array
          *
-         * @param {{}} folder The folder to filter
+         * @param {object} folder The folder to filter
          * @param {Array} website_passwords The array into which all website_passwords should be put in
          */
         var filter_website_passwords_helper = function(folder, website_passwords) {
@@ -170,7 +170,7 @@
          * @description
          * Takes a datastore and returns an array of website passwords
          *
-         * @param {{}} datastore The datastore to filter
+         * @param {object} datastore The datastore to filter
          *
          * @returns {Array} Returns an array of website passwords
          */
@@ -210,9 +210,9 @@
          * @description
          * Analyze all secrets in the datastore
          *
-         * @param {{}} secrets The secrets to analyze
+         * @param {object} secrets The secrets to analyze
          *
-         * @returns {{}} Returns the analysis of the passwords
+         * @returns {object} Returns the analysis of the passwords
          */
         var analyze_password_length = function(secrets) {
             var analysis = {
@@ -246,9 +246,9 @@
          * @description
          * Analyze all secrets from the last analysis and check for duplicates
          *
-         * @param {{}} analysis The secrets to analyze
+         * @param {object} analysis The secrets to analyze
          *
-         * @returns {{}} Returns the analysis of the passwords
+         * @returns {object} Returns the analysis of the passwords
          */
         var analyze_password_duplicates = function(analysis) {
 
@@ -280,9 +280,9 @@
          * @description
          * Analyze all secrets from the last analysis and check for the password age
          *
-         * @param {{}} analysis The secrets to analyze
+         * @param {object} analysis The secrets to analyze
          *
-         * @returns {{}} Returns the analysis of the passwords
+         * @returns {object} Returns the analysis of the passwords
          */
         var analyze_password_age = function(analysis) {
 
@@ -309,9 +309,9 @@
          * @description
          * Analyze all secrets from the last analysis and check for duplicates
          *
-         * @param {{}} analysis The secrets to analyze
+         * @param {object} analysis The secrets to analyze
          *
-         * @returns {{}} Returns the analysis of the passwords
+         * @returns {object} Returns the analysis of the passwords
          */
         var summarize_password = function(analysis) {
 
@@ -381,9 +381,9 @@
          * @description
          * Summarize password statistics
          *
-         * @param {{}} analysis The secrets to analyze
+         * @param {object} analysis The secrets to analyze
          *
-         * @returns {{}} Returns the analysis of the passwords
+         * @returns {object} Returns the analysis of the passwords
          */
         var summarize_user = function(analysis) {
 

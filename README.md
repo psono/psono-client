@@ -64,8 +64,8 @@ in `@example.com` where `example.com` is in your `settings.yaml` in the `ALLOWED
 
 # Preamble
 
-The following steps are verified on Ubuntu 16.04 LTS. Ubuntu 12.04+ LTS and Debian based systems should be similar if not
-even identical.
+    The following steps are verified on Ubuntu 16.04 LTS. Ubuntu 12.04+ LTS and Debian based systems should be similar if not
+    even identical.
 
 # Install for developers
 

@@ -93,7 +93,7 @@
          */
         var emit = function (event, data) {
             chrome.runtime.sendMessage({event: event, data: data}, function(response) {
-                console.log(response);
+                //console.log(response);
             });
             $rootScope.$broadcast(event, '');
         };
@@ -106,7 +106,7 @@
          */
         var emit_sec = function(event, data) {
             chrome.runtime.sendMessage({event: event, data: data}, function(response) {
-                console.log(response);
+                //console.log(response);
             });
         };
 

@@ -602,8 +602,8 @@
          * Searches a folder and expects to find an element (item or folder) with a specific search_id.
          * It will return a tuple with the list of elements holding the element together with the index.
          *
-         * @param folder The folder to search
-         * @param search_id The id of the element one is looking for
+         * @param {object} folder The folder to search
+         * @param {uuid} search_id The id of the element one is looking for
          *
          * @returns {[]|boolean} Returns a tuple of the containing list and index or false if not found
          */

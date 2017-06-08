@@ -73,7 +73,7 @@
          * @description
          * Fills the datastore with folders their content and together with the secrets object
          *
-         * @param {{}} datastore The datastore structure to search recursive
+         * @param {object} datastore The datastore structure to search recursive
          * @param {[]} secrets The array containing all the found secrets
          * @param {[]} csv The array containing all the found secrets
          */
@@ -105,9 +105,10 @@
          * @methodOf psonocli.importKeePassCsv
          *
          * @description
+         * Parse the raw data into an array of arrays
          *
-         * @param data
-         * @returns {Array}
+         * @param {string} data The raw data to parse
+         * @returns {Array} The array of arrays representing the CSV
          */
         function parse_csv(data) {
             var csv = Papa.parse(data);

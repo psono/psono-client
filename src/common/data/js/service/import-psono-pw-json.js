@@ -35,7 +35,7 @@
          * @description
          * Searches a given folder recursive inclusive all sub-folders and puts them all into the provided secrets array
          *
-         * @param {{}} folder The folder structure to search recursive
+         * @param {object} folder The folder structure to search recursive
          * @param {[]} secrets The array containing all the found secrets
          */
         function gather_secrets(folder, secrets) {

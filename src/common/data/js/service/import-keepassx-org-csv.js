@@ -45,7 +45,7 @@
          * yet exist. Once the specified folder has been reached, it will return it.
          *
          * @param {Array} path Array of folder names to search
-         * @param {{}} folder A folder object that needs to contain the items and folders attribute
+         * @param {object} folder A folder object that needs to contain the items and folders attribute
          *
          * @returns {*} Returns the specified folder object, containing items and folders
          */
@@ -88,9 +88,9 @@
          * Creates the folder if it doesn't exists and returns it.
          *
          * @param {[]} line One line of the CSV import
-         * @param {{}} datastore The full datastore object
+         * @param {object} datastore The full datastore object
          *
-         * @returns {{}} Returns the folder
+         * @returns {object} Returns the folder
          */
         function get_folder(line, datastore) {
 
@@ -139,7 +139,7 @@
          * @description
          * Fills the datastore with folders their content and together with the secrets object
          *
-         * @param {{}} datastore The datastore structure to search recursive
+         * @param {object} datastore The datastore structure to search recursive
          * @param {[]} secrets The array containing all the found secrets
          * @param {[]} csv The array containing all the found secrets
          */
@@ -173,9 +173,10 @@
          * @methodOf psonocli.importKeePassXCsv
          *
          * @description
+         * Parse the raw data into an array of arrays
          *
-         * @param data
-         * @returns {Array}
+         * @param {string} data The raw data to parse
+         * @returns {Array} The array of arrays representing the CSV
          */
         function parse_csv(data) {
             var csv = Papa.parse(data);
