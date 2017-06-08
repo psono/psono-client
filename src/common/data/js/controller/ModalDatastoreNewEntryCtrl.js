@@ -6,7 +6,7 @@
      * @name psonocli.controller:ModalDatastoreNewEntryCtrl
      * @requires $scope
      * @requires $uibModalInstance
-     * @requires itemBlueprint
+     * @requires psonocli.itemBlueprint
      *
      * @description
      * Controller for the "New Entry" modal

@@ -1,15 +1,15 @@
 (function(angular, uuid) {
     'use strict';
 
-    var converter = function() {
+    /**
+     * @ngdoc service
+     * @name psonocli.converter
+     *
+     * @description
+     * Service with all the converter operations
+     */
 
-        /**
-         * @ngdoc service
-         * @name psonocli.converter
-         *
-         * @description
-         * Service with all the converter operations
-         */
+    var converter = function() {
 
         var BASE58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
 

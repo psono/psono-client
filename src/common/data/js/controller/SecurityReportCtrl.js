@@ -7,7 +7,6 @@
      * @requires $scope
      * @requires $routeParams
      * @requires psonocli.managerSecurityReport
-     * @requires psonocli.managerExport
      *
      * @description
      * Controller for the index

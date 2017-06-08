@@ -7,7 +7,6 @@
      * @requires $scope
      * @requires $routeParams
      * @requires psonocli.account
-     * @requires psonocli.managerDatastoreSetting
      *
      * @description
      * Controller for the Account view

@@ -611,16 +611,20 @@
 
             var n, l;
 
-            // check if the object is a folder, if yes return the folder list and the index
-            for (n = 0, l = folder.folders.length; folder.hasOwnProperty('folders') && n < l; n++) {
-                if (folder.folders[n].id === search_id) {
-                    return [folder.folders, n];
+            if (folder.hasOwnProperty('folders')) {
+                // check if the object is a folder, if yes return the folder list and the index
+                for (n = 0, l = folder.folders.length; n < l; n++) {
+                    if (folder.folders[n].id === search_id) {
+                        return [folder.folders, n];
+                    }
                 }
             }
-            // check if its a file, if yes return the file list and the index
-            for (n = 0, l = folder.items.length; folder.hasOwnProperty('items') && n < l; n++) {
-                if (folder.items[n].id === search_id) {
-                    return [folder.items, n];
+            if (folder.hasOwnProperty('items')) {
+                // check if its a file, if yes return the file list and the index
+                for (n = 0, l = folder.items.length; n < l; n++) {
+                    if (folder.items[n].id === search_id) {
+                        return [folder.items, n];
+                    }
                 }
             }
             // something went wrong, couldn't find the item / folder here

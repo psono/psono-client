@@ -4,6 +4,9 @@
     /**
      * @ngdoc directive
      * @name ngTree.directive:treeViewNode
+     * @requires $q
+     * @requires $compile
+     * @requires ngTree.dropDownMenuWatcher
      * @restrict A
      *
      * @description

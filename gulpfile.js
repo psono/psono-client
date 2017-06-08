@@ -335,6 +335,8 @@ gulp.task('docs', [], function () {
 
     var options = {
         html5Mode: false,
+        titleLink: "/api",
+        startPage: '/api',
         title: "Psono Client",
         styles: ['var/ngdocs/style.css']
     };

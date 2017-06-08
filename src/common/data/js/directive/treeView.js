@@ -4,6 +4,9 @@
     /**
      * @ngdoc directive
      * @name ngTree.directive:treeView
+     * @requires $q
+     * @requires $timeout
+     * @requires treeViewDefaults
      * @scope
      * @restrict A
      *

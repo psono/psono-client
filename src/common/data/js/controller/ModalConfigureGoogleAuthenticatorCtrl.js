@@ -6,6 +6,8 @@
      * @name psonocli.controller:ModalConfigureGoogleAuthenticatorCtrl
      * @requires $scope
      * @requires $uibModalInstance
+     * @requires psonocli.managerDatastoreUser
+     * @requires psonocli.helper
      *
      * @description
      * Controller for the "Setup Google Authenticator" modal

@@ -4,6 +4,7 @@
     /**
      * @ngdoc service
      * @name psonocli.managerSecretLink
+     * @requires $q
      * @requires psonocli.managerBase
      * @requires psonocli.apiClient
      *

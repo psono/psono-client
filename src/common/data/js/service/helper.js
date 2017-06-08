@@ -8,8 +8,6 @@
      *
      * Service with some helper functions that do not fit anywhere else
      */
-
-
     var helper = function() {
 
         var client_js = new ClientJS();

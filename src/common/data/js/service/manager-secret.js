@@ -9,6 +9,7 @@
      * @requires psonocli.cryptoLibrary
      * @requires psonocli.itemBlueprint
      * @requires psonocli.browserClient
+     * @requires psonocli.helper
      *
      * @description
      * Service to handle all secret related tasks
