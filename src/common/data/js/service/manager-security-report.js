@@ -175,7 +175,6 @@
          * @returns {Array} Returns an array of website passwords
          */
         var filter_website_passwords = function(datastore) {
-            console.log("filter_website_passwords");
             var website_passwords = [];
 
             filter_website_passwords_helper(datastore, website_passwords);
@@ -422,7 +421,6 @@
         var generate_security_report = function() {
 
             emit('generation-started', {});
-            console.log("generate_security_report");
 
             return managerExport.fetch_datastore()
                 .then(filter_website_passwords)
