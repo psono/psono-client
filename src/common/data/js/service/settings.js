@@ -15,7 +15,7 @@
      */
 
 
-    var settings = function($q, storage, managerDatastoreUser, managerDatastoreSetting, cryptoLibrary, apiClient) {
+    var settings = function($q, storage, managerDatastoreUser, managerDatastoreSetting) {
 
         var _tabs = [
             { key: 'passwordgen', title: 'Password Generator' }
@@ -203,6 +203,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("settings", ['$q', 'storage', 'managerDatastoreUser', 'managerDatastoreSetting', 'cryptoLibrary', 'apiClient', settings]);
+    app.factory("settings", ['$q', 'storage', 'managerDatastoreUser', 'managerDatastoreSetting', settings]);
 
 }(angular));

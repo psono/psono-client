@@ -3,7 +3,12 @@
 
     /**
      * @ngdoc directive
-     * @name ngTree.treeView
+     * @name ngTree.directive:treeView
+     * @requires $q
+     * @requires $timeout
+     * @requires treeViewDefaults
+     * @scope
+     * @restrict A
      *
      * @description
      * Directive for the tree structure

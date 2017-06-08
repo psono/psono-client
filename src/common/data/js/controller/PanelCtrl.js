@@ -12,6 +12,7 @@
      * @requires psonocli.managerDatastorePassword
      * @requires psonocli.managerDatastoreUser
      * @requires psonocli.managerSecret
+     * @requires psonocli.browserClient
      * @requires snapRemote
      * @requires $window
      * @requires $route

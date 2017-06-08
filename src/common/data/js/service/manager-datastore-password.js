@@ -602,8 +602,8 @@
          * Searches a folder and expects to find an element (item or folder) with a specific search_id.
          * It will return a tuple with the list of elements holding the element together with the index.
          *
-         * @param folder The folder to search
-         * @param search_id The id of the element one is looking for
+         * @param {object} folder The folder to search
+         * @param {uuid} search_id The id of the element one is looking for
          *
          * @returns {[]|boolean} Returns a tuple of the containing list and index or false if not found
          */
@@ -611,16 +611,20 @@
 
             var n, l;
 
-            // check if the object is a folder, if yes return the folder list and the index
-            for (n = 0, l = folder.folders.length; folder.hasOwnProperty('folders') && n < l; n++) {
-                if (folder.folders[n].id === search_id) {
-                    return [folder.folders, n];
+            if (folder.hasOwnProperty('folders')) {
+                // check if the object is a folder, if yes return the folder list and the index
+                for (n = 0, l = folder.folders.length; n < l; n++) {
+                    if (folder.folders[n].id === search_id) {
+                        return [folder.folders, n];
+                    }
                 }
             }
-            // check if its a file, if yes return the file list and the index
-            for (n = 0, l = folder.items.length; folder.hasOwnProperty('items') && n < l; n++) {
-                if (folder.items[n].id === search_id) {
-                    return [folder.items, n];
+            if (folder.hasOwnProperty('items')) {
+                // check if its a file, if yes return the file list and the index
+                for (n = 0, l = folder.items.length; n < l; n++) {
+                    if (folder.items[n].id === search_id) {
+                        return [folder.items, n];
+                    }
                 }
             }
             // something went wrong, couldn't find the item / folder here

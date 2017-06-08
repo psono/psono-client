@@ -3,7 +3,8 @@
 
     /**
      * @ngdoc directive
-     * @name psonocli.fileReader
+     * @name psonocli.directive:fileReader
+     * @restrict EA
      *
      * @description
      * Directive to handle the file upload

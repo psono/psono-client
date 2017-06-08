@@ -3,7 +3,11 @@
 
     /**
      * @ngdoc directive
-     * @name ngTree.treeViewNode
+     * @name ngTree.directive:treeViewNode
+     * @requires $q
+     * @requires $compile
+     * @requires ngTree.dropDownMenuWatcher
+     * @restrict A
      *
      * @description
      * Directive for the node in a tree structure

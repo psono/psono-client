@@ -5,7 +5,10 @@
      * @ngdoc controller
      * @name psonocli.controller:ModalConfigureYubiKeyOTPCtrl
      * @requires $scope
+     * @requires $q
      * @requires $uibModalInstance
+     * @requires psonocli.managerDatastoreUser
+     * @requires psonocli.helper
      *
      * @description
      * Controller for the "Setup Google Authenticator" modal

@@ -1,10 +1,11 @@
-(function(angular, qrcode) {
+(function(angular) {
     'use strict';
 
     /**
      * @ngdoc service
      * @name psonocli.account
      * @requires $q
+     * @requires $uibModal
      * @requires psonocli.storage
      * @requires psonocli.managerDatastoreUser
      * @requires psonocli.managerDatastoreSetting
@@ -292,4 +293,4 @@
     var app = angular.module('psonocli');
     app.factory("account", ['$q', '$uibModal', 'storage', 'managerDatastoreUser', 'managerDatastoreSetting', 'cryptoLibrary', 'apiClient', account]);
 
-}(angular, qrcode));
+}(angular));

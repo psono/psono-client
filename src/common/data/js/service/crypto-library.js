@@ -1,20 +1,23 @@
 (function(angular, require, sha512, sha256, uuid) {
     'use strict';
 
+    /**
+     * @ngdoc service
+     * @name psonocli.cryptoLibrary
+     * @requires $window
+     * @requires psonocli.converter
+     * @requires psonocli.helper
+     *
+     * @description
+     * Service with all the cryptographic operations
+     */
+
     function InvalidRecoveryCodeException(message) {
         this.message = message;
         this.name = "InvalidRecoveryCodeException";
     }
 
     var cryptoLibrary = function($window, converter, helper) {
-
-        /**
-         * @ngdoc service
-         * @name psonocli.cryptoLibrary
-         *
-         * @description
-         * Service with all the cryptographic operations
-         */
 
         var nacl = require('ecma-nacl');
 

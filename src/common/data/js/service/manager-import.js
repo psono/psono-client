@@ -86,7 +86,7 @@
          * @description
          * Searches all possible parsers for the parser of this type
          *
-         * @param {string} type
+         * @param {string} type The type of the parser
          *
          * @returns {function|null} returns the parser or null
          */
@@ -107,7 +107,7 @@
          * @description
          * Parse the raw input and returns a data structure with folder and items that we can import
          *
-         * @param {string} data
+         * @param {string} data The data to parse
          *
          * @returns {*} Returns a tree structure with folders and items
          */
@@ -135,7 +135,7 @@
          * @description
          * gets the datastore and updates it
          *
-         * @param {object} parsed_data
+         * @param {object} parsed_data The parsed data object
          *
          * @returns {*} Returns the parsed data on completion
          */
@@ -164,7 +164,7 @@
          * @description
          * creates all the necessary secrets
          *
-         * @param {object} parsed_data
+         * @param {object} parsed_data The parsed data object
          * @param {string} datastore_id The ID of the password datastore
          *
          * @returns {*} Returns the parsed data on completion
@@ -207,7 +207,7 @@
          * @description
          * Initiates the creation of all secrets and links it to the password datastore
          *
-         * @param {object} parsed_data
+         * @param {object} parsed_data The parsed data object
          *
          * @returns {*} Returns the parsed data on completion
          */
@@ -230,7 +230,7 @@
          * @description
          * Returns a list with all possible importer
          *
-         * @returns {[*]}
+         * @returns {[]} List of all possible importer
          */
         var get_importer = function() {
             var importer_array = [];

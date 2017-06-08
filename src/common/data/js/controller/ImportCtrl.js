@@ -8,6 +8,8 @@
      * @requires psonocli.managerImport
      * @requires psonocli.importPsonoPwJson
      * @requires psonocli.importLastPassComCsv
+     * @requires psonocli.importKeePassCsv
+     * @requires psonocli.importKeePassXCsv
      *
      * @description
      * Controller for the "Import" tab in the "Others" menu

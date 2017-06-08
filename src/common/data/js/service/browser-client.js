@@ -8,6 +8,7 @@
      * @requires $q
      * @requires $templateRequest
      * @requires $http
+     * @requires $window
      *
      * @description
      * The browser interface, responsible for the cross browser / platform compatibility.

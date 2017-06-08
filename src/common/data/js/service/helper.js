@@ -8,8 +8,6 @@
      *
      * Service with some helper functions that do not fit anywhere else
      */
-
-
     var helper = function() {
 
         var client_js = new ClientJS();
@@ -167,8 +165,8 @@
          * @description
          * Checks that the username does not start with forbidden chars
          *
-         * @param username The username
-         * @param forbidden_chars The forbidden chars
+         * @param {string} username The username
+         * @param {Array} forbidden_chars The forbidden chars
          * @returns {string} The error message, if it matches
          */
         function validate_username_start(username, forbidden_chars) {
@@ -187,8 +185,8 @@
          * @description
          * Checks that the username does not end with forbidden chars
          *
-         * @param username The username
-         * @param forbidden_chars The forbidden chars
+         * @param {string} username The username
+         * @param {Array} forbidden_chars The forbidden chars
          * @returns {string} The error message, if it matches
          */
         function validate_username_end(username, forbidden_chars) {
@@ -207,8 +205,8 @@
          * @description
          * Checks that the username does not contain forbidden chars
          *
-         * @param username The username
-         * @param forbidden_chars The forbidden chars
+         * @param {string} username The username
+         * @param {Array} forbidden_chars The forbidden chars
          * @returns {string} The error message, if it matches
          */
         function validate_username_contain(username, forbidden_chars) {
@@ -227,8 +225,8 @@
          * @description
          * Forms the full username out of the username (potentially already containing an  @domain part) and a domain
          *
-         * @param username The username
-         * @param domain The domain part of the username
+         * @param {string} username The username
+         * @param {string} domain The domain part of the username
          * @returns {string} The full username
          */
         function form_full_username(username, domain) {
@@ -344,9 +342,9 @@
          * @description
          * Search an array for an item
          *
-         * @param array The array to search
-         * @param search The item to remove
-         * @param [cmp_fct] (optional) Compare function
+         * @param {Array} array The array to search
+         * @param {*} search The item to remove
+         * @param {function} [cmp_fct] (optional) Compare function
          */
         function remove_from_array(array, search, cmp_fct) {
             if (typeof(cmp_fct) === 'undefined') {
@@ -451,9 +449,9 @@
          * @methodOf psonocli.helper
          *
          * @description
-         * Returns the device's description
+         * Generates the Device description out of the Vendor, OS, Version and others
          *
-         * @returns {string}
+         * @returns {string} Returns the device's description
          */
         function get_device_description() {
             var description = '';

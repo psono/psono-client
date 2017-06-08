@@ -45,9 +45,7 @@
     {
       "matches": ["*://*/*"],
       "css": [
-        "data/css/lib/cssreset-context-min.css",
-        "data/css/lib/opensans.css",
-        "data/css/contentscript.css"
+        "data/css/lib/cssreset-context-min.css"
       ],
       "js": [
         "data/js/lib/tether.min.js",
@@ -61,6 +59,7 @@
   ],
   "options_page": "data/index.html#!/settings",
   "web_accessible_resources": [
-    "data/css/fonts/*.woff2"
+    "data/fonts/*.woff2",
+    "data/css/contentscript.css"
   ]
 }

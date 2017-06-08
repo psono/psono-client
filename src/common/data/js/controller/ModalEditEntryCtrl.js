@@ -6,7 +6,7 @@
      * @name psonocli.controller:ModalEditEntryCtrl
      * @requires $scope
      * @requires $uibModalInstance
-     * @requires itemBlueprint
+     * @requires psonocli.itemBlueprint
      *
      * @description
      * Controller for the "Edit Entry" modal

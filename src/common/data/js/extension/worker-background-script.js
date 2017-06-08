@@ -124,6 +124,7 @@ var ClassWorkerBackgroundScript = function (chrome, browser) {
             'fillpassword': on_fillpassword,
             'ready': on_ready,
             'fillpassword-active-tab': on_fillpassword_active_tab,
+            'login': on_login,
             'logout': on_logout,
             'website-password-refresh': on_website_password_refresh,
             'request-secret': on_request_secret,
@@ -206,6 +207,17 @@ var ClassWorkerBackgroundScript = function (chrome, browser) {
 
             chrome.tabs.remove(tabids)
         });
+    }
+
+    /**
+     * we received a login event
+     *
+     * @param request
+     * @param sender
+     * @param sendResponse
+     */
+    function on_login(request, sender, sendResponse) {
+        // pass
     }
 
     /**
@@ -421,10 +433,10 @@ var ClassWorkerBackgroundScript = function (chrome, browser) {
     /**
      * Triggered once a website loads that requires authentication (e.g. basic auth)
      *
-     * @param {{}} details
+     * @param {object} details
      * @param {function} callbackFn The callback function to call once the secret has been returned
      *
-     * @returns {{}}
+     * @returns {object}
      */
     function onAuthRequired(details, callbackFn) {
         var return_value = {};

@@ -8,13 +8,14 @@
      * @requires $rootScope
      * @requires $filter
      * @requires $timeout
-     * @requires psonocli.managerDatastoreUser
-     * @requires psonocli.browserClient
      * @requires snapRemote
      * @requires $window
      * @requires $route
      * @requires $routeParams
      * @requires $location
+     * @requires psonocli.managerDatastoreUser
+     * @requires psonocli.browserClient
+     * @requires psonocli.storage
      * @requires psonocli.helper
      *
      * @description

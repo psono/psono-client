@@ -335,14 +335,18 @@ gulp.task('docs', [], function () {
 
     var options = {
         html5Mode: false,
+        titleLink: "/api",
+        startPage: '/api',
         title: "Psono Client",
         styles: ['var/ngdocs/style.css']
     };
 
     return gulp.src([
         'src/common/data/js/*.js',
+        'src/common/data/js/module/*.js',
         'src/common/data/js/service/*.js',
-        'src/common/data/js/widgets/*.js'
+        'src/common/data/js/directive/*.js',
+        'src/common/data/js/controller/*.js'
     ])
         .pipe(gulpDocs.process(options))
         .pipe(gulp.dest('./docs'));

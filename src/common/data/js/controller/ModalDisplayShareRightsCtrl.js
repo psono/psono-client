@@ -6,7 +6,7 @@
      * @name psonocli.controller:ModalDisplayShareRightsCtrl
      * @requires $scope
      * @requires $uibModalInstance
-     * @requires itemBlueprint
+     * @requires psonocli.itemBlueprint
      *
      * @description
      * Controller for the "Display share rights" modal

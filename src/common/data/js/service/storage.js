@@ -8,72 +8,70 @@
      * @description
      * Service that handles local storage access
      */
-
-    var loki_storage = new loki("password_manager_local_storage");
-    var dbs = [];
-
-    var db_config = {
-        'config': {
-            name: 'config',
-            indices: ['key'],
-            uniques: ['key']
-        },
-        'persistent': {
-            name: 'persistent',
-            indices: ['key'],
-            uniques: ['key']
-        },
-        'settings': {
-            name: 'settings',
-                indices: ['key'],
-            uniques: ['key']
-        },
-        'datastore-password-leafs': {
-            name: 'datastore-password-leafs',
-                indices: ['key', 'urlfilter', 'name'],
-            uniques: ['key']
-        },
-        'datastore-user-leafs': {
-            name: 'datastore-user-leafs',
-                indices: ['key', 'filter', 'name'],
-            uniques: ['key'],
-            subscribers: {
-                update: {
-                    current: 0,
-                    max: 1
-                },
-                insert: {
-                    current: 0,
-                    max: 1
-                },
-                delete: {
-                    current: 0,
-                    max: 1
-                }
-            }
-        }
-    };
-
-    loki_storage.loadDatabase({}, function () {
-
-        for (var db_name in db_config) {
-            if (!db_config.hasOwnProperty(db_name)) {
-                continue;
-            }
-
-            dbs[db_name] = loki_storage.getCollection(db_name);
-
-            if (dbs[db_name] === null) {
-                dbs[db_name] = loki_storage.addCollection(db_name, { indices: db_config[db_name].indices});
-                for (var t = 0; t < db_config[db_name].uniques.length; t++) {
-                    dbs[db_name].ensureUniqueIndex(db_config[db_name].uniques[t]);
-                }
-            }
-        }
-    });
-
     var storage = function() {
-        //localStorageService.set('user', 'me');
+
+        var loki_storage = new loki("password_manager_local_storage");
+        var dbs = [];
+
+        var db_config = {
+            'config': {
+                name: 'config',
+                indices: ['key'],
+                uniques: ['key']
+            },
+            'persistent': {
+                name: 'persistent',
+                indices: ['key'],
+                uniques: ['key']
+            },
+            'settings': {
+                name: 'settings',
+                indices: ['key'],
+                uniques: ['key']
+            },
+            'datastore-password-leafs': {
+                name: 'datastore-password-leafs',
+                indices: ['key', 'urlfilter', 'name'],
+                uniques: ['key']
+            },
+            'datastore-user-leafs': {
+                name: 'datastore-user-leafs',
+                indices: ['key', 'filter', 'name'],
+                uniques: ['key'],
+                subscribers: {
+                    update: {
+                        current: 0,
+                        max: 1
+                    },
+                    insert: {
+                        current: 0,
+                        max: 1
+                    },
+                    delete: {
+                        current: 0,
+                        max: 1
+                    }
+                }
+            }
+        };
+
+        loki_storage.loadDatabase({}, function () {
+
+            for (var db_name in db_config) {
+                if (!db_config.hasOwnProperty(db_name)) {
+                    continue;
+                }
+
+                dbs[db_name] = loki_storage.getCollection(db_name);
+
+                if (dbs[db_name] === null) {
+                    dbs[db_name] = loki_storage.addCollection(db_name, { indices: db_config[db_name].indices});
+                    for (var t = 0; t < db_config[db_name].uniques.length; t++) {
+                        dbs[db_name].ensureUniqueIndex(db_config[db_name].uniques[t]);
+                    }
+                }
+            }
+        });
 
         /**
          * @ngdoc

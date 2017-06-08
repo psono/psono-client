@@ -8,6 +8,7 @@
      * @requires $uibModalInstance
      * @requires psonocli.shareBlueprint
      * @requires psonocli.browserClient
+     * @requires psonocli.helper
      *
      * @description
      * Controller for the "New Entry" modal

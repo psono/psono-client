@@ -70,7 +70,7 @@
          * @description
          * Handles the download of the actual export.json
          *
-         * @param data
+         * @param {string} data The data to download
          */
         var download_export = function (data) {
             var file_name = 'export.json';
@@ -91,7 +91,7 @@
          * @description
          * Filters the datastore export to reduce the size and remove unnecessary elements
          *
-         * @param folder The folder to filter
+         * @param {object} folder The folder to filter
          *
          * @returns {*} filtered folder
          */
@@ -170,8 +170,8 @@
          * @description
          * compose the export structure
          *
-         * @param data The datastore data to compose
-         * @param type The selected type of the export
+         * @param {object} data The datastore data to compose
+         * @param {string} type The selected type of the export
          *
          * @returns {*} filtered folder
          */
@@ -191,7 +191,7 @@
          * @description
          * Requests all secrets in our datastore and fills the datastore with the content
          *
-         * @param datastore The datastore structure with secrets
+         * @param {object} datastore The datastore structure with secrets
          *
          * @returns {*} The datastore structure where all secrets have been filled
          */
@@ -277,7 +277,7 @@
          * @description
          * Returns a list with all possible exporter
          *
-         * @returns {[*]}
+         * @returns {[]} List with all possible exporters
          */
         var get_exporter = function() {
             return _exporter;
@@ -292,7 +292,7 @@
          * @description
          * Fetches the datastore with all secrets ready to download or analyze
          *
-         * @param type The selected type of the export
+         * @param {string} type The selected type of the export
          *
          * @returns {promise} Returns a promise with the exportable datastore content
          */
@@ -317,7 +317,7 @@
          * @description
          * Returns a copy of the datastore
          *
-         * @param type The selected type of the export
+         * @param {string} type The selected type of the export
          *
          * @returns {promise} Returns a promise once the export is successful
          */

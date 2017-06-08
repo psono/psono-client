@@ -7,8 +7,11 @@
      * @requires $scope
      * @requires $uibModalInstance
      * @requires $uibModal
-     * @requires shareBlueprint
-     * @requires managerDatastoreUser
+     * @requires DTOptionsBuilder
+     * @requires DTColumnDefBuilder
+     * @requires psonocli.shareBlueprint
+     * @requires psonocli.managerDatastoreUser
+     * @requires psonocli.cryptoLibrary
      *
      * @description
      * Controller for the "Share Entry" modal
