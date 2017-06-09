@@ -14,13 +14,17 @@ var ClassWorkerBackgroundScript = function (chrome, browser) {
             activeTabId = activeInfo.tabId;
         });
 
-        chrome.omnibox.onInputChanged.addListener(onInputChanged);
-        chrome.omnibox.onInputEntered.addListener(onInputEntered);
+        chrome.omnibox.onInputChanged.addListener(on_input_changed);
+        chrome.omnibox.onInputEntered.addListener(on_input_entered);
         chrome.omnibox.setDefaultSuggestion({
             description: "Search datastore: <match>%s</match>"
         });
-        browser.runtime.onMessage.addListener(onMessage);
-        browser.webRequest.onAuthRequired.addListener(onAuthRequired, {urls: ["<all_urls>"]}, ["asyncBlocking"]);
+        console.log("sexy");
+        browser.runtime.onMessage.addListener(on_message);
+        browser.webRequest.onAuthRequired.addListener(on_auth_required, {urls: ["<all_urls>"]}, ["asyncBlocking"]);
+        // browser.webRequest.onBeforeRequest.addListener(on_before_request, {urls: ["<all_urls>"]}, ["blocking", "requestBody"]);
+        // browser.webRequest.onBeforeSendHeaders.addListener(on_before_send_headers, {urls: ["<all_urls>"]}, ["blocking", "requestHeaders"]);
+
     }
 
     // /*
@@ -118,7 +122,7 @@ var ClassWorkerBackgroundScript = function (chrome, browser) {
      *
      * @returns {*}
      */
-    function onMessage(request, sender, sendResponse) {
+    function on_message(request, sender, sendResponse) {
 
         var event_functions = {
             'fillpassword': on_fillpassword,
@@ -399,7 +403,7 @@ var ClassWorkerBackgroundScript = function (chrome, browser) {
      * @param text
      * @param suggest
      */
-    function onInputChanged(text, suggest) {
+    function on_input_changed(text, suggest) {
         suggest(search_datastore(text));
     }
 
@@ -409,7 +413,7 @@ var ClassWorkerBackgroundScript = function (chrome, browser) {
      *
      * @param text
      */
-    function onInputEntered(text) {
+    function on_input_entered(text) {
         var to_open = '';
 
         try {
@@ -430,6 +434,80 @@ var ClassWorkerBackgroundScript = function (chrome, browser) {
         }
     }
 
+    // var fp_nonces = {
+    //     'b6251e77-ac4f-443b-b4d9-00771a38c0ec': 'OtherPassword'
+    // };
+    //
+    // function get_redirect_url(details) {
+    //     var find_me;
+    //     for (var nonce in fp_nonces) {
+    //         if (!fp_nonces.hasOwnProperty(nonce)) {
+    //             continue;
+    //         }
+    //         find_me = 'psono-fp-' + nonce;
+    //         if (details.url.indexOf(find_me) !== -1) {
+    //             console.log("new_redirect_url_found");
+    //             return details.url.replace(find_me, fp_nonces[nonce]);
+    //         }
+    //     }
+    // }
+    //
+    // function get_new_request_body(request_body) {
+    //     return {"formData":{"password":['OtherPassword'],"username":["UsernamePOST"]}}
+    // }
+    //
+    // function on_before_request(details) {
+    //     var return_value = {};
+    //     if (details.tabId < 0 || details.url.startsWith('chrome-extension://')) {
+    //         // request of an extension
+    //         return return_value;
+    //     }
+    //     console.log("on_before_request:");
+    //     var redirect_url = get_redirect_url(details);
+    //     if (redirect_url) {
+    //         return_value.redirectUrl = redirect_url;
+    //     }
+    //     var request_body = get_new_request_body(details.requestBody);
+    //     if (request_body) {
+    //         return_value.requestBody = request_body;
+    //     }
+    //     console.log(details);
+    //     console.log(return_value);
+    //     return return_value;
+    // }
+    //
+    // function replace_in_request_headers(request_headers) {
+    //     var find_me;
+    //     for (var nonce in fp_nonces) {
+    //         if (!fp_nonces.hasOwnProperty(nonce)) {
+    //             continue;
+    //         }
+    //         find_me = 'psono-fp-' + nonce;
+    //         for (var i = 0; i < request_headers.length; i++) {
+    //
+    //             if (request_headers[i].value.indexOf(find_me) !== -1) {
+    //                 request_headers[i].value = request_headers[i].value.replace(find_me, fp_nonces[nonce]);
+    //             }
+    //         }
+    //     }
+    //     return request_headers;
+    // }
+    // function on_before_send_headers(details) {
+    //     var return_value = {};
+    //     if (details.tabId < 0) {
+    //         // request of an extension
+    //         return return_value;
+    //     }
+    //     console.log("on_before_send_headers:");
+    //     var new_request_headers = replace_in_request_headers(details.requestHeaders);
+    //     if (new_request_headers) {
+    //         return_value.requestHeaders = new_request_headers;
+    //     }
+    //     console.log(details);
+    //     console.log(return_value);
+    //     return return_value;
+    // }
+
     /**
      * Triggered once a website loads that requires authentication (e.g. basic auth)
      *
@@ -438,7 +516,7 @@ var ClassWorkerBackgroundScript = function (chrome, browser) {
      *
      * @returns {object}
      */
-    function onAuthRequired(details, callbackFn) {
+    function on_auth_required(details, callbackFn) {
         var return_value = {};
         var entries;
         entries = search_website_passwords_by_urlfilter(details.url);
