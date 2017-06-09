@@ -90,6 +90,7 @@
                 "../src/common/data/js/service/manager-export.js",
                 "../src/common/data/js/service/manager-import.js",
                 "../src/common/data/js/service/manager-security-report.js",
+                "../src/common/data/js/service/import-chrome-csv.js",
                 "../src/common/data/js/service/import-psono-pw-json.js",
                 "../src/common/data/js/service/import-lastpass-com-csv.js",
                 "../src/common/data/js/service/import-keepassx-org-csv.js",

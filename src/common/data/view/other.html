@@ -81,6 +81,7 @@
 
                 <uib-tab heading="Import">
                     <div ng-controller="ImportCtrl">
+
                         <form class="form-horizontal">
                             <div class="form-group">
                                 <label class="control-label col-sm-2" for="import_type">Type:</label>
@@ -112,6 +113,10 @@
                             <span ng-repeat="e in msgs" class="pull-right">{{e}}</span>
                             <div class="clearfix"></div>
                         </form>
+
+                        <div class="alert alert-info" ng-if="import_options.selected_option.help">
+                            <strong>Instructions:</strong><br><br><span ng-bind-html="import_options.selected_option.help"></span>
+                        </div>
                     </div>
 
                 </uib-tab>
