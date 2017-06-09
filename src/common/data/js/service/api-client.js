@@ -17,7 +17,6 @@
     var apiClient = function($http, $q, $rootScope, storage, cryptoLibrary) {
 
         var decrypt_data = function(session_secret_key, data) {
-
             if (session_secret_key && data !== null
                 && data.hasOwnProperty('data')
                 && data.data.hasOwnProperty('text')
