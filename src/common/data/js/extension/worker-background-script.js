@@ -60,19 +60,58 @@ var ClassWorkerBackgroundScript = function (chrome, browser) {
     // Start helper functions
 
     /**
+     * Checks weather a string is a valid ipv4 address
+     *
+     * @param {string} address An potential ipv4 address that we want to check as string
+     * @returns {boolean} Returns the split up url
+     */
+    function is_ipv4_address(address) {
+        return /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(address);
+    }
+
+    /**
      * parse an url and returns a structured object
      *
-     * @param url
-     * @returns {{scheme: *, authority: *, path: *, query: *, fragment: *}}
+     * @param {url} url The url to be parsed
+     * @returns {SplittedUrl} Returns the split up url
      */
     function parse_url(url) {
+        var authority;
+        var splitted_authority;
+        var splitted_domain;
+        var full_domain;
+        var top_domain;
+        var port = null;
+
         // According to RFC http://www.ietf.org/rfc/rfc3986.txt Appendix B
         var pattern = new RegExp("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
         var matches =  url.match(pattern);
 
+        if (typeof(matches[4]) !== 'undefined') {
+            authority = matches[4].replace(/^(www\.)/,"");
+            splitted_authority = authority.split(":");
+        }
+
+        if (typeof(splitted_authority) !== 'undefined' && splitted_authority.length === 2) {
+            port = splitted_authority[splitted_authority.length - 1];
+        }
+        if (typeof(splitted_authority) !== 'undefined') {
+            splitted_domain = splitted_authority[0].split(".");
+            full_domain = splitted_authority[0];
+        }
+
+        if (typeof(splitted_domain) !== 'undefined' && is_ipv4_address(full_domain)) {
+            top_domain = full_domain
+        } else if(typeof(splitted_domain) !== 'undefined') {
+            top_domain = splitted_domain[splitted_domain.length - 2] + '.' + splitted_domain[splitted_domain.length - 1];
+        }
+
         return {
             scheme: matches[2],
-            authority: matches[4].replace(/^(www\.)/,""), //remove leading www.
+            authority: authority, //remove leading www.
+            full_domain: full_domain,
+            top_domain: top_domain,
+            port: port,
             path: matches[5],
             query: matches[7],
             fragment: matches[9]
