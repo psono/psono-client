@@ -135,11 +135,11 @@ to build / publish his own version of this extension, then follow the following 
 
     The deployment is a simple upload to:
     
-    - https://chrome.google.com/webstore/developer/dashboard
+        https://chrome.google.com/webstore/developer/dashboard
         
     or for firefox:
     
-    - https://addons.mozilla.org/de/developers/addons
+        https://addons.mozilla.org/de/developers/addons
         
     This process has been automated in our build pipeline and needs some investment on your side to gather all keys and
     so on if to replicate it (if you want it). The scripts responsible here are:

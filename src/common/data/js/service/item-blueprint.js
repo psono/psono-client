@@ -94,14 +94,10 @@
                     if (typeof(parsed_url.authority) === 'undefined') {
                         domain_filter_col.value = "";
                         return '';
+                    } else {
+                        domain_filter_col.value = parsed_url.authority;
+                        return parsed_url.authority;
                     }
-
-                    var matches = parsed_url.authority.split(".");
-                    matches = matches.slice(-2);
-
-                    domain_filter_col.value = matches.join(".");
-
-                    return matches.join(".");
                 },
                 onClickNewTab: true,
                 /**

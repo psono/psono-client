@@ -12,6 +12,22 @@
 
         var client_js = new ClientJS();
 
+
+        /**
+         * @ngdoc
+         * @name psonocli.helper#is_ipv4_address
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Checks weather a string is a valid ipv4 address
+         *
+         * @param {string} address An potential ipv4 address that we want to check as string
+         * @returns {boolean} Returns the split up url
+         */
+        function is_ipv4_address(address) {
+            return /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(address);
+        }
+
         /**
          * @ngdoc
          * @name psonocli.helper#parse_url
@@ -48,7 +64,9 @@
                 full_domain = splitted_authority[0];
             }
 
-            if (typeof(splitted_domain) !== 'undefined') {
+            if (typeof(splitted_domain) !== 'undefined' && is_ipv4_address(full_domain)) {
+                top_domain = full_domain
+            } else if(typeof(splitted_domain) !== 'undefined') {
                 top_domain = splitted_domain[splitted_domain.length - 2] + '.' + splitted_domain[splitted_domain.length - 1];
             }
 

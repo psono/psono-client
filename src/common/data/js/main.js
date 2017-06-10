@@ -50,8 +50,8 @@
     angular.module('psonocli', ['ngRoute', 'ng', 'ui.bootstrap', 'snap', 'chieffancypants.loadingBar', 'ngAnimate',
             'LocalStorageModule', 'ngTree', 'ngDraggable', 'ng-context-menu', 'ui.select', 'ngSanitize',
             'angular-complexify', 'datatables', 'chart.js'])
-        .config(['$routeProvider', '$locationProvider', '$compileProvider', 'localStorageServiceProvider',
-            function ($routeProvider, $locationProvider, $compileProvider, localStorageServiceProvider) {
+        .config(['$routeProvider', '$httpProvider', '$locationProvider', '$compileProvider', 'localStorageServiceProvider',
+            function ($routeProvider, $httpProvider, $locationProvider, $compileProvider, localStorageServiceProvider) {
                 //Router config
                 $routeProvider
                     .when('/settings', {
@@ -90,6 +90,15 @@
                     });
 
                 $compileProvider.aHrefSanitizationWhitelist(/^\s*(|blob|):/);
+
+                // Prevent caching for IE
+                // taken from https://stackoverflow.com/a/19771501/4582775
+                if (!$httpProvider.defaults.headers.get) {
+                    $httpProvider.defaults.headers.get = {};
+                }
+                $httpProvider.defaults.headers.get['If-Modified-Since'] = 'Mon, 26 Jul 1997 05:00:00 GMT';
+                $httpProvider.defaults.headers.get['Cache-Control'] = 'no-cache';
+                $httpProvider.defaults.headers.get['Pragma'] = 'no-cache';
 
             }])
         .filter('typeof', function() {

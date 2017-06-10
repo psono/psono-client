@@ -25,14 +25,20 @@ var ClassClient = function (backend, require, jQuery, sha512) {
      * @returns {*}
      */
     var randomBytes = function (count) {
+        var bs;
         if (typeof module !== 'undefined' && module.exports) {
             // add node.js implementations
             var crypto = require('crypto');
             return crypto.randomBytes(count)
         } else if (window && window.crypto && window.crypto.getRandomValues) {
             // add in-browser implementation
-            var bs = new Uint8Array(count);
+            bs = new Uint8Array(count);
             window.crypto.getRandomValues(bs);
+            return bs;
+        } else if (window && window.msCrypto && window.msCrypto.getRandomValues) {
+            // add in-browser implementation
+            bs = new Uint8Array(count);
+            window.msCrypto.getRandomValues(bs);
             return bs;
         } else {
             throw new Error("No cryptographic random number generator");

@@ -6,6 +6,7 @@
      * @name psonocli.controller:ImportCtrl
      * @requires $scope
      * @requires psonocli.managerImport
+     * @requires psonocli.importChromeCsv
      * @requires psonocli.importPsonoPwJson
      * @requires psonocli.importLastPassComCsv
      * @requires psonocli.importKeePassCsv
@@ -14,9 +15,9 @@
      * @description
      * Controller for the "Import" tab in the "Others" menu
      */
-    angular.module('psonocli').controller('ImportCtrl', ['$scope', 'managerImport', 'importPsonoPwJson',
+    angular.module('psonocli').controller('ImportCtrl', ['$scope', 'managerImport', 'importPsonoPwJson', 'importChromeCsv',
         'importLastPassComCsv', 'importKeePassCsv', 'importKeePassXCsv',
-        function ($scope, managerImport, importPsonoPwJson,
+        function ($scope, managerImport, importPsonoPwJson, importChromeCsv,
                   importLastPassComCsv, importKeePassCsv, importKeePassXCsv) {
 
             $scope.import_options = {
