@@ -288,7 +288,7 @@ gulp.task('updateversion', function() {
 
 
     var commit_tag = gutil.env.commit_tag;
-    var commit_hash = gutil.env.commit_hash;
+    var commit_sha = gutil.env.commit_sha;
 
 
     if (! /^v\d*\.\d*\.\d*$/.test(commit_tag)) {
@@ -296,7 +296,7 @@ gulp.task('updateversion', function() {
     }
 
     var version = commit_tag.substring(1);
-    var hash = commit_hash.substring(0,8);
+    var hash = commit_sha.substring(0,8);
     var version_long = version+ ' (Build '+hash+')';
 
     fs.writeFile("./build/webserver/VERSION.txt", version_long, function(err) {
