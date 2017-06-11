@@ -42,7 +42,6 @@
 
             function activate() {
                 var onSuccess = function(config) {
-
                     var persistent_username = managerDatastoreUser.get_default('username');
                     var persistent_server = managerDatastoreUser.get_default('server');
 
@@ -203,7 +202,6 @@
              * @param {array} required_multifactors The username
              */
             function next_login_step(required_multifactors) {
-
                 $scope.errors = [];
 
                 if (required_multifactors.length === 0) {
@@ -253,7 +251,6 @@
              * @param {boolean|undefined} remember Remember username and server
              */
             function login(username, password, remember) {
-
                 if (username === undefined || password === undefined) {
                     // Dont do anything if username or password is wrong,
                     // because the html5 form validation will tell the user
@@ -261,7 +258,9 @@
                     return;
                 }
 
+
                 var onError = function(data) {
+
                     if (data.error_data === null) {
                         $scope.errors = ['Server offline.']
                     } else if (data.error_data.hasOwnProperty('non_field_errors')) {

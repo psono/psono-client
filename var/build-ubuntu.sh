@@ -10,4 +10,4 @@ npm install jpm --global && \
 node --version && \
 npm --version && \
 gulp && \
-gulp --commit_tag=$CI_COMMIT_TAG --commit_hash=$CI_COMMIT_SHA updateversion
+gulp --commit_tag=$CI_COMMIT_TAG --commit_sha=$CI_COMMIT_SHA updateversion

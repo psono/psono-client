@@ -140,7 +140,8 @@ var ClassClient = function (backend, require, jQuery, sha512) {
      *
      * @param {string} username - username of the user (in email format)
      * @param {string} password - password of the user
-     * @returns auth_key - scrypt hex value of the password with the sha512 of lowercase email as salt
+     *
+     * @returns {string} auth_key - scrypt hex value of the password with the sha512 of lowercase email as salt
      */
     this.generate_authkey = function (username, password) {
 
@@ -159,7 +160,7 @@ var ClassClient = function (backend, require, jQuery, sha512) {
     /**
      * generates secret keys that is 32 Bytes or 256 Bits long and represented as hex
      *
-     * @returns {{public_key: string, private_key: string, secret_key: string}}
+     * @returns {string}
      */
     this.generate_secret_key = function () {
         return to_hex(randomBytes(32)); // 32 Bytes = 256 Bits

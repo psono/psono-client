@@ -1,4 +1,4 @@
-(function(angular, ClientJS) {
+(function(angular) {
     'use strict';
 
     /**
@@ -9,8 +9,6 @@
      * Service with some helper functions that do not fit anywhere else
      */
     var helper = function() {
-
-        var client_js = new ClientJS();
 
 
         /**
@@ -377,122 +375,6 @@
             }
         }
 
-        /**
-         * @ngdoc
-         * @name psonocli.helper#get_device_fingerprint
-         * @methodOf psonocli.helper
-         *
-         * @description
-         * Returns the device fingerprint
-         *
-         * @returns {string} Fingerprint of the device
-         */
-        function get_device_fingerprint() {
-            return client_js.getFingerprint()
-        }
-
-        /**
-         * @ngdoc
-         * @name psonocli.helper#is_ie
-         * @methodOf psonocli.helper
-         *
-         * @description
-         * Returns weather we have an IE or not
-         *
-         * @returns {boolean} Is this an IE user
-         */
-        function is_ie() {
-            return client_js.isIE();
-        }
-
-        /**
-         * @ngdoc
-         * @name psonocli.helper#is_chrome
-         * @methodOf psonocli.helper
-         *
-         * @description
-         * Returns weather we have a Chrome or not
-         *
-         * @returns {boolean} Is this an Chrome user
-         */
-        function is_chrome() {
-            return client_js.isChrome();
-        }
-
-        /**
-         * @ngdoc
-         * @name psonocli.helper#is_firefox
-         * @methodOf psonocli.helper
-         *
-         * @description
-         * Returns weather we have a Firefox or not
-         *
-         * @returns {boolean} Is this an Firefox user
-         */
-        function is_firefox() {
-            return client_js.isFirefox();
-        }
-
-        /**
-         * @ngdoc
-         * @name psonocli.helper#is_safari
-         * @methodOf psonocli.helper
-         *
-         * @description
-         * Returns weather we have a Safari or not
-         *
-         * @returns {boolean} Is this an Safari user
-         */
-        function is_safari() {
-            return client_js.isSafari();
-        }
-
-        /**
-         * @ngdoc
-         * @name psonocli.helper#is_opera
-         * @methodOf psonocli.helper
-         *
-         * @description
-         * Returns weather we have a Opera or not
-         *
-         * @returns {boolean} Is this an Opera user
-         */
-        function is_opera() {
-            return client_js.isOpera();
-        }
-
-        /**
-         * @ngdoc
-         * @name psonocli.helper#get_device_description
-         * @methodOf psonocli.helper
-         *
-         * @description
-         * Generates the Device description out of the Vendor, OS, Version and others
-         *
-         * @returns {string} Returns the device's description
-         */
-        function get_device_description() {
-            var description = '';
-            if (typeof(client_js.getDeviceVendor()) !== 'undefined') {
-                description = description + client_js.getDeviceVendor() + ' ';
-            }
-            if (typeof(client_js.getDevice()) !== 'undefined') {
-                description = description + client_js.getDevice() + ' ';
-            }
-            if (typeof(client_js.getOS()) !== 'undefined') {
-                description = description + client_js.getOS() + ' ';
-            }
-            if (typeof(client_js.getOSVersion()) !== 'undefined') {
-                description = description + client_js.getOSVersion() + ' ';
-            }
-            if (typeof(client_js.getBrowser()) !== 'undefined') {
-                description = description + client_js.getBrowser() + ' ';
-            }
-            if (typeof(client_js.getBrowserVersion()) !== 'undefined') {
-                description = description + client_js.getBrowserVersion() + ' ';
-            }
-            return description
-        }
 
         /**
          * @ngdoc
@@ -532,13 +414,6 @@
             is_valid_password: is_valid_password,
             split_string_in_chunks: split_string_in_chunks,
             remove_from_array: remove_from_array,
-            get_device_fingerprint: get_device_fingerprint,
-            is_ie: is_ie,
-            is_chrome: is_chrome,
-            is_firefox: is_firefox,
-            is_safari: is_safari,
-            is_opera: is_opera,
-            get_device_description: get_device_description,
             copy_to_clipboard: copy_to_clipboard
         };
     };
@@ -546,4 +421,4 @@
     var app = angular.module('psonocli');
     app.factory("helper", [helper]);
 
-}(angular, ClientJS));
+}(angular));
