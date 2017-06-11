@@ -21,7 +21,7 @@
      */
 
     var managerDatastoreUser = function($q, $rootScope, apiClient, browserClient, storage,
-                                        helper, managerBase, managerDatastore, shareBlueprint,
+                                        helper, device, managerBase, managerDatastore, shareBlueprint,
                                         itemBlueprint, cryptoLibrary) {
 
         var required_multifactors = [];
@@ -422,7 +422,7 @@
                 return required_multifactors;
             };
 
-            return apiClient.login(username, authkey, session_keys.public_key, helper.get_device_fingerprint(), helper.get_device_description())
+            return apiClient.login(username, authkey, session_keys.public_key, device.get_device_fingerprint(), device.get_device_description())
                 .then(onSuccess, onError);
         };
 
@@ -991,7 +991,7 @@
 
     var app = angular.module('psonocli');
     app.factory("managerDatastoreUser", ['$q', '$rootScope', 'apiClient', 'browserClient', 'storage',
-        'helper', 'managerBase', 'managerDatastore', 'shareBlueprint',
+        'helper', 'device', 'managerBase', 'managerDatastore', 'shareBlueprint',
         'itemBlueprint', 'cryptoLibrary', managerDatastoreUser]);
 
 }(angular));

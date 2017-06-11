@@ -17,7 +17,7 @@
         this.name = "InvalidRecoveryCodeException";
     }
 
-    var cryptoLibrary = function($window, converter, helper) {
+    var cryptoLibrary = function($window, $timeout, converter, helper) {
 
         var nacl = require('ecma-nacl');
 
@@ -55,6 +55,56 @@
             }
         };
 
+        var scrypt_lookup_table = {};
+
+        /**
+         * @ngdoc
+         * @name psonocli.cryptoLibrary#clear_scrypt_lookup_table
+         * @methodOf psonocli.cryptoLibrary
+         *
+         * @description
+         * flushes the scrypt lookup table after 60 seconds
+         */
+        function clear_scrypt_lookup_table() {
+            $timeout(function() {
+                scrypt_lookup_table = {};
+            }, 60000);
+        }
+
+
+        /**
+         * @ngdoc
+         * @name psonocli.cryptoLibrary#password_scrypt
+         * @methodOf psonocli.cryptoLibrary
+         *
+         * @description
+         * Scrypt wrapper for psono to create for a password and a salt the fix scrypt hash.
+         *
+         * @param {string} password the password one wants to hash
+         * @param {string} salt The fix salt one wants to use
+         *
+         * @returns {string} The scrypt hash
+         */
+        function password_scrypt(password, salt) {
+
+            // Lets first generate our key from our user_sauce and password
+            var u = 14; //2^14 = 16MB
+            var r = 8;
+            var p = 1;
+            var l = 64; // 64 Bytes = 512 Bits
+            var k;
+
+            var lookup_hash = sha512(password) + sha512(salt);
+
+            if (scrypt_lookup_table.hasOwnProperty(lookup_hash)) {
+                k = scrypt_lookup_table[lookup_hash];
+            } else {
+                k = converter.to_hex(nacl.scrypt(converter.encode_utf8(password), converter.encode_utf8(salt), u, r, p, l, function(pDone) {}));
+                scrypt_lookup_table[lookup_hash] = k;
+                clear_scrypt_lookup_table()
+            }
+            return k;
+        }
 
         /**
          * @ngdoc
@@ -80,18 +130,10 @@
          * @returns {string} auth_key Scrypt hex value of the password with the sha512 of lowercase email as salt
          */
         var generate_authkey = function (username, password) {
-
-            var u = 14; //2^14 = 16MB
-            var r = 8;
-            var p = 1;
-            var l = 64; // 64 Bytes = 512 Bits
-
             // takes the sha512(username) as salt.
             // var salt = nacl.to_hex(nacl.crypto_hash_string(username.toLowerCase()));
             var salt = sha512(username.toLowerCase());
-
-
-            return converter.to_hex(nacl.scrypt(converter.encode_utf8(password), converter.encode_utf8(salt), u, r, p, l, function(pDone) {}));
+            return password_scrypt(password, salt);
         };
 
         /**
@@ -105,7 +147,6 @@
          * @returns {string} Returns secret key (hex encoded, 32 byte long)
          */
         var generate_secret_key = function () {
-
             return converter.to_hex(randomBytes(32)); // 32 Bytes = 256 Bits
         };
 
@@ -149,15 +190,8 @@
          */
         var encrypt_secret = function (secret, password, user_sauce) {
 
-            // Lets first generate our key from our user_sauce and password
-            var u = 14; //2^14 = 16MB
-            var r = 8;
-            var p = 1;
-            var l = 64; // 64 Bytes = 512 Bits
-
             var salt = sha512(user_sauce);
-
-            var k = converter.from_hex(sha256(converter.to_hex(nacl.scrypt(converter.encode_utf8(password), converter.encode_utf8(salt), u, r, p, l, function(pDone) {})))); // key
+            var k = converter.from_hex(sha256(password_scrypt(password, salt))); // key
 
             // and now lets encrypt
             var m = converter.encode_utf8(secret); // message
@@ -187,17 +221,10 @@
          *
          * @returns {string} secret The decrypted secret
          */
-        var decrypt_secret = function (text, nonce, password, user_sauce) {
-
-            // Lets first generate our key from our user_sauce and password
-            var u = 14; //2^14 = 16MB
-            var r = 8;
-            var p = 1;
-            var l = 64; // 64 Bytes = 512 Bits
+        function decrypt_secret (text, nonce, password, user_sauce) {
 
             var salt = sha512(user_sauce);
-
-            var k = converter.from_hex(sha256(converter.to_hex(nacl.scrypt(converter.encode_utf8(password), converter.encode_utf8(salt), u, r, p, l, function(pDone) {})))); // key
+            var k = converter.from_hex(sha256(password_scrypt(password, salt)));
 
             // and now lets decrypt
             var n = converter.from_hex(nonce);
@@ -205,7 +232,7 @@
             var m1 = nacl.secret_box.open(c, n, k);
 
             return converter.decode_utf8(m1);
-        };
+        }
 
         /**
          * @ngdoc
@@ -464,7 +491,7 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("cryptoLibrary", ['$window', 'converter', 'helper', cryptoLibrary]);
+    app.factory("cryptoLibrary", ['$window', '$timeout', 'converter', 'helper', cryptoLibrary]);
 
 }(angular, require, sha512, sha256, uuid));
 
