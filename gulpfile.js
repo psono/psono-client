@@ -215,6 +215,7 @@ gulp.task('firefox-deploy', function() {
     var jwt_issuer = gutil.env.mozilla_jwt_issuer;
     var jwt_secret = gutil.env.mozilla_jwt_secret;
     var version = gutil.env.mozilla_version;
+    var mozilla_addon_id = gutil.env.mozilla_addon_id;
 
     var issuedAt = Math.floor(Date.now() / 1000);
     var payload = {
@@ -228,7 +229,7 @@ gulp.task('firefox-deploy', function() {
         algorithm: 'HS256'  // HMAC-SHA256 signing algorithm
     });
 
-    return run('curl "https://addons.mozilla.org/api/v3/addons/" -g -XPOST --form "upload=@dist/firefox/psono.firefox.PW.zip" -F "version='+ version +'" -H "Authorization: JWT '+ token +'"').exec()    // prints "Hello World\n".
+    return run('curl "https://addons.mozilla.org/api/v3/addons/'+mozilla_addon_id+'/versions/'+ version +'/" -g -XPUT --form "upload=@dist/firefox/psono.firefox.PW.zip" -H "Authorization: JWT '+ token +'"').exec()
         .pipe(gulp.dest('output'));
 });
 
@@ -288,7 +289,7 @@ gulp.task('updateversion', function() {
 
 
     var commit_tag = gutil.env.commit_tag;
-    var commit_hash = gutil.env.commit_hash;
+    var commit_sha = gutil.env.commit_sha;
 
 
     if (! /^v\d*\.\d*\.\d*$/.test(commit_tag)) {
@@ -296,7 +297,7 @@ gulp.task('updateversion', function() {
     }
 
     var version = commit_tag.substring(1);
-    var hash = commit_hash.substring(0,8);
+    var hash = commit_sha.substring(0,8);
     var version_long = version+ ' (Build '+hash+')';
 
     fs.writeFile("./build/webserver/VERSION.txt", version_long, function(err) {
