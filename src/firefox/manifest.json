@@ -48,8 +48,6 @@
         "data/css/lib/cssreset-context-min.css"
       ],
       "js": [
-        "data/js/lib/tether.min.js",
-        "data/js/lib/drop.min.js",
         "data/js/lib/jquery.min.js",
         "data/js/extension/worker-content-script.js",
         "data/js/content-script.js"

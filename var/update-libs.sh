@@ -17,15 +17,12 @@ wget https://code.angularjs.org/1.6.4/angular-mocks.js -O unittests/data/js/lib/
 wget https://raw.githubusercontent.com/Kraku/angular-complexify/master/build/angular-complexify.min.js -O src/common/data/js/lib/angular-complexify.min.js
 wget https://raw.githubusercontent.com/grevory/angular-local-storage/master/dist/angular-local-storage.min.js -O src/common/data/js/lib/angular-local-storage.min.js
 wget https://cdnjs.cloudflare.com/ajax/libs/lokijs/1.4.3/lokijs.min.js -O src/common/data/js/lib/lokijs.min.js
-wget https://raw.githubusercontent.com/HubSpot/tether/master/dist/js/tether.min.js -O src/common/data/js/lib/tether.min.js
 wget https://raw.githubusercontent.com/RubaXa/Sortable/master/Sortable.min.js -O src/common/data/js/lib/sortable.min.js
 wget https://raw.githubusercontent.com/jakiestfu/Snap.js/develop/snap.min.js -O src/common/data/js/lib/snap.min.js
 wget https://raw.githubusercontent.com/emn178/js-sha512/master/build/sha512.min.js -O src/common/data/js/lib/sha512.min.js
 wget https://raw.githubusercontent.com/emn178/js-sha256/master/build/sha256.min.js -O src/common/data/js/lib/sha256.min.js
 wget https://raw.githubusercontent.com/scottjehl/Respond/master/dest/respond.min.js -O src/common/data/js/lib/respond.min.js
 wget https://raw.githubusercontent.com/aFarkas/html5shiv/master/dist/html5shiv.min.js -O src/common/data/js/lib/html5shiv.min.js
-wget https://raw.githubusercontent.com/HubSpot/drop/master/dist/js/drop.min.js -O src/common/data/js/lib/drop.min.js
-wget https://raw.githubusercontent.com/HubSpot/drop/master/dist/css/drop-theme-arrows.css -O src/common/data/css/lib/drop-theme-arrows.css
 wget https://raw.githubusercontent.com/3nsoft/ecma-nacl/master/dist/lib-browser/ecma-nacl.min.js -O src/common/data/js/lib/ecma-nacl.min.js
 wget https://raw.githubusercontent.com/jackspirou/clientjs/master/dist/client.min.js -O src/common/data/js/lib/client.min.js
 

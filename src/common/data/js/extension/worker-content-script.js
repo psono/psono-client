@@ -24,38 +24,48 @@ var ClassWorkerContentScript = function (browser, jQuery) {
         on('return-secret', on_return_secret);
 
         jQuery(function() {
-
-            // taken from https://stackoverflow.com/questions/574944/how-to-load-up-css-files-using-javascript
-            var cssId = 'psono-css';  // you could encode the css path itself to generate id..
-            if (!document.getElementById(cssId))
-            {
-                var head  = document.getElementsByTagName('head')[0];
-                var link  = document.createElement('link');
-                link.id   = cssId;
-                link.rel  = 'stylesheet';
-                link.type = 'text/css';
-                link.href = browser.extension.getURL("data/css/contentscript.css");
-                link.media = 'all';
-                head.appendChild(link);
-            }
-
             // Tell our backend, that we are ready and waiting for instructions
             emit('ready', document.location.toString());
             emit('website-password-refresh', document.location.toString());
-            manipulate_dom();
-
+            manipulate_documents();
         });
+    }
+
+    function get_all_documents(document, documents) {
+        var frames = document.querySelectorAll('iframe');
+        documents.push(document);
+
+        for (var i = 0; i < frames.length; i++) {
+            get_all_documents(frames[i].contentWindow.document, documents);
+        }
     }
 
     /**
      * Manipulates the DOM
      */
-    function manipulate_dom() {
+    function manipulate_documents() {
+
+        var documents = [];
+
+        get_all_documents(window.document, documents);
+
+        for (var i = 0; i < documents.length; i++) {
+            manipulate_document(documents[i])
+        }
+    }
+
+    /**
+     * Manipulates the forms of all documents
+     *
+     * @param document
+     */
+    function manipulate_document(document) {
+
+        load_css(document);
         // Lets start with searching all input fields and forms
         // if we find a password field, we remember that and take the field before as username field
 
         var inputs = document.querySelectorAll("input:not(:disabled):not([readonly]):not([type=hidden])");
-
 
         for (var i = 0; i < inputs.length; ++i) {
 
@@ -78,14 +88,14 @@ var ClassWorkerContentScript = function (browser, jQuery) {
                     continue;
 
                 // username field is inputs[r]
-                modify_input_field(inputs[r]);
+                modify_input_field(inputs[r], document);
 
                 newForm.username = inputs[r];
                 break;
             }
 
             // Password field is inputs[i]
-            modify_input_field(inputs[i]);
+            modify_input_field(inputs[i], document);
 
             newForm.password = inputs[i];
 
@@ -105,6 +115,22 @@ var ClassWorkerContentScript = function (browser, jQuery) {
                 myForms.push(newForm);
             }
 
+        }
+    }
+
+    function load_css(document) {
+        // taken from https://stackoverflow.com/questions/574944/how-to-load-up-css-files-using-javascript
+        var cssId = 'psono-css';  // you could encode the css path itself to generate id..
+        if (!document.getElementById(cssId))
+        {
+            var head  = document.getElementsByTagName('head')[0];
+            var link  = document.createElement('link');
+            link.id   = cssId;
+            link.rel  = 'stylesheet';
+            link.type = 'text/css';
+            link.href = browser.extension.getURL("data/css/contentscript.css");
+            link.media = 'all';
+            head.appendChild(link);
         }
     }
 
@@ -215,31 +241,32 @@ var ClassWorkerContentScript = function (browser, jQuery) {
         });
     }
 
-    /**
-     * closes dropinstances if a click outside of a dropinstance happens.
-     *
-     * @param event
-     */
-    function close (event) {
-        for (var i = dropInstances.length - 1; i >= 0; i--) {
-            if(dropInstances[i].drop.contains(event.target)) {
-                continue;
-            }
-            dropInstances[i].close();
-            dropInstances.splice(i, 1);
-        }
-        if (dropInstances.length > 0) {
-            jQuery(window).one("click", close);
-        }
-    }
+    // /**
+    //  * closes dropinstances if a click outside of a dropinstance happens.
+    //  *
+    //  * @param event
+    //  */
+    // function close (event) {
+    //     for (var i = dropInstances.length - 1; i >= 0; i--) {
+    //         if(dropInstances[i].drop.contains(event.target)) {
+    //             continue;
+    //         }
+    //         dropInstances[i].close();
+    //         dropInstances.splice(i, 1);
+    //     }
+    //     if (dropInstances.length > 0) {
+    //         jQuery(window).one("click", close);
+    //     }
+    // }
 
     /**
      * triggered when a click happens in an input field. Used to open the drop down menu and handle the closing
      * once a click happens outside of the dropdown menu
      *
      * @param evt Click event
+     * @param document The document the click occurred in
      */
-    function click(evt) {
+    function click(evt, document) {
 
         if (getDistance(evt) < 30) {
 
@@ -255,17 +282,19 @@ var ClassWorkerContentScript = function (browser, jQuery) {
 
             last_request_element = evt.target;
 
-            var DropContext = Drop.createContext({
-                classPrefix: 'psono-pw-drop'
-            });
+            // var DropContext = Drop.createContext({
+            //     classPrefix: 'psono-pw-drop'
+            // });
+            //
+            // var dropInstance = new DropContext({
+            //     target: evt.target,
+            //     content: dropcontent,
+            //     classes: 'psono-pw-drop-theme-arrows yui3-cssreset',
+            //     position: 'bottom left',
+            //     openOn: null
+            // });
 
-            var dropInstance = new DropContext({
-                target: evt.target,
-                content: dropcontent,
-                classes: 'psono-pw-drop-theme-arrows yui3-cssreset',
-                position: 'bottom left',
-                openOn: null
-            });
+            var dropInstance = create_dropdown_menu(evt, dropcontent, document);
             dropInstance.open();
 
             dropInstances.push(dropInstance);
@@ -279,14 +308,57 @@ var ClassWorkerContentScript = function (browser, jQuery) {
                 jQuery( ".psono-pw-drop-content-inner .open-datastore" ).on( "click", function() {
                     open_datastore();
                 });
-                jQuery(window).one("click", close);
+                //jQuery(window).one("click", close);
 
             }, 0);
         }
     }
 
+    /**
+     * Creates the dropdown menu
+     *
+     * @param setup_event
+     * @param content
+     * @param document
+     * @returns {{open: open, close: close}}
+     */
+    function create_dropdown_menu(setup_event, content, document) {
+        var position = jQuery(setup_event.target).offset();
+        var height = jQuery(setup_event.target).outerHeight();
 
-    function modify_input_field(input) {
+        var element = jQuery('' +
+            '<div class="psono-pw-drop yui3-cssreset" style="top: 0; left: 0; position: absolute;' +
+            '     transform: translateX('+ position.left +'px) translateY('+ (position.top + height) +'px) translateZ(0px);">' +
+            '    <div class="psono-pw-drop-content">' +
+            '        ' + content +
+            '    </div>' +
+            '</div>');
+
+        document.onclick = function(event) {
+            if (event.target !== setup_event.target) {
+                var dropdowns = document.getElementsByClassName("psono-pw-drop");
+                for (var i = dropdowns.length - 1; i >= 0; i--) {
+                    console.log();
+                    dropdowns[i].remove();
+                }
+            }
+        };
+
+        function open() {
+            element.appendTo(document.body);
+        }
+        function close() {
+            element.remove();
+        }
+
+        return {
+            open: open,
+            close: close
+        }
+    }
+
+
+    function modify_input_field(input, document) {
         input.style.backgroundImage = 'url("'+background_image+'")';
         input.style.backgroundPosition = 'center right';
         input.style.backgroundRepeat = 'no-repeat';
@@ -294,7 +366,9 @@ var ClassWorkerContentScript = function (browser, jQuery) {
         input.addEventListener('mouseover', mouseOver);
         input.addEventListener('mouseout', mouseOut);
         input.addEventListener('mousemove', mouseMove);
-        input.addEventListener('click', click);
+        input.addEventListener('click', function(evt) {
+            click(evt, document)
+        });
     }
 
     // Messaging functions below
@@ -360,7 +434,7 @@ var ClassWorkerContentScript = function (browser, jQuery) {
                     dropInstances[ii].close();
                 }
                 dropInstances = [];
-                jQuery(window).off("click", close);
+                //jQuery(window).off("click", close);
                 break;
             }
         }
