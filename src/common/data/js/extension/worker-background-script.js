@@ -19,7 +19,6 @@ var ClassWorkerBackgroundScript = function (chrome, browser) {
         chrome.omnibox.setDefaultSuggestion({
             description: "Search datastore: <match>%s</match>"
         });
-        console.log("sexy");
         browser.runtime.onMessage.addListener(on_message);
         browser.webRequest.onAuthRequired.addListener(on_auth_required, {urls: ["<all_urls>"]}, ["asyncBlocking"]);
         // browser.webRequest.onBeforeRequest.addListener(on_before_request, {urls: ["<all_urls>"]}, ["blocking", "requestBody"]);

@@ -198,7 +198,6 @@
             };
 
             var onSuccess = function (activation_data) {
-
                 // decrypt user secret key
                 var user_secret_key = cryptoLibrary.decrypt_secret(
                     activation_data.data.user.secret_key,
@@ -237,7 +236,7 @@
 
             };
 
-            return apiClient.activate_token(token, verification.text, verification.nonce)
+            return apiClient.activate_token(token, verification.text, verification.nonce, session_secret_key)
                 .then(onSuccess, onError);
         };
 
@@ -268,7 +267,7 @@
                 return required_multifactors;
             };
 
-            return apiClient.ga_verify(token, ga_token)
+            return apiClient.ga_verify(token, ga_token, session_secret_key)
                 .then(onSuccess, onError);
         };
 
@@ -299,7 +298,7 @@
                 return required_multifactors;
             };
 
-            return apiClient.yubikey_otp_verify(token, yubikey_otp)
+            return apiClient.yubikey_otp_verify(token, yubikey_otp, session_secret_key)
                 .then(onSuccess, onError);
         };
 
@@ -325,6 +324,171 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastoreUser#check_server
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Returns weather the server url
+         *
+         * @param server
+         * @returns {promise|*}
+         */
+        var check_server = function(server) {
+
+            storage.upsert('config', {key: 'server', value: server});
+
+            return apiClient.info().then(function(response){
+
+                var data = response.data;
+                var server_url = server['url'].toLowerCase();
+                var server_keys;
+
+                if (! cryptoLibrary.validate_signature(data['info'], data['signature'], data['verify_key'])) {
+                    return {
+                        server_url: server_url,
+                        status: 'invalid_signature',
+                        verify_key: undefined,
+                        info: undefined
+                    };
+                }
+
+                if (! storage.key_exists('persistent', 'server_keys')) {
+                    storage.insert('persistent', {key: 'server_keys', value: []});
+                    storage.save();
+                }
+                server_keys = storage.find_one('persistent', {'key': 'server_keys'});
+                for (var i = 0; i < server_keys['value'].length; i++) {
+                    if (server_keys['value'][i]['url'] !== server_url) {
+                        continue;
+                    }
+                    if (server_keys['value'][i]['verify_key'] !== data['verify_key']) {
+
+                        return {
+                            server_url: server_url,
+                            status: 'signature_changed',
+                            verify_key: data['verify_key'],
+                            verify_key_old: server_keys['value'][i]['verify_key'],
+                            info: JSON.parse(data['info'])
+                        };
+                    }
+
+                    return {
+                        server_url: server_url,
+                        status: 'matched',
+                        verify_key: data['verify_key'],
+                        info: JSON.parse(data['info'])
+                    };
+                }
+
+                return {
+                    server_url: server_url,
+                    status: 'new_server',
+                    verify_key: data['verify_key'],
+                    info: JSON.parse(data['info'])
+                };
+            });
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#approve_server
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Puts the server with the specified url and verify key on the approved servers list
+         *
+         * @param {string} server_url
+         * @param {string} verify_key
+         */
+        var approve_server = function(server_url, verify_key) {
+            server_url = server_url.toLowerCase();
+
+            var server_keys = storage.find_one('persistent', {'key': 'server_keys'});
+            for (var i = 0; i < server_keys['value'].length; i++) {
+                if (server_keys['value'][i]['url'] !== server_url) {
+                    continue;
+                }
+                server_keys['value'][i]['verify_key'] = verify_key;
+
+                storage.update('persistent', server_keys);
+                storage.save();
+                return;
+            }
+
+            server_keys['value'].push({
+                'url': server_url,
+                'verify_key': verify_key
+            });
+
+            storage.update('persistent', server_keys);
+            storage.save();
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#handle_login_response
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * handles the response of the login with all the necessary cryptography and returns the required multifactors
+         *
+         * @param {object} response The login response
+         * @param {string} password The password
+         * @param {object} session_keys The session keys
+         * @param {string} server_public_key The server's public key
+         *
+         * @returns {Array}
+         */
+        var handle_login_response = function(response, password, session_keys, server_public_key) {
+
+            response.data = JSON.parse(cryptoLibrary.decrypt_data_public_key(
+                response.data.login_info,
+                response.data.login_info_nonce,
+                server_public_key,
+                session_keys.private_key
+            ));
+
+            token = response.data.token;
+            user_sauce = response.data.user.user_sauce;
+            user_public_key = response.data.user.public_key;
+            session_password = password;
+
+            // decrypt the session key
+            session_secret_key = cryptoLibrary.decrypt_data_public_key(
+                response.data.session_secret_key,
+                response.data.session_secret_key_nonce,
+                response.data.session_public_key,
+                session_keys.private_key
+            );
+
+            // decrypt user private key
+            user_private_key = cryptoLibrary.decrypt_secret(
+                response.data.user.private_key,
+                response.data.user.private_key_nonce,
+                password,
+                user_sauce
+            );
+
+            // decrypt the user_validator
+            var user_validator = cryptoLibrary.decrypt_data_public_key(
+                response.data.user_validator,
+                response.data.user_validator_nonce,
+                response.data.session_public_key,
+                user_private_key
+            );
+
+            // encrypt the validator as verification
+            verification = cryptoLibrary.encrypt_data(
+                user_validator,
+                session_secret_key
+            );
+
+            required_multifactors = response.data['required_multifactors'];
+            return required_multifactors;
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastoreUser#login
          * @methodOf psonocli.managerDatastoreUser
          *
@@ -338,10 +502,12 @@
          * @param {string} password The password to login with
          * @param {boolean|undefined} remember Remember the username and server
          * @param {object} server The server object to send the login request to
+         * @param {object} server_public_key The public key of the server
          *
          * @returns {promise} Returns a promise with the login status
          */
-        var login = function(username, domain, password, remember, server) {
+        var login = function(username, domain, password, remember, server, server_public_key) {
+
 
             username = helper.form_full_username(username, domain);
 
@@ -362,8 +528,8 @@
                 storage.save();
             }
 
-            storage.insert('config', {key: 'user_username', value: username});
-            storage.insert('config', {key: 'server', value: server});
+            storage.upsert('config', {key: 'user_username', value: username});
+            storage.upsert('config', {key: 'server', value: server});
 
             session_keys = cryptoLibrary.generate_public_private_keypair();
 
@@ -383,46 +549,24 @@
 
             var onSuccess = function (response) {
 
-                token = response.data.token;
-                user_sauce = response.data.user.user_sauce;
-                user_public_key = response.data.user.public_key;
-                session_password = password;
-
-                // decrypt the session key
-                session_secret_key = cryptoLibrary.decrypt_data_public_key(
-                    response.data.session_secret_key,
-                    response.data.session_secret_key_nonce,
-                    response.data.session_public_key,
-                    session_keys.private_key
-                );
-
-                // decrypt user private key
-                user_private_key = cryptoLibrary.decrypt_secret(
-                    response.data.user.private_key,
-                    response.data.user.private_key_nonce,
-                    password,
-                    user_sauce
-                );
-
-                // decrypt the user_validator
-                var user_validator = cryptoLibrary.decrypt_data_public_key(
-                    response.data.user_validator,
-                    response.data.user_validator_nonce,
-                    response.data.session_public_key,
-                    user_private_key
-                );
-
-                // encrypt the validator as verification
-                verification = cryptoLibrary.encrypt_data(
-                    user_validator,
-                    session_secret_key
-                );
-
-                required_multifactors = response.data['required_multifactors'];
-                return required_multifactors;
+                return handle_login_response(response, password, session_keys, server_public_key);
             };
 
-            return apiClient.login(username, authkey, session_keys.public_key, device.get_device_fingerprint(), device.get_device_description())
+            var login_info = JSON.stringify({
+                'username': username,
+                'authkey': authkey,
+                'device_fingerprint': device.get_device_fingerprint(),
+                'device_description': device.get_device_description()
+            });
+
+            // encrypt the login infos
+            var login_info_enc = cryptoLibrary.encrypt_data_public_key(
+                login_info,
+                server_public_key,
+                session_keys.private_key
+            );
+
+            return apiClient.login(login_info_enc['text'], login_info_enc['nonce'], session_keys.public_key)
                 .then(onSuccess, onError);
         };
 
@@ -964,6 +1108,8 @@
             register: register,
             activate_code: activate_code,
             get_default: get_default,
+            check_server: check_server,
+            approve_server: approve_server,
             login: login,
             ga_verify: ga_verify,
             yubikey_otp_verify: yubikey_otp_verify,

@@ -21,24 +21,23 @@
 
         it('login', inject(function (apiClient) {
 
-            var username = 'a-username';
-            var authkey = 'a-authkey';
+            var login_info = 'a-login_info';
+            var login_info_nonce = 'a-login_info_nonce';
             var public_key = 'a-public_key';
 
             $httpBackend.when('POST', "https://www.psono.pw/server/authentication/login/").respond(
                 function(method, url, data, headers, params) {
                     // Validate request parameters:
                     data = JSON.parse(data);
-
-                    expect(data.username).toEqual(username);
+                    expect(data.login_info).toEqual(login_info);
+                    expect(data.login_info_nonce).toEqual(login_info_nonce);
                     expect(data.public_key).toEqual(public_key);
-                    expect(data.authkey).toEqual(authkey);
 
                     // return answer
                     return [200, {}];
                 });
 
-            expect(apiClient.login(username, authkey, public_key)).toBeDefined();
+            expect(apiClient.login(login_info, login_info_nonce, public_key)).toBeDefined();
 
             $httpBackend.flush();
         }));

@@ -13,10 +13,7 @@
 var ClassClient = function (backend, require, jQuery, sha512) {
     "use strict";
 
-    //var nacl = nacl_factory.instantiate();
     var nacl = require('ecma-nacl');
-
-
 
     /**
      * Random byte generator from nacl_factory.js

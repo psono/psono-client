@@ -102,7 +102,6 @@ job-deploy-chrome:
   environment:
     name: chrome-webstore
     url: https://chrome.google.com/webstore/detail/psonopw/eljmjmgjkbmpmfljlmklcfineebidmlo
-  when: manual
   only:
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
@@ -116,6 +115,5 @@ job-deploy-firefox:
   environment:
     name: firefox-webstore
     url: https://addons.mozilla.org/de/firefox/addon/psono-pw-password-manager/
-  when: manual
   only:
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
