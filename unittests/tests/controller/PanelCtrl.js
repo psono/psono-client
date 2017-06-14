@@ -52,7 +52,7 @@
                     // console.log(headers);
                     // console.log(params);
 
-                    expect(headers.Authorization).toEqual('Token b5fdb5a2f2a8f84d4378c314eec433e0d04e11e034290c82efee6574ebf42e73429c6bec12f23818a7be44f14c17d21d63c9b99d322b68d51720e4bdc0a2612e');
+                    expect(headers.Authorization).toEqual('Token ');
 
                     return [200, {'datastores': [
                         {
@@ -71,26 +71,6 @@
                     ]}];
                 });
 
-            $httpBackend.when('GET', "https://www.psono.pw/server/datastore/5fb571e3-8d08-42d6-8105-fee8f9a0099b/").respond(
-                function(method, url, data, headers, params) {
-                    // Validate request parameters:
-                    data = JSON.parse(data);
-                    console.log(data);
-                    console.log(headers);
-                    console.log(params);
-
-                    expect(headers.Authorization).toEqual('Token b5fdb5a2f2a8f84d4378c314eec433e0d04e11e034290c82efee6574ebf42e73429c6bec12f23818a7be44f14c17d21d63c9b99d322b68d51720e4bdc0a2612e');
-
-                    // TODO return real data
-                    return [200, {
-                        'data': '',
-                        'data_nonce': '',
-                        'description': 'default',
-                        'secret_key': '',
-                        'secret_key_nonce': '',
-                        'type': 'password'
-                    }];
-                });
             $httpBackend.when('GET', "view/index.html").respond({});
 
             $httpBackend.flush();

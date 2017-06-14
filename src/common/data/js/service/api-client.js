@@ -102,6 +102,26 @@
 
         /**
          * @ngdoc
+         * @name psonocli.apiClient#info
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax GET request to get the server info
+         *
+         * @returns {promise} promise
+         */
+        var info = function () {
+
+            var endpoint = '/info/';
+            var connection_type = "GET";
+            var data = null;
+            var headers = null;
+
+            return call(connection_type, endpoint, data, headers);
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.apiClient#login
          * @methodOf psonocli.apiClient
          *
@@ -109,24 +129,20 @@
          * Ajax POST request to the backend with email and authkey for login, saves a token together with user_id
          * and all the different keys of a user in the apidata storage
          *
-         * @param {string} username the username e.g dummy@example.com
-         * @param {string} authkey the authkey as scrypt(password + username + sauce)
-         * @param {string} public_key session public key
-         * @param {string} device_fingerprint The fingerprint of the device
-         * @param {string} device_description The device description
+         * @param {string} login_info The encrypted login info (username, authkey, device fingerprint, device description)
+         * @param {string} login_info_nonce The nonce of hte login info
+         * @param {string} public_key The session public key
          *
          * @returns {promise} Returns a promise with the login status
          */
-        var login = function(username, authkey, public_key, device_fingerprint, device_description) {
+        var login = function(login_info, login_info_nonce, public_key) {
 
             var endpoint = '/authentication/login/';
             var connection_type = "POST";
             var data = {
-                username: username,
-                authkey: authkey,
-                public_key: public_key,
-                device_fingerprint: device_fingerprint,
-                device_description: device_description
+                login_info: login_info,
+                login_info_nonce: login_info_nonce,
+                public_key: public_key
             };
             var headers = null;
 
@@ -143,10 +159,11 @@
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} ga_token The OATH-TOTP Token
+         * @param {string} session_secret_key The session secret key
          *
          * @returns {promise} Returns a promise with the verification status
          */
-        var ga_verify = function(token, ga_token) {
+        var ga_verify = function(token, ga_token, session_secret_key) {
 
             var endpoint = '/authentication/ga-verify/';
             var connection_type = "POST";
@@ -154,9 +171,11 @@
                 token: token,
                 ga_token: ga_token
             };
-            var headers = null;
+            var headers = {
+                "Authorization": "Token "+ token
+            };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
         /**
@@ -169,10 +188,11 @@
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} yubikey_otp The YubiKey OTP
+         * @param {string} session_secret_key The session secret key
          *
          * @returns {promise} Returns a promise with the verification status
          */
-        var yubikey_otp_verify = function(token, yubikey_otp) {
+        var yubikey_otp_verify = function(token, yubikey_otp, session_secret_key) {
 
             var endpoint = '/authentication/yubikey-otp-verify/';
             var connection_type = "POST";
@@ -180,9 +200,11 @@
                 token: token,
                 yubikey_otp: yubikey_otp
             };
-            var headers = null;
+            var headers = {
+                "Authorization": "Token "+ token
+            };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
 
@@ -197,10 +219,11 @@
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} verification hex of first decrypted user_validator (from login) the re-encrypted with session key
          * @param {string} verification_nonce hex of the nonce of the verification
+         * @param {string} session_secret_key The session secret key
          *
          * @returns {promise} promise
          */
-        var activate_token = function(token, verification, verification_nonce) {
+        var activate_token = function(token, verification, verification_nonce, session_secret_key) {
 
             var endpoint = '/authentication/activate-token/';
             var connection_type = "POST";
@@ -209,9 +232,11 @@
                 verification: verification,
                 verification_nonce: verification_nonce
             };
-            var headers = null;
+            var headers = {
+                "Authorization": "Token "+ token
+            };
 
-            return call(connection_type, endpoint, data, headers);
+            return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
 
@@ -1450,6 +1475,7 @@
         // };
 
         return {
+            info: info,
             login: login,
             ga_verify: ga_verify,
             yubikey_otp_verify: yubikey_otp_verify,

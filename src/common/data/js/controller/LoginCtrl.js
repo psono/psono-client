@@ -31,6 +31,7 @@
             $scope.ga_verify = ga_verify;
             $scope.yubikey_otp_verify = yubikey_otp_verify;
             $scope.login = login;
+            $scope.load_default_view = load_default_view;
 
             $scope.open_tab = browserClient.open_tab;
             $scope.view = 'default';
@@ -238,6 +239,19 @@
                 }
             }
 
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LoginCtrl#login
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Triggered once someone clicks the cancel button in the "Approve new server" dialog
+             */
+            function load_default_view() {
+                $scope.view = 'default';
+            }
+
             /**
              * @ngdoc
              * @name psonocli.controller:LoginCtrl#login
@@ -258,26 +272,59 @@
                     return;
                 }
 
+                var onError = function() {
+                    $scope.errors = ['Server offline.']
+                };
 
-                var onError = function(data) {
+                var onSuccess = function(server_check) {
 
-                    if (data.error_data === null) {
-                        $scope.errors = ['Server offline.']
-                    } else if (data.error_data.hasOwnProperty('non_field_errors')) {
-                        $scope.errors = data.error_data.non_field_errors;
-                    } else if (data.error_data.hasOwnProperty('username')) {
-                        $scope.errors = data.error_data.username;
-                    } else {
-                        $scope.errors = ['Server offline.']
+                    var onSuccess = function(required_multifactors) {
+                        return next_login_step(required_multifactors);
+                    };
+
+
+                    var onError = function(data) {
+                        $scope.view = 'default';
+
+                        if (data.error_data === null) {
+                            $scope.errors = ['Server offline.']
+                        } else if (data.error_data.hasOwnProperty('non_field_errors')) {
+                            $scope.errors = data.error_data.non_field_errors;
+                        } else if (data.error_data.hasOwnProperty('username')) {
+                            $scope.errors = data.error_data.username;
+                        } else {
+                            $scope.errors = ['Server offline.']
+                        }
+                    };
+
+                    var really_login = function() {
+                        managerDatastoreUser.login(username, $scope.selected_server_domain, password, remember,
+                            angular.copy($scope.selected_server), server_check['info']['public_key'])
+                            .then(onSuccess, onError);
+                    };
+
+                    $scope.approve_new_server = function() {
+                        managerDatastoreUser.approve_server(server_check['server_url'], server_check['verify_key']);
+                        really_login()
+                    };
+
+                    if (server_check['status'] === 'matched') {
+                        really_login()
+                    } else if (server_check['status'] === 'new_server') {
+                        $scope.newServerFingerprint = server_check['verify_key'];
+                        $scope.view = 'new_server';
+                        $scope.errors = [];
+
+                    } else if(server_check['status'] === 'signature_changed') {
+                        $scope.view = 'signature_changed';
+                        $scope.changedFingerprint = server_check['verify_key'];
+                        $scope.oldFingerprint = server_check['verify_key_old'];
+                        $scope.errors = [];
                     }
                 };
 
-                var onSuccess = function(required_multifactors) {
-                    return next_login_step(required_multifactors);
-                };
+                managerDatastoreUser.check_server(angular.copy($scope.selected_server)).then(onSuccess, onError);
 
-                managerDatastoreUser.login(username, $scope.selected_server_domain, password, remember, angular.copy($scope.selected_server))
-                    .then(onSuccess, onError);
             }
         }]
     );

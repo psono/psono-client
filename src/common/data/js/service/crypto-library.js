@@ -466,7 +466,23 @@
             return uuid.v4();
         };
 
-
+        /**
+         * @ngdoc
+         * @name psonocli.cryptoLibrary#validate_signature
+         * @methodOf psonocli.cryptoLibrary
+         *
+         * @description
+         * Returns whether the provided message and verify_key produce the correct signature or not
+         *
+         * @param {string} message The raw message to verify
+         * @param {string} signature The hex representation of the signature
+         * @param {string} verify_key The hex representation of the verification key
+         *
+         * @returns {boolean} Returns whether the signature is correct or not
+         */
+        var validate_signature = function(message, signature, verify_key) {
+            return nacl.signing.verify(converter.from_hex(signature), converter.encode_utf8(message), converter.from_hex(verify_key));
+        };
 
         return {
             randomBytes: randomBytes,
@@ -486,7 +502,8 @@
             generate_recovery_code: generate_recovery_code,
             recovery_code_strip_checksums: recovery_code_strip_checksums,
             recovery_password_chunk_pass_checksum: recovery_password_chunk_pass_checksum,
-            generate_uuid: generate_uuid
+            generate_uuid: generate_uuid,
+            validate_signature: validate_signature
         };
     };
 

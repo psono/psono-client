@@ -16,6 +16,7 @@
 
     var browserClient = function($rootScope, $q, $templateRequest, $http, $window) {
 
+        var config = {};
         var events = [
             'login',
             'logout'
@@ -85,6 +86,7 @@
         var load_version = function() {
             return $templateRequest('./VERSION.txt');
         };
+
 
         /**
          * @ngdoc
@@ -188,9 +190,6 @@
             return true;
         };
 
-
-        var config = {};
-
         /**
          * @ngdoc
          * @name psonocli.browserClient#on
@@ -206,10 +205,10 @@
         var _get_config = function(key) {
 
             if (typeof(key) === 'undefined') {
-                return config;
+                return angular.copy(config);
             }
             if (config.hasOwnProperty(key)) {
-                return config[key];
+                return angular.copy(config[key]);
             }
 
             return null;
@@ -224,6 +223,7 @@
          * Loads the config (or only the part specified by the "key") fresh or from "cache"
          *
          * @param {string} key The config "key" one wants to have
+         *
          * @returns {*} The config value
          */
         var get_config = function (key) {
