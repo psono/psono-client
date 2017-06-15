@@ -36,7 +36,11 @@ var ClassWorkerContentScript = function (browser, jQuery) {
         documents.push(document);
 
         for (var i = 0; i < frames.length; i++) {
-            get_all_documents(frames[i].contentWindow.document, documents);
+            try {
+                get_all_documents(frames[i].contentWindow.document, documents);
+            } catch (e) {
+                console.log(e);
+            }
         }
     }
 
