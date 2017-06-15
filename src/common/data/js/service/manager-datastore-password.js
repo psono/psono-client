@@ -937,7 +937,7 @@
          * @methodOf psonocli.managerDatastorePassword
          *
          * @description
-         * triggered once a new share is deleted. Searches the datastore for the closest share (or the datastore if no
+         * triggered once a share is deleted. Searches the datastore for the closest share (or the datastore if no
          * share) and removes it from the share_index
          *
          * @param {uuid} share_id the share_id to delete
@@ -1004,7 +1004,7 @@
          * @param {Array} new_path The new path
          * @param {TreeObject} datastore The affected datastore
          * @param {int} add_distance Some logic to get the correct parent share to update in on_share_added()
-         * @param {int} delete_distanceSome logic to get the correct parent share to update in on_share_deleted()
+         * @param {int} delete_distance Some logic to get the correct parent share to update in on_share_deleted()
          * @returns {Array} Returns the paths to update
          */
         var on_share_moved = function(share_id, old_path, new_path, datastore, add_distance, delete_distance) {
@@ -1025,7 +1025,7 @@
         return {
             get_password_datastore: get_password_datastore,
             save_datastore: save_datastore,
-            generate_password: save_autogenerate_password,
+            save_autogenerate_password: save_autogenerate_password,
             generate_password_active_tab: generate_password_active_tab,
             find_in_datastore: find_in_datastore,
             get_all_child_shares: get_all_child_shares,

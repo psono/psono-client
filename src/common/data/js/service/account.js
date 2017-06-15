@@ -63,7 +63,6 @@
 
                     modalInstance.result.then(function () {
                         // User clicked the prime button
-
                     }, function () {
                         // cancel triggered
                     });
@@ -77,20 +76,32 @@
 
             },
             onClickConfigureGoogleAuthenticator: function () {
-                $uibModal.open({
+                var modalInstance = $uibModal.open({
                     templateUrl: 'view/modal-setup-google-authenticator.html',
                     controller: 'ModalConfigureGoogleAuthenticatorCtrl',
                     backdrop: 'static',
                     resolve: {}
                 });
 
+                modalInstance.result.then(function () {
+                    // User clicked the prime button
+                }, function () {
+                    // cancel triggered
+                });
+
             },
             onClickConfigureYubiKeyOTP: function () {
-                $uibModal.open({
+                var modalInstance = $uibModal.open({
                     templateUrl: 'view/modal-setup-yubikey-otp.html',
                     controller: 'ModalConfigureYubiKeyOTPCtrl',
                     backdrop: 'static',
                     resolve: {}
+                });
+
+                modalInstance.result.then(function () {
+                    // User clicked the prime button
+                }, function () {
+                    // cancel triggered
                 });
 
             }
