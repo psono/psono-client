@@ -29,6 +29,14 @@ gulp.task('sass', function () {
         .pipe(sass().on('error', sass.logError))
         .pipe(gulp.dest('src/common/data/css'));
 });
+/**
+ * Compiles template files to template.js file
+ */
+gulp.task('template', function () {
+    return gulp.src('src/common/data/view/**/*.html')
+        .pipe(template_cache('templates.js', { module:'psonocli', root: 'view/' }))
+        .pipe(gulp.dest('src/common/data/view'));
+});
 
 
 var build = function(build_path, type) {
@@ -118,7 +126,7 @@ gulp.task('build-chrome', function() {
 });
 
 gulp.task('default', function(callback) {
-    runSequence('sass',
+    runSequence(['sass', 'template'],
         ['build-chrome', 'build-firefox', 'build-webserver'],
         callback);
 });

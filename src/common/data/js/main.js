@@ -106,14 +106,13 @@
                 return typeof obj
             };
         })
-        .run(['$rootScope', '$location', '$routeParams', 'managerSecret',
-            function ($rootScope, $location, $routeParams, managerSecret) {
+        .run(['$rootScope', '$location', '$routeParams', '$http', '$templateCache', 'managerSecret',
+            function ($rootScope, $location, $routeParams, $http, $templateCache, managerSecret) {
                 $rootScope.$on('$routeChangeSuccess', function () {
                     var redirect = '/secret/';
                     if ($location.path().substring(0, redirect.length) === redirect && $routeParams.hasOwnProperty('secret_id')) {
                         managerSecret.redirect_secret($routeParams.type, $routeParams.secret_id);
                     }
-
                 });
             }]);
 }(angular));
