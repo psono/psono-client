@@ -36,7 +36,11 @@ var ClassWorkerContentScript = function (browser, jQuery) {
         documents.push(document);
 
         for (var i = 0; i < frames.length; i++) {
-            get_all_documents(frames[i].contentWindow.document, documents);
+            try {
+                get_all_documents(frames[i].contentWindow.document, documents);
+            } catch (e) {
+                //console.log(e);
+            }
         }
     }
 
@@ -282,18 +286,6 @@ var ClassWorkerContentScript = function (browser, jQuery) {
 
             last_request_element = evt.target;
 
-            // var DropContext = Drop.createContext({
-            //     classPrefix: 'psono-pw-drop'
-            // });
-            //
-            // var dropInstance = new DropContext({
-            //     target: evt.target,
-            //     content: dropcontent,
-            //     classes: 'psono-pw-drop-theme-arrows yui3-cssreset',
-            //     position: 'bottom left',
-            //     openOn: null
-            // });
-
             var dropInstance = create_dropdown_menu(evt, dropcontent, document);
             dropInstance.open();
 
@@ -308,7 +300,6 @@ var ClassWorkerContentScript = function (browser, jQuery) {
                 jQuery( ".psono-pw-drop-content-inner .open-datastore" ).on( "click", function() {
                     open_datastore();
                 });
-                //jQuery(window).one("click", close);
 
             }, 0);
         }
@@ -434,7 +425,6 @@ var ClassWorkerContentScript = function (browser, jQuery) {
                     dropInstances[ii].close();
                 }
                 dropInstances = [];
-                //jQuery(window).off("click", close);
                 break;
             }
         }
