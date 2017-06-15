@@ -48,6 +48,36 @@
 
                 </uib-tab>
 
+                <uib-tab heading="Known Hosts">
+                    <div ng-controller="KnownHostsCtrl">
+                        <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
+                            <thead>
+                            <tr>
+                                <th>Host</th>
+                                <th>Fingerprint</th>
+                                <th>Current Host</th>
+                                <th>Delete</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="host in known_hosts">
+                                <td class="hyphens">{{ host.url }}</td>
+                                <td>{{ host.verify_key | limitTo:20 }}<span ng-if="host.verify_key.length > 20">...</span></td>
+                                <td>
+                                    <i ng-if="host.current_host" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-default btn-sm" ng-click="delete_known_host(host)" >
+                                        <i class="fa fa-trash" aria-hidden="true"><span style="display: none">0</span></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </uib-tab>
+
                 <uib-tab heading="Export">
                     <div ng-controller="ExportCtrl">
                         <form class="form-horizontal">

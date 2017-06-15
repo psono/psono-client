@@ -324,108 +324,6 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastoreUser#check_server
-         * @methodOf psonocli.managerDatastoreUser
-         *
-         * @description
-         * Returns weather the server url
-         *
-         * @param server
-         * @returns {promise|*}
-         */
-        var check_server = function(server) {
-
-            storage.upsert('config', {key: 'server', value: server});
-
-            return apiClient.info().then(function(response){
-
-                var data = response.data;
-                var server_url = server['url'].toLowerCase();
-                var server_keys;
-
-                if (! cryptoLibrary.validate_signature(data['info'], data['signature'], data['verify_key'])) {
-                    return {
-                        server_url: server_url,
-                        status: 'invalid_signature',
-                        verify_key: undefined,
-                        info: undefined
-                    };
-                }
-
-                if (! storage.key_exists('persistent', 'server_keys')) {
-                    storage.insert('persistent', {key: 'server_keys', value: []});
-                    storage.save();
-                }
-                server_keys = storage.find_one('persistent', {'key': 'server_keys'});
-                for (var i = 0; i < server_keys['value'].length; i++) {
-                    if (server_keys['value'][i]['url'] !== server_url) {
-                        continue;
-                    }
-                    if (server_keys['value'][i]['verify_key'] !== data['verify_key']) {
-
-                        return {
-                            server_url: server_url,
-                            status: 'signature_changed',
-                            verify_key: data['verify_key'],
-                            verify_key_old: server_keys['value'][i]['verify_key'],
-                            info: JSON.parse(data['info'])
-                        };
-                    }
-
-                    return {
-                        server_url: server_url,
-                        status: 'matched',
-                        verify_key: data['verify_key'],
-                        info: JSON.parse(data['info'])
-                    };
-                }
-
-                return {
-                    server_url: server_url,
-                    status: 'new_server',
-                    verify_key: data['verify_key'],
-                    info: JSON.parse(data['info'])
-                };
-            });
-        };
-
-        /**
-         * @ngdoc
-         * @name psonocli.managerDatastoreUser#approve_server
-         * @methodOf psonocli.managerDatastoreUser
-         *
-         * @description
-         * Puts the server with the specified url and verify key on the approved servers list
-         *
-         * @param {string} server_url
-         * @param {string} verify_key
-         */
-        var approve_server = function(server_url, verify_key) {
-            server_url = server_url.toLowerCase();
-
-            var server_keys = storage.find_one('persistent', {'key': 'server_keys'});
-            for (var i = 0; i < server_keys['value'].length; i++) {
-                if (server_keys['value'][i]['url'] !== server_url) {
-                    continue;
-                }
-                server_keys['value'][i]['verify_key'] = verify_key;
-
-                storage.update('persistent', server_keys);
-                storage.save();
-                return;
-            }
-
-            server_keys['value'].push({
-                'url': server_url,
-                'verify_key': verify_key
-            });
-
-            storage.update('persistent', server_keys);
-            storage.save();
-        };
-
-        /**
-         * @ngdoc
          * @name psonocli.managerDatastoreUser#handle_login_response
          * @methodOf psonocli.managerDatastoreUser
          *
@@ -1108,8 +1006,6 @@
             register: register,
             activate_code: activate_code,
             get_default: get_default,
-            check_server: check_server,
-            approve_server: approve_server,
             login: login,
             ga_verify: ga_verify,
             yubikey_otp_verify: yubikey_otp_verify,

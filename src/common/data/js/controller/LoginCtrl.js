@@ -21,9 +21,11 @@
      * @description
      * Controller for the Login view
      */
-    angular.module('psonocli').controller('LoginCtrl', ['$scope', '$rootScope', '$filter', '$timeout', 'managerDatastoreUser', 'browserClient', 'storage',
+    angular.module('psonocli').controller('LoginCtrl', ['$scope', '$rootScope', '$filter', '$timeout',
+        'managerDatastoreUser', 'managerHost', 'browserClient', 'storage',
         'snapRemote', '$window', '$route', '$routeParams', '$location', 'helper',
-        function ($scope, $rootScope, $filter, $timeout, managerDatastoreUser, browserClient, storage,
+        function ($scope, $rootScope, $filter, $timeout,
+                  managerDatastoreUser, managerHost, browserClient, storage,
                   snapRemote, $window, $route, $routeParams, $location, helper) {
 
             $scope.select_server = select_server;
@@ -304,7 +306,7 @@
                     };
 
                     $scope.approve_new_server = function() {
-                        managerDatastoreUser.approve_server(server_check['server_url'], server_check['verify_key']);
+                        managerHost.approve_host(server_check['server_url'], server_check['verify_key']);
                         really_login()
                     };
 
@@ -323,7 +325,7 @@
                     }
                 };
 
-                managerDatastoreUser.check_server(angular.copy($scope.selected_server)).then(onSuccess, onError);
+                managerHost.check_host(angular.copy($scope.selected_server)).then(onSuccess, onError);
 
             }
         }]
