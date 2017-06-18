@@ -363,6 +363,9 @@
          * @param {function} [cmp_fct] (optional) Compare function
          */
         function remove_from_array(array, search, cmp_fct) {
+            if (!array) {
+                return;
+            }
             if (typeof(cmp_fct) === 'undefined') {
                 cmp_fct = function(a, b) {
                     return a === b;

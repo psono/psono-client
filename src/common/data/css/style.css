@@ -95,6 +95,11 @@ h1, h2 {
     .dark .navigations li.active a {
       color: #fff; }
 
+.popover-content {
+  color: #151f2b; }
+  .popover-content a {
+    color: #151f2b; }
+
 /* All Tree Changes */
 .tree::before {
   bottom: 23px;

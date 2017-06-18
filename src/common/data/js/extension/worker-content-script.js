@@ -329,7 +329,6 @@ var ClassWorkerContentScript = function (browser, jQuery) {
             if (event.target !== setup_event.target) {
                 var dropdowns = document.getElementsByClassName("psono-pw-drop");
                 for (var i = dropdowns.length - 1; i >= 0; i--) {
-                    console.log();
                     dropdowns[i].remove();
                 }
             }

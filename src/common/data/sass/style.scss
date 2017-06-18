@@ -135,6 +135,13 @@ h1, h2 {
 
 }
 
+.popover-content {
+  color: $dark-color;
+  a {
+    color: $dark-color;
+  }
+}
+
 /* All Tree Changes */
 .tree::before {
   bottom: 23px;

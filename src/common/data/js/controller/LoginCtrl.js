@@ -21,10 +21,10 @@
      * @description
      * Controller for the Login view
      */
-    angular.module('psonocli').controller('LoginCtrl', ['$scope', '$rootScope', '$filter', '$timeout',
+    angular.module('psonocli').controller('LoginCtrl', ['$scope', '$sce', '$templateRequest', '$templateCache', '$rootScope', '$filter', '$timeout',
         'managerDatastoreUser', 'managerHost', 'browserClient', 'storage',
         'snapRemote', '$window', '$route', '$routeParams', '$location', 'helper',
-        function ($scope, $rootScope, $filter, $timeout,
+        function ($scope, $sce, $templateRequest, $templateCache, $rootScope, $filter, $timeout,
                   managerDatastoreUser, managerHost, browserClient, storage,
                   snapRemote, $window, $route, $routeParams, $location, helper) {
 

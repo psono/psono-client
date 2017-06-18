@@ -2,7 +2,7 @@
 wget https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js -O src/common/data/js/lib/jquery.min.js
 wget https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js -O src/common/data/js/lib/jquery-ui.min.js
 wget https://raw.githubusercontent.com/angular-ui/bootstrap-bower/master/ui-bootstrap-tpls.min.js -O src/common/data/js/lib/ui-bootstrap-tpls.min.js
-
+wget https://raw.githubusercontent.com/angular-ui/bootstrap/gh-pages/ui-bootstrap-2.5.0-csp.css -O src/common/data/css/lib/ui-bootstrap-csp.css
 wget http://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js -O src/common/data/js/lib/datatables.min.js
 wget https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css -O src/common/data/css/lib/datatables.min.css
 

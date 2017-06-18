@@ -30,6 +30,7 @@
                 name: "Password", // Displayed in Dropdown Menu
                 title_field: "website_password_title", // is the main column, that is used as filename
                 urlfilter_field: "website_password_url_filter", // is the filter column for url matching
+                autosubmit_field: "website_password_auto_submit", // is the filter column for auto submit
                 search: ['website_password_title', 'website_password_url_filter'], // are searched when the user search his entries
                 fields: [ // All fields for this object with unique names
                     { name: "website_password_title", field: "input", type: "text", title: "Title", placeholder: "Title", required: true},

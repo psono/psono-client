@@ -81,7 +81,9 @@
             function delete_yubikey_otp(yubikey_otps, yubikey_otp_id) {
 
                 var onSuccess = function() {
-                    helper.remove_from_array(yubikey_otps, yubikey_otp_id, function(a, b){ return a.id === b});
+                    helper.remove_from_array(yubikey_otps, yubikey_otp_id, function(a, b){
+                        return a.id === b
+                    });
                     return true;
                 };
 

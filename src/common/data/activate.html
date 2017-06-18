@@ -21,6 +21,7 @@
     <link rel="stylesheet" type="text/css" href="css/lib/opensans.css" />
     <link href="css/lib/angular-csp.css" rel="stylesheet">
     <link href="css/lib/bootstrap.css" rel="stylesheet">
+    <link href="css/lib/ui-bootstrap-csp.css" rel="stylesheet">
     <link href="css/lib/datatables.min.css" rel="stylesheet">
     <link href="css/lib/angular-snap.css" rel="stylesheet">
     <link href="css/lib/font-awesome.min.css" rel="stylesheet">
@@ -67,21 +68,10 @@
 
                 <div class="form-group hideinputcharakter">
 
-                    <script type="text/ng-template" id="myPopoverTemplate.html">
-                        <div class="container-fluid">
-                            <p>Pick one of the servers below or enter the new url</p>
-                            <ul>
-                                <li ng-repeat="server in filtered_servers | limitTo:4">
-                                    <a href="#" ng-click="select_server(server)">{{ server.title + ' ' + server.url }}</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </script>
-
                     <label for="serverselection">Server: </label>
                     <input type="text" id="serverselection"
-                           popover-template="'myPopoverTemplate.html'"
-                           popover-trigger="focus"
+                           uib-popover-template="'view/myPopoverTemplate.html'"
+                           popover-trigger="'focus'"
                            ng-model="selected_server_url"
                            ng-change="changing(selected_server_url)"
                            class="form-control">

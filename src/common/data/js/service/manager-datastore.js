@@ -330,10 +330,9 @@
          * @returns {TreeObject} Filtered copy of the content
          */
         var filter_datastore_content = function(content) {
-
             var content_copy  = helper.duplicate_object(content);
 
-            var filter = ['expanded', 'filter', 'hidden', 'share_rights', 'parent_share_id', 'parent_datastore_id'];
+            var filter = ['expanded', 'expanded_temporary', 'filter', 'hidden', 'share_rights', 'parent_share_id', 'parent_datastore_id'];
 
             var filter_content = function (content, filter) {
                 var i, m;

@@ -58,7 +58,7 @@
                  * @param oldValue
                  * @param searchTree
                  */
-                var markSearchedNodesInvisible = function (newValue, oldValue, searchTree) {
+                var modifyTreeForSearch = function (newValue, oldValue, searchTree) {
                     if (typeof newValue === 'undefined') {
                         return;
                     }
@@ -68,7 +68,7 @@
                     var i, ii;
                     if (searchTree.hasOwnProperty('folders')) {
                         for (i = searchTree.folders.length - 1; searchTree.folders && i >= 0; i--) {
-                            show = markSearchedNodesInvisible(newValue, oldValue, searchTree.folders[i]) || show;
+                            show = modifyTreeForSearch(newValue, oldValue, searchTree.folders[i]) || show;
                         }
                     }
 
@@ -109,12 +109,13 @@
                         }
                     }
                     searchTree.hidden = !show;
+                    searchTree.expanded_temporary = newValue !== '';
 
                     return show;
                 };
 
                 $scope.$watch('tosearchTreeFilter', function(newValue, oldValue) {
-                    markSearchedNodesInvisible(newValue, oldValue, $scope.treeView);
+                    modifyTreeForSearch(newValue, oldValue, $scope.treeView);
                 });
 
                 /**
@@ -191,7 +192,9 @@
                  * @param node
                  */
                 self.toggleExpanded = function (node) {
-                    node.expanded = !node.expanded;
+                    var new_expand_status = ! (node.expanded || node.expanded_temporary);
+                    node.expanded = new_expand_status;
+                    node.expanded_temporary = new_expand_status;
                 };
 
                 /**
