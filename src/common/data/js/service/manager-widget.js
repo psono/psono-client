@@ -175,6 +175,10 @@
                         && content.urlfilter_field === content.fields[i].name) {
                         datastore_object.urlfilter = content.fields[i].value;
                     }
+                    if (content.hasOwnProperty("autosubmit_field")
+                        && content.autosubmit_field === content.fields[i].name) {
+                        datastore_object.autosubmit = content.fields[i].value;
+                    }
                     secret_object[content.fields[i].name] = content.fields[i].value;
                 }
 
@@ -275,6 +279,10 @@
                         if (content.hasOwnProperty("urlfilter_field")
                             && content.urlfilter_field === content.fields[i].name) {
                             node.urlfilter = content.fields[i].value;
+                        }
+                        if (content.hasOwnProperty("autosubmit_field")
+                            && content.autosubmit_field === content.fields[i].name) {
+                            node.autosubmit = content.fields[i].value;
                         }
                         secret_object[content.fields[i].name] = content.fields[i].value;
                     }

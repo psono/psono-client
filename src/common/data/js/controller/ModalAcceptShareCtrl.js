@@ -153,6 +153,10 @@
                             && shareBlueprint.get_blueprint("user").urlfilter_field === users[i].name) {
                             user_object.urlfilter = users[i].value;
                         }
+                        if (shareBlueprint.get_blueprint("user").hasOwnProperty("autosubmit_field")
+                            && shareBlueprint.get_blueprint("user").autosubmit_field === users[i].name) {
+                            user_object.autosubmit = users[i].value;
+                        }
                         user_object.data[users[i].name] = users[i].value;
 
                         user_data_store.items.push(user_object);

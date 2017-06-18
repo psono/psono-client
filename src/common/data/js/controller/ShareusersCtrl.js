@@ -320,6 +320,10 @@
                             && content.urlfilter_field === content.fields[i].name) {
                             user_object.urlfilter = content.fields[i].value;
                         }
+                        if (content.hasOwnProperty("autosubmit_field")
+                            && content.autosubmit_field === content.fields[i].name) {
+                            user_object.autosubmit = content.fields[i].value;
+                        }
                         user_object.data[content.fields[i].name] = content.fields[i].value;
                     }
 
@@ -387,6 +391,12 @@
                         if (content.hasOwnProperty("urlfilter_field")
                             && content.urlfilter_field === content.fields[i].name) {
                             node.urlfilter = content.fields[i].value;
+                        }
+
+                        // found a autosubmit field, lets put it into our autosubmit
+                        if (content.hasOwnProperty("autosubmit_field")
+                            && content.autosubmit_field === content.fields[i].name) {
+                            node.autosubmit = content.fields[i].value;
                         }
 
                         // lets save all the rest in the normal data fields

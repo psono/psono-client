@@ -388,13 +388,13 @@
                     }
 
                     var onSuccess = function (datastore) {
-
                         managerDatastore.fill_storage('datastore-password-leafs', datastore, [
                             ['key', 'secret_id'],
                             ['secret_id', 'secret_id'],
                             ['value', 'secret_key'],
                             ['name', 'name'],
                             ['urlfilter', 'urlfilter'],
+                            ['autosubmit', 'autosubmit'],
                             ['search', 'urlfilter']
 
                         ]);

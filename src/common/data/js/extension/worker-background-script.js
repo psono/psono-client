@@ -4,7 +4,7 @@ var ClassWorkerBackgroundScript = function (chrome, browser) {
     var activeTabId;
     var hits_additional_info = {};
     var fillpassword = [];
-    var already_filled = {};
+    var already_filled_max_allowed = {};
 
     activate();
 
@@ -266,10 +266,11 @@ var ClassWorkerBackgroundScript = function (chrome, browser) {
      * Returns all website passwords where the specified url matches the url filter
      *
      * @param {string} url The url to match
+     * @param {boolean} only_autosubmit Only entries with autosubmit
      *
      * @returns {Array} The database objects where the url filter match the url
      */
-    function search_website_passwords_by_urlfilter(url) {
+    function search_website_passwords_by_urlfilter(url, only_autosubmit) {
         var parsed_url = parse_url(url);
         var return_value = [];
         var leafs = searchLocalStorage('password_manager_local_storage', 'datastore-password-leafs');
@@ -279,6 +280,9 @@ var ClassWorkerBackgroundScript = function (chrome, browser) {
                 continue;
             }
             if (!endsWith(parsed_url.authority, leafs[ii].urlfilter)) {
+                continue;
+            }
+            if (only_autosubmit && (!leafs[ii].hasOwnProperty('autosubmit') || !leafs[ii]['autosubmit'])) {
                 continue;
             }
             return_value.push(leafs[ii]);
@@ -303,7 +307,7 @@ var ClassWorkerBackgroundScript = function (chrome, browser) {
             return;
         }
 
-        leafs = search_website_passwords_by_urlfilter(sender.tab.url);
+        leafs = search_website_passwords_by_urlfilter(sender.tab.url, false);
 
         for (var ii = 0; ii < leafs.length; ii++) {
             update.push({
@@ -557,23 +561,22 @@ var ClassWorkerBackgroundScript = function (chrome, browser) {
     function on_auth_required(details, callbackFn) {
         var return_value = {};
         var entries;
-        entries = search_website_passwords_by_urlfilter(details.url);
+        entries = search_website_passwords_by_urlfilter(details.url, true);
 
         if (entries.length < 1) {
             return callbackFn(return_value);
         }
 
-        if (already_filled.hasOwnProperty(details.requestId) && already_filled[details.requestId] > 0) {
+        if (already_filled_max_allowed.hasOwnProperty(details.requestId) && already_filled_max_allowed[details.requestId] < 1) {
             return callbackFn(return_value);
         }
 
-        if (! already_filled.hasOwnProperty(details.requestId)) {
-            already_filled[details.requestId] = Math.max(entries.length, 2);
+        if (! already_filled_max_allowed.hasOwnProperty(details.requestId)) {
+            already_filled_max_allowed[details.requestId] = Math.min(entries.length, 2);
         }
 
-        already_filled[details.requestId]--;
-
-        request_secret(entries[already_filled[details.requestId]]['secret_id'])
+        already_filled_max_allowed[details.requestId]--;
+        request_secret(entries[already_filled_max_allowed[details.requestId]]['secret_id'])
             .done(function(data){
                 return_value = {
                     authCredentials: {
