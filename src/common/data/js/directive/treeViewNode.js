@@ -57,7 +57,7 @@
                 scope.getFolderIconClass = typeof options.folderIcon === 'function'
                     ? options.folderIcon
                     : function (node) {
-                        return 'fa fa-folder' + (node.expanded ? '-open' : '');
+                        return 'fa fa-folder' + (node.expanded || node.expanded_temporary ? '-open' : '');
                     };
 
                 /**
@@ -531,7 +531,7 @@
                         '</ul>' +
                         '</span>' +
                         '</div>' +
-                        '<div class="tree-folder-content"'+ (collapsible ? ' ng-show="node.expanded"' : '') + '>' +
+                        '<div class="tree-folder-content"'+ (collapsible ? ' ng-show="node.expanded || node.expanded_temporary"' : '') + '>' +
                         '<div tree-view-node="node">' +
                         '</div>' +
                         '</div>' +
