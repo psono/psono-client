@@ -16,9 +16,9 @@
             <h3 class="panel-title ng-binding ng-scope">Other</h3>
         </div>
         <div class="panel-body" style="height: auto;">
-            <uib-tabset class="tabset_expand">
+            <uib-tabset class="tabset_expand" active="active_tab">
 
-                <uib-tab heading="Open Sessions">
+                <uib-tab index="0" heading="Open Sessions" select="open_tab('open-sessions')">
                     <div ng-controller="OpenSessionsCtrl">
                         <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
                             <thead>
@@ -48,7 +48,7 @@
 
                 </uib-tab>
 
-                <uib-tab heading="Known Hosts">
+                <uib-tab index="1" heading="Known Hosts" select="open_tab('known-hosts')">
                     <div ng-controller="KnownHostsCtrl">
                         <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
                             <thead>
@@ -78,7 +78,7 @@
 
                 </uib-tab>
 
-                <uib-tab heading="Export">
+                <uib-tab index="2" heading="Export" select="open_tab('export')">
                     <div ng-controller="ExportCtrl">
                         <form class="form-horizontal">
                             <div class="form-group">
@@ -109,7 +109,7 @@
 
                 </uib-tab>
 
-                <uib-tab heading="Import">
+                <uib-tab index="3" heading="Import" select="open_tab('import')">
                     <div ng-controller="ImportCtrl">
 
                         <form class="form-horizontal">

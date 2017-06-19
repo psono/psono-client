@@ -18,9 +18,9 @@
         <div class="panel-body" style="height: auto;">
 
             <form class="form-horizontal" role="form">
-                <uib-tabset class="tabset_expand">
+                <uib-tabset class="tabset_expand" active="active_tab">
 
-                    <uib-tab ng-repeat="tab in tabs" heading="{{ tab.title }}">
+                    <uib-tab index="$index" ng-repeat="tab in tabs" heading="{{ tab.title }}"  select="open_tab(tab.key)">
 
                         <div ng-class="{true: 'has-error'}[submitted &amp;&amp; editEntryForm[n.name].$invalid]"
                              class="form-group" ng-repeat="field in account.fields"

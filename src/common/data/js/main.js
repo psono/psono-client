@@ -58,11 +58,23 @@
                         templateUrl: 'view/settings.html',
                         controller: 'SettingsCtrl'
                     })
+                    .when('/settings/:tab_slug', {
+                        templateUrl: 'view/settings.html',
+                        controller: 'SettingsCtrl'
+                    })
                     .when('/account', {
                         templateUrl: 'view/account.html',
                         controller: 'AccountCtrl'
                     })
+                    .when('/account/:tab_slug', {
+                        templateUrl: 'view/account.html',
+                        controller: 'AccountCtrl'
+                    })
                     .when('/other', {
+                        templateUrl: 'view/other.html',
+                        controller: 'OtherCtrl'
+                    })
+                    .when('/other/:tab_slug', {
                         templateUrl: 'view/other.html',
                         controller: 'OtherCtrl'
                     })
