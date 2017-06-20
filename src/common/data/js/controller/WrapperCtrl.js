@@ -25,91 +25,29 @@
         function ($scope, $rootScope, $filter, $timeout, managerDatastoreUser, browserClient, storage,
                   snapRemote, $window, $route, $routeParams, $location) {
 
+            var snapper;
+            var snapper_active = false;
+            var scrollWidth = 266;
+            var small_screen_limit = 768;
+            var orientationEvent = "onorientationchange" in angular.element($window) ? "orientationchange" : "resize";
+
+            var snappersettings = {
+                hyperextensible: false,
+                disable: 'right',
+                tapToClose: false
+            };
+
             $scope.open_tab = browserClient.open_tab;
             $scope.isNavCollapsed = true;
+            $scope.snap = {
+                snap_content_with: ''
+            };
 
             activate();
 
             function activate() {
 
-                snapRemote.getSnapper().then(function (snapper) {
-                    var scrollWidth = 266;
-                    var orientationEvent = "onorientationchange" in angular.element($window) ? "orientationchange" : "resize";
-                    var snappersettings = {
-                        hyperextensible: false,
-                        disable: 'right',
-                        tapToClose: false
-                    };
-
-                    snapper.smallView = screen.width < 640;
-                    // Do something with snapper
-                    snapper.settings(snappersettings);
-                    function adjustWith(snapper, behave_inverse) {
-                        //console.log('adjustWith');
-                        var total_width = angular.element(document.querySelectorAll(".snap-content")[0])[0].clientWidth;
-                        if ((snapper.state().state !== 'closed') !== behave_inverse) {
-                            $scope.snap_content_with = (total_width - scrollWidth) + 'px';
-                        } else {
-                            $scope.snap_content_with = total_width + 'px';
-                        }
-                    }
-
-                    snapper.on('start', function () {
-                        console.log('start');
-                    });
-
-                    snapper.on('end', function () {
-                        console.log('end');
-                    });
-
-                    snapper.on('open', function () {
-                        adjustWith(snapper, true);
-                    });
-                    snapper.on('close', function () {
-                        adjustWith(snapper, true);
-                    });
-
-                    snapper.open('left');
-                    adjustWith(snapper);
-
-                    $scope.$on("login", function () {
-                        snapRemote.getSnapper().then(function (snapper) {
-                            snapper.settings(snappersettings);
-                            snapper.open('left');
-                            adjustWith(snapper);
-                        });
-                    });
-
-                    /* TODO enable snapper if the device is too small */
-                    snapper.disable();
-
-                    angular.element($window).bind(orientationEvent, function () {
-                        snapRemote.getSnapper().then(function (snapper) {
-                            adjustWith(snapper);
-                        });
-                        /*
-                         var smallView = screen.width < 640;
-                         var element = document.getElementById('content');
-                         var minPosition = 266;
-                         if (snapper.smallView != smallView) {
-                         if(smallView) {
-                         disable = 'none';
-                         } else if(!smallView) {
-                         disable = 'right';
-                         element.style.width = ((window.innerWidth || document.documentElement.clientWidth)-minPosition)+'px';
-                         }
-                         snapper.settings({
-                         element: element,
-                         hyperextensible: false,
-                         disable: disable,
-                         minPosition: -minPosition
-                         });
-                         snapper.smallView = smallView;
-                         }
-                         */
-                    });
-
-                });
+                snapRemote.getSnapper().then(initialize_snapper);
 
 
                 if (managerDatastoreUser.is_logged_in()) {
@@ -131,6 +69,50 @@
                         browserClient.resize(250);
                     });
                 });
+            }
+
+            function initialize_snapper(snap) {
+                snapper = snap;
+                snapper.settings(snappersettings);
+                snapper.open('left');
+
+                snapper_enable_dynamic();
+
+                angular.element($window).bind(orientationEvent, function(e){
+                    snapper_enable_dynamic(e);
+                });
+            }
+
+            function enable_snapper(e) {
+                snapper_active = false;
+                snapper.enable();
+                $scope.snap.snap_content_with = get_snap_content_swidth() + 'px';
+                if (typeof(e) !== 'undefined') {
+                    // we have an resize event, where apply is not automatically called, so lets call it
+                    $scope.$apply();
+                }
+            }
+
+            function get_snap_content_swidth() {
+                return angular.element(document.querySelectorAll(".snap-content")[0])[0].clientWidth;
+            }
+
+            function disable_snapper(e) {
+                snapper_active = false;
+                snapper.disable();
+                $scope.snap.snap_content_with = (get_snap_content_swidth() - scrollWidth) + 'px';
+                if (typeof(e) !== 'undefined') {
+                    // we have an resize event, where apply is not automatically called, so lets call it
+                    $scope.$apply();
+                }
+            }
+
+            function snapper_enable_dynamic(e) {
+                if ($window.innerWidth < small_screen_limit) {
+                    enable_snapper(e);
+                } else {
+                    disable_snapper(e);
+                }
             }
         }]
     );
