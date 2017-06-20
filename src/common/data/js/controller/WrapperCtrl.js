@@ -26,7 +26,7 @@
                   snapRemote, $window, $route, $routeParams, $location) {
 
             var snapper;
-            var snapper_active = false;
+            var snapper_is_open;
             var scrollWidth = 266;
             var small_screen_limit = 768;
             var orientationEvent = "onorientationchange" in angular.element($window) ? "orientationchange" : "resize";
@@ -47,7 +47,7 @@
 
             function activate() {
 
-                snapRemote.getSnapper().then(initialize_snapper);
+                initialize_snapper();
 
 
                 if (managerDatastoreUser.is_logged_in()) {
@@ -71,20 +71,39 @@
                 });
             }
 
-            function initialize_snapper(snap) {
-                snapper = snap;
-                snapper.settings(snappersettings);
-                snapper.open('left');
+            /**
+             * @ngdoc
+             * @name psonocli.controller:WrapperCtrl#initialize_snapper
+             * @methodOf psonocli.controller:WrapperCtrl
+             *
+             * @description
+             * Responsible to intialize the snapper
+             */
+            function initialize_snapper() {
+                snapRemote.getSnapper().then(function(snap) {
+                    snapper = snap;
+                    snapper.settings(snappersettings);
+                    snapper.open('left');
 
-                snapper_enable_dynamic();
+                    snapper_enable_dynamic();
 
-                angular.element($window).bind(orientationEvent, function(e){
-                    snapper_enable_dynamic(e);
+                    angular.element($window).bind(orientationEvent, function(e){
+                        snapper_enable_dynamic(e);
+                    });
                 });
             }
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:WrapperCtrl#enable_snapper
+             * @methodOf psonocli.controller:WrapperCtrl
+             *
+             * @description
+             * Will enable the snapper and adjust the width of the snap content
+             *
+             * @param e
+             */
             function enable_snapper(e) {
-                snapper_active = false;
                 snapper.enable();
                 $scope.snap.snap_content_with = get_snap_content_swidth() + 'px';
                 if (typeof(e) !== 'undefined') {
@@ -93,12 +112,35 @@
                 }
             }
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:WrapperCtrl#get_snap_content_swidth
+             * @methodOf psonocli.controller:WrapperCtrl
+             *
+             * @description
+             * Returns the current width of the snap content
+             *
+             * @returns {number}
+             */
             function get_snap_content_swidth() {
                 return angular.element(document.querySelectorAll(".snap-content")[0])[0].clientWidth;
             }
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:WrapperCtrl#disable_snapper
+             * @methodOf psonocli.controller:WrapperCtrl
+             *
+             * @description
+             * Will disable the snapper and adjust the width of the snap content.
+             * Before disabling it, it will check if its closed or opened, and open it if its not open.
+             *
+             * @param e
+             */
             function disable_snapper(e) {
-                snapper_active = false;
+                if(snapper.state().state === 'closed'){
+                    snapRemote.toggle('left');
+                }
                 snapper.disable();
                 $scope.snap.snap_content_with = (get_snap_content_swidth() - scrollWidth) + 'px';
                 if (typeof(e) !== 'undefined') {
@@ -107,6 +149,17 @@
                 }
             }
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:WrapperCtrl#snapper_enable_dynamic
+             * @methodOf psonocli.controller:WrapperCtrl
+             *
+             * @description
+             * Checks the width of the current window. If its below small_screen_limit (currently 768px) it will enable
+             * the snapper, otherwise disable the snapper
+             *
+             * @param e
+             */
             function snapper_enable_dynamic(e) {
                 if ($window.innerWidth < small_screen_limit) {
                     enable_snapper(e);

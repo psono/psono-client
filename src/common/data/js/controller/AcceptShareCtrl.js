@@ -177,11 +177,31 @@
                     });
             }
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:AcceptShareCtrl#contextMenuOnShow
+             * @methodOf psonocli.controller:AcceptShareCtrl
+             *
+             * @description
+             * Counts the open context menus counter up
+             *
+             * @param div_id
+             */
             function contextMenuOnShow(div_id) {
                 dropDownMenuWatcher.on_open(div_id);
                 contextMenusOpen++;
             }
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:AcceptShareCtrl#contextMenuOnClose
+             * @methodOf psonocli.controller:AcceptShareCtrl
+             *
+             * @description
+             * Counts the open context menus counter down
+             *
+             * @param div_id
+             */
             function contextMenuOnClose(div_id) {
                 dropDownMenuWatcher.on_close(div_id);
                 $timeout(function() {
@@ -189,11 +209,26 @@
                 }, 0);
             }
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:AcceptShareCtrl#openNewFolder
+             * @methodOf psonocli.controller:AcceptShareCtrl
+             *
+             * @description
+             * Forwards the call to open the modal for a new folder
+             *
+             * @param event
+             */
             function openNewFolder(event) {
                 managerWidget.open_new_folder(undefined, [], $scope.structure.data, managerDatastorePassword);
             }
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:AcceptShareCtrl#contextMenuOnClose
+             * @methodOf psonocli.controller:AcceptShareCtrl
+             *
+             * @description
              * Opens the modal for a new entry
              *
              * @param parent
@@ -204,11 +239,26 @@
                 managerWidget.open_new_item($scope.structure.data, parent, path, size);
             }
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:AcceptShareCtrl#openNewItem
+             * @methodOf psonocli.controller:AcceptShareCtrl
+             *
+             * @description
+             * Forwards the call to open the modal for a new item
+             *
+             * @param event
+             */
             function openNewItem(event) {
                 open_new_item(undefined, []);
             }
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:AcceptShareCtrl#open_edit_item
+             * @methodOf psonocli.controller:AcceptShareCtrl
+             *
+             * @description
              * Opens the modal to edit a entry
              *
              * @param node
