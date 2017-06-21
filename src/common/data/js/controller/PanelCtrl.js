@@ -97,13 +97,13 @@
 
             function generate_password() {
                 managerDatastorePassword.generate_password_active_tab().then(function() {
-                    browserClient.close_popup();
+                    //browserClient.close_popup();
                 });
             }
 
             function bookmark() {
                 managerDatastorePassword.bookmark_active_tab().then(function() {
-                    browserClient.close_popup();
+                    //browserClient.close_popup();
                 });
             }
 
