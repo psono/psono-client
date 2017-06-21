@@ -137,8 +137,9 @@
             var onSuccess = function(decrypted_secret) {
 
                 var msg = itemBlueprint.blueprint_msg_before_open_secret(type, decrypted_secret);
-
-                browserClient.emit_sec(msg.key, msg.content);
+                if (typeof(msg) !== 'undefined') {
+                    browserClient.emit_sec(msg.key, msg.content);
+                }
 
                 itemBlueprint.blueprint_on_open_secret(type, decrypted_secret);
             };

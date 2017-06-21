@@ -90,6 +90,11 @@ h1, h2 {
     color: #151f2b; }
     .dark .navigations li:hover a {
       color: #151f2b; }
+  .dark .navigations li:focus {
+    background-color: #2dbb93;
+    color: #151f2b; }
+    .dark .navigations li:focus a {
+      color: #151f2b; }
   .dark .navigations li.active {
     background-color: #2dbb93; }
     .dark .navigations li.active a {

@@ -14,7 +14,7 @@
      * The browser interface, responsible for the cross browser / platform compatibility.
      */
 
-    var browserClient = function($rootScope, $q, $templateRequest, $http, $window) {
+    var browserClient = function($rootScope, $q, $templateRequest, $http, $window, $document) {
 
         var config = {};
         var events = [
@@ -110,6 +110,25 @@
 
         /**
          * @ngdoc
+         * @name psonocli.browserClient#get_active_tab
+         * @methodOf psonocli.browserClient
+         *
+         * @description
+         * returns a promise which will return the active tab
+         *
+         * @returns {promise} promise
+         */
+        var get_active_tab = function() {
+            return $q(function (resolve) {
+                resolve({
+                    title: $document.title,
+                    url: $window.location.href
+                });
+            });
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.browserClient#get_active_tab_url
          * @methodOf psonocli.browserClient
          *
@@ -119,8 +138,8 @@
          * @returns {promise} promise
          */
         var get_active_tab_url = function() {
-            return $q(function (resolve) {
-                resolve($window.location.href);
+            return get_active_tab().then(function(tab){
+                return tab.url;
             });
         };
 
@@ -251,18 +270,31 @@
 
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.browserClient#get_config
+         * @methodOf psonocli.browserClient
+         *
+         * @description
+         * Closes the popup
+         */
+        var close_popup = function() {
+            // pass
+        };
+
         return {
             resize: resize,
             open_tab: open_tab,
             get_base_url: get_base_url,
             load_version: load_version,
             load_config: load_config,
+            get_active_tab: get_active_tab,
             get_active_tab_url: get_active_tab_url,
             test_background_page: test_background_page,
             emit: emit,
             emit_sec: emit_sec,
             on: on,
-            get_config:get_config
+            close_popup:close_popup
         };
     };
 
