@@ -272,7 +272,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.browserClient#get_config
+         * @name psonocli.browserClient#close_popup
          * @methodOf psonocli.browserClient
          *
          * @description
@@ -294,11 +294,12 @@
             emit: emit,
             emit_sec: emit_sec,
             on: on,
+            get_config: get_config,
             close_popup:close_popup
         };
     };
 
     var app = angular.module('psonocli');
-    app.factory("browserClient", ['$rootScope', '$q', '$templateRequest', '$http', '$window', browserClient]);
+    app.factory("browserClient", ['$rootScope', '$q', '$templateRequest', '$http', '$window', '$document', browserClient]);
 
 }(angular));
