@@ -18,12 +18,14 @@
 
     var account = function($q, $uibModal, storage, managerDatastoreUser, managerDatastoreSetting, cryptoLibrary, apiClient) {
 
+        var _default_tab = 'overview';
+
         var _tabs = [
             { key: 'overview', title: 'Overview' },
-            { key: 'email', title: 'Change E-Mail' },
-            { key: 'password', title: 'Change Password' },
-            { key: 'recovery', title: 'Generate Password Recovery' },
-            { key: 'multi_factor', title: 'Multifactor Authentication' }
+            { key: 'change-email', title: 'Change E-Mail' },
+            { key: 'change-password', title: 'Change Password' },
+            { key: 'generate-password-recovery', title: 'Generate Password Recovery' },
+            { key: 'multifactor-authentication', title: 'Multifactor Authentication' }
         ];
 
         var _account = {
@@ -34,17 +36,17 @@
                 { key: "user_email", field: "input", type: "email", title: "E-Mail", placeholder: "E-Mail", required: true, readonly: true, tab: 'overview'},
                 { key: "user_public_key", field: "input", type: "text", title: "Public Key", placeholder: "Public Key", required: true, readonly: true, tab: 'overview'},
                 // Change E-Mail
-                { key: "setting_email", field: "input", type: "email", title: "New E-Mail", placeholder: "New E-Mail", required: true, tab: 'email'},
-                { key: "setting_email_password_old", field: "input", type: "password", title: "Old Password", placeholder: "Old Password", tab: 'email'},
+                { key: "setting_email", field: "input", type: "email", title: "New E-Mail", placeholder: "New E-Mail", required: true, tab: 'change-email'},
+                { key: "setting_email_password_old", field: "input", type: "password", title: "Old Password", placeholder: "Old Password", tab: 'change-email'},
                 // Change Password
-                { key: "setting_password", field: "input", type: "password", title: "New Password", placeholder: "New Password", tab: 'password', complexify: true},
-                { key: "setting_password_repeat", field: "input", type: "password", title: "New Password (repeat)", placeholder: "New Password (repeat)", tab: 'password'},
-                { key: "setting_password_password_old", field: "input", type: "password", title: "Old Password", placeholder: "Old Password", tab: 'password'},
+                { key: "setting_password", field: "input", type: "password", title: "New Password", placeholder: "New Password", tab: 'change-password', complexify: true},
+                { key: "setting_password_repeat", field: "input", type: "password", title: "New Password (repeat)", placeholder: "New Password (repeat)", tab: 'change-password'},
+                { key: "setting_password_password_old", field: "input", type: "password", title: "Old Password", placeholder: "Old Password", tab: 'change-password'},
                 // Password Recovery
-                { name: "generate_password_recovery_button", field: "button", type: "button", title: "New Password Recovery Code", btnLabel: "Generate", class: 'btn-primary', onClick:"onClickGenerateNewPasswordRecoveryCode", tab: 'recovery' },
+                { name: "generate_password_recovery_button", field: "button", type: "button", title: "New Password Recovery Code", btnLabel: "Generate", class: 'btn-primary', onClick:"onClickGenerateNewPasswordRecoveryCode", tab: 'generate-password-recovery' },
                 // Password Recovery
-                { name: "google_authenticator_setup", field: "button", type: "button", title: "Google Authenticator", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureGoogleAuthenticator", tab: 'multi_factor' },
-                { name: "yubikey_otp_setup", field: "button", type: "button", title: "YubiKey (OTP)", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureYubiKeyOTP", tab: 'multi_factor' }
+                { name: "google_authenticator_setup", field: "button", type: "button", title: "Google Authenticator", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureGoogleAuthenticator", tab: 'multifactor-authentication' },
+                { name: "yubikey_otp_setup", field: "button", type: "button", title: "YubiKey (OTP)", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureYubiKeyOTP", tab: 'multifactor-authentication' }
             ],
             onClickGenerateNewPasswordRecoveryCode: function () {
 
@@ -129,6 +131,20 @@
          */
         var get_tabs = function() {
             return _tabs;
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.account#get_default_tab
+         * @methodOf psonocli.account
+         *
+         * @description
+         * Returns the default tab
+         *
+         * @returns {string} Returns the default tab
+         */
+        var get_default_tab = function() {
+            return _default_tab;
         };
 
         /**
@@ -295,6 +311,7 @@
 
         return {
             get_tabs: get_tabs,
+            get_default_tab: get_default_tab,
             get_account_detail: get_account_detail,
             get_account: get_account,
             save: save

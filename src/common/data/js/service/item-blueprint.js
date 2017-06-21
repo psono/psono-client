@@ -46,7 +46,7 @@
                                 }
                             },
                             {
-                                icon: "fa fa-key",
+                                icon: "fa fa-cogs",
                                 text:"Generate Password",
                                 onclick:function(id) {
                                     angular.element(document.querySelector('#'+id)).val(registrations['generate']()).trigger('input');
@@ -136,6 +136,71 @@
                     { name: "note_title", field: "input", type: "text", title: "Title", placeholder: "Name", required: true},
                     { name: "note_notes", field: "textarea", title: "Notes", placeholder: "Notes"}
                 ]
+            },
+            bookmark: {
+                id: "bookmark", // Unique ID
+                name: "Bookmark", // Displayed in Dropdown Menu
+                title_field: "bookmark_title", // is the main column, that is used as filename
+                urlfilter_field: "bookmark_url_filter", // is the filter column for url matching
+                search: ['bookmark_title', 'bookmark_url_filter'], // are searched when the user search his entries
+                fields: [ // All fields for this object with unique names
+                    { name: "bookmark_title", field: "input", type: "text", title: "Title", placeholder: "Title", required: true},
+                    { name: "bookmark_url", field: "input", type: "url", title: "URL", placeholder: "URL", onChange: "onChangeUrl"},
+                    { name: "bookmark_notes", field: "textarea", title: "Notes", placeholder: "Notes"},
+                    { name: "bookmark_url_filter", field: "textarea", title: "Domain Filter", placeholder: "URL filter e.g. example.com or sub.example.com", position: "advanced"}
+                ],
+                /**
+                 * triggered whenever url is changing.
+                 * gets the fields and returns the default domain filter
+                 *
+                 * @param fields
+                 * @returns {string}
+                 */
+                onChangeUrl: function(fields){
+
+                    var url;
+                    var domain_filter_col;
+
+                    var i;
+                    for (i = 0; i < fields.length; i++) {
+                        if (fields[i].name === "bookmark_url") {
+                            url = fields[i].value;
+                            break;
+                        }
+                    }
+
+                    for (i = 0; i < fields.length; i++) {
+                        if (fields[i].name === "bookmark_url_filter") {
+                            domain_filter_col = fields[i];
+                            break;
+                        }
+                    }
+
+                    if (typeof url === "undefined") {
+                        domain_filter_col.value = "";
+                        return "";
+                    }
+
+                    // get only toplevel domain
+                    var parsed_url = helper.parse_url(url);
+
+                    if (typeof(parsed_url.authority) === 'undefined') {
+                        domain_filter_col.value = "";
+                        return '';
+                    } else {
+                        domain_filter_col.value = parsed_url.authority;
+                        return parsed_url.authority;
+                    }
+                },
+                onClickNewTab: true,
+                /**
+                 * will open a new tab
+                 *
+                 * @param content
+                 */
+                onOpenSecret: function(content) {
+                    $window.location.href = content.bookmark_url;
+                }
             }/*,
             dummy: {
                 id: "dummy",
@@ -155,25 +220,25 @@
                 fields: [
                     { name: "dummy_title", field: "input", type: "text", title: "Dummy field 1", placeholder: "Put your dummy 1 content here", required: true, tab: 'dummy_tab_2',
                         dropmenuItems:[
-                            { icon: "fa fa-key", text:"Generate Password", onclick:function(id) { alert("Generate Password triggered " + id); } },
+                            { icon: "fa fa-cogs", text:"Generate Password", onclick:function(id) { alert("Generate Password triggered " + id); } },
                             { icon: "fa fa-eye-slash", text:"Show Password", onclick:function(id) { alert("Show Password triggered " + id); } }
                         ]
                     },
                     { name: "dummy_notes", field: "textarea", title: "Dummy field 2", placeholder: "Put your dummy 2 content here", required: false, tab: 'dummy_tab_1',
                         dropmenuItems:[
-                            { icon: "fa fa-key", text:"Generate Password", onclick:function(id) { alert("Generate Password triggered " + id); } },
+                            { icon: "fa fa-cogs", text:"Generate Password", onclick:function(id) { alert("Generate Password triggered " + id); } },
                             { icon: "fa fa-eye-slash", text:"Show Password", onclick:function(id) { alert("Show Password triggered " + id); } }
                         ]
                     },
                     { name: "dummy_before", field: "input", title: "Before Tabs", placeholder: "Before tab", required: false,
                         dropmenuItems:[
-                            { icon: "fa fa-key", text:"Generate Password", onclick:function(id) { alert("Generate Password triggered " + id); } },
+                            { icon: "fa fa-cogs", text:"Generate Password", onclick:function(id) { alert("Generate Password triggered " + id); } },
                             { icon: "fa fa-eye-slash", text:"Show Password", onclick:function(id) { alert("Show Password triggered " + id); } }
                         ]
                     },
                     { name: "dummy_after", field: "input", title: "after Tabs", placeholder: "After tab", required: false, position: "after",
                         dropmenuItems:[
-                            { icon: "fa fa-key", text:"Generate Password", onclick:function(id) { alert("Generate Password triggered " + id); } },
+                            { icon: "fa fa-cogs", text:"Generate Password", onclick:function(id) { alert("Generate Password triggered " + id); } },
                             { icon: "fa fa-eye-slash", text:"Show Password", onclick:function(id) { alert("Show Password triggered " + id); } }
                         ]
                     }
@@ -593,7 +658,9 @@
          */
         var blueprint_msg_before_open_secret = function (key, content) {
             var bp = get_blueprint(key);
-            return bp.msgBeforeOpenSecret(content);
+            if (bp.hasOwnProperty('msgBeforeOpenSecret')) {
+                return bp.msgBeforeOpenSecret(content);
+            }
         };
 
         /**

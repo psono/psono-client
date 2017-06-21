@@ -17,18 +17,20 @@
 
     var settings = function($q, storage, managerDatastoreUser, managerDatastoreSetting) {
 
+        var _default_tab = 'password-generator';
+
         var _tabs = [
-            { key: 'passwordgen', title: 'Password Generator' }
+            { key: 'password-generator', title: 'Password Generator' }
         ];
 
         var _settings = {
             fields: [
                 // Password Generator
-                { key: "setting_password_length", field: "input", type: "text", title: "Password length", placeholder: "Password length", required: true, default: 16, tab: 'passwordgen'},
-                { key: "setting_password_letters_uppercase", field: "input", type: "text", title: "Letters uppercase", placeholder: "Letters uppercase", default: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', tab: 'passwordgen'},
-                { key: "setting_password_letters_lowercase", field: "input", type: "text", title: "Letters lowercase", placeholder: "Letters lowercase", default: 'abcdefghijklmnopqrstuvwxyz', tab: 'passwordgen'},
-                { key: "setting_password_numbers", field: "input", type: "text", title: "Numbers", placeholder: "Numbers", required: true, default: '0123456789', tab: 'passwordgen'},
-                { key: "setting_password_special_chars", field: "input", type: "text", title: "Special chars", placeholder: "Special chars", default: ',.-;:_#\'+*~!"§$%&/()=?{[]}\\', tab: 'passwordgen'}
+                { key: "setting_password_length", field: "input", type: "text", title: "Password length", placeholder: "Password length", required: true, default: 16, tab: 'password-generator'},
+                { key: "setting_password_letters_uppercase", field: "input", type: "text", title: "Letters uppercase", placeholder: "Letters uppercase", default: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', tab: 'password-generator'},
+                { key: "setting_password_letters_lowercase", field: "input", type: "text", title: "Letters lowercase", placeholder: "Letters lowercase", default: 'abcdefghijklmnopqrstuvwxyz', tab: 'password-generator'},
+                { key: "setting_password_numbers", field: "input", type: "text", title: "Numbers", placeholder: "Numbers", required: true, default: '0123456789', tab: 'password-generator'},
+                { key: "setting_password_special_chars", field: "input", type: "text", title: "Special chars", placeholder: "Special chars", default: ',.-;:_#\'+*~!"§$%&/()=?{[]}\\', tab: 'password-generator'}
                 // General
             ]
         };
@@ -49,6 +51,20 @@
          */
         var get_tabs = function() {
             return _tabs;
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.settings#get_default_tab
+         * @methodOf psonocli.settings
+         *
+         * @description
+         * Returns the default tab
+         *
+         * @returns {string} Returns the default tab
+         */
+        var get_default_tab = function() {
+            return _default_tab;
         };
 
         /**
@@ -195,6 +211,7 @@
 
         return {
             get_tabs: get_tabs,
+            get_default_tab: get_default_tab,
             get_setting: get_setting,
             get_settings: get_settings,
             set_settings: set_settings,

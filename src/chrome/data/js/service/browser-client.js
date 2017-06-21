@@ -70,11 +70,22 @@
          *
          * @returns {promise}
          */
-        var get_active_tab_url = function() {
+        var get_active_tab = function() {
             return $q(function (resolve) {
                 chrome.tabs.query({active: true, currentWindow: true}, function(arrayOfTabs) {
-                    resolve(arrayOfTabs[0].url)}
+                    resolve(arrayOfTabs[0])}
                 );
+            });
+        };
+
+        /**
+         * returns a promise which will return the active tabs url
+         *
+         * @returns {promise} promise
+         */
+        var get_active_tab_url = function() {
+            return get_active_tab().then(function(tab){
+                return tab.url;
             });
         };
 
@@ -181,18 +192,32 @@
 
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.browserClient#get_config
+         * @methodOf psonocli.browserClient
+         *
+         * @description
+         * Closes the popup
+         */
+        var close_popup = function() {
+            window.close()
+        };
+
         return {
             resize: resize,
             open_tab: open_tab,
             get_base_url: get_base_url,
             load_version: load_version,
             load_config: load_config,
+            get_active_tab: get_active_tab,
             get_active_tab_url: get_active_tab_url,
             test_background_page: test_background_page,
             emit: emit,
             emit_sec: emit_sec,
             on: on,
-            get_config:get_config
+            get_config:get_config,
+            close_popup:close_popup
         };
     };
 

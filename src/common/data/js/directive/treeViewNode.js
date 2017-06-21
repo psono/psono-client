@@ -91,7 +91,7 @@
                 scope.textConfig = typeof options.textConfig !== 'undefined'
                     ? options.textConfig
                     : {
-                        'new_entry': {name: 'New Entry', icon: 'fa fa-key'}
+                        'new_entry': {name: 'New Entry', icon: 'fa fa-plus'}
                     };
 
                 /**

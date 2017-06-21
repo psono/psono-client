@@ -227,6 +227,9 @@ var ClassWorkerBackgroundScript = function (chrome, browser) {
      * @param sendResponse
      */
     function on_fillpassword_active_tab (request, sender, sendResponse) {
+        if (typeof(activeTabId) === 'undefined') {
+            return;
+        }
         browser.tabs.sendMessage(activeTabId, {event: "fillpassword", data: request.data}, function(response) {
             // pass
         });

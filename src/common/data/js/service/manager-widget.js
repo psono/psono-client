@@ -690,6 +690,18 @@
                 },
                 defaultIconClass = 'fa fa-file-o';
 
+            if(item.type === 'bookmark') {
+                return 'fa fa-bookmark-o'
+            }
+
+            if(item.type === 'website_password') {
+                return 'fa fa-key'
+            }
+
+            if(item.type === 'user') {
+                return 'fa fa-user'
+            }
+
             var pattern = /\.(\w+)$/,
                 match = pattern.exec(item.name),
                 ext = match && match[1];

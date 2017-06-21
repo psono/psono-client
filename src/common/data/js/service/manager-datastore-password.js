@@ -489,6 +489,45 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastorePassword#save_in_datastore
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * Generates a new password for a given url and saves the password in the datastore.
+         *
+         * @param {object} secret_object The constructed secret object
+         * @param {object} datastore_object The constructed datastore object
+         *
+         * @returns {promise} Returns a promise with the status
+         */
+        var save_in_datastore = function(secret_object, datastore_object) {
+
+            var link_id = cryptoLibrary.generate_uuid();
+
+            var onError = function(result) {
+                // pass
+            };
+
+            var onSuccess = function (datastore) {
+
+                return managerSecret.create_secret(secret_object, link_id, datastore.datastore_id, null)
+                    .then(function(data) {
+
+                        datastore_object['id'] = link_id;
+                        datastore_object['secret_id'] = data.secret_id;
+                        datastore_object['secret_key'] = data.secret_key;
+                        datastore.items.push(datastore_object);
+
+                        save_datastore(datastore, [[]]);
+                    }, onError);
+            };
+
+            return get_password_datastore()
+                .then(onSuccess, onError);
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastorePassword#save_autogenerate_password
          * @methodOf psonocli.managerDatastorePassword
          *
@@ -514,39 +553,27 @@
                 website_password_url_filter: parsed_url.authority
             };
 
-            var link_id = cryptoLibrary.generate_uuid();
+            var datastore_object = {
+                type: 'website_password',
+                name: "Generated for " + parsed_url.authority,
+                urlfilter: parsed_url.authority
+            };
 
-            var onError = function(result) {
+            var onError = function() {
                 // pass
             };
 
-            var onSuccess = function (datastore) {
+            var onSuccess = function () {
 
-                managerSecret.create_secret(secret_object, link_id, datastore.datastore_id, null)
-                    .then(function(data) {
-                        var datastore_object = {
-                            id: link_id,
-                            type: 'website_password',
-                            name: "Generated for " + parsed_url.authority,
-                            urlfilter: parsed_url.authority,
-                            secret_id: data.secret_id,
-                            secret_key: data.secret_key
-                        };
-
-                        datastore.items.push(datastore_object);
-
-                        save_datastore(datastore, [[]]);
-                    }, onError);
+                // we return a promise. We do not yet have a proper error handling and returning
+                // a promise might make it easier later to wait or fix errors
+                return $q(function (resolve) {
+                    resolve(password);
+                });
             };
 
-            get_password_datastore()
+            return save_in_datastore(secret_object, datastore_object)
                 .then(onSuccess, onError);
-
-            // we return a promise. We do not yet have a proper error handling and returning
-            // a promise might make it easier later to wait or fix errors
-            return $q(function (resolve) {
-                resolve(password);
-            });
         };
 
         /**
@@ -588,6 +615,64 @@
             };
 
             return browserClient.get_active_tab_url()
+                .then(onSuccess, onError);
+
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#bookmark_active_tab
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * Bookmarks the active tab
+         *
+         * @returns {promise} Returns a promise
+         */
+        var bookmark_active_tab = function() {
+
+            var onError = function() {
+                console.log("could not find out the url of the active tab");
+            };
+
+            var onSuccess = function(tab) {
+
+                console.log(tab);
+
+                var parsed_url = helper.parse_url(tab.url);
+
+                var secret_object = {
+                    bookmark_title: tab.title,
+                    bookmark_url: tab.url,
+                    bookmark_notes: "",
+                    bookmark_url_filter: parsed_url.authority
+                };
+
+                var datastore_object = {
+                    type: 'bookmark',
+                    name: tab.title,
+                    urlfilter: parsed_url.authority
+                };
+
+                var onError = function() {
+                    // pass
+                };
+
+                var onSuccess = function () {
+
+                    // we return a promise. We do not yet have a proper error handling and returning
+                    // a promise might make it easier later to wait or fix errors
+                    return $q(function (resolve) {
+                        resolve();
+                    });
+                };
+
+                return save_in_datastore(secret_object, datastore_object)
+                    .then(onSuccess, onError);
+
+            };
+
+            return browserClient.get_active_tab()
                 .then(onSuccess, onError);
 
         };
@@ -1027,6 +1112,7 @@
             save_datastore: save_datastore,
             save_autogenerate_password: save_autogenerate_password,
             generate_password_active_tab: generate_password_active_tab,
+            bookmark_active_tab: bookmark_active_tab,
             find_in_datastore: find_in_datastore,
             get_all_child_shares: get_all_child_shares,
             get_all_secret_links: get_all_secret_links,

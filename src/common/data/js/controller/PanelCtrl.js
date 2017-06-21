@@ -35,7 +35,8 @@
             $scope.logout = managerDatastoreUser.logout;
             $scope.filterBySearch = filterBySearch;
             $scope.on_item_click = managerSecret.on_item_click;
-            $scope.generate_password = managerDatastorePassword.generate_password_active_tab;
+            $scope.generate_password = generate_password;
+            $scope.bookmark = bookmark;
             $scope.copy_username = managerSecret.copy_username;
             $scope.copy_password = managerSecret.copy_password;
 
@@ -91,6 +92,18 @@
                             browserClient.resize(166 + Math.max($scope.datastore.filteredSearcArray.length, 1) * 43);
                         }
                     });
+                });
+            }
+
+            function generate_password() {
+                managerDatastorePassword.generate_password_active_tab().then(function() {
+                    browserClient.close_popup();
+                });
+            }
+
+            function bookmark() {
+                managerDatastorePassword.bookmark_active_tab().then(function() {
+                    browserClient.close_popup();
                 });
             }
 
