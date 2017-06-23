@@ -405,6 +405,41 @@
             document.removeEventListener('copy', copy);
         }
 
+        /**
+         * @ngdoc
+         * @name psonocli.helper#endsWith
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * checks if a string ends with a special suffix
+         *
+         * @param to_test
+         * @param suffix
+         * @returns {boolean}
+         */
+        function endsWith (to_test, suffix) {
+            return suffix !== "" && to_test.indexOf(suffix, to_test.length - suffix.length) !== -1;
+        }
+
+
+        /**
+         * @ngdoc
+         * @name psonocli.helper#get_password_filter
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Returns a test function that can be used to filter according to the name and urlfilter
+         *
+         * @param {string} test Testable string
+         */
+        function get_password_filter(test) {
+            var regex = new RegExp(test.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1"), 'i');
+
+            return function(datastore_entry) {
+                return regex.test(datastore_entry.name) || regex.test(datastore_entry.urlfilter);
+            }
+        }
+
 
         return {
             parse_url: parse_url,
@@ -417,7 +452,9 @@
             is_valid_password: is_valid_password,
             split_string_in_chunks: split_string_in_chunks,
             remove_from_array: remove_from_array,
-            copy_to_clipboard: copy_to_clipboard
+            copy_to_clipboard: copy_to_clipboard,
+            endsWith: endsWith,
+            get_password_filter: get_password_filter,
         };
     };
 

@@ -528,23 +528,24 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastorePassword#save_autogenerate_password
+         * @name psonocli.managerDatastorePassword#save_password
          * @methodOf psonocli.managerDatastorePassword
          *
          * @description
-         * Generates a new password for a given url and saves the password in the datastore.
+         * Stores credential for a given url, username and password in the datastore
          *
          * @param {string} url The URL of the site for which the password has been generated
+         * @param {string} username The username to store
          * @param {string} password The password to store
          *
          * @returns {promise} Returns a promise with the new password
          */
-        var save_autogenerate_password = function(url, password) {
+        var save_password = function(url, username, password) {
 
             var parsed_url = helper.parse_url(url);
 
             var secret_object = {
-                website_password_title: "Generated for " + parsed_url.authority,
+                website_password_title: parsed_url.authority,
                 website_password_url: url,
                 website_password_username: "",
                 website_password_password: password,
@@ -555,7 +556,7 @@
 
             var datastore_object = {
                 type: 'website_password',
-                name: "Generated for " + parsed_url.authority,
+                name: parsed_url.authority,
                 urlfilter: parsed_url.authority
             };
 
@@ -578,18 +579,17 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastorePassword#generate_password_active_tab
+         * @name psonocli.managerDatastorePassword#save_password_active_tab
          * @methodOf psonocli.managerDatastorePassword
          *
          * @description
          * Generates a password for the active tab
          *
+         * @param {string} password The password to store
+         *
          * @returns {promise} Returns a promise with the new password
          */
-        var generate_password_active_tab = function() {
-
-            var password = passwordGenerator.generate();
-            helper.copy_to_clipboard(password);
+        var save_password_active_tab = function(password) {
 
             var onError = function() {
                 console.log("could not find out the url of the active tab");
@@ -609,7 +609,7 @@
                 };
 
 
-                return save_autogenerate_password(url, password)
+                return save_password(url, '', password)
                     .then(onSuccess, onError);
 
             };
@@ -1110,8 +1110,8 @@
         return {
             get_password_datastore: get_password_datastore,
             save_datastore: save_datastore,
-            save_autogenerate_password: save_autogenerate_password,
-            generate_password_active_tab: generate_password_active_tab,
+            save_password: save_password,
+            save_password_active_tab: save_password_active_tab,
             bookmark_active_tab: bookmark_active_tab,
             find_in_datastore: find_in_datastore,
             get_all_child_shares: get_all_child_shares,

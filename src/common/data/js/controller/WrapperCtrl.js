@@ -52,7 +52,6 @@
 
                 if (managerDatastoreUser.is_logged_in()) {
                     $scope.view = "logged_in";
-                    browserClient.resize(295);
                 } else {
                     $scope.view = "logged_out";
                 }
@@ -66,7 +65,6 @@
                 browserClient.on("logout", function () {
                     $timeout(function () {
                         $scope.view = "logged_out";
-                        browserClient.resize(250);
                     });
                 });
             }

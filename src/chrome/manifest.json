@@ -7,12 +7,13 @@
 
   "browser_action": {
     "default_icon": "data/img/icon-32.png",
-    "default_popup": "data/main.html"
+    "default_popup": "data/default_popup.html"
   },
   "permissions": [
     "activeTab",
     "storage",
     "contextMenus",
+    "notifications",
     "tabs",
     "clipboardWrite",
     "webRequest",
@@ -31,15 +32,8 @@
     "keyword": "pp"
   },
   "background": {
-    "scripts": [
-      "data/js/lib/jquery.min.js",
-      "data/js/lib/sha512.min.js",
-      "data/js/lib/sha256.min.js",
-      "data/js/lib/ecma-nacl.min.js",
-      "data/js/extension/jquery-api-client.js",
-      "data/js/extension/worker-background-script.js",
-      "data/js/background-script.js"
-    ]
+    "page": "data/background.html",
+    "persistent": true
   },
   "content_scripts": [
     {

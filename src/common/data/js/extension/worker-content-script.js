@@ -27,7 +27,16 @@ var ClassWorkerContentScript = function (browser, jQuery) {
             // Tell our backend, that we are ready and waiting for instructions
             emit('ready', document.location.toString());
             emit('website-password-refresh', document.location.toString());
-            manipulate_documents();
+
+            var documents = [];
+
+            get_all_documents(window.document, documents);
+
+            for (var i = 0; i < documents.length; i++) {
+                load_css(documents[i]);
+                add_form_buttons(documents[i]);
+                document_submit_catcher(documents[i]);
+            }
         });
     }
 
@@ -44,28 +53,80 @@ var ClassWorkerContentScript = function (browser, jQuery) {
         }
     }
 
+
     /**
-     * Manipulates the DOM
+     * Register the submit catcher with all forms that have one password field
+     *
+     * @param document
      */
-    function manipulate_documents() {
+    function document_submit_catcher(document) {
 
-        var documents = [];
-
-        get_all_documents(window.document, documents);
-
-        for (var i = 0; i < documents.length; i++) {
-            manipulate_document(documents[i])
+        for (var i = 0; i < document.forms.length; i++) {
+            form_submit_catcher(document.forms[i]);
         }
     }
+
+
+    /**
+     * Register the submit catcher if the given form has exactly one password field
+     *
+     * @param form
+     */
+    function form_submit_catcher(form) {
+        var password_fields = form.querySelectorAll("input[type='password']:not(:disabled):not([readonly]):not([type=hidden])");
+        if (password_fields.length !== 1) {
+            return;
+        }
+
+        form.addEventListener("submit", function(event){
+            var form = this;
+            var form_data = get_username_and_password(form);
+            if (form_data) {
+                emit('login-form-submit', get_username_and_password(form));
+            }
+            event.preventDefault();
+        });
+
+    }
+
+    /**
+     * Analyse a form and returns the username and password
+     *
+     * @param form
+     * @returns {{username: string, password: string}}
+     */
+    function get_username_and_password(form) {
+        var fields = form.querySelectorAll("input[type='text']:not(:disabled):not([readonly]):not([type=hidden]), input[type='email']:not(:disabled):not([readonly]):not([type=hidden]), input[type='password']:not(:disabled):not([readonly]):not([type=hidden])");
+
+        var username = '';
+        var password = '';
+        for (var i = 0; i < fields.length; i++) {
+            if(fields[i].type === '') {
+                continue;
+            }
+            if(fields[i].type === 'password') {
+                password = fields[i].value;
+                break
+            }
+            username = fields[i].value;
+        }
+        if (username !== '' && password !== '') {
+            return {
+                username: username,
+                password: password
+            }
+        }
+
+    }
+
 
     /**
      * Manipulates the forms of all documents
      *
      * @param document
      */
-    function manipulate_document(document) {
+    function add_form_buttons(document) {
 
-        load_css(document);
         // Lets start with searching all input fields and forms
         // if we find a password field, we remember that and take the field before as username field
 
@@ -122,6 +183,11 @@ var ClassWorkerContentScript = function (browser, jQuery) {
         }
     }
 
+    /**
+     * Loads the necessary content script css into the provided document
+     *
+     * @param document
+     */
     function load_css(document) {
         // taken from https://stackoverflow.com/questions/574944/how-to-load-up-css-files-using-javascript
         var cssId = 'psono-css';  // you could encode the css path itself to generate id..

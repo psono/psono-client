@@ -137,6 +137,7 @@
 
         <div class="loginbox dark">
             <img src="img/logo.png" id="logo">
+            <a href="https://psono.com/" target="_blank" rel="noopener"><i class="fa fa-info-circle fa-pull-right" aria-hidden="true"> Info</i></a>
 
             <form name="loginForm" ng-if="view === 'default'">
                 <!-- default View -->
@@ -153,7 +154,7 @@
                 </div>
 
                 <div class="form-group">
-                    <button ng-click="login(loginFormUsername, loginFormPassword, loginFormRemember)" type="submit" class="btn btn-danger">Login</button>
+                    <button ng-click="login(loginFormUsername, loginFormPassword, loginFormRemember)" type="submit" class="btn btn-danger">Login <i class="fa fa-sign-in" aria-hidden="true"></i></button>
                     <a href="register.html">Register</a>
                     <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
                     <div class="clearfix"></div>

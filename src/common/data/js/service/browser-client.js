@@ -24,21 +24,6 @@
 
         /**
          * @ngdoc
-         * @name psonocli.browserClient#resize
-         * @methodOf psonocli.browserClient
-         *
-         * @description
-         * Resize the panel according to the provided width and height
-         *
-         * @param {int} height The height to resize to
-         * @param {int} width The width to resize to
-         */
-        var resize = function (height, width) {
-            // console.log("addon.js browserClient.resize triggered");
-        };
-
-        /**
-         * @ngdoc
          * @name psonocli.browserClient#open_tab
          * @methodOf psonocli.browserClient
          *
@@ -283,7 +268,6 @@
         };
 
         return {
-            resize: resize,
             open_tab: open_tab,
             get_base_url: get_base_url,
             load_version: load_version,
@@ -294,7 +278,7 @@
             emit: emit,
             emit_sec: emit_sec,
             on: on,
-            get_config: get_config,
+            get_config:get_config,
             close_popup:close_popup
         };
     };

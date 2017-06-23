@@ -228,7 +228,6 @@
                 verification = null;
 
                 browserClient.emit("login", null);
-                browserClient.resize(295);
 
                 return {
                     response:"success"
@@ -484,7 +483,6 @@
 
                 managerBase.delete_local_data();
                 browserClient.emit("logout", null);
-                browserClient.resize(250);
 
                 return {
                     response:"success"
@@ -496,7 +494,6 @@
 
                 managerBase.delete_local_data();
                 browserClient.emit("logout", null);
-                browserClient.resize(250);
 
                 return {
                     response:"success"

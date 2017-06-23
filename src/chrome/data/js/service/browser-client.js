@@ -13,16 +13,6 @@
         });
 
         /**
-         * Resize the panel according to the provided width and height
-         *
-         * @param height
-         * @param width
-         */
-        var resize = function (height, width) {
-            // pass
-        };
-
-        /**
          * Opens the URL in a new browser tab
          * @param url
          */
@@ -66,7 +56,7 @@
         };
 
         /**
-         * returns the active tabs url
+         * returns the active tab
          *
          * @returns {promise}
          */
@@ -205,7 +195,6 @@
         };
 
         return {
-            resize: resize,
             open_tab: open_tab,
             get_base_url: get_base_url,
             load_version: load_version,

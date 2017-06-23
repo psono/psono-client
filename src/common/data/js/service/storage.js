@@ -145,6 +145,21 @@
 
         /**
          * @ngdoc
+         * @name psonocli.storage#where
+         * @methodOf psonocli.storage
+         *
+         * @description
+         * Searches for multiple entries and filter according to a function
+         *
+         * @param {string} db The database
+         * @param {object|Array} filter_function The filter function
+         */
+        var where = function (db, filter_function) {
+            return dbs[db].where(filter_function);
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.storage#find_one
          * @methodOf psonocli.storage
          *
@@ -269,6 +284,7 @@
             insert: insert,
             update: update,
             upsert: upsert,
+            where: where,
             find_one: find_one,
             key_exists: key_exists,
             remove: remove,
