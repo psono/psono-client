@@ -152,7 +152,6 @@
          * @param {*} data The payload for the event
          */
         var emit = function (event, data) {
-            console.log("browser-client.js $rootScope.$broadcast " + event);
             $rootScope.$broadcast(event, '');
         };
 

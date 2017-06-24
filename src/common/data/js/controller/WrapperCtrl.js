@@ -26,7 +26,6 @@
                   snapRemote, $window, $route, $routeParams, $location) {
 
             var snapper;
-            var snapper_is_open;
             var scrollWidth = 266;
             var small_screen_limit = 768;
             var orientationEvent = "onorientationchange" in angular.element($window) ? "orientationchange" : "resize";
@@ -59,6 +58,7 @@
                 browserClient.on("login", function () {
                     $timeout(function () {
                         $scope.view = "logged_in";
+                        initialize_snapper();
                     });
                 });
 
@@ -121,7 +121,11 @@
              * @returns {number}
              */
             function get_snap_content_swidth() {
-                return angular.element(document.querySelectorAll(".snap-content")[0])[0].clientWidth;
+                var all_snapper = document.querySelectorAll(".snap-content");
+                if (all_snapper.length < 1) {
+                    return 0;
+                }
+                return angular.element(all_snapper[0])[0].clientWidth;
             }
 
             /**

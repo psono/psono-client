@@ -107,6 +107,7 @@
                 'bookmark-active-tab': bookmark_active_tab,
                 'login': on_login,
                 'logout': on_logout,
+                'storage-reload': on_storage_reload,
                 'website-password-refresh': on_website_password_refresh,
                 'request-secret': on_request_secret,
                 'open-tab': on_open_tab,
@@ -247,6 +248,7 @@
          * @param sendResponse
          */
         function on_logout(request, sender, sendResponse) {
+
             chrome.tabs.query({url: 'chrome-extension://'+chrome.runtime.id+'/*'}, function(tabs) {
                 var tabids = [];
                 for (var i = 0; i < tabs.length; i++) {
@@ -255,6 +257,22 @@
 
                 chrome.tabs.remove(tabids)
             });
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerBackground#on_storage_reload
+         * @methodOf psonocli.managerBackground
+         *
+         * @description
+         * Reloads the storage
+         *
+         * @param request
+         * @param sender
+         * @param sendResponse
+         */
+        function on_storage_reload(request, sender, sendResponse) {
+            storage.reload();
         }
 
         /**
@@ -454,17 +472,16 @@
             var password_filter = helper.get_password_filter(text);
             var hits = [];
             var datastore_entry;
-
             var leafs = storage.where('datastore-password-leafs', password_filter);
-
+            console.log(leafs);
             for (var i = 0; i < leafs.length; i++) {
                 datastore_entry = leafs[i];
                 hits.push({
-                    content: datastore_entry.name + ' [Secret: ' + datastore_entry.secret_id + ']',
+                    content: datastore_entry.name + ' [Secret: ' + datastore_entry.key + ']',
                     description: datastore_entry.name
                 });
 
-                hits_additional_info[datastore_entry.secret_id] = {type: datastore_entry.type}
+                hits_additional_info[datastore_entry.key] = {type: datastore_entry.type}
             }
 
             return hits;
