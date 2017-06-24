@@ -228,7 +228,6 @@
                 verification = null;
 
                 browserClient.emit("login", null);
-                browserClient.resize(295);
 
                 return {
                     response:"success"
@@ -484,7 +483,6 @@
 
                 managerBase.delete_local_data();
                 browserClient.emit("logout", null);
-                browserClient.resize(250);
 
                 return {
                     response:"success"
@@ -496,7 +494,6 @@
 
                 managerBase.delete_local_data();
                 browserClient.emit("logout", null);
-                browserClient.resize(250);
 
                 return {
                     response:"success"
@@ -999,6 +996,95 @@
                 .then(onSuccess, onError)
         };
 
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#save_new_email
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Saves a new email
+         *
+         * @param {string} new_email The new email
+         * @param {string} verification_password The password for verification
+         * @param {function} resolve The callback to trigger in case of a success
+         * @param {function} reject The callback to trigger in case of a failure
+         *
+         * @returns {promise} Returns a promise with the result
+         */
+        var save_new_email = function(new_email, verification_password, resolve, reject) {
+
+            if (verification_password === null || verification_password.length === 0) {
+                return reject({errors: ['Old password empty']})
+            }
+
+            var authkey_old = cryptoLibrary.generate_authkey(storage.find_one('config', {key: 'user_username'}).value, verification_password);
+
+            var onSuccess = function(data) {
+
+                storage.upsert('config', {key: 'user_email', value: new_email});
+                storage.save();
+                return resolve({msgs: ['Saved successfully']})
+            };
+            var onError = function() {
+                return reject({errors: ['Old password incorrect']})
+            };
+            return update_user(new_email, null, authkey_old)
+                .then(onSuccess, onError);
+
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#save_new_password
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Saves a new password
+         *
+         * @param {string} new_password The new password
+         * @param {string} new_password_repeat The new password (repeated)
+         * @param {string} old_password The old password
+         * @param {function} resolve The callback to trigger in case of a success
+         * @param {function} reject The callback to trigger in case of a failure
+         *
+         * @returns {promise} Returns a promise with the result
+         */
+        var save_new_password = function(new_password, new_password_repeat, old_password, resolve, reject) {
+
+            var authkey_old, new_authkey, user_private_key, user_secret_key, user_sauce, priv_key_enc, secret_key_enc, onSuccess, onError;
+
+            var test_result = helper.is_valid_password(new_password, new_password_repeat);
+            if (test_result !== true) {
+                console.log("reject");
+                return reject({errors: [test_result]})
+            }
+
+            if (old_password === null || old_password.length === 0) {
+                return reject({errors: ['Old password empty']})
+            }
+
+            authkey_old = cryptoLibrary.generate_authkey(storage.find_one('config', {key: 'user_username'}).value, old_password);
+
+            new_authkey = cryptoLibrary.generate_authkey(storage.find_one('config', {key: 'user_username'}).value, new_password);
+            user_private_key = storage.find_one('config', {key: 'user_private_key'});
+            user_secret_key = storage.find_one('config', {key: 'user_secret_key'});
+            user_sauce = storage.find_one('config', {key: 'user_sauce'}).value;
+
+            priv_key_enc = cryptoLibrary.encrypt_secret(user_private_key.value, new_password, user_sauce);
+            secret_key_enc = cryptoLibrary.encrypt_secret(user_secret_key.value, new_password, user_sauce);
+
+            onSuccess = function(data) {
+                return resolve({msgs: ['Saved successfully']})
+            };
+            onError = function() {
+                return reject({errors: ['Old password incorrect']})
+            };
+
+            return update_user(null, new_authkey, authkey_old, priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce)
+                .then(onSuccess, onError);
+        };
+
         shareBlueprint.register('search_user', search_user);
         itemBlueprint.register('get_user_datastore', get_user_datastore);
 
@@ -1027,7 +1113,9 @@
             read_yubikey_otp: read_yubikey_otp,
             delete_yubikey_otp: delete_yubikey_otp,
             get_open_sessions: get_open_sessions,
-            delete_open_session: delete_open_session
+            delete_open_session: delete_open_session,
+            save_new_email: save_new_email,
+            save_new_password: save_new_password
         };
     };
 

@@ -25,7 +25,7 @@
          *
          * @param {string} to_encode String to encode
          *
-         * @returns {string} Encoded string
+         * @returns {Uint8Array} Encoded string
          */
         var encode_utf8 = function (to_encode) {
 
@@ -43,7 +43,7 @@
          *
          * @param {string} to_encode String to encode
          *
-         * @returns {string} Encoded string
+         * @returns {Uint8Array} Encoded string
          */
         var encode_latin1 = function (to_encode) {
 
@@ -65,7 +65,7 @@
          * decodes utf8 from nacl_factory.js
          * https://github.com/tonyg/js-nacl
          *
-         * @param {string} to_decode encoded utf-8 string
+         * @param {Uint8Array} to_decode encoded utf-8 Uint8Array
          *
          * @returns {string} Decoded string
          */
@@ -83,7 +83,7 @@
          * decodes latin1 from nacl_factory.js
          * https://github.com/tonyg/js-nacl
          *
-         * @param {string} to_decode encoded latin1 string
+         * @param {Uint8Array} to_decode encoded latin1 Uint8Array
          *
          * @returns {string} Decoded string
          */

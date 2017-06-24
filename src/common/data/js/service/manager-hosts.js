@@ -60,9 +60,7 @@
          * @param new_known_hosts List of the new servers
          */
         function update_known_hosts(new_known_hosts) {
-            var known_hosts = storage.find_one('persistent', {'key': 'known_hosts'});
-            known_hosts['value'] = new_known_hosts;
-            storage.update('persistent', known_hosts);
+            storage.upsert('persistent', {'key': 'known_hosts', 'value': new_known_hosts});
             storage.save();
         }
 
@@ -114,7 +112,8 @@
          * Validates the signature of the server and compares it to known hosts.
          *
          * @param {object} server The server object
-         * @returns {object} Result of the check
+         *
+         * @returns {promise} Result of the check
          */
         function check_host(server) {
 
@@ -227,9 +226,11 @@
         return {
             get_known_hosts: get_known_hosts,
             get_current_host_url: get_current_host_url,
+            check_known_hosts: check_known_hosts,
             check_host: check_host,
             approve_host: approve_host,
-            delete_known_host: delete_known_host
+            delete_known_host: delete_known_host,
+            update_known_hosts: update_known_hosts
         };
     };
 

@@ -13,7 +13,7 @@
      * @requires psonocli.managerDatastoreUser
      * @requires psonocli.managerSecret
      * @requires psonocli.browserClient
-     * @requires snapRemote
+     * @requires psonocli.helper
      * @requires $window
      * @requires $route
      * @requires $routeParams
@@ -23,13 +23,13 @@
      * Controller for the panel
      */
     angular.module('psonocli').controller('PanelCtrl', ['$scope', '$rootScope', '$filter', '$timeout', 'manager',
-        'managerDatastorePassword', 'managerDatastoreUser', 'managerSecret', 'browserClient',
-        'snapRemote', '$window', '$route', '$routeParams', '$location',
+        'managerDatastorePassword', 'managerDatastoreUser', 'managerSecret', 'browserClient', 'passwordGenerator',
+        'helper', '$window', '$route', '$routeParams', '$location',
         function ($scope, $rootScope, $filter, $timeout, manager,
-                  managerDatastorePassword, managerDatastoreUser, managerSecret, browserClient,
-                  snapRemote, $window, $route, $routeParams, $location) {
+                  managerDatastorePassword, managerDatastoreUser, managerSecret, browserClient, passwordGenerator,
+                  helper, $window, $route, $routeParams, $location) {
 
-            var regex;
+            var password_filter;
 
             $scope.open_tab = browserClient.open_tab;
             $scope.logout = managerDatastoreUser.logout;
@@ -75,55 +75,59 @@
                 managerDatastorePassword.get_password_datastore();
 
                 $scope.$watch('datastore.search', function (value) {
-                    regex = new RegExp(value.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1"), 'i');
-
-                    $timeout(function () {
-                        if (!managerDatastoreUser.is_logged_in()) {
-                            browserClient.resize(250);
-                        } else if ($scope.datastore.search === '' && managerDatastoreUser.is_logged_in()) {
-                            browserClient.resize(295);
-                        } else {
-                            /*
-                             3 = 295*
-                             2 = 252
-                             1 = 209*
-                             0 = 166
-                             */
-                            browserClient.resize(166 + Math.max($scope.datastore.filteredSearcArray.length, 1) * 43);
-                        }
-                    });
-                });
-            }
-
-            function generate_password() {
-                managerDatastorePassword.generate_password_active_tab().then(function() {
-                    //browserClient.close_popup();
-                });
-            }
-
-            function bookmark() {
-                managerDatastorePassword.bookmark_active_tab().then(function() {
-                    //browserClient.close_popup();
+                    password_filter = helper.get_password_filter(value);
                 });
             }
 
             /**
-             * filters search_entry object and tests if either the urlfilter or the name match our search
+             * @ngdoc
+             * @name psonocli.controller:PanelCtrl#generate_password
+             * @methodOf psonocli.controller:PanelCtrl
+             *
+             * @description
+             * Generates a passwords for the active tab and stores it in the datastore
+             */
+            function generate_password() {
+                var password = passwordGenerator.generate();
+                helper.copy_to_clipboard(password);
+
+                browserClient.emit_sec('save-password-active-tab', {'password': password});
+                browserClient.close_popup();
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:PanelCtrl#bookmark
+             * @methodOf psonocli.controller:PanelCtrl
+             *
+             * @description
+             * Bookmarks the active tab in the datastore
+             */
+            function bookmark() {
+                browserClient.emit_sec('bookmark-active-tab', {});
+                browserClient.close_popup();
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:PanelCtrl#filterBySearch
+             * @methodOf psonocli.controller:PanelCtrl
+             *
+             * @description
+             * Filterfunction that filters search_entry object and tests if either the urlfilter or the name match our search
              *
              * @param datastore_entry the datastore entry to test
+             *
              * @returns {boolean}
              */
             function filterBySearch(datastore_entry) {
-                var match;
                 if (!$scope.datastore.search) {
                     // Hide all entries if we have not typed anything into the "search datastore..." field
-                    match = false;
-                } else {
-                    // check if either the name or the urlfilter of our entry match our search input of the
-                    // "search datastore..." field
-                    match = regex.test(datastore_entry.name) || regex.test(datastore_entry.urlfilter);
+                    return false;
                 }
-                return match;
+                // check if either the name or the urlfilter of our entry match our search input of the
+                // "search datastore..." field
+                return password_filter(datastore_entry);
             }
 
         }]

@@ -7,27 +7,10 @@
 
         browser.runtime.onMessage.addListener(
         function(request, sender, sendResponse) {
-            console.log(sender.tab ?
-            "from a content script:" + sender.tab.url :
-                "from the extension");
-
-            console.log("received something");
-            console.log(request);
-
             for (var i = 0; registrations.hasOwnProperty(request.event) && i < registrations[request.event].length; i++) {
                 registrations[request.event][i](request.data);
             }
         });
-
-        /**
-         * Resize the panel according to the provided width and height
-         *
-         * @param height
-         * @param width
-         */
-        var resize = function (height, width) {
-            // pass
-        };
 
         /**
          * Opens the URL in a new browser tab
@@ -212,7 +195,6 @@
         };
 
         return {
-            resize: resize,
             open_tab: open_tab,
             get_base_url: get_base_url,
             load_version: load_version,

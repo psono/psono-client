@@ -34,7 +34,6 @@
             $scope.open_tab = browserClient.open_tab;
             $scope.get_link_state = get_link_state;
             $scope.logout = managerDatastoreUser.logout;
-            $scope.generate_password = managerDatastorePassword.generate_password_active_tab;
             $scope.on_item_click = managerSecret.on_item_click;
 
             $scope.user_username = account.get_account_detail('user_username');

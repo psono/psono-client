@@ -1,14 +1,15 @@
-(function(angular) {
+(function(angular, loki) {
     'use strict';
 
     /**
      * @ngdoc service
      * @name psonocli.storage
+     * @requires psonocli.browserClient
      *
      * @description
      * Service that handles local storage access
      */
-    var storage = function() {
+    var storage = function(browserClient) {
 
         var loki_storage = new loki("password_manager_local_storage");
         var dbs = [];
@@ -55,23 +56,11 @@
             }
         };
 
-        loki_storage.loadDatabase({}, function () {
+        activate();
 
-            for (var db_name in db_config) {
-                if (!db_config.hasOwnProperty(db_name)) {
-                    continue;
-                }
-
-                dbs[db_name] = loki_storage.getCollection(db_name);
-
-                if (dbs[db_name] === null) {
-                    dbs[db_name] = loki_storage.addCollection(db_name, { indices: db_config[db_name].indices});
-                    for (var t = 0; t < db_config[db_name].uniques.length; t++) {
-                        dbs[db_name].ensureUniqueIndex(db_config[db_name].uniques[t]);
-                    }
-                }
-            }
-        });
+        function activate() {
+            reload();
+        }
 
         /**
          * @ngdoc
@@ -84,10 +73,10 @@
          * @param {string} db The database
          * @param {object|Array} items One or multiple items to put into the database
          */
-        var insert = function (db, items) {
+        function insert(db, items) {
 
             return dbs[db].insert(items);
-        };
+        }
 
         /**
          * @ngdoc
@@ -100,9 +89,9 @@
          * @param {string} db The database
          * @param {object|Array} items One or multiple items to update in the database
          */
-        var update = function (db, items) {
+        function update(db, items) {
             return dbs[db].update(items);
-        };
+        }
 
         /**
          * @ngdoc
@@ -116,7 +105,7 @@
          * @param {string} db The database
          * @param {object|Array} items One or multiple items to update in the database
          */
-        var upsert = function(db, items) {
+        function upsert(db, items) {
             var local_items, db_entry;
             var return_values = [];
 
@@ -136,12 +125,27 @@
                 }
             }
 
-            if (! (items instanceof Array)) {
-                return return_values;
+            if (items instanceof Array) {
+                return return_values[0];
             } else {
-                return return_values[0]
+                return return_values;
             }
-        };
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.storage#where
+         * @methodOf psonocli.storage
+         *
+         * @description
+         * Searches for multiple entries and filter according to a function
+         *
+         * @param {string} db The database
+         * @param {object|Array} filter_function The filter function
+         */
+        function where(db, filter_function) {
+            return dbs[db].where(filter_function);
+        }
 
         /**
          * @ngdoc
@@ -156,9 +160,9 @@
          *
          * @returns {object|null} Returns the data object
          */
-        var find_one = function (db, query) {
+        function find_one(db, query) {
             return dbs[db].findOne(query);
-        };
+        }
 
         /**
          * @ngdoc
@@ -173,9 +177,9 @@
          *
          * @returns {boolean} Returns whether the specified key already exists.
          */
-        var key_exists = function (db, key) {
+        function key_exists(db, key) {
             return dbs[db].findOne({'key': key}) !== null;
-        };
+        }
 
         /**
          * @ngdoc
@@ -188,9 +192,9 @@
          * @param {string} db The database
          * @param {object} obj The data object
          */
-        var remove = function (db, obj) {
+        function remove(db, obj) {
             dbs[db].remove(obj);
-        };
+        }
 
         /**
          * @ngdoc
@@ -202,7 +206,7 @@
          *
          * @param {string} db The database
          */
-        var remove_all = function(db) {
+        function remove_all(db) {
             if (typeof db !== 'undefined') {
                 dbs[db].removeWhere(function() {
                     return true;
@@ -223,7 +227,7 @@
                 }
             }
 
-        };
+        }
 
         /**
          * @ngdoc
@@ -237,7 +241,7 @@
          * @param {string} event The event to listen to
          * @param {function} callback The callback function
          */
-        var on = function (db, event, callback) {
+        function on(db, event, callback) {
 
             if (!db_config.hasOwnProperty(db)) {
                 return;
@@ -252,7 +256,8 @@
             }
 
             dbs[db].on(event, callback);
-        };
+        }
+
         /**
          * @ngdoc
          * @name psonocli.storage#save
@@ -261,24 +266,55 @@
          * @description
          * saves the database, needs to be triggered once some changes are meant to be made persistent
          */
-        var save = function () {
+        function save() {
+            browserClient.emit("storage-reload", null);
             loki_storage.save();
-        };
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.storage#reload
+         * @methodOf psonocli.storage
+         *
+         * @description
+         * Reloads the storage
+         */
+        function reload() {
+            loki_storage.loadDatabase({}, function () {
+
+                for (var db_name in db_config) {
+                    if (!db_config.hasOwnProperty(db_name)) {
+                        continue;
+                    }
+
+                    dbs[db_name] = loki_storage.getCollection(db_name);
+
+                    if (dbs[db_name] === null) {
+                        dbs[db_name] = loki_storage.addCollection(db_name, { indices: db_config[db_name].indices});
+                        for (var t = 0; t < db_config[db_name].uniques.length; t++) {
+                            dbs[db_name].ensureUniqueIndex(db_config[db_name].uniques[t]);
+                        }
+                    }
+                }
+            });
+        }
 
         return {
             insert: insert,
             update: update,
             upsert: upsert,
+            where: where,
             find_one: find_one,
             key_exists: key_exists,
             remove: remove,
             remove_all: remove_all,
             on: on,
-            save: save
+            save: save,
+            reload: reload
         };
     };
 
     var app = angular.module('psonocli');
-    app.factory("storage", [storage]);
+    app.factory("storage", ['browserClient', storage]);
 
-}(angular));
+}(angular, loki));

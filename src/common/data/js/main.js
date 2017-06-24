@@ -101,7 +101,7 @@
                         controller: 'IndexCtrl'
                     });
 
-                $compileProvider.aHrefSanitizationWhitelist(/^\s*(|blob|):/);
+                $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|chrome-extension|blob):/);
 
                 // Prevent caching for IE
                 // taken from https://stackoverflow.com/a/19771501/4582775
