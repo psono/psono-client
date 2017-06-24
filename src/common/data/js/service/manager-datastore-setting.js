@@ -38,6 +38,7 @@
                         storage.insert('settings', {key: results[i].key, value: results[i].value});
                     }
                 }
+                storage.save();
 
                 return results
             };

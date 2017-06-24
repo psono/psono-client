@@ -215,96 +215,61 @@
         var save = function() {
             return $q(function(resolve, reject) {
 
-                var authkey_old, new_authkey, user_private_key, user_secret_key, user_sauce, priv_key_enc, secret_key_enc, onSucces, onError;
-
-                // TODO move this function to managerDatastoreUser as it directly accesses public / private / secret keys
                 var specials = {};
+                var old_password;
 
                 // lets search our account for the interesting account
-                for (var i = _account.length - 1; i >= 0; i--) {
-                    console.log("1");
-                    if (_config_account.indexOf(_account[i].key) > -1) {
-                        specials[_account[i].key] = _account[i];
+                for (var i = _account['fields'].length - 1; i >= 0; i--) {
+                    if (_config_account.indexOf(_account['fields'][i].key) > -1) {
+                        specials[_account['fields'][i].key] = _account['fields'][i];
                     }
                 }
 
-                var mailobj = storage.find_one('config', {key: 'user_email'});
-                var config_email = mailobj.value;
-
-                var totalSuccess = function() {
-                    return resolve({msgs: ['Saved successfully']})
-                };
-
+                var old_email = storage.find_one('config', {key: 'user_email'}).value;
+                var new_email = specials['setting_email'].value;
+                old_password = specials['setting_email_password_old'].value;
                 // change email
                 // lets check for a correct old password and then update our backend
-                if (config_email !== specials['setting_email'].value) {
-                    console.log("4");
-
-                    if (specials['setting_email_password_old'].value === null || specials['setting_email_password_old'].value.length === 0) {
-                        return reject({errors: ['Old password empty']})
-                    }
-
-                    new_password = specials['setting_email_password_old'].value;
-
-                    authkey_old = cryptoLibrary.generate_authkey(storage.find_one('config', {key: 'user_username'}).value, specials['setting_email_password_old'].value);
-
-                    onSucces = function(data) {
-
-                        //update local mail storage
-                        mailobj.value = specials['setting_email'].value;
-                        storage.update('config', mailobj);
-
+                if (old_email !== new_email) {
+                    return managerDatastoreUser.save_new_email(
+                        new_email,
+                        old_password,
+                        resolve,
+                        reject
+                    ).then(function(data){
                         specials['setting_email_password_old'].value = '';
-                        return totalSuccess();
-                    };
-                    onError = function() {
+                        return data;
+                    }, function(data) {
                         specials['setting_email_password_old'].value = '';
-                        return reject({errors: ['Old password incorrect']})
-                    };
-                    return managerDatastoreUser.update_user(specials['setting_email'].value, null, authkey_old)
-                        .then(onSucces, onError);
-
-
+                        return $q.reject(data)
+                    });
                 }
 
+
+                var new_password = specials['setting_password'].value;
+                var new_password_repeat = specials['setting_password_repeat'].value;
+                old_password = specials['setting_password_password_old'].value;
                 // change password
                 // lets check for a correct old password and then update our backend
-                if ((specials['setting_password'].value && specials['setting_password'].value.length > 0)
-                    || (specials['setting_password_repeat'].value && specials['setting_password_repeat'].value.length > 0)) {
-
-                    var new_password = specials['setting_password'].value;
-
-                    if (specials['setting_password'].value !== specials['setting_password_repeat'].value) {
-                        console.log("reject");
-                        return reject({errors: ['Passwords mismatch']})
-                    }
-                    if (specials['setting_password_password_old'].value === null || specials['setting_password_password_old'].value.length === 0) {
-                        return reject({errors: ['Old password empty']})
-                    }
-
-                    authkey_old = cryptoLibrary.generate_authkey(storage.find_one('config', {key: 'user_username'}).value, specials['setting_password_password_old'].value);
-
-                    new_authkey = cryptoLibrary.generate_authkey(storage.find_one('config', {key: 'user_username'}).value, new_password);
-                    user_private_key = storage.find_one('config', {key: 'user_private_key'});
-                    user_secret_key = storage.find_one('config', {key: 'user_secret_key'});
-                    user_sauce = storage.find_one('config', {key: 'user_sauce'}).value;
-
-                    priv_key_enc = cryptoLibrary.encrypt_secret(user_private_key.value, new_password, user_sauce);
-                    secret_key_enc = cryptoLibrary.encrypt_secret(user_secret_key.value, new_password, user_sauce);
-
-                    onSucces = function(data) {
+                if ((new_password && new_password.length > 0)
+                    || (new_password_repeat && new_password_repeat.length > 0)) {
+                    return managerDatastoreUser.save_new_password(
+                        new_password,
+                        new_password_repeat,
+                        old_password,
+                        resolve,
+                        reject
+                    ).then(function(data){
+                            specials['setting_password'].value = '';
+                            specials['setting_password_repeat'].value = '';
+                            specials['setting_password_password_old'].value = '';
+                            return data;
+                    }, function(data) {
                         specials['setting_password'].value = '';
                         specials['setting_password_repeat'].value = '';
                         specials['setting_password_password_old'].value = '';
-                        return totalSuccess();
-                    };
-                    onError = function() {
-                        return reject({errors: ['Old password incorrect']})
-                    };
-                    return managerDatastoreUser.update_user(null, new_authkey, authkey_old, priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce)
-                        .then(onSucces, onError);
-
-
+                        return $q.reject(data)
+                    });
                 }
             });
         };
