@@ -217,7 +217,7 @@
             return expect(cryptoLibrary.decrypt_data_public_key(text, nonce, pair2.public_key, pair.private_key)).toBe(data);
         }));
 
-        return it('encrypt_data_public_key works', inject(function (cryptoLibrary, converter) {
+        it('encrypt_data_public_key works', inject(function (cryptoLibrary, converter) {
             var bytes_nonce, data, encrypted_data, encrypted_data2, pair, pair2;
             bytes_nonce = 24;
             data = "12345";
@@ -238,6 +238,31 @@
             encrypted_data2 = cryptoLibrary.encrypt_data_public_key(data, pair.public_key, pair2.private_key);
             return expect(encrypted_data.nonce).not.toBe(encrypted_data2.nonce);
         }));
+
+        // work in chrome but fail in phantomjs, waiting for chrome 59 and headless support
+
+        // it('nacl\'s signing.verify works', inject(function (cryptoLibrary, converter) {
+        //     var nacl = require('ecma-nacl');
+        //     // signing key pair can be generated from some seed array, which can
+        //     // either be random itself, or be generated from a password
+        //     var pair = nacl.signing.generate_keypair(cryptoLibrary.randomBytes(32));
+        //
+        //     // make signature bytes, for msg
+        //     var msgSig = nacl.signing.signature(converter.encode_utf8("test message that is some nice text or whatever that needs to be encrypted"), pair.skey);
+        //
+        //     // verify signature
+        //     var sigIsOK = nacl.signing.verify(msgSig, converter.encode_utf8("test message that is some nice text or whatever that needs to be encrypted"), pair.pkey);
+        //     expect(sigIsOK).toBe(true);
+        //
+        // }));
+        //
+        // it('validate_signature', inject(function (cryptoLibrary, converter) {
+        //     expect(cryptoLibrary.validate_signature(
+        //         'test message that is some nice text or whatever that needs to be encrypted',
+        //         '6e3302a696092fe3893d971391f94f2cb850d19fbbae9978122f0f465593bc06e65440e0ec929805b58e63fe719983201754a2a578c906c18b8ffa71e3234502',
+        //         '967fd5c3c8386609c1ac57209a6f68a147a56518a7ed5df3285beea58d671f62'
+        //     )).toBe(true);
+        // }));
     });
 
 }).call();

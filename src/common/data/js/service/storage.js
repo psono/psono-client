@@ -125,10 +125,10 @@
                 }
             }
 
-            if (! (items instanceof Array)) {
-                return return_values;
+            if (items instanceof Array) {
+                return return_values[0];
             } else {
-                return return_values[0]
+                return return_values;
             }
         }
 

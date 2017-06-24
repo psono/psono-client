@@ -43,7 +43,7 @@
             // browser.webRequest.onBeforeSendHeaders.addListener(on_before_send_headers, {urls: ["<all_urls>"]}, ["blocking", "requestHeaders"]);
 
             browser.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex){
-                if (notificationId === 'new-password-detected' && buttonIndex === 0) {
+                if (notificationId.startsWith('new-password-detected-')  && buttonIndex === 0) {
                     save_last_login_credentials();
                 }
                 chrome.notifications.clear(notificationId)
@@ -440,7 +440,7 @@
                 return;
             }
 
-            browser.notifications.create('new-password-detected', {
+            browser.notifications.create('new-password-detected-' + cryptoLibrary.generate_uuid(), {
                 "type": 'basic',
                 "iconUrl": "img/icon-64.png",
                 "title": "New Password detected",
