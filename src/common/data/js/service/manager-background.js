@@ -15,7 +15,7 @@
      * @description
      * Service that handles the complete background process
      */
-    var managerBackground = function($q, managerBase, storage, managerDatastorePassword, helper,
+    var managerBackground = function($q, managerBase, managerSecret, storage, managerDatastorePassword, helper,
                                      cryptoLibrary, apiClient, device, browser, chrome) {
 
         var last_login_credentials;
@@ -640,7 +640,7 @@
 
             already_filled_max_allowed[details.requestId]--;
             request_secret(entries[already_filled_max_allowed[details.requestId]]['secret_id'])
-                .done(function(data){
+                .then(function(data){
                     return_value = {
                         authCredentials: {
                             username: data['website_password_username'],
@@ -648,11 +648,13 @@
                         }
                     };
                     return callbackFn(return_value);
-                })
-                .fail(function(value) {
+                }, function(value) {
                     return callbackFn(return_value);
                 });
         }
+
+
+
 
         /**
          * @ngdoc
@@ -676,7 +678,7 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerBackground", ['$q', 'managerBase', 'storage', 'managerDatastorePassword', 'helper',
+    app.factory("managerBackground", ['$q', 'managerBase', 'managerSecret', 'storage', 'managerDatastorePassword', 'helper',
         'cryptoLibrary', 'apiClient', 'device', 'browser', 'chrome', managerBackground]);
 
 }(angular, chrome));
