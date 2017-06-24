@@ -236,6 +236,13 @@ var ClassWorkerContentScript = function (browser, jQuery) {
         registrations[event].push(myFunction);
     }
 
+    /**
+     * Main handler for all messages
+     *
+     * @param request
+     * @param sender
+     * @param sendResponse
+     */
     function onMessage(request, sender, sendResponse){
         for (var i = 0; registrations.hasOwnProperty(request.event) && i < registrations[request.event].length; i++) {
             registrations[request.event][i](request.data);
@@ -413,6 +420,12 @@ var ClassWorkerContentScript = function (browser, jQuery) {
     }
 
 
+    /**
+     * modifies an input field and adds the image button to click together with the appropriate event handlers
+     *
+     * @param input
+     * @param document
+     */
     function modify_input_field(input, document) {
         input.style.backgroundImage = 'url("'+background_image+'")';
         input.style.backgroundPosition = 'center right';

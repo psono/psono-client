@@ -473,7 +473,6 @@
             var hits = [];
             var datastore_entry;
             var leafs = storage.where('datastore-password-leafs', password_filter);
-            console.log(leafs);
             for (var i = 0; i < leafs.length; i++) {
                 datastore_entry = leafs[i];
                 hits.push({
