@@ -84,7 +84,6 @@ var ClassWorkerContentScript = function (browser, jQuery) {
             if (form_data) {
                 emit('login-form-submit', get_username_and_password(form));
             }
-            event.preventDefault();
         });
 
     }
