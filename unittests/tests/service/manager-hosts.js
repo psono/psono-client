@@ -99,163 +99,161 @@
             });
         }));
 
-        // work in chrome but fail in phantomjs, waiting for chrome 59 and headless support
+        it('check_host: new_server', inject(function (managerHost, apiClient, $q) {
 
-        // it('check_host: new_server', inject(function (managerHost, apiClient, $q) {
-        //
-        //     var url = 'https://www.example.com';
-        //
-        //
-        //     spyOn(apiClient, 'info').and.callFake(function() {
-        //         var query_response = {
-        //             data: {
-        //                 "verify_key": "a8e3d0004925352d78b967b33d6cfef67d364cf1aaf85e66b75404b98345f762",
-        //                 "signature": "4b0fa89692069bd8714d88298d32ac276ca5c35f4176c890d1d757300233504b83753be199480de949d7d6567526b23ccbe514c53934a477004bbee06d5dd40b",
-        //                 "info": "{\"log_audit\": true, \"version\": \"1.0.0\", \"api\": 1, \"public_key\": \"2e6bbc322f7b6c16de12bd9cf1bc3281f0d0e66e741a27678de8b778fdfbf249\"}"
-        //             }
-        //         };
-        //         var deferred = $q.defer();
-        //         deferred.resolve(query_response);
-        //         return deferred.promise;
-        //     });
-        //     managerHost.check_host({url: url}).then(function(data){
-        //         expect(data).toEqual({
-        //             server_url: url,
-        //             status: 'new_server',
-        //             verify_key: 'a8e3d0004925352d78b967b33d6cfef67d364cf1aaf85e66b75404b98345f762',
-        //             info: {
-        //                 log_audit: true,
-        //                 version: '1.0.0',
-        //                 api: 1,
-        //                 public_key: '2e6bbc322f7b6c16de12bd9cf1bc3281f0d0e66e741a27678de8b778fdfbf249'
-        //             }
-        //         });
-        //     }, function (data) {
-        //         console.log(data);
-        //         // should never be reached
-        //         expect(true).toBeFalsy();
-        //     });
-        //     $rootScope.$digest();
-        // }));
-        //
-        //
-        // it('check_host: invalid_signature', inject(function (managerHost, apiClient, $q) {
-        //
-        //     var url = 'https://www.example.com';
-        //
-        //     managerHost.approve_host(url, 'key');
-        //
-        //     spyOn(apiClient, 'info').and.callFake(function() {
-        //         var query_response = {
-        //             data: {
-        //                 "verify_key": "a8e3d0004925352d78b967b33d6cfef67d364cf1aaf85e66b75404b98345f762",
-        //                 "signature": "4b0fa89692069bd8714d88298d32ac276ca5c35f4176c890d1d757300233504b83753be199480de949d7d6567526b23ccbe514c53934a477004bbee06d5dd40c",
-        //                 "info": "{\"log_audit\": true, \"version\": \"1.0.0\", \"api\": 1, \"public_key\": \"2e6bbc322f7b6c16de12bd9cf1bc3281f0d0e66e741a27678de8b778fdfbf249\"}"
-        //             }
-        //         };
-        //         var deferred = $q.defer();
-        //         deferred.resolve(query_response);
-        //         return deferred.promise;
-        //     });
-        //     managerHost.check_host({url: url}).then(function(data){
-        //         expect(data).toEqual({
-        //             server_url: url,
-        //             status: 'invalid_signature',
-        //             verify_key: undefined,
-        //             info: {
-        //                 log_audit: true,
-        //                 version: '1.0.0',
-        //                 api: 1,
-        //                 public_key: '2e6bbc322f7b6c16de12bd9cf1bc3281f0d0e66e741a27678de8b778fdfbf249'
-        //             }
-        //         });
-        //     }, function (data) {
-        //         console.log(data);
-        //         // should never be reached
-        //         expect(true).toBeFalsy();
-        //     });
-        //     $rootScope.$digest();
-        //
-        // }));
-        //
-        //
-        // it('check_host: matched', inject(function (managerHost, apiClient, $q) {
-        //
-        //     var url = 'https://www.example.com';
-        //
-        //     managerHost.approve_host(url, 'a8e3d0004925352d78b967b33d6cfef67d364cf1aaf85e66b75404b98345f762');
-        //
-        //     spyOn(apiClient, 'info').and.callFake(function() {
-        //         var query_response = {
-        //             data: {
-        //                 "verify_key": "a8e3d0004925352d78b967b33d6cfef67d364cf1aaf85e66b75404b98345f762",
-        //                 "signature": "4b0fa89692069bd8714d88298d32ac276ca5c35f4176c890d1d757300233504b83753be199480de949d7d6567526b23ccbe514c53934a477004bbee06d5dd40b",
-        //                 "info": "{\"log_audit\": true, \"version\": \"1.0.0\", \"api\": 1, \"public_key\": \"2e6bbc322f7b6c16de12bd9cf1bc3281f0d0e66e741a27678de8b778fdfbf249\"}"
-        //             }
-        //         };
-        //         var deferred = $q.defer();
-        //         deferred.resolve(query_response);
-        //         return deferred.promise;
-        //     });
-        //     managerHost.check_host({url: url}).then(function(data){
-        //         expect(data).toEqual({
-        //             server_url: url,
-        //             status: 'matched',
-        //             verify_key: 'a8e3d0004925352d78b967b33d6cfef67d364cf1aaf85e66b75404b98345f762',
-        //             info: {
-        //                 log_audit: true,
-        //                 version: '1.0.0',
-        //                 api: 1,
-        //                 public_key: '2e6bbc322f7b6c16de12bd9cf1bc3281f0d0e66e741a27678de8b778fdfbf249'
-        //             }
-        //         });
-        //     }, function (data) {
-        //         console.log(data);
-        //         // should never be reached
-        //         expect(true).toBeFalsy();
-        //     });
-        //     $rootScope.$digest();
-        // }));
-        //
-        //
-        // it('check_host: signature_changed', inject(function (managerHost, apiClient, $q) {
-        //
-        //     var url = 'https://www.example.com';
-        //
-        //     managerHost.approve_host(url, 'a8e3d0004925352d78b967b33d6cfef67d364cf1aaf85e66b75404b98345f763');
-        //
-        //     spyOn(apiClient, 'info').and.callFake(function() {
-        //         var query_response = {
-        //             data: {
-        //                 "verify_key": "a8e3d0004925352d78b967b33d6cfef67d364cf1aaf85e66b75404b98345f762",
-        //                 "signature": "4b0fa89692069bd8714d88298d32ac276ca5c35f4176c890d1d757300233504b83753be199480de949d7d6567526b23ccbe514c53934a477004bbee06d5dd40b",
-        //                 "info": "{\"log_audit\": true, \"version\": \"1.0.0\", \"api\": 1, \"public_key\": \"2e6bbc322f7b6c16de12bd9cf1bc3281f0d0e66e741a27678de8b778fdfbf249\"}"
-        //             }
-        //         };
-        //         var deferred = $q.defer();
-        //         deferred.resolve(query_response);
-        //         return deferred.promise;
-        //     });
-        //     managerHost.check_host({url: url}).then(function (data) {
-        //         expect(data).toEqual({
-        //             server_url: url,
-        //             status: 'signature_changed',
-        //             verify_key: 'a8e3d0004925352d78b967b33d6cfef67d364cf1aaf85e66b75404b98345f762',
-        //             verify_key_old: 'a8e3d0004925352d78b967b33d6cfef67d364cf1aaf85e66b75404b98345f763',
-        //             info: {
-        //                 log_audit: true,
-        //                 version: '1.0.0',
-        //                 api: 1,
-        //                 public_key: '2e6bbc322f7b6c16de12bd9cf1bc3281f0d0e66e741a27678de8b778fdfbf249'
-        //             }
-        //         });
-        //     }, function (data) {
-        //         console.log(data);
-        //         // should never be reached
-        //         expect(true).toBeFalsy();
-        //     });
-        //     $rootScope.$digest();
-        // }));
+            var url = 'https://www.example.com';
+
+
+            spyOn(apiClient, 'info').and.callFake(function() {
+                var query_response = {
+                    data: {
+                        "verify_key": "a8e3d0004925352d78b967b33d6cfef67d364cf1aaf85e66b75404b98345f762",
+                        "signature": "4b0fa89692069bd8714d88298d32ac276ca5c35f4176c890d1d757300233504b83753be199480de949d7d6567526b23ccbe514c53934a477004bbee06d5dd40b",
+                        "info": "{\"log_audit\": true, \"version\": \"1.0.0\", \"api\": 1, \"public_key\": \"2e6bbc322f7b6c16de12bd9cf1bc3281f0d0e66e741a27678de8b778fdfbf249\"}"
+                    }
+                };
+                var deferred = $q.defer();
+                deferred.resolve(query_response);
+                return deferred.promise;
+            });
+            managerHost.check_host({url: url}).then(function(data){
+                expect(data).toEqual({
+                    server_url: url,
+                    status: 'new_server',
+                    verify_key: 'a8e3d0004925352d78b967b33d6cfef67d364cf1aaf85e66b75404b98345f762',
+                    info: {
+                        log_audit: true,
+                        version: '1.0.0',
+                        api: 1,
+                        public_key: '2e6bbc322f7b6c16de12bd9cf1bc3281f0d0e66e741a27678de8b778fdfbf249'
+                    }
+                });
+            }, function (data) {
+                console.log(data);
+                // should never be reached
+                expect(true).toBeFalsy();
+            });
+            $rootScope.$digest();
+        }));
+
+
+        it('check_host: invalid_signature', inject(function (managerHost, apiClient, $q) {
+
+            var url = 'https://www.example.com';
+
+            managerHost.approve_host(url, 'key');
+
+            spyOn(apiClient, 'info').and.callFake(function() {
+                var query_response = {
+                    data: {
+                        "verify_key": "a8e3d0004925352d78b967b33d6cfef67d364cf1aaf85e66b75404b98345f762",
+                        "signature": "4b0fa89692069bd8714d88298d32ac276ca5c35f4176c890d1d757300233504b83753be199480de949d7d6567526b23ccbe514c53934a477004bbee06d5dd40c",
+                        "info": "{\"log_audit\": true, \"version\": \"1.0.0\", \"api\": 1, \"public_key\": \"2e6bbc322f7b6c16de12bd9cf1bc3281f0d0e66e741a27678de8b778fdfbf249\"}"
+                    }
+                };
+                var deferred = $q.defer();
+                deferred.resolve(query_response);
+                return deferred.promise;
+            });
+            managerHost.check_host({url: url}).then(function(data){
+                expect(data).toEqual({
+                    server_url: url,
+                    status: 'invalid_signature',
+                    verify_key: undefined,
+                    info: {
+                        log_audit: true,
+                        version: '1.0.0',
+                        api: 1,
+                        public_key: '2e6bbc322f7b6c16de12bd9cf1bc3281f0d0e66e741a27678de8b778fdfbf249'
+                    }
+                });
+            }, function (data) {
+                console.log(data);
+                // should never be reached
+                expect(true).toBeFalsy();
+            });
+            $rootScope.$digest();
+
+        }));
+
+
+        it('check_host: matched', inject(function (managerHost, apiClient, $q) {
+
+            var url = 'https://www.example.com';
+
+            managerHost.approve_host(url, 'a8e3d0004925352d78b967b33d6cfef67d364cf1aaf85e66b75404b98345f762');
+
+            spyOn(apiClient, 'info').and.callFake(function() {
+                var query_response = {
+                    data: {
+                        "verify_key": "a8e3d0004925352d78b967b33d6cfef67d364cf1aaf85e66b75404b98345f762",
+                        "signature": "4b0fa89692069bd8714d88298d32ac276ca5c35f4176c890d1d757300233504b83753be199480de949d7d6567526b23ccbe514c53934a477004bbee06d5dd40b",
+                        "info": "{\"log_audit\": true, \"version\": \"1.0.0\", \"api\": 1, \"public_key\": \"2e6bbc322f7b6c16de12bd9cf1bc3281f0d0e66e741a27678de8b778fdfbf249\"}"
+                    }
+                };
+                var deferred = $q.defer();
+                deferred.resolve(query_response);
+                return deferred.promise;
+            });
+            managerHost.check_host({url: url}).then(function(data){
+                expect(data).toEqual({
+                    server_url: url,
+                    status: 'matched',
+                    verify_key: 'a8e3d0004925352d78b967b33d6cfef67d364cf1aaf85e66b75404b98345f762',
+                    info: {
+                        log_audit: true,
+                        version: '1.0.0',
+                        api: 1,
+                        public_key: '2e6bbc322f7b6c16de12bd9cf1bc3281f0d0e66e741a27678de8b778fdfbf249'
+                    }
+                });
+            }, function (data) {
+                console.log(data);
+                // should never be reached
+                expect(true).toBeFalsy();
+            });
+            $rootScope.$digest();
+        }));
+
+
+        it('check_host: signature_changed', inject(function (managerHost, apiClient, $q) {
+
+            var url = 'https://www.example.com';
+
+            managerHost.approve_host(url, 'a8e3d0004925352d78b967b33d6cfef67d364cf1aaf85e66b75404b98345f763');
+
+            spyOn(apiClient, 'info').and.callFake(function() {
+                var query_response = {
+                    data: {
+                        "verify_key": "a8e3d0004925352d78b967b33d6cfef67d364cf1aaf85e66b75404b98345f762",
+                        "signature": "4b0fa89692069bd8714d88298d32ac276ca5c35f4176c890d1d757300233504b83753be199480de949d7d6567526b23ccbe514c53934a477004bbee06d5dd40b",
+                        "info": "{\"log_audit\": true, \"version\": \"1.0.0\", \"api\": 1, \"public_key\": \"2e6bbc322f7b6c16de12bd9cf1bc3281f0d0e66e741a27678de8b778fdfbf249\"}"
+                    }
+                };
+                var deferred = $q.defer();
+                deferred.resolve(query_response);
+                return deferred.promise;
+            });
+            managerHost.check_host({url: url}).then(function (data) {
+                expect(data).toEqual({
+                    server_url: url,
+                    status: 'signature_changed',
+                    verify_key: 'a8e3d0004925352d78b967b33d6cfef67d364cf1aaf85e66b75404b98345f762',
+                    verify_key_old: 'a8e3d0004925352d78b967b33d6cfef67d364cf1aaf85e66b75404b98345f763',
+                    info: {
+                        log_audit: true,
+                        version: '1.0.0',
+                        api: 1,
+                        public_key: '2e6bbc322f7b6c16de12bd9cf1bc3281f0d0e66e741a27678de8b778fdfbf249'
+                    }
+                });
+            }, function (data) {
+                console.log(data);
+                // should never be reached
+                expect(true).toBeFalsy();
+            });
+            $rootScope.$digest();
+        }));
 
 
     });

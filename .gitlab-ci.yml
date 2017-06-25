@@ -13,7 +13,10 @@ unittests:
   image: ubuntu:16.04
   script:
     - sh ./var/build-ubuntu.sh
-    - karma start ./unittests/karma-phantom.conf.js
+    - curl -O https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+    - dpkg -i --force-depends google-chrome-stable_current_amd64.deb
+    - apt-get install -f
+    - karma start ./unittests/karma-chrome-headless.conf.js
 
 linter:
   stage: test

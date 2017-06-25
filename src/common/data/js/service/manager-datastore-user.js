@@ -452,6 +452,7 @@
             var login_info = JSON.stringify({
                 'username': username,
                 'authkey': authkey,
+                'device_time': new Date().toISOString(),
                 'device_fingerprint': device.get_device_fingerprint(),
                 'device_description': device.get_device_description()
             });

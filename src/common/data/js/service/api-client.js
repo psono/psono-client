@@ -42,6 +42,7 @@
             var backend = server['value']['url'];
 
             if (session_secret_key && data !== null) {
+                data['request_time'] = new Date().toISOString();
                 data = cryptoLibrary.encrypt_data(JSON.stringify(data), session_secret_key);
             }
 
