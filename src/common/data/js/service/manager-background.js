@@ -681,4 +681,4 @@
     app.factory("managerBackground", ['$q', 'managerBase', 'managerSecret', 'storage', 'managerDatastorePassword', 'helper',
         'cryptoLibrary', 'apiClient', 'device', 'browser', 'chrome', managerBackground]);
 
-}(angular, chrome));
+}(angular));

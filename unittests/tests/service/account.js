@@ -75,6 +75,10 @@
             }
         }));
 
+        it('get_default_tab', inject(function (account) {
+            expect(account.get_default_tab()).toBe('overview');
+        }));
+
         it('get_account_detail:user_id', inject(function (account) {
             expect(account.get_account_detail('user_id')).toBe('fake_user_id');
         }));

@@ -51,6 +51,10 @@
             }
         }));
 
+        it('get_default_tab', inject(function (settings) {
+            expect(settings.get_default_tab()).toBe('password-generator');
+        }));
+
         it('default setting_password_length = 16', inject(function (settings) {
             expect(settings.get_setting('setting_password_length')).toBe(16);
         }));

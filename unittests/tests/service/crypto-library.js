@@ -239,6 +239,11 @@
             return expect(encrypted_data.nonce).not.toBe(encrypted_data2.nonce);
         }));
 
+        it('generate_uuid', inject(function (cryptoLibrary, converter) {
+            var regex = /^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
+            expect(regex.test(cryptoLibrary.generate_uuid())).toBe(true);
+        }));
+
         it('nacl\'s signing.verify works', inject(function (cryptoLibrary, converter) {
             var nacl = require('ecma-nacl');
             // signing key pair can be generated from some seed array, which can

@@ -108,6 +108,9 @@
                 "../src/common/data/js/service/drop-down-menu-watcher.js",
                 "../src/common/data/view/templates.js",
 
+                "../src/common/data/js/service/manager-background.js",
+                "../src/common/data/js/controller/BackgroundCtrl.js",
+
                 "../unittests/data/js/lib/angular-mocks.js",
 
                 '../unittests/tests/*.js',
