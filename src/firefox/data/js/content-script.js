@@ -1,6 +1,6 @@
 (function(jQuery, browser) {
     "use strict";
 
-    new ClassWorkerContentScript(browser, jQuery);
+    ClassWorkerContentScript(browser, jQuery);
 
-})(jQuery, browser);
+}(jQuery, browser));

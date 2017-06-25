@@ -44,7 +44,7 @@ h1, h2 {
     position: relative;
     margin-top: 1px;
     border-radius: 4px; }
-  .navigations li a.navigationitem {
+  .navigations li .navigationitem {
     text-decoration: none;
     display: inline-block;
     padding: 10px 50px 10px 10px;
@@ -89,11 +89,6 @@ h1, h2 {
     background-color: #fff;
     color: #151f2b; }
     .dark .navigations li:hover a {
-      color: #151f2b; }
-  .dark .navigations li:focus {
-    background-color: #2dbb93;
-    color: #151f2b; }
-    .dark .navigations li:focus a {
       color: #151f2b; }
   .dark .navigations li.active {
     background-color: #2dbb93; }
