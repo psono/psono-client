@@ -182,6 +182,8 @@
                         $scope.errors = data.error_data.non_field_errors;
                     } else if (data.error_data.hasOwnProperty('username')) {
                         $scope.errors = data.error_data.username;
+                    } else if (data.error_data.hasOwnProperty('detail')) {
+                        $scope.errors = [data.error_data.detail];
                     } else {
                         $scope.errors = ['Server offline.']
                     }

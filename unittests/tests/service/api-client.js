@@ -120,7 +120,7 @@
                     // Validate request parameters:
                     data = JSON.parse(data);
 
-                    expect(data).toEqual({});
+                    expect(data).toEqual({'request_time': data.request_time });
 
                     expect(headers.Authorization).toEqual('Token ' + token);
 
@@ -145,7 +145,8 @@
                     data = JSON.parse(data);
 
                     expect(data).toEqual({
-                        'session_id': session_id
+                        'session_id': session_id,
+                        'request_time': data.request_time
                     });
 
                     expect(headers.Authorization).toEqual('Token ' + token);
