@@ -104,8 +104,10 @@
         <div class="form-group">
             <button ng-click="login(loginFormUsername, loginFormPassword, loginFormRemember)" type="submit" class="btn btn-danger">Login <i class="fa fa-sign-in" aria-hidden="true"></i></button>
             <a href="#" ng-click="open_tab('register.html')">Register</a>
-            <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
-            <div class="clearfix"></div>
+        </div>
+
+        <div class="form-group alert alert-danger" ng-repeat="e in errors">
+            <strong>Error:</strong> {{e}}
         </div>
 
         <div class="form-group hideinputcharakter">
@@ -137,10 +139,12 @@
             <button ng-click="approve_new_server()" type="submit"
                     class="btn btn-danger">Approve</button>
             <a href="#" ng-click="load_default_view()">Cancel</a>
-
-            <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
-            <div class="clearfix"></div>
         </div>
+
+        <div class="form-group alert alert-danger" ng-repeat="e in errors">
+            <strong>Error:</strong> {{e}}
+        </div>
+
         <div class="form-group">
             <div class="alert alert-info">
                 <strong>Info!</strong> It appears, that you want to connect to this server for the first time.
@@ -177,9 +181,10 @@
             <button ng-click="load_default_view()" type="submit"
                     class="btn btn-danger">Cancel</button>
             <a href="#" ng-click="approve_new_server()">Ignore and continue.</a>
+        </div>
 
-            <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
-            <div class="clearfix"></div>
+        <div class="form-group alert alert-danger" ng-repeat="e in errors">
+            <strong>Error:</strong> {{e}}
         </div>
     </form>
 
@@ -193,8 +198,10 @@
         <div class="form-group">
             <button ng-click="ga_verify(googleAuthenticatorFormGAToken)" type="submit"
                     class="btn btn-danger">Send</button>
-            <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
-            <div class="clearfix"></div>
+        </div>
+
+        <div class="form-group alert alert-danger" ng-repeat="e in errors">
+            <strong>Error:</strong> {{e}}
         </div>
     </form>
 
@@ -205,9 +212,8 @@
                    ng-model="yubikeyOTPFormToken" required ng-keyup="$event.keyCode == 13 && yubikey_otp_verify(yubikeyOTPFormToken)">
         </div>
 
-        <div class="form-group">
-            <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
-            <div class="clearfix"></div>
+        <div class="form-group alert alert-danger" ng-repeat="e in errors">
+            <strong>Error:</strong> {{e}}
         </div>
     </form>
 </div>
