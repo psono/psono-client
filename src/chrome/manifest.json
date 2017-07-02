@@ -45,6 +45,7 @@
       ],
       "js": [
         "data/js/lib/jquery.min.js",
+        "data/js/lib/uuid.js",
         "data/js/extension/worker-content-script.js",
         "data/js/content-script.js"
       ],
