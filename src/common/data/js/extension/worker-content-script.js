@@ -103,6 +103,9 @@ var ClassWorkerContentScript = function (browser, jQuery) {
             if(fields[i].type === '') {
                 continue;
             }
+            if (fields[i].style.display === 'none')
+                continue;
+
             if(fields[i].type === 'password') {
                 password = fields[i].value;
                 break
@@ -129,7 +132,7 @@ var ClassWorkerContentScript = function (browser, jQuery) {
         // Lets start with searching all input fields and forms
         // if we find a password field, we remember that and take the field before as username field
 
-        var inputs = document.querySelectorAll("input:not(:disabled):not([readonly]):not([type=hidden])");
+        var inputs = document.querySelectorAll("input[type='text']:not(:disabled):not([readonly]):not([type=hidden]), input[type='email']:not(:disabled):not([readonly]):not([type=hidden]), input[type='password']:not(:disabled):not([readonly]):not([type=hidden])");
 
         for (var i = 0; i < inputs.length; ++i) {
 
