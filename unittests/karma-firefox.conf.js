@@ -22,6 +22,7 @@
                 "../src/common/data/js/lib/papaparse.min.js",
                 "../src/common/data/js/lib/angular.min.js",
                 "../src/common/data/js/lib/angular-animate.min.js",
+                "../src/common/data/js/lib/angular-touch.min.js",
                 "../src/common/data/js/lib/angular-complexify.min.js",
                 "../src/common/data/js/lib/loading-bar.min.js",
                 "../src/common/data/js/lib/angular-chart.min.js",

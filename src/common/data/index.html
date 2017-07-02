@@ -13,7 +13,6 @@
     <meta name="theme-color" content="#ffffff">
     <meta name="viewport" content="width=device-width, user-scalable=no">
 
-
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
     <script src="js/lib/html5shiv.min.js"></script>
@@ -22,20 +21,23 @@
 
     <link rel="search" type="application/opensearchdescription+xml" title="Search Psono " href="search.xml" />
 
-    <link rel="stylesheet" type="text/css" href="css/lib/opensans.css" />
+    <!-- build:build_min_css -->
+    <link href="css/lib/opensans.css" rel="stylesheet" />
     <link href="css/lib/angular-csp.css" rel="stylesheet">
     <link href="css/lib/bootstrap.css" rel="stylesheet">
     <link href="css/lib/ui-bootstrap-csp.css" rel="stylesheet">
     <link href="css/lib/datatables.min.css" rel="stylesheet">
     <link href="css/lib/angular-snap.css" rel="stylesheet">
     <link href="css/lib/font-awesome.min.css" rel="stylesheet">
-    <link href="css/angular-tree-view.css" rel="stylesheet">
     <link href="css/lib/angular-datatables.css" rel="stylesheet">
     <link href="css/lib/datatables.bootstrap.css" rel="stylesheet">
     <link href="css/lib/angular-ui-select.css" rel="stylesheet">
     <link href="css/lib/loading-bar.min.css" rel="stylesheet">
 
+    <link href="css/angular-tree-view.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
+    <!-- endbuild -->
+
     <link href="css/datastore.css" rel="stylesheet">
 </head>
 <body>
@@ -244,7 +246,6 @@
             </form>
 
             <form name="googleAuthenticatorForm" ng-if="view === 'google_authenticator_2fa'">
-                <!-- google_authenticator_2fa View -->
                 <div class="form-group">
                     <input type="text" class="form-control" id="gaToken" placeholder="Google Authenticator Token"
                            ng-model="googleAuthenticatorFormGAToken" required maxlength="6" minlength="6">
@@ -294,7 +295,7 @@
 
 </div>
 
-
+<!-- build:build_min_js -->
 <!-- Start of scripts -->
 <script src="js/lib/ecma-nacl.min.js" type="text/javascript"></script>
 <script src="js/lib/sha512.min.js" type="text/javascript"></script>
@@ -410,5 +411,6 @@
 
 <script src="view/templates.js" type="application/javascript"></script>
 <!-- End Angular Juju -->
+<!-- endbuild -->
 </body>
 </html>
