@@ -103,6 +103,9 @@ var ClassWorkerContentScript = function (browser, jQuery) {
             if(fields[i].type === '') {
                 continue;
             }
+            if (fields[i].style.display === 'none')
+                continue;
+
             if(fields[i].type === 'password') {
                 password = fields[i].value;
                 break
@@ -129,7 +132,7 @@ var ClassWorkerContentScript = function (browser, jQuery) {
         // Lets start with searching all input fields and forms
         // if we find a password field, we remember that and take the field before as username field
 
-        var inputs = document.querySelectorAll("input:not(:disabled):not([readonly]):not([type=hidden])");
+        var inputs = document.querySelectorAll("input[type='text']:not(:disabled):not([readonly]):not([type=hidden]), input[type='email']:not(:disabled):not([readonly]):not([type=hidden]), input[type='password']:not(:disabled):not([readonly]):not([type=hidden])");
 
         for (var i = 0; i < inputs.length; ++i) {
 
@@ -343,15 +346,17 @@ var ClassWorkerContentScript = function (browser, jQuery) {
      * @param document The document the click occurred in
      */
     function click(evt, document) {
-
         if (getDistance(evt) < 30) {
+
+            var open_datastore_class = 'psono_open-datastore-' + uuid.v4();
+            var request_secret_class = 'psono_request-secret-' + uuid.v4();
 
             var dropcontent = '';
             dropcontent += '<div class="psono-pw-drop-content-inner">';
             dropcontent += '<ul class="navigations">';
-            dropcontent += '<li><a class="open-datastore" href="#">Open Datastore</a></li>';
+            dropcontent += '<li><a class="'+open_datastore_class+'" href="#">Open Datastore</a></li>';
             for (var i = 0; i < website_passwords.length; i++) {
-                dropcontent += '<li><a class="request-secret" href="#" data-secret-id="'+website_passwords[i].secret_id+'" onclick="return false;">'+website_passwords[i].name+'</a></li>';
+                dropcontent += '<li><a class="'+request_secret_class+'" href="#" data-secret-id="'+website_passwords[i].secret_id+'" onclick="return false;">'+website_passwords[i].name+'</a></li>';
             }
             dropcontent += '</ul>';
             dropcontent += '</div>';
@@ -364,13 +369,14 @@ var ClassWorkerContentScript = function (browser, jQuery) {
             dropInstances.push(dropInstance);
 
             setTimeout(function(){
+                var element = dropInstance.get_element();
 
-                jQuery( ".psono-pw-drop-content-inner .request-secret" ).on( "click", function() {
-                    requestSecret(jQuery(this).attr('data-secret-id'));
+                jQuery( element.getElementsByClassName(open_datastore_class) ).on( "click", function() {
+                    open_datastore();
                 });
 
-                jQuery( ".psono-pw-drop-content-inner .open-datastore" ).on( "click", function() {
-                    open_datastore();
+                jQuery( element.getElementsByClassName(request_secret_class) ).on( "click", function() {
+                    requestSecret(jQuery(this).attr('data-secret-id'));
                 });
 
             }, 0);
@@ -389,8 +395,10 @@ var ClassWorkerContentScript = function (browser, jQuery) {
         var position = jQuery(setup_event.target).offset();
         var height = jQuery(setup_event.target).outerHeight();
 
+        var element_id = 'psono_drop-' + uuid.v4();
+
         var element = jQuery('' +
-            '<div class="psono-pw-drop yui3-cssreset" style="top: 0; left: 0; position: absolute;' +
+            '<div id="'+element_id+'" class="psono-pw-drop yui3-cssreset" style="top: 0; left: 0; position: absolute;' +
             '     transform: translateX('+ position.left +'px) translateY('+ (position.top + height) +'px) translateZ(0px);">' +
             '    <div class="psono-pw-drop-content">' +
             '        ' + content +
@@ -409,13 +417,19 @@ var ClassWorkerContentScript = function (browser, jQuery) {
         function open() {
             element.appendTo(document.body);
         }
+
         function close() {
             element.remove();
         }
 
+        function get_element() {
+            return document.getElementById(element_id);
+        }
+
         return {
             open: open,
-            close: close
+            close: close,
+            get_element: get_element
         }
     }
 

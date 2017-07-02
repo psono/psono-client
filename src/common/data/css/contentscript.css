@@ -98,11 +98,13 @@
       position: absolute;
       pointer-events: none; }
     .psono-pw-drop .psono-pw-drop-content .psono-pw-drop-content-inner:after {
+      border-color: #151f2b;
       border-color: rgba(21, 31, 43, 0);
       border-bottom-color: #151f2b;
       border-width: 10px;
       margin-left: -10px; }
     .psono-pw-drop .psono-pw-drop-content .psono-pw-drop-content-inner:before {
+      border-color: #bababa;
       border-color: rgba(186, 186, 186, 0);
       border-bottom-color: #fff;
       border-width: 13px;

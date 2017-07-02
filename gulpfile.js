@@ -20,6 +20,8 @@ var webstore_upload = require('webstore-upload');
 var runSequence = require('run-sequence');
 var jwt = require('jsonwebtoken');
 var run = require('gulp-run');
+var concat = require('gulp-concat');
+var htmlreplace = require('gulp-html-replace');
 
 /**
  * Compiles .sass files to css files
@@ -40,32 +42,171 @@ gulp.task('template', function () {
 
 
 var build = function(build_path, type) {
-    gulp.src(['src/common/data/css/**/*'])
-        .pipe(cleanCSS({compatibility: 'ie8'}))
-        .pipe(gulp.dest(path.join(build_path, 'css')));
 
+    // All files in data/css
+    if (type === 'webserver') {
+        gulp.src([
+            "src/common/data/css/lib/opensans.css",
+            "src/common/data/css/lib/angular-csp.css",
+            "src/common/data/css/lib/bootstrap.css",
+            "src/common/data/css/lib/ui-bootstrap-csp.css",
+            "src/common/data/css/lib/datatables.min.css",
+            "src/common/data/css/lib/angular-snap.css",
+            "src/common/data/css/lib/font-awesome.min.css",
+            "src/common/data/css/lib/angular-datatables.css",
+            "src/common/data/css/lib/datatables.bootstrap.css",
+            "src/common/data/css/lib/angular-ui-select.css",
+            "src/common/data/css/lib/loading-barbar.min.css",
+            'src/common/data/css/angular-tree-view.css',
+            'src/common/data/css/style.css'
+        ])
+            .pipe(cleanCSS({compatibility: 'ie8'}))
+            .pipe(concat('bundle.min.css'))
+            .pipe(gulp.dest(path.join(build_path, 'css', 'lib')));
+
+        gulp.src([
+            'src/common/data/css/contentscript.css',
+            'src/common/data/css/datastore.css',
+            'src/common/data/css/main.css',
+            'src/common/data/css/open-secret.css'
+        ])
+            .pipe(cleanCSS({compatibility: 'ie8'}))
+            .pipe(gulp.dest(path.join(build_path, 'css')));
+    } else {
+        gulp.src(['src/common/data/css/**/*'])
+            .pipe(cleanCSS({compatibility: 'ie8'}))
+            .pipe(gulp.dest(path.join(build_path, 'css')));
+    }
+
+    // All files in data/view
+    gulp.src('src/common/data/view/**/*.html')
+        .pipe(template_cache('templates.js', { module:'psonocli', root: 'view/' }))
+        .pipe(gulp.dest(path.join(build_path, 'view')));
+
+    // All files in data/fonts
     gulp.src(['src/common/data/fonts/**/*'])
         .pipe(gulp.dest(path.join(build_path, 'fonts')));
 
+    // All files in data/img
     gulp.src(['src/common/data/img/**/*'])
         .pipe(gulp.dest(path.join(build_path, 'img')));
 
-
-    var js_source = ['src/common/data/js/**/*'];
-
-    if(type === 'firefox' || type === 'chrome') {
-        // remove default browser client
-        js_source.push('!src/common/data/js/service/browser-client.js');
-    }
-
-    if(type === 'webserver') {
-        // remove extension specific javascript
-        js_source.push('!src/common/data/js/extension/');
-    }
-
+    // All files in data/js
     if (type === 'webserver') {
         // minify
-        gulp.src(js_source)
+
+        gulp.src([
+            "src/common/data/js/lib/ecma-nacl.min.js",
+            "src/common/data/js/lib/sha512.min.js",
+            "src/common/data/js/lib/sha256.min.js",
+            "src/common/data/js/lib/uuid.js",
+            "src/common/data/js/lib/chart.min.js",
+            "src/common/data/js/lib/jquery.min.js",
+            "src/common/data/js/lib/client.min.js",
+            "src/common/data/js/lib/datatables.min.js",
+            "src/common/data/js/lib/snap.min.js",
+            "src/common/data/js/lib/jquery-ui.min.js",
+            "src/common/data/js/lib/sortable.min.js",
+            "src/common/data/js/lib/lokijs.min.js",
+            "src/common/data/js/lib/qrcode.min.js",
+            "src/common/data/js/lib/fastclick.js",
+            "src/common/data/js/lib/password-generator.js",
+            "src/common/data/js/lib/papaparse.min.js",
+            "src/common/data/js/lib/angular.min.js",
+            "src/common/data/js/lib/angular-animate.min.js",
+            "src/common/data/js/lib/angular-touch.min.js",
+            "src/common/data/js/lib/angular-complexify.min.js",
+            "src/common/data/js/lib/loading-bar.min.js",
+            "src/common/data/js/lib/angular-chart.min.js",
+            "src/common/data/js/lib/angular-route.min.js",
+            "src/common/data/js/lib/angular-sanitize.min.js",
+            "src/common/data/js/lib/angular-local-storage.min.js",
+            "src/common/data/js/lib/angular-snap.min.js",
+            "src/common/data/js/lib/ui-bootstrap-tpls.min.js",
+            "src/common/data/js/lib/ngdraggable.js",
+            "src/common/data/js/lib/angular-ui-select.js",
+            "src/common/data/js/lib/ng-context-menu.js",
+            "src/common/data/js/lib/angular-datatables.js",
+
+            "src/common/data/js/module/ng-tree.js",
+
+            "src/common/data/js/main.js",
+
+            "src/common/data/js/directive/fileReader.js",
+            "src/common/data/js/directive/treeView.js",
+            "src/common/data/js/directive/treeViewNode.js",
+
+            "src/common/data/js/controller/AcceptShareCtrl.js",
+            "src/common/data/js/controller/AccountCtrl.js",
+            "src/common/data/js/controller/ActivationCtrl.js",
+            "src/common/data/js/controller/DatastoreCtrl.js",
+            "src/common/data/js/controller/SecurityReportCtrl.js",
+            "src/common/data/js/controller/IndexCtrl.js",
+            "src/common/data/js/controller/LoginCtrl.js",
+            "src/common/data/js/controller/LostPasswordCtrl.js",
+            "src/common/data/js/controller/MainCtrl.js",
+            "src/common/data/js/controller/ModalAcceptShareCtrl.js",
+            "src/common/data/js/controller/ModalConfigureGoogleAuthenticatorCtrl.js",
+            "src/common/data/js/controller/ModalConfigureYubiKeyOTPCtrl.js",
+            "src/common/data/js/controller/ModalDatastoreNewEntryCtrl.js",
+            "src/common/data/js/controller/ModalDisplayShareRightsCtrl.js",
+            "src/common/data/js/controller/ModalEditEntryCtrl.js",
+            "src/common/data/js/controller/ModalEditFolderCtrl.js",
+            "src/common/data/js/controller/ModalNewFolderCtrl.js",
+            "src/common/data/js/controller/ModalShareEditEntryCtrl.js",
+            "src/common/data/js/controller/ModalShareEntryCtrl.js",
+            "src/common/data/js/controller/ModalShareNewEntryCtrl.js",
+            "src/common/data/js/controller/ModalShowRecoverycodeCtrl.js",
+            "src/common/data/js/controller/OpenSecretCtrl.js",
+            "src/common/data/js/controller/OtherCtrl.js",
+            "src/common/data/js/controller/OpenSessionsCtrl.js",
+            "src/common/data/js/controller/KnownHostsCtrl.js",
+            "src/common/data/js/controller/ExportCtrl.js",
+            "src/common/data/js/controller/ImportCtrl.js",
+            "src/common/data/js/controller/PanelCtrl.js",
+            "src/common/data/js/controller/RegisterCtrl.js",
+            "src/common/data/js/controller/SettingsCtrl.js",
+            "src/common/data/js/controller/ShareCtrl.js",
+            "src/common/data/js/controller/ShareusersCtrl.js",
+            "src/common/data/js/controller/WrapperCtrl.js",
+
+            "src/common/data/js/service/api-client.js",
+            "src/common/data/js/service/helper.js",
+            "src/common/data/js/service/device.js",
+            "src/common/data/js/service/message.js",
+            "src/common/data/js/service/item-blueprint.js",
+            "src/common/data/js/service/share-blueprint.js",
+            "src/common/data/js/service/crypto-library.js",
+            "src/common/data/js/service/converter.js",
+            "src/common/data/js/service/storage.js",
+            "src/common/data/js/service/account.js",
+            "src/common/data/js/service/settings.js",
+            "src/common/data/js/service/manager-base.js",
+            "src/common/data/js/service/manager.js",
+            "src/common/data/js/service/manager-widget.js",
+            "src/common/data/js/service/manager-datastore.js",
+            "src/common/data/js/service/manager-secret-link.js",
+            "src/common/data/js/service/manager-share-link.js",
+            "src/common/data/js/service/manager-export.js",
+            "src/common/data/js/service/manager-hosts.js",
+            "src/common/data/js/service/manager-import.js",
+            "src/common/data/js/service/manager-security-report.js",
+            "src/common/data/js/service/import-chrome-csv.js",
+            "src/common/data/js/service/import-psono-pw-json.js",
+            "src/common/data/js/service/import-lastpass-com-csv.js",
+            "src/common/data/js/service/import-keepassx-org-csv.js",
+            "src/common/data/js/service/import-keepass-info-csv.js",
+            "src/common/data/js/service/manager-secret.js",
+            "src/common/data/js/service/manager-share.js",
+            "src/common/data/js/service/manager-datastore-password.js",
+            "src/common/data/js/service/manager-datastore-user.js",
+            "src/common/data/js/service/manager-datastore-setting.js",
+            "src/common/data/js/service/browser-client.js",
+            "src/common/data/js/service/password-generator.js",
+            "src/common/data/js/service/drop-down-menu-watcher.js",
+
+            "src/common/data/view/templates.js"
+        ])
             .pipe(minify({
                 ext:{
                     min:'.js'
@@ -74,22 +215,40 @@ var build = function(build_path, type) {
                 noSource: true,
                 preserveComments: 'some'
             }))
+            .pipe(concat('bundle.min.js'))
             .pipe(gulp.dest(path.join(build_path, 'js')));
     } else {
-        gulp.src(js_source)
+
+        gulp.src([
+            'src/common/data/js/**/*',
+            '!src/common/data/js/service/browser-client.js'
+        ])
             .pipe(gulp.dest(path.join(build_path, 'js')));
     }
 
-    gulp.src('src/common/data/view/**/*.html')
-        .pipe(template_cache('templates.js', { module:'psonocli', root: 'view/' }))
-        .pipe(gulp.dest(path.join(build_path, 'view')));
+    // All files in data
+    if (type === 'webserver') {
+        return gulp.src([
+                'src/common/data/*',
+                '!src/common/data/background.html',
+                '!src/common/data/default_popup.html',
+                '!src/common/data/sass'
+            ])
+            .pipe(htmlreplace({
+                'build_min_js': 'js/bundle.min.js',
+                'build_min_css': 'css/lib/bundle.min.css'
+            }))
+            .pipe(htmlmin({collapseWhitespace: true}))
+            .pipe(gulp.dest(build_path));
+    } else {
+        return gulp.src([
+                'src/common/data/*',
+                '!src/common/data/sass'
+            ])
+            .pipe(htmlmin({collapseWhitespace: true}))
+            .pipe(gulp.dest(build_path));
+    }
 
-    return gulp.src([
-        'src/common/data/*',
-        '!src/common/data/sass'
-    ])
-        .pipe(htmlmin({collapseWhitespace: true}))
-        .pipe(gulp.dest(build_path));
 };
 
 

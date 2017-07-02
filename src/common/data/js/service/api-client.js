@@ -71,8 +71,8 @@
                             if (!headers.hasOwnProperty(header)) {
                                 continue;
                             }
+                            xhr.setRequestHeader(header, headers[header]);
                         }
-                        xhr.setRequestHeader(header, headers[header]);
                     }
                 }).then(function(data) {
                     return decrypt_data(session_secret_key, {data: JSON.parse(data)});

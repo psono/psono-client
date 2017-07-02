@@ -101,9 +101,13 @@
                                 <span style="color:white; white-space:nowrap;">{{ state.closed_secret_request }} / {{ state.open_secret_requests }}</span>
                             </uib-progressbar>
 
-                            <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
-                            <span ng-repeat="e in msgs" class="pull-right">{{e}}</span>
-                            <div class="clearfix"></div>
+                            <div class="form-group alert alert-danger" ng-repeat="e in errors">
+                                <strong>Error:</strong> {{e}}
+                            </div>
+
+                            <div class="form-group alert alert-danger" ng-repeat="e in msgs">
+                                <strong>Error:</strong> {{e}}
+                            </div>
                         </form>
                     </div>
 
@@ -139,9 +143,13 @@
                                 <span style="color:white; white-space:nowrap;">{{ state.closed_secret_request }} / {{ state.open_secret_requests }}</span>
                             </uib-progressbar>
 
-                            <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
-                            <span ng-repeat="e in msgs" class="pull-right">{{e}}</span>
-                            <div class="clearfix"></div>
+                            <div class="alert alert-danger" ng-repeat="e in errors">
+                                <strong>Error:</strong> {{e}}
+                            </div>
+
+                            <div class="alert alert-info" ng-repeat="e in msgs">
+                                <strong>Error:</strong> {{e}}
+                            </div>
                         </form>
 
                         <div class="alert alert-info" ng-if="import_options.selected_option.help">

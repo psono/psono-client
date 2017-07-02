@@ -194,6 +194,20 @@
             window.close()
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.browserClient#disable_browser_password_saving
+         * @methodOf psonocli.browserClient
+         *
+         * @description
+         * Disables the password saving function in the browser
+         *
+         * @returns {promise} A promise with the success or failure state
+         */
+        var disable_browser_password_saving = function() {
+            return $q.resolve('nothing done');
+        };
+
         return {
             open_tab: open_tab,
             get_base_url: get_base_url,
@@ -206,7 +220,8 @@
             emit_sec: emit_sec,
             on: on,
             get_config:get_config,
-            close_popup:close_popup
+            close_popup:close_popup,
+            disable_browser_password_saving: disable_browser_password_saving
         };
     };
 

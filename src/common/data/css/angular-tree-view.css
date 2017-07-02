@@ -1,6 +1,7 @@
 /* new bootstrap fix */
 .tree * {
     -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
     box-sizing: content-box;
 }
 .tree .fa {
@@ -56,7 +57,7 @@
     color: #80a6cd;
 }
 .tree .tree-folder .tree-folder-header .tree-folder-name {
-    margin-left: 0px;
+    margin-left: 0;
 }
 
 .tree .tree-folder:last-child:after {
@@ -91,7 +92,7 @@
     cursor: pointer;
 }
 .tree .tree-item .tree-item-name {
-    margin-left: 0px;
+    margin-left: 0;
 }
 .tree .tree-item .tree-item-name > [class*="icon-"]:first-child {
     margin-right: 3px;
@@ -117,10 +118,12 @@
     z-index: 1;
 }
 .tree .tree-selected {
+    background-color: rgb(98, 168, 209);
     background-color: rgba(98, 168, 209, 0.1);
     color: #6398B0;
 }
 .tree .tree-selected:hover {
+    background-color: rgb(98, 168, 209);
     background-color: rgba(98, 168, 209, 0.1);
 }
 

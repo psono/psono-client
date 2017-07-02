@@ -22,6 +22,7 @@
                 "../src/common/data/js/lib/papaparse.min.js",
                 "../src/common/data/js/lib/angular.min.js",
                 "../src/common/data/js/lib/angular-animate.min.js",
+                "../src/common/data/js/lib/angular-touch.min.js",
                 "../src/common/data/js/lib/angular-complexify.min.js",
                 "../src/common/data/js/lib/loading-bar.min.js",
                 "../src/common/data/js/lib/angular-chart.min.js",
@@ -34,11 +35,15 @@
                 "../src/common/data/js/lib/angular-ui-select.js",
                 "../src/common/data/js/lib/ng-context-menu.js",
                 "../src/common/data/js/lib/angular-datatables.js",
+
                 "../src/common/data/js/module/ng-tree.js",
+
                 "../src/common/data/js/main.js",
+
                 "../src/common/data/js/directive/fileReader.js",
                 "../src/common/data/js/directive/treeView.js",
                 "../src/common/data/js/directive/treeViewNode.js",
+
                 "../src/common/data/js/controller/AcceptShareCtrl.js",
                 "../src/common/data/js/controller/AccountCtrl.js",
                 "../src/common/data/js/controller/ActivationCtrl.js",
@@ -107,6 +112,9 @@
                 "../src/common/data/js/service/password-generator.js",
                 "../src/common/data/js/service/drop-down-menu-watcher.js",
                 "../src/common/data/view/templates.js",
+
+                "../src/common/data/js/service/manager-background.js",
+                "../src/common/data/js/controller/BackgroundCtrl.js",
 
                 "../unittests/data/js/lib/angular-mocks.js",
 

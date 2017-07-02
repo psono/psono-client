@@ -46,7 +46,10 @@ docker-image:
 
 firefox-extension:
   stage: build
+  image: ubuntu:16.04
   script:
+    - pwd
+    - ls -la
     - sh ./var/build-ubuntu.sh
     - mv /builds/psono/psono-client/build/firefox ../
     - rm -Rf *
@@ -59,7 +62,10 @@ firefox-extension:
 
 chrome-extension:
   stage: build
+  image: ubuntu:16.04
   script:
+    - pwd
+    - ls -la
     - sh ./var/build-ubuntu.sh
     - mv /builds/psono/psono-client/build/chrome ../
     - rm -Rf *

@@ -90,6 +90,20 @@
 
         }));
 
+        it('where', inject(function (storage) {
+
+            var key1 = storage.insert('config', {key: 'key1', value: 'value1'});
+            var key2 = storage.insert('config', {key: 'key2', value: 'value2'});
+            var key3 = storage.insert('config', {key: 'key3', value: 'value3'});
+            var key4 = storage.insert('config', {key: 'key4', value: 'value4'});
+
+            var filtered_values = storage.where('config', function(entry) {
+                return entry.key === 'key2' || entry.key === 'key3';
+            });
+
+            expect(filtered_values.length).toBe(2);
+        }));
+
         it('key_exists', inject(function (storage) {
 
             var key = 'third_dummy_key';

@@ -16,7 +16,7 @@
      * Service that handles the complete background process
      */
     var managerBackground = function($q, managerBase, managerSecret, storage, managerDatastorePassword, helper,
-                                     cryptoLibrary, apiClient, device, browser, chrome) {
+                                     cryptoLibrary, apiClient, device, browser, chrome, browserClient) {
 
         var last_login_credentials;
         var activeTabId;
@@ -49,6 +49,7 @@
                 chrome.notifications.clear(notificationId)
             });
 
+            browserClient.disable_browser_password_saving();
         }
 
         // /*
@@ -679,6 +680,6 @@
 
     var app = angular.module('psonocli');
     app.factory("managerBackground", ['$q', 'managerBase', 'managerSecret', 'storage', 'managerDatastorePassword', 'helper',
-        'cryptoLibrary', 'apiClient', 'device', 'browser', 'chrome', managerBackground]);
+        'cryptoLibrary', 'apiClient', 'device', 'browser', 'chrome', 'browserClient', managerBackground]);
 
-}(angular, chrome));
+}(angular));

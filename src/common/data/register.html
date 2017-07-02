@@ -8,6 +8,7 @@
     <link rel="icon" type="image/png" href="img/favicon-32x32.png" sizes="32x32">
     <link rel="icon" type="image/png" href="img/favicon-16x16.png" sizes="16x16">
     <link rel="shortcut icon" href="img/favicon.ico">
+    <meta name="description" content="Psono Web Client to login or register">
     <meta name="msapplication-config" content="img/browserconfig.xml">
     <meta name="theme-color" content="#ffffff">
     <meta name="viewport" content="width=device-width, user-scalable=no">
@@ -18,20 +19,23 @@
     <script src="js/lib/respond.min.js"></script>
     <![endif]-->
 
-    <link rel="stylesheet" type="text/css" href="css/lib/opensans.css" />
+    <!-- build:build_min_css -->
+    <link href="css/lib/opensans.css" rel="stylesheet" />
     <link href="css/lib/angular-csp.css" rel="stylesheet">
     <link href="css/lib/bootstrap.css" rel="stylesheet">
     <link href="css/lib/ui-bootstrap-csp.css" rel="stylesheet">
     <link href="css/lib/datatables.min.css" rel="stylesheet">
     <link href="css/lib/angular-snap.css" rel="stylesheet">
     <link href="css/lib/font-awesome.min.css" rel="stylesheet">
-    <link href="css/angular-tree-view.css" rel="stylesheet">
     <link href="css/lib/angular-datatables.css" rel="stylesheet">
     <link href="css/lib/datatables.bootstrap.css" rel="stylesheet">
     <link href="css/lib/angular-ui-select.css" rel="stylesheet">
     <link href="css/lib/loading-bar.min.css" rel="stylesheet">
 
+    <link href="css/angular-tree-view.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
+    <!-- endbuild -->
+
     <link href="css/datastore.css" rel="stylesheet">
 </head>
 <body>
@@ -41,7 +45,7 @@
     <div class="wrapper">
 
         <div class="registerbox dark">
-            <img src="img/logo.png" id="logo">
+            <img src="img/logo.png" alt="Psono Web Client" id="logo">
 
             <div ng-if="success" class="big-font-icon-and-msg">
                 <i class="fa fa-thumbs-o-up"></i>
@@ -78,9 +82,14 @@
 
                 <div class="form-group">
                     <button ng-click="register(registerFormEmail, registerFormUsername, registerFormPassword, registerFormPasswordRepeat)" type="submit" class="btn btn-danger">Register</button>
-                    <span ng-repeat="e in errors" class="pull-right">{{e}}</span>
-                    <span ng-repeat="e in msgs" class="pull-right">{{e}}</span>
-                    <div class="clearfix"></div>
+                </div>
+
+                <div class="form-group alert alert-danger" ng-repeat="e in errors">
+                    <strong>Error:</strong> {{e}}
+                </div>
+
+                <div class="form-group alert alert-info" ng-repeat="e in msgs">
+                    <strong>Error:</strong> {{e}}
                 </div>
 
                 <div class="form-group hideinputcharakter">
@@ -107,11 +116,12 @@
            font-size: 3em;
            text-align: center;
            animation: fa-spin 2s infinite linear;
-           vertical-align: middle;">&#xf110;</i> Loading
+           vertical-align: middle;">&#xf110;</i> Loading<noscript><br>JavaScript is disabled</noscript>
     </div>
 </div>
 
 
+<!-- build:build_min_js -->
 <!-- Start of scripts -->
 <script src="js/lib/ecma-nacl.min.js" type="text/javascript"></script>
 <script src="js/lib/sha512.min.js" type="text/javascript"></script>
@@ -227,5 +237,6 @@
 
 <script src="view/templates.js" type="application/javascript"></script>
 <!-- End Angular Juju -->
+<!-- endbuild -->
 </body>
 </html>
