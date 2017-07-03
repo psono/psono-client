@@ -51,6 +51,13 @@ body {
   .navi .title {
     text-align: right; }
 
+.expandable.focused-add,
+.expandable.focused-remove {
+  -webkit-transition: all 0.1s ease-in-out 0s;
+  -moz-transition: all 0.1s ease-in-out 0s;
+  -o-transition: all 0.1s ease-in-out 0s;
+  transition: all 0.1s ease-in-out 0s; }
+
 /* bootstrap */
 .navbar-default {
   background-color: #fff; }
