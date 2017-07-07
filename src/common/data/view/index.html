@@ -38,9 +38,13 @@
                 <div ng-if="!(structure.data.folders.length || structure.data.items.length)">
 
                     <div class="big-font-icon-and-msg">
-                        <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                        <i class="fa fa-plus-circle hidden-xs" aria-hidden="true"></i>
 
-                        <div>No items. Right click here to create one.</div>
+                        <div>
+                            No items.
+                            <span class="hidden-xs">Right click here to create one.</span>
+                            <span class="hidden-sm hidden-md hidden-lg">Click on the<br><i class="fa fa-cogs"></i><br>symbol in the top right corner to start.</span>
+                        </div>
                     </div>
 
                 </div>

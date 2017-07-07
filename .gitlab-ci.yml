@@ -26,6 +26,7 @@ linter:
   script:
     - sh ./var/build-ubuntu.sh
     - cat ./build/firefox/manifest.json
+    - addons-linter --help
     - addons-linter ./build/firefox
 
 

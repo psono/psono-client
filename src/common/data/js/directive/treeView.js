@@ -21,24 +21,7 @@
                 treeViewOptions: '=treeViewOptions'
             },
             replace: true,
-            template: '<div class="tree-container">\n    ' +
-            '<form name="searchTreeForm" class="widget-searchform">\n        ' +
-            '<div class="row">\n            ' +
-            '<div class="col-xs-offset-4 col-xs-8 col-sm-offset-6 col-sm-6 col-md-offset-8 col-md-4">\n                ' +
-            '<div class="input-group">\n                    ' +
-            '<input type="text" class="form-control" id="tosearchTreeForm" placeholder="search"\n                           ng-model="tosearchTreeFilter">\n                    ' +
-            '<span class="input-group-btn">\n                        ' +
-            '<button class="btn btn-default" ng-disabled="!tosearchTreeFilter"\n                                                        ng-click="clearSearchTreeForm()" type="button">\n                            <i class="fa fa-ban"></i>\n                        </button>\n                    ' +
-            '</span>\n                ' +
-            '</div>\n            ' +
-            '</div>\n        ' +
-            '</div>\n    ' +
-            '</form>\n    ' +
-            '<div class="tree">\n        ' +
-            '<div tree-view-node="treeView">' +
-            '</div>\n    ' +
-            '</div>\n' +
-            '</div>',
+            templateUrl: 'view/tree-view.html',
             controller: ['$scope', '$rootScope', '$timeout', function ($scope, $rootScope, $timeout) {
                 var self = this,
                     selectedNode,
@@ -123,6 +106,24 @@
                  */
                 $scope.clearSearchTreeForm = function () {
                     $scope.tosearchTreeFilter = '';
+                };
+
+                /**
+                 * opens a new folder modal
+                 */
+                $scope.openNewFolder = function () {
+                    if (typeof options.onNewFolder === "function") {
+                        options.onNewFolder(undefined, []);
+                    }
+                };
+
+                /**
+                 * opens a new item modal
+                 */
+                $scope.openNewItem = function () {
+                    if (typeof options.onNewItem === "function") {
+                        options.onNewItem(undefined, []);
+                    }
                 };
 
                 /**
