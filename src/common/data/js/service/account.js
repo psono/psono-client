@@ -16,16 +16,16 @@
      */
 
 
-    var account = function($q, $uibModal, storage, managerDatastoreUser, managerDatastoreSetting, cryptoLibrary, apiClient) {
+    var account = function($q, $uibModal, storage, managerDatastoreUser, managerDatastoreSetting) {
 
         var _default_tab = 'overview';
 
         var _tabs = [
-            { key: 'overview', title: 'Overview' },
-            { key: 'change-email', title: 'Change E-Mail' },
-            { key: 'change-password', title: 'Change Password' },
-            { key: 'generate-password-recovery', title: 'Generate Password Recovery' },
-            { key: 'multifactor-authentication', title: 'Multifactor Authentication' }
+            { key: 'overview', title: 'Overview', description: 'The overview of your account with details like your public key.' },
+            { key: 'change-email', title: 'Change E-Mail', description: 'You can provide here a new e-mail address (together with your current password for verification)' },
+            { key: 'change-password', title: 'Change Password', description: 'You can provide here a new password address (together with your current password for verification)' },
+            { key: 'generate-password-recovery', title: 'Generate Password Recovery', description: 'You should create a password recovery code to recover your account with a lost password.' },
+            { key: 'multifactor-authentication', title: 'Multifactor Authentication', description: 'A second factor is the best security improvement for your account.' }
         ];
 
         var _account = {
@@ -37,7 +37,7 @@
                 { key: "user_public_key", field: "input", type: "text", title: "Public Key", placeholder: "Public Key", required: true, readonly: true, tab: 'overview'},
                 // Change E-Mail
                 { key: "setting_email", field: "input", type: "email", title: "New E-Mail", placeholder: "New E-Mail", required: true, tab: 'change-email'},
-                { key: "setting_email_password_old", field: "input", type: "password", title: "Old Password", placeholder: "Old Password", tab: 'change-email'},
+                { key: "setting_email_password_old", field: "input", type: "password", title: "Current Password", placeholder: "Current Password", tab: 'change-email'},
                 // Change Password
                 { key: "setting_password", field: "input", type: "password", title: "New Password", placeholder: "New Password", tab: 'change-password', complexify: true},
                 { key: "setting_password_repeat", field: "input", type: "password", title: "New Password (repeat)", placeholder: "New Password (repeat)", tab: 'change-password'},
@@ -284,6 +284,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("account", ['$q', '$uibModal', 'storage', 'managerDatastoreUser', 'managerDatastoreSetting', 'cryptoLibrary', 'apiClient', account]);
+    app.factory("account", ['$q', '$uibModal', 'storage', 'managerDatastoreUser', 'managerDatastoreSetting', account]);
 
 }(angular));

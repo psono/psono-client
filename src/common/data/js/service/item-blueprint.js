@@ -401,7 +401,7 @@
 
                                     changed_paths.push(parent_path);
 
-                                    registrations['save_datastore'](datastore, changed_paths);
+                                    registrations['save_datastore_content'](datastore, changed_paths);
 
 
                                 });

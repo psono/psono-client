@@ -18,8 +18,15 @@
         <div class="panel-body" style="height: auto;">
             <uib-tabset class="tabset_expand" active="active_tab">
 
-                <uib-tab index="0" heading="Open Sessions" select="open_tab('open-sessions')">
-                    <div ng-controller="OpenSessionsCtrl">
+                <uib-tab index="0" heading="Sessions" select="open_tab('sessions')">
+                    <div ng-controller="SessionsCtrl">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12">
+                                <h2>Sessions:</h2>
+                                A list of all potential active sessions and devices can be found below.
+                            </div>
+                        </div>
+                        <hr>
                         <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
                             <thead>
                             <tr>
@@ -37,7 +44,7 @@
                                     <i ng-if="session.current_session" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-default btn-sm" ng-if="!session.current_session" ng-click="delete_open_session(session.id)" >
+                                    <button type="button" class="btn btn-default btn-sm" ng-if="!session.current_session" ng-click="delete_session(session.id)" >
                                         <i class="fa fa-trash" aria-hidden="true"><span style="display: none">0</span></i>
                                     </button>
                                 </td>
@@ -48,8 +55,63 @@
 
                 </uib-tab>
 
-                <uib-tab index="1" heading="Known Hosts" select="open_tab('known-hosts')">
+                <uib-tab index="1" heading="Data Stores" select="open_tab('data-stores')">
+                    <div ng-controller="OtherDatastoreCtrl">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6">
+                                <h2>Data stores:</h2>
+                                Here you can manage all your password datastores
+                            </div>
+                            <div class="col-xs-12 col-sm-6">
+                                <button type="submit" class="btn btn-primary btn-primary pull-right" ng-click="create_new_datastore()"><i class="fa fa-plus"></i> Create New Datastore</button>
+                                <div class='clearfix'></div>
+                            </div>
+                        </div>
+                        <hr>
+
+                        <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
+                            <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th>Default</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="data_store in data_stores">
+                                <td>{{ data_store.description }}</td>
+                                <td>
+                                    <i ng-if="data_store.is_default" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                                    <i ng-if="!data_store.is_default" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-default btn-sm" ng-click="edit_data_store(data_store)" >
+                                        <i class="fa fa-wrench" aria-hidden="true"><span style="display: none">0</span></i>
+                                    </button>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-default btn-sm" ng-if="!data_store.is_default" ng-click="delete_datastore(data_store)" >
+                                        <i class="fa fa-trash" aria-hidden="true"><span style="display: none">0</span></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </uib-tab>
+
+                <uib-tab index="2" heading="Known Hosts" select="open_tab('known-hosts')">
                     <div ng-controller="KnownHostsCtrl">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12">
+                                <h2>Known Hosts:</h2>
+                                Here you can manage the keys of all the servers you ever connected to.
+                            </div>
+                        </div>
+                        <hr>
+
                         <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
                             <thead>
                             <tr>
@@ -78,8 +140,16 @@
 
                 </uib-tab>
 
-                <uib-tab index="2" heading="Export" select="open_tab('export')">
+                <uib-tab index="3" heading="Export" select="open_tab('export')">
                     <div ng-controller="ExportCtrl">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12">
+                                <h2>Export:</h2>
+                                Export data for an offline backup or other purposes.
+                            </div>
+                        </div>
+                        <hr>
+
                         <form class="form-horizontal">
                             <div class="form-group">
                                 <label class="control-label col-sm-2" for="export_type">Type:</label>
@@ -113,8 +183,15 @@
 
                 </uib-tab>
 
-                <uib-tab index="3" heading="Import" select="open_tab('import')">
+                <uib-tab index="4" heading="Import" select="open_tab('import')">
                     <div ng-controller="ImportCtrl">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12">
+                                <h2>Import:</h2>
+                                Import data from browsers or other password managers.
+                            </div>
+                        </div>
+                        <hr>
 
                         <form class="form-horizontal">
                             <div class="form-group">

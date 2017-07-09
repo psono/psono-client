@@ -65,7 +65,7 @@
 
                 parent['expanded'] = true;
 
-                manager.save_datastore(data_structure, [path]);
+                manager.save_datastore_content(data_structure, [path]);
 
             }, function () {
                 // cancel triggered
@@ -106,7 +106,7 @@
             modalInstance.result.then(function (name) {
                 node.name = name;
 
-                manager.save_datastore(data_structure, [path]);
+                manager.save_datastore_content(data_structure, [path]);
 
             }, function () {
                 // cancel triggered
@@ -205,7 +205,7 @@
 
                     parent['expanded'] = true;
 
-                    managerDatastorePassword.save_datastore(datastore, [path]);
+                    managerDatastorePassword.save_datastore_content(datastore, [path]);
 
                     // reset form fields
                     for (var i = content.fields.length - 1; i >= 0; i--) {
@@ -292,7 +292,7 @@
                     };
 
                     var onSuccess = function(e) {
-                        managerDatastorePassword.save_datastore(datastore, [path]);
+                        managerDatastorePassword.save_datastore_content(datastore, [path]);
                     };
 
                     managerSecret.write_secret(node.secret_id, node.secret_key, secret_object)
@@ -480,7 +480,7 @@
             }
 
             // and save everything (before we update the links and might lose some necessary rights)
-            managerDatastorePassword.save_datastore(datastore, [orig_item_path, orig_target_path]);
+            managerDatastorePassword.save_datastore_content(datastore, [orig_item_path, orig_target_path]);
 
             // adjust the links for every child_share (and therefore update the rights)
             for (i = child_shares.length - 1; i >= 0; i--) {
@@ -569,7 +569,7 @@
             }
 
             // and save everything (before we update the links and might lose some necessary rights)
-            managerDatastorePassword.save_datastore(datastore, [element_path_that_changed]);
+            managerDatastorePassword.save_datastore_content(datastore, [element_path_that_changed]);
 
             // adjust the links for every child_share (and therefore update the rights)
             for (i = child_shares.length - 1; i >= 0; i--) {

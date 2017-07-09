@@ -24,8 +24,8 @@
          *
          * @param {uuid} link_id the link id
          * @param {uuid} share_id the share ID
-         * @param {uuid} [parent_share_id=null] (optional) parent share ID, necessary if no datastore_id is provided
-         * @param {uuid} [parent_datastore_id=null] (optional) datastore ID, necessary if no parent_share_id is provided
+         * @param {uuid|undefined} [parent_share_id=null] (optional) parent share ID, necessary if no datastore_id is provided
+         * @param {uuid|undefined} [parent_datastore_id=null] (optional) datastore ID, necessary if no parent_share_id is provided
          *
          * @returns {promise} Returns a promise withe the new share link id
          */
@@ -53,8 +53,8 @@
          * Moves a link between a share and a datastore or another (parent-)share
          *
          * @param {uuid} link_id The link id
-         * @param {uuid} [new_parent_share_id=null] (optional) new parent share ID, necessary if no new_datastore_id is provided
-         * @param {uuid} [new_parent_datastore_id=null] (optional) new datastore ID, necessary if no new_parent_share_id is provided
+         * @param {uuid|undefined} [new_parent_share_id=null] (optional) new parent share ID, necessary if no new_datastore_id is provided
+         * @param {uuid|undefined} [new_parent_datastore_id=null] (optional) new datastore ID, necessary if no new_parent_share_id is provided
          *
          * @returns {promise} Returns a promise with the status of the move
          */

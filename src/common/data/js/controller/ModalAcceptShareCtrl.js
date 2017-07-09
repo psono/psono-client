@@ -162,7 +162,7 @@
                         user_data_store.items.push(user_object);
                     }
 
-                    managerDatastoreUser.save_datastore(user_data_store);
+                    managerDatastoreUser.save_datastore_content(user_data_store);
                     $scope.user_is_trusted = true;
                 };
                 var onError = function (data) {

@@ -169,7 +169,6 @@
             var endpoint = '/authentication/ga-verify/';
             var connection_type = "POST";
             var data = {
-                token: token,
                 ga_token: ga_token
             };
             var headers = {
@@ -198,7 +197,6 @@
             var endpoint = '/authentication/yubikey-otp-verify/';
             var connection_type = "POST";
             var data = {
-                token: token,
                 yubikey_otp: yubikey_otp
             };
             var headers = {
@@ -247,14 +245,14 @@
          * @methodOf psonocli.apiClient
          *
          * @description
-         * Ajax GET request get all open sessions
+         * Ajax GET request get all sessions
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
          *
          * @returns {promise} promise
          */
-        var get_open_sessions = function(token, session_secret_key) {
+        var get_sessions = function(token, session_secret_key) {
 
             var endpoint = '/authentication/sessions/';
             var connection_type = "GET";
@@ -278,7 +276,7 @@
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
-         * @param {string} [session_id] An optional session ID to logout
+         * @param {string|undefined} [session_id] An optional session ID to logout
          *
          * @returns {promise} Returns a promise with the logout status
          */
@@ -500,7 +498,7 @@
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
-         * @param {uuid} [datastore_id=null] (optional) the datastore ID
+         * @param {uuid|undefined} [datastore_id=null] (optional) the datastore ID
          *
          * @returns {promise} promise
          */
@@ -533,14 +531,17 @@
          * @param {string} session_secret_key The session secret key
          * @param {string} type the type of the datastore
          * @param {string} description the description of the datastore
-         * @param {string} [encrypted_data] (optional) data for the new datastore
-         * @param {string} [encrypted_data_nonce] (optional) nonce for data, necessary if data is provided
+         * @param {string|undefined} [encrypted_data] (optional) data for the new datastore
+         * @param {string|undefined} [encrypted_data_nonce] (optional) nonce for data, necessary if data is provided
+         * @param {string|undefined} [is_default] (optional) Is the new default datastore of this type
          * @param {string} encrypted_data_secret_key encrypted secret key
          * @param {string} encrypted_data_secret_key_nonce nonce for secret key
          *
          * @returns {promise} promise
          */
-        var create_datastore = function (token, session_secret_key, type, description, encrypted_data, encrypted_data_nonce, encrypted_data_secret_key, encrypted_data_secret_key_nonce) {
+        var create_datastore = function (token, session_secret_key, type, description, encrypted_data,
+                                         encrypted_data_nonce, is_default, encrypted_data_secret_key,
+                                         encrypted_data_secret_key_nonce) {
             var endpoint = '/datastore/';
             var connection_type = "PUT";
             var data = {
@@ -548,10 +549,41 @@
                 description: description,
                 data: encrypted_data,
                 data_nonce: encrypted_data_nonce,
+                is_default: is_default,
                 secret_key: encrypted_data_secret_key,
                 secret_key_nonce: encrypted_data_secret_key_nonce
             };
             var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#delete_datastore
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax DELETE request with the token as authentication to delete a datastore
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} datastore_id The datastore id
+         * @param {string} authkey The authkey of the user
+         *
+         * @returns {promise} Returns a promise with the status of the delete operation
+         */
+        var delete_datastore = function (token, session_secret_key, datastore_id, authkey) {
+            var endpoint = '/datastore/';
+            var connection_type = "DELETE";
+            var data = {
+                datastore_id: datastore_id,
+                authkey: authkey
+            };
+            var headers = {
+                "Content-Type": "application/json",
                 "Authorization": "Token "+ token
             };
 
@@ -569,15 +601,17 @@
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
          * @param {uuid} datastore_id the datastore ID
-         * @param {string} [encrypted_data] (optional) data for the new datastore
-         * @param {string} [encrypted_data_nonce] (optional) nonce for data, necessary if data is provided
-         * @param {string} [encrypted_data_secret_key] (optional) encrypted secret key, wont update on the server if not provided
-         * @param {string} [encrypted_data_secret_key_nonce] (optional) nonce for secret key, wont update on the server if not provided
+         * @param {string|undefined} [encrypted_data] (optional) data for the new datastore
+         * @param {string|undefined} [encrypted_data_nonce] (optional) nonce for data, necessary if data is provided
+         * @param {string|undefined} [encrypted_data_secret_key] (optional) encrypted secret key, wont update on the server if not provided
+         * @param {string|undefined} [encrypted_data_secret_key_nonce] (optional) nonce for secret key, wont update on the server if not provided
+         * @param {string|undefined} [description] (optional) The new description of the datastore
+         * @param {boolean|undefined} [is_default] (optional) Is this the new default datastore
          *
          * @returns {promise} promise
          */
         var write_datastore = function (token, session_secret_key, datastore_id, encrypted_data, encrypted_data_nonce,
-                                        encrypted_data_secret_key, encrypted_data_secret_key_nonce) {
+                                        encrypted_data_secret_key, encrypted_data_secret_key_nonce, description, is_default) {
             var endpoint = '/datastore/';
             var connection_type = "POST";
             var data = {
@@ -585,7 +619,9 @@
                 data: encrypted_data,
                 data_nonce: encrypted_data_nonce,
                 secret_key: encrypted_data_secret_key,
-                secret_key_nonce: encrypted_data_secret_key_nonce
+                secret_key_nonce: encrypted_data_secret_key_nonce,
+                description: description,
+                is_default: is_default
             };
             var headers = {
                 "Authorization": "Token "+ token
@@ -604,8 +640,8 @@
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
-         * @param {uuid} [secret_id=null] (optional) secret ID
-         * @param {boolean} [synchronous] (optional) Synchronous or Asynchronous
+         * @param {uuid|undefined} [secret_id=null] (optional) secret ID
+         * @param {boolean|undefined} [synchronous] (optional) Synchronous or Asynchronous
          *
          * @returns {promise} promise
          */
@@ -636,11 +672,11 @@
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
-         * @param {string} [encrypted_data] (optional) data for the new secret
-         * @param {string} [encrypted_data_nonce] (optional) nonce for data, necessary if data is provided
-         * @param {string} link_id the local id of the share in the datastructure
-         * @param {string} [parent_datastore_id] (optional) id of the parent datastore, may be left empty if the share resides in a share
-         * @param {string} [parent_share_id] (optional) id of the parent share, may be left empty if the share resides in the datastore
+         * @param {string|undefined} [encrypted_data] (optional) data for the new secret
+         * @param {string|undefined} [encrypted_data_nonce] (optional) nonce for data, necessary if data is provided
+         * @param {string|undefined} link_id the local id of the share in the datastructure
+         * @param {string|undefined} [parent_datastore_id] (optional) id of the parent datastore, may be left empty if the share resides in a share
+         * @param {string|undefined} [parent_share_id] (optional) id of the parent share, may be left empty if the share resides in the datastore
          *
          * @returns {promise} Returns a promise with the new secret_id
          */
@@ -672,8 +708,8 @@
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
          * @param {uuid} secret_id the secret ID
-         * @param {string} [encrypted_data] (optional) data for the new secret
-         * @param {string} [encrypted_data_nonce] (optional) nonce for data, necessary if data is provided
+         * @param {string|undefined} [encrypted_data] (optional) data for the new secret
+         * @param {string|undefined} [encrypted_data_nonce] (optional) nonce for data, necessary if data is provided
          *
          * @returns {promise} promise
          */
@@ -703,8 +739,8 @@
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
          * @param {uuid} link_id the link id
-         * @param {uuid} [new_parent_share_id=null] (optional) new parent share ID, necessary if no new_parent_datastore_id is provided
-         * @param {uuid} [new_parent_datastore_id=null] (optional) new datastore ID, necessary if no new_parent_share_id is provided
+         * @param {uuid|undefined} [new_parent_share_id=null] (optional) new parent share ID, necessary if no new_parent_datastore_id is provided
+         * @param {uuid|undefined} [new_parent_datastore_id=null] (optional) new datastore ID, necessary if no new_parent_share_id is provided
          *
          * @returns {promise} Returns promise with the status of the move
          */
@@ -814,12 +850,12 @@
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
-         * @param {string} [encrypted_data] (optional) The data for the new share
-         * @param {string} [encrypted_data_nonce] (optional) The nonce for data, necessary if data is provided
+         * @param {string|undefined} [encrypted_data] (optional) The data for the new share
+         * @param {string|undefined} [encrypted_data_nonce] (optional) The nonce for data, necessary if data is provided
          * @param {string} key encrypted key used by the encryption
          * @param {string} key_nonce nonce for key, necessary if a key is provided
-         * @param {string} [parent_share_id] (optional) The id of the parent share, may be left empty if the share resides in the datastore
-         * @param {string} [parent_datastore_id] (optional) The id of the parent datastore, may be left empty if the share resides in a share
+         * @param {string|undefined} [parent_share_id] (optional) The id of the parent share, may be left empty if the share resides in the datastore
+         * @param {string|undefined} [parent_datastore_id] (optional) The id of the parent datastore, may be left empty if the share resides in a share
          * @param {string} link_id the local id of the share in the datastructure
          *
          * @returns {promise} Returns a promise with the status and the new share id
@@ -856,8 +892,8 @@
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
          * @param {uuid} share_id the share ID
-         * @param {string} [encrypted_data] (optional) data for the new share
-         * @param {string} [encrypted_data_nonce] (optional) nonce for data, necessary if data is provided
+         * @param {string|undefined} [encrypted_data] (optional) data for the new share
+         * @param {string|undefined} [encrypted_data_nonce] (optional) nonce for data, necessary if data is provided
          *
          * @returns {promise} Returns a promise with the status of the update
          */
@@ -1138,8 +1174,8 @@
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
-         * @param {uuid} [user_id] (optional) the user ID
-         * @param {email} [user_username] (optional) the username
+         * @param {uuid|undefined} [user_id] (optional) the user ID
+         * @param {email|undefined} [user_username] (optional) the username
          *
          * @returns {promise} Returns a promise with the user information
          */
@@ -1335,8 +1371,8 @@
          * @param {string} session_secret_key The session secret key
          * @param {uuid} link_id the link id
          * @param {uuid} share_id the share ID
-         * @param {uuid} [parent_share_id=null] (optional) parent share ID, necessary if no parent_datastore_id is provided
-         * @param {uuid} [parent_datastore_id=null] (optional) parent datastore ID, necessary if no parent_share_id is provided
+         * @param {uuid|undefined} [parent_share_id=null] (optional) parent share ID, necessary if no parent_datastore_id is provided
+         * @param {uuid|undefined} [parent_datastore_id=null] (optional) parent datastore ID, necessary if no parent_share_id is provided
          *
          * @returns {promise} promise
          */
@@ -1368,8 +1404,8 @@
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
          * @param {uuid} link_id the link id
-         * @param {uuid} [new_parent_share_id=null] (optional) new parent share ID, necessary if no new_parent_datastore_id is provided
-         * @param {uuid} [new_parent_datastore_id=null] (optional) new datastore ID, necessary if no new_parent_share_id is provided
+         * @param {uuid|undefined} [new_parent_share_id=null] (optional) new parent share ID, necessary if no new_parent_datastore_id is provided
+         * @param {uuid|undefined} [new_parent_datastore_id=null] (optional) new datastore ID, necessary if no new_parent_share_id is provided
          *
          * @returns {promise} promise
          */
@@ -1426,7 +1462,7 @@
         //  *
         //  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
         //  * @param {string} session_secret_key The session secret key
-        //  * @param {uuid} [group_id=null] (optional) group ID
+        //  * @param {uuid|undefined} [group_id=null] (optional) group ID
         //  * @returns {promise} promise
         //  */
         // var read_group = function (token, session_secret_key, group_id) {
@@ -1481,7 +1517,7 @@
             ga_verify: ga_verify,
             yubikey_otp_verify: yubikey_otp_verify,
             activate_token: activate_token,
-            get_open_sessions: get_open_sessions,
+            get_sessions: get_sessions,
             logout: logout,
             register: register,
             verify_email: verify_email,
@@ -1492,6 +1528,7 @@
             read_datastore: read_datastore,
             write_datastore: write_datastore,
             create_datastore: create_datastore,
+            delete_datastore: delete_datastore,
             read_secret: read_secret,
             write_secret: write_secret,
             create_secret: create_secret,

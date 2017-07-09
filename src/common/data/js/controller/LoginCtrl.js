@@ -96,6 +96,10 @@
                 $scope.selected_server_title = server.title;
                 $scope.selected_server_url = server.url;
                 $scope.selected_server_domain = helper.get_domain(server.url);
+
+                if(helper.endsWith($scope.loginFormUsername, '@' + $scope.selected_server_domain)) {
+                    $scope.loginFormUsername = $scope.loginFormUsername.slice(0, - ('@' + $scope.selected_server_domain).length);
+                }
             }
 
             /**
@@ -114,6 +118,10 @@
                 $scope.selected_server_url = url;
                 $scope.selected_server_domain = helper.get_domain(url);
                 $scope.filtered_servers = $filter('filter')($scope.servers, {url: url});
+
+                if(helper.endsWith($scope.loginFormUsername, '@' + $scope.selected_server_domain)) {
+                    $scope.loginFormUsername = $scope.loginFormUsername.slice(0, - ('@' + $scope.selected_server_domain).length);
+                }
             }
 
             /**

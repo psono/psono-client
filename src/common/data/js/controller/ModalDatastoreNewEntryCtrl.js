@@ -73,4 +73,4 @@
             }
         }]);
 
-}(angular, qrcode));
+}(angular));

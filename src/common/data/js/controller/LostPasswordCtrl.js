@@ -27,7 +27,7 @@
             $scope.set_new_password = set_new_password;
 
             /* preselected values */
-            $scope.lostpasswordFormUsername = "test";
+            $scope.lostpasswordFormUsername = managerDatastoreUser.get_default('username');
             $scope.lostpasswordFormCode1 = {
                 value: '',
                 class: ''
@@ -44,6 +44,11 @@
             activate();
 
             function activate() {
+                var persistent_username = managerDatastoreUser.get_default('username');
+                var persistent_server = managerDatastoreUser.get_default('server');
+
+                /* preselected values */
+                $scope.lostpasswordFormUsername = persistent_username;
 
                 var onSuccess = function(config) {
 
@@ -53,10 +58,11 @@
                     /* Server selection with preselection */
                     $scope.servers = config['backend_servers'];
                     $scope.filtered_servers = $scope.servers;
-                    $scope.selected_server = $scope.servers[0];
-                    $scope.selected_server_title = $scope.selected_server.title;
-                    $scope.selected_server_url = $scope.selected_server.url;
-                    $scope.selected_server_domain = helper.get_domain($scope.selected_server.url);
+                    if (persistent_server) {
+                        select_server(persistent_server);
+                    } else {
+                        select_server($scope.servers[0]);
+                    }
                 };
 
                 var onError = function() {
@@ -86,6 +92,10 @@
                 $scope.selected_server_title = server.title;
                 $scope.selected_server_url = server.url;
                 $scope.selected_server_domain = helper.get_domain(server.url);
+
+                if(helper.endsWith($scope.lostpasswordFormUsername, '@' + $scope.selected_server_domain)) {
+                    $scope.lostpasswordFormUsername = $scope.lostpasswordFormUsername.slice(0, - ('@' + $scope.selected_server_domain).length);
+                }
             }
 
             /**
@@ -104,6 +114,10 @@
                 $scope.selected_server_url = url;
                 $scope.selected_server_domain = helper.get_domain(url);
                 $scope.filtered_servers = $filter('filter')($scope.servers, {url: url});
+
+                if(helper.endsWith($scope.lostpasswordFormUsername, '@' + $scope.selected_server_domain)) {
+                    $scope.lostpasswordFormUsername = $scope.lostpasswordFormUsername.slice(0, - ('@' + $scope.selected_server_domain).length);
+                }
             }
 
             /**

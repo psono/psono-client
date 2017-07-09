@@ -88,4 +88,4 @@
             }
         }]);
 
-}(angular, qrcode));
+}(angular));

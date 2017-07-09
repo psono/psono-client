@@ -16,12 +16,13 @@
 
             $scope.open_tab = open_tab;
 
-            var default_tab = 'open-sessions';
+            var default_tab = 'sessions';
             var tabs = {
-                'open-sessions': 0,
-                'known-hosts': 1,
-                'export': 2,
-                'import': 3
+                'sessions': 0,
+                'data-stores': 1,
+                'known-hosts': 2,
+                'export': 3,
+                'import': 4
             };
 
 

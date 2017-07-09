@@ -360,7 +360,7 @@
          *
          * @param {Array} array The array to search
          * @param {*} search The item to remove
-         * @param {function} [cmp_fct] (optional) Compare function
+         * @param {function|undefined} [cmp_fct] (optional) Compare function
          */
         function remove_from_array(array, search, cmp_fct) {
             if (!array) {

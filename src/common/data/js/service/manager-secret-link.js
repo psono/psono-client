@@ -23,8 +23,8 @@
          * Moves a secret to a new parent share or datastore
          *
          * @param {uuid} link_id The id of the link that should be moved
-         * @param {uuid} [new_parent_share_id=null] (optional) New parent share ID, necessary if no new_parent_datastore_id is provided
-         * @param {uuid} [new_parent_datastore_id=null] (optional) New datastore ID, necessary if no new_parent_share_id is provided
+         * @param {uuid|undefined} [new_parent_share_id=null] (optional) New parent share ID, necessary if no new_parent_datastore_id is provided
+         * @param {uuid|undefined} [new_parent_datastore_id=null] (optional) New datastore ID, necessary if no new_parent_share_id is provided
          *
          * @returns {promise} Returns promise with the status of the move
          */

@@ -29,4 +29,4 @@
             }
         }]
     );
-}(angular, qrcode));
+}(angular));

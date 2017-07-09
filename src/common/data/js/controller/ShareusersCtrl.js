@@ -76,7 +76,7 @@
                     var val = managerWidget.find_in_structure(path, $scope.structure.data);
                     if (val)
                         val[0].splice(val[1], 1);
-                    managerDatastoreUser.save_datastore($scope.structure.data);
+                    managerDatastoreUser.save_datastore_content($scope.structure.data);
                 },
 
                 /**
@@ -112,7 +112,7 @@
                     if (val)
                         val[0].splice(val[1], 1);
 
-                    managerDatastoreUser.save_datastore($scope.structure.data);
+                    managerDatastoreUser.save_datastore_content($scope.structure.data);
                 },
 
                 /**
@@ -178,7 +178,7 @@
                     // delete the array at hte current position
                     val2[0].splice(val2[1], 1);
 
-                    managerDatastoreUser.save_datastore($scope.structure.data);
+                    managerDatastoreUser.save_datastore_content($scope.structure.data);
                 },
 
                 /**
@@ -216,7 +216,7 @@
                     // delete the array at hte current position
                     val2[0].splice(val2[1], 1);
 
-                    managerDatastoreUser.save_datastore($scope.structure.data);
+                    managerDatastoreUser.save_datastore_content($scope.structure.data);
                 },
                 /**
                  * blocks move if context menus are open
@@ -329,7 +329,7 @@
 
                     parent.items.push(user_object);
 
-                    managerDatastoreUser.save_datastore($scope.structure.data);
+                    managerDatastoreUser.save_datastore_content($scope.structure.data);
 
                 }, function () {
                     // cancel triggered
@@ -403,7 +403,7 @@
                         node.data[content.fields[i].name] = content.fields[i].value;
                     }
 
-                    managerDatastoreUser.save_datastore($scope.structure.data);
+                    managerDatastoreUser.save_datastore_content($scope.structure.data);
 
                 }, function () {
                     // cancel triggered

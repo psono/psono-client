@@ -65,15 +65,14 @@
          * @methodOf psonocli.managerDatastore
          *
          * @description
-         * Returns the datastore_id for the given type and description
+         * Returns the datastore_id for the given type
          *
          * @param {string} type The type of the datastore that we are looking for
-         * @param {string} description The description of the datastore that we are looking for
-         * @param {boolean} [force_fresh] (optional) if you want to force a fresh query to the backend
+         * @param {boolean|undefined} [force_fresh] (optional) if you want to force a fresh query to the backend
          *
          * @returns {promise} Promise with the datastore id
          */
-        var get_datastore_id = function (type, description, force_fresh) {
+        var get_datastore_id = function (type, force_fresh) {
 
             var onSuccess = function (result) {
 
@@ -85,7 +84,7 @@
 
                 var datastore_id = '';
                 for (var i = 0; i < stores.length; i++) {
-                    if (stores[i].type === type && stores[i].description === description) {
+                    if (stores[i].type === type && stores[i].is_default) {
                         datastore_id = stores[i].id
                     }
                 }
@@ -151,6 +150,63 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastore#create_datastore
+         * @methodOf psonocli.managerDatastore
+         *
+         * @description
+         * Creates a datastore with the given type, description and default status
+         *
+         * @param {string} type The type of the datastore
+         * @param {string} description The description
+         * @param {boolean} is_default Is it a default datastore or not?
+         *
+         * @returns {promise}
+         */
+        var create_datastore = function(type, description, is_default) {
+            //datastore does really not exist, lets create one and return it
+            var secret_key = cryptoLibrary.generate_secret_key();
+            var cipher = managerBase.encrypt_secret_key(secret_key);
+
+            return apiClient.create_datastore(managerBase.get_token(),
+                managerBase.get_session_secret_key(), type, description, '', '',
+                is_default, cipher.text, cipher.nonce);
+        };
+
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastore#delete_datastore
+         * @methodOf psonocli.managerDatastore
+         *
+         * @description
+         * Deletes a datastore
+         *
+         * @param {uuid} datastore_id The id of the datastore
+         * @param {string} password The user's password
+         *
+         * @returns {promise}
+         */
+        var delete_datastore = function(datastore_id, password) {
+
+            var authkey = cryptoLibrary.generate_authkey(storage.find_one('config', {key: 'user_username'}).value, password);
+
+
+            var onError = function(result) {
+                return $q.reject(result.data);
+            };
+
+            var onSuccess = function(data) {
+                // pass
+            };
+
+
+            return apiClient.delete_datastore(managerBase.get_token(),
+                managerBase.get_session_secret_key(), datastore_id, authkey)
+                .then(onSuccess, onError);
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastore#get_datastore
          * @methodOf psonocli.managerDatastore
          *
@@ -158,11 +214,10 @@
          * Returns the datastore for the given type and and description
          *
          * @param {string} type The type of the datastore
-         * @param {string} description The description of the datastore
          *
          * @returns {promise} Promise with the datastore's content
          */
-        var get_datastore = function(type, description) {
+        var get_datastore = function(type) {
 
             var onError = function(result) {
                 // pass
@@ -177,8 +232,6 @@
 
                         if (datastore_id === '') {
                             //datastore does really not exist, lets create one and return it
-                            var secret_key = cryptoLibrary.generate_secret_key();
-                            var cipher = managerBase.encrypt_secret_key(secret_key);
 
                             var onError = function(result) {
                                 // pass
@@ -188,9 +241,7 @@
                                 return get_datastore_with_id(result.data.datastore_id);
                             };
 
-                            return apiClient.create_datastore(managerBase.get_token(),
-                                managerBase.get_session_secret_key(), type, description, '', '',
-                                cipher.text, cipher.nonce)
+                            return create_datastore(type, 'Default', true)
                                 .then(onSuccess, onError);
                         } else {
                             // okay, cache was out of date, so lets get this datastore now
@@ -203,7 +254,7 @@
                     };
 
 
-                    return get_datastore_id(type, description, true)
+                    return get_datastore_id(type, true)
                         .then(onSuccess, onError);
 
                 } else {
@@ -211,7 +262,7 @@
                 }
             };
 
-            return get_datastore_id(type, description)
+            return get_datastore_id(type)
                 .then(onSuccess, onError);
         };
 
@@ -367,7 +418,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastore#save_datastore_with_id
+         * @name psonocli.managerDatastore#save_datastore_content_with_id
          * @methodOf psonocli.managerDatastore
          *
          * @description
@@ -378,7 +429,7 @@
          *
          * @returns {promise} Promise with the status of the save
          */
-        var save_datastore_with_id = function (datastore_id, content) {
+        var save_datastore_content_with_id = function (datastore_id, content) {
 
             var onError = function(result) {
                 // pass
@@ -401,9 +452,39 @@
                 .then(onSuccess, onError);
         };
 
+
         /**
          * @ngdoc
-         * @name psonocli.managerDatastore#save_datastore
+         * @name psonocli.managerDatastore#save_datastore_meta
+         * @methodOf psonocli.managerDatastore
+         *
+         * @description
+         * Updates the meta of a datastore specified by the datastore id
+         *
+         * @param {uuid} datastore_id The id of the datastore to update
+         * @param {string} description The new description
+         * @param {boolean} is_default Is this the new default datastore
+         *
+         * @returns {promise} Promise with the status of the save
+         */
+        var save_datastore_meta = function (datastore_id, description, is_default) {
+
+            var onError = function(result) {
+                // pass
+            };
+            var onSuccess = function(result) {
+                return result.data;
+            };
+
+            return apiClient.write_datastore(managerBase.get_token(),
+                managerBase.get_session_secret_key(), datastore_id, undefined, undefined,
+                undefined, undefined, description, is_default)
+                .then(onSuccess, onError);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastore#save_datastore_content
          * @methodOf psonocli.managerDatastore
          *
          * @description
@@ -415,7 +496,7 @@
          *
          * @returns {promise} Promise with the status of the save
          */
-        var save_datastore = function (type, description, content) {
+        var save_datastore_content = function (type, description, content) {
 
             var onError = function(result) {
                 // pass
@@ -423,10 +504,10 @@
 
             var onSuccess = function(datastore_id) {
 
-                return save_datastore_with_id(datastore_id, content);
+                return save_datastore_content_with_id(datastore_id, content);
             };
 
-            return get_datastore_id(type, description)
+            return get_datastore_id(type)
                 .then(onSuccess, onError);
         };
 
@@ -442,11 +523,14 @@
             get_datastore_overview: get_datastore_overview,
             get_datastore_id: get_datastore_id,
             get_datastore_with_id: get_datastore_with_id,
+            create_datastore: create_datastore,
+            delete_datastore: delete_datastore,
             get_datastore: get_datastore,
             add_node_to_storage: add_node_to_storage,
             fill_storage: fill_storage,
-            save_datastore: save_datastore,
-            save_datastore_with_id: save_datastore_with_id,
+            save_datastore_content: save_datastore_content,
+            save_datastore_content_with_id: save_datastore_content_with_id,
+            save_datastore_meta: save_datastore_meta,
             filter_datastore_content: filter_datastore_content,
             encrypt_datastore: encrypt_datastore
         };
