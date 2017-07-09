@@ -28,8 +28,8 @@
          *
          * @param {object} content The content of the new secret
          * @param {uuid} link_id the local id of the share in the data structure
-         * @param {uuid} [parent_datastore_id] (optional) The id of the parent datastore, may be left empty if the share resides in a share
-         * @param {uuid} [parent_share_id] (optional) The id of the parent share, may be left empty if the share resides in the datastore
+         * @param {uuid|undefined} [parent_datastore_id] (optional) The id of the parent datastore, may be left empty if the share resides in a share
+         * @param {uuid|undefined} [parent_share_id] (optional) The id of the parent share, may be left empty if the share resides in the datastore
          * @returns {promise} Returns a promise with the new secret_id
          */
         var create_secret = function (content, link_id, parent_datastore_id, parent_share_id) {
@@ -62,7 +62,7 @@
          *
          * @param {uuid} secret_id The secret id one wants to fetch
          * @param {string} secret_key The secret key to decrypt the content
-         * @param {boolean} [synchronous] (optional) Synchronous or Asynchronous
+         * @param {boolean|undefined} [synchronous] (optional) Synchronous or Asynchronous
          *
          * @returns {promise} Returns a promise withe decrypted content of the secret
          */

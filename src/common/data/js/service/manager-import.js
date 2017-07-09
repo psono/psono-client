@@ -147,7 +147,7 @@
 
                 datastore['folders'].push(parsed_data['data']['datastore']);
 
-                managerDatastorePassword.save_datastore(datastore, [[]]);
+                managerDatastorePassword.save_datastore_content(datastore, [[]]);
 
                 emit('import-complete', {});
 

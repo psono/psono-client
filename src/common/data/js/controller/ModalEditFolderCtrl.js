@@ -50,4 +50,4 @@
             }
         }]);
 
-}(angular, qrcode));
+}(angular));

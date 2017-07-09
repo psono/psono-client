@@ -97,7 +97,7 @@
             });
         }));
 
-        it('delete_open_session', inject(function (managerDatastoreUser) {
+        it('delete_session', inject(function (managerDatastoreUser) {
 
             var session_id = '90457fb8-4472-49c5-925d-0a7044909a36';
 
@@ -118,7 +118,7 @@
                 });
 
 
-            managerDatastoreUser.delete_open_session(session_id, secret_key).then(function(data){
+            managerDatastoreUser.delete_session(session_id, secret_key).then(function(data){
                 // pass
             },function(){
                 // should never be reached

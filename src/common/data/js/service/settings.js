@@ -20,7 +20,7 @@
         var _default_tab = 'password-generator';
 
         var _tabs = [
-            { key: 'password-generator', title: 'Password Generator' }
+            { key: 'password-generator', title: 'Password Generator', description: 'Adjust here the settings for the password generator.' }
         ];
 
         var _settings = {

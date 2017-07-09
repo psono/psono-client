@@ -418,13 +418,13 @@
                 // pass
             };
 
-            return managerDatastore.get_datastore(type, description)
+            return managerDatastore.get_datastore(type)
                 .then(onSuccess, onError);
         };
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastorePassword#save_datastore
+         * @name psonocli.managerDatastorePassword#save_datastore_content
          * @methodOf psonocli.managerDatastorePassword
          *
          * @description
@@ -436,7 +436,7 @@
          * @param {TreeObject} datastore The real tree object you want to encrypt in the datastore
          * @param {Array} paths The list of paths to the changed elements
          */
-        var save_datastore = function (datastore, paths) {
+        var save_datastore_content = function (datastore, paths) {
             var type = "password";
             var description = "default";
 
@@ -473,7 +473,7 @@
                 hide_sub_share_content(duplicate);
 
                 if (prop === 'datastore') {
-                    managerDatastore.save_datastore(type, description, duplicate);
+                    managerDatastore.save_datastore_content(type, description, duplicate);
                 } else {
                     var share_id = duplicate.share_id;
                     var secret_key = duplicate.share_secret_key;
@@ -518,7 +518,7 @@
                         datastore_object['secret_key'] = data.secret_key;
                         datastore.items.push(datastore_object);
 
-                        save_datastore(datastore, [[]]);
+                        save_datastore_content(datastore, [[]]);
                     }, onError);
             };
 
@@ -758,10 +758,10 @@
          * fills other_children with all child shares of a given path
          *
          * @param {Array} path The path to search for child shares
-         * @param {TreeObject} [datastore] (optional) if obj provided
+         * @param {TreeObject|undefined} [datastore] (optional) if obj provided
          * @param {Array} other_children The list of found children
-         * @param {int} [share_distance] (optional) share_distance the distance in shares to search (-1 = unlimited search, 0 stop search)
-         * @param {TreeObject} [obj] (optional)  if not provided we will search it in the datastore according to the provided path first
+         * @param {int|undefined} [share_distance] (optional) share_distance the distance in shares to search (-1 = unlimited search, 0 stop search)
+         * @param {TreeObject|undefined} [obj] (optional)  if not provided we will search it in the datastore according to the provided path first
          */
         var get_all_child_shares = function(path, datastore, other_children, share_distance, obj) {
 
@@ -1103,13 +1103,13 @@
 
         itemBlueprint.register('generate', passwordGenerator.generate);
         itemBlueprint.register('get_password_datastore', get_password_datastore);
-        itemBlueprint.register('save_datastore', save_datastore);
+        itemBlueprint.register('save_datastore_content', save_datastore_content);
         itemBlueprint.register('find_in_datastore', find_in_datastore);
         itemBlueprint.register('on_share_added', on_share_added);
 
         return {
             get_password_datastore: get_password_datastore,
-            save_datastore: save_datastore,
+            save_datastore_content: save_datastore_content,
             save_password: save_password,
             save_password_active_tab: save_password_active_tab,
             bookmark_active_tab: bookmark_active_tab,

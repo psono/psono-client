@@ -130,7 +130,7 @@
 
                             parent.items.push(user_object);
 
-                            managerDatastoreUser.save_datastore(parent).then(function() {
+                            managerDatastoreUser.save_datastore_content(parent).then(function() {
 
                                 $scope.users.push(user_object);
                                 $scope.selected_users.push(user_object.id);

@@ -54,6 +54,11 @@
             }
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ImportCtrl#import_datastore
+             * @methodOf psonocli.controller:ImportCtrl
+             *
+             * @description
              * Imports all data of a datastore
              *
              * @param {string} type The type of the import

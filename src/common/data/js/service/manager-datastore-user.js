@@ -695,7 +695,7 @@
                 // pass
             };
 
-            return managerDatastore.get_datastore(type, description)
+            return managerDatastore.get_datastore(type)
                 .then(onSuccess, onError);
         };
 
@@ -707,8 +707,8 @@
          * @description
          * searches the user datastore for a user, based on the id or email
          *
-         * @param {uuid} [user_id] (optional) user_id to search for
-         * @param {email} [email] (optional) email to search for
+         * @param {uuid|undefined} [user_id] (optional) user_id to search for
+         * @param {email|undefined} [email] (optional) email to search for
          * @returns {promise} Returns a promise with the user
          */
         var search_user_datastore = function(user_id, email) {
@@ -759,7 +759,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastoreUser#save_datastore
+         * @name psonocli.managerDatastoreUser#save_datastore_content
          * @methodOf psonocli.managerDatastoreUser
          *
          * @description
@@ -769,13 +769,13 @@
          * @param {Array} paths The list of paths to the changed elements
          * @returns {promise} Promise with the status of the save
          */
-        var save_datastore = function (content, paths) {
+        var save_datastore_content = function (content, paths) {
             var type = "user";
             var description = "default";
 
             content = managerDatastore.filter_datastore_content(content);
 
-            return managerDatastore.save_datastore(type, description, content)
+            return managerDatastore.save_datastore_content(type, description, content)
         };
 
         /**
@@ -951,15 +951,15 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastoreUser#get_open_sessions
+         * @name psonocli.managerDatastoreUser#get_sessions
          * @methodOf psonocli.managerDatastoreUser
          *
          * @description
-         * loads the open sessions
+         * loads the sessions
          *
-         * @returns {promise} Returns a promise with the open sessions
+         * @returns {promise} Returns a promise with the sessions
          */
-        var get_open_sessions = function() {
+        var get_sessions = function() {
 
             var onSuccess = function (request) {
 
@@ -969,23 +969,23 @@
             var onError = function () {
                 // pass
             };
-            return apiClient.get_open_sessions(managerBase.get_token(), managerBase.get_session_secret_key())
+            return apiClient.get_sessions(managerBase.get_token(), managerBase.get_session_secret_key())
                 .then(onSuccess, onError)
         };
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastoreUser#delete_open_session
+         * @name psonocli.managerDatastoreUser#delete_session
          * @methodOf psonocli.managerDatastoreUser
          *
          * @description
-         * Deletes an open sessions
+         * Deletes an sessions
          *
          * @param {string} session_id The id of the session to delete
          *
          * @returns {promise} Returns a promise with true or false
          */
-        var delete_open_session = function(session_id) {
+        var delete_session = function(session_id) {
 
             var onSuccess = function (request) {
                 // pass
@@ -1105,7 +1105,7 @@
             recovery_generate_information: recovery_generate_information,
             get_user_datastore: get_user_datastore,
             search_user_datastore: search_user_datastore,
-            save_datastore: save_datastore,
+            save_datastore_content: save_datastore_content,
             search_user: search_user,
             create_ga: create_ga,
             read_ga: read_ga,
@@ -1113,8 +1113,8 @@
             create_yubikey_otp: create_yubikey_otp,
             read_yubikey_otp: read_yubikey_otp,
             delete_yubikey_otp: delete_yubikey_otp,
-            get_open_sessions: get_open_sessions,
-            delete_open_session: delete_open_session,
+            get_sessions: get_sessions,
+            delete_session: delete_session,
             save_new_email: save_new_email,
             save_new_password: save_new_password
         };

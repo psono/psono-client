@@ -126,8 +126,8 @@
          * Creates a share for the given content and returns the id and the secret to decrypt the share secret
          *
          * @param {object} content The content of the new share
-         * @param {uuid} [parent_share_id] (optional) The parent share's id
-         * @param {uuid} [parent_datastore_id] (optional) The parent datastore's id
+         * @param {uuid|undefined} [parent_share_id] (optional) The parent share's id
+         * @param {uuid|undefined} [parent_datastore_id] (optional) The parent datastore's id
          * @param {uuid} link_id The link id in the parent
          *
          * @returns {promise} Returns a promise with the status and the new share id
@@ -325,8 +325,8 @@
          * @param {string} nonce The nonce of the share secret key
          * @param {string} public_key The public key of the other user
          * @param {uuid} link_id The link id in the parent (datastore or share)
-         * @param {uuid} [parent_share_id] (optional) The id of the parent share
-         * @param {uuid} [parent_datastore_id] (optional) The id of the parent datastore
+         * @param {uuid|undefined} [parent_share_id] (optional) The id of the parent share
+         * @param {uuid|undefined} [parent_datastore_id] (optional) The id of the parent datastore
          *
          * @returns {promise} Returns a promise with the share content
          */

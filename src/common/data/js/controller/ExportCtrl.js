@@ -47,6 +47,11 @@
             }
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ExportCtrl#export_datastore
+             * @methodOf psonocli.controller:ExportCtrl
+             *
+             * @description
              * Exports all data of a datastore
              *
              * @param type The type of the export

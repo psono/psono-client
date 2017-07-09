@@ -46,7 +46,7 @@
                 // pass
             };
 
-            return managerDatastore.get_datastore(type, description)
+            return managerDatastore.get_datastore(type)
                 .then(onSuccess, onError);
         };
 
@@ -65,7 +65,7 @@
             var type = "settings";
             var description = "key-value-settings";
 
-            return managerDatastore.save_datastore(type, description, content)
+            return managerDatastore.save_datastore_content(type, description, content)
         };
 
         return {

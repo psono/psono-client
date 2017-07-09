@@ -52,7 +52,6 @@
                     // Validate request parameters:
                     data = JSON.parse(data);
 
-                    expect(data.token).toEqual(token);
                     expect(data.ga_token).toEqual(ga_token);
 
                     // return answer
@@ -74,7 +73,6 @@
                     // Validate request parameters:
                     data = JSON.parse(data);
 
-                    expect(data.token).toEqual(token);
                     expect(data.yubikey_otp).toEqual(yubikey_otp);
 
                     // return answer
@@ -364,6 +362,7 @@
             var description = 'a-description';
             var encrypted_data = 'a-encrypted_data';
             var encrypted_data_nonce = 'a-encrypted_data_nonce';
+            var is_default = 'a-is_default';
             var encrypted_data_secret_key = 'a-encrypted_data_secret_key';
             var encrypted_data_secret_key_nonce = 'a-encrypted_data_secret_key_nonce';
 
@@ -378,6 +377,7 @@
                     expect(data.description).toEqual(description);
                     expect(data.data).toEqual(encrypted_data);
                     expect(data.data_nonce).toEqual(encrypted_data_nonce);
+                    expect(data.is_default).toEqual(is_default);
                     expect(data.secret_key).toEqual(encrypted_data_secret_key);
                     expect(data.secret_key_nonce).toEqual(encrypted_data_secret_key_nonce);
 
@@ -385,7 +385,7 @@
                     return [200, {}];
                 });
 
-            expect(apiClient.create_datastore(token, session_secret_key, type, description, encrypted_data, encrypted_data_nonce, encrypted_data_secret_key, encrypted_data_secret_key_nonce)).toBeDefined();
+            expect(apiClient.create_datastore(token, session_secret_key, type, description, encrypted_data, encrypted_data_nonce, is_default, encrypted_data_secret_key, encrypted_data_secret_key_nonce)).toBeDefined();
 
             $httpBackend.flush();
         }));

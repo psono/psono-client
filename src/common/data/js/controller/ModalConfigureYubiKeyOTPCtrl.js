@@ -108,4 +108,4 @@
 
         }]
     );
-}(angular, qrcode));
+}(angular));

@@ -149,7 +149,7 @@
                             var changed_paths = managerDatastorePassword.on_share_added(share.share_id, path, datastore, 1);
                             changed_paths.push(parent_path);
 
-                            managerDatastorePassword.save_datastore(datastore, changed_paths);
+                            managerDatastorePassword.save_datastore_content(datastore, changed_paths);
 
                             remove_item_from_pending_list(item, pending_shares);
                         };

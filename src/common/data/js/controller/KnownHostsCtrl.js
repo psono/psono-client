@@ -5,7 +5,7 @@
      * @ngdoc controller
      * @name psonocli.controller:KnownHostsCtrl
      * @requires $scope
-     * @requires psonocli.managerDatastoreUser
+     * @requires psonocli.managerHost
      * @requires psonocli.helper
      *
      * @description
@@ -33,6 +33,11 @@
             }
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:KnownHostsCtrl#delete_known_host
+             * @methodOf psonocli.controller:KnownHostsCtrl
+             *
+             * @description
              * deletes a known host with given fingerprint
              *
              * @param host The host to delete
