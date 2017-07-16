@@ -52,6 +52,8 @@
                     // Validate request parameters:
                     data = JSON.parse(data);
 
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
                     expect(data.ga_token).toEqual(ga_token);
 
                     // return answer
@@ -72,6 +74,8 @@
                 function(method, url, data, headers, params) {
                     // Validate request parameters:
                     data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
 
                     expect(data.yubikey_otp).toEqual(yubikey_otp);
 
@@ -95,7 +99,8 @@
                     // Validate request parameters:
                     data = JSON.parse(data);
 
-                    expect(data.token).toEqual(token);
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
                     expect(data.verification).toEqual(verification);
                     expect(data.verification_nonce).toEqual(verification_nonce);
 
