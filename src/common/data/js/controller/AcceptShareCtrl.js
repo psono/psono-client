@@ -174,6 +174,7 @@
                 managerDatastorePassword.get_password_datastore()
                     .then(function(data) {
                         $scope.structure.data = data;
+                        $scope.structure.loaded = true;
                     });
             }
 
