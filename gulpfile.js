@@ -141,7 +141,6 @@ var build = function(build_path, type) {
             "src/common/data/js/controller/ActivationCtrl.js",
             "src/common/data/js/controller/DatastoreCtrl.js",
             "src/common/data/js/controller/SecurityReportCtrl.js",
-            "src/common/data/js/controller/IndexCtrl.js",
             "src/common/data/js/controller/LoginCtrl.js",
             "src/common/data/js/controller/LostPasswordCtrl.js",
             "src/common/data/js/controller/MainCtrl.js",
