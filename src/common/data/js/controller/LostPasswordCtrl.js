@@ -213,8 +213,6 @@
                     return;
                 }
 
-                // TODO forbid weak and poor passwords
-
                 function onError(data) {
                     console.log(data);
                     if (data.hasOwnProperty('data') && data.data.hasOwnProperty('message')) {

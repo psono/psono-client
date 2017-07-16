@@ -227,7 +227,6 @@
             var endpoint = '/authentication/activate-token/';
             var connection_type = "POST";
             var data = {
-                token: token,
                 verification: verification,
                 verification_nonce: verification_nonce
             };

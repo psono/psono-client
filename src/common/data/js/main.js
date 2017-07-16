@@ -84,7 +84,6 @@
                     })
                     .when('/share/users', {
                         templateUrl: 'view/index-share-users.html',
-                        controller: 'IndexCtrl'
                     })
                     .when('/security-report', {
                         templateUrl: 'view/index-security-report.html',
@@ -93,12 +92,12 @@
                     .when('/secret/:type/:secret_id', {})
                     .when('/activation-code/:activation_code', {})
                     .when('/datastore/search/:default_search', {
-                        templateUrl: 'view/index.html',
-                        controller: 'IndexCtrl'
+                        templateUrl: 'view/datastore.html',
+                        controller: 'DatastoreCtrl'
                     })
-                    .otherwise({
-                        templateUrl: 'view/index.html',
-                        controller: 'IndexCtrl'
+                    .when('/', {
+                        templateUrl: 'view/datastore.html',
+                        controller: 'DatastoreCtrl'
                     });
 
                 $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|chrome-extension|blob):/);

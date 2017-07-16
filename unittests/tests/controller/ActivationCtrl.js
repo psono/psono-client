@@ -28,7 +28,7 @@
             };
 
             $httpBackend.when('GET', "config.json").respond(config);
-            $httpBackend.when('GET', "view/index.html").respond({});
+            $httpBackend.when('GET', "view/datastore.html").respond({});
 
             $httpBackend.flush();
         }));

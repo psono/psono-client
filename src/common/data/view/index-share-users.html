@@ -33,16 +33,32 @@
                 </div>
                 -->
 
-                <div tree-view="structure.data" tree-view-options="options" ng-if="structure.data.folders || structure.data.items">
+                <div tree-view="structure.data" tree-view-options="options" ng-if="structure.loaded && (structure.data.folders || structure.data.items)">
 
                 </div>
 
-                <div ng-if="!(structure.data.folders || structure.data.items)">
+                <div ng-if="structure.loaded && !(structure.data.folders || structure.data.items)">
 
                     <div class="big-font-icon-and-msg">
                         <i class="fa fa-plus-circle" aria-hidden="true"></i>
 
                         <div>Your trusted users list is empty. Right click here to add a user to your trusted users list.</div>
+                    </div>
+
+                </div>
+
+                <div ng-if="!structure.loaded">
+
+                    <div class="big-font-icon-and-msg">
+                        <i style="
+                           display: inline-block;
+                           font: normal normal normal 14px/1 FontAwesome;
+                           text-rendering: auto;
+                           font-size: 3em;
+                           text-align: center;
+                           animation: fa-spin 2s infinite linear;
+                           vertical-align: middle;">&#xf110;</i>
+                        Loading
                     </div>
 
                 </div>

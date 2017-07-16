@@ -54,7 +54,6 @@
                     $scope.loginFormRemember = persistent_username !== "";
 
                     // TODO interpret "allow_custom_server"
-                    // TODO check last visited server for "preselection"
 
                     if (config.hasOwnProperty("default_username")) {
                         $scope.loginFormUsername = config['default_username'];
