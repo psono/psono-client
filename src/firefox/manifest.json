@@ -48,7 +48,8 @@
         "data/js/extension/worker-content-script.js",
         "data/js/content-script.js"
       ],
-      "run_at": "document_idle"
+      "run_at": "document_idle",
+      "all_frames": true
     }
   ],
   "options_page": "data/index.html#!/settings",

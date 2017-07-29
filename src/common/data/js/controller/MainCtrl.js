@@ -62,7 +62,7 @@
              * @param {string} path The current path
              */
             function get_link_state(path) {
-                if (path === '/' && $location.path().length === 0) {
+                if (path === '/' && $location.path().length === 1) {
                     return 'active';
                 } else if (path !== '/' && $location.path().substr(0, path.length) === path) {
                     return 'active';
