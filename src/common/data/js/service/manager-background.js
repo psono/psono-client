@@ -15,14 +15,17 @@
      * @description
      * Service that handles the complete background process
      */
-    var managerBackground = function($q, managerBase, managerSecret, storage, managerDatastorePassword, helper,
-                                     cryptoLibrary, apiClient, device, browser, chrome, browserClient) {
+    var managerBackground = function($q, managerBase, managerSecret, storage, managerDatastorePassword,
+                                     managerDatastoreUser, helper, cryptoLibrary, apiClient, device, browser, chrome,
+                                     browserClient) {
 
         var last_login_credentials;
         var activeTabId;
         var hits_additional_info = {};
         var fillpassword = [];
         var already_filled_max_allowed = {};
+
+        var num_tabs;
 
         activate();
 
@@ -47,6 +50,34 @@
                     save_last_login_credentials();
                 }
                 chrome.notifications.clear(notificationId)
+            });
+
+            // set url to open if someone uninstalls our extension
+            browser.runtime.setUninstallURL("https://psono.com/uninstall-successfull/");
+
+            // set url to open if someone installs our extension
+            browser.runtime.onInstalled.addListener(function(details) {
+                if(details.reason !== "install"){
+                    return;
+                }
+
+                browser.tabs.create({
+                    url: 'https://www.psono.pw/register.html'
+                });
+            });
+
+            // count tabs to logout on browser close
+            browser.tabs.getAllInWindow( null, function( tabs ){
+                num_tabs = tabs.length;
+            });
+            browser.tabs.onCreated.addListener(function(tab){
+                num_tabs++;
+            });
+            browser.tabs.onRemoved.addListener(function(tabId){
+                num_tabs--;
+                if( num_tabs === 0 && managerDatastoreUser.get_default('trust_device') !== true) {
+                    managerDatastoreUser.logout();
+                }
             });
 
             browserClient.disable_browser_password_saving();
@@ -525,11 +556,11 @@
             }
 
             if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(to_open)) {
-                chrome.tabs.create({
+                browser.tabs.create({
                     url: '/data/open-secret.html#!/secret/' + hits_additional_info[to_open]['type'] + '/' + to_open
                 });
             } else {
-                chrome.tabs.create({
+                browser.tabs.create({
                     url: '/data/index.html#!/datastore/search/' + encodeURIComponent(to_open)
                 });
             }
@@ -679,7 +710,8 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerBackground", ['$q', 'managerBase', 'managerSecret', 'storage', 'managerDatastorePassword', 'helper',
-        'cryptoLibrary', 'apiClient', 'device', 'browser', 'chrome', 'browserClient', managerBackground]);
+    app.factory("managerBackground", ['$q', 'managerBase', 'managerSecret', 'storage', 'managerDatastorePassword',
+        'managerDatastoreUser', 'helper', 'cryptoLibrary', 'apiClient', 'device', 'browser', 'chrome',
+        'browserClient', managerBackground]);
 
 }(angular));

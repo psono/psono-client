@@ -318,6 +318,8 @@
                 return managerBase.find_one('persistent', 'username');
             } else if (item === 'server') {
                 return managerBase.find_one('persistent', 'server');
+            } else if (item === 'trust_device') {
+                return managerBase.find_one('persistent', 'trust_device');
             }
         };
 
@@ -398,12 +400,13 @@
          * @param {string} domain The domain which we append if necessary to the username
          * @param {string} password The password to login with
          * @param {boolean|undefined} remember Remember the username and server
+         * @param {boolean|undefined} trust_device Trust the device for 30 days or logout when browser closes
          * @param {object} server The server object to send the login request to
          * @param {object} server_public_key The public key of the server
          *
          * @returns {promise} Returns a promise with the login status
          */
-        var login = function(username, domain, password, remember, server, server_public_key) {
+        var login = function(username, domain, password, remember, trust_device, server, server_public_key) {
 
 
             username = helper.form_full_username(username, domain);
@@ -424,6 +427,7 @@
                 }
                 storage.save();
             }
+            storage.upsert('persistent', {key: 'trust_device', value: trust_device});
 
             storage.upsert('config', {key: 'user_username', value: username});
             storage.upsert('config', {key: 'server', value: server});
@@ -464,7 +468,13 @@
                 session_keys.private_key
             );
 
-            return apiClient.login(login_info_enc['text'], login_info_enc['nonce'], session_keys.public_key)
+
+            var session_duration = 24*60*60;
+            if (trust_device) {
+                session_duration = 24*60*60*30;
+            }
+
+            return apiClient.login(login_info_enc['text'], login_info_enc['nonce'], session_keys.public_key, session_duration)
                 .then(onSuccess, onError);
         };
 
