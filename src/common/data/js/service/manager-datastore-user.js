@@ -418,7 +418,6 @@
             if (remember) {
                 storage.upsert('persistent', {key: 'username', value: username});
                 storage.upsert('persistent', {key: 'server', value: server});
-                storage.upsert('persistent', {key: 'trust_device', value: trust_device});
             } else {
                 if (storage.key_exists('persistent', 'username')) {
                     storage.remove('persistent', storage.find_one('persistent', {'key': 'username'}));
@@ -426,11 +425,9 @@
                 if (storage.key_exists('persistent', 'server')) {
                     storage.remove('persistent', storage.find_one('persistent', {'key': 'server'}));
                 }
-                if (storage.key_exists('persistent', 'trust_device')) {
-                    storage.remove('persistent', storage.find_one('persistent', {'key': 'trust_device'}));
-                }
                 storage.save();
             }
+            storage.upsert('persistent', {key: 'trust_device', value: trust_device});
 
             storage.upsert('config', {key: 'user_username', value: username});
             storage.upsert('config', {key: 'server', value: server});

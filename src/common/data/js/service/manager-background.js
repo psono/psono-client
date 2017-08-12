@@ -15,14 +15,17 @@
      * @description
      * Service that handles the complete background process
      */
-    var managerBackground = function($q, managerBase, managerSecret, storage, managerDatastorePassword, helper,
-                                     cryptoLibrary, apiClient, device, browser, chrome, browserClient) {
+    var managerBackground = function($q, managerBase, managerSecret, storage, managerDatastorePassword,
+                                     managerDatastoreUser, helper, cryptoLibrary, apiClient, device, browser, chrome,
+                                     browserClient) {
 
         var last_login_credentials;
         var activeTabId;
         var hits_additional_info = {};
         var fillpassword = [];
         var already_filled_max_allowed = {};
+
+        var num_tabs;
 
         activate();
 
@@ -61,6 +64,20 @@
                 browser.tabs.create({
                     url: 'https://www.psono.pw/register.html'
                 });
+            });
+
+            // count tabs to logout on browser close
+            browser.tabs.getAllInWindow( null, function( tabs ){
+                num_tabs = tabs.length;
+            });
+            browser.tabs.onCreated.addListener(function(tab){
+                num_tabs++;
+            });
+            browser.tabs.onRemoved.addListener(function(tabId){
+                num_tabs--;
+                if( num_tabs === 0 && managerDatastoreUser.get_default('trust_device') !== true) {
+                    managerDatastoreUser.logout();
+                }
             });
 
             browserClient.disable_browser_password_saving();
@@ -693,7 +710,8 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerBackground", ['$q', 'managerBase', 'managerSecret', 'storage', 'managerDatastorePassword', 'helper',
-        'cryptoLibrary', 'apiClient', 'device', 'browser', 'chrome', 'browserClient', managerBackground]);
+    app.factory("managerBackground", ['$q', 'managerBase', 'managerSecret', 'storage', 'managerDatastorePassword',
+        'managerDatastoreUser', 'helper', 'cryptoLibrary', 'apiClient', 'device', 'browser', 'chrome',
+        'browserClient', managerBackground]);
 
 }(angular));
