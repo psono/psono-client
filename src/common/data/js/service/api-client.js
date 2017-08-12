@@ -133,17 +133,19 @@
          * @param {string} login_info The encrypted login info (username, authkey, device fingerprint, device description)
          * @param {string} login_info_nonce The nonce of hte login info
          * @param {string} public_key The session public key
+         * @param {int} session_duration The time the session should be valid for
          *
          * @returns {promise} Returns a promise with the login status
          */
-        var login = function(login_info, login_info_nonce, public_key) {
+        var login = function(login_info, login_info_nonce, public_key, session_duration) {
 
             var endpoint = '/authentication/login/';
             var connection_type = "POST";
             var data = {
                 login_info: login_info,
                 login_info_nonce: login_info_nonce,
-                public_key: public_key
+                public_key: public_key,
+                session_duration: session_duration
             };
             var headers = null;
 

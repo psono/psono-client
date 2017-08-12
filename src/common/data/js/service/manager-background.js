@@ -49,6 +49,20 @@
                 chrome.notifications.clear(notificationId)
             });
 
+            // set url to open if someone uninstalls our extension
+            browser.runtime.setUninstallURL("https://psono.com/uninstall-successfull/");
+
+            // set url to open if someone installs our extension
+            browser.runtime.onInstalled.addListener(function(details) {
+                if(details.reason !== "install"){
+                    return;
+                }
+
+                browser.tabs.create({
+                    url: 'https://www.psono.pw/register.html'
+                });
+            });
+
             browserClient.disable_browser_password_saving();
         }
 
@@ -525,11 +539,11 @@
             }
 
             if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(to_open)) {
-                chrome.tabs.create({
+                browser.tabs.create({
                     url: '/data/open-secret.html#!/secret/' + hits_additional_info[to_open]['type'] + '/' + to_open
                 });
             } else {
-                chrome.tabs.create({
+                browser.tabs.create({
                     url: '/data/index.html#!/datastore/search/' + encodeURIComponent(to_open)
                 });
             }

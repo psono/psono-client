@@ -47,11 +47,13 @@
                 var onSuccess = function(config) {
                     var persistent_username = managerDatastoreUser.get_default('username');
                     var persistent_server = managerDatastoreUser.get_default('server');
+                    var persistent_trust_device = managerDatastoreUser.get_default('trust_device');
 
                     /* preselected values */
                     $scope.loginFormUsername = persistent_username;
                     // $scope.loginFormPassword = "myPassword";
                     $scope.loginFormRemember = persistent_username !== "";
+                    $scope.loginFormTrustDevice = persistent_trust_device === true;
 
                     // TODO interpret "allow_custom_server"
 
@@ -274,8 +276,9 @@
              * @param {string} username The username
              * @param {string} password The password
              * @param {boolean|undefined} remember Remember username and server
+             * @param {boolean|undefined} trust_device Trust the device for 30 days or logout when browser closes
              */
-            function login(username, password, remember) {
+            function login(username, password, remember, trust_device) {
                 if (username === undefined || password === undefined) {
                     // Dont do anything if username or password is wrong,
                     // because the html5 form validation will tell the user
@@ -309,7 +312,7 @@
                     };
 
                     var really_login = function() {
-                        managerDatastoreUser.login(username, $scope.selected_server_domain, password, remember,
+                        managerDatastoreUser.login(username, $scope.selected_server_domain, password, remember, trust_device,
                             angular.copy($scope.selected_server), server_check['info']['public_key'])
                             .then(onSuccess, onError);
                     };
