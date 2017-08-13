@@ -313,7 +313,7 @@
 
                     var really_login = function() {
                         managerDatastoreUser.login(username, $scope.selected_server_domain, password, remember, trust_device,
-                            angular.copy($scope.selected_server), server_check['info']['public_key'])
+                            angular.copy($scope.selected_server), server_check['info'], server_check['verify_key'])
                             .then(onSuccess, onError);
                     };
 
