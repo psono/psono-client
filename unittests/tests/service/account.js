@@ -23,10 +23,13 @@
                             return { 'value': 'fake_user_email' };
                         case 'setting_email':
                             return { 'value': 'fake_setting_email' };
+                        case 'server_info':
+                            return { 'value': {} };
+                        case 'server_verify_key':
+                            return { 'value': 'fake_server_verify_key' };
                         default:
                             return null;
                     }
-
                 }
             };
 
