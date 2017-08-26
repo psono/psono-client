@@ -44,7 +44,7 @@ gulp.task('template', function () {
 var build = function(build_path, type) {
 
     // All files in data/css
-    if (type === 'webserver') {
+    if (type === 'webclient') {
         gulp.src([
             "src/common/data/css/lib/opensans.css",
             "src/common/data/css/lib/angular-csp.css",
@@ -92,7 +92,7 @@ var build = function(build_path, type) {
         .pipe(gulp.dest(path.join(build_path, 'img')));
 
     // All files in data/js
-    if (type === 'webserver') {
+    if (type === 'webclient') {
         // minify
 
         gulp.src([
@@ -230,7 +230,7 @@ var build = function(build_path, type) {
     }
 
     // All files in data
-    if (type === 'webserver') {
+    if (type === 'webclient') {
         return gulp.src([
                 'src/common/data/*',
                 '!src/common/data/background.html',
@@ -257,10 +257,10 @@ var build = function(build_path, type) {
 
 
 /**
- * Creates the Webserver build folder
+ * Creates the webclient build folder
  */
-gulp.task('build-webserver', function() {
-    return build('build/webserver', 'webserver');
+gulp.task('build-webclient', function() {
+    return build('build/webclient', 'webclient');
 });
 
 /**
@@ -289,7 +289,7 @@ gulp.task('build-chrome', function() {
 
 gulp.task('default', function(callback) {
     runSequence(['sass', 'template'],
-        ['build-chrome', 'build-firefox', 'build-webserver'],
+        ['build-chrome', 'build-firefox', 'build-webclient'],
         callback);
 });
 
@@ -305,9 +305,9 @@ gulp.task('watch', ['default'], function() {
         'src/common/data/**/*',
         'src/chrome/**/*',
         'src/firefox/**/*',
-        'src/webserver/**/*',
+        'src/webclient/**/*',
         '!src/common/data/css/**/*',
-        '!src/common/data/sass/**/*.scss'], ['build-webserver', 'build-firefox', 'build-chrome']);
+        '!src/common/data/sass/**/*.scss'], ['build-webclient', 'build-firefox', 'build-chrome']);
     gulp.watch('src/common/data/sass/**/*.scss', ['default']);
 });
 
@@ -470,7 +470,7 @@ gulp.task('updateversion', function() {
     var hash = commit_sha.substring(0,8);
     var version_long = version+ ' (Build '+hash+')';
 
-    fs.writeFile("./build/webserver/VERSION.txt", version_long, function(err) {
+    fs.writeFile("./build/webclient/VERSION.txt", version_long, function(err) {
         if(err) {
             return console.log(err);
         }
