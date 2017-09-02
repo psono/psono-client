@@ -208,7 +208,8 @@ var build = function(build_path, type) {
             "src/common/data/js/service/password-generator.js",
             "src/common/data/js/service/drop-down-menu-watcher.js",
 
-            "src/common/data/view/templates.js"
+            "src/common/data/view/templates.js",
+            "src/common/data/js/google-analytics.js"
         ])
             .pipe(minify({
                 ext:{
@@ -224,6 +225,7 @@ var build = function(build_path, type) {
 
         gulp.src([
             'src/common/data/js/**/*',
+            '!src/common/data/js/google-analytics.js',
             '!src/common/data/js/service/browser-client.js'
         ])
             .pipe(gulp.dest(path.join(build_path, 'js')));
@@ -239,8 +241,7 @@ var build = function(build_path, type) {
             ])
             .pipe(htmlreplace({
                 'build_min_js': 'js/bundle.min.js',
-                'build_min_css': 'css/lib/bundle.min.css',
-                'build_ga': '<script>(function(i,s,o,g,r,a,m){i[\'GoogleAnalyticsObject\']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o), m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,\'script\',\'https://www.google-analytics.com/analytics.js\',\'ga\');ga(\'create\', \'UA-85002864-3\', \'auto\');ga(\'set\', \'anonymizeIp\', true);ga(\'send\', \'pageview\');</script>'
+                'build_min_css': 'css/lib/bundle.min.css'
             }))
             .pipe(htmlmin({collapseWhitespace: true}))
             .pipe(gulp.dest(build_path));
