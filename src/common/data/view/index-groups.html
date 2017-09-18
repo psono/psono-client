@@ -1,0 +1,52 @@
+<div class="container-fluid">
+    <div class="navi row">
+        <div class="location col-sm-8">
+            <!--
+            <span> <a href="#!/groups">/groups</a> </span>
+            -->
+        </div>
+        <div class="title col-sm-4">
+            <h1>List of Groups</h1>
+        </div>
+    </div>
+
+    <div ng-controller="GroupsCtrl" class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Groups</h3>
+        </div>
+        <div class="panel-body">
+
+            <div class="panel-buttons">
+                <button type="submit" class="btn btn-primary btn-primary" ng-click="create_group()"><i class="fa fa-plus"></i> Create New Group</button>
+                <div class='clearfix'></div>
+            </div>
+
+            <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="group in groups">
+                    <td>{{ group.name }}</td>
+                    <td>
+                        <button type="button" class="btn btn-default btn-sm" ng-click="edit_group(group, 'lg')" ng-disabled="!group.group_admin" >
+                            <i class="fa fa-wrench" aria-hidden="true"><span style="display: none">0</span></i>
+                        </button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-default btn-sm" ng-click="delete_group(group)" ng-disabled="!group.group_admin" >
+                            <i class="fa fa-trash" aria-hidden="true"><span style="display: none">0</span></i>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>

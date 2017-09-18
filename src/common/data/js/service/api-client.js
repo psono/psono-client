@@ -979,6 +979,7 @@
          * @param {string} encrypted_type_nonce the corresponding type nonce
          * @param {uuid} share_id the share ID
          * @param {uuid} user_id the target user's user ID
+         * @param {uuid} group_id the target group's group ID
          * @param {string} key the encrypted share secret, encrypted with the public key of the target user
          * @param {string} key_nonce the unique nonce for decryption
          * @param {bool} read read right
@@ -987,8 +988,9 @@
          *
          * @returns {promise} promise
          */
-        var create_share_right = function (token, session_secret_key, encrypted_title, encrypted_title_nonce, encrypted_type, encrypted_type_nonce, share_id,
-                                           user_id, key, key_nonce, read, write, grant) {
+        var create_share_right = function (token, session_secret_key, encrypted_title, encrypted_title_nonce,
+                                           encrypted_type, encrypted_type_nonce, share_id, user_id, group_id, key,
+                                           key_nonce, read, write, grant) {
             var endpoint = '/share/right/';
             var connection_type = "PUT";
             var data = {
@@ -998,6 +1000,7 @@
                 type_nonce: encrypted_type_nonce,
                 share_id: share_id,
                 user_id: user_id,
+                group_id: group_id,
                 key: key,
                 key_nonce: key_nonce,
                 read: read,
@@ -1453,64 +1456,101 @@
             return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
-        // /**
-        //  * @ngdoc
-        //  * @name psonocli.apiClient#read_group
-        //  * @methodOf psonocli.apiClient
-        //  *
-        //  * @description
-        //  * Ajax GET request with the token as authentication to get the current user's groups
-        //  *
-        //  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
-        //  * @param {string} session_secret_key The session secret key
-        //  * @param {uuid|undefined} [group_id=null] (optional) group ID
-        //  * @returns {promise} promise
-        //  */
-        // var read_group = function (token, session_secret_key, group_id) {
-        //
-        //     //optional parameter group_id
-        //     if (group_id === undefined) { group_id = null; }
-        //
-        //     var endpoint = '/group/' + (group_id === null ? '' : group_id + '/');
-        //     var connection_type = "GET";
-        //     var data = null;
-        //     var headers = {
-        //         "Authorization": "Token "+ token
-        //     };
-        //
-        //     return call(connection_type, endpoint, data, headers, session_secret_key);
-        // };
-        //
-        //
-        // /**
-        //  * @ngdoc
-        //  * @name psonocli.apiClient#create_group
-        //  * @methodOf psonocli.apiClient
-        //  *
-        //  * @description
-        //  * Ajax PUT request to create a group with the token as authentication and together with the name of the group
-        //  *
-        //  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
-        //  * @param {string} session_secret_key The session secret key
-        //  * @param {string} name name of the new group
-        //  * @param {string} encrypted_data_secret_key encrypted secret key
-        //  * @param {string} encrypted_data_secret_key_nonce nonce for secret key
-        //  * @returns {promise} promise
-        //  */
-        // var create_group = function (token, session_secret_key, name, encrypted_data_secret_key, encrypted_data_secret_key_nonce) {
-        //     var endpoint = '/group/';
-        //     var connection_type = "PUT";
-        //     var data = {
-        //         name: name,
-        //         secret_key: encrypted_data_secret_key,
-        //         secret_key_nonce: encrypted_data_secret_key_nonce
-        //     };
-        //     var headers = {
-        //         "Authorization": "Token "+ token
-        //     };
-        //
-        //     return call(connection_type, endpoint, data, headers, session_secret_key);
-        // };
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#read_group
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax GET request with the token as authentication to get the current user's groups
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid|undefined} [group_id=null] (optional) group ID
+         * @returns {promise} promise
+         */
+        var read_group = function (token, session_secret_key, group_id) {
+
+            //optional parameter group_id
+            if (group_id === undefined) { group_id = null; }
+
+            var endpoint = '/group/' + (group_id === null ? '' : group_id + '/');
+            var connection_type = "GET";
+            var data = null;
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#create_group
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax PUT request to create a group with the token as authentication and together with the name of the group
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {string} name name of the new group
+         * @param {string} secret_key encrypted secret key of the group
+         * @param {string} secret_key_nonce nonce for secret key
+         * @param {string} private_key encrypted private key of the group
+         * @param {string} private_key_nonce nonce for private key
+         * @param {string} public_key the public_key of the group
+         *
+         * @returns {promise} promise
+         */
+        var create_group = function (token, session_secret_key, name, secret_key, secret_key_nonce, private_key,
+                                     private_key_nonce, public_key) {
+            var endpoint = '/group/';
+            var connection_type = "PUT";
+            var data = {
+                name: name,
+                secret_key: secret_key,
+                secret_key_nonce: secret_key_nonce,
+                private_key: private_key,
+                private_key_nonce: private_key_nonce,
+                public_key: public_key
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#delete_group
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax DELETE request to delete a given Group
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} group_id The group id to delete
+         *
+         * @returns {promise} Returns a promise which can succeed or fail
+         */
+        var delete_group = function (token, session_secret_key, group_id) {
+            var endpoint = '/group/';
+            var connection_type = "DELETE";
+            var data = {
+                group_id: group_id
+            };
+
+            var headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
 
         return {
             info: info,
@@ -1556,9 +1596,10 @@
             create_yubikey_otp: create_yubikey_otp,
             create_share_link: create_share_link,
             move_share_link: move_share_link,
-            delete_share_link: delete_share_link
-            // read_group: read_group,
-            // create_group: create_group
+            delete_share_link: delete_share_link,
+            read_group: read_group,
+            create_group: create_group,
+            delete_group: delete_group
         };
     };
 

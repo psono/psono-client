@@ -36,13 +36,27 @@
         }
         /**
          * @ngdoc
+         * @name psonocli.managerHost#get_current_host
+         * @methodOf psonocli.managerHost
+         *
+         * @description
+         * Returns the current host
+         *
+         * @returns {*} The current host
+         */
+        function get_current_host() {
+            var current_host = storage.find_one('config', {'key': 'server'})['value'];
+            return helper.duplicate_object(current_host);
+        }
+        /**
+         * @ngdoc
          * @name psonocli.managerHost#get_current_host_url
          * @methodOf psonocli.managerHost
          *
          * @description
          * Returns the url of the current host
          *
-         * @returns {*} The current host
+         * @returns {*} The current host url
          */
         function get_current_host_url() {
             var current_host = storage.find_one('config', {'key': 'server'})['value'];
@@ -225,6 +239,7 @@
 
         return {
             get_known_hosts: get_known_hosts,
+            get_current_host: get_current_host,
             get_current_host_url: get_current_host_url,
             check_known_hosts: check_known_hosts,
             check_host: check_host,

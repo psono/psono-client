@@ -28,7 +28,6 @@
             <uib-tab heading="Trusted Users">
                 <div ng-if="users">
 
-
                     <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
                         <thead>
                         <tr>
@@ -48,12 +47,41 @@
                         </tbody>
                     </table>
                 </div>
+
+                <div class="row">
+                    <button type="button" ng-click="add_user()" class="btn btn-link"><i class="fa fa-user-plus"></i> Search User</button>
+                </div>
+
+            </uib-tab>
+            <uib-tab heading="Known Groups">
+                <div ng-if="groups">
+
+                    <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
+                        <thead>
+                        <tr>
+                            <th>Group</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="group in groups">
+                            <td>{{group.name | limitTo: 60 }}{{group.name.length > 60 ? '...)' : ''}}</td>
+                            <td>
+                                <button type="button" class="btn btn-default btn-sm" ng-click="toggle_select(group.group_id, 'group')">
+                                    <i ng-class="selected_groups.indexOf(group.group_id) > -1 ? 'fa fa-check-square-o' : 'fa fa-square-o'"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row">
+                    <button type="button" ng-click="create_group()" class="btn btn-link"><i class="fa fa-user-plus"></i> Create Group</button>
+                </div>
+
             </uib-tab>
         </uib-tabset>
-
-        <div class="row">
-            <button type="button" ng-click="add_user()" class="btn btn-link"><i class="fa fa-user-plus"></i> Search User</button>
-        </div>
 
         <div class="alert alert-danger" ng-repeat="e in errors">
             <strong>Error:</strong> {{e}}

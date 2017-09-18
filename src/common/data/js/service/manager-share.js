@@ -7,14 +7,15 @@
      * @requires psonocli.managerBase
      * @requires psonocli.apiClient
      * @requires psonocli.cryptoLibrary
+     * @requires psonocli.managerSecretLink
      * @requires psonocli.itemBlueprint
      *
      * @description
      * Service to handle all share related tasks
      */
 
-    var managerShare = function(managerBase, apiClient, cryptoLibrary,
-                                 itemBlueprint) {
+    var managerShare = function(managerBase, apiClient, cryptoLibrary, managerSecretLink,
+                                itemBlueprint) {
 
         /**
          * @ngdoc
@@ -135,13 +136,17 @@
         var create_share = function (content, parent_share_id,
                                      parent_datastore_id, link_id) {
 
-            if (content.hasOwnProperty("id")) {
-                delete content.id;
+            var filtered_content = managerBase.filter_datastore_content(content);
+            var old_link_id;
+
+            if (filtered_content.hasOwnProperty("id")) {
+                old_link_id = filtered_content.id;
+                delete filtered_content.id;
             }
 
             var secret_key = cryptoLibrary.generate_secret_key();
 
-            var json_content = JSON.stringify(content);
+            var json_content = JSON.stringify(filtered_content);
 
             var encrypted_data = cryptoLibrary.encrypt_data(json_content, secret_key);
             var encrypted_key = managerBase.encrypt_secret_key(secret_key);
@@ -151,6 +156,14 @@
             };
 
             var onSuccess = function(content) {
+
+                if (filtered_content.hasOwnProperty('secret_id')) {
+                    managerSecretLink.move_secret_link(old_link_id, content.data.share_id)
+                } else {
+                    managerSecretLink.move_secret_links(filtered_content, content.data.share_id);
+                }
+
+
                 return {share_id: content.data.share_id, secret_key: secret_key};
             };
 
@@ -225,7 +238,9 @@
          * @param {string} type The type of the share right
          * @param {uuid} share_id The share id
          * @param {uuid} user_id The user id
-         * @param {string} user_public_key The other users public key
+         * @param {uuid} group_id The group id
+         * @param {string} public_key The other user's / group's public key
+         * @param {string} secret_key The other user's / group's public key
          * @param {string} key the key of the share
          * @param {boolean} read The read right
          * @param {boolean} write The write right
@@ -233,7 +248,10 @@
          *
          * @returns {promise} Returns a promise with the new share right id
          */
-        var create_share_right = function(title, type, share_id, user_id, user_public_key, key, read, write, grant) {
+        var create_share_right = function(title, type, share_id, user_id, group_id, public_key, secret_key, key, read, write, grant) {
+            var encrypted_key,
+                encrypted_title,
+                encrypted_type;
 
             var onError = function(result) {
                 // pass
@@ -243,14 +261,20 @@
                 return {share_right_id: content.data.share_right_id};
             };
 
-            var encrypted_key = managerBase.encrypt_private_key(key, user_public_key);
-            var encrypted_title = managerBase.encrypt_private_key(title, user_public_key);
-            var encrypted_type = managerBase.encrypt_private_key(type, user_public_key);
+            if (typeof(public_key) !== 'undefined') {
+                encrypted_key = managerBase.encrypt_private_key(key, public_key);
+                encrypted_title = managerBase.encrypt_private_key(title, public_key);
+                encrypted_type = managerBase.encrypt_private_key(type, public_key);
+            } else {
+                encrypted_key = cryptoLibrary.encrypt_data(key, secret_key);
+                encrypted_title = cryptoLibrary.encrypt_data(title, secret_key);
+                encrypted_type = cryptoLibrary.encrypt_data(type, secret_key);
+            }
 
             return apiClient.create_share_right(managerBase.get_token(),
                 managerBase.get_session_secret_key(), encrypted_title.text,
                 encrypted_title.nonce, encrypted_type.text,
-                encrypted_type.nonce, share_id, user_id, encrypted_key.text, encrypted_key.nonce, read, write, grant)
+                encrypted_type.nonce, share_id, user_id, group_id, encrypted_key.text, encrypted_key.nonce, read, write, grant)
                 .then(onSuccess, onError);
         };
 
@@ -470,7 +494,7 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerShare", ['managerBase', 'apiClient', 'cryptoLibrary',
+    app.factory("managerShare", ['managerBase', 'apiClient', 'cryptoLibrary', 'managerSecretLink',
         'itemBlueprint', managerShare]);
 
 }(angular));

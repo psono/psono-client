@@ -6,6 +6,7 @@
      * @name psonocli.controller:ModalShareNewEntryCtrl
      * @requires $scope
      * @requires $uibModalInstance
+     * @requires psonocli.managerHost
      * @requires psonocli.shareBlueprint
      * @requires psonocli.browserClient
      * @requires psonocli.helper
@@ -13,8 +14,10 @@
      * @description
      * Controller for the "New Entry" modal
      */
-    angular.module('psonocli').controller('ModalShareNewEntryCtrl', ['$scope', '$uibModalInstance', 'shareBlueprint', 'browserClient', 'helper', 'parent', 'path',
-        function ($scope, $uibModalInstance, shareBlueprint, browserClient, helper, parent, path) {
+    angular.module('psonocli').controller('ModalShareNewEntryCtrl', ['$scope', '$uibModalInstance', 'managerHost',
+        'shareBlueprint', 'browserClient', 'helper', 'parent', 'path',
+        function ($scope, $uibModalInstance, managerHost,
+                  shareBlueprint, browserClient, helper, parent, path) {
 
             $scope.reset = reset;
             $scope.save = save;
@@ -41,7 +44,7 @@
                     /* Server selection with preselection */
                     $scope.servers = config['backend_servers'];
                     $scope.filtered_servers = $scope.servers;
-                    $scope.selected_server = $scope.servers[0];
+                    $scope.selected_server = managerHost.get_current_host();
                     $scope.selected_server_title = $scope.selected_server.title;
                     $scope.selected_server_url = $scope.selected_server.url;
                     $scope.selected_server_domain = helper.get_domain($scope.selected_server.url);

@@ -785,7 +785,7 @@
             var type = "user";
             var description = "default";
 
-            content = managerDatastore.filter_datastore_content(content);
+            content = managerBase.filter_datastore_content(content);
 
             return managerDatastore.save_datastore_content(type, description, content)
         };
@@ -1099,7 +1099,6 @@
         };
 
         shareBlueprint.register('search_user', search_user);
-        itemBlueprint.register('get_user_datastore', get_user_datastore);
 
         return {
             register: register,

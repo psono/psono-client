@@ -12,16 +12,18 @@
      * @requires psonocli.shareBlueprint
      * @requires psonocli.managerDatastoreUser
      * @requires psonocli.cryptoLibrary
+     * @requires psonocli.helper
      *
      * @description
      * Controller for the "Share Entry" modal
      */
     angular.module('psonocli').controller('ModalShareEntryCtrl', ['$scope', '$uibModalInstance', '$uibModal', 'shareBlueprint',
-        'managerDatastoreUser', 'node', 'path', 'users', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'cryptoLibrary',
+        'managerDatastoreUser', 'managerGroups', 'node', 'path', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'cryptoLibrary', 'helper',
         function ($scope, $uibModalInstance, $uibModal, shareBlueprint,
-                  managerDatastoreUser, node, path, users, DTOptionsBuilder, DTColumnDefBuilder, cryptoLibrary) {
+                  managerDatastoreUser, managerGroups, node, path, DTOptionsBuilder, DTColumnDefBuilder, cryptoLibrary, helper) {
 
             $scope.add_user = add_user;
+            $scope.create_group = create_group;
             $scope.toggle_select = toggle_select;
             $scope.save = save;
             $scope.cancel = cancel;
@@ -34,10 +36,11 @@
 
             $scope.node = node;
             $scope.path = path;
-            $scope.users = users;
+            $scope.users = [];
             $scope.errors = [];
 
             $scope.selected_users = [];
+            $scope.selected_groups = [];
             $scope.selected_rights = [];
 
             activate();
@@ -64,6 +67,54 @@
                         $scope.selected_rights.push($scope.rights[i].id);
                     }
                 }
+
+                // The main modal to share
+                managerDatastoreUser.get_user_datastore().then(function (user_datastore) {
+                    var users = [];
+                    helper.create_list(user_datastore, users);
+                    $scope.users = users;
+                });
+
+                managerGroups.read_groups()
+                    .then(function (groups) {
+                        $scope.groups = groups;
+                        console.log(groups);
+                    });
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalShareEntryCtrl#create_group
+             * @methodOf psonocli.controller:ModalShareEntryCtrl
+             *
+             * @description
+             * Opens the modal for a new group
+             *
+             * @param {string} size The size of the modal to open
+             */
+            function create_group(size) {
+                var modalInstance = $uibModal.open({
+                    templateUrl: 'view/modal-new-group.html',
+                    controller: 'ModalNewGroupCtrl',
+                    size: size,
+                    resolve: {}
+                });
+
+                modalInstance.result.then(function (name) {
+
+                    var onSuccess = function(group){
+                        $scope.groups.push(group);
+                    };
+
+                    var onError = function() {
+                        //pass
+                    };
+                    managerGroups.create_group(name)
+                        .then(onSuccess, onError)
+
+                }, function () {
+                    // cancel triggered
+                });
             }
 
 
@@ -162,8 +213,10 @@
                 var search_array;
                 if (type === 'right') {
                     search_array = $scope.selected_rights;
-                } else {
+                } else if (type === 'user') {
                     search_array = $scope.selected_users;
+                } else {
+                    search_array = $scope.selected_groups;
                 }
 
                 var array_index = search_array.indexOf(index);
@@ -188,7 +241,9 @@
                     node: $scope.node,
                     path: $scope.path,
                     users: $scope.users,
+                    groups: $scope.groups,
                     selected_users: $scope.selected_users,
+                    selected_groups: $scope.selected_groups,
                     rights: $scope.rights,
                     selected_rights: $scope.selected_rights
                 });

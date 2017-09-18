@@ -744,6 +744,7 @@
             var encrypted_type_nonce = 'a-encrypted_type_nonce';
             var share_id = 'a-share_id';
             var user_id = 'a-user_id';
+            var group_id = undefined;
             var key = 'a-key';
             var key_nonce = 'a-key_nonce';
             var read = 'a-read';
@@ -774,7 +775,7 @@
                 });
 
             expect(apiClient.create_share_right(token, session_secret_key, encrypted_title, encrypted_title_nonce, encrypted_type, encrypted_type_nonce, share_id,
-                user_id, key, key_nonce, read, write, grant)).toBeDefined();
+                user_id, group_id, key, key_nonce, read, write, grant)).toBeDefined();
 
             $httpBackend.flush();
         }));

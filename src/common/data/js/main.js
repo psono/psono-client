@@ -83,7 +83,10 @@
                         controller: 'ShareCtrl'
                     })
                     .when('/share/users', {
-                        templateUrl: 'view/index-share-users.html',
+                        templateUrl: 'view/index-share-users.html'
+                    })
+                    .when('/groups', {
+                        templateUrl: 'view/index-groups.html'
                     })
                     .when('/security-report', {
                         templateUrl: 'view/index-security-report.html',
