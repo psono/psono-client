@@ -10,13 +10,14 @@
      * @requires psonocli.apiClient
      * @requires psonocli.cryptoLibrary
      * @requires psonocli.storage
+     * @requires psonocli.helper
      *
      * @description
      * managerBase is 'like' a base class for all managers. It contains functions that should be accessible by several
      * managers but should never be added in any other services (because of design pattern and security reasons)
      */
 
-    var managerBase = function($q, $timeout, $rootScope, apiClient, cryptoLibrary, storage) {
+    var managerBase = function($q, $timeout, $rootScope, apiClient, cryptoLibrary, storage, helper) {
 
         var forbidden_keys = {
             'config': [
@@ -181,6 +182,53 @@
             return cryptoLibrary.decrypt_data(text, nonce, find_one_nolimit('config', 'user_secret_key'));
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.managerBase#filter_datastore_content
+         * @methodOf psonocli.managerBase
+         *
+         * @description
+         * Creates a copy of content and filters some attributes out, to save some storage or fix some missbehaviour
+         *
+         * @param {TreeObject} content The datastore content to filter
+         *
+         * @returns {TreeObject} Filtered copy of the content
+         */
+        var filter_datastore_content = function(content) {
+            var content_copy  = helper.duplicate_object(content);
+
+            var filter = ['expanded', 'expanded_temporary', 'filter', 'hidden', 'share_rights', 'parent_share_id', 'parent_datastore_id'];
+
+            var filter_content = function (content, filter) {
+                var i, m;
+
+                // test attributes in content
+                for (m = 0; m < filter.length; m++) {
+                    if (content.hasOwnProperty(filter[m])) {
+                        delete content[filter[m]];
+                    }
+                }
+
+                // test items
+                for (i = 0; content.hasOwnProperty("items") && i < content.items.length; i++) {
+                    for (m = 0; m < filter.length; m++) {
+                        if (content.items[i].hasOwnProperty(filter[m])) {
+                            delete content.items[i][filter[m]];
+                        }
+                    }
+                }
+                // call self recursivly for folders
+                for (i = 0; content.hasOwnProperty("folders") && i < content.folders.length; i ++) {
+                    filter_content(content.folders[i], filter);
+                }
+
+            };
+
+            filter_content(content_copy, filter);
+
+            return content_copy;
+        };
+
         return {
             delete_local_data: delete_local_data,
             find_one_nolimit: find_one_nolimit,
@@ -190,11 +238,12 @@
             encrypt_private_key: encrypt_private_key,
             decrypt_private_key: decrypt_private_key,
             encrypt_secret_key: encrypt_secret_key,
-            decrypt_secret_key: decrypt_secret_key
+            decrypt_secret_key: decrypt_secret_key,
+            filter_datastore_content: filter_datastore_content,
         };
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerBase", ['$q', '$timeout', '$rootScope', 'apiClient', 'cryptoLibrary', 'storage', managerBase]);
+    app.factory("managerBase", ['$q', '$timeout', '$rootScope', 'apiClient', 'cryptoLibrary', 'storage', 'helper', managerBase]);
 
 }(angular));

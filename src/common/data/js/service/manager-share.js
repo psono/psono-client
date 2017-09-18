@@ -7,14 +7,15 @@
      * @requires psonocli.managerBase
      * @requires psonocli.apiClient
      * @requires psonocli.cryptoLibrary
+     * @requires psonocli.managerSecretLink
      * @requires psonocli.itemBlueprint
      *
      * @description
      * Service to handle all share related tasks
      */
 
-    var managerShare = function(managerBase, apiClient, cryptoLibrary,
-                                 itemBlueprint) {
+    var managerShare = function(managerBase, apiClient, cryptoLibrary, managerSecretLink,
+                                itemBlueprint) {
 
         /**
          * @ngdoc
@@ -135,13 +136,17 @@
         var create_share = function (content, parent_share_id,
                                      parent_datastore_id, link_id) {
 
-            if (content.hasOwnProperty("id")) {
-                delete content.id;
+            var filtered_content = managerBase.filter_datastore_content(content);
+            var old_link_id;
+
+            if (filtered_content.hasOwnProperty("id")) {
+                old_link_id = filtered_content.id;
+                delete filtered_content.id;
             }
 
             var secret_key = cryptoLibrary.generate_secret_key();
 
-            var json_content = JSON.stringify(content);
+            var json_content = JSON.stringify(filtered_content);
 
             var encrypted_data = cryptoLibrary.encrypt_data(json_content, secret_key);
             var encrypted_key = managerBase.encrypt_secret_key(secret_key);
@@ -151,6 +156,14 @@
             };
 
             var onSuccess = function(content) {
+
+                if (filtered_content.hasOwnProperty('secret_id')) {
+                    managerSecretLink.move_secret_link(old_link_id, content.data.share_id)
+                } else {
+                    managerSecretLink.move_secret_links(filtered_content, content.data.share_id);
+                }
+
+
                 return {share_id: content.data.share_id, secret_key: secret_key};
             };
 
@@ -470,7 +483,7 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerShare", ['managerBase', 'apiClient', 'cryptoLibrary',
+    app.factory("managerShare", ['managerBase', 'apiClient', 'cryptoLibrary', 'managerSecretLink',
         'itemBlueprint', managerShare]);
 
 }(angular));
