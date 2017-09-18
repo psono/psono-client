@@ -134,8 +134,19 @@
             browserNoActivityTimeout: 100000,
             logLevel: config.LOG_INFO,
             autoWatch: true,
-            browsers: ['ChromeHeadless'],
+            browsers: ['Chrome_headless'],
             singleRun: true,
+            customLaunchers: {
+                Chrome_headless: {
+                    base: 'Chrome',
+                    flags: [
+                        '--disable-gpu',
+                        '--headless',
+                        '--no-sandbox',
+                        '--remote-debugging-port=9222'
+                    ]
+                }
+            },
             concurrency: Infinity
         });
     };
