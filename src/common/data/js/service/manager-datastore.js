@@ -368,53 +368,6 @@
             }
         };
 
-        /**
-         * @ngdoc
-         * @name psonocli.managerDatastore#filter_datastore_content
-         * @methodOf psonocli.managerDatastore
-         *
-         * @description
-         * Creates a copy of content and filters some attributes out, to save some storage or fix some missbehaviour
-         *
-         * @param {TreeObject} content The datastore content to filter
-         *
-         * @returns {TreeObject} Filtered copy of the content
-         */
-        var filter_datastore_content = function(content) {
-            var content_copy  = helper.duplicate_object(content);
-
-            var filter = ['expanded', 'expanded_temporary', 'filter', 'hidden', 'share_rights', 'parent_share_id', 'parent_datastore_id'];
-
-            var filter_content = function (content, filter) {
-                var i, m;
-
-                // test attributes in content
-                for (m = 0; m < filter.length; m++) {
-                    if (content.hasOwnProperty(filter[m])) {
-                        delete content[filter[m]];
-                    }
-                }
-
-                // test items
-                for (i = 0; content.hasOwnProperty("items") && i < content.items.length; i++) {
-                    for (m = 0; m < filter.length; m++) {
-                        if (content.items[i].hasOwnProperty(filter[m])) {
-                            delete content.items[i][filter[m]];
-                        }
-                    }
-                }
-                // call self recursivly for folders
-                for (i = 0; content.hasOwnProperty("folders") && i < content.folders.length; i ++) {
-                    filter_content(content.folders[i], filter);
-                }
-
-            };
-
-            filter_content(content_copy, filter);
-
-            return content_copy;
-        };
-
 
         /**
          * @ngdoc
@@ -531,7 +484,6 @@
             save_datastore_content: save_datastore_content,
             save_datastore_content_with_id: save_datastore_content_with_id,
             save_datastore_meta: save_datastore_meta,
-            filter_datastore_content: filter_datastore_content,
             encrypt_datastore: encrypt_datastore
         };
     };

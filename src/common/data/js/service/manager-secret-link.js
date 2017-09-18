@@ -16,6 +16,32 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerSecretLink#move_secret_links
+         * @methodOf psonocli.managerSecretLink
+         *
+         * @description
+         * Searches a datastore object and moves all links to the
+         *
+         * @param {{}} datastore The datastore object
+         * @param {uuid|undefined} [new_parent_share_id=null] (optional) New parent share ID, necessary if no new_parent_datastore_id is provided
+         * @param {uuid|undefined} [new_parent_datastore_id=null] (optional) New datastore ID, necessary if no new_parent_share_id is provided
+         *
+         * @returns {promise} Returns promise with the status of the move
+         */
+        var move_secret_links = function(datastore, new_parent_share_id, new_parent_datastore_id) {
+            var i;
+            for (i = 0; datastore.hasOwnProperty('folders') && i < datastore['folders'].length; i++) {
+                move_secret_links(datastore['folders'][i], new_parent_share_id, new_parent_datastore_id)
+            }
+            for (i = 0; datastore.hasOwnProperty('items') && i < datastore['items'].length; i++) {
+                if (datastore['items'][i].hasOwnProperty('secret_id')) {
+                    move_secret_link(datastore['items'][i]['id'], new_parent_share_id, new_parent_datastore_id)
+                }
+            }
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerSecretLink#move_secret_link
          * @methodOf psonocli.managerSecretLink
          *
@@ -118,6 +144,7 @@
         };
 
         return {
+            move_secret_links: move_secret_links,
             move_secret_link: move_secret_link,
             delete_secret_link: delete_secret_link,
             on_secret_moved: on_secret_moved,
