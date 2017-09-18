@@ -91,6 +91,10 @@ var build = function(build_path, type) {
     gulp.src(['src/common/data/img/**/*'])
         .pipe(gulp.dest(path.join(build_path, 'img')));
 
+    // License.md
+    gulp.src(['LICENSE.md'])
+        .pipe(gulp.dest(path.join(build_path)));
+
     // All files in data/js
     if (type === 'webclient') {
         // minify

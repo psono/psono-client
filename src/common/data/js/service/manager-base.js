@@ -239,7 +239,7 @@
             decrypt_private_key: decrypt_private_key,
             encrypt_secret_key: encrypt_secret_key,
             decrypt_secret_key: decrypt_secret_key,
-            filter_datastore_content: filter_datastore_content,
+            filter_datastore_content: filter_datastore_content
         };
     };
 

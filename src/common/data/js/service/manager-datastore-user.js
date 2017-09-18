@@ -402,12 +402,12 @@
          * @param {boolean|undefined} remember Remember the username and server
          * @param {boolean|undefined} trust_device Trust the device for 30 days or logout when browser closes
          * @param {object} server The server object to send the login request to
-         * @param {object} server_public_key The public key of the server
+         * @param {object} server_info Some info about the server including its public key
+         * @param {object} verify_key The signature of the server
          *
          * @returns {promise} Returns a promise with the login status
          */
-        var login = function(username, domain, password, remember, trust_device, server, server_public_key) {
-
+        var login = function(username, domain, password, remember, trust_device, server, server_info, verify_key) {
 
             username = helper.form_full_username(username, domain);
 
@@ -429,6 +429,8 @@
             }
             storage.upsert('persistent', {key: 'trust_device', value: trust_device});
 
+            storage.upsert('config', {key: 'server_info', value: server_info});
+            storage.upsert('config', {key: 'server_verify_key', value: verify_key});
             storage.upsert('config', {key: 'user_username', value: username});
             storage.upsert('config', {key: 'server', value: server});
 
@@ -450,7 +452,7 @@
 
             var onSuccess = function (response) {
 
-                return handle_login_response(response, password, session_keys, server_public_key);
+                return handle_login_response(response, password, session_keys, server_info['public_key']);
             };
 
             var login_info = JSON.stringify({
@@ -464,7 +466,7 @@
             // encrypt the login infos
             var login_info_enc = cryptoLibrary.encrypt_data_public_key(
                 login_info,
-                server_public_key,
+                server_info['public_key'],
                 session_keys.private_key
             );
 
