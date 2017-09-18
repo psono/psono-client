@@ -783,7 +783,7 @@
             var type = "user";
             var description = "default";
 
-            content = managerDatastore.filter_datastore_content(content);
+            content = managerBase.filter_datastore_content(content);
 
             return managerDatastore.save_datastore_content(type, description, content)
         };

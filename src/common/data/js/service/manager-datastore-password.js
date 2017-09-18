@@ -6,6 +6,7 @@
      * @name psonocli.managerDatastorePassword
      * @requires $q
      * @requires $rootScope
+     * @requires psonocli.managerBase
      * @requires psonocli.managerSecret
      * @requires psonocli.managerDatastore
      * @requires psonocli.managerShare
@@ -19,7 +20,7 @@
      * Service to manage the password datastore
      */
 
-    var managerDatastorePassword = function($q, $rootScope, managerSecret, managerDatastore, managerShare, passwordGenerator, itemBlueprint, helper, browserClient, cryptoLibrary) {
+    var managerDatastorePassword = function($q, $rootScope, managerBase, managerSecret, managerDatastore, managerShare, passwordGenerator, itemBlueprint, helper, browserClient, cryptoLibrary) {
 
 
         /**
@@ -448,7 +449,7 @@
                 ['urlfilter', 'urlfilter']
             ]);
 
-            datastore = managerDatastore.filter_datastore_content(datastore);
+            datastore = managerBase.filter_datastore_content(datastore);
 
             var closest_shares = {};
 
@@ -1124,7 +1125,7 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerDatastorePassword", ['$q', '$rootScope', 'managerSecret', 'managerDatastore', 'managerShare',
+    app.factory("managerDatastorePassword", ['$q', '$rootScope', 'managerBase', 'managerSecret', 'managerDatastore', 'managerShare',
         'passwordGenerator', 'itemBlueprint', 'helper', 'browserClient', 'cryptoLibrary', managerDatastorePassword]);
 
 }(angular));

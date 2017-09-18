@@ -18,6 +18,8 @@
 
     var account = function($q, $uibModal, storage, managerDatastoreUser, managerDatastoreSetting) {
 
+        var _server_info;
+
         var _default_tab = 'overview';
 
         var _tabs = [
@@ -31,10 +33,17 @@
         var _account = {
             fields: [
                 // Overview
+                { key: "client_label", type: "label_only", title: "Client:", tab: 'overview'},
                 { key: "user_id", field: "input", type: "text", title: "User ID", placeholder: "User ID", required: true, readonly: true, tab: 'overview'},
                 { key: "user_username", field: "input", type: "email", title: "Username", placeholder: "Username", required: true, readonly: true, tab: 'overview'},
                 { key: "user_email", field: "input", type: "email", title: "E-Mail", placeholder: "E-Mail", required: true, readonly: true, tab: 'overview'},
                 { key: "user_public_key", field: "input", type: "text", title: "Public Key", placeholder: "Public Key", required: true, readonly: true, tab: 'overview'},
+                { key: "server_label", type: "label_only", title: "Server:", tab: 'overview'},
+                { key: "server_api_version", field: "input", type: "text", title: "Server API Version", placeholder: "Server API Version", required: true, readonly: true, tab: 'overview'},
+                { key: "server_version", field: "input", type: "text", title: "Server Version", placeholder: "Server Version", required: true, readonly: true, tab: 'overview'},
+                { key: "server_signature", field: "input", type: "text", title: "Server Signature", placeholder: "Server Signature", required: true, readonly: true, tab: 'overview'},
+                { key: "server_log_audit", field: "input", type: "text", title: "Server Audit Logging", placeholder: "Server Audit Logging", required: true, readonly: true, tab: 'overview'},
+                { key: "server_public_key", field: "input", type: "text", title: "Server Public Key", placeholder: "Server Public Key", required: true, readonly: true, tab: 'overview'},
                 // Change E-Mail
                 { key: "setting_email", field: "input", type: "email", title: "New E-Mail", placeholder: "New E-Mail", required: true, tab: 'change-email'},
                 { key: "setting_email_password_old", field: "input", type: "password", title: "Current Password", placeholder: "Current Password", tab: 'change-email'},
@@ -178,6 +187,26 @@
 
             if (key === 'setting_email') {
                 return storage.find_one('config', {key: 'user_email'}).value;
+            }
+
+            if (key === 'server_api_version') {
+                return storage.find_one('config', {key: 'server_info'}).value['api'];
+            }
+
+            if (key === 'server_version') {
+                return storage.find_one('config', {key: 'server_info'}).value['version'];
+            }
+
+            if (key === 'server_signature') {
+                return storage.find_one('config', {key: 'server_verify_key'}).value;
+            }
+
+            if (key === 'server_log_audit') {
+                return storage.find_one('config', {key: 'server_info'}).value['log_audit'];
+            }
+
+            if (key === 'server_public_key') {
+                return storage.find_one('config', {key: 'server_info'}).value['public_key'];
             }
 
             return null

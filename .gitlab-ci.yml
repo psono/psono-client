@@ -77,6 +77,22 @@ chrome-extension:
     paths:
     - ./*
 
+webclient:
+  stage: build
+  image: ubuntu:16.04
+  script:
+    - pwd
+    - ls -la
+    - sh ./var/build-ubuntu.sh
+    - mv /builds/psono/psono-client/build/webclient ../
+    - rm -Rf *
+    - rm -Rf .* 2> /dev/null || true
+    - mv ../webclient/* ./
+  artifacts:
+    name: "webclient_$CI_BUILD_REF_NAME"
+    paths:
+    - ./*
+
 job-release-docker:
   stage: release
   image: docker:git
