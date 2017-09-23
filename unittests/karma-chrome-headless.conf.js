@@ -144,8 +144,9 @@
                 Chrome_headless: {
                     base: 'Chrome',
                     flags: [
-                        '--headless',
                         '--disable-gpu',
+                        '--headless',
+                        '--no-sandbox',
                         '--remote-debugging-port=9222'
                     ]
                 }
