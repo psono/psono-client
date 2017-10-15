@@ -789,6 +789,7 @@
             var read = 'a-read';
             var write = 'a-write';
             var grant = 'a-grant';
+            var group_id;
 
             $httpBackend.when('POST', "https://www.psono.pw/server/share/right/").respond(
                 function(method, url, data, headers, params) {
@@ -808,7 +809,7 @@
                 });
 
             expect(apiClient.update_share_right(token, session_secret_key, share_id,
-                user_id, read, write, grant)).toBeDefined();
+                user_id, group_id, read, write, grant)).toBeDefined();
 
             $httpBackend.flush();
         }));
@@ -817,7 +818,8 @@
 
             var token = 'a-token';
             var session_secret_key = 'a-session_secret_key';
-            var share_right_id = 'a-share_right_id';
+            var user_share_right_id = 'a-usershare_right_id';
+            var group_share_right_id = 'a-groupshare_right_id';
 
             $httpBackend.when('DELETE', "https://www.psono.pw/server/share/right/").respond(
                 function(method, url, data, headers, params) {
@@ -826,13 +828,14 @@
 
                     expect(headers.Authorization).toEqual('Token ' + token);
 
-                    expect(data.share_right_id).toEqual(share_right_id);
+                    expect(data.user_share_right_id).toEqual(user_share_right_id);
+                    expect(data.group_share_right_id).toEqual(group_share_right_id);
 
                     // return answer
                     return [200, {}];
                 });
 
-            expect(apiClient.delete_share_right(token, session_secret_key, share_right_id)).toBeDefined();
+            expect(apiClient.delete_share_right(token, session_secret_key, user_share_right_id, group_share_right_id)).toBeDefined();
 
             $httpBackend.flush();
         }));
@@ -865,7 +868,6 @@
             var share_right_id = 'a-share_right_id';
             var key = 'a-key';
             var key_nonce = 'a-key_nonce';
-            var link_id = 'a-link_id';
             var parent_share_id = 'a-parent_share_id';
             var parent_datastore_id = 'a-parent_datastore_id';
 
@@ -879,7 +881,6 @@
                     expect(data.share_right_id).toEqual(share_right_id);
                     expect(data.key).toEqual(key);
                     expect(data.key_nonce).toEqual(key_nonce);
-                    expect(data.link_id).toEqual(link_id);
                     expect(data.parent_share_id).toEqual(parent_share_id);
                     expect(data.parent_datastore_id).toEqual(parent_datastore_id);
 
@@ -887,7 +888,7 @@
                     return [200, {}];
                 });
 
-            expect(apiClient.accept_share_right(token, session_secret_key, share_right_id, key, key_nonce, link_id, parent_share_id, parent_datastore_id)).toBeDefined();
+            expect(apiClient.accept_share_right(token, session_secret_key, share_right_id, key, key_nonce, parent_share_id, parent_datastore_id)).toBeDefined();
 
             $httpBackend.flush();
         }));

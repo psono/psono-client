@@ -17,15 +17,16 @@
      * Controller for the "AcceptShare" modal
      */
     angular.module('psonocli').controller('ModalAcceptShareCtrl', ['$scope', '$uibModalInstance', '$uibModal',
-        'managerDatastoreUser', 'message', 'shareBlueprint', 'item', 'cryptoLibrary',
+        'managerDatastoreUser', 'message', 'shareBlueprint', 'title', 'item', 'cryptoLibrary',
         function ($scope, $uibModalInstance, $uibModal,
-                  managerDatastoreUser, message, shareBlueprint, item, cryptoLibrary) {
+                  managerDatastoreUser, message, shareBlueprint, title, item, cryptoLibrary) {
 
             $scope.cut_breadcrumbs = cut_breadcrumbs;
             $scope.clear_breadcrumbs = clear_breadcrumbs;
             $scope.save = save;
             $scope.cancel = cancel;
 
+            $scope.title = title;
             $scope.item = item;
             $scope.user_is_trusted = false;
             $scope.trust = trust;

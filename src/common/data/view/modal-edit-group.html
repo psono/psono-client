@@ -4,9 +4,9 @@
         <h3 class="modal-title">Edit Group</h3>
     </div>
     <div class="modal-body">
-        <div class="form-group" ng-class="{true: 'has-error'}[submitted && newGroupForm.name.$invalid]">
-            <input type="text" name="name" class="form-control" id="groupName" placeholder="Group Name" ng-model="group_details.name" required>
-            <p class="help-block" ng-show="submitted && newGroupForm.name.$error.required">The group's name is required</p>
+        <div class="form-group" ng-class="{true: 'has-error'}[submitted && editGroupForm.name.$invalid]">
+            <input type="text" name="name" class="form-control" id="groupName" placeholder="Group Name" ng-model="group_name" required>
+            <p class="help-block" ng-show="submitted && editGroupForm.name.$error.required">The group's name is required</p>
         </div>
 
         <hr>
@@ -27,12 +27,12 @@
                         <tr ng-repeat="user in users">
                             <td>{{user.name | limitTo: 60 }}{{user.name.length > 60 ? '...)' : ''}}</td>
                             <td>
-                                <button type="button" class="btn btn-default btn-sm" ng-click="toggle_select(user)">
+                                <button type="button" class="btn btn-default btn-sm" ng-click="toggle_user(user)" ng-disabled="user.is_current_user">
                                     <i ng-class="is_member(user) ? 'fa fa-check-square-o' : 'fa fa-square-o'"></i>
                                 </button>
                             </td>
                             <td>
-                                <button ng-if="is_member(user)" type="button" class="btn btn-default btn-sm" ng-click="toggle_group_admin(user)">
+                                <button ng-if="is_member(user)" type="button" class="btn btn-default btn-sm" ng-click="toggle_group_admin(user)" ng-disabled="user.is_current_user">
                                     <i ng-class="user.group_admin === true ? 'fa fa-check-square-o' : 'fa fa-square-o'"></i>
                                 </button>
                             </td>

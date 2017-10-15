@@ -92,7 +92,7 @@
         it('on_secret_moved_with_datastore', inject(function (managerSecretLink) {
 
             var link_id = '6899cc6b-b096-416f-b08a-6019c8cdc6a1';
-            var new_parent_share_id = null;
+            var new_parent_share_id;
             var new_parent_datastore_id = '242f83c3-6076-46a0-acd3-abbde33429dd';
             // fake datastore
             var parent = {
@@ -124,7 +124,7 @@
 
             var link_id = '6899cc6b-b096-416f-b08a-6019c8cdc6a1';
             var new_parent_share_id = '4243fdc6-8160-4247-909a-9e06b8ff41b5';
-            var new_parent_datastore_id = null;
+            var new_parent_datastore_id;
             // fake datastore
             var parent = {
                 'share_id': new_parent_share_id

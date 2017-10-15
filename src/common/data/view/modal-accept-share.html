@@ -1,7 +1,7 @@
 <form name="modalAcceptShareForm" novalidate>
     <div class="modal-header">
         <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
-        <h3 class="modal-title">Accept Share</h3>
+        <h3 class="modal-title">{{ title }}</h3>
     </div>
     <div class="modal-body">
 
@@ -28,7 +28,7 @@
 
         <div ng-controller="AcceptShareCtrl" class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title">Accept Share</h3>
+                <h3 class="panel-title">Choose location</h3>
             </div>
             <div class="panel-body">
                 <div data-target="menu-acceptshare-main" context-menu="contextMenuOnShow('menu-acceptshare-main')" context-menu-close="contextMenuOnClose('menu-acceptshare-main')" class="expand15">

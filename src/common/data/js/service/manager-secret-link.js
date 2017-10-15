@@ -110,8 +110,8 @@
          * @returns {promise} Returns promise with the status of the move
          */
         var on_secret_moved = function(link_id, parent) {
-            var new_parent_share_id = null,
-                new_parent_datastore_id = null;
+            var new_parent_share_id,
+                new_parent_datastore_id;
 
             if (parent.hasOwnProperty("share_id")) {
                 new_parent_share_id = parent.share_id;

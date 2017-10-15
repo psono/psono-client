@@ -5,53 +5,110 @@
     </div>
     <div class="modal-body">
 
-        <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
-            <thead>
-            <tr>
-                <th>Username</th>
-                <th>Read</th>
-                <th>Write</th>
-                <th>Grant</th>
-                <th>Accepted</th>
-                <th>&nbsp;</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr ng-repeat="right in share_details.user_share_rights">
-                <td>{{ right.username }}</td>
-                <td>
-                    <button type="button" class="btn btn-default btn-sm" ng-click="toggle_right('read', right)" ng-disabled="!share_details.own_share_rights.grant || (right.id == share_details.own_share_rights.id)">
-                        <i ng-if="right.read" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
-                        <i ng-if="!right.read" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
-                    </button>
-                </td>
-                <td>
-                    <button type="button" class="btn btn-default btn-sm" ng-click="toggle_right('write', right)" ng-disabled="!share_details.own_share_rights.grant || (right.id == share_details.own_share_rights.id)">
-                        <i ng-if="right.write" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
-                        <i ng-if="!right.write" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
-                    </button>
-                </td>
-                <td>
-                    <button type="button" class="btn btn-default btn-sm" ng-click="toggle_right('grant', right)" ng-disabled="!share_details.own_share_rights.grant || (right.id == share_details.own_share_rights.id)">
-                        <i ng-if="right.grant" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
-                        <i ng-if="!right.grant" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
-                    </button>
-                </td>
-                <td>
-                    <button type="button" class="btn btn-default btn-sm" ng-click="" ng-disabled="true">
-                        <i ng-if="right.accepted === true" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
-                        <i ng-if="right.accepted === false" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
-                        <i ng-if="right.accepted !== true && right.accepted !== false" class="fa fa-hourglass" aria-hidden="true"><span style="display: none">-1</span></i>
-                    </button>
-                </td>
-                <td>
-                    <button type="button" class="btn btn-default btn-sm" ng-click="delete_right(right)" ng-disabled="!share_details.own_share_rights.grant || (right.id == share_details.own_share_rights.id)">
-                        <i class="fa fa-trash" aria-hidden="true"></i>
-                    </button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+        <uib-tabset>
+
+            <uib-tab heading="Users">
+
+                <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
+                    <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Read</th>
+                        <th>Write</th>
+                        <th>Grant</th>
+                        <th>Accepted</th>
+                        <th>&nbsp;</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="right in share_details.user_share_rights">
+                        <td>{{ right.username }}</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-sm" ng-click="toggle_right('read', right)" ng-disabled="!share_details.own_share_rights.grant">
+                                <i ng-if="right.read" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                                <i ng-if="!right.read" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-sm" ng-click="toggle_right('write', right)" ng-disabled="!share_details.own_share_rights.grant">
+                                <i ng-if="right.write" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                                <i ng-if="!right.write" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-sm" ng-click="toggle_right('grant', right)" ng-disabled="!share_details.own_share_rights.grant">
+                                <i ng-if="right.grant" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                                <i ng-if="!right.grant" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-sm" ng-click="" ng-disabled="true">
+                                <i ng-if="right.accepted === true" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                                <i ng-if="right.accepted === false" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                                <i ng-if="right.accepted !== true && right.accepted !== false" class="fa fa-hourglass" aria-hidden="true"><span style="display: none">-1</span></i>
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-sm" ng-click="delete_right(right)" ng-disabled="!share_details.own_share_rights.grant">
+                                <i class="fa fa-trash" aria-hidden="true"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </uib-tab>
+
+            <uib-tab heading="Groups">
+
+                <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
+                    <thead>
+                    <tr>
+                        <th>Group Name</th>
+                        <th>Read</th>
+                        <th>Write</th>
+                        <th>Grant</th>
+                        <th>Accepted</th>
+                        <th>&nbsp;</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="right in share_details.group_share_rights">
+                        <td>{{ right.group_name }}</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-sm" ng-click="toggle_right('read', right)" ng-disabled="!share_details.own_share_rights.grant">
+                                <i ng-if="right.read" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                                <i ng-if="!right.read" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-sm" ng-click="toggle_right('write', right)" ng-disabled="!share_details.own_share_rights.grant">
+                                <i ng-if="right.write" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                                <i ng-if="!right.write" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-sm" ng-click="toggle_right('grant', right)" ng-disabled="!share_details.own_share_rights.grant">
+                                <i ng-if="right.grant" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                                <i ng-if="!right.grant" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-sm" ng-click="" ng-disabled="true">
+                                <i ng-if="right.accepted === true" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                                <i ng-if="right.accepted === false" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                                <i ng-if="right.accepted !== true && right.accepted !== false" class="fa fa-hourglass" aria-hidden="true"><span style="display: none">-1</span></i>
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-sm" ng-click="delete_right(right)" ng-disabled="!share_details.own_share_rights.grant">
+                                <i class="fa fa-trash" aria-hidden="true"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </uib-tab>
+        </uib-tabset>
 
     </div>
     <div class="modal-footer">

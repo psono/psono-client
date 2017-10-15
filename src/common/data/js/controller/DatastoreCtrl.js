@@ -31,16 +31,9 @@
             $scope.openNewFolder = openNewFolder;
             $scope.openNewItem = openNewItem;
 
+            $scope.tosearchTreeFilter = $routeParams.default_search;
             $scope.structure = { data: {}} ;
             $scope.options = {
-
-                /**
-                 * Returns the default value for the search if it exists
-                 * @returns {*}
-                 */
-                getDefaultSearch: function() {
-                    return $routeParams.default_search;
-                },
 
                 /**
                  * Triggered once someone selects a node
@@ -196,8 +189,30 @@
                     .then(function(data) {
                         $scope.structure.data = data;
                         $scope.structure.loaded = true;
+
+                        managerDatastorePassword.modifyTreeForSearch($scope.tosearchTreeFilter, undefined, $scope.structure.data);
                     });
+
+                var update_datastore = function(value) {
+                    $scope.structure.data = value;
+                    managerDatastorePassword.modifyTreeForSearch($scope.tosearchTreeFilter, $scope.structure.data);
+                };
+                managerDatastorePassword.register('save_datastore_content', update_datastore);
+                $scope.$on('$destroy', function() {
+                    managerDatastorePassword.unregister('save_datastore_content', update_datastore);
+                })
             }
+
+            $scope.$watch('tosearchTreeFilter', function(newValue, oldValue) {
+                managerDatastorePassword.modifyTreeForSearch(newValue, oldValue, $scope.structure.data);
+            });
+
+            /**
+             * clears the input field for the tree search
+             */
+            $scope.clearSearchTreeForm = function () {
+                $scope.tosearchTreeFilter = '';
+            };
 
             function contextMenuOnShow(div_id) {
                 dropDownMenuWatcher.on_open(div_id);

@@ -8,6 +8,7 @@
      * @requires $rootScope
      * @requires psonocli.managerBase
      * @requires psonocli.managerSecret
+     * @requires psonocli.managerShareLink
      * @requires psonocli.managerDatastore
      * @requires psonocli.managerShare
      * @requires psonocli.passwordGenerator
@@ -20,47 +21,9 @@
      * Service to manage the password datastore
      */
 
-    var managerDatastorePassword = function($q, $rootScope, managerBase, managerSecret, managerDatastore, managerShare, passwordGenerator, itemBlueprint, helper, browserClient, cryptoLibrary) {
+    var managerDatastorePassword = function($q, $rootScope, managerBase, managerSecret, managerShareLink, managerDatastore, managerShare, passwordGenerator, itemBlueprint, helper, browserClient, cryptoLibrary) {
 
-
-        /**
-         * @ngdoc
-         * @name psonocli.managerDatastorePassword#calculate_user_share_rights
-         * @methodOf psonocli.managerDatastorePassword
-         *
-         * @description
-         * Takes a "share" object that has share rights and inherited share rights.
-         * Out of those the function calculates the total rights and returns them
-         *
-         * @param {object} share The share object to calculate the rights of
-         *
-         * @returns {RightObject} Returns the calculated rights
-         */
-        var calculate_user_share_rights = function(share) {
-
-            var rights;
-            var right = {
-                'read': false,
-                'write': false,
-                'grant': false
-            };
-
-            if (share.user_share_rights.length > 0) {
-                // share has direct rights
-                rights = share.user_share_rights;
-            } else {
-                // share has only inherited rights
-                rights = share.user_share_rights_inherited;
-            }
-
-            for (var i = rights.length - 1; i >= 0; i--) {
-                right['read'] = right['read'] || rights[i].read;
-                right['write'] = right['write'] || rights[i].write;
-                right['grant'] = right['grant'] || rights[i].grant;
-            }
-
-            return right;
-        };
+        var registrations = {};
 
         /**
          * @ngdoc
@@ -187,7 +150,7 @@
             var obj = search[0][search[1]];
 
             // update share_rights in share object
-            obj['share_rights'] = calculate_user_share_rights(content);
+            obj['share_rights'] = content.rights;
             obj['share_rights']['delete'] = parent_share_rights['write'];
 
             // update data (folder and items) in share object
@@ -225,7 +188,7 @@
         var read_shares = function(datastore, share_rights_dict, share_index, all_share_data) {
             var open_calls = 0;
             var all_calls = [];
-            var rights;
+            var content;
 
             var parent_share_rights = {
                 'read': true,
@@ -245,9 +208,7 @@
 
                         update_paths_with_data(datastore, path, content, parent_share_rights, parent_share_id, parent_datastore_id);
 
-                        rights = calculate_user_share_rights(content);
-
-                        read_shares_recursive(sub_datastore, share_rights_dict, content.data.share_index, all_share_data, rights, share_id, undefined);
+                        read_shares_recursive(sub_datastore, share_rights_dict, content.data.share_index, all_share_data, content.rights, share_id, undefined);
                         open_calls--;
                     };
 
@@ -269,22 +230,34 @@
                         var search = find_in_datastore(path_copy, datastore);
                         var sub_datastore = search[0][search[1]];
 
+                        if (typeof(share_rights_dict[share_id]) === 'undefined') {
+
+                            content = {
+                                'rights': {
+                                    'read': false,
+                                    'write': false,
+                                    'grant': false
+                                }
+                            };
+                            update_paths_with_data(datastore, share_index[share_id].paths[i], content, parent_share_rights, parent_share_id, undefined);
+                            continue;
+                        }
+
                         // Test if we already have it cached
                         if (all_share_data.hasOwnProperty(share_id)) {
                             update_paths_with_data(datastore, share_index[share_id].paths[i], all_share_data[share_id], parent_share_rights, parent_share_id, undefined);
                             continue;
                         }
 
-                        // Let's check if we have read writes for this share, and skip it if we don't have read writes
+                        // Let's check if we have read writes for this share, and skip it if we don't have read rights
                         if (!share_rights_dict.hasOwnProperty(share_id) || !share_rights_dict[share_id].read) {
 
-                            //update path with empty data, necessary to get the rights as well
-                            var content = {
-                                'user_share_rights': [{
+                            content = {
+                                'rights': {
                                     'read': share_rights_dict[share_id].read,
                                     'write': share_rights_dict[share_id].write,
                                     'grant': share_rights_dict[share_id].grant
-                                }]
+                                }
                             };
 
                             update_paths_with_data(datastore, share_index[share_id].paths[i], content, parent_share_rights, parent_share_id, undefined);
@@ -440,6 +413,8 @@
         var save_datastore_content = function (datastore, paths) {
             var type = "password";
             var description = "default";
+
+            trigger_registration('save_datastore_content', angular.copy(datastore));
 
             // datastore has changed, so lets regenerate local lookup
             managerDatastore.fill_storage('datastore-password-leafs', datastore, [
@@ -839,6 +814,10 @@
                 var new_path = path.slice();
                 new_path.push(element.id);
 
+                if (element.hasOwnProperty('share_id')) {
+                    return;
+                }
+
                 // check if the element itself, is a link to a secret
                 if (element.hasOwnProperty('secret_id')) {
                     links.push({
@@ -1102,6 +1081,264 @@
 
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#trigger_registration
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * used to trigger all registered functions on event
+         *
+         * @param {string} key The key of the function (usually the function name)
+         * @param {function} value The value with which to call the function
+         */
+        var trigger_registration = function (key, value) {
+            if (!registrations.hasOwnProperty(key)) {
+                registrations[key] = [];
+            }
+            for (var i = registrations[key].length - 1; i >= 0; i--) {
+                registrations[key][i](value);
+            }
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#register
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * used to register functions to bypass circular dependencies
+         *
+         * @param {string} key The key of the function (usually the function name)
+         * @param {function} func The call back function
+         */
+        var register = function (key, func) {
+            if (!registrations.hasOwnProperty(key)) {
+                registrations[key] = [];
+            }
+            registrations[key].push(func);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#unregister
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * used to unregister functions to bypass circular dependencies
+         *
+         * @param {string} key The key of the function (usually the function name)
+         * @param {function} func The call back function
+         */
+        var unregister = function (key, func) {
+            if (!registrations.hasOwnProperty(key)) {
+                registrations[key] = [];
+            }
+            for (var i = registrations[key].length - 1; i >= 0; i--) {
+                if (registrations[key][i] !== func) {
+                    continue;
+                }
+                registrations[key].splice(i, 1);
+            }
+        };
+
+        /**
+         * Analyzes the breadcrumbs and returns some info about them like e.g parent_share_id
+         *
+         * @param breadcrumbs
+         * @param datastore
+         * @returns {{path: *, parent_path: *, target: *, parent_share_id: *, parent_datastore_id: *}}
+         */
+        var analyze_breadcrumbs = function(breadcrumbs, datastore) {
+
+            var path;
+            var parent_path;
+
+            var target;
+            var parent_share_id;
+            var parent_datastore_id;
+
+            if (typeof breadcrumbs.id_breadcrumbs !== "undefined") {
+                path = breadcrumbs.id_breadcrumbs.slice();
+                var path_copy = breadcrumbs.id_breadcrumbs.slice();
+                parent_path = breadcrumbs.id_breadcrumbs.slice();
+                // find drop zone
+                var val1 = find_in_datastore(breadcrumbs.id_breadcrumbs, datastore);
+                target = val1[0][val1[1]];
+
+                // get the parent (share or datastore)
+                var parent_share = managerShare.get_closest_parent_share(path_copy, datastore, datastore, 0);
+                if (parent_share.hasOwnProperty("datastore_id")) {
+                    parent_datastore_id = parent_share.datastore_id;
+                } else if (parent_share.hasOwnProperty("share_id")){
+                    parent_share_id = parent_share.share_id;
+                } else {
+                    alert("Wupsi, that should not happen: d6da43af-e0f5-46ba-ae5b-d7e5ccd2fa92")
+                }
+            } else {
+                path = [];
+                parent_path = [];
+                target = datastore;
+                parent_datastore_id = target.datastore_id;
+            }
+
+            return {
+                'path': path,
+                'parent_path': parent_path,
+                'target': target,
+                'parent_share_id': parent_share_id,
+                'parent_datastore_id': parent_datastore_id
+            }
+
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#create_share_link_in_datastore
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * Adds a single share to the password datastore, triggers the creation of the necessary share links and returns
+         * changed paths
+         *
+         * @param share The share to add
+         * @param target The target folder to add the share to
+         * @param path The path of the target folder
+         * @param parent_share_id The parent Share ID (if the parent is a share)
+         * @param parent_datastore_id The parent Datastore ID (if the parent is a datastore)
+         * @param datastore The complete password datastore
+         *
+         * @returns {Array} The paths of changes
+         */
+        var create_share_link_in_datastore = function (share, target, path, parent_share_id, parent_datastore_id, datastore) {
+
+            var link_id = cryptoLibrary.generate_uuid();
+
+            share.id = link_id;
+
+            if (typeof share.type === "undefined") {
+                //its a folder, lets add it to folders
+                if (typeof target.folders === "undefined") {
+                    target.folders = []
+                }
+                target.folders.push(share)
+            } else {
+                // its an item, lets add it to items
+                if (typeof target.items === "undefined") {
+                    target.items = []
+                }
+                target.items.push(share)
+            }
+
+            managerShareLink.create_share_link(link_id, share.share_id,
+                parent_share_id, parent_datastore_id);
+
+            path.push(share.id);
+
+            return on_share_added(share.share_id, path, datastore, 1);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#create_share_links_in_datastore
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * Adds multiple shares to the password datastore and triggers the save of the password datastore
+         *
+         * @param shares An array of shares to add to the datastore
+         * @param target The target folder to add the shares to
+         * @param parent_path The path to the parent datastore or share
+         * @param path The path to the target
+         * @param parent_share_id The parent Share ID (if the parent is a share)
+         * @param parent_datastore_id The parent Datastore ID (if the parent is a datastore)
+         * @param datastore The complete password datastore
+         *
+         * @returns {promise} Returns a promise with the success of the action
+         */
+        var create_share_links_in_datastore = function(shares, target, parent_path, path, parent_share_id, parent_datastore_id, datastore) {
+
+            var changed_paths = [parent_path];
+
+            for (var i = 0; i < shares.length; i ++) {
+                var share = shares[i];
+                changed_paths.concat(
+                    create_share_link_in_datastore(share, target, angular.copy(path), parent_share_id, parent_datastore_id, datastore)
+                )
+            }
+
+            return save_datastore_content(datastore, changed_paths);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#modifyTreeForSearch
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * searches a tree and marks all folders / items as invisible, only leaving nodes with search
+         *
+         * @param newValue
+         * @param oldValue
+         * @param searchTree
+         */
+        var modifyTreeForSearch = function (newValue, oldValue, searchTree) {
+
+            if (typeof(newValue) === 'undefined' || typeof(searchTree) === 'undefined') {
+                return;
+            }
+
+            var show = false;
+
+            var i, ii;
+            if (searchTree.hasOwnProperty('folders')) {
+                for (i = searchTree.folders.length - 1; searchTree.folders && i >= 0; i--) {
+                    show = modifyTreeForSearch(newValue, oldValue, searchTree.folders[i]) || show;
+                }
+            }
+
+            newValue = newValue.toLowerCase();
+            var searchStrings = newValue.split(" ");
+
+            // Test title of the items
+            var containCounter = 0;
+            if (searchTree.hasOwnProperty('items')) {
+                for (i = searchTree.items.length - 1; searchTree.items && i >= 0; i--) {
+                    containCounter = 0;
+                    for (ii = searchStrings.length - 1; ii >= 0; ii--) {
+                        if (typeof(searchTree.items[i].name) === 'undefined') {
+                            continue;
+                        }
+                        if (searchTree.items[i].name.toLowerCase().indexOf(searchStrings[ii]) > -1) {
+                            containCounter++
+                        }
+                    }
+                    if (containCounter === searchStrings.length) {
+                        searchTree.items[i].hidden = false;
+                        show = true;
+                    } else {
+                        searchTree.items[i].hidden = true;
+                    }
+                }
+            }
+            // Test title of the folder
+            if (typeof searchTree.name !== 'undefined') {
+                containCounter = 0;
+                for (ii = searchStrings.length - 1; ii >= 0; ii--) {
+                    if (searchTree.name.toLowerCase().indexOf(searchStrings[ii]) > -1) {
+                        containCounter++
+                    }
+                }
+                if (containCounter === searchStrings.length) {
+                    show = true;
+                }
+            }
+            searchTree.hidden = !show;
+            searchTree.expanded_temporary = newValue !== '';
+
+            return show;
+        };
+
         itemBlueprint.register('generate', passwordGenerator.generate);
         itemBlueprint.register('get_password_datastore', get_password_datastore);
         itemBlueprint.register('save_datastore_content', save_datastore_content);
@@ -1120,12 +1357,17 @@
             on_share_added: on_share_added,
             on_share_moved: on_share_moved,
             on_share_deleted: on_share_deleted,
-            update_parents: update_parents
+            update_parents: update_parents,
+            register: register,
+            unregister: unregister,
+            analyze_breadcrumbs: analyze_breadcrumbs,
+            create_share_links_in_datastore: create_share_links_in_datastore,
+            modifyTreeForSearch: modifyTreeForSearch
         };
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerDatastorePassword", ['$q', '$rootScope', 'managerBase', 'managerSecret', 'managerDatastore', 'managerShare',
+    app.factory("managerDatastorePassword", ['$q', '$rootScope', 'managerBase', 'managerSecret', 'managerShareLink', 'managerDatastore', 'managerShare',
         'passwordGenerator', 'itemBlueprint', 'helper', 'browserClient', 'cryptoLibrary', managerDatastorePassword]);
 
 }(angular));

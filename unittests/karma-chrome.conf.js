@@ -63,6 +63,7 @@
                 "../src/common/data/js/controller/modal/EditEntryCtrl.js",
                 "../src/common/data/js/controller/modal/EditFolderCtrl.js",
                 "../src/common/data/js/controller/modal/NewFolderCtrl.js",
+                "../src/common/data/js/controller/modal/DeleteVerifyCtrl.js",
                 "../src/common/data/js/controller/modal/NewGroupCtrl.js",
                 "../src/common/data/js/controller/modal/EditGroupCtrl.js",
                 "../src/common/data/js/controller/modal/ShareEditEntryCtrl.js",

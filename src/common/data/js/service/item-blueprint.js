@@ -371,8 +371,8 @@
 
                                 var path = content.path.slice();
                                 var parent_share = registrations['get_closest_parent_share'](path, datastore, null, 1);
-                                var parent_share_id = null;
-                                var parent_datastore_id = null;
+                                var parent_share_id;
+                                var parent_datastore_id;
 
                                 if (parent_share !== false && parent_share !== null) {
                                     parent_share_id = parent_share.share_id;
@@ -462,6 +462,8 @@
 
                     // create the share
                     registrations['read_share_rights'](item.share_id).then(function (share_details) {
+
+                        console.log(share_details);
 
                         var modalInstance = $uibModal.open({
                             templateUrl: 'view/modal-display-share-rights.html',

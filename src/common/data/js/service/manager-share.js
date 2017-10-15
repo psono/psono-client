@@ -4,6 +4,7 @@
     /**
      * @ngdoc service
      * @name psonocli.managerShare
+     * @requires $q
      * @requires psonocli.managerBase
      * @requires psonocli.apiClient
      * @requires psonocli.cryptoLibrary
@@ -14,7 +15,7 @@
      * Service to handle all share related tasks
      */
 
-    var managerShare = function(managerBase, apiClient, cryptoLibrary, managerSecretLink,
+    var managerShare = function($q, managerBase, apiClient, cryptoLibrary, managerSecretLink,
                                 itemBlueprint) {
 
         /**
@@ -39,8 +40,9 @@
             var onSuccess = function(content) {
                 return {
                     data: JSON.parse(cryptoLibrary.decrypt_data(content.data.data, content.data.data_nonce, secret_key)),
-                    user_share_rights: content.data.user_share_rights,
-                    user_share_rights_inherited: content.data.user_share_rights_inherited
+                    rights: content.data.rights
+                    // user_share_rights: content.data.user_share_rights,
+                    // user_share_rights_inherited: content.data.user_share_rights_inherited
                 };
             };
 
@@ -288,16 +290,18 @@
          *
          * @param {uuid} share_id The share id
          * @param {uuid} user_id The user id
+         * @param {uuid} group_id The group id
          * @param {boolean} read The read right
          * @param {boolean} write The write right
          * @param {boolean} grant The grant right
          *
          * @returns {promise} Returns a promise with the update status
          */
-        var update_share_right = function(share_id, user_id, read, write, grant) {
+        var update_share_right = function(share_id, user_id, group_id, read, write, grant) {
 
             var onError = function(result) {
                 // pass
+                return $q.reject(result.data);
             };
 
             var onSuccess = function(content) {
@@ -305,7 +309,7 @@
             };
 
             return apiClient.update_share_right(managerBase.get_token(),
-                managerBase.get_session_secret_key(), share_id, user_id, read, write, grant)
+                managerBase.get_session_secret_key(), share_id, user_id, group_id, read, write, grant)
                 .then(onSuccess, onError);
         };
 
@@ -317,11 +321,12 @@
          * @description
          * deletes a specific share right
          *
-         * @param {uuid} share_right_id The share right id
+         * @param {uuid} user_share_right_id The user share right id
+         * @param {uuid} group_share_right_id The user share right id
          *
          * @returns {promise} Returns a promise with the status of the delete
          */
-        var delete_share_right = function(share_right_id) {
+        var delete_share_right = function(user_share_right_id, group_share_right_id) {
 
             var onError = function(result) {
                 // pass
@@ -332,8 +337,35 @@
             };
 
             return apiClient.delete_share_right(managerBase.get_token(),
-                managerBase.get_session_secret_key(), share_right_id)
+                managerBase.get_session_secret_key(), user_share_right_id, group_share_right_id)
                 .then(onSuccess, onError);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerShare#decrypt_share
+         * @methodOf psonocli.managerShare
+         *
+         * @description
+         * Takes an encrypted share and decrypts the data (if present) with the provided secret_key
+         *
+         * @param encrypted_share
+         * @param secret_key
+         * @returns {{}}
+         */
+        var decrypt_share = function(encrypted_share, secret_key) {
+
+            var share = {};
+
+            if (typeof encrypted_share.share_data !== "undefined") {
+                share = JSON.parse(cryptoLibrary.decrypt_data(encrypted_share.share_data,
+                    encrypted_share.share_data_nonce, secret_key));
+            }
+
+            share.share_id = encrypted_share.share_id;
+            share.share_secret_key = secret_key;
+
+            return share;
         };
 
         /**
@@ -348,13 +380,12 @@
          * @param {string} text The encrypted share secret key
          * @param {string} nonce The nonce of the share secret key
          * @param {string} public_key The public key of the other user
-         * @param {uuid} link_id The link id in the parent (datastore or share)
          * @param {uuid|undefined} [parent_share_id] (optional) The id of the parent share
          * @param {uuid|undefined} [parent_datastore_id] (optional) The id of the parent datastore
          *
          * @returns {promise} Returns a promise with the share content
          */
-        var accept_share_right = function(share_right_id, text, nonce, public_key, link_id, parent_share_id,
+        var accept_share_right = function(share_right_id, text, nonce, public_key, parent_share_id,
                                           parent_datastore_id) {
 
             var secret_key = managerBase.decrypt_private_key(text, nonce, public_key);
@@ -364,34 +395,26 @@
             };
 
             var onSuccess = function(content) {
-                var share = {};
-                if (typeof content.data.share_data !== "undefined") {
-                    share = JSON.parse(cryptoLibrary.decrypt_data(content.data.share_data,
-                        content.data.share_data_nonce,secret_key));
-                }
+                var decrypted_share = decrypt_share(content.data, secret_key);
 
-
-                if (typeof share.type === 'undefined' && typeof content.data.share_type !== "undefined") {
+                if (typeof decrypted_share.type === 'undefined' && typeof content.data.share_type !== "undefined") {
 
                     var type = managerBase.decrypt_private_key(content.data.share_type,
                         content.data.share_type_nonce, public_key);
 
                     if (type !== 'folder') {
-                        share.type = type;
+                        decrypted_share.type = type;
                     }
                 }
 
-                share.share_id = content.data.share_id;
-                share.share_secret_key = secret_key;
-
-                return share;
+                return decrypted_share;
             };
 
             var encrypted_key = managerBase.encrypt_secret_key(secret_key);
 
             return apiClient.accept_share_right(managerBase.get_token(),
                 managerBase.get_session_secret_key(), share_right_id,
-                encrypted_key.text, encrypted_key.nonce, link_id, parent_share_id, parent_datastore_id)
+                encrypted_key.text, encrypted_key.nonce, parent_share_id, parent_datastore_id)
                 .then(onSuccess, onError);
         };
 
@@ -487,6 +510,7 @@
             create_share_right: create_share_right,
             update_share_right: update_share_right,
             delete_share_right: delete_share_right,
+            decrypt_share: decrypt_share,
             accept_share_right: accept_share_right,
             decline_share_right: decline_share_right,
             get_closest_parent_share: get_closest_parent_share
@@ -494,7 +518,7 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerShare", ['managerBase', 'apiClient', 'cryptoLibrary', 'managerSecretLink',
+    app.factory("managerShare", ['$q', 'managerBase', 'apiClient', 'cryptoLibrary', 'managerSecretLink',
         'itemBlueprint', managerShare]);
 
 }(angular));

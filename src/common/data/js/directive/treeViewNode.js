@@ -7,13 +7,14 @@
      * @requires $q
      * @requires $compile
      * @requires $timeout
+     * @requires $uibModal
      * @requires ngTree.dropDownMenuWatcher
      * @restrict A
      *
      * @description
      * Directive for the node in a tree structure
      */
-    var treeViewNode = function($q, $compile, $timeout, dropDownMenuWatcher) {
+    var treeViewNode = function($q, $compile, $timeout, $uibModal, dropDownMenuWatcher) {
         return {
             restrict: 'A',
             require: '^treeView',
@@ -30,7 +31,6 @@
 
 
                 $timeout(function(){
-                    console.log(scope.treeView);
                     scope.treeView = scope.treeView;
                 }, 5000);
 
@@ -237,9 +237,29 @@
                 scope.deleteNode  = function (node, event) {
                     event.preventDefault();
 
-                    if (typeof options.onDeleteNode === "function") {
-                        options.onDeleteNode(node, getPropertyPath(idProperty));
-                    }
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'view/modal-delete-verify.html',
+                        controller: 'ModalDeleteVerifyCtrl',
+                        resolve: {
+                            title: function () {
+                                return 'Delete Folder';
+                            },
+                            description: function () {
+                                return 'You are about to delete the folder and all its content. Are you sure?';
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function () {
+                        // User clicked the yes button
+
+                        if (typeof options.onDeleteNode === "function") {
+                            options.onDeleteNode(node, getPropertyPath(idProperty));
+                        }
+
+                    }, function () {
+                        // cancel triggered
+                    });
                 };
 
                 /**
@@ -318,11 +338,32 @@
                  * @param event
                  */
                 scope.delete_item  = function (item, event) {
+
                     event.preventDefault();
 
-                    if (typeof options.onDeleteItem === "function") {
-                        options.onDeleteItem(item, getPropertyPath(idProperty, item));
-                    }
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'view/modal-delete-verify.html',
+                        controller: 'ModalDeleteVerifyCtrl',
+                        resolve: {
+                            title: function () {
+                                return 'Delete Entry';
+                            },
+                            description: function () {
+                                return 'You are about to delete this entry. Are you sure?';
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function () {
+                        // User clicked the yes button
+
+                        if (typeof options.onDeleteItem === "function") {
+                            options.onDeleteItem(item, getPropertyPath(idProperty, item));
+                        }
+
+                    }, function () {
+                        // cancel triggered
+                    });
                 };
                 /**
                  * fired if someone selects an item
@@ -618,7 +659,7 @@
                         '    </li>' +
                         '    <li role="menuitem"' +
                         '       ng-click="editItem(item, $event)"' +
-                        '       ng-class="{hidden: item.share_rights.write === true || item.share_rights.read === false}">' +
+                        '       ng-class="{hidden: item.share_rights.write === true || item.share_rights.read === false || item.type === \'user\'}">' +
                         '       <a href="#"><i class="fa fa-eye"></i>Show</a>' +
                         '    </li>' +
                         '    <li class="divider"' +
@@ -648,7 +689,7 @@
                         '    </li>' +
                         '    <li role="menuitem"' +
                         '       ng-click="editItem(item, $event)"' +
-                        '       ng-class="{hidden: item.share_rights.write === true || item.share_rights.read === false}">' +
+                        '       ng-class="{hidden: item.share_rights.write === true || item.share_rights.read === false || item.type === \'user\'}">' +
                         '       <a href="#"><i class="fa fa-eye"></i>Show</a>' +
                         '    </li>' +
                         '    <li class="divider"' +
@@ -673,6 +714,6 @@
     };
 
     var app = angular.module('ngTree');
-    app.directive('treeViewNode', ['$q', '$compile', '$timeout', 'dropDownMenuWatcher', treeViewNode]);
+    app.directive('treeViewNode', ['$q', '$compile', '$timeout', '$uibModal', 'dropDownMenuWatcher', treeViewNode]);
 
 }(angular));

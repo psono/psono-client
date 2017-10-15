@@ -58,14 +58,25 @@
              * @param {object} right The right to delete
              */
             function delete_right(right) {
+                var share_rights;
+                var user_share_right_id;
+                var group_share_right_id;
 
-                for (var i = share_details.user_share_rights.length - 1; i >= 0; i--) {
-                    if (share_details.user_share_rights[i].id !== right.id) {
+                if (right.hasOwnProperty('user_id')) {
+                    share_rights = share_details.user_share_rights;
+                    user_share_right_id = right.id;
+                } else {
+                    share_rights = share_details.group_share_rights;
+                    group_share_right_id = right.id;
+                }
+
+                for (var i = share_rights.length - 1; i >= 0; i--) {
+                    if (share_rights[i].id !== right.id) {
                         continue;
                     }
 
-                    share_details.user_share_rights.splice(i, 1);
-                    managerShare.delete_share_right(right.id);
+                    share_rights.splice(i, 1);
+                    managerShare.delete_share_right(user_share_right_id, group_share_right_id);
                 }
             }
 
@@ -82,9 +93,20 @@
              */
             function toggle_right(type, right) {
 
-                right[type] = !right[type];
 
-                managerShare.update_share_right(right.share_id, right.user_id, right.read, right.write, right.grant)
+                var onError = function(data) {
+                    // pass
+                };
+
+                var onSuccess = function() {
+                    right[type] = !right[type];
+                };
+
+                var new_right = angular.copy(right);
+                new_right[type] = !new_right[type];
+
+                managerShare.update_share_right(new_right.share_id, new_right.user_id, new_right.group_id, new_right.read, new_right.write, new_right.grant)
+                    .then(onSuccess, onError);
             }
 
         }]);

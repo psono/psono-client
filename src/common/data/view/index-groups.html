@@ -17,7 +17,9 @@
         <div class="panel-body">
 
             <div class="panel-buttons">
-                <button type="submit" class="btn btn-primary btn-primary" ng-click="create_group()"><i class="fa fa-plus"></i> Create New Group</button>
+                <button type="submit" class="btn btn-primary btn-primary" ng-click="create_group()">
+                    <i class="fa fa-plus"></i> Create New Group
+                </button>
                 <div class='clearfix'></div>
             </div>
 
@@ -27,19 +29,35 @@
                     <th>Name</th>
                     <th>Edit</th>
                     <th>Delete</th>
+                    <th>Accept</th>
+                    <th>Decline</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr ng-repeat="group in groups">
                     <td>{{ group.name }}</td>
                     <td>
-                        <button type="button" class="btn btn-default btn-sm" ng-click="edit_group(group, 'lg')" ng-disabled="!group.group_admin" >
+                        <button type="button" class="btn btn-default btn-sm" ng-click="edit_group(group.group_id, 'lg')"
+                                ng-disabled="!group.group_admin || (group.accepted !== false && group.accepted !== true)" >
                             <i class="fa fa-wrench" aria-hidden="true"><span style="display: none">0</span></i>
                         </button>
                     </td>
                     <td>
-                        <button type="button" class="btn btn-default btn-sm" ng-click="delete_group(group)" ng-disabled="!group.group_admin" >
+                        <button type="button" class="btn btn-default btn-sm" ng-click="delete_group(group.group_id)"
+                                ng-disabled="!group.group_admin || (group.accepted !== false && group.accepted !== true)" >
                             <i class="fa fa-trash" aria-hidden="true"><span style="display: none">0</span></i>
+                        </button>
+                    </td>
+                    <td>
+                        <button ng-if="group.accepted !== false && group.accepted !== true" type="button"
+                                class="btn btn-default btn-sm" ng-click="accept_group(group)">
+                            Accept
+                        </button>
+                    </td>
+                    <td>
+                        <button ng-if="group.accepted !== false && group.accepted !== true" type="button"
+                                class="btn btn-default btn-sm" ng-click="decline_group(group)">
+                            Decline
                         </button>
                     </td>
                 </tr>

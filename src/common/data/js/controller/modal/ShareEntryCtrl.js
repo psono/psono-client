@@ -172,10 +172,6 @@
                                     && content.urlfilter_field === content.fields[i].name) {
                                     user_object.urlfilter = content.fields[i].value;
                                 }
-                                if (content.hasOwnProperty("autosubmit_field")
-                                    && content.autosubmit_field === content.fields[i].name) {
-                                    user_object.autosubmit = content.fields[i].value;
-                                }
                                 user_object.data[content.fields[i].name] = content.fields[i].value;
                             }
 
