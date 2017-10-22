@@ -24,6 +24,8 @@
     var managerDatastorePassword = function($q, $rootScope, managerBase, managerSecret, managerShareLink, managerDatastore, managerShare, passwordGenerator, itemBlueprint, helper, browserClient, cryptoLibrary) {
 
         var registrations = {};
+        var _share_index = {};
+        var password_datastore_read = false;
 
         /**
          * @ngdoc
@@ -216,7 +218,7 @@
                         open_calls--;
                     };
                     open_calls++;
-                    return managerShare.read_share(share_id, share_index[share_id].secret_key)
+                    return managerShare.read_share(share_id, _share_index[share_id])
                         .then(onSuccess, onError);
                 };
 
@@ -225,23 +227,12 @@
                         continue;
                     }
 
+                    _share_index[share_id] = share_index[share_id].secret_key;
+
                     for (var i = share_index[share_id].paths.length - 1; i >= 0; i--) {
                         var path_copy = share_index[share_id].paths[i].slice();
                         var search = find_in_datastore(path_copy, datastore);
                         var sub_datastore = search[0][search[1]];
-
-                        if (typeof(share_rights_dict[share_id]) === 'undefined') {
-
-                            content = {
-                                'rights': {
-                                    'read': false,
-                                    'write': false,
-                                    'grant': false
-                                }
-                            };
-                            update_paths_with_data(datastore, share_index[share_id].paths[i], content, parent_share_rights, parent_share_id, undefined);
-                            continue;
-                        }
 
                         // Test if we already have it cached
                         if (all_share_data.hasOwnProperty(share_id)) {
@@ -250,7 +241,7 @@
                         }
 
                         // Let's check if we have read writes for this share, and skip it if we don't have read rights
-                        if (!share_rights_dict.hasOwnProperty(share_id) || !share_rights_dict[share_id].read) {
+                        if (share_rights_dict.hasOwnProperty(share_id) && !share_rights_dict[share_id].read) {
 
                             content = {
                                 'rights': {
@@ -259,6 +250,15 @@
                                     'grant': share_rights_dict[share_id].grant
                                 }
                             };
+
+                            update_paths_with_data(datastore, share_index[share_id].paths[i], content, parent_share_rights, parent_share_id, undefined);
+                            continue;
+                        }
+
+                        // No specific share rights for this share, lets assume inherited rights and check if we have parent read rights
+                        if (!share_rights_dict.hasOwnProperty(share_id) && !parent_share_rights.read) {
+
+                            content = angular.copy(parent_share_rights);
 
                             update_paths_with_data(datastore, share_index[share_id].paths[i], content, parent_share_rights, parent_share_id, undefined);
                             continue;
@@ -372,6 +372,9 @@
                             ['search', 'urlfilter']
 
                         ]);
+
+                        password_datastore_read = true;
+
                         return datastore;
                     };
                     var onError = function (datastore) {};
@@ -1339,6 +1342,39 @@
             return show;
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#get_inaccessible_shares
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * Takes a list of shares and will check which ones are accessible or not.
+         * It will return a list of shares that are not accessible.
+         *
+         * @param {Array} share_list The list of shares (objects with share_id attribute)
+         *
+         * @returns {Array} A list of the objects that are not accessible
+         */
+        var get_inaccessible_shares = function (share_list) {
+
+            // returns an empty list if the password datastore hasn't been read yet
+            if (!password_datastore_read) {
+                return [];
+            }
+
+            var inaccessible_shares = [];
+
+            for (var i = 0; i < share_list.length; i++) {
+                if (_share_index.hasOwnProperty(share_list[i].share_id)) {
+                    continue;
+                }
+                inaccessible_shares.push(share_list[i])
+            }
+
+            return inaccessible_shares;
+
+        };
+
         itemBlueprint.register('generate', passwordGenerator.generate);
         itemBlueprint.register('get_password_datastore', get_password_datastore);
         itemBlueprint.register('save_datastore_content', save_datastore_content);
@@ -1362,7 +1398,8 @@
             unregister: unregister,
             analyze_breadcrumbs: analyze_breadcrumbs,
             create_share_links_in_datastore: create_share_links_in_datastore,
-            modifyTreeForSearch: modifyTreeForSearch
+            modifyTreeForSearch: modifyTreeForSearch,
+            get_inaccessible_shares: get_inaccessible_shares
         };
     };
 

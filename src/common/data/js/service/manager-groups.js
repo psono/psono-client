@@ -11,7 +11,7 @@
      * @requires psonocli.storage
      * @requires psonocli.helper
      * @requires psonocli.managerBase
-     * @requires psonocli.managerDatastore
+     * @requires psonocli.managerDatastorePassword
      * @requires psonocli.managerShare
      * @requires psonocli.shareBlueprint
      * @requires psonocli.itemBlueprint
@@ -22,7 +22,7 @@
      */
 
     var managerGroups = function($q, $rootScope, apiClient, browserClient, storage,
-                                 helper, managerBase, managerDatastore, managerShare, shareBlueprint,
+                                 helper, managerBase, managerDatastorePassword, managerShare, shareBlueprint,
                                  itemBlueprint, cryptoLibrary) {
 
         var groups_cache;
@@ -46,6 +46,7 @@
          * @returns {*} Returns the secret key of a group
          */
         var get_group_secret_key = function(group_id, group_secret_key, group_secret_key_nonce, group_secret_key_type, group_public_key) {
+
             if (group_secret_key_cache.hasOwnProperty(group_id)) {
                 return group_secret_key_cache[group_id];
             }
@@ -302,6 +303,71 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerGroups#read_group_rights
+         * @methodOf psonocli.managerGroups
+         *
+         * @description
+         * Reads the all group rights of the user or the group rights of a specific group
+         *
+         * @param {uuid|undefined} [group_id] (optional) group ID
+         *
+         * @returns {promise} Returns a list of groups
+         */
+        var read_group_rights = function(group_id) {
+
+            var onSuccess = function(data){
+                return data.data;
+            };
+
+            var onError = function() {
+                //pass
+            };
+
+            return apiClient.read_group_rights(managerBase.get_token(), managerBase.get_session_secret_key(), group_id)
+                .then(onSuccess, onError);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerGroups#get_outstanding_group_shares
+         * @methodOf psonocli.managerGroups
+         *
+         * @description
+         * Gets all group rights and compares it the accessible rights in the current password datastore.
+         * Will return a list of share rights not yet in the datastore.
+         *
+         * @returns {promise} Returns a list of groups
+         */
+        var get_outstanding_group_shares = function() {
+
+            var onSuccess = function(data){
+
+                var inaccessible_share_list = managerDatastorePassword.get_inaccessible_shares(data.group_rights);
+                var inaccessible_share_by_group_dict = {};
+
+                for (var i = 0; i < inaccessible_share_list.length; i++) {
+                    var inaccessible_share = inaccessible_share_list[i];
+
+                    if (!inaccessible_share_by_group_dict.hasOwnProperty(inaccessible_share.group_id)) {
+                        inaccessible_share_by_group_dict[inaccessible_share.group_id] = {};
+                    }
+                    inaccessible_share_by_group_dict[inaccessible_share.group_id][inaccessible_share.share_id] = inaccessible_share;
+                }
+
+                return inaccessible_share_by_group_dict;
+            };
+
+            var onError = function() {
+                //pass
+            };
+
+            return read_group_rights()
+                .then(onSuccess, onError);
+
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerGroups#create_membership
          * @methodOf psonocli.managerGroups
          *
@@ -394,6 +460,67 @@
                 .then(onSuccess, onError);
         };
 
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerGroups#decrypt_group_share
+         * @methodOf psonocli.managerGroups
+         *
+         * @description
+         * Decrypts for a given group a share
+         *
+         * @param group_id The group id
+         * @param share The encrypted share
+         *
+         * @returns {{}} The decrypted sahre
+         */
+        var decrypt_group_share = function(group_id, share) {
+
+            var share_secret_key = decrypt_secret_key(group_id, share.share_key, share.share_key_nonce);
+            var decrypted_share = managerShare.decrypt_share(share, share_secret_key);
+
+            if (typeof decrypted_share.name === 'undefined') {
+                decrypted_share.name = decrypt_secret_key(group_id, share.share_title, share.share_title_nonce);
+            }
+
+            if (typeof decrypted_share.type === 'undefined' && typeof share.share_type !== "undefined") {
+
+                var type = decrypt_secret_key(group_id, share.share_type, share.share_type_nonce);
+
+                if (type !== 'folder') {
+                    decrypted_share.type = type;
+                }
+            }
+
+            return decrypted_share
+        };
+
+
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerGroups#decrypt_group_shares
+         * @methodOf psonocli.managerGroups
+         *
+         * @description
+         * Decrypts for a given group a list of shares
+         *
+         * @param group_id The group id
+         * @param {Array} shares A list of encrypted shares
+         *
+         * @returns {Array} A list of decrypted shares
+         */
+        var decrypt_group_shares = function(group_id, shares) {
+
+            var decrypted_shares = [];
+            for (var i = 0; i < shares.length; i++) {
+                var decrypted_share = decrypt_group_share(group_id, shares[i]);
+                decrypted_shares.push(decrypted_share);
+            }
+
+            return decrypted_shares;
+        };
+
         /**
          * @ngdoc
          * @name psonocli.managerGroups#accept_membership
@@ -409,10 +536,9 @@
         var accept_membership = function(membership_id) {
 
             var onSuccess = function(data){
-                var i;
                 var group_id;
                 var public_key;
-                for (i = 0; i < groups_cache.length; i++) {
+                for (var i = 0; i < groups_cache.length; i++) {
                     if (groups_cache[i]['membership_id'] !== membership_id) {
                         continue;
                     }
@@ -435,29 +561,7 @@
                     break;
                 }
 
-                var decrypted_shares = [];
-                for (i = 0; i < data.data.shares.length; i++) {
-
-                    var share_secret_key = decrypt_secret_key(group_id, data.data.shares[i].share_key, data.data.shares[i].share_key_nonce);
-
-                    var decrypted_share = managerShare.decrypt_share(data.data.shares[i], share_secret_key);
-
-                    if (typeof decrypted_share.name === 'undefined') {
-                        decrypted_share.name = decrypt_secret_key(group_id, share.share_title, share.share_title_nonce);
-                    }
-
-                    if (typeof decrypted_share.type === 'undefined' && typeof data.data.shares[i].share_type !== "undefined") {
-
-                        var type = decrypt_secret_key(group_id, data.data.shares[i].share_type, data.data.shares[i].share_type_nonce);
-
-                        if (type !== 'folder') {
-                            decrypted_share.type = type;
-                        }
-                    }
-                    decrypted_shares.push(decrypted_share);
-                }
-
-                return decrypted_shares;
+                return decrypt_group_shares(group_id, data.data.shares);
             };
 
             var onError = function() {
@@ -505,9 +609,13 @@
             create_group: create_group,
             update_group: update_group,
             delete_group: delete_group,
+            read_group_rights: read_group_rights,
+            get_outstanding_group_shares: get_outstanding_group_shares,
             create_membership: create_membership,
             update_membership: update_membership,
             delete_membership: delete_membership,
+            decrypt_group_share: decrypt_group_share,
+            decrypt_group_shares: decrypt_group_shares,
             accept_membership: accept_membership,
             decline_membership: decline_membership
         };
@@ -515,7 +623,7 @@
 
     var app = angular.module('psonocli');
     app.factory("managerGroups", ['$q', '$rootScope', 'apiClient', 'browserClient', 'storage',
-        'helper', 'managerBase', 'managerDatastore', 'managerShare', 'shareBlueprint',
+        'helper', 'managerBase', 'managerDatastorePassword', 'managerShare', 'shareBlueprint',
         'itemBlueprint', 'cryptoLibrary', managerGroups]);
 
 }(angular));

@@ -504,8 +504,6 @@
          * @returns {promise} promise
          */
         var read_datastore = function (token, session_secret_key, datastore_id) {
-
-            //optional parameter datastore_id
             if (datastore_id === undefined) { datastore_id = null; }
 
             var endpoint = '/datastore/' + (datastore_id === null ? '' : datastore_id + '/');
@@ -647,8 +645,6 @@
          * @returns {promise} promise
          */
         var read_secret = function (token, session_secret_key, secret_id, synchronous) {
-
-            //optional parameter secret_id
             if (secret_id === undefined) { secret_id = null; }
 
             var endpoint = '/secret/' + (secret_id === null ? '' : secret_id + '/');
@@ -1471,11 +1467,10 @@
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
          * @param {uuid|undefined} [group_id=null] (optional) group ID
+         *
          * @returns {promise} promise
          */
         var read_group = function (token, session_secret_key, group_id) {
-
-            //optional parameter group_id
             if (group_id === undefined) { group_id = null; }
 
             var endpoint = '/group/' + (group_id === null ? '' : group_id + '/');
@@ -1551,7 +1546,6 @@
             };
 
             var headers = {
-                "Content-Type": "application/json",
                 "Authorization": "Token "+ token
             };
 
@@ -1581,6 +1575,34 @@
 
             var headers = {
                 "Content-Type": "application/json",
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#read_group_rights
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax GET request with the token as authentication to get all the group rights accessible by a user
+         * or for a specific group
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid|undefined} [group_id=null] (optional) group ID
+         *
+         * @returns {promise} promise
+         */
+        var read_group_rights = function (token, session_secret_key, group_id) {
+            if (group_id === undefined) { group_id = null; }
+
+            var endpoint = '/group/rights/' + (group_id === null ? '' : group_id + '/');
+            var connection_type = "GET";
+            var data = null;
+            var headers = {
                 "Authorization": "Token "+ token
             };
 
@@ -1636,7 +1658,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.apiClient#create_membership
+         * @name psonocli.apiClient#update_membership
          * @methodOf psonocli.apiClient
          *
          * @description
@@ -1796,6 +1818,7 @@
             create_group: create_group,
             update_group: update_group,
             delete_group: delete_group,
+            read_group_rights: read_group_rights,
             create_membership: create_membership,
             update_membership: update_membership,
             delete_membership: delete_membership,

@@ -64,7 +64,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr ng-repeat="group in groups">
+                        <tr ng-repeat="group in groups" ng-if="group.accepted">
                             <td>{{group.name | limitTo: 60 }}{{group.name.length > 60 ? '...)' : ''}}</td>
                             <td>
                                 <button type="button" class="btn btn-default btn-sm" ng-click="toggle_select(group.group_id, 'group')">

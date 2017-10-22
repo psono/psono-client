@@ -53,6 +53,10 @@
                                 class="btn btn-default btn-sm" ng-click="accept_group(group)">
                             Accept
                         </button>
+                        <button ng-if="group.accepted == true && outstanding_share_index[group.group_id]" type="button"
+                                class="btn btn-default btn-sm" ng-click="accept_new_group_shares(group)">
+                            Accept New Shares
+                        </button>
                     </td>
                     <td>
                         <button ng-if="group.accepted !== false && group.accepted !== true" type="button"

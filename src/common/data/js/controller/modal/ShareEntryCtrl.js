@@ -75,10 +75,9 @@
                     $scope.users = users;
                 });
 
-                managerGroups.read_groups()
+                managerGroups.read_groups(true)
                     .then(function (groups) {
                         $scope.groups = groups;
-                        console.log(groups);
                     });
             }
 

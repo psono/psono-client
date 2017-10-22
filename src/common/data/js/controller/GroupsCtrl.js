@@ -21,15 +21,21 @@
             $scope.edit_group = edit_group;
             $scope.delete_group = delete_group;
             $scope.accept_group = accept_group;
+            $scope.accept_new_group_shares = accept_new_group_shares;
             $scope.decline_group = decline_group;
 
             activate();
 
             function activate() {
 
-                managerGroups.read_groups()
+                managerGroups.read_groups(true)
                     .then(function (groups) {
                         $scope.groups = groups;
+                    });
+
+                managerGroups.get_outstanding_group_shares()
+                    .then(function (outstanding_share_index) {
+                        $scope.outstanding_share_index = outstanding_share_index;
                     });
             }
 
@@ -184,7 +190,7 @@
              * @methodOf psonocli.controller:GroupsCtrl
              *
              * @description
-             * Accepts a given membership request
+             * Accepts a given membership request and adds the new shares to the datastore
              *
              * @param {uuid} group The group to accept
              */
@@ -251,9 +257,104 @@
                 }, function () {
                     // cancel triggered
                 });
+            }
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:GroupsCtrl#accept_new_group_shares
+             * @methodOf psonocli.controller:GroupsCtrl
+             *
+             * @description
+             * Add the pending shares to our datastore
+             *
+             * @param {uuid} group The group to accept
+             */
+            function accept_new_group_shares(group) {
 
+                if (!$scope.outstanding_share_index.hasOwnProperty(group.group_id)) {
+                    return;
+                }
 
+                var outstanding_share_index = $scope.outstanding_share_index[group.group_id];
+
+                var modalInstance = $uibModal.open({
+                    templateUrl: 'view/modal-accept-share.html',
+                    controller: 'ModalAcceptShareCtrl',
+                    resolve: {
+                        title: function () {
+                            return 'Accept New Shares';
+                        },
+                        item: function () {
+                            return {
+                                'share_right_read': true
+                            };
+                        },
+                        user: function () {
+                            return {
+                                'user_id': group.user_id,
+                                'user_username': group.user_username
+                            };
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function (breadcrumbs) {
+                    // User clicked the prime button
+
+                    var onSuccess = function (datastore) {
+
+                        var analyzed_breadcrumbs = managerDatastorePassword.analyze_breadcrumbs(breadcrumbs, datastore);
+
+                        if (group.share_right_grant === false && typeof(analyzed_breadcrumbs['parent_share_id']) !== 'undefined') {
+                            // No grant right, yet the parent is a a share?!?
+                            alert("Wups, this should not happen. Error: 405989c9-44c7-4fe7-b443-4ee7c8e07ed1");
+                            return;
+                        }
+
+                        var onSuccess = function (group_details) {
+
+                            var encrypted_shares = [];
+                            for (var i = 0; i < group_details.group_share_rights.length; i++) {
+                                var share = group_details.group_share_rights[i];
+                                if (!outstanding_share_index.hasOwnProperty(share.share_id)) {
+                                    continue;
+                                }
+                                share.share_key = share.key;
+                                share.share_key_nonce = share.key_nonce;
+                                share.share_title = share.title;
+                                share.share_title_nonce = share.title_nonce;
+                                share.share_type = share.type;
+                                share.share_type_nonce = share.type_nonce;
+                                encrypted_shares.push(share);
+                            }
+
+                            var shares = managerGroups.decrypt_group_shares(group.group_id, encrypted_shares);
+
+                            managerDatastorePassword.create_share_links_in_datastore(shares, analyzed_breadcrumbs['target'],
+                                analyzed_breadcrumbs['parent_path'], analyzed_breadcrumbs['path'],
+                                analyzed_breadcrumbs['parent_share_id'], analyzed_breadcrumbs['parent_datastore_id'],
+                                datastore);
+
+                            delete $scope.outstanding_share_index[group.group_id];
+                        };
+
+                        var onError = function (data) {
+                            //pass
+                        };
+
+                        managerGroups.read_group(group.group_id)
+                            .then(onSuccess, onError);
+                    };
+                    var onError = function (data) {
+                        //pass
+                    };
+
+                    managerDatastorePassword.get_password_datastore()
+                        .then(onSuccess, onError);
+
+                }, function () {
+                    // cancel triggered
+                });
             }
 
             /**
