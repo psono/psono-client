@@ -19,6 +19,22 @@
             expect(apiClient).toBeDefined();
         }));
 
+        it('ínfo', inject(function (apiClient) {
+
+            $httpBackend.when('GET', "https://www.psono.pw/server/info/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.info()).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
         it('login', inject(function (apiClient) {
 
             var login_info = 'a-login_info';
@@ -109,6 +125,27 @@
                 });
 
             expect(apiClient.activate_token(token, verification, verification_nonce)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
+        it('get_sessions', inject(function (apiClient) {
+
+            var token = 'a-token';
+            var session_secret_key = 'a-session_secret_key';
+
+            $httpBackend.when('GET', "https://www.psono.pw/server/authentication/sessions/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.get_sessions(token, session_secret_key)).toBeDefined();
 
             $httpBackend.flush();
         }));
@@ -391,6 +428,32 @@
                 });
 
             expect(apiClient.create_datastore(token, session_secret_key, type, description, encrypted_data, encrypted_data_nonce, is_default, encrypted_data_secret_key, encrypted_data_secret_key_nonce)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
+        it('delete_datastore', inject(function (apiClient) {
+
+            var token = 'a-token';
+            var session_secret_key = 'a-session_secret_key';
+            var datastore_id = 'a-datastore-id';
+            var authkey = 'a-authkey';
+
+            $httpBackend.when('DELETE', "https://www.psono.pw/server/datastore/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    expect(data.datastore_id).toEqual(datastore_id);
+                    expect(data.authkey).toEqual(authkey);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.delete_datastore(token, session_secret_key, datastore_id, authkey)).toBeDefined();
 
             $httpBackend.flush();
         }));
@@ -1163,6 +1226,316 @@
                 });
 
             expect(apiClient.delete_share_link(token, session_secret_key, link_id)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
+        it('read_group_specific', inject(function (apiClient) {
+
+            var token = 'a-token';
+            var session_secret_key = 'a-session_secret_key';
+            var group_id = 'a-group_id';
+
+            $httpBackend.when('GET', "https://www.psono.pw/server/group/a-group_id/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.read_group(token, session_secret_key, group_id)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
+        it('read_group_all', inject(function (apiClient) {
+
+            var token = 'a-token';
+            var session_secret_key = 'a-session_secret_key';
+
+            $httpBackend.when('GET', "https://www.psono.pw/server/group/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.read_group(token, session_secret_key)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
+        it('create_group', inject(function (apiClient) {
+
+            var token = 'a-token';
+            var session_secret_key = 'a-session_secret_key';
+            var name = 'a-name';
+            var secret_key = 'a-secret_key';
+            var secret_key_nonce = 'a-secret_key_nonce';
+            var private_key = 'a-private_key';
+            var private_key_nonce = 'a-private_key_nonce';
+            var public_key = 'a-public_key';
+
+            $httpBackend.when('PUT', "https://www.psono.pw/server/group/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    expect(data.name).toEqual(name);
+                    expect(data.secret_key).toEqual(secret_key);
+                    expect(data.secret_key).toEqual(secret_key);
+                    expect(data.secret_key_nonce).toEqual(secret_key_nonce);
+                    expect(data.private_key).toEqual(private_key);
+                    expect(data.private_key_nonce).toEqual(private_key_nonce);
+                    expect(data.public_key).toEqual(public_key);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.create_group(token, session_secret_key, name, secret_key, secret_key_nonce, private_key, private_key_nonce, public_key)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
+        it('update_group', inject(function (apiClient) {
+
+            var token = 'a-token';
+            var session_secret_key = 'a-session_secret_key';
+            var group_id = 'a-group_id';
+            var name = 'a-name';
+
+            $httpBackend.when('POST', "https://www.psono.pw/server/group/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    expect(data.group_id).toEqual(group_id);
+                    expect(data.name).toEqual(name);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.update_group(token, session_secret_key, group_id, name)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
+        it('delete_group', inject(function (apiClient) {
+
+            var token = 'a-token';
+            var session_secret_key = 'a-session_secret_key';
+            var group_id = 'a-group_id';
+
+            $httpBackend.when('DELETE', "https://www.psono.pw/server/group/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    expect(data.group_id).toEqual(group_id);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.delete_group(token, session_secret_key, group_id)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
+        it('read_group_rights_specific', inject(function (apiClient) {
+
+            var token = 'a-token';
+            var session_secret_key = 'a-session_secret_key';
+            var group_id = 'a-group_id';
+
+            $httpBackend.when('GET', "https://www.psono.pw/server/group/rights/a-group_id/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.read_group_rights(token, session_secret_key, group_id)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
+        it('read_group_rights_all', inject(function (apiClient) {
+
+            var token = 'a-token';
+            var session_secret_key = 'a-session_secret_key';
+
+            $httpBackend.when('GET', "https://www.psono.pw/server/group/rights/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.read_group_rights(token, session_secret_key)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
+        it('create_membership', inject(function (apiClient) {
+
+            var token = 'a-token';
+            var session_secret_key = 'a-session_secret_key';
+            var group_id = 'a-group_id';
+            var user_id = 'a-user_id';
+            var secret_key = 'a-secret_key';
+            var secret_key_nonce = 'a-secret_key_nonce';
+            var secret_key_type = 'a-secret_key_type';
+            var private_key = 'a-private_key';
+            var private_key_nonce = 'a-private_key_nonce';
+            var private_key_type = 'a-private_key_type';
+            var group_admin = 'a-group_admin';
+
+            $httpBackend.when('PUT', "https://www.psono.pw/server/membership/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    expect(data.group_id).toEqual(group_id);
+                    expect(data.user_id).toEqual(user_id);
+                    expect(data.secret_key).toEqual(secret_key);
+                    expect(data.secret_key_nonce).toEqual(secret_key_nonce);
+                    expect(data.secret_key_type).toEqual(secret_key_type);
+                    expect(data.private_key).toEqual(private_key);
+                    expect(data.private_key_nonce).toEqual(private_key_nonce);
+                    expect(data.private_key_type).toEqual(private_key_type);
+                    expect(data.group_admin).toEqual(group_admin);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.create_membership(token, session_secret_key, group_id, user_id, secret_key,
+                secret_key_nonce,secret_key_type, private_key, private_key_nonce, private_key_type, group_admin)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
+        it('update_membership', inject(function (apiClient) {
+
+            var token = 'a-token';
+            var session_secret_key = 'a-session_secret_key';
+            var membership_id = 'a-membership_id';
+            var group_admin = 'a-group_admin';
+
+            $httpBackend.when('POST', "https://www.psono.pw/server/membership/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    expect(data.membership_id).toEqual(membership_id);
+                    expect(data.group_admin).toEqual(group_admin);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.update_membership(token, session_secret_key, membership_id, group_admin)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
+        it('delete_membership', inject(function (apiClient) {
+
+            var token = 'a-token';
+            var session_secret_key = 'a-session_secret_key';
+            var membership_id = 'a-membership_id';
+
+            $httpBackend.when('DELETE', "https://www.psono.pw/server/membership/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    expect(data.membership_id).toEqual(membership_id);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.delete_membership(token, session_secret_key, membership_id)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
+        it('accept_membership', inject(function (apiClient) {
+
+            var token = 'a-token';
+            var session_secret_key = 'a-session_secret_key';
+            var membership_id = 'a-membership_id';
+
+            $httpBackend.when('POST', "https://www.psono.pw/server/membership/accept/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    expect(data.membership_id).toEqual(membership_id);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.accept_membership(token, session_secret_key, membership_id)).toBeDefined();
+
+            $httpBackend.flush();
+        }));
+
+        it('decline_membership', inject(function (apiClient) {
+
+            var token = 'a-token';
+            var session_secret_key = 'a-session_secret_key';
+            var membership_id = 'a-membership_id';
+
+            $httpBackend.when('POST', "https://www.psono.pw/server/membership/decline/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    expect(data.membership_id).toEqual(membership_id);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            expect(apiClient.decline_membership(token, session_secret_key, membership_id)).toBeDefined();
 
             $httpBackend.flush();
         }));
