@@ -254,6 +254,11 @@
         var update_group = function(group_id, name) {
 
             var onSuccess = function(data){
+
+                if (typeof(groups_cache) === 'undefined') {
+                    return data.data;
+                }
+
                 for (var i = 0; i < groups_cache.length; i++) {
                     if (groups_cache[i].group_id !== group_id) {
                         continue;
