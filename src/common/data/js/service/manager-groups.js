@@ -25,7 +25,7 @@
                                  helper, managerBase, managerDatastorePassword, managerShare, shareBlueprint,
                                  itemBlueprint, cryptoLibrary) {
 
-        var groups_cache;
+        var groups_cache = [];
         var group_secret_key_cache = {};
         var group_private_key_cache = {};
 
@@ -50,7 +50,7 @@
             if (group_secret_key_cache.hasOwnProperty(group_id)) {
                 return group_secret_key_cache[group_id];
             }
-            if (typeof(group_secret_key) === 'undefined' && typeof(groups_cache) !== 'undefined') {
+            if (typeof(group_secret_key) === 'undefined') {
                 for (var i = 0; i < groups_cache.length; i++) {
                     if (groups_cache[i]['group_id'] !== group_id) {
                         continue;
@@ -153,7 +153,7 @@
          *
          * @param {uuid} group_id the group id
          *
-         * @returns {promise} Returns a list of groups
+         * @returns {promise} Returns the details of a group
          */
         var read_group = function(group_id) {
 
@@ -183,7 +183,7 @@
          */
         var read_groups = function(force_fresh) {
 
-            if ((typeof force_fresh === 'undefined' || force_fresh === false) && typeof(groups_cache) !== 'undefined') {
+            if ((typeof force_fresh === 'undefined' || force_fresh === false) && groups_cache.length > 0) {
                 return $q.resolve(helper.duplicate_object(groups_cache));
             }
 
@@ -215,9 +215,6 @@
         var create_group = function(name) {
 
             var onSuccess = function(data){
-                if (typeof(groups_cache) === 'undefined') {
-                    groups_cache = []
-                }
                 groups_cache.push(helper.duplicate_object(data.data));
                 return data.data;
             };
@@ -255,10 +252,6 @@
 
             var onSuccess = function(data){
 
-                if (typeof(groups_cache) === 'undefined') {
-                    return data.data;
-                }
-
                 for (var i = 0; i < groups_cache.length; i++) {
                     if (groups_cache[i].group_id !== group_id) {
                         continue;
@@ -287,7 +280,7 @@
          *
          * @param {uuid} group_id the group id and updates the local cache
          *
-         * @returns {promise} Returns a list of groups
+         * @returns {promise} Returns whether the delete was successful or not
          */
         var delete_group = function(group_id) {
 
@@ -316,7 +309,7 @@
          *
          * @param {uuid|undefined} [group_id] (optional) group ID
          *
-         * @returns {promise} Returns a list of groups
+         * @returns {promise} Returns a list of groups rights
          */
         var read_group_rights = function(group_id) {
 
@@ -341,7 +334,7 @@
          * Gets all group rights and compares it the accessible rights in the current password datastore.
          * Will return a list of share rights not yet in the datastore.
          *
-         * @returns {promise} Returns a list of groups
+         * @returns {promise} Returns a dict with the inaccessible group shares, grouped by group_id
          */
         var get_outstanding_group_shares = function() {
 
@@ -541,6 +534,7 @@
         var accept_membership = function(membership_id) {
 
             var onSuccess = function(data){
+
                 var group_id;
                 var public_key;
                 for (var i = 0; i < groups_cache.length; i++) {
@@ -565,7 +559,7 @@
 
                     break;
                 }
-
+                
                 return decrypt_group_shares(group_id, data.data.shares);
             };
 

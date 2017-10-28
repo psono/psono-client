@@ -98,6 +98,37 @@
 
         });
 
+        var mockedManagerDatastorePassword;
+        beforeEach(function () {
+
+            mockedManagerDatastorePassword = {
+                get_inaccessible_shares: function (shares) {
+                    return shares;
+                }
+            };
+
+            module(function ($provide) {
+                $provide.value('managerDatastorePassword', mockedManagerDatastorePassword);
+            });
+
+        });
+
+        var mockedManagerShare;
+        beforeEach(function () {
+
+            mockedManagerShare = {
+                decrypt_share: function (share, share_secret_key) {
+                    share.decrypted = true;
+                    return share;
+                }
+            };
+
+            module(function ($provide) {
+                $provide.value('managerShare', mockedManagerShare);
+            });
+
+        });
+
         var $httpBackend;
         beforeEach(inject(function($injector){
             // unwrap necessary services
@@ -353,6 +384,44 @@
         }));
 
 
+        it('get_outstanding_group_shares', inject(function (managerGroups) {
+
+            $httpBackend.when('GET', "https://www.psono.pw/server/group/rights/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    // return answer
+                    return [200, {
+                        'group_rights': [{
+                            'group_id': '123',
+                            'share_id': '456',
+                            'other_property': '789'
+                        }]
+                    }];
+                });
+
+            managerGroups.get_outstanding_group_shares().then(function(data){
+                expect(data).toEqual({
+                    123: {
+                        456: {
+                            group_id: '123',
+                            share_id: '456',
+                            other_property: '789'
+                        }
+                    }
+                });
+            },function(data){
+                // should never be reached
+                expect(true).toBeFalsy();
+            });
+
+            $httpBackend.flush();
+        }));
+
+
         it('create_membership', inject(function (managerGroups) {
 
             var group = {
@@ -465,33 +534,161 @@
         }));
 
 
-        // it('accept_membership', inject(function (managerGroups) {
-        //
-        //     var membership_id = "membership_id";
-        //
-        //     $httpBackend.when('POST', "https://www.psono.pw/server/membership/accept/").respond(
-        //         function(method, url, data, headers, params) {
-        //             // Validate request parameters:
-        //             data = JSON.parse(data);
-        //             data = JSON.parse(data.data);
-        //
-        //             expect(headers.Authorization).toEqual('Token ' + token);
-        //
-        //             expect(data.membership_id).toEqual(membership_id);
-        //
-        //             // return answer
-        //             return [200, {}];
-        //         });
-        //
-        //     managerGroups.accept_membership(membership_id).then(function(data){
-        //         expect(data).toEqual({});
-        //     },function(data){
-        //         // should never be reached
-        //         expect(true).toBeFalsy();
-        //     });
-        //
-        //     $httpBackend.flush();
-        // }));
+        it('decrypt_group_share', inject(function (managerGroups) {
+
+            var group_id = "group_id";
+            var share = {
+                'name': 'name',
+                'share_type': 'share_type',
+                'share_key_nonce': 'share_key_nonce',
+                'decrypted': false
+            };
+
+            var share_expected = {
+                'name': 'name',
+                'share_type': 'share_type',
+                'type': '{"website_password_username":"my-user","website_password_password":"my-password","website_password_url_filter":"example2.com","website_password_auto_submit":true,"website_password_url":"http://example2.com"}',
+                'share_key_nonce': 'share_key_nonce',
+                'decrypted': true
+            };
+
+
+
+            var decrypted_share = managerGroups.decrypt_group_share(group_id, share);
+
+            expect(decrypted_share).toEqual(share_expected);
+
+        }));
+
+
+        it('decrypt_group_share:no type', inject(function (managerGroups) {
+
+            var group_id = "group_id";
+            var share = {
+                'name': 'name',
+                'share_key_nonce': 'share_key_nonce',
+                'decrypted': false
+            };
+
+            var share_expected = {
+                'name': 'name',
+                'share_key_nonce': 'share_key_nonce',
+                'decrypted': true
+            };
+
+            var decrypted_share = managerGroups.decrypt_group_share(group_id, share);
+
+            expect(decrypted_share).toEqual(share_expected);
+
+        }));
+
+
+
+        it('decrypt_group_share:no name', inject(function (managerGroups) {
+
+            var group_id = "group_id";
+            var share = {
+                'share_type': 'share_type',
+                'share_key_nonce': 'share_key_nonce',
+                'decrypted': false
+            };
+
+            var share_expected = {
+                'name': '{"website_password_username":"my-user","website_password_password":"my-password","website_password_url_filter":"example2.com","website_password_auto_submit":true,"website_password_url":"http://example2.com"}',
+                'share_type': 'share_type',
+                'type': '{"website_password_username":"my-user","website_password_password":"my-password","website_password_url_filter":"example2.com","website_password_auto_submit":true,"website_password_url":"http://example2.com"}',
+                'share_key_nonce': 'share_key_nonce',
+                'decrypted': true
+            };
+
+            var decrypted_share = managerGroups.decrypt_group_share(group_id, share);
+
+            expect(decrypted_share).toEqual(share_expected);
+
+        }));
+
+
+        it('decrypt_group_shares', inject(function (managerGroups) {
+
+            var group_id = "group_id";
+            var shares = [{
+                'name': 'name1',
+                'type': 'type1',
+                'share_key_nonce': 'share_key_nonce1',
+                'decrypted': false
+            },{
+                'name': 'name2',
+                'type': 'type2',
+                'share_key_nonce': 'share_key_nonce2',
+                'decrypted': false
+            }];
+
+            var decrypted_shares = managerGroups.decrypt_group_shares(group_id, shares);
+
+            expect(decrypted_shares).toEqual([{
+                name: 'name1',
+                type: 'type1',
+                share_key_nonce: 'share_key_nonce1',
+                decrypted: true
+            },{
+                name: 'name2',
+                type: 'type2',
+                share_key_nonce: 'share_key_nonce2',
+                decrypted: true
+            }]);
+
+        }));
+
+
+        it('accept_membership', inject(function (managerGroups) {
+
+            var membership_id = "membership_id";
+
+            $httpBackend.when('POST', "https://www.psono.pw/server/membership/accept/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+                    data = JSON.parse(data.data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    expect(data.membership_id).toEqual(membership_id);
+
+                    // return answer
+                    return [200, {
+                        'shares': [{
+                            'name': 'name1',
+                            'type': 'type1',
+                            'share_key_nonce': 'share_key_nonce1',
+                            'decrypted': false
+                        },{
+                            'name': 'name2',
+                            'type': 'type2',
+                            'share_key_nonce': 'share_key_nonce2',
+                            'decrypted': false
+                        }]
+                    }];
+                });
+
+            managerGroups.accept_membership(membership_id).then(function(data){
+                expect(data).toEqual([{
+                    'name': 'name1',
+                    'type': 'type1',
+                    'share_key_nonce': 'share_key_nonce1',
+                    'decrypted': true
+                },{
+                    'name': 'name2',
+                    'type': 'type2',
+                    'share_key_nonce': 'share_key_nonce2',
+                    'decrypted': true
+                }]);
+            },function(data){
+                // should never be reached
+                expect(true).toBeFalsy();
+            });
+
+            $httpBackend.flush();
+        }));
 
 
         it('decline_membership', inject(function (managerGroups) {
