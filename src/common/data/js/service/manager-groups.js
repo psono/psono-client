@@ -559,7 +559,7 @@
 
                     break;
                 }
-                
+
                 return decrypt_group_shares(group_id, data.data.shares);
             };
 
