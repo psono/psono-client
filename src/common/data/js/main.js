@@ -98,6 +98,10 @@
                         templateUrl: 'view/datastore.html',
                         controller: 'DatastoreCtrl'
                     })
+                    .when('/datastore/edit/:secret_type/:secret_id', {
+                        templateUrl: 'view/datastore.html',
+                        controller: 'DatastoreCtrl'
+                    })
                     .when('/', {
                         templateUrl: 'view/datastore.html',
                         controller: 'DatastoreCtrl'

@@ -35,6 +35,7 @@
             $scope.logout = managerDatastoreUser.logout;
             $scope.filterBySearch = filterBySearch;
             $scope.on_item_click = managerSecret.on_item_click;
+            $scope.edit_item = edit_item;
             $scope.generate_password = generate_password;
             $scope.bookmark = bookmark;
             $scope.copy_username = managerSecret.copy_username;
@@ -106,6 +107,20 @@
             function bookmark() {
                 browserClient.emit_sec('bookmark-active-tab', {});
                 browserClient.close_popup();
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:PanelCtrl#edit_item
+             * @methodOf psonocli.controller:PanelCtrl
+             *
+             * @description
+             * Triggered once someone click the edit item in the panel
+             *
+             * @param {object} item The item one has clicked on
+             */
+            function edit_item(item) {
+                browserClient.open_tab('index.html#!/datastore/edit/'+item.type+'/'+item.secret_id);
             }
 
             /**

@@ -5,6 +5,7 @@
      * @ngdoc service
      * @name psonocli.managerBackground
      * @requires $q
+     * @requires $timeout
      * @requires psonocli.managerBase
      * @requires psonocli.storage
      * @requires psonocli.managerDatastorePassword
@@ -15,7 +16,7 @@
      * @description
      * Service that handles the complete background process
      */
-    var managerBackground = function($q, managerBase, managerSecret, storage, managerDatastorePassword,
+    var managerBackground = function($q, $timeout, managerBase, managerSecret, storage, managerDatastorePassword,
                                      managerDatastoreUser, helper, cryptoLibrary, apiClient, device, browser, chrome,
                                      browserClient) {
 
@@ -177,7 +178,6 @@
                     if( helper.endsWith(parsed_url.authority, fillpassword[i].authority)) {
                         fillpassword[i].submit = parsed_url.scheme === 'https';
                         sendResponse({event: "fillpassword", data: fillpassword[i]});
-                        fillpassword.splice(i, 1);
                         break;
                     }
                 }
@@ -710,7 +710,7 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerBackground", ['$q', 'managerBase', 'managerSecret', 'storage', 'managerDatastorePassword',
+    app.factory("managerBackground", ['$q', '$timeout', 'managerBase', 'managerSecret', 'storage', 'managerDatastorePassword',
         'managerDatastoreUser', 'helper', 'cryptoLibrary', 'apiClient', 'device', 'browser', 'chrome',
         'browserClient', managerBackground]);
 

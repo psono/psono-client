@@ -728,6 +728,51 @@
             return false;
         };
 
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#search_in_datastore
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * Searches a datastore and returns the paths
+         *
+         * @param {*} to_search The thing to search
+         * @param {TreeObject} datastore The datastore object tree
+         * @param {TreeObject} cmp_fct The compare function
+         *
+         * @returns {Array} a list of the paths
+         */
+        var search_in_datastore = function (to_search, datastore, cmp_fct) {
+            var i, n, l;
+            var paths = [];
+            var tmp_paths;
+
+            if (datastore.hasOwnProperty('items')) {
+                for (n = 0, l = datastore.items.length; n < l; n++) {
+                    if(!cmp_fct(to_search, datastore.items[n])) {
+                        continue
+                    }
+                    paths.push([datastore.items[n].id]);
+                }
+            }
+
+            if (datastore.hasOwnProperty('folders')) {
+                for (n = 0, l = datastore.folders.length; n < l; n++) {
+                    tmp_paths = search_in_datastore(to_search, datastore.folders[n], cmp_fct);
+                    for (i = 0; i < tmp_paths.length; i++) {
+                        tmp_paths[i].unshift(datastore.folders[n].id);
+                        paths.push(tmp_paths[i]);
+                    }
+                    if(!cmp_fct(to_search, datastore.folders[n])) {
+                        continue
+                    }
+                    paths.push([datastore.folders[n].id]);
+                }
+            }
+            return paths;
+        };
+
         /**
          * @ngdoc
          * @name psonocli.managerDatastorePassword#get_all_child_shares
@@ -1388,6 +1433,7 @@
             save_password_active_tab: save_password_active_tab,
             bookmark_active_tab: bookmark_active_tab,
             find_in_datastore: find_in_datastore,
+            search_in_datastore: search_in_datastore,
             get_all_child_shares: get_all_child_shares,
             get_all_secret_links: get_all_secret_links,
             on_share_added: on_share_added,

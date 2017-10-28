@@ -219,7 +219,6 @@
             };
 
             var onSuccess = function(content) {
-                console.log(content.data.share_rights);
                 return content.data;
             };
 
