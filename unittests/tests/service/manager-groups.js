@@ -26,7 +26,10 @@
                     }
                 },
                 decrypt_private_key: function(text, nonce, public_key) {
-                    return "decrypt_private_key return value"
+                    return "decrypt_private_key return: " + text + ' ' + nonce + ' ' + public_key
+                },
+                decrypt_secret_key: function(text, nonce) {
+                    return "decrypt_secret_key return: " + text + ' ' + nonce
                 },
                 encrypt_secret_key: function(text, nonce, public_key) {
                     return  {
@@ -59,8 +62,8 @@
         var encrypted_data = 'dummy_encrypt_data_text';
         var encrypted_data_nonce = 'dummy_encrypt_data_nonce';
         var public_private_keypair = {
-            'private_key': 'private_key',
-            'public_key': 'public_key'
+            'private_key': '81972fcf95422fb87a88372c0320612aeabeaf185119968c6b3b002034e6bdf5',
+            'public_key': '89c4d51256420d1ac2d2e461b2c37aec36b362c9380f406a1d5dc2c3934e2d5f'
         };
 
         var mockedCryptoLibrary;
@@ -73,6 +76,12 @@
                     return  {
                         data: data,
                         secret_key: secret_key
+                    };
+                },
+                encrypt_data_public_key: function(data, public_key, private_key) {
+                    return  {
+                        'text': 'encrypted: ' + data,
+                        'nonce': 'nonce'
                     };
                 },
                 decrypt_data: function(text, nonce, secret_key) {
@@ -129,9 +138,65 @@
         }));
 
 
+        it('get_group_secret_key:symmetric', inject(function (managerGroups) {
+            var group_id = 'group_id';
+            var group_secret_key = 'group_secret_key';
+            var group_secret_key_nonce = 'group_secret_key_nonce';
+            var group_secret_key_type = 'symmetric';
+
+            var group_public_key = 'group_public_key';
+
+            var group_secret_key_plain = managerGroups.get_group_secret_key(group_id, group_secret_key, group_secret_key_nonce, group_secret_key_type, group_public_key);
+
+            expect(group_secret_key_plain).toEqual("decrypt_secret_key return: group_secret_key group_secret_key_nonce");
+        }));
+
+
+        it('get_group_secret_key:asymmetric', inject(function (managerGroups) {
+            var group_id = 'group_id';
+            var group_secret_key = 'group_secret_key';
+            var group_secret_key_nonce = 'group_secret_key_nonce';
+            var group_secret_key_type = 'asymmetric';
+
+            var group_public_key = 'group_public_key';
+
+            var group_secret_key_plain = managerGroups.get_group_secret_key(group_id, group_secret_key, group_secret_key_nonce, group_secret_key_type, group_public_key);
+
+            expect(group_secret_key_plain).toEqual("decrypt_private_key return: group_secret_key group_secret_key_nonce group_public_key");
+        }));
+
+
+        it('get_group_private_key:symmetric', inject(function (managerGroups) {
+            var group_id = 'group_id';
+            var group_private_key = 'group_private_key';
+            var group_private_key_nonce = 'group_private_key_nonce';
+            var group_private_key_type = 'symmetric';
+
+            var group_public_key = 'group_public_key';
+
+            var group_private_key_plain = managerGroups.get_group_private_key(group_id, group_private_key, group_private_key_nonce, group_private_key_type, group_public_key);
+
+            expect(group_private_key_plain).toEqual("decrypt_secret_key return: group_private_key group_private_key_nonce");
+        }));
+
+
+        it('get_group_private_key:asymmetric', inject(function (managerGroups) {
+            var group_id = 'group_id';
+            var group_private_key = 'group_private_key';
+            var group_private_key_nonce = 'group_private_key_nonce';
+            var group_private_key_type = 'asymmetric';
+
+            var group_public_key = 'group_public_key';
+
+            var group_private_key_plain = managerGroups.get_group_private_key(group_id, group_private_key, group_private_key_nonce, group_private_key_type, group_public_key);
+
+            expect(group_private_key_plain).toEqual("decrypt_private_key return: group_private_key group_private_key_nonce group_public_key");
+        }));
+
+
         it('read_group', inject(function (managerGroups) {
 
-            var group_id = "group_id"
+            var group_id = "group_id";
             var group = {
                 'group_id': group_id,
                 'name': 'Group Name'
@@ -161,7 +226,7 @@
 
         it('create_group', inject(function (managerGroups) {
 
-            var group_id = "group_id"
+            var group_id = "group_id";
             var group = {
                 'group_id': group_id,
                 'name': 'Group Name'
@@ -278,6 +343,176 @@
                 });
 
             managerGroups.read_group_rights(group_id).then(function(data){
+                expect(data).toEqual({});
+            },function(data){
+                // should never be reached
+                expect(true).toBeFalsy();
+            });
+
+            $httpBackend.flush();
+        }));
+
+
+        it('create_membership', inject(function (managerGroups) {
+
+            var group = {
+                'group_id': "group_id",
+                'name': 'Group Name',
+                'secret_key': 'secret_key',
+                'secret_key_nonce': 'secret_key_nonce',
+                'public_key': 'public_key',
+                'private_key': 'private_key',
+                'private_key_nonce': 'private_key_nonce',
+                'private_key_type': 'private_key_type'
+            };
+            var group_admin = true;
+
+            var user = {
+                'id': 'user_id',
+                'public_key': 'public_key'
+            };
+
+            $httpBackend.when('PUT', "https://www.psono.pw/server/membership/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+                    data = JSON.parse(data.data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    expect(data.group_id).toEqual(group.group_id);
+                    expect(data.user_id).toEqual(user.id);
+                    expect(data.secret_key).toEqual('encrypted: decrypt_private_key return: secret_key secret_key_nonce public_key');
+                    expect(data.secret_key_nonce).toEqual('nonce');
+                    expect(data.secret_key_type).toEqual('asymmetric');
+                    expect(data.private_key).toEqual('encrypted: decrypt_private_key return: private_key private_key_nonce public_key');
+                    expect(data.private_key_nonce).toEqual('nonce');
+                    expect(data.private_key_type).toEqual('asymmetric');
+                    expect(data.group_admin).toEqual(group_admin);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            managerGroups.create_membership(user, group, group_admin).then(function(data){
+                expect(data).toEqual({});
+            },function(){
+                // should never be reached
+                expect(true).toBeFalsy();
+            });
+
+            $httpBackend.flush();
+        }));
+
+
+        it('update_membership', inject(function (managerGroups) {
+
+            var membership_id = "membership_id";
+            var group_admin = "group_admin";
+
+            $httpBackend.when('POST', "https://www.psono.pw/server/membership/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+                    data = JSON.parse(data.data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    expect(data.membership_id).toEqual(membership_id);
+                    expect(data.group_admin).toEqual(group_admin);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            managerGroups.update_membership(membership_id, group_admin).then(function(data){
+                expect(data).toEqual({});
+            },function(data){
+                // should never be reached
+                expect(true).toBeFalsy();
+            });
+
+            $httpBackend.flush();
+        }));
+
+
+        it('delete_membership', inject(function (managerGroups) {
+
+            var membership_id = "membership_id";
+
+            $httpBackend.when('DELETE', "https://www.psono.pw/server/membership/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+                    data = JSON.parse(data.data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    expect(data.membership_id).toEqual(membership_id);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            managerGroups.delete_membership(membership_id).then(function(data){
+                expect(data).toEqual({});
+            },function(data){
+                // should never be reached
+                expect(true).toBeFalsy();
+            });
+
+            $httpBackend.flush();
+        }));
+
+
+        // it('accept_membership', inject(function (managerGroups) {
+        //
+        //     var membership_id = "membership_id";
+        //
+        //     $httpBackend.when('POST', "https://www.psono.pw/server/membership/accept/").respond(
+        //         function(method, url, data, headers, params) {
+        //             // Validate request parameters:
+        //             data = JSON.parse(data);
+        //             data = JSON.parse(data.data);
+        //
+        //             expect(headers.Authorization).toEqual('Token ' + token);
+        //
+        //             expect(data.membership_id).toEqual(membership_id);
+        //
+        //             // return answer
+        //             return [200, {}];
+        //         });
+        //
+        //     managerGroups.accept_membership(membership_id).then(function(data){
+        //         expect(data).toEqual({});
+        //     },function(data){
+        //         // should never be reached
+        //         expect(true).toBeFalsy();
+        //     });
+        //
+        //     $httpBackend.flush();
+        // }));
+
+
+        it('decline_membership', inject(function (managerGroups) {
+
+            var membership_id = "membership_id";
+
+            $httpBackend.when('POST', "https://www.psono.pw/server/membership/decline/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+                    data = JSON.parse(data.data);
+
+                    expect(headers.Authorization).toEqual('Token ' + token);
+
+                    expect(data.membership_id).toEqual(membership_id);
+
+                    // return answer
+                    return [200, {}];
+                });
+
+            managerGroups.decline_membership(membership_id).then(function(data){
                 expect(data).toEqual({});
             },function(data){
                 // should never be reached
