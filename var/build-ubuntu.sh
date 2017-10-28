@@ -1,16 +1,13 @@
 #!/usr/bin/env bash
 apt-get update && \
-apt-get install -y libfontconfig zip npm git apt-transport-https ca-certificates curl openssl && \
-# ln -s /usr/bin/nodejs /usr/bin/node && \
-npm i -g npm && \
-npm cache clean -f && \
-npm install -g n && \
-n stable && \
+apt-get install -y libfontconfig zip git apt-transport-https ca-certificates curl build-essential openssl && \
+curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
+apt-get install -y nodejs && \
 node --version && \
 npm --version && \
 npm install && \
 npm install gulp -g && \
-npm install addons-linter -g && \
+npm install addons-linter -g --unsafe-perm && \
 npm install karma-cli -g && \
 npm install jpm --global && \
 gulp && \
