@@ -40,7 +40,7 @@
              * @description
              * deletes a known host with given fingerprint
              *
-             * @param host The host to delete
+             * @param {object} host The host to delete
              */
             function delete_known_host(host) {
                 managerHost.delete_known_host(host['verify_key']);

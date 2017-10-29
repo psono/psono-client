@@ -51,8 +51,8 @@
              * @description
              * Helper function to remove a specified item from the pending shares list
              *
-             * @param item
-             * @param shares
+             * @param {object} item The item to remove
+             * @param {array} shares The shares to search
              */
             var remove_item_from_pending_list = function (item, shares) {
 

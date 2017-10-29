@@ -1191,11 +1191,17 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#analyze_breadcrumbs
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
          * Analyzes the breadcrumbs and returns some info about them like e.g parent_share_id
          *
-         * @param breadcrumbs
-         * @param datastore
-         * @returns {{path: *, parent_path: *, target: *, parent_share_id: *, parent_datastore_id: *}}
+         * @param {object} breadcrumbs The breadcrumbs to follow
+         * @param {TreeObject} datastore The corresponding datastore to analyze
+         *
+         * @returns {object} The info about the object
          */
         var analyze_breadcrumbs = function(breadcrumbs, datastore) {
 
@@ -1249,12 +1255,12 @@
          * Adds a single share to the password datastore, triggers the creation of the necessary share links and returns
          * changed paths
          *
-         * @param share The share to add
-         * @param target The target folder to add the share to
-         * @param path The path of the target folder
-         * @param parent_share_id The parent Share ID (if the parent is a share)
-         * @param parent_datastore_id The parent Datastore ID (if the parent is a datastore)
-         * @param datastore The complete password datastore
+         * @param {object} share The share to add
+         * @param {object} target The target folder to add the share to
+         * @param {array} path The path of the target folder
+         * @param {uuid} parent_share_id The parent Share ID (if the parent is a share)
+         * @param {uuid} parent_datastore_id The parent Datastore ID (if the parent is a datastore)
+         * @param {TreeObject} datastore The complete password datastore
          *
          * @returns {Array} The paths of changes
          */
@@ -1294,13 +1300,13 @@
          * @description
          * Adds multiple shares to the password datastore and triggers the save of the password datastore
          *
-         * @param shares An array of shares to add to the datastore
-         * @param target The target folder to add the shares to
-         * @param parent_path The path to the parent datastore or share
-         * @param path The path to the target
-         * @param parent_share_id The parent Share ID (if the parent is a share)
-         * @param parent_datastore_id The parent Datastore ID (if the parent is a datastore)
-         * @param datastore The complete password datastore
+         * @param {array} shares An array of shares to add to the datastore
+         * @param {object} target The target folder to add the shares to
+         * @param {array} parent_path The path to the parent datastore or share
+         * @param {array} path The path to the target
+         * @param {uuid} parent_share_id The parent Share ID (if the parent is a share)
+         * @param {uuid} parent_datastore_id The parent Datastore ID (if the parent is a datastore)
+         * @param {TreeObject} datastore The complete password datastore
          *
          * @returns {promise} Returns a promise with the success of the action
          */
@@ -1326,9 +1332,9 @@
          * @description
          * searches a tree and marks all folders / items as invisible, only leaving nodes with search
          *
-         * @param newValue
-         * @param oldValue
-         * @param searchTree
+         * @param {string} newValue The new string from the search box
+         * @param {string} oldValue The old value from the search box
+         * @param {TreeObject} searchTree The part of the datastore to search
          */
         var modifyTreeForSearch = function (newValue, oldValue, searchTree) {
 

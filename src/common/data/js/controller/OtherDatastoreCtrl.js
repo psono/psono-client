@@ -80,7 +80,7 @@
              * @description
              * edits an data_store
              *
-             * @param data_store The data_store to edit
+             * @param {TreeObject} data_store The data_store to edit
              */
             function edit_data_store(data_store) {
 
@@ -120,7 +120,7 @@
              * @description
              * deletes an data_store
              *
-             * @param data_store The data_store to delete
+             * @param {TreeObject} data_store The data_store to delete
              */
             function delete_datastore(data_store) {
 

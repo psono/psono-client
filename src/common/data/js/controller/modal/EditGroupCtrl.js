@@ -171,7 +171,7 @@
              * @description
              * Looks up if a user is a member of the current group or not
              *
-             * @param {{}} user The User to lookup
+             * @param {object} user The User to lookup
              *
              * @returns {boolean} Returns weather the user is a member or not
              */

@@ -336,7 +336,7 @@
          * @param {object} session_keys The session keys
          * @param {string} server_public_key The server's public key
          *
-         * @returns {Array}
+         * @returns {Array} The list of required multifactor challenges to solve
          */
         var handle_login_response = function(response, password, session_keys, server_public_key) {
 
@@ -383,6 +383,7 @@
             );
 
             required_multifactors = response.data['required_multifactors'];
+
             return required_multifactors;
         };
 

@@ -37,13 +37,13 @@
          * @description
          * Returns the secret key of a group
          *
-         * @param group_id The group id
-         * @param group_secret_key The group's secret key (encrypted)
-         * @param group_secret_key_nonce The nonce for the decryption of the group's secret key
-         * @param group_secret_key_type The type of the encryption
-         * @param group_public_key The group's public key (necessary if the encryption is asymmetric)
+         * @param {uuid} group_id The group id
+         * @param {string} group_secret_key The group's secret key (encrypted)
+         * @param {string} group_secret_key_nonce The nonce for the decryption of the group's secret key
+         * @param {string} group_secret_key_type The type of the encryption
+         * @param {string} group_public_key The group's public key (necessary if the encryption is asymmetric)
          *
-         * @returns {*} Returns the secret key of a group
+         * @returns {string} Returns the secret key of a group
          */
         var get_group_secret_key = function(group_id, group_secret_key, group_secret_key_nonce, group_secret_key_type, group_public_key) {
 
@@ -81,13 +81,13 @@
          * @description
          * Returns the private key of a group. Uses a temporary cache to reduce the encryption effort.
          *
-         * @param group_id The group id
-         * @param group_private_key The group's private key (encrypted)
-         * @param group_private_key_nonce The nonce for the decryption of the group's private key
-         * @param group_private_key_type The type of the encryption
-         * @param group_public_key The group's public key (necessary if the encryption is asymmetric)
+         * @param {uuid} group_id The group id
+         * @param {string} group_private_key The group's private key (encrypted)
+         * @param {string} group_private_key_nonce The nonce for the decryption of the group's private key
+         * @param {string} group_private_key_type The type of the encryption
+         * @param {string} group_public_key The group's public key (necessary if the encryption is asymmetric)
          *
-         * @returns {*} Returns the private key of a group
+         * @returns {string} Returns the private key of a group
          */
         var get_group_private_key = function(group_id, group_private_key, group_private_key_nonce, group_private_key_type, group_public_key) {
             if (group_private_key_cache.hasOwnProperty(group_id)) {
@@ -111,11 +111,11 @@
          * Looks up the secret key of the group in the local cache and decrypts the provided encrypted message together
          * with the nonce
          *
-         * @param group_id The group id
-         * @param encrypted_message The encrypted message
-         * @param encrypted_message_nonce The nonce of the encrypted message
+         * @param {uuid} group_id The group id
+         * @param {string} encrypted_message The encrypted message
+         * @param {string} encrypted_message_nonce The nonce of the encrypted message
          *
-         * @returns {promise} Returns a promise with the decrypted secret
+         * @returns {string} Returns the decrypted message
          */
         var decrypt_secret_key = function(group_id, encrypted_message, encrypted_message_nonce) {
             var secret_key = get_group_secret_key(group_id);
@@ -131,12 +131,12 @@
          * Looks up the secret key of the group in the local cache and decrypts the provided encrypted message together
          * with the nonce
          *
-         * @param group_id The group id
-         * @param encrypted_message The encrypted message
-         * @param encrypted_message_nonce The nonce of the encrypted message
-         * @param public_key The corresponding public key
+         * @param {uuid} group_id The group id
+         * @param {string} encrypted_message The encrypted message
+         * @param {string} encrypted_message_nonce The nonce of the encrypted message
+         * @param {string} public_key The corresponding public key
          *
-         * @returns {promise} Returns a promise with the decrypted secret
+         * @returns {string} Returns the decrypted secret
          */
         var decrypt_private_key = function(group_id, encrypted_message, encrypted_message_nonce, public_key) {
             var private_key = get_group_private_key(group_id);
@@ -467,10 +467,10 @@
          * @description
          * Decrypts for a given group a share
          *
-         * @param group_id The group id
-         * @param share The encrypted share
+         * @param {uuid} group_id The group id
+         * @param {object} share The encrypted share
          *
-         * @returns {{}} The decrypted sahre
+         * @returns {object} The decrypted sahre
          */
         var decrypt_group_share = function(group_id, share) {
 
@@ -503,7 +503,7 @@
          * @description
          * Decrypts for a given group a list of shares
          *
-         * @param group_id The group id
+         * @param {uuid} group_id The group id
          * @param {Array} shares A list of encrypted shares
          *
          * @returns {Array} A list of decrypted shares

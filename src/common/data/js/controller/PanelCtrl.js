@@ -131,9 +131,9 @@
              * @description
              * Filterfunction that filters search_entry object and tests if either the urlfilter or the name match our search
              *
-             * @param datastore_entry the datastore entry to test
+             * @param {object} datastore_entry the datastore entry to test
              *
-             * @returns {boolean}
+             * @returns {boolean} Whether the urlfilter or name match
              */
             function filterBySearch(datastore_entry) {
                 if (!$scope.datastore.search) {

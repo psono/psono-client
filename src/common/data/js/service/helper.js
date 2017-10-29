@@ -411,11 +411,12 @@
          * @methodOf psonocli.helper
          *
          * @description
-         * checks if a string ends with a special suffix
+         * Checks if a string ends with a special suffix
          *
-         * @param to_test
-         * @param suffix
-         * @returns {boolean}
+         * @param {string} to_test The string to test if it ends with the provided suffix
+         * @param {string} suffix The suffix we want the string to end with
+         *
+         * @returns {boolean} Whether the string ends with the suffix or not
          */
         function endsWith (to_test, suffix) {
             return suffix !== "" && to_test.indexOf(suffix, to_test.length - suffix.length) !== -1;

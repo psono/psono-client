@@ -126,17 +126,38 @@
             /**
              * @ngdoc
              * @name psonocli.controller:ShareCtrl#remove_item_from_pending_list
-             * @methodOf psonocli.controller:ShareCtrl
+             * @methodOf psonocli.controller:GroupsCtrl
              *
              * @description
              * Helper function to remove a specified item from the pending shares list
              *
-             * @param group_id
+             * @param {uuid} group_id The id of the group to remove
              */
             var remove_group_from_pending_list = function (group_id) {
                 helper.remove_from_array($scope.groups, group_id, function(group, group_id) {
                     return group.group_id === group_id;
                 });
+            };
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ShareCtrl#mark_group_accepted
+             * @methodOf psonocli.controller:GroupsCtrl
+             *
+             * @description
+             * Helper function to mark a group in the pending share list  as accepted
+             *
+             * @param {uuid} group_id The id of the group to mark as accepted
+             */
+            var mark_group_accepted = function (group_id) {
+
+                for (var i = 0; i < $scope.groups.length; i++) {
+                    if ($scope.groups[i].group_id !== group_id) {
+                        continue;
+                    }
+                    $scope.groups[i].accepted = true;
+                    break;
+                }
             };
 
 
@@ -237,7 +258,7 @@
                                 analyzed_breadcrumbs['parent_share_id'], analyzed_breadcrumbs['parent_datastore_id'],
                                 datastore);
 
-                            remove_group_from_pending_list(group.group_id);
+                            mark_group_accepted(group.group_id);
                         };
 
                         var onError = function (data) {

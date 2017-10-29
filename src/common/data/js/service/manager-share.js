@@ -349,9 +349,10 @@
          * @description
          * Takes an encrypted share and decrypts the data (if present) with the provided secret_key
          *
-         * @param encrypted_share
-         * @param secret_key
-         * @returns {{}}
+         * @param {object} encrypted_share The encrypted share
+         * @param {string} secret_key The secret key to decrypt the share
+         *
+         * @returns {object} The decrypted share
          */
         var decrypt_share = function(encrypted_share, secret_key) {
 

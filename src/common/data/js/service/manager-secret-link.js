@@ -22,7 +22,7 @@
          * @description
          * Searches a datastore object and moves all links to the
          *
-         * @param {{}} datastore The datastore object
+         * @param {object} datastore The datastore object
          * @param {uuid|undefined} [new_parent_share_id=null] (optional) New parent share ID, necessary if no new_parent_datastore_id is provided
          * @param {uuid|undefined} [new_parent_datastore_id=null] (optional) New datastore ID, necessary if no new_parent_share_id is provided
          *

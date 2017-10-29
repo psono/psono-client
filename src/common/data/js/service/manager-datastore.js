@@ -160,7 +160,7 @@
          * @param {string} description The description
          * @param {boolean} is_default Is it a default datastore or not?
          *
-         * @returns {promise}
+         * @returns {promise} A promise with result of the operation
          */
         var create_datastore = function(type, description, is_default) {
             //datastore does really not exist, lets create one and return it
@@ -184,7 +184,7 @@
          * @param {uuid} datastore_id The id of the datastore
          * @param {string} password The user's password
          *
-         * @returns {promise}
+         * @returns {promise} A promise with result of the operation
          */
         var delete_datastore = function(datastore_id, password) {
 

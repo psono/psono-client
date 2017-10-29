@@ -34,7 +34,7 @@
              * @description
              * deletes an open session with given session id
              *
-             * @param session_id The session id to delete
+             * @param {uuid} session_id The session id to delete
              */
             function delete_session(session_id) {
 

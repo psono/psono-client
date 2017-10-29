@@ -71,7 +71,7 @@
          * @description
          * Updates the known servers with the given new list of servers
          *
-         * @param new_known_hosts List of the new servers
+         * @param {array} new_known_hosts List of the new servers
          */
         function update_known_hosts(new_known_hosts) {
             storage.upsert('persistent', {'key': 'known_hosts', 'value': new_known_hosts});
@@ -188,8 +188,8 @@
          * @description
          * Puts the server with the specified url and verify key on the approved servers list
          *
-         * @param {string} server_url
-         * @param {string} verify_key
+         * @param {string} server_url The url of the server
+         * @param {string} verify_key The verification key
          */
         function approve_host(server_url, verify_key) {
             server_url = server_url.toLowerCase();
