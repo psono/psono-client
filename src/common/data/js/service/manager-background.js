@@ -338,6 +338,7 @@
          * @returns {Array} The database objects where the url filter match the url
          */
         function search_website_passwords_by_urlfilter(url, only_autosubmit) {
+
             var parsed_url = helper.parse_url(url);
 
             var filter = function(leaf) {
@@ -345,6 +346,11 @@
                 if (leaf.type !== 'website_password') {
                     return false;
                 }
+
+                if (typeof(leaf.urlfilter) === 'undefined') {
+                    return false;
+                }
+
                 if (!helper.endsWith(parsed_url.authority, leaf.urlfilter)) {
                     return false;
                 }
@@ -653,8 +659,8 @@
          */
         function on_auth_required(details, callbackFn) {
             var return_value = {};
-            var entries;
-            entries = search_website_passwords_by_urlfilter(details.url, true);
+
+            var entries = search_website_passwords_by_urlfilter(details.url, true);
 
             if (entries.length < 1) {
                 callbackFn(return_value);
