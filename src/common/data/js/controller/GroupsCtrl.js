@@ -19,6 +19,7 @@
 
             $scope.create_group = create_group;
             $scope.edit_group = edit_group;
+            $scope.leave_group = leave_group;
             $scope.delete_group = delete_group;
             $scope.accept_group = accept_group;
             $scope.accept_new_group_shares = accept_new_group_shares;
@@ -125,15 +126,15 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:ShareCtrl#remove_item_from_pending_list
+             * @name psonocli.controller:ShareCtrl#remove_group_from_group_list
              * @methodOf psonocli.controller:GroupsCtrl
              *
              * @description
-             * Helper function to remove a specified item from the pending shares list
+             * Helper function to remove a specified group from the group list
              *
              * @param {uuid} group_id The id of the group to remove
              */
-            var remove_group_from_pending_list = function (group_id) {
+            var remove_group_from_group_list = function (group_id) {
                 helper.remove_from_array($scope.groups, group_id, function(group, group_id) {
                     return group.group_id === group_id;
                 });
@@ -163,6 +164,52 @@
 
             /**
              * @ngdoc
+             * @name psonocli.controller:GroupsCtrl#leave_group
+             * @methodOf psonocli.controller:GroupsCtrl
+             *
+             * @description
+             * Leaves a given group
+             *
+             * @param {object} group The group to leave
+             */
+            function leave_group(group) {
+
+                var modalInstance = $uibModal.open({
+                    templateUrl: 'view/modal-verify.html',
+                    controller: 'ModalVerifyCtrl',
+                    resolve: {
+                        title: function () {
+                            return 'Leave Group';
+                        },
+                        description: function () {
+                            return 'You are about to leave the group. You will lose access to shares that belong to the group. Are you sure?';
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function () {
+                    // User clicked the yes button
+
+                    var onSuccess = function(data){
+                        remove_group_from_group_list(group.group_id);
+                    };
+
+                    var onError = function() {
+                        //pass
+                    };
+
+                    managerGroups.delete_membership(group.membership_id)
+                        .then(onSuccess, onError);
+
+
+                }, function () {
+                    // cancel triggered
+                });
+            }
+
+
+            /**
+             * @ngdoc
              * @name psonocli.controller:GroupsCtrl#delete_group
              * @methodOf psonocli.controller:GroupsCtrl
              *
@@ -174,14 +221,14 @@
             function delete_group(group_id) {
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-delete-verify.html',
-                    controller: 'ModalDeleteVerifyCtrl',
+                    templateUrl: 'view/modal-verify.html',
+                    controller: 'ModalVerifyCtrl',
                     resolve: {
                         title: function () {
                             return 'Delete Group';
                         },
                         description: function () {
-                            return 'You are about to delete the group. All shares will be lost. Are you sure?';
+                            return 'You are about to delete the group. All shares will be lost / become inaccessible. Are you sure?';
                         }
                     }
                 });
@@ -190,7 +237,7 @@
                     // User clicked the yes button
 
                     var onSuccess = function(data){
-                        remove_group_from_pending_list(group_id);
+                        remove_group_from_group_list(group_id);
                     };
 
                     var onError = function() {
@@ -213,7 +260,7 @@
              * @description
              * Accepts a given membership request and adds the new shares to the datastore
              *
-             * @param {uuid} group The group to accept
+             * @param {object} group The group to accept
              */
             function accept_group(group) {
 
@@ -288,7 +335,7 @@
              * @description
              * Add the pending shares to our datastore
              *
-             * @param {uuid} group The group to accept
+             * @param {object} group The group to accept
              */
             function accept_new_group_shares(group) {
 

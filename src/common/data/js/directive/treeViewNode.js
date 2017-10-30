@@ -238,8 +238,8 @@
                     event.preventDefault();
 
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal-delete-verify.html',
-                        controller: 'ModalDeleteVerifyCtrl',
+                        templateUrl: 'view/modal-verify.html',
+                        controller: 'ModalVerifyCtrl',
                         resolve: {
                             title: function () {
                                 return 'Delete Folder';
@@ -342,8 +342,8 @@
                     event.preventDefault();
 
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal-delete-verify.html',
-                        controller: 'ModalDeleteVerifyCtrl',
+                        templateUrl: 'view/modal-verify.html',
+                        controller: 'ModalVerifyCtrl',
                         resolve: {
                             title: function () {
                                 return 'Delete Entry';

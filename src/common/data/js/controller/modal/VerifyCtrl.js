@@ -3,14 +3,14 @@
 
     /**
      * @ngdoc controller
-     * @name psonocli.controller:ModalDeleteVerifyCtrl
+     * @name psonocli.controller:ModalVerifyCtrl
      * @requires $scope
      * @requires $uibModalInstance
      *
      * @description
      * Controller for the "delete verification" modal
      */
-    angular.module('psonocli').controller('ModalDeleteVerifyCtrl', ['$scope', '$uibModalInstance', 'title', 'description',
+    angular.module('psonocli').controller('ModalVerifyCtrl', ['$scope', '$uibModalInstance', 'title', 'description',
         function ($scope, $uibModalInstance, title, description) {
 
             $scope.confirm = confirm;
@@ -21,8 +21,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:ModalDeleteVerifyCtrl#save
-             * @methodOf psonocli.controller:ModalDeleteVerifyCtrl
+             * @name psonocli.controller:ModalVerifyCtrl#save
+             * @methodOf psonocli.controller:ModalVerifyCtrl
              *
              * @description
              * Triggered once someone clicks the confirm button in the modal
@@ -33,8 +33,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:ModalDeleteVerifyCtrl#cancel
-             * @methodOf psonocli.controller:ModalDeleteVerifyCtrl
+             * @name psonocli.controller:ModalVerifyCtrl#cancel
+             * @methodOf psonocli.controller:ModalVerifyCtrl
              *
              * @description
              * Triggered once someone clicks the cancel button in the modal

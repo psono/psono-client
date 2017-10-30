@@ -145,9 +145,6 @@
                             parent.items.push(user_object);
 
                             managerDatastoreUser.save_datastore_content(parent).then(function() {
-
-                                console.log($scope.users);
-                                console.log(user_object);
                                 $scope.users.push({
                                     'id': user_object.data.user_id,
                                     'name': user_object.name,
