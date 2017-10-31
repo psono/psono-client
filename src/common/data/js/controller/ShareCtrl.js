@@ -8,14 +8,17 @@
      * @requires $routeParams
      * @requires $uibModal
      * @requires psonocli.managerShare
+     * @requires psonocli.managerShareLink
      * @requires psonocli.managerDatastorePassword
      * @requires psonocli.cryptoLibrary
      *
      * @description
      * Controller for the Share view
      */
-    angular.module('psonocli').controller('ShareCtrl', ['$scope', '$routeParams', '$uibModal', 'managerShare', 'managerDatastorePassword', 'cryptoLibrary',
-        function ($scope, $routeParams, $uibModal, managerShare, managerDatastorePassword, cryptoLibrary) {
+    angular.module('psonocli').controller('ShareCtrl', ['$scope', '$routeParams', '$uibModal', 'managerShare',
+        'managerShareLink', 'managerDatastorePassword', 'cryptoLibrary',
+        function ($scope, $routeParams, $uibModal, managerShare,
+                  managerShareLink, managerDatastorePassword, cryptoLibrary) {
 
             $scope.accept = accept;
             $scope.decline = decline;
@@ -41,10 +44,15 @@
             }
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ShareCtrl#remove_item_from_pending_list
+             * @methodOf psonocli.controller:ShareCtrl
+             *
+             * @description
              * Helper function to remove a specified item from the pending shares list
              *
-             * @param item
-             * @param shares
+             * @param {object} item The item to remove
+             * @param {array} shares The shares to search
              */
             var remove_item_from_pending_list = function (item, shares) {
 
@@ -55,7 +63,6 @@
                     shares.splice(i, 1);
                 }
             };
-
 
 
             /**
@@ -75,8 +82,17 @@
                     templateUrl: 'view/modal-accept-share.html',
                     controller: 'ModalAcceptShareCtrl',
                     resolve: {
+                        title: function () {
+                            return 'Accept Share';
+                        },
                         item: function () {
                             return item;
+                        },
+                        user: function () {
+                            return {
+                                'user_id': item.share_right_create_user_id,
+                                'user_username': item.share_right_create_user_username
+                            };
                         }
                     }
                 });
@@ -86,70 +102,25 @@
 
                     var onSuccess = function (datastore) {
 
-                        var link_id = cryptoLibrary.generate_uuid();
+                        var analyzed_breadcrumbs = managerDatastorePassword.analyze_breadcrumbs(breadcrumbs, datastore);
 
-                        var path;
-                        var parent_path;
-
-                        var target;
-                        var parent_share_id;
-                        var datastore_id;
-
-                        if (typeof breadcrumbs.id_breadcrumbs !== "undefined") {
-                            path = breadcrumbs.id_breadcrumbs.slice();
-                            var path_copy = breadcrumbs.id_breadcrumbs.slice();
-                            parent_path = breadcrumbs.id_breadcrumbs.slice();
-                            // find drop zone
-                            var val1 = managerDatastorePassword.find_in_datastore(breadcrumbs.id_breadcrumbs, datastore);
-                            target = val1[0][val1[1]];
-
-                            // get the parent (share or datastore)
-                            var parent_share = managerShare.get_closest_parent_share(path_copy, datastore, datastore, 0);
-                            if (parent_share.hasOwnProperty("datastore_id")) {
-                                datastore_id = parent_share.datastore_id;
-                            } else if (parent_share.hasOwnProperty("share_id")){
-                                parent_share_id = parent_share.share_id;
-                            } else {
-                                alert("Wupsi, that should not happen: d6da43af-e0f5-46ba-ae5b-d7e5ccd2fa92")
-                            }
-                        } else {
-                            path = [];
-                            parent_path = [];
-                            target = datastore;
-                            datastore_id = target.datastore_id;
-                        }
-
-                        if (item.share_right_grant === false && typeof(parent_share_id) !== 'undefined') {
+                        if (item.share_right_grant === false && typeof(analyzed_breadcrumbs['parent_share_id']) !== 'undefined') {
                             // No grant right, yet the parent is a a share?!?
                             alert("Wups, this should not happen. Error: 781f3da7-d38b-470e-a3c8-dd5787642230");
                         }
 
                         var onSuccess = function (share) {
 
-                            share.id = link_id;
-
                             if (typeof share.name === "undefined") {
                                 share.name = item.share_right_title;
                             }
 
-                            if (typeof share.type === "undefined") {
-                                //its a folder, lets add it to folders
-                                if (typeof target.folders === "undefined") {
-                                    target.folders = []
-                                }
-                                target.folders.push(share)
-                            } else {
-                                // its an item, lets add it to items
-                                if (typeof target.items === "undefined") {
-                                    target.items = []
-                                }
-                                target.items.push(share)
-                            }
-                            path.push(share.id);
-                            var changed_paths = managerDatastorePassword.on_share_added(share.share_id, path, datastore, 1);
-                            changed_paths.push(parent_path);
+                            var shares = [share];
 
-                            managerDatastorePassword.save_datastore_content(datastore, changed_paths);
+                            managerDatastorePassword.create_share_links_in_datastore(shares, analyzed_breadcrumbs['target'],
+                                analyzed_breadcrumbs['parent_path'], analyzed_breadcrumbs['path'],
+                                analyzed_breadcrumbs['parent_share_id'], analyzed_breadcrumbs['parent_datastore_id'],
+                                datastore);
 
                             remove_item_from_pending_list(item, pending_shares);
                         };
@@ -159,8 +130,8 @@
                         };
 
                         managerShare.accept_share_right(item.share_right_id, item.share_right_key,
-                            item.share_right_key_nonce, breadcrumbs.user.data.user_public_key, link_id, parent_share_id,
-                            datastore_id
+                            item.share_right_key_nonce, breadcrumbs.user.data.user_public_key, analyzed_breadcrumbs['parent_share_id'],
+                            analyzed_breadcrumbs['parent_datastore_id']
                         ).then(onSuccess, onError);
                     };
                     var onError = function (data) {
@@ -169,7 +140,6 @@
 
                     managerDatastorePassword.get_password_datastore()
                         .then(onSuccess, onError);
-
                 }, function () {
                     // cancel triggered
                 });

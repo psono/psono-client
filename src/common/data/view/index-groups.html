@@ -1,0 +1,81 @@
+<div class="container-fluid">
+    <div class="navi row">
+        <div class="location col-sm-8">
+            <!--
+            <span> <a href="#!/groups">/groups</a> </span>
+            -->
+        </div>
+        <div class="title col-sm-4">
+            <h1>List of Groups</h1>
+        </div>
+    </div>
+
+    <div ng-controller="GroupsCtrl" class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Groups</h3>
+        </div>
+        <div class="panel-body">
+
+            <div class="panel-buttons">
+                <button type="submit" class="btn btn-primary btn-primary" ng-click="create_group()">
+                    <i class="fa fa-plus"></i> Create New Group
+                </button>
+                <div class='clearfix'></div>
+            </div>
+
+            <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Edit</th>
+                    <th>Accept</th>
+                    <th>Decline</th>
+                    <th>Leave</th>
+                    <th>Delete</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="group in groups">
+                    <td>{{ group.name }}</td>
+                    <td>
+                        <button type="button" class="btn btn-default btn-sm" ng-click="edit_group(group.group_id, 'lg')"
+                                ng-disabled="!group.group_admin || (group.accepted !== false && group.accepted !== true)" >
+                            <i class="fa fa-wrench" aria-hidden="true"><span style="display: none">0</span></i>
+                        </button>
+                    </td>
+                    <td>
+                        <button ng-if="group.accepted !== false && group.accepted !== true" type="button"
+                                class="btn btn-default btn-sm" ng-click="accept_group(group)">
+                            Accept
+                        </button>
+                        <button ng-if="group.accepted == true && outstanding_share_index[group.group_id]" type="button"
+                                class="btn btn-default btn-sm" ng-click="accept_new_group_shares(group)">
+                            Accept New Shares
+                        </button>
+                    </td>
+                    <td>
+                        <button ng-if="group.accepted !== false && group.accepted !== true" type="button"
+                                class="btn btn-default btn-sm" ng-click="decline_group(group)">
+                            Decline
+                        </button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-default btn-sm" ng-click="leave_group(group)"
+                                ng-disabled="group.accepted !== false && group.accepted !== true" >
+                            <i class="fa fa-sign-out" aria-hidden="true"><span style="display: none">0</span></i>
+                        </button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-default btn-sm" ng-click="delete_group(group.group_id)"
+                                ng-disabled="!group.group_admin || (group.accepted !== false && group.accepted !== true)" >
+                            <i class="fa fa-trash" aria-hidden="true"><span style="display: none">0</span></i>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>

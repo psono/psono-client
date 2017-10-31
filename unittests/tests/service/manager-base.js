@@ -139,6 +139,182 @@
             var data = managerBase.find_one('config', 'user_sauce');
             expect(data).toBe('');
         }));
+
+        it('filter_datastore_content', inject(function (managerBase) {
+
+            var datastore = {
+                'parent_datastore_id': 'parent_datastore_id',
+                'parent_share_id': 'parent_share_id',
+                'expanded': 'expanded',
+                'expanded_temporary': 'expanded_temporary',
+                'filter': 'filter',
+                'hidden': 'hidden',
+                'share_rights': 'share_rights',
+                'narf': 'narf',
+                'items': [
+                    {
+                        'parent_datastore_id': 'parent_datastore_id',
+                        'parent_share_id': 'parent_share_id',
+                        'expanded': 'expanded',
+                        'expanded_temporary': 'expanded_temporary',
+                        'filter': 'filter',
+                        'hidden': 'hidden',
+                        'share_rights': 'share_rights',
+                        'narf': 'narf'
+                    },{
+                        'parent_datastore_id': 'parent_datastore_id',
+                        'parent_share_id': 'parent_share_id',
+                        'expanded': 'expanded',
+                        'expanded_temporary': 'expanded_temporary',
+                        'filter': 'filter',
+                        'hidden': 'hidden',
+                        'share_rights': 'share_rights',
+                        'narf': 'narf'
+                    }
+                ],
+                'folders': [
+                    {
+                        'parent_datastore_id': 'parent_datastore_id',
+                        'parent_share_id': 'parent_share_id',
+                        'expanded': 'expanded',
+                        'expanded_temporary': 'expanded_temporary',
+                        'filter': 'filter',
+                        'hidden': 'hidden',
+                        'share_rights': 'share_rights',
+                        'narf': 'narf',
+                        'items': [
+                            {
+                                'parent_datastore_id': 'parent_datastore_id',
+                                'parent_share_id': 'parent_share_id',
+                                'expanded': 'expanded',
+                                'expanded_temporary': 'expanded_temporary',
+                                'filter': 'filter',
+                                'hidden': 'hidden',
+                                'share_rights': 'share_rights',
+                                'narf': 'narf'
+                            },{
+                                'parent_datastore_id': 'parent_datastore_id',
+                                'parent_share_id': 'parent_share_id',
+                                'expanded': 'expanded',
+                                'expanded_temporary': 'expanded_temporary',
+                                'filter': 'filter',
+                                'hidden': 'hidden',
+                                'share_rights': 'share_rights',
+                                'narf': 'narf'
+                            }
+                        ],
+                        'folders': [
+                            {
+                                'parent_datastore_id': 'parent_datastore_id',
+                                'parent_share_id': 'parent_share_id',
+                                'expanded': 'expanded',
+                                'expanded_temporary': 'expanded_temporary',
+                                'filter': 'filter',
+                                'hidden': 'hidden',
+                                'share_rights': 'share_rights',
+                                'narf': 'narf',
+                                'items': [],
+                                'folders': []
+                            },{
+                                'parent_datastore_id': 'parent_datastore_id',
+                                'parent_share_id': 'parent_share_id',
+                                'expanded': 'expanded',
+                                'expanded_temporary': 'expanded_temporary',
+                                'filter': 'filter',
+                                'hidden': 'hidden',
+                                'share_rights': 'share_rights',
+                                'narf': 'narf',
+                                'items': [],
+                                'folders': []
+                            }
+                        ]
+                    },{
+                        'parent_datastore_id': 'parent_datastore_id',
+                        'parent_share_id': 'parent_share_id',
+                        'expanded': 'expanded',
+                        'expanded_temporary': 'expanded_temporary',
+                        'filter': 'filter',
+                        'hidden': 'hidden',
+                        'share_rights': 'share_rights',
+                        'narf': 'narf',
+                        'items': [],
+                        'folders': [
+                            {
+                                'parent_datastore_id': 'parent_datastore_id',
+                                'parent_share_id': 'parent_share_id',
+                                'expanded': 'expanded',
+                                'expanded_temporary': 'expanded_temporary',
+                                'filter': 'filter',
+                                'hidden': 'hidden',
+                                'share_rights': 'share_rights',
+                                'narf': 'narf',
+                                'items': [],
+                                'folders': []
+                            },{
+                                'parent_datastore_id': 'parent_datastore_id',
+                                'parent_share_id': 'parent_share_id',
+                                'expanded': 'expanded',
+                                'expanded_temporary': 'expanded_temporary',
+                                'filter': 'filter',
+                                'hidden': 'hidden',
+                                'share_rights': 'share_rights',
+                                'narf': 'narf',
+                                'items': [
+                                    {
+                                        'parent_datastore_id': 'parent_datastore_id',
+                                        'parent_share_id': 'parent_share_id',
+                                        'expanded': 'expanded',
+                                        'expanded_temporary': 'expanded_temporary',
+                                        'filter': 'filter',
+                                        'hidden': 'hidden',
+                                        'share_rights': 'share_rights',
+                                        'narf': 'narf'
+                                    },{
+                                        'parent_datastore_id': 'parent_datastore_id',
+                                        'parent_share_id': 'parent_share_id',
+                                        'expanded': 'expanded',
+                                        'expanded_temporary': 'expanded_temporary',
+                                        'filter': 'filter',
+                                        'hidden': 'hidden',
+                                        'share_rights': 'share_rights',
+                                        'narf': 'narf'
+                                    }
+                                ],
+                                'folders': []
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            var original_datastore = angular.copy(datastore);
+
+
+            var modified_datastore = managerBase.filter_datastore_content(datastore);
+            // Original datastore didn't change
+            expect(original_datastore).toEqual(datastore);
+            expect(modified_datastore).toEqual({
+                narf: 'narf',
+                items: [{narf: 'narf'}, {narf: 'narf'}],
+                folders: [{
+                    narf: 'narf',
+                    items: [{narf: 'narf'}, {narf: 'narf'}],
+                    folders: [{narf: 'narf', items: [], folders: []}, {
+                        narf: 'narf',
+                        items: [],
+                        folders: []
+                    }]
+                }, {
+                    narf: 'narf',
+                    items: [],
+                    folders: [{narf: 'narf', items: [], folders: []}, {
+                        narf: 'narf',
+                        items: [{narf: 'narf'}, {narf: 'narf'}],
+                        folders: []
+                    }]
+                }]
+            });
+        }));
     });
 
 }).call();

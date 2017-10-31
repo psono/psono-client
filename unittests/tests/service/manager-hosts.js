@@ -11,7 +11,7 @@
             $rootScope = $injector.get('$rootScope');
         }));
 
-        it('helper exists', inject(function (managerHost) {
+        it('managerHost exists', inject(function (managerHost) {
             expect(managerHost).toBeDefined();
         }));
 
@@ -129,7 +129,6 @@
                     }
                 });
             }, function (data) {
-                console.log(data);
                 // should never be reached
                 expect(true).toBeFalsy();
             });
@@ -168,7 +167,6 @@
                     }
                 });
             }, function (data) {
-                console.log(data);
                 // should never be reached
                 expect(true).toBeFalsy();
             });
@@ -208,7 +206,6 @@
                     }
                 });
             }, function (data) {
-                console.log(data);
                 // should never be reached
                 expect(true).toBeFalsy();
             });
@@ -248,7 +245,6 @@
                     }
                 });
             }, function (data) {
-                console.log(data);
                 // should never be reached
                 expect(true).toBeFalsy();
             });

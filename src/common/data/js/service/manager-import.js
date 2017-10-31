@@ -189,7 +189,7 @@
                 delete popped_secret[property];
             }
 
-            return managerSecret.create_secret(secret, popped_secret['id'], datastore_id, null).then(function(e) {
+            return managerSecret.create_secret(secret, popped_secret['id'], datastore_id, undefined).then(function(e) {
                 popped_secret['secret_id'] = e.secret_id;
                 popped_secret['secret_key'] = e.secret_key;
 

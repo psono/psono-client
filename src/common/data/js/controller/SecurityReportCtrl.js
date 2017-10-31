@@ -9,7 +9,7 @@
      * @requires psonocli.managerSecurityReport
      *
      * @description
-     * Controller for the index
+     * Controller for the Generate Security Report view
      */
     angular.module('psonocli').controller('SecurityReportCtrl', ['$scope', '$routeParams', 'managerSecurityReport',
         function ($scope, $routeParams, managerSecurityReport) {

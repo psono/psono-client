@@ -54,7 +54,7 @@
              * @description
              * Exports all data of a datastore
              *
-             * @param type The type of the export
+             * @param {string} type The selected type of the export
              */
             function export_datastore(type) {
                 $scope.msgs = [];

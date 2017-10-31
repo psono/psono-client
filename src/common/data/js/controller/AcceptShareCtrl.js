@@ -186,7 +186,7 @@
              * @description
              * Counts the open context menus counter up
              *
-             * @param div_id
+             * @param {string} div_id The id of the div
              */
             function contextMenuOnShow(div_id) {
                 dropDownMenuWatcher.on_open(div_id);
@@ -201,7 +201,7 @@
              * @description
              * Counts the open context menus counter down
              *
-             * @param div_id
+             * @param {string} div_id The id of the div
              */
             function contextMenuOnClose(div_id) {
                 dropDownMenuWatcher.on_close(div_id);
@@ -218,7 +218,7 @@
              * @description
              * Forwards the call to open the modal for a new folder
              *
-             * @param event
+             * @param {object} event The event triggering this
              */
             function openNewFolder(event) {
                 managerWidget.open_new_folder(undefined, [], $scope.structure.data, managerDatastorePassword);
@@ -232,9 +232,9 @@
              * @description
              * Opens the modal for a new entry
              *
-             * @param parent
-             * @param path
-             * @param size
+             * @param {object} parent The parent object
+             * @param {array} path The path
+             * @param {string} size The size of the modal
              */
             function open_new_item (parent, path, size) {
                 managerWidget.open_new_item($scope.structure.data, parent, path, size);
@@ -248,7 +248,7 @@
              * @description
              * Forwards the call to open the modal for a new item
              *
-             * @param event
+             * @param {object} event The event triggering this
              */
             function openNewItem(event) {
                 open_new_item(undefined, []);
@@ -262,32 +262,42 @@
              * @description
              * Opens the modal to edit a entry
              *
-             * @param node
-             * @param path
-             * @param size
+             * @param {object} node The item to edit
+             * @param {array} path The path
+             * @param {string} size The size of the modal
              */
             function open_edit_item (node, path, size) {
                 managerWidget.open_edit_item($scope.structure.data, node, path, size);
             }
 
             /**
-             * Move an item
+             * @ngdoc
+             * @name psonocli.controller:AcceptShareCtrl#move_item
+             * @methodOf psonocli.controller:AcceptShareCtrl
              *
-             * @param scope the scope
-             * @param item_path the path of the item
-             * @param target_path the path where we want to put the item
-             * @param type type of the item (item or folder)
+             * @description
+             * Moves an item
+             *
+             * @param {object} scope the scope
+             * @param {array} item_path the path of the item
+             * @param {array} target_path the path where we want to put the item
+             * @param {string} type type of the item (item or folder)
              */
             function move_item(scope, item_path, target_path, type) {
                 managerWidget.move_item(scope.structure.data, item_path, target_path, type);
             }
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:AcceptShareCtrl#delete_item
+             * @methodOf psonocli.controller:AcceptShareCtrl
+             *
+             * @description
              * Deletes an item from the datastore
              *
-             * @param scope the scope
-             * @param item the item
-             * @param path the path to the item
+             * @param {object} scope the scope
+             * @param {object} item the item
+             * @param {array} path the path to the item
              */
             function delete_item(scope, item, path) {
                 managerWidget.delete_item(scope.structure.data, item, path);

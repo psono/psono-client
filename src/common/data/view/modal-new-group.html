@@ -1,0 +1,15 @@
+<form name="newGroupForm" novalidate>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title">New Group</h3>
+    </div>
+    <div class="modal-body">
+        <div class="form-group" ng-class="{true: 'has-error'}[submitted && newGroupForm.name.$invalid]">
+            <input type="text" name="name" class="form-control" id="groupName" placeholder="Group Name" ng-model="name" required autofocus>
+            <p class="help-block" ng-show="submitted && newGroupForm.name.$error.required">The group's name is required</p>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" type="submit" ng-click="submitted=true;save()">OK</button>
+    </div>
+</form>

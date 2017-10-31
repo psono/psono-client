@@ -5,6 +5,7 @@
      * @ngdoc service
      * @name psonocli.managerBackground
      * @requires $q
+     * @requires $timeout
      * @requires psonocli.managerBase
      * @requires psonocli.storage
      * @requires psonocli.managerDatastorePassword
@@ -15,13 +16,13 @@
      * @description
      * Service that handles the complete background process
      */
-    var managerBackground = function($q, managerBase, managerSecret, storage, managerDatastorePassword,
+    var managerBackground = function($q, $timeout, managerBase, managerSecret, storage, managerDatastorePassword,
                                      managerDatastoreUser, helper, cryptoLibrary, apiClient, device, browser, chrome,
                                      browserClient) {
 
         var last_login_credentials;
         var activeTabId;
-        var hits_additional_info = {};
+        var entry_extra_info = {};
         var fillpassword = [];
         var already_filled_max_allowed = {};
 
@@ -123,11 +124,9 @@
          * @description
          * Main function to deal with messages
          *
-         * @param request
-         * @param sender
-         * @param sendResponse
-         *
-         * @returns {*}
+         * @param {object} request The message sent by the calling script.
+         * @param {object} sender The sender of the message
+         * @param {function} sendResponse Function to call (at most once) when you have a response.
          */
         function on_message(request, sender, sendResponse) {
 
@@ -147,7 +146,7 @@
             };
 
             if (event_functions.hasOwnProperty(request.event)){
-                return event_functions[request.event](request, sender, sendResponse);
+                event_functions[request.event](request, sender, sendResponse);
             } else {
                 // not catchable event
                 console.log(sender.tab);
@@ -164,9 +163,9 @@
          * we received a ready event from a content script that finished loading
          * lets provide the possible passwords
          *
-         * @param request
-         * @param sender
-         * @param sendResponse
+         * @param {object} request The message sent by the calling script.
+         * @param {object} sender The sender of the message
+         * @param {function} sendResponse Function to call (at most once) when you have a response.
          */
         var on_ready = function(request, sender, sendResponse) {
             if (sender.tab) {
@@ -177,10 +176,12 @@
                     if( helper.endsWith(parsed_url.authority, fillpassword[i].authority)) {
                         fillpassword[i].submit = parsed_url.scheme === 'https';
                         sendResponse({event: "fillpassword", data: fillpassword[i]});
-                        fillpassword.splice(i, 1);
                         break;
                     }
                 }
+                $timeout(function () {
+                    fillpassword = [];
+                }, 3000);
             }
         };
 
@@ -193,9 +194,9 @@
          * we received a fillpassword event
          * lets remember it
          *
-         * @param request
-         * @param sender
-         * @param sendResponse
+         * @param {object} request The message sent by the calling script.
+         * @param {object} sender The sender of the message
+         * @param {function} sendResponse Function to call (at most once) when you have a response.
          */
         function on_fillpassword(request, sender, sendResponse) {
             fillpassword.push(request.data);
@@ -210,9 +211,9 @@
          * we received a fillpassword active tab event
          * lets send a fillpassword event to the to the active tab
          *
-         * @param request
-         * @param sender
-         * @param sendResponse
+         * @param {object} request The message sent by the calling script.
+         * @param {object} sender The sender of the message
+         * @param {function} sendResponse Function to call (at most once) when you have a response.
          */
         function on_fillpassword_active_tab (request, sender, sendResponse) {
             if (typeof(activeTabId) === 'undefined') {
@@ -232,9 +233,9 @@
          * we received a fillpassword active tab event
          * lets send a fillpassword event to the to the active tab
          *
-         * @param request
-         * @param sender
-         * @param sendResponse
+         * @param {object} request The message sent by the calling script.
+         * @param {object} sender The sender of the message
+         * @param {function} sendResponse Function to call (at most once) when you have a response.
          */
         function save_password_active_tab (request, sender, sendResponse) {
             if (typeof(activeTabId) === 'undefined') {
@@ -254,9 +255,9 @@
          * we received a fillpassword active tab event
          * lets send a fillpassword event to the to the active tab
          *
-         * @param request
-         * @param sender
-         * @param sendResponse
+         * @param {object} request The message sent by the calling script.
+         * @param {object} sender The sender of the message
+         * @param {function} sendResponse Function to call (at most once) when you have a response.
          */
         function bookmark_active_tab (request, sender, sendResponse) {
             if (typeof(activeTabId) === 'undefined') {
@@ -275,9 +276,9 @@
          * we received a logout event
          * lets close all extension tabs
          *
-         * @param request
-         * @param sender
-         * @param sendResponse
+         * @param {object} request The message sent by the calling script.
+         * @param {object} sender The sender of the message
+         * @param {function} sendResponse Function to call (at most once) when you have a response.
          */
         function on_logout(request, sender, sendResponse) {
 
@@ -299,9 +300,9 @@
          * @description
          * Reloads the storage
          *
-         * @param request
-         * @param sender
-         * @param sendResponse
+         * @param {object} request The message sent by the calling script.
+         * @param {object} sender The sender of the message
+         * @param {function} sendResponse Function to call (at most once) when you have a response.
          */
         function on_storage_reload(request, sender, sendResponse) {
             storage.reload();
@@ -315,9 +316,9 @@
          * @description
          * we received a login event
          *
-         * @param request
-         * @param sender
-         * @param sendResponse
+         * @param {object} request The message sent by the calling script.
+         * @param {object} sender The sender of the message
+         * @param {function} sendResponse Function to call (at most once) when you have a response.
          */
         function on_login(request, sender, sendResponse) {
             // pass
@@ -337,6 +338,7 @@
          * @returns {Array} The database objects where the url filter match the url
          */
         function search_website_passwords_by_urlfilter(url, only_autosubmit) {
+
             var parsed_url = helper.parse_url(url);
 
             var filter = function(leaf) {
@@ -344,6 +346,11 @@
                 if (leaf.type !== 'website_password') {
                     return false;
                 }
+
+                if (typeof(leaf.urlfilter) === 'undefined') {
+                    return false;
+                }
+
                 if (!helper.endsWith(parsed_url.authority, leaf.urlfilter)) {
                     return false;
                 }
@@ -364,9 +371,9 @@
          * a page finished loading, and wants to know if we have passwords for this page to display to the customer
          * in the input popup menu
          *
-         * @param request
-         * @param sender
-         * @param sendResponse
+         * @param {object} request The message sent by the calling script.
+         * @param {object} sender The sender of the message
+         * @param {function} sendResponse Function to call (at most once) when you have a response.
          */
         function on_website_password_refresh(request, sender, sendResponse) {
             var update = [];
@@ -396,7 +403,8 @@
          * @description
          * Reads the specified secret of the server, decrypts it and returns a promise
          *
-         * @param secret_id
+         * @param {uuid} secret_id The id of the secret
+         *
          * @returns {promise} Returns a promise with the decrypted secret content
          */
         function request_secret(secret_id) {
@@ -414,11 +422,9 @@
          * lets search in our localstorage for the config and the secret_key of the requested secret
          * lets request the content of the secret from our backend server
          *
-         * @param request
-         * @param sender
-         * @param sendResponse
-         *
-         * @returns {boolean}
+         * @param {object} request The message sent by the calling script.
+         * @param {object} sender The sender of the message
+         * @param {function} sendResponse Function to call (at most once) when you have a response.
          */
         function on_request_secret(request, sender, sendResponse) {
 
@@ -429,8 +435,6 @@
                     // failed
                     sendResponse({event: "return-secret", data: 'fail'});
                 });
-
-            return true; // return true because of async response
         }
 
         /**
@@ -441,9 +445,9 @@
          * @description
          * Opens a new tab
          *
-         * @param request
-         * @param sender
-         * @param sendResponse
+         * @param {object} request The message sent by the calling script.
+         * @param {object} sender The sender of the message
+         * @param {function} sendResponse Function to call (at most once) when you have a response.
          */
         function on_open_tab(request, sender, sendResponse) {
             browser.tabs.create({
@@ -459,9 +463,9 @@
          * @description
          * Catches login form submits
          *
-         * @param request
-         * @param sender
-         * @param sendResponse
+         * @param {object} request The message sent by the calling script.
+         * @param {object} sender The sender of the message
+         * @param {function} sendResponse Function to call (at most once) when you have a response.
          */
         function login_form_submit(request, sender, sendResponse) {
             last_login_credentials = request.data;
@@ -496,26 +500,27 @@
          * searches the datastore for all entries that either match the searched text either with their urlfilter or name
          * and returns the found results
          *
-         * @param text
-         * @returns {Array}
+         * @param {string} text The text to search
+         *
+         * @returns {Array} The entries found
          */
         function search_datastore(text) {
 
             var password_filter = helper.get_password_filter(text);
-            var hits = [];
+            var entries = [];
             var datastore_entry;
             var leafs = storage.where('datastore-password-leafs', password_filter);
             for (var i = 0; i < leafs.length; i++) {
                 datastore_entry = leafs[i];
-                hits.push({
+                entries.push({
                     content: datastore_entry.name + ' [Secret: ' + datastore_entry.key + ']',
                     description: datastore_entry.name
                 });
 
-                hits_additional_info[datastore_entry.key] = {type: datastore_entry.type}
+                entry_extra_info[datastore_entry.key] = {type: datastore_entry.type}
             }
 
-            return hits;
+            return entries;
         }
 
         /**
@@ -527,8 +532,8 @@
          * Triggered once the input in the omnibox changes. Searches the datastore for the input and provides the
          * suggestions for the omnibox
          *
-         * @param text
-         * @param suggest
+         * @param {string} text The text to search
+         * @param {function} suggest The callback function to execute with the suggestions
          */
         function on_input_changed(text, suggest) {
             suggest(search_datastore(text));
@@ -543,7 +548,7 @@
          * Triggered once someone selected a proposal in the omnibox and opens a new tab with either the selected website
          * or the datastore with a pre-filled search
          *
-         * @param text
+         * @param {string} text The text entered
          */
         function on_input_entered(text) {
             var to_open = '';
@@ -557,7 +562,7 @@
 
             if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(to_open)) {
                 browser.tabs.create({
-                    url: '/data/open-secret.html#!/secret/' + hits_additional_info[to_open]['type'] + '/' + to_open
+                    url: '/data/open-secret.html#!/secret/' + entry_extra_info[to_open]['type'] + '/' + to_open
                 });
             } else {
                 browser.tabs.create({
@@ -647,23 +652,24 @@
          *
          * @description
          * Triggered once a website loads that requires authentication (e.g. basic auth)
+         * More infos can be found here: https://developer.chrome.com/extensions/webRequest
          *
-         * @param {object} details
+         * @param {object} details An object with the details of the request
          * @param {function} callbackFn The callback function to call once the secret has been returned
-         *
-         * @returns {object}
          */
         function on_auth_required(details, callbackFn) {
             var return_value = {};
-            var entries;
-            entries = search_website_passwords_by_urlfilter(details.url, true);
+
+            var entries = search_website_passwords_by_urlfilter(details.url, true);
 
             if (entries.length < 1) {
-                return callbackFn(return_value);
+                callbackFn(return_value);
+                return;
             }
 
             if (already_filled_max_allowed.hasOwnProperty(details.requestId) && already_filled_max_allowed[details.requestId] < 1) {
-                return callbackFn(return_value);
+                callbackFn(return_value);
+                return;
             }
 
             if (! already_filled_max_allowed.hasOwnProperty(details.requestId)) {
@@ -679,9 +685,11 @@
                             password: data['website_password_password']
                         }
                     };
-                    return callbackFn(return_value);
+                    callbackFn(return_value);
+                    return; // unnecessary but we leave it
                 }, function(value) {
-                    return callbackFn(return_value);
+                    callbackFn(return_value);
+                    return; // unnecessary but we leave it
                 });
         }
 
@@ -696,7 +704,7 @@
          * @description
          * Saves the last login credentials in the datastore
          *
-         * @returns {promise}
+         * @returns {promise} Returns a promise with the password
          */
         function save_last_login_credentials() {
             return managerDatastorePassword.save_password(
@@ -710,7 +718,7 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerBackground", ['$q', 'managerBase', 'managerSecret', 'storage', 'managerDatastorePassword',
+    app.factory("managerBackground", ['$q', '$timeout', 'managerBase', 'managerSecret', 'storage', 'managerDatastorePassword',
         'managerDatastoreUser', 'helper', 'cryptoLibrary', 'apiClient', 'device', 'browser', 'chrome',
         'browserClient', managerBackground]);
 

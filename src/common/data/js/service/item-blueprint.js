@@ -263,56 +263,73 @@
                     }
 
                     /**
-                     * little wrapper to create the share rights from the selected users and rights for a given nonce and
+                     * little wrapper to create the share rights from the selected users / groups and rights for a given nonce and
                      * a given share_id and key
                      *
                      * @param share_id
-                     * @param secret_key
+                     * @param share_secret_key
                      * @param node
                      * @param users
+                     * @param groups
                      * @param selected_users
+                     * @param selected_groups
                      * @param selected_rights
                      */
-                    var create_share_rights = function(share_id, secret_key, node, users, selected_users, selected_rights) {
-                        for (var i = 0; i < users.length; i++) {
+                    var create_share_rights = function(share_id, share_secret_key, node, users, groups, selected_users, selected_groups, selected_rights) {
+                        var i;
+
+                        // found a user that has been selected, lets create the rights for him
+                        var rights = {
+                            read: selected_rights.indexOf('read') > -1,
+                            write: selected_rights.indexOf('write') > -1,
+                            grant: selected_rights.indexOf('grant') > -1
+                        };
+
+                        // generate the title
+                        // TODO create form field with this default value and read value from form
+
+                        var title = "";
+                        if (typeof(node.type) === 'undefined') {
+                            // we have a folder
+                            title = "Folder with title '" + node.name + "'";
+                        } else {
+                            // we have an item
+                            title = _blueprints[node.type].name + " with title '" + node.name + "'";
+                        }
+
+                        // get the type
+                        var type = "";
+                        if (typeof(node.type) === 'undefined') {
+                            // we have a folder
+                            type = 'folder';
+                        } else {
+                            // we have an item
+                            type = node.type;
+                        }
+
+                        for (i = 0; i < users.length; i++) {
                             if (selected_users.indexOf(users[i].id) < 0) {
                                 continue;
                             }
+                            registrations['create_share_right'](title, type,
+                                share_id, users[i].data.user_id, undefined,
+                                users[i].data.user_public_key, undefined, share_secret_key,
+                                rights['read'], rights['write'], rights['grant']);
+                        }
 
-                            // found a user that has been selected, lets create the rights for him
-                            var rights = {
-                                read: selected_rights.indexOf('read') > -1,
-                                write: selected_rights.indexOf('write') > -1,
-                                grant: selected_rights.indexOf('grant') > -1
-                            };
-
-                            // generate the title
-                            // TODO create form field with this default value and read value from form
-
-                            var title = "";
-                            if (typeof(node.type) === 'undefined') {
-                                // we have a folder
-                                title = "Folder with title '" + node.name + "'";
-                            } else {
-                                // we have an item
-                                title = _blueprints[node.type].name + " with title '" + node.name + "'";
+                        for (i = 0; i < groups.length; i++) {
+                            if (selected_groups.indexOf(groups[i].group_id) < 0) {
+                                continue;
                             }
 
-                            // get the type
-                            var type = "";
-                            if (typeof(node.type) === 'undefined') {
-                                // we have a folder
-                                type = 'folder';
-                            } else {
-                                // we have an item
-                                type = node.type;
-                            }
+                            var group_secret_key = registrations['get_group_secret_key'](
+                                groups[i].group_id, groups[i].secret_key, groups[i].secret_key_nonce,
+                                groups[i].secret_key_type, groups[i].public_key);
 
                             registrations['create_share_right'](title, type,
-                                share_id, users[i].data.user_id,
-                                users[i].data.user_public_key, secret_key,
+                                share_id, undefined, groups[i].group_id,
+                                undefined, group_secret_key, share_secret_key,
                                 rights['read'], rights['write'], rights['grant']);
-                            i++;
                         }
                     };
 
@@ -325,30 +342,26 @@
                     var on_modal_close_success = function (content) {
                         // content = { node: "...", path: "...", selected_users: "...", users: "..."}
 
-                        if (!content.users
+                        var has_no_users = !content.users
                             || content.users.length < 1
                             || !content.selected_users
-                            || content.selected_users.length < 1) {
+                            || content.selected_users.length < 1;
 
-                            // TODO echo not shared message because no user selected
+                        var has_no_groups = !content.groups
+                            || content.groups.length < 1
+                            || !content.selected_groups
+                            || content.selected_groups.length < 1;
 
+                        if (has_no_users && has_no_groups) {
+                            // TODO echo not shared message because no user / group selected
                             return;
-                        }
-
-                        var users = [];
-
-                        var i;
-                        for (i = 0; i < content.users.length; i++) {
-                            if (content.selected_users.indexOf(content.users[i].id) !== -1) {
-                                users.push(content.users[i]);
-                            }
                         }
 
                         if (content.node.hasOwnProperty("share_id")) {
                             // its already a share, so generate only the share_rights
 
                             create_share_rights(content.node.share_id, content.node.share_secret_key,
-                                content.node, content.users, content.selected_users, content.selected_rights);
+                                content.node, content.users, content.groups, content.selected_users, content.selected_groups, content.selected_rights);
 
                         } else {
                             // its not yet a share, so generate the share, generate the share_rights and update
@@ -358,8 +371,8 @@
 
                                 var path = content.path.slice();
                                 var parent_share = registrations['get_closest_parent_share'](path, datastore, null, 1);
-                                var parent_share_id = null;
-                                var parent_datastore_id = null;
+                                var parent_share_id;
+                                var parent_datastore_id;
 
                                 if (parent_share !== false && parent_share !== null) {
                                     parent_share_id = parent_share.share_id;
@@ -376,7 +389,7 @@
 
                                     // create the share right
                                     create_share_rights(share_details.share_id, share_details.secret_key,
-                                        content.node, content.users, content.selected_users, content.selected_rights);
+                                        content.node, content.users, content.groups, content.selected_users, content.selected_groups, content.selected_rights);
 
 
                                     // update datastore and / or possible parent shares
@@ -409,33 +422,23 @@
                         }
                     };
 
-                    // The main modal to share
-                    registrations['get_user_datastore']().then(function (user_datastore) {
-                        var users = [];
-                        helper.create_list(user_datastore, users);
-
-                        var modalInstance = $uibModal.open({
-                            templateUrl: 'view/modal-share-entry.html',
-                            controller: 'ModalShareEntryCtrl',
-                            backdrop: 'static',
-                            resolve: {
-                                node: function () {
-                                    return item;
-                                },
-                                path: function () {
-                                    return path;
-                                },
-                                users: function() {
-                                    return users;
-                                }
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'view/modal-share-entry.html',
+                        controller: 'ModalShareEntryCtrl',
+                        backdrop: 'static',
+                        resolve: {
+                            node: function () {
+                                return item;
+                            },
+                            path: function () {
+                                return path;
                             }
-                        });
+                        }
+                    });
 
-                        // User clicked the final share button
-                        modalInstance.result.then(on_modal_close_success, function () {
-                            // cancel triggered
-                        });
-
+                    // User clicked the final share button
+                    modalInstance.result.then(on_modal_close_success, function () {
+                        // cancel triggered
                     });
                 }
             },
@@ -459,6 +462,8 @@
 
                     // create the share
                     registrations['read_share_rights'](item.share_id).then(function (share_details) {
+
+                        console.log(share_details);
 
                         var modalInstance = $uibModal.open({
                             templateUrl: 'view/modal-display-share-rights.html',

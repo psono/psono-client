@@ -504,8 +504,6 @@
          * @returns {promise} promise
          */
         var read_datastore = function (token, session_secret_key, datastore_id) {
-
-            //optional parameter datastore_id
             if (datastore_id === undefined) { datastore_id = null; }
 
             var endpoint = '/datastore/' + (datastore_id === null ? '' : datastore_id + '/');
@@ -647,8 +645,6 @@
          * @returns {promise} promise
          */
         var read_secret = function (token, session_secret_key, secret_id, synchronous) {
-
-            //optional parameter secret_id
             if (secret_id === undefined) { secret_id = null; }
 
             var endpoint = '/secret/' + (secret_id === null ? '' : secret_id + '/');
@@ -979,6 +975,7 @@
          * @param {string} encrypted_type_nonce the corresponding type nonce
          * @param {uuid} share_id the share ID
          * @param {uuid} user_id the target user's user ID
+         * @param {uuid} group_id the target group's group ID
          * @param {string} key the encrypted share secret, encrypted with the public key of the target user
          * @param {string} key_nonce the unique nonce for decryption
          * @param {bool} read read right
@@ -987,8 +984,11 @@
          *
          * @returns {promise} promise
          */
-        var create_share_right = function (token, session_secret_key, encrypted_title, encrypted_title_nonce, encrypted_type, encrypted_type_nonce, share_id,
-                                           user_id, key, key_nonce, read, write, grant) {
+        var create_share_right = function (token, session_secret_key, encrypted_title, encrypted_title_nonce,
+                                           encrypted_type, encrypted_type_nonce, share_id, user_id, group_id, key,
+                                           key_nonce, read, write, grant) {
+            console.log(user_id);
+            console.log(group_id);
             var endpoint = '/share/right/';
             var connection_type = "PUT";
             var data = {
@@ -998,6 +998,7 @@
                 type_nonce: encrypted_type_nonce,
                 share_id: share_id,
                 user_id: user_id,
+                group_id: group_id,
                 key: key,
                 key_nonce: key_nonce,
                 read: read,
@@ -1024,6 +1025,7 @@
          * @param {string} session_secret_key The session secret key
          * @param {uuid} share_id the share ID
          * @param {uuid} user_id the target user's user ID
+         * @param {uuid} group_id the target user's user ID
          * @param {bool} read read right
          * @param {bool} write write right
          * @param {bool} grant grant right
@@ -1031,12 +1033,13 @@
          * @returns {promise} promise
          */
         var update_share_right = function (token, session_secret_key, share_id,
-                                           user_id, read, write, grant) {
+                                           user_id, group_id, read, write, grant) {
             var endpoint = '/share/right/';
             var connection_type = "POST";
             var data = {
                 share_id: share_id,
                 user_id: user_id,
+                group_id: group_id,
                 read: read,
                 write: write,
                 grant: grant
@@ -1058,15 +1061,17 @@
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
-         * @param {uuid} share_right_id the share right ID
+         * @param {uuid} user_share_right_id the user share right ID
+         * @param {uuid} group_share_right_id the group share right ID
          *
          * @returns {promise} promise
          */
-        var delete_share_right = function (token, session_secret_key, share_right_id) {
+        var delete_share_right = function (token, session_secret_key, user_share_right_id, group_share_right_id) {
             var endpoint = '/share/right/';
             var connection_type = "DELETE";
             var data = {
-                share_right_id: share_right_id
+                user_share_right_id: user_share_right_id,
+                group_share_right_id: group_share_right_id
             };
             var headers = {
                 "Content-Type": "application/json",
@@ -1114,20 +1119,18 @@
          * @param {uuid} share_right_id The share right id
          * @param {string} key The encrypted key of the share
          * @param {string} key_nonce The nonce of the key
-         * @param {uuid} link_id The link id
          * @param {uuid} parent_share_id The parent share id
          * @param {uuid} parent_datastore_id The parent datastore id
          *
          * @returns {promise} promise
          */
-        var accept_share_right = function (token, session_secret_key, share_right_id, key, key_nonce, link_id, parent_share_id, parent_datastore_id) {
+        var accept_share_right = function (token, session_secret_key, share_right_id, key, key_nonce, parent_share_id, parent_datastore_id) {
             var endpoint = '/share/right/accept/';
             var connection_type = "POST";
             var data = {
                 share_right_id: share_right_id,
                 key: key,
                 key_nonce: key_nonce,
-                link_id: link_id,
                 parent_share_id: parent_share_id,
                 parent_datastore_id: parent_datastore_id
             };
@@ -1453,64 +1456,318 @@
             return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
-        // /**
-        //  * @ngdoc
-        //  * @name psonocli.apiClient#read_group
-        //  * @methodOf psonocli.apiClient
-        //  *
-        //  * @description
-        //  * Ajax GET request with the token as authentication to get the current user's groups
-        //  *
-        //  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
-        //  * @param {string} session_secret_key The session secret key
-        //  * @param {uuid|undefined} [group_id=null] (optional) group ID
-        //  * @returns {promise} promise
-        //  */
-        // var read_group = function (token, session_secret_key, group_id) {
-        //
-        //     //optional parameter group_id
-        //     if (group_id === undefined) { group_id = null; }
-        //
-        //     var endpoint = '/group/' + (group_id === null ? '' : group_id + '/');
-        //     var connection_type = "GET";
-        //     var data = null;
-        //     var headers = {
-        //         "Authorization": "Token "+ token
-        //     };
-        //
-        //     return call(connection_type, endpoint, data, headers, session_secret_key);
-        // };
-        //
-        //
-        // /**
-        //  * @ngdoc
-        //  * @name psonocli.apiClient#create_group
-        //  * @methodOf psonocli.apiClient
-        //  *
-        //  * @description
-        //  * Ajax PUT request to create a group with the token as authentication and together with the name of the group
-        //  *
-        //  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
-        //  * @param {string} session_secret_key The session secret key
-        //  * @param {string} name name of the new group
-        //  * @param {string} encrypted_data_secret_key encrypted secret key
-        //  * @param {string} encrypted_data_secret_key_nonce nonce for secret key
-        //  * @returns {promise} promise
-        //  */
-        // var create_group = function (token, session_secret_key, name, encrypted_data_secret_key, encrypted_data_secret_key_nonce) {
-        //     var endpoint = '/group/';
-        //     var connection_type = "PUT";
-        //     var data = {
-        //         name: name,
-        //         secret_key: encrypted_data_secret_key,
-        //         secret_key_nonce: encrypted_data_secret_key_nonce
-        //     };
-        //     var headers = {
-        //         "Authorization": "Token "+ token
-        //     };
-        //
-        //     return call(connection_type, endpoint, data, headers, session_secret_key);
-        // };
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#read_group
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax GET request with the token as authentication to get the current user's groups
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid|undefined} [group_id=null] (optional) group ID
+         *
+         * @returns {promise} promise
+         */
+        var read_group = function (token, session_secret_key, group_id) {
+            if (group_id === undefined) { group_id = null; }
+
+            var endpoint = '/group/' + (group_id === null ? '' : group_id + '/');
+            var connection_type = "GET";
+            var data = null;
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#create_group
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax PUT request to create a group with the token as authentication and together with the name of the group
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {string} name name of the new group
+         * @param {string} secret_key encrypted secret key of the group
+         * @param {string} secret_key_nonce nonce for secret key
+         * @param {string} private_key encrypted private key of the group
+         * @param {string} private_key_nonce nonce for private key
+         * @param {string} public_key the public_key of the group
+         *
+         * @returns {promise} promise
+         */
+        var create_group = function (token, session_secret_key, name, secret_key, secret_key_nonce, private_key,
+                                     private_key_nonce, public_key) {
+            var endpoint = '/group/';
+            var connection_type = "PUT";
+            var data = {
+                name: name,
+                secret_key: secret_key,
+                secret_key_nonce: secret_key_nonce,
+                private_key: private_key,
+                private_key_nonce: private_key_nonce,
+                public_key: public_key
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#update_group
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax POST request to update a given Group
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} group_id The group id to update
+         * @param {string} name The new name of the group
+         *
+         * @returns {promise} Returns a promise which can succeed or fail
+         */
+        var update_group = function (token, session_secret_key, group_id, name) {
+            var endpoint = '/group/';
+            var connection_type = "POST";
+            var data = {
+                group_id: group_id,
+                name: name
+            };
+
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#delete_group
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax DELETE request to delete a given Group
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} group_id The group id to delete
+         *
+         * @returns {promise} Returns a promise which can succeed or fail
+         */
+        var delete_group = function (token, session_secret_key, group_id) {
+            var endpoint = '/group/';
+            var connection_type = "DELETE";
+            var data = {
+                group_id: group_id
+            };
+
+            var headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#read_group_rights
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax GET request with the token as authentication to get all the group rights accessible by a user
+         * or for a specific group
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid|undefined} [group_id=null] (optional) group ID
+         *
+         * @returns {promise} promise
+         */
+        var read_group_rights = function (token, session_secret_key, group_id) {
+            if (group_id === undefined) { group_id = null; }
+
+            var endpoint = '/group/rights/' + (group_id === null ? '' : group_id + '/');
+            var connection_type = "GET";
+            var data = null;
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#create_membership
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax PUT request to create a group membership for another user for a group with the token as authentication
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} group_id ID of the group
+         * @param {uuid} user_id ID of the user
+         * @param {string} secret_key encrypted secret key of the group
+         * @param {string} secret_key_nonce nonce for secret key
+         * @param {string} secret_key_type type of the secret key
+         * @param {string} private_key encrypted private key of the group
+         * @param {string} private_key_nonce nonce for private key
+         * @param {string} private_key_type type of the private key
+         * @param {boolean} group_admin Weather the users should have group admin rights or not
+         *
+         * @returns {promise} promise
+         */
+        var create_membership = function (token, session_secret_key, group_id, user_id, secret_key, secret_key_nonce,
+                                          secret_key_type, private_key,
+                                          private_key_nonce, private_key_type, group_admin) {
+            var endpoint = '/membership/';
+            var connection_type = "PUT";
+            var data = {
+                group_id: group_id,
+                user_id: user_id,
+                secret_key: secret_key,
+                secret_key_nonce: secret_key_nonce,
+                secret_key_type: secret_key_type,
+                private_key: private_key,
+                private_key_nonce: private_key_nonce,
+                private_key_type: private_key_type,
+                group_admin: group_admin
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#update_membership
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax POST request to update a group membership with the token as authentication
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} membership_id The membership id to update
+         * @param {boolean} group_admin Weather the users should have group admin rights or not
+         *
+         * @returns {promise} promise
+         */
+        var update_membership = function (token, session_secret_key, membership_id, group_admin) {
+            var endpoint = '/membership/';
+            var connection_type = "POST";
+            var data = {
+                membership_id: membership_id,
+                group_admin: group_admin
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#delete_membership
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax DELETE request to delete a given group membership
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} membership_id The membership id to delete
+         *
+         * @returns {promise} Returns a promise which can succeed or fail
+         */
+        var delete_membership = function (token, session_secret_key, membership_id) {
+            var endpoint = '/membership/';
+            var connection_type = "DELETE";
+            var data = {
+                membership_id: membership_id
+            };
+
+            var headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#accept_membership
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax POST request with the token as authentication to accept a membership and in the same run updates it
+         * with the re-encrypted key
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} membership_id The share right id
+         *
+         * @returns {promise} promise
+         */
+        var accept_membership = function (token, session_secret_key, membership_id) {
+            var endpoint = '/membership/accept/';
+            var connection_type = "POST";
+            var data = {
+                membership_id: membership_id
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#decline_membership
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax POST request with the token as authentication to decline a membership
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} membership_id The share right id
+         *
+         * @returns {promise} promise
+         */
+        var decline_membership = function (token, session_secret_key, membership_id) {
+            var endpoint = '/membership/decline/';
+            var connection_type = "POST";
+            var data = {
+                membership_id: membership_id
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
 
         return {
             info: info,
@@ -1556,9 +1813,17 @@
             create_yubikey_otp: create_yubikey_otp,
             create_share_link: create_share_link,
             move_share_link: move_share_link,
-            delete_share_link: delete_share_link
-            // read_group: read_group,
-            // create_group: create_group
+            delete_share_link: delete_share_link,
+            read_group: read_group,
+            create_group: create_group,
+            update_group: update_group,
+            delete_group: delete_group,
+            read_group_rights: read_group_rights,
+            create_membership: create_membership,
+            update_membership: update_membership,
+            delete_membership: delete_membership,
+            accept_membership: accept_membership,
+            decline_membership: decline_membership
         };
     };
 

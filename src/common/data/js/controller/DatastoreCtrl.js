@@ -31,16 +31,9 @@
             $scope.openNewFolder = openNewFolder;
             $scope.openNewItem = openNewItem;
 
+            $scope.tosearchTreeFilter = $routeParams.default_search;
             $scope.structure = { data: {}} ;
             $scope.options = {
-
-                /**
-                 * Returns the default value for the search if it exists
-                 * @returns {*}
-                 */
-                getDefaultSearch: function() {
-                    return $routeParams.default_search;
-                },
 
                 /**
                  * Triggered once someone selects a node
@@ -196,8 +189,32 @@
                     .then(function(data) {
                         $scope.structure.data = data;
                         $scope.structure.loaded = true;
+
+                        autoupload_edit_item();
+
+                        managerDatastorePassword.modifyTreeForSearch($scope.tosearchTreeFilter, undefined, $scope.structure.data);
                     });
+
+                var update_datastore = function(value) {
+                    $scope.structure.data = value;
+                    managerDatastorePassword.modifyTreeForSearch($scope.tosearchTreeFilter, $scope.structure.data);
+                };
+                managerDatastorePassword.register('save_datastore_content', update_datastore);
+                $scope.$on('$destroy', function() {
+                    managerDatastorePassword.unregister('save_datastore_content', update_datastore);
+                })
             }
+
+            $scope.$watch('tosearchTreeFilter', function(newValue, oldValue) {
+                managerDatastorePassword.modifyTreeForSearch(newValue, oldValue, $scope.structure.data);
+            });
+
+            /**
+             * clears the input field for the tree search
+             */
+            $scope.clearSearchTreeForm = function () {
+                $scope.tosearchTreeFilter = '';
+            };
 
             function contextMenuOnShow(div_id) {
                 dropDownMenuWatcher.on_open(div_id);
@@ -241,6 +258,28 @@
             function open_edit_item (node, path, size) {
                 managerWidget.open_edit_item($scope.structure.data, node, path, size);
             }
+
+            /**
+             * Triggered during loading of the datastore controller.
+             * Checks if secret_id for editing is registered in $routeParams.
+             * If it is, it will search the path and open the widget form to edit it.
+             */
+            function autoupload_edit_item() {
+                if (typeof($routeParams.secret_type) === 'undefined') {
+                    return;
+                }
+                var paths = managerDatastorePassword.search_in_datastore($routeParams.secret_id, $scope.structure.data, function(secret_id, item) {
+                    return item.hasOwnProperty('secret_id') && item.secret_id === secret_id;
+                });
+                if (paths.length === 0) {
+                    return
+                }
+                var search = managerDatastorePassword.find_in_datastore(paths[0], $scope.structure.data);
+                var node = search[0][search[1]];
+
+                managerWidget.open_edit_item($scope.structure.data, node, paths[0]);
+            }
+
 
             /**
              * Move an item

@@ -99,12 +99,12 @@
              * @description
              * Will enable the snapper and adjust the width of the snap content
              *
-             * @param e
+             * @param {object | undefined} event The event triggering this
              */
-            function enable_snapper(e) {
+            function enable_snapper(event) {
                 snapper.enable();
-                $scope.snap.snap_content_with = get_snap_content_swidth() + 'px';
-                if (typeof(e) !== 'undefined') {
+                $scope.snap.snap_content_with = get_snap_content_width() + 'px';
+                if (typeof(event) !== 'undefined') {
                     // we have an resize event, where apply is not automatically called, so lets call it
                     $scope.$apply();
                 }
@@ -112,15 +112,15 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:WrapperCtrl#get_snap_content_swidth
+             * @name psonocli.controller:WrapperCtrl#get_snap_content_width
              * @methodOf psonocli.controller:WrapperCtrl
              *
              * @description
              * Returns the current width of the snap content
              *
-             * @returns {number}
+             * @returns {number} The width of the content
              */
-            function get_snap_content_swidth() {
+            function get_snap_content_width() {
                 var all_snapper = document.querySelectorAll(".snap-content");
                 if (all_snapper.length < 1) {
                     return 0;
@@ -137,15 +137,15 @@
              * Will disable the snapper and adjust the width of the snap content.
              * Before disabling it, it will check if its closed or opened, and open it if its not open.
              *
-             * @param e
+             * @param {object | undefined} event The event triggering this
              */
-            function disable_snapper(e) {
+            function disable_snapper(event) {
                 if(snapper.state().state === 'closed'){
                     snapRemote.toggle('left');
                 }
                 snapper.disable();
-                $scope.snap.snap_content_with = (get_snap_content_swidth() - scrollWidth) + 'px';
-                if (typeof(e) !== 'undefined') {
+                $scope.snap.snap_content_with = (get_snap_content_width() - scrollWidth) + 'px';
+                if (typeof(event) !== 'undefined') {
                     // we have an resize event, where apply is not automatically called, so lets call it
                     $scope.$apply();
                 }
@@ -160,13 +160,13 @@
              * Checks the width of the current window. If its below small_screen_limit (currently 768px) it will enable
              * the snapper, otherwise disable the snapper
              *
-             * @param e
+             * @param {object | undefined} event The event triggering this
              */
-            function snapper_enable_dynamic(e) {
+            function snapper_enable_dynamic(event) {
                 if ($window.innerWidth < small_screen_limit) {
-                    enable_snapper(e);
+                    enable_snapper(event);
                 } else {
-                    disable_snapper(e);
+                    disable_snapper(event);
                 }
             }
         }]

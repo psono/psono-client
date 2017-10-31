@@ -22,7 +22,7 @@
          * @description
          * Searches a datastore object and moves all links to the
          *
-         * @param {{}} datastore The datastore object
+         * @param {object} datastore The datastore object
          * @param {uuid|undefined} [new_parent_share_id=null] (optional) New parent share ID, necessary if no new_parent_datastore_id is provided
          * @param {uuid|undefined} [new_parent_datastore_id=null] (optional) New datastore ID, necessary if no new_parent_share_id is provided
          *
@@ -110,8 +110,8 @@
          * @returns {promise} Returns promise with the status of the move
          */
         var on_secret_moved = function(link_id, parent) {
-            var new_parent_share_id = null,
-                new_parent_datastore_id = null;
+            var new_parent_share_id,
+                new_parent_datastore_id;
 
             if (parent.hasOwnProperty("share_id")) {
                 new_parent_share_id = parent.share_id;

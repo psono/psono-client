@@ -73,6 +73,14 @@
                 .toBe('3d97a9354e99760d543761c168b655ccc7e565ddd6ef1d6b83df66d8b50bc62708dfe2c2dc56a628fa24b71bf75fc49db85ce11fd64fadb0e458f3780dde1899');
         }));
 
+
+        it('generate_authkey works', inject(function (cryptoLibrary) {
+            expect(cryptoLibrary.generate_authkey('test@example.com', '123456'))
+                .toBe('1ad635d464917db74a127b3de19c5bec9df932472c3e31ca8b18e872c641e8c828e9da35543ef36c0b013ab6c549a7ddbfe7b52b08e9e8704aca69f4c2fd68ea');
+            return expect(cryptoLibrary.generate_authkey('test2@example.com', '1234567'))
+                .toBe('3d97a9354e99760d543761c168b655ccc7e565ddd6ef1d6b83df66d8b50bc62708dfe2c2dc56a628fa24b71bf75fc49db85ce11fd64fadb0e458f3780dde1899');
+        }));
+
         it('generate_secret_key returns a 32 bytes long key', inject(function (cryptoLibrary, converter) {
             var bytes;
             bytes = 32;

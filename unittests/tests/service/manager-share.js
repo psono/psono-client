@@ -107,8 +107,13 @@
                     return [200, {
                         data: 'my_data',
                         data_nonce: 'my_data',
-                        user_share_rights: ['a-right-obj', 'another-right-obj'],
-                        user_share_rights_inherited: ['an-inherited-right-obj', 'another-inherited-right-obj']
+                        rights: {
+                            'read': true,
+                            'write': true,
+                            'grant': true
+                        }
+                        //user_share_rights: ['a-right-obj', 'another-right-obj'],
+                        //user_share_rights_inherited: ['an-inherited-right-obj', 'another-inherited-right-obj']
                     }];
                 });
 
@@ -116,8 +121,13 @@
             managerShare.read_share(share_id, secret_key).then(function(data){
                 expect(data).toEqual({
                     data: decrypted_data,
-                    user_share_rights: ['a-right-obj', 'another-right-obj'],
-                    user_share_rights_inherited: ['an-inherited-right-obj', 'another-inherited-right-obj']
+                    rights: {
+                        'read': true,
+                        'write': true,
+                        'grant': true
+                    }
+                    // user_share_rights: ['a-right-obj', 'another-right-obj'],
+                    // user_share_rights_inherited: ['an-inherited-right-obj', 'another-inherited-right-obj']
                 });
             },function(){
                 // should never be reached

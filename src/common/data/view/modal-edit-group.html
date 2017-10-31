@@ -1,0 +1,104 @@
+<form name="editGroupForm" novalidate>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title">Edit Group</h3>
+    </div>
+    <div class="modal-body">
+        <div class="form-group" ng-class="{true: 'has-error'}[submitted && editGroupForm.name.$invalid]">
+            <input type="text" name="name" class="form-control" id="groupName" placeholder="Group Name" ng-model="group_name" required>
+            <p class="help-block" ng-show="submitted && editGroupForm.name.$error.required">The group's name is required</p>
+        </div>
+
+        <hr>
+
+        <uib-tabset>
+            <uib-tab heading="Users">
+                <div ng-if="users">
+                    <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Member</th>
+                            <th>Group Admin</th>
+                            <th>Accepted</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="user in users">
+                            <td>{{user.name | limitTo: 60 }}{{user.name.length > 60 ? '...)' : ''}}</td>
+                            <td>
+                                <button type="button" class="btn btn-default btn-sm" ng-click="toggle_user(user)" ng-disabled="user.is_current_user">
+                                    <i ng-class="is_member(user) ? 'fa fa-check-square-o' : 'fa fa-square-o'"></i>
+                                </button>
+                            </td>
+                            <td>
+                                <button ng-if="is_member(user)" type="button" class="btn btn-default btn-sm" ng-click="toggle_group_admin(user)" ng-disabled="user.is_current_user">
+                                    <i ng-class="user.group_admin === true ? 'fa fa-check-square-o' : 'fa fa-square-o'"></i>
+                                </button>
+                            </td>
+                            <td>
+                                <button ng-if="is_member(user)" type="button" class="btn btn-default btn-sm" ng-click="" ng-disabled="true">
+                                    <i ng-if="user.accepted === true" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                                    <i ng-if="user.accepted === false" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                                    <i ng-if="user.accepted !== true && user.accepted !== false" class="fa fa-hourglass" aria-hidden="true"><span style="display: none">-1</span></i>
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row">
+                    <button type="button" ng-click="add_user()" class="btn btn-link"><i class="fa fa-user-plus"></i> Search User</button>
+                </div>
+            </uib-tab>
+            <uib-tab heading="Shares">
+                <div ng-if="shares">
+                    <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
+                        <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Read</th>
+                            <th>Write</th>
+                            <th>Grant</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="share in shares">
+                            <td>{{share.title | limitTo: 60 }}{{share.title.length > 60 ? '...)' : ''}}</td>
+                            <td>
+                                <button type="button" class="btn btn-default btn-sm">
+                                    <i ng-if="share.read" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                                    <i ng-if="!share.read" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                                </button>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-default btn-sm">
+                                    <i ng-if="share.write" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                                    <i ng-if="!share.write" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                                </button>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-default btn-sm">
+                                    <i ng-if="share.grant" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                                    <i ng-if="!share.grant" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                                </button>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-default btn-sm" ng-click="dekete_share(share)">
+                                    <i class="fa fa-trash" aria-hidden="true"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </uib-tab>
+        </uib-tabset>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" type="submit" ng-click="save()">Save</button>
+        <button class="btn" type="button" ng-click="cancel();">Close</button>
+    </div>
+</form>

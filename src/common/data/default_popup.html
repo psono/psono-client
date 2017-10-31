@@ -64,6 +64,9 @@
                         <li role="menuitem" ng-click="copy_password(searchEntry)">
                             <a href="#"><i class="fa fa-clipboard"></i>Copy Password</a>
                         </li>
+                        <li role="menuitem" ng-click="edit_item(searchEntry)">
+                            <a href="#"><i class="fa fa-wrench"></i>Show / Edit</a>
+                        </li>
                     </ul>
                 </span>
             </li>
@@ -298,21 +301,24 @@
 <script src="js/controller/LoginCtrl.js" type="application/javascript"></script>
 <script src="js/controller/LostPasswordCtrl.js" type="application/javascript"></script>
 <script src="js/controller/MainCtrl.js" type="application/javascript"></script>
-<script src="js/controller/ModalAcceptShareCtrl.js" type="application/javascript"></script>
-<script src="js/controller/ModalConfigureGoogleAuthenticatorCtrl.js" type="application/javascript"></script>
-<script src="js/controller/ModalConfigureYubiKeyOTPCtrl.js" type="application/javascript"></script>
-<script src="js/controller/ModalCreateDatastoreCtrl.js" type="application/javascript"></script>
-<script src="js/controller/ModalEditDatastoreCtrl.js" type="application/javascript"></script>
-<script src="js/controller/ModalDeleteDatastoreCtrl.js" type="application/javascript"></script>
-<script src="js/controller/ModalDatastoreNewEntryCtrl.js" type="application/javascript"></script>
-<script src="js/controller/ModalDisplayShareRightsCtrl.js" type="application/javascript"></script>
-<script src="js/controller/ModalEditEntryCtrl.js" type="application/javascript"></script>
-<script src="js/controller/ModalEditFolderCtrl.js" type="application/javascript"></script>
-<script src="js/controller/ModalNewFolderCtrl.js" type="application/javascript"></script>
-<script src="js/controller/ModalShareEditEntryCtrl.js" type="application/javascript"></script>
-<script src="js/controller/ModalShareEntryCtrl.js" type="application/javascript"></script>
-<script src="js/controller/ModalShareNewEntryCtrl.js" type="application/javascript"></script>
-<script src="js/controller/ModalShowRecoverycodeCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/AcceptShareCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/ConfigureGoogleAuthenticatorCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/ConfigureYubiKeyOTPCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/CreateDatastoreCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/EditDatastoreCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/DeleteDatastoreCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/DatastoreNewEntryCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/DisplayShareRightsCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/EditEntryCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/EditFolderCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/NewFolderCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/VerifyCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/NewGroupCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/EditGroupCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/ShareEditEntryCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/ShareEntryCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/ShareNewEntryCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/ShowRecoverycodeCtrl.js" type="application/javascript"></script>
 <script src="js/controller/OpenSecretCtrl.js" type="application/javascript"></script>
 <script src="js/controller/OtherCtrl.js" type="application/javascript"></script>
 <script src="js/controller/SessionsCtrl.js" type="application/javascript"></script>
@@ -325,6 +331,7 @@
 <script src="js/controller/SettingsCtrl.js" type="application/javascript"></script>
 <script src="js/controller/ShareCtrl.js" type="application/javascript"></script>
 <script src="js/controller/ShareusersCtrl.js" type="application/javascript"></script>
+<script src="js/controller/GroupsCtrl.js" type="application/javascript"></script>
 <script src="js/controller/WrapperCtrl.js" type="application/javascript"></script>
 
 <script src="js/service/api-client.js" type="application/javascript"></script>
@@ -357,6 +364,7 @@
 <script src="js/service/manager-share.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore-password.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore-user.js" type="application/javascript"></script>
+<script src="js/service/manager-groups.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore-setting.js" type="application/javascript"></script>
 <script src="js/service/browser-client.js" type="application/javascript"></script>
 <script src="js/service/password-generator.js" type="application/javascript"></script>
