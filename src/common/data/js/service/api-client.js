@@ -131,9 +131,9 @@
          * and all the different keys of a user in the apidata storage
          *
          * @param {string} login_info The encrypted login info (username, authkey, device fingerprint, device description)
-         * @param {string} login_info_nonce The nonce of hte login info
+         * @param {string} login_info_nonce The nonce of the login info
          * @param {string} public_key The session public key
-         * @param {int} session_duration The time the session should be valid for
+         * @param {int} session_duration The time the session should be valid for in seconds
          *
          * @returns {promise} Returns a promise with the login status
          */
@@ -374,9 +374,9 @@
          * @param {string} email New email address
          * @param {string} authkey The new authkey
          * @param {string} authkey_old The old authkey
-         * @param {string} private_key The private key
+         * @param {string} private_key The (encrypted) private key
          * @param {string} private_key_nonce The nonce for the private key
-         * @param {string} secret_key The secret key
+         * @param {string} secret_key The (encrypted) secret key
          * @param {string} secret_key_nonce The nonce for the secret key
          * @param {string} user_sauce The user's sauce
          *
