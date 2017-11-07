@@ -296,7 +296,7 @@
 
                 item['type'] = folder.items[i].type;
 
-                storage.insert(db, item);
+                storage.upsert(db, item);
             }
 
         };
