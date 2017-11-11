@@ -489,7 +489,7 @@
 
             var onSuccess = function (datastore) {
 
-                return managerSecret.create_secret(secret_object, link_id, datastore.datastore_id, null)
+                return managerSecret.create_secret(secret_object, link_id, datastore.datastore_id, undefined)
                     .then(function(data) {
 
                         datastore_object['id'] = link_id;
@@ -576,7 +576,6 @@
 
             var onSuccess = function(url) {
 
-
                 var onError = function(result) {
                     //pass
                 };
@@ -615,8 +614,6 @@
             };
 
             var onSuccess = function(tab) {
-
-                console.log(tab);
 
                 var parsed_url = helper.parse_url(tab.url);
 
