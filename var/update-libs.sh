@@ -6,13 +6,13 @@ wget https://raw.githubusercontent.com/angular-ui/bootstrap/gh-pages/ui-bootstra
 wget http://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js -O src/common/data/js/lib/datatables.min.js
 wget https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css -O src/common/data/css/lib/datatables.min.css
 
-wget https://code.angularjs.org/1.6.5/angular.min.js -O src/common/data/js/lib/angular.min.js
-wget https://code.angularjs.org/1.6.5/angular-animate.min.js -O src/common/data/js/lib/angular-animate.min.js
-wget https://code.angularjs.org/1.6.5/angular-route.min.js -O src/common/data/js/lib/angular-route.min.js
-wget https://code.angularjs.org/1.6.5/angular-sanitize.min.js -O src/common/data/js/lib/angular-sanitize.min.js
-wget https://code.angularjs.org/1.6.5/angular-touch.min.js -O src/common/data/js/lib/angular-touch.min.js
-wget https://code.angularjs.org/1.6.5/angular-csp.css -O src/common/data/css/lib/angular-csp.css
-wget https://code.angularjs.org/1.6.5/angular-mocks.js -O unittests/data/js/lib/angular-mocks.js
+wget https://code.angularjs.org/1.6.6/angular.min.js -O src/common/data/js/lib/angular.min.js
+wget https://code.angularjs.org/1.6.6/angular-animate.min.js -O src/common/data/js/lib/angular-animate.min.js
+wget https://code.angularjs.org/1.6.6/angular-route.min.js -O src/common/data/js/lib/angular-route.min.js
+wget https://code.angularjs.org/1.6.6/angular-sanitize.min.js -O src/common/data/js/lib/angular-sanitize.min.js
+wget https://code.angularjs.org/1.6.6/angular-touch.min.js -O src/common/data/js/lib/angular-touch.min.js
+wget https://code.angularjs.org/1.6.6/angular-csp.css -O src/common/data/css/lib/angular-csp.css
+wget https://code.angularjs.org/1.6.6/angular-mocks.js -O unittests/data/js/lib/angular-mocks.js
 
 wget https://raw.githubusercontent.com/Kraku/angular-complexify/master/build/angular-complexify.min.js -O src/common/data/js/lib/angular-complexify.min.js
 wget https://raw.githubusercontent.com/grevory/angular-local-storage/master/dist/angular-local-storage.min.js -O src/common/data/js/lib/angular-local-storage.min.js
@@ -34,5 +34,5 @@ wget https://raw.githubusercontent.com/mholt/PapaParse/master/papaparse.min.js -
 wget https://raw.githubusercontent.com/ftlabs/fastclick/master/lib/fastclick.js -O src/common/data/js/lib/fastclick.js
 
 
-wget https://raw.githubusercontent.com/chartjs/Chart.js/v2.6.0/dist/Chart.min.js -O src/common/data/js/lib/chart.min.js
+wget https://raw.githubusercontent.com/chartjs/Chart.js/v2.7.1/dist/Chart.min.js -O src/common/data/js/lib/chart.min.js
 wget https://raw.githubusercontent.com/jtblin/angular-chart.js/master/dist/angular-chart.min.js -O src/common/data/js/lib/angular-chart.min.js
