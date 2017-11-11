@@ -41,8 +41,6 @@
                 return {
                     data: JSON.parse(cryptoLibrary.decrypt_data(content.data.data, content.data.data_nonce, secret_key)),
                     rights: content.data.rights
-                    // user_share_rights: content.data.user_share_rights,
-                    // user_share_rights_inherited: content.data.user_share_rights_inherited
                 };
             };
 
@@ -381,13 +379,10 @@
          * @param {string} text The encrypted share secret key
          * @param {string} nonce The nonce of the share secret key
          * @param {string} public_key The public key of the other user
-         * @param {uuid|undefined} [parent_share_id] (optional) The id of the parent share
-         * @param {uuid|undefined} [parent_datastore_id] (optional) The id of the parent datastore
          *
          * @returns {promise} Returns a promise with the share content
          */
-        var accept_share_right = function(share_right_id, text, nonce, public_key, parent_share_id,
-                                          parent_datastore_id) {
+        var accept_share_right = function(share_right_id, text, nonce, public_key) {
 
             var secret_key = managerBase.decrypt_private_key(text, nonce, public_key);
 
@@ -415,7 +410,7 @@
 
             return apiClient.accept_share_right(managerBase.get_token(),
                 managerBase.get_session_secret_key(), share_right_id,
-                encrypted_key.text, encrypted_key.nonce, parent_share_id, parent_datastore_id)
+                encrypted_key.text, encrypted_key.nonce)
                 .then(onSuccess, onError);
         };
 
