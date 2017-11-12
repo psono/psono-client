@@ -217,6 +217,11 @@
                 .then(onSuccess, onError);
         };
 
+        // registrations
+
+        itemBlueprint.register('copy_username', copy_username);
+        itemBlueprint.register('copy_password', copy_password);
+
         return {
             create_secret: create_secret,
             read_secret: read_secret,
