@@ -463,8 +463,6 @@
                     // create the share
                     registrations['read_share_rights'](item.share_id).then(function (share_details) {
 
-                        console.log(share_details);
-
                         var modalInstance = $uibModal.open({
                             templateUrl: 'view/modal-display-share-rights.html',
                             controller: 'ModalDisplayShareRightsCtrl',
@@ -484,6 +482,38 @@
                         });
 
                     });
+                }
+            },
+            copy_username_to_clipboard: {
+                id: 'copy_username_to_clipboard',
+                name: 'Copy Username',
+                icon: 'fa fa-clipboard',
+                ngClass: function(item) {
+                    if (item.hasOwnProperty('share_rights') && item.share_rights.read !== true) {
+                        return 'hidden';
+                    }
+                },
+                condition: function(item) {
+                    return item.hasOwnProperty('type') && item['type'] === 'website_password';
+                },
+                onClick: function(item, path) {
+                    registrations['copy_username'](item);
+                }
+            },
+            copy_password_to_clipboard: {
+                id: 'copy_password_to_clipboard',
+                name: 'Copy Password',
+                icon: 'fa fa-clipboard',
+                ngClass: function(item) {
+                    if (item.hasOwnProperty('share_rights') && item.share_rights.read !== true) {
+                        return 'hidden';
+                    }
+                },
+                condition: function(item) {
+                    return item.hasOwnProperty('type') && item['type'] === 'website_password';
+                },
+                onClick: function(item, path) {
+                    registrations['copy_password'](item);
                 }
             }
         };

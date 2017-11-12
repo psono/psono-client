@@ -543,14 +543,13 @@
          * @param {string} private_key_nonce The nonce of the private key (hex format)
          * @param {string} secret_key The encrypted secret key of the user (hex format)
          * @param {string} secret_key_nonce The nonce of the secret key (hex format)
-         * @param {string} user_sauce The user sauce (hex format)
          *
          * @returns {promise} Returns a promise with the update status
          */
         var update_user = function(email, authkey, authkey_old, private_key, private_key_nonce, secret_key,
-                                  secret_key_nonce, user_sauce) {
+                                  secret_key_nonce) {
             return apiClient.update_user(managerBase.get_token(), managerBase.get_session_secret_key(), email, authkey,
-                authkey_old, private_key, private_key_nonce, secret_key, secret_key_nonce, user_sauce);
+                authkey_old, private_key, private_key_nonce, secret_key, secret_key_nonce);
         };
 
         /**

@@ -131,9 +131,9 @@
          * and all the different keys of a user in the apidata storage
          *
          * @param {string} login_info The encrypted login info (username, authkey, device fingerprint, device description)
-         * @param {string} login_info_nonce The nonce of hte login info
+         * @param {string} login_info_nonce The nonce of the login info
          * @param {string} public_key The session public key
-         * @param {int} session_duration The time the session should be valid for
+         * @param {int} session_duration The time the session should be valid for in seconds
          *
          * @returns {promise} Returns a promise with the login status
          */
@@ -374,15 +374,14 @@
          * @param {string} email New email address
          * @param {string} authkey The new authkey
          * @param {string} authkey_old The old authkey
-         * @param {string} private_key The private key
+         * @param {string} private_key The (encrypted) private key
          * @param {string} private_key_nonce The nonce for the private key
-         * @param {string} secret_key The secret key
+         * @param {string} secret_key The (encrypted) secret key
          * @param {string} secret_key_nonce The nonce for the secret key
-         * @param {string} user_sauce The user's sauce
          *
          * @returns {promise} Returns a promise with the update status
          */
-        var update_user = function(token, session_secret_key, email, authkey, authkey_old, private_key, private_key_nonce, secret_key, secret_key_nonce, user_sauce) {
+        var update_user = function(token, session_secret_key, email, authkey, authkey_old, private_key, private_key_nonce, secret_key, secret_key_nonce) {
             var endpoint = '/user/update/';
             var connection_type = "PUT";
             var data = {
@@ -392,8 +391,7 @@
                 private_key: private_key,
                 private_key_nonce: private_key_nonce,
                 secret_key: secret_key,
-                secret_key_nonce: secret_key_nonce,
-                user_sauce: user_sauce
+                secret_key_nonce: secret_key_nonce
             };
             var headers = {
                 "Authorization": "Token "+ token
@@ -595,12 +593,12 @@
          * @methodOf psonocli.apiClient
          *
          * @description
-         * Ajax PUT request with the token as authentication and the new datastore content
+         * Ajax POST request with the token as authentication and the datastore's new content
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
          * @param {uuid} datastore_id the datastore ID
-         * @param {string|undefined} [encrypted_data] (optional) data for the new datastore
+         * @param {string|undefined} [encrypted_data] (optional) data for the datastore
          * @param {string|undefined} [encrypted_data_nonce] (optional) nonce for data, necessary if data is provided
          * @param {string|undefined} [encrypted_data_secret_key] (optional) encrypted secret key, wont update on the server if not provided
          * @param {string|undefined} [encrypted_data_secret_key_nonce] (optional) nonce for secret key, wont update on the server if not provided
@@ -639,15 +637,13 @@
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
-         * @param {uuid|undefined} [secret_id=null] (optional) secret ID
+         * @param {uuid} secret_id secret ID
          * @param {boolean|undefined} [synchronous] (optional) Synchronous or Asynchronous
          *
          * @returns {promise} promise
          */
         var read_secret = function (token, session_secret_key, secret_id, synchronous) {
-            if (secret_id === undefined) { secret_id = null; }
-
-            var endpoint = '/secret/' + (secret_id === null ? '' : secret_id + '/');
+            var endpoint = '/secret/' + secret_id + '/';
             var connection_type = "GET";
             var data = null;
             var headers = {
@@ -669,9 +665,9 @@
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
-         * @param {string|undefined} [encrypted_data] (optional) data for the new secret
-         * @param {string|undefined} [encrypted_data_nonce] (optional) nonce for data, necessary if data is provided
-         * @param {string|undefined} link_id the local id of the share in the datastructure
+         * @param {string} encrypted_data data for the new secret
+         * @param {string} encrypted_data_nonce nonce for data, necessary if data is provided
+         * @param {string} link_id the local id of the share in the datastructure
          * @param {string|undefined} [parent_datastore_id] (optional) id of the parent datastore, may be left empty if the share resides in a share
          * @param {string|undefined} [parent_share_id] (optional) id of the parent share, may be left empty if the share resides in the datastore
          *
@@ -969,15 +965,15 @@
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
-         * @param {string} encrypted_title the title shown to the user before he accepts
-         * @param {string} encrypted_title_nonce the corresponding title nonce
-         * @param {string} encrypted_type the type of the share
-         * @param {string} encrypted_type_nonce the corresponding type nonce
-         * @param {uuid} share_id the share ID
-         * @param {uuid} user_id the target user's user ID
-         * @param {uuid} group_id the target group's group ID
-         * @param {string} key the encrypted share secret, encrypted with the public key of the target user
-         * @param {string} key_nonce the unique nonce for decryption
+         * @param {string} encrypted_title The title shown to the user before he accepts
+         * @param {string} encrypted_title_nonce The corresponding title nonce
+         * @param {string} encrypted_type The type of the share
+         * @param {string} encrypted_type_nonce The corresponding type nonce
+         * @param {uuid} share_id The share ID
+         * @param {uuid} [user_id] (optional) The target user's user ID
+         * @param {uuid} [group_id] (optional) The target group's group ID
+         * @param {string} key The encrypted share secret, encrypted with the public key of the target user
+         * @param {string} key_nonce The unique nonce for decryption
          * @param {bool} read read right
          * @param {bool} write write right
          * @param {bool} grant grant right
@@ -1119,20 +1115,18 @@
          * @param {uuid} share_right_id The share right id
          * @param {string} key The encrypted key of the share
          * @param {string} key_nonce The nonce of the key
-         * @param {uuid} parent_share_id The parent share id
-         * @param {uuid} parent_datastore_id The parent datastore id
+         * @param {string} key_type The type of the key (default: symmetric)
          *
          * @returns {promise} promise
          */
-        var accept_share_right = function (token, session_secret_key, share_right_id, key, key_nonce, parent_share_id, parent_datastore_id) {
+        var accept_share_right = function (token, session_secret_key, share_right_id, key, key_nonce, key_type) {
             var endpoint = '/share/right/accept/';
             var connection_type = "POST";
             var data = {
                 share_right_id: share_right_id,
                 key: key,
                 key_nonce: key_nonce,
-                parent_share_id: parent_share_id,
-                parent_datastore_id: parent_datastore_id
+                key_type: key_type
             };
             var headers = {
                 "Authorization": "Token "+ token
@@ -1284,11 +1278,11 @@
          * @methodOf psonocli.apiClient
          *
          * @description
-         * Ajax PUT request with the token as authentication to generate a google authenticator
+         * Ajax PUT request with the token as authentication to create / set a new YubiKey OTP token
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
-         * @param {string} title The title of the new GA
+         * @param {string} title The title of the new Yubikey OTP token
          * @param {string} yubikey_otp One YubiKey OTP Code
          *
          * @returns {promise} Returns a promise with the secret
@@ -1313,12 +1307,12 @@
          * @methodOf psonocli.apiClient
          *
          * @description
-         * Ajax GET request to get a list of all registered google authenticators
+         * Ajax GET request to get a list of all registered Yubikey OTP token
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
          *
-         * @returns {promise} Returns a promise with a list of all google authenticators
+         * @returns {promise} Returns a promise with a list of all Yubikey OTP token
          */
         var read_yubikey_otp = function (token, session_secret_key) {
             var endpoint = '/user/yubikey-otp/';

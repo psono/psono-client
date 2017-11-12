@@ -59,8 +59,6 @@
             website_password_auto_submit: true,
             website_password_url: 'http://example2.com'
         };
-        var encrypted_data = 'dummy_encrypt_data_text';
-        var encrypted_data_nonce = 'dummy_encrypt_data_nonce';
         var public_private_keypair = {
             'private_key': '81972fcf95422fb87a88372c0320612aeabeaf185119968c6b3b002034e6bdf5',
             'public_key': '89c4d51256420d1ac2d2e461b2c37aec36b362c9380f406a1d5dc2c3934e2d5f'
@@ -135,7 +133,7 @@
             $httpBackend = $injector.get('$httpBackend');
         }));
 
-        it('helper exists', inject(function (managerGroups) {
+        it('managerGroups exists', inject(function (managerGroups) {
             expect(managerGroups).toBeDefined();
         }));
 

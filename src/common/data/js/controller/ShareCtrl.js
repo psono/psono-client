@@ -130,8 +130,7 @@
                         };
 
                         managerShare.accept_share_right(item.share_right_id, item.share_right_key,
-                            item.share_right_key_nonce, breadcrumbs.user.data.user_public_key, analyzed_breadcrumbs['parent_share_id'],
-                            analyzed_breadcrumbs['parent_datastore_id']
+                            item.share_right_key_nonce, breadcrumbs.user.data.user_public_key
                         ).then(onSuccess, onError);
                     };
                     var onError = function (data) {

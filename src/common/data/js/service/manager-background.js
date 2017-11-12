@@ -129,7 +129,6 @@
          * @param {function} sendResponse Function to call (at most once) when you have a response.
          */
         function on_message(request, sender, sendResponse) {
-
             var event_functions = {
                 'fillpassword': on_fillpassword,
                 'ready': on_ready,
@@ -146,7 +145,7 @@
             };
 
             if (event_functions.hasOwnProperty(request.event)){
-                event_functions[request.event](request, sender, sendResponse);
+                return event_functions[request.event](request, sender, sendResponse);
             } else {
                 // not catchable event
                 console.log(sender.tab);
@@ -422,9 +421,14 @@
          * lets search in our localstorage for the config and the secret_key of the requested secret
          * lets request the content of the secret from our backend server
          *
+         * https://developer.chrome.com/extensions/runtime#event-onMessage
+         * Check "unless you return true" if you do not understand the return value
+         *
          * @param {object} request The message sent by the calling script.
          * @param {object} sender The sender of the message
          * @param {function} sendResponse Function to call (at most once) when you have a response.
+         *
+         * @returns {boolean} Returns true, to indicate the async sendResponse to happen.
          */
         function on_request_secret(request, sender, sendResponse) {
 
@@ -435,6 +439,8 @@
                     // failed
                     sendResponse({event: "return-secret", data: 'fail'});
                 });
+
+            return true; // Important, do not remove! Otherwise Async password fill will not work.
         }
 
         /**

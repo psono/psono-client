@@ -3,11 +3,6 @@
 
         beforeEach(module('psonocli'));
 
-        it('browserClient exists', inject(function (browserClient) {
-            expect(browserClient).toBeDefined();
-        }));
-
-
         var mockedWindow;
         beforeEach(function () {
             mockedWindow = {
@@ -22,6 +17,16 @@
             });
 
         });
+
+        var $httpBackend;
+        beforeEach(inject(function($injector){
+            // unwrap necessary services
+            $httpBackend = $injector.get('$httpBackend');
+        }));
+
+        it('browserClient exists', inject(function (browserClient) {
+            expect(browserClient).toBeDefined();
+        }));
 
         it('browserClient:open_tab', inject(function (browserClient, $window) {
             var url = 'abcdef';
@@ -46,6 +51,16 @@
 
         it('browserClient:emit_sec', inject(function ($rootScope, browserClient) {
             browserClient.emit_sec()
+        }));
+
+        it('browserClient:disable_browser_password_saving ', inject(function (browserClient) {
+
+            browserClient.disable_browser_password_saving ().then(function(data){
+                expect(data).toEqual('nothing done');
+            },function(data){
+                // should never be reached
+                expect(true).toBeFalsy();
+            });
         }));
     });
 
