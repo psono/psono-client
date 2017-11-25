@@ -21,10 +21,12 @@
      * @description
      * Controller for the Login view
      */
-    angular.module('psonocli').controller('LoginCtrl', ['$scope', '$sce', '$templateRequest', '$templateCache', '$rootScope', '$filter', '$timeout',
+    angular.module('psonocli').controller('LoginCtrl', ['$scope', '$sce', '$templateRequest', '$templateCache', '$q',
+        '$rootScope', '$filter', '$timeout',
         'managerDatastoreUser', 'managerHost', 'browserClient', 'storage',
         'snapRemote', '$window', '$route', '$routeParams', '$location', 'helper',
-        function ($scope, $sce, $templateRequest, $templateCache, $rootScope, $filter, $timeout,
+        function ($scope, $sce, $templateRequest, $templateCache, $q,
+                  $rootScope, $filter, $timeout,
                   managerDatastoreUser, managerHost, browserClient, storage,
                   snapRemote, $window, $route, $routeParams, $location, helper) {
 
@@ -32,7 +34,7 @@
             $scope.changing = changing;
             $scope.ga_verify = ga_verify;
             $scope.yubikey_otp_verify = yubikey_otp_verify;
-            $scope.login = login;
+            $scope.initiate_login = initiate_login;
             $scope.load_default_view = load_default_view;
 
             $scope.open_tab = browserClient.open_tab;
@@ -255,7 +257,7 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:LoginCtrl#login
+             * @name psonocli.controller:LoginCtrl#load_default_view
              * @methodOf psonocli.controller:LoginCtrl
              *
              * @description
@@ -267,18 +269,97 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:LoginCtrl#login
+             * @name psonocli.controller:LoginCtrl#verify_server_signature
              * @methodOf psonocli.controller:LoginCtrl
              *
              * @description
-             * Triggered once someone clicks the login button
+             * Triggers the actual login
+             *
+             * @param server_check
+             */
+            function verify_server_signature(server_check) {
+                return $q(function(resolve, reject) {
+
+                    $scope.approve_new_server = function () {
+                        managerHost.approve_host(server_check['server_url'], server_check['verify_key']);
+                        return resolve(true);
+                    };
+
+                    $scope.disapprove_new_server = function () {
+                        load_default_view();
+                        return resolve(false);
+                    };
+
+                    if (server_check['status'] === 'matched') {
+                        return resolve(true);
+
+                    } else if (server_check['status'] === 'new_server') {
+                        $scope.newServerFingerprint = server_check['verify_key'];
+                        $scope.view = 'new_server';
+                        $scope.errors = [];
+
+                    } else if (server_check['status'] === 'signature_changed') {
+                        $scope.view = 'signature_changed';
+                        $scope.changedFingerprint = server_check['verify_key'];
+                        $scope.oldFingerprint = server_check['verify_key_old'];
+                        $scope.errors = [];
+                    }
+
+                });
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LoginCtrl#ask_send_plain
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Checks the server info if the Sever might need the plaintext password and asks the users if its ok or not
+             *
+             * @param server_check
+             */
+            function ask_send_plain(server_check) {
+
+                function has_ldap_auth(server_check) {
+                    return server_check.hasOwnProperty('info') && server_check['info'].hasOwnProperty('authentication_methods') && server_check['info']['authentication_methods'].indexOf('LDAP') !== -1
+                }
+
+                return $q(function(resolve, reject) {
+
+                    if (has_ldap_auth(server_check)) {
+
+                        $scope.approve_send_plain = function () {
+                            return resolve(true);
+                        };
+
+                        $scope.disapprove_send_plain = function () {
+                            return resolve(false);
+                        };
+
+                        $scope.view = 'ask_send_plain';
+
+                    } else {
+                        return resolve(false);
+                    }
+
+
+                });
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LoginCtrl#initiate_login
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Triggered once someone clicks the login button and with initiate the login sequence
              *
              * @param {string} username The username
              * @param {string} password The password
              * @param {boolean|undefined} remember Remember username and server
              * @param {boolean|undefined} trust_device Trust the device for 30 days or logout when browser closes
              */
-            function login(username, password, remember, trust_device) {
+            function initiate_login(username, password, remember, trust_device) {
                 if (username === undefined || password === undefined) {
                     // Dont do anything if username or password is wrong,
                     // because the html5 form validation will tell the user
@@ -292,53 +373,48 @@
 
                 var onSuccess = function(server_check) {
 
-                    var onSuccess = function(required_multifactors) {
-                        return next_login_step(required_multifactors);
+                    var onError = function() {
+                        // pass
                     };
 
+                    var onSuccess = function(continue_login) {
 
-                    var onError = function(data) {
-                        $scope.view = 'default';
+                        var onError = function() {
+                            // pass
+                        };
 
-                        if (data.error_data === null) {
-                            $scope.errors = ['Server offline.']
-                        } else if (data.error_data.hasOwnProperty('non_field_errors')) {
-                            $scope.errors = data.error_data.non_field_errors;
-                        } else if (data.error_data.hasOwnProperty('username')) {
-                            $scope.errors = data.error_data.username;
-                        } else {
-                            $scope.errors = ['Server offline.']
+                        var onSuccess = function(send_plain) {
+
+                            var onSuccess = function (required_multifactors) {
+                                return next_login_step(required_multifactors);
+                            };
+
+                            var onError = function (data) {
+                                $scope.view = 'default';
+                                console.log(data);
+
+                                if (data.error_data === null) {
+                                    $scope.errors = ['Server offline.']
+                                } else if (data.error_data.hasOwnProperty('non_field_errors')) {
+                                    $scope.errors = data.error_data.non_field_errors;
+                                } else if (data.error_data.hasOwnProperty('username')) {
+                                    $scope.errors = data.error_data.username;
+                                } else {
+                                    $scope.errors = ['Server offline.']
+                                }
+                            };
+
+                            managerDatastoreUser.login(username, $scope.selected_server_domain, password, remember, trust_device,
+                                angular.copy($scope.selected_server), server_check['info'], server_check['verify_key'], send_plain)
+                                .then(onSuccess, onError);
+                        };
+                        if (continue_login) {
+                            ask_send_plain(server_check).then(onSuccess, onError);
                         }
                     };
-
-                    var really_login = function() {
-                        managerDatastoreUser.login(username, $scope.selected_server_domain, password, remember, trust_device,
-                            angular.copy($scope.selected_server), server_check['info'], server_check['verify_key'])
-                            .then(onSuccess, onError);
-                    };
-
-                    $scope.approve_new_server = function() {
-                        managerHost.approve_host(server_check['server_url'], server_check['verify_key']);
-                        really_login()
-                    };
-
-                    if (server_check['status'] === 'matched') {
-                        really_login()
-                    } else if (server_check['status'] === 'new_server') {
-                        $scope.newServerFingerprint = server_check['verify_key'];
-                        $scope.view = 'new_server';
-                        $scope.errors = [];
-
-                    } else if(server_check['status'] === 'signature_changed') {
-                        $scope.view = 'signature_changed';
-                        $scope.changedFingerprint = server_check['verify_key'];
-                        $scope.oldFingerprint = server_check['verify_key_old'];
-                        $scope.errors = [];
-                    }
+                    verify_server_signature(server_check).then(onSuccess, onError);
                 };
-
                 managerHost.check_host(angular.copy($scope.selected_server)).then(onSuccess, onError);
-
             }
         }]
     );
