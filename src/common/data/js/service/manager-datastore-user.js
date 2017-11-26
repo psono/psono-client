@@ -360,10 +360,6 @@
                 session_keys.private_key
             );
 
-            console.log(response.data.user);
-            console.log(password);
-            console.log(user_sauce);
-
             // decrypt user private key
             user_private_key = cryptoLibrary.decrypt_secret(
                 response.data.user.private_key,

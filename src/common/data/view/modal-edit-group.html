@@ -96,6 +96,10 @@
                 </div>
             </uib-tab>
         </uib-tabset>
+
+        <div class="form-group alert alert-danger" ng-repeat="e in errors">
+            <strong>Error:</strong> {{e}}
+        </div>
     </div>
     <div class="modal-footer">
         <button class="btn btn-primary" type="submit" ng-click="save()">Save</button>
