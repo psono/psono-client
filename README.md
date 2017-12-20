@@ -14,13 +14,4 @@ The documentation for the psono server can be found here:
 
 [Psono Documentation](https://doc.psono.com/)
 
-Some things that have not yet found their place in the documentation:
 
-# How to create a release
-
-1. Wait for the build / tests to finish on the develop branch
-2. Merge develop branch into master branch
-3. Wait for the build / tests to finish on the master branch
-4. Create new Tag with the version information e.g v1.0.14 and provide adequate information for the Changelog
-
-    
