@@ -15,3 +15,6 @@ The documentation for the psono server can be found here:
 [Psono Documentation](https://doc.psono.com/)
 
 
+## LICENSE
+
+Visit the [License.md](/LICENSE.md) for more details
