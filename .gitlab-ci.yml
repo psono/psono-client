@@ -105,7 +105,7 @@ webclient:
     paths:
     - ./*
 
-job-release-docker:
+release-docker:
   except:
     - schedules
   stage: release
@@ -121,7 +121,18 @@ job-release-docker:
   only:
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
-job-deploy:
+deploy-security-scan-image:
+  except:
+    - schedules
+  stage: deploy
+  image: docker:git
+  services:
+    - docker:dind
+  script:
+    - sh ./var/deploy_security_scan_image.sh
+
+
+deploy:
   except:
     - schedules
   stage: deploy
@@ -136,7 +147,8 @@ job-deploy:
   only:
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
-job-deploy-chrome:
+
+deploy-chrome:
   except:
     - schedules
   stage: deploy
@@ -151,7 +163,7 @@ job-deploy-chrome:
   only:
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
-job-deploy-firefox:
+deploy-firefox:
   except:
     - schedules
   stage: deploy
