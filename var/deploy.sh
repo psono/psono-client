@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 apk add --update curl
 
-# Pull docker container here, as the login will be overwritten in the next step
+# Deploy to Docker Hub
 docker pull psono-docker-local.jfrog.io/psono/psono-client:latest
 docker tag psono-docker-local.jfrog.io/psono/psono-client:latest psono/psono-client:latest
 docker push psono/psono-client:latest

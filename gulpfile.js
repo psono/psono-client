@@ -1,26 +1,24 @@
 'use strict';
 
 var gulp = require('gulp');
-var htmlmin = require('gulp-htmlmin');
-var cleanCSS = require('gulp-clean-css');
-var minify = require('gulp-minify');
-var sass = require('gulp-sass');
 var template_cache = require('gulp-angular-templatecache');
-var crx = require('gulp-crx-pack');
-var fs = require("fs");
-var path = require('path');
-var ospath = require('ospath');
-var child_process = require('child_process');
-var jeditor = require("gulp-json-editor");
-var karma_server = require('karma').Server;
-var removeFiles = require('gulp-remove-files');
-var gulpDocs = require('gulp-ngdocs');
-var webstore_upload = require('webstore-upload');
-var runSequence = require('run-sequence');
-var jwt = require('jsonwebtoken');
-var run = require('gulp-run');
+var cleanCSS = require('gulp-clean-css');
 var concat = require('gulp-concat');
 var htmlreplace = require('gulp-html-replace');
+var htmlmin = require('gulp-htmlmin');
+var jeditor = require("gulp-json-editor");
+var minify = require('gulp-minify');
+var gulpDocs = require('gulp-ngdocs');
+var removeFiles = require('gulp-remove-files');
+var run = require('gulp-run');
+var sass = require('gulp-sass');
+var jwt = require('jsonwebtoken');
+var karma_server = require('karma').Server;
+var runSequence = require('run-sequence');
+var webstore_upload = require('webstore-upload');
+
+var fs = require("fs");
+var path = require('path');
 
 /**
  * Compiles .sass files to css files
@@ -321,33 +319,6 @@ gulp.task('watch', ['default'], function() {
     gulp.watch('src/common/data/sass/**/*.scss', ['default']);
 });
 
-gulp.task('watchpost', function() {
-    child_process.exec("cd build/firefox/ && jpm watchpost --post-url http://localhost:8888/", function (err, stdout, stderr) {
-        console.log(stdout);
-        console.log(stderr);
-        cb(err);
-    });
-});
-
-/**
- * creates the crx and update file for Chrome
- */
-gulp.task('crx', function() {
-    var manifest = JSON.parse(fs.readFileSync('./build/chrome/manifest.json'));
-
-    var codebase = manifest.codebase;
-    var updateXmlFilename = 'psono.PW.update.xml';
-
-    return gulp.src('./build/chrome')
-        .pipe(crx({
-            privateKey: fs.readFileSync(ospath.home() + '/.psono_client/certs/key', 'utf8'),
-            filename: manifest.name + '.crx',
-            codebase: codebase,
-            updateXmlFilename: updateXmlFilename
-        }))
-        .pipe(gulp.dest('./dist/chrome'));
-});
-
 
 /**
  * Deploys the Chrome Extension to the Chrome Web Store
@@ -413,57 +384,6 @@ gulp.task('firefox-deploy', function() {
         .pipe(gulp.dest('output'));
 });
 
-
-/**
- * creates the unsigned xpi file for Firefox
- */
-gulp.task('xpiunsigned', function (cb) {
-
-    child_process.exec('cd build/firefox/ && jpm xpi && cd ../../ && mv build/firefox/@psonopw-*.xpi dist/firefox/psono.PW.unsigned.xpi', function (err, stdout, stderr) {
-        console.log(stdout);
-        console.log(stderr);
-        cb(err);
-    });
-});
-
-/**
- * signs an xpi file with addons.mozilla.org api credentials
- * To obtain your api credentials visit https://addons.mozilla.org/en-US/developers/addon/api/key/
- *
- * create the following file (if not already exist):
- * ~/.psono_client/apikey_addons_mozilla_org/key.json
- *
- * As content put the following (replace the values with your api credentials from addons.mozilla.org):
- * {
- *       "issuer": "user:123467:789",
- *       "secret": "15c686fea..."
- * }
- *
- * Side note: This command requires jpm 1.0.4 or later to work.
- *            You can check with "jpm --version"
- *            Try to update it or install the version directly from git like:
- *
- *            git clone https://github.com/mozilla-jetpack/jpm.git
- *            cd jpm
- *            npm install
- *            npm link
- */
-gulp.task('xpi', ['xpiunsigned'], function (cb) {
-
-    var fileContent = fs.readFileSync("/.psono_client/apikey_addons_mozilla_org/key.json", "utf8");
-    var key = JSON.parse(fileContent);
-
-    child_process.exec('jpm sign --api-key '+key.issuer+' --api-secret '+key.secret+' --xpi dist/firefox/psono.PW.unsigned.xpi && mv psonopw*.xpi dist/firefox/psono.PW.xpi', function (err, stdout, stderr) {
-        console.log(stdout);
-        console.log(stderr);
-        cb(err);
-    });
-});
-
-
-
-
-gulp.task('dist', ['default', 'crx', 'xpi']);
 
 gulp.task('updateversion', function() {
 
