@@ -53,6 +53,7 @@ docker-image:
     - docker build -t $CONTAINER_TEST_IMAGE .
     - docker push $CONTAINER_TEST_IMAGE
 
+
 firefox-extension:
   except:
     - schedules
@@ -70,6 +71,7 @@ firefox-extension:
     name: "firefox_$CI_BUILD_REF_NAME"
     paths:
     - ./*
+
 
 chrome-extension:
   except:
@@ -89,6 +91,7 @@ chrome-extension:
     paths:
     - ./*
 
+
 webclient:
   except:
     - schedules
@@ -106,6 +109,7 @@ webclient:
     name: "webclient_$CI_BUILD_REF_NAME"
     paths:
     - ./*
+
 
 release-docker:
   except:
@@ -125,6 +129,7 @@ release-docker:
   only:
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
+
 deploy-security-scan-image:
   except:
     - schedules
@@ -133,7 +138,12 @@ deploy-security-scan-image:
   services:
     - docker:dind
   script:
-    - sh ./var/deploy_security_scan_image.sh
+    - docker info
+    - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker-local.jfrog.io
+    - echo $docker_hub_credentials | docker login --username=psonogitlab --password-stdin
+    - docker pull $CONTAINER_TEST_IMAGE
+    - docker tag $CONTAINER_TEST_IMAGE psono/security-scans:psono-client-ce-$CI_BUILD_REF_NAME
+    - docker push psono/security-scans:psono-client-ce-$CI_BUILD_REF_NAME
 
 
 deploy:
@@ -144,6 +154,8 @@ deploy:
   services:
     - docker:dind
   script:
+    - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker-local.jfrog.io
+    - echo $docker_hub_credentials | docker login --username=psonogitlab --password-stdin
     - sh ./var/deploy.sh
   environment:
     name: production

@@ -3,19 +3,6 @@ apk add --update curl
 
 # Pull docker container here, as the login will be overwritten in the next step
 docker pull psono-docker-local.jfrog.io/psono/psono-client:latest
-
-# Deploy to Docker Hub
-mkdir -p /root/.docker
-cat > /root/.docker/config.json <<- "EOF"
-{
-        "auths": {
-                "https://index.docker.io/v1/": {
-                        "auth": "docker_hub_credentials"
-                }
-        }
-}
-EOF
-sed -i 's/docker_hub_credentials/'"$docker_hub_credentials"'/g' /root/.docker/config.json
 docker tag psono-docker-local.jfrog.io/psono/psono-client:latest psono/psono-client:latest
 docker push psono/psono-client:latest
 
