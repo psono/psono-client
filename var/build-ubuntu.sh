@@ -5,6 +5,7 @@ curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
 apt-get install -y nodejs && \
 node --version && \
 npm --version && \
+npm config set registry https://psono.jfrog.io/psono/api/npm/npm/ && \
 npm install && \
 npm install gulp -g && \
 npm install addons-linter -g --unsafe-perm && \

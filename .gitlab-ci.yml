@@ -1,6 +1,6 @@
 variables:
-  CONTAINER_TEST_IMAGE: registry.gitlab.com/psono/psono-client:$CI_BUILD_REF_NAME
-  CONTAINER_RELEASE_IMAGE: registry.gitlab.com/psono/psono-client:latest
+  CONTAINER_TEST_IMAGE: psono-docker-local.jfrog.io/psono/psono-client:$CI_BUILD_REF_NAME
+  CONTAINER_RELEASE_IMAGE: psono-docker-local.jfrog.io/psono/psono-client:latest
 
 stages:
   - test
@@ -45,9 +45,11 @@ docker-image:
     DOCKER_HOST: 'tcp://docker:2375'
   script:
     - sh ./var/build-ubuntu.sh
-    - set -x && curl -fSL "https://get.docker.com/builds/Linux/x86_64/docker-1.12.0.tgz" -o docker.tgz && echo "3dd07f65ea4a7b4c8829f311ab0213bca9ac551b5b24706f3e79a97e22097f8b *docker.tgz" | sha256sum -c - && tar -xzvf docker.tgz && mv docker/* /usr/local/bin/
+    - set -x && curl -fSL "https://download.docker.com/linux/static/stable/x86_64/docker-17.12.0-ce.tgz" -o docker.tgz && echo "692e1c72937f6214b1038def84463018d8e320c8eaf8530546c84c2f8f9c767d *docker.tgz" | sha256sum -c - && tar -xzvf docker.tgz && mv docker/* /usr/local/bin/
     - docker info
-    - docker login -u gitlab-ci-token -p "$CI_BUILD_TOKEN" registry.gitlab.com
+    - echo $CI_BUILD_TOKEN | docker login --username=gitlab-ci-token --password-stdin registry.gitlab.com
+    - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker.jfrog.io
+    - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker-local.jfrog.io
     - docker build -t $CONTAINER_TEST_IMAGE .
     - docker push $CONTAINER_TEST_IMAGE
 
@@ -114,7 +116,9 @@ release-docker:
     - docker:dind
   script:
     - docker info
-    - docker login -u gitlab-ci-token -p "$CI_BUILD_TOKEN" registry.gitlab.com
+    - echo $CI_BUILD_TOKEN | docker login --username=gitlab-ci-token --password-stdin registry.gitlab.com
+    - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker.jfrog.io
+    - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker-local.jfrog.io
     - docker pull $CONTAINER_TEST_IMAGE
     - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
     - docker push $CONTAINER_RELEASE_IMAGE
