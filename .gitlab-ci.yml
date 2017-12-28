@@ -12,7 +12,7 @@ unittests:
   except:
     - schedules
   stage: test
-  image: ubuntu:16.04
+  image: psono-docker.jfrog.io/ubuntu:16.04
   script:
     - sh ./var/build-ubuntu.sh
     - apt-get install -y --no-install-recommends xvfb x11vnc fluxbox xterm
@@ -26,7 +26,7 @@ linter:
   except:
     - schedules
   stage: test
-  image: ubuntu:16.04
+  image: psono-docker.jfrog.io/ubuntu:16.04
   script:
     - sh ./var/build-ubuntu.sh
     - cat ./build/firefox/manifest.json
@@ -38,7 +38,7 @@ docker-image:
   except:
     - schedules
   stage: build
-  image: ubuntu:16.04
+  image: psono-docker.jfrog.io/ubuntu:16.04
   services:
     - docker:dind
   variables:
@@ -57,7 +57,7 @@ firefox-extension:
   except:
     - schedules
   stage: build
-  image: ubuntu:16.04
+  image: psono-docker.jfrog.io/ubuntu:16.04
   script:
     - pwd
     - ls -la
@@ -75,7 +75,7 @@ chrome-extension:
   except:
     - schedules
   stage: build
-  image: ubuntu:16.04
+  image: psono-docker.jfrog.io/ubuntu:16.04
   script:
     - pwd
     - ls -la
@@ -93,7 +93,7 @@ webclient:
   except:
     - schedules
   stage: build
-  image: ubuntu:16.04
+  image: psono-docker.jfrog.io/ubuntu:16.04
   script:
     - pwd
     - ls -la
@@ -111,7 +111,7 @@ release-docker:
   except:
     - schedules
   stage: release
-  image: docker:git
+  image: psono-docker.jfrog.io/docker:git
   services:
     - docker:dind
   script:
@@ -129,7 +129,7 @@ deploy-security-scan-image:
   except:
     - schedules
   stage: deploy
-  image: docker:git
+  image: psono-docker.jfrog.io/docker:git
   services:
     - docker:dind
   script:
@@ -140,7 +140,7 @@ deploy:
   except:
     - schedules
   stage: deploy
-  image: docker:git
+  image: psono-docker.jfrog.io/docker:git
   services:
     - docker:dind
   script:
@@ -156,7 +156,7 @@ deploy-chrome:
   except:
     - schedules
   stage: deploy
-  image: ubuntu:16.04
+  image: psono-docker.jfrog.io/ubuntu:16.04
   script:
     - sh ./var/build-ubuntu.sh
     - sh ./var/package-chrome-extension.sh
@@ -171,7 +171,7 @@ deploy-firefox:
   except:
     - schedules
   stage: deploy
-  image: ubuntu:16.04
+  image: psono-docker.jfrog.io/ubuntu:16.04
   script:
     - sh ./var/build-ubuntu.sh
     - sh ./var/package-firefox-extension.sh
@@ -182,13 +182,3 @@ deploy-firefox:
   only:
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
-scheduled-linter:
-  only:
-    - schedules
-  stage: test
-  image: ubuntu:16.04
-  script:
-    - sh ./var/build-ubuntu.sh
-    - cat ./build/firefox/manifest.json
-    - addons-linter --help
-    - addons-linter ./build/firefox

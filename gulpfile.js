@@ -1,7 +1,6 @@
 'use strict';
 
 var gulp = require('gulp');
-var gutil = require('gulp-util');
 var htmlmin = require('gulp-htmlmin');
 var cleanCSS = require('gulp-clean-css');
 var minify = require('gulp-minify');
@@ -355,10 +354,10 @@ gulp.task('crx', function() {
  */
 gulp.task('chrome-deploy', function() {
 
-    var client_id = gutil.env.webstore_client_id;
-    var client_secret = gutil.env.webstore_client_secret;
-    var refresh_token = gutil.env.webstore_refresh_token;
-    var app_id = gutil.env.webstore_app_id;
+    var client_id = process.env.webstore_client_id;
+    var client_secret = process.env.webstore_client_secret;
+    var refresh_token = process.env.webstore_refresh_token;
+    var app_id = process.env.webstore_app_id;
 
     var uploadOptions = {
         accounts: {
@@ -393,10 +392,10 @@ gulp.task('chrome-deploy', function() {
  */
 gulp.task('firefox-deploy', function() {
 
-    var jwt_issuer = gutil.env.mozilla_jwt_issuer;
-    var jwt_secret = gutil.env.mozilla_jwt_secret;
-    var version = gutil.env.mozilla_version;
-    var mozilla_addon_id = gutil.env.mozilla_addon_id;
+    var jwt_issuer = process.env.mozilla_jwt_issuer;
+    var jwt_secret = process.env.mozilla_jwt_secret;
+    var version = process.env.mozilla_version;
+    var mozilla_addon_id = process.env.mozilla_addon_id;
 
     var issuedAt = Math.floor(Date.now() / 1000);
     var payload = {
@@ -468,9 +467,8 @@ gulp.task('dist', ['default', 'crx', 'xpi']);
 
 gulp.task('updateversion', function() {
 
-
-    var commit_tag = gutil.env.commit_tag;
-    var commit_sha = gutil.env.commit_sha;
+    var commit_tag = process.env.commit_tag;
+    var commit_sha = process.env.commit_sha;
 
 
     if (! /^v\d*\.\d*\.\d*$/.test(commit_tag)) {
