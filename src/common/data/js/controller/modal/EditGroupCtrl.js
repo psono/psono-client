@@ -288,7 +288,6 @@
              */
             function toggle_user(user) {
                 if (! is_member(user)) {
-                    console.log(user);
                     return create_membership(user);
                 } else {
                     return delete_membership(user);

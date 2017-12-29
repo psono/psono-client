@@ -264,6 +264,11 @@
                             continue;
                         }
 
+                        // No specific share rights for this share and datastore as parent (no inheritance possible) we a assume a share where we lost access rights
+                        if (!share_rights_dict.hasOwnProperty(share_id) && typeof(parent_datastore_id) !== 'undefined') {
+                            continue;
+                        }
+
                         all_calls.push(read_share_helper(share_id, sub_datastore, share_index[share_id].paths[i], parent_share_id, parent_datastore_id));
 
                     }
