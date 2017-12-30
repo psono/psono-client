@@ -11,4 +11,4 @@ npm install gulp -g && \
 npm install addons-linter -g --unsafe-perm && \
 npm install karma-cli -g && \
 gulp && \
-gulp --commit_tag=$CI_COMMIT_TAG --commit_sha=$CI_COMMIT_SHA updateversion
+gulp updateversion
