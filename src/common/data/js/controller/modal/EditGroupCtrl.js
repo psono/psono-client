@@ -191,6 +191,18 @@
                 }
                 var new_group_name;
                 if (original_group_name !== $scope.group_name) {
+
+
+                    $scope.errors = [];
+                    var test_result;
+
+                    test_result = helper.is_valid_group_name($scope.group_name);
+
+                    if (test_result !== true) {
+                        $scope.errors.push(test_result);
+                        return;
+                    }
+
                     new_group_name = $scope.group_name;
                 }
 
@@ -276,7 +288,6 @@
              */
             function toggle_user(user) {
                 if (! is_member(user)) {
-                    console.log(user);
                     return create_membership(user);
                 } else {
                     return delete_membership(user);

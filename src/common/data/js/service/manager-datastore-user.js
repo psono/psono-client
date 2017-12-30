@@ -405,10 +405,11 @@
          * @param {object} server The server object to send the login request to
          * @param {object} server_info Some info about the server including its public key
          * @param {object} verify_key The signature of the server
+         * @param {boolean} send_plain Indicates to send the password in the login info in plaintext. Necessary for e.g. LDAP
          *
          * @returns {promise} Returns a promise with the login status
          */
-        var login = function(username, domain, password, remember, trust_device, server, server_info, verify_key) {
+        var login = function(username, domain, password, remember, trust_device, server, server_info, verify_key, send_plain) {
 
             username = helper.form_full_username(username, domain);
 
@@ -456,13 +457,19 @@
                 return handle_login_response(response, password, session_keys, server_info['public_key']);
             };
 
-            var login_info = JSON.stringify({
+            var login_info = {
                 'username': username,
                 'authkey': authkey,
                 'device_time': new Date().toISOString(),
                 'device_fingerprint': device.get_device_fingerprint(),
                 'device_description': device.get_device_description()
-            });
+            };
+
+            if (send_plain) {
+                login_info['password'] = password;
+            }
+
+            login_info = JSON.stringify(login_info);
 
             // encrypt the login infos
             var login_info_enc = cryptoLibrary.encrypt_data_public_key(

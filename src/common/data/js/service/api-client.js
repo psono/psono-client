@@ -974,17 +974,15 @@
          * @param {uuid} [group_id] (optional) The target group's group ID
          * @param {string} key The encrypted share secret, encrypted with the public key of the target user
          * @param {string} key_nonce The unique nonce for decryption
-         * @param {bool} read read right
-         * @param {bool} write write right
-         * @param {bool} grant grant right
+         * @param {bool} read read permission
+         * @param {bool} write write permission
+         * @param {bool} grant grant permission
          *
          * @returns {promise} promise
          */
         var create_share_right = function (token, session_secret_key, encrypted_title, encrypted_title_nonce,
                                            encrypted_type, encrypted_type_nonce, share_id, user_id, group_id, key,
                                            key_nonce, read, write, grant) {
-            console.log(user_id);
-            console.log(group_id);
             var endpoint = '/share/right/';
             var connection_type = "PUT";
             var data = {

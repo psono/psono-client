@@ -235,6 +235,26 @@
 
         /**
          * @ngdoc
+         * @name psonocli.helper#validate_group_name_contain
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Checks that the group name does not contain forbidden chars
+         *
+         * @param {string} group_name The group name
+         * @param {Array} forbidden_chars The forbidden chars
+         * @returns {string} The error message, if it matches
+         */
+        function validate_group_name_contain(group_name, forbidden_chars) {
+            for (var i = 0; i < forbidden_chars.length; i++) {
+                if (group_name.indexOf(forbidden_chars[i]) !== -1) {
+                    return 'Group name may not contain "'+ forbidden_chars[i] +'"';
+                }
+            }
+        }
+
+        /**
+         * @ngdoc
          * @name psonocli.helper#form_full_username
          * @methodOf psonocli.helper
          *
@@ -292,6 +312,34 @@
             }
 
             error = validate_username_contain(username, ["..", "--", '.-', '-.']);
+            if (error) {
+                return error;
+            }
+
+            return true;
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.helper#is_valid_group_name
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Determines if the group name is a valid group name. It should not contain "@" and be shorter than 3 chars
+         *
+         * @param {string} group_name A string that could be a valid group name
+         *
+         * @returns {boolean|string} Returns true or a string with the error
+         */
+        function is_valid_group_name(group_name) {
+
+            var error;
+
+            if (group_name.length < 3) {
+                return 'Group name may not be shorter than 3 chars';
+            }
+
+            error = validate_group_name_contain(group_name, ["@"]);
             if (error) {
                 return error;
             }
@@ -450,12 +498,13 @@
             duplicate_object: duplicate_object,
             form_full_username: form_full_username,
             is_valid_username: is_valid_username,
+            is_valid_group_name: is_valid_group_name,
             is_valid_password: is_valid_password,
             split_string_in_chunks: split_string_in_chunks,
             remove_from_array: remove_from_array,
             copy_to_clipboard: copy_to_clipboard,
             endsWith: endsWith,
-            get_password_filter: get_password_filter,
+            get_password_filter: get_password_filter
         };
     };
 

@@ -41,14 +41,20 @@
                             {
                                 icon: "fa fa-eye-slash",
                                 text:"Show Password",
-                                onclick:function(id) {
-                                    document.getElementById(id).type = document.getElementById(id).type === 'text' ? 'password' : 'text';
+                                onclick:function(id, item) {
+                                    if (document.getElementById(id).type === 'text') {
+                                        document.getElementById(id).type = 'password';
+                                        item.text = 'Show Password';
+                                    } else {
+                                        document.getElementById(id).type = 'text';
+                                        item.text = 'Hide Password';
+                                    }
                                 }
                             },
                             {
                                 icon: "fa fa-cogs",
                                 text:"Generate Password",
-                                onclick:function(id) {
+                                onclick:function(id, item) {
                                     angular.element(document.querySelector('#'+id)).val(registrations['generate']()).trigger('input');
                                 }
                             }

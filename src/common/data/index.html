@@ -168,7 +168,7 @@
                 </div>
 
                 <div class="form-group">
-                    <button ng-click="login(loginFormUsername, loginFormPassword, loginFormRemember, loginFormTrustDevice)" type="submit" class="btn btn-danger">Login <i class="fa fa-sign-in" aria-hidden="true"></i></button>
+                    <button ng-click="initiate_login(loginFormUsername, loginFormPassword, loginFormRemember, loginFormTrustDevice)" type="submit" class="btn btn-danger">Login <i class="fa fa-sign-in" aria-hidden="true"></i></button>
                     <a href="register.html">Register</a>
                 </div>
 
@@ -203,7 +203,7 @@
                 <div class="form-group">
                     <button ng-click="approve_new_server()" type="submit"
                             class="btn btn-danger">Approve</button>
-                    <a href="#" ng-click="load_default_view()">Cancel</a>
+                    <a href="#" ng-click="disapprove_new_server()">Cancel</a>
                 </div>
 
                 <div class="form-group alert alert-danger" ng-repeat="e in errors">
@@ -243,9 +243,34 @@
                 </div>
 
                 <div class="form-group">
-                    <button ng-click="load_default_view()" type="submit"
+                    <button ng-click="disapprove_new_server()" type="submit"
                             class="btn btn-danger">Cancel</button>
                     <a href="#" ng-click="approve_new_server()">Ignore and continue.</a>
+                </div>
+
+                <div class="form-group alert alert-danger" ng-repeat="e in errors">
+                    <strong>Error:</strong> {{e}}
+                </div>
+            </form>
+
+            <form name="askPlainForm" ng-if="view === 'ask_send_plain'">
+                <!-- signature changed View -->
+                <div class="form-group">
+                    <h4>Server asks for your plaintext password:</h4>
+                </div>
+                <div class="form-group">
+                    <div class="alert alert-warning">
+                        <strong>Danger!</strong> Accepting this will send your plain password to the server and should only be allowed
+                        if you are using LDAP or similar authentication methods. You can decline this, but this might fail in an
+                        authentication failure.
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <button ng-click="approve_send_plain()" type="submit"
+                            class="btn btn-warning">Approve (unsafe)</button>
+                    <button ng-click="disapprove_send_plain()" type="submit"
+                            class="btn btn-success">Disapprove (safe)</button>
                 </div>
 
                 <div class="form-group alert alert-danger" ng-repeat="e in errors">
