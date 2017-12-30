@@ -387,9 +387,8 @@ gulp.task('firefox-deploy', function() {
 
 gulp.task('updateversion', function() {
 
-    var commit_tag = process.env.commit_tag;
-    var commit_sha = process.env.commit_sha;
-
+    var commit_tag = process.env.CI_COMMIT_TAG;
+    var commit_sha = process.env.CI_COMMIT_SHA;
 
     if (! /^v\d*\.\d*\.\d*$/.test(commit_tag)) {
         return;
