@@ -29,7 +29,7 @@
 
         var call = function(connection_type, endpoint, data, headers, session_secret_key, synchronous) {
 
-            var server = storage.find_one('config', {'key': 'server'});
+            var server = storage.find_key('config', 'server');
 
             if (server === null) {
                 return $q(function(resolve, reject) {
@@ -1761,6 +1761,34 @@
             return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#delete_account
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax DELETE request with the token as authentication to delete a user account
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} authkey The authkey of the user
+         *
+         * @returns {promise} promise
+         */
+        var delete_account = function (token, session_secret_key, authkey) {
+            var endpoint = '/user/delete/';
+            var connection_type = "DELETE";
+            var data = {
+                authkey: authkey
+            };
+            var headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
         return {
             info: info,
             login: login,
@@ -1815,7 +1843,8 @@
             update_membership: update_membership,
             delete_membership: delete_membership,
             accept_membership: accept_membership,
-            decline_membership: decline_membership
+            decline_membership: decline_membership,
+            delete_account: delete_account
         };
     };
 

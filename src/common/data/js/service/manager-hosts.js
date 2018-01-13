@@ -32,7 +32,7 @@
                 storage.save();
             }
 
-            return storage.find_one('persistent', {'key': 'known_hosts'})['value'];
+            return storage.find_key('persistent', 'known_hosts')['value'];
         }
         /**
          * @ngdoc
@@ -45,7 +45,7 @@
          * @returns {*} The current host
          */
         function get_current_host() {
-            var current_host = storage.find_one('config', {'key': 'server'})['value'];
+            var current_host = storage.find_key('config', 'server')['value'];
             return helper.duplicate_object(current_host);
         }
         /**
@@ -59,7 +59,7 @@
          * @returns {*} The current host url
          */
         function get_current_host_url() {
-            var current_host = storage.find_one('config', {'key': 'server'})['value'];
+            var current_host = storage.find_key('config', 'server')['value'];
             return current_host['url'].toLowerCase();
         }
 

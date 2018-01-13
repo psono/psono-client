@@ -94,8 +94,8 @@
 
                 var onError = function(response){
 
-                    storage.remove('config', storage.find_one('config', {'key': 'user_email'}));
-                    storage.remove('config', storage.find_one('config', {'key': 'server'}));
+                    storage.remove('config', storage.find_key('config', 'user_email'));
+                    storage.remove('config', storage.find_key('config', 'server'));
                     storage.save();
 
                     return {
@@ -147,7 +147,7 @@
 
             var onError = function(response){
 
-                storage.remove('config', storage.find_one('config', {'key': 'server'}));
+                storage.remove('config', storage.find_key('config', 'server'));
                 storage.save();
 
                 return {
@@ -176,8 +176,8 @@
 
                 // in case of any error we remove the items we already added to our storage
                 // maybe we adjust this behaviour at some time
-                storage.remove('config', storage.find_one('config', {'key': 'user_username'}));
-                storage.remove('config', storage.find_one('config', {'key': 'server'}));
+                storage.remove('config', storage.find_key('config', 'user_username'));
+                storage.remove('config', storage.find_key('config', 'server'));
 
                 storage.save();
 
@@ -315,11 +315,11 @@
          */
         var get_default = function(item) {
             if (item === 'username') {
-                return managerBase.find_one('persistent', 'username');
+                return managerBase.find_key('persistent', 'username');
             } else if (item === 'server') {
-                return managerBase.find_one('persistent', 'server');
+                return managerBase.find_key('persistent', 'server');
             } else if (item === 'trust_device') {
-                return managerBase.find_one('persistent', 'trust_device');
+                return managerBase.find_key('persistent', 'trust_device');
             }
         };
 
@@ -422,10 +422,10 @@
                 storage.upsert('persistent', {key: 'server', value: server});
             } else {
                 if (storage.key_exists('persistent', 'username')) {
-                    storage.remove('persistent', storage.find_one('persistent', {'key': 'username'}));
+                    storage.remove('persistent', storage.find_key('persistent', 'username'));
                 }
                 if (storage.key_exists('persistent', 'server')) {
-                    storage.remove('persistent', storage.find_one('persistent', {'key': 'server'}));
+                    storage.remove('persistent', storage.find_key('persistent', 'server'));
                 }
                 storage.save();
             }
@@ -442,8 +442,8 @@
 
                 // in case of any error we remove the items we already added to our storage
                 // maybe we adjust this behaviour at some time
-                storage.remove('config', storage.find_one('config', {'key': 'user_username'}));
-                storage.remove('config', storage.find_one('config', {'key': 'server'}));
+                storage.remove('config', storage.find_key('config', 'user_username'));
+                storage.remove('config', storage.find_key('config', 'server'));
                 storage.save();
 
                 return $q.reject({
@@ -574,19 +574,19 @@
 
 
             var recovery_password = cryptoLibrary.generate_recovery_code();
-            var recovery_authkey = cryptoLibrary.generate_authkey(managerBase.find_one_nolimit('config', 'user_username'), recovery_password['base58']);
+            var recovery_authkey = cryptoLibrary.generate_authkey(managerBase.find_key_nolimit('config', 'user_username'), recovery_password['base58']);
             var recovery_sauce = cryptoLibrary.generate_user_sauce();
 
             var recovery_data_dec = {
-                'user_private_key': managerBase.find_one_nolimit('config', 'user_private_key'),
-                'user_secret_key': managerBase.find_one_nolimit('config', 'user_secret_key')
+                'user_private_key': managerBase.find_key_nolimit('config', 'user_private_key'),
+                'user_secret_key': managerBase.find_key_nolimit('config', 'user_secret_key')
             };
 
             var recovery_data = cryptoLibrary.encrypt_secret(JSON.stringify(recovery_data_dec), recovery_password['base58'], recovery_sauce);
 
             var onSuccess = function(data) {
                 return {
-                    'username': managerBase.find_one('config', 'user_username'),
+                    'username': managerBase.find_key('config', 'user_username'),
                     'recovery_password': helper.split_string_in_chunks(recovery_password['base58_checksums'], 13).join('-'),
                     'recovery_words': recovery_password['words'].join(' ')
                 };
@@ -829,13 +829,13 @@
 
             var onSuccess = function (request) {
 
-                var server = storage.find_one('config', {'key': 'server'});
+                var server = storage.find_key('config', 'server');
                 var backend = server['value']['url'];
                 var parsed_url = helper.parse_url(backend);
 
                 return {
                     'id': request.data['id'],
-                    'uri': 'otpauth://totp/' + parsed_url['top_domain'] + ':' + managerBase.find_one_nolimit('config', 'user_username')+'?secret=' + request.data['secret']
+                    'uri': 'otpauth://totp/' + parsed_url['top_domain'] + ':' + managerBase.find_key_nolimit('config', 'user_username')+'?secret=' + request.data['secret']
                 };
 
             };
@@ -1038,7 +1038,7 @@
                 return reject({errors: ['Old password empty']})
             }
 
-            var authkey_old = cryptoLibrary.generate_authkey(storage.find_one('config', {key: 'user_username'}).value, verification_password);
+            var authkey_old = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, verification_password);
 
             var onSuccess = function(data) {
 
@@ -1084,12 +1084,12 @@
                 return reject({errors: ['Old password empty']})
             }
 
-            authkey_old = cryptoLibrary.generate_authkey(storage.find_one('config', {key: 'user_username'}).value, old_password);
+            authkey_old = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, old_password);
 
-            new_authkey = cryptoLibrary.generate_authkey(storage.find_one('config', {key: 'user_username'}).value, new_password);
-            user_private_key = storage.find_one('config', {key: 'user_private_key'});
-            user_secret_key = storage.find_one('config', {key: 'user_secret_key'});
-            user_sauce = storage.find_one('config', {key: 'user_sauce'}).value;
+            new_authkey = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, new_password);
+            user_private_key = storage.find_key('config', 'user_private_key');
+            user_secret_key = storage.find_key('config', 'user_secret_key');
+            user_sauce = storage.find_key('config', 'user_sauce').value;
 
             priv_key_enc = cryptoLibrary.encrypt_secret(user_private_key.value, new_password, user_sauce);
             secret_key_enc = cryptoLibrary.encrypt_secret(user_secret_key.value, new_password, user_sauce);
@@ -1103,6 +1103,34 @@
 
             return update_user(null, new_authkey, authkey_old, priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce)
                 .then(onSuccess, onError);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#delete_account
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Deletes an account
+         *
+         * @param {string} password The old password
+         *
+         * @returns {promise} Returns a promise with the result
+         */
+        var delete_account = function(password) {
+
+            var authkey = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, password);
+
+            var onSuccess = function () {
+                logout();
+            };
+
+            var onError = function(data){
+                return $q.reject(data.data);
+            };
+
+
+            return apiClient.delete_account(managerBase.get_token(), managerBase.get_session_secret_key(), authkey).then(onSuccess, onError);
         };
 
         shareBlueprint.register('search_user', search_user);
@@ -1134,7 +1162,8 @@
             get_sessions: get_sessions,
             delete_session: delete_session,
             save_new_email: save_new_email,
-            save_new_password: save_new_password
+            save_new_password: save_new_password,
+            delete_account: delete_account,
         };
     };
 

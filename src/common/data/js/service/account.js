@@ -9,7 +9,6 @@
      * @requires psonocli.storage
      * @requires psonocli.managerDatastoreUser
      * @requires psonocli.managerDatastoreSetting
-     * @requires psonocli.apiClient
      *
      * @description
      * Service that handles all the account details
@@ -27,7 +26,8 @@
             { key: 'change-email', title: 'Change E-Mail', description: 'You can provide here a new e-mail address (together with your current password for verification)' },
             { key: 'change-password', title: 'Change Password', description: 'You can provide here a new password address (together with your current password for verification)' },
             { key: 'generate-password-recovery', title: 'Generate Password Recovery', description: 'You should create a password recovery code to recover your account with a lost password.' },
-            { key: 'multifactor-authentication', title: 'Multifactor Authentication', description: 'A second factor is the best security improvement for your account.' }
+            { key: 'multifactor-authentication', title: 'Multifactor Authentication', description: 'A second factor is the best security improvement for your account.' },
+            { key: 'delete-account', title: 'Delete Account', description: 'If you plan to delete your account you can do that here. Be aware all data will be lost.' }
         ];
 
         var _account = {
@@ -55,8 +55,27 @@
                 { name: "generate_password_recovery_button", field: "button", type: "button", title: "New Password Recovery Code", btnLabel: "Generate", class: 'btn-primary', onClick:"onClickGenerateNewPasswordRecoveryCode", tab: 'generate-password-recovery' },
                 // Password Recovery
                 { name: "google_authenticator_setup", field: "button", type: "button", title: "Google Authenticator", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureGoogleAuthenticator", tab: 'multifactor-authentication' },
-                { name: "yubikey_otp_setup", field: "button", type: "button", title: "YubiKey (OTP)", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureYubiKeyOTP", tab: 'multifactor-authentication' }
+                { name: "yubikey_otp_setup", field: "button", type: "button", title: "YubiKey (OTP)", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureYubiKeyOTP", tab: 'multifactor-authentication' },
+                // Delete Account
+                { name: "delete_account", field: "button", type: "button", title: "Delete Account", btnLabel: "Delete", class: 'btn-primary', onClick:"onClickOpenDeleteAccountModal", tab: 'delete-account' }
             ],
+            onClickOpenDeleteAccountModal: function () {
+
+                var modalInstance = $uibModal.open({
+                    templateUrl: 'view/modal-delete-account.html',
+                    controller: 'ModalDeleteAccountCtrl',
+                    backdrop: 'static',
+                    resolve: {
+                    }
+                });
+
+                modalInstance.result.then(function () {
+                    // User clicked the prime button
+                }, function () {
+                    // cancel triggered
+                });
+
+            },
             onClickGenerateNewPasswordRecoveryCode: function () {
 
                 var onSuccess = function(recovery_information) {
@@ -165,51 +184,52 @@
          * returns the account detail with a specific key, applies default values
          *
          * @param {string} key They key of the account detail one wants to fetch
+         *
          * @returns {*} Returns the account detail
          */
         var get_account_detail = function (key) {
 
             if (key === 'user_id') {
-                return storage.find_one('config', {key: 'user_id'}).value;
+                return storage.find_key('config', 'user_id').value;
             }
 
             if (key === 'user_username') {
-                return storage.find_one('config', {key: 'user_username'}).value;
+                return storage.find_key('config', 'user_username').value;
             }
 
             if (key === 'user_public_key') {
-                return storage.find_one('config', {key: 'user_public_key'}).value;
+                return storage.find_key('config', 'user_public_key').value;
             }
 
             if (key === 'user_email') {
-                return storage.find_one('config', {key: 'user_email'}).value;
+                return storage.find_key('config', 'user_email').value;
             }
 
             if (key === 'setting_email') {
-                return storage.find_one('config', {key: 'user_email'}).value;
+                return storage.find_key('config', 'user_email').value;
             }
 
             if (key === 'server_api_version') {
-                return storage.find_one('config', {key: 'server_info'}).value['api'];
+                return storage.find_key('config', 'server_info').value['api'];
             }
 
             if (key === 'server_version') {
-                return storage.find_one('config', {key: 'server_info'}).value['version'];
+                return storage.find_key('config', 'server_info').value['version'];
             }
 
             if (key === 'server_signature') {
-                return storage.find_one('config', {key: 'server_verify_key'}).value;
+                return storage.find_key('config', 'server_verify_key').value;
             }
 
             if (key === 'server_log_audit') {
-                return storage.find_one('config', {key: 'server_info'}).value['log_audit'];
+                return storage.find_key('config','server_info').value['log_audit'];
             }
 
             if (key === 'server_public_key') {
-                return storage.find_one('config', {key: 'server_info'}).value['public_key'];
+                return storage.find_key('config', 'server_info').value['public_key'];
             }
 
-            return null
+            return '';
         };
 
         /**
@@ -220,7 +240,7 @@
          * @description
          * returns all account details with structure
          *
-         * @returns {Array} Returns a list of all account
+         * @returns {*} Returns a dict of all account
          */
         var get_account = function() {
 
@@ -254,7 +274,7 @@
                     }
                 }
 
-                var old_email = storage.find_one('config', {key: 'user_email'}).value;
+                var old_email = storage.find_key('config', 'user_email').value;
                 var new_email = specials['setting_email'].value;
                 old_password = specials['setting_email_password_old'].value;
                 // change email

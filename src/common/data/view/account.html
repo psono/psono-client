@@ -49,7 +49,7 @@
                                         ng-click="account[field.onClick]()"
                                         type="{{field.type}}" ng-hide="field.hidden" ng-click="">{{field.btnLabel}}</button>
 
-                                <uib-progressbar value="field.value | complexify"
+                                <uib-progressbar value="(field.value | complexify"
                                                  ng-if="field.complexify && (field.value | complexify) > 0">
                                     <span complexify="field.value"></span>%
                                     <span complexify="field.value" type="verbal"></span>

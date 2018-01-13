@@ -30,7 +30,7 @@
             var onSuccess = function (results) {
 
                 for (var i = results.length - 1; i >= 0; i--) {
-                    var s = storage.find_one('settings', {key: results[i].key});
+                    var s = storage.find_key('settings', results[i].key);
                     if (s !== null) {
                         s.value = results[i].value;
                         storage.update('settings', s);

@@ -150,14 +150,14 @@
         //     $scope.login($scope.loginFormUsername, $scope.loginFormPassword);
         //     $httpBackend.flush();
         //
-        //     expect(storage.find_one('config', {'key': 'user_id'})['value']).toEqual(user_id);
-        //     expect(storage.find_one('config', {'key': 'user_token'})['value']).toEqual(user_token);
-        //     expect(storage.find_one('config', {'key': 'user_email'})['value']).toEqual(user_email);
-        //     expect(storage.find_one('config', {'key': 'session_secret_key'})['value']).toEqual(session_secret_key);
-        //     expect(storage.find_one('config', {'key': 'user_public_key'})['value']).toEqual(user_public_key);
-        //     expect(storage.find_one('config', {'key': 'user_private_key'})['value']).toEqual(user_private_key);
-        //     expect(storage.find_one('config', {'key': 'user_secret_key'})['value']).toEqual(user_secret_key);
-        //     expect(storage.find_one('config', {'key': 'user_sauce'})['value']).toEqual(user_sauce);
+        //     expect(storage.find_key('config', 'user_id')['value']).toEqual(user_id);
+        //     expect(storage.find_key('config', 'user_token')['value']).toEqual(user_token);
+        //     expect(storage.find_key('config', 'user_email')['value']).toEqual(user_email);
+        //     expect(storage.find_key('config', 'session_secret_key')['value']).toEqual(session_secret_key);
+        //     expect(storage.find_key('config', 'user_public_key')['value']).toEqual(user_public_key);
+        //     expect(storage.find_key('config', 'user_private_key')['value']).toEqual(user_private_key);
+        //     expect(storage.find_key('config', 'user_secret_key')['value']).toEqual(user_secret_key);
+        //     expect(storage.find_key('config', 'user_sauce')['value']).toEqual(user_sauce);
         //
         // });
 

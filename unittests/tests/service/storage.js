@@ -67,8 +67,8 @@
             storage.upsert('config', {key: a_key, value: a_value2});
             storage.upsert('config', {key: b_key, value: b_value2});
 
-            expect(storage.find_one('config', {key: a_key}).value).toBe(a_value2);
-            expect(storage.find_one('config', {key: b_key}).value).toBe(b_value2);
+            expect(storage.find_key('config', a_key).value).toBe(a_value2);
+            expect(storage.find_key('config', b_key).value).toBe(b_value2);
 
         }));
 
@@ -85,8 +85,8 @@
 
             storage.upsert('config', [{key: a_key, value: a_value2}, {key: b_key, value: b_value2}]);
 
-            expect(storage.find_one('config', {key: a_key}).value).toBe(a_value2);
-            expect(storage.find_one('config', {key: b_key}).value).toBe(b_value2);
+            expect(storage.find_key('config', a_key).value).toBe(a_value2);
+            expect(storage.find_key('config', b_key).value).toBe(b_value2);
 
         }));
 

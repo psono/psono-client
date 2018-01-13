@@ -82,7 +82,7 @@
 
             if (typeof key !== 'undefined') {
                 // key specified
-                var s = storage.find_one('settings', {'key': key});
+                var s = storage.find_key('settings', key);
                 if (s !== null) {
                     // found in storage
                     return s.value;
@@ -130,7 +130,7 @@
          */
         var _set_setting = function(key, value) {
 
-            var s = storage.find_one('settings', {'key': key});
+            var s = storage.find_key('settings', key);
             if (s !== null) {
                 s.value = value;
                 storage.update('settings', s);

@@ -128,7 +128,7 @@
          * @param {uuid} secret_id The id of the secret to read
          */
         var redirect_secret = function(type, secret_id) {
-            var secret_key = managerBase.find_one_nolimit('datastore-password-leafs', secret_id);
+            var secret_key = managerBase.find_key_nolimit('datastore-password-leafs', secret_id);
 
             var onError = function(result) {
                 // pass
@@ -176,7 +176,7 @@
          */
         var copy_username = function(item) {
 
-            var secret_key = managerBase.find_one_nolimit('datastore-password-leafs', item.secret_id);
+            var secret_key = managerBase.find_key_nolimit('datastore-password-leafs', item.secret_id);
 
             var onError = function(result) {
                 // pass
@@ -203,7 +203,7 @@
          */
         var copy_password = function(item) {
 
-            var secret_key = managerBase.find_one_nolimit('datastore-password-leafs', item.secret_id);
+            var secret_key = managerBase.find_key_nolimit('datastore-password-leafs', item.secret_id);
 
             var onError = function(result) {
                 // pass

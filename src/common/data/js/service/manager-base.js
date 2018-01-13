@@ -44,7 +44,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerBase#find_one_nolimit
+         * @name psonocli.managerBase#find_key_nolimit
          * @methodOf psonocli.managerBase
          *
          * @description
@@ -56,9 +56,9 @@
          *
          * @returns {*} Returns the found object
          */
-        var find_one_nolimit = function(db, key) {
+        var find_key_nolimit = function(db, key) {
 
-            var obj = storage.find_one(db, {'key': key});
+            var obj = storage.find_key(db, key);
             if (obj === null || typeof(obj) === 'undefined') {
                 return ''
             }
@@ -67,7 +67,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerBase#find_one
+         * @name psonocli.managerBase#find_key
          * @methodOf psonocli.managerBase
          *
          * @description
@@ -78,12 +78,12 @@
          *
          * @returns {*} Returns the found object
          */
-        var find_one = function(db, key) {
+        var find_key = function(db, key) {
 
             if (forbidden_keys.hasOwnProperty(db) && forbidden_keys[db].indexOf(key) >= 0) {
                 return ''
             }
-            return find_one_nolimit(db, key);
+            return find_key_nolimit(db, key);
         };
 
         /**
@@ -97,7 +97,7 @@
          * @returns {string} Returns the token
          */
         var get_token = function () {
-            return find_one_nolimit('config', 'user_token');
+            return find_key_nolimit('config', 'user_token');
         };
 
         /**
@@ -111,7 +111,7 @@
          * @returns {string} Returns the session secret key
          */
         var get_session_secret_key = function () {
-            return find_one_nolimit('config', 'session_secret_key');
+            return find_key_nolimit('config', 'session_secret_key');
         };
 
         /**
@@ -128,7 +128,7 @@
          * @returns {EncryptedValue} The encrypted text and the nonce
          */
         var encrypt_private_key = function (data, public_key) {
-            return cryptoLibrary.encrypt_data_public_key(data, public_key, find_one_nolimit('config', 'user_private_key'));
+            return cryptoLibrary.encrypt_data_public_key(data, public_key, find_key_nolimit('config', 'user_private_key'));
         };
 
         /**
@@ -146,7 +146,7 @@
          * @returns {string} The decrypted data
          */
         var decrypt_private_key = function (text, nonce, public_key) {
-            return cryptoLibrary.decrypt_data_public_key(text, nonce, public_key, find_one_nolimit('config', 'user_private_key'));
+            return cryptoLibrary.decrypt_data_public_key(text, nonce, public_key, find_key_nolimit('config', 'user_private_key'));
         };
 
         /**
@@ -162,7 +162,7 @@
          * @returns {EncryptedValue} The encrypted text and the nonce
          */
         var encrypt_secret_key = function(data) {
-            return cryptoLibrary.encrypt_data(data, find_one_nolimit('config', 'user_secret_key'));
+            return cryptoLibrary.encrypt_data(data, find_key_nolimit('config', 'user_secret_key'));
         };
 
         /**
@@ -179,7 +179,7 @@
          * @returns {string} The decrypted data
          */
         var decrypt_secret_key = function (text, nonce) {
-            return cryptoLibrary.decrypt_data(text, nonce, find_one_nolimit('config', 'user_secret_key'));
+            return cryptoLibrary.decrypt_data(text, nonce, find_key_nolimit('config', 'user_secret_key'));
         };
 
         /**
@@ -231,8 +231,8 @@
 
         return {
             delete_local_data: delete_local_data,
-            find_one_nolimit: find_one_nolimit,
-            find_one: find_one,
+            find_key_nolimit: find_key_nolimit,
+            find_key: find_key,
             get_token: get_token,
             get_session_secret_key: get_session_secret_key,
             encrypt_private_key: encrypt_private_key,

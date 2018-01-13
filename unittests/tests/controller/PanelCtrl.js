@@ -25,8 +25,8 @@
                 $scope: $scope
             });
 
-            spyOn(storage, "find_one").and.callFake(function(db, query) {
-                switch (query['key']) {
+            spyOn(storage, "find_key").and.callFake(function(db, key) {
+                switch (key) {
                     case 'user_token':
                         return { 'value': fake_user_token };
                     case 'session_secret_key':

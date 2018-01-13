@@ -18,7 +18,7 @@
                 get_token: function() {
                     return token
                 },
-                find_one_nolimit: function(db, key) {
+                find_key_nolimit: function(db, key) {
                     if (key === 'user_private_key') {
                         return 'user_private_key';
                     }

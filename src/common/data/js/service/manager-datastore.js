@@ -188,7 +188,7 @@
          */
         var delete_datastore = function(datastore_id, password) {
 
-            var authkey = cryptoLibrary.generate_authkey(storage.find_one('config', {key: 'user_username'}).value, password);
+            var authkey = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, password);
 
 
             var onError = function(result) {

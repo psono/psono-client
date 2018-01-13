@@ -147,21 +147,22 @@
             return dbs[db].where(filter_function);
         }
 
+
         /**
          * @ngdoc
-         * @name psonocli.storage#find_one
+         * @name psonocli.storage#find_key
          * @methodOf psonocli.storage
          *
          * @description
-         * returns the first result in config that matches the query
+         * returns the result matching the key
          *
          * @param {string} db The database
-         * @param {object} query The query object
+         * @param {object} key The key of the object
          *
          * @returns {object|null} Returns the data object
          */
-        function find_one(db, query) {
-            return dbs[db].findOne(query);
+        function find_key(db, key) {
+            return dbs[db].findOne({key: key});
         }
 
         /**
@@ -204,7 +205,7 @@
          * @description
          * removes all objects in all dbs (excluding the persistent one) or only in the specified one
          *
-         * @param {string} db The database
+         * @param {string} db (optional) The database
          */
         function remove_all(db) {
             if (typeof db !== 'undefined') {
@@ -304,7 +305,7 @@
             update: update,
             upsert: upsert,
             where: where,
-            find_one: find_one,
+            find_key: find_key,
             key_exists: key_exists,
             remove: remove,
             remove_all: remove_all,
