@@ -56,6 +56,7 @@
                 // Password Recovery
                 { name: "google_authenticator_setup", field: "button", type: "button", title: "Google Authenticator", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureGoogleAuthenticator", tab: 'multifactor-authentication' },
                 { name: "yubikey_otp_setup", field: "button", type: "button", title: "YubiKey (OTP)", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureYubiKeyOTP", tab: 'multifactor-authentication' },
+                { name: "duo_setup", field: "button", type: "button", title: "Duo (Push or Code)", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureDuo", tab: 'multifactor-authentication' },
                 // Delete Account
                 { name: "delete_account", field: "button", type: "button", title: "Delete Account", btnLabel: "Delete", class: 'btn-primary', onClick:"onClickOpenDeleteAccountModal", tab: 'delete-account' }
             ],
@@ -124,6 +125,21 @@
                 var modalInstance = $uibModal.open({
                     templateUrl: 'view/modal-setup-yubikey-otp.html',
                     controller: 'ModalConfigureYubiKeyOTPCtrl',
+                    backdrop: 'static',
+                    resolve: {}
+                });
+
+                modalInstance.result.then(function () {
+                    // User clicked the prime button
+                }, function () {
+                    // cancel triggered
+                });
+
+            },
+            onClickConfigureDuo: function () {
+                var modalInstance = $uibModal.open({
+                    templateUrl: 'view/modal-setup-duo.html',
+                    controller: 'ModalConfigureDuoCtrl',
                     backdrop: 'static',
                     resolve: {}
                 });

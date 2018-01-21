@@ -279,6 +279,10 @@
             </form>
 
             <form name="googleAuthenticatorForm" ng-if="view === 'google_authenticator_2fa'">
+                <!-- google_authenticator_2fa View -->
+                <div class="form-group">
+                    Please enter your Google Authenticator Code:
+                </div>
                 <div class="form-group">
                     <input type="text" class="form-control" id="gaToken" placeholder="Google Authenticator Token"
                            ng-model="googleAuthenticatorFormGAToken" required maxlength="6" minlength="6">
@@ -297,12 +301,35 @@
             <form name="yubikeyOTPForm" ng-if="view === 'yubikey_otp_2fa'">
                 <!-- yubikey_otp_2fa View -->
                 <div class="form-group">
+                    Please enter your YubiKey OTP Token:
+                </div>
+                <div class="form-group">
                     <input type="text" class="form-control" id="yubikeyOTPToken" placeholder="YubiKey Token"
                            ng-model="yubikeyOTPFormToken" required>
                 </div>
 
                 <div class="form-group">
                     <button ng-click="yubikey_otp_verify(yubikeyOTPFormToken)" type="submit"
+                            class="btn btn-danger">Send</button>
+                </div>
+
+                <div class="form-group alert alert-danger" ng-repeat="e in errors">
+                    <strong>Error:</strong> {{e}}
+                </div>
+            </form>
+
+            <form name="duoForm" ng-if="view === 'duo_2fa'">
+                <!-- duo_2fa View -->
+                <div class="form-group">
+                    Approve the push notification on your mobile or provide your Duo Code:
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" id="duoToken" placeholder="Duo Code"
+                           ng-model="duoFormToken" required>
+                </div>
+
+                <div class="form-group">
+                    <button ng-click="duo_verify(duoFormToken)" type="submit"
                             class="btn btn-danger">Send</button>
                 </div>
 
@@ -388,6 +415,7 @@
 <script src="js/controller/MainCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/AcceptShareCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ConfigureGoogleAuthenticatorCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/ConfigureDuoCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ConfigureYubiKeyOTPCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/CreateDatastoreCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/EditDatastoreCtrl.js" type="application/javascript"></script>

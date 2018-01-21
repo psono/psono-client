@@ -147,6 +147,7 @@ var build = function(build_path, type) {
             "src/common/data/js/controller/MainCtrl.js",
             "src/common/data/js/controller/modal/AcceptShareCtrl.js",
             "src/common/data/js/controller/modal/ConfigureGoogleAuthenticatorCtrl.js",
+            "src/common/data/js/controller/modal/ConfigureDuoCtrl.js",
             "src/common/data/js/controller/modal/ConfigureYubiKeyOTPCtrl.js",
             "src/common/data/js/controller/modal/CreateDatastoreCtrl.js",
             "src/common/data/js/controller/modal/EditDatastoreCtrl.js",

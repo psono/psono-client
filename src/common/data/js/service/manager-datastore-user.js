@@ -272,6 +272,37 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastoreUser#duo_verify
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Ajax POST request to the backend with the token
+         *
+         * @param {string} [duo_token] (optional) The Duo Token
+         *
+         * @returns {promise} Returns a promise with the login status
+         */
+        var duo_verify = function(duo_token) {
+
+
+            var onError = function(response){
+                return $q.reject({
+                    response:"error",
+                    error_data: response.data
+                });
+            };
+
+            var onSuccess = function () {
+                helper.remove_from_array(required_multifactors, 'duo_2fa');
+                return required_multifactors;
+            };
+
+            return apiClient.duo_verify(token, duo_token, session_secret_key)
+                .then(onSuccess, onError);
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastoreUser#yubikey_otp_verify
          * @methodOf psonocli.managerDatastoreUser
          *
@@ -879,6 +910,8 @@
          * @description
          * Deletes a given Google authenticator
          *
+         * @param {string} ga_id The google authenticator ID
+         *
          * @returns {promise} Returns a promise with true or false
          */
         var delete_ga = function(ga_id) {
@@ -889,6 +922,87 @@
                 return false;
             };
             return apiClient.delete_ga(managerBase.get_token(), managerBase.get_session_secret_key(), ga_id)
+                .then(onSuccess, onError)
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#create_duo
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * creates a duo
+         *
+         * @param {string} title The title of the duo
+         * @param {string} integration_key The integration_key of the duo
+         * @param {string} secret_key The secret_key of the duo
+         * @param {string} host The host of the duo
+         *
+         * @returns {promise} Returns a promise with the user information
+         */
+        var create_duo = function(title, integration_key, secret_key, host) {
+
+            var onSuccess = function (request) {
+
+                return {
+                    'id': request.data['id'],
+                    'uri': request.data['activation_code']
+                };
+
+            };
+            var onError = function (request) {
+                return $q.reject(request.data);
+            };
+
+            return apiClient.create_duo(managerBase.get_token(), managerBase.get_session_secret_key(), title, integration_key, secret_key, host)
+                .then(onSuccess, onError)
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#read_duo
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Gets a list of all active duos
+         *
+         * @returns {promise} Returns a promise with a list of all duos
+         */
+        var read_duo = function() {
+
+
+            var onSuccess = function (request) {
+
+                return request.data['duos'];
+
+            };
+            var onError = function () {
+                // pass
+            };
+            return apiClient.read_duo(managerBase.get_token(), managerBase.get_session_secret_key())
+                .then(onSuccess, onError)
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#delete_duo
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Deletes a given Google authenticator
+         *
+         * @param {string} duo_id The duo ID
+         *
+         * @returns {promise} Returns a promise with true or false
+         */
+        var delete_duo = function(duo_id) {
+            var onSuccess = function () {
+                return true;
+            };
+            var onError = function () {
+                return false;
+            };
+            return apiClient.delete_duo(managerBase.get_token(), managerBase.get_session_secret_key(), duo_id)
                 .then(onSuccess, onError)
         };
 
@@ -1141,6 +1255,7 @@
             get_default: get_default,
             login: login,
             ga_verify: ga_verify,
+            duo_verify: duo_verify,
             yubikey_otp_verify: yubikey_otp_verify,
             activate_token: activate_token,
             logout: logout,
@@ -1156,6 +1271,9 @@
             create_ga: create_ga,
             read_ga: read_ga,
             delete_ga: delete_ga,
+            create_duo: create_duo,
+            read_duo: read_duo,
+            delete_duo: delete_duo,
             create_yubikey_otp: create_yubikey_otp,
             read_yubikey_otp: read_yubikey_otp,
             delete_yubikey_otp: delete_yubikey_otp,

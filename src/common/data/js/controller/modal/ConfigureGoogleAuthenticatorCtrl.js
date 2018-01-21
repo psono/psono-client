@@ -4,6 +4,7 @@
     /**
      * @ngdoc controller
      * @name psonocli.controller:ModalConfigureGoogleAuthenticatorCtrl
+     * @requires $q
      * @requires $scope
      * @requires $uibModalInstance
      * @requires psonocli.managerDatastoreUser
@@ -12,8 +13,8 @@
      * @description
      * Controller for the "Setup Google Authenticator" modal
      */
-    angular.module('psonocli').controller('ModalConfigureGoogleAuthenticatorCtrl', ['$scope', '$uibModalInstance', 'managerDatastoreUser', 'helper',
-        function ($scope, $uibModalInstance, managerDatastoreUser, helper) {
+    angular.module('psonocli').controller('ModalConfigureGoogleAuthenticatorCtrl', ['$q', '$scope', '$uibModalInstance', 'managerDatastoreUser', 'helper',
+        function ($q, $scope, $uibModalInstance, managerDatastoreUser, helper) {
 
             $scope.create_ga = create_ga;
             $scope.delete_ga = delete_ga;
@@ -46,7 +47,7 @@
              */
             function create_ga(new_ga) {
 
-                if (typeof(new_ga.title) === 'undefined') {
+                if (typeof(new_ga.title) === 'undefined' || new_ga.title === '') {
                     $scope.errors = ['Title is required'];
                     return $q.resolve();
                 } else {

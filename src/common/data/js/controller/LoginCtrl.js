@@ -34,6 +34,7 @@
             $scope.changing = changing;
             $scope.ga_verify = ga_verify;
             $scope.yubikey_otp_verify = yubikey_otp_verify;
+            $scope.duo_verify = duo_verify;
             $scope.initiate_login = initiate_login;
             $scope.load_default_view = load_default_view;
 
@@ -209,6 +210,40 @@
 
             /**
              * @ngdoc
+             * @name psonocli.controller:LoginCtrl#duo_verify
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Triggered automatically if duo auth is required or once someone clicks the "Send" Button on the Duo request screen
+             *
+             * @param {string} [duo_token] (optional) The Duo Token
+             */
+            function duo_verify(duo_token) {
+
+                var onError = function(data) {
+                    console.log(data);
+                    if (data.error_data === null) {
+                        $scope.errors = ['Server offline.']
+                    } else if (data.error_data.hasOwnProperty('non_field_errors')) {
+                        $scope.errors = data.error_data.non_field_errors;
+                    } else if (data.error_data.hasOwnProperty('username')) {
+                        $scope.errors = data.error_data.username;
+                    } else if (data.error_data.hasOwnProperty('detail')) {
+                        $scope.errors = [data.error_data.detail];
+                    } else {
+                        $scope.errors = ['Server offline.']
+                    }
+                };
+
+                var onSuccess = function(required_multifactors) {
+                    return next_login_step(required_multifactors);
+                };
+
+                managerDatastoreUser.duo_verify(duo_token).then(onSuccess, onError);
+            }
+
+            /**
+             * @ngdoc
              * @name psonocli.controller:LoginCtrl#next_login_step
              * @methodOf psonocli.controller:LoginCtrl
              *
@@ -246,9 +281,11 @@
 
                 if (multifactor_method === 'google_authenticator_2fa') {
                     $scope.view = 'google_authenticator_2fa';
-
                 } else if (multifactor_method === 'yubikey_otp_2fa') {
                     $scope.view = 'yubikey_otp_2fa';
+                } else if (multifactor_method === 'duo_2fa') {
+                    $scope.view = 'duo_2fa';
+                    duo_verify();
                 } else {
                     alert('Unknown Multifactor Method requested. Please upgrade your client.')
                 }
