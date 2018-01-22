@@ -17,17 +17,22 @@
         function ($q, $scope, $uibModalInstance, managerDatastoreUser, helper) {
 
             $scope.create_duo = create_duo;
+            $scope.activate_duo = activate_duo;
             $scope.delete_duo = delete_duo;
             $scope.close = close;
+            $scope.goto_step3 = goto_step3;
 
             $scope.new_duo = {
+                'id': undefined,
                 'title': undefined,
                 'integration_key': undefined,
                 'secret_key': undefined,
-                'host': undefined
+                'host': undefined,
+                'code': undefined
             };
 
             $scope.duos = [];
+            $scope.step = "step1";
 
             activate();
 
@@ -87,6 +92,8 @@
                         'id': duo.id,
                         'title': new_duo['title']
                     });
+                    $scope.new_duo['id'] = duo.id;
+                    $scope.step = "step2";
                 };
 
                 var onError = function(data) {
@@ -99,6 +106,36 @@
                 };
 
                 return managerDatastoreUser.create_duo(new_duo.title, new_duo.integration_key, new_duo.secret_key, new_duo.host).then(onSuccess, onError);
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalConfigureDuoCtrl#activate_duo
+             * @methodOf psonocli.controller:ModalConfigureDuoCtrl
+             *
+             * @description
+             * Triggered automatically and once someone clicks the "Validate Duo" button in the modal
+             *
+             * @param {string} new_duo The new Duo object with code attribute
+             *
+             * @return {promise} Returns a promise whether it succeeded or not
+             */
+            function activate_duo(new_duo) {
+                $scope.errors = [];
+
+                var onSuccess = function(successful) {
+                    if(successful) {
+                        $uibModalInstance.dismiss('close');
+                    } else {
+                        $scope.errors = ['Code incorrect. Please try again.'];
+                    }
+                };
+
+                var onError = function() {
+                    //pass
+                };
+
+                return managerDatastoreUser.activate_duo(new_duo.id, new_duo.code).then(onSuccess, onError);
             }
 
             /**
@@ -126,6 +163,19 @@
                 };
 
                 return managerDatastoreUser.delete_duo(duo_id).then(onSuccess, onError);
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalConfigureDuoCtrl#goto_step3
+             * @methodOf psonocli.controller:ModalConfigureDuoCtrl
+             *
+             * @description
+             * Triggered once someone clicks the "Next" button in the modal
+             */
+            function goto_step3() {
+                activate_duo($scope.new_duo);
+                $scope.step = "step3";
             }
 
             /**

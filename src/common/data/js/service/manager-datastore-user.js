@@ -904,6 +904,30 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastoreUser#activate_ga
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Activates a given Google authenticator
+         *
+         * @param {uuid} google_authenticator_id The google authenticator ID
+         * @param {string} google_authenticator_token One google authenticator code
+         *
+         * @returns {promise} Returns a promise with true or false
+         */
+        var activate_ga = function(google_authenticator_id, google_authenticator_token) {
+            var onSuccess = function () {
+                return true;
+            };
+            var onError = function () {
+                return false;
+            };
+            return apiClient.activate_ga(managerBase.get_token(), managerBase.get_session_secret_key(), google_authenticator_id, google_authenticator_token)
+                .then(onSuccess, onError)
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastoreUser#delete_ga
          * @methodOf psonocli.managerDatastoreUser
          *
@@ -985,6 +1009,30 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastoreUser#activate_duo
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Activates a given Google authenticator
+         *
+         * @param {uuid} duo_id The duo ID
+         * @param {string} [duo_token] (optional) One Duo token
+         *
+         * @returns {promise} Returns a promise with true or false
+         */
+        var activate_duo = function(duo_id, duo_token) {
+            var onSuccess = function () {
+                return true;
+            };
+            var onError = function () {
+                return false;
+            };
+            return apiClient.activate_duo(managerBase.get_token(), managerBase.get_session_secret_key(), duo_id, duo_token)
+                .then(onSuccess, onError)
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastoreUser#delete_duo
          * @methodOf psonocli.managerDatastoreUser
          *
@@ -1056,6 +1104,30 @@
                 // pass
             };
             return apiClient.read_yubikey_otp(managerBase.get_token(), managerBase.get_session_secret_key())
+                .then(onSuccess, onError)
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#activate_yubikey_otp
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Activates a given YubiKey OTP
+         *
+         * @param {uuid} yubikey_id Yubikey ID
+         * @param {string} yubikey_otp One YubiKey COde
+         *
+         * @returns {promise} Returns a promise with true or false
+         */
+        var activate_yubikey_otp = function(yubikey_id, yubikey_otp) {
+            var onSuccess = function () {
+                return true;
+            };
+            var onError = function () {
+                return false;
+            };
+            return apiClient.activate_yubikey_otp(managerBase.get_token(), managerBase.get_session_secret_key(), yubikey_id, yubikey_otp)
                 .then(onSuccess, onError)
         };
 
@@ -1270,18 +1342,21 @@
             search_user: search_user,
             create_ga: create_ga,
             read_ga: read_ga,
+            activate_ga: activate_ga,
             delete_ga: delete_ga,
             create_duo: create_duo,
             read_duo: read_duo,
+            activate_duo: activate_duo,
             delete_duo: delete_duo,
             create_yubikey_otp: create_yubikey_otp,
             read_yubikey_otp: read_yubikey_otp,
+            activate_yubikey_otp: activate_yubikey_otp,
             delete_yubikey_otp: delete_yubikey_otp,
             get_sessions: get_sessions,
             delete_session: delete_session,
             save_new_email: save_new_email,
             save_new_password: save_new_password,
-            delete_account: delete_account,
+            delete_account: delete_account
         };
     };
 

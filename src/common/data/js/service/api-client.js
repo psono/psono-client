@@ -1271,6 +1271,36 @@
 
         /**
          * @ngdoc
+         * @name psonocli.apiClient#read_duo
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax POST request to activate registered Google Authenticator
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} google_authenticator_id The Google Authenticator id to activate
+         * @param {string} google_authenticator_token One Google Authenticator Code
+         *
+         * @returns {promise} Returns weather it was successful or not
+         */
+        var activate_ga = function (token, session_secret_key, google_authenticator_id, google_authenticator_token) {
+            var endpoint = '/user/ga/';
+            var connection_type = "POST";
+            var data = {
+                google_authenticator_id: google_authenticator_id,
+                google_authenticator_token: google_authenticator_token
+            };
+
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.apiClient#delete_ga
          * @methodOf psonocli.apiClient
          *
@@ -1358,6 +1388,36 @@
 
         /**
          * @ngdoc
+         * @name psonocli.apiClient#read_duo
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax POST request to activate registered duo
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} duo_id The duo id to activate
+         * @param {string} [duo_token] (optional) The duo id to activate
+         *
+         * @returns {promise} Returns weather it was successful or not
+         */
+        var activate_duo = function (token, session_secret_key, duo_id, duo_token) {
+            var endpoint = '/user/duo/';
+            var connection_type = "POST";
+            var data = {
+                duo_id: duo_id,
+                duo_token: duo_token
+            };
+
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.apiClient#delete_duo
          * @methodOf psonocli.apiClient
          *
@@ -1431,6 +1491,36 @@
             var endpoint = '/user/yubikey-otp/';
             var connection_type = "GET";
             var data = null;
+
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#read_duo
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax POST request to activate registered YubiKey
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} yubikey_id The Yubikey id to activate
+         * @param {string} yubikey_otp The Yubikey OTP
+         *
+         * @returns {promise} Returns weather it was successful or not
+         */
+        var activate_yubikey_otp = function (token, session_secret_key, yubikey_id, yubikey_otp) {
+            var endpoint = '/user/yubikey-otp/';
+            var connection_type = "POST";
+            var data = {
+                yubikey_id: yubikey_id,
+                yubikey_otp: yubikey_otp
+            };
 
             var headers = {
                 "Authorization": "Token "+ token
@@ -1942,12 +2032,15 @@
             decline_share_right: decline_share_right,
             search_user: search_user,
             read_ga: read_ga,
+            activate_ga: activate_ga,
             delete_ga: delete_ga,
             create_ga: create_ga,
             read_duo: read_duo,
+            activate_duo: activate_duo,
             delete_duo: delete_duo,
             create_duo: create_duo,
             read_yubikey_otp: read_yubikey_otp,
+            activate_yubikey_otp: activate_yubikey_otp,
             delete_yubikey_otp: delete_yubikey_otp,
             create_yubikey_otp: create_yubikey_otp,
             create_share_link: create_share_link,

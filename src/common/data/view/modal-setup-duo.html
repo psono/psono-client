@@ -33,9 +33,8 @@
 
             <uib-tab heading="New Duo">
                 <br>
-                <div class="text-center" ng-bind-html="duo_html"></div>
 
-                <div class="form-horizontal" ng-if="!duo_html">
+                <div class="form-horizontal" ng-if="step === 'step1'">
                     <div class="row form-group">
 
                         <label class="control-label col-sm-6 col-md-4"
@@ -106,8 +105,49 @@
                             <button class="btn btn-primary btn-primary" ng-click="create_duo(new_duo)" type="button">Setup</button>
                         </div>
                     </div>
+                </div>
+
+                <div class="form-horizontal" ng-if="step === 'step2'">
+                    <div class="text-center" ng-bind-html="duo_html">
+
+                    </div>
+                    <div class="row form-group">
+                        <div class="text-center">
+                            <button class="btn btn-primary btn-primary" ng-click="goto_step3()" type="button">Scan the code and then click here</button>
+                        </div>
+                    </div>
 
                 </div>
+
+
+                <div class="form-horizontal" ng-if="step === 'step3'">
+                    <div class="form-group">
+
+                        <label class="control-label col-sm-6 col-md-4"
+                               for="validateGAForm-title">
+                            <span>Code</span>
+                        </label>
+
+                        <div class="col-sm-6 col-md-8">
+                            <input type="text" ng-model="new_ga.code"
+                                   ng-required="true"
+                                   placeholder="One Code for validation" id="validateGAForm-title"
+                                   name="title"
+                                   class="form-control">
+                            <span ng-repeat="e in errors" class="help-block">{{e}}</span>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label class="control-label col-sm-6 col-md-4">
+                            &nbsp;
+                        </label>
+
+                        <div class="col-sm-6 col-md-8">
+                            <button class="btn btn-primary btn-primary" ng-click="activate_duo(new_duo)" type="button">Validate</button>
+                        </div>
+                    </div>
+                </div>
+
             </uib-tab>
         </uib-tabset>
 
