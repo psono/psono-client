@@ -5,8 +5,6 @@
      * @ngdoc service
      * @name psonocli.manager
      * @requires managerBase
-     * @requires apiClient
-     * @requires cryptoLibrary
      * @requires storage
      *
      * @description
@@ -14,27 +12,7 @@
      * grouped in independent managers.
      */
 
-    var manager = function(managerBase, apiClient, cryptoLibrary, storage) {
-
-
-        /**
-         * @ngdoc
-         * @name psonocli.manager#find_one
-         * @methodOf psonocli.manager
-         *
-         * @description
-         * The public function for other services to search the database.
-         * Finds object with specified key in specified db. Also checks if its in the forbidden key list
-         *
-         * @param {string} db The database to search
-         * @param {string} key of the database entry to get
-         *
-         * @returns {*} Returns the database entry for the given database and key
-         */
-        var find_one = function(db, key) {
-
-            return managerBase.find_one(db, key);
-        };
+    var manager = function(managerBase, storage) {
 
         /**
          * @ngdoc
@@ -53,12 +31,11 @@
         };
 
         return {
-            find_one: find_one,
             storage_on: storage_on
         };
     };
 
     var app = angular.module('psonocli');
-    app.factory("manager", ['managerBase', 'apiClient', 'cryptoLibrary', 'storage', manager]);
+    app.factory("manager", ['managerBase', 'storage', manager]);
 
 }(angular));

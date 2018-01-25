@@ -4,6 +4,7 @@
     /**
      * @ngdoc controller
      * @name psonocli.controller:ModalConfigureGoogleAuthenticatorCtrl
+     * @requires $q
      * @requires $scope
      * @requires $uibModalInstance
      * @requires psonocli.managerDatastoreUser
@@ -12,15 +13,22 @@
      * @description
      * Controller for the "Setup Google Authenticator" modal
      */
-    angular.module('psonocli').controller('ModalConfigureGoogleAuthenticatorCtrl', ['$scope', '$uibModalInstance', 'managerDatastoreUser', 'helper',
-        function ($scope, $uibModalInstance, managerDatastoreUser, helper) {
+    angular.module('psonocli').controller('ModalConfigureGoogleAuthenticatorCtrl', ['$q', '$scope', '$uibModalInstance', 'managerDatastoreUser', 'helper',
+        function ($q, $scope, $uibModalInstance, managerDatastoreUser, helper) {
 
             $scope.create_ga = create_ga;
+            $scope.activate_ga = activate_ga;
             $scope.delete_ga = delete_ga;
             $scope.close = close;
+            $scope.goto_step3 = goto_step3;
 
-            $scope.new_ga = { 'title': undefined };
+            $scope.new_ga = {
+                'id': undefined,
+                'title': undefined,
+                'code': undefined
+            };
             $scope.gas = [];
+            $scope.step = "step1";
 
             activate();
 
@@ -45,12 +53,11 @@
              * @return {promise} Returns a promise with the new Google authenticator secret
              */
             function create_ga(new_ga) {
+                $scope.errors = [];
 
-                if (typeof(new_ga.title) === 'undefined') {
+                if (typeof(new_ga.title) === 'undefined' || new_ga.title === '') {
                     $scope.errors = ['Title is required'];
                     return $q.resolve();
-                } else {
-                    $scope.errors = [];
                 }
 
                 var onSuccess = function(ga) {
@@ -65,6 +72,8 @@
                         'id': ga.id,
                         'title': new_ga['title']
                     });
+                    $scope.new_ga['id'] = ga.id;
+                    $scope.step = "step2";
                 };
 
                 var onError = function() {
@@ -72,6 +81,42 @@
                 };
 
                 return managerDatastoreUser.create_ga(new_ga.title).then(onSuccess, onError);
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalConfigureGoogleAuthenticatorCtrl#activate_ga
+             * @methodOf psonocli.controller:ModalConfigureGoogleAuthenticatorCtrl
+             *
+             * @description
+             * Triggered once someone clicks the "Validate Google Authenticator" button in the modal
+             *
+             * @param {string} new_ga The new Google Authenticator object with code attribute
+             *
+             * @return {promise} Returns a promise whether it succeeded or not
+             */
+            function activate_ga(new_ga) {
+                $scope.errors = [];
+
+                if (typeof(new_ga.code) === 'undefined' || new_ga.code === '') {
+                    $scope.errors = ['Code is required'];
+                    return $q.resolve();
+                }
+
+                var onSuccess = function(successful) {
+                    if(successful) {
+                        $scope.errors = [];
+                        $uibModalInstance.dismiss('close');
+                    } else {
+                        $scope.errors = ['Code incorrect. Please try again.'];
+                    }
+                };
+
+                var onError = function() {
+                    //pass
+                };
+
+                return managerDatastoreUser.activate_ga(new_ga.id, new_ga.code).then(onSuccess, onError);
             }
 
             /**
@@ -99,6 +144,18 @@
                 };
 
                 return managerDatastoreUser.delete_ga(ga_id).then(onSuccess, onError);
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalConfigureGoogleAuthenticatorCtrl#goto_step3
+             * @methodOf psonocli.controller:ModalConfigureGoogleAuthenticatorCtrl
+             *
+             * @description
+             * Triggered once someone clicks the "Next" button in the modal
+             */
+            function goto_step3() {
+                $scope.step = "step3";
             }
 
             /**

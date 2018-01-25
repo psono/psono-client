@@ -46,12 +46,11 @@
              * @return {promise} Returns a promise with the new Google authenticator secret
              */
             function create_yubikey_otp(new_yubikey_otp) {
+                $scope.errors = [];
 
-                if (typeof(new_yubikey_otp.title) === 'undefined') {
+                if (typeof(new_yubikey_otp.title) === 'undefined' || new_yubikey_otp.title === '') {
                     $scope.errors = ['Title is required'];
                     return $q.resolve();
-                } else {
-                    $scope.errors = [];
                 }
 
                 var onSuccess = function() {

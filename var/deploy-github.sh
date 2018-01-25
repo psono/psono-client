@@ -1,16 +1,4 @@
 #!/usr/bin/env bash
-apk add --update curl
-
-# Deploy to Docker Hub
-docker pull psono-docker-local.jfrog.io/psono/psono-client:latest
-docker tag psono-docker-local.jfrog.io/psono/psono-client:latest psono/psono-client:latest
-docker push psono/psono-client:latest
-
-# Inform production stage about new image
-curl -X POST https://hooks.microbadger.com/images/psono/psono-client/jMnJgDVZTpT4TUX-RlxTKa38Nc4=
-curl -X POST $psono_image_updater_url
-
-# Deploy to GitHub
 echo "Clonging gitlab.com/psono/psono-client.git"
 git clone https://gitlab.com/psono/psono-client.git
 cd psono-client

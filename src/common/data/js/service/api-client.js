@@ -29,7 +29,7 @@
 
         var call = function(connection_type, endpoint, data, headers, session_secret_key, synchronous) {
 
-            var server = storage.find_one('config', {'key': 'server'});
+            var server = storage.find_key('config', 'server');
 
             if (server === null) {
                 return $q(function(resolve, reject) {
@@ -172,6 +172,34 @@
             var connection_type = "POST";
             var data = {
                 ga_token: ga_token
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#duo_verify
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax POST request to the backend with the Duo Token
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} [duo_token] (optional) The Duo token
+         * @param {string} session_secret_key The session secret key
+         *
+         * @returns {promise} Returns a promise with the verification status
+         */
+        var duo_verify = function(token, duo_token, session_secret_key) {
+
+            var endpoint = '/authentication/duo-verify/';
+            var connection_type = "POST";
+            var data = {
+                duo_token: duo_token
             };
             var headers = {
                 "Authorization": "Token "+ token
@@ -1243,6 +1271,36 @@
 
         /**
          * @ngdoc
+         * @name psonocli.apiClient#read_duo
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax POST request to activate registered Google Authenticator
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} google_authenticator_id The Google Authenticator id to activate
+         * @param {string} google_authenticator_token One Google Authenticator Code
+         *
+         * @returns {promise} Returns weather it was successful or not
+         */
+        var activate_ga = function (token, session_secret_key, google_authenticator_id, google_authenticator_token) {
+            var endpoint = '/user/ga/';
+            var connection_type = "POST";
+            var data = {
+                google_authenticator_id: google_authenticator_id,
+                google_authenticator_token: google_authenticator_token
+            };
+
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.apiClient#delete_ga
          * @methodOf psonocli.apiClient
          *
@@ -1260,6 +1318,123 @@
             var connection_type = "DELETE";
             var data = {
                 google_authenticator_id: google_authenticator_id
+            };
+
+            var headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#create_duo
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax PUT request with the token as authentication to generate a duo
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {string} title The title of the duo
+         * @param {string} integration_key The integration_key of the duo
+         * @param {string} secret_key The secret_key of the duo
+         * @param {string} host The host of the duo
+         *
+         * @returns {promise} Returns a promise with the secret
+         */
+        var create_duo = function (token, session_secret_key, title, integration_key, secret_key, host) {
+            var endpoint = '/user/duo/';
+            var connection_type = "PUT";
+            var data = {
+                title: title,
+                integration_key: integration_key,
+                secret_key: secret_key,
+                host: host
+            };
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#read_duo
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax GET request to get a list of all registered duo
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         *
+         * @returns {promise} Returns a promise with a list of all duo
+         */
+        var read_duo = function (token, session_secret_key) {
+            var endpoint = '/user/duo/';
+            var connection_type = "GET";
+            var data = null;
+
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#read_duo
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax POST request to activate registered duo
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} duo_id The duo id to activate
+         * @param {string} [duo_token] (optional) The duo id to activate
+         *
+         * @returns {promise} Returns weather it was successful or not
+         */
+        var activate_duo = function (token, session_secret_key, duo_id, duo_token) {
+            var endpoint = '/user/duo/';
+            var connection_type = "POST";
+            var data = {
+                duo_id: duo_id,
+                duo_token: duo_token
+            };
+
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#delete_duo
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax DELETE request to delete a given Google authenticator
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} duo_id The duo id to delete
+         *
+         * @returns {promise} Returns a promise which can succeed or fail
+         */
+        var delete_duo = function (token, session_secret_key, duo_id) {
+            var endpoint = '/user/duo/';
+            var connection_type = "DELETE";
+            var data = {
+                duo_id: duo_id
             };
 
             var headers = {
@@ -1316,6 +1491,36 @@
             var endpoint = '/user/yubikey-otp/';
             var connection_type = "GET";
             var data = null;
+
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#read_duo
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax POST request to activate registered YubiKey
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} yubikey_id The Yubikey id to activate
+         * @param {string} yubikey_otp The Yubikey OTP
+         *
+         * @returns {promise} Returns weather it was successful or not
+         */
+        var activate_yubikey_otp = function (token, session_secret_key, yubikey_id, yubikey_otp) {
+            var endpoint = '/user/yubikey-otp/';
+            var connection_type = "POST";
+            var data = {
+                yubikey_id: yubikey_id,
+                yubikey_otp: yubikey_otp
+            };
 
             var headers = {
                 "Authorization": "Token "+ token
@@ -1761,10 +1966,39 @@
             return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#delete_account
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax DELETE request with the token as authentication to delete a user account
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} authkey The authkey of the user
+         *
+         * @returns {promise} promise
+         */
+        var delete_account = function (token, session_secret_key, authkey) {
+            var endpoint = '/user/delete/';
+            var connection_type = "DELETE";
+            var data = {
+                authkey: authkey
+            };
+            var headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
         return {
             info: info,
             login: login,
             ga_verify: ga_verify,
+            duo_verify: duo_verify,
             yubikey_otp_verify: yubikey_otp_verify,
             activate_token: activate_token,
             get_sessions: get_sessions,
@@ -1798,9 +2032,15 @@
             decline_share_right: decline_share_right,
             search_user: search_user,
             read_ga: read_ga,
+            activate_ga: activate_ga,
             delete_ga: delete_ga,
             create_ga: create_ga,
+            read_duo: read_duo,
+            activate_duo: activate_duo,
+            delete_duo: delete_duo,
+            create_duo: create_duo,
             read_yubikey_otp: read_yubikey_otp,
+            activate_yubikey_otp: activate_yubikey_otp,
             delete_yubikey_otp: delete_yubikey_otp,
             create_yubikey_otp: create_yubikey_otp,
             create_share_link: create_share_link,
@@ -1815,7 +2055,8 @@
             update_membership: update_membership,
             delete_membership: delete_membership,
             accept_membership: accept_membership,
-            decline_membership: decline_membership
+            decline_membership: decline_membership,
+            delete_account: delete_account
         };
     };
 

@@ -19,7 +19,7 @@
         it('get_known_hosts empty', inject(function (managerHost, storage) {
             managerHost.update_known_hosts([]);
             expect(managerHost.get_known_hosts()).toEqual([]);
-            storage.remove('persistent', storage.find_one('persistent', {'key': 'known_hosts'}));
+            storage.remove('persistent', storage.find_key('persistent', 'known_hosts'));
             expect(managerHost.get_known_hosts()).toEqual([]);
         }));
 

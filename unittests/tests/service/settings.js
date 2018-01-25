@@ -16,9 +16,9 @@
             };
 
             mockedStorage = {
-                find_one: function (db, search) {
-                    if (my_vars.hasOwnProperty(search['key'])) {
-                        return { 'key': search['key'], 'value': my_vars[search['key']] };
+                find_key: function (db, key) {
+                    if (my_vars.hasOwnProperty(key)) {
+                        return { 'key': key, 'value': my_vars[key] };
                     } else {
                         return null;
                     }

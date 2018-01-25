@@ -20,7 +20,7 @@
                 get_token: function() {
                     return token
                 },
-                find_one_nolimit: function(db, key) {
+                find_key_nolimit: function(db, key) {
 
                 }
             };

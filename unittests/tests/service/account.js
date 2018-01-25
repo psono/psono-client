@@ -11,8 +11,8 @@
         var mockedStorage;
         beforeEach(function () {
             mockedStorage = {
-                find_one: function (db, search) {
-                    switch (search['key']) {
+                find_key: function (db, key) {
+                    switch (key) {
                         case 'user_id':
                             return { 'value': 'fake_user_id' };
                         case 'user_username':

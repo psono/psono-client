@@ -1,39 +1,23 @@
 ---
-engines:
+version: "2"
+
+checks:
+  method-count:
+    enabled: false
+  argument-count:
+    enabled: false
+
+plugins:
   csslint:
     enabled: true
-    checks:
-      box-sizing:
-        enabled: false
-  duplication:
-    enabled: false
-    checks:
-      Identical code:
-        enabled: false
-    config:
-      languages:
-        javascript:
-          mass_threshold: 60
   eslint:
     enabled: true
   fixme:
     enabled: true
-    checks:
-      TODO:
-        enabled: false
-ratings:
-  paths:
-  - "**.css"
-  - "**.inc"
-  - "**.js"
-  - "**.jsx"
-  - "**.module"
-  - "**.php"
-  - "**.py"
-  - "**.rb"
-exclude_paths:
-- docu/**/*
-- var/**/*
-- unittests/**/*
-- src/common/data/js/lib/**/*
-- src/common/data/css/lib/**/*
+
+exclude_patterns:
+- docu/
+- var/
+- unittests/
+- src/common/data/js/lib/
+- src/common/data/css/lib/

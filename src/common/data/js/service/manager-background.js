@@ -407,7 +407,7 @@
          * @returns {promise} Returns a promise with the decrypted secret content
          */
         function request_secret(secret_id) {
-            var secret_key = managerBase.find_one_nolimit('datastore-password-leafs', secret_id);
+            var secret_key = managerBase.find_key_nolimit('datastore-password-leafs', secret_id);
             return managerSecret.read_secret(secret_id, secret_key);
         }
 

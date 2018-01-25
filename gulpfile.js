@@ -147,6 +147,7 @@ var build = function(build_path, type) {
             "src/common/data/js/controller/MainCtrl.js",
             "src/common/data/js/controller/modal/AcceptShareCtrl.js",
             "src/common/data/js/controller/modal/ConfigureGoogleAuthenticatorCtrl.js",
+            "src/common/data/js/controller/modal/ConfigureDuoCtrl.js",
             "src/common/data/js/controller/modal/ConfigureYubiKeyOTPCtrl.js",
             "src/common/data/js/controller/modal/CreateDatastoreCtrl.js",
             "src/common/data/js/controller/modal/EditDatastoreCtrl.js",
@@ -163,6 +164,7 @@ var build = function(build_path, type) {
             "src/common/data/js/controller/modal/ShareEntryCtrl.js",
             "src/common/data/js/controller/modal/ShareNewEntryCtrl.js",
             "src/common/data/js/controller/modal/ShowRecoverycodeCtrl.js",
+            "src/common/data/js/controller/modal/DeleteAccountCtrl.js",
             "src/common/data/js/controller/OpenSecretCtrl.js",
             "src/common/data/js/controller/OtherCtrl.js",
             "src/common/data/js/controller/SessionsCtrl.js",
@@ -342,7 +344,7 @@ gulp.task('chrome-deploy', function() {
             extension1: {
                 publish: true,
                 appID: app_id,
-                zip: 'dist/chrome/psono.chrome.PW.zip'
+                zip: 'chrome-extension.zip'
             }
         },
         uploadExtensions : ['extension1']
@@ -380,7 +382,7 @@ gulp.task('firefox-deploy', function() {
         algorithm: 'HS256'  // HMAC-SHA256 signing algorithm
     });
 
-    return run('curl "https://addons.mozilla.org/api/v3/addons/'+mozilla_addon_id+'/versions/'+ version +'/" -g -XPUT --form "upload=@dist/firefox/psono.firefox.PW.zip" -H "Authorization: JWT '+ token +'"').exec()
+    return run('curl "https://addons.mozilla.org/api/v3/addons/'+mozilla_addon_id+'/versions/'+ version +'/" -g -XPUT --form "upload=@firefox-extension.zip" -H "Authorization: JWT '+ token +'"').exec()
         .pipe(gulp.dest('output'));
 });
 

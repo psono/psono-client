@@ -94,8 +94,8 @@
 
                 var onError = function(response){
 
-                    storage.remove('config', storage.find_one('config', {'key': 'user_email'}));
-                    storage.remove('config', storage.find_one('config', {'key': 'server'}));
+                    storage.remove('config', storage.find_key('config', 'user_email'));
+                    storage.remove('config', storage.find_key('config', 'server'));
                     storage.save();
 
                     return {
@@ -147,7 +147,7 @@
 
             var onError = function(response){
 
-                storage.remove('config', storage.find_one('config', {'key': 'server'}));
+                storage.remove('config', storage.find_key('config', 'server'));
                 storage.save();
 
                 return {
@@ -176,8 +176,8 @@
 
                 // in case of any error we remove the items we already added to our storage
                 // maybe we adjust this behaviour at some time
-                storage.remove('config', storage.find_one('config', {'key': 'user_username'}));
-                storage.remove('config', storage.find_one('config', {'key': 'server'}));
+                storage.remove('config', storage.find_key('config', 'user_username'));
+                storage.remove('config', storage.find_key('config', 'server'));
 
                 storage.save();
 
@@ -272,6 +272,37 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastoreUser#duo_verify
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Ajax POST request to the backend with the token
+         *
+         * @param {string} [duo_token] (optional) The Duo Token
+         *
+         * @returns {promise} Returns a promise with the login status
+         */
+        var duo_verify = function(duo_token) {
+
+
+            var onError = function(response){
+                return $q.reject({
+                    response:"error",
+                    error_data: response.data
+                });
+            };
+
+            var onSuccess = function () {
+                helper.remove_from_array(required_multifactors, 'duo_2fa');
+                return required_multifactors;
+            };
+
+            return apiClient.duo_verify(token, duo_token, session_secret_key)
+                .then(onSuccess, onError);
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastoreUser#yubikey_otp_verify
          * @methodOf psonocli.managerDatastoreUser
          *
@@ -315,11 +346,11 @@
          */
         var get_default = function(item) {
             if (item === 'username') {
-                return managerBase.find_one('persistent', 'username');
+                return managerBase.find_key('persistent', 'username');
             } else if (item === 'server') {
-                return managerBase.find_one('persistent', 'server');
+                return managerBase.find_key('persistent', 'server');
             } else if (item === 'trust_device') {
-                return managerBase.find_one('persistent', 'trust_device');
+                return managerBase.find_key('persistent', 'trust_device');
             }
         };
 
@@ -422,10 +453,10 @@
                 storage.upsert('persistent', {key: 'server', value: server});
             } else {
                 if (storage.key_exists('persistent', 'username')) {
-                    storage.remove('persistent', storage.find_one('persistent', {'key': 'username'}));
+                    storage.remove('persistent', storage.find_key('persistent', 'username'));
                 }
                 if (storage.key_exists('persistent', 'server')) {
-                    storage.remove('persistent', storage.find_one('persistent', {'key': 'server'}));
+                    storage.remove('persistent', storage.find_key('persistent', 'server'));
                 }
                 storage.save();
             }
@@ -442,8 +473,8 @@
 
                 // in case of any error we remove the items we already added to our storage
                 // maybe we adjust this behaviour at some time
-                storage.remove('config', storage.find_one('config', {'key': 'user_username'}));
-                storage.remove('config', storage.find_one('config', {'key': 'server'}));
+                storage.remove('config', storage.find_key('config', 'user_username'));
+                storage.remove('config', storage.find_key('config', 'server'));
                 storage.save();
 
                 return $q.reject({
@@ -574,19 +605,19 @@
 
 
             var recovery_password = cryptoLibrary.generate_recovery_code();
-            var recovery_authkey = cryptoLibrary.generate_authkey(managerBase.find_one_nolimit('config', 'user_username'), recovery_password['base58']);
+            var recovery_authkey = cryptoLibrary.generate_authkey(managerBase.find_key_nolimit('config', 'user_username'), recovery_password['base58']);
             var recovery_sauce = cryptoLibrary.generate_user_sauce();
 
             var recovery_data_dec = {
-                'user_private_key': managerBase.find_one_nolimit('config', 'user_private_key'),
-                'user_secret_key': managerBase.find_one_nolimit('config', 'user_secret_key')
+                'user_private_key': managerBase.find_key_nolimit('config', 'user_private_key'),
+                'user_secret_key': managerBase.find_key_nolimit('config', 'user_secret_key')
             };
 
             var recovery_data = cryptoLibrary.encrypt_secret(JSON.stringify(recovery_data_dec), recovery_password['base58'], recovery_sauce);
 
             var onSuccess = function(data) {
                 return {
-                    'username': managerBase.find_one('config', 'user_username'),
+                    'username': managerBase.find_key('config', 'user_username'),
                     'recovery_password': helper.split_string_in_chunks(recovery_password['base58_checksums'], 13).join('-'),
                     'recovery_words': recovery_password['words'].join(' ')
                 };
@@ -829,13 +860,13 @@
 
             var onSuccess = function (request) {
 
-                var server = storage.find_one('config', {'key': 'server'});
+                var server = storage.find_key('config', 'server');
                 var backend = server['value']['url'];
                 var parsed_url = helper.parse_url(backend);
 
                 return {
                     'id': request.data['id'],
-                    'uri': 'otpauth://totp/' + parsed_url['top_domain'] + ':' + managerBase.find_one_nolimit('config', 'user_username')+'?secret=' + request.data['secret']
+                    'uri': 'otpauth://totp/' + parsed_url['top_domain'] + ':' + managerBase.find_key_nolimit('config', 'user_username')+'?secret=' + request.data['secret']
                 };
 
             };
@@ -873,11 +904,37 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastoreUser#activate_ga
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Activates a given Google authenticator
+         *
+         * @param {uuid} google_authenticator_id The google authenticator ID
+         * @param {string} google_authenticator_token One google authenticator code
+         *
+         * @returns {promise} Returns a promise with true or false
+         */
+        var activate_ga = function(google_authenticator_id, google_authenticator_token) {
+            var onSuccess = function () {
+                return true;
+            };
+            var onError = function () {
+                return false;
+            };
+            return apiClient.activate_ga(managerBase.get_token(), managerBase.get_session_secret_key(), google_authenticator_id, google_authenticator_token)
+                .then(onSuccess, onError)
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastoreUser#delete_ga
          * @methodOf psonocli.managerDatastoreUser
          *
          * @description
          * Deletes a given Google authenticator
+         *
+         * @param {string} ga_id The google authenticator ID
          *
          * @returns {promise} Returns a promise with true or false
          */
@@ -889,6 +946,111 @@
                 return false;
             };
             return apiClient.delete_ga(managerBase.get_token(), managerBase.get_session_secret_key(), ga_id)
+                .then(onSuccess, onError)
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#create_duo
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * creates a duo
+         *
+         * @param {string} title The title of the duo
+         * @param {string} integration_key The integration_key of the duo
+         * @param {string} secret_key The secret_key of the duo
+         * @param {string} host The host of the duo
+         *
+         * @returns {promise} Returns a promise with the user information
+         */
+        var create_duo = function(title, integration_key, secret_key, host) {
+
+            var onSuccess = function (request) {
+
+                return {
+                    'id': request.data['id'],
+                    'uri': request.data['activation_code']
+                };
+
+            };
+            var onError = function (request) {
+                return $q.reject(request.data);
+            };
+
+            return apiClient.create_duo(managerBase.get_token(), managerBase.get_session_secret_key(), title, integration_key, secret_key, host)
+                .then(onSuccess, onError)
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#read_duo
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Gets a list of all active duos
+         *
+         * @returns {promise} Returns a promise with a list of all duos
+         */
+        var read_duo = function() {
+
+
+            var onSuccess = function (request) {
+
+                return request.data['duos'];
+
+            };
+            var onError = function () {
+                // pass
+            };
+            return apiClient.read_duo(managerBase.get_token(), managerBase.get_session_secret_key())
+                .then(onSuccess, onError)
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#activate_duo
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Activates a given Google authenticator
+         *
+         * @param {uuid} duo_id The duo ID
+         * @param {string} [duo_token] (optional) One Duo token
+         *
+         * @returns {promise} Returns a promise with true or false
+         */
+        var activate_duo = function(duo_id, duo_token) {
+            var onSuccess = function () {
+                return true;
+            };
+            var onError = function () {
+                return false;
+            };
+            return apiClient.activate_duo(managerBase.get_token(), managerBase.get_session_secret_key(), duo_id, duo_token)
+                .then(onSuccess, onError)
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#delete_duo
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Deletes a given Google authenticator
+         *
+         * @param {string} duo_id The duo ID
+         *
+         * @returns {promise} Returns a promise with true or false
+         */
+        var delete_duo = function(duo_id) {
+            var onSuccess = function () {
+                return true;
+            };
+            var onError = function () {
+                return false;
+            };
+            return apiClient.delete_duo(managerBase.get_token(), managerBase.get_session_secret_key(), duo_id)
                 .then(onSuccess, onError)
         };
 
@@ -942,6 +1104,30 @@
                 // pass
             };
             return apiClient.read_yubikey_otp(managerBase.get_token(), managerBase.get_session_secret_key())
+                .then(onSuccess, onError)
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#activate_yubikey_otp
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Activates a given YubiKey OTP
+         *
+         * @param {uuid} yubikey_id Yubikey ID
+         * @param {string} yubikey_otp One YubiKey COde
+         *
+         * @returns {promise} Returns a promise with true or false
+         */
+        var activate_yubikey_otp = function(yubikey_id, yubikey_otp) {
+            var onSuccess = function () {
+                return true;
+            };
+            var onError = function () {
+                return false;
+            };
+            return apiClient.activate_yubikey_otp(managerBase.get_token(), managerBase.get_session_secret_key(), yubikey_id, yubikey_otp)
                 .then(onSuccess, onError)
         };
 
@@ -1038,7 +1224,7 @@
                 return reject({errors: ['Old password empty']})
             }
 
-            var authkey_old = cryptoLibrary.generate_authkey(storage.find_one('config', {key: 'user_username'}).value, verification_password);
+            var authkey_old = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, verification_password);
 
             var onSuccess = function(data) {
 
@@ -1084,12 +1270,12 @@
                 return reject({errors: ['Old password empty']})
             }
 
-            authkey_old = cryptoLibrary.generate_authkey(storage.find_one('config', {key: 'user_username'}).value, old_password);
+            authkey_old = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, old_password);
 
-            new_authkey = cryptoLibrary.generate_authkey(storage.find_one('config', {key: 'user_username'}).value, new_password);
-            user_private_key = storage.find_one('config', {key: 'user_private_key'});
-            user_secret_key = storage.find_one('config', {key: 'user_secret_key'});
-            user_sauce = storage.find_one('config', {key: 'user_sauce'}).value;
+            new_authkey = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, new_password);
+            user_private_key = storage.find_key('config', 'user_private_key');
+            user_secret_key = storage.find_key('config', 'user_secret_key');
+            user_sauce = storage.find_key('config', 'user_sauce').value;
 
             priv_key_enc = cryptoLibrary.encrypt_secret(user_private_key.value, new_password, user_sauce);
             secret_key_enc = cryptoLibrary.encrypt_secret(user_secret_key.value, new_password, user_sauce);
@@ -1105,6 +1291,34 @@
                 .then(onSuccess, onError);
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#delete_account
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Deletes an account
+         *
+         * @param {string} password The old password
+         *
+         * @returns {promise} Returns a promise with the result
+         */
+        var delete_account = function(password) {
+
+            var authkey = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, password);
+
+            var onSuccess = function () {
+                logout();
+            };
+
+            var onError = function(data){
+                return $q.reject(data.data);
+            };
+
+
+            return apiClient.delete_account(managerBase.get_token(), managerBase.get_session_secret_key(), authkey).then(onSuccess, onError);
+        };
+
         shareBlueprint.register('search_user', search_user);
 
         return {
@@ -1113,6 +1327,7 @@
             get_default: get_default,
             login: login,
             ga_verify: ga_verify,
+            duo_verify: duo_verify,
             yubikey_otp_verify: yubikey_otp_verify,
             activate_token: activate_token,
             logout: logout,
@@ -1127,14 +1342,21 @@
             search_user: search_user,
             create_ga: create_ga,
             read_ga: read_ga,
+            activate_ga: activate_ga,
             delete_ga: delete_ga,
+            create_duo: create_duo,
+            read_duo: read_duo,
+            activate_duo: activate_duo,
+            delete_duo: delete_duo,
             create_yubikey_otp: create_yubikey_otp,
             read_yubikey_otp: read_yubikey_otp,
+            activate_yubikey_otp: activate_yubikey_otp,
             delete_yubikey_otp: delete_yubikey_otp,
             get_sessions: get_sessions,
             delete_session: delete_session,
             save_new_email: save_new_email,
-            save_new_password: save_new_password
+            save_new_password: save_new_password,
+            delete_account: delete_account
         };
     };
 

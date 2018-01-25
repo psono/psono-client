@@ -402,7 +402,7 @@
                 emit('summarize-user-complete', {});
             };
 
-            managerDatastoreUser.search_user(managerBase.find_one('config', 'user_username'))
+            managerDatastoreUser.search_user(managerBase.find_key('config', 'user_username'))
                 .then(onSuccess, onError);
 
             return analysis

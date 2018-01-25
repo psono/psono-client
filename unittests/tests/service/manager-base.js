@@ -36,8 +36,8 @@
         var mockedStorage;
         beforeEach(function () {
             mockedStorage = {
-                find_one: function (db, search) {
-                    switch (search['key']) {
+                find_key: function (db, key) {
+                    switch (key) {
                         case 'user_token':
                             return { 'value': fake_user_token };
                         case 'session_secret_key':
@@ -106,37 +106,37 @@
         }));
 
         it('decrypt_secret_key', inject(function (managerBase) {
-            var data = managerBase.find_one_nolimit('config', 'does_not_exist');
+            var data = managerBase.find_key_nolimit('config', 'does_not_exist');
             expect(data).toBe('');
         }));
 
-        it('find_one: regular key', inject(function (managerBase) {
-            var data = managerBase.find_one('config', 'dummy_not_blocked');
+        it('find_key: regular key', inject(function (managerBase) {
+            var data = managerBase.find_key('config', 'dummy_not_blocked');
             expect(data).toBe(dummy_not_blocked);
         }));
 
-        it('find_one: check protection of user_token', inject(function (managerBase) {
-            var data = managerBase.find_one('config', 'user_token');
+        it('find_key: check protection of user_token', inject(function (managerBase) {
+            var data = managerBase.find_key('config', 'user_token');
             expect(data).toBe('');
         }));
 
-        it('find_one: check protection of session_secret_key', inject(function (managerBase) {
-            var data = managerBase.find_one('config', 'session_secret_key');
+        it('find_key: check protection of session_secret_key', inject(function (managerBase) {
+            var data = managerBase.find_key('config', 'session_secret_key');
             expect(data).toBe('');
         }));
 
-        it('find_one: check protection of user_private_key', inject(function (managerBase) {
-            var data = managerBase.find_one('config', 'user_private_key');
+        it('find_key: check protection of user_private_key', inject(function (managerBase) {
+            var data = managerBase.find_key('config', 'user_private_key');
             expect(data).toBe('');
         }));
 
-        it('find_one: check protection of user_secret_key', inject(function (managerBase) {
-            var data = managerBase.find_one('config', 'user_secret_key');
+        it('find_key: check protection of user_secret_key', inject(function (managerBase) {
+            var data = managerBase.find_key('config', 'user_secret_key');
             expect(data).toBe('');
         }));
 
-        it('find_one: check protection of user_sauce', inject(function (managerBase) {
-            var data = managerBase.find_one('config', 'user_sauce');
+        it('find_key: check protection of user_sauce', inject(function (managerBase) {
+            var data = managerBase.find_key('config', 'user_sauce');
             expect(data).toBe('');
         }));
 

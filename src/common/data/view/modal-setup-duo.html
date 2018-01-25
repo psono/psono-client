@@ -1,28 +1,28 @@
 <form name="modalSetupGoogleAuthenticatorForm" novalidate>
     <div class="modal-header">
         <button type="button" class="close" ng-click="close()"><span aria-hidden="true">&times;</span></button>
-        <h3 class="modal-title">Google Authenticator</h3>
+        <h3 class="modal-title">Duo</h3>
     </div>
     <div class="modal-body">
 
 
         <uib-tabset>
 
-            <uib-tab heading="Existing GAs">
+            <uib-tab heading="Existing Duos">
 
 
                 <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
                     <thead>
                     <tr>
-                        <th>GA Title</th>
+                        <th>Duo Title</th>
                         <th>Delete</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="ga in gas">
-                        <td>{{ ga.title }}</td>
+                    <tr ng-repeat="duo in duos">
+                        <td>{{ duo.title }}</td>
                         <td>
-                            <button type="button" class="btn btn-default btn-sm" ng-click="delete_ga(gas, ga.id)">
+                            <button type="button" class="btn btn-default btn-sm" ng-click="delete_duo(duos, duo.id)">
                                 Delete
                             </button>
                         </td>
@@ -31,22 +31,67 @@
                 </table>
             </uib-tab>
 
-            <uib-tab heading="New GA">
+            <uib-tab heading="New Duo">
                 <br>
 
                 <div class="form-horizontal" ng-if="step === 'step1'">
-                    <div class="form-group">
+                    <div class="row form-group">
 
                         <label class="control-label col-sm-6 col-md-4"
-                               for="newGAForm-title">
+                               for="newDuoForm-title">
                             <span>Title</span>
                         </label>
 
                         <div class="col-sm-6 col-md-8">
-                            <input type="text" ng-model="new_ga.title"
+                            <input type="text" ng-model="new_duo.title"
                                    ng-required="true"
-                                   placeholder="Title of your GA" id="newGAForm-title"
+                                   placeholder="Title of your Duo" id="newDuoForm-title"
                                    name="title"
+                                   class="form-control">
+                        </div>
+                    </div>
+                    <div class="row form-group">
+
+                        <label class="control-label col-sm-6 col-md-4"
+                               for="newDuoForm-integration_key">
+                            <span>Integration Key</span>
+                        </label>
+
+                        <div class="col-sm-6 col-md-8">
+                            <input type="text" ng-model="new_duo.integration_key"
+                                   ng-required="true"
+                                   placeholder="Integration Key" id="newDuoForm-integration_key"
+                                   name="integration_key"
+                                   class="form-control">
+                        </div>
+                    </div>
+                    <div class="row form-group">
+
+                        <label class="control-label col-sm-6 col-md-4"
+                               for="newDuoForm-secret_key">
+                            <span>Secret Key</span>
+                        </label>
+
+                        <div class="col-sm-6 col-md-8">
+                            <input type="password" ng-model="new_duo.secret_key"
+                                   ng-required="true"
+                                   placeholder="Secret Key" id="newDuoForm-secret_key"
+                                   name="secret_key"
+                                   class="form-control">
+                        </div>
+                    </div>
+                    <div class="row form-group">
+
+                        <label class="control-label col-sm-6 col-md-4"
+                               for="newDuoForm-host">
+                            <span>Host</span>
+                        </label>
+
+                        <div class="col-sm-6 col-md-8">
+                            <input type="text" ng-model="new_duo.host"
+                                   ng-required="true"
+                                   placeholder="Host" id="newDuoForm-host"
+                                   name="host"
                                    class="form-control">
                             <span ng-repeat="e in errors" class="help-block">{{e}}</span>
                         </div>
@@ -57,13 +102,13 @@
                         </label>
 
                         <div class="col-sm-6 col-md-8">
-                            <button class="btn btn-primary btn-primary" ng-click="create_ga(new_ga)" type="button">Generate</button>
+                            <button class="btn btn-primary btn-primary" ng-click="create_duo(new_duo)" type="button">Setup</button>
                         </div>
                     </div>
                 </div>
 
                 <div class="form-horizontal" ng-if="step === 'step2'">
-                    <div class="text-center" ng-bind-html="google_authenticator_html">
+                    <div class="text-center" ng-bind-html="duo_html">
 
                     </div>
                     <div class="row form-group">
@@ -73,6 +118,7 @@
                     </div>
 
                 </div>
+
 
                 <div class="form-horizontal" ng-if="step === 'step3'">
                     <div class="form-group">
@@ -97,7 +143,7 @@
                         </label>
 
                         <div class="col-sm-6 col-md-8">
-                            <button class="btn btn-primary btn-primary" ng-click="activate_ga(new_ga)" type="button">Validate</button>
+                            <button class="btn btn-primary btn-primary" ng-click="activate_duo(new_duo)" type="button">Validate</button>
                         </div>
                     </div>
                 </div>

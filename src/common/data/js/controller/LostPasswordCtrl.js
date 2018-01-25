@@ -11,13 +11,14 @@
      * @requires psonocli.browserClient
      * @requires psonocli.helper
      * @requires psonocli.cryptoLibrary
+     * @requires psonocli.converter
      *
      * @description
      * Controller for the registration view
      */
     angular.module('psonocli').controller('LostPasswordCtrl', ['$scope', '$route', '$filter', 'managerDatastoreUser', 'browserClient',
-        'helper', 'cryptoLibrary',
-        function ($scope, $route, $filter, managerDatastoreUser, browserClient, helper, cryptoLibrary) {
+        'helper', 'cryptoLibrary', 'converter',
+        function ($scope, $route, $filter, managerDatastoreUser, browserClient, helper, cryptoLibrary, converter) {
 
             $scope.select_server = select_server;
             $scope.changing = changing;
@@ -201,7 +202,7 @@
                 // Validate now the recovery code information (words and codes)
                 var recovery_code;
                 if (typeof(words) !== 'undefined' && words !== '') {
-                    recovery_code = cryptoLibrary.hex_to_base58(cryptoLibrary.words_to_hex(words.split(' ')));
+                    recovery_code = converter.hex_to_base58(converter.words_to_hex(words.split(' ')));
                 } else if (typeof(code1) !== 'undefined' && code1 !== '' && typeof(code2) !== 'undefined' && code2 !== ''){
                     if (!cryptoLibrary.recovery_password_chunk_pass_checksum(code1) || !cryptoLibrary.recovery_password_chunk_pass_checksum(code2)) {
                         $scope.errors.push("At least one of your codes is wrong");
@@ -215,8 +216,8 @@
 
                 function onError(data) {
                     console.log(data);
-                    if (data.hasOwnProperty('data') && data.data.hasOwnProperty('message')) {
-                        $scope.errors = [data.data.message];
+                    if (data.hasOwnProperty('data') && data.data.hasOwnProperty('non_field_errors')) {
+                        $scope.errors = data.data.non_field_errors;
                     } else if (!data.hasOwnProperty('data')) {
                         $scope.errors = ['Server offline.'];
                     } else {
@@ -262,7 +263,7 @@
 
                 var test_result = helper.is_valid_password(password, password2);
                 if (test_result !== true) {
-                    $scope.errors.push(test_result);
+                    $scope.errors = [test_result];
                     return;
                 }
 
