@@ -62,7 +62,7 @@ build-firefox-extension:
   script:
     - sh ./var/build-ubuntu.sh
     - sh ./var/package-firefox-extension.sh
-    - curl -u gitlab:$artifactory_credentials -X PUT "https://psono.jfrog.io/psono/psono/client/$CI_BUILD_REF_NAME/firefox-extension.zip" -T /builds/psono/psono-client/dist/chrome/psono.firefox.PW.zip
+    - curl -u gitlab:$artifactory_credentials -X PUT "https://psono.jfrog.io/psono/psono/client/$CI_BUILD_REF_NAME/firefox-extension.zip" -T /builds/psono/psono-client/dist/firefox/psono.firefox.PW.zip
     - mv /builds/psono/psono-client/build/firefox ../
     - rm -Rf *
     - rm -Rf .* 2> /dev/null || true
