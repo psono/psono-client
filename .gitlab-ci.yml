@@ -204,6 +204,7 @@ deploy-chrome:
   stage: deploy
   image: psono-docker.jfrog.io/ubuntu:16.04
   script:
+    - sh ./var/build-ubuntu.sh
     - sh ./var/deploy-chrome-extension.sh
   environment:
     name: chrome-webstore
@@ -218,6 +219,7 @@ deploy-firefox:
   stage: deploy
   image: psono-docker.jfrog.io/ubuntu:16.04
   script:
+    - sh ./var/build-ubuntu.sh
     - sh ./var/deploy-firefox-extension.sh
   environment:
     name: firefox-webstore
