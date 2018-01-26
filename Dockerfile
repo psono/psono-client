@@ -1,4 +1,4 @@
 FROM psono-docker.jfrog.io/nginx:alpine
-MAINTAINER Sascha Pfeiffer <saschapfeiffer@psono.com>
+LABEL maintainer="Sascha Pfeiffer <sascha.pfeiffer@psono.com>"
 COPY ./build/webclient /usr/share/nginx/html/
 WORKDIR /root
