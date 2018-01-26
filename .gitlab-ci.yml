@@ -49,9 +49,12 @@ build-docker-image:
     - docker info
     - echo $CI_BUILD_TOKEN | docker login --username=gitlab-ci-token --password-stdin registry.gitlab.com
     - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker.jfrog.io
-    - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker.jfrog.io
     - docker build -t $CONTAINER_TEST_IMAGE .
     - docker push $CONTAINER_TEST_IMAGE
+    - curl -fL https://getcli.jfrog.io | sh
+    - ./jfrog rt c rt-server-1 --url=https://psono.jfrog.io/psono --user=gitlab --password=$artifactory_credentials
+    - ./jfrog rt sp "docker/psono/psono-client/$CI_BUILD_REF_NAME" "CI_BUILD_REF_NAME=$CI_BUILD_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_TAG=$CI_COMMIT_TAG;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION"
+
 
 
 build-firefox-extension:
@@ -62,7 +65,9 @@ build-firefox-extension:
   script:
     - sh ./var/build-ubuntu.sh
     - sh ./var/package-firefox-extension.sh
-    - curl -u gitlab:$artifactory_credentials -X PUT "https://psono.jfrog.io/psono/psono/client/$CI_BUILD_REF_NAME/firefox-extension.zip" -T /builds/psono/psono-client/dist/firefox/psono.firefox.PW.zip
+    - curl -fL https://getcli.jfrog.io | sh
+    - ./jfrog rt c rt-server-1 --url=https://psono.jfrog.io/psono --user=gitlab --password=$artifactory_credentials
+    - ./jfrog rt u --props="CI_BUILD_REF_NAME=$CI_BUILD_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_TAG=$CI_COMMIT_TAG;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" /builds/psono/psono-client/dist/firefox/psono.firefox.PW.zip psono/client/$CI_BUILD_REF_NAME/firefox-extension.zip
     - mv /builds/psono/psono-client/build/firefox ../
     - rm -Rf *
     - rm -Rf .* 2> /dev/null || true
@@ -81,7 +86,9 @@ build-chrome-extension:
   script:
     - sh ./var/build-ubuntu.sh
     - sh ./var/package-chrome-extension.sh
-    - curl -u gitlab:$artifactory_credentials -X PUT "https://psono.jfrog.io/psono/psono/client/$CI_BUILD_REF_NAME/chrome-extension.zip" -T /builds/psono/psono-client/dist/chrome/psono.chrome.PW.zip
+    - curl -fL https://getcli.jfrog.io | sh
+    - ./jfrog rt c rt-server-1 --url=https://psono.jfrog.io/psono --user=gitlab --password=$artifactory_credentials
+    - ./jfrog rt u --props="CI_BUILD_REF_NAME=$CI_BUILD_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_TAG=$CI_COMMIT_TAG;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" /builds/psono/psono-client/dist/chrome/psono.chrome.PW.zip psono/client/$CI_BUILD_REF_NAME/chrome-extension.zip
     - mv /builds/psono/psono-client/build/chrome ../
     - rm -Rf *
     - rm -Rf .* 2> /dev/null || true
@@ -100,7 +107,9 @@ build-webclient:
   script:
     - sh ./var/build-ubuntu.sh
     - sh ./var/package-webclient.sh
-    - curl -u gitlab:$artifactory_credentials -X PUT "https://psono.jfrog.io/psono/psono/client/$CI_BUILD_REF_NAME/webclient.zip" -T /builds/psono/psono-client/dist/webclient/psono.webclient.PW.zip
+    - curl -fL https://getcli.jfrog.io | sh
+    - ./jfrog rt c rt-server-1 --url=https://psono.jfrog.io/psono --user=gitlab --password=$artifactory_credentials
+    - ./jfrog rt u --props="CI_BUILD_REF_NAME=$CI_BUILD_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_TAG=$CI_COMMIT_TAG;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" /builds/psono/psono-client/dist/webclient/psono.webclient.PW.zip psono/client/$CI_BUILD_REF_NAME/webclient.zip
     - mv /builds/psono/psono-client/build/webclient ../
     - rm -Rf *
     - rm -Rf .* 2> /dev/null || true
@@ -119,12 +128,11 @@ release-artifacts:
   script:
     - apt-get update
     - apt-get install -y curl
-    - curl -u gitlab:$artifactory_credentials -O https://psono.jfrog.io/psono/psono/client/$CI_BUILD_REF_NAME/firefox-extension.zip
-    - curl -u gitlab:$artifactory_credentials -O https://psono.jfrog.io/psono/psono/client/$CI_BUILD_REF_NAME/chrome-extension.zip
-    - curl -u gitlab:$artifactory_credentials -O https://psono.jfrog.io/psono/psono/client/$CI_BUILD_REF_NAME/webclient.zip
-    - curl -u gitlab:$artifactory_credentials -X PUT "https://psono.jfrog.io/psono/psono/client/latest/firefox-extension.zip" -T ./firefox-extension.zip
-    - curl -u gitlab:$artifactory_credentials -X PUT "https://psono.jfrog.io/psono/psono/client/latest/chrome-extension.zip" -T ./chrome-extension.zip
-    - curl -u gitlab:$artifactory_credentials -X PUT "https://psono.jfrog.io/psono/psono/client/latest/webclient.zip" -T ./webclient.zip
+    - curl -fL https://getcli.jfrog.io | sh
+    - ./jfrog rt c rt-server-1 --url=https://psono.jfrog.io/psono --user=gitlab --password=$artifactory_credentials
+    - ./jfrog rt cp psono/client/$CI_BUILD_REF_NAME/firefox-extension.zip psono/client/latest/firefox-extension.zip
+    - ./jfrog rt cp psono/client/$CI_BUILD_REF_NAME/chrome-extension.zip psono/client/latest/chrome-extension.zip
+    - ./jfrog rt cp psono/client/$CI_BUILD_REF_NAME/webclient.zip psono/client/latest/webclient.zip
   only:
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
@@ -139,7 +147,6 @@ release-docker:
   script:
     - docker info
     - echo $CI_BUILD_TOKEN | docker login --username=gitlab-ci-token --password-stdin registry.gitlab.com
-    - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker.jfrog.io
     - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker.jfrog.io
     - docker pull $CONTAINER_TEST_IMAGE
     - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
