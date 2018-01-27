@@ -103,18 +103,20 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& apk del .gettext \
 	&& mv /tmp/envsubst /usr/local/bin/ \
 	\
-	&& apk add --no-cache tzdata \
+	&& apk add --no-cache tzdata curl \
 	\
 	&& ln -sf /dev/stdout /var/log/nginx/access.log \
 	&& ln -sf /dev/stderr /var/log/nginx/error.log
 
 COPY ./configs/nginx.conf /etc/nginx/nginx.conf
 COPY ./configs/default.conf /etc/nginx/conf.d/default.conf
+COPY ./build/webclient /usr/share/nginx/html/
 
 EXPOSE 80
 
 STOPSIGNAL SIGTERM
 
-COPY ./build/webclient /usr/share/nginx/html/
+HEALTHCHECK --interval=5m --timeout=3s \
+	CMD curl -f http://localhost/ || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
