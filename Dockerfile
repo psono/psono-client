@@ -116,7 +116,7 @@ EXPOSE 80
 
 STOPSIGNAL SIGTERM
 
-HEALTHCHECK --interval=5m --timeout=3s \
+HEALTHCHECK --interval=30s --timeout=3s \
 	CMD curl -f http://localhost/ || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
