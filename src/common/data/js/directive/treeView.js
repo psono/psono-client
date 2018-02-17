@@ -335,10 +335,9 @@
                  */
                 self.getNodeType = function(evt) {
 
-
-                    if (evt.element.context.className.indexOf('tree-item') > -1) {
+                    if (evt.element[0].className.indexOf('tree-item') > -1) {
                         return 'item';
-                    } else if (evt.element.context.className.indexOf('tree-folder') > -1) {
+                    } else if (evt.element[0].className.indexOf('tree-folder') > -1) {
                         return 'folder';
                     } else {
                         return 'unknown';
