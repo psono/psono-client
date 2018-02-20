@@ -159,20 +159,20 @@ release-docker:
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
 
-deploy-security-scan-image:
-  except:
-    - schedules
-  stage: deploy
-  image: psono-docker.jfrog.io/docker:git
-  services:
-    - docker:dind
-  script:
-    - docker info
-    - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker.jfrog.io
-    - echo $docker_hub_credentials | docker login --username=psonogitlab --password-stdin
-    - docker pull $CONTAINER_TEST_IMAGE
-    - docker tag $CONTAINER_TEST_IMAGE psono/security-scans:psono-client-ce-$CI_BUILD_REF_NAME
-    - docker push psono/security-scans:psono-client-ce-$CI_BUILD_REF_NAME
+#deploy-security-scan-image:
+#  except:
+#    - schedules
+#  stage: deploy
+#  image: psono-docker.jfrog.io/docker:git
+#  services:
+#    - docker:dind
+#  script:
+#    - docker info
+#    - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker.jfrog.io
+#    - echo $docker_hub_credentials | docker login --username=psonogitlab --password-stdin
+#    - docker pull $CONTAINER_TEST_IMAGE
+#    - docker tag $CONTAINER_TEST_IMAGE psono/security-scans:psono-client-ce-$CI_BUILD_REF_NAME
+#    - docker push psono/security-scans:psono-client-ce-$CI_BUILD_REF_NAME
 
 
 deploy-docker:
