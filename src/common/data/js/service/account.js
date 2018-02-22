@@ -15,7 +15,7 @@
      */
 
 
-    var account = function($q, $uibModal, storage, managerDatastoreUser, managerDatastoreSetting) {
+    var account = function($q, $uibModal, $filter, storage, managerDatastoreUser, managerDatastoreSetting) {
 
         var _server_info;
 
@@ -44,6 +44,10 @@
                 { key: "server_signature", field: "input", type: "text", title: "Server Signature", placeholder: "Server Signature", required: true, readonly: true, tab: 'overview'},
                 { key: "server_log_audit", field: "input", type: "text", title: "Server Audit Logging", placeholder: "Server Audit Logging", required: true, readonly: true, tab: 'overview'},
                 { key: "server_public_key", field: "input", type: "text", title: "Server Public Key", placeholder: "Server Public Key", required: true, readonly: true, tab: 'overview'},
+                { key: "server_license_type", field: "input", type: "text", title: "Server License Type", placeholder: "Server License Type", required: true, readonly: true, tab: 'overview'},
+                { key: "server_license_max_users", field: "input", type: "text", title: "Server Max. Users", placeholder: "Server Max. Users", required: true, readonly: true, tab: 'overview'},
+                { key: "server_license_valid_from", field: "input", type: "text", title: "Server License Valid From", placeholder: "Server License Valid From", required: true, readonly: true, tab: 'overview'},
+                { key: "server_license_valid_till", field: "input", type: "text", title: "Server License Valid Till", placeholder: "Server License Valid Till", required: true, readonly: true, tab: 'overview'},
                 // Change E-Mail
                 { key: "setting_email", field: "input", type: "email", title: "New E-Mail", placeholder: "New E-Mail", required: true, tab: 'change-email'},
                 { key: "setting_email_password_old", field: "input", type: "password", title: "Current Password", placeholder: "Current Password", tab: 'change-email'},
@@ -245,6 +249,39 @@
                 return storage.find_key('config', 'server_info').value['public_key'];
             }
 
+            if (key === 'server_license_type') {
+                if (storage.find_key('config','server_info').value.hasOwnProperty('license_type')) {
+                    if (storage.find_key('config','server_info').value['license_type'] === 'paid') {
+                        return 'Enterprise Edition (EE)'
+                    } else {
+                        return 'Enterprise Edition (EE) limited'
+                    }
+
+                }
+                return 'Community Edition (CE)';
+            }
+
+            if (key === 'server_license_max_users') {
+                if (storage.find_key('config','server_info').value.hasOwnProperty('license_max_users')) {
+                    return storage.find_key('config','server_info').value['license_max_users'];
+                }
+                return 'unlimited';
+            }
+
+            if (key === 'server_license_valid_from') {
+                if (storage.find_key('config','server_info').value.hasOwnProperty('license_valid_from')) {
+                    return $filter('date')(storage.find_key('config','server_info').value['license_valid_from']*1000, 'mediumDate');
+                }
+                return 'N/A';
+            }
+
+            if (key === 'server_license_valid_till') {
+                if (storage.find_key('config','server_info').value.hasOwnProperty('license_valid_till')) {
+                    return $filter('date')(storage.find_key('config','server_info').value['license_valid_till']*1000, 'mediumDate');
+                }
+                return 'N/A';
+            }
+
             return '';
         };
 
@@ -349,6 +386,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("account", ['$q', '$uibModal', 'storage', 'managerDatastoreUser', 'managerDatastoreSetting', account]);
+    app.factory("account", ['$q', '$uibModal', '$filter', 'storage', 'managerDatastoreUser', 'managerDatastoreSetting', account]);
 
 }(angular));
