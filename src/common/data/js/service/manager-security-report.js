@@ -80,7 +80,7 @@
         var rate_secret = function (secret) {
 
             var _MIN_PASSWORD_LENGTH = 11;
-            var _MAX_PASSWORD_LENGTH = 18;
+            var _MAX_PASSWORD_LENGTH = 16;
             var _MIN_VARIATION_ENFORCE_PASSWORD_LENGTH = 15;
             var _MIN_VARIATION_LENGTH = 3;
             var _VARIATION_PENALTY = 0.15;
@@ -99,6 +99,14 @@
                 variation_count += (variations[check] === true) ? 1 : 0;
             }
 
+            if (!secret.website_password_password) {
+                // empty password
+                return {
+                    score: _MAX_SCORE,
+                    advise: ''
+                };
+            }
+
             if (secret.website_password_password.length <= _MIN_PASSWORD_LENGTH) {
                 return {
                     score: _MIN_SCORE,
@@ -106,7 +114,7 @@
                 };
             }
 
-            if (secret.website_password_username !== '' && secret.website_password_password.toLowerCase().indexOf(secret.website_password_username.toLowerCase()) !== -1) {
+            if (secret.website_password_username && secret.website_password_username !== '' && secret.website_password_password.toLowerCase().indexOf(secret.website_password_username.toLowerCase()) !== -1) {
                 return {
                     score:0,
                     advise: 'Remove username from password.'
