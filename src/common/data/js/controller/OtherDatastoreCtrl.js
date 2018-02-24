@@ -26,6 +26,14 @@
                 load_datastore_overview();
             }
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:OtherDatastoreCtrl#load_datastore_overview
+             * @methodOf psonocli.controller:OtherDatastoreCtrl
+             *
+             * @description
+             * Loads the datastore overview
+             */
             function load_datastore_overview() {
                 managerDatastore.get_datastore_overview(true).then(function (overview) {
                     $scope.data_stores=[];

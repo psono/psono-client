@@ -42,8 +42,30 @@
         <div class="container">
             <div class="navbar-header">
                 <a class="navbar-brand" href="#">
-                    <img alt="Brand" src="img/logo-inverse.png" height="100%">
+                    <img alt="Psono" src="img/logo-inverse.png" height="100%">
                 </a>
+
+                <div  class="navbar-text navbar-left">
+                    <div class="btn-group" uib-dropdown keyboard-nav ng-if="data_stores.length > 1">
+                        <button id="simple-btn-keyboard-nav" type="button" class="btn btn-primary" uib-dropdown-toggle>
+                            Datastore <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="simple-btn-keyboard-nav">
+                            <li role="menuitem" ng-repeat="ds in data_stores">
+                                <a href="" ng-click="on_datastore_switch_click(ds)">
+                                    <i class="fa fa-check-square-o fa-fw" ng-if="ds.is_default"></i> <i class="fa fa-square-o fa-fw" ng-if="!ds.is_default"></i> {{ds.description}}
+                                </a>
+                            </li>
+                            <li class="divider"></li>
+                            <li role="menuitem">
+                                <a href="" ng-click="create_new_datastore()">
+                                    <i class="fa fa-plus fa-fw"></i> Create New Datastore
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
                 <button type="button" class="navbar-toggle collapsed btn btn-primary" ng-click="isNavCollapsed = !isNavCollapsed">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>

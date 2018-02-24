@@ -11,6 +11,7 @@
      * @requires ngTree.dropDownMenuWatcher
      * @requires psonocli.manager
      * @requires psonocli.managerDatastorePassword
+     * @requires psonocli.managerDatastore
      * @requires psonocli.itemBlueprint
      * @requires psonocli.managerWidget
      * @requires psonocli.managerSecret
@@ -19,10 +20,10 @@
      * Main Controller for the datastore widget
      */
     angular.module('psonocli').controller('DatastoreCtrl', ["$scope", "$uibModal", "$routeParams", "$timeout",
-        "manager", "managerDatastorePassword",
+        "manager", "managerDatastorePassword", 'managerDatastore',
         "itemBlueprint", "managerWidget", "managerSecret", "dropDownMenuWatcher",
         function($scope, $uibModal, $routeParams, $timeout,
-                 manager, managerDatastorePassword,
+                 manager, managerDatastorePassword, managerDatastore,
                  itemBlueprint, managerWidget, managerSecret, dropDownMenuWatcher){
             var contextMenusOpen = 0;
 
@@ -32,7 +33,10 @@
             $scope.openNewItem = openNewItem;
 
             $scope.tosearchTreeFilter = $routeParams.default_search;
-            $scope.structure = { data: {}} ;
+            $scope.structure = {
+                data: {},
+                loaded: false
+            } ;
             $scope.options = {
 
                 /**
@@ -185,28 +189,59 @@
             activate();
 
             function activate() {
-                managerDatastorePassword.get_password_datastore()
-                    .then(function(data) {
-                        $scope.structure.data = data;
-                        $scope.structure.loaded = true;
-
-                        autoupload_edit_item();
-
-                        managerDatastorePassword.modifyTreeForSearch($scope.tosearchTreeFilter, undefined, $scope.structure.data);
-                    });
-
-                var update_datastore = function(value) {
-                    $scope.structure.data = value;
-                    managerDatastorePassword.modifyTreeForSearch($scope.tosearchTreeFilter, $scope.structure.data);
-                };
+                load_datastore().then(function(){
+                    managerDatastore.register('on_datastore_overview_update', load_datastore);
+                });
                 managerDatastorePassword.register('save_datastore_content', update_datastore);
                 $scope.$on('$destroy', function() {
                     managerDatastorePassword.unregister('save_datastore_content', update_datastore);
                 })
             }
 
-            $scope.$watch('tosearchTreeFilter', function(newValue, oldValue) {
-                managerDatastorePassword.modifyTreeForSearch(newValue, oldValue, $scope.structure.data);
+            /**
+             * @ngdoc
+             * @name psonocli.controller:DatastoreCtrl#load_datastore
+             * @methodOf psonocli.controller:DatastoreCtrl
+             *
+             * @description
+             * Loads the datastore
+             */
+            function load_datastore() {
+                $scope.structure.data = {};
+                $scope.structure.loaded = false;
+
+                return managerDatastorePassword.get_password_datastore()
+                    .then(function(data) {
+                        $scope.structure.data = data;
+                        $scope.structure.loaded = true;
+
+                        autoupload_edit_item();
+
+                        managerDatastorePassword.modifyTreeForSearch($scope.tosearchTreeFilter, $scope.structure.data);
+                    });
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:DatastoreCtrl#update_datastore
+             * @methodOf psonocli.controller:DatastoreCtrl
+             *
+             * @description
+             * Called for every update on the datastore
+             *
+             * @param datastore The new datastore
+             */
+            function update_datastore(datastore) {
+                $scope.structure.data = datastore;
+                managerDatastorePassword.modifyTreeForSearch($scope.tosearchTreeFilter, $scope.structure.data);
+            }
+
+            /**
+             * all about the datastore search:
+             */
+
+            $scope.$watch('tosearchTreeFilter', function(newValue) {
+                managerDatastorePassword.modifyTreeForSearch(newValue, $scope.structure.data);
             });
 
             /**
