@@ -117,7 +117,9 @@
                 'parent_share_id',
                 'secret_id',
                 'secret_key',
-                'share_rights'
+                'share_id',
+                'share_rights',
+                'share_secret_key'
             ];
 
             // filter out unwanted folder properties

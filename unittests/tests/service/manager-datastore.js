@@ -226,6 +226,7 @@
                     expect(data.secret_key).toBeDefined();
                     expect(data.secret_key_nonce).toBeDefined();
 
+                    console.log("datastore-1");
                     // return answer
                     return [200, "datastore-1"];
                 });

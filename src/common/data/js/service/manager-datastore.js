@@ -20,6 +20,7 @@
 
     var managerDatastore = function($q, $timeout, browserClient, managerBase, apiClient, cryptoLibrary, storage, helper) {
 
+        var registrations = {};
         var temp_datastore_key_storage = {};
         var temp_datastore_overview = false;
 
@@ -46,6 +47,7 @@
                 // we dont have them in cache, so lets query and save them in cache for next time
                 var onSuccess = function (result) {
                     temp_datastore_overview = result;
+                    fire_event('on_datastore_overview_update', undefined);
                     return result
                 };
                 var onError = function () {
@@ -167,9 +169,34 @@
             var secret_key = cryptoLibrary.generate_secret_key();
             var cipher = managerBase.encrypt_secret_key(secret_key);
 
+            var onError = function(result) {
+                // pass
+            };
+
+            var onSuccess = function(result) {
+
+                if (temp_datastore_overview) {
+                    if (is_default) {
+                        // New datastore is the new default, so update the existing list
+                        for (var i = 0; i < temp_datastore_overview.data.datastores.length; i++) {
+                            temp_datastore_overview.data.datastores[i].is_default = false;
+                        }
+                    }
+
+                    temp_datastore_overview.data.datastores.push({
+                        id: result.data.datastore_id,
+                        description: description,
+                        type: type,
+                        is_default: is_default
+                    });
+                    fire_event('on_datastore_overview_update', undefined);
+                }
+                return result;
+            };
+
             return apiClient.create_datastore(managerBase.get_token(),
                 managerBase.get_session_secret_key(), type, description, '', '',
-                is_default, cipher.text, cipher.nonce);
+                is_default, cipher.text, cipher.nonce).then(onSuccess, onError);
         };
 
 
@@ -426,6 +453,27 @@
                 // pass
             };
             var onSuccess = function(result) {
+                // update our datastore overview cache
+                var update_happened = false;
+                for (var i = 0; i < temp_datastore_overview.data.datastores.length; i++) {
+                    if (temp_datastore_overview.data.datastores[i].id === datastore_id
+                        && temp_datastore_overview.data.datastores[i].description === description
+                        && temp_datastore_overview.data.datastores[i].is_default === is_default) {
+                        break
+                    }
+
+                    if (temp_datastore_overview.data.datastores[i].id === datastore_id) {
+                        temp_datastore_overview.data.datastores[i].description = description;
+                        temp_datastore_overview.data.datastores[i].is_default = is_default;
+                        update_happened = true;
+                    }
+                    if (temp_datastore_overview.data.datastores[i].id !== datastore_id && is_default) {
+                        temp_datastore_overview.data.datastores[i].is_default = false;
+                    }
+                }
+                if (update_happened) {
+                    fire_event('on_datastore_overview_update', undefined);
+                }
                 return result.data;
             };
 
@@ -464,6 +512,43 @@
                 .then(onSuccess, onError);
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastore#register
+         * @methodOf psonocli.managerDatastore
+         *
+         * @description
+         * used to register functions to bypass circular dependencies
+         *
+         * @param {string} key The key of the function
+         * @param {function} func The call back function
+         */
+        var register = function (key, func) {
+            if (!registrations.hasOwnProperty(key)) {
+                registrations[key] = []
+            }
+            registrations[key].push(func);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastore#fire_event
+         * @methodOf psonocli.managerDatastore
+         *
+         * @description
+         * Small wrapper to execute all functions that have been registered for an event once the event is triggered
+         *
+         * @param {string} key The key of the event
+         * @param {*} payload The payload of the event
+         */
+        var fire_event = function(key, payload) {
+            if (registrations.hasOwnProperty(key)) {
+                for (var i = 0; i < registrations[key].length; i++) {
+                    registrations[key][i](payload);
+                }
+            }
+        };
+
         var on_logout = function () {
             temp_datastore_key_storage = {};
             temp_datastore_overview = false;
@@ -484,7 +569,8 @@
             save_datastore_content: save_datastore_content,
             save_datastore_content_with_id: save_datastore_content_with_id,
             save_datastore_meta: save_datastore_meta,
-            encrypt_datastore: encrypt_datastore
+            encrypt_datastore: encrypt_datastore,
+            register: register
         };
     };
 

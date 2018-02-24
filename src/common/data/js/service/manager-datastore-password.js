@@ -1328,6 +1328,31 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastorePassword#showFolderContentRecursive
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * Walks through the folder structure and sets "hidden" to false
+         *
+         * @param {TreeObject} searchTree The part of the datastore to show recursive
+         */
+        var showFolderContentRecursive = function(searchTree) {
+            var i;
+            if (searchTree.hasOwnProperty('folders')) {
+                for (i = searchTree.folders.length - 1; searchTree.folders && i >= 0; i--) {
+                    showFolderContentRecursive(searchTree.folders[i]);
+                }
+            }
+            if (searchTree.hasOwnProperty('items')) {
+                for (i = searchTree.items.length - 1; searchTree.items && i >= 0; i--) {
+                    searchTree.items[i].hidden = false;
+                }
+            }
+            searchTree.hidden = false;
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastorePassword#modifyTreeForSearch
          * @methodOf psonocli.managerDatastorePassword
          *
@@ -1335,10 +1360,9 @@
          * searches a tree and marks all folders / items as invisible, only leaving nodes with search
          *
          * @param {string} newValue The new string from the search box
-         * @param {string} oldValue The old value from the search box
          * @param {TreeObject} searchTree The part of the datastore to search
          */
-        var modifyTreeForSearch = function (newValue, oldValue, searchTree) {
+        var modifyTreeForSearch = function (newValue, searchTree) {
 
             if (typeof(newValue) === 'undefined' || typeof(searchTree) === 'undefined') {
                 return;
@@ -1349,7 +1373,7 @@
             var i, ii;
             if (searchTree.hasOwnProperty('folders')) {
                 for (i = searchTree.folders.length - 1; searchTree.folders && i >= 0; i--) {
-                    show = modifyTreeForSearch(newValue, oldValue, searchTree.folders[i]) || show;
+                    show = modifyTreeForSearch(newValue, searchTree.folders[i]) || show;
                 }
             }
 
@@ -1387,6 +1411,7 @@
                 }
                 if (containCounter === searchStrings.length) {
                     show = true;
+                    showFolderContentRecursive(searchTree);
                 }
             }
             searchTree.hidden = !show;
