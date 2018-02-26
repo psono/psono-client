@@ -324,7 +324,7 @@
             };
 
             var onSuccess = function () {
-                helper.remove_from_array(required_multifactors, 'google_authenticator_2fa');
+                helper.remove_from_array(required_multifactors, 'yubikey_otp_2fa');
                 return required_multifactors;
             };
 
