@@ -89,7 +89,7 @@
     <img src="img/logo.png" alt="Psono Web Client" id="logo">
     <a href="https://psono.com/" target="_blank" rel="noopener"><i class="fa fa-info-circle fa-pull-right" aria-hidden="true"> Info</i></a>
 
-    <form name="loginForm" ng-if="view === 'default'">
+    <form name="loginForm" ng-if="view === 'default'" autocomplete="off">
         <div ng-class="{'input-group': loginFormUsername == null || loginFormUsername.indexOf('@') == -1}">
             <input type="text" class="form-control" id="loginUsername" placeholder="Username" ng-model="loginFormUsername" required aria-describedby="username-addon" autofocus>
             <span class="input-group-addon" id="username-addon" ng-if="loginFormUsername == null || loginFormUsername.indexOf('@') == -1">@{{selected_server_domain}}</span>

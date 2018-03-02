@@ -51,7 +51,7 @@
                 <a href="index.html" class="btn btn-danger" role="button">Back to home</a>
             </div>
 
-            <form name="registerForm" ng-if="!success">
+            <form name="registerForm" ng-if="!success" autocomplete="off">
                 <div ng-class="{'input-group': registerFormUsername == null || registerFormUsername.indexOf('@') == -1}">
                     <input type="text" class="form-control" id="registerUsername" placeholder="Username" ng-model="registerFormUsername" required aria-describedby="username-addon" autofocus>
                     <span class="input-group-addon" id="username-addon" ng-if="registerFormUsername == null || registerFormUsername.indexOf('@') == -1">@{{selected_server_domain}}</span>
