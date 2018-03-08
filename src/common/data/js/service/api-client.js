@@ -9,12 +9,13 @@
      * @requires $rootScope
      * @requires psonocli.storage
      * @requires psonocli.cryptoLibrary
+     * @requires psonocli.device
      *
      * @description
      * Service to talk to the psono REST api
      */
 
-    var apiClient = function($http, $q, $rootScope, storage, cryptoLibrary) {
+    var apiClient = function($http, $q, $rootScope, storage, cryptoLibrary, device) {
 
         var decrypt_data = function(session_secret_key, data) {
             if (session_secret_key && data !== null
@@ -43,6 +44,8 @@
 
             if (session_secret_key && data !== null) {
                 data['request_time'] = new Date().toISOString();
+                data['request_device_fingerprint'] = device.get_device_fingerprint();
+
                 data = cryptoLibrary.encrypt_data(JSON.stringify(data), session_secret_key);
             }
 
@@ -2061,6 +2064,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("apiClient", ['$http', '$q', '$rootScope', 'storage', 'cryptoLibrary', apiClient]);
+    app.factory("apiClient", ['$http', '$q', '$rootScope', 'storage', 'cryptoLibrary', 'device', apiClient]);
 
 }(angular));
