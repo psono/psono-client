@@ -1213,15 +1213,13 @@
          *
          * @param {string} new_email The new email
          * @param {string} verification_password The password for verification
-         * @param {function} resolve The callback to trigger in case of a success
-         * @param {function} reject The callback to trigger in case of a failure
          *
          * @returns {promise} Returns a promise with the result
          */
-        var save_new_email = function(new_email, verification_password, resolve, reject) {
+        var save_new_email = function(new_email, verification_password) {
 
             if (verification_password === null || verification_password.length === 0) {
-                return reject({errors: ['Old password empty']})
+                return $q.reject({errors: ['Old password empty']})
             }
 
             var authkey_old = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, verification_password);
@@ -1230,10 +1228,10 @@
 
                 storage.upsert('config', {key: 'user_email', value: new_email});
                 storage.save();
-                return resolve({msgs: ['Saved successfully']})
+                return {msgs: ['Saved successfully']}
             };
             var onError = function() {
-                return reject({errors: ['Old password incorrect']})
+                return {errors: ['Old password incorrect']}
             };
             return update_user(new_email, null, authkey_old)
                 .then(onSuccess, onError);
@@ -1251,23 +1249,20 @@
          * @param {string} new_password The new password
          * @param {string} new_password_repeat The new password (repeated)
          * @param {string} old_password The old password
-         * @param {function} resolve The callback to trigger in case of a success
-         * @param {function} reject The callback to trigger in case of a failure
          *
          * @returns {promise} Returns a promise with the result
          */
-        var save_new_password = function(new_password, new_password_repeat, old_password, resolve, reject) {
+        var save_new_password = function(new_password, new_password_repeat, old_password) {
 
             var authkey_old, new_authkey, user_private_key, user_secret_key, user_sauce, priv_key_enc, secret_key_enc, onSuccess, onError;
 
             var test_result = helper.is_valid_password(new_password, new_password_repeat);
             if (test_result !== true) {
-                console.log("reject");
-                return reject({errors: [test_result]})
+                return $q.reject({errors: [test_result]})
             }
 
             if (old_password === null || old_password.length === 0) {
-                return reject({errors: ['Old password empty']})
+                return $q.reject({errors: ['Old password empty']})
             }
 
             authkey_old = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, old_password);
@@ -1281,10 +1276,10 @@
             secret_key_enc = cryptoLibrary.encrypt_secret(user_secret_key.value, new_password, user_sauce);
 
             onSuccess = function(data) {
-                return resolve({msgs: ['Saved successfully']})
+                return {msgs: ['Saved successfully']}
             };
             onError = function() {
-                return reject({errors: ['Old password incorrect']})
+                return {errors: ['Old password incorrect']}
             };
 
             return update_user(null, new_authkey, authkey_old, priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce)
