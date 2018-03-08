@@ -460,7 +460,7 @@
          * @description
          * Generates a uuid
          *
-         * @returns {boolean} Returns weather the password chunk is valid
+         * @returns {uuid} Returns weather the password chunk is valid
          */
         var generate_uuid = function() {
             return uuid.v4();

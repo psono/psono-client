@@ -335,15 +335,13 @@
                 if (old_email !== new_email) {
                     return managerDatastoreUser.save_new_email(
                         new_email,
-                        old_password,
-                        resolve,
-                        reject
+                        old_password
                     ).then(function(data){
                         specials['setting_email_password_old'].value = '';
-                        return data;
+                        resolve(data);
                     }, function(data) {
                         specials['setting_email_password_old'].value = '';
-                        return $q.reject(data)
+                        reject(data)
                     });
                 }
 
@@ -355,22 +353,20 @@
                 // lets check for a correct old password and then update our backend
                 if ((new_password && new_password.length > 0)
                     || (new_password_repeat && new_password_repeat.length > 0)) {
-                    return managerDatastoreUser.save_new_password(
+                    managerDatastoreUser.save_new_password(
                         new_password,
                         new_password_repeat,
-                        old_password,
-                        resolve,
-                        reject
+                        old_password
                     ).then(function(data){
                             specials['setting_password'].value = '';
                             specials['setting_password_repeat'].value = '';
                             specials['setting_password_password_old'].value = '';
-                            return data;
+                            resolve(data);
                     }, function(data) {
                         specials['setting_password'].value = '';
                         specials['setting_password_repeat'].value = '';
                         specials['setting_password_password_old'].value = '';
-                        return $q.reject(data)
+                        reject(data)
                     });
                 }
             });

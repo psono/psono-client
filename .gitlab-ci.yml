@@ -49,7 +49,7 @@ build-docker-image:
     - docker info
     - echo $CI_BUILD_TOKEN | docker login --username=gitlab-ci-token --password-stdin registry.gitlab.com
     - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker.jfrog.io
-    - docker build -t $CONTAINER_TEST_IMAGE .
+    - docker build -t $CONTAINER_TEST_IMAGE --pull .
     - docker push $CONTAINER_TEST_IMAGE
     - curl -fL https://getcli.jfrog.io | sh
     - ./jfrog rt c rt-server-1 --url=https://psono.jfrog.io/psono --user=gitlab --password=$artifactory_credentials
@@ -134,9 +134,9 @@ release-artifacts:
     - apt-get install -y curl
     - curl -fL https://getcli.jfrog.io | sh
     - ./jfrog rt c rt-server-1 --url=https://psono.jfrog.io/psono --user=gitlab --password=$artifactory_credentials
-    - ./jfrog rt cp psono/client/$CI_BUILD_REF_NAME/firefox-extension.zip psono/client/latest/firefox-extension.zip
-    - ./jfrog rt cp psono/client/$CI_BUILD_REF_NAME/chrome-extension.zip psono/client/latest/chrome-extension.zip
-    - ./jfrog rt cp psono/client/$CI_BUILD_REF_NAME/webclient.zip psono/client/latest/webclient.zip
+    - ./jfrog rt cp psono/client/$CI_BUILD_REF_NAME/firefox-extension.zip psono/client/latest/ --flat
+    - ./jfrog rt cp psono/client/$CI_BUILD_REF_NAME/chrome-extension.zip psono/client/latest/ --flat
+    - ./jfrog rt cp psono/client/$CI_BUILD_REF_NAME/webclient.zip psono/client/latest/ --flat
   only:
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
