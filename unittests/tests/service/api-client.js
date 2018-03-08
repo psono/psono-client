@@ -160,7 +160,9 @@
                     // Validate request parameters:
                     data = JSON.parse(data);
 
-                    expect(data).toEqual({'request_time': data.request_time });
+                    // will fail for everything that is no ISO date and return NAN which is not bigger than 0
+                    expect(Date.parse(data.request_time) > 0).toBeTruthy();
+                    expect(data.request_device_fingerprint).toEqual(jasmine.any(Number));
 
                     expect(headers.Authorization).toEqual('Token ' + token);
 
@@ -184,10 +186,10 @@
                     // Validate request parameters:
                     data = JSON.parse(data);
 
-                    expect(data).toEqual({
-                        'session_id': session_id,
-                        'request_time': data.request_time
-                    });
+                    expect(data.session_id).toEqual(session_id);
+                    // will fail for everything that is no ISO date and return NAN which is not bigger than 0
+                    expect(Date.parse(data.request_time) > 0).toBeTruthy();
+                    expect(data.request_device_fingerprint).toEqual(jasmine.any(Number));
 
                     expect(headers.Authorization).toEqual('Token ' + token);
 
