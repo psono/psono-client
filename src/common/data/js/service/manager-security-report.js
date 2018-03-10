@@ -10,15 +10,20 @@
      * @requires psonocli.managerExport
      * @requires psonocli.managerDatastoreUser
      * @requires psonocli.managerBase
+     * @requires psonocli.apiPwnedpasswords
+     * @requires psonocli.cryptoLibrary
      *
      * @description
      * Service to manage the export of datastores
      */
 
-    var managerSecurityReport = function($q, $window, $timeout, managerExport, managerDatastoreUser, managerBase) {
+    var managerSecurityReport = function($q, $window, $timeout, managerExport, managerDatastoreUser,
+                                         managerBase, apiPwnedpasswords, cryptoLibrary) {
 
 
         var registrations = {};
+        var masterpassword = '';
+        var haveibeenpwned = false;
 
         /**
          * @ngdoc
@@ -186,6 +191,14 @@
             var website_passwords = [];
 
             filter_website_passwords_helper(datastore, website_passwords);
+
+            if (masterpassword) {
+               website_passwords.unshift({
+                   'name': 'Master Password',
+                   'website_password_password': masterpassword
+               })
+            }
+
             return website_passwords;
         };
 
@@ -202,6 +215,9 @@
          * @returns {number} Numbers of days that have passed since then
          */
         var get_age_in_days = function(time_string) {
+            if (typeof(time_string) === 'undefined') {
+                return 0;
+            }
             var date1 = new Date(time_string);
             var date2 = new Date();
             var timeDiff = Math.abs(date2.getTime() - date1.getTime());
@@ -277,6 +293,126 @@
 
             emit('check-duplicate-complete', {});
             return analysis
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerSecurityReport#analyze_haveibeenpwned_single
+         * @methodOf psonocli.managerSecurityReport
+         *
+         * @description
+         * Analyzes a single entry against the haveibeenpawned service
+         *
+         * @param entry
+         */
+        var analyze_haveibeenpwned_single = function(entry) {
+
+            var password_sha1 = cryptoLibrary.sha1(entry.password);
+            var password_sha1_prefix = password_sha1.substring(0,5);
+            var password_sha1_suffix = password_sha1.slice(5).toLowerCase();
+
+            var onError = function(result) {
+                // pass
+            };
+
+            var onSuccess = function(result) {
+                var suffix_list = result.data.split("\n");
+                for (var i = 0; i < suffix_list.length; i++) {
+                    var suffix = suffix_list[i].split(":");
+                    if(suffix[0].toLowerCase() !== password_sha1_suffix) {
+                        continue;
+                    }
+                    entry.pwned = suffix[1];
+                    if (entry.pwned > 1) {
+                        entry.advise = 'Change password, it has been compromised ' + entry.pwned + ' times.';
+                    } else {
+                        entry.advise = 'Change password, it has been compromised.';
+                    }
+
+                    entry.rating = 0;
+
+                    return;
+                }
+                entry.pwned = 0;
+                console.log(entry);
+            };
+
+            return apiPwnedpasswords.range(password_sha1_prefix).then(onSuccess, onError);
+
+        };
+
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerSecurityReport#analyze_haveibeenpwned
+         * @methodOf psonocli.managerSecurityReport
+         *
+         * @description
+         * Analyze all secrets from the last analysis against the haveibeenpawned service
+         *
+         * @param {object} analysis The secrets to analyze
+         *
+         * @returns {object} Returns the analysis of the passwords
+         */
+        var analyze_haveibeenpwned = function(analysis) {
+
+            var haveibeenpwned_resolver;
+
+            if (!haveibeenpwned) {
+                return analysis;
+            }
+
+            if (analysis.passwords.length === 0) {
+                return analysis
+            }
+
+            emit('check-haveibeenpwned-started', {});
+
+            function little_helper(index, password_list) {
+
+                if (index >= password_list.length) {
+                    emit('check-haveibeenpwned-complete', {});
+                    return haveibeenpwned_resolver(analysis)
+                }
+
+                if (password_list[index].password === '') {
+                    little_helper(index + 1, password_list);
+                }
+
+
+                var onError = function(result) {
+                    // pass
+                    emit('get-haveibeenpwned-complete', {});
+                    console.log(result);
+                };
+
+                var onSuccess = function(result) {
+                    emit('get-haveibeenpwned-complete', {});
+                    $timeout(function() {
+                        little_helper(index + 1, password_list);
+                    }, 1500);
+                };
+
+                analyze_haveibeenpwned_single(password_list[index]).then(onSuccess, onError);
+            }
+
+
+            return $q(function(resolve, reject) {
+                haveibeenpwned_resolver = resolve;
+
+                // we will not query in parallel due to rate limiting,
+                // so we will fake the start of the requests here, and query every password one by one with a 1.6 seconds
+                // delay in between
+                for (var i = 0; i < analysis.passwords.length; i++) {
+                    var entry = analysis.passwords[i];
+                    if (entry.password === '') {
+                        continue;
+                    }
+                    emit('get-haveibeenpwned-started', {});
+                }
+
+                little_helper(0, analysis.passwords);
+            });
         };
 
         /**
@@ -426,7 +562,10 @@
          *
          * @returns {promise} Returns a promise with the exportable datastore content
          */
-        var generate_security_report = function() {
+        var generate_security_report = function(password, check_haveibeenpwned) {
+
+            masterpassword = password;
+            haveibeenpwned = check_haveibeenpwned;
 
             emit('generation-started', {});
 
@@ -435,6 +574,7 @@
                 .then(analyze_password_length)
                 .then(analyze_password_age)
                 .then(analyze_password_duplicates)
+                .then(analyze_haveibeenpwned)
                 .then(summarize_password)
                 .then(summarize_user)
                 .then(function(analysis) {
@@ -455,6 +595,7 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerSecurityReport", ['$q', '$window', '$timeout', 'managerExport', 'managerDatastoreUser', 'managerBase', managerSecurityReport]);
+    app.factory("managerSecurityReport", ['$q', '$window', '$timeout', 'managerExport', 'managerDatastoreUser',
+        'managerBase', 'apiPwnedpasswords', 'cryptoLibrary', managerSecurityReport]);
 
 }(angular));

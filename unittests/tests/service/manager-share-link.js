@@ -53,6 +53,7 @@
                     data = JSON.parse(data);
 
                     expect(headers.Authorization).toEqual('Token ' + token);
+                    expect(headers['Authorization-Validator']).toEqual(jasmine.any(String));
 
                     expect(data.link_id).toEqual(link_id);
                     expect(data.share_id).toEqual(share_id);
@@ -81,6 +82,7 @@
                     data = JSON.parse(data);
 
                     expect(headers.Authorization).toEqual('Token ' + token);
+                    expect(headers['Authorization-Validator']).toEqual(jasmine.any(String));
 
                     expect(data.link_id).toEqual(link_id);
                     expect(data.new_parent_share_id).toEqual(new_parent_share_id);
@@ -106,6 +108,7 @@
                     data = JSON.parse(data);
 
                     expect(headers.Authorization).toEqual('Token ' + token);
+                    expect(headers['Authorization-Validator']).toEqual(jasmine.any(String));
 
                     expect(data.link_id).toEqual(link_id);
 
@@ -135,6 +138,7 @@
                     data = JSON.parse(data);
 
                     expect(headers.Authorization).toEqual('Token ' + token);
+                    expect(headers['Authorization-Validator']).toEqual(jasmine.any(String));
 
                     expect(data.link_id).toEqual(link_id);
                     expect(data.new_parent_share_id).toEqual(new_parent_share_id);
@@ -166,6 +170,7 @@
                     data = JSON.parse(data);
 
                     expect(headers.Authorization).toEqual('Token ' + token);
+                    expect(headers['Authorization-Validator']).toEqual(jasmine.any(String));
 
                     expect(data.link_id).toEqual(link_id);
                     expect(data.new_parent_share_id).toEqual(new_parent_share_id);
@@ -212,6 +217,7 @@
                     data = JSON.parse(data);
 
                     expect(headers.Authorization).toEqual('Token ' + token);
+                    expect(headers['Authorization-Validator']).toEqual(jasmine.any(String));
 
                     expect(data.link_id).toEqual(link_id);
 

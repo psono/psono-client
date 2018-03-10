@@ -266,7 +266,7 @@
                 }
 
                 if (open_secret_requests === 0) {
-                    resolver(datastore);
+                    resolve(datastore);
                 }
             });
         };

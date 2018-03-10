@@ -1,4 +1,4 @@
-(function(angular, require, sha512, sha256, uuid) {
+(function(angular, require, sha512, sha256, sha1, uuid) {
     'use strict';
 
     /**
@@ -486,6 +486,7 @@
 
         return {
             randomBytes: randomBytes,
+            sha1: sha1,
             sha256: sha256,
             sha512: sha512,
             generate_authkey: generate_authkey,
@@ -510,5 +511,5 @@
     var app = angular.module('psonocli');
     app.factory("cryptoLibrary", ['$window', '$timeout', 'converter', 'helper', cryptoLibrary]);
 
-}(angular, require, sha512, sha256, uuid));
+}(angular, require, sha512, sha256, sha1, uuid));
 

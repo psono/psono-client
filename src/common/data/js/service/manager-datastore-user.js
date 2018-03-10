@@ -1202,6 +1202,38 @@
                 .then(onSuccess, onError)
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#delete_other_sessions
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Deletes all sessions besides the current one
+         *
+         * @returns {promise} Returns a promise with the sessions
+         */
+        var delete_other_sessions = function() {
+
+            var onSuccess = function (request) {
+
+                var sessions = request.data['sessions'];
+
+                for (var i = 0; i < sessions.length; i++) {
+                    var session = sessions[i];
+                    if (session.current_session) {
+                        continue;
+                    }
+                    delete_session(session.id);
+                }
+
+            };
+            var onError = function () {
+                // pass
+            };
+            return apiClient.get_sessions(managerBase.get_token(), managerBase.get_session_secret_key())
+                .then(onSuccess, onError)
+        };
+
 
         /**
          * @ngdoc
@@ -1349,6 +1381,7 @@
             delete_yubikey_otp: delete_yubikey_otp,
             get_sessions: get_sessions,
             delete_session: delete_session,
+            delete_other_sessions: delete_other_sessions,
             save_new_email: save_new_email,
             save_new_password: save_new_password,
             delete_account: delete_account

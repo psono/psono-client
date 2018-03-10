@@ -74,6 +74,7 @@
                     <th>Password</th>
                     <th>Rating</th>
                     <th>Age</th>
+                    <th ng-if="check_haveibeenpwned">Pwned</th>
                     <th>Duplicate</th>
                     <th>Advise</th>
                 </tr>
@@ -95,6 +96,11 @@
                     </td>
                     <td>{{ pw.rating }}</td>
                     <td>{{ pw.write_age }} days</td>
+                    <td ng-if="check_haveibeenpwned">
+                        <i class="fa fa-exclamation-triangle" aria-hidden="true" ng-if="pw.pwned"></i>
+                        <span style="display: none" ng-if="!pw.pwned">0</span>
+                        <span style="display: none" ng-if="pw.pwned">1</span>
+                    </td>
                     <td>
                         <i class="fa fa-exclamation-triangle" aria-hidden="true" ng-if="pw.duplicate"></i>
                         <span style="display: none" ng-if="!pw.duplicate">0</span>
@@ -122,8 +128,24 @@
             </div>
             <form class="form-horizontal">
                 <div class="form-group">
+                    <label class="control-label col-sm-2" for="password">
+                        Your Password <em>(optional)</em>
+                    </label>
+                    <div class="col-sm-10">
+                        <input type="password" class="form-control" id="password" placeholder="(optional) Your Password"
+                               ng-model="password">
+                    </div>
+                </div>
+                <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
-                        <button type="submit" class="btn btn-primary btn-primary" ng-click="generate_security_report()">Start Analysis</button>
+                        <input type="checkbox" ng-model="check_haveibeenpwned">
+                        Check against <a href="https://haveibeenpwned.com/Passwords" target="_blank" rel="noopener">haveibeenpwned.com service</a>
+                        using the <a href="https://haveibeenpwned.com/API/v2#SearchingPwnedPasswordsByRange" target="_blank" rel="noopener">/range API</a>?
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="btn btn-primary btn-primary" ng-click="generate_security_report(password, check_haveibeenpwned)">Start Analysis</button>
                     </div>
                 </div>
 
@@ -136,8 +158,17 @@
                 </div>
 
                 <div ng-if="state.download_ongoing">
+                    <strong>Downloading Passwords from the server:</strong>
                     <uib-progressbar max="state.open_secret_requests" value="state.closed_secret_request" ng-if="state.download_ongoing">
                         <span style="color:white; white-space:nowrap;">{{ state.closed_secret_request }} / {{ state.open_secret_requests }}</span>
+                    </uib-progressbar>
+                    <br>
+                </div>
+
+                <div ng-if="state.haveibeenpwned_ongoing">
+                    <strong>Haveibeenpawnd Analysis:</strong>
+                    <uib-progressbar max="state.open_haveibeenpwned_requests" value="state.closed_haveibeenpwned_requests" ng-if="state.haveibeenpwned_ongoing">
+                        <span style="color:white; white-space:nowrap;">{{ state.closed_haveibeenpwned_requests }} / {{ state.open_haveibeenpwned_requests }}</span>
                     </uib-progressbar>
                     <br>
                 </div>

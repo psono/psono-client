@@ -116,6 +116,7 @@
                     data = JSON.parse(data);
 
                     expect(headers.Authorization).toEqual('Token ' + token);
+                    expect(headers['Authorization-Validator']).toEqual(jasmine.any(String));
 
                     // return answer
                     return [200, {}];
@@ -143,6 +144,7 @@
                     data = JSON.parse(data);
 
                     expect(headers.Authorization).toEqual('Token ' + token);
+                    expect(headers['Authorization-Validator']).toEqual(jasmine.any(String));
 
                     // return answer
                     return [200, 'datastore-1'];
@@ -180,6 +182,7 @@
                     data = JSON.parse(data);
 
                     expect(headers.Authorization).toEqual('Token ' + token);
+                    expect(headers['Authorization-Validator']).toEqual(jasmine.any(String));
 
                     // return answer
                     return [200, {
@@ -217,6 +220,7 @@
                     data = JSON.parse(data.data);
 
                     expect(headers.Authorization).toEqual('Token ' + token);
+                    expect(headers['Authorization-Validator']).toEqual(jasmine.any(String));
 
                     expect(data.type).toEqual(type);
                     expect(data.description).toEqual(description);
@@ -226,7 +230,6 @@
                     expect(data.secret_key).toBeDefined();
                     expect(data.secret_key_nonce).toBeDefined();
 
-                    console.log("datastore-1");
                     // return answer
                     return [200, "datastore-1"];
                 });
