@@ -21,6 +21,7 @@ wget https://raw.githubusercontent.com/RubaXa/Sortable/master/Sortable.min.js -O
 wget https://raw.githubusercontent.com/jakiestfu/Snap.js/develop/snap.min.js -O src/common/data/js/lib/snap.min.js
 wget https://raw.githubusercontent.com/emn178/js-sha512/master/build/sha512.min.js -O src/common/data/js/lib/sha512.min.js
 wget https://raw.githubusercontent.com/emn178/js-sha256/master/build/sha256.min.js -O src/common/data/js/lib/sha256.min.js
+wget https://raw.githubusercontent.com/emn178/js-sha1/master/build/sha1.min.js -O src/common/data/js/lib/sha1.min.js
 wget https://raw.githubusercontent.com/3nsoft/ecma-nacl/master/dist/lib-browser/ecma-nacl.min.js -O src/common/data/js/lib/ecma-nacl.min.js
 wget https://raw.githubusercontent.com/jackspirou/clientjs/master/dist/client.min.js -O src/common/data/js/lib/client.min.js
 

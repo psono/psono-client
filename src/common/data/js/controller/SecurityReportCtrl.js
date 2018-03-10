@@ -15,6 +15,7 @@
         function ($scope, $routeParams, managerSecurityReport) {
 
             $scope.name = "SecurityReportCtrl";
+            $scope.check_haveibeenpwned = false;
             $scope.params = $routeParams;
             $scope.routeParams = $routeParams;
             $scope.state = {
@@ -22,7 +23,11 @@
                 open_secret_requests: 0,
                 closed_secret_request: 0,
                 download_ongoing: false,
-                download_complete: false
+                download_complete: false,
+                open_haveibeenpwned_requests: 0,
+                closed_haveibeenpwned_requests: 0,
+                haveibeenpwned_ongoing: false,
+                haveibeenpwned_complete: false
             };
             $scope.generate_security_report = generate_security_report;
             $scope.toggle_input_type = toggle_input_type;
@@ -51,6 +56,25 @@
                     $scope.state.download_ongoing = false;
                     $scope.state.download_complete = true;
                 });
+
+                managerSecurityReport.on('check-haveibeenpwned-started', function(){
+                    $scope.state.haveibeenpwned_ongoing = true;
+                });
+
+                managerSecurityReport.on('get-haveibeenpwned-started', function(){
+                    $scope.state.open_haveibeenpwned_requests = $scope.state.open_haveibeenpwned_requests + 1;
+                });
+
+                managerSecurityReport.on('get-haveibeenpwned-complete', function(){
+                    $scope.state.closed_haveibeenpwned_requests = $scope.state.closed_haveibeenpwned_requests + 1;
+                });
+
+                managerSecurityReport.on('check-haveibeenpwned-complete', function(){
+                    $scope.state.open_haveibeenpwned_requests = 0;
+                    $scope.state.closed_haveibeenpwned_requests = 0;
+                    $scope.state.haveibeenpwned_ongoing = false;
+                    $scope.state.haveibeenpwned_complete = true;
+                });
             }
 
             function iniatiate_state() {
@@ -60,7 +84,11 @@
                     open_secret_requests: 0,
                     closed_secret_request: 0,
                     download_ongoing: false,
-                    download_complete: false
+                    download_complete: false,
+                    open_haveibeenpwned_requests: 0,
+                    closed_haveibeenpwned_requests: 0,
+                    haveibeenpwned_ongoing: false,
+                    haveibeenpwned_complete: false
                 };
                 $scope.msgs = [];
                 $scope.errors = [];
@@ -70,7 +98,9 @@
             /**
              * Analyze all secrets
              */
-            function generate_security_report() {
+            function generate_security_report(password, check_haveibeenpwned) {
+
+                $scope.check_haveibeenpwned = check_haveibeenpwned;
 
                 var onSuccess = function (data) {
                     $scope.msgs = data.msgs;
@@ -114,7 +144,7 @@
 
                 iniatiate_state();
 
-                managerSecurityReport.generate_security_report()
+                managerSecurityReport.generate_security_report(password, check_haveibeenpwned)
                     .then(onSuccess, onError);
             }
 
