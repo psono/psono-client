@@ -279,7 +279,7 @@
 
             emit('check-duplicate-started', {});
             for (var i = 0; i < analysis.passwords.length; i++) {
-                if (analysis.passwords[i].password === '') {
+                if (analysis.passwords[i].password === '' || typeof(analysis.passwords[i].password) === 'undefined') {
                     continue;
                 }
                 if (lookup_dict.hasOwnProperty(analysis.passwords[i].password)) {
@@ -334,7 +334,6 @@
                     return;
                 }
                 entry.pwned = 0;
-                console.log(entry);
             };
 
             return apiPwnedpasswords.range(password_sha1_prefix).then(onSuccess, onError);
@@ -375,15 +374,16 @@
                     return haveibeenpwned_resolver(analysis)
                 }
 
-                if (password_list[index].password === '') {
-                    little_helper(index + 1, password_list);
+                if (password_list[index].password === '' || typeof(password_list[index].password) === 'undefined') {
+                    return little_helper(index + 1, password_list);
                 }
 
 
                 var onError = function(result) {
                     // pass
-                    emit('get-haveibeenpwned-complete', {});
-                    console.log(result);
+                    $timeout(function() {
+                        little_helper(index, password_list);
+                    }, 10000);
                 };
 
                 var onSuccess = function(result) {
@@ -405,7 +405,7 @@
                 // delay in between
                 for (var i = 0; i < analysis.passwords.length; i++) {
                     var entry = analysis.passwords[i];
-                    if (entry.password === '') {
+                    if (entry.password === '' || typeof(entry.password) === 'undefined') {
                         continue;
                     }
                     emit('get-haveibeenpwned-started', {});
