@@ -55,7 +55,6 @@
                 { key: "setting_password", field: "input", type: "password", title: "New Password", placeholder: "New Password", tab: 'change-password', complexify: true},
                 { key: "setting_password_repeat", field: "input", type: "password", title: "New Password (repeat)", placeholder: "New Password (repeat)", tab: 'change-password'},
                 { key: "setting_password_password_old", field: "input", type: "password", title: "Old Password", placeholder: "Old Password", tab: 'change-password'},
-                // Password Recovery
                 { name: "generate_password_recovery_button", field: "button", type: "button", title: "New Password Recovery Code", btnLabel: "Generate", class: 'btn-primary', onClick:"onClickGenerateNewPasswordRecoveryCode", tab: 'generate-password-recovery' },
                 // Password Recovery
                 { name: "google_authenticator_setup", field: "button", type: "button", title: "Google Authenticator", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureGoogleAuthenticator", tab: 'multifactor-authentication' },
@@ -361,6 +360,14 @@
                             specials['setting_password'].value = '';
                             specials['setting_password_repeat'].value = '';
                             specials['setting_password_password_old'].value = '';
+
+                            $uibModal.open({
+                                templateUrl: 'view/modal-delete-other-sessions.html',
+                                controller: 'ModalDeleteOtherSessionsCtrl',
+                                backdrop: 'static',
+                                resolve: {}
+                            });
+
                             resolve(data);
                     }, function(data) {
                         specials['setting_password'].value = '';
