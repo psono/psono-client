@@ -102,6 +102,7 @@
                     data = JSON.parse(data);
 
                     expect(headers.Authorization).toEqual('Token ' + token);
+                    expect(headers['Authorization-Validator']).toEqual(jasmine.any(String));
 
                     // return answer
                     return [200, {
@@ -146,6 +147,7 @@
                     data = JSON.parse(data);
 
                     expect(headers.Authorization).toEqual('Token ' + token);
+                    expect(headers['Authorization-Validator']).toEqual(jasmine.any(String));
 
                     // return answer
                     return [200, {
@@ -197,6 +199,7 @@
         //             data = JSON.parse(data);
         //
         //             expect(headers.Authorization).toEqual('Token ' + token);
+        //             expect(headers['Authorization-Validator']).toEqual(jasmine.any(String));
         //
         //             expect(data.share_id).toEqual(share_id);
         //             expect(data.data).toEqual(encrypted_data);
@@ -242,7 +245,7 @@
         //             data = JSON.parse(data);
         //
         //             expect(headers.Authorization).toEqual('Token ' + token);
-        //
+        //             expect(headers['Authorization-Validator']).toEqual(jasmine.any(String));
         //             expect(data.share_id).toEqual(share_id);
         //             expect(data.data).toEqual(encrypted_data);
         //             expect(data.data_nonce).toEqual(encrypted_data_nonce);
@@ -290,6 +293,7 @@
         //             data = JSON.parse(data);
         //
         //             expect(headers.Authorization).toEqual('Token ' + token);
+        //             expect(headers['Authorization-Validator']).toEqual(jasmine.any(String));
         //
         //             expect(data.data).toEqual(encrypted_data);
         //             expect(data.data_nonce).toEqual(encrypted_data_nonce);
@@ -327,6 +331,7 @@
                     data = JSON.parse(data);
 
                     expect(headers.Authorization).toEqual('Token ' + token);
+                    expect(headers['Authorization-Validator']).toEqual(jasmine.any(String));
 
                     // return answer
                     return [200, {}];
@@ -352,6 +357,7 @@
                     data = JSON.parse(data);
 
                     expect(headers.Authorization).toEqual('Token ' + token);
+                    expect(headers['Authorization-Validator']).toEqual(jasmine.any(String));
 
                     // return answer
                     return [200, {}];
@@ -389,6 +395,7 @@
         //             data = JSON.parse(data);
         //
         //             expect(headers.Authorization).toEqual('Token ' + token);
+        //             expect(headers['Authorization-Validator']).toEqual(jasmine.any(String));
         //
         //             expect(data.title).toEqual(encrypted_data3 + title);
         //             expect(data.title_nonce).toEqual(encrypted_data_nonce3 + title);
@@ -434,6 +441,7 @@
         //             data = JSON.parse(data);
         //
         //             expect(headers.Authorization).toEqual('Token ' + token);
+        //             expect(headers['Authorization-Validator']).toEqual(jasmine.any(String));
         //
         //             expect(data.share_id).toEqual(share_id);
         //             expect(data.user_id).toEqual(user_id);
@@ -467,6 +475,7 @@
         //             data = JSON.parse(data);
         //
         //             expect(headers.Authorization).toEqual('Token ' + token);
+        //             expect(headers['Authorization-Validator']).toEqual(jasmine.any(String));
         //
         //             expect(data.share_right_id).toEqual(share_right_id);
         //
