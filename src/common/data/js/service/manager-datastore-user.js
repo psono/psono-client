@@ -377,6 +377,9 @@
                 server_public_key,
                 session_keys.private_key
             ));
+            if (response.data.user.username) {
+                storage.upsert('config', {key: 'user_username', value: response.data.user.username});
+            }
 
             token = response.data.token;
             user_sauce = response.data.user.user_sauce;
