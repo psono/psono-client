@@ -90,7 +90,7 @@
              */
             function generate_password() {
                 var password = passwordGenerator.generate();
-                helper.copy_to_clipboard(password);
+                browserClient.copy_to_clipboard(password);
 
                 browserClient.emit_sec('save-password-active-tab', {'password': password});
                 browserClient.close_popup();

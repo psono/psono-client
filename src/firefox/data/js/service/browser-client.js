@@ -208,6 +208,33 @@
             return $q.resolve('nothing done');
         };
 
+
+        /**
+         * @ngdoc
+         * @name psonocli.browserClient#copy_to_clipboard
+         * @methodOf psonocli.browserClient
+         *
+         * @description
+         * Copies some content to the clipboard
+         *
+         * @param {string} content The content to copy
+         */
+        function copy_to_clipboard(content) {
+
+            var copy = function (e) {
+                e.preventDefault();
+                if (e.clipboardData) {
+                    e.clipboardData.setData('text/plain', content);
+                } else if (window.clipboardData) {
+                    window.clipboardData.setData('Text', content);
+                }
+
+            };
+            document.addEventListener('copy', copy);
+            document.execCommand('copy');
+            document.removeEventListener('copy', copy);
+        }
+
         return {
             open_tab: open_tab,
             get_base_url: get_base_url,
@@ -221,7 +248,8 @@
             on: on,
             get_config:get_config,
             close_popup:close_popup,
-            disable_browser_password_saving: disable_browser_password_saving
+            disable_browser_password_saving: disable_browser_password_saving,
+            copy_to_clipboard: copy_to_clipboard
         };
     };
 
