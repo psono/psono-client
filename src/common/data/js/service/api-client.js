@@ -71,7 +71,7 @@
                  * which means that we need a user event for it, which means that we have to block the thread with a
                  * synchronous wait... If someone has a better idea let me know!
                  */
-                return jQuery.ajax({
+                data = jQuery.ajax({
                     type: connection_type,
                     url: backend + endpoint,
                     async: false,
@@ -85,9 +85,10 @@
                             xhr.setRequestHeader(header, headers[header]);
                         }
                     }
-                }).then(function(data) {
-                    return decrypt_data(session_secret_key, {data: JSON.parse(data)});
                 });
+
+                return decrypt_data(session_secret_key, {data: JSON.parse(data.responseText)});
+
             } else {
                 return $q(function(resolve, reject) {
 
@@ -689,7 +690,7 @@
                 "Authorization": "Token "+ token
             };
 
-            return call(connection_type, endpoint, data, headers, session_secret_key, synchronous);
+            return call(connection_type, endpoint, data, headers, session_secret_key, synchronous)
         };
 
 

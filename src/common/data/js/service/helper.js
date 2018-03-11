@@ -426,33 +426,6 @@
             }
         }
 
-
-        /**
-         * @ngdoc
-         * @name psonocli.helper#copy_to_clipboard
-         * @methodOf psonocli.helper
-         *
-         * @description
-         * Copies some content to the clipboard
-         *
-         * @param {string} content The content to copy
-         */
-        function copy_to_clipboard(content) {
-
-            var copy = function (e) {
-                e.preventDefault();
-                if (e.clipboardData) {
-                    e.clipboardData.setData('text/plain', content);
-                } else if (window.clipboardData) {
-                    window.clipboardData.setData('Text', content);
-                }
-
-            };
-            document.addEventListener('copy', copy);
-            document.execCommand('copy');
-            document.removeEventListener('copy', copy);
-        }
-
         /**
          * @ngdoc
          * @name psonocli.helper#endsWith
@@ -502,7 +475,6 @@
             is_valid_password: is_valid_password,
             split_string_in_chunks: split_string_in_chunks,
             remove_from_array: remove_from_array,
-            copy_to_clipboard: copy_to_clipboard,
             endsWith: endsWith,
             get_password_filter: get_password_filter
         };

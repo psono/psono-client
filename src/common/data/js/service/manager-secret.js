@@ -9,14 +9,13 @@
      * @requires psonocli.cryptoLibrary
      * @requires psonocli.itemBlueprint
      * @requires psonocli.browserClient
-     * @requires psonocli.helper
      *
      * @description
      * Service to handle all secret related tasks
      */
 
     var managerSecret = function(managerBase, apiClient, cryptoLibrary,
-                           itemBlueprint, browserClient, helper) {
+                           itemBlueprint, browserClient) {
 
         /**
          * @ngdoc
@@ -78,9 +77,15 @@
                 return secret;
             };
 
-            return apiClient.read_secret(managerBase.get_token(),
-                managerBase.get_session_secret_key(), secret_id, synchronous)
-                .then(onSuccess, onError);
+            if (synchronous) {
+                return onSuccess(
+                    apiClient.read_secret(managerBase.get_token(),managerBase.get_session_secret_key(), secret_id, synchronous)
+                )
+            } else {
+                return apiClient.read_secret(managerBase.get_token(),
+                    managerBase.get_session_secret_key(), secret_id, synchronous)
+                    .then(onSuccess, onError);
+            }
         };
 
         /**
@@ -178,16 +183,8 @@
 
             var secret_key = managerBase.find_key_nolimit('datastore-password-leafs', item.secret_id);
 
-            var onError = function(result) {
-                // pass
-            };
-
-            var onSuccess = function(decrypted_secret) {
-                helper.copy_to_clipboard(decrypted_secret['website_password_username']);
-            };
-
-            read_secret(item.secret_id, secret_key, true)
-                .then(onSuccess, onError);
+            var decrypted_secret = read_secret(item.secret_id, secret_key, true);
+            browserClient.copy_to_clipboard(decrypted_secret['website_password_username']);
 
         };
 
@@ -205,16 +202,8 @@
 
             var secret_key = managerBase.find_key_nolimit('datastore-password-leafs', item.secret_id);
 
-            var onError = function(result) {
-                // pass
-            };
-
-            var onSuccess = function(decrypted_secret) {
-                helper.copy_to_clipboard(decrypted_secret['website_password_password']);
-            };
-
-            read_secret(item.secret_id, secret_key, true)
-                .then(onSuccess, onError);
+            var decrypted_secret = read_secret(item.secret_id, secret_key, true);
+            browserClient.copy_to_clipboard(decrypted_secret['website_password_password']);
         };
 
         // registrations
@@ -235,6 +224,6 @@
 
     var app = angular.module('psonocli');
     app.factory("managerSecret", ['managerBase', 'apiClient', 'cryptoLibrary',
-        'itemBlueprint', 'browserClient', 'helper', managerSecret]);
+        'itemBlueprint', 'browserClient', managerSecret]);
 
 }(angular));

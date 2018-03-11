@@ -75,7 +75,7 @@
         var download_export = function (data) {
             var file_name = 'export.json';
             var a = angular.element('<a></a>');
-            a.attr('href', 'data:attachment/json,' + encodeURI(data));
+            a.attr('href', 'data:attachment/json,' + encodeURI(data).replace(/#/g, '%23'));
             a.attr('target', '_blank');
             a.attr('download', file_name);
             angular.element(document.body).append(a);
