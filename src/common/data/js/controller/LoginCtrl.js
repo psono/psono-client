@@ -374,6 +374,7 @@
                         };
 
                         $scope.view = 'ask_send_plain';
+                        $scope.errors = [];
 
                     } else {
                         return resolve(false);
