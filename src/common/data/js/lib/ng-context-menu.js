@@ -51,6 +51,9 @@ angular
                             top = top - (totalHeight - docHeight);
                         }
 
+                        top = top + $document[0].getElementsByClassName('snap-content')[0].scrollTop;
+
+
                         menuElement.css('top', top + 'px');
                         menuElement.css('left', left + 'px');
                         opened = true;
