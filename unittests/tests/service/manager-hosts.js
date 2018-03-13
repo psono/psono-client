@@ -20,7 +20,7 @@
             managerHost.update_known_hosts([]);
             expect(managerHost.get_known_hosts()).toEqual([]);
             storage.remove('persistent', storage.find_key('persistent', 'known_hosts'));
-            expect(managerHost.get_known_hosts()).toEqual([]);
+            expect(managerHost.get_known_hosts()).toEqual([{ url: 'https://www.psono.pw/server', verify_key: 'a16301bd25e3a445a83b279e7091ea91d085901933f310fdb1b137db9676de59' }]);
         }));
 
 

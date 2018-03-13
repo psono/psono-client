@@ -38,7 +38,7 @@
                     </button>
                     <ul class="dropdown-menu" role="menu">
                         <li role="menuitem" ng-repeat="di in n.dropmenuItems track by $index">
-                            <a href="#" ng-click="di.onclick('editEntryForm-'+ n.name, di)"><i class="{{di.icon}}"></i>{{di.text}}</a>
+                            <a href="" ng-click="di.onclick('editEntryForm-'+ n.name, di)"><i class="{{di.icon}}"></i>{{di.text}}</a>
                         </li>
                     </ul>
                 </div>
@@ -94,7 +94,7 @@
                             </button>
                             <ul class="dropdown-menu" role="menu">
                                 <li role="menuitem" ng-repeat="di in n.dropmenuItems track by $index">
-                                    <a href="#" ng-click="di.onclick('editEntryForm-'+ n.name, di)"><i class="{{di.icon}}"></i>{{di.text}}</a>
+                                    <a href="" ng-click="di.onclick('editEntryForm-'+ n.name, di)"><i class="{{di.icon}}"></i>{{di.text}}</a>
                                 </li>
                             </ul>
                         </div>
@@ -181,7 +181,7 @@
 
         <!-- Advanced -->
         <div class="text-right" ng-hide="!has_advanced(bp.selected)">
-            <a href="#" ng-click="isCollapsed = !isCollapsed">advanced</a>
+            <a href="" ng-click="isCollapsed = !isCollapsed">advanced</a>
         </div>
 
 

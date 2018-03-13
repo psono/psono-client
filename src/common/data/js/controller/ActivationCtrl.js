@@ -43,6 +43,11 @@
                     $scope.selected_server_title = $scope.selected_server.title;
                     $scope.selected_server_url = $scope.selected_server.url;
                     $scope.selected_server_domain = helper.get_domain($scope.selected_server.url);
+                    if ($scope.selected_server.domain) {
+                        $scope.selected_server_domain = $scope.selected_server.domain;
+                    } else {
+                        $scope.selected_server_domain = helper.get_domain($scope.selected_server.url);
+                    }
                 };
 
                 var onError = function() {
@@ -71,7 +76,11 @@
                 $scope.selected_server = server;
                 $scope.selected_server_title = server.title;
                 $scope.selected_server_url = server.url;
-                $scope.selected_server_domain = helper.get_domain(server.url);
+                if (server.domain) {
+                    $scope.selected_server_domain = server.domain;
+                } else {
+                    $scope.selected_server_domain = helper.get_domain(server.url);
+                }
             }
 
             /**

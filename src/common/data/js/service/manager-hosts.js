@@ -28,7 +28,10 @@
          */
         function get_known_hosts() {
             if (! storage.key_exists('persistent', 'known_hosts')) {
-                storage.insert('persistent', {key: 'known_hosts', value: []});
+                storage.insert('persistent', {key: 'known_hosts', value: [{
+                    "url" : "https://www.psono.pw/server",
+                    "verify_key" : "a16301bd25e3a445a83b279e7091ea91d085901933f310fdb1b137db9676de59"
+                }]});
                 storage.save();
             }
 
