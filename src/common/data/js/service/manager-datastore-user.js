@@ -465,6 +465,10 @@
             }
             storage.upsert('persistent', {key: 'trust_device', value: trust_device});
 
+            if (!server_info.hasOwnProperty('allowed_second_factors')) {
+                server_info['allowed_second_factors'] = ['yubikey_otp', 'google_authenticator', 'duo']
+            }
+
             storage.upsert('config', {key: 'server_info', value: server_info});
             storage.upsert('config', {key: 'server_verify_key', value: verify_key});
             storage.upsert('config', {key: 'user_username', value: username});

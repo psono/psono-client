@@ -24,7 +24,10 @@
                         case 'setting_email':
                             return { 'value': 'fake_setting_email' };
                         case 'server_info':
-                            return { 'value': {} };
+                            return { 'value': {
+                                    'allowed_second_factors': ['yubikey_otp', 'google_authenticator', 'duo']
+                                }
+                            };
                         case 'server_verify_key':
                             return { 'value': 'fake_server_verify_key' };
                         default:

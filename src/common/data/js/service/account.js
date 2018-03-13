@@ -17,8 +17,6 @@
 
     var account = function($q, $uibModal, $filter, storage, managerDatastoreUser, managerDatastoreSetting) {
 
-        var _server_info;
-
         var _default_tab = 'overview';
 
         var _tabs = [
@@ -55,11 +53,13 @@
                 { key: "setting_password", field: "input", type: "password", title: "New Password", placeholder: "New Password", tab: 'change-password', complexify: true},
                 { key: "setting_password_repeat", field: "input", type: "password", title: "New Password (repeat)", placeholder: "New Password (repeat)", tab: 'change-password'},
                 { key: "setting_password_password_old", field: "input", type: "password", title: "Old Password", placeholder: "Old Password", tab: 'change-password'},
-                { name: "generate_password_recovery_button", field: "button", type: "button", title: "New Password Recovery Code", btnLabel: "Generate", class: 'btn-primary', onClick:"onClickGenerateNewPasswordRecoveryCode", tab: 'generate-password-recovery' },
                 // Password Recovery
-                { name: "google_authenticator_setup", field: "button", type: "button", title: "Google Authenticator", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureGoogleAuthenticator", tab: 'multifactor-authentication' },
-                { name: "yubikey_otp_setup", field: "button", type: "button", title: "YubiKey (OTP)", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureYubiKeyOTP", tab: 'multifactor-authentication' },
-                { name: "duo_setup", field: "button", type: "button", title: "Duo (Push or Code)", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureDuo", tab: 'multifactor-authentication' },
+                { name: "generate_password_recovery_button", field: "button", type: "button", title: "New Password Recovery Code", btnLabel: "Generate", class: 'btn-primary', onClick:"onClickGenerateNewPasswordRecoveryCode", tab: 'generate-password-recovery' },
+                // 2FA
+                // controlled by serer, check activate()
+                // { name: "google_authenticator_setup", field: "button", type: "button", title: "Google Authenticator", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureGoogleAuthenticator", tab: 'multifactor-authentication' },
+                // { name: "yubikey_otp_setup", field: "button", type: "button", title: "YubiKey (OTP)", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureYubiKeyOTP", tab: 'multifactor-authentication' },
+                // { name: "duo_setup", field: "button", type: "button", title: "Duo (Push or Code)", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureDuo", tab: 'multifactor-authentication' },
                 // Delete Account
                 { name: "delete_account", field: "button", type: "button", title: "Delete Account", btnLabel: "Delete", class: 'btn-primary', onClick:"onClickOpenDeleteAccountModal", tab: 'delete-account' }
             ],
@@ -165,6 +165,22 @@
             "setting_password_repeat",
             "setting_password_password_old"
         ];
+
+        activate();
+
+        function activate() {
+            var allowed_second_factors = storage.find_key('config', 'server_info').value['allowed_second_factors'];
+
+            if (allowed_second_factors.indexOf('google_authenticator') !== -1) {
+                _account.fields.push({ name: "google_authenticator_setup", field: "button", type: "button", title: "Google Authenticator", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureGoogleAuthenticator", tab: 'multifactor-authentication' })
+            }
+            if (allowed_second_factors.indexOf('yubikey_otp') !== -1) {
+                _account.fields.push({ name: "yubikey_otp_setup", field: "button", type: "button", title: "YubiKey (OTP)", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureYubiKeyOTP", tab: 'multifactor-authentication' })
+            }
+            if (allowed_second_factors.indexOf('duo') !== -1) {
+                _account.fields.push({ name: "duo_setup", field: "button", type: "button", title: "Duo (Push or Code)", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureDuo", tab: 'multifactor-authentication' })
+            }
+        }
 
         /**
          * @ngdoc
