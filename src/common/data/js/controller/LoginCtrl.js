@@ -60,13 +60,6 @@
 
                     // TODO interpret "allow_custom_server"
 
-                    if (config.hasOwnProperty("default_username")) {
-                        $scope.loginFormUsername = config['default_username'];
-                    }
-                    if (config.hasOwnProperty("default_password")) {
-                        $scope.loginFormPassword = config['default_password'];
-                    }
-
                     /* Server selection with preselection */
                     $scope.servers = config['backend_servers'];
                     $scope.filtered_servers = $scope.servers;
@@ -99,7 +92,11 @@
                 $scope.selected_server = server;
                 $scope.selected_server_title = server.title;
                 $scope.selected_server_url = server.url;
-                $scope.selected_server_domain = helper.get_domain(server.url);
+                if (server.domain) {
+                    $scope.selected_server_domain = server.domain;
+                } else {
+                    $scope.selected_server_domain = helper.get_domain(server.url);
+                }
 
                 if(helper.endsWith($scope.loginFormUsername, '@' + $scope.selected_server_domain)) {
                     $scope.loginFormUsername = $scope.loginFormUsername.slice(0, - ('@' + $scope.selected_server_domain).length);
