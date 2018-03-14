@@ -238,3 +238,14 @@ deploy-firefox:
   only:
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
+deploy-changelog:
+  except:
+    - schedules
+  stage: test
+  image: psono-docker.jfrog.io/ubuntu:16.04
+  script:
+    - sh ./var/deploy_changelog.sh
+  environment:
+    name: static.psono.com
+    url: https://static.psono.com/gitlab.com/psono/psono-client/changelog.json
+
