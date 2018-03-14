@@ -1,5 +1,5 @@
 if (window.location.href.indexOf('https://www.psono.pw') !== -1) {
-    console.log("Google Analytics enabled.")
+    console.log("Google Analytics enabled.");
     (function (i, s, o, g, r, a, m) {
         i['GoogleAnalyticsObject'] = r;
         i[r] = i[r] || function () {
