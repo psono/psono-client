@@ -171,6 +171,11 @@
         function activate() {
             var allowed_second_factors = storage.find_key('config', 'server_info').value['allowed_second_factors'];
 
+
+            if (typeof(allowed_second_factors) === 'undefined') {
+                allowed_second_factors = ['google_authenticator', 'yubikey_otp_setup', 'duo_setup'];
+            }
+
             if (allowed_second_factors.indexOf('google_authenticator') !== -1) {
                 _account.fields.push({ name: "google_authenticator_setup", field: "button", type: "button", title: "Google Authenticator", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureGoogleAuthenticator", tab: 'multifactor-authentication' })
             }
