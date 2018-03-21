@@ -542,9 +542,7 @@
          * @returns {promise} promise
          */
         var read_datastore = function (token, session_secret_key, datastore_id) {
-            if (datastore_id === undefined) { datastore_id = null; }
-
-            var endpoint = '/datastore/' + (datastore_id === null ? '' : datastore_id + '/');
+            var endpoint = '/datastore/' + ( !datastore_id ? '' : datastore_id + '/');
             var connection_type = "GET";
             var data = null;
             var headers = {
@@ -1211,16 +1209,18 @@
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
          * @param {uuid|undefined} [user_id] (optional) the user ID
-         * @param {email|undefined} [user_username] (optional) the username
+         * @param {str|undefined} [user_username] (optional) the username
+         * @param {email|undefined} [user_email] (optional) the email
          *
          * @returns {promise} Returns a promise with the user information
          */
-        var search_user = function (token, session_secret_key, user_id, user_username) {
+        var search_user = function (token, session_secret_key, user_id, user_username, user_email) {
             var endpoint = '/user/search/';
             var connection_type = "POST";
             var data = {
                 user_id: user_id,
-                user_username: user_username
+                user_username: user_username,
+                user_email: user_email,
             };
             var headers = {
                 "Authorization": "Token "+ token
@@ -1680,9 +1680,7 @@
          * @returns {promise} promise
          */
         var read_group = function (token, session_secret_key, group_id) {
-            if (group_id === undefined) { group_id = null; }
-
-            var endpoint = '/group/' + (group_id === null ? '' : group_id + '/');
+            var endpoint = '/group/' + ( !group_id ? '' : group_id + '/');
             var connection_type = "GET";
             var data = null;
             var headers = {
@@ -1806,9 +1804,7 @@
          * @returns {promise} promise
          */
         var read_group_rights = function (token, session_secret_key, group_id) {
-            if (group_id === undefined) { group_id = null; }
-
-            var endpoint = '/group/rights/' + (group_id === null ? '' : group_id + '/');
+            var endpoint = '/group/rights/' + ( !group_id ? '' : group_id + '/');
             var connection_type = "GET";
             var data = null;
             var headers = {
@@ -1838,12 +1834,13 @@
          * @param {string} private_key_nonce nonce for private key
          * @param {string} private_key_type type of the private key
          * @param {boolean} group_admin Weather the users should have group admin rights or not
+         * @param {boolean} share_admin Weather the users should have share admin rights or not
          *
          * @returns {promise} promise
          */
         var create_membership = function (token, session_secret_key, group_id, user_id, secret_key, secret_key_nonce,
                                           secret_key_type, private_key,
-                                          private_key_nonce, private_key_type, group_admin) {
+                                          private_key_nonce, private_key_type, group_admin, share_admin) {
             var endpoint = '/membership/';
             var connection_type = "PUT";
             var data = {
@@ -1855,7 +1852,8 @@
                 private_key: private_key,
                 private_key_nonce: private_key_nonce,
                 private_key_type: private_key_type,
-                group_admin: group_admin
+                group_admin: group_admin,
+                share_admin: share_admin
             };
             var headers = {
                 "Authorization": "Token "+ token
@@ -1877,15 +1875,17 @@
          * @param {string} session_secret_key The session secret key
          * @param {uuid} membership_id The membership id to update
          * @param {boolean} group_admin Weather the users should have group admin rights or not
+         * @param {boolean} share_admin Weather the users should have share admin rights or not
          *
          * @returns {promise} promise
          */
-        var update_membership = function (token, session_secret_key, membership_id, group_admin) {
+        var update_membership = function (token, session_secret_key, membership_id, group_admin, share_admin) {
             var endpoint = '/membership/';
             var connection_type = "POST";
             var data = {
                 membership_id: membership_id,
-                group_admin: group_admin
+                group_admin: group_admin,
+                share_admin: share_admin
             };
             var headers = {
                 "Authorization": "Token "+ token

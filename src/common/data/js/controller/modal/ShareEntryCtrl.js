@@ -77,6 +77,9 @@
 
                 managerGroups.read_groups(true)
                     .then(function (groups) {
+                        helper.remove_from_array(groups, '', function(a, b){
+                            return !a.share_admin;
+                        });
                         $scope.groups = groups;
                     });
             }

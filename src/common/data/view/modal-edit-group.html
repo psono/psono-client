@@ -20,6 +20,7 @@
                             <th>Name</th>
                             <th>Member</th>
                             <th>Group Admin</th>
+                            <th>Share Admin</th>
                             <th>Accepted</th>
                         </tr>
                         </thead>
@@ -34,6 +35,11 @@
                             <td>
                                 <button ng-if="is_member(user)" type="button" class="btn btn-default btn-sm" ng-click="toggle_group_admin(user)" ng-disabled="user.is_current_user">
                                     <i ng-class="user.group_admin === true ? 'fa fa-check-square-o' : 'fa fa-square-o'"></i>
+                                </button>
+                            </td>
+                            <td>
+                                <button ng-if="is_member(user)" type="button" class="btn btn-default btn-sm" ng-click="toggle_share_admin(user)" ng-disabled="user.is_current_user">
+                                    <i ng-class="user.share_admin === true ? 'fa fa-check-square-o' : 'fa fa-square-o'"></i>
                                 </button>
                             </td>
                             <td>
@@ -52,12 +58,12 @@
                     <button type="button" ng-click="add_user()" class="btn btn-link"><i class="fa fa-user-plus"></i> Search User</button>
                 </div>
             </uib-tab>
-            <uib-tab heading="Shares">
+            <uib-tab heading="Share Rights">
                 <div ng-if="shares">
                     <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
                         <thead>
                         <tr>
-                            <th>Title</th>
+                            <th>Share</th>
                             <th>Read</th>
                             <th>Write</th>
                             <th>Grant</th>
@@ -86,7 +92,7 @@
                                 </button>
                             </td>
                             <td>
-                                <button type="button" class="btn btn-default btn-sm" ng-click="dekete_share(share)">
+                                <button type="button" class="btn btn-default btn-sm" ng-click="delete_share_right(share)" ng-disabled="!group.share_admin">
                                     <i class="fa fa-trash" aria-hidden="true"></i>
                                 </button>
                             </td>

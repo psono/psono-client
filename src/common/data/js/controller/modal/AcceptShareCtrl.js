@@ -17,9 +17,9 @@
      * Controller for the "AcceptShare" modal
      */
     angular.module('psonocli').controller('ModalAcceptShareCtrl', ['$scope', '$uibModalInstance', '$uibModal',
-        'managerDatastoreUser', 'message', 'shareBlueprint', 'title', 'item', 'cryptoLibrary',
+        'managerDatastoreUser', 'message', 'shareBlueprint', 'title', 'item', 'hide_user', 'cryptoLibrary',
         function ($scope, $uibModalInstance, $uibModal,
-                  managerDatastoreUser, message, shareBlueprint, title, item, cryptoLibrary) {
+                  managerDatastoreUser, message, shareBlueprint, title, item, hide_user, cryptoLibrary) {
 
             $scope.cut_breadcrumbs = cut_breadcrumbs;
             $scope.clear_breadcrumbs = clear_breadcrumbs;
@@ -28,6 +28,7 @@
 
             $scope.title = title;
             $scope.item = item;
+            $scope.hide_user = hide_user;
             $scope.user_is_trusted = false;
             $scope.trust = trust;
 
@@ -45,39 +46,41 @@
                 /**
                  * identifies trusted users
                  */
-                managerDatastoreUser
-                    .search_user_datastore(item.share_right_create_user_id, item.share_right_create_user_username)
-                    .then(function (user) {
+                if (!hide_user) {
+                    managerDatastoreUser
+                        .search_user_datastore(item.share_right_create_user_id, item.share_right_create_user_username)
+                        .then(function (user) {
 
-                        if (user !== null) {
-                            $scope.user_is_trusted = true;
-                            $scope.user = user;
-                            return;
-                        }
+                            if (user !== null) {
+                                $scope.user_is_trusted = true;
+                                $scope.user = user;
+                                return;
+                            }
 
-                        var onSuccess = function (data) {
-                            $scope.user = {
-                                data: {
-                                    user_search_username: data.data.username,
-                                    user_id: data.data.id,
-                                    user_username: data.data.username,
-                                    user_public_key: data.data.public_key
-                                },
-                                name: data.data.username
+                            var onSuccess = function (data) {
+                                $scope.user = {
+                                    data: {
+                                        user_search_username: data.data.username,
+                                        user_id: data.data.id,
+                                        user_username: data.data.username,
+                                        user_public_key: data.data.public_key
+                                    },
+                                    name: data.data.username
+                                };
+                                $scope.user_list = [
+                                    {name: 'user_search_username', value: data.data.username},
+                                    {name: 'user_id', value: data.data.id},
+                                    {name: 'user_username', value: data.data.username},
+                                    {name: 'user_public_key', value: data.data.public_key}
+                                ]
                             };
-                            $scope.user_list = [
-                                {name: 'user_search_username', value: data.data.username},
-                                {name: 'user_id', value: data.data.id},
-                                {name: 'user_username', value: data.data.username},
-                                {name: 'user_public_key', value: data.data.public_key}
-                            ]
-                        };
-                        var onError = function (data) {
-                            //pass
-                        };
-                        managerDatastoreUser.search_user(item.share_right_create_user_username)
-                            .then(onSuccess, onError);
-                    });
+                            var onError = function (data) {
+                                //pass
+                            };
+                            managerDatastoreUser.search_user(item.share_right_create_user_username)
+                                .then(onSuccess, onError);
+                        });
+                }
             }
 
             /**

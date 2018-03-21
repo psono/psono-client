@@ -466,7 +466,11 @@
             storage.upsert('persistent', {key: 'trust_device', value: trust_device});
 
             if (!server_info.hasOwnProperty('allowed_second_factors')) {
-                server_info['allowed_second_factors'] = ['yubikey_otp', 'google_authenticator', 'duo']
+                server_info['allowed_second_factors'] = ['yubikey_otp', 'google_authenticator', 'duo'];
+            }
+
+            if (!server_info.hasOwnProperty('allow_user_search_by_email')) {
+                server_info['allow_user_search_by_email'] = false;
             }
 
             storage.upsert('config', {key: 'server_info', value: server_info});
@@ -843,12 +847,13 @@
          * @description
          * searches a user in the database according to his username
          *
-         * @param {string} username The username to search
+         * @param {string} username (optional) The username to search
+         * @param {string} email (optional) The email to search
          * @returns {promise} Returns a promise with the user information
          */
-        var search_user = function(username) {
+        var search_user = function(username, email) {
 
-            return apiClient.search_user(managerBase.get_token(), managerBase.get_session_secret_key(), undefined, username);
+            return apiClient.search_user(managerBase.get_token(), managerBase.get_session_secret_key(), undefined, username, email);
         };
 
         /**

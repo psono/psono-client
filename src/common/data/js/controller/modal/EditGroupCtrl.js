@@ -9,6 +9,7 @@
      * @requires $uibModalInstance
      * @requires psonocli.managerGroups
      * @requires psonocli.managerDatastoreUser
+     * @requires psonocli.managerShare
      * @requires psonocli.helper
      * @requires psonocli.account
      *
@@ -16,9 +17,9 @@
      * Controller for the "Edit Group" modal
      */
     angular.module('psonocli').controller('ModalEditGroupCtrl', ['$scope', '$uibModal', '$uibModalInstance',
-        'managerGroups', 'managerDatastoreUser', 'shareBlueprint', 'cryptoLibrary', 'helper', 'account', 'group_id',
+        'managerGroups', 'managerDatastoreUser', 'managerShare', 'shareBlueprint', 'cryptoLibrary', 'helper', 'account', 'group_id',
         function ($scope, $uibModal, $uibModalInstance,
-                  managerGroups, managerDatastoreUser, shareBlueprint, cryptoLibrary, helper, account, group_id) {
+                  managerGroups, managerDatastoreUser, managerShare, shareBlueprint, cryptoLibrary, helper, account, group_id) {
             var i;
             var original_group_name;
             var group;
@@ -30,6 +31,8 @@
             $scope.cancel = cancel;
             $scope.toggle_user = toggle_user;
             $scope.toggle_group_admin = toggle_group_admin;
+            $scope.toggle_share_admin = toggle_share_admin;
+            $scope.delete_share_right = delete_share_right;
 
 
             $scope.users = [];
@@ -44,9 +47,11 @@
                 };
 
                 var onSuccess = function(group_details) {
+                    console.log(group_details);
 
                     var user_id = account.get_account_detail('user_id');
                     group = group_details;
+                    $scope.group = group_details;
                     $scope.group_name = group_details.name;
                     original_group_name = group_details.name;
 
@@ -241,6 +246,7 @@
                 var onSuccess = function(result) {
                     user['membership_id'] = result.membership_id;
                     user['group_admin'] = false;
+                    user['share_admin'] = true;
                     user['is_current_user'] = false;
                     _group_member_index[user['id']] = user
 
@@ -270,6 +276,7 @@
                     // pass
                     delete user['membership_id'];
                     delete user['group_admin'];
+                    delete user['share_admin'];
                     delete _group_member_index[user['id']];
 
                 };
@@ -313,7 +320,54 @@
                     user['group_admin'] = !user['group_admin'];
                 };
 
-                managerGroups.update_membership(user['membership_id'], !user['group_admin']).then(onSuccess, onError)
+                managerGroups.update_membership(user['membership_id'], !user['group_admin'], user['share_admin']).then(onSuccess, onError)
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalEditGroupCtrl#toggle_share_admin
+             * @methodOf psonocli.controller:ModalEditGroupCtrl
+             *
+             * @description
+             * responsible to toggle the share admin right of a user
+             */
+            function toggle_share_admin(user) {
+
+                var onError = function(result) {
+                    // pass
+                    console.log(result);
+                };
+
+                var onSuccess = function(result) {
+                    user['share_admin'] = !user['share_admin'];
+                };
+
+                managerGroups.update_membership(user['membership_id'], user['group_admin'], !user['share_admin']).then(onSuccess, onError);
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalEditGroupCtrl#delete_share_right
+             * @methodOf psonocli.controller:ModalEditGroupCtrl
+             *
+             * @description
+             * Deletes a share right
+             *
+             * @param share_right
+             */
+            function delete_share_right(share_right) {
+                var onError = function(result) {
+                    // pass
+                    console.log(result);
+                };
+
+                var onSuccess = function(result) {
+                    helper.remove_from_array($scope.shares, share_right, function (a,b) {
+                        return a.id === b.id;
+                    });
+                };
+
+                managerShare.delete_share_right(undefined, share_right.id).then(onSuccess, onError);
             }
         }]);
 

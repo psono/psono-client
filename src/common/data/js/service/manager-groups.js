@@ -339,6 +339,7 @@
         var get_outstanding_group_shares = function() {
 
             var onSuccess = function(data){
+                console.log(data);
 
                 var inaccessible_share_list = managerDatastorePassword.get_inaccessible_shares(data.group_rights);
                 var inaccessible_share_by_group_dict = {};
@@ -370,15 +371,17 @@
          * @methodOf psonocli.managerGroups
          *
          * @description
-         * Creates a new group membership
+         * Creates a new group membership. Encrypts the group secrets (secret and private key) asymmetric with the the
+         * groups private key and the users public key and sends everything to the server.
          *
          * @param {object} user The user for the new membership
          * @param {object} group The group for the new membership
          * @param {boolean} group_admin If the new group member should get group admin rights or not
+         * @param {boolean} share_admin If the new group member should get share admin rights or not
          *
          * @returns {promise} Returns whether the creation was successful or not
          */
-        var create_membership = function(user, group, group_admin) {
+        var create_membership = function(user, group, group_admin, share_admin) {
 
             var onSuccess = function(data){
                 return data.data;
@@ -401,7 +404,7 @@
 
             return apiClient.create_membership(managerBase.get_token(), managerBase.get_session_secret_key(), group.group_id,
                 user.id, group_secret_key_enc.text, group_secret_key_enc.nonce, 'asymmetric', group_private_key_enc.text,
-                group_private_key_enc.nonce, 'asymmetric', group_admin)
+                group_private_key_enc.nonce, 'asymmetric', group_admin, share_admin)
                 .then(onSuccess, onError);
         };
 
@@ -414,11 +417,12 @@
          * Updates a group membership
          *
          * @param {uuid} membership_id The membership_id to delete
-         * @param {boolean} group_admin If the new group member should get group admin rights or not
+         * @param {boolean} group_admin If the group member should get group admin rights or not
+         * @param {boolean} share_admin If the group member should get share admin rights or not
          *
          * @returns {promise} Returns whether the deletion was successful or not
          */
-        var update_membership = function(membership_id, group_admin) {
+        var update_membership = function(membership_id, group_admin, share_admin) {
 
             var onSuccess = function(data){
                 return data.data;
@@ -428,7 +432,7 @@
                 //pass
             };
 
-            return apiClient.update_membership(managerBase.get_token(), managerBase.get_session_secret_key(), membership_id, group_admin)
+            return apiClient.update_membership(managerBase.get_token(), managerBase.get_session_secret_key(), membership_id, group_admin, share_admin)
                 .then(onSuccess, onError);
         };
 
