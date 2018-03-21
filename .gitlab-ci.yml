@@ -47,7 +47,6 @@ build-docker-image:
     - sh ./var/build-ubuntu.sh
     - curl -fSL "https://download.docker.com/linux/static/stable/x86_64/docker-17.12.0-ce.tgz" -o docker.tgz && echo "692e1c72937f6214b1038def84463018d8e320c8eaf8530546c84c2f8f9c767d *docker.tgz" | sha256sum -c - && tar -xzvf docker.tgz && mv docker/* /usr/local/bin/
     - docker info
-    - echo $CI_BUILD_TOKEN | docker login --username=gitlab-ci-token --password-stdin registry.gitlab.com
     - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker.jfrog.io
     - docker build -t $CONTAINER_TEST_IMAGE --pull .
     - docker push $CONTAINER_TEST_IMAGE
@@ -150,7 +149,6 @@ release-docker:
     - docker:dind
   script:
     - docker info
-    - echo $CI_BUILD_TOKEN | docker login --username=gitlab-ci-token --password-stdin registry.gitlab.com
     - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker.jfrog.io
     - docker pull $CONTAINER_TEST_IMAGE
     - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE

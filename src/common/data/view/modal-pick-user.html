@@ -1,0 +1,31 @@
+<form name="newGroupForm" novalidate>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title">Pick User</h3>
+    </div>
+    <div class="modal-body">
+        <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
+            <thead>
+            <tr>
+                <th>Username</th>
+                <th class="hidden-xs hidden-sm">Public Key</th>
+                <th>&nbsp;</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="user in data">
+                <td>{{user.username | limitTo: 20 }}{{user.username.length > 20 ? '...)' : ''}}</td>
+                <td class="hidden-xs hidden-sm">{{user.public_key | limitTo: 60 }}{{user.public_key.length > 60 ? '...)' : ''}}</td>
+                <td>
+                    <button type="button" class="btn btn-default btn-sm" ng-click="save(user)">
+                        <i class="fa fa-check" aria-hidden="true"></i>
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" type="button" ng-click="close();">Close</button>
+    </div>
+</form>

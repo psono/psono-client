@@ -5,7 +5,9 @@
      * @ngdoc service
      * @name psonocli.shareBlueprint
      * @requires $window
+     * @requires $uibModal
      * @requires psonocli.helper
+     * @requires psonocli.storage
      *
      * @description
      * Service that provides the possible sharing partner blueprints, currently only "users".
@@ -14,9 +16,13 @@
      */
 
 
-    var shareBlueprint = function($window, helper) {
+    var shareBlueprint = function($window, $uibModal, helper, storage) {
 
         var _default = "user";
+        var email_regexp = /^[a-z0-9!#$%&'*+\/=?^_`{|}~.-]+@[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/i
+
+        var allow_user_search_by_email;
+        var allow_user_search_by_username_partial;
 
         var registrations = {};
 
@@ -27,7 +33,6 @@
                 title_field: "user_username",
                 search: ['user_name', 'user_username'],
                 fields: [
-                    { name: "user_search_username", field: "input", type: "text", title: "Username", placeholder: "Username", onChange: "onChangeSearchUsername", usernameInputGroupAddon: true },
                     { name: "user_search_button", field: "button", type: "button", title: "Search", hidden: true, class: 'btn-primary', onClick:"onClickSearchButton" },
                     { name: "user_name", field: "input", type: "text", title: "Name", placeholder: "Name (optional)", hidden: true},
                     { name: "user_id", field: "input", type: "text", title: "ID", placeholder: "ID", required: true, hidden: true, readonly: true },
@@ -59,8 +64,7 @@
                  * @param fields
                  * @param selected_server_domain
                  */
-                onChangeSearchUsername: function(fields, selected_server_domain){
-
+                onChangeSearch: function(fields, selected_server_domain){
                     var has_search_username = false;
 
                     var possible_username = '';
@@ -70,15 +74,25 @@
                         if (fields[i].name === "user_search_username") {
                             if (fields[i].value && fields[i].value.length > 0) {
 
-                                possible_username = helper.form_full_username(fields[i].value, selected_server_domain);
+                                if (allow_user_search_by_username_partial && fields[i].value.length > 2) {
+                                    has_search_username = true;
+                                } else if (!allow_user_search_by_username_partial) {
+                                    possible_username = helper.form_full_username(fields[i].value, selected_server_domain);
 
+                                    // Regex obtained from Angular JS
+                                    if (email_regexp.test(possible_username)) {
+                                        has_search_username = true;
+                                    }
+                                }
+                            }
+                        }
+                        if (fields[i].name === "user_search_email") {
+                            if (fields[i].value && fields[i].value.length > 0) {
                                 // Regex obtained from Angular JS
-                                var regexp = /^[a-z0-9!#$%&'*+\/=?^_`{|}~.-]+@[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/i;
-                                if (regexp.test(possible_username)) {
+                                if (email_regexp.test(fields[i].value)) {
                                     has_search_username = true;
                                 }
                             }
-                            break;
                         }
                     }
 
@@ -101,39 +115,71 @@
                 onClickSearchButton: function(fields, errors, form_control, selected_server_domain){
 
                     var search_username = '';
+                    var search_email = '';
+                    errors.splice(0,errors.length);
 
                     var i;
                     for (i = 0; i < fields.length; i++) {
                         if (fields[i].name === "user_search_username") {
                             search_username = fields[i].value;
-                            break;
+                        }
+                        if (fields[i].name === "user_search_email") {
+                            search_email = fields[i].value;
                         }
                     }
+                    if (!allow_user_search_by_username_partial) {
+                        search_username = helper.form_full_username(search_username, selected_server_domain);
+                    }
 
-                    search_username = helper.form_full_username(search_username, selected_server_domain);
-
-                    var onSuccess = function(data) {
-                        data = data.data;
+                    var show_user = function(id, username, public_key) {
 
                         for (i = 0; i < fields.length; i++) {
                             if (fields[i].name === "user_name") {
                                 fields[i].hidden = false;
                             }
                             if (fields[i].name === "user_id") {
-                                fields[i].value = data.id;
+                                fields[i].value = id;
                             }
                             if (fields[i].name === "user_username") {
-                                fields[i].value = data.username;
+                                fields[i].value = username;
                                 fields[i].hidden = false;
                             }
                             if (fields[i].name === "user_public_key") {
-                                fields[i].value = data.public_key;
+                                fields[i].value = public_key;
                                 fields[i].hidden = false;
                             }
                         }
+                    };
 
-                        errors.splice(0,errors.length);
-                        form_control['block_submit'] = false;
+
+                    var onSuccess = function(data) {
+                        data = data.data;
+
+                        if (Object.prototype.toString.call(data) === '[object Array]') {
+
+                            var modalInstance = $uibModal.open({
+                                templateUrl: 'view/modal-pick-user.html',
+                                controller: 'ModalPickUserCtrl',
+                                backdrop: 'static',
+                                size: 'lg',
+                                resolve: {
+                                    data: function () {
+                                        return data;
+                                    }
+                                }
+                            });
+
+                            modalInstance.result.then(function (data) {
+                                show_user(data.id, data.username, data.public_key);
+                                form_control['block_submit'] = false;
+                            }, function () {
+                                // cancel triggered
+                            });
+
+                        } else {
+                            show_user(data.id, data.username, data.public_key);
+                            form_control['block_submit'] = false;
+                        }
                     };
 
                     var onError = function(data) {
@@ -163,7 +209,7 @@
                         }
                     };
 
-                    registrations['search_user'](search_username).then(onSuccess, onError)
+                    registrations['search_user'](search_username, search_email).then(onSuccess, onError)
 
                 },
                 /**
@@ -186,6 +232,32 @@
 
         var _additionalFunction = {
         };
+
+        activate();
+
+        function activate() {
+
+            helper.remove_from_array(_blueprints.user.fields, undefined, function (a, b) {
+                return ['user_search_username', 'user_search_email'].indexOf(a['name']) !== -1;
+            });
+
+            if (storage.find_key('config', 'server_info') === null) {
+                _blueprints.user.fields.splice(0, 0, { name: "user_search_username", field: "input", type: "text", title: "Username", placeholder: "Username", onChange: "onChangeSearch", usernameInputGroupAddon: true });
+                return;
+            }
+            allow_user_search_by_email = storage.find_key('config', 'server_info').value['allow_user_search_by_email'];
+            allow_user_search_by_username_partial = storage.find_key('config', 'server_info').value['allow_user_search_by_username_partial'];
+
+            if (allow_user_search_by_username_partial) {
+                _blueprints.user.fields.splice(0, 0, { name: "user_search_username", field: "input", type: "text", title: "Username", placeholder: "Username", onChange: "onChangeSearch" });
+            } else {
+                _blueprints.user.fields.splice(0, 0, { name: "user_search_username", field: "input", type: "text", title: "Username", placeholder: "Username", onChange: "onChangeSearch", usernameInputGroupAddon: true });
+            }
+
+            if (allow_user_search_by_email) {
+                _blueprints.user.fields.splice(1, 0, { name: "user_search_email", field: "input", type: "text", title: "E-mail", placeholder: "E-mail", onChange: "onChangeSearch" });
+            }
+        }
 
         /**
          * @ngdoc
@@ -232,7 +304,7 @@
          * @returns {Array} The list of all blueprints
          */
         var get_blueprints = function () {
-
+            activate();
             var result = [];
 
             for (var property in _blueprints) {
@@ -396,6 +468,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("shareBlueprint", ['$window', 'helper', shareBlueprint]);
+    app.factory("shareBlueprint", ['$window', '$uibModal', 'helper', 'storage', shareBlueprint]);
 
 }(angular));

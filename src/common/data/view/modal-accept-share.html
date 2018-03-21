@@ -91,9 +91,9 @@
             <!--&lt;!&ndash; End Acceptshare Widget &ndash;&gt;-->
         <!--</div>-->
 
-        <h4>shared by:</h4>
+        <h4 ng-if="!hide_user">shared by:</h4>
 
-        <div class="form-group">
+        <div class="form-group" ng-if="!hide_user">
             <label ng-if="user.data.user_name" class="smalllabel" for="modalAcceptShareForm-user-name">
                 Username: <span ng-if="!user_is_trusted" class="text-danger">(not trusted)</span>
             </label>
@@ -111,7 +111,7 @@
                    ng-value="user.data.user_public_key" class="form-control" disabled="disabled">
         </div>
 
-        <div ng-if="!user_is_trusted">
+        <div ng-if="!user_is_trusted && !hide_user">
             <span class="text-danger"><strong>Attention:</strong></span> You never confirmed this user's identity. Please ask the user on a "secure" channel if that
             really is his public key.
             If you confirmed this public key and want to add it to your trusted user datastore click here:

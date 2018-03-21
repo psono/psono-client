@@ -273,7 +273,9 @@
                         },
                         item: function () {
                             return {
-                                'share_right_read': true
+                                'share_right_read': true,
+                                'share_right_create_user_id': group.user_id,
+                                'share_right_create_user_username': group.user_username
                             };
                         },
                         user: function () {
@@ -281,6 +283,9 @@
                                 'user_id': group.user_id,
                                 'user_username': group.user_username
                             };
+                        },
+                        hide_user: function () {
+                            return !group.user_id;
                         }
                     }
                 });
@@ -354,7 +359,9 @@
                         },
                         item: function () {
                             return {
-                                'share_right_read': true
+                                'share_right_read': true,
+                                'share_right_create_user_id': group.user_id,
+                                'share_right_create_user_username': group.user_username
                             };
                         },
                         user: function () {
@@ -362,6 +369,9 @@
                                 'user_id': group.user_id,
                                 'user_username': group.user_username
                             };
+                        },
+                        hide_user: function () {
+                            return !group.user_id;
                         }
                     }
                 });

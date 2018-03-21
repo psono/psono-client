@@ -93,6 +93,9 @@
                                 'user_id': item.share_right_create_user_id,
                                 'user_username': item.share_right_create_user_username
                             };
+                        },
+                        hide_user: function () {
+                            return false;
                         }
                     }
                 });
