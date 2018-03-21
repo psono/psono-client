@@ -47,8 +47,6 @@
                 };
 
                 var onSuccess = function(group_details) {
-                    console.log(group_details);
-
                     var user_id = account.get_account_detail('user_id');
                     group = group_details;
                     $scope.group = group_details;
