@@ -230,6 +230,7 @@
         <div class="form-group">
             <button ng-click="ga_verify(googleAuthenticatorFormGAToken)" type="submit"
                     class="btn btn-danger">Send</button>
+            <button class="btn" type="button" ng-click="cancel();">Close</button>
         </div>
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
@@ -250,6 +251,7 @@
         <div class="form-group">
             <button ng-click="yubikey_otp_verify(yubikeyOTPFormToken)" type="submit"
                     class="btn btn-danger">Send</button>
+            <button class="btn" type="button" ng-click="cancel();">Close</button>
         </div>
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
@@ -270,6 +272,7 @@
         <div class="form-group">
             <button ng-click="duo_verify(duoFormToken)" type="submit"
                     class="btn btn-danger">Send</button>
+            <button class="btn" type="button" ng-click="cancel();">Close</button>
         </div>
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">

@@ -37,6 +37,7 @@
             $scope.duo_verify = duo_verify;
             $scope.initiate_login = initiate_login;
             $scope.load_default_view = load_default_view;
+            $scope.cancel = cancel;
 
             $scope.open_tab = browserClient.open_tab;
             $scope.view = 'default';
@@ -237,6 +238,18 @@
                 };
 
                 managerDatastoreUser.duo_verify(duo_token).then(onSuccess, onError);
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LoginCtrl#cancel
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Triggered if someone clicks abort
+             */
+            function cancel() {
+                load_default_view();
             }
 
             /**
