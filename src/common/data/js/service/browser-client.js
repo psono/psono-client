@@ -23,6 +23,13 @@
         ];
 
         /**
+         * Returns the client type
+         */
+        var get_client_type = function(url) {
+            return 'webclient'
+        };
+
+        /**
          * @ngdoc
          * @name psonocli.browserClient#open_tab
          * @methodOf psonocli.browserClient
@@ -302,6 +309,7 @@
         }
 
         return {
+            get_client_type: get_client_type,
             open_tab: open_tab,
             get_base_url: get_base_url,
             load_version: load_version,

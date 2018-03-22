@@ -170,6 +170,11 @@
         activate();
 
         function activate() {
+
+            var server_info = storage.find_key('config', 'server_info');
+            if (!server_info) {
+                return
+            }
             var allowed_second_factors = storage.find_key('config', 'server_info').value['allowed_second_factors'];
 
 

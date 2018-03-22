@@ -51,6 +51,9 @@
 
             function activate() {
 
+                show_setup_2fa_link();
+                managerDatastoreUser.on('two_fa_activate', show_setup_2fa_link);
+
                 manager.storage_on('datastore-password-leafs', 'update', function (ele) {
                     //console.log("main.js update");
                     //console.log(ele);
@@ -78,6 +81,20 @@
                 $scope.$watch('datastore.search', function (value) {
                     password_filter = helper.get_password_filter(value);
                 });
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:PanelCtrl#show_setup_2fa_link
+             * @methodOf psonocli.controller:PanelCtrl
+             *
+             * @description
+             * Checks the 2fa status and shows the link to setup 2fa if needed.
+             */
+            function show_setup_2fa_link() {
+                var is_logged_in = managerDatastoreUser.is_logged_in();
+                var require_two_fa_setup = managerDatastoreUser.require_two_fa_setup();
+                $scope.show_2fa_button = is_logged_in && require_two_fa_setup;
             }
 
             /**

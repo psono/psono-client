@@ -35,7 +35,8 @@
 <body class="dark">
 <div ng-controller="WrapperCtrl" class="ng-cloak" id="panel">
 <div ng-if="view === 'logged_in'" ng-controller="PanelCtrl">
-    <form name="searchForm">
+
+    <form name="searchForm" ng-if="!show_2fa_button">
         <div class="form-group">
             <input id="datastoresearch" name="datastoresearch" class="form-control" ng-model="datastore.search"
                    placeholder="Search datastore..." autofocus>
@@ -83,6 +84,13 @@
             <button ng-click="logout()" type="submit" class="btn btn-danger">Logout</button>
         </div>
     </form>
+    <div ng-if="show_2fa_button">
+        <div class="alert alert-info">
+            <strong>Info!</strong> Your administrator requires that you setup a second factor. Please choose one and set it up.
+        </div>
+        <button ng-click="open_tab('enforce-two-fa.html')" type="submit" class="btn btn-danger">Setup Two Factor</button>
+        <button ng-click="logout()" class="btn btn-default">Logout</button>
+    </div>
 </div>
 <div ng-if="view === 'logged_out'" ng-controller="LoginCtrl" class="loginbox">
     <!-- Not logged in, show the login form -->
@@ -106,7 +114,7 @@
         </div>
 
         <div class="form-group">
-            <button ng-click="initiate_login(loginFormUsername, loginFormPassword, loginFormRemember, loginFormTrustDevice)" type="submit" class="btn btn-danger">Login <i class="fa fa-sign-in" aria-hidden="true"></i></button>
+            <button ng-click="initiate_login(loginFormUsername, loginFormPassword, loginFormRemember, loginFormTrustDevice, false)" type="submit" class="btn btn-danger">Login <i class="fa fa-sign-in" aria-hidden="true"></i></button>
             <a href="#" ng-click="open_tab('register.html')">Register</a>
         </div>
 
@@ -386,6 +394,7 @@
 <script src="js/controller/ShareusersCtrl.js" type="application/javascript"></script>
 <script src="js/controller/GroupsCtrl.js" type="application/javascript"></script>
 <script src="js/controller/WrapperCtrl.js" type="application/javascript"></script>
+<script src="js/controller/Enforce2FaCtrl.js" type="application/javascript"></script>
 
 <script src="js/service/api-client.js" type="application/javascript"></script>
 <script src="js/service/api-pwnedpasswords.js" type="application/javascript"></script>

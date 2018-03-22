@@ -13,6 +13,13 @@
         });
 
         /**
+         * Returns the client type
+         */
+        var get_client_type = function() {
+            return 'chrome_extension'
+        };
+
+        /**
          * Opens the URL in a new browser tab
          * @param url
          */
@@ -249,6 +256,7 @@
         }
 
         return {
+            get_client_type: get_client_type,
             open_tab: open_tab,
             get_base_url: get_base_url,
             load_version: load_version,

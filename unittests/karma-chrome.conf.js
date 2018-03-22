@@ -89,6 +89,7 @@
                 "../src/common/data/js/controller/ShareusersCtrl.js",
                 "../src/common/data/js/controller/GroupsCtrl.js",
                 "../src/common/data/js/controller/WrapperCtrl.js",
+                "../src/common/data/js/controller/Enforce2FaCtrl.js",
                 "../src/common/data/js/service/api-client.js",
                 "../src/common/data/js/service/api-pwnedpasswords.js",
                 "../src/common/data/js/service/helper.js",

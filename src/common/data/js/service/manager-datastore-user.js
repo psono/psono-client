@@ -33,6 +33,7 @@
         var user_private_key;
         var session_password;
         var verification;
+        var registrations = {};
 
 
         /**
@@ -48,6 +49,67 @@
         var is_logged_in = function () {
             var token = managerBase.get_token();
             return token !== null && token !== "";
+        };
+
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#require_two_fa_setup
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Checks if the user needs to setup a second factor
+         *
+         * @return {boolean} Returns whether the user should be forced to setup two factor
+         */
+        var require_two_fa_setup = function () {
+            var user_has_two_factor = managerBase.find_key('config', 'user_has_two_factor');
+            var server_info = managerBase.find_key('config', 'server_info');
+            return server_info !== null
+                && !user_has_two_factor
+                && server_info['compliance_enforce_2fa']
+                && server_info['allowed_second_factors']
+                && server_info['allowed_second_factors'].length > 0;
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#on
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * used to register functions for specific events
+         *
+         * @param {string} event The event to subscribe to
+         * @param {function} func The callback function to subscribe
+         */
+        var on = function (event, func) {
+            if (!registrations.hasOwnProperty(event)){
+                registrations[event] = [];
+            }
+
+            registrations[event].push(func);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#emit
+         * @methodOf psonocli.message
+         *
+         * @description
+         * emits an event and calls all registered functions for this event.
+         *
+         * @param {string} event The event to trigger
+         * @param {*} data The payload data to send to the subscribed callback functions
+         */
+        var emit = function (event, data) {
+
+            if (!registrations.hasOwnProperty(event)){
+                return;
+            }
+            for (var i = registrations[event].length - 1; i >= 0; i--) {
+                registrations[event][i](data);
+            }
         };
 
         /**
@@ -379,6 +441,7 @@
             ));
             if (response.data.user.username) {
                 storage.upsert('config', {key: 'user_username', value: response.data.user.username});
+                storage.upsert('config', {key: 'user_has_two_factor', value: response.data['required_multifactors'].length > 0});
             }
 
             token = response.data.token;
@@ -495,7 +558,6 @@
             };
 
             var onSuccess = function (response) {
-
                 return handle_login_response(response, password, session_keys, server_info['public_key']);
             };
 
@@ -929,6 +991,8 @@
          */
         var activate_ga = function(google_authenticator_id, google_authenticator_token) {
             var onSuccess = function () {
+                storage.upsert('config', {key: 'user_has_two_factor', value: true});
+                emit('two_fa_activate', true);
                 return true;
             };
             var onError = function () {
@@ -954,8 +1018,8 @@
             var onSuccess = function () {
                 return true;
             };
-            var onError = function () {
-                return false;
+            var onError = function (data) {
+                return $q.reject(data.data)
             };
             return apiClient.delete_ga(managerBase.get_token(), managerBase.get_session_secret_key(), ga_id)
                 .then(onSuccess, onError)
@@ -1034,6 +1098,8 @@
          */
         var activate_duo = function(duo_id, duo_token) {
             var onSuccess = function () {
+                storage.upsert('config', {key: 'user_has_two_factor', value: true});
+                emit('two_fa_activate', true);
                 return true;
             };
             var onError = function () {
@@ -1059,8 +1125,8 @@
             var onSuccess = function () {
                 return true;
             };
-            var onError = function () {
-                return false;
+            var onError = function (data) {
+                return $q.reject(data.data)
             };
             return apiClient.delete_duo(managerBase.get_token(), managerBase.get_session_secret_key(), duo_id)
                 .then(onSuccess, onError)
@@ -1082,7 +1148,9 @@
         var create_yubikey_otp = function(title, otp) {
 
             var onSuccess = function (request) {
-
+                storage.upsert('config', {key: 'user_has_two_factor', value: true});
+                storage.save();
+                emit('two_fa_activate', true);
                 return {
                     'id': request.data['id']
                 };
@@ -1134,6 +1202,8 @@
          */
         var activate_yubikey_otp = function(yubikey_id, yubikey_otp) {
             var onSuccess = function () {
+                storage.upsert('config', {key: 'user_has_two_factor', value: true});
+                emit('two_fa_activate', true);
                 return true;
             };
             var onError = function () {
@@ -1159,8 +1229,8 @@
             var onSuccess = function () {
                 return true;
             };
-            var onError = function () {
-                return false;
+            var onError = function (data) {
+                return $q.reject(data.data)
             };
             return apiClient.delete_yubikey_otp(managerBase.get_token(), managerBase.get_session_secret_key(), yubikey_otp_id)
                 .then(onSuccess, onError)
@@ -1361,6 +1431,7 @@
         shareBlueprint.register('search_user', search_user);
 
         return {
+            on: on,
             register: register,
             activate_code: activate_code,
             get_default: get_default,
@@ -1373,6 +1444,7 @@
             recovery_enable: recovery_enable,
             set_password: set_password,
             is_logged_in: is_logged_in,
+            require_two_fa_setup: require_two_fa_setup,
             update_user: update_user,
             recovery_generate_information: recovery_generate_information,
             get_user_datastore: get_user_datastore,

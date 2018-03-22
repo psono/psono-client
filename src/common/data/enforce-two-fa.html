@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html ng-app="psonocli" class="datastore" ng-csp>
 <head>
-    <title>Lost Password</title>
+    <title>Psono PW</title>
     <meta charset="utf-8">
 
     <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
@@ -12,6 +12,8 @@
     <meta name="msapplication-config" content="img/browserconfig.xml">
     <meta name="theme-color" content="#ffffff">
     <meta name="viewport" content="width=device-width, user-scalable=no">
+
+    <link rel="search" type="application/opensearchdescription+xml" title="Search Psono " href="search.xml" />
 
     <!-- build:build_min_css -->
     <link href="css/lib/opensans.css" rel="stylesheet" />
@@ -33,111 +35,44 @@
     <link href="css/datastore.css" rel="stylesheet">
 </head>
 <body>
-
-<div ng-controller="LostPasswordCtrl" class="ng-cloak">
-    <!-- Not logged in, show the login form -->
+<div  ng-controller="Enforce2FaCtrl" class="ng-cloak">
     <div class="wrapper">
 
-        <div class="lostpasswordbox dark">
+        <div class="loginbox dark">
             <img src="img/logo.png" alt="Psono Web Client" id="logo">
+            <a href="https://psono.com/" target="_blank" rel="noopener"><i class="fa fa-info-circle fa-pull-right" aria-hidden="true"> Info</i></a>
 
-            <div ng-if="success" class="big-font-icon-and-msg">
-                <i class="fa fa-thumbs-o-up"></i>
-
-                <div ng-repeat="e in msgs">{{e}}</div>
+            <div class="form-group">
+                <h4>Second factor required:</h4>
             </div>
 
-            <div ng-if="success" class="form-group text-center">
-                <a href="index.html" class="btn btn-danger" role="button">Back to home</a>
-            </div>
+            <form>
+                <div class="row" ng-repeat="field in account.fields" style="padding-bottom: 10px;">
+                    <label class="control-label col-xs-7 col-sm-7 col-md-7">
+                        {{field.title}}
+                    </label>
+                    <div class="col-xs-5 col-sm-5 col-md-5" ng-if="field.type !== 'label_only'">
+                        <button class="btn btn-primary {{field.class}}"
+                                ng-click="account[field.onClick]()"
+                                type="{{field.type}}" ng-hide="field.hidden" ng-click="">{{field.btnLabel}}</button>
 
-            <form name="lostpasswordForm" ng-if="!success && !recovery_enabled">
-                <div ng-class="{'input-group': lostpasswordFormUsername == null || lostpasswordFormUsername.indexOf('@') == -1}">
-                    <input type="text" class="form-control" id="lostpasswordUsername" placeholder="Username"
-                           ng-model="lostpasswordFormUsername" required aria-describedby="username-addon" autofocus>
-                    <span class="input-group-addon" id="username-addon"
-                          ng-if="lostpasswordFormUsername == null || lostpasswordFormUsername.indexOf('@') == -1">@{{selected_server_domain}}</span>
-                </div>
-                <br>
-                <div class="row">
-                    <div class="col-xs-6 form-group">
-                        <input type="text" class="form-control" id="code1" placeholder="DdSLuiDcPuY2F"
-                               ng-model="lostpasswordFormCode1.value"
-                               ng-class="lostpasswordFormCode1.class"
-                               ng-change="code_changing(lostpasswordFormCode1)">
-                    </div>
-
-                    <div class="col-xs-6 form-group">
-                        <input type="text" class="form-control" id="code2" placeholder="Dsxf82sKQdqPs"
-                               ng-model="lostpasswordFormCode2.value"
-                               ng-class="lostpasswordFormCode2.class"
-                               ng-change="code_changing(lostpasswordFormCode2)">
                     </div>
                 </div>
-
-                <input type="text" class="form-control" id="words" placeholder="or wordlist e.g.: follow charge genre ..."
-                       ng-model="lostpasswordFormWords.value"
-                       ng-class="lostpasswordFormWords.class"
-                       ng-change="words_changing(lostpasswordFormWords)">
-
-                <br>
-
-
                 <div class="form-group">
-                    <button ng-click="recovery_enable(lostpasswordFormUsername, lostpasswordFormCode1.value, lostpasswordFormCode2.value, lostpasswordFormWords.value)"
-                            type="submit" class="btn btn-danger">Request Password Reset</button>
+                    <div class="alert alert-info">
+                        <strong>Info!</strong> Your administrator requires that you setup a second factor. Please choose one and set it up.
+                    </div>
                 </div>
 
-                <div class="form-group alert alert-info" ng-repeat="e in msgs">
-                    <strong>Error:</strong> {{e}}
+                <div class="row" style="padding-bottom: 20px;">
+                    <div class="col-xs-5 col-sm-5 col-md-5">
+                        <button ng-click="logout()" type="submit" class="btn btn-default">Logout <i class="fa fa-sign-in" aria-hidden="true"></i></button>
+                    </div>
                 </div>
 
                 <div class="form-group alert alert-danger" ng-repeat="e in errors">
                     <strong>Error:</strong> {{e}}
                 </div>
-
-                <div class="form-group hideinputcharakter">
-
-                    <label for="serverselection">Server: </label>
-                    <input type="text" id="serverselection"
-                           uib-popover-template="'view/popover-server-select.html'"
-                           popover-trigger="'focus'"
-                           ng-model="selected_server_url"
-                           ng-change="changing(selected_server_url)"
-                           class="form-control">
-                </div>
-
-            </form>
-
-            <form name="setpasswordForm" ng-if="!success && recovery_enabled" autocomplete="off">
-                <div class="form-group">
-                    <input type="password" class="form-control" id="setpasswordPassword" placeholder="New Password" ng-model="setpasswordFormPassword" required>
-
-                    <uib-progressbar value="setpasswordFormPassword | complexify" ng-if="(setpasswordFormPassword | complexify) > 0">
-                        <span complexify="setpasswordFormPassword"></span>%
-                        <span complexify="setpasswordFormPassword" type="verbal"></span>
-                    </uib-progressbar>
-                </div>
-
-
-                <div class="form-group">
-                    <input type="password" class="form-control" id="setpasswordPasswordRepeat" placeholder="New Password (repeat)" ng-model="setpasswordFormPasswordRepeat" required>
-                </div>
-
-
-                <div class="form-group">
-                    <button ng-click="set_new_password(username, recovery_code, setpasswordFormPassword, setpasswordFormPasswordRepeat, recovery_data)"
-                            type="submit" class="btn btn-danger">Set New Password</button>
-                </div>
-
-                <div class="form-group alert alert-info" ng-repeat="e in msgs">
-                    <strong>Error:</strong> {{e}}
-                </div>
-
-                <div class="form-group alert alert-danger" ng-repeat="e in errors">
-                    <strong>Error:</strong> {{e}}
-                </div>
-
             </form>
         </div>
     </div>
@@ -153,6 +88,7 @@
            animation: fa-spin 2s infinite linear;
            vertical-align: middle;">&#xf110;</i> Loading<noscript><br>JavaScript is disabled</noscript>
     </div>
+
 </div>
 
 <!-- build:build_min_js -->

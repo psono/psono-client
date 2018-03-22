@@ -48,6 +48,16 @@
             activate();
 
             function activate() {
+
+
+                var is_logged_in = managerDatastoreUser.is_logged_in();
+                var require_two_fa_setup = managerDatastoreUser.require_two_fa_setup();
+                if (is_logged_in && require_two_fa_setup) {
+                    $window.location.href = 'enforce-two-fa.html';
+                    return;
+                }
+
+
                 browserClient.load_version().then(function(version) {
                     $scope.version = version;
                 });
