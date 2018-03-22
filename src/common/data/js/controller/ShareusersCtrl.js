@@ -257,7 +257,7 @@
                 dropDownMenuWatcher.on_close(div_id);
                 $timeout(function() {
                     contextMenusOpen--;
-                }, 0);
+                }, 500);
             }
 
             // Modals
