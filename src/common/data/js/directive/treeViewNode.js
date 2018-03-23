@@ -638,7 +638,12 @@
                         '<i ng-if="item.share_id" class="fa fa-group fa-stack-2x is-shared"></i>' +
                         '</span>' +
                         '<span class="tree-item-name">' +
-                        '   <a href="#" ng-click="clickItem(item, $event)">{{ item.' + displayProperty + ' }}</a>' +
+                        '   <a href="#" ng-click="editItem(item, $event)">{{ item.' + displayProperty + ' }}</a>' +
+                        '</span>' +
+                        '<span class="node-open-link">' +
+                        '<a href="#" class="btn btn-default" ng-click="clickItem(item, $event)">' +
+                        '    <i class="fa fa-external-link"></i>' +
+                        '</a>' +
                         '</span>' +
                         '<span class="node-dropdown" uib-dropdown on-toggle="toggled(open, \'drop_item_\' + item.id)">' +
                         '<a class="btn btn-default editbutton" href="#" role="button" id="drop_item_{{item.id}}" uib-dropdown-toggle>' +

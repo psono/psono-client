@@ -44,7 +44,12 @@
         <hr>
         <ul class="navigations">
             <li ng-repeat="searchEntry in datastore.filteredSearcArray = (searchArray | filter:filterBySearch)">
-                <a href="#" class="navigationitem" ng-click="on_item_click(searchEntry)">{{ searchEntry.name }}</a>
+                <a href="#" class="navigationitem" ng-click="edit_item(searchEntry)">{{ searchEntry.name }}</a>
+                <span class="node-open-link">
+                    <a href="#" class="btn btn-default" ng-click="on_item_click(searchEntry)">
+                        <i class="fa fa-external-link"></i>
+                    </a>
+                </span>
                 <span class="node-dropdown dropdown" uib-dropdown="" on-toggle="toggled(open, 'drop_node_' + node.id)">
                     <a class="btn btn-default dropdown-toggle" href="#" role="button"
                        id="drop_node_{{searchEntry.key}}" uib-dropdown-toggle=""
