@@ -37,9 +37,12 @@
             $scope.duo_verify = duo_verify;
             $scope.initiate_login = initiate_login;
             $scope.load_default_view = load_default_view;
+            $scope.cancel = cancel;
 
             $scope.open_tab = browserClient.open_tab;
             $scope.view = 'default';
+
+            var redirect_on_two_fa_missing;
 
             /* test background page */
             //console.log(browserClient.test_background_page());
@@ -241,6 +244,18 @@
 
             /**
              * @ngdoc
+             * @name psonocli.controller:LoginCtrl#cancel
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Triggered if someone clicks abort
+             */
+            function cancel() {
+                load_default_view();
+            }
+
+            /**
+             * @ngdoc
              * @name psonocli.controller:LoginCtrl#next_login_step
              * @methodOf psonocli.controller:LoginCtrl
              *
@@ -269,6 +284,10 @@
 
                     var onSuccess = function(data) {
                         $scope.errors = [];
+                        var require_two_fa_setup = managerDatastoreUser.require_two_fa_setup();
+                        if (require_two_fa_setup && redirect_on_two_fa_missing) {
+                            $window.location.href = 'enforce-two-fa.html';
+                        }
                     };
 
                     return managerDatastoreUser.activate_token().then(onSuccess, onError);
@@ -393,14 +412,17 @@
              * @param {string} password The password
              * @param {boolean|undefined} remember Remember username and server
              * @param {boolean|undefined} trust_device Trust the device for 30 days or logout when browser closes
+             * @param {boolean} two_fa_redirect Redirect user to enforce-two-fa.html or let another controller handle it
              */
-            function initiate_login(username, password, remember, trust_device) {
+            function initiate_login(username, password, remember, trust_device, two_fa_redirect) {
                 if (username === undefined || password === undefined) {
                     // Dont do anything if username or password is wrong,
                     // because the html5 form validation will tell the user
                     // whats wrong
                     return;
                 }
+
+                redirect_on_two_fa_missing = two_fa_redirect;
 
                 var onError = function() {
                     $scope.errors = ['Server offline.']

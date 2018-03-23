@@ -29,6 +29,7 @@ wget https://raw.githubusercontent.com/chieffancypants/angular-loading-bar/maste
 wget https://raw.githubusercontent.com/chieffancypants/angular-loading-bar/master/build/loading-bar.min.js -O src/common/data/js/lib/loading-bar.min.js
 wget https://raw.githubusercontent.com/kazuhikoarase/qrcode-generator/master/js/qrcode.js -O src/common/data/js/lib/qrcode.min.js
 wget https://raw.githubusercontent.com/mholt/PapaParse/master/papaparse.min.js -O src/common/data/js/lib/papaparse.min.js
+wget https://raw.githubusercontent.com/NaturalIntelligence/fast-xml-parser/master/lib/parser.js -O src/common/data/js/lib/fast-xml-parser.js
 
 wget https://raw.githubusercontent.com/ftlabs/fastclick/master/lib/fastclick.js -O src/common/data/js/lib/fastclick.js
 

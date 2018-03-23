@@ -114,6 +114,7 @@ var build = function(build_path, type) {
             "src/common/data/js/lib/fastclick.js",
             "src/common/data/js/lib/password-generator.js",
             "src/common/data/js/lib/papaparse.min.js",
+            "src/common/data/js/lib/fast-xml-parser.js",
             "src/common/data/js/lib/angular.min.js",
             "src/common/data/js/lib/angular-animate.min.js",
             "src/common/data/js/lib/angular-touch.min.js",
@@ -182,6 +183,7 @@ var build = function(build_path, type) {
             "src/common/data/js/controller/ShareusersCtrl.js",
             "src/common/data/js/controller/GroupsCtrl.js",
             "src/common/data/js/controller/WrapperCtrl.js",
+            "src/common/data/js/controller/Enforce2FaCtrl.js",
 
             "src/common/data/js/service/api-client.js",
             "src/common/data/js/service/api-pwnedpasswords.js",
@@ -210,6 +212,7 @@ var build = function(build_path, type) {
             "src/common/data/js/service/import-lastpass-com-csv.js",
             "src/common/data/js/service/import-keepassx-org-csv.js",
             "src/common/data/js/service/import-keepass-info-csv.js",
+            "src/common/data/js/service/import-keepass-info-xml.js",
             "src/common/data/js/service/manager-secret.js",
             "src/common/data/js/service/manager-share.js",
             "src/common/data/js/service/manager-datastore-password.js",

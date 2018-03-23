@@ -339,7 +339,6 @@
         var get_outstanding_group_shares = function() {
 
             var onSuccess = function(data){
-                console.log(data);
 
                 var inaccessible_share_list = managerDatastorePassword.get_inaccessible_shares(data.group_rights);
                 var inaccessible_share_by_group_dict = {};

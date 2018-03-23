@@ -48,8 +48,9 @@
 
                 initialize_snapper();
 
+                var is_logged_in = managerDatastoreUser.is_logged_in();
 
-                if (managerDatastoreUser.is_logged_in()) {
+                if (is_logged_in) {
                     $scope.view = "logged_in";
                 } else {
                     $scope.view = "logged_out";

@@ -7,6 +7,7 @@
      * @requires $q
      * @requires $uibModal
      * @requires psonocli.storage
+     * @requires psonocli.helper
      * @requires psonocli.managerDatastoreUser
      * @requires psonocli.managerDatastoreSetting
      *
@@ -15,7 +16,7 @@
      */
 
 
-    var account = function($q, $uibModal, $filter, storage, managerDatastoreUser, managerDatastoreSetting) {
+    var account = function($q, $uibModal, $filter, storage, helper, managerDatastoreUser, managerDatastoreSetting) {
 
         var _default_tab = 'overview';
 
@@ -169,6 +170,11 @@
         activate();
 
         function activate() {
+
+            var server_info = storage.find_key('config', 'server_info');
+            if (!server_info) {
+                return
+            }
             var allowed_second_factors = storage.find_key('config', 'server_info').value['allowed_second_factors'];
 
 
@@ -316,6 +322,11 @@
          * @returns {*} Returns a dict of all account
          */
         var get_account = function() {
+            helper.remove_from_array(_account['fields'], undefined, function (a, b) {
+                return ['google_authenticator_setup', 'yubikey_otp_setup', 'duo_setup'].indexOf(a['name']) !== -1;
+            });
+
+            activate();
 
             for (var i = _account['fields'].length - 1; i >= 0; i--) {
                 _account['fields'][i].value = get_account_detail(_account['fields'][i].key)
@@ -410,6 +421,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("account", ['$q', '$uibModal', '$filter', 'storage', 'managerDatastoreUser', 'managerDatastoreSetting', account]);
+    app.factory("account", ['$q', '$uibModal', '$filter', 'storage', 'helper', 'managerDatastoreUser', 'managerDatastoreSetting', account]);
 
 }(angular));

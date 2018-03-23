@@ -189,7 +189,7 @@
                 </div>
 
                 <div class="form-group">
-                    <button ng-click="initiate_login(loginFormUsername, loginFormPassword, loginFormRemember, loginFormTrustDevice)" type="submit" class="btn btn-danger">Login <i class="fa fa-sign-in" aria-hidden="true"></i></button>
+                    <button ng-click="initiate_login(loginFormUsername, loginFormPassword, loginFormRemember, loginFormTrustDevice, true)" type="submit" class="btn btn-danger">Login <i class="fa fa-sign-in" aria-hidden="true"></i></button>
                     <a href="register.html">Register</a>
                 </div>
 
@@ -291,7 +291,7 @@
                     <button ng-click="approve_send_plain()" type="submit"
                             class="btn btn-warning">Approve (unsafe)</button>
                     <button ng-click="disapprove_send_plain()" type="submit"
-                            class="btn btn-success">Disapprove (safe)</button>
+                            class="btn btn-success">Decline (safe)</button>
                 </div>
 
                 <div class="form-group alert alert-danger" ng-repeat="e in errors">
@@ -312,6 +312,7 @@
                 <div class="form-group">
                     <button ng-click="ga_verify(googleAuthenticatorFormGAToken)" type="submit"
                             class="btn btn-danger">Send</button>
+                    <button class="btn" type="button" ng-click="cancel();">Close</button>
                 </div>
 
                 <div class="form-group alert alert-danger" ng-repeat="e in errors">
@@ -332,6 +333,7 @@
                 <div class="form-group">
                     <button ng-click="yubikey_otp_verify(yubikeyOTPFormToken)" type="submit"
                             class="btn btn-danger">Send</button>
+                    <button class="btn" type="button" ng-click="cancel();">Abort</button>
                 </div>
 
                 <div class="form-group alert alert-danger" ng-repeat="e in errors">
@@ -352,6 +354,7 @@
                 <div class="form-group">
                     <button ng-click="duo_verify(duoFormToken)" type="submit"
                             class="btn btn-danger">Send</button>
+                    <button class="btn" type="button" ng-click="cancel();">Close</button>
                 </div>
 
                 <div class="form-group alert alert-danger" ng-repeat="e in errors">
@@ -400,6 +403,7 @@
 <script src="js/lib/fastclick.js" type="application/javascript"></script>
 <script src="js/lib/password-generator.js" type="application/javascript"></script>
 <script src="js/lib/papaparse.min.js" type="application/javascript"></script>
+<script src="js/lib/fast-xml-parser.js" type="text/javascript"></script>
 
 
 <!-- Angular Juju -->
@@ -471,6 +475,7 @@
 <script src="js/controller/ShareusersCtrl.js" type="application/javascript"></script>
 <script src="js/controller/GroupsCtrl.js" type="application/javascript"></script>
 <script src="js/controller/WrapperCtrl.js" type="application/javascript"></script>
+<script src="js/controller/Enforce2FaCtrl.js" type="application/javascript"></script>
 
 <script src="js/service/api-client.js" type="application/javascript"></script>
 <script src="js/service/api-pwnedpasswords.js" type="application/javascript"></script>
@@ -499,6 +504,7 @@
 <script src="js/service/import-lastpass-com-csv.js" type="application/javascript"></script>
 <script src="js/service/import-keepassx-org-csv.js" type="application/javascript"></script>
 <script src="js/service/import-keepass-info-csv.js" type="application/javascript"></script>
+<script src="js/service/import-keepass-info-xml.js" type="application/javascript"></script>
 <script src="js/service/manager-secret.js" type="application/javascript"></script>
 <script src="js/service/manager-share.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore-password.js" type="application/javascript"></script>

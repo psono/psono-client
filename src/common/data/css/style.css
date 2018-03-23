@@ -47,7 +47,7 @@ h1, h2 {
   .navigations li .navigationitem {
     text-decoration: none;
     display: inline-block;
-    padding: 10px 50px 10px 10px;
+    padding: 10px 100px 10px 10px;
     width: 100%; }
   .navigations .dropdown-button-menu {
     right: 0;
@@ -81,6 +81,10 @@ h1, h2 {
     border-color: #2dbb93; }
   .dark .form-control:focus {
     border-color: #2dbb93; }
+  .dark .navigations .node-open-link {
+    position: absolute;
+    right: 50px;
+    top: 3px; }
   .dark .navigations .dropdown {
     position: absolute;
     right: 3px;
@@ -126,7 +130,7 @@ h1, h2 {
   .tree .tree-folder .tree-folder-header {
     height: 34px;
     line-height: 34px;
-    padding-right: 50px;
+    padding-right: 100px;
     color: #151f2b; }
     .tree .tree-item a,
     .tree .tree-folder .tree-folder-header a {
@@ -143,6 +147,10 @@ h1, h2 {
   .tree .node-dropdown {
     position: absolute;
     right: 5px;
+    top: 5px; }
+  .tree .node-open-link {
+    position: absolute;
+    right: 50px;
     top: 5px; }
   .tree .dropdown-button-menu {
     right: 0;

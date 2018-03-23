@@ -133,14 +133,15 @@
              * @return {promise} Returns a promise which can result either to true of false
              */
             function delete_ga(gas, ga_id) {
+                $scope.delete_errors = [];
 
                 var onSuccess = function() {
                     helper.remove_from_array(gas, ga_id, function(a, b){ return a.id === b});
                     return true;
                 };
 
-                var onError = function() {
-                    return false;
+                var onError = function(errors) {
+                    $scope.delete_errors = errors.non_field_errors;
                 };
 
                 return managerDatastoreUser.delete_ga(ga_id).then(onSuccess, onError);
