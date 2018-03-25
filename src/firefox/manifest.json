@@ -5,6 +5,7 @@
   "short_name": "Psono.PW Password Manager",
   "description": "Psono Password Manager",
   "version": "1.0.0",
+  "homepage_url":"https://psono.com/",
 
   "browser_action": {
     "default_icon": "data/img/icon-32.png",
@@ -52,7 +53,9 @@
       "all_frames": true
     }
   ],
-  "options_page": "data/index.html#!/settings",
+  "options_ui": {
+	"page": "data/index.html#!/settings"
+  },
   "web_accessible_resources": [
     "data/fonts/*.woff2",
     "data/css/contentscript.css"
