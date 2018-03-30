@@ -702,6 +702,10 @@
                 return 'fa fa-user'
             }
 
+            if(item.type === 'mail_gpg_own_key') {
+                return 'fa fa-lock'
+            }
+
             var pattern = /\.(\w+)$/,
                 match = pattern.exec(item.name),
                 ext = match && match[1];

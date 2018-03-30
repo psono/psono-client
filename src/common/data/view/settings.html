@@ -37,12 +37,26 @@
                                 {{field.title}}
                             </label>
                             <div class="col-sm-8 col-md-10">
-                                <input type="{{field.type}}" ng-model="field.value"
+                                <input ng-if="field.field === 'input' && field.type !== 'checkbox'"
+                                       type="{{field.type}}" ng-model="field.value"
                                        ng-required="{{field.required}}"
                                        ng-readonly="{{field.readonly}}"
                                        placeholder="{{field.placeholder}}" id="settingsForm-{{field.key}}"
                                        name="{{field.key}}"
                                        class="form-control">
+
+                                <input ng-if="field.field === 'input' && field.type === 'checkbox'"
+                                       type="{{field.type}}" ng-model="field.value"
+                                       style="margin-top:10px;"
+                                       ng-required="{{field.required}}"
+                                       ng-readonly="{{field.readonly}}"
+                                       placeholder="{{field.placeholder}}" id="settingsForm-{{field.key}}"
+                                       name="{{field.key}}"
+                                >
+
+                                <select class="form-control" ng-if="field.field === 'select'"
+                                        ng-options="item as item.label for item in field.options track by item.id"
+                                        ng-model="field.value"></select>
 
                                 <uib-progressbar value="field.value | complexify" ng-if="field.complexify && (field.value | complexify) > 0">
                                     <span complexify="field.value"></span>%

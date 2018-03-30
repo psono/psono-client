@@ -1,0 +1,95 @@
+<div class="container-fluid">
+
+    <div ng-controller="GPGEncryptMessageCtrl" class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Encrypt Message</h3>
+        </div>
+        <div class="panel-body" ng-if="!data.encrypting">
+
+            <div class="form-group">
+                <label>Message:</label>
+                <textarea class="form-control"
+                          placeholder="Your Message"
+                          ng-model="data.message"></textarea>
+
+            </div>
+
+
+            <div class="checkbox">
+                <label><input type="checkbox" ng-model="data.sign_message"> Sign message?</label>
+            </div>
+
+            <div class="form-group alert alert-danger" ng-repeat="e in errors">
+                <strong>Error:</strong> {{e}}
+            </div>
+            <div class="form-group">
+                <button ng-click="encrypt()" type="submit" class="btn btn-primary">Encrypt</button>
+                <button ng-click="open_address_book()" type="submit" class="btn btn-default">Open Address Book</button>
+            </div>
+
+            <hr style="margin-top: 4px">
+
+            <div class="form-group">
+                <div class="row">
+                    <label class="col-xs-3 col-sm-2">Recipients:</label>
+                </div>
+                <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
+                    <thead>
+                    <tr>
+                        <th>E-Mail</th>
+                        <th>Fingerprint</th>
+                        <th> </th>
+                        <th>&nbsp;</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="r in data.receiver">
+                        <td>{{ r.email }}</td>
+                        <td>{{ (r.public_key  | fingerprint) || r.status }}</td>
+                        <td>
+                            <button ng-if="r.key_status === 'trusted'" type="button" class="btn btn-default btn-sm" ng-click="edit_gpg_user(r)">
+                                <i class="fa fa-wrench" aria-hidden="true"></i>
+                            </button>
+                            <button ng-if="r.key_status === 'untrusted'" type="button" class="btn btn-default btn-sm" ng-click="add_gpg_user(r)">
+                                <i class="fa fa-address-book-o" aria-hidden="true"></i>
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-sm" ng-click="delete_receiver(r)">
+                                <i class="fa fa-trash" aria-hidden="true"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="form-group" ng-if="data.sign_message">
+                <label>Your Key:</label>
+                <select class="form-control"
+                        ng-options="item as item.label for item in data.private_key_options track by item.id"
+                        ng-model="data.private_key"></select>
+            </div>
+
+        </div>
+
+        <div class="panel-body">
+
+            <div ng-if="data.encrypting">
+                <div class="big-font-icon-and-msg">
+                    <i style="
+                           display: inline-block;
+                           font: normal normal normal 14px/1 FontAwesome;
+                           text-rendering: auto;
+                           font-size: 3em;
+                           text-align: center;
+                           animation: fa-spin 2s infinite linear;
+                           vertical-align: middle;">&#xf110;</i>
+                    Encrypting
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

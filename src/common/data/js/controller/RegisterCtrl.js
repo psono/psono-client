@@ -156,6 +156,12 @@
                     return;
                 }
 
+                test_result = helper.is_valid_email(email);
+                if (test_result !== true) {
+                    $scope.errors.push("Invalid Email provided");
+                    return;
+                }
+
                 username = helper.form_full_username(username, $scope.selected_server_domain);
 
                 test_result = helper.is_valid_username(username);

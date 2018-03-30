@@ -8,6 +8,7 @@
     <link rel="icon" type="image/png" href="img/favicon-32x32.png" sizes="32x32">
     <link rel="icon" type="image/png" href="img/favicon-16x16.png" sizes="16x16">
     <link rel="shortcut icon" href="img/favicon.ico">
+    <meta charset="utf-8"/>
     <meta name="description" content="Psono Web Client to login or register">
     <meta name="msapplication-config" content="img/browserconfig.xml">
     <meta name="theme-color" content="#ffffff">
@@ -22,6 +23,7 @@
 <!-- build:build_min_js -->
 <!-- Start of scripts -->
 <script src="js/lib/ecma-nacl.min.js" type="text/javascript"></script>
+<script src="js/lib/openpgp.min.js" type="text/javascript"></script>
 <script src="js/lib/sha512.min.js" type="text/javascript"></script>
 <script src="js/lib/sha256.min.js" type="text/javascript"></script>
 <script src="js/lib/sha1.min.js" type="text/javascript"></script>
@@ -72,11 +74,14 @@
 <script src="js/controller/DatastoreCtrl.js"></script>
 <script src="js/controller/SecurityReportCtrl.js" type="application/javascript"></script>
 <script src="js/controller/LoginCtrl.js" type="application/javascript"></script>
+<script src="js/controller/GPGDecryptMessageCtrl.js" type="application/javascript"></script>
+<script src="js/controller/GPGEncryptMessageCtrl.js" type="application/javascript"></script>
 <script src="js/controller/LostPasswordCtrl.js" type="application/javascript"></script>
 <script src="js/controller/MainCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/AcceptShareCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ConfigureGoogleAuthenticatorCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/DeleteOtherSessionsCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/AddGPGReceiverCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ConfigureDuoCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ConfigureYubiKeyOTPCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/CreateDatastoreCtrl.js" type="application/javascript"></script>
@@ -91,6 +96,9 @@
 <script src="js/controller/modal/NewGroupCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/PickUserCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/EditGroupCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/EditGPGUserCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/GenerateNewMailGPGKeyCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/ImportMailGPGKeyAsTextCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ShareEditEntryCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ShareEntryCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ShareNewEntryCtrl.js" type="application/javascript"></script>
@@ -144,6 +152,7 @@
 <script src="js/service/manager-share.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore-password.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore-user.js" type="application/javascript"></script>
+<script src="js/service/manager-datastore-gpg-user.js" type="application/javascript"></script>
 <script src="js/service/manager-groups.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore-setting.js" type="application/javascript"></script>
 <script src="js/service/browser-client.js" type="application/javascript"></script>

@@ -36,3 +36,7 @@ wget https://raw.githubusercontent.com/ftlabs/fastclick/master/lib/fastclick.js 
 
 wget https://raw.githubusercontent.com/chartjs/Chart.js/v2.7.1/dist/Chart.min.js -O src/common/data/js/lib/chart.min.js
 wget https://raw.githubusercontent.com/jtblin/angular-chart.js/master/dist/angular-chart.min.js -O src/common/data/js/lib/angular-chart.min.js
+
+wget https://raw.githubusercontent.com/openpgpjs/openpgpjs/master/dist/openpgp.min.js -O src/common/data/js/lib/openpgp.min.js
+wget https://raw.githubusercontent.com/openpgpjs/openpgpjs/master/dist/openpgp.worker.min.js -O src/common/data/js/lib/openpgp.worker.min.js
+

@@ -28,6 +28,31 @@
         };
 
         /**
+         * Opens the URL in a popup
+         *
+         * @param url
+         * @param callback_function
+         */
+        var open_popup = function(url, callback_function) {
+
+            chrome.windows.create({
+                url: url,
+                type: "popup",
+                width: 800,
+                height: 1000
+            }, callback_function);
+        };
+
+        /**
+         * Closes a popup
+         *
+         * @param window_id
+         */
+        var close_opened_popup = function(window_id) {
+            return chrome.windows.remove(window_id);
+        };
+
+        /**
          * returns the base url which can be used to generate activation links
          *
          * @returns {string}
@@ -111,11 +136,10 @@
          *
          * @param event
          * @param data
+         * @param fnc
          */
-        var emit_sec = function(event, data) {
-            chrome.runtime.sendMessage({event: event, data: data}, function(response) {
-                //console.log(response);
-            });
+        var emit_sec = function(event, data, fnc) {
+            chrome.runtime.sendMessage({event: event, data: data}, fnc);
         };
 
         /**
@@ -258,6 +282,8 @@
         return {
             get_client_type: get_client_type,
             open_tab: open_tab,
+            open_popup: open_popup,
+            close_opened_popup: close_opened_popup,
             get_base_url: get_base_url,
             load_version: load_version,
             load_config: load_config,

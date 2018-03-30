@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html ng-app="psonocli" class="datastore" ng-csp>
 <head>
-    <title>Lost Password</title>
+    <title>Psono PW</title>
     <meta charset="utf-8">
 
     <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
@@ -13,6 +13,8 @@
     <meta name="msapplication-config" content="img/browserconfig.xml">
     <meta name="theme-color" content="#ffffff">
     <meta name="viewport" content="width=device-width, user-scalable=no">
+
+    <link rel="search" type="application/opensearchdescription+xml" title="Search Psono " href="search.xml" />
 
     <!-- build:build_min_css -->
     <link href="css/lib/cssreset-context-min.css" rel="stylesheet" />
@@ -35,114 +37,239 @@
     <link href="css/datastore.css" rel="stylesheet">
 </head>
 <body>
+<div  ng-controller="WrapperCtrl" class="ng-cloak">
+    <div ng-if="view === 'logged_in'" ng-controller="MainCtrl">
 
-<div ng-controller="LostPasswordCtrl" class="ng-cloak">
-    <!-- Not logged in, show the login form -->
-    <div class="wrapper">
+        <nav class="navbar navbar-default navbar-static-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="index.html#">
+                        <img alt="Psono" src="img/logo-inverse.png" height="100%">
+                    </a>
 
-        <div class="lostpasswordbox dark">
-            <img src="img/logo.png" alt="Psono Web Client" id="logo">
-
-            <div ng-if="success" class="big-font-icon-and-msg">
-                <i class="fa fa-thumbs-o-up"></i>
-
-                <div ng-repeat="e in msgs">{{e}}</div>
-            </div>
-
-            <div ng-if="success" class="form-group text-center">
-                <a href="index.html" class="btn btn-danger" role="button">Back to home</a>
-            </div>
-
-            <form name="lostpasswordForm" ng-if="!success && !recovery_enabled">
-                <div ng-class="{'input-group': lostpasswordFormUsername == null || lostpasswordFormUsername.indexOf('@') == -1}">
-                    <input type="text" class="form-control" id="lostpasswordUsername" placeholder="Username"
-                           ng-model="lostpasswordFormUsername" required aria-describedby="username-addon" autofocus>
-                    <span class="input-group-addon" id="username-addon"
-                          ng-if="lostpasswordFormUsername == null || lostpasswordFormUsername.indexOf('@') == -1">@{{selected_server_domain}}</span>
+                    <button type="button" class="navbar-toggle btn btn-primary" style="padding: 6px 12px">
+                        Logout
+                    </button>
                 </div>
-                <br>
-                <div class="row">
-                    <div class="col-xs-6 form-group">
-                        <input type="text" class="form-control" id="code1" placeholder="DdSLuiDcPuY2F"
-                               ng-model="lostpasswordFormCode1.value"
-                               ng-class="lostpasswordFormCode1.class"
-                               ng-change="code_changing(lostpasswordFormCode1)">
+                <div  class="navbar-text navbar-right">
+                    <button id="logout-button" type="button" class="btn btn-primary hidden-xs" ng-click="logout()">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <div>
+            <div ng-view></div>
+        </div>
+
+    </div>
+    <div ng-if="view === 'logged_out'" ng-controller="LoginCtrl">
+        <!-- Not logged in, show the login form -->
+        <div class="wrapper">
+
+            <div class="loginbox dark">
+                <img src="img/logo.png" alt="Psono Web Client" id="logo">
+                <a href="https://psono.com/" target="_blank" rel="noopener"><i class="fa fa-info-circle fa-pull-right" aria-hidden="true"> Info</i></a>
+
+                <form name="loginForm" ng-if="view === 'default'" autocomplete="off">
+                    <!-- default View -->
+                    <div ng-class="{'input-group': loginFormUsername == null || loginFormUsername.indexOf('@') == -1}">
+                        <input type="text" class="form-control" id="loginUsername" placeholder="Username" ng-model="loginFormUsername" required aria-describedby="username-addon" autofocus>
+                        <span class="input-group-addon" id="username-addon" ng-if="loginFormUsername == null || loginFormUsername.indexOf('@') == -1">@{{selected_server_domain}}</span>
+                    </div>
+                    <br>
+                    <div class="form-group">
+                        <input type="password" class="form-control" id="loginPassword" placeholder="Password" ng-model="loginFormPassword" required>
+                    </div>
+                    <div class="checkbox">
+                        <label><input type="checkbox" ng-model="loginFormRemember"> Remember username and server</label>
+                    </div>
+                    <div class="checkbox">
+                        <label><input type="checkbox" ng-model="loginFormTrustDevice"> Trust device</label>
                     </div>
 
-                    <div class="col-xs-6 form-group">
-                        <input type="text" class="form-control" id="code2" placeholder="Dsxf82sKQdqPs"
-                               ng-model="lostpasswordFormCode2.value"
-                               ng-class="lostpasswordFormCode2.class"
-                               ng-change="code_changing(lostpasswordFormCode2)">
+                    <div class="form-group">
+                        <button ng-click="initiate_login(loginFormUsername, loginFormPassword, loginFormRemember, loginFormTrustDevice, true)" type="submit" class="btn btn-danger">Login <i class="fa fa-sign-in" aria-hidden="true"></i></button>
+                        <a href="register.html">Register</a>
                     </div>
+
+                    <div class="form-group alert alert-danger" ng-repeat="e in errors">
+                        <strong>Error:</strong> {{e}}
+                    </div>
+
+                    <div class="form-group hideinputcharakter">
+
+                        <label for="serverselection">Server: </label>
+                        <input type="text" id="serverselection"
+                               uib-popover-template="'view/popover-server-select.html'"
+                               popover-trigger="'focus'"
+                               ng-model="selected_server_url"
+                               ng-change="changing(selected_server_url)"
+                               class="form-control">
+                    </div>
+                </form>
+
+                <form name="newServerForm" ng-if="view === 'new_server'">
+                    <!-- new Server View -->
+                    <div class="form-group">
+                        <h4>New Server</h4>
+                    </div>
+                    <div class="form-group">
+                        <p>Fingerprint of the new server:</p>
+                        <textarea class="form-control" id="newServerFingerprint"
+                                  placeholder="Fingerprint of the new server"
+                                  ng-model="newServerFingerprint" readonly="readonly"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <button ng-click="approve_new_server()" type="submit"
+                                class="btn btn-danger">Approve</button>
+                        <a href="#" ng-click="disapprove_new_server()">Cancel</a>
+                    </div>
+
+                    <div class="form-group alert alert-danger" ng-repeat="e in errors">
+                        <strong>Error:</strong> {{e}}
+                    </div>
+
+                    <div class="form-group">
+                        <div class="alert alert-info">
+                            <strong>Info!</strong> It appears, that you want to connect to this server for the first time.
+                            Please verify that the fingerprint of the server is correct before approving.
+                        </div>
+                    </div>
+                </form>
+
+                <form name="signatureChangedForm" ng-if="view === 'signature_changed'">
+                    <!-- signature changed View -->
+                    <div class="form-group">
+                        <h4>Server signature changed:</h4>
+                    </div>
+                    <div class="form-group">
+                        <p>The new presented fingerprint is:</p>
+                        <textarea class="form-control" id="changedFingerprint"
+                                  placeholder="Fingerprint of the new server"
+                                  ng-model="changedFingerprint" readonly="readonly"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <p>The old fingerprint was:</p>
+                        <textarea class="form-control" id="oldFingerprint"
+                                  placeholder="Fingerprint of the old server"
+                                  ng-model="oldFingerprint" readonly="readonly"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <div class="alert alert-danger">
+                            <strong>Danger!</strong> The signature of the server changed. It could mean that the connection
+                            to the server has been compromised.<br><br><strong>Please contact the owner of this server.</strong>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <button ng-click="disapprove_new_server()" type="submit"
+                                class="btn btn-danger">Cancel</button>
+                        <a href="#" ng-click="approve_new_server()">Ignore and continue.</a>
+                    </div>
+
+                    <div class="form-group alert alert-danger" ng-repeat="e in errors">
+                        <strong>Error:</strong> {{e}}
+                    </div>
+                </form>
+
+                <form name="askPlainForm" ng-if="view === 'ask_send_plain'">
+                    <!-- signature changed View -->
+                    <div class="form-group">
+                        <h4>Server asks for your plaintext password:</h4>
+                    </div>
+                    <div class="form-group">
+                        <div class="alert alert-warning">
+                            <strong>Danger!</strong> Accepting this will send your plain password to the server and should only be allowed
+                            if you are using LDAP or similar authentication methods. You can decline this, but this might fail in an
+                            authentication failure.
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <button ng-click="approve_send_plain()" type="submit"
+                                class="btn btn-warning">Approve (unsafe)</button>
+                        <button ng-click="disapprove_send_plain()" type="submit"
+                                class="btn btn-success">Decline (safe)</button>
+                    </div>
+
+                    <div class="form-group alert alert-danger" ng-repeat="e in errors">
+                        <strong>Error:</strong> {{e}}
+                    </div>
+                </form>
+
+                <form name="googleAuthenticatorForm" ng-if="view === 'google_authenticator_2fa'">
+                    <!-- google_authenticator_2fa View -->
+                    <div class="form-group">
+                        Please enter your Google Authenticator Code:
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="gaToken" placeholder="Google Authenticator Token"
+                               ng-model="googleAuthenticatorFormGAToken" required maxlength="6" minlength="6">
+                    </div>
+
+                    <div class="form-group">
+                        <button ng-click="ga_verify(googleAuthenticatorFormGAToken)" type="submit"
+                                class="btn btn-danger">Send</button>
+                        <button class="btn" type="button" ng-click="cancel();">Close</button>
+                    </div>
+
+                    <div class="form-group alert alert-danger" ng-repeat="e in errors">
+                        <strong>Error:</strong> {{e}}
+                    </div>
+                </form>
+
+                <form name="yubikeyOTPForm" ng-if="view === 'yubikey_otp_2fa'">
+                    <!-- yubikey_otp_2fa View -->
+                    <div class="form-group">
+                        Please enter your YubiKey OTP Token:
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="yubikeyOTPToken" placeholder="YubiKey Token"
+                               ng-model="yubikeyOTPFormToken" required>
+                    </div>
+
+                    <div class="form-group">
+                        <button ng-click="yubikey_otp_verify(yubikeyOTPFormToken)" type="submit"
+                                class="btn btn-danger">Send</button>
+                        <button class="btn" type="button" ng-click="cancel();">Abort</button>
+                    </div>
+
+                    <div class="form-group alert alert-danger" ng-repeat="e in errors">
+                        <strong>Error:</strong> {{e}}
+                    </div>
+                </form>
+
+                <form name="duoForm" ng-if="view === 'duo_2fa'">
+                    <!-- duo_2fa View -->
+                    <div class="form-group">
+                        Approve the push notification on your mobile or provide your Duo Code:
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="duoToken" placeholder="Duo Code"
+                               ng-model="duoFormToken" required>
+                    </div>
+
+                    <div class="form-group">
+                        <button ng-click="duo_verify(duoFormToken)" type="submit"
+                                class="btn btn-danger">Send</button>
+                        <button class="btn" type="button" ng-click="cancel();">Close</button>
+                    </div>
+
+                    <div class="form-group alert alert-danger" ng-repeat="e in errors">
+                        <strong>Error:</strong> {{e}}
+                    </div>
+                </form>
+
+                <div class="box-footer">
+                    <a href="lost-password.html">Lost password?</a> <a href="privacy-policy.html">Privacy Policy</a>
                 </div>
-
-                <input type="text" class="form-control" id="words" placeholder="or wordlist e.g.: follow charge genre ..."
-                       ng-model="lostpasswordFormWords.value"
-                       ng-class="lostpasswordFormWords.class"
-                       ng-change="words_changing(lostpasswordFormWords)">
-
-                <br>
-
-
-                <div class="form-group">
-                    <button ng-click="recovery_enable(lostpasswordFormUsername, lostpasswordFormCode1.value, lostpasswordFormCode2.value, lostpasswordFormWords.value)"
-                            type="submit" class="btn btn-danger">Request Password Reset</button>
-                </div>
-
-                <div class="form-group alert alert-info" ng-repeat="e in msgs">
-                    <strong>Error:</strong> {{e}}
-                </div>
-
-                <div class="form-group alert alert-danger" ng-repeat="e in errors">
-                    <strong>Error:</strong> {{e}}
-                </div>
-
-                <div class="form-group hideinputcharakter">
-
-                    <label for="serverselection">Server: </label>
-                    <input type="text" id="serverselection"
-                           uib-popover-template="'view/popover-server-select.html'"
-                           popover-trigger="'focus'"
-                           ng-model="selected_server_url"
-                           ng-change="changing(selected_server_url)"
-                           class="form-control">
-                </div>
-
-            </form>
-
-            <form name="setpasswordForm" ng-if="!success && recovery_enabled" autocomplete="off">
-                <div class="form-group">
-                    <input type="password" class="form-control" id="setpasswordPassword" placeholder="New Password" ng-model="setpasswordFormPassword" required>
-
-                    <uib-progressbar value="setpasswordFormPassword | complexify" ng-if="(setpasswordFormPassword | complexify) > 0">
-                        <span complexify="setpasswordFormPassword"></span>%
-                        <span complexify="setpasswordFormPassword" type="verbal"></span>
-                    </uib-progressbar>
-                </div>
-
-
-                <div class="form-group">
-                    <input type="password" class="form-control" id="setpasswordPasswordRepeat" placeholder="New Password (repeat)" ng-model="setpasswordFormPasswordRepeat" required>
-                </div>
-
-
-                <div class="form-group">
-                    <button ng-click="set_new_password(username, recovery_code, setpasswordFormPassword, setpasswordFormPasswordRepeat, recovery_data)"
-                            type="submit" class="btn btn-danger">Set New Password</button>
-                </div>
-
-                <div class="form-group alert alert-info" ng-repeat="e in msgs">
-                    <strong>Error:</strong> {{e}}
-                </div>
-
-                <div class="form-group alert alert-danger" ng-repeat="e in errors">
-                    <strong>Error:</strong> {{e}}
-                </div>
-
-            </form>
+            </div>
         </div>
     </div>
+
 </div>
 <div ng-show="::false" style="position: fixed; height: 100%; width: 100%; background-color: #0f1118; top: 0; left: 0; z-index: 10000;">
     <div style="position: absolute; font-size: 26px; color: #2dbb93; background-color: #151f2b; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 60px 60px 60px 60px; text-align: center">
@@ -155,6 +282,7 @@
            animation: fa-spin 2s infinite linear;
            vertical-align: middle;">&#xf110;</i> Loading<noscript><br>JavaScript is disabled</noscript>
     </div>
+
 </div>
 
 <!-- build:build_min_js -->
@@ -177,7 +305,7 @@
 <script src="js/lib/fastclick.js" type="application/javascript"></script>
 <script src="js/lib/password-generator.js" type="application/javascript"></script>
 <script src="js/lib/papaparse.min.js" type="application/javascript"></script>
-<script src="js/lib/fast-xml-parser.js" type="application/javascript"></script>
+<script src="js/lib/fast-xml-parser.js" type="text/javascript"></script>
 
 
 <!-- Angular Juju -->

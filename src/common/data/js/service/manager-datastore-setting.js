@@ -28,7 +28,6 @@
             var description = "key-value-settings";
 
             var onSuccess = function (results) {
-
                 for (var i = results.length - 1; i >= 0; i--) {
                     var s = storage.find_key('settings', results[i].key);
                     if (s !== null) {
@@ -45,7 +44,6 @@
             var onError = function () {
                 // pass
             };
-
             return managerDatastore.get_datastore(type)
                 .then(onSuccess, onError);
         };

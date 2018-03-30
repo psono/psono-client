@@ -1,0 +1,45 @@
+<form name="modalShowRecoverycodeForm" novalidate>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="close()"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title">Generate New GPG Key</h3>
+    </div>
+    <div class="modal-body" ng-if="!generating">
+        <div class="form-group" ng-class="{true: 'has-error'}[submitted && newMailKeyForm.title.$invalid]">
+            <input type="text" name="title" class="form-control" id="keyTitle" placeholder="Title to identify this key (required)" ng-model="data.title" required>
+            <p class="help-block" ng-show="submitted && newMailKeyForm.name.$error.required">The title is required</p>
+        </div>
+        <div class="form-group" ng-class="{true: 'has-error'}[submitted && newMailKeyForm.name.$invalid]">
+            <input type="text" name="name" class="form-control" id="keyName" placeholder="Your name (optional)" ng-model="data.name" required>
+            <p class="help-block" ng-show="submitted && newMailKeyForm.email.$error.required">Your email address is required</p>
+        </div>
+        <div class="form-group" ng-class="{true: 'has-error'}[submitted && newMailKeyForm.email.$invalid]">
+            <input type="text" name="email" class="form-control" id="keyEmail" placeholder="Your email address (required)" ng-model="data.email" required>
+            <p class="help-block" ng-show="submitted && newMailKeyForm.email.$error.required">Your email address is required</p>
+        </div>
+        <div class="form-group">
+            <input type="checkbox" ng-model="data.publish"> Publish public key?
+        </div>
+        <div class="form-group">
+            <div class="alert alert-info">
+                <strong>Info!</strong> The name and email address will be publicly available. The email address cannot
+                be "fake" if you want that other people can decrypt your emails. The name can be anything, that
+                other people can later search for, yet we advise you to take your real name.
+            </div>
+        </div>
+
+        <div class="form-group" ng-if="errors || msgs">
+            <span class="error" ng-repeat="e in errors">{{e}}</span>
+            <span ng-repeat="m in msgs">{{m}}</span>
+        </div>
+    </div>
+    <div class="modal-body" ng-if="generating">
+
+        <div class="alert alert-info">
+            <strong>Info!</strong> We are generating your GPG Keys now. This can take several minutes, depending on your hardware.
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" type="submit" ng-click="save();" ng-disabled="generating">Generate</button>
+        <button class="btn" type="button" ng-click="close();" ng-disabled="generating">Cancel</button>
+    </div>
+</form>

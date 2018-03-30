@@ -1,0 +1,37 @@
+<form name="modalShowRecoverycodeForm" novalidate>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="close()"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title">Import GPG Key</h3>
+    </div>
+    <div class="modal-body">
+        <div class="form-group" ng-class="{true: 'has-error'}[submitted && newMailKeyForm.title.$invalid]">
+            <input type="text" name="title" class="form-control" id="keyTitle" placeholder="Title to identify this key (required)" ng-model="data.title" required>
+            <p class="help-block" ng-show="submitted && newMailKeyForm.name.$error.required">The title is required</p>
+        </div>
+        <div class="form-group" ng-class="{true: 'has-error'}[submitted && newMailKeyForm.passphrase.$invalid]">
+            <input type="password" name="passphrase" class="form-control" id="keyPassphrase" placeholder="Your key's passphrase (if its password protected)" ng-model="data.passphrase">
+            <p class="help-block" ng-show="submitted && newMailKeyForm.passphrase.$error.required">Your key's passphrase is required</p>
+        </div>
+        <div class="form-group" ng-class="{true: 'has-error'}[submitted && newMailKeyForm.public_key.$invalid]">
+            <textarea class="form-control"
+                      placeholder="Your public key (required), including: -----BEGIN PGP PUBLIC KEY BLOCK----- and -----END PGP PUBLIC KEY BLOCK-----"
+                      ng-model="data.public_key" required></textarea>
+            <p class="help-block" ng-show="submitted && newMailKeyForm.public_key.$error.required">Your public key is required</p>
+        </div>
+        <div class="form-group" ng-class="{true: 'has-error'}[submitted && newMailKeyForm.private_key.$invalid]">
+            <textarea class="form-control"
+                      placeholder="Your private key (required), including: -----BEGIN PGP PRIVATE KEY BLOCK----- and -----END PGP PRIVATE KEY BLOCK-----"
+                      ng-model="data.private_key" required></textarea>
+            <p class="help-block" ng-show="submitted && newMailKeyForm.private_key.$error.required">Your private key is required</p>
+        </div>
+
+        <div class="form-group" ng-if="errors || msgs">
+            <span class="error" ng-repeat="e in errors">{{e}}</span>
+            <span ng-repeat="m in msgs">{{m}}</span>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" type="submit" ng-click="save();">Import</button>
+        <button class="btn" type="button" ng-click="close();">Cancel</button>
+    </div>
+</form>

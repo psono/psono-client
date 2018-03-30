@@ -43,6 +43,7 @@ var build = function(build_path, type) {
     // All files in data/css
     if (type === 'webclient') {
         gulp.src([
+            "src/common/data/css/lib/cssreset-context-min.css",
             "src/common/data/css/lib/opensans.css",
             "src/common/data/css/lib/angular-csp.css",
             "src/common/data/css/lib/bootstrap.css",
@@ -98,6 +99,7 @@ var build = function(build_path, type) {
 
         gulp.src([
             "src/common/data/js/lib/ecma-nacl.min.js",
+            "src/common/data/js/lib/openpgp.min.js",
             "src/common/data/js/lib/sha512.min.js",
             "src/common/data/js/lib/sha256.min.js",
             "src/common/data/js/lib/sha1.min.js",
@@ -145,11 +147,14 @@ var build = function(build_path, type) {
             "src/common/data/js/controller/DatastoreCtrl.js",
             "src/common/data/js/controller/SecurityReportCtrl.js",
             "src/common/data/js/controller/LoginCtrl.js",
+            "src/common/data/js/controller/GPGDecryptMessageCtrl.js",
+            "src/common/data/js/controller/GPGEncryptMessageCtrl.js",
             "src/common/data/js/controller/LostPasswordCtrl.js",
             "src/common/data/js/controller/MainCtrl.js",
             "src/common/data/js/controller/modal/AcceptShareCtrl.js",
             "src/common/data/js/controller/modal/ConfigureGoogleAuthenticatorCtrl.js",
             "src/common/data/js/controller/modal/DeleteOtherSessionsCtrl.js",
+            "src/common/data/js/controller/modal/AddGPGReceiverCtrl.js",
             "src/common/data/js/controller/modal/ConfigureDuoCtrl.js",
             "src/common/data/js/controller/modal/ConfigureYubiKeyOTPCtrl.js",
             "src/common/data/js/controller/modal/CreateDatastoreCtrl.js",
@@ -164,6 +169,9 @@ var build = function(build_path, type) {
             "src/common/data/js/controller/modal/NewGroupCtrl.js",
             "src/common/data/js/controller/modal/PickUserCtrl.js",
             "src/common/data/js/controller/modal/EditGroupCtrl.js",
+            "src/common/data/js/controller/modal/EditGPGUserCtrl.js",
+            "src/common/data/js/controller/modal/GenerateNewMailGPGKeyCtrl.js",
+            "src/common/data/js/controller/modal/ImportMailGPGKeyAsTextCtrl.js",
             "src/common/data/js/controller/modal/ShareEditEntryCtrl.js",
             "src/common/data/js/controller/modal/ShareEntryCtrl.js",
             "src/common/data/js/controller/modal/ShareNewEntryCtrl.js",
@@ -217,6 +225,7 @@ var build = function(build_path, type) {
             "src/common/data/js/service/manager-share.js",
             "src/common/data/js/service/manager-datastore-password.js",
             "src/common/data/js/service/manager-datastore-user.js",
+            "src/common/data/js/service/manager-datastore-gpg-user.js",
             "src/common/data/js/service/manager-groups.js",
             "src/common/data/js/service/manager-datastore-setting.js",
             "src/common/data/js/service/browser-client.js",

@@ -48,7 +48,9 @@
       "js": [
         "data/js/lib/jquery.min.js",
         "data/js/lib/uuid.js",
+        "data/js/extension/worker-content-script-base.js",
         "data/js/extension/worker-content-script.js",
+        "data/js/extension/worker-content-script-pgp.js",
         "data/js/content-script.js"
       ],
       "run_at": "document_idle",
@@ -58,6 +60,8 @@
   "options_page": "data/index.html#!/settings",
   "web_accessible_resources": [
     "data/fonts/*.woff2",
-    "data/css/contentscript.css"
+    "data/css/contentscript.css",
+    "data/img/psono-encrypt.png",
+    "data/img/psono-decrypt.png"
   ]
 }

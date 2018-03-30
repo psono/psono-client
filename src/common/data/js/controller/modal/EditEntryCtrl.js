@@ -40,9 +40,11 @@
                     }
                 }
 
-                if (typeof $scope.bp.selected.onEditModalOpen !== 'undefined') {
-                    $scope.bp.selected.onEditModalOpen($scope.bp.selected);
-                }
+                $scope.$watch('bp.selected', function(newValue, oldValue) {
+                    if (typeof $scope.bp.selected.onEditModalOpen !== 'undefined') {
+                        $scope.bp.selected.onEditModalOpen($scope.bp.selected);
+                    }
+                });
             }
 
             /**
