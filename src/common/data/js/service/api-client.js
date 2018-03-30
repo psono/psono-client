@@ -97,6 +97,7 @@
                     };
 
                     var onError = function(data) {
+                        console.log(data);
                         if (data.status === 401) {
                             $rootScope.$broadcast('force_logout', '');
                         }

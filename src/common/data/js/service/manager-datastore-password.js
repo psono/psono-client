@@ -148,6 +148,7 @@
          * @param {uuid} parent_datastore_id THe parent's datastore id
          */
         var update_paths_with_data = function(datastore, path, content, parent_share_rights, parent_share_id, parent_datastore_id) {
+
             var path_copy = path.slice();
             var search = find_in_datastore(path_copy, datastore);
             var obj = search[0][search[1]];
@@ -207,6 +208,10 @@
 
                 var read_share_helper = function (share_id, sub_datastore, path, parent_share_id, parent_datastore_id) {
                     var onSuccess = function (content) {
+                        if (typeof(content) === 'undefined') {
+                            open_calls--;
+                            return;
+                        }
                         all_share_data[share_id] = content;
 
                         update_paths_with_data(datastore, path, content, parent_share_rights, parent_share_id, parent_datastore_id);
