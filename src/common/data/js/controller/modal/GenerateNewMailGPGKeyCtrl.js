@@ -7,12 +7,14 @@
      * @requires $scope
      * @requires $uibModalInstance
      * @requires psonocli.managerDatastoreUser
+     * @requires psonocli.settings
+     * @requires psonocli.openpgp
      *
      * @description
      * Controller for the "Generate New Mail GPG Key" modal
      */
-    angular.module('psonocli').controller('ModalGenerateNewMailGPGKeyCtrl', ['$scope', '$uibModalInstance', 'managerDatastoreUser', 'settings',
-        function ($scope, $uibModalInstance, managerDatastoreUser, settings) {
+    angular.module('psonocli').controller('ModalGenerateNewMailGPGKeyCtrl', ['$scope', '$uibModalInstance', 'managerDatastoreUser', 'settings', 'openpgp',
+        function ($scope, $uibModalInstance, managerDatastoreUser, settings, openpgp) {
 
             $scope.errors = [];
             $scope.data = {

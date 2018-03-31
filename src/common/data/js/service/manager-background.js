@@ -19,13 +19,14 @@
      * @requires psonocli.chrome
      * @requires psonocli.browserClient
      * @requires psonocli.settings
+     * @requires psonocli.openpgp
      *
      * @description
      * Service that handles the complete background process
      */
     var managerBackground = function($q, $timeout, managerBase, managerSecret, storage, managerDatastorePassword,
                                      managerDatastore, managerDatastoreUser, helper, cryptoLibrary, apiClient, device,
-                                     browser, chrome, browserClient, settings) {
+                                     browser, chrome, browserClient, settings, openpgp) {
 
         var last_login_credentials;
         var activeTabId;
@@ -979,6 +980,6 @@
     var app = angular.module('psonocli');
     app.factory("managerBackground", ['$q', '$timeout', 'managerBase', 'managerSecret', 'storage', 'managerDatastorePassword','managerDatastore',
         'managerDatastoreUser', 'helper', 'cryptoLibrary', 'apiClient', 'device', 'browser', 'chrome',
-        'browserClient', 'settings', managerBackground]);
+        'browserClient', 'settings', 'openpgp', managerBackground]);
 
 }(angular));

@@ -14,7 +14,7 @@
      * Service to manage the setting datastore
      */
 
-    var managerDatastoreGPGUser = function($q, storage, helper, managerBase, managerDatastore) {
+    var managerDatastoreGPGUser = function($q, storage, helper, managerBase, managerDatastore, openpgp) {
 
         /**
          * @ngdoc
@@ -432,6 +432,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerDatastoreGPGUser", ['$q', 'storage', 'helper', 'managerBase', 'managerDatastore', managerDatastoreGPGUser]);
+    app.factory("managerDatastoreGPGUser", ['$q', 'storage', 'helper', 'managerBase', 'managerDatastore', 'openpgp', managerDatastoreGPGUser]);
 
 }(angular));

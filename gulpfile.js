@@ -202,6 +202,7 @@ var build = function(build_path, type) {
             "src/common/data/js/service/share-blueprint.js",
             "src/common/data/js/service/crypto-library.js",
             "src/common/data/js/service/converter.js",
+            "src/common/data/js/service/openpgp.js",
             "src/common/data/js/service/storage.js",
             "src/common/data/js/service/account.js",
             "src/common/data/js/service/settings.js",
@@ -229,7 +230,6 @@ var build = function(build_path, type) {
             "src/common/data/js/service/manager-groups.js",
             "src/common/data/js/service/manager-datastore-setting.js",
             "src/common/data/js/service/browser-client.js",
-            "src/common/data/js/service/password-generator.js",
             "src/common/data/js/service/drop-down-menu-watcher.js",
 
             "src/common/data/view/templates.js",
@@ -245,6 +245,12 @@ var build = function(build_path, type) {
             }))
             .pipe(concat('bundle.min.js'))
             .pipe(gulp.dest(path.join(build_path, 'js')));
+
+        gulp.src([
+            'src/common/data/js/lib/openpgp.worker.min.js'
+        ])
+            .pipe(gulp.dest(path.join(build_path, 'js', 'lib')));
+
     } else {
 
         gulp.src([

@@ -103,6 +103,7 @@
                 "../src/common/data/js/service/share-blueprint.js",
                 "../src/common/data/js/service/crypto-library.js",
                 "../src/common/data/js/service/converter.js",
+                "../src/common/data/js/service/openpgp.js",
                 "../src/common/data/js/service/storage.js",
                 "../src/common/data/js/service/account.js",
                 "../src/common/data/js/service/settings.js",
@@ -130,7 +131,6 @@
                 "../src/common/data/js/service/manager-groups.js",
                 "../src/common/data/js/service/manager-datastore-setting.js",
                 "../src/common/data/js/service/browser-client.js",
-                "../src/common/data/js/service/password-generator.js",
                 "../src/common/data/js/service/drop-down-menu-watcher.js",
                 "../src/common/data/view/templates.js",
 

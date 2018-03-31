@@ -10,14 +10,15 @@
      * @requires psonocli.managerDatastoreGPGUser
      * @requires psonocli.cryptoLibrary
      * @requires psonocli.helper
+     * @requires psonocli.openpgp
      *
      * @description
      * Controller for the "AcceptShare" modal
      */
     angular.module('psonocli').controller('ModalAddGPGReceiverCtrl', ['$scope', '$uibModalInstance', '$uibModal',
-        'managerDatastoreGPGUser', 'managerDatastore', 'cryptoLibrary', 'settings', 'helper', 'email',
+        'managerDatastoreGPGUser', 'managerDatastore', 'cryptoLibrary', 'settings', 'helper', 'openpgp', 'email',
         function ($scope, $uibModalInstance, $uibModal,
-                  managerDatastoreGPGUser, managerDatastore, cryptoLibrary, settings, helper, email) {
+                  managerDatastoreGPGUser, managerDatastore, cryptoLibrary, settings, helper, openpgp, email) {
 
             $scope.save = save;
             $scope.cancel = cancel;

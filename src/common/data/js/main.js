@@ -130,7 +130,7 @@
                 return typeof obj
             };
         })
-        .filter('fingerprint', function() {
+        .filter('fingerprint', ['openpgp', function(openpgp) {
             return function(obj) {
 
                 if (!obj) {
@@ -155,7 +155,7 @@
 
                 return parts.join(' ');
             };
-        })
+        }])
         .run(['$rootScope', '$location', '$routeParams', '$http', '$templateCache', 'managerSecret',
             function ($rootScope, $location, $routeParams, $http, $templateCache, managerSecret) {
                 $rootScope.$on('$routeChangeSuccess', function () {

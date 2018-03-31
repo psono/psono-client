@@ -7,12 +7,13 @@
      * @requires $scope
      * @requires $uibModalInstance
      * @requires psonocli.managerDatastoreUser
+     * @requires psonocli.openpgp
      *
      * @description
      * Controller for the "Import Mail GPG Key as Text" modal
      */
-    angular.module('psonocli').controller('ModalImportMailGPGKeyAsTextCtrl', ['$scope', '$uibModalInstance', 'managerDatastoreUser',
-        function ($scope, $uibModalInstance, managerDatastoreUser) {
+    angular.module('psonocli').controller('ModalImportMailGPGKeyAsTextCtrl', ['$scope', '$uibModalInstance', 'managerDatastoreUser', 'openpgp',
+        function ($scope, $uibModalInstance, managerDatastoreUser, openpgp) {
 
             $scope.errors = [];
 

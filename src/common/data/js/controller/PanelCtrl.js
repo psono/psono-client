@@ -23,10 +23,10 @@
      * Controller for the panel
      */
     angular.module('psonocli').controller('PanelCtrl', ['$scope', '$rootScope', '$filter', '$timeout', 'manager',
-        'managerDatastorePassword', 'managerDatastoreUser', 'managerSecret', 'browserClient', 'passwordGenerator',
+        'managerDatastorePassword', 'managerDatastoreUser', 'managerSecret', 'browserClient',
         'helper', '$window', '$route', '$routeParams', '$location',
         function ($scope, $rootScope, $filter, $timeout, manager,
-                  managerDatastorePassword, managerDatastoreUser, managerSecret, browserClient, passwordGenerator,
+                  managerDatastorePassword, managerDatastoreUser, managerSecret, browserClient,
                   helper, $window, $route, $routeParams, $location) {
 
             var password_filter;
@@ -106,7 +106,7 @@
              * Generates a passwords for the active tab and stores it in the datastore
              */
             function generate_password() {
-                var password = passwordGenerator.generate();
+                var password = managerDatastorePassword.generate();
                 browserClient.copy_to_clipboard(password);
 
                 browserClient.emit_sec('save-password-active-tab', {'password': password});

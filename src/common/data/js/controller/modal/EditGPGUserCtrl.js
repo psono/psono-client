@@ -8,12 +8,14 @@
      * @requires $uibModalInstance
      * @requires psonocli.managerDatastoreGPGUser
      * @requires psonocli.helper
+     * @requires psonocli.settings
+     * @requires psonocli.openpgp
      *
      * @description
      * Controller for the "Edit Folder" modal
      */
-    angular.module('psonocli').controller('ModalEditGPGUserCtrl', ['$scope', '$uibModalInstance', 'managerDatastoreGPGUser', 'helper', 'settings', 'user',
-        function ($scope, $uibModalInstance, managerDatastoreGPGUser, helper, settings, user) {
+    angular.module('psonocli').controller('ModalEditGPGUserCtrl', ['$scope', '$uibModalInstance', 'managerDatastoreGPGUser', 'helper', 'settings', 'openpgp', 'user',
+        function ($scope, $uibModalInstance, managerDatastoreGPGUser, helper, settings, openpgp, user) {
 
             $scope.cancel = cancel;
             $scope.add_public_key = add_public_key;

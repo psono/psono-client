@@ -9,7 +9,6 @@
      * @requires psonocli.managerDatastore
      * @requires psonocli.managerDatastoreUser
      * @requires psonocli.managerDatastoreSetting
-     * @requires psonocli.apiClient
      *
      * @description
      * Service that handles all the settings

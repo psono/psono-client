@@ -14,16 +14,17 @@
      * @requires psonocli.browserClient
      * @requires psonocli.settings
      * @requires psonocli.helper
+     * @requires psonocli.openpgp
      *
      * @description
      * Controller for the Group view
      */
     angular.module('psonocli').controller('GPGEncryptMessageCtrl', ["$scope", "$timeout", "$routeParams", "$uibModal",
         "cryptoLibrary", "managerDatastorePassword", "managerDatastoreSetting", "managerDatastore", "managerDatastoreGPGUser",
-        "browserClient", "settings", "helper",
+        "browserClient", "settings", "helper", "openpgp",
         function ($scope, $timeout, $routeParams, $uibModal,
                   cryptoLibrary, managerDatastorePassword, managerDatastoreSetting, managerDatastore, managerDatastoreGPGUser,
-                  browserClient, settings, helper) {
+                  browserClient, settings, helper, openpgp) {
 
             var receiver_index = {};
 
