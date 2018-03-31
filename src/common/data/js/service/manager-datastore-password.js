@@ -275,6 +275,10 @@
 
                 var read_share_helper = function (share_id, sub_datastore, path, parent_share_id, parent_datastore_id) {
                     var onSuccess = function (content) {
+                        if (typeof(content) === 'undefined') {
+                            open_calls--;
+                            return;
+                        }
                         all_share_data[share_id] = content;
 
                         update_paths_with_data(datastore, path, content, parent_share_rights, parent_share_id, parent_datastore_id);
