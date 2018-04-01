@@ -29,7 +29,6 @@
 
                 scope.blockMove = options.blockMove;
 
-
                 $timeout(function(){
                     scope.treeView = scope.treeView;
                 }, 5000);
@@ -270,6 +269,10 @@
                 scope.selectNode = function (event) {
                     event.preventDefault();
 
+                    if (controller.isDragEvent(event)) {
+                        return;
+                    }
+
                     if (collapsible) {
                         controller.toggleExpanded(scope.node);
                     }
@@ -295,6 +298,10 @@
                  */
                 scope.editItem = function (item, event) {
                     event.preventDefault();
+
+                    if (controller.isDragEvent(event)) {
+                        return;
+                    }
 
                     if (typeof options.onEditItem === "function") {
                         options.onEditItem(item, getPropertyPath(idProperty, item));
@@ -449,7 +456,6 @@
                  * @param type
                  */
                 scope.onDragStart = function(data, evt, type) {
-
                     if (controller.isDragStarted()) {
                         // Already started, fires a couple of time and only the first one has true data
                         return;
@@ -535,9 +541,7 @@
                         '<i ng-if="node.share_id" class="fa fa-circle fa-stack-2x text-danger is-shared"></i>' +
                         '<i ng-if="node.share_id" class="fa fa-group fa-stack-2x is-shared"></i>' +
                         '</span>' +
-                        '<span class="tree-folder-name">' +
-                        '   <a href="#" ng-click="clickNode($event)">{{ node.' + displayProperty + ' }}</a>' +
-                        '</span> ' +
+                        '<span class="tree-folder-name">{{ node.' + displayProperty + ' }}</a></span> ' +
                         '</div>' +
                         '<span class="node-dropdown" uib-dropdown on-toggle="toggled(open, \'drop_node_\' + node.id)"' +
                         '   ng-class="{disabled: node.share_rights.write === false && node.share_rights.grant === false && node.share_rights.delete === false}">' +
@@ -628,7 +632,7 @@
                         '   ng-mousedown="$event.stopPropagation()" ng-show="!item.hidden"' +
                         '   class="tree-item" ng-repeat="item in ' + attrs.treeViewNode + '.data.' + itemsProperty + ' track by $index">' +
 
-                        '<div class="tree-item-object" ng-click="selectItem(item, $event)"' +
+                        '<div ng-click="editItem(item, $event)" class="tree-item-object" ' +
                         '   ng-class="{ selected: isSelected(item), notSelectable: ! isSelectable(node) }" data-target="menu-{{ item.id }}"' +
                         '   context-menu="contextMenuOnShow(\'menu-\'+item.id)"' +
                         '   context-menu-close="contextMenuOnClose(\'menu-\'+item.id)">' +
@@ -637,9 +641,7 @@
                         '<i ng-if="item.share_id" class="fa fa-circle fa-stack-2x text-danger is-shared"></i>' +
                         '<i ng-if="item.share_id" class="fa fa-group fa-stack-2x is-shared"></i>' +
                         '</span>' +
-                        '<span class="tree-item-name">' +
-                        '   <a href="#" ng-click="editItem(item, $event)">{{ item.' + displayProperty + ' }}</a>' +
-                        '</span>' +
+                        '<span class="tree-item-name">{{ item.' + displayProperty + ' }}</span>' +
                         '<span class="node-open-link">' +
                         '<a href="#" class="btn btn-default" ng-click="clickItem(item, $event)">' +
                         '    <i class="fa fa-external-link"></i>' +

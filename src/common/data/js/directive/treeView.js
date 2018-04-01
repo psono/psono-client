@@ -278,12 +278,19 @@
                 };
 
                 var drags_in_progress = 0;
-
+                var drag_start_client_y = 0;
                 /**
                  * increments the drag in progress counter.
                  */
                 self.setDragInProgress = function (){
                     drags_in_progress = drags_in_progress + 1;
+                };
+
+                /**
+                 * increments the drag in progress counter.
+                 */
+                self.isDragEvent = function (event){
+                    return Math.abs(event.clientY - drag_start_client_y) > 3;
                 };
 
                 /**
@@ -314,6 +321,13 @@
                         self.onAnyDrop(evt, null)
                     }, 100));
 
+                });
+
+                /**
+                 * triggered once a drag ends with or without dropping it on top of another folder / item
+                 */
+                $rootScope.$on('draggable:longpress', function(event, args) {
+                    drag_start_client_y = args.event.clientY;
                 });
 
 
