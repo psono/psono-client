@@ -48,7 +48,10 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
     //     }
     // };
 
-    activate();
+
+    jQuery(function() {
+        activate();
+    });
 
     function activate() {
         base.register_observer(analyze_document);
@@ -131,7 +134,7 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
             var element = jQuery('' +
                 '<div class="psono-pw-pgp-link yui3-cssreset">' +
                 '    <div style="max-width: 150px">' +
-                '        <img class="'+element_id+'" width="100%" data-pgp-content="'+pgp_content+'" data-pgp-sender="'+pgp_sender+'" src="' + chrome.extension.getURL("data/img/psono-decrypt.png") + '">' +
+                '        <img class="'+element_id+'" width="100%" data-pgp-content="'+pgp_content+'" data-pgp-sender="'+pgp_sender+'" src="' + browser.runtime.getURL("data/img/psono-decrypt.png") + '">' +
                 '    </div>' +
                 '</div>');
 
@@ -171,25 +174,22 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
     function add_pgp_message_writer(hoster, node) {
         var field = jQuery(node);
         field.addClass("psono-add_pgp_message_writers-covered");
-        var receiver = hoster.get_receiver(node);
+        base.modify_input_field(node, browser.runtime.getURL("data/img/psono-encrypt.png"), 'top right', {node: node, get_receiver: hoster.get_receiver}, onClick, mouseOver, mouseOut, mouseMove);
+    }
 
-
-        base.modify_input_field(node, chrome.extension.getURL("data/img/psono-encrypt.png"), 'top right', {field: field, receiver: receiver}, click, mouseOver, mouseOut, mouseMove);
-
-        // // Attach our element with the parsed information
-        // var element_id = 'psono_pgp_writer-' + uuid.v4();
-        // var element = jQuery('' +
-        //     '<div class="psono-pw-pgp-link yui3-cssreset">' +
-        //     '    <div style="max-width: 150px">' +
-        //     '        <img class="'+element_id+'" width="100%" src="' + chrome.extension.getURL("data/img/psono-encrypt.png") + '">' +
-        //     '    </div>' +
-        //     '</div>');
-        //
-        // var parent = node.parentElement.closest('div');
-        // element.prependTo(parent);
-        // jQuery( parent.getElementsByClassName(element_id) ).on( "click", function() {
-        //     encryptGPG(field, pgp_receiver);
-        // })
+    /**
+     * triggered when a click happens in an input field. Used to open the drop down menu and handle the closing
+     * once a click happens outside of the dropdown menu
+     *
+     * @param evt Click event
+     * @param click_data The data specified before to pass on
+     */
+    function onClick(evt, click_data) {
+        if (getDistance(evt) < 30 && getDistance(evt) > 0) {
+            var field = jQuery(click_data['node']);
+            var receiver = click_data['get_receiver'](click_data['node']);
+            encryptGPG (field, receiver)
+        }
     }
 
     /**
@@ -248,37 +248,6 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
             evt.target.style.cursor = 'pointer';
         } else {
             evt.target.style.cursor = 'auto';
-        }
-    }
-
-    // /**
-    //  * closes dropinstances if a click outside of a dropinstance happens.
-    //  *
-    //  * @param event
-    //  */
-    // function close (event) {
-    //     for (var i = dropInstances.length - 1; i >= 0; i--) {
-    //         if(dropInstances[i].drop.contains(event.target)) {
-    //             continue;
-    //         }
-    //         dropInstances[i].close();
-    //         dropInstances.splice(i, 1);
-    //     }
-    //     if (dropInstances.length > 0) {
-    //         jQuery(window).one("click", close);
-    //     }
-    // }
-
-    /**
-     * triggered when a click happens in an input field. Used to open the drop down menu and handle the closing
-     * once a click happens outside of the dropdown menu
-     *
-     * @param evt Click event
-     * @param click_data The data specified before to pass on
-     */
-    function click(evt, click_data) {
-        if (getDistance(evt) < 30 && getDistance(evt) > 0) {
-            encryptGPG (click_data['field'], click_data['receiver'])
         }
     }
 

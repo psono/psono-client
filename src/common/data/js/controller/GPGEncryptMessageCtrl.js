@@ -39,7 +39,7 @@
             $scope.data = {
                 encrypting: false,
                 sign_message: true,
-                message: 'sexy',
+                message: '',
                 receiver: [],
                 errors: [],
                 private_key_options: [],
@@ -55,7 +55,6 @@
                         load_receiver(data.receiver);
                     });
                 });
-                load_receiver(['security@psono.com']);
 
                 load_own_pgp_keys();
             }

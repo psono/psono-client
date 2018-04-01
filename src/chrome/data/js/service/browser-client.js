@@ -39,7 +39,7 @@
                 url: url,
                 type: "popup",
                 width: 800,
-                height: 1000
+                height: 600
             }, callback_function);
         };
 

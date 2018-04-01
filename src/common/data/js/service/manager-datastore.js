@@ -524,6 +524,9 @@
          */
         var filter = function (folder, func) {
             var i;
+            if (!folder) {
+                return;
+            }
             if (folder.hasOwnProperty('folders')) {
                 for (i = 0; i < folder['folders'].length; i++) {
                     filter(folder['folders'][i], func);

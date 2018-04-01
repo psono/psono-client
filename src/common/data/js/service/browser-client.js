@@ -50,7 +50,7 @@
          * @param callback_function
          */
         var open_popup = function(url, callback_function) {
-            var win = $window.open(url, '_blank', "width=800,height=1000");
+            var win = $window.open(url, '_blank', "width=800,height=600");
             win.onload = function() { win.RunCallbackFunction = callback_function; };
         };
 

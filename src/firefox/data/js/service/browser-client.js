@@ -36,10 +36,10 @@
         var open_popup = function(url, callback_function) {
 
             return browser.windows.create({
-                url: browser.extension.getURL(url),
+                url: browser.runtime.getURL(url),
                 type: "popup",
                 width: 800,
-                height: 1000
+                height: 600
             }, callback_function);
         };
 

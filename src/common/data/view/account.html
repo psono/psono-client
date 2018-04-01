@@ -46,7 +46,7 @@
                                        class="form-control">
 
                                 <button ng-if="field.type === 'button'" class="btn btn-primary {{field.class}}"
-                                        ng-click="account[field.onClick]()"
+                                        ng-click="account[field.onClick](node)"
                                         type="{{field.type}}" ng-hide="field.hidden" ng-click="">{{field.btnLabel}}</button>
 
                                 <uib-progressbar value="(field.value | complexify)"

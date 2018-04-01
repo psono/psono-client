@@ -668,8 +668,6 @@
                 });
             }
 
-            console.log(message);
-
             function finalise_encryption(options) {
                 openpgp.encrypt(options).then(function(ciphertext) {
                     var originalSendResponse = gpg_messages[message_id]['sendResponse'];
@@ -688,8 +686,6 @@
             if (sign_message) {
 
                 var onSuccess = function(data) {
-
-                    console.log(data);
 
                     options = {
                         data: message,
