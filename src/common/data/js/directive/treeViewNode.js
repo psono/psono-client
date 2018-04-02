@@ -644,7 +644,7 @@
                         '<i ng-if="item.share_id" class="fa fa-group fa-stack-2x is-shared"></i>' +
                         '</span>' +
                         '<span class="tree-item-name">{{ item.' + displayProperty + ' }}</span>' +
-                        '<span class="node-open-link">' +
+                        '<span class="node-open-link" ng-if="item.type === \'website_password\' || item.type === \'bookmark\'">' +
                         '<a href="#" class="btn btn-default" ng-click="$event.stopPropagation(); clickItem(item, $event)">' +
                         '    <i class="fa fa-external-link"></i>' +
                         '</a>' +
