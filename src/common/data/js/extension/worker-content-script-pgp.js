@@ -17,9 +17,48 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
                 return direct_parent.text();
             },
             'get_sender': function (node) {
+                // var direct_parent = jQuery(node).parent();
+                // var top_parent = direct_parent.parents('.gs').first();
+                // return top_parent.find("span.gD").data('hovercardId');
+                return [];
+            },
+            'get_receiver': function (node) {
+                return [];
+            },
+            'get_content_editable_fields': function (node) {
+                return jQuery('textarea, [contenteditable="true"]').filter(':visible')
+            }
+        },
+        {
+            'name': 'livecom',
+            'domain_filter': function() {
+                return window.location.href.toLowerCase().indexOf('outlook.live.com') !== -1;
+            },
+            'get_pgp_content': function (node) {
                 var direct_parent = jQuery(node).parent();
-                var top_parent = direct_parent.parents('.gs').first();
-                return top_parent.find("span.gD").data('hovercardId');
+                return direct_parent.text();
+            },
+            'get_sender': function (node) {
+                return [];
+            },
+            'get_receiver': function (node) {
+                return [];
+            },
+            'get_content_editable_fields': function (node) {
+                return jQuery('textarea, [contenteditable="true"]').filter(':visible')
+            }
+        },
+        {
+            'name': 'yahoo',
+            'domain_filter': function() {
+                return window.location.href.toLowerCase().indexOf('mail.yahoo.com') !== -1;
+            },
+            'get_pgp_content': function (node) {
+                var direct_parent = jQuery(node).parent();
+                return direct_parent.text();
+            },
+            'get_sender': function (node) {
+                return [];
             },
             'get_receiver': function (node) {
                 return [];
@@ -275,7 +314,7 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
             receiver: receiver
         }, function(data) {
             if (text_element.is('[contenteditable="true"]')) {
-                text_element.append(data.message)
+                text_element.append('<pre>' + data.message + '<pre/>');
             } else {
                 text_element.val(data.message + "\n" + text_element.val())
             }
