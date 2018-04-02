@@ -64,7 +64,7 @@
                 // Delete Account
                 { name: "delete_account", field: "button", type: "button", title: "Delete Account", btnLabel: "Delete", class: 'btn-primary', onClick:"onClickOpenDeleteAccountModal", tab: 'delete-account' }
             ],
-            onClickOpenDeleteAccountModal: function () {
+            onClickOpenDeleteAccountModal: function (node) {
 
                 var modalInstance = $uibModal.open({
                     templateUrl: 'view/modal-delete-account.html',
@@ -81,7 +81,7 @@
                 });
 
             },
-            onClickGenerateNewPasswordRecoveryCode: function () {
+            onClickGenerateNewPasswordRecoveryCode: function (node) {
 
                 var onSuccess = function(recovery_information) {
 
@@ -110,7 +110,7 @@
                 managerDatastoreUser.recovery_generate_information().then(onSuccess, onError);
 
             },
-            onClickConfigureGoogleAuthenticator: function () {
+            onClickConfigureGoogleAuthenticator: function (node) {
                 var modalInstance = $uibModal.open({
                     templateUrl: 'view/modal-setup-google-authenticator.html',
                     controller: 'ModalConfigureGoogleAuthenticatorCtrl',
@@ -125,7 +125,7 @@
                 });
 
             },
-            onClickConfigureYubiKeyOTP: function () {
+            onClickConfigureYubiKeyOTP: function (node) {
                 var modalInstance = $uibModal.open({
                     templateUrl: 'view/modal-setup-yubikey-otp.html',
                     controller: 'ModalConfigureYubiKeyOTPCtrl',
@@ -140,7 +140,7 @@
                 });
 
             },
-            onClickConfigureDuo: function () {
+            onClickConfigureDuo: function (node) {
                 var modalInstance = $uibModal.open({
                     templateUrl: 'view/modal-setup-duo.html',
                     controller: 'ModalConfigureDuoCtrl',

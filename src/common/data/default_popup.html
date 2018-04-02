@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="psonocli" class="main" ng-csp>
+<html ng-app="psonocli" class="main" ng-csp ng-strict-di>
 <head>
     <title>Addon Window</title>
     <meta charset="utf-8">
@@ -8,12 +8,14 @@
     <link rel="icon" type="image/png" href="img/favicon-32x32.png" sizes="32x32">
     <link rel="icon" type="image/png" href="img/favicon-16x16.png" sizes="16x16">
     <link rel="shortcut icon" href="img/favicon.ico">
+    <meta charset="utf-8"/>
     <meta name="description" content="Psono Web Client to login or register">
     <meta name="msapplication-config" content="img/browserconfig.xml">
     <meta name="theme-color" content="#ffffff">
     <meta name="viewport" content="width=device-width, user-scalable=no">
 
     <!-- build:build_min_css -->
+    <link href="css/lib/cssreset-context-min.css" rel="stylesheet" />
     <link href="css/lib/opensans.css" rel="stylesheet" />
     <link href="css/lib/angular-csp.css" rel="stylesheet">
     <link href="css/lib/bootstrap.css" rel="stylesheet">
@@ -312,6 +314,7 @@
 <!-- build:build_min_js -->
 <!-- Start of scripts -->
 <script src="js/lib/ecma-nacl.min.js" type="text/javascript"></script>
+<script src="js/lib/openpgp.min.js" type="text/javascript"></script>
 <script src="js/lib/sha512.min.js" type="text/javascript"></script>
 <script src="js/lib/sha256.min.js" type="text/javascript"></script>
 <script src="js/lib/sha1.min.js" type="text/javascript"></script>
@@ -362,11 +365,14 @@
 <script src="js/controller/DatastoreCtrl.js"></script>
 <script src="js/controller/SecurityReportCtrl.js" type="application/javascript"></script>
 <script src="js/controller/LoginCtrl.js" type="application/javascript"></script>
+<script src="js/controller/GPGDecryptMessageCtrl.js" type="application/javascript"></script>
+<script src="js/controller/GPGEncryptMessageCtrl.js" type="application/javascript"></script>
 <script src="js/controller/LostPasswordCtrl.js" type="application/javascript"></script>
 <script src="js/controller/MainCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/AcceptShareCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ConfigureGoogleAuthenticatorCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/DeleteOtherSessionsCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/AddGPGReceiverCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ConfigureDuoCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ConfigureYubiKeyOTPCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/CreateDatastoreCtrl.js" type="application/javascript"></script>
@@ -381,11 +387,17 @@
 <script src="js/controller/modal/NewGroupCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/PickUserCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/EditGroupCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/EncryptMessageGPGCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/DecryptMessageGPGCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/EditGPGUserCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/GenerateNewMailGPGKeyCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/ImportMailGPGKeyAsTextCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ShareEditEntryCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ShareEntryCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ShareNewEntryCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ShowRecoverycodeCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/DeleteAccountCtrl.js" type="application/javascript"></script>
+<script src="js/controller/EditEntryBigCtrl.js" type="application/javascript"></script>
 <script src="js/controller/OpenSecretCtrl.js" type="application/javascript"></script>
 <script src="js/controller/OtherCtrl.js" type="application/javascript"></script>
 <script src="js/controller/SessionsCtrl.js" type="application/javascript"></script>
@@ -411,6 +423,7 @@
 <script src="js/service/share-blueprint.js" type="application/javascript"></script>
 <script src="js/service/crypto-library.js" type="application/javascript"></script>
 <script src="js/service/converter.js" type="application/javascript"></script>
+<script src="js/service/openpgp.js" type="application/javascript"></script>
 <script src="js/service/storage.js" type="application/javascript"></script>
 <script src="js/service/account.js" type="application/javascript"></script>
 <script src="js/service/settings.js" type="application/javascript"></script>
@@ -434,10 +447,10 @@
 <script src="js/service/manager-share.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore-password.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore-user.js" type="application/javascript"></script>
+<script src="js/service/manager-datastore-gpg-user.js" type="application/javascript"></script>
 <script src="js/service/manager-groups.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore-setting.js" type="application/javascript"></script>
 <script src="js/service/browser-client.js" type="application/javascript"></script>
-<script src="js/service/password-generator.js" type="application/javascript"></script>
 <script src="js/service/drop-down-menu-watcher.js" type="application/javascript"></script>
 
 <script src="view/templates.js" type="application/javascript"></script>

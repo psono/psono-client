@@ -4,6 +4,7 @@
     /**
      * @ngdoc controller
      * @name psonocli.controller:DatastoreCtrl
+     * @requires $rootScope
      * @requires $scope
      * @requires $uibModal
      * @requires $routeParams
@@ -19,10 +20,10 @@
      * @description
      * Main Controller for the datastore widget
      */
-    angular.module('psonocli').controller('DatastoreCtrl', ["$scope", "$uibModal", "$routeParams", "$timeout",
+    angular.module('psonocli').controller('DatastoreCtrl', ["$rootScope", "$scope", "$uibModal", "$routeParams", "$timeout",
         "manager", "managerDatastorePassword", 'managerDatastore',
         "itemBlueprint", "managerWidget", "managerSecret", "dropDownMenuWatcher",
-        function($scope, $uibModal, $routeParams, $timeout,
+        function($rootScope, $scope, $uibModal, $routeParams, $timeout,
                  manager, managerDatastorePassword, managerDatastore,
                  itemBlueprint, managerWidget, managerSecret, dropDownMenuWatcher){
             var contextMenusOpen = 0;
@@ -31,6 +32,7 @@
             $scope.contextMenuOnClose = contextMenuOnClose;
             $scope.openNewFolder = openNewFolder;
             $scope.openNewItem = openNewItem;
+            $scope.show_share_content = false;
 
             $scope.tosearchTreeFilter = $routeParams.default_search;
             $scope.structure = {
@@ -195,7 +197,18 @@
                 managerDatastorePassword.register('save_datastore_content', update_datastore);
                 $scope.$on('$destroy', function() {
                     managerDatastorePassword.unregister('save_datastore_content', update_datastore);
-                })
+                });
+
+                $rootScope.$on('show-entry-big', function(evt, args) {
+                    $scope.show_share_content = true;
+                    $timeout(function() {
+                        $rootScope.$broadcast('show-entry-big-load', args);
+                    }, 0);
+                });
+
+                $rootScope.$on('close-entry-big', function(data) {
+                    $scope.show_share_content = false;
+                });
             }
 
             /**

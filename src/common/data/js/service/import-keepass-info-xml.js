@@ -85,8 +85,8 @@
 
                 if (key === 'URL') {
                     var parsed_url = helper.parse_url(val);
-                    secret['urlfilter'] = parsed_url.authority;
-                    secret['website_password_url_filter'] = parsed_url.authority;
+                    secret['urlfilter'] = parsed_url.authority || '';
+                    secret['website_password_url_filter'] = parsed_url.authority || '';
                     secret['website_password_url'] = val;
                 }
 

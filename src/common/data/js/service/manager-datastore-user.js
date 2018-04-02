@@ -1262,6 +1262,20 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastoreUser#get_email
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Returns the user email address
+         *
+         * @returns {string|null} Returns the users email address or null
+         */
+        var get_email = function() {
+            return storage.find_key('config', 'user_email').value;
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastoreUser#delete_session
          * @methodOf psonocli.managerDatastoreUser
          *
@@ -1464,6 +1478,7 @@
             activate_yubikey_otp: activate_yubikey_otp,
             delete_yubikey_otp: delete_yubikey_otp,
             get_sessions: get_sessions,
+            get_email: get_email,
             delete_session: delete_session,
             delete_other_sessions: delete_other_sessions,
             save_new_email: save_new_email,

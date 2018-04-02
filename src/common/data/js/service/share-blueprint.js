@@ -255,7 +255,7 @@
             }
 
             if (allow_user_search_by_email) {
-                _blueprints.user.fields.splice(1, 0, { name: "user_search_email", field: "input", type: "text", title: "E-mail", placeholder: "E-mail", onChange: "onChangeSearch" });
+                _blueprints.user.fields.splice(1, 0, { name: "user_search_email", field: "input", type: "text", validationType: "email", title: "E-mail", placeholder: "E-mail", onChange: "onChangeSearch" });
             }
         }
 

@@ -92,6 +92,12 @@
                         templateUrl: 'view/index-security-report.html',
                         controller: 'SecurityReportCtrl'
                     })
+                    .when('/gpg/read/:gpg_message_id', {
+                        templateUrl: 'view/index-gpg-decrypt.html'
+                    })
+                    .when('/gpg/write/:gpg_message_id', {
+                        templateUrl: 'view/index-gpg-encrypt.html'
+                    })
                     .when('/secret/:type/:secret_id', {})
                     .when('/activation-code/:activation_code', {})
                     .when('/datastore/search/:default_search', {
@@ -124,6 +130,32 @@
                 return typeof obj
             };
         })
+        .filter('fingerprint', ['openpgp', function(openpgp) {
+            return function(obj) {
+
+                if (!obj) {
+                    return ''
+                }
+
+                if (obj.indexOf('-----') !== -1) {
+                    var key = openpgp.key.readArmored(obj).keys[0];
+                    if (key) {
+                        obj = key.primaryKey.fingerprint;
+                    } else {
+                        obj = '';
+                    }
+                }
+
+                var cleaned = obj.toUpperCase().replace(/\s/g,'');
+                var parts = [];
+
+                for(var i = 0; i < cleaned.length; i += 4) {
+                    parts.push(cleaned.substr(i, 4));
+                }
+
+                return parts.join(' ');
+            };
+        }])
         .run(['$rootScope', '$location', '$routeParams', '$http', '$templateCache', 'managerSecret',
             function ($rootScope, $location, $routeParams, $http, $templateCache, managerSecret) {
                 $rootScope.$on('$routeChangeSuccess', function () {

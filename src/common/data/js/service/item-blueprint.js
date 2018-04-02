@@ -34,7 +34,7 @@
                 search: ['website_password_title', 'website_password_url_filter'], // are searched when the user search his entries
                 fields: [ // All fields for this object with unique names
                     { name: "website_password_title", field: "input", type: "text", title: "Title", placeholder: "Title", required: true},
-                    { name: "website_password_url", field: "input", type: "url", title: "URL", placeholder: "URL", onChange: "onChangeUrl"},
+                    { name: "website_password_url", field: "input", type: "text", validationType: "url", title: "URL", placeholder: "URL", onChange: "onChangeUrl"},
                     { name: "website_password_username", field: "input", type: "text", title: "Username", placeholder: "Username"},
                     { name: "website_password_password", field: "input", type: "password", title: "Password", placeholder: "Password",
                         dropmenuItems:[
@@ -98,7 +98,10 @@
                     // get only toplevel domain
                     var parsed_url = helper.parse_url(url);
 
-                    if (typeof(parsed_url.authority) === 'undefined') {
+                    if (typeof(parsed_url.authority) === 'undefined' && url) {
+                        domain_filter_col.value = url;
+                        return url;
+                    } else if (typeof(parsed_url.authority) === 'undefined') {
                         domain_filter_col.value = "";
                         return '';
                     } else {
@@ -143,6 +146,209 @@
                     { name: "note_notes", field: "textarea", title: "Notes", placeholder: "Notes"}
                 ]
             },
+            mail_gpg_own_key: {
+                id: "mail_gpg_own_key",
+                name: "GPG Key",
+                title_field: "mail_gpg_own_key_title",
+                search: ['mail_gpg_own_key_title', 'mail_gpg_own_key_email'],
+                fields: [
+                    { name: "mail_gpg_own_key_title", field: "input", type: "text", title: "Title", hidden: true, placeholder: "Name", required: true},
+                    { name: "mail_gpg_own_key_email", field: "input", type: "text", title: "Email", placeholder: "Email", hidden: true, readonly: true},
+                    { name: "mail_gpg_own_key_name", field: "input", type: "text", title: "Name", placeholder: "Name", hidden: true, readonly: true},
+                    { name: "mail_gpg_own_key_public", field: "textarea", title: "Public Key", placeholder: "Public Key", hidden: true, readonly: true},
+                    { name: "mail_gpg_own_key_private", field: "textarea", title: "Private Key", placeholder: "Private Key", hidden: true, readonly: true},
+                    { name: "mail_gpg_own_key_publish", field: "input", type:"checkbox", title: "Publish Public Key", hidden: true},
+                    { name: "mail_gpg_own_key_generate_new", field: "button", type: "button", title: "Generate New", hidden: true, class: 'btn-primary', onClick:"onClickGenerateNewButton" },
+                    { name: "mail_gpg_own_key_generate_import_text", field: "button", type: "button", title: "Import (as text)", hidden: true, class: 'btn-primary', onClick:"onClickImportAsTextButton" },
+                    { name: "mail_gpg_own_key_encrypt_message", field: "button", type: "button", title: "Encrypt Message", hidden: true, class: 'btn-default', onClick:"onClickEncryptMessageButton" },
+                    { name: "mail_gpg_own_key_decrypt_message", field: "button", type: "button", title: "Decrypt Message", hidden: true, class: 'btn-default', onClick:"onClickDecryptMessageButton" }
+                ],
+                /**
+                 * triggered whenever the "Generate New" button is clicked.
+                 * Will open a new modal so the user can enter his details, and once the modal closes show the details for this entry.
+                 *
+                 * @param node
+                 * @param fields
+                 * @param errors
+                 * @param form_control
+                 * @param selected_server_domain
+                 */
+                onClickGenerateNewButton: function(node, fields, errors, form_control, selected_server_domain){
+
+                    var show_key = function(data) {
+
+                        for (var i = 0; i < fields.length; i++) {
+                            if (fields[i].name === "mail_gpg_own_key_title") {
+                                fields[i].value = data.title;
+                                fields[i].hidden = false;
+                            }
+                            if (fields[i].name === "mail_gpg_own_key_name") {
+                                fields[i].value = data.name;
+                                fields[i].hidden = false;
+                            }
+                            if (fields[i].name === "mail_gpg_own_key_email") {
+                                fields[i].value = data.email;
+                                fields[i].hidden = false;
+                            }
+                            if (fields[i].name === "mail_gpg_own_key_public") {
+                                fields[i].value = data.public_key;
+                                fields[i].hidden = false;
+                            }
+                            if (fields[i].name === "mail_gpg_own_key_private") {
+                                fields[i].value = data.private_key;
+                                fields[i].hidden = false;
+                            }
+                        }
+                    };
+
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'view/modal-generate-new-mail-gpg-key.html',
+                        controller: 'ModalGenerateNewMailGPGKeyCtrl',
+                        backdrop: 'static',
+                        resolve: {
+                        }
+                    });
+
+                    modalInstance.result.then(function (data) {
+                        show_key(data);
+                        //form_control['block_submit'] = false;
+                    }, function () {
+                        // cancel triggered
+                    });
+
+                },
+                /**
+                 * triggered whenever the "Import (as text)" button is clicked.
+                 * Will open a new modal so the user can copy paste his keys, and once the modal closes show the details for this entry.
+                 *
+                 * @param node
+                 * @param fields
+                 * @param errors
+                 * @param form_control
+                 * @param selected_server_domain
+                 */
+                onClickImportAsTextButton: function(node, fields, errors, form_control, selected_server_domain){
+
+                    var show_key = function(data) {
+
+                        for (var i = 0; i < fields.length; i++) {
+                            if (fields[i].name === "mail_gpg_own_key_title") {
+                                fields[i].value = data.title;
+                                fields[i].hidden = false;
+                            }
+                            if (fields[i].name === "mail_gpg_own_key_name") {
+                                fields[i].value = data.name;
+                                fields[i].hidden = false;
+                            }
+                            if (fields[i].name === "mail_gpg_own_key_email") {
+                                fields[i].value = data.email;
+                                fields[i].hidden = false;
+                            }
+                            if (fields[i].name === "mail_gpg_own_key_public") {
+                                fields[i].value = data.public_key;
+                                fields[i].hidden = false;
+                            }
+                            if (fields[i].name === "mail_gpg_own_key_private") {
+                                fields[i].value = data.private_key;
+                                fields[i].hidden = false;
+                            }
+                        }
+                    };
+
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'view/modal-import-mail-gpg-key-as-text.html',
+                        controller: 'ModalImportMailGPGKeyAsTextCtrl',
+                        backdrop: 'static',
+                        resolve: {
+                        }
+                    });
+
+                    modalInstance.result.then(function (data) {
+                        show_key(data);
+                        //form_control['block_submit'] = false;
+                    }, function () {
+                        // cancel triggered
+                    });
+
+                },
+                /**
+                 * triggered whenever the "Encrypt Message" button is clicked.
+                 * Will open a new modal where the user can encrypt a message for specific receivers.
+                 *
+                 * @param node
+                 * @param fields
+                 * @param errors
+                 * @param form_control
+                 * @param selected_server_domain
+                 */
+                onClickEncryptMessageButton: function(node, fields, errors, form_control, selected_server_domain){
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'view/modal-encrypt-message-gpg.html',
+                        controller: 'ModalEncryptMessageGPGCtrl',
+                        backdrop: 'static',
+                        resolve: {
+                            secret_id: function() {
+                                return node.secret_id;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function (data) {
+                        // pass
+                    }, function () {
+                        // cancel triggered
+                    });
+
+                },
+                /**
+                 * triggered whenever the "Decrypt Message" button is clicked.
+                 * Will open a new modal where the user can decrypt a message.
+                 *
+                 * @param node
+                 * @param fields
+                 * @param errors
+                 * @param form_control
+                 * @param selected_server_domain
+                 */
+                onClickDecryptMessageButton: function(node, fields, errors, form_control, selected_server_domain){
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'view/modal-decrypt-message-gpg.html',
+                        controller: 'ModalDecryptMessageGPGCtrl',
+                        backdrop: 'static',
+                        resolve: {
+                            secret_id: function() {
+                                return node.secret_id;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function (data) {
+                        // pass
+                    }, function () {
+                        // cancel triggered
+                    });
+
+                },
+                onEditModalOpen: function(node) {
+                    var showInEditOnly = [
+                        "mail_gpg_own_key_title",
+                        "mail_gpg_own_key_email",
+                        "mail_gpg_own_key_name",
+                        "mail_gpg_own_key_public",
+                        "mail_gpg_own_key_encrypt_message",
+                        "mail_gpg_own_key_decrypt_message"
+                    ];
+                    for (var i = 0; i < node.fields.length; i++) {
+                        node.fields[i].hidden = !(showInEditOnly.indexOf(node.fields[i].name) > -1);
+                    }
+                },
+                onNewModalOpen: function(node) {
+                    var showInNewOnly = ["mail_gpg_own_key_generate_new", "mail_gpg_own_key_generate_import_text"];
+                    for (var i = 0; i < node.fields.length; i++) {
+                        node.fields[i].hidden = !(showInNewOnly.indexOf(node.fields[i].name) > -1);
+                    }
+                }
+            },
             bookmark: {
                 id: "bookmark", // Unique ID
                 name: "Bookmark", // Displayed in Dropdown Menu
@@ -151,7 +357,7 @@
                 search: ['bookmark_title', 'bookmark_url_filter'], // are searched when the user search his entries
                 fields: [ // All fields for this object with unique names
                     { name: "bookmark_title", field: "input", type: "text", title: "Title", placeholder: "Title", required: true},
-                    { name: "bookmark_url", field: "input", type: "url", title: "URL", placeholder: "URL", onChange: "onChangeUrl"},
+                    { name: "bookmark_url", field: "input", type: "text", validationType: "url", title: "URL", placeholder: "URL", onChange: "onChangeUrl"},
                     { name: "bookmark_notes", field: "textarea", title: "Notes", placeholder: "Notes"},
                     { name: "bookmark_url_filter", field: "textarea", title: "Domain Filter", placeholder: "URL filter e.g. example.com or sub.example.com", position: "advanced"}
                 ],
@@ -641,6 +847,9 @@
          * @returns {boolean} Returns if the items has fields with position advanced
          */
         var has_advanced = function (blueprint_item) {
+            if (typeof(blueprint_item) === 'undefined') {
+                return false;
+            }
             for (var i = 0; i < blueprint_item.fields.length; i++) {
                 if (blueprint_item.fields[i].hasOwnProperty('position') && blueprint_item.fields[i]['position'] === 'advanced') {
                     return true;

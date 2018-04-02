@@ -9,16 +9,24 @@
      * @requires psonocli.managerBase
      * @requires psonocli.storage
      * @requires psonocli.managerDatastorePassword
+     * @requires psonocli.managerDatastore
+     * @requires psonocli.managerDatastoreUser
      * @requires psonocli.helper
+     * @requires psonocli.cryptoLibrary
      * @requires psonocli.apiClient
      * @requires psonocli.device
+     * @requires psonocli.browser
+     * @requires psonocli.chrome
+     * @requires psonocli.browserClient
+     * @requires psonocli.settings
+     * @requires psonocli.openpgp
      *
      * @description
      * Service that handles the complete background process
      */
     var managerBackground = function($q, $timeout, managerBase, managerSecret, storage, managerDatastorePassword,
-                                     managerDatastoreUser, helper, cryptoLibrary, apiClient, device, browser, chrome,
-                                     browserClient) {
+                                     managerDatastore, managerDatastoreUser, helper, cryptoLibrary, apiClient, device,
+                                     browser, chrome, browserClient, settings, openpgp) {
 
         var last_login_credentials;
         var activeTabId;
@@ -26,12 +34,13 @@
         var fillpassword = [];
         var already_filled_max_allowed = {};
 
+        var gpg_messages = {};
+
         var num_tabs;
 
         activate();
 
         function activate() {
-
             chrome.tabs.onActivated.addListener(function(activeInfo) {
                 activeTabId = activeInfo.tabId;
             });
@@ -68,7 +77,7 @@
             });
 
             // count tabs to logout on browser close
-            browser.tabs.getAllInWindow( null, function( tabs ){
+            browser.tabs.query({currentWindow: true}, function( tabs ){
                 num_tabs = tabs.length;
             });
             browser.tabs.onCreated.addListener(function(tab){
@@ -141,7 +150,12 @@
                 'website-password-refresh': on_website_password_refresh,
                 'request-secret': on_request_secret,
                 'open-tab': on_open_tab,
-                'login-form-submit': login_form_submit
+                'login-form-submit': login_form_submit,
+                'decrypt-gpg': decrypt_pgp,
+                'encrypt-gpg': encrypt_pgp,
+                'read-gpg': read_gpg,
+                'write-gpg': write_gpg,
+                'write-gpg-complete': write_gpg_complete
             };
 
             if (event_functions.hasOwnProperty(request.event)){
@@ -283,8 +297,11 @@
 
             chrome.tabs.query({url: 'chrome-extension://'+chrome.runtime.id+'/*'}, function(tabs) {
                 var tabids = [];
-                for (var i = 0; i < tabs.length; i++) {
-                    tabids.push(tabs[i].id);
+
+                if (typeof(tabs) !== 'undefined') {
+                    for (var i = 0; i < tabs.length; i++) {
+                        tabids.push(tabs[i].id);
+                    }
                 }
 
                 chrome.tabs.remove(tabids)
@@ -459,6 +476,250 @@
             browser.tabs.create({
                 url: request.data.url
             });
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerBackground#decrypt_pgp
+         * @methodOf psonocli.managerBackground
+         *
+         * @description
+         * Receives the messages with the parsed data once someone clicks on the green "DECRYPT" symbol in a mail
+         *
+         * @param {object} request The message sent by the calling script.
+         * @param {object} sender The sender of the message
+         * @param {function} sendResponse Function to call (at most once) when you have a response.
+         */
+        function decrypt_pgp(request, sender, sendResponse) {
+            var message_id = cryptoLibrary.generate_uuid();
+            gpg_messages[message_id] = {
+                message: request.data.message,
+                sender: request.data.sender
+            };
+
+            // Delete the message after 60 minutes
+            $timeout(function() {
+                delete gpg_messages[message_id];
+            }, 60000);
+
+            browserClient.open_popup("/data/popup_pgp.html#!/gpg/read/"+message_id)
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerBackground#encrypt_pgp
+         * @methodOf psonocli.managerBackground
+         *
+         * @description
+         * Receives a message from a content script to get some encrypted data back
+         *
+         * @param {object} request The message sent by the calling script.
+         * @param {object} sender The sender of the message
+         * @param {function} sendResponse Function to call (at most once) when you have a response.
+         */
+        function encrypt_pgp(request, sender, sendResponse) {
+            var message_id = cryptoLibrary.generate_uuid();
+            gpg_messages[message_id] = {
+                receiver: request.data.receiver,
+                sendResponse: sendResponse
+            };
+            browserClient.open_popup("/data/popup_pgp.html#!/gpg/write/"+message_id, function(window) {
+                gpg_messages[message_id]['window_id'] = window.id;
+            });
+
+            return true; // Important, do not remove! Otherwise Async return wont work
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerBackground#read_gpg
+         * @methodOf psonocli.managerBackground
+         *
+         * @description
+         * Triggered upon the request of popup_pgp.html when it finished loading and wants to have the decrypted content
+         *
+         * @param {object} request The message sent by the calling script.
+         * @param {object} sender The sender of the message
+         * @param {function} sendResponse Function to call (at most once) when you have a response.
+         */
+        function read_gpg(request, sender, sendResponse) {
+            var message_id = request.data;
+            if (!gpg_messages.hasOwnProperty(message_id)) {
+                return sendResponse({
+                    error: "Message not found"
+                });
+            }
+            var pgp_message = gpg_messages[message_id]['message'];
+            var pgp_sender = gpg_messages[message_id]['sender'];
+
+            function decrypt(public_key) {
+                return managerDatastorePassword.get_all_own_pgp_keys().then(function(private_keys) {
+
+                    var private_keys_array = [];
+
+                    for (var i = 0; i < private_keys.length; i++ ) {
+                        var temp = openpgp.key.readArmored(private_keys[i]).keys;
+                        for (var ii = 0; ii < temp.length; ii++) {
+                            private_keys_array.push(temp[ii]);
+                        }
+                    }
+
+                    if (public_key) {
+                        options = {
+                            message: openpgp.message.readArmored(pgp_message),     // parse armored message
+                            publicKeys: openpgp.key.readArmored(public_key).keys,
+                            privateKeys: private_keys_array
+                        };
+                    } else {
+                        options = {
+                            message: openpgp.message.readArmored(pgp_message),     // parse armored message
+                            privateKeys: private_keys_array
+                        };
+                    }
+
+                    openpgp.decrypt(options).then(function(plaintext) {
+                        return sendResponse({
+                            public_key: public_key,
+                            sender: pgp_sender,
+                            plaintext: plaintext
+                        });
+                    }, function(error) {
+                        console.log(error);
+                        return sendResponse({
+                            public_key: public_key,
+                            sender: pgp_sender,
+                            message: error.message
+                        });
+                    });
+                });
+            }
+
+            var gpg_hkp_search = new openpgp.HKP(settings.get_setting('gpg_hkp_search'));
+
+            if (gpg_hkp_search && pgp_sender && pgp_sender.length) {
+
+                var hkp = new openpgp.HKP(settings.get_setting('gpg_hkp_key_server'));
+                var options = {
+                    query: pgp_sender
+                };
+                hkp.lookup(options).then(function(public_key) {
+                    decrypt(public_key);
+                }, function(error) {
+                    console.log(error);
+                    console.log(error.message);
+                    decrypt();
+                });
+            } else {
+                decrypt();
+            }
+
+            return true; // Important, do not remove! Otherwise Async return wont work
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerBackground#write_gpg
+         * @methodOf psonocli.managerBackground
+         *
+         * @description
+         * Triggered upon the request of popup_pgp.html when it finished loading and wants to have the receiver
+         *
+         * @param {object} request The message sent by the calling script.
+         * @param {object} sender The sender of the message
+         * @param {function} sendResponse Function to call (at most once) when you have a response.
+         */
+        function write_gpg(request, sender, sendResponse) {
+            var message_id = request.data;
+            if (!gpg_messages.hasOwnProperty(message_id)) {
+                return sendResponse({
+                    error: "Message not found"
+                });
+            }
+            var pgp_receiver = gpg_messages[message_id]['receiver'];
+
+            return sendResponse({
+                receiver: pgp_receiver
+            });
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerBackground#write_gpg_complete
+         * @methodOf psonocli.managerBackground
+         *
+         * @description
+         * Triggered from the encryption popup once a user clicks "encrypt". Contains the encrypted message and the
+         * origininal message_id. Will close the corresponding window and return the message
+         *
+         * @param {object} request The message sent by the calling script.
+         * @param {object} sender The sender of the message
+         * @param {function} sendResponse Function to call (at most once) when you have a response.
+         */
+        function write_gpg_complete(request, sender, sendResponse) {
+            var message_id = request.data.message_id;
+            var message = request.data.message;
+            var receivers = request.data.receivers;
+            var public_keys = request.data.public_keys;
+            var private_key = request.data.private_key;
+            var sign_message = request.data.sign_message;
+            var options;
+
+            if (!gpg_messages.hasOwnProperty(message_id)) {
+                return sendResponse({
+                    error: "Message not found"
+                });
+            }
+
+            var public_keys_array = [];
+
+            for (var i = 0; i < public_keys.length; i++ ) {
+                var temp = openpgp.key.readArmored(public_keys[i]).keys;
+                for (var ii = 0; ii < temp.length; ii++) {
+                    public_keys_array.push(temp[ii]);
+                }
+            }
+
+            function finalise_encryption(options) {
+                openpgp.encrypt(options).then(function(ciphertext) {
+                    var originalSendResponse = gpg_messages[message_id]['sendResponse'];
+                    var window_id = gpg_messages[message_id]['window_id'];
+
+                    delete gpg_messages[message_id];
+
+                    browserClient.close_opened_popup(window_id);
+                    return originalSendResponse({
+                        message: ciphertext.data,
+                        receivers: receivers
+                    });
+                });
+            }
+
+            if (sign_message) {
+
+                var onSuccess = function(data) {
+
+                    options = {
+                        data: message,
+                        publicKeys: public_keys_array,
+                        privateKeys: openpgp.key.readArmored(data['mail_gpg_own_key_private']).keys
+                    };
+
+                    finalise_encryption(options);
+                };
+
+                var onError = function() {
+
+                };
+
+                managerSecret.read_secret(private_key.secret_id, private_key.secret_key)
+                    .then(onSuccess, onError);
+            } else {
+                options = {
+                    data: message,
+                    publicKeys: public_keys_array,
+                };
+                finalise_encryption(options);
+            }
         }
 
         /**
@@ -724,8 +985,8 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerBackground", ['$q', '$timeout', 'managerBase', 'managerSecret', 'storage', 'managerDatastorePassword',
+    app.factory("managerBackground", ['$q', '$timeout', 'managerBase', 'managerSecret', 'storage', 'managerDatastorePassword','managerDatastore',
         'managerDatastoreUser', 'helper', 'cryptoLibrary', 'apiClient', 'device', 'browser', 'chrome',
-        'browserClient', managerBackground]);
+        'browserClient', 'settings', 'openpgp', managerBackground]);
 
 }(angular));

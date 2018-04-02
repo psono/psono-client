@@ -2,9 +2,8 @@
  * The content script worker loaded in every page
  */
 
-var ClassWorkerContentScript = function (browser, jQuery) {
+var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
     "use strict";
-    var registrations = {};
     var website_passwords = [];
     var last_request_element = null;
     var dropInstances = [];
@@ -14,43 +13,44 @@ var ClassWorkerContentScript = function (browser, jQuery) {
     var background_image_hover = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAQCAYAAAAFzx/vAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo4QzIwMjZFQjVDNkNFNTExOTUzRUE1NjM5RUE4NzhDNCIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpDNjMxREE2MDk1QTAxMUU1ODFDNEU0N0IwNTk0MjczRiIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpDNjMxREE1Rjk1QTAxMUU1ODFDNEU0N0IwNTk0MjczRiIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M2IChXaW5kb3dzKSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjYzQTVFMTc0OUY5NUU1MTFBRjM0RUQ2RDg4RTJGMThCIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjhDMjAyNkVCNUM2Q0U1MTE5NTNFQTU2MzlFQTg3OEM0Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+T0nCIwAABCVJREFUeNq0VVtIY1cUvYma+IivUVHjs5IZpDQ+ayU4YK1UK4pgcUTTWsFaq1gt9qfNj/aj30opg84U6mOkChlsEZHxQZXqj88xSYuvUB81RBKhmphEc423a6e5MsHqR6EXDjnn7H3O2nvttU8EHMcxt3wCjFuN//Xz5ScGg0HW1dWl2t/fT7JYLCEIRBgWFnaSlZX1sqamZig5OVnT29v79dzcXG5gYCDX2dn5VVJSkpbOnpycxHd0dDy+uLgQ+fj4cCqV6suEhAQd2TQazbs9PT3tAnw5OTkahjKk0d/f/4UnoxsjMjLSMT8//35LS4ua1jjLraysFPFnBwcHVbQXHBzMhYaGclqttpC3tbW1TVKAERER3MTExKfXGep0ujfcPAoETH19/Rii/2NpaUkxNTWVe3x87N/e3v5tdnb2JjJggoKCGKFQeOU56jcyMvJRSEgIg4sZsmOwZDCbzQ9mZ2ffRiBMXl7eVnFx8eANQETIdnd3fwanP+myoqKipZmZmYy9vT1peHi4QCQSvVpjZn19vWBxcTGVwBAE4wnaXXtkpDQajSLaVyqV3+PX4fY4Pz+/t729nUJz1MogkUjMnkvZ+Ph4I1FDGSEzG4/Gi214ePjj09NTBtkbAHpJe54MhaOjo0pay2Syv0pKSp7R3A14cHCQAtFE0Bwi0SDCc5ojCMXk5ORDojkmJsacnp6+zLLsP2rz9WUdDse9sbGxUmTOgIkJ2ITkC2DbxsbGw7W1tfsUWFVV1Y/YM12rdGtr63W6iJxNJlPMwMDA57u7u/f7+vo+PDo6CqZDzc3NT1Enq8vl+oDO4AI76vtoZ2cnqKCgQI9Af7Xb7Z/4+/szoP0K2dWdnZ0xUqmUBWCPV1tAVWm8YMbHx3NpXBcKe62treqmpqZvhoaGWt20oCaXl5eBarVaiQCY8vLyn1B7I839/PyuIJZE1P09CrS0tPRFbGzs716AEIzcQxPVkFLn0IOWtLQ0XXV19UhhYSG1AyMWi1kCCwgIcIGytxYWFnKjo6O5ysrKPogjgXyozmiZd/R6vRRBMLW1td95NT6ikmxubspokZiYaFpdXc1BlBZcbseW81VnANkpY9DGQoGVh4eHYqhvARlsYJ5CNpwVTE9Pl1utVqasrGxNLpf/4gUIx9cgmjhapKam6qHQg9ueJQA5iAWIRYxL36R61dXVPfHQfEU2vDqS5eXlB9Q+sD2GyeUFCGrkcBLTAhT+dtc7iAwd1NhOp1NAGWRmZh7m5+f/zKuW6MbzxpAAMzIyDBCT+sZbiicrn+8ppK+9CxB0OaFEAnRfCjqfAeiMb3abzeYWGfqabD/AZr0BCJHsNzQ0PKeFQqGYuwswLi5uF4p9TgGCMhfk/pS3RUVFGRobG902qnFFRcWTf/0LuuPv6X/5/hZgAGIV75kctS+XAAAAAElFTkSuQmCC";
 
 
-    activate();
+    jQuery(function() {
+        activate();
+    });
 
     function activate() {
-        browser.runtime.onMessage.addListener(onMessage);
 
-        on('fillpassword', on_fillpassword);
-        on('website-password-update', on_website_password_update);
-        on('return-secret', on_return_secret);
+        base.on('fillpassword', on_fillpassword);
+        base.on('website-password-update', on_website_password_update);
+        base.on('return-secret', on_return_secret);
 
         jQuery(function() {
+            var i;
             // Tell our backend, that we are ready and waiting for instructions
-            emit('ready', document.location.toString());
-            emit('website-password-refresh', document.location.toString());
+            base.emit('ready', document.location.toString());
+            base.emit('website-password-refresh', document.location.toString());
 
             var documents = [];
+            var windows = [];
 
-            get_all_documents(window.document, documents);
+            base.get_all_documents(window, documents, windows);
 
-            for (var i = 0; i < documents.length; i++) {
+            for (i = 0; i < documents.length; i++) {
                 load_css(documents[i]);
-                add_form_buttons(documents[i]);
-                document_submit_catcher(documents[i]);
             }
+
+            base.register_observer(analyze_document);
+
         });
     }
 
-    function get_all_documents(document, documents) {
-        var frames = document.querySelectorAll('iframe');
-        documents.push(document);
-
-        for (var i = 0; i < frames.length; i++) {
-            try {
-                get_all_documents(frames[i].contentWindow.document, documents);
-            } catch (e) {
-                //console.log(e);
-            }
-        }
+    /**
+     * Analyse a document and adds all forms and handlers to them
+     *
+     * @param document
+     */
+    function analyze_document(document) {
+        add_form_buttons(document);
+        document_submit_catcher(document);
     }
 
 
@@ -60,7 +60,6 @@ var ClassWorkerContentScript = function (browser, jQuery) {
      * @param document
      */
     function document_submit_catcher(document) {
-
         for (var i = 0; i < document.forms.length; i++) {
             form_submit_catcher(document.forms[i]);
         }
@@ -78,11 +77,16 @@ var ClassWorkerContentScript = function (browser, jQuery) {
             return;
         }
 
+        if (form.classList.contains('psono-form_submit_catcher-covered')) {
+            return;
+        }
+        form.classList.add("psono-form_submit_catcher-covered");
+
         form.addEventListener("submit", function(event){
             var form = this;
             var form_data = get_username_and_password(form);
             if (form_data) {
-                emit('login-form-submit', get_username_and_password(form));
+                base.emit('login-form-submit', get_username_and_password(form));
             }
         });
 
@@ -140,6 +144,12 @@ var ClassWorkerContentScript = function (browser, jQuery) {
                 continue;
             }
 
+            if (inputs[i].classList.contains('psono-add_form_buttons-covered')) {
+                continue;
+            }
+
+            inputs[i].classList.add("psono-add_form_buttons-covered");
+
             // found a password field, lets start the magic
 
             var newForm = {
@@ -155,14 +165,14 @@ var ClassWorkerContentScript = function (browser, jQuery) {
                     continue;
 
                 // username field is inputs[r]
-                modify_input_field(inputs[r], document);
+                base.modify_input_field(inputs[r], background_image, 'center right', document, click, mouseOver, mouseOut, mouseMove);
 
                 newForm.username = inputs[r];
                 break;
             }
 
             // Password field is inputs[i]
-            modify_input_field(inputs[i], document);
+            base.modify_input_field(inputs[i], background_image, 'center right', document, click, mouseOver, mouseOut, mouseMove);
 
             newForm.password = inputs[i];
 
@@ -200,55 +210,9 @@ var ClassWorkerContentScript = function (browser, jQuery) {
             link.id   = cssId;
             link.rel  = 'stylesheet';
             link.type = 'text/css';
-            link.href = browser.extension.getURL("data/css/contentscript.css");
+            link.href = browser.runtime.getURL("data/css/contentscript.css");
             link.media = 'all';
             head.appendChild(link);
-        }
-    }
-
-
-    /**
-     * sends an event message to browser
-     *
-     * @param event
-     * @param data
-     */
-    function emit(event, data) {
-        browser.runtime.sendMessage({event: event, data: data}, function(response) {
-            if (typeof(response) === 'undefined' || !response.hasOwnProperty('event')) {
-                return;
-            }
-            for (var i = 0; registrations.hasOwnProperty(response.event) && i < registrations[response.event].length; i++) {
-                registrations[response.event][i](response.data);
-            }
-        });
-    }
-
-    /**
-     * registers for an event with a function
-     *
-     * @param event
-     * @param myFunction
-     *
-     * @returns {boolean}
-     */
-    function on(event, myFunction) {
-        if (!registrations.hasOwnProperty(event)) {
-            registrations[event] = [];
-        }
-        registrations[event].push(myFunction);
-    }
-
-    /**
-     * Main handler for all messages
-     *
-     * @param request
-     * @param sender
-     * @param sendResponse
-     */
-    function onMessage(request, sender, sendResponse){
-        for (var i = 0; registrations.hasOwnProperty(request.event) && i < registrations[request.event].length; i++) {
-            registrations[request.event][i](request.data);
         }
     }
     /**
@@ -305,7 +269,7 @@ var ClassWorkerContentScript = function (browser, jQuery) {
      * @param secret_id
      */
     function requestSecret (secret_id) {
-        emit('request-secret', {
+        base.emit('request-secret', {
             url: document.location.toString(),
             secret_id: secret_id
         });
@@ -315,7 +279,7 @@ var ClassWorkerContentScript = function (browser, jQuery) {
      * Opens the datastore
      */
     function open_datastore () {
-        emit('open-tab', {
+        base.emit('open-tab', {
             url: '/data/index.html'
         });
     }
@@ -432,27 +396,6 @@ var ClassWorkerContentScript = function (browser, jQuery) {
             get_element: get_element
         }
     }
-
-
-    /**
-     * modifies an input field and adds the image button to click together with the appropriate event handlers
-     *
-     * @param input
-     * @param document
-     */
-    function modify_input_field(input, document) {
-        input.style.backgroundImage = 'url("'+background_image+'")';
-        input.style.backgroundPosition = 'center right';
-        input.style.backgroundRepeat = 'no-repeat';
-
-        input.addEventListener('mouseover', mouseOver);
-        input.addEventListener('mouseout', mouseOut);
-        input.addEventListener('mousemove', mouseMove);
-        input.addEventListener('click', function(evt) {
-            click(evt, document)
-        });
-    }
-
     // Messaging functions below
 
     /**

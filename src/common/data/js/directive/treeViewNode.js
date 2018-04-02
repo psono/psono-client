@@ -29,7 +29,6 @@
 
                 scope.blockMove = options.blockMove;
 
-
                 $timeout(function(){
                     scope.treeView = scope.treeView;
                 }, 5000);
@@ -270,6 +269,10 @@
                 scope.selectNode = function (event) {
                     event.preventDefault();
 
+                    if (controller.isDragEvent(event)) {
+                        return;
+                    }
+
                     if (collapsible) {
                         controller.toggleExpanded(scope.node);
                     }
@@ -295,6 +298,10 @@
                  */
                 scope.editItem = function (item, event) {
                     event.preventDefault();
+
+                    if (controller.isDragEvent(event)) {
+                        return;
+                    }
 
                     if (typeof options.onEditItem === "function") {
                         options.onEditItem(item, getPropertyPath(idProperty, item));
@@ -389,6 +396,8 @@
                  */
                 scope.clickItem = function (item, event) {
                     event.preventDefault();
+                    event.cancelBubble = true;
+                    if(event.stopPropagation) event.stopPropagation();
                     if (!controller.isDragInProgress()) {
                         controller.clickItem(item, getPropertyPath(idProperty));
                     }
@@ -449,7 +458,6 @@
                  * @param type
                  */
                 scope.onDragStart = function(data, evt, type) {
-
                     if (controller.isDragStarted()) {
                         // Already started, fires a couple of time and only the first one has true data
                         return;
@@ -529,43 +537,41 @@
                         '   context-menu="contextMenuOnShow(\'menu-\'+node.id)"' +
                         '   context-menu-close="contextMenuOnClose(\'menu-\'+node.id)">' +
                         '<div href="#" class="tree-folder-header"' +
-                        '   ng-click="selectNode($event)" ng-class="{ selected: isSelected(node), notSelectable: ! isSelectable(node) }">' +
+                        '   ng-click="$event.stopPropagation(); selectNode($event)" ng-class="{ selected: isSelected(node), notSelectable: ! isSelectable(node) }">' +
                         '<span class="fa-stack">' +
                         '<i class="" ng-class="getFolderIconClass(node)"></i>' +
                         '<i ng-if="node.share_id" class="fa fa-circle fa-stack-2x text-danger is-shared"></i>' +
                         '<i ng-if="node.share_id" class="fa fa-group fa-stack-2x is-shared"></i>' +
                         '</span>' +
-                        '<span class="tree-folder-name">' +
-                        '   <a href="#" ng-click="clickNode($event)">{{ node.' + displayProperty + ' }}</a>' +
-                        '</span> ' +
+                        '<span class="tree-folder-name">{{ node.' + displayProperty + ' }}</a></span> ' +
                         '</div>' +
                         '<span class="node-dropdown" uib-dropdown on-toggle="toggled(open, \'drop_node_\' + node.id)"' +
                         '   ng-class="{disabled: node.share_rights.write === false && node.share_rights.grant === false && node.share_rights.delete === false}">' +
-                        '<a class="btn btn-default editbutton"' +
+                        '<a class="btn btn-default editbutton"  ng-click="$event.stopPropagation()"' +
                         '   ng-class="{disabled: node.share_rights.write === false && node.share_rights.grant === false && node.share_rights.delete === false}"' +
                         '   href="#" role="button" id="drop_node_{{node.id}}" uib-dropdown-toggle>' +
                         '    <i ng-class="getFolderEditIconClass(node)"></i>' +
                         '</a>' +
                         '<ul class="dropdown-menu dropdown-button-menu" aria-labelledby="drop_node_{{node.id}}">' +
                         '    <li role="menuitem"' +
-                        '       ng-click="additionalButtonItem(node, $event, f.onClick, true)"' +
+                        '       ng-click="$event.stopPropagation(); additionalButtonItem(node, $event, f.onClick, true)"' +
                         '       ng-class="f.ngClass(node)"' +
                         '       ng-repeat="f in getAdditionalButtons(node)">' +
                         '       <a href="#"><i ng-class="f.icon"></i>{{ f.name }}</a>' +
                         '    </li>' +
                         '    <li ng-if="getAdditionalButtons(node) && getAdditionalButtons(node).length > 0" class="divider"></li>' +
                         '    <li role="menuitem"' +
-                        '       ng-click="editNode(node, $event)"' +
+                        '       ng-click="$event.stopPropagation(); editNode(node, $event)"' +
                         '       ng-class="{hidden: node.share_rights.write === false}">' +
                         '       <a href="#"><i class="fa fa-wrench"></i>Edit</a>' +
                         '    </li>' +
                         '    <li role="menuitem"' +
-                        '       ng-click="newFolderNode(node, $event)"' +
+                        '       ng-click="$event.stopPropagation(); newFolderNode(node, $event)"' +
                         '       ng-class="{hidden: node.share_rights.write === false}">' +
                         '       <a href="#"><i class="fa fa-folder"></i>New Folder</a>' +
                         '    </li>' +
                         '    <li role="menuitem"' +
-                        '       ng-click="newEntryNode(node, $event)"' +
+                        '       ng-click="$event.stopPropagation(); newEntryNode(node, $event)"' +
                         '       ng-class="{hidden: node.share_rights.write === false}">' +
                         '       <a href="#"><i class="{{ textConfig.new_entry.icon }}"></i>{{ textConfig.new_entry.name }}</a>' +
                         '    </li>' +
@@ -573,7 +579,7 @@
                         '       ng-class="{hidden: node.share_rights.delete === false || node.share_rights.write === false}"></li>' +
                         '    <li role="menuitem"' +
                         '       ng-class="{hidden: node.share_rights.delete === false}"' +
-                        '       ng-click="deleteNode(node, $event)">' +
+                        '       ng-click="$event.stopPropagation(); deleteNode(node, $event)">' +
                         '       <a href="#"><i class="fa fa-trash"></i>Delete</a>' +
                         '    </li>' +
                         '</ul>' +
@@ -588,24 +594,24 @@
                         '   ng-hide="node.share_rights.write === false && node.share_rights.grant === false && node.share_rights.delete === false">' +
                         '<ul class="dropdown-menu" role="menu">' +
                         '    <li role="menuitem"' +
-                        '       ng-click="additionalButtonItem(node, $event, f.onClick, true)"' +
+                        '       ng-click="$event.stopPropagation(); additionalButtonItem(node, $event, f.onClick, true)"' +
                         '       ng-class="f.ngClass(node)"' +
                         '       ng-repeat="f in getAdditionalButtons(node)">' +
                         '    <a href="#"><i ng-class="f.icon"></i>{{ f.name }}</a>' +
                         '    </li>' +
                         '    <li ng-if="getAdditionalButtons(node) && getAdditionalButtons(node).length > 0" class="divider"></li>' +
                         '    <li role="menuitem"' +
-                        '       ng-click="editNode(node, $event)"' +
+                        '       ng-click="$event.stopPropagation(); editNode(node, $event)"' +
                         '       ng-class="{hidden: node.share_rights.write === false}">' +
                         '       <a href="#"><i class="fa fa-wrench"></i>Edit</a>' +
                         '    </li>' +
                         '    <li role="menuitem"' +
-                        '       ng-click="newFolderNode(node, $event)"' +
+                        '       ng-click="$event.stopPropagation(); newFolderNode(node, $event)"' +
                         '       ng-class="{hidden: node.share_rights.write === false}">' +
                         '       <a href="#"><i class="fa fa-folder"></i>New Folder</a>' +
                         '    </li>' +
                         '    <li role="menuitem"' +
-                        '       ng-click="newEntryNode(node, $event)"' +
+                        '       ng-click="$event.stopPropagation(); newEntryNode(node, $event)"' +
                         '       ng-class="{hidden: node.share_rights.write === false}">' +
                         '       <a href="#"><i class="{{ textConfig.new_entry.icon }}"></i>{{ textConfig.new_entry.name }}</a>' +
                         '    </li>' +
@@ -613,7 +619,7 @@
                         '       ng-class="{hidden: node.share_rights.delete === false || node.share_rights.write === false}"></li>' +
                         '    <li role="menuitem"' +
                         '       ng-class="{hidden: node.share_rights.delete === false}"' +
-                        '       ng-click="deleteNode(node, $event)">' +
+                        '       ng-click="$event.stopPropagation(); deleteNode(node, $event)">' +
                         '       <a href="#"><i class="fa fa-trash"></i>Delete</a>' +
                         '    </li>' +
                         '</ul>' +
@@ -628,7 +634,7 @@
                         '   ng-mousedown="$event.stopPropagation()" ng-show="!item.hidden"' +
                         '   class="tree-item" ng-repeat="item in ' + attrs.treeViewNode + '.data.' + itemsProperty + ' track by $index">' +
 
-                        '<div class="tree-item-object" ng-click="selectItem(item, $event)"' +
+                        '<div ng-click="$event.stopPropagation(); editItem(item, $event)" class="tree-item-object" ' +
                         '   ng-class="{ selected: isSelected(item), notSelectable: ! isSelectable(node) }" data-target="menu-{{ item.id }}"' +
                         '   context-menu="contextMenuOnShow(\'menu-\'+item.id)"' +
                         '   context-menu-close="contextMenuOnClose(\'menu-\'+item.id)">' +
@@ -637,33 +643,31 @@
                         '<i ng-if="item.share_id" class="fa fa-circle fa-stack-2x text-danger is-shared"></i>' +
                         '<i ng-if="item.share_id" class="fa fa-group fa-stack-2x is-shared"></i>' +
                         '</span>' +
-                        '<span class="tree-item-name">' +
-                        '   <a href="#" ng-click="editItem(item, $event)">{{ item.' + displayProperty + ' }}</a>' +
-                        '</span>' +
-                        '<span class="node-open-link">' +
-                        '<a href="#" class="btn btn-default" ng-click="clickItem(item, $event)">' +
+                        '<span class="tree-item-name">{{ item.' + displayProperty + ' }}</span>' +
+                        '<span class="node-open-link" ng-if="item.type === \'website_password\' || item.type === \'bookmark\'">' +
+                        '<a href="#" class="btn btn-default" ng-click="$event.stopPropagation(); clickItem(item, $event)">' +
                         '    <i class="fa fa-external-link"></i>' +
                         '</a>' +
                         '</span>' +
                         '<span class="node-dropdown" uib-dropdown on-toggle="toggled(open, \'drop_item_\' + item.id)">' +
-                        '<a class="btn btn-default editbutton" href="#" role="button" id="drop_item_{{item.id}}" uib-dropdown-toggle>' +
+                        '<a class="btn btn-default editbutton" href="#" role="button" id="drop_item_{{item.id}}" uib-dropdown-toggle  ng-click="$event.stopPropagation()">' +
                         '    <i ng-class="getFolderEditIconClass(item)"></i>' +
                         '</a>' +
                         '<ul class="dropdown-menu dropdown-button-menu" aria-labelledby="drop_item_{{item.id}}">' +
                         '    <li role="menuitem"' +
-                        '       ng-click="additionalButtonItem(item, $event, f.onClick, false)"' +
+                        '       ng-click="$event.stopPropagation(); additionalButtonItem(item, $event, f.onClick, false)"' +
                         '       ng-class="f.ngClass(item)"' +
                         '       ng-repeat="f in getAdditionalButtons(item)">' +
                         '       <a href="#"><i ng-class="f.icon"></i>{{ f.name }}</a>' +
                         '    </li>' +
                         '    <li ng-if="getAdditionalButtons(item) && getAdditionalButtons(item).length > 0" class="divider"></li>' +
                         '    <li role="menuitem"' +
-                        '       ng-click="editItem(item, $event)"' +
+                        '       ng-click="$event.stopPropagation(); editItem(item, $event)"' +
                         '       ng-class="{hidden: item.share_rights.write === false || item.share_rights.read === false}">' +
                         '       <a href="#"><i class="fa fa-wrench"></i>Show / Edit</a>' +
                         '    </li>' +
                         '    <li role="menuitem"' +
-                        '       ng-click="editItem(item, $event)"' +
+                        '       ng-click="$event.stopPropagation(); editItem(item, $event)"' +
                         '       ng-class="{hidden: item.share_rights.write === true || item.share_rights.read === false || item.type === \'user\'}">' +
                         '       <a href="#"><i class="fa fa-eye"></i>Show</a>' +
                         '    </li>' +
@@ -671,7 +675,7 @@
                         '       ng-class="{hidden: item.share_rights.delete === false || item.share_rights.read === false}"></li>' +
                         '    <li role="menuitem"' +
                         '       ng-class="{hidden: item.share_rights.delete === false}"' +
-                        '       ng-click="delete_item(item, $event)">' +
+                        '       ng-click="$event.stopPropagation(); delete_item(item, $event)">' +
                         '       <a href="#"><i class="fa fa-trash"></i>Delete</a>' +
                         '    </li>' +
                         '</ul>' +
@@ -681,19 +685,19 @@
                         '<div class="dropdown position-fixed dropdown-rightclick" id="menu-{{ item.id }}">' +
                         '<ul class="dropdown-menu" role="menu">' +
                         '    <li role="menuitem"' +
-                        '       ng-click="additionalButtonItem(item, $event, f.onClick, false)"' +
+                        '       ng-click="$event.stopPropagation(); additionalButtonItem(item, $event, f.onClick, false)"' +
                         '       ng-class="f.ngClass(item)"' +
                         '       ng-repeat="f in getAdditionalButtons(item)">' +
                         '       <a href="#"><i ng-class="f.icon"></i>{{ f.name }}</a>' +
                         '    </li>' +
                         '    <li ng-if="getAdditionalButtons(item) && getAdditionalButtons(item).length > 0" class="divider"></li>' +
                         '    <li role="menuitem"' +
-                        '       ng-click="editItem(item, $event)"' +
+                        '       ng-click="$event.stopPropagation(); editItem(item, $event)"' +
                         '       ng-class="{hidden: item.share_rights.write === false || item.share_rights.read === false}">' +
                         '       <a href="#"><i class="fa fa-wrench"></i>Show / Edit</a>' +
                         '    </li>' +
                         '    <li role="menuitem"' +
-                        '       ng-click="editItem(item, $event)"' +
+                        '       ng-click="$event.stopPropagation(); editItem(item, $event)"' +
                         '       ng-class="{hidden: item.share_rights.write === true || item.share_rights.read === false || item.type === \'user\'}">' +
                         '       <a href="#"><i class="fa fa-eye"></i>Show</a>' +
                         '    </li>' +
@@ -701,7 +705,7 @@
                         '       ng-class="{hidden: item.share_rights.delete === false || item.share_rights.read === false}"></li>' +
                         '    <li role="menuitem"' +
                         '       ng-class="{hidden: item.share_rights.delete === false}"' +
-                        '       ng-click="delete_item(item, $event)">' +
+                        '       ng-click="$event.stopPropagation(); delete_item(item, $event)">' +
                         '       <a href="#"><i class="fa fa-trash"></i>Delete</a>' +
                         '    </li>' +
                         '</ul>' +

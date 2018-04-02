@@ -79,7 +79,7 @@
             expect(settings.get_setting()).toBeNull();
         }));
 
-        it('default get_settings', inject(function (settings) {
+        it('default get_settings', inject(function (managerDatastorePassword, settings) {
             var set = settings.get_settings();
             expect(set.hasOwnProperty('fields')).toBeTruthy();
         }));
@@ -88,18 +88,18 @@
             expect(settings.get_setting('my_setting')).toBe('fake_my_setting');
         }));
 
-        it('default set_settings:user_id', inject(function (settings) {
+        it('default set_settings:user_id', inject(function (managerDatastorePassword, settings) {
             settings.set_settings('my_settings_key', 'my_settings_value');
             expect(settings.get_setting('my_settings_key')).toBe('my_settings_value');
         }));
 
-        it('default set_settings:user_id', inject(function (settings) {
+        it('default set_settings:user_id2', inject(function (managerDatastorePassword, settings) {
             settings.set_settings('my_settings_key', 'my_settings_value');
             settings.set_settings('my_settings_key', 'my_settings_value2');
             expect(settings.get_setting('my_settings_key')).toBe('my_settings_value2');
         }));
 
-        it('save', inject(function (storage, settings) {
+        it('save', inject(function (managerDatastorePassword, storage, settings) {
             spyOn(storage, 'insert');
             settings.save();
             expect(storage.insert).toHaveBeenCalledWith('settings', {key: 'setting_password_special_chars', value: undefined});

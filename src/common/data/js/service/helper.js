@@ -68,6 +68,10 @@
                 top_domain = splitted_domain[splitted_domain.length - 2] + '.' + splitted_domain[splitted_domain.length - 1];
             }
 
+            if (typeof(authority) !== 'undefined' && authority.indexOf('.') === -1) {
+                authority = undefined;
+            }
+
             return {
                 scheme: matches[2],
                 authority: authority, //remove leading www.
@@ -78,6 +82,46 @@
                 query: matches[7],
                 fragment: matches[9]
             };
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.helper#is_valid_url
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Returns weather we have a valid url or not
+         *
+         * @param url
+         * @returns {boolean}
+         */
+        function is_valid_url(url) {
+            var parsed_url = parse_url(url);
+            if (typeof(parsed_url['authority']) === 'undefined') {
+                return false;
+            }
+
+            return true;
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.helper#is_valid_email
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Returns weather we have a valid email or not. We accept everything that follow x@x.
+         *
+         * @param email
+         * @returns {boolean}
+         */
+        function is_valid_email(email) {
+            var splitted = email.split('@');
+            if (splitted.length !== 2 || splitted[0].length === 0 || splitted[1].length === 0) {
+                return false
+            }
+
+            return true;
         }
 
         /**
@@ -440,7 +484,7 @@
          * @returns {boolean} Whether the string ends with the suffix or not
          */
         function endsWith (to_test, suffix) {
-            return suffix !== "" && to_test.indexOf(suffix, to_test.length - suffix.length) !== -1;
+            return typeof(to_test) !== 'undefined' && typeof(suffix) !== 'undefined' && suffix !== "" && to_test.indexOf(suffix, to_test.length - suffix.length) !== -1;
         }
 
 
@@ -465,6 +509,8 @@
 
         return {
             parse_url: parse_url,
+            is_valid_url: is_valid_url,
+            is_valid_email: is_valid_email,
             get_domain: get_domain,
             array_starts_with: array_starts_with,
             create_list: create_list,

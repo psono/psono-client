@@ -251,7 +251,6 @@
             };
 
             var onSuccess = function(datastore_id) {
-
                 if (datastore_id === '') {
                     //datastore does not exist, lets force a fresh query to make sure
 
@@ -514,6 +513,35 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastore#filter
+         * @methodOf psonocli.managerDatastore
+         *
+         * @description
+         * used to filter a datastore
+         *
+         * @param {string} folder The key of the function
+         * @param {function} func The call back function
+         */
+        var filter = function (folder, func) {
+            var i;
+            if (!folder) {
+                return;
+            }
+            if (folder.hasOwnProperty('folders')) {
+                for (i = 0; i < folder['folders'].length; i++) {
+                    filter(folder['folders'][i], func);
+                }
+            }
+
+            if (folder.hasOwnProperty('items')) {
+                for (i = 0; i < folder['items'].length; i++) {
+                    func(folder['items'][i]);
+                }
+            }
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastore#register
          * @methodOf psonocli.managerDatastore
          *
@@ -570,6 +598,7 @@
             save_datastore_content_with_id: save_datastore_content_with_id,
             save_datastore_meta: save_datastore_meta,
             encrypt_datastore: encrypt_datastore,
+            filter: filter,
             register: register
         };
     };

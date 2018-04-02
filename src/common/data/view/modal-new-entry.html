@@ -15,7 +15,6 @@
         </ui-select>
 
         <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
-             ng-class="{'has-error': submitted && newEntryForm[n.name].$invalid}"
              ng-if="!n.tab && (!n.position || n.position === 'before')">
             <div ng-class="{'input-group': n.usernameInputGroupAddon && (! n.value || n.value.indexOf('@') === -1)}"
                  ng-if="n.field == 'input' && !n.dropmenuItems && n.usernameInputGroupAddon">
@@ -30,8 +29,8 @@
                    id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
                    ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
                    ng-change="bp.selected[n.onChange](bp.selected.fields)">
-            <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
-            <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](bp.selected.fields, errors, form_control, selected_server_domain)">{{n.title}}</button>
+            <span ng-if="n.type == 'checkbox' && !n.dropmenuItems" ng-hide="n.hidden">{{n.title}}</span>
+            <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](node, bp.selected.fields, errors, form_control, selected_server_domain)">{{n.title}}</button>
 
             <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
                 <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
@@ -61,18 +60,6 @@
                       ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
             <p class="help-block note" ng-hide="n.hidden">{{n.note}}</p>
 
-            <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.required">
-                The field is required
-            </p>
-            <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.url">
-                The field needs to be a valid url.
-            </p>
-            <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.number">
-                The field needs to be a valid number.
-            </p>
-            <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.email">
-                The field needs to be a valid email address.
-            </p>
         </div>
 
         <!-- tabs -->
@@ -80,7 +67,6 @@
             <uib-tab ng-repeat="tab in bp.selected.tabs" heading="{{tab.title}}" active="tab.active" disable="tab.disabled">
 
                 <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
-                     ng-class="{'has-error': submitted && newEntryForm[n.name].$invalid}"
                      ng-if="n.tab == tab.id">
 
                     <div ng-class="{'input-group': n.usernameInputGroupAddon && (! n.value || n.value.indexOf('@') == -1)}"
@@ -95,9 +81,9 @@
                            id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
                            ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
                            ng-change="bp.selected[n.onChange](bp.selected.fields)">
-                    <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
+                    <span ng-if="n.type == 'checkbox' && !n.dropmenuItems" ng-hide="n.hidden">{{n.title}}</span>
 
-                    <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](bp.selected.fields, errors, form_control, selected_server_domain)">{{n.title}}</button>
+                    <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](node, bp.selected.fields, errors, form_control, selected_server_domain)">{{n.title}}</button>
 
                     <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
                         <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
@@ -127,25 +113,12 @@
                               ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
                     <p class="help-block note" ng-hide="n.hidden">{{n.note}}</p>
 
-                    <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.required">
-                        The field is required
-                    </p>
-                    <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.url">
-                        The field needs to be a valid url.
-                    </p>
-                    <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.number">
-                        The field needs to be a valid number.
-                    </p>
-                    <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.email">
-                        The field needs to be a valid email address.
-                    </p>
                 </div>
             </uib-tab>
         </uib-tabset>
 
         <!-- below tabs -->
         <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
-             ng-class="{'has-error': submitted && newEntryForm[n.name].$invalid}"
              ng-if="!n.tab && n.position == 'after'">
 
             <div ng-class="{'input-group': n.usernameInputGroupAddon && (! n.value || n.value.indexOf('@') == -1)}"
@@ -160,9 +133,9 @@
                    id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
                    ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
                    ng-change="bp.selected[n.onChange](bp.selected.fields)">
-            <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
+            <span ng-if="n.type == 'checkbox' && !n.dropmenuItems" ng-hide="n.hidden">{{n.title}}</span>
 
-            <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](bp.selected.fields, errors, form_control, selected_server_domain)">{{n.title}}</button>
+            <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](node, bp.selected.fields, errors, form_control, selected_server_domain)">{{n.title}}</button>
 
             <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
                 <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
@@ -192,18 +165,6 @@
                       ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
             <p class="help-block note" ng-hide="n.hidden">{{n.note}}</p>
 
-            <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.required">
-                The field is required
-            </p>
-            <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.url">
-                The field needs to be a valid url.
-            </p>
-            <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.number">
-                The field needs to be a valid number.
-            </p>
-            <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.email">
-                The field needs to be a valid email address.
-            </p>
         </div>
 
         <!-- Advanced -->
@@ -214,7 +175,6 @@
         <div uib-collapse="isCollapsed">
 
             <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
-                 ng-class="{'has-error': submitted && newEntryForm[n.name].$invalid}"
                  ng-if="!n.tab && n.position == 'advanced'">
 
                 <div ng-class="{'input-group': n.usernameInputGroupAddon && (! n.value || n.value.indexOf('@') == -1)}"
@@ -229,9 +189,9 @@
                        id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
                        ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
                        ng-change="bp.selected[n.onChange](bp.selected.fields)">
-                <span ng-if="n.type == 'checkbox' && !n.dropmenuItems">{{n.title}}</span>
+                <span ng-if="n.type == 'checkbox' && !n.dropmenuItems" ng-hide="n.hidden">{{n.title}}</span>
 
-                <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](bp.selected.fields, errors, form_control, selected_server_domain)">{{n.title}}</button>
+                <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](node, bp.selected.fields, errors, form_control, selected_server_domain)">{{n.title}}</button>
 
                 <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
                     <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
@@ -260,19 +220,6 @@
                       placeholder="{{n.placeholder}}"  ng-required="n.required && !n.hidden"
                           ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
                 <p class="help-block note" ng-hide="n.hidden">{{n.note}}</p>
-
-                <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.required">
-                    The field is required
-                </p>
-                <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.url">
-                    The field needs to be a valid url.
-                </p>
-                <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.number">
-                    The field needs to be a valid number.
-                </p>
-                <p class="help-block" ng-show="submitted && newEntryForm[n.name].$error.email">
-                    The field needs to be a valid email address.
-                </p>
             </div>
 
         </div>

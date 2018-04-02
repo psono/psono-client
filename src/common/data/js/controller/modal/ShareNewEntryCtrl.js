@@ -55,6 +55,12 @@
                 };
 
                 browserClient.get_config().then(onSuccess, onError);
+
+                $scope.$watch('bp.selected', function(newValue, oldValue) {
+                    if (typeof $scope.bp.selected.onNewModalOpen !== 'undefined') {
+                        $scope.bp.selected.onNewModalOpen($scope.bp.selected);
+                    }
+                });
             }
 
             /**
@@ -68,8 +74,30 @@
              * Triggered once someone clicks the save button in the modal
              */
             function save() {
+                $scope.errors = [];
 
-                if ($scope.newEntryForm.$invalid) {
+                for (var i = 0; i < $scope.bp.selected.fields.length; i++) {
+                    var field = $scope.bp.selected.fields[i];
+                    if (field.hasOwnProperty("required")) {
+                        if (field['required'] && field['value'] !== false && !field['value']) {
+                            $scope.errors.push(field['title'] + ' is required');
+                            continue;
+                        }
+                    }
+                    if (field.hasOwnProperty("type")) {
+                        if (field['type'].toLowerCase() === 'url' && field['value'] && !helper.is_valid_url(field['value'])) {
+                            $scope.errors.push('Invalid URL in ' + field['title']);
+                            continue;
+                        }
+                        if (field['type'].toLowerCase() === 'email' && field['value'] && !helper.is_valid_email(field['value'])) {
+                            $scope.errors.push('Invalid URL in ' + field['title']);
+                            continue;
+                        }
+                    }
+
+                }
+
+                if ($scope.errors.length > 0) {
                     return;
                 }
 

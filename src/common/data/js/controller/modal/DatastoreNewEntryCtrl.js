@@ -7,12 +7,13 @@
      * @requires $scope
      * @requires $uibModalInstance
      * @requires psonocli.itemBlueprint
+     * @requires psonocli.helper
      *
      * @description
      * Controller for the "New Entry" modal
      */
-    angular.module('psonocli').controller('ModalDatastoreNewEntryCtrl', ['$scope', '$uibModalInstance', 'itemBlueprint', 'parent', 'path',
-        function ($scope, $uibModalInstance, itemBlueprint, parent, path) {
+    angular.module('psonocli').controller('ModalDatastoreNewEntryCtrl', ['$scope', '$uibModalInstance', 'itemBlueprint', 'helper', 'parent', 'path',
+        function ($scope, $uibModalInstance, itemBlueprint, helper, parent, path) {
 
             $scope.reset = reset;
             $scope.has_advanced = itemBlueprint.has_advanced;
@@ -30,6 +31,17 @@
                 all: itemBlueprint.get_blueprints(),
                 selected: itemBlueprint.get_default_blueprint()
             };
+
+            activate();
+
+            function activate(){
+
+                $scope.$watch('bp.selected', function(newValue, oldValue) {
+                    if (typeof $scope.bp.selected.onNewModalOpen !== 'undefined') {
+                        $scope.bp.selected.onNewModalOpen($scope.bp.selected);
+                    }
+                });
+            }
 
             /**
              * @ngdoc
@@ -53,7 +65,29 @@
              * Triggered once someone clicks the save button in the modal
              */
             function save() {
-                if ($scope.newEntryForm.$invalid) {
+                $scope.errors = [];
+
+                for (var i = 0; i < $scope.bp.selected.fields.length; i++) {
+                    var field = $scope.bp.selected.fields[i];
+                    if (field.hasOwnProperty("required")) {
+                        if (field['required'] && field['value'] !== false && !field['value']) {
+                            $scope.errors.push(field['title'] + ' is required');
+                            continue;
+                        }
+                    }
+                    if (field.hasOwnProperty("validationType")) {
+                        console.log(field);
+                        if (field['validationType'].toLowerCase() === 'url' && field['value'] && !helper.is_valid_url(field['value'])) {
+                            $scope.errors.push('Invalid URL in ' + field['title']);
+                        }
+                        if (field['validationType'].toLowerCase() === 'email' && field['value'] && !helper.is_valid_email(field['value'])) {
+                            $scope.errors.push('Invalid URL in ' + field['title']);
+                        }
+                    }
+
+                }
+
+                if ($scope.errors.length > 0) {
                     return;
                 }
 

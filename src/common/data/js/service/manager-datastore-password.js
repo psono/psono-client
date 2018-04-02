@@ -1,4 +1,4 @@
-(function(angular) {
+(function(angular, generate_password) {
     'use strict';
 
     /**
@@ -11,9 +11,9 @@
      * @requires psonocli.managerShareLink
      * @requires psonocli.managerDatastore
      * @requires psonocli.managerShare
-     * @requires psonocli.passwordGenerator
      * @requires psonocli.itemBlueprint
      * @requires psonocli.helper
+     * @requires psonocli.settings
      * @requires psonocli.browserClient
      * @requires psonocli.cryptoLibrary
      *
@@ -21,11 +21,80 @@
      * Service to manage the password datastore
      */
 
-    var managerDatastorePassword = function($q, $rootScope, managerBase, managerSecret, managerShareLink, managerDatastore, managerShare, passwordGenerator, itemBlueprint, helper, browserClient, cryptoLibrary) {
+    var managerDatastorePassword = function($q, $rootScope, managerBase, managerSecret, managerShareLink, managerDatastore, managerShare, itemBlueprint, helper, settings, browserClient, cryptoLibrary) {
 
         var registrations = {};
         var _share_index = {};
         var password_datastore_read = false;
+
+        var memorable = false;
+
+        var uppercaseMinCount = 1;
+        var lowercaseMinCount = 1;
+        var numberMinCount = 1;
+        var specialMinCount = 1;
+
+        /**
+         * checks if the given password complies with the minimal complexity
+         *
+         * @param password
+         * @returns {*}
+         */
+        var is_strong_enough = function (password) {
+
+            if (uppercaseMinCount + lowercaseMinCount + numberMinCount + specialMinCount > settings.get_setting('setting_password_length')) {
+                //password can never comply, so we skip check
+                return true;
+            }
+
+            var uc = password.match(new RegExp("(["+escape_reg_exp(settings.get_setting('setting_password_letters_uppercase'))+"])", "g"));
+            var lc = password.match(new RegExp("(["+escape_reg_exp(settings.get_setting('setting_password_letters_lowercase'))+"])", "g"));
+            var n = password.match(new RegExp("(["+escape_reg_exp(settings.get_setting('setting_password_numbers'))+"])", "g"));
+            var sc = password.match(new RegExp("(["+escape_reg_exp(settings.get_setting('setting_password_special_chars'))+"])", "g"));
+
+            return uc && (settings.get_setting('setting_password_letters_uppercase').length === 0 || uc.length >= uppercaseMinCount) &&
+                lc && (settings.get_setting('setting_password_letters_lowercase').length === 0 || lc.length >= lowercaseMinCount) &&
+                n && (settings.get_setting('setting_password_numbers').length === 0 || n.length >= numberMinCount) &&
+                sc && (settings.get_setting('setting_password_special_chars').length === 0 || sc.length >= specialMinCount);
+        };
+
+        /**
+         * escapes regex string
+         *
+         * @param str
+         * @returns {*}
+         */
+        var escape_reg_exp = function (str) {
+            // from sindresorhus/escape-string-regexp under MIT License
+
+            if (typeof str !== 'string') {
+                throw new TypeError('Expected a string');
+            }
+
+            return str.replace(new RegExp('[|\\\\{}()[\\]^$+*?.]', 'g'),  '\\$&');
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#generate
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * Main function to generate a random password based on the specified settings.
+         *
+         * @returns {string} Returns the generated random password
+         */
+        var generate = function () {
+            var password = "";
+            while (!is_strong_enough(password)) {
+                password = generate_password(settings.get_setting('setting_password_length'), memorable,
+                    new RegExp('['+escape_reg_exp(settings.get_setting('setting_password_letters_uppercase') +
+                        settings.get_setting('setting_password_letters_lowercase') +
+                        settings.get_setting('setting_password_numbers') +
+                        settings.get_setting('setting_password_special_chars'))+']'));
+            }
+            return password;
+        };
 
         /**
          * @ngdoc
@@ -147,7 +216,6 @@
          * @param {uuid} parent_datastore_id THe parent's datastore id
          */
         var update_paths_with_data = function(datastore, path, content, parent_share_rights, parent_share_id, parent_datastore_id) {
-
             var path_copy = path.slice();
             var search = find_in_datastore(path_copy, datastore);
             var obj = search[0][search[1]];
@@ -534,19 +602,19 @@
             var parsed_url = helper.parse_url(url);
 
             var secret_object = {
-                website_password_title: parsed_url.authority,
+                website_password_title: parsed_url.authority || '',
                 website_password_url: url,
                 website_password_username: "",
                 website_password_password: password,
                 website_password_notes: "",
                 website_password_auto_submit: false,
-                website_password_url_filter: parsed_url.authority
+                website_password_url_filter: parsed_url.authority || ''
             };
 
             var datastore_object = {
                 type: 'website_password',
-                name: parsed_url.authority,
-                urlfilter: parsed_url.authority
+                name: parsed_url.authority || '',
+                urlfilter: parsed_url.authority || ''
             };
 
             var onError = function() {
@@ -631,13 +699,13 @@
                     bookmark_title: tab.title,
                     bookmark_url: tab.url,
                     bookmark_notes: "",
-                    bookmark_url_filter: parsed_url.authority
+                    bookmark_url_filter: parsed_url.authority || ''
                 };
 
                 var datastore_object = {
                     type: 'bookmark',
                     name: tab.title,
-                    urlfilter: parsed_url.authority
+                    urlfilter: parsed_url.authority || ''
                 };
 
                 var onError = function() {
@@ -1458,13 +1526,69 @@
 
         };
 
-        itemBlueprint.register('generate', passwordGenerator.generate);
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#get_all_own_pgp_keys
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * Reads the password datastore and returns all own pgp private keys as array
+         *
+         * @returns {promise} A list of all own pgp keys
+         */
+        var get_all_own_pgp_keys = function () {
+            return $q(function(resolve) {
+
+                get_password_datastore().then(function(datastore){
+
+                    var own_pgp_secrets = [];
+                    var own_pgp_keys = [];
+                    var failed = 0;
+
+                    managerDatastore.filter(datastore, function(item) {
+                        if (!item.hasOwnProperty("type") || item['type'] !== 'mail_gpg_own_key') {
+                            return;
+                        }
+                        own_pgp_secrets.push(item);
+                    });
+
+                    var trigger_potential_return = function() {
+                        if (own_pgp_keys.length + failed === own_pgp_secrets.length) {
+                            resolve(own_pgp_keys);
+                        }
+                    };
+
+                    var onError = function(result) {
+                        failed = failed +1;
+                        trigger_potential_return()
+                    };
+
+                    var onSuccess = function(secret) {
+                        own_pgp_keys.push(secret['mail_gpg_own_key_private']);
+                        trigger_potential_return();
+                    };
+
+
+                    for (var i = 0; i < own_pgp_secrets.length; i++) {
+
+                        managerSecret.read_secret(own_pgp_secrets[i].secret_id, own_pgp_secrets[i].secret_key)
+                            .then(onSuccess, onError);
+                    }
+                });
+            });
+        };
+
+
+
+        itemBlueprint.register('generate', generate);
         itemBlueprint.register('get_password_datastore', get_password_datastore);
         itemBlueprint.register('save_datastore_content', save_datastore_content);
         itemBlueprint.register('find_in_datastore', find_in_datastore);
         itemBlueprint.register('on_share_added', on_share_added);
+        settings.register('get_password_datastore', get_password_datastore);
 
         return {
+            generate: generate,
             get_password_datastore: get_password_datastore,
             save_datastore_content: save_datastore_content,
             save_password: save_password,
@@ -1483,12 +1607,13 @@
             analyze_breadcrumbs: analyze_breadcrumbs,
             create_share_links_in_datastore: create_share_links_in_datastore,
             modifyTreeForSearch: modifyTreeForSearch,
-            get_inaccessible_shares: get_inaccessible_shares
+            get_inaccessible_shares: get_inaccessible_shares,
+            get_all_own_pgp_keys: get_all_own_pgp_keys
         };
     };
 
     var app = angular.module('psonocli');
     app.factory("managerDatastorePassword", ['$q', '$rootScope', 'managerBase', 'managerSecret', 'managerShareLink', 'managerDatastore', 'managerShare',
-        'passwordGenerator', 'itemBlueprint', 'helper', 'browserClient', 'cryptoLibrary', managerDatastorePassword]);
+        'itemBlueprint', 'helper', 'settings', 'browserClient', 'cryptoLibrary', managerDatastorePassword]);
 
-}(angular));
+}(angular, generatePassword));

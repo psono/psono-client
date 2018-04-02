@@ -140,6 +140,8 @@ angular.module("ngDraggable", [])
                 };
 
                 var onlongpress = function(evt) {
+                    $rootScope.$broadcast('draggable:longpress', {event: evt});
+
                     if(! _dragEnabled)return;
                     evt.preventDefault();
 

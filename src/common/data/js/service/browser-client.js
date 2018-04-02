@@ -44,6 +44,26 @@
         };
 
         /**
+         * Opens the URL in a popup
+         *
+         * @param url
+         * @param callback_function
+         */
+        var open_popup = function(url, callback_function) {
+            var win = $window.open(url, '_blank', "width=800,height=600");
+            win.onload = function() { win.RunCallbackFunction = callback_function; };
+        };
+
+        /**
+         * Closes a popup
+         *
+         * @param window_id
+         */
+        var close_opened_popup = function(window_id) {
+            // pass
+        };
+
+        /**
          * @ngdoc
          * @name psonocli.browserClient#get_base_url
          * @methodOf psonocli.browserClient
@@ -173,8 +193,9 @@
          *
          * @param {string} event The event
          * @param {*} data The payload for the event
+         * @param {function} fnc An optional callback function with the return value
          */
-        var emit_sec = function(event, data) {
+        var emit_sec = function(event, data, fnc) {
 
         };
 
@@ -311,6 +332,9 @@
         return {
             get_client_type: get_client_type,
             open_tab: open_tab,
+            open_popup: open_popup,
+            close_opened_popup: close_opened_popup,
+            close_popup: close_popup,
             get_base_url: get_base_url,
             load_version: load_version,
             load_config: load_config,
@@ -321,7 +345,6 @@
             emit_sec: emit_sec,
             on: on,
             get_config:get_config,
-            close_popup:close_popup,
             disable_browser_password_saving: disable_browser_password_saving,
             copy_to_clipboard: copy_to_clipboard
         };

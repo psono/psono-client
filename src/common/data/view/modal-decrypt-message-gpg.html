@@ -1,0 +1,55 @@
+<form name="modalDecryptMessageGPGForm" novalidate>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title">Decrypt Message</h3>
+    </div>
+    <div class="modal-body" ng-if="!data.decrypting && !data.decrypting_complete">
+
+        <div class="form-group">
+            <label>Encrypted Message:</label>
+            <textarea class="form-control"
+                      placeholder="Your Message"
+                      ng-model="data.message"></textarea>
+
+        </div>
+
+        <div class="form-group alert alert-danger" ng-repeat="e in errors">
+            <strong>Error:</strong> {{e}}
+        </div>
+        <div class="form-group">
+            <button ng-click="decrypt()" type="submit-" class="btn btn-primary">Decrypt</button>
+        </div>
+
+
+    </div>
+
+    <div class="modal-body" ng-if="data.decrypting && !data.decrypting_complete">
+        <div>
+            <div class="big-font-icon-and-msg">
+                <i style="
+                           display: inline-block;
+                           font: normal normal normal 14px/1 FontAwesome;
+                           text-rendering: auto;
+                           font-size: 3em;
+                           text-align: center;
+                           animation: fa-spin 2s infinite linear;
+                           vertical-align: middle;">&#xf110;</i>
+                Decrypting
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-body" ng-if="data.decrypting_complete">
+        <div class="form-group">
+            <label>Decrypted Message:</label>
+            <div class="yui3-cssreset">
+                <!-- message contains potentially dangerous html content, so we are using angularjs sanitizer -->
+                <div ng-if="data.decrypted_message" ng-bind-html="data.decrypted_message"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn" type="button" ng-click="cancel();">Close</button>
+    </div>
+</form>
