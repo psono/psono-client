@@ -28,7 +28,6 @@
 
             function activate() {
                 browserClient.emit_sec("read-gpg", $routeParams.gpg_message_id, function(data) {
-                    console.log(data);
                     if (data.hasOwnProperty('plaintext')) {
                         $scope.$evalAsync(function() {
                             $scope.data['decrypting'] = false;

@@ -108,7 +108,6 @@
                     priv_key.decrypt($scope.data.passphrase).then(function(success) {
                         $scope.data['private_key'] = priv_key.armor();
                         $scope.data['public_key'] = pub_key.armor();
-                        console.log(pub_key);
                         $uibModalInstance.close($scope.data);
                     }, function(error) {
                         if (error.message === 'Key packet is already decrypted.') {

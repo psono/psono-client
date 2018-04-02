@@ -56,7 +56,14 @@
                 function decrypt(public_key) {
                     return managerDatastorePassword.get_all_own_pgp_keys().then(function(private_keys) {
 
-                        var private_key_string = private_keys.join("\n");
+                        var private_keys_array = [];
+
+                        for (var i = 0; i < private_keys.length; i++ ) {
+                            var temp = openpgp.key.readArmored(private_keys[i]).keys;
+                            for (var ii = 0; ii < temp.length; ii++) {
+                                private_keys_array.push(temp[ii]);
+                            }
+                        }
 
                         //console.log(pgp_sender);
 
@@ -64,12 +71,12 @@
                             options = {
                                 message: openpgp.message.readArmored($scope.data.message),     // parse armored message
                                 publicKeys: openpgp.key.readArmored(public_key).keys,
-                                privateKeys: openpgp.key.readArmored(private_key_string).keys
+                                privateKeys: private_keys_array
                             };
                         } else {
                             options = {
                                 message: openpgp.message.readArmored($scope.data.message),     // parse armored message
-                                privateKeys: openpgp.key.readArmored(private_key_string).keys
+                                privateKeys: private_keys_array
                             };
                         }
 
