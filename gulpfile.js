@@ -37,6 +37,7 @@ gulp.task('template', function () {
         .pipe(gulp.dest('src/common/data/view'));
 });
 
+var timestamp = Date.now();
 
 var build = function(build_path, type) {
 
@@ -273,8 +274,8 @@ var build = function(build_path, type) {
                 '!src/common/data/sass'
             ])
             .pipe(htmlreplace({
-                'build_min_js': 'js/bundle.min.js',
-                'build_min_css': 'css/lib/bundle.min.css'
+                'build_min_js': 'js/bundle.min.js?v='+timestamp,
+                'build_min_css': 'css/lib/bundle.min.css?v='+timestamp
             }))
             .pipe(htmlmin({collapseWhitespace: true}))
             .pipe(gulp.dest(build_path));
