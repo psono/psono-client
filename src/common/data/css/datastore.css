@@ -45,7 +45,8 @@ body {
 
 .navi {
   background-color: #f2f5f7;
-  padding: 10px 0; }
+  padding: 10px 0;
+  margin-bottom: 15px; }
   .navi h1 {
     color: #0f1118; }
   .navi .title {

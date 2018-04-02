@@ -21,22 +21,22 @@
 
             $scope.node = node;
             $scope.path = path;
+            $scope.data = data;
             $scope.name = node.name;
             $scope.content = '';
             $scope.isCollapsed = true;
             $scope.errors = [];
-
             activate();
 
             function activate(){
                 $scope.bp = {
                     all: itemBlueprint.get_blueprints(),
-                    selected: itemBlueprint.get_blueprint(node.type)
+                    selected: itemBlueprint.get_blueprint($scope.node.type)
                 };
 
                 for (var i = $scope.bp.selected.fields.length - 1; i >= 0; i--) {
-                    if (data.hasOwnProperty($scope.bp.selected.fields[i].name)) {
-                        $scope.bp.selected.fields[i].value = data[$scope.bp.selected.fields[i].name];
+                    if ($scope.data.hasOwnProperty($scope.bp.selected.fields[i].name)) {
+                        $scope.bp.selected.fields[i].value = $scope.data[$scope.bp.selected.fields[i].name];
                     }
                 }
 

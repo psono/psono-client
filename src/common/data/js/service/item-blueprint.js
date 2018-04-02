@@ -847,6 +847,9 @@
          * @returns {boolean} Returns if the items has fields with position advanced
          */
         var has_advanced = function (blueprint_item) {
+            if (typeof(blueprint_item) === 'undefined') {
+                return false;
+            }
             for (var i = 0; i < blueprint_item.fields.length; i++) {
                 if (blueprint_item.fields[i].hasOwnProperty('position') && blueprint_item.fields[i]['position'] === 'advanced') {
                     return true;

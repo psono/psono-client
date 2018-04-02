@@ -4,6 +4,8 @@
     /**
      * @ngdoc service
      * @name psonocli.managerWidget
+     * @requires $rootScope
+     * @requires $window
      * @requires $uibModal
      * @requires psonocli.managerDatastorePassword
      * @requires psonocli.managerShare
@@ -17,7 +19,7 @@
      * Service that is something like the base class for adf widgets
      */
 
-    var managerWidget = function ($uibModal, managerDatastorePassword, managerShare, managerSecret, managerShareLink,
+    var managerWidget = function ($rootScope, $window, $uibModal, managerDatastorePassword, managerShare, managerSecret, managerShareLink,
                                      managerSecretLink, itemBlueprint, cryptoLibrary) {
 
 
@@ -246,25 +248,7 @@
 
             var onSuccess = function(data) {
 
-                var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-edit-entry.html',
-                    controller: 'ModalEditEntryCtrl',
-                    backdrop: 'static',
-                    size: size,
-                    resolve: {
-                        node: function () {
-                            return node;
-                        },
-                        path: function () {
-                            return path;
-                        },
-                        data: function () {
-                            return data;
-                        }
-                    }
-                });
-
-                modalInstance.result.then(function (content) {
+                function onSave (content) {
 
                     var secret_object = {};
 
@@ -298,9 +282,39 @@
                     managerSecret.write_secret(node.secret_id, node.secret_key, secret_object)
                         .then(onSuccess, onError);
 
-                }, function () {
-                    // cancel triggered
-                });
+                }
+
+                if ($window.innerWidth > 1199) {
+                    $rootScope.$broadcast('show-entry-big', {
+                        node: node,
+                        path: path,
+                        data: data,
+                        onClose: function() {},
+                        onSave: onSave
+                    });
+                } else {
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'view/modal-edit-entry.html',
+                        controller: 'ModalEditEntryCtrl',
+                        backdrop: 'static',
+                        size: size,
+                        resolve: {
+                            node: function () {
+                                return node;
+                            },
+                            path: function () {
+                                return path;
+                            },
+                            data: function () {
+                                return data;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(onSave, function () {
+                        // cancel triggered
+                    });
+                }
             };
 
             managerSecret.read_secret(node.secret_id, node.secret_key)
@@ -726,7 +740,7 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerWidget", ['$uibModal', 'managerDatastorePassword', 'managerShare', 'managerSecret',
+    app.factory("managerWidget", ['$rootScope', '$window', '$uibModal', 'managerDatastorePassword', 'managerShare', 'managerSecret',
         'managerShareLink', 'managerSecretLink', 'itemBlueprint', 'cryptoLibrary', managerWidget]);
 
 }(angular));

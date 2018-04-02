@@ -1,4 +1,5 @@
 <div class="container-fluid">
+
     <div class="navi row">
         <div class="location col-sm-8">
             <!--
@@ -10,7 +11,9 @@
         </div>
     </div>
 
-    <div class="panel panel-default">
+    <div class="row">
+        <div ng-class="{'col-lg-6': show_share_content, 'col-lg-12': !show_share_content}">
+            <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">Datastore</h3>
         </div>
@@ -98,5 +101,218 @@
             </div>
         </div>
     </div>
+    </div>
 
+            <div class="col-lg-6" ng-if="show_share_content" ng-controller="ModalEditEntryBigCtrl">
+                <form name="editEntryForm" novalidate>
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
+                            <h3 class="panel-title">Edit {{bp.selected.name}}</h3>
+                        </div>
+                        <div class="panel-body">
+                        <!--
+                        <ui-select ng-model="bp.selected" class="form-group" on-select="reset()">
+                            <ui-select-match>
+                                <span ng-bind="$select.selected.name"></span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="blueprint in (bp.all | filter: $select.search) track by blueprint.id">
+                                <span ng-bind="blueprint.name"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                        -->
+
+                        <!-- before tabs (default) -->
+                        <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
+                             ng-if="!n.tab && (!n.position || n.position == 'before')">
+
+                            <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                                   id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                                   ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
+                                   ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems" ng-hide="n.hidden">{{n.title}}</span>
+
+                            <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](node, bp.selected.fields, errors)">{{n.title}}</button>
+
+                            <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
+                                <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                                       ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
+                                       ng-change="bp.selected[n.onChange](bp.selected.fields)">
+                                <div class="input-group-btn" uib-dropdown is-open="status.isopen">
+                                    <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
+                                        Actions <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li role="menuitem" ng-repeat="di in n.dropmenuItems track by $index">
+                                            <a href="" ng-click="di.onclick('editEntryForm-'+ n.name, di)"><i class="{{di.icon}}"></i>{{di.text}}</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <uib-progressbar value="n.value | complexify" ng-if="n.type == 'password' && (n.value | complexify) > 0">
+                                <span complexify="n.value"></span>%
+                                <span complexify="n.value" type="verbal"></span>
+                            </uib-progressbar>
+
+
+                            <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
+                                      ng-class="{'form-control': n.type !== 'checkbox'}" id="editEntryForm-{{n.name}}"
+                                      placeholder="{{n.placeholder}}"  ng-required="n.required && !n.hidden"
+                                      ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
+
+                        </div>
+
+                        <!-- tabs -->
+                        <uib-tabset ng-if="bp.selected.tabs" class="tabset_expand">
+                            <uib-tab ng-repeat="tab in bp.selected.tabs" heading="{{tab.title}}" active="tab.active" disable="tab.disabled">
+
+                                <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
+                                     ng-if="n.tab == tab.id">
+
+                                    <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                                           id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                                           ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
+                                           ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems" ng-hide="n.hidden">{{n.title}}</span>
+
+                                    <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](node, bp.selected.fields, errors)">{{n.title}}</button>
+
+                                    <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
+                                        <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                                               id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                                               ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
+                                               ng-change="bp.selected[n.onChange](bp.selected.fields)">
+                                        <div class="input-group-btn" uib-dropdown is-open="status.isopen">
+                                            <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
+                                                Actions <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li role="menuitem" ng-repeat="di in n.dropmenuItems track by $index">
+                                                    <a href="" ng-click="di.onclick('editEntryForm-'+ n.name, di)"><i class="{{di.icon}}"></i>{{di.text}}</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <uib-progressbar value="n.value | complexify" ng-if="n.type == 'password' && (n.value | complexify) > 0">
+                                        <span complexify="n.value"></span>%
+                                        <span complexify="n.value" type="verbal"></span>
+                                    </uib-progressbar>
+
+                                    <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
+                                              ng-class="{'form-control': n.type !== 'checkbox'}" id="editEntryForm-{{n.name}}"
+                                              placeholder="{{n.placeholder}}"  ng-required="n.required && !n.hidden"
+                                              ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
+
+
+                                </div>
+                            </uib-tab>
+                        </uib-tabset>
+
+                        <!-- below tabs -->
+                        <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
+                             ng-if="!n.tab && n.position == 'after'">
+
+                            <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                                   id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                                   ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
+                                   ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems" ng-hide="n.hidden">{{n.title}}</span>
+
+                            <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](node, bp.selected.fields, errors)">{{n.title}}</button>
+
+                            <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
+                                <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                                       ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
+                                       ng-change="bp.selected[n.onChange](bp.selected.fields)">
+                                <div class="input-group-btn" uib-dropdown is-open="status.isopen">
+                                    <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
+                                        Actions <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li role="menuitem" ng-repeat="di in n.dropmenuItems track by $index">
+                                            <a href="#" ng-click="di.onclick('editEntryForm-'+ n.name, di)"><i class="{{di.icon}}"></i>{{di.text}}</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <uib-progressbar value="n.value | complexify" ng-if="n.type == 'password' && (n.value | complexify) > 0">
+                                <span complexify="n.value"></span>%
+                                <span complexify="n.value" type="verbal"></span>
+                            </uib-progressbar>
+
+                            <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
+                                      ng-class="{'form-control': n.type !== 'checkbox'}" id="editEntryForm-{{n.name}}"
+                                      placeholder="{{n.placeholder}}"  ng-required="n.required && !n.hidden"
+                                      ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
+
+                        </div>
+
+                        <!-- Advanced -->
+                        <div class="text-right" ng-hide="!has_advanced(bp.selected)">
+                            <a href="" ng-click="isCollapsed = !isCollapsed">advanced</a>
+                        </div>
+
+
+                        <div uib-collapse="isCollapsed">
+
+                            <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
+                                 ng-if="!n.tab && n.position == 'advanced'">
+
+                                <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                                       ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
+                                       ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems" ng-hide="n.hidden">{{n.title}}</span>
+
+                                <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](node, bp.selected.fields, errors)">{{n.title}}</button>
+
+                                <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
+                                    <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                                           id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                                           ng-model="n.value" ng-hide="n.hidden"
+                                           ng-change="bp.selected[n.onChange](bp.selected.fields)">
+                                    <div class="input-group-btn" uib-dropdown is-open="status.isopen">
+                                        <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
+                                            Actions <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li role="menuitem" ng-repeat="di in n.dropmenuItems track by $index">
+                                                <a href="#" ng-click="di.onclick('editEntryForm-'+ n.name, di)"><i class="{{di.icon}}"></i>{{di.text}}</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <uib-progressbar value="n.value | complexify" ng-if="n.type == 'password' && (n.value | complexify) > 0">
+                                    <span complexify="n.value"></span>%
+                                    <span complexify="n.value" type="verbal"></span>
+                                </uib-progressbar>
+
+                                <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
+                                          ng-class="{'form-control': n.type !== 'checkbox'}" id="editEntryForm-{{n.name}}"
+                                          placeholder="{{n.placeholder}}"  ng-required="n.required && !n.hidden"
+                                          ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
+
+                            </div>
+
+                        </div>
+
+                        <div class="alert alert-danger" ng-repeat="e in errors">
+                            <strong>Error:</strong> {{e}}
+                        </div>
+
+                        <div class="form-group alert alert-info" ng-repeat="e in msgs">
+                            <strong>Error:</strong> {{e}}
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button ng-if="node.share_rights.write != false" class="btn btn-primary" type="button" ng-click="submitted=true; save();">Save</button>
+                        <button class="btn" type="button" ng-click="cancel();">Close</button>
+                    </div>
+                    </div>
+                </form>
+            </div>
+        </div>
 </div>

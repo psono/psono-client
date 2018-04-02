@@ -85,6 +85,7 @@
                 "../src/common/data/js/controller/modal/ShareNewEntryCtrl.js",
                 "../src/common/data/js/controller/modal/ShowRecoverycodeCtrl.js",
                 "../src/common/data/js/controller/modal/DeleteAccountCtrl.js",
+                "../src/common/data/js/controller/EditEntryBigCtrl.js",
                 "../src/common/data/js/controller/OpenSecretCtrl.js",
                 "../src/common/data/js/controller/OtherCtrl.js",
                 "../src/common/data/js/controller/SessionsCtrl.js",
