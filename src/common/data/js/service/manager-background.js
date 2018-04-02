@@ -670,6 +670,15 @@
                 });
             }
 
+            var public_keys_array = [];
+
+            for (var i = 0; i < public_keys.length; i++ ) {
+                var temp = openpgp.key.readArmored(public_keys[i]).keys;
+                for (var ii = 0; ii < temp.length; ii++) {
+                    public_keys_array.push(temp[ii]);
+                }
+            }
+
             function finalise_encryption(options) {
                 openpgp.encrypt(options).then(function(ciphertext) {
                     var originalSendResponse = gpg_messages[message_id]['sendResponse'];
@@ -691,7 +700,7 @@
 
                     options = {
                         data: message,
-                        publicKeys: openpgp.key.readArmored(public_keys.join("\n")).keys,
+                        publicKeys: public_keys_array,
                         privateKeys: openpgp.key.readArmored(data['mail_gpg_own_key_private']).keys
                     };
 
@@ -707,7 +716,7 @@
             } else {
                 options = {
                     data: message,
-                    publicKeys: openpgp.key.readArmored(public_keys.join("\n")).keys,
+                    publicKeys: public_keys_array,
                 };
                 finalise_encryption(options);
             }

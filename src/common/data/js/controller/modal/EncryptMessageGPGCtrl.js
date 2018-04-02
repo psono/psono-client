@@ -328,6 +328,7 @@
              * Triggered once someone clicks the "Encrypt" button
              */
             function encrypt() {
+                var i;
                 $scope.errors = [];
                 $scope.data['encrypting'] = true;
 
@@ -346,7 +347,7 @@
                 var receivers = [];
                 var public_keys = [];
 
-                for (var i = 0; i < $scope.data.receiver.length; i++) {
+                for (i = 0; i < $scope.data.receiver.length; i++) {
                     if (!$scope.data.receiver[i]['public_key']) {
                         $scope.errors = ['Please remove receivers that have no public key.'];
                         $scope.data['encrypting'] = false;
@@ -368,13 +369,23 @@
                     });
                 }
 
+
+                var public_keys_array = [];
+
+                for (i = 0; i < public_keys.length; i++ ) {
+                    var temp = openpgp.key.readArmored(public_keys[i]).keys;
+                    for (var ii = 0; ii < temp.length; ii++) {
+                        public_keys_array.push(temp[ii]);
+                    }
+                }
+
                 if ($scope.data.sign_message) {
 
                     var onSuccess = function(data) {
 
                         options = {
                             data: $scope.data.message,
-                            publicKeys: openpgp.key.readArmored(public_keys.join("\n")).keys,
+                            publicKeys: public_keys_array,
                             privateKeys: openpgp.key.readArmored(data['mail_gpg_own_key_private']).keys
                         };
 
@@ -390,7 +401,7 @@
                 } else {
                     options = {
                         data: $scope.data.message,
-                        publicKeys: openpgp.key.readArmored(public_keys.join("\n")).keys,
+                        publicKeys: public_keys_array,
                     };
                     finalise_encryption(options);
                 }
