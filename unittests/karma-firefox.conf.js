@@ -72,6 +72,7 @@
                 "../src/common/data/js/controller/modal/PickUserCtrl.js",
                 "../src/common/data/js/controller/modal/EditGroupCtrl.js",
                 "../src/common/data/js/controller/modal/EncryptMessageGPGCtrl.js",
+                "../src/common/data/js/controller/modal/DecryptMessageGPGCtrl.js",
                 "../src/common/data/js/controller/modal/EditGPGUserCtrl.js",
                 "../src/common/data/js/controller/modal/GenerateNewMailGPGKeyCtrl.js",
                 "../src/common/data/js/controller/modal/ImportMailGPGKeyAsTextCtrl.js",

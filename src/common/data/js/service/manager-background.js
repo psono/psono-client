@@ -557,11 +557,6 @@
 
                     var private_key_string = private_keys.join("\n");
 
-                    console.log(pgp_message);
-                    console.log(pgp_sender);
-                    console.log(public_key);
-                    console.log(private_key_string);
-
                     if (public_key) {
                         options = {
                             message: openpgp.message.readArmored(pgp_message),     // parse armored message
@@ -576,8 +571,6 @@
                     }
 
                     openpgp.decrypt(options).then(function(plaintext) {
-
-                        console.log(plaintext);
                         return sendResponse({
                             public_key: public_key,
                             sender: pgp_sender,
@@ -594,7 +587,9 @@
                 });
             }
 
-            if (pgp_sender) {
+            var gpg_hkp_search = new openpgp.HKP(settings.get_setting('gpg_hkp_search'));
+
+            if (gpg_hkp_search && pgp_sender && pgp_sender.length) {
 
                 var hkp = new openpgp.HKP(settings.get_setting('gpg_hkp_key_server'));
                 var options = {

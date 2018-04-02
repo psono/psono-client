@@ -159,7 +159,7 @@
                                 remove_receiver(receiver['email'])
                             }
                         }, function(error) {
-                            remove_receiver(receiver['email'])
+                            remove_receiver(receiver['email']);
                             console.log(error);
                         });
                     }
@@ -169,7 +169,7 @@
                         if ($scope.data.receiver[i]['status'] !== 'not searched') {
                             continue;
                         }
-                        if (hkp_search) {
+                        if (hkp_search &&  $scope.data.receiver[i]['email'] && $scope.data.receiver[i]['email'].length) {
                             lookup_from_hkp($scope.data.receiver[i]);
                         } else {
                             remove_receiver($scope.data.receiver[i]['email'])

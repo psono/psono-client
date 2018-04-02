@@ -160,7 +160,8 @@
                     { name: "mail_gpg_own_key_publish", field: "input", type:"checkbox", title: "Publish Public Key", hidden: true},
                     { name: "mail_gpg_own_key_generate_new", field: "button", type: "button", title: "Generate New", hidden: true, class: 'btn-primary', onClick:"onClickGenerateNewButton" },
                     { name: "mail_gpg_own_key_generate_import_text", field: "button", type: "button", title: "Import (as text)", hidden: true, class: 'btn-primary', onClick:"onClickImportAsTextButton" },
-                    { name: "mail_gpg_own_key_encrypt_message", field: "button", type: "button", title: "Encrypt Message", hidden: true, class: 'btn-default', onClick:"onClickEncryptMessageButton" }
+                    { name: "mail_gpg_own_key_encrypt_message", field: "button", type: "button", title: "Encrypt Message", hidden: true, class: 'btn-default', onClick:"onClickEncryptMessageButton" },
+                    { name: "mail_gpg_own_key_decrypt_message", field: "button", type: "button", title: "Decrypt Message", hidden: true, class: 'btn-default', onClick:"onClickDecryptMessageButton" }
                 ],
                 /**
                  * triggered whenever the "Generate New" button is clicked.
@@ -271,8 +272,8 @@
 
                 },
                 /**
-                 * triggered whenever the "Import (as text)" button is clicked.
-                 * Will open a new modal so the user can copy paste his keys, and once the modal closes show the details for this entry.
+                 * triggered whenever the "Encrypt Message" button is clicked.
+                 * Will open a new modal where the user can encrypt a message for specific receivers.
                  *
                  * @param node
                  * @param fields
@@ -299,8 +300,44 @@
                     });
 
                 },
+                /**
+                 * triggered whenever the "Decrypt Message" button is clicked.
+                 * Will open a new modal where the user can decrypt a message.
+                 *
+                 * @param node
+                 * @param fields
+                 * @param errors
+                 * @param form_control
+                 * @param selected_server_domain
+                 */
+                onClickDecryptMessageButton: function(node, fields, errors, form_control, selected_server_domain){
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'view/modal-decrypt-message-gpg.html',
+                        controller: 'ModalDecryptMessageGPGCtrl',
+                        backdrop: 'static',
+                        resolve: {
+                            secret_id: function() {
+                                return node.secret_id;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function (data) {
+                        // pass
+                    }, function () {
+                        // cancel triggered
+                    });
+
+                },
                 onEditModalOpen: function(node) {
-                    var showInEditOnly = ["mail_gpg_own_key_title", "mail_gpg_own_key_email", "mail_gpg_own_key_name", "mail_gpg_own_key_public", "mail_gpg_own_key_encrypt_message"];
+                    var showInEditOnly = [
+                        "mail_gpg_own_key_title",
+                        "mail_gpg_own_key_email",
+                        "mail_gpg_own_key_name",
+                        "mail_gpg_own_key_public",
+                        "mail_gpg_own_key_encrypt_message",
+                        "mail_gpg_own_key_decrypt_message"
+                    ];
                     for (var i = 0; i < node.fields.length; i++) {
                         node.fields[i].hidden = !(showInEditOnly.indexOf(node.fields[i].name) > -1);
                     }
