@@ -107,12 +107,13 @@
                  * triggered whenever the search button is clicked.
                  * triggers a search to the backend for a valid user with that email address
                  *
+                 * @param node
                  * @param fields
                  * @param errors
                  * @param form_control
                  * @param selected_server_domain
                  */
-                onClickSearchButton: function(fields, errors, form_control, selected_server_domain){
+                onClickSearchButton: function(node, fields, errors, form_control, selected_server_domain){
 
                     var search_username = '';
                     var search_email = '';
