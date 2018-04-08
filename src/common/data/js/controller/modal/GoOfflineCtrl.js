@@ -46,6 +46,7 @@
 
             function potentially_close_modal() {
                 if ($scope.state.closed_requests === $scope.state.open_requests) {
+                    offlineCache.save();
                     $uibModalInstance.close();
                 }
             }
