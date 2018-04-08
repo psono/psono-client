@@ -28,6 +28,14 @@
             managerImport.register_importer(importer_code, importer);
         }
 
+        function unescape_value(value) {
+            value = value.replace(/&lt;/g , "<");
+            value = value.replace(/&gt;/g , ">");
+            value = value.replace(/&amp;/g , "&");
+
+            return value;
+        }
+
         /**
          * @ngdoc
          * @name psonocli.importKeePassXml#transform_to_secret
@@ -68,7 +76,7 @@
                     continue;
                 }
                 var key = value['Key'];
-                var val = value['Value'];
+                var val = unescape_value(value['Value']);
 
                 if (key === 'Notes') {
                     secret['website_password_notes'] = val;
