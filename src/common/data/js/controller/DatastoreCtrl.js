@@ -13,6 +13,7 @@
      * @requires psonocli.manager
      * @requires psonocli.managerDatastorePassword
      * @requires psonocli.managerDatastore
+     * @requires psonocli.offlineCache
      * @requires psonocli.itemBlueprint
      * @requires psonocli.managerWidget
      * @requires psonocli.managerSecret
@@ -21,10 +22,10 @@
      * Main Controller for the datastore widget
      */
     angular.module('psonocli').controller('DatastoreCtrl', ["$rootScope", "$scope", "$uibModal", "$routeParams", "$timeout",
-        "manager", "managerDatastorePassword", 'managerDatastore',
+        "manager", "managerDatastorePassword", 'managerDatastore', 'offlineCache',
         "itemBlueprint", "managerWidget", "managerSecret", "dropDownMenuWatcher",
         function($rootScope, $scope, $uibModal, $routeParams, $timeout,
-                 manager, managerDatastorePassword, managerDatastore,
+                 manager, managerDatastorePassword, managerDatastore, offlineCache,
                  itemBlueprint, managerWidget, managerSecret, dropDownMenuWatcher){
             var contextMenusOpen = 0;
 
@@ -191,6 +192,15 @@
             activate();
 
             function activate() {
+                $scope.offline = offlineCache.is_active();
+                $rootScope.$on('offline_mode_enabled', function() {
+                    $scope.offline = true;
+                });
+
+                $rootScope.$on('offline_mode_disabled', function() {
+                    $scope.offline = false;
+                });
+
                 load_datastore().then(function(){
                     managerDatastore.register('on_datastore_overview_update', load_datastore);
                 });

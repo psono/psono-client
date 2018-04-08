@@ -338,7 +338,8 @@
             emit:emit,
             get_exporter:get_exporter,
             fetch_datastore:fetch_datastore,
-            export_datastore:export_datastore
+            export_datastore:export_datastore,
+            get_all_secrets:get_all_secrets
         };
     };
 

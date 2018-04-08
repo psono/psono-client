@@ -30,6 +30,11 @@
                 indices: ['key'],
                 uniques: ['key']
             },
+            'offline-cache': {
+                name: 'offline-cache',
+                indices: ['key'],
+                uniques: ['key']
+            },
             'datastore-password-leafs': {
                 name: 'datastore-password-leafs',
                 indices: ['key', 'urlfilter', 'name'],

@@ -1249,7 +1249,6 @@
         var get_sessions = function() {
 
             var onSuccess = function (request) {
-
                 return request.data['sessions'];
 
             };

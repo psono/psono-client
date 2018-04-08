@@ -4,6 +4,7 @@
     /**
      * @ngdoc controller
      * @name psonocli.controller:GPGEncryptMessageCtrl
+     * @requires $rootScope
      * @requires $scope
      * @requires $routeParams
      * @requires $uibModal
@@ -12,6 +13,7 @@
      * @requires psonocli.managerDatastoreSetting
      * @requires psonocli.managerDatastore
      * @requires psonocli.browserClient
+     * @requires psonocli.offlineCache
      * @requires psonocli.settings
      * @requires psonocli.helper
      * @requires psonocli.openpgp
@@ -19,12 +21,12 @@
      * @description
      * Controller for the Group view
      */
-    angular.module('psonocli').controller('GPGEncryptMessageCtrl', ["$scope", "$timeout", "$routeParams", "$uibModal",
+    angular.module('psonocli').controller('GPGEncryptMessageCtrl', ["$rootScope", "$scope", "$timeout", "$routeParams", "$uibModal",
         "cryptoLibrary", "managerDatastorePassword", "managerDatastoreSetting", "managerDatastore", "managerDatastoreGPGUser",
-        "browserClient", "settings", "helper", "openpgp",
-        function ($scope, $timeout, $routeParams, $uibModal,
+        "browserClient", "offlineCache", "settings", "helper", "openpgp",
+        function ($rootScope, $scope, $timeout, $routeParams, $uibModal,
                   cryptoLibrary, managerDatastorePassword, managerDatastoreSetting, managerDatastore, managerDatastoreGPGUser,
-                  browserClient, settings, helper, openpgp) {
+                  browserClient, offlineCache, settings, helper, openpgp) {
 
             var receiver_index = {};
 
@@ -49,8 +51,16 @@
             activate();
 
             function activate() {
+                $scope.offline = offlineCache.is_active();
+                $rootScope.$on('offline_mode_enabled', function() {
+                    $scope.offline = true;
+                });
+
+                $rootScope.$on('offline_mode_disabled', function() {
+                    $scope.offline = false;
+                });
+
                 browserClient.emit_sec("write-gpg", $routeParams.gpg_message_id, function(data) {
-                    console.log(data);
                     $scope.$evalAsync(function() {
                         load_receiver(data.receiver);
                     });

@@ -1,0 +1,23 @@
+<form name="goOfflineForm" novalidate>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title">Caching ...</h3>
+    </div>
+    <div class="modal-body">
+        <div class="form-group alert alert-info">
+            <strong>Info!</strong> The client is now downloading all necessary content from the server.
+        </div>
+
+        <uib-progressbar max="state.open_requests" value="state.closed_requests">
+            <span style="color:white; white-space:nowrap;">{{ state.closed_requests }} / {{ state.open_requests }}</span>
+        </uib-progressbar>
+
+
+        <div class="form-group alert alert-danger" ng-repeat="e in errors">
+            <strong>Error:</strong> {{e}}
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" type="button" ng-click="cancel();">Cancel</button>
+    </div>
+</form>

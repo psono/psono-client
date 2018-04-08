@@ -422,7 +422,7 @@
          *
          * @returns {promise} Returns a promise with the datastore
          */
-        var get_password_datastore = function() {
+        var get_password_datastore = function(id) {
             var type = "password";
             var description = "default";
 
@@ -473,7 +473,7 @@
                 // pass
             };
 
-            return managerDatastore.get_datastore(type)
+            return managerDatastore.get_datastore(type, id)
                 .then(onSuccess, onError);
         };
 

@@ -14,6 +14,7 @@
      * @requires psonocli.managerSecret
      * @requires psonocli.browserClient
      * @requires psonocli.storage
+     * @requires psonocli.offlineCache
      * @requires snapRemote
      * @requires $window
      * @requires $route
@@ -25,16 +26,18 @@
      */
     angular.module('psonocli').controller('MainCtrl', ['$scope', '$rootScope', '$filter', '$timeout', 'account',
         'managerDatastorePassword', 'managerDatastoreUser', 'managerDatastore', 'managerSecret', 'browserClient',
-        'storage', 'snapRemote', '$window', '$route', '$routeParams', '$location', '$uibModal',
+        'storage', 'offlineCache', 'snapRemote', '$window', '$route', '$routeParams', '$location', '$uibModal',
         function ($scope, $rootScope, $filter, $timeout, account,
                   managerDatastorePassword, managerDatastoreUser, managerDatastore, managerSecret, browserClient,
-                  storage, snapRemote, $window, $route, $routeParams, $location, $uibModal) {
+                  storage, offlineCache, snapRemote, $window, $route, $routeParams, $location, $uibModal) {
 
 
             $scope.open_tab = browserClient.open_tab;
             $scope.create_new_datastore = create_new_datastore;
             $scope.get_link_state = get_link_state;
             $scope.logout = managerDatastoreUser.logout;
+            $scope.go_offline = go_offline;
+            $scope.go_online = go_online;
             $scope.on_item_click = managerSecret.on_item_click;
             $scope.on_datastore_switch_click = on_datastore_switch_click;
 
@@ -56,6 +59,16 @@
                     $window.location.href = 'enforce-two-fa.html';
                     return;
                 }
+
+
+                $scope.offline = offlineCache.is_active();
+                $rootScope.$on('offline_mode_enabled', function() {
+                    $scope.offline = true;
+                });
+
+                $rootScope.$on('offline_mode_disabled', function() {
+                    $scope.offline = false;
+                });
 
 
                 browserClient.load_version().then(function(version) {
@@ -97,6 +110,38 @@
                 }, function () {
                     // cancel triggered
                 });
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:OtherDatastoreCtrl#go_offline
+             * @methodOf psonocli.controller:OtherDatastoreCtrl
+             *
+             * @description
+             * Triggered once someone clicks the offline button in the top menu
+             */
+            function go_offline() {
+                $uibModal.open({
+                    templateUrl: 'view/modal-go-offline.html',
+                    controller: 'ModalGoOfflineCtrl',
+                    backdrop: 'static',
+                    resolve: {
+                    }
+                });
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:OtherDatastoreCtrl#go_online
+             * @methodOf psonocli.controller:OtherDatastoreCtrl
+             *
+             * @description
+             * Triggered once someone clicks the online button in the top menu
+             */
+            function go_online() {
+                offlineCache.disable();
+                offlineCache.clear();
+                $scope.offline = false;
             }
 
             /**

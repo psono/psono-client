@@ -54,6 +54,7 @@
                             {
                                 icon: "fa fa-cogs",
                                 text:"Generate Password",
+                                hide_offline: true,
                                 onclick:function(id, item) {
                                     angular.element(document.querySelector('#'+id)).val(registrations['generate']()).trigger('input');
                                 }
@@ -463,6 +464,7 @@
                 id: 'share',
                 name: 'Share',
                 icon: 'fa fa-user-plus',
+                hide_offline: true,
                 ngClass: function(item) {
                     if (item.hasOwnProperty('share_rights') && item.share_rights.grant === false) {
                         return 'hidden';
@@ -658,6 +660,7 @@
                 id: 'show_share_rights',
                 name: 'Rights Overview',
                 icon: 'fa fa-list',
+                hide_offline: true,
                 ngClass: function(item) {
                     if (item.hasOwnProperty('share_rights') && item.share_rights.grant === false) {
                         return 'hidden';

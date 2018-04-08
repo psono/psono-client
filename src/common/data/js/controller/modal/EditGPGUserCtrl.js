@@ -4,18 +4,22 @@
     /**
      * @ngdoc controller
      * @name psonocli.controller:ModalEditGPGUserCtrl
+     * @requires $rootScope
      * @requires $scope
      * @requires $uibModalInstance
      * @requires psonocli.managerDatastoreGPGUser
      * @requires psonocli.helper
+     * @requires psonocli.offlineCache
      * @requires psonocli.settings
      * @requires psonocli.openpgp
      *
      * @description
      * Controller for the "Edit Folder" modal
      */
-    angular.module('psonocli').controller('ModalEditGPGUserCtrl', ['$scope', '$uibModalInstance', 'managerDatastoreGPGUser', 'helper', 'settings', 'openpgp', 'user',
-        function ($scope, $uibModalInstance, managerDatastoreGPGUser, helper, settings, openpgp, user) {
+    angular.module('psonocli').controller('ModalEditGPGUserCtrl', ['$rootScope', '$scope', '$uibModalInstance',
+        'managerDatastoreGPGUser', 'helper', 'offlineCache', 'settings', 'openpgp', 'user',
+        function ($rootScope, $scope, $uibModalInstance,
+                  managerDatastoreGPGUser, helper, offlineCache, settings, openpgp, user) {
 
             $scope.cancel = cancel;
             $scope.add_public_key = add_public_key;
@@ -27,7 +31,18 @@
             $scope.data = user;
             $scope.data.new_email = user.email;
 
-            console.log(user);
+            activate();
+
+            function activate() {
+                $scope.offline = offlineCache.is_active();
+                $rootScope.$on('offline_mode_enabled', function() {
+                    $scope.offline = true;
+                });
+
+                $rootScope.$on('offline_mode_disabled', function() {
+                    $scope.offline = false;
+                });
+            }
 
             /**
              * @ngdoc

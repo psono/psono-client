@@ -5,9 +5,12 @@ var template_cache = require('gulp-angular-templatecache');
 var cleanCSS = require('gulp-clean-css');
 var concat = require('gulp-concat');
 var htmlreplace = require('gulp-html-replace');
+var replace = require('gulp-replace');
 var htmlmin = require('gulp-htmlmin');
 var jeditor = require("gulp-json-editor");
-var minify = require('gulp-minify');
+var uglify = require('gulp-uglify');
+var maps   = require('gulp-sourcemaps');
+var saveLicense = require('uglify-save-license');
 var gulpDocs = require('gulp-ngdocs');
 var removeFiles = require('gulp-remove-files');
 var run = require('gulp-run');
@@ -96,7 +99,7 @@ var build = function(build_path, type) {
 
     // All files in data/js
     if (type === 'webclient') {
-        // minify
+        // uglify
 
         gulp.src([
             "src/common/data/js/lib/ecma-nacl.min.js",
@@ -137,6 +140,7 @@ var build = function(build_path, type) {
             "src/common/data/js/module/ng-tree.js",
 
             "src/common/data/js/main.js",
+            "src/webclient/data/js/service-worker-load.js",
 
             "src/common/data/js/directive/fileReader.js",
             "src/common/data/js/directive/treeView.js",
@@ -165,6 +169,7 @@ var build = function(build_path, type) {
             "src/common/data/js/controller/modal/DisplayShareRightsCtrl.js",
             "src/common/data/js/controller/modal/EditEntryCtrl.js",
             "src/common/data/js/controller/modal/EditFolderCtrl.js",
+            "src/common/data/js/controller/modal/GoOfflineCtrl.js",
             "src/common/data/js/controller/modal/NewFolderCtrl.js",
             "src/common/data/js/controller/modal/VerifyCtrl.js",
             "src/common/data/js/controller/modal/NewGroupCtrl.js",
@@ -208,6 +213,7 @@ var build = function(build_path, type) {
             "src/common/data/js/service/converter.js",
             "src/common/data/js/service/openpgp.js",
             "src/common/data/js/service/storage.js",
+            "src/common/data/js/service/offline-cache.js",
             "src/common/data/js/service/account.js",
             "src/common/data/js/service/settings.js",
             "src/common/data/js/service/manager-base.js",
@@ -239,15 +245,14 @@ var build = function(build_path, type) {
             "src/common/data/view/templates.js",
             "src/common/data/js/google-analytics.js"
         ])
-            .pipe(minify({
-                ext:{
-                    min:'.js'
-                },
-                ignoreFiles: ['.min.js'],
-                noSource: true,
-                preserveComments: 'some'
+            .pipe(maps.init())
+            .pipe(uglify({
+                output: {
+                    comments: saveLicense
+                }
             }))
             .pipe(concat('bundle.min.js'))
+            .pipe(maps.write('./'))
             .pipe(gulp.dest(path.join(build_path, 'js')));
 
         gulp.src([
@@ -260,6 +265,7 @@ var build = function(build_path, type) {
         gulp.src([
             'src/common/data/js/**/*',
             '!src/common/data/js/google-analytics.js',
+            '!src/common/data/js/service-worker-load.js',
             '!src/common/data/js/service/browser-client.js'
         ])
             .pipe(gulp.dest(path.join(build_path, 'js')));
@@ -267,8 +273,23 @@ var build = function(build_path, type) {
 
     // All files in data
     if (type === 'webclient') {
+
+        gulp.src([
+            'src/webclient/data/service-worker.js'
+        ])
+            .pipe(replace('%%PSONOVERSION%%', timestamp))
+            .pipe(maps.init())
+            .pipe(uglify({
+                output: {
+                    comments: saveLicense
+                }
+            }))
+            .pipe(maps.write('./'))
+            .pipe(gulp.dest(path.join(build_path)));
+
         return gulp.src([
                 'src/common/data/*',
+                '!src/common/data/service-worker.js',
                 '!src/common/data/background.html',
                 '!src/common/data/default_popup.html',
                 '!src/common/data/sass'
@@ -282,6 +303,7 @@ var build = function(build_path, type) {
     } else {
         return gulp.src([
                 'src/common/data/*',
+                '!src/common/data/service-worker.js',
                 '!src/common/data/sass'
             ])
             .pipe(htmlmin({collapseWhitespace: true}))
