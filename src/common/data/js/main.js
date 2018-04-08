@@ -193,4 +193,4 @@ document.addEventListener('DOMContentLoaded', function() {
 }, false);
 
 console.log("%cDanger:","color:red;font-size:40px;");
-console.log("%cDo not type or paste anything here. This features is for developers and typing or pasting something here can compromise your account.","font-size:20px;");
+console.log("%cDo not type or paste anything here. This feature is for developers and typing or pasting something here can compromise your account.","font-size:20px;");
