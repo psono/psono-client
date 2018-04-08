@@ -48,7 +48,7 @@
                 </a>
 
                 <div  class="navbar-text navbar-left">
-                    <div class="btn-group" uib-dropdown keyboard-nav ng-if="data_stores.length > 1">
+                    <div class="btn-group" uib-dropdown keyboard-nav ng-if="data_stores.length > 1 && !offline">
                         <button id="simple-btn-keyboard-nav" type="button" class="btn btn-primary" uib-dropdown-toggle>
                             Datastore <span class="caret"></span>
                         </button>
@@ -83,18 +83,22 @@
                             {{user_username}} <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu" aria-labelledby="email-button">
-                            <li role="menuitem"><a href="#!/account"><i class="fa fa-sliders fa-fw"></i> Account</a></li>
-                            <li role="menuitem"><a href="#!/settings"><i class="fa fa-cogs fa-fw"></i> Settings</a></li>
-                            <li role="menuitem"><a href="#!/other"><i class="fa fa-tasks fa-fw"></i> Other</a></li>
+                            <li role="menuitem"><a href="#!/account" ng-if="!offline"><i class="fa fa-sliders fa-fw"></i> Account</a></li>
+                            <li role="menuitem"><a href="#!/settings" ng-if="!offline"><i class="fa fa-cogs fa-fw"></i> Settings</a></li>
+                            <li role="menuitem"><a href="#!/other" ng-if="!offline"><i class="fa fa-tasks fa-fw"></i> Other</a></li>
+                            <li role="menuitem"><a href="#" ng-if="!offline" ng-click="go_offline()"><i class="fa fa-plane fa-fw"></i> Go Offline</a></li>
+                            <li role="menuitem"><a href="" ng-if="offline" ng-click="go_online()"><i class="fa fa-globe fa-fw"></i> Go Online</a></li>
                             <li class="divider"></li>
                             <li role="menuitem"><a href="#" ng-click="logout()"><i class="fa fa-sign-out fa-fw"></i> Logout</a></li>
                         </ul>
                     </div>
                     <div ng-if="! isNavCollapsed">
                         <ul class="nav navbar-nav" ng-if="! isNavCollapsed">
-                            <li role="menuitem"><a href="#!/account"><i class="fa fa-sliders fa-fw"></i> Account</a></li>
-                            <li role="menuitem"><a href="#!/settings"><i class="fa fa-cogs fa-fw"></i> Settings</a></li>
-                            <li role="menuitem"><a href="#!/other"><i class="fa fa-tasks fa-fw"></i> Other</a></li>
+                            <li role="menuitem"><a href="#!/account" ng-if="!offline"><i class="fa fa-sliders fa-fw"></i> Account</a></li>
+                            <li role="menuitem"><a href="#!/settings" ng-if="!offline"><i class="fa fa-cogs fa-fw"></i> Settings</a></li>
+                            <li role="menuitem"><a href="#!/other" ng-if="!offline"><i class="fa fa-tasks fa-fw"></i> Other</a></li>
+                            <li role="menuitem"><a href="#" ng-if="!offline" ng-click="go_offline()"><i class="fa fa-plane fa-fw"></i> Go Offline</a></li>
+                            <li role="menuitem"><a href="" ng-if="offline" ng-click="go_offline()"><i class="fa fa-globe fa-fw"></i> Go Online</a></li>
                             <li role="menuitem"><a href="#" ng-click="logout()"><i class="fa fa-sign-out fa-fw"></i> Logout</a></li>
                         </ul>
                     </div>
@@ -113,8 +117,8 @@
             </li>
             <!--<li ng-class="get_link_state('/test')"><a href="#!/test">Test</a></li>-->
         </ul>
-        <h2>Share Details</h2>
-        <ul class="navigations">
+        <h2 ng-if="!offline">Share Details</h2>
+        <ul class="navigations" ng-if="!offline">
             <li ng-class="get_link_state('/share/pendingshares')">
                 <a class="navigationitem2" href="#!/share/pendingshares">
                     <span class="fa-stack"><i class="fa fa-share-alt fa-fw"></i></span>Pending Requests
@@ -429,6 +433,7 @@
 <script src="js/module/ng-tree.js" type="application/javascript"></script>
 
 <script src="js/main.js" type="application/javascript"></script>
+<script src="js/service-worker-load.js" type="application/javascript"></script>
 
 <script src="js/directive/fileReader.js" type="application/javascript"></script>
 <script src="js/directive/treeView.js" type="application/javascript"></script>
@@ -457,6 +462,7 @@
 <script src="js/controller/modal/DisplayShareRightsCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/EditEntryCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/EditFolderCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/GoOfflineCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/NewFolderCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/VerifyCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/NewGroupCtrl.js" type="application/javascript"></script>
@@ -500,6 +506,7 @@
 <script src="js/service/converter.js" type="application/javascript"></script>
 <script src="js/service/openpgp.js" type="application/javascript"></script>
 <script src="js/service/storage.js" type="application/javascript"></script>
+<script src="js/service/offline-cache.js" type="application/javascript"></script>
 <script src="js/service/account.js" type="application/javascript"></script>
 <script src="js/service/settings.js" type="application/javascript"></script>
 <script src="js/service/manager-base.js" type="application/javascript"></script>

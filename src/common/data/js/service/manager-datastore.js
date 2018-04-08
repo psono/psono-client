@@ -47,7 +47,7 @@
                 // we dont have them in cache, so lets query and save them in cache for next time
                 var onSuccess = function (result) {
                     temp_datastore_overview = result;
-                    fire_event('on_datastore_overview_update', undefined);
+                    emit('on_datastore_overview_update', undefined);
                     return result
                 };
                 var onError = function () {
@@ -189,7 +189,7 @@
                         type: type,
                         is_default: is_default
                     });
-                    fire_event('on_datastore_overview_update', undefined);
+                    emit('on_datastore_overview_update', undefined);
                 }
                 return result;
             };
@@ -241,10 +241,11 @@
          * Returns the datastore for the given type and and description
          *
          * @param {string} type The type of the datastore
+         * @param {uuid} id The id of a datastore
          *
          * @returns {promise} Promise with the datastore's content
          */
-        var get_datastore = function(type) {
+        var get_datastore = function(type, id) {
 
             var onError = function(result) {
                 // pass
@@ -288,8 +289,12 @@
                 }
             };
 
-            return get_datastore_id(type)
-                .then(onSuccess, onError);
+            if (id) {
+                return onSuccess(id);
+            } else {
+                return get_datastore_id(type)
+                    .then(onSuccess, onError);
+            }
         };
 
         /**
@@ -471,7 +476,7 @@
                     }
                 }
                 if (update_happened) {
-                    fire_event('on_datastore_overview_update', undefined);
+                    emit('on_datastore_overview_update', undefined);
                 }
                 return result.data;
             };
@@ -560,7 +565,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastore#fire_event
+         * @name psonocli.managerDatastore#emit
          * @methodOf psonocli.managerDatastore
          *
          * @description
@@ -569,7 +574,7 @@
          * @param {string} key The key of the event
          * @param {*} payload The payload of the event
          */
-        var fire_event = function(key, payload) {
+        var emit = function(key, payload) {
             if (registrations.hasOwnProperty(key)) {
                 for (var i = 0; i < registrations[key].length; i++) {
                     registrations[key][i](payload);

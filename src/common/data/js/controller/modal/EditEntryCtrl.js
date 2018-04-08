@@ -4,15 +4,17 @@
     /**
      * @ngdoc controller
      * @name psonocli.controller:ModalEditEntryCtrl
+     * @requires $rootScope
      * @requires $scope
      * @requires $uibModalInstance
      * @requires psonocli.itemBlueprint
+     * @requires psonocli.offlineCache
      *
      * @description
      * Controller for the "Edit Entry" modal
      */
-    angular.module('psonocli').controller('ModalEditEntryCtrl', ['$scope', '$uibModalInstance', 'itemBlueprint', 'node', 'path', 'data',
-        function ($scope, $uibModalInstance, itemBlueprint, node, path, data) {
+    angular.module('psonocli').controller('ModalEditEntryCtrl', ['$rootScope', '$scope', '$uibModalInstance', 'itemBlueprint', 'offlineCache', 'node', 'path', 'data',
+        function ($rootScope, $scope, $uibModalInstance, itemBlueprint, offlineCache, node, path, data) {
 
             $scope.reset = reset;
             $scope.save = save;
@@ -29,6 +31,16 @@
             activate();
 
             function activate(){
+
+
+                scope.offline = offlineCache.is_active();
+                $rootScope.$on('offline_mode_enabled', function() {
+                    scope.offline = true;
+                });
+
+                $rootScope.$on('offline_mode_disabled', function() {
+                    scope.offline = false;
+                });
                 $scope.bp = {
                     all: itemBlueprint.get_blueprints(),
                     selected: itemBlueprint.get_blueprint($scope.node.type)

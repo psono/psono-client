@@ -42,6 +42,7 @@
                 "../src/common/data/js/module/ng-tree.js",
 
                 "../src/common/data/js/main.js",
+                "../src/common/data/js/service-worker-load.js",
 
                 "../src/common/data/js/directive/fileReader.js",
                 "../src/common/data/js/directive/treeView.js",
@@ -70,6 +71,7 @@
                 "../src/common/data/js/controller/modal/DisplayShareRightsCtrl.js",
                 "../src/common/data/js/controller/modal/EditEntryCtrl.js",
                 "../src/common/data/js/controller/modal/EditFolderCtrl.js",
+                "../src/common/data/js/controller/modal/GoOfflineCtrl.js",
                 "../src/common/data/js/controller/modal/NewFolderCtrl.js",
                 "../src/common/data/js/controller/modal/VerifyCtrl.js",
                 "../src/common/data/js/controller/modal/NewGroupCtrl.js",
@@ -112,6 +114,7 @@
                 "../src/common/data/js/service/converter.js",
                 "../src/common/data/js/service/openpgp.js",
                 "../src/common/data/js/service/storage.js",
+                "../src/common/data/js/service/offline-cache.js",
                 "../src/common/data/js/service/account.js",
                 "../src/common/data/js/service/settings.js",
                 "../src/common/data/js/service/manager-base.js",

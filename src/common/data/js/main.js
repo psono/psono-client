@@ -156,8 +156,24 @@
                 return parts.join(' ');
             };
         }])
-        .run(['$rootScope', '$location', '$routeParams', '$http', '$templateCache', 'managerSecret',
-            function ($rootScope, $location, $routeParams, $http, $templateCache, managerSecret) {
+        .run(['$rootScope', '$location', '$routeParams', '$http', '$templateCache', 'managerSecret', 'offlineCache',
+            function ($rootScope, $location, $routeParams, $http, $templateCache, managerSecret, offlineCache) {
+
+                $rootScope.$on( "$routeChangeStart", function(event, next, current) {
+                    var offline_redirect_urls = [
+                        'view/account.html',
+                        'view/other.html',
+                        'view/settings.html',
+                        'view/index-share-shares.html',
+                        'view/index-share-users.html',
+                        'view/index-share-groups.html',
+                        'view/index-security-report.html'
+                    ];
+
+                    if ( offlineCache.is_active() && next.templateUrl && offline_redirect_urls.indexOf(next.templateUrl.toLowerCase() !== -1) ) {
+                        $location.path( "/" )
+                    }
+                });
                 $rootScope.$on('$routeChangeSuccess', function () {
                     var redirect = '/secret/';
                     if ($location.path().substring(0, redirect.length) === redirect && $routeParams.hasOwnProperty('secret_id')) {

@@ -10,21 +10,22 @@
      * @requires psonocli.storage
      * @requires psonocli.cryptoLibrary
      * @requires psonocli.device
+     * @requires psonocli.offlineCache
      *
      * @description
      * Service to talk to the psono REST api
      */
 
-    var apiClient = function($http, $q, $rootScope, storage, cryptoLibrary, device) {
+    var apiClient = function($http, $q, $rootScope, storage, cryptoLibrary, device, offlineCache) {
 
-        var decrypt_data = function(session_secret_key, data) {
+        var decrypt_data = function(session_secret_key, data, req) {
             if (session_secret_key && data !== null
                 && data.hasOwnProperty('data')
                 && data.data.hasOwnProperty('text')
                 && data.data.hasOwnProperty('nonce')) {
                 data.data = JSON.parse(cryptoLibrary.decrypt_data(data.data.text, data.data.nonce, session_secret_key));
             }
-
+            offlineCache.set(req, data);
             return data;
         };
 
@@ -65,6 +66,16 @@
 
             req.headers = headers;
 
+            var cached = offlineCache.get(req);
+
+            if (cached !== null) {
+                if (synchronous) {
+                    return cached;
+                } else {
+                    return $q.resolve(cached);
+                }
+            }
+
             if (synchronous) {
                 /**
                  * Necessary evil... used to copy data to the clipboard which can only happen on user interaction,
@@ -87,13 +98,13 @@
                     }
                 });
 
-                return decrypt_data(session_secret_key, {data: JSON.parse(data.responseText)});
+                return decrypt_data(session_secret_key, {data: JSON.parse(data.responseText)}, req);
 
             } else {
                 return $q(function(resolve, reject) {
 
                     var onSuccess = function(data) {
-                        return resolve(decrypt_data(session_secret_key, data));
+                        return resolve(decrypt_data(session_secret_key, data, req));
                     };
 
                     var onError = function(data) {
@@ -107,7 +118,7 @@
                         if (data.status === 503) {
                             $rootScope.$broadcast('force_logout', '');
                         }
-                        return reject(decrypt_data(session_secret_key, data));
+                        return reject(decrypt_data(session_secret_key, data, req));
                     };
 
                     $http(req)
@@ -2077,6 +2088,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("apiClient", ['$http', '$q', '$rootScope', 'storage', 'cryptoLibrary', 'device', apiClient]);
+    app.factory("apiClient", ['$http', '$q', '$rootScope', 'storage', 'cryptoLibrary', 'device', 'offlineCache', apiClient]);
 
 }(angular));
