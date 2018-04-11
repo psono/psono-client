@@ -3,7 +3,7 @@
         <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
         <h3 class="modal-title">Caching ...</h3>
     </div>
-    <div class="modal-body">
+    <div class="modal-body" ng-if="state.started_load_all_datastores">
         <div class="form-group alert alert-info">
             <strong>Info!</strong> The client is now downloading all necessary content from the server.
         </div>
@@ -17,7 +17,14 @@
             <strong>Error:</strong> {{e}}
         </div>
     </div>
+    <div class="modal-body" ng-if="!state.started_load_all_datastores">
+        <div class="form-group alert alert-danger">
+            <strong>Info!</strong> The client will store all passwords in the local storage of the client unencrypted.
+            You should abort if you do not trust this device or have security concerns.
+        </div>
+    </div>
     <div class="modal-footer">
+        <button ng-click="approve()" type="submit" class="btn btn-primary" ng-if="!state.started_load_all_datastores">Approve</button>
         <button class="btn" type="button" ng-click="cancel();">Cancel</button>
     </div>
 </form>

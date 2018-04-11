@@ -19,8 +19,10 @@
                   offlineCache, managerDatastore, managerDatastorePassword, managerExport) {
 
             $scope.cancel = cancel;
+            $scope.approve = approve;
 
             $scope.state = {
+                started_load_all_datastores: false,
                 open_requests: 0,
                 closed_requests: 0,
                 finished_load_all_datastores: false
@@ -29,6 +31,20 @@
             activate();
 
             function activate() {
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalGoOfflineCtrl#approve
+             * @methodOf psonocli.controller:ModalGoOfflineCtrl
+             *
+             * @description
+             * Triggered once someone clicks the approve button
+             *
+             */
+            function approve() {
+                $scope.state.started_load_all_datastores = true;
+
                 offlineCache.enable();
 
                 managerExport.on('get-secret-started', function(){
@@ -44,6 +60,14 @@
                     .then(load_all_datastores)
             }
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalGoOfflineCtrl#approve
+             * @methodOf psonocli.controller:ModalGoOfflineCtrl
+             *
+             * @description
+             * Checks whether the caching of the datastore is completed or not and closes the modal once done.
+             */
             function potentially_close_modal() {
                 if ($scope.state.closed_requests === $scope.state.open_requests) {
                     offlineCache.save();
@@ -51,6 +75,16 @@
                 }
             }
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalGoOfflineCtrl#approve
+             * @methodOf psonocli.controller:ModalGoOfflineCtrl
+             *
+             * @description
+             * Main function to load the datastore including all shares and secrets
+             *
+             * @param datastore_overview
+             */
             function load_all_datastores(datastore_overview) {
 
                 for (var i = 0; i < datastore_overview.data.datastores.length; i++) {
