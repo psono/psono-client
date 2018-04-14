@@ -581,7 +581,7 @@
                             // its not yet a share, so generate the share, generate the share_rights and update
                             // the datastore
 
-                            registrations['get_password_datastore'](true).then(function(datastore) {
+                            registrations['get_password_datastore']().then(function(datastore) {
 
                                 var path = content.path.slice();
                                 var parent_share = registrations['get_closest_parent_share'](path, datastore, null, 1);
