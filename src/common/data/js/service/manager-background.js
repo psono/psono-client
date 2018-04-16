@@ -20,13 +20,14 @@
      * @requires psonocli.browserClient
      * @requires psonocli.settings
      * @requires psonocli.openpgp
+     * @requires psonocli.offlineCache
      *
      * @description
      * Service that handles the complete background process
      */
     var managerBackground = function($q, $timeout, managerBase, managerSecret, storage, managerDatastorePassword,
                                      managerDatastore, managerDatastoreUser, helper, cryptoLibrary, apiClient, device,
-                                     browser, chrome, browserClient, settings, openpgp) {
+                                     browser, chrome, browserClient, settings, openpgp, offlineCache) {
 
         var last_login_credentials;
         var activeTabId;
@@ -155,7 +156,8 @@
                 'encrypt-gpg': encrypt_pgp,
                 'read-gpg': read_gpg,
                 'write-gpg': write_gpg,
-                'write-gpg-complete': write_gpg_complete
+                'write-gpg-complete': write_gpg_complete,
+                'set-offline-cache-encryption-key': set_offline_cache_encryption_key
             };
 
             if (event_functions.hasOwnProperty(request.event)){
@@ -724,6 +726,24 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerBackground#set_offline_cache_encryption_key
+         * @methodOf psonocli.managerBackground
+         *
+         * @description
+         * Triggered once the user goes into offline mode
+         *
+         * @param {object} request The message sent by the calling script.
+         * @param {object} sender The sender of the message
+         * @param {function} sendResponse Function to call (at most once) when you have a response.
+         */
+        function set_offline_cache_encryption_key(request, sender, sendResponse) {
+            var encryption_key = request.data.encryption_key;
+            offlineCache.set_encryption_key(encryption_key);
+
+        }
+
+        /**
+         * @ngdoc
          * @name psonocli.managerBackground#login_form_submit
          * @methodOf psonocli.managerBackground
          *
@@ -828,13 +848,9 @@
             }
 
             if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(to_open)) {
-                browser.tabs.create({
-                    url: '/data/open-secret.html#!/secret/' + entry_extra_info[to_open]['type'] + '/' + to_open
-                });
+                browserClient.open_tab_bg('/data/open-secret.html#!/secret/' + entry_extra_info[to_open]['type'] + '/' + to_open);
             } else {
-                browser.tabs.create({
-                    url: '/data/index.html#!/datastore/search/' + encodeURIComponent(to_open)
-                });
+                browserClient.open_tab_bg('/data/index.html#!/datastore/search/' + encodeURIComponent(to_open));
             }
         }
 
@@ -987,6 +1003,6 @@
     var app = angular.module('psonocli');
     app.factory("managerBackground", ['$q', '$timeout', 'managerBase', 'managerSecret', 'storage', 'managerDatastorePassword','managerDatastore',
         'managerDatastoreUser', 'helper', 'cryptoLibrary', 'apiClient', 'device', 'browser', 'chrome',
-        'browserClient', 'settings', 'openpgp', managerBackground]);
+        'browserClient', 'settings', 'openpgp', 'offlineCache', managerBackground]);
 
 }(angular));

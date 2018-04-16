@@ -24,7 +24,32 @@
          * @param url
          */
         var open_tab = function(url) {
-            window.open(url, '_blank');
+            return $q(function (resolve) {
+                var new_window = window.open(url, '_blank');
+                resolve(new_window);
+            });
+        };
+
+        /**
+         * Opens the URL in a new browser tab (from the background page)
+         *
+         * @param url
+         * @param callback_function
+         */
+        var open_tab_bg = function(url, callback_function) {
+            chrome.tabs.create({
+                url: url
+            }, function(tab) {
+                if (!callback_function) {
+                    return;
+                }
+                chrome.tabs.onUpdated.addListener(function listener (tabId, info) {
+                    if (info.status === 'complete' && tabId === tab.id) {
+                        chrome.tabs.onUpdated.removeListener(listener);
+                        callback_function(tab);
+                    }
+                });
+            });
         };
 
         /**
@@ -279,9 +304,27 @@
             document.removeEventListener('copy', copy);
         }
 
+
+        /**
+         * @ngdoc
+         * @name psonocli.browserClient#getOfflineCacheEncryptionKey
+         * @methodOf psonocli.browserClient
+         *
+         * @description
+         * Asks the background page for the offline cache encryption key
+         *
+         * @param {function} fnc The callback function
+         */
+        function getOfflineCacheEncryptionKey(fnc) {
+            chrome.runtime.getBackgroundPage(function (bg) {
+                fnc(bg.psono_offline_cache_encryption_key)
+            });
+        }
+
         return {
             get_client_type: get_client_type,
             open_tab: open_tab,
+            open_tab_bg: open_tab_bg,
             open_popup: open_popup,
             close_opened_popup: close_opened_popup,
             get_base_url: get_base_url,
@@ -296,7 +339,8 @@
             get_config:get_config,
             close_popup:close_popup,
             disable_browser_password_saving:disable_browser_password_saving,
-            copy_to_clipboard: copy_to_clipboard
+            copy_to_clipboard: copy_to_clipboard,
+            getOfflineCacheEncryptionKey: getOfflineCacheEncryptionKey,
         };
     };
 

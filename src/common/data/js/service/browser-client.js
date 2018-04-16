@@ -40,7 +40,20 @@
          * @param {string} url The url to open
          */
         var open_tab = function(url) {
-            $window.open(url, '_blank');
+            return $q(function (resolve) {
+                var new_window = $window.open(url, '_blank');
+                resolve(new_window);
+            });
+        };
+
+        /**
+         * Opens the URL in a new browser tab (from the background page)
+         *
+         * @param url
+         * @param callback_function
+         */
+        var open_tab_bg = function(url, callback_function) {
+            // pass, websites have no background page
         };
 
         /**
@@ -329,9 +342,25 @@
             input.remove();
         }
 
+
+        /**
+         * @ngdoc
+         * @name psonocli.browserClient#getOfflineCacheEncryptionKey
+         * @methodOf psonocli.browserClient
+         *
+         * @description
+         * Asks the background page for the offline cache encryption key
+         *
+         * @param {function} fnc The callback function
+         */
+        function getOfflineCacheEncryptionKey(fnc) {
+            //pass, no background page on the website
+        }
+
         return {
             get_client_type: get_client_type,
             open_tab: open_tab,
+            open_tab_bg: open_tab_bg,
             open_popup: open_popup,
             close_opened_popup: close_opened_popup,
             close_popup: close_popup,
@@ -346,7 +375,8 @@
             on: on,
             get_config:get_config,
             disable_browser_password_saving: disable_browser_password_saving,
-            copy_to_clipboard: copy_to_clipboard
+            copy_to_clipboard: copy_to_clipboard,
+            getOfflineCacheEncryptionKey: getOfflineCacheEncryptionKey
         };
     };
 

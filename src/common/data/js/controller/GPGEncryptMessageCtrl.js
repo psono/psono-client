@@ -60,6 +60,35 @@
                     $scope.offline = false;
                 });
 
+                if (!offlineCache.is_active() || !offlineCache.is_locked()) {
+                    write_pgp()
+                } else {
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'view/modal-unlock-offline-cache.html',
+                        controller: 'ModalUnlockOfflineCacheCtrl',
+                        backdrop: 'static',
+                        resolve: {
+                        }
+                    });
+
+                    modalInstance.result.then(function () {
+                        // pass, will be catched later with the on_set_encryption_key event
+                    }, function () {
+                        $rootScope.$broadcast('force_logout', '');
+                    });
+
+                    offlineCache.on_set_encryption_key(function() {
+                        modalInstance.close();
+                        $timeout(function() {
+                            write_pgp();
+                        }, 500);
+                    });
+                }
+            }
+
+            function write_pgp() {
+
+
                 browserClient.emit_sec("write-gpg", $routeParams.gpg_message_id, function(data) {
                     $scope.$evalAsync(function() {
                         load_receiver(data.receiver);

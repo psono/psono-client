@@ -4,6 +4,7 @@
     /**
      * @ngdoc controller
      * @name psonocli.controller:GPGDecryptMessageCtrl
+     * @requires $rootScope
      * @requires $scope
      * @requires $routeParams
      * @requires $uibModal
@@ -14,8 +15,10 @@
      * @description
      * Controller for the Group view
      */
-    angular.module('psonocli').controller('GPGDecryptMessageCtrl', ["$scope", "$timeout", "$routeParams", "$uibModal", "cryptoLibrary", "managerDatastorePassword", "browserClient",
-        function ($scope, $timeout, $routeParams, $uibModal, cryptoLibrary, managerDatastorePassword, browserClient) {
+    angular.module('psonocli').controller('GPGDecryptMessageCtrl', ["$rootScope", "$scope", "$timeout", "$routeParams",
+        "$uibModal", "cryptoLibrary", "managerDatastorePassword", "browserClient", "offlineCache",
+        function ($rootScope, $scope, $timeout, $routeParams,
+                  $uibModal, cryptoLibrary, managerDatastorePassword, browserClient, offlineCache) {
 
             $scope.data = {
                 decrypting: true,
@@ -27,6 +30,36 @@
             activate();
 
             function activate() {
+
+                if (!offlineCache.is_active() || !offlineCache.is_locked()) {
+                    read_gpg()
+                } else {
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'view/modal-unlock-offline-cache.html',
+                        controller: 'ModalUnlockOfflineCacheCtrl',
+                        backdrop: 'static',
+                        resolve: {
+                        }
+                    });
+
+                    modalInstance.result.then(function () {
+                        // pass, will be catched later with the on_set_encryption_key event
+                    }, function () {
+                        $rootScope.$broadcast('force_logout', '');
+                    });
+
+                    offlineCache.on_set_encryption_key(function() {
+                        modalInstance.close();
+                        $timeout(function() {
+                            read_gpg();
+                        }, 500);
+                    });
+                }
+
+            }
+
+            function read_gpg() {
+
                 browserClient.emit_sec("read-gpg", $routeParams.gpg_message_id, function(data) {
                     if (data.hasOwnProperty('plaintext')) {
                         $scope.$evalAsync(function() {

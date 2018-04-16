@@ -142,6 +142,7 @@
                 offlineCache.disable();
                 offlineCache.clear();
                 $scope.offline = false;
+
             }
 
             /**
