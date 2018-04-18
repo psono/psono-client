@@ -11,6 +11,7 @@
      * @requires psonocli.managerDatastoreUser
      * @requires psonocli.browserClient
      * @requires psonocli.storage
+     * @requires psonocli.offlineCache
      * @requires snapRemote
      * @requires $window
      * @requires $route
@@ -20,9 +21,11 @@
      * @description
      * Controller for the wrapper
      */
-    angular.module('psonocli').controller('WrapperCtrl', ['$scope', '$rootScope', '$filter', '$timeout', 'managerDatastoreUser', 'browserClient', 'storage',
+    angular.module('psonocli').controller('WrapperCtrl', ['$scope', '$rootScope', '$filter', '$timeout',
+        'managerDatastoreUser', 'browserClient', 'storage', 'offlineCache',
         'snapRemote', '$window', '$route', '$routeParams', '$location',
-        function ($scope, $rootScope, $filter, $timeout, managerDatastoreUser, browserClient, storage,
+        function ($scope, $rootScope, $filter, $timeout,
+                  managerDatastoreUser, browserClient, storage, offlineCache,
                   snapRemote, $window, $route, $routeParams, $location) {
 
             var snapper;
@@ -47,6 +50,15 @@
             function activate() {
 
                 initialize_snapper();
+
+                $scope.offline = offlineCache.is_active();
+                $rootScope.$on('offline_mode_enabled', function() {
+                    $scope.offline = true;
+                });
+
+                $rootScope.$on('offline_mode_disabled', function() {
+                    $scope.offline = false;
+                });
 
                 var is_logged_in = managerDatastoreUser.is_logged_in();
 
