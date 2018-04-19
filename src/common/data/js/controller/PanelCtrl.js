@@ -13,8 +13,10 @@
      * @requires psonocli.managerDatastoreUser
      * @requires psonocli.managerSecret
      * @requires psonocli.browserClient
+     * @requires psonocli.offlineCache
      * @requires psonocli.helper
      * @requires $window
+     * @requires $uibModal
      * @requires $route
      * @requires $routeParams
      * @requires $location
@@ -23,11 +25,11 @@
      * Controller for the panel
      */
     angular.module('psonocli').controller('PanelCtrl', ['$scope', '$rootScope', '$filter', '$timeout', 'manager',
-        'managerDatastorePassword', 'managerDatastoreUser', 'managerSecret', 'browserClient',
-        'helper', '$window', '$route', '$routeParams', '$location',
+        'managerDatastorePassword', 'managerDatastoreUser', 'managerSecret', 'browserClient', 'offlineCache',
+        'helper', '$window', '$uibModal', '$route', '$routeParams', '$location',
         function ($scope, $rootScope, $filter, $timeout, manager,
-                  managerDatastorePassword, managerDatastoreUser, managerSecret, browserClient,
-                  helper, $window, $route, $routeParams, $location) {
+                  managerDatastorePassword, managerDatastoreUser, managerSecret, browserClient, offlineCache,
+                  helper, $window, $uibModal, $route, $routeParams, $location) {
 
             var password_filter;
 
@@ -76,7 +78,29 @@
                     }
                 });
 
-                managerDatastorePassword.get_password_datastore();
+                if (offlineCache.is_active() && offlineCache.is_locked()) {
+
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'view/modal-unlock-offline-cache.html',
+                        controller: 'ModalUnlockOfflineCacheCtrl',
+                        backdrop: 'static',
+                        resolve: {
+                        }
+                    });
+
+                    modalInstance.result.then(function () {
+                        // pass, will be catched later with the on_set_encryption_key event
+                    }, function () {
+                        $rootScope.$broadcast('force_logout', '');
+                    });
+                    offlineCache.on_set_encryption_key(function() {
+                        managerDatastorePassword.get_password_datastore();
+                        modalInstance.close();
+                    })
+                } else {
+                    managerDatastorePassword.get_password_datastore();
+                }
+
 
                 $scope.$watch('datastore.search', function (value) {
                     password_filter = helper.get_password_filter(value);

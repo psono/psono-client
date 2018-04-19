@@ -170,7 +170,7 @@
                         'view/index-security-report.html'
                     ];
 
-                    if ( offlineCache.is_active() && next.templateUrl && offline_redirect_urls.indexOf(next.templateUrl.toLowerCase() !== -1) ) {
+                    if ( offlineCache.is_active() && next.templateUrl && offline_redirect_urls.indexOf(next.templateUrl.toLowerCase()) !== -1 ) {
                         $location.path( "/" )
                     }
                 });

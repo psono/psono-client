@@ -79,8 +79,9 @@
 
         <ul class="navigations" ng-if="!datastore.search">
             <li><a href="#" class="navigationitem" ng-click="open_tab('index.html')">Open Datastore</a></li>
-            <li><a href="#" class="navigationitem" ng-click="generate_password()">Generate Password</a></li>
-            <li><a href="#" class="navigationitem" ng-click="bookmark()">Bookmark</a></li>
+
+            <li><a href="#" class="navigationitem" ng-click="generate_password()" ng-if="!offline">Generate Password</a></li>
+            <li><a href="#" class="navigationitem" ng-click="bookmark()" ng-if="!offline">Bookmark</a></li>
             <!--<li><a href="https://www.psono.pw/help" target="_blank">Help</a></li>-->
 
         </ul>
@@ -398,6 +399,7 @@
 <script src="js/controller/modal/ShareEntryCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ShareNewEntryCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ShowRecoverycodeCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/UnlockOfflineCacheCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/DeleteAccountCtrl.js" type="application/javascript"></script>
 <script src="js/controller/EditEntryBigCtrl.js" type="application/javascript"></script>
 <script src="js/controller/OpenSecretCtrl.js" type="application/javascript"></script>

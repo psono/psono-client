@@ -14,9 +14,9 @@
      * Controller for the "AcceptShare" modal
      */
     angular.module('psonocli').controller('ModalGoOfflineCtrl', ['$scope', '$rootScope', '$uibModalInstance', '$uibModal',
-        'offlineCache', 'managerDatastore', 'managerDatastorePassword', 'managerExport',
+        'offlineCache', 'managerDatastore', 'managerDatastorePassword', 'managerExport', 'helper',
         function ($scope, $rootScope, $uibModalInstance, $uibModal,
-                  offlineCache, managerDatastore, managerDatastorePassword, managerExport) {
+                  offlineCache, managerDatastore, managerDatastorePassword, managerExport, helper) {
 
             $scope.cancel = cancel;
             $scope.approve = approve;
@@ -25,7 +25,9 @@
                 started_load_all_datastores: false,
                 open_requests: 0,
                 closed_requests: 0,
-                finished_load_all_datastores: false
+                finished_load_all_datastores: false,
+                password: '',
+                password_repeat: ''
             };
 
             activate();
@@ -43,8 +45,17 @@
              *
              */
             function approve() {
+                var test_result = helper.is_valid_password($scope.state.password, $scope.state.password_repeat);
+                if (test_result !== true) {
+                    $scope.state.errors = [
+                        test_result
+                    ];
+                    return;
+                }
+
                 $scope.state.started_load_all_datastores = true;
 
+                offlineCache.set_encryption_password($scope.state.password);
                 offlineCache.enable();
 
                 managerExport.on('get-secret-started', function(){

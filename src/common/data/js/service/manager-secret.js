@@ -4,18 +4,21 @@
     /**
      * @ngdoc service
      * @name psonocli.managerSecret
+     * @requires $rootScope
+     * @requires $uibModal
      * @requires psonocli.managerBase
      * @requires psonocli.apiClient
      * @requires psonocli.cryptoLibrary
      * @requires psonocli.itemBlueprint
      * @requires psonocli.browserClient
+     * @requires psonocli.offlineCache
      *
      * @description
      * Service to handle all secret related tasks
      */
 
-    var managerSecret = function(managerBase, apiClient, cryptoLibrary,
-                           itemBlueprint, browserClient) {
+    var managerSecret = function($rootScope, $uibModal, managerBase, apiClient, cryptoLibrary,
+                           itemBlueprint, browserClient, offlineCache) {
 
         /**
          * @ngdoc
@@ -133,24 +136,52 @@
          * @param {uuid} secret_id The id of the secret to read
          */
         var redirect_secret = function(type, secret_id) {
-            var secret_key = managerBase.find_key_nolimit('datastore-password-leafs', secret_id);
 
-            var onError = function(result) {
-                // pass
-            };
+            function redirect() {
+                var secret_key = managerBase.find_key_nolimit('datastore-password-leafs', secret_id);
 
-            var onSuccess = function(decrypted_secret) {
+                var onError = function(result) {
+                    // pass
+                };
 
-                var msg = itemBlueprint.blueprint_msg_before_open_secret(type, decrypted_secret);
-                if (typeof(msg) !== 'undefined') {
-                    browserClient.emit_sec(msg.key, msg.content);
-                }
+                var onSuccess = function(decrypted_secret) {
 
-                itemBlueprint.blueprint_on_open_secret(type, decrypted_secret);
-            };
+                    var msg = itemBlueprint.blueprint_msg_before_open_secret(type, decrypted_secret);
+                    if (typeof(msg) !== 'undefined') {
+                        browserClient.emit_sec(msg.key, msg.content);
+                    }
 
-            read_secret(secret_id, secret_key)
-                .then(onSuccess, onError);
+                    itemBlueprint.blueprint_on_open_secret(type, decrypted_secret);
+                };
+
+                read_secret(secret_id, secret_key)
+                    .then(onSuccess, onError);
+            }
+
+            if (!offlineCache.is_active() || !offlineCache.is_locked()) {
+
+                redirect()
+            } else {
+
+                var modalInstance = $uibModal.open({
+                    templateUrl: 'view/modal-unlock-offline-cache.html',
+                    controller: 'ModalUnlockOfflineCacheCtrl',
+                    backdrop: 'static',
+                    resolve: {
+                    }
+                });
+
+                modalInstance.result.then(function () {
+                    // pass, will be catched later with the on_set_encryption_key event
+                }, function () {
+                    $rootScope.$broadcast('force_logout', '');
+                });
+
+                offlineCache.on_set_encryption_key(function() {
+                    modalInstance.close();
+                    redirect();
+                });
+            }
 
         };
         /**
@@ -165,7 +196,9 @@
          */
         var on_item_click = function(item) {
             if (item.hasOwnProperty("urlfilter") && item['urlfilter'] !== '' && itemBlueprint.blueprint_has_on_click_new_tab(item.type)) {
-                browserClient.open_tab('open-secret.html#!/secret/'+item.type+'/'+item.secret_id);
+                browserClient.open_tab('open-secret.html#!/secret/'+item.type+'/'+item.secret_id).then(function (window) {
+                    window.psono_offline_cache_encryption_key = offlineCache.get_encryption_key();
+                });
             }
         };
 
@@ -223,7 +256,7 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerSecret", ['managerBase', 'apiClient', 'cryptoLibrary',
-        'itemBlueprint', 'browserClient', managerSecret]);
+    app.factory("managerSecret", ['$rootScope', '$uibModal', 'managerBase', 'apiClient', 'cryptoLibrary',
+        'itemBlueprint', 'browserClient', 'offlineCache', managerSecret]);
 
 }(angular));

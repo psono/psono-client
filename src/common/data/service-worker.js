@@ -166,6 +166,7 @@ self.addEventListener('install', function(event) {
                 './js/controller/modal/ShareEntryCtrl.js',
                 './js/controller/modal/ShareNewEntryCtrl.js',
                 './js/controller/modal/ShowRecoverycodeCtrl.js',
+                './js/controller/modal/UnlockOfflineCacheCtrl.js',
                 './js/controller/modal/DeleteAccountCtrl.js',
                 './js/controller/EditEntryBigCtrl.js',
                 './js/controller/OpenSecretCtrl.js',
@@ -261,11 +262,12 @@ self.addEventListener('install', function(event) {
                 './view/modal-setup-yubikey-otp.html',
                 './view/modal-share-entry.html',
                 './view/modal-show-recoverycode.html',
+                './view/modal-unlock-offline-cache.html',
                 './view/modal-verify.html',
                 './view/other.html',
                 './view/popover-server-select.html',
                 './view/settings.html',
-                './view/tree-view.html',
+                './view/tree-view.html'
 
             ]);
         })

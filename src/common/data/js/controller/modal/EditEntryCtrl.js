@@ -33,7 +33,7 @@
             function activate(){
 
 
-                scope.offline = offlineCache.is_active();
+                $scope.offline = offlineCache.is_active();
                 $rootScope.$on('offline_mode_enabled', function() {
                     scope.offline = true;
                 });

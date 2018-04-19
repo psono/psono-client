@@ -227,7 +227,7 @@
 
         it('on_item_click_with_new_window', inject(function (managerSecret, cryptoLibrary, $window) {
 
-            spyOn($window, 'open');
+            spyOn($window, 'open').and.returnValue({});
 
             var item = {
                 type: 'website_password',
@@ -243,7 +243,7 @@
 
         it('on_item_click_with_no_new_window', inject(function (managerSecret, cryptoLibrary, $window) {
 
-            spyOn($window, 'open');
+            spyOn($window, 'open').and.returnValue({});
 
             var item = {
                 type: 'note',

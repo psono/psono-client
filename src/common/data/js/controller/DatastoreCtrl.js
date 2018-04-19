@@ -21,10 +21,10 @@
      * @description
      * Main Controller for the datastore widget
      */
-    angular.module('psonocli').controller('DatastoreCtrl', ["$rootScope", "$scope", "$uibModal", "$routeParams", "$timeout",
+    angular.module('psonocli').controller('DatastoreCtrl', ["$q", "$rootScope", "$scope", "$uibModal", "$routeParams", "$timeout",
         "manager", "managerDatastorePassword", 'managerDatastore', 'offlineCache',
         "itemBlueprint", "managerWidget", "managerSecret", "dropDownMenuWatcher",
-        function($rootScope, $scope, $uibModal, $routeParams, $timeout,
+        function($q, $rootScope, $scope, $uibModal, $routeParams, $timeout,
                  manager, managerDatastorePassword, managerDatastore, offlineCache,
                  itemBlueprint, managerWidget, managerSecret, dropDownMenuWatcher){
             var contextMenusOpen = 0;
@@ -199,6 +199,7 @@
 
                 $rootScope.$on('offline_mode_disabled', function() {
                     $scope.offline = false;
+                    load_datastore();
                 });
 
                 load_datastore().then(function(){
@@ -230,18 +231,46 @@
              * Loads the datastore
              */
             function load_datastore() {
-                $scope.structure.data = {};
-                $scope.structure.loaded = false;
+                return $q(function (resolve) {
+                    if (offlineCache.is_active() && offlineCache.is_locked()) {
 
-                return managerDatastorePassword.get_password_datastore()
-                    .then(function(data) {
-                        $scope.structure.data = data;
-                        $scope.structure.loaded = true;
+                        var modalInstance = $uibModal.open({
+                            templateUrl: 'view/modal-unlock-offline-cache.html',
+                            controller: 'ModalUnlockOfflineCacheCtrl',
+                            backdrop: 'static',
+                            resolve: {
+                            }
+                        });
 
-                        autoupload_edit_item();
+                        modalInstance.result.then(function () {
+                            // pass, will be catched later with the on_set_encryption_key event
+                        }, function () {
+                            $rootScope.$broadcast('force_logout', '');
+                        });
+                        offlineCache.on_set_encryption_key(function() {
+                            resolve(load());
+                            modalInstance.close();
+                        })
+                    } else {
+                        resolve(load());
+                    }
 
-                        managerDatastorePassword.modifyTreeForSearch($scope.tosearchTreeFilter, $scope.structure.data);
-                    });
+                    function load() {
+
+                        $scope.structure.data = {};
+                        $scope.structure.loaded = false;
+
+                        return managerDatastorePassword.get_password_datastore()
+                            .then(function(data) {
+                                $scope.structure.data = data;
+                                $scope.structure.loaded = true;
+
+                                autoupload_edit_item();
+
+                                managerDatastorePassword.modifyTreeForSearch($scope.tosearchTreeFilter, $scope.structure.data);
+                            });
+                    }
+                });
             }
 
             /**
