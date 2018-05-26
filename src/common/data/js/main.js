@@ -113,7 +113,8 @@
                         controller: 'DatastoreCtrl'
                     });
 
-                $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|chrome-extension|blob):/);
+                $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|s?ftp|mailto|tel|file|chrome-extension|blob):/);
+                $compileProvider.imgSrcSanitizationWhitelist(/^\s*((https?|ftp|file|chrome-extension|blob):|data:image\/)/);
 
                 // Prevent caching for IE
                 // taken from https://stackoverflow.com/a/19771501/4582775
