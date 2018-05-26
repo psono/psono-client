@@ -570,6 +570,10 @@
                 return managerSecret.create_secret(secret_object, link_id, datastore.datastore_id, undefined)
                     .then(function(data) {
 
+                        if (!datastore.hasOwnProperty('items')) {
+                            datastore['items'] = []
+                        }
+
                         datastore_object['id'] = link_id;
                         datastore_object['secret_id'] = data.secret_id;
                         datastore_object['secret_key'] = data.secret_key;
