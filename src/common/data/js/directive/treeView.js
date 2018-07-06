@@ -6,6 +6,7 @@
      * @name ngTree.directive:treeView
      * @requires $q
      * @requires $timeout
+     * @requires $uibModal
      * @requires treeViewDefaults
      * @scope
      * @restrict A
@@ -13,7 +14,7 @@
      * @description
      * Directive for the tree structure
      */
-    var treeView = function($q, $timeout, treeViewDefaults) {
+    var treeView = function($q, $timeout, $uibModal, treeViewDefaults) {
         return {
             restrict: 'A',
             scope: {
@@ -243,13 +244,34 @@
                         return;
                     }
 
-                    if (node_type === 'item' && typeof options.onItemDropComplete === "function") {
-                        options.onItemDropComplete(dragged_item.path, target_path);
-                    }
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'view/modal-verify.html',
+                        controller: 'ModalVerifyCtrl',
+                        resolve: {
+                            title: function () {
+                                return 'Move Entry';
+                            },
+                            description: function () {
+                                return 'You are about to move the entry. Are you sure?';
+                            }
+                        }
+                    });
 
-                    if (node_type === 'folder' && typeof options.onFolderDropComplete === "function") {
-                        options.onFolderDropComplete(dragged_item.path, target_path);
-                    }
+                    modalInstance.result.then(function () {
+                        // User clicked the yes button
+
+                        if (node_type === 'item' && typeof options.onItemDropComplete === "function") {
+                            options.onItemDropComplete(dragged_item.path, target_path);
+                        }
+
+                        if (node_type === 'folder' && typeof options.onFolderDropComplete === "function") {
+                            options.onFolderDropComplete(dragged_item.path, target_path);
+                        }
+
+                    }, function () {
+                        // cancel triggered
+                    });
+
                 };
 
                 var dragstarted = false;
@@ -362,6 +384,6 @@
     };
 
     var app = angular.module('ngTree');
-    app.directive('treeView', ['$q', '$timeout', 'treeViewDefaults', treeView]);
+    app.directive('treeView', ['$q', '$timeout', '$uibModal', 'treeViewDefaults', treeView]);
 
 }(angular));
