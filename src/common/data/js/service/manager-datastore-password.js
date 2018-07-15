@@ -268,12 +268,12 @@
                 'delete': false
             };
 
-            var read_shares_recursive = function(datastore, share_rights_dict, share_index, all_share_data, parent_share_rights, parent_share_id, parent_datastore_id) {
+            var read_shares_recursive = function(datastore, share_rights_dict, share_index, all_share_data, parent_share_rights, parent_share_id, parent_datastore_id, parent_share_stack) {
                 if (typeof share_index === 'undefined') {
                     return datastore;
                 }
 
-                var read_share_helper = function (share_id, sub_datastore, path, parent_share_id, parent_datastore_id) {
+                var read_share_helper = function (share_id, sub_datastore, path, parent_share_id, parent_datastore_id, parent_share_stack) {
                     var onSuccess = function (content) {
                         if (typeof(content) === 'undefined') {
                             open_calls--;
@@ -283,7 +283,9 @@
 
                         update_paths_with_data(datastore, path, content, parent_share_rights, parent_share_id, parent_datastore_id);
 
-                        read_shares_recursive(sub_datastore, share_rights_dict, content.data.share_index, all_share_data, content.rights, share_id, undefined);
+
+
+                        read_shares_recursive(sub_datastore, share_rights_dict, content.data.share_index, all_share_data, content.rights, share_id, undefined, parent_share_stack);
                         open_calls--;
                     };
 
@@ -302,10 +304,26 @@
 
                     _share_index[share_id] = share_index[share_id].secret_key;
 
+                    var new_parent_share_stack = angular.copy(parent_share_stack);
+                    new_parent_share_stack.push(share_id);
+
                     for (var i = share_index[share_id].paths.length - 1; i >= 0; i--) {
                         var path_copy = share_index[share_id].paths[i].slice();
                         var search = find_in_datastore(path_copy, datastore);
                         var sub_datastore = search[0][search[1]];
+
+                        // Break potential loops
+                        if (parent_share_stack.indexOf(share_id) !== -1) {
+                            content = {
+                                'rights': {
+                                    'read': false,
+                                    'write': false,
+                                    'grant': false
+                                }
+                            };
+                            update_paths_with_data(datastore, share_index[share_id].paths[i], content, parent_share_rights, parent_share_id, undefined);
+                            continue;
+                        }
 
                         // Test if we already have it cached
                         if (all_share_data.hasOwnProperty(share_id)) {
@@ -342,14 +360,14 @@
                             continue;
                         }
 
-                        all_calls.push(read_share_helper(share_id, sub_datastore, share_index[share_id].paths[i], parent_share_id, parent_datastore_id));
+                        all_calls.push(read_share_helper(share_id, sub_datastore, share_index[share_id].paths[i], parent_share_id, parent_datastore_id, new_parent_share_stack));
 
                     }
                 }
             };
 
             // Read shares recursive. We start from the datastore, so delete is allowed in the datastore
-            read_shares_recursive(datastore, share_rights_dict, share_index, all_share_data, parent_share_rights, undefined, datastore.datastore_id);
+            read_shares_recursive(datastore, share_rights_dict, share_index, all_share_data, parent_share_rights, undefined, datastore.datastore_id, []);
             update_parents(datastore, undefined, datastore.datastore_id);
             update_share_rights_of_folders_and_items(datastore, {
                 'read': true,
