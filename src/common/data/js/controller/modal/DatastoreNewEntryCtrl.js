@@ -12,8 +12,8 @@
      * @description
      * Controller for the "New Entry" modal
      */
-    angular.module('psonocli').controller('ModalDatastoreNewEntryCtrl', ['$scope', '$uibModalInstance', 'itemBlueprint', 'helper', 'parent', 'path',
-        function ($scope, $uibModalInstance, itemBlueprint, helper, parent, path) {
+    angular.module('psonocli').controller('ModalDatastoreNewEntryCtrl', ['$scope', '$uibModalInstance', 'itemBlueprint', 'helper', 'managerWidget', 'datastore', 'parent', 'path',
+        function ($scope, $uibModalInstance, itemBlueprint, helper, managerWidget, datastore, parent, path) {
 
             $scope.reset = reset;
             $scope.has_advanced = itemBlueprint.has_advanced;
@@ -65,8 +65,10 @@
              * Triggered once someone clicks the save button in the modal
              */
             function save() {
+
                 $scope.errors = [];
 
+                // check for errors
                 for (var i = 0; i < $scope.bp.selected.fields.length; i++) {
                     var field = $scope.bp.selected.fields[i];
                     if (field.hasOwnProperty("required")) {
@@ -91,7 +93,16 @@
                     return;
                 }
 
-                $uibModalInstance.close($scope.bp.selected);
+                if ($scope.bp.selected.hasOwnProperty('beforeSave')) {
+                    $scope.bp.selected.beforeSave($scope.bp.selected, datastore, parent, path)
+                }
+
+                if ( $scope.bp.selected.hasOwnProperty('skipRegularCreate') && $scope.bp.selected['skipRegularCreate']) {
+                    $uibModalInstance.close();
+                } else {
+                    $uibModalInstance.close($scope.bp.selected);
+                }
+
             }
 
             /**

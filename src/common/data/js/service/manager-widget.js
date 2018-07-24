@@ -117,6 +117,99 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerWidget#create_item
+         * @methodOf psonocli.managerWidget
+         *
+         * @description
+         * Creates an item in the given datastore at the given path with the given content
+         *
+         * @param datastore
+         * @param parent
+         * @param path
+         * @param content
+         */
+        var create_item = function(datastore, parent, path, content) {
+
+            if (typeof parent === 'undefined') {
+                parent = datastore;
+            }
+
+            if (typeof parent.items === 'undefined') {
+                parent.items = [];
+            }
+            var link_id = cryptoLibrary.generate_uuid();
+
+            var datastore_object = {
+                id: link_id,
+                type: content.id
+            };
+            var secret_object = {};
+
+            if (itemBlueprint.get_blueprint(content.id).getName) {
+                datastore_object.name = itemBlueprint.get_blueprint(content.id).getName(content.fields);
+            }
+
+            for (var i = content.fields.length - 1; i >= 0; i--) {
+
+                if (!content.fields[i].hasOwnProperty("value")) {
+                    continue;
+                }
+                if (!datastore_object.name && content.title_field === content.fields[i].name) {
+                    datastore_object.name = content.fields[i].value;
+                }
+                if (content.hasOwnProperty("urlfilter_field")
+                    && content.urlfilter_field === content.fields[i].name) {
+                    datastore_object.urlfilter = content.fields[i].value;
+                }
+                if (content.hasOwnProperty("autosubmit_field")
+                    && content.autosubmit_field === content.fields[i].name) {
+                    datastore_object.autosubmit = content.fields[i].value;
+                }
+                secret_object[content.fields[i].name] = content.fields[i].value;
+            }
+
+            var onError = function(result) {
+                // pass
+            };
+
+            var closest_share = managerShare.get_closest_parent_share(path.slice(), datastore,
+                datastore, 0);
+
+            var parent_share_id, parent_datastore_id;
+
+            if (closest_share.hasOwnProperty('share_id')) {
+                parent_share_id = closest_share['share_id'];
+            } else {
+                parent_datastore_id = closest_share['datastore_id'];
+            }
+
+            var onSuccess = function(e) {
+                datastore_object['secret_id'] = e.secret_id;
+                datastore_object['secret_key'] = e.secret_key;
+
+                parent.items.push(datastore_object);
+
+                parent['expanded'] = true;
+
+                managerDatastorePassword.save_datastore_content(datastore, [path]);
+
+                // reset form fields
+                for (var i = content.fields.length - 1; i >= 0; i--) {
+                    if (!content.fields[i].hasOwnProperty("value")) {
+                        continue;
+                    }
+                    content.fields[i].value = '';
+                }
+
+            };
+
+            managerSecret.create_secret(secret_object, link_id, parent_datastore_id, parent_share_id)
+                .then(onSuccess, onError);
+        };
+
+
+        /**
+         * @ngdoc
          * @name psonocli.managerWidget#open_new_item
          * @methodOf psonocli.managerWidget
          *
@@ -135,6 +228,9 @@
                 backdrop: 'static',
                 size: size,
                 resolve: {
+                    datastore: function () {
+                        return datastore;
+                    },
                     parent: function () {
                         return parent;
                     },
@@ -145,82 +241,10 @@
             });
 
             modalInstance.result.then(function (content) {
-
-                if (typeof parent === 'undefined') {
-                    parent = datastore;
+                if (!content) {
+                    return;
                 }
-
-                if (typeof parent.items === 'undefined') {
-                    parent.items = [];
-                }
-                var link_id = cryptoLibrary.generate_uuid();
-
-                var datastore_object = {
-                    id: link_id,
-                    type: content.id
-                };
-                var secret_object = {};
-
-                if (itemBlueprint.get_blueprint(content.id).getName) {
-                    datastore_object.name = itemBlueprint.get_blueprint(content.id).getName(content.fields);
-                }
-
-                for (var i = content.fields.length - 1; i >= 0; i--) {
-
-                    if (!content.fields[i].hasOwnProperty("value")) {
-                        continue;
-                    }
-                    if (!datastore_object.name && content.title_field === content.fields[i].name) {
-                        datastore_object.name = content.fields[i].value;
-                    }
-                    if (content.hasOwnProperty("urlfilter_field")
-                        && content.urlfilter_field === content.fields[i].name) {
-                        datastore_object.urlfilter = content.fields[i].value;
-                    }
-                    if (content.hasOwnProperty("autosubmit_field")
-                        && content.autosubmit_field === content.fields[i].name) {
-                        datastore_object.autosubmit = content.fields[i].value;
-                    }
-                    secret_object[content.fields[i].name] = content.fields[i].value;
-                }
-
-                var onError = function(result) {
-                    // pass
-                };
-
-                var closest_share = managerShare.get_closest_parent_share(path.slice(), datastore,
-                    datastore, 0);
-
-                var parent_share_id, parent_datastore_id;
-
-                if (closest_share.hasOwnProperty('share_id')) {
-                    parent_share_id = closest_share['share_id'];
-                } else {
-                    parent_datastore_id = closest_share['datastore_id'];
-                }
-
-                var onSuccess = function(e) {
-                    datastore_object['secret_id'] = e.secret_id;
-                    datastore_object['secret_key'] = e.secret_key;
-
-                    parent.items.push(datastore_object);
-
-                    parent['expanded'] = true;
-
-                    managerDatastorePassword.save_datastore_content(datastore, [path]);
-
-                    // reset form fields
-                    for (var i = content.fields.length - 1; i >= 0; i--) {
-                        if (!content.fields[i].hasOwnProperty("value")) {
-                            continue;
-                        }
-                        content.fields[i].value = '';
-                    }
-
-                };
-
-                managerSecret.create_secret(secret_object, link_id, parent_datastore_id, parent_share_id)
-                    .then(onSuccess, onError);
+                create_item(datastore, parent, path, content);
 
             }, function () {
                 // cancel triggered

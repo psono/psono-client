@@ -84,6 +84,7 @@ self.addEventListener('install', function(event) {
 
 
                 './js/lib/ecma-nacl.min.js',
+                './js/lib/blake2b.js',
                 './js/lib/openpgp.min.js',
                 './js/lib/sha512.min.js',
                 './js/lib/sha256.min.js',
@@ -186,6 +187,7 @@ self.addEventListener('install', function(event) {
                 './js/controller/Enforce2FaCtrl.js',
 
                 './js/service/api-client.js',
+                './js/service/api-fileserver.js',
                 './js/service/api-pwnedpasswords.js',
                 './js/service/helper.js',
                 './js/service/device.js',
@@ -206,6 +208,7 @@ self.addEventListener('install', function(event) {
                 './js/service/manager-secret-link.js',
                 './js/service/manager-share-link.js',
                 './js/service/manager-export.js',
+                './js/service/manager-file-transfer.js',
                 './js/service/manager-hosts.js',
                 './js/service/manager-import.js',
                 './js/service/manager-security-report.js',

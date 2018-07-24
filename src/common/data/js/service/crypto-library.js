@@ -1,4 +1,4 @@
-(function(angular, require, sha512, sha256, sha1, uuid) {
+(function(angular, require, sha512, sha256, sha1, uuid, blake) {
     'use strict';
 
     /**
@@ -70,6 +70,25 @@
                 scrypt_lookup_table = {};
             }, 60000);
         }
+
+        /**
+         * @ngdoc
+         * @name psonocli.cryptoLibrary#blake2b
+         * @methodOf psonocli.cryptoLibrary
+         *
+         * @description
+         * Returns the blake2b hash
+         * Base: https://github.com/dcposch/blakejs
+         *
+         * @param {Uint8Array} input The input data
+         * @param {Uint8Array} key (optional) key Uint8Array, up to 64 bytes
+         * @param {Uint8Array} outlen (optional) output length in bytes, default 64
+         *
+         * @returns {String} Returns the hex representation of the hash
+         */
+        var blake2b = function (input, key, outlen) {
+            return converter.to_hex(blake.blake2b(input, key, outlen))
+        };
 
 
         /**
@@ -236,6 +255,45 @@
 
         /**
          * @ngdoc
+         * @name psonocli.cryptoLibrary#encrypt_file
+         * @methodOf psonocli.cryptoLibrary
+         *
+         * @description
+         * Encrypts a file (in Uint8 representation)
+         *
+         * @param {Uint8Array} data The data of the file in Uint8Array encoding
+         * @param {string} secret_key The secret key you want to use to encrypt the data
+         *
+         * @returns {Uint8Array} The encrypted text prepended with the nonce
+         */
+        var encrypt_file = function (data, secret_key) {
+            var k = converter.from_hex(secret_key);
+            var n = randomBytes(24);
+
+            return nacl.secret_box.formatWN.pack(data, n, k);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.cryptoLibrary#decrypt_file
+         * @methodOf psonocli.cryptoLibrary
+         *
+         * @description
+         * Decrypts a file (in Uint8 representation) with prepended nonce
+         *
+         * @param {Uint8Array} text The encrypted data of the file in Uint8Array encoding with prepended nonce
+         * @param {string} secret_key The secret key used in the past to encrypt the text
+         *
+         * @returns {string} The decrypted data
+         */
+        var decrypt_file = function (text, secret_key) {
+            var k = converter.from_hex(secret_key);
+
+            return nacl.secret_box.formatWN.open(text, k);
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.cryptoLibrary#encrypt_data
          * @methodOf psonocli.cryptoLibrary
          *
@@ -260,6 +318,54 @@
                 text: converter.to_hex(c)
             };
         };
+
+        // /**
+        //  * @ngdoc
+        //  * @name psonocli.cryptoLibrary#encrypt_data
+        //  * @methodOf psonocli.cryptoLibrary
+        //  *
+        //  * @description
+        //  * Takes the data and the secret_key as hex and encrypts the data.
+        //  * Returns the nonce and the cipher text as hex.
+        //  *
+        //  * @param {string} data The data you want to encrypt
+        //  * @param {string} secret_key The secret key you want to use to encrypt the data
+        //  * @param {string} format The data returned, either hex or raw
+        //  *
+        //  * @returns {EncryptedValue} The encrypted text and the nonce
+        //  */
+        // var encrypt_data = function (data, secret_key, format) {
+        //
+        //     var k = converter.from_hex(secret_key);
+        //
+        //     var m;
+        //     if (typeof(data) === 'string') {
+        //         m = converter.encode_utf8(data);
+        //     } else {
+        //         m = data;
+        //     }
+        //
+        //     var n = randomBytes(24);
+        //     var c = nacl.secret_box.pack(m, n, k);
+        //
+        //     if (format === 'hex') {
+        //         return {
+        //             nonce: converter.to_hex(n),
+        //             text: converter.to_hex(c)
+        //         };
+        //     } else if (format === 'raw') {
+        //         return {
+        //             nonce: n,
+        //             text: c
+        //         };
+        //     } else {
+        //         // default hex
+        //         return {
+        //             nonce: converter.to_hex(n),
+        //             text: converter.to_hex(c)
+        //         };
+        //     }
+        // };
 
         /**
          * @ngdoc
@@ -489,12 +595,15 @@
             sha1: sha1,
             sha256: sha256,
             sha512: sha512,
+            blake2b: blake2b,
             password_scrypt: password_scrypt,
             generate_authkey: generate_authkey,
             generate_secret_key: generate_secret_key,
             generate_public_private_keypair: generate_public_private_keypair,
             encrypt_secret: encrypt_secret,
             decrypt_secret: decrypt_secret,
+            encrypt_file: encrypt_file,
+            decrypt_file: decrypt_file,
             encrypt_data: encrypt_data,
             decrypt_data: decrypt_data,
             encrypt_data_public_key: encrypt_data_public_key,
@@ -512,5 +621,5 @@
     var app = angular.module('psonocli');
     app.factory("cryptoLibrary", ['$window', '$timeout', 'converter', 'helper', cryptoLibrary]);
 
-}(angular, require, sha512, sha256, sha1, uuid));
+}(angular, require, sha512, sha256, sha1, uuid, blake));
 

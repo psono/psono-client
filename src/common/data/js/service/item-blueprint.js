@@ -18,7 +18,7 @@
      */
 
 
-    var itemBlueprint = function($rootScope, $window, $uibModal, helper) {
+    var itemBlueprint = function($rootScope, $window, $uibModal, helper, cryptoLibrary, apiFileserver) {
 
         var _default = "website_password";
 
@@ -146,6 +146,162 @@
                     { name: "note_title", field: "input", type: "text", title: "Title", placeholder: "Name", required: true},
                     { name: "note_notes", field: "textarea", title: "Notes", placeholder: "Notes"}
                 ]
+            },
+            file: {
+                id: "file",
+                name: "File",
+                title_field: "file_title",
+                search: ['file_title'],
+                fields: [
+                    { name: "file_title", field: "input", type: "text", title: "Title", placeholder: "Name", required: true},
+                    { name: "file", field: "input", type: "file", title: "File", placeholder: "File", required: true, onChange: "onChangeData"},
+                    { name: "file_id", field: "input", title: "File ID", placeholder: "File ID", hidden: true},
+                    { name: "file_secret_key", field: "input", title: "File Secret Key", placeholder: "File Secret Key", hidden: true},
+                    { name: "file_size", field: "input", title: "File Size", placeholder: "File Size (bytes)", hidden: true}
+                ],
+
+                /**
+                 * triggered whenever file data is changing.
+                 * gets the fields and returns the default domain filter
+                 *
+                 * @param fields
+                 * @returns {string}
+                 */
+                onChangeData: function(fields){
+
+                    var field_file_data;
+                    var field_file_title;
+
+                    var i;
+                    for (i = 0; i < fields.length; i++) {
+                        if (fields[i].name === "file") {
+                            field_file_data = fields[i];
+                        }
+                        if (fields[i].name === "file_title") {
+                            field_file_title = fields[i];
+                        }
+                    }
+                    if (!field_file_title.value) {
+                        field_file_title.value=field_file_data.value.replace(/^.*[\\\/]/, '');
+                    }
+                    console.log(field_file_data);
+
+                },
+
+                /**
+                 * triggered before storing it.
+                 *
+                 * @param selected
+                 * @param datastore
+                 * @param parent
+                 * @param path
+                 */
+                beforeSave: function(selected, datastore, parent, path){
+
+                    var file_secret_key = cryptoLibrary.generate_secret_key();
+                    var file_id = cryptoLibrary.generate_uuid();
+
+
+
+                    /**
+                     * Uploads a file in chunks
+                     *
+                     * @param file
+                     * @param file_id
+                     * @param file_secret_key
+                     */
+                    function upload_file(file, file_id, file_secret_key) {
+
+                        var time_start = new Date().getTime();
+
+                        var on_load_end = function(bytes, file_secret_key, chunk_position, is_last) {
+                            console.log(bytes);
+                            console.log("on_load_end " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
+                            time_start = new Date().getTime();
+                            var encrypted_bytes = cryptoLibrary.encrypt_file(bytes, file_secret_key);
+                            console.log("encrypt_file " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
+                            time_start = new Date().getTime();
+
+                            var hash = cryptoLibrary.blake2b(encrypted_bytes);
+                            console.log("blake2b " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
+                            time_start = new Date().getTime();
+
+                            apiFileserver.upload(encrypted_bytes, hash).then(function() {
+                                console.log("upload " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
+                                time_start = new Date().getTime();
+                            });
+                        };
+
+                        var read_file_chunk = function(file, file_slice_start, bytes_to_go, on_load_end, file_secret_key, chunk_position, is_last) {
+                            var file_reader = new FileReader();
+                            var file_slice;
+
+                            file_reader.onloadend = function(event) {
+                                var bytes = new Uint8Array(event.target.result);
+                                on_load_end(bytes, file_secret_key, chunk_position, is_last);
+                            };
+
+                            file_slice = file.slice(file_slice_start, file_slice_start + bytes_to_go);
+
+                            file_reader.readAsArrayBuffer(file_slice);
+
+                        };
+
+                        var chunk_position = 1;
+                        var is_last = false;
+                        var is_first = true;
+                        var file_slice_start = 0;
+                        var file_chunk_size = 128*1024*1024; // in bytes. e.g. 128*1024*1024 = 128 MB
+                        var chunk_length = Math.ceil(file.size / file_chunk_size);
+
+                        while (file_slice_start <= file.size) {
+                            var bytes_to_go = Math.min(file_chunk_size, file.size-file_slice_start);
+                            if (bytes_to_go === 0 && !is_first) {
+                                break;
+                            }
+                            is_last = file_slice_start + bytes_to_go === file.size;
+                            read_file_chunk(file, file_slice_start, bytes_to_go, on_load_end, file_secret_key, chunk_position, is_last);
+                            file_slice_start = file_slice_start + bytes_to_go;
+                            is_first = false;
+                        }
+                    }
+
+                    function get_dom_file(dom_field) {
+                        if (dom_field.files.length <= 0) {
+                            return;
+                        }
+                        return dom_field.files[0];
+                    }
+
+
+                    function get_dom_file_field(selected_fields) {
+
+                        for (var i = 0; i < selected_fields.length; i++) {
+                            var field = selected_fields[i];
+                            if (!field.hasOwnProperty("type") || field['type'] !== 'file' ) {
+                                continue;
+                            }
+
+                            if (angular.element('#newEntryForm-' + field['name']).length > 0) {
+                                return angular.element('#newEntryForm-' + field['name'])[0];
+                            }
+                        }
+
+                        return false;
+                    }
+
+                    var dom_field = get_dom_file_field(selected.fields);
+
+                    if (dom_field) {
+                        var file = get_dom_file(dom_field);
+                        if (!file) {
+                            return;
+                        }
+                        upload_file(file, file_id, file_secret_key)
+                    }
+
+                    selected.skipRegularCreate = true;
+                }
             },
             mail_gpg_own_key: {
                 id: "mail_gpg_own_key",
@@ -946,6 +1102,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("itemBlueprint", ['$rootScope', '$window', '$uibModal', 'helper', itemBlueprint]);
+    app.factory("itemBlueprint", ['$rootScope', '$window', '$uibModal', 'helper', 'cryptoLibrary', 'apiFileserver', itemBlueprint]);
 
 }(angular));

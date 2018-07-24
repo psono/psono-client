@@ -103,6 +103,7 @@ var build = function(build_path, type) {
 
         gulp.src([
             "src/common/data/js/lib/ecma-nacl.min.js",
+            "src/common/data/js/lib/blake2b.js",
             "src/common/data/js/lib/openpgp.min.js",
             "src/common/data/js/lib/sha512.min.js",
             "src/common/data/js/lib/sha256.min.js",
@@ -204,6 +205,7 @@ var build = function(build_path, type) {
             "src/common/data/js/controller/Enforce2FaCtrl.js",
 
             "src/common/data/js/service/api-client.js",
+            "src/common/data/js/service/api-fileserver.js",
             "src/common/data/js/service/api-pwnedpasswords.js",
             "src/common/data/js/service/helper.js",
             "src/common/data/js/service/device.js",
@@ -224,6 +226,7 @@ var build = function(build_path, type) {
             "src/common/data/js/service/manager-secret-link.js",
             "src/common/data/js/service/manager-share-link.js",
             "src/common/data/js/service/manager-export.js",
+            "src/common/data/js/service/manager-file-transfer.js",
             "src/common/data/js/service/manager-hosts.js",
             "src/common/data/js/service/manager-import.js",
             "src/common/data/js/service/manager-security-report.js",
