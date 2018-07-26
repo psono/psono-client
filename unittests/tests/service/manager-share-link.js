@@ -39,8 +39,6 @@
 
 
             $httpBackend.when('GET', "view/datastore.html").respond({});
-
-            $httpBackend.flush();
         }));
 
         it('managerShareLink exists', inject(function (managerShareLink) {

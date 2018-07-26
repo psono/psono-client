@@ -93,8 +93,6 @@
 
 
             $httpBackend.when('GET', "view/datastore.html").respond({});
-
-            $httpBackend.flush();
         }));
 
         it('create_secret', inject(function (managerSecret) {
