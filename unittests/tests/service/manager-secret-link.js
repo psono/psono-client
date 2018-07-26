@@ -39,7 +39,6 @@
 
 
             $httpBackend.when('GET', "view/datastore.html").respond({});
-            $httpBackend.flush();
         }));
 
         it('managerSecretLink exists', inject(function (managerSecretLink) {
