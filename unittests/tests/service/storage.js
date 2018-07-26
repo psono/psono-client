@@ -1,7 +1,10 @@
 (function () {
     describe('Service: storage test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('storage exists', inject(function (storage) {
             expect(storage).toBeDefined();

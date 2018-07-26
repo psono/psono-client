@@ -1,7 +1,10 @@
 (function () {
     describe('Service: cryptoLibrary test suite #1', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('cryptoLibrary exists', inject(function (cryptoLibrary) {
             expect(cryptoLibrary).toBeDefined();
@@ -36,7 +39,10 @@
 (function () {
     describe('Service: cryptoLibrary test suite #2', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('cryptoLibrary exists', inject(function (cryptoLibrary) {
             expect(cryptoLibrary).toBeDefined();

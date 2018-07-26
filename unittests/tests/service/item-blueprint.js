@@ -1,7 +1,10 @@
 (function () {
     describe('Service: itemBlueprint test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('itemBlueprint exists', inject(function (itemBlueprint) {
             expect(itemBlueprint).toBeDefined();

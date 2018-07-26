@@ -34,6 +34,16 @@ test-linter:
     - addons-linter ./build/firefox
 
 
+#test-translation-terms:
+#  stage: build
+#  image: psono-docker.jfrog.io/ubuntu:16.04
+#  script:
+#    - sh ./var/build-ubuntu.sh
+#    - curl -X POST https://api.poeditor.com/v2/projects/upload -F api_token=$POEDITOR_API_KEY -F id="198999" -F updating="terms" -F file=@"src/common/data/translations/terms.json"
+#  only:
+#    - develop
+
+
 build-docker-image:
   except:
     - schedules

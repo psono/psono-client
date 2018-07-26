@@ -102,7 +102,7 @@
             <label ng-if="!user.data.user_name" class="smalllabel" for="modalAcceptShareForm-user-username">
                 Username <span ng-if="!user_is_trusted" class="text-danger">(not trusted)</span>
             </label>
-            <input ng-if="!user.data.user_name" id="modalAcceptShareForm-user-username" type="text" placeholder="Username"
+            <input ng-if="!user.data.user_name" id="modalAcceptShareForm-user-username" type="text" placeholder="{{'USERNAME' | translate}}"
                    ng-value="user.data.user_username" class="form-control" disabled="disabled">
             <label class="smalllabel" for="modalAcceptShareForm-user-public-key">
                 Public Key: <span ng-if="!user_is_trusted" class="text-danger">(not trusted)</span>

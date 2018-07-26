@@ -82,6 +82,8 @@ self.addEventListener('install', function(event) {
                 './img/sort_desc.png',
                 './img/sort_desc_disabled.png',
 
+                './translations/locale-de.json',
+                './translations/locale-en.json',
 
                 './js/lib/ecma-nacl.min.js',
                 './js/lib/openpgp.min.js',
@@ -113,6 +115,9 @@ self.addEventListener('install', function(event) {
                 './js/lib/angular-sanitize.min.js',
                 './js/lib/angular-local-storage.min.js',
                 './js/lib/angular-snap.min.js',
+                './js/lib/angular-translate.min.js',
+                './js/lib/angular-translate-loader-url.min.js',
+                './js/lib/angular-translate-loader-static-files.min.js',
                 './js/lib/ui-bootstrap-tpls.min.js',
                 './js/lib/angular-datatables.js',
                 './js/lib/ngdraggable.js',

@@ -1,7 +1,10 @@
 (function () {
     describe('Service: managerDatastoreUser test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('managerDatastoreUser exists', inject(function (managerDatastoreUser) {
             expect(managerDatastoreUser).toBeDefined();
@@ -95,6 +98,9 @@
             spyOn(cryptoLibrary, "encrypt_data").and.callFake(function(json_data, session_secret_key) {
                 return JSON.parse(json_data);
             });
+
+
+            $httpBackend.when('GET', "view/datastore.html").respond({});
         }));
 
         it('delete_session', inject(function (managerDatastoreUser) {

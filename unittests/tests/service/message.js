@@ -1,7 +1,10 @@
 (function () {
     describe('Service: message test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('message exists', inject(function (message) {
             expect(message).toBeDefined();

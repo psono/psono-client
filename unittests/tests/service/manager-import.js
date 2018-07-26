@@ -1,7 +1,10 @@
 (function () {
     describe('Service: managerImport test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('managerImport exists', inject(function (managerImport) {
             expect(managerImport).toBeDefined();

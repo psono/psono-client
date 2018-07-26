@@ -1,7 +1,10 @@
 (function () {
     describe('Service: importPsonoPwJson test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('importPsonoPwJson exists', inject(function (importPsonoPwJson) {
             expect(importPsonoPwJson).toBeDefined();

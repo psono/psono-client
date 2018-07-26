@@ -1,7 +1,10 @@
 (function () {
     describe('Service: browserClient test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         var mockedWindow;
         beforeEach(function () {
@@ -22,6 +25,7 @@
         beforeEach(inject(function($injector){
             // unwrap necessary services
             $httpBackend = $injector.get('$httpBackend');
+            $httpBackend.when('GET', "view/datastore.html").respond({});
         }));
 
         it('browserClient exists', inject(function (browserClient) {

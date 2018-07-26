@@ -49,9 +49,9 @@
 
     angular.module('psonocli', ['ngRoute', 'ng', 'ui.bootstrap', 'snap', 'chieffancypants.loadingBar', 'ngAnimate',
             'LocalStorageModule', 'ngTree', 'ngDraggable', 'ng-context-menu', 'ui.select', 'ngSanitize',
-            'angular-complexify', 'datatables', 'chart.js'])
-        .config(['$routeProvider', '$httpProvider', '$locationProvider', '$compileProvider', 'localStorageServiceProvider',
-            function ($routeProvider, $httpProvider, $locationProvider, $compileProvider, localStorageServiceProvider) {
+            'angular-complexify', 'datatables', 'chart.js', 'pascalprecht.translate'])
+        .config(['$translateProvider', '$routeProvider', '$httpProvider', '$locationProvider', '$compileProvider', 'localStorageServiceProvider',
+            function ($translateProvider, $routeProvider, $httpProvider, $locationProvider, $compileProvider, localStorageServiceProvider) {
                 //Router config
                 $routeProvider
                     .when('/settings', {
@@ -124,6 +124,21 @@
                 $httpProvider.defaults.headers.get['If-Modified-Since'] = 'Mon, 26 Jul 1997 05:00:00 GMT';
                 $httpProvider.defaults.headers.get['Cache-Control'] = 'no-cache';
                 $httpProvider.defaults.headers.get['Pragma'] = 'no-cache';
+
+
+                $translateProvider
+                    .useStaticFilesLoader({
+                        prefix: 'translations/locale-',
+                        suffix: '.json'
+                    })
+                    .registerAvailableLanguageKeys(['en', 'de'], {
+                        'en_*': 'en',
+                        'de_*': 'de',
+                        '*': 'en'
+                    })
+                    .fallbackLanguage('en')
+                    .determinePreferredLanguage()
+                    .useSanitizeValueStrategy('escape');
 
             }])
         .filter('typeof', function() {

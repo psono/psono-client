@@ -57,7 +57,7 @@
 
             <form name="registerForm" ng-if="!success" autocomplete="off">
                 <div ng-class="{'input-group': registerFormUsername == null || registerFormUsername.indexOf('@') == -1}">
-                    <input type="text" class="form-control" id="registerUsername" placeholder="Username" ng-model="registerFormUsername" required aria-describedby="username-addon" autofocus>
+                    <input type="text" class="form-control" id="registerUsername" placeholder="{{'USERNAME' | translate}}" ng-model="registerFormUsername" required aria-describedby="username-addon" autofocus>
                     <span class="input-group-addon" id="username-addon" ng-if="registerFormUsername == null || registerFormUsername.indexOf('@') == -1">@{{selected_server_domain}}</span>
                 </div>
                 <br>
@@ -65,7 +65,7 @@
                     <input type="email" class="form-control" id="registerEmail" placeholder="E-Mail" ng-model="registerFormEmail" required>
                 </div>
                 <div class="form-group">
-                    <input type="password" class="form-control" id="registerPassword" placeholder="Password" ng-model="registerFormPassword" required>
+                    <input type="password" class="form-control" id="registerPassword" placeholder="{{'PASSWORD' | translate}}" ng-model="registerFormPassword" required>
 
                     <uib-progressbar value="registerFormPassword | complexify" ng-if="(registerFormPassword | complexify) > 0">
                         <span complexify="registerFormPassword"></span>%
@@ -114,7 +114,7 @@
            font-size: 3em;
            text-align: center;
            animation: fa-spin 2s infinite linear;
-           vertical-align: middle;">&#xf110;</i> Loading<noscript><br>JavaScript is disabled</noscript>
+           vertical-align: middle;">&#xf110;</i> {{'LOADING' | translate}}<noscript><br>JavaScript is disabled</noscript>
     </div>
 </div>
 
@@ -153,6 +153,9 @@
 <script src="js/lib/angular-sanitize.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-local-storage.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-snap.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-translate.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-translate-loader-url.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-translate-loader-static-files.min.js" type="application/javascript"></script>
 <script src="js/lib/ui-bootstrap-tpls.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-datatables.js" type="application/javascript"></script>
 <script src="js/lib/ngdraggable.js" type="application/javascript"></script>

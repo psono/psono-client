@@ -1,7 +1,10 @@
 (function () {
     describe('Service: managerShare test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('managerShare exists', inject(function (managerShare) {
             expect(managerShare).toBeDefined();
@@ -90,6 +93,8 @@
         beforeEach(inject(function($injector){
             // unwrap necessary services
             $httpBackend = $injector.get('$httpBackend');
+
+            $httpBackend.when('GET', "view/datastore.html").respond({});
         }));
 
         it('read_share', inject(function (managerShare) {

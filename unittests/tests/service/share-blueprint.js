@@ -1,7 +1,10 @@
 (function () {
     describe('Service: shareBlueprint test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         var shareBlueprint;
         beforeEach(inject(function($injector){

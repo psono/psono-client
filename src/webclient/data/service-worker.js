@@ -67,6 +67,8 @@ self.addEventListener('install', function(event) {
                 './img/sort_desc.png',
                 './img/sort_desc_disabled.png',
 
+                './translations/locale-de.json',
+                './translations/locale-en.json',
 
                 './js/lib/openpgp.worker.min.js',
                 './js/bundle.min.js',
