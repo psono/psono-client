@@ -126,8 +126,8 @@
 
                     <div class="form-group">
                         <button ng-click="approve_new_server()" type="submit"
-                                class="btn btn-danger">Approve</button>
-                        <a href="#" ng-click="disapprove_new_server()">Cancel</a>
+                                class="btn btn-danger">{{'APPROVE' | translate}}</button>
+                        <a href="#" ng-click="disapprove_new_server()">{{'CANCEL' | translate}}</a>
                     </div>
 
                     <div class="form-group alert alert-danger" ng-repeat="e in errors">
@@ -136,7 +136,7 @@
 
                     <div class="form-group">
                         <div class="alert alert-info">
-                            <strong>Info!</strong> It appears, that you want to connect to this server for the first time.
+                            <strong>{{'INFO' | translate}}!</strong> It appears, that you want to connect to this server for the first time.
                             Please verify that the fingerprint of the server is correct before approving.
                         </div>
                     </div>
@@ -161,14 +161,14 @@
                     </div>
                     <div class="form-group">
                         <div class="alert alert-danger">
-                            <strong>Danger!</strong> The signature of the server changed. It could mean that the connection
+                            <strong>{{'DANGER' | translate}}!</strong> The signature of the server changed. It could mean that the connection
                             to the server has been compromised.<br><br><strong>Please contact the owner of this server.</strong>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <button ng-click="disapprove_new_server()" type="submit"
-                                class="btn btn-danger">Cancel</button>
+                                class="btn btn-danger">{{'CANCEL' | translate}}</button>
                         <a href="#" ng-click="approve_new_server()">Ignore and continue.</a>
                     </div>
 
@@ -180,21 +180,19 @@
                 <form name="askPlainForm" ng-if="view === 'ask_send_plain'">
                     <!-- signature changed View -->
                     <div class="form-group">
-                        <h4>Server asks for your plaintext password:</h4>
+                        <h4>{{'SERVER_ASKS_FOR_YOUR_PLAINTEXT_PASSWORD' | translate}}:</h4>
                     </div>
                     <div class="form-group">
                         <div class="alert alert-warning">
-                            <strong>Danger!</strong> Accepting this will send your plain password to the server and should only be allowed
-                            if you are using LDAP or similar authentication methods. You can decline this, but this might fail in an
-                            authentication failure.
+                            <strong>{{'DANGER' | translate}}!</strong> {{'ACCEPTING_THIS_WILL_SEND_YOUR_PLAIN_PASSWORD' | translate}}
                         </div>
                     </div>
 
                     <div class="form-group">
                         <button ng-click="approve_send_plain()" type="submit"
-                                class="btn btn-warning">Approve (unsafe)</button>
+                                class="btn btn-warning">{{'APPROVE_UNSAFE' | translate}}</button>
                         <button ng-click="disapprove_send_plain()" type="submit"
-                                class="btn btn-success">Decline (safe)</button>
+                                class="btn btn-success">{{'DECLINE_SAFE' | translate}}</button>
                     </div>
 
                     <div class="form-group alert alert-danger" ng-repeat="e in errors">
@@ -214,8 +212,8 @@
 
                     <div class="form-group">
                         <button ng-click="ga_verify(googleAuthenticatorFormGAToken)" type="submit"
-                                class="btn btn-danger">Send</button>
-                        <button class="btn" type="button" ng-click="cancel();">Close</button>
+                                class="btn btn-danger">{{'SEND' | translate}}</button>
+                        <button class="btn" type="button" ng-click="cancel();">{{'CLOSE' | translate}}</button>
                     </div>
 
                     <div class="form-group alert alert-danger" ng-repeat="e in errors">
@@ -235,8 +233,8 @@
 
                     <div class="form-group">
                         <button ng-click="yubikey_otp_verify(yubikeyOTPFormToken)" type="submit"
-                                class="btn btn-danger">Send</button>
-                        <button class="btn" type="button" ng-click="cancel();">Abort</button>
+                                class="btn btn-danger">{{'SEND' | translate}}</button>
+                        <button class="btn" type="button" ng-click="cancel();">{{'ABORT' | translate}}</button>
                     </div>
 
                     <div class="form-group alert alert-danger" ng-repeat="e in errors">
@@ -256,8 +254,8 @@
 
                     <div class="form-group">
                         <button ng-click="duo_verify(duoFormToken)" type="submit"
-                                class="btn btn-danger">Send</button>
-                        <button class="btn" type="button" ng-click="cancel();">Close</button>
+                                class="btn btn-danger">{{'SEND' | translate}}</button>
+                        <button class="btn" type="button" ng-click="cancel();">{{'CLOSE' | translate}}</button>
                     </div>
 
                     <div class="form-group alert alert-danger" ng-repeat="e in errors">

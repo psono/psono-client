@@ -6,11 +6,11 @@
     <div class="modal-body">
 
         <div class="form-group alert alert-danger">
-            <strong>Danger!</strong> {{ description }}
+            <strong>{{'DANGER' | translate}}!</strong> {{ description }}
         </div>
     </div>
     <div class="modal-footer">
-        <button class="btn" type="button" ng-click="cancel();">Abort</button>
-        <button class="btn btn-primary" type="submit" ng-click="confirm()">Yes</button>
+        <button class="btn" type="button" ng-click="cancel();">{{'ABORT' | translate}}</button>
+        <button class="btn btn-primary" type="submit" ng-click="confirm()">{{'YES' | translate}}</button>
     </div>
 </form>

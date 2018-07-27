@@ -6,7 +6,7 @@
     <div class="modal-body">
 
         <div class="alert alert-danger">
-            <strong>Danger!</strong> You are about to delete your account. This action cannot be undone.
+            <strong>{{'DANGER' | translate}}!</strong> You are about to delete your account. This action cannot be undone.
             All data will be lost!
         </div>
 
@@ -24,6 +24,6 @@
     </div>
     <div class="modal-footer">
         <button class="btn btn-danger" type="button" ng-click="delete_account();">Delete</button>
-        <button class="btn" type="button" ng-click="close();">Close</button>
+        <button class="btn" type="button" ng-click="close();">{{'CLOSE' | translate}}</button>
     </div>
 </form>

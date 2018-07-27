@@ -21,7 +21,7 @@
         </div>
         <div class="form-group">
             <div class="alert alert-info">
-                <strong>Info!</strong> The name and email address will be publicly available. The email address cannot
+                <strong>{{'INFO' | translate}}!</strong> The name and email address will be publicly available. The email address cannot
                 be "fake" if you want that other people can decrypt your emails. The name can be anything, that
                 other people can later search for, yet we advise you to take your real name.
             </div>
@@ -35,11 +35,11 @@
     <div class="modal-body" ng-if="generating">
 
         <div class="alert alert-info">
-            <strong>Info!</strong> We are generating your GPG Keys now. This can take several minutes, depending on your hardware.
+            <strong>{{'INFO' | translate}}!</strong> We are generating your GPG Keys now. This can take several minutes, depending on your hardware.
         </div>
     </div>
     <div class="modal-footer">
         <button class="btn btn-primary" type="submit" ng-click="save();" ng-disabled="generating">Generate</button>
-        <button class="btn" type="button" ng-click="close();" ng-disabled="generating">Cancel</button>
+        <button class="btn" type="button" ng-click="close();" ng-disabled="generating">{{'CANCEL' | translate}}</button>
     </div>
 </form>
