@@ -35,7 +35,7 @@ test-linter:
 
 
 test-upload-translations:
-  stage: build
+  stage: test
   image: psono-docker.jfrog.io/python:3
   script:
     - pip install requests
