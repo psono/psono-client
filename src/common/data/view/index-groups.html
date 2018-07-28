@@ -6,19 +6,19 @@
             -->
         </div>
         <div class="title col-sm-4">
-            <h1>List of Groups</h1>
+            <h1>{{'LIST_OF_GROUPS' | translate}}</h1>
         </div>
     </div>
 
     <div ng-controller="GroupsCtrl" class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">Groups</h3>
+            <h3 class="panel-title">{{'GROUPS' | translate}}</h3>
         </div>
         <div class="panel-body">
 
             <div class="panel-buttons">
                 <button type="submit" class="btn btn-primary btn-primary" ng-click="create_group()">
-                    <i class="fa fa-plus"></i> Create New Group
+                    <i class="fa fa-plus"></i> {{'CREATE_GROUP' | translate}}
                 </button>
                 <div class='clearfix'></div>
             </div>
@@ -26,11 +26,11 @@
             <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
                 <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Edit</th>
-                    <th>Accept</th>
-                    <th>Decline</th>
-                    <th>Leave</th>
+                    <th>{{'NAME' | translate}}</th>
+                    <th>{{'EDIT' | translate}}</th>
+                    <th>{{'ACCEPT' | translate}}</th>
+                    <th>{{'DECLINE' | translate}}</th>
+                    <th>{{'LEAVE' | translate}}</th>
                     <th>{{'DELETE' | translate}}</th>
                 </tr>
                 </thead>
@@ -46,17 +46,17 @@
                     <td>
                         <button ng-if="group.accepted !== false && group.accepted !== true" type="button"
                                 class="btn btn-default btn-sm" ng-click="accept_group(group)">
-                            Accept
+                            {{'ACCEPT' | translate}}
                         </button>
                         <button ng-if="group.accepted == true && outstanding_share_index[group.group_id]" type="button"
                                 class="btn btn-default btn-sm" ng-click="accept_new_group_shares(group)">
-                            Accept New Shares
+                            {{'ACCEPT_NEW_SHARES' | translate}}
                         </button>
                     </td>
                     <td>
                         <button ng-if="group.accepted !== false && group.accepted !== true" type="button"
                                 class="btn btn-default btn-sm" ng-click="decline_group(group)">
-                            Decline
+                            {{'DECLINE' | translate}}
                         </button>
                     </td>
                     <td>

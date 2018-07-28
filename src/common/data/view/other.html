@@ -7,13 +7,13 @@
             -->
         </div>
         <div class="title col-sm-4">
-            <h1>Other</h1>
+            <h1>{{'OTHER' | translate}}</h1>
         </div>
     </div>
 
     <div class="panel panel-default">
         <div class="panel-heading clearfix ng-scope">
-            <h3 class="panel-title ng-binding ng-scope">Other</h3>
+            <h3 class="panel-title ng-binding ng-scope">{{'OTHER' | translate}}</h3>
         </div>
         <div class="panel-body" style="height: auto;">
             <uib-tabset class="tabset_expand" active="active_tab">
@@ -22,17 +22,17 @@
                     <div ng-controller="SessionsCtrl">
                         <div class="row">
                             <div class="col-xs-12 col-sm-12">
-                                <h2>Sessions:</h2>
-                                A list of all potential active sessions and devices can be found below.
+                                <h2>{{'SESSIONS' | translate}}:</h2>
+                                {{'SESSIONS_DESCRIPTION' | translate}}
                             </div>
                         </div>
                         <hr>
                         <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
                             <thead>
                             <tr>
-                                <th>Device</th>
-                                <th>Created</th>
-                                <th>Current Session</th>
+                                <th>{{'DEVICE' | translate}}</th>
+                                <th>{{'CREATED' | translate}}</th>
+                                <th>{{'CURRENT_SESSION' | translate}}</th>
                                 <th>{{'DELETE' | translate}}</th>
                             </tr>
                             </thead>
@@ -55,7 +55,7 @@
 
                 </uib-tab>
 
-                <uib-tab index="1" heading="Data Stores" select="open_tab('data-stores')">
+                <uib-tab index="1" heading="{{'DATASTORES' | translate}}" select="open_tab('data-stores')">
                     <div ng-controller="OtherDatastoreCtrl">
                         <div class="row">
                             <div class="col-xs-12 col-sm-6">
@@ -72,9 +72,9 @@
                         <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
                             <thead>
                             <tr>
-                                <th>Description</th>
-                                <th>Default</th>
-                                <th>Edit</th>
+                                <th>{{'DESCRIPTION' | translate}}</th>
+                                <th>{{'DEFAULT' | translate}}</th>
+                                <th>{{'EDIT' | translate}}</th>
                                 <th>{{'DELETE' | translate}}</th>
                             </tr>
                             </thead>
@@ -102,12 +102,12 @@
 
                 </uib-tab>
 
-                <uib-tab index="2" heading="Known Hosts" select="open_tab('known-hosts')">
+                <uib-tab index="2" heading="{{'KNOWN_HOSTS' | translate}}" select="open_tab('known-hosts')">
                     <div ng-controller="KnownHostsCtrl">
                         <div class="row">
                             <div class="col-xs-12 col-sm-12">
-                                <h2>Known Hosts:</h2>
-                                Here you can manage the keys of all the servers you ever connected to.
+                                <h2>{{'KNOWN_HOSTS' | translate}}:</h2>
+                                {{'KNOWN_HOSTS_DESCRIPTION' | translate}}
                             </div>
                         </div>
                         <hr>
@@ -115,9 +115,9 @@
                         <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
                             <thead>
                             <tr>
-                                <th>Host</th>
-                                <th>Fingerprint</th>
-                                <th>Current Host</th>
+                                <th>{{'HOST' | translate}}</th>
+                                <th>{{'FINGERPRINT' | translate}}</th>
+                                <th>{{'CURRENT_HOST' | translate}}</th>
                                 <th>{{'DELETE' | translate}}</th>
                             </tr>
                             </thead>
@@ -140,12 +140,12 @@
 
                 </uib-tab>
 
-                <uib-tab index="3" heading="Export" select="open_tab('export')">
+                <uib-tab index="3" heading="{{'EXPORT' | translate}}" select="open_tab('export')">
                     <div ng-controller="ExportCtrl">
                         <div class="row">
                             <div class="col-xs-12 col-sm-12">
-                                <h2>Export:</h2>
-                                Export data for an offline backup or other purposes.
+                                <h2>{{'EXPORT' | translate}}:</h2>
+                                {{'EXPORT_DESCRIPTION' | translate}}
                             </div>
                         </div>
                         <hr>
@@ -153,7 +153,7 @@
                         <form class="form-horizontal">
                             <div class="form-group">
                                 <label class="control-label col-sm-2" for="export_type">
-                                    Type:
+                                    {{'TYPE' | translate}}:
                                 </label>
                                 <div class="col-sm-10">
                                     <select id="export_type" name="export_type" class="form-control"
@@ -165,7 +165,7 @@
                             </div>
                             <div class="form-group">
                                 <div class="col-sm-offset-2 col-sm-10">
-                                    <button type="submit" class="btn btn-primary btn-primary" ng-click="export_datastore(export_options.selected_option.value)">Export</button>
+                                    <button type="submit" class="btn btn-primary btn-primary" ng-click="export_datastore(export_options.selected_option.value)">{{'EXPORT' | translate}}</button>
                                 </div>
                             </div>
 
@@ -178,19 +178,19 @@
                             </div>
 
                             <div class="form-group alert alert-success" ng-repeat="e in msgs">
-                                <strong>Success:</strong> {{e}}
+                                <strong>{{'SUCCESS' | translate}}:</strong> {{e}}
                             </div>
                         </form>
                     </div>
 
                 </uib-tab>
 
-                <uib-tab index="4" heading="Import" select="open_tab('import')">
+                <uib-tab index="4" heading="{{'IMPORT' | translate}}" select="open_tab('import')">
                     <div ng-controller="ImportCtrl">
                         <div class="row">
                             <div class="col-xs-12 col-sm-12">
-                                <h2>Import:</h2>
-                                Import data from browsers or other password managers.
+                                <h2>{{'IMPORT' | translate}}:</h2>
+                                {{'IMPORT_DESCRIPTION' | translate}}
                             </div>
                         </div>
                         <hr>
@@ -198,7 +198,7 @@
                         <form class="form-horizontal">
                             <div class="form-group">
                                 <label class="control-label col-sm-2" for="import_type">
-                                    Type:
+                                    {{'TYPE' | translate}}:
                                 </label>
                                 <div class="col-sm-10">
                                     <select id="import_type" name="import_type" class="form-control"
@@ -210,7 +210,7 @@
                             </div>
                             <div class="form-group">
                                 <label class="control-label col-sm-2" for="import_type">
-                                    File:
+                                    {{'FILE' | translate}}:
                                 </label>
                                 <div class="col-sm-10">
                                     <input type="file" file-reader="fileContent" />
@@ -218,7 +218,7 @@
                             </div>
                             <div class="form-group">
                                 <div class="col-sm-offset-2 col-sm-10">
-                                    <button type="submit" class="btn btn-primary btn-primary" ng-click="import_datastore(import_options.selected_option.value, fileContent)">Import</button>
+                                    <button type="submit" class="btn btn-primary btn-primary" ng-click="import_datastore(import_options.selected_option.value, fileContent)">{{'IMPORT' | translate}}</button>
                                 </div>
                             </div>
 
@@ -231,12 +231,12 @@
                             </div>
 
                             <div class="alert alert-success" ng-repeat="e in msgs">
-                                <strong>Success:</strong> {{e}}
+                                <strong>{{'SUCCESS' | translate}}:</strong> {{e}}
                             </div>
                         </form>
 
                         <div class="alert alert-info" ng-if="import_options.selected_option.help">
-                            <strong>Instructions:</strong><br><br><span ng-bind-html="import_options.selected_option.help"></span>
+                            <strong>{{'INSTRUCTIONS' | translate}}:</strong><br><br><span ng-bind-html="import_options.selected_option.help"></span>
                         </div>
                     </div>
 
