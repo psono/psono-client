@@ -131,9 +131,13 @@
                         prefix: 'translations/locale-',
                         suffix: '.json'
                     })
-                    .registerAvailableLanguageKeys(['en', 'de'], {
-                        'en_*': 'en',
+                    .registerAvailableLanguageKeys(['cs', 'de', 'en', 'es', 'fi', 'fr', 'hr', 'it', 'ja', 'ko', 'nl', 'pl', 'ru', 'vi', 'zh-cn'], {
                         'de_*': 'de',
+                        'en_*': 'en',
+                        'es_*': 'es',
+                        'fr_*': 'fr',
+                        'it_*': 'it',
+                        'zh_*': 'zh-cn',
                         '*': 'en'
                     })
                     .fallbackLanguage('en')

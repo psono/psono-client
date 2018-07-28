@@ -11,17 +11,17 @@ ARTIFACTORY_PASS = os.environ['ARTIFACTORY_PASS']
 
 
 LANGUAGE_CODES = [
-    "af", "sq", "ar_SA", "ar_IQ", "ar_EG", "ar_LY", "ar_DZ", "ar_MA", "ar_TN", "ar_OM",
-    "ar_YE", "ar_SY", "ar_JO", "ar_LB", "ar_KW", "ar_AE", "ar_BH", "ar_QA", "eu", "bg",
-    "be", "ca", "zh_TW", "zh_CN", "zh_HK", "zh_SG", "hr", "cs", "da", "nl", "nl_BE", "en",
-    "en_US", "en_EG", "en_AU", "en_GB", "en_CA", "en_NZ", "en_IE", "en_ZA", "en_JM",
-    "en_BZ", "en_TT", "et", "fo", "fa", "fi", "fr", "fr_BE", "fr_CA", "fr_CH", "fr_LU",
-    "gd", "gd_IE", "de", "de_CH", "de_AT", "de_LU", "de_LI", "el", "he", "hi", "hu",
-    "is", "id", "it", "it_CH", "ja", "ko", "lv", "lt", "mk", "mt", "no", "pl",
-    "pt_BR", "pt", "rm", "ro", "ro_MO", "ru", "ru_MI", "sz", "sr", "sk", "sl", "sb",
-    "es", "es_AR", "es_GT", "es_CR", "es_PA", "es_DO", "es_MX", "es_VE", "es_CO",
-    "es_PE", "es_EC", "es_CL", "es_UY", "es_PY", "es_BO", "es_SV", "es_HN", "es_NI",
-    "es_PR", "sx", "sv", "sv_FI", "th", "ts", "tn", "tr", "uk", "ur", "ve", "vi", "xh",
+    "af", "sq", "ar-sa", "ar-iq", "ar-eg", "ar-ly", "ar-dz", "ar-ma", "ar-tn", "ar-om",
+    "ar-ye", "ar-sy", "ar-jo", "ar-lb", "ar-kw", "ar-ae", "ar-bh", "ar-qa", "eu", "bg",
+    "be", "ca", "zh-tw", "zh-cn", "zh-hk", "zh-sg", "hr", "cs", "da", "nl", "nl-be", "en",
+    "en-us", "en-eg", "en-au", "en-gb", "en-ca", "en-nz", "en-ie", "en-za", "en-jm",
+    "en-bz", "en-tt", "et", "fo", "fa", "fi", "fr", "fr-be", "fr-ca", "fr-ch", "fr-lu",
+    "gd", "gd-ie", "de", "de-ch", "de-at", "de-lu", "de-li", "el", "he", "hi", "hu",
+    "is", "id", "it", "it-ch", "ja", "ko", "lv", "lt", "mk", "mt", "no", "pl",
+    "pt-br", "pt", "rm", "ro", "ro-mo", "ru", "ru-mi", "sz", "sr", "sk", "sl", "sb",
+    "es", "es-ar", "es-gt", "es-cr", "es-pa", "es-do", "es-mx", "es-ve", "es-co",
+    "es-pe", "es-ec", "es-cl", "es-uy", "es-py", "es-bo", "es-sv", "es-hn", "es-ni",
+    "es-pr", "sx", "sv", "sv-fi", "th", "ts", "tn", "tr", "uk", "ur", "ve", "vi", "xh",
     "ji", "zu"
 ]
 
