@@ -101,12 +101,13 @@ def get_languages():
 def main():
     languages = get_languages()
     for lang in languages:
-        if lang['code'] not in LANGUAGE_CODES:
+        language_code = lang['code'].lower()
+        if language_code not in LANGUAGE_CODES:
             print("Error: main")
-            print("Invalid Language Code " + lang['code'])
+            print("Invalid Language Code " + language_code)
             exit(1)
-        upload_language(lang['code'])
-        file = download_language(lang['code'])
+        upload_language(language_code)
+        file = download_language(language_code)
         deploy_to_artifactory(ARTIFACTORY_USER, ARTIFACTORY_PASS, ARTIFACTORY_URL, ARTIFACTORY_PATH, file)
 
     print("Success")
