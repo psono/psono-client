@@ -17,12 +17,12 @@
         <div class="panel-body in" aria-expanded="true" aria-hidden="false" style="height: auto;">
 
             <div class="alert alert-warning" ng-if="!analysis.user_summary.multifactor_auth_enabled">
-                <strong>Warning!</strong> Please consider enabling multifactor authentication as it significantly
+                <strong>{{'WARNING' | translate}}!</strong> Please consider enabling multifactor authentication as it significantly
                 improves your account's security.
             </div>
 
             <div class="alert alert-warning" ng-if="!analysis.user_summary.recovery_code_enabled">
-                <strong>Warning!</strong> Please consider creating a recovery code to recover your account in case of a
+                <strong>{{'WARNING' | translate}}!</strong> Please consider creating a recovery code to recover your account in case of a
                 lost passwords.
             </div>
 
@@ -174,7 +174,7 @@
                 </div>
             </form>
             <div class="alert alert-warning">
-                <strong>Warning!</strong> This analysis can take several minutes to complete.
+                <strong>{{'WARNING' | translate}}!</strong> This analysis can take several minutes to complete.
             </div>
 
         </div>

@@ -1,17 +1,16 @@
 <form name="modalShowRecoverycodeForm" novalidate autocomplete="off">
     <div class="modal-header">
         <button type="button" class="close" ng-click="close()"><span aria-hidden="true">&times;</span></button>
-        <h3 class="modal-title">Delete Account</h3>
+        <h3 class="modal-title">{{'DELETE_ACCOUNT' | translate}}</h3>
     </div>
     <div class="modal-body">
 
         <div class="alert alert-danger">
-            <strong>{{'DANGER' | translate}}!</strong> You are about to delete your account. This action cannot be undone.
-            All data will be lost!
+            <strong>{{'DANGER' | translate}}!</strong> {{'YOU_ARE_ABOUT_TO_DELETE_YOUR_ACCOUNT' | translate}}
         </div>
 
         <div>
-            <label for="password">Your password as confirmation:</label>
+            <label for="password">{{'YOUR_PASSWORD_AS_CONFIRMATION' | translate}}:</label>
             <input type="password" class="form-control" id="password" ng-model="form.password">
         </div>
 

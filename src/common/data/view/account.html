@@ -7,24 +7,24 @@
             -->
         </div>
         <div class="title col-sm-4">
-            <h1>Account Details</h1>
+            <h1>{{ 'ACCOUNT_DETAILS' | translate }}</h1>
         </div>
     </div>
 
     <div class="panel panel-default">
         <div class="panel-heading clearfix ng-scope">
-            <h3 class="panel-title ng-binding ng-scope">Account</h3>
+            <h3 class="panel-title ng-binding ng-scope">{{ 'ACCOUNT' | translate }}</h3>
         </div>
         <div class="panel-body" style="height: auto;">
 
             <form class="form-horizontal" role="form">
                 <uib-tabset class="tabset_expand" active="active_tab">
 
-                    <uib-tab index="$index" ng-repeat="tab in tabs" heading="{{ tab.title }}"  select="open_tab(tab.key)">
+                    <uib-tab index="$index" ng-repeat="tab in tabs" heading="{{ tab.title | translate }}"  select="open_tab(tab.key)">
                         <div class="row">
                             <div class="col-xs-12 col-sm-12">
-                                <h2>{{ tab.title }}:</h2>
-                                {{ tab.description }}
+                                <h2>{{ tab.title | translate }}:</h2>
+                                {{ tab.description | translate }}
                             </div>
                         </div>
                         <hr>
@@ -34,20 +34,20 @@
                              ng-if="field.tab === tab.key">
                             <label class="control-label col-sm-6 col-md-4"
                                    for="accountForm-{{field.key}}">
-                                {{field.title}}
+                                {{field.title | translate}}
                             </label>
                             <div class="col-sm-6 col-md-8" ng-if="field.type !== 'label_only'">
                                 <input type="{{field.type}}" ng-model="field.value"
                                        ng-if="field.type != 'button'"
                                        ng-required="{{field.required}}"
                                        ng-readonly="{{field.readonly}}"
-                                       placeholder="{{field.placeholder}}" id="accountForm-{{field.key}}"
+                                       placeholder="{{field.placeholder | translate}}" id="accountForm-{{field.key}}"
                                        name="{{field.key}}"
                                        class="form-control">
 
                                 <button ng-if="field.type === 'button'" class="btn btn-primary {{field.class}}"
                                         ng-click="account[field.onClick](node)"
-                                        type="{{field.type}}" ng-hide="field.hidden" ng-click="">{{field.btnLabel}}</button>
+                                        type="{{field.type}}" ng-hide="field.hidden" ng-click="">{{field.btnLabel  | translate }}</button>
 
                                 <uib-progressbar value="(field.value | complexify)"
                                                  ng-if="field.complexify && (field.value | complexify) > 0">
@@ -60,7 +60,7 @@
                 </uib-tabset>
 
                 <div>
-                    <button class="btn btn-primary" type="button" ng-click="submitted=true; save();">Save</button>
+                    <button class="btn btn-primary" type="button" ng-click="submitted=true; save();">{{'SAVE' | translate}}</button>
                     <span class="error" ng-repeat="e in errors">{{e}}</span>
                     <span ng-repeat="m in msgs">{{m}}</span>
                 </div>
