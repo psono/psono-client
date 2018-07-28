@@ -17,13 +17,13 @@
 
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
-            <strong>Error:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> {{e}}
         </div>
 
 
     </div>
     <div class="modal-footer">
-        <button class="btn btn-danger" type="button" ng-click="delete_account();">Delete</button>
+        <button class="btn btn-danger" type="button" ng-click="delete_account();">{{'DELETE' | translate}}</button>
         <button class="btn" type="button" ng-click="close();">{{'CLOSE' | translate}}</button>
     </div>
 </form>

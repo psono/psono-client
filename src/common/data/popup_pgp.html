@@ -97,12 +97,12 @@
                     </div>
 
                     <div class="form-group alert alert-danger" ng-repeat="e in errors">
-                        <strong>Error:</strong> {{e}}
+                        <strong>{{'ERROR' | translate}}:</strong> {{e}}
                     </div>
 
                     <div class="form-group hideinputcharakter">
 
-                        <label for="serverselection">Server: </label>
+                        <label for="serverselection">{{'SERVER' | translate}}: </label>
                         <input type="text" id="serverselection"
                                uib-popover-template="'view/popover-server-select.html'"
                                popover-trigger="'focus'"
@@ -115,12 +115,12 @@
                 <form name="newServerForm" ng-if="view === 'new_server'">
                     <!-- new Server View -->
                     <div class="form-group">
-                        <h4>New Server</h4>
+                        <h4>{{'NEW_SERVER' | translate}}</h4>
                     </div>
                     <div class="form-group">
-                        <p>Fingerprint of the new server:</p>
+                        <p>{{'FINGERPRINT_OF_THE_NEW_SERVER' | translate}}:</p>
                         <textarea class="form-control" id="newServerFingerprint"
-                                  placeholder="Fingerprint of the new server"
+                                  placeholder="{{'FINGERPRINT_OF_THE_NEW_SERVER' | translate}}"
                                   ng-model="newServerFingerprint" readonly="readonly"></textarea>
                     </div>
 
@@ -131,7 +131,7 @@
                     </div>
 
                     <div class="form-group alert alert-danger" ng-repeat="e in errors">
-                        <strong>Error:</strong> {{e}}
+                        <strong>{{'ERROR' | translate}}:</strong> {{e}}
                     </div>
 
                     <div class="form-group">
@@ -145,35 +145,34 @@
                 <form name="signatureChangedForm" ng-if="view === 'signature_changed'">
                     <!-- signature changed View -->
                     <div class="form-group">
-                        <h4>Server signature changed:</h4>
+                        <h4>{{'SERVER_SIGNATURE_CHANGED' | translate}}:</h4>
                     </div>
                     <div class="form-group">
-                        <p>The new presented fingerprint is:</p>
+                        <p>{{'THE_NEW_FINGERPRINT_IS' | translate}}:</p>
                         <textarea class="form-control" id="changedFingerprint"
-                                  placeholder="Fingerprint of the new server"
+                                  placeholder="{{'FINGERPRINT_OF_THE_NEW_SERVER' | translate}}"
                                   ng-model="changedFingerprint" readonly="readonly"></textarea>
                     </div>
                     <div class="form-group">
-                        <p>The old fingerprint was:</p>
+                        <p>{{'THE_OLD_FINGERPRINT_WAS' | translate}}:</p>
                         <textarea class="form-control" id="oldFingerprint"
-                                  placeholder="Fingerprint of the old server"
+                                  placeholder="{{'FINGERPRINT_OF_THE_OLD_SERVER' | translate}}"
                                   ng-model="oldFingerprint" readonly="readonly"></textarea>
                     </div>
                     <div class="form-group">
                         <div class="alert alert-danger">
-                            <strong>{{'DANGER' | translate}}!</strong> The signature of the server changed. It could mean that the connection
-                            to the server has been compromised.<br><br><strong>Please contact the owner of this server.</strong>
+                            <strong>{{'DANGER' | translate}}!</strong> {{'THE_SIGNATURE_OF_THE_SERVER_CHANGED' | translate}}<br><br><strong>{{'CONTACT_THE_OWNER_OF_THE_SERVER' | translate}}</strong>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <button ng-click="disapprove_new_server()" type="submit"
                                 class="btn btn-danger">{{'CANCEL' | translate}}</button>
-                        <a href="#" ng-click="approve_new_server()">Ignore and continue.</a>
+                        <a href="#" ng-click="approve_new_server()">{{'IGNORE_AND_CONTINUE' | translate}}</a>
                     </div>
 
                     <div class="form-group alert alert-danger" ng-repeat="e in errors">
-                        <strong>Error:</strong> {{e}}
+                        <strong>{{'ERROR' | translate}}:</strong> {{e}}
                     </div>
                 </form>
 
@@ -196,17 +195,17 @@
                     </div>
 
                     <div class="form-group alert alert-danger" ng-repeat="e in errors">
-                        <strong>Error:</strong> {{e}}
+                        <strong>{{'ERROR' | translate}}:</strong> {{e}}
                     </div>
                 </form>
 
                 <form name="googleAuthenticatorForm" ng-if="view === 'google_authenticator_2fa'">
                     <!-- google_authenticator_2fa View -->
                     <div class="form-group">
-                        Please enter your Google Authenticator Code:
+                        {{'ENTER_YOUR_GOOGLE_AUTHENTICATOR_CODE' | translate}}:
                     </div>
                     <div class="form-group">
-                        <input type="text" class="form-control" id="gaToken" placeholder="Google Authenticator Token"
+                        <input type="text" class="form-control" id="gaToken" placeholder="{{'GOOGLE_AUTHENTICATOR_CODE' | translate}}"
                                ng-model="googleAuthenticatorFormGAToken" required maxlength="6" minlength="6">
                     </div>
 
@@ -217,17 +216,17 @@
                     </div>
 
                     <div class="form-group alert alert-danger" ng-repeat="e in errors">
-                        <strong>Error:</strong> {{e}}
+                        <strong>{{'ERROR' | translate}}:</strong> {{e}}
                     </div>
                 </form>
 
                 <form name="yubikeyOTPForm" ng-if="view === 'yubikey_otp_2fa'">
                     <!-- yubikey_otp_2fa View -->
                     <div class="form-group">
-                        Please enter your YubiKey OTP Token:
+                        {{'ENTER_YOUR_YUBIKEY_OTP_TOKEN' | translate}}:
                     </div>
                     <div class="form-group">
-                        <input type="text" class="form-control" id="yubikeyOTPToken" placeholder="YubiKey Token"
+                        <input type="text" class="form-control" id="yubikeyOTPToken" placeholder="{{'YUBIKEY_TOKEN' | translate}}"
                                ng-model="yubikeyOTPFormToken" required>
                     </div>
 
@@ -238,17 +237,17 @@
                     </div>
 
                     <div class="form-group alert alert-danger" ng-repeat="e in errors">
-                        <strong>Error:</strong> {{e}}
+                        <strong>{{'ERROR' | translate}}:</strong> {{e}}
                     </div>
                 </form>
 
                 <form name="duoForm" ng-if="view === 'duo_2fa'">
                     <!-- duo_2fa View -->
                     <div class="form-group">
-                        Approve the push notification on your mobile or provide your Duo Code:
+                        {{'APPROVE_THE_PUSH_NOTIFICATION' | translate}}:
                     </div>
                     <div class="form-group">
-                        <input type="text" class="form-control" id="duoToken" placeholder="Duo Code"
+                        <input type="text" class="form-control" id="duoToken" placeholder="{{'DUO_CODE' | translate}}"
                                ng-model="duoFormToken" required>
                     </div>
 
@@ -259,7 +258,7 @@
                     </div>
 
                     <div class="form-group alert alert-danger" ng-repeat="e in errors">
-                        <strong>Error:</strong> {{e}}
+                        <strong>{{'ERROR' | translate}}:</strong> {{e}}
                     </div>
                 </form>
 

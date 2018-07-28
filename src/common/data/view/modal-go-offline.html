@@ -14,7 +14,7 @@
 
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
-            <strong>Error:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> {{e}}
         </div>
     </div>
     <div class="modal-body" ng-if="!state.started_load_all_datastores">
@@ -30,7 +30,7 @@
         </div>
 
         <div class="form-group alert alert-danger" ng-repeat="e in state.errors">
-            <strong>Error:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> {{e}}
         </div>
     </div>
     <div class="modal-footer">

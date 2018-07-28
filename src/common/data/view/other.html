@@ -33,7 +33,7 @@
                                 <th>Device</th>
                                 <th>Created</th>
                                 <th>Current Session</th>
-                                <th>Delete</th>
+                                <th>{{'DELETE' | translate}}</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -59,11 +59,11 @@
                     <div ng-controller="OtherDatastoreCtrl">
                         <div class="row">
                             <div class="col-xs-12 col-sm-6">
-                                <h2>Data stores:</h2>
-                                Here you can manage all your password datastores
+                                <h2>{{'DATASTORES' | translate}}:</h2>
+                                {{'HERE_YOU_CAN_MANAGE_ALL_YOUR_PASSWORD_DATASTORES' | translate}}
                             </div>
                             <div class="col-xs-12 col-sm-6">
-                                <button type="submit" class="btn btn-primary btn-primary pull-right" ng-click="create_new_datastore()"><i class="fa fa-plus"></i> Create New Datastore</button>
+                                <button type="submit" class="btn btn-primary btn-primary pull-right" ng-click="create_new_datastore()"><i class="fa fa-plus"></i> {{'CREATE_NEW_DATASTORE' | translate}}</button>
                                 <div class='clearfix'></div>
                             </div>
                         </div>
@@ -75,7 +75,7 @@
                                 <th>Description</th>
                                 <th>Default</th>
                                 <th>Edit</th>
-                                <th>Delete</th>
+                                <th>{{'DELETE' | translate}}</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -118,7 +118,7 @@
                                 <th>Host</th>
                                 <th>Fingerprint</th>
                                 <th>Current Host</th>
-                                <th>Delete</th>
+                                <th>{{'DELETE' | translate}}</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -174,7 +174,7 @@
                             </uib-progressbar>
 
                             <div class="form-group alert alert-danger" ng-repeat="e in errors">
-                                <strong>Error:</strong> {{e}}
+                                <strong>{{'ERROR' | translate}}:</strong> {{e}}
                             </div>
 
                             <div class="form-group alert alert-success" ng-repeat="e in msgs">
@@ -227,7 +227,7 @@
                             </uib-progressbar>
 
                             <div class="alert alert-danger" ng-repeat="e in errors">
-                                <strong>Error:</strong> {{e}}
+                                <strong>{{'ERROR' | translate}}:</strong> {{e}}
                             </div>
 
                             <div class="alert alert-success" ng-repeat="e in msgs">
