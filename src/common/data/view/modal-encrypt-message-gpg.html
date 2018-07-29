@@ -19,7 +19,7 @@
     </div>
 
     <div class="form-group alert alert-danger" ng-repeat="e in errors">
-        <strong>{{'ERROR' | translate}}:</strong> {{e}}
+        <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
     </div>
     <div class="form-group">
         <button ng-click="encrypt()" type="submit" class="btn btn-primary">Encrypt</button>

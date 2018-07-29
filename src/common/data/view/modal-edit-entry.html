@@ -1,7 +1,7 @@
 <form name="editEntryForm" novalidate>
     <div class="modal-header">
         <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
-        <h3 class="modal-title">Edit {{bp.selected.name}}</h3>
+        <h3 class="modal-title">{{'EDIT' | translate}} {{bp.selected.name}}</h3>
     </div>
     <div class="modal-body">
         <!--
@@ -33,7 +33,7 @@
                        ng-change="bp.selected[n.onChange](bp.selected.fields)">
                 <div class="input-group-btn" uib-dropdown is-open="status.isopen">
                     <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
-                        Actions <span class="caret"></span>
+                        {{'ACTIONS' | translate}} <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu">
                         <li role="menuitem" ng-repeat="di in n.dropmenuItems track by $index" ng-if="!di.hide_offline || !offline">
@@ -76,7 +76,7 @@
                                ng-change="bp.selected[n.onChange](bp.selected.fields)">
                         <div class="input-group-btn" uib-dropdown is-open="status.isopen">
                             <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
-                                Actions <span class="caret"></span>
+                                {{'ACTIONS' | translate}} <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu">
                                 <li role="menuitem" ng-repeat="di in n.dropmenuItems track by $index" ng-if="!di.hide_offline || !offline">
@@ -119,7 +119,7 @@
                        ng-change="bp.selected[n.onChange](bp.selected.fields)">
                 <div class="input-group-btn" uib-dropdown is-open="status.isopen">
                     <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
-                        Actions <span class="caret"></span>
+                        {{'ACTIONS' | translate}} <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu">
                         <li role="menuitem" ng-repeat="di in n.dropmenuItems track by $index" ng-if="!di.hide_offline || !offline">
@@ -166,7 +166,7 @@
                            ng-change="bp.selected[n.onChange](bp.selected.fields)">
                     <div class="input-group-btn" uib-dropdown is-open="status.isopen">
                         <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
-                            Actions <span class="caret"></span>
+                            {{'ACTIONS' | translate}} <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu">
                             <li role="menuitem" ng-repeat="di in n.dropmenuItems track by $index" ng-if="!di.hide_offline || !offline">
@@ -191,11 +191,11 @@
         </div>
 
         <div class="alert alert-danger" ng-repeat="e in errors">
-            <strong>{{'ERROR' | translate}}:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
         </div>
 
         <div class="form-group alert alert-info" ng-repeat="e in msgs">
-            <strong>{{'ERROR' | translate}}:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
         </div>
 
     </div>

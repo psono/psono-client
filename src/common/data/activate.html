@@ -66,11 +66,11 @@
                 </div>
 
                 <div class="form-group alert alert-info" ng-repeat="e in msgs">
-                    <strong>{{'ERROR' | translate}}:</strong> {{e}}
+                    <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
                 </div>
 
                 <div class="form-group alert alert-danger" ng-repeat="e in errors">
-                    <strong>{{'ERROR' | translate}}:</strong> {{e}}
+                    <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
                 </div>
 
                 <div class="form-group hideinputcharakter">

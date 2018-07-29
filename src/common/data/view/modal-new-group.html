@@ -10,7 +10,7 @@
         </div>
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
-            <strong>{{'ERROR' | translate}}:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
         </div>
     </div>
     <div class="modal-footer">

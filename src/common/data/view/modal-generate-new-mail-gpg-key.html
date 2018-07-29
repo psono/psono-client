@@ -1,45 +1,43 @@
 <form name="modalShowRecoverycodeForm" novalidate>
     <div class="modal-header">
         <button type="button" class="close" ng-click="close()"><span aria-hidden="true">&times;</span></button>
-        <h3 class="modal-title">Generate New GPG Key</h3>
+        <h3 class="modal-title">{{'GENERATE_NEW_GPG_KEY' | translate}}</h3>
     </div>
     <div class="modal-body" ng-if="!generating">
         <div class="form-group" ng-class="{true: 'has-error'}[submitted && newMailKeyForm.title.$invalid]">
-            <input type="text" name="title" class="form-control" id="keyTitle" placeholder="Title to identify this key (required)" ng-model="data.title" required>
-            <p class="help-block" ng-show="submitted && newMailKeyForm.name.$error.required">The title is required</p>
+            <input type="text" name="title" class="form-control" id="keyTitle" placeholder="{{'TITLE_TO_IDENTIFY_THIS_KEY' | translate}}" ng-model="data.title" required>
+            <p class="help-block" ng-show="submitted && newMailKeyForm.name.$error.required">{{'TITLE_IS_REQUIRED' | translate}}</p>
         </div>
         <div class="form-group" ng-class="{true: 'has-error'}[submitted && newMailKeyForm.name.$invalid]">
-            <input type="text" name="name" class="form-control" id="keyName" placeholder="Your name (optional)" ng-model="data.name" required>
-            <p class="help-block" ng-show="submitted && newMailKeyForm.email.$error.required">Your email address is required</p>
+            <input type="text" name="name" class="form-control" id="keyName" placeholder="{{'YOUR_REQUIRED_NAME' | translate}}" ng-model="data.name" required>
+            <p class="help-block" ng-show="submitted && newMailKeyForm.email.$error.required">{{'NAME_IS_REQUIRED' | translate}}</p>
         </div>
         <div class="form-group" ng-class="{true: 'has-error'}[submitted && newMailKeyForm.email.$invalid]">
-            <input type="text" name="email" class="form-control" id="keyEmail" placeholder="Your email address (required)" ng-model="data.email" required>
-            <p class="help-block" ng-show="submitted && newMailKeyForm.email.$error.required">Your email address is required</p>
+            <input type="text" name="email" class="form-control" id="keyEmail" placeholder="{{'YOUR_REQUIRED_EMAIL' | translate}}" ng-model="data.email" required>
+            <p class="help-block" ng-show="submitted && newMailKeyForm.email.$error.required">{{'EMAIL_IS_REQUIRED' | translate}}</p>
         </div>
         <div class="form-group">
-            <input type="checkbox" ng-model="data.publish"> Publish public key?
+            <input type="checkbox" ng-model="data.publish"> {{'PUBLISH_PUBLIC_KEY' | translate}}?
         </div>
         <div class="form-group">
             <div class="alert alert-info">
-                <strong>{{'INFO' | translate}}!</strong> The name and email address will be publicly available. The email address cannot
-                be "fake" if you want that other people can decrypt your emails. The name can be anything, that
-                other people can later search for, yet we advise you to take your real name.
+                <strong>{{'INFO' | translate}}!</strong> {{'NAME_AND_EMAIL_ADDRESS_WILL_BE_PUBLICLY_AVAILABLE' | translate}}
             </div>
         </div>
 
         <div class="form-group" ng-if="errors || msgs">
-            <span class="error" ng-repeat="e in errors">{{e}}</span>
-            <span ng-repeat="m in msgs">{{m}}</span>
+            <div class="error" ng-repeat="e in errors"><span translate="{{ e }}"></span></div>
+            <div ng-repeat="e in msgs"><span translate="{{ e }}"></span></div>
         </div>
     </div>
     <div class="modal-body" ng-if="generating">
 
         <div class="alert alert-info">
-            <strong>{{'INFO' | translate}}!</strong> We are generating your GPG Keys now. This can take several minutes, depending on your hardware.
+            <strong>{{'INFO' | translate}}!</strong> {{'WE_GENERATE_YOUR_GPG_KEYS_PLEASE_WAIT' | translate}}
         </div>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-primary" type="submit" ng-click="save();" ng-disabled="generating">Generate</button>
+        <button class="btn btn-primary" type="submit" ng-click="save();" ng-disabled="generating">{{'GENERATE' | translate}}</button>
         <button class="btn" type="button" ng-click="close();" ng-disabled="generating">{{'CANCEL' | translate}}</button>
     </div>
 </form>

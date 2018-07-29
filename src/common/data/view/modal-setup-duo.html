@@ -94,7 +94,9 @@
                                    placeholder="Host" id="newDuoForm-host"
                                    name="host"
                                    class="form-control">
-                            <span ng-repeat="e in errors" class="help-block">{{e}}</span>
+                            <div ng-repeat="e in errors" class="help-block">
+                                <span translate="{{ e }}"></span>
+                            </div>
                         </div>
                     </div>
                     <div class="row form-group">
@@ -135,7 +137,9 @@
                                    placeholder="One Code for validation" id="validateGAForm-title"
                                    name="title"
                                    class="form-control">
-                            <span ng-repeat="e in errors" class="help-block">{{e}}</span>
+                            <div ng-repeat="e in errors" class="help-block">
+                                <span translate="{{ e }}"></span>
+                            </div>
                         </div>
                     </div>
                     <div class="row form-group">

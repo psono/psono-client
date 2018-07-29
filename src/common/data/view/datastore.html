@@ -15,7 +15,7 @@
         <div ng-class="{'col-lg-6': show_share_content, 'col-lg-12': !show_share_content}">
             <div class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">Datastore</h3>
+            <h3 class="panel-title">{{'DATASTORE' | translate}}</h3>
         </div>
         <div class="panel-body">
 
@@ -23,7 +23,7 @@
                 <div class="row">
                     <div class="expandable" ng-class="{'col-xs-offset-4 col-xs-8 col-sm-offset-6 col-sm-6 col-md-offset-8 col-md-4': !focused, 'col-xs-12 col-sm-12 col-md-offset-6 col-md-6 focused': focused}">
                         <div class="input-group">
-                            <input type="text" class="form-control" id="tosearchTreeForm" placeholder="search"
+                            <input type="text" class="form-control" id="tosearchTreeForm" placeholder="{{'SEARCH' | translate}}"
                                    ng-focus="focused = true" ng-blur="focused = false"
                                    ng-model="tosearchTreeFilter">
                             <span class="input-group-btn">
@@ -35,8 +35,8 @@
                                 <i class="fa fa-cogs"></i>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" aria-labelledby="dropdownMenuRightTop">
-                                <li role="menuitem" ng-click="openNewFolder($event)"><a href=""><i class="fa fa-folder"></i>New Folder</a></li>
-                                <li role="menuitem" ng-click="openNewItem($event)"><a href=""><i class="fa fa-plus"></i>New Entry</a></li>
+                                <li role="menuitem" ng-click="openNewFolder($event)"><a href=""><i class="fa fa-folder"></i>{{'NEW_FOLDER' | translate}}</a></li>
+                                <li role="menuitem" ng-click="openNewItem($event)"><a href=""><i class="fa fa-plus"></i>{{'NEW_ENTRY' | translate}}</a></li>
                             </ul>
                         </div>
                     </span>
@@ -49,8 +49,8 @@
 
                 <div class="dropdown position-fixed dropdown-rightclick" id="menu-datastore-main">
                     <ul class="dropdown-menu" role="menu">
-                        <li role="menuitem" ng-click="openNewFolder($event)"><a href=""><i class="fa fa-folder"></i>New Folder</a></li>
-                        <li role="menuitem" ng-click="openNewItem($event)"><a href=""><i class="fa fa-plus"></i>New Entry</a></li>
+                        <li role="menuitem" ng-click="openNewFolder($event)"><a href=""><i class="fa fa-folder"></i>{{'NEW_FOLDER' | translate}}</a></li>
+                        <li role="menuitem" ng-click="openNewItem($event)"><a href=""><i class="fa fa-plus"></i>{{'NEW_ENTRY' | translate}}</a></li>
                     </ul>
                 </div>
                 <!--
@@ -71,9 +71,9 @@
                         <i class="fa fa-plus-circle hidden-xs" aria-hidden="true"></i>
 
                         <div>
-                            No items.
-                            <span class="hidden-xs">Right click here to create one.</span>
-                            <span class="hidden-sm hidden-md hidden-lg">Click on the<br><i class="fa fa-cogs"></i><br>symbol in the top right corner to start.</span>
+                            {{'NO_ITEMS' | translate}}
+                            <span class="hidden-xs">{{'RIGHT_CLICK_HERE_TO_CREATE_ONE' | translate}}</span>
+                            <span class="hidden-sm hidden-md hidden-lg">{{'CLICK_ON_THE' | translate}}<br><i class="fa fa-cogs"></i><br>{{'SYMBOL_IN_THE_TOP_RIGHT' | translate}}</span>
                         </div>
                     </div>
 
@@ -109,7 +109,7 @@
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
-                            <h3 class="panel-title">Edit {{bp.selected.name}}</h3>
+                            <h3 class="panel-title">{{'EDIT' | translate}} {{bp.selected.name}}</h3>
                         </div>
                         <div class="panel-body">
                         <!--
@@ -128,20 +128,20 @@
                              ng-if="!n.tab && (!n.position || n.position == 'before')">
 
                             <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
-                                   id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                                   id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden"
                                    ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
-                                   ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems" ng-hide="n.hidden">{{n.title}}</span>
+                                   ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems" ng-hide="n.hidden">{{n.title | translate}}</span>
 
-                            <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](node, bp.selected.fields, errors)">{{n.title}}</button>
+                            <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](node, bp.selected.fields, errors)">{{n.title | translate}}</button>
 
                             <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
                                 <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
-                                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden"
                                        ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
                                        ng-change="bp.selected[n.onChange](bp.selected.fields)">
                                 <div class="input-group-btn" uib-dropdown is-open="status.isopen">
                                     <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
-                                        Actions <span class="caret"></span>
+                                        {{'ACTIONS' | translate}} <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu">
                                         <li role="menuitem" ng-repeat="di in n.dropmenuItems track by $index" ng-if="!di.hide_offline || !offline">
@@ -158,33 +158,33 @@
 
                             <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
                                       ng-class="{'form-control': n.type !== 'checkbox'}" id="editEntryForm-{{n.name}}"
-                                      placeholder="{{n.placeholder}}"  ng-required="n.required && !n.hidden"
+                                      placeholder="{{n.placeholder | translate}}"  ng-required="n.required && !n.hidden"
                                       ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
 
                         </div>
 
                         <!-- tabs -->
                         <uib-tabset ng-if="bp.selected.tabs" class="tabset_expand">
-                            <uib-tab ng-repeat="tab in bp.selected.tabs" heading="{{tab.title}}" active="tab.active" disable="tab.disabled">
+                            <uib-tab ng-repeat="tab in bp.selected.tabs" heading="{{tab.title | translate}}" active="tab.active" disable="tab.disabled">
 
                                 <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
                                      ng-if="n.tab == tab.id">
 
                                     <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
-                                           id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                                           id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden"
                                            ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
-                                           ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems" ng-hide="n.hidden">{{n.title}}</span>
+                                           ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems" ng-hide="n.hidden">{{n.title | translate}}</span>
 
-                                    <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](node, bp.selected.fields, errors)">{{n.title}}</button>
+                                    <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](node, bp.selected.fields, errors)">{{n.title | translate}}</button>
 
                                     <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
                                         <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
-                                               id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                                               id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden"
                                                ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
                                                ng-change="bp.selected[n.onChange](bp.selected.fields)">
                                         <div class="input-group-btn" uib-dropdown is-open="status.isopen">
                                             <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
-                                                Actions <span class="caret"></span>
+                                                {{'ACTIONS' | translate}} <span class="caret"></span>
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu">
                                                 <li role="menuitem" ng-repeat="di in n.dropmenuItems track by $index" ng-if="!di.hide_offline || !offline">
@@ -201,7 +201,7 @@
 
                                     <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
                                               ng-class="{'form-control': n.type !== 'checkbox'}" id="editEntryForm-{{n.name}}"
-                                              placeholder="{{n.placeholder}}"  ng-required="n.required && !n.hidden"
+                                              placeholder="{{n.placeholder | translate}}"  ng-required="n.required && !n.hidden"
                                               ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
 
 
@@ -214,20 +214,20 @@
                              ng-if="!n.tab && n.position == 'after'">
 
                             <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
-                                   id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                                   id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden"
                                    ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
-                                   ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems" ng-hide="n.hidden">{{n.title}}</span>
+                                   ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems" ng-hide="n.hidden">{{n.title | translate}}</span>
 
-                            <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](node, bp.selected.fields, errors)">{{n.title}}</button>
+                            <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](node, bp.selected.fields, errors)">{{n.title | translate}}</button>
 
                             <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
                                 <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
-                                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden"
                                        ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
                                        ng-change="bp.selected[n.onChange](bp.selected.fields)">
                                 <div class="input-group-btn" uib-dropdown is-open="status.isopen">
                                     <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
-                                        Actions <span class="caret"></span>
+                                        {{'ACTIONS' | translate}} <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu">
                                         <li role="menuitem" ng-repeat="di in n.dropmenuItems track by $index" ng-if="!di.hide_offline || !offline">
@@ -244,7 +244,7 @@
 
                             <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
                                       ng-class="{'form-control': n.type !== 'checkbox'}" id="editEntryForm-{{n.name}}"
-                                      placeholder="{{n.placeholder}}"  ng-required="n.required && !n.hidden"
+                                      placeholder="{{n.placeholder | translate}}"  ng-required="n.required && !n.hidden"
                                       ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
 
                         </div>
@@ -261,20 +261,20 @@
                                  ng-if="!n.tab && n.position == 'advanced'">
 
                                 <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
-                                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden"
                                        ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
-                                       ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems" ng-hide="n.hidden">{{n.title}}</span>
+                                       ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems" ng-hide="n.hidden">{{n.title | translate}}</span>
 
-                                <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](node, bp.selected.fields, errors)">{{n.title}}</button>
+                                <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](node, bp.selected.fields, errors)">{{n.title | translate}}</button>
 
                                 <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
                                     <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
-                                           id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder}}" ng-required="n.required && !n.hidden"
+                                           id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden"
                                            ng-model="n.value" ng-hide="n.hidden"
                                            ng-change="bp.selected[n.onChange](bp.selected.fields)">
                                     <div class="input-group-btn" uib-dropdown is-open="status.isopen">
                                         <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
-                                            Actions <span class="caret"></span>
+                                            {{'ACTIONS' | translate}} <span class="caret"></span>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu">
                                             <li role="menuitem" ng-repeat="di in n.dropmenuItems track by $index" ng-if="!di.hide_offline || !offline">
@@ -291,7 +291,7 @@
 
                                 <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
                                           ng-class="{'form-control': n.type !== 'checkbox'}" id="editEntryForm-{{n.name}}"
-                                          placeholder="{{n.placeholder}}"  ng-required="n.required && !n.hidden"
+                                          placeholder="{{n.placeholder | translate}}"  ng-required="n.required && !n.hidden"
                                           ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
 
                             </div>
@@ -299,11 +299,11 @@
                         </div>
 
                         <div class="alert alert-danger" ng-repeat="e in errors">
-                            <strong>{{'ERROR' | translate}}:</strong> {{e}}
+                            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
                         </div>
 
                         <div class="form-group alert alert-info" ng-repeat="e in msgs">
-                            <strong>{{'ERROR' | translate}}:</strong> {{e}}
+                            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
                         </div>
 
                     </div>

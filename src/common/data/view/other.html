@@ -174,11 +174,11 @@
                             </uib-progressbar>
 
                             <div class="form-group alert alert-danger" ng-repeat="e in errors">
-                                <strong>{{'ERROR' | translate}}:</strong> {{e}}
+                                <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
                             </div>
 
                             <div class="form-group alert alert-success" ng-repeat="e in msgs">
-                                <strong>{{'SUCCESS' | translate}}:</strong> {{e}}
+                                <strong>{{'SUCCESS' | translate}}:</strong> <span translate="{{ e }}"></span>
                             </div>
                         </form>
                     </div>
@@ -227,11 +227,11 @@
                             </uib-progressbar>
 
                             <div class="alert alert-danger" ng-repeat="e in errors">
-                                <strong>{{'ERROR' | translate}}:</strong> {{e}}
+                                <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
                             </div>
 
                             <div class="alert alert-success" ng-repeat="e in msgs">
-                                <strong>{{'SUCCESS' | translate}}:</strong> {{e}}
+                                <strong>{{'SUCCESS' | translate}}:</strong> <span translate="{{ e }}"></span>
                             </div>
                         </form>
 

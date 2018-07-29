@@ -49,7 +49,9 @@
                                    placeholder="Title of your GA" id="newGAForm-title"
                                    name="title"
                                    class="form-control">
-                            <span ng-repeat="e in errors" class="help-block">{{e}}</span>
+                            <div ng-repeat="e in errors" class="help-block">
+                                <span translate="{{ e }}"></span>
+                            </div>
                         </div>
                     </div>
                     <div class="row form-group">
@@ -58,7 +60,7 @@
                         </label>
 
                         <div class="col-sm-6 col-md-8">
-                            <button class="btn btn-primary btn-primary" ng-click="create_ga(new_ga)" type="button">Generate</button>
+                            <button class="btn btn-primary btn-primary" ng-click="create_ga(new_ga)" type="button">{{'GENERATE' | translate}}</button>
                         </div>
                     </div>
                 </div>
@@ -89,7 +91,9 @@
                                    placeholder="One Code for validation" id="validateGAForm-title"
                                    name="title"
                                    class="form-control">
-                            <span ng-repeat="e in errors" class="help-block">{{e}}</span>
+                            <div ng-repeat="e in errors" class="help-block">
+                                <span translate="{{ e }}"></span>
+                            </div>
                         </div>
                     </div>
                     <div class="row form-group">

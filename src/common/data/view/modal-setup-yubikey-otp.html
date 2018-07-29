@@ -46,7 +46,9 @@
                                    placeholder="Title of your YubiKey" id="newYubiKeyForm-title"
                                    name="title"
                                    class="form-control">
-                            <span ng-repeat="e in errors" class="help-block">{{e}}</span>
+                            <div ng-repeat="e in errors" class="help-block">
+                                <span translate="{{ e }}"></span>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group">
@@ -62,7 +64,9 @@
                                    placeholder="One of your YubiKey OTPs" id="newYubiKeyForm-otp"
                                    name="otp"
                                    class="form-control" ng-keyup="$event.keyCode == 13 && create_yubikey_otp(new_yubikey_otp)">
-                            <span ng-repeat="e in errors" class="help-block">{{e}}</span>
+                            <div ng-repeat="e in errors" class="help-block">
+                                <span translate="{{ e }}"></span>
+                            </div>
                         </div>
                     </div>
 

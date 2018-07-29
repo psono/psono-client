@@ -65,7 +65,9 @@
                     <button class="btn btn-primary" type="button" ng-click="add_new_public_key();">Add</button>
                 </div>
                 <div class="form-group" ng-if="data.new_public_key | fingerprint">
-                    <span class="error" ng-repeat="e in errors">{{e}}</span>
+                    <div class="error" ng-repeat="e in errors">
+                        <span translate="{{ e }}"></span>
+                    </div>
                 </div>
 
             </uib-tab>
