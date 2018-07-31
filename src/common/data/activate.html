@@ -52,17 +52,17 @@
             </div>
 
             <div ng-if="success" class="form-group text-center">
-                <a href="index.html" class="btn btn-danger" role="button">Back to home</a>
+                <a href="index.html" class="btn btn-danger" role="button">{{'BACK_TO_HOME' | translate}}</a>
             </div>
 
 
             <form name="activationForm" ng-if="!success">
                 <div class="form-group">
-                    <textarea rows="3" class="form-control" id="activationKey" placeholder="Key" ng-model="activationFormKey" required></textarea>
+                    <textarea rows="3" class="form-control" id="activationKey" placeholder="{{'KEY' | translate}}" ng-model="activationFormKey" required></textarea>
                 </div>
 
                 <div class="form-group">
-                    <button ng-click="activate_code(activationFormKey)" type="submit" class="btn btn-danger">Activate</button>
+                    <button ng-click="activate_code(activationFormKey)" type="submit" class="btn btn-danger">{{'ACTIVATE' | translate}}</button>
                 </div>
 
                 <div class="form-group alert alert-info" ng-repeat="e in msgs">

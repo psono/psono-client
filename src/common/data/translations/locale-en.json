@@ -1,4 +1,10 @@
 {
+  "DECRYPTING_SECRET": "Decrypting Secret ...",
+  "SET_NEW_PASSWORD": "Set new password",
+  "SECOND_FACTOR_REQUIRED": "Second factor required",
+  "ACTIVATE": "Activate",
+  "KEY": "Key",
+  "BACK_TO_HOME": "Back to home",
   "SEARCH_DATSTORE": "Search datastore...",
   "SETUP_SECOND_FACTOR": "Setup second factor",
   "ADMINISTRATOR_REQUIRES_SECOND_FACTOR": "Your administrator requires that you setup a second factor. Please choose one and set it up.",
@@ -167,6 +173,7 @@
   "NEW_PASSWORD_RECOVERY_CODE": "New Password Recovery Code",
   "OLD_PASSWORD": "Old Password",
   "NEW_PASSWORD_REPEAT": "New Password (repeat)",
+  "PASSWORD_REPEAT": "Password (repeat)",
   "PUBLIC_KEY": "Public Key",
   "SERVER_API_VERSION": "Server API Version",
   "SERVER_VERSION": "Server Version",

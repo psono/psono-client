@@ -52,7 +52,7 @@
             </div>
 
             <div ng-if="success" class="form-group text-center">
-                <a href="index.html" class="btn btn-danger" role="button">Back to home</a>
+                <a href="index.html" class="btn btn-danger" role="button">{{'BACK_TO_HOME' | translate}}</a>
             </div>
 
             <form name="registerForm" ng-if="!success" autocomplete="off">
@@ -62,7 +62,7 @@
                 </div>
                 <br>
                 <div class="form-group">
-                    <input type="email" class="form-control" id="registerEmail" placeholder="E-Mail" ng-model="registerFormEmail" required>
+                    <input type="email" class="form-control" id="registerEmail" placeholder="{{'E_MAIL' | translate}}" ng-model="registerFormEmail" required>
                 </div>
                 <div class="form-group">
                     <input type="password" class="form-control" id="registerPassword" placeholder="{{'PASSWORD' | translate}}" ng-model="registerFormPassword" required>
@@ -75,11 +75,11 @@
 
 
                 <div class="form-group">
-                    <input type="password" class="form-control" id="registerPasswordRepeat" placeholder="Password (repeat)" ng-model="registerFormPasswordRepeat" required>
+                    <input type="password" class="form-control" id="registerPasswordRepeat" placeholder="{{'PASSWORD_REPEAT' | translate}}" ng-model="registerFormPasswordRepeat" required>
                 </div>
 
                 <div class="form-group">
-                    <button ng-click="register(registerFormEmail, registerFormUsername, registerFormPassword, registerFormPasswordRepeat)" type="submit" class="btn btn-danger">Register</button>
+                    <button ng-click="register(registerFormEmail, registerFormUsername, registerFormPassword, registerFormPasswordRepeat)" type="submit" class="btn btn-danger">{{'REGISTER' | translate}}</button>
                 </div>
 
                 <div class="form-group alert alert-danger" ng-repeat="e in errors">
