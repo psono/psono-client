@@ -183,13 +183,13 @@
             }
 
             if (allowed_second_factors.indexOf('google_authenticator') !== -1) {
-                _account.fields.push({ name: "google_authenticator_setup", field: "button", type: "button", title: "Google Authenticator", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureGoogleAuthenticator", tab: 'multifactor-authentication' })
+                _account.fields.push({ name: "google_authenticator_setup", field: "button", type: "button", title: "GOOGLE_AUTHENTICATOR", btnLabel: "CONFIGURE", class: 'btn-primary', onClick:"onClickConfigureGoogleAuthenticator", tab: 'multifactor-authentication' })
             }
             if (allowed_second_factors.indexOf('yubikey_otp') !== -1) {
-                _account.fields.push({ name: "yubikey_otp_setup", field: "button", type: "button", title: "YubiKey (OTP)", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureYubiKeyOTP", tab: 'multifactor-authentication' })
+                _account.fields.push({ name: "yubikey_otp_setup", field: "button", type: "button", title: "YUBIKEY_OTP", btnLabel: "CONFIGURE", class: 'btn-primary', onClick:"onClickConfigureYubiKeyOTP", tab: 'multifactor-authentication' })
             }
             if (allowed_second_factors.indexOf('duo') !== -1) {
-                _account.fields.push({ name: "duo_setup", field: "button", type: "button", title: "Duo (Push or Code)", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureDuo", tab: 'multifactor-authentication' })
+                _account.fields.push({ name: "duo_setup", field: "button", type: "button", title: "DUO_PUSH_OR_CODE", btnLabel: "CONFIGURE", class: 'btn-primary', onClick:"onClickConfigureDuo", tab: 'multifactor-authentication' })
             }
         }
 
