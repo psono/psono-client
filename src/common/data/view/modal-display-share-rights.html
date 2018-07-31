@@ -1,22 +1,22 @@
 <form name="displayShareRightsForm" novalidate>
     <div class="modal-header">
         <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
-        <h3 class="modal-title">Share Rights of {{node.name}}</h3>
+        <h3 class="modal-title">{{'SHARE_RIGHTS_OF' | translate}} {{node.name}}</h3>
     </div>
     <div class="modal-body">
 
         <uib-tabset>
 
-            <uib-tab heading="Users">
+            <uib-tab heading="{{'USERS' | translate}}">
 
                 <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
                     <thead>
                     <tr>
-                        <th>Username</th>
-                        <th>Read</th>
-                        <th>Write</th>
-                        <th>Grant</th>
-                        <th>Accepted</th>
+                        <th>{{'USERNAME' | translate}}</th>
+                        <th>{{'READ' | translate}}</th>
+                        <th>{{'WRITE' | translate}}</th>
+                        <th>{{'GRANT' | translate}}</th>
+                        <th>{{'ACCEPTED' | translate}}</th>
                         <th>&nbsp;</th>
                     </tr>
                     </thead>
@@ -58,16 +58,16 @@
                 </table>
             </uib-tab>
 
-            <uib-tab heading="Groups">
+            <uib-tab heading="{{'GROUPS' | translate}}">
 
                 <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
                     <thead>
                     <tr>
-                        <th>Group Name</th>
-                        <th>Read</th>
-                        <th>Write</th>
-                        <th>Grant</th>
-                        <th>Accepted</th>
+                        <th>{{'GROUP_NAME' | translate}}</th>
+                        <th>{{'READ' | translate}}</th>
+                        <th>{{'WRITE' | translate}}</th>
+                        <th>{{'GRANT' | translate}}</th>
+                        <th>{{'ACCEPTED' | translate}}</th>
                         <th>&nbsp;</th>
                     </tr>
                     </thead>
