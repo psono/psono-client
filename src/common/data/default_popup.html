@@ -43,7 +43,7 @@
     <form name="searchForm" ng-if="!show_2fa_button">
         <div class="form-group">
             <input id="datastoresearch" name="datastoresearch" class="form-control" ng-model="datastore.search"
-                   placeholder="Search datastore..." autofocus>
+                   placeholder="{{'SEARCH_DATSTORE' | translate}}" autofocus>
         </div>
         <hr>
         <ul class="navigations">
@@ -63,27 +63,27 @@
                     <ul class="dropdown-menu dropdown-button-menu"
                         aria-labelledby="drop_node_{{searchEntry.key}}">
                         <li role="menuitem" ng-click="copy_username(searchEntry)">
-                            <a href="#"><i class="fa fa-clipboard"></i>Copy Username</a>
+                            <a href="#"><i class="fa fa-clipboard"></i>{{'COPY_USERNAME' | translate}}</a>
                         </li>
                         <li role="menuitem" ng-click="copy_password(searchEntry)">
-                            <a href="#"><i class="fa fa-clipboard"></i>Copy Password</a>
+                            <a href="#"><i class="fa fa-clipboard"></i>{{'COPY_PASSWORD' | translate}}</a>
                         </li>
                         <li role="menuitem" ng-click="edit_item(searchEntry)">
-                            <a href="#"><i class="fa fa-wrench"></i>Show / Edit</a>
+                            <a href="#"><i class="fa fa-wrench"></i>{{'SHOW_OR_EDIT' | translate}}</a>
                         </li>
                     </ul>
                 </span>
             </li>
             <li ng-if="datastore.filteredSearcArray.length === 0 && datastore.search !== ''">
-                <a href="#" onclick="return false;">No entry found ...</a>
+                <a href="#" onclick="return false;">{{'NO_ENTRY_FOUND' | translate}}</a>
             </li>
         </ul>
 
         <ul class="navigations" ng-if="!datastore.search">
-            <li><a href="#" class="navigationitem" ng-click="open_tab('index.html')">Open Datastore</a></li>
+            <li><a href="#" class="navigationitem" ng-click="open_tab('index.html')">{{'OPEN_DATASTORE' | translate}}</a></li>
 
-            <li><a href="#" class="navigationitem" ng-click="generate_password()" ng-if="!offline">Generate Password</a></li>
-            <li><a href="#" class="navigationitem" ng-click="bookmark()" ng-if="!offline">Bookmark</a></li>
+            <li><a href="#" class="navigationitem" ng-click="generate_password()" ng-if="!offline">{{'GENERATE_PASSWORD' | translate}}</a></li>
+            <li><a href="#" class="navigationitem" ng-click="bookmark()" ng-if="!offline">{{'BOOKMARK' | translate}}</a></li>
             <!--<li><a href="https://www.psono.pw/help" target="_blank">Help</a></li>-->
 
         </ul>
@@ -91,15 +91,15 @@
         <hr>
 
         <div class="btn-group">
-            <button ng-click="logout()" type="submit" class="btn btn-danger">Logout</button>
+            <button ng-click="logout()" type="submit" class="btn btn-danger">{{'LOGOUT' | translate}}</button>
         </div>
     </form>
     <div ng-if="show_2fa_button">
         <div class="alert alert-info">
-            <strong>{{'INFO' | translate}}!</strong> Your administrator requires that you setup a second factor. Please choose one and set it up.
+            <strong>{{'INFO' | translate}}!</strong> {{'ADMINISTRATOR_REQUIRES_SECOND_FACTOR' | translate}}
         </div>
-        <button ng-click="open_tab('enforce-two-fa.html')" type="submit" class="btn btn-danger">Setup Two Factor</button>
-        <button ng-click="logout()" class="btn btn-default">Logout</button>
+        <button ng-click="open_tab('enforce-two-fa.html')" type="submit" class="btn btn-danger">{{'SETUP_SECOND_FACTOR' | translate}}</button>
+        <button ng-click="logout()" class="btn btn-default">{{'LOGOUT' | translate}}</button>
     </div>
 </div>
 <div ng-if="view === 'logged_out'" ng-controller="LoginCtrl" class="loginbox">
@@ -169,8 +169,7 @@
 
         <div class="form-group">
             <div class="alert alert-info">
-                <strong>{{'INFO' | translate}}!</strong> It appears, that you want to connect to this server for the first time.
-                Please verify that the fingerprint of the server is correct before approving.
+                <strong>{{'INFO' | translate}}!</strong> {{'IT_APPEARS_THAT_YOU_WANT_TO_CONNECT' | translate}}
             </div>
         </div>
     </form>
