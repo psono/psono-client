@@ -1,21 +1,21 @@
 <form name="modalSetupGoogleAuthenticatorForm" novalidate>
     <div class="modal-header">
         <button type="button" class="close" ng-click="close()"><span aria-hidden="true">&times;</span></button>
-        <h3 class="modal-title">Google Authenticator</h3>
+        <h3 class="modal-title">{{'GOOGLE_AUTHENTICATOR' | translate}}</h3>
     </div>
     <div class="modal-body">
 
 
         <uib-tabset>
 
-            <uib-tab heading="Existing GAs">
+            <uib-tab heading="{{'EXISTING_GAS' | translate}}">
 
 
                 <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
                     <thead>
                     <tr>
-                        <th>GA Title</th>
-                        <th>Delete</th>
+                        <th>{{'GA_TITLE' | translate}}</th>
+                        <th>{{'DELETE' | translate}}</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -23,16 +23,16 @@
                         <td>{{ ga.title }}</td>
                         <td>
                             <button type="button" class="btn btn-default btn-sm" ng-click="delete_ga(gas, ga.id)">
-                                Delete
+                                {{'DELETE' | translate}}
                             </button>
                         </td>
                     </tr>
                     </tbody>
                 </table>
-                <span ng-repeat="e in delete_errors" class="help-block">{{e}}</span>
+                <div ng-repeat="e in delete_errors" class="help-block"><span translate="{{ e }}"></span></div>
             </uib-tab>
 
-            <uib-tab heading="New GA">
+            <uib-tab heading="{{'NEW_GA' | translate}}">
                 <br>
 
                 <div class="form-horizontal" ng-if="step === 'step1'">
@@ -40,16 +40,18 @@
 
                         <label class="control-label col-sm-6 col-md-4"
                                for="newGAForm-title">
-                            <span>Title</span>
+                            <span>{{'TITLE' | translate}}</span>
                         </label>
 
                         <div class="col-sm-6 col-md-8">
                             <input type="text" ng-model="new_ga.title"
                                    ng-required="true"
-                                   placeholder="Title of your GA" id="newGAForm-title"
+                                   placeholder="{{'TITLE_OF_YOUR_GA' | translate}}" id="newGAForm-title"
                                    name="title"
                                    class="form-control">
-                            <span ng-repeat="e in errors" class="help-block">{{e}}</span>
+                            <div ng-repeat="e in errors" class="help-block">
+                                <span translate="{{ e }}"></span>
+                            </div>
                         </div>
                     </div>
                     <div class="row form-group">
@@ -58,7 +60,7 @@
                         </label>
 
                         <div class="col-sm-6 col-md-8">
-                            <button class="btn btn-primary btn-primary" ng-click="create_ga(new_ga)" type="button">Generate</button>
+                            <button class="btn btn-primary btn-primary" ng-click="create_ga(new_ga)" type="button">{{'GENERATE' | translate}}</button>
                         </div>
                     </div>
                 </div>
@@ -69,7 +71,7 @@
                     </div>
                     <div class="row form-group">
                         <div class="text-center">
-                            <button class="btn btn-primary btn-primary" ng-click="goto_step3()" type="button">Scan the code and then click here</button>
+                            <button class="btn btn-primary btn-primary" ng-click="goto_step3()" type="button">{{'SCAN_THE_CODE_THEN_CLICK_HERE' | translate}}</button>
                         </div>
                     </div>
 
@@ -80,16 +82,18 @@
 
                         <label class="control-label col-sm-6 col-md-4"
                                for="validateGAForm-title">
-                            <span>Code</span>
+                            <span>{{'CODE' | translate}}</span>
                         </label>
 
                         <div class="col-sm-6 col-md-8">
                             <input type="text" ng-model="new_ga.code"
                                    ng-required="true"
-                                   placeholder="One Code for validation" id="validateGAForm-title"
+                                   placeholder="{{'ONE_CODE_FOR_VALIDATION' | translate}}" id="validateGAForm-title"
                                    name="title"
                                    class="form-control">
-                            <span ng-repeat="e in errors" class="help-block">{{e}}</span>
+                            <div ng-repeat="e in errors" class="help-block">
+                                <span translate="{{ e }}"></span>
+                            </div>
                         </div>
                     </div>
                     <div class="row form-group">
@@ -108,6 +112,6 @@
 
     </div>
     <div class="modal-footer">
-        <button class="btn" type="button" ng-click="close();">Close</button>
+        <button class="btn" type="button" ng-click="close();">{{'CLOSE' | translate}}</button>
     </div>
 </form>

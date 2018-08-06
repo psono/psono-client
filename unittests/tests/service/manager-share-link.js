@@ -1,7 +1,10 @@
 (function () {
     describe('Service: managerShareLink test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         var token = 'the_session_token';
         var session_secret = 'the_session_secret';
@@ -33,6 +36,9 @@
             spyOn(cryptoLibrary, "encrypt_data").and.callFake(function(json_data, session_secret_key) {
                 return JSON.parse(json_data);
             });
+
+
+            $httpBackend.when('GET', "view/datastore.html").respond({});
         }));
 
         it('managerShareLink exists', inject(function (managerShareLink) {

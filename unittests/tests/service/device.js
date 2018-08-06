@@ -1,7 +1,10 @@
 (function () {
     describe('Service: device test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('device exists', inject(function (device) {
             expect(device).toBeDefined();

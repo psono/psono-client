@@ -5,7 +5,7 @@
     </div>
     <div class="modal-body" ng-if="state.started_load_all_datastores">
         <div class="form-group alert alert-info">
-            <strong>Info!</strong> The client is now downloading all necessary content from the server.
+            <strong>{{'INFO' | translate}}!</strong> The client is now downloading all necessary content from the server.
         </div>
 
         <uib-progressbar max="state.open_requests" value="state.closed_requests">
@@ -14,7 +14,7 @@
 
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
-            <strong>Error:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e  | translate}}"></span>
         </div>
     </div>
     <div class="modal-body" ng-if="!state.started_load_all_datastores">
@@ -25,16 +25,16 @@
             <input type="password" name="name" class="form-control" id="password2" placeholder="Passphrase (repeat)" ng-model="state.password_repeat" required>
         </div>
         <div class="form-group alert alert-info">
-            <strong>Info!</strong> The client will store all secrets (passwords, notes, bookmarks, ...) in the local
+            <strong>{{'INFO' | translate}}!</strong> The client will store all secrets (passwords, notes, bookmarks, ...) in the local
             storage of the client. All of them will be encrypted with the passphrase that you provide.
         </div>
 
         <div class="form-group alert alert-danger" ng-repeat="e in state.errors">
-            <strong>Error:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
         </div>
     </div>
     <div class="modal-footer">
-        <button ng-click="approve()" type="submit" class="btn btn-primary" ng-if="!state.started_load_all_datastores">Approve</button>
-        <button class="btn" type="button" ng-click="cancel();">Cancel</button>
+        <button ng-click="approve()" type="submit" class="btn btn-primary" ng-if="!state.started_load_all_datastores">{{'APPROVE' | translate}}</button>
+        <button class="btn" type="button" ng-click="cancel();">{{'CANCEL' | translate}}</button>
     </div>
 </form>

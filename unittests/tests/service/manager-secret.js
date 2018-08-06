@@ -1,7 +1,10 @@
 (function () {
     describe('Service: managerSecret test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('managerSecret exists', inject(function (managerSecret) {
             expect(managerSecret).toBeDefined();
@@ -87,6 +90,9 @@
         beforeEach(inject(function($injector){
             // unwrap necessary services
             $httpBackend = $injector.get('$httpBackend');
+
+
+            $httpBackend.when('GET', "view/datastore.html").respond({});
         }));
 
         it('create_secret', inject(function (managerSecret) {

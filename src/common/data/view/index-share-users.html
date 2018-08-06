@@ -6,13 +6,13 @@
             -->
         </div>
         <div class="title col-sm-4">
-            <h1>List of Trusted Users</h1>
+            <h1>{{'LIST_OF_TRUSTED_USERS' | translate}}</h1>
         </div>
     </div>
 
     <div ng-controller="ShareusersCtrl" class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">Trusted Users</h3>
+            <h3 class="panel-title">{{'TRUSTED_USERS' | translate}}</h3>
         </div>
         <div class="panel-body">
 
@@ -20,8 +20,8 @@
 
                 <div class="dropdown position-fixed dropdown-rightclick" id="menu-shareusers-main">
                     <ul class="dropdown-menu" role="menu">
-                        <li role="menuitem" ng-click="openNewFolder($event)"><a href="#!/share/users"><i class="fa fa-folder"></i>New Folder</a></li>
-                        <li role="menuitem" ng-click="openNewItem($event)"><a href="#!/share/users"><i class="fa fa-user-plus"></i>New User</a></li>
+                        <li role="menuitem" ng-click="openNewFolder($event)"><a href="#!/share/users"><i class="fa fa-folder"></i>{{'NEW_FOLDER' | translate}}</a></li>
+                        <li role="menuitem" ng-click="openNewItem($event)"><a href="#!/share/users"><i class="fa fa-user-plus"></i>{{'NEW_USER' | translate}}</a></li>
                     </ul>
                 </div>
 
@@ -42,7 +42,7 @@
                     <div class="big-font-icon-and-msg">
                         <i class="fa fa-plus-circle" aria-hidden="true"></i>
 
-                        <div>Your trusted users list is empty. Right click here to add a user to your trusted users list.</div>
+                        <div>{{'YOUR_TRUSTED_USER_LIST_IS_EMPTY' | translate}}</div>
                     </div>
 
                 </div>

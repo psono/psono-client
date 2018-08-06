@@ -15,7 +15,7 @@
 
         <div class="row" style="font-weight: bold">
             <div class="col-xs-4 col-sm-4" ng-repeat="right in rights">
-                {{ right.name }}
+                {{ right.name | translate }}
                 <button type="button" class="btn btn-default btn-sm" ng-click="toggle_select(right.id, 'right')" >
                     <i ng-class="selected_rights.indexOf(right.id) > -1 ? 'fa fa-check-square-o' : 'fa fa-square-o'"></i>
                 </button>
@@ -25,13 +25,13 @@
         <hr>
 
         <uib-tabset>
-            <uib-tab heading="Trusted Users">
+            <uib-tab heading="{{'TRUSTED_USERS' | translate}}">
                 <div ng-if="users">
 
                     <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
                         <thead>
                         <tr>
-                            <th>User</th>
+                            <th>{{'USER' | translate}}</th>
                             <th>&nbsp;</th>
                         </tr>
                         </thead>
@@ -49,17 +49,17 @@
                 </div>
 
                 <div class="row">
-                    <button type="button" ng-click="add_user()" class="btn btn-link"><i class="fa fa-user-plus"></i> Search User</button>
+                    <button type="button" ng-click="add_user()" class="btn btn-link"><i class="fa fa-user-plus"></i> {{'SEARCH_USER' | translate}}</button>
                 </div>
 
             </uib-tab>
-            <uib-tab heading="Known Groups">
+            <uib-tab heading="{{'KNOWN_GROUPS' | translate}}">
                 <div ng-if="groups">
 
                     <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
                         <thead>
                         <tr>
-                            <th>Group</th>
+                            <th>{{'GROUP' | translate}}</th>
                             <th>&nbsp;</th>
                         </tr>
                         </thead>
@@ -77,22 +77,22 @@
                 </div>
 
                 <div class="row">
-                    <button type="button" ng-click="create_group()" class="btn btn-link"><i class="fa fa-user-plus"></i> Create Group</button>
+                    <button type="button" ng-click="create_group()" class="btn btn-link"><i class="fa fa-user-plus"></i> {{'CREATE_GROUP' | translate}}</button>
                 </div>
 
             </uib-tab>
         </uib-tabset>
 
         <div class="alert alert-danger" ng-repeat="e in errors">
-            <strong>Error:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
         </div>
 
         <div class="form-group alert alert-info" ng-repeat="e in msgs">
-            <strong>Error:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
         </div>
 
     </div>
     <div class="modal-footer">
-        <button class="btn btn-primary" type="button" ng-click="submitted=true; save();">OK</button>
+        <button class="btn btn-primary" type="button" ng-click="submitted=true; save();">{{'OK' | translate}}</button>
     </div>
 </form>

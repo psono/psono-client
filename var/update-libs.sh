@@ -31,6 +31,10 @@ wget https://raw.githubusercontent.com/kazuhikoarase/qrcode-generator/master/js/
 wget https://raw.githubusercontent.com/mholt/PapaParse/master/papaparse.min.js -O src/common/data/js/lib/papaparse.min.js
 wget https://raw.githubusercontent.com/NaturalIntelligence/fast-xml-parser/master/lib/parser.js -O src/common/data/js/lib/fast-xml-parser.js
 
+wget https://cdn.rawgit.com/angular-translate/bower-angular-translate/2.18.1/angular-translate.min.js -O src/common/data/js/lib/angular-translate.min.js
+wget https://cdn.rawgit.com/angular-translate/bower-angular-translate-loader-url/2.18.1/angular-translate-loader-url.min.js -O src/common/data/js/lib/angular-translate-loader-url.min.js
+wget https://cdn.rawgit.com/angular-translate/bower-angular-translate-loader-static-files/2.18.1/angular-translate-loader-static-files.min.js -O src/common/data/js/lib//angular-translate-loader-static-files.min.js
+
 wget https://raw.githubusercontent.com/ftlabs/fastclick/master/lib/fastclick.js -O src/common/data/js/lib/fastclick.js
 
 

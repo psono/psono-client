@@ -1,7 +1,10 @@
 (function () {
     describe('Service: importLastPassComCsv test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('importLastPassComCsv exists', inject(function (importLastPassComCsv) {
             expect(importLastPassComCsv).toBeDefined();

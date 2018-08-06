@@ -1,7 +1,10 @@
 (function () {
     describe('Service: managerGroups test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         var token = 'the_session_token';
         var session_secret = 'the_session_secret';
@@ -131,6 +134,8 @@
         beforeEach(inject(function($injector){
             // unwrap necessary services
             $httpBackend = $injector.get('$httpBackend');
+
+            $httpBackend.when('GET', "view/datastore.html").respond({});
         }));
 
         it('managerGroups exists', inject(function (managerGroups) {

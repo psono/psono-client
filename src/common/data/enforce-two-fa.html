@@ -44,38 +44,38 @@
 
         <div class="loginbox dark">
             <img src="img/logo.png" alt="Psono Web Client" id="logo">
-            <a href="https://psono.com/" target="_blank" rel="noopener"><i class="fa fa-info-circle fa-pull-right" aria-hidden="true"> Info</i></a>
+            <a href="https://psono.com/" target="_blank" rel="noopener"><i class="fa fa-info-circle fa-pull-right" aria-hidden="true"> {{'INFO' | translate}}</i></a>
 
             <div class="form-group">
-                <h4>Second factor required:</h4>
+                <h4>{{'SECOND_FACTOR_REQUIRED' | translate}}:</h4>
             </div>
 
             <form>
                 <div class="row" ng-repeat="field in account.fields" style="padding-bottom: 10px;">
                     <label class="control-label col-xs-7 col-sm-7 col-md-7">
-                        {{field.title}}
+                        {{field.title | translate}}
                     </label>
                     <div class="col-xs-5 col-sm-5 col-md-5" ng-if="field.type !== 'label_only'">
                         <button class="btn btn-primary {{field.class}}"
                                 ng-click="account[field.onClick]()"
-                                type="{{field.type}}" ng-hide="field.hidden" ng-click="">{{field.btnLabel}}</button>
+                                type="{{field.type}}" ng-hide="field.hidden" ng-click="">{{field.btnLabel | translate}}</button>
 
                     </div>
                 </div>
                 <div class="form-group">
                     <div class="alert alert-info">
-                        <strong>Info!</strong> Your administrator requires that you setup a second factor. Please choose one and set it up.
+                        <strong>{{'INFO' | translate}}!</strong> {{'ADMINISTRATOR_REQUIRES_SECOND_FACTOR' | translate}}
                     </div>
                 </div>
 
                 <div class="row" style="padding-bottom: 20px;">
                     <div class="col-xs-5 col-sm-5 col-md-5">
-                        <button ng-click="logout()" type="submit" class="btn btn-default">Logout <i class="fa fa-sign-in" aria-hidden="true"></i></button>
+                        <button ng-click="logout()" type="submit" class="btn btn-default">{{'LOGOUT' | translate}} <i class="fa fa-sign-in" aria-hidden="true"></i></button>
                     </div>
                 </div>
 
                 <div class="form-group alert alert-danger" ng-repeat="e in errors">
-                    <strong>Error:</strong> {{e}}
+                    <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
                 </div>
             </form>
         </div>
@@ -129,6 +129,9 @@
 <script src="js/lib/angular-sanitize.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-local-storage.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-snap.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-translate.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-translate-loader-url.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-translate-loader-static-files.min.js" type="application/javascript"></script>
 <script src="js/lib/ui-bootstrap-tpls.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-datatables.js" type="application/javascript"></script>
 <script src="js/lib/ngdraggable.js" type="application/javascript"></script>

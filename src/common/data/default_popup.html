@@ -43,7 +43,7 @@
     <form name="searchForm" ng-if="!show_2fa_button">
         <div class="form-group">
             <input id="datastoresearch" name="datastoresearch" class="form-control" ng-model="datastore.search"
-                   placeholder="Search datastore..." autofocus>
+                   placeholder="{{'SEARCH_DATSTORE' | translate}}" autofocus>
         </div>
         <hr>
         <ul class="navigations">
@@ -63,27 +63,27 @@
                     <ul class="dropdown-menu dropdown-button-menu"
                         aria-labelledby="drop_node_{{searchEntry.key}}">
                         <li role="menuitem" ng-click="copy_username(searchEntry)">
-                            <a href="#"><i class="fa fa-clipboard"></i>Copy Username</a>
+                            <a href="#"><i class="fa fa-clipboard"></i>{{'COPY_USERNAME' | translate}}</a>
                         </li>
                         <li role="menuitem" ng-click="copy_password(searchEntry)">
-                            <a href="#"><i class="fa fa-clipboard"></i>Copy Password</a>
+                            <a href="#"><i class="fa fa-clipboard"></i>{{'COPY_PASSWORD' | translate}}</a>
                         </li>
                         <li role="menuitem" ng-click="edit_item(searchEntry)">
-                            <a href="#"><i class="fa fa-wrench"></i>Show / Edit</a>
+                            <a href="#"><i class="fa fa-wrench"></i>{{'SHOW_OR_EDIT' | translate}}</a>
                         </li>
                     </ul>
                 </span>
             </li>
             <li ng-if="datastore.filteredSearcArray.length === 0 && datastore.search !== ''">
-                <a href="#" onclick="return false;">No entry found ...</a>
+                <a href="#" onclick="return false;">{{'NO_ENTRY_FOUND' | translate}}</a>
             </li>
         </ul>
 
         <ul class="navigations" ng-if="!datastore.search">
-            <li><a href="#" class="navigationitem" ng-click="open_tab('index.html')">Open Datastore</a></li>
+            <li><a href="#" class="navigationitem" ng-click="open_tab('index.html')">{{'OPEN_DATASTORE' | translate}}</a></li>
 
-            <li><a href="#" class="navigationitem" ng-click="generate_password()" ng-if="!offline">Generate Password</a></li>
-            <li><a href="#" class="navigationitem" ng-click="bookmark()" ng-if="!offline">Bookmark</a></li>
+            <li><a href="#" class="navigationitem" ng-click="generate_password()" ng-if="!offline">{{'GENERATE_PASSWORD' | translate}}</a></li>
+            <li><a href="#" class="navigationitem" ng-click="bookmark()" ng-if="!offline">{{'BOOKMARK' | translate}}</a></li>
             <!--<li><a href="https://www.psono.pw/help" target="_blank">Help</a></li>-->
 
         </ul>
@@ -91,15 +91,15 @@
         <hr>
 
         <div class="btn-group">
-            <button ng-click="logout()" type="submit" class="btn btn-danger">Logout</button>
+            <button ng-click="logout()" type="submit" class="btn btn-danger">{{'LOGOUT' | translate}}</button>
         </div>
     </form>
     <div ng-if="show_2fa_button">
         <div class="alert alert-info">
-            <strong>Info!</strong> Your administrator requires that you setup a second factor. Please choose one and set it up.
+            <strong>{{'INFO' | translate}}!</strong> {{'ADMINISTRATOR_REQUIRES_SECOND_FACTOR' | translate}}
         </div>
-        <button ng-click="open_tab('enforce-two-fa.html')" type="submit" class="btn btn-danger">Setup Two Factor</button>
-        <button ng-click="logout()" class="btn btn-default">Logout</button>
+        <button ng-click="open_tab('enforce-two-fa.html')" type="submit" class="btn btn-danger">{{'SETUP_SECOND_FACTOR' | translate}}</button>
+        <button ng-click="logout()" class="btn btn-default">{{'LOGOUT' | translate}}</button>
     </div>
 </div>
 <div ng-if="view === 'logged_out'" ng-controller="LoginCtrl" class="loginbox">
@@ -109,32 +109,32 @@
 
     <form name="loginForm" ng-if="view === 'default'" autocomplete="off">
         <div ng-class="{'input-group': loginFormUsername == null || loginFormUsername.indexOf('@') == -1}">
-            <input type="text" class="form-control" id="loginUsername" placeholder="Username" ng-model="loginFormUsername" required aria-describedby="username-addon" autofocus>
+            <input type="text" class="form-control" id="loginUsername" placeholder="{{'USERNAME' | translate}}" ng-model="loginFormUsername" required aria-describedby="username-addon" autofocus>
             <span class="input-group-addon" id="username-addon" ng-if="loginFormUsername == null || loginFormUsername.indexOf('@') == -1">@{{selected_server_domain}}</span>
         </div>
         <br>
         <div class="form-group">
-            <input type="password" class="form-control" id="loginPassword" placeholder="Password" ng-model="loginFormPassword" required>
+            <input type="password" class="form-control" id="loginPassword" placeholder="{{'PASSWORD' | translate}}" ng-model="loginFormPassword" required>
         </div>
         <div class="checkbox">
-            <label><input type="checkbox" ng-model="loginFormRemember"> Remember username and server</label>
+            <label><input type="checkbox" ng-model="loginFormRemember"> {{'REMEMBER_USERNAME_AND_SERVER' | translate}}</label>
         </div>
         <div class="checkbox">
-            <label><input type="checkbox" ng-model="loginFormTrustDevice"> Trust device</label>
+            <label><input type="checkbox" ng-model="loginFormTrustDevice"> {{'TRUST_DEVICE' | translate}}</label>
         </div>
 
         <div class="form-group">
-            <button ng-click="initiate_login(loginFormUsername, loginFormPassword, loginFormRemember, loginFormTrustDevice, false)" type="submit" class="btn btn-danger">Login <i class="fa fa-sign-in" aria-hidden="true"></i></button>
-            <a href="#" ng-click="open_tab('register.html')">Register</a>
+            <button ng-click="initiate_login(loginFormUsername, loginFormPassword, loginFormRemember, loginFormTrustDevice, false)" type="submit" class="btn btn-danger">{{'LOGIN' | translate}} <i class="fa fa-sign-in" aria-hidden="true"></i></button>
+            <a href="#" ng-click="open_tab('register.html')">{{'REGISTER' | translate}}</a>
         </div>
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
-            <strong>Error:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
         </div>
 
         <div class="form-group hideinputcharakter">
 
-            <label for="serverselection">Server: </label>
+            <label for="serverselection">{{'SERVER' | translate}}: </label>
             <input type="text" id="serverselection"
                    uib-popover-template="'view/popover-server-select.html'"
                    popover-trigger="'focus'"
@@ -148,29 +148,28 @@
     <form name="newServerForm" ng-if="view === 'new_server'">
         <!-- new Server View -->
         <div class="form-group">
-            <h4>New Server</h4>
+            <h4>{{'NEW_SERVER' | translate}}</h4>
         </div>
         <div class="form-group">
-            <p>Fingerprint of the new server:</p>
+            <p>{{'FINGERPRINT_OF_THE_NEW_SERVER' | translate}}:</p>
             <textarea class="form-control" id="newServerFingerprint"
-                      placeholder="Fingerprint of the new server"
+                      placeholder="{{'FINGERPRINT_OF_THE_NEW_SERVER' | translate}}"
                       ng-model="newServerFingerprint" readonly="readonly"></textarea>
         </div>
 
         <div class="form-group">
             <button ng-click="approve_new_server()" type="submit"
-                    class="btn btn-danger">Approve</button>
-            <a href="#" ng-click="disapprove_new_server()">Cancel</a>
+                    class="btn btn-danger">{{'APPROVE' | translate}}</button>
+            <a href="#" ng-click="disapprove_new_server()">{{'CANCEL' | translate}}</a>
         </div>
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
-            <strong>Error:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
         </div>
 
         <div class="form-group">
             <div class="alert alert-info">
-                <strong>Info!</strong> It appears, that you want to connect to this server for the first time.
-                Please verify that the fingerprint of the server is correct before approving.
+                <strong>{{'INFO' | translate}}!</strong> {{'IT_APPEARS_THAT_YOU_WANT_TO_CONNECT' | translate}}
             </div>
         </div>
     </form>
@@ -178,123 +177,120 @@
     <form name="signatureChangedForm" ng-if="view === 'signature_changed'">
         <!-- signature changed View -->
         <div class="form-group">
-            <h4>Server signature changed:</h4>
+            <h4>{{'SERVER_SIGNATURE_CHANGED' | translate}}:</h4>
         </div>
         <div class="form-group">
-            <p>The new presented fingerprint is:</p>
+            <p>{{'THE_NEW_FINGERPRINT_IS' | translate}}:</p>
             <textarea class="form-control" id="changedFingerprint"
-                      placeholder="Fingerprint of the new server"
+                      placeholder="{{'FINGERPRINT_OF_THE_NEW_SERVER' | translate}}"
                       ng-model="changedFingerprint" readonly="readonly"></textarea>
         </div>
         <div class="form-group">
-            <p>The old fingerprint was:</p>
+            <p>{{'THE_OLD_FINGERPRINT_WAS' | translate}}:</p>
             <textarea class="form-control" id="oldFingerprint"
-                      placeholder="Fingerprint of the old server"
+                      placeholder="{{'FINGERPRINT_OF_THE_OLD_SERVER' | translate}}"
                       ng-model="oldFingerprint" readonly="readonly"></textarea>
         </div>
         <div class="form-group">
             <div class="alert alert-danger">
-                <strong>Danger!</strong> The signature of the server changed. It could mean that the connection
-                to the server has been compromised.<br><br><strong>Please contact the owner of this server.</strong>
+                <strong>{{'DANGER' | translate}}!</strong> {{'THE_SIGNATURE_OF_THE_SERVER_CHANGED' | translate}}<br><br><strong>{{'CONTACT_THE_OWNER_OF_THE_SERVER' | translate}}</strong>
             </div>
         </div>
 
         <div class="form-group">
             <button ng-click="disapprove_new_server()" type="submit"
-                    class="btn btn-danger">Cancel</button>
-            <a href="#" ng-click="approve_new_server()">Ignore and continue.</a>
+                    class="btn btn-danger">{{'CANCEL' | translate}}</button>
+            <a href="#" ng-click="approve_new_server()">{{'IGNORE_AND_CONTINUE' | translate}}</a>
         </div>
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
-            <strong>Error:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
         </div>
     </form>
 
     <form name="askPlainForm" ng-if="view === 'ask_send_plain'">
         <!-- signature changed View -->
         <div class="form-group">
-            <h4>Server asks for your plaintext password:</h4>
+            <h4>{{'SERVER_ASKS_FOR_YOUR_PLAINTEXT_PASSWORD' | translate}}:</h4>
         </div>
         <div class="form-group">
             <div class="alert alert-warning">
-                <strong>Danger!</strong> Accepting this will send your plain password to the server and should only be allowed
-                if you are using LDAP or similar authentication methods. You can decline this, but this might fail in an
-                authentication failure.
+                <strong>{{'DANGER' | translate}}!</strong> {{'ACCEPTING_THIS_WILL_SEND_YOUR_PLAIN_PASSWORD' | translate}}
             </div>
         </div>
 
         <div class="form-group">
             <button ng-click="approve_send_plain()" type="submit"
-                    class="btn btn-warning">Approve (unsafe)</button>
+                    class="btn btn-warning">{{'APPROVE_UNSAFE' | translate}}</button>
             <button ng-click="disapprove_send_plain()" type="submit"
-                    class="btn btn-success">Decline (safe)</button>
+                    class="btn btn-success">{{'DECLINE_SAFE' | translate}}</button>
         </div>
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
-            <strong>Error:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
         </div>
     </form>
 
     <form name="googleAuthenticatorForm" ng-if="view === 'google_authenticator_2fa'">
         <!-- google_authenticator_2fa View -->
         <div class="form-group">
-            Please enter your Google Authenticator Code:
+            {{'ENTER_YOUR_GOOGLE_AUTHENTICATOR_CODE' | translate}}:
         </div>
         <div class="form-group">
-            <input type="text" class="form-control" id="gaToken" placeholder="Google Authenticator Token"
+            <input type="text" class="form-control" id="gaToken" placeholder="{{'GOOGLE_AUTHENTICATOR_CODE' | translate}}"
                    ng-model="googleAuthenticatorFormGAToken" required maxlength="6" minlength="6">
         </div>
 
         <div class="form-group">
             <button ng-click="ga_verify(googleAuthenticatorFormGAToken)" type="submit"
-                    class="btn btn-danger">Send</button>
-            <button class="btn" type="button" ng-click="cancel();">Close</button>
+                    class="btn btn-danger">{{'SEND' | translate}}</button>
+            <button class="btn" type="button" ng-click="cancel();">{{'CLOSE' | translate}}</button>
         </div>
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
-            <strong>Error:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
         </div>
     </form>
 
     <form name="yubikeyOTPForm" ng-if="view === 'yubikey_otp_2fa'">
         <!-- yubikey_otp_2fa View -->
         <div class="form-group">
-            Please enter your YubiKey OTP Token:
+            {{'ENTER_YOUR_YUBIKEY_OTP_TOKEN' | translate}}:
         </div>
         <div class="form-group">
-            <input type="text" class="form-control" id="yubikeyOTPToken" placeholder="YubiKey Token"
+            <input type="text" class="form-control" id="yubikeyOTPToken" placeholder="{{'YUBIKEY_TOKEN' | translate}}"
                    ng-model="yubikeyOTPFormToken" required>
         </div>
 
         <div class="form-group">
             <button ng-click="yubikey_otp_verify(yubikeyOTPFormToken)" type="submit"
-                    class="btn btn-danger">Send</button>
-            <button class="btn" type="button" ng-click="cancel();">Close</button>
+                    class="btn btn-danger">{{'SEND' | translate}}</button>
+            <button class="btn" type="button" ng-click="cancel();">{{'CLOSE' | translate}}</button>
         </div>
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
-            <strong>Error:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
         </div>
     </form>
 
     <form name="duoForm" ng-if="view === 'duo_2fa'">
         <!-- duo_2fa View -->
         <div class="form-group">
-            Approve the push notification on your mobile or provide your Duo Code:
+            {{'APPROVE_THE_PUSH_NOTIFICATION' | translate}}:
         </div>
         <div class="form-group">
-            <input type="text" class="form-control" id="duoToken" placeholder="Duo Code"
+            <input type="text" class="form-control" id="duoToken" placeholder="{{'DUO_CODE' | translate}}"
                    ng-model="duoFormToken" required>
         </div>
 
         <div class="form-group">
             <button ng-click="duo_verify(duoFormToken)" type="submit"
-                    class="btn btn-danger">Send</button>
-            <button class="btn" type="button" ng-click="cancel();">Close</button>
+                    class="btn btn-danger">{{'SEND' | translate}}</button>
+            <button class="btn" type="button" ng-click="cancel();">{{'CLOSE' | translate}}</button>
         </div>
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
-            <strong>Error:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
         </div>
     </form>
 </div>
@@ -348,6 +344,9 @@
 <script src="js/lib/angular-sanitize.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-local-storage.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-snap.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-translate.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-translate-loader-url.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-translate-loader-static-files.min.js" type="application/javascript"></script>
 <script src="js/lib/ui-bootstrap-tpls.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-datatables.js" type="application/javascript"></script>
 <script src="js/lib/ngdraggable.js" type="application/javascript"></script>

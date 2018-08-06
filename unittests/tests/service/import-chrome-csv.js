@@ -1,7 +1,10 @@
 (function () {
     describe('Service: importChromeCsv test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('importChromeCsv exists', inject(function (importChromeCsv) {
             expect(importChromeCsv).toBeDefined();

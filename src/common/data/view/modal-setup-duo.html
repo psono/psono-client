@@ -1,21 +1,21 @@
 <form name="modalSetupGoogleAuthenticatorForm" novalidate autocomplete="off">
     <div class="modal-header">
         <button type="button" class="close" ng-click="close()"><span aria-hidden="true">&times;</span></button>
-        <h3 class="modal-title">Duo</h3>
+        <h3 class="modal-title">{{'DUO' | translate}}</h3>
     </div>
     <div class="modal-body">
 
 
         <uib-tabset>
 
-            <uib-tab heading="Existing Duos">
+            <uib-tab heading="{{'EXISTING_DUOS' | translate}}">
 
 
                 <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
                     <thead>
                     <tr>
-                        <th>Duo Title</th>
-                        <th>Delete</th>
+                        <th>{{'DUO_TITLE' | translate}}</th>
+                        <th>{{'DELETE' | translate}}</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -23,16 +23,16 @@
                         <td>{{ duo.title }}</td>
                         <td>
                             <button type="button" class="btn btn-default btn-sm" ng-click="delete_duo(duos, duo.id)">
-                                Delete
+                                {{'DELETE' | translate}}
                             </button>
                         </td>
                     </tr>
                     </tbody>
                 </table>
-                <span ng-repeat="e in delete_errors" class="help-block">{{e}}</span>
+                <div ng-repeat="e in delete_errors" class="help-block"><span translate="{{ e }}"></span></div>
             </uib-tab>
 
-            <uib-tab heading="New Duo">
+            <uib-tab heading="{{'NEW_DUO' | translate}}">
                 <br>
 
                 <div class="form-horizontal" ng-if="step === 'step1'">
@@ -40,13 +40,13 @@
 
                         <label class="control-label col-sm-6 col-md-4"
                                for="newDuoForm-title">
-                            <span>Title</span>
+                            <span>{{'TITLE' | translate}}</span>
                         </label>
 
                         <div class="col-sm-6 col-md-8">
                             <input type="text" ng-model="new_duo.title"
                                    ng-required="true"
-                                   placeholder="Title of your Duo" id="newDuoForm-title"
+                                   placeholder="{{'TITLE_OF_YOUR_DUO' | translate}}" id="newDuoForm-title"
                                    name="title"
                                    class="form-control">
                         </div>
@@ -55,13 +55,13 @@
 
                         <label class="control-label col-sm-6 col-md-4"
                                for="newDuoForm-integration_key">
-                            <span>Integration Key</span>
+                            <span>{{'INTEGRATION_KEY' | translate}}</span>
                         </label>
 
                         <div class="col-sm-6 col-md-8">
                             <input type="text" ng-model="new_duo.integration_key"
                                    ng-required="true"
-                                   placeholder="Integration Key" id="newDuoForm-integration_key"
+                                   placeholder="{{'INTEGRATION_KEY' | translate}}" id="newDuoForm-integration_key"
                                    name="integration_key"
                                    class="form-control">
                         </div>
@@ -70,13 +70,13 @@
 
                         <label class="control-label col-sm-6 col-md-4"
                                for="newDuoForm-secret_key">
-                            <span>Secret Key</span>
+                            <span>{{'SECRET_KEY' | translate}}</span>
                         </label>
 
                         <div class="col-sm-6 col-md-8">
                             <input type="password" ng-model="new_duo.secret_key"
                                    ng-required="true"
-                                   placeholder="Secret Key" id="newDuoForm-secret_key"
+                                   placeholder="{{'SECRET_KEY' | translate}}" id="newDuoForm-secret_key"
                                    name="secret_key"
                                    class="form-control">
                         </div>
@@ -85,16 +85,18 @@
 
                         <label class="control-label col-sm-6 col-md-4"
                                for="newDuoForm-host">
-                            <span>Host</span>
+                            <span>{{'HOST' | translate}}</span>
                         </label>
 
                         <div class="col-sm-6 col-md-8">
                             <input type="text" ng-model="new_duo.host"
                                    ng-required="true"
-                                   placeholder="Host" id="newDuoForm-host"
+                                   placeholder="{{'HOST' | translate}}" id="newDuoForm-host"
                                    name="host"
                                    class="form-control">
-                            <span ng-repeat="e in errors" class="help-block">{{e}}</span>
+                            <div ng-repeat="e in errors" class="help-block">
+                                <span translate="{{ e }}"></span>
+                            </div>
                         </div>
                     </div>
                     <div class="row form-group">
@@ -103,7 +105,7 @@
                         </label>
 
                         <div class="col-sm-6 col-md-8">
-                            <button class="btn btn-primary btn-primary" ng-click="create_duo(new_duo)" type="button">Setup</button>
+                            <button class="btn btn-primary btn-primary" ng-click="create_duo(new_duo)" type="button">{{'SETUP' | translate}}</button>
                         </div>
                     </div>
                 </div>
@@ -114,7 +116,7 @@
                     </div>
                     <div class="row form-group">
                         <div class="text-center">
-                            <button class="btn btn-primary btn-primary" ng-click="goto_step3()" type="button">Scan the code and then click here</button>
+                            <button class="btn btn-primary btn-primary" ng-click="goto_step3()" type="button">{{'SCAN_THE_CODE_THEN_CLICK_HERE' | translate}}</button>
                         </div>
                     </div>
 
@@ -126,16 +128,18 @@
 
                         <label class="control-label col-sm-6 col-md-4"
                                for="validateGAForm-title">
-                            <span>Code</span>
+                            <span>{{'CODE' | translate}}</span>
                         </label>
 
                         <div class="col-sm-6 col-md-8">
                             <input type="text" ng-model="new_ga.code"
                                    ng-required="true"
-                                   placeholder="One Code for validation" id="validateGAForm-title"
+                                   placeholder="{{'ONE_CODE_FOR_VALIDATION' | translate}}" id="validateGAForm-title"
                                    name="title"
                                    class="form-control">
-                            <span ng-repeat="e in errors" class="help-block">{{e}}</span>
+                            <div ng-repeat="e in errors" class="help-block">
+                                <span translate="{{ e }}"></span>
+                            </div>
                         </div>
                     </div>
                     <div class="row form-group">
@@ -144,7 +148,7 @@
                         </label>
 
                         <div class="col-sm-6 col-md-8">
-                            <button class="btn btn-primary btn-primary" ng-click="activate_duo(new_duo)" type="button">Validate</button>
+                            <button class="btn btn-primary btn-primary" ng-click="activate_duo(new_duo)" type="button">{{'VALIDATE' | translate}}</button>
                         </div>
                     </div>
                 </div>
@@ -154,6 +158,6 @@
 
     </div>
     <div class="modal-footer">
-        <button class="btn" type="button" ng-click="close();">Close</button>
+        <button class="btn" type="button" ng-click="close();">{{'CLOSE' | translate}}</button>
     </div>
 </form>

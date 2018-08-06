@@ -48,24 +48,24 @@
             <div ng-if="success" class="big-font-icon-and-msg">
                 <i class="fa fa-thumbs-o-up"></i>
 
-                <div ng-repeat="e in msgs">{{e}}</div>
+                <div ng-repeat="e in msgs"><span translate="{{ e }}"></span></div>
             </div>
 
             <div ng-if="success" class="form-group text-center">
-                <a href="index.html" class="btn btn-danger" role="button">Back to home</a>
+                <a href="index.html" class="btn btn-danger" role="button">{{'BACK_TO_HOME' | translate}}</a>
             </div>
 
             <form name="registerForm" ng-if="!success" autocomplete="off">
                 <div ng-class="{'input-group': registerFormUsername == null || registerFormUsername.indexOf('@') == -1}">
-                    <input type="text" class="form-control" id="registerUsername" placeholder="Username" ng-model="registerFormUsername" required aria-describedby="username-addon" autofocus>
+                    <input type="text" class="form-control" id="registerUsername" placeholder="{{'USERNAME' | translate}}" ng-model="registerFormUsername" required aria-describedby="username-addon" autofocus>
                     <span class="input-group-addon" id="username-addon" ng-if="registerFormUsername == null || registerFormUsername.indexOf('@') == -1">@{{selected_server_domain}}</span>
                 </div>
                 <br>
                 <div class="form-group">
-                    <input type="email" class="form-control" id="registerEmail" placeholder="E-Mail" ng-model="registerFormEmail" required>
+                    <input type="email" class="form-control" id="registerEmail" placeholder="{{'E_MAIL' | translate}}" ng-model="registerFormEmail" required>
                 </div>
                 <div class="form-group">
-                    <input type="password" class="form-control" id="registerPassword" placeholder="Password" ng-model="registerFormPassword" required>
+                    <input type="password" class="form-control" id="registerPassword" placeholder="{{'PASSWORD' | translate}}" ng-model="registerFormPassword" required>
 
                     <uib-progressbar value="registerFormPassword | complexify" ng-if="(registerFormPassword | complexify) > 0">
                         <span complexify="registerFormPassword"></span>%
@@ -75,24 +75,24 @@
 
 
                 <div class="form-group">
-                    <input type="password" class="form-control" id="registerPasswordRepeat" placeholder="Password (repeat)" ng-model="registerFormPasswordRepeat" required>
+                    <input type="password" class="form-control" id="registerPasswordRepeat" placeholder="{{'PASSWORD_REPEAT' | translate}}" ng-model="registerFormPasswordRepeat" required>
                 </div>
 
                 <div class="form-group">
-                    <button ng-click="register(registerFormEmail, registerFormUsername, registerFormPassword, registerFormPasswordRepeat)" type="submit" class="btn btn-danger">Register</button>
+                    <button ng-click="register(registerFormEmail, registerFormUsername, registerFormPassword, registerFormPasswordRepeat)" type="submit" class="btn btn-danger">{{'REGISTER' | translate}}</button>
                 </div>
 
                 <div class="form-group alert alert-danger" ng-repeat="e in errors">
-                    <strong>Error:</strong> {{e}}
+                    <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
                 </div>
 
                 <div class="form-group alert alert-info" ng-repeat="e in msgs">
-                    <strong>Error:</strong> {{e}}
+                    <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
                 </div>
 
                 <div class="form-group hideinputcharakter">
 
-                    <label for="serverselection">Server: </label>
+                    <label for="serverselection">{{'SERVER' | translate}}: </label>
                     <input type="text" id="serverselection"
                            uib-popover-template="'view/popover-server-select.html'"
                            popover-trigger="'focus'"
@@ -153,6 +153,9 @@
 <script src="js/lib/angular-sanitize.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-local-storage.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-snap.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-translate.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-translate-loader-url.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-translate-loader-static-files.min.js" type="application/javascript"></script>
 <script src="js/lib/ui-bootstrap-tpls.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-datatables.js" type="application/javascript"></script>
 <script src="js/lib/ngdraggable.js" type="application/javascript"></script>

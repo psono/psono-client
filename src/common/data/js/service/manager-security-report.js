@@ -115,21 +115,23 @@
             if (secret.website_password_password.length <= _MIN_PASSWORD_LENGTH) {
                 return {
                     score: _MIN_SCORE,
-                    advise: 'Set longer password (length <= ' + _MIN_PASSWORD_LENGTH + ')'
+                    advise: 'SET_LONGER_PASSWORD',
+                    min_password_length: _MIN_PASSWORD_LENGTH
                 };
             }
 
             if (secret.website_password_username && secret.website_password_username !== '' && secret.website_password_password.toLowerCase().indexOf(secret.website_password_username.toLowerCase()) !== -1) {
                 return {
                     score:0,
-                    advise: 'Remove username from password.'
+                    advise: 'REMOVE_USERNAME_FROM_PASSWORD'
                 };
             }
 
             if (secret.website_password_password.length >= _MAX_PASSWORD_LENGTH) {
                 return {
                     score: _MAX_SCORE,
-                    advise: ''
+                    advise: '',
+                    max_password_length: _MAX_PASSWORD_LENGTH
                 };
             }
 
@@ -138,13 +140,13 @@
             if (secret.website_password_password.length <= _MIN_VARIATION_ENFORCE_PASSWORD_LENGTH && variation_count < _MIN_VARIATION_LENGTH) {
                 return {
                     score: Math.round(Math.max(Math.min(score * (1 - (_MIN_VARIATION_LENGTH - variation_count)*_VARIATION_PENALTY), _MAX_SCORE), _MIN_SCORE) * 10) / 10,
-                    advise: 'Set longer or more complex password.'
+                    advise: 'SET_LONGER_OR_MORE_COMPLEX_PASSWORD.'
                 };
             }
 
             return {
                 score: Math.round(Math.max(Math.min(score, _MAX_SCORE), _MIN_SCORE) * 10) / 10,
-                advise: 'Set longer password.'
+                advise: 'SET_LONGER_PASSWORD_10'
             };
         };
 
@@ -250,6 +252,8 @@
                     name: secrets[i]['name'],
                     password: secrets[i]['website_password_password'],
                     rating: rating['score'],
+                    min_password_length: rating['min_password_length'],
+                    pwned: rating['pwned'],
                     input_type: 'password',
                     advise: rating['advise'],
                     create_age: get_age_in_days(secrets[i]['create_date']),
@@ -285,7 +289,7 @@
                 if (lookup_dict.hasOwnProperty(analysis.passwords[i].password)) {
                     analysis.passwords[i].duplicate = true;
                     lookup_dict[analysis.passwords[i].password].duplicate = true;
-                    lookup_dict[analysis.passwords[i].password].advise = 'Change password, do not use passwords twice.';
+                    lookup_dict[analysis.passwords[i].password].advise = 'DO_NOT_USE_PASSWORDS_TWICE';
                 } else {
                     lookup_dict[analysis.passwords[i].password] = analysis.passwords[i];
                 }
@@ -324,9 +328,9 @@
                     }
                     entry.pwned = suffix[1];
                     if (entry.pwned > 1) {
-                        entry.advise = 'Change password, it has been compromised ' + entry.pwned + ' times.';
+                        entry.advise = 'PASSWORD_HAS_BEEN_COMPROMISED_MULTIPLE_TIMES';
                     } else {
-                        entry.advise = 'Change password, it has been compromised.';
+                        entry.advise = 'PASSWORD_HAS_BEEN_COMPROMISED';
                     }
 
                     entry.rating = 0;

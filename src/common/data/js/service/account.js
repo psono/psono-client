@@ -21,48 +21,48 @@
         var _default_tab = 'overview';
 
         var _tabs = [
-            { key: 'overview', title: 'Overview', description: 'The overview of your account with details like your public key.' },
-            { key: 'change-email', title: 'Change E-Mail', description: 'You can provide here a new e-mail address (together with your current password for verification)' },
-            { key: 'change-password', title: 'Change Password', description: 'You can provide here a new password address (together with your current password for verification)' },
-            { key: 'generate-password-recovery', title: 'Generate Password Recovery', description: 'You should create a password recovery code to recover your account with a lost password.' },
-            { key: 'multifactor-authentication', title: 'Multifactor Authentication', description: 'A second factor is the best security improvement for your account.' },
-            { key: 'delete-account', title: 'Delete Account', description: 'If you plan to delete your account you can do that here. Be aware all data will be lost.' }
+            { key: 'overview', title: 'OVERVIEW', description: 'OVERVIEW_DESCRIPTION' },
+            { key: 'change-email', title: 'CHANGE_E_MAIL', description: 'CHANGE_E_MAIL_DESCRIPTION' },
+            { key: 'change-password', title: 'CHANGE_PASSWORD', description: 'CHANGE_PASSWORD_DESCRIPTION' },
+            { key: 'generate-password-recovery', title: 'GENERATE_PASSWORD_RECOVERY', description: 'GENERATE_PASSWORD_RECOVERY_DESCRIPTION' },
+            { key: 'multifactor-authentication', title: 'MULTIFACTOR_AUTHENTICATION', description: 'MULTIFACTOR_AUTHENTICATION_DESCRIPTION' },
+            { key: 'delete-account', title: 'DELETE_ACCOUNT', description: 'DELETE_ACCOUNT_DESCRIPTION' }
         ];
 
         var _account = {
             fields: [
                 // Overview
-                { key: "client_label", type: "label_only", title: "Client:", tab: 'overview'},
-                { key: "user_id", field: "input", type: "text", title: "User ID", placeholder: "User ID", required: true, readonly: true, tab: 'overview'},
-                { key: "user_username", field: "input", type: "email", title: "Username", placeholder: "Username", required: true, readonly: true, tab: 'overview'},
-                { key: "user_email", field: "input", type: "email", title: "E-Mail", placeholder: "E-Mail", required: true, readonly: true, tab: 'overview'},
-                { key: "user_public_key", field: "input", type: "text", title: "Public Key", placeholder: "Public Key", required: true, readonly: true, tab: 'overview'},
-                { key: "server_label", type: "label_only", title: "Server:", tab: 'overview'},
-                { key: "server_api_version", field: "input", type: "text", title: "Server API Version", placeholder: "Server API Version", required: true, readonly: true, tab: 'overview'},
-                { key: "server_version", field: "input", type: "text", title: "Server Version", placeholder: "Server Version", required: true, readonly: true, tab: 'overview'},
-                { key: "server_signature", field: "input", type: "text", title: "Server Signature", placeholder: "Server Signature", required: true, readonly: true, tab: 'overview'},
-                { key: "server_log_audit", field: "input", type: "text", title: "Server Audit Logging", placeholder: "Server Audit Logging", required: true, readonly: true, tab: 'overview'},
-                { key: "server_public_key", field: "input", type: "text", title: "Server Public Key", placeholder: "Server Public Key", required: true, readonly: true, tab: 'overview'},
-                { key: "server_license_type", field: "input", type: "text", title: "Server License Type", placeholder: "Server License Type", required: true, readonly: true, tab: 'overview'},
-                { key: "server_license_max_users", field: "input", type: "text", title: "Server Max. Users", placeholder: "Server Max. Users", required: true, readonly: true, tab: 'overview'},
-                { key: "server_license_valid_from", field: "input", type: "text", title: "Server License Valid From", placeholder: "Server License Valid From", required: true, readonly: true, tab: 'overview'},
-                { key: "server_license_valid_till", field: "input", type: "text", title: "Server License Valid Till", placeholder: "Server License Valid Till", required: true, readonly: true, tab: 'overview'},
+                { key: "client_label", type: "label_only", title: "CLIENT_INFO", tab: 'overview'},
+                { key: "user_id", field: "input", type: "text", title: "USER_ID", placeholder: "USER_ID", required: true, readonly: true, tab: 'overview'},
+                { key: "user_username", field: "input", type: "email", title: "USERNAME", placeholder: "USERNAME", required: true, readonly: true, tab: 'overview'},
+                { key: "user_email", field: "input", type: "email", title: "E_MAIL", placeholder: "E_MAIL", required: true, readonly: true, tab: 'overview'},
+                { key: "user_public_key", field: "input", type: "text", title: "PUBLIC_KEY", placeholder: "PUBLIC_KEY", required: true, readonly: true, tab: 'overview'},
+                { key: "server_label", type: "label_only", title: "SERVER_INFO", tab: 'overview'},
+                { key: "server_api_version", field: "input", type: "text", title: "SERVER_API_VERSION", placeholder: "SERVER_API_VERSION", required: true, readonly: true, tab: 'overview'},
+                { key: "server_version", field: "input", type: "text", title: "SERVER_VERSION", placeholder: "SERVER_VERSION", required: true, readonly: true, tab: 'overview'},
+                { key: "server_signature", field: "input", type: "text", title: "SERVER_SIGNATURE", placeholder: "SERVER_SIGNATURE", required: true, readonly: true, tab: 'overview'},
+                { key: "server_log_audit", field: "input", type: "text", title: "SERVER_AUDIT_LOGGING", placeholder: "SERVER_AUDIT_LOGGING", required: true, readonly: true, tab: 'overview'},
+                { key: "server_public_key", field: "input", type: "text", title: "SERVER_PUBLIC_KEY", placeholder: "SERVER_PUBLIC_KEY", required: true, readonly: true, tab: 'overview'},
+                { key: "server_license_type", field: "input", type: "text", title: "SERVER_LICENSE_TYPE", placeholder: "SERVER_LICENSE_TYPE", required: true, readonly: true, tab: 'overview'},
+                { key: "server_license_max_users", field: "input", type: "text", title: "SERVER_MAX_USERS", placeholder: "SERVER_MAX_USERS", required: true, readonly: true, tab: 'overview'},
+                { key: "server_license_valid_from", field: "input", type: "text", title: "SERVER_LICENSE_VALID_FROM", placeholder: "SERVER_LICENSE_VALID_FROM", required: true, readonly: true, tab: 'overview'},
+                { key: "server_license_valid_till", field: "input", type: "text", title: "SERVER_LICENSE_VALID_TILL", placeholder: "SERVER_LICENSE_VALID_TILL", required: true, readonly: true, tab: 'overview'},
                 // Change E-Mail
-                { key: "setting_email", field: "input", type: "email", title: "New E-Mail", placeholder: "New E-Mail", required: true, tab: 'change-email'},
-                { key: "setting_email_password_old", field: "input", type: "password", title: "Current Password", placeholder: "Current Password", tab: 'change-email'},
+                { key: "setting_email", field: "input", type: "email", title: "NEW_E_MAIL", placeholder: "NEW_E_MAIL", required: true, tab: 'change-email'},
+                { key: "setting_email_password_old", field: "input", type: "password", title: "CURRENT_PASSWORD", placeholder: "CURRENT_PASSWORD", tab: 'change-email'},
                 // Change Password
-                { key: "setting_password", field: "input", type: "password", title: "New Password", placeholder: "New Password", tab: 'change-password', complexify: true},
-                { key: "setting_password_repeat", field: "input", type: "password", title: "New Password (repeat)", placeholder: "New Password (repeat)", tab: 'change-password'},
-                { key: "setting_password_password_old", field: "input", type: "password", title: "Old Password", placeholder: "Old Password", tab: 'change-password'},
+                { key: "setting_password", field: "input", type: "password", title: "NEW_PASSWORD", placeholder: "NEW_PASSWORD", tab: 'change-password', complexify: true},
+                { key: "setting_password_repeat", field: "input", type: "password", title: "NEW_PASSWORD_REPEAT", placeholder: "NEW_PASSWORD_REPEAT", tab: 'change-password'},
+                { key: "setting_password_password_old", field: "input", type: "password", title: "OLD_PASSWORD", placeholder: "OLD_PASSWORD", tab: 'change-password'},
                 // Password Recovery
-                { name: "generate_password_recovery_button", field: "button", type: "button", title: "New Password Recovery Code", btnLabel: "Generate", class: 'btn-primary', onClick:"onClickGenerateNewPasswordRecoveryCode", tab: 'generate-password-recovery' },
+                { name: "generate_password_recovery_button", field: "button", type: "button", title: "NEW_PASSWORD_RECOVERY_CODE", btnLabel: "GENERATE", class: 'btn-primary', onClick:"onClickGenerateNewPasswordRecoveryCode", tab: 'generate-password-recovery' },
                 // 2FA
                 // controlled by serer, check activate()
                 // { name: "google_authenticator_setup", field: "button", type: "button", title: "Google Authenticator", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureGoogleAuthenticator", tab: 'multifactor-authentication' },
                 // { name: "yubikey_otp_setup", field: "button", type: "button", title: "YubiKey (OTP)", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureYubiKeyOTP", tab: 'multifactor-authentication' },
                 // { name: "duo_setup", field: "button", type: "button", title: "Duo (Push or Code)", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureDuo", tab: 'multifactor-authentication' },
                 // Delete Account
-                { name: "delete_account", field: "button", type: "button", title: "Delete Account", btnLabel: "Delete", class: 'btn-primary', onClick:"onClickOpenDeleteAccountModal", tab: 'delete-account' }
+                { name: "delete_account", field: "button", type: "button", title: "DELETE_ACCOUNT", btnLabel: "DELETE", class: 'btn-primary', onClick:"onClickOpenDeleteAccountModal", tab: 'delete-account' }
             ],
             onClickOpenDeleteAccountModal: function (node) {
 
@@ -183,13 +183,13 @@
             }
 
             if (allowed_second_factors.indexOf('google_authenticator') !== -1) {
-                _account.fields.push({ name: "google_authenticator_setup", field: "button", type: "button", title: "Google Authenticator", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureGoogleAuthenticator", tab: 'multifactor-authentication' })
+                _account.fields.push({ name: "google_authenticator_setup", field: "button", type: "button", title: "GOOGLE_AUTHENTICATOR", btnLabel: "CONFIGURE", class: 'btn-primary', onClick:"onClickConfigureGoogleAuthenticator", tab: 'multifactor-authentication' })
             }
             if (allowed_second_factors.indexOf('yubikey_otp') !== -1) {
-                _account.fields.push({ name: "yubikey_otp_setup", field: "button", type: "button", title: "YubiKey (OTP)", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureYubiKeyOTP", tab: 'multifactor-authentication' })
+                _account.fields.push({ name: "yubikey_otp_setup", field: "button", type: "button", title: "YUBIKEY_OTP", btnLabel: "CONFIGURE", class: 'btn-primary', onClick:"onClickConfigureYubiKeyOTP", tab: 'multifactor-authentication' })
             }
             if (allowed_second_factors.indexOf('duo') !== -1) {
-                _account.fields.push({ name: "duo_setup", field: "button", type: "button", title: "Duo (Push or Code)", btnLabel: "Configure", class: 'btn-primary', onClick:"onClickConfigureDuo", tab: 'multifactor-authentication' })
+                _account.fields.push({ name: "duo_setup", field: "button", type: "button", title: "DUO_PUSH_OR_CODE", btnLabel: "CONFIGURE", class: 'btn-primary', onClick:"onClickConfigureDuo", tab: 'multifactor-authentication' })
             }
         }
 

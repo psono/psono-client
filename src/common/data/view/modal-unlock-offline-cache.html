@@ -9,7 +9,7 @@
             <p class="help-block" ng-show="submitted && unlockOfflineCacheForm.password.$error.required">The password is required</p>
         </div>
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
-            <strong>Error:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
         </div>
     </div>
     <div class="modal-footer">

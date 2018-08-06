@@ -49,9 +49,9 @@
 
     angular.module('psonocli', ['ngRoute', 'ng', 'ui.bootstrap', 'snap', 'chieffancypants.loadingBar', 'ngAnimate',
             'LocalStorageModule', 'ngTree', 'ngDraggable', 'ng-context-menu', 'ui.select', 'ngSanitize',
-            'angular-complexify', 'datatables', 'chart.js'])
-        .config(['$routeProvider', '$httpProvider', '$locationProvider', '$compileProvider', 'localStorageServiceProvider',
-            function ($routeProvider, $httpProvider, $locationProvider, $compileProvider, localStorageServiceProvider) {
+            'angular-complexify', 'datatables', 'chart.js', 'pascalprecht.translate'])
+        .config(['$translateProvider', '$routeProvider', '$httpProvider', '$locationProvider', '$compileProvider', 'localStorageServiceProvider',
+            function ($translateProvider, $routeProvider, $httpProvider, $locationProvider, $compileProvider, localStorageServiceProvider) {
                 //Router config
                 $routeProvider
                     .when('/settings', {
@@ -113,8 +113,8 @@
                         controller: 'DatastoreCtrl'
                     });
 
-                $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|s?ftp|mailto|tel|file|chrome-extension|blob):/);
-                $compileProvider.imgSrcSanitizationWhitelist(/^\s*((https?|ftp|file|chrome-extension|blob):|data:image\/)/);
+                $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|s?ftp|mailto|tel|file|chrome-extension|moz-extension|blob):/);
+                $compileProvider.imgSrcSanitizationWhitelist(/^\s*((https?|ftp|file|chrome-extension|moz-extension|blob):|data:image\/)/);
 
                 // Prevent caching for IE
                 // taken from https://stackoverflow.com/a/19771501/4582775
@@ -124,6 +124,25 @@
                 $httpProvider.defaults.headers.get['If-Modified-Since'] = 'Mon, 26 Jul 1997 05:00:00 GMT';
                 $httpProvider.defaults.headers.get['Cache-Control'] = 'no-cache';
                 $httpProvider.defaults.headers.get['Pragma'] = 'no-cache';
+
+
+                $translateProvider
+                    .useStaticFilesLoader({
+                        prefix: 'translations/locale-',
+                        suffix: '.json'
+                    })
+                    .registerAvailableLanguageKeys(['cs', 'de', 'en', 'es', 'fi', 'fr', 'hr', 'it', 'ja', 'ko', 'nl', 'pl', 'ru', 'vi', 'zh-cn'], {
+                        'de_*': 'de',
+                        'en_*': 'en',
+                        'es_*': 'es',
+                        'fr_*': 'fr',
+                        'it_*': 'it',
+                        'zh_*': 'zh-cn',
+                        '*': 'en'
+                    })
+                    .fallbackLanguage('en')
+                    .determinePreferredLanguage()
+                    .useSanitizeValueStrategy('escape');
 
             }])
         .filter('typeof', function() {

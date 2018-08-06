@@ -89,6 +89,10 @@ var build = function(build_path, type) {
     gulp.src(['src/common/data/fonts/**/*'])
         .pipe(gulp.dest(path.join(build_path, 'fonts')));
 
+    // All files in data/translations
+    gulp.src(['src/common/data/translations/**/*'])
+        .pipe(gulp.dest(path.join(build_path, 'translations')));
+
     // All files in data/img
     gulp.src(['src/common/data/img/**/*'])
         .pipe(gulp.dest(path.join(build_path, 'img')));
@@ -131,6 +135,9 @@ var build = function(build_path, type) {
             "src/common/data/js/lib/angular-sanitize.min.js",
             "src/common/data/js/lib/angular-local-storage.min.js",
             "src/common/data/js/lib/angular-snap.min.js",
+            "src/common/data/js/lib/angular-translate.min.js",
+            "src/common/data/js/lib/angular-translate-loader-url.min.js",
+            "src/common/data/js/lib/angular-translate-loader-static-files.min.js",
             "src/common/data/js/lib/ui-bootstrap-tpls.min.js",
             "src/common/data/js/lib/ngdraggable.js",
             "src/common/data/js/lib/angular-ui-select.js",

@@ -1,7 +1,10 @@
 (function () {
     describe('Service: managerHost test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         var $httpBackend;
         var $rootScope;
@@ -9,6 +12,9 @@
             // unwrap necessary services
             $httpBackend = $injector.get('$httpBackend');
             $rootScope = $injector.get('$rootScope');
+
+
+            $httpBackend.when('GET', "view/datastore.html").respond({});
         }));
 
         it('managerHost exists', inject(function (managerHost) {

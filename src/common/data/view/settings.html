@@ -7,24 +7,24 @@
             -->
         </div>
         <div class="title col-sm-4">
-            <h1>Settings</h1>
+            <h1>{{ 'SETTINGS' | translate }}</h1>
         </div>
     </div>
 
     <div class="panel panel-default">
         <div class="panel-heading clearfix ng-scope">
-            <h3 class="panel-title ng-binding ng-scope">Settings</h3>
+            <h3 class="panel-title ng-binding ng-scope">{{ 'SETTINGS' | translate }}</h3>
         </div>
         <div class="panel-body" style="height: auto;">
 
             <form class="form-horizontal" role="form">
                 <uib-tabset class="tabset_expand" active="active_tab">
 
-                    <uib-tab index="$index" ng-repeat="tab in tabs" heading="{{ tab.title }}"  select="open_tab(tab.key)">
+                    <uib-tab index="$index" ng-repeat="tab in tabs" heading="{{ tab.title | translate }}"  select="open_tab(tab.key)">
                         <div class="row">
                             <div class="col-xs-12 col-sm-12">
-                                <h2>{{ tab.title }}:</h2>
-                                {{ tab.description }}
+                                <h2>{{ tab.title | translate }}:</h2>
+                                {{ tab.description | translate }}
                             </div>
                         </div>
                         <hr>
@@ -34,14 +34,14 @@
 
                             <label class="control-label col-sm-4 col-md-2"
                                    for="settingsForm-{{field.key}}">
-                                {{field.title}}
+                                {{field.title | translate}}
                             </label>
                             <div class="col-sm-8 col-md-10">
                                 <input ng-if="field.field === 'input' && field.type !== 'checkbox'"
                                        type="{{field.type}}" ng-model="field.value"
                                        ng-required="{{field.required}}"
                                        ng-readonly="{{field.readonly}}"
-                                       placeholder="{{field.placeholder}}" id="settingsForm-{{field.key}}"
+                                       placeholder="{{field.placeholder | translate}}" id="settingsForm-{{field.key}}"
                                        name="{{field.key}}"
                                        class="form-control">
 
@@ -50,7 +50,7 @@
                                        style="margin-top:10px;"
                                        ng-required="{{field.required}}"
                                        ng-readonly="{{field.readonly}}"
-                                       placeholder="{{field.placeholder}}" id="settingsForm-{{field.key}}"
+                                       placeholder="{{field.placeholder | translate}}" id="settingsForm-{{field.key}}"
                                        name="{{field.key}}"
                                 >
 
@@ -68,9 +68,9 @@
                 </uib-tabset>
 
                 <div>
-                    <button class="btn btn-primary" type="button" ng-click="submitted=true; save();">Save</button>
-                    <span class="error" ng-repeat="e in errors">{{e}}</span>
-                    <span ng-repeat="m in msgs">{{m}}</span>
+                    <button class="btn btn-primary" type="button" ng-click="submitted=true; save();">{{'SAVE' | translate}}</button>
+                    <div class="error" ng-repeat="e in errors"><span translate="{{ e }}"></span></div>
+                    <div ng-repeat="e in msgs"><span translate="{{ e }}"></span></div>
                 </div>
 
             </form>

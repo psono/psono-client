@@ -10,16 +10,16 @@
         </div>
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
-            <strong>Error:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
         </div>
 
         <div class="form-group alert alert-danger">
-            <strong>Danger!</strong> It is impossible to revert this action. Deleting a datastore is permanent. All
+            <strong>{{'DANGER' | translate}}!</strong> It is impossible to revert this action. Deleting a datastore is permanent. All
             content of the datastore will be lost!
         </div>
     </div>
     <div class="modal-footer">
-        <button class="btn" type="button" ng-click="cancel();">Close</button>
-        <button class="btn btn-primary" type="submit" ng-click="submitted=true;save()">Delete</button>
+        <button class="btn" type="button" ng-click="cancel();">{{'CLOSE' | translate}}</button>
+        <button class="btn btn-primary" type="submit" ng-click="submitted=true;save()">{{'DELETE' | translate}}</button>
     </div>
 </form>

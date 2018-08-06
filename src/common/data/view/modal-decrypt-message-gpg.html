@@ -14,7 +14,7 @@
         </div>
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
-            <strong>Error:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
         </div>
         <div class="form-group">
             <button ng-click="decrypt()" type="submit-" class="btn btn-primary">Decrypt</button>
@@ -50,6 +50,6 @@
     </div>
 
     <div class="modal-footer">
-        <button class="btn" type="button" ng-click="cancel();">Close</button>
+        <button class="btn" type="button" ng-click="cancel();">{{'CLOSE' | translate}}</button>
     </div>
 </form>
