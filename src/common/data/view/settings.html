@@ -54,8 +54,8 @@
                                        name="{{field.key}}"
                                 >
 
-                                <select class="form-control" ng-if="field.field === 'select'"
-                                        ng-options="item as item.label for item in field.options track by item.id"
+                                <select class="form-control" ng-if="field.field === 'select'" ng-change="settings[field.onChange](settings.fields)"
+                                        ng-options="item as item.label | translate for item in field.options track by item.id"
                                         ng-model="field.value"></select>
 
                                 <uib-progressbar value="field.value | complexify" ng-if="field.complexify && (field.value | complexify) > 0">

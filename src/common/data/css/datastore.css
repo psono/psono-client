@@ -84,6 +84,10 @@ body {
   background-color: #2ba880;
   border-color: #2ba880; }
 
+.loginbox-translate.open .dropdown-toggle.btn-primary {
+  background-color: #151f2b;
+  border-color: #151f2b; }
+
 .btn-primary:active:hover,
 .btn-primary.active:hover,
 .open > .dropdown-toggle.btn-primary:hover,

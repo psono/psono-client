@@ -98,6 +98,7 @@ self.addEventListener('install', function(event) {
                 './translations/locale-vi.json',
                 './translations/locale-zh-cn.json',
 
+
                 './js/lib/ecma-nacl.min.js',
                 './js/lib/openpgp.min.js',
                 './js/lib/sha512.min.js',
@@ -119,6 +120,7 @@ self.addEventListener('install', function(event) {
                 './js/lib/fast-xml-parser.js',
 
                 './js/lib/angular.min.js',
+                './js/lib/angular-cookies.min.js',
                 './js/lib/angular-animate.min.js',
                 './js/lib/angular-touch.min.js',
                 './js/lib/angular-complexify.min.js',
@@ -129,6 +131,7 @@ self.addEventListener('install', function(event) {
                 './js/lib/angular-local-storage.min.js',
                 './js/lib/angular-snap.min.js',
                 './js/lib/angular-translate.min.js',
+                './js/lib/angular-translate-storage-cookie.min.js',
                 './js/lib/angular-translate-loader-url.min.js',
                 './js/lib/angular-translate-loader-static-files.min.js',
                 './js/lib/ui-bootstrap-tpls.min.js',
@@ -218,6 +221,7 @@ self.addEventListener('install', function(event) {
                 './js/service/account.js',
                 './js/service/settings.js',
                 './js/service/manager-base.js',
+                './js/service/language-picker.js',
                 './js/service/manager.js',
                 './js/service/manager-widget.js',
                 './js/service/manager-datastore.js',

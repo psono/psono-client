@@ -17,6 +17,7 @@
      * @requires psonocli.browserClient
      * @requires psonocli.storage
      * @requires psonocli.helper
+     * @requires psonocli.languagePicker
      *
      * @description
      * Controller for the Login view
@@ -24,12 +25,17 @@
     angular.module('psonocli').controller('LoginCtrl', ['$scope', '$sce', '$templateRequest', '$templateCache', '$q',
         '$rootScope', '$filter', '$timeout',
         'managerDatastoreUser', 'managerHost', 'browserClient', 'storage',
-        'snapRemote', '$window', '$route', '$routeParams', '$location', 'helper',
+        'snapRemote', '$window', '$route', '$routeParams', '$location', 'helper', 'languagePicker',
         function ($scope, $sce, $templateRequest, $templateCache, $q,
                   $rootScope, $filter, $timeout,
                   managerDatastoreUser, managerHost, browserClient, storage,
-                  snapRemote, $window, $route, $routeParams, $location, helper) {
+                  snapRemote, $window, $route, $routeParams, $location, helper, languagePicker) {
 
+            $scope.languages = languagePicker.get_language_array();
+            $scope.active = {
+                'lang': languagePicker.get_active_language()
+            };
+            $scope.change_language = change_language;
             $scope.select_server = select_server;
             $scope.changing = changing;
             $scope.ga_verify = ga_verify;
@@ -78,6 +84,21 @@
                 };
 
                 browserClient.get_config().then(onSuccess, onError);
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LoginCtrl#change_language
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Changes the language
+             *
+             * @param {string} lang The language to use
+             */
+            function change_language(lang) {
+                $scope.active['lang'] = lang;
+                languagePicker.changeLanguage(lang.code)
             }
 
             /**

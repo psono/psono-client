@@ -7,6 +7,7 @@ wget http://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js -O src/common
 wget https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css -O src/common/data/css/lib/datatables.min.css
 
 wget https://code.angularjs.org/1.7.3/angular.min.js -O src/common/data/js/lib/angular.min.js
+wget https://code.angularjs.org/1.7.3/angular-cookies.min.js -O src/common/data/js/lib/angular-cookies.min.js
 wget https://code.angularjs.org/1.7.3/angular-animate.min.js -O src/common/data/js/lib/angular-animate.min.js
 wget https://code.angularjs.org/1.7.3/angular-route.min.js -O src/common/data/js/lib/angular-route.min.js
 wget https://code.angularjs.org/1.7.3/angular-sanitize.min.js -O src/common/data/js/lib/angular-sanitize.min.js
@@ -32,6 +33,7 @@ wget https://raw.githubusercontent.com/mholt/PapaParse/master/papaparse.min.js -
 wget https://raw.githubusercontent.com/NaturalIntelligence/fast-xml-parser/master/lib/parser.js -O src/common/data/js/lib/fast-xml-parser.js
 
 wget https://cdn.rawgit.com/angular-translate/bower-angular-translate/2.18.1/angular-translate.min.js -O src/common/data/js/lib/angular-translate.min.js
+wget https://cdn.rawgit.com/angular-translate/bower-angular-translate-storage-cookie/2.18.1/angular-translate-storage-cookie.min.js -O src/common/data/js/lib/angular-translate-storage-cookie.min.js
 wget https://cdn.rawgit.com/angular-translate/bower-angular-translate-loader-url/2.18.1/angular-translate-loader-url.min.js -O src/common/data/js/lib/angular-translate-loader-url.min.js
 wget https://cdn.rawgit.com/angular-translate/bower-angular-translate-loader-static-files/2.18.1/angular-translate-loader-static-files.min.js -O src/common/data/js/lib//angular-translate-loader-static-files.min.js
 

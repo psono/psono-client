@@ -24,6 +24,26 @@ h1, h2 {
 #logo {
   margin-bottom: 10px;
 }
+
+.infolabel .fa-info-circle{
+  vertical-align: top;
+}
+
+.loginbox-translate {
+  position: absolute;
+  top: 20px;
+  right: 10px;
+  color: $dark-normal-color;
+  .btn-primary, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {
+    background-color: $dark-color;
+    border-color: $dark-color;
+  }
+}
+
+#panel .loginbox-translate {
+  top: 10px;
+}
+
 .loginbox {
   .pull-right {
     line-height: 31px;
@@ -41,7 +61,6 @@ h1, h2 {
       color: #333333;
     }
   }
-
 }
 
 .wrapper {
@@ -233,6 +252,7 @@ h1, h2 {
     border-color: $tree-dots-color;
   }
 }
+
 
 
 /* for the fixed dropdown menu that pops when someone right clicks an entry*/

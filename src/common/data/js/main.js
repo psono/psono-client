@@ -49,9 +49,36 @@
 
     angular.module('psonocli', ['ngRoute', 'ng', 'ui.bootstrap', 'snap', 'chieffancypants.loadingBar', 'ngAnimate',
             'LocalStorageModule', 'ngTree', 'ngDraggable', 'ng-context-menu', 'ui.select', 'ngSanitize',
-            'angular-complexify', 'datatables', 'chart.js', 'pascalprecht.translate'])
-        .config(['$translateProvider', '$routeProvider', '$httpProvider', '$locationProvider', '$compileProvider', 'localStorageServiceProvider',
-            function ($translateProvider, $routeProvider, $httpProvider, $locationProvider, $compileProvider, localStorageServiceProvider) {
+            'angular-complexify', 'datatables', 'chart.js', 'pascalprecht.translate', 'ngCookies'])
+        .provider('languages', function(){
+            var languages = {
+                'cs': {'code': 'cs', 'lng_code': 'LANG_CS'},
+                'de': {'code': 'de', 'lng_code': 'LANG_DE', 'active': true},
+                'en': {'code': 'en', 'lng_code': 'LANG_EN', 'active': true, 'default': true},
+                'es': {'code': 'es', 'lng_code': 'LANG_ES'},
+                'fi': {'code': 'fi', 'lng_code': 'LANG_FI'},
+                'fr': {'code': 'fr', 'lng_code': 'LANG_FR'},
+                'hr': {'code': 'hr', 'lng_code': 'LANG_HR', 'active': true},
+                'it': {'code': 'it', 'lng_code': 'LANG_IT'},
+                'ja': {'code': 'ja', 'lng_code': 'LANG_JA'},
+                'ko': {'code': 'ko', 'lng_code': 'LANG_KO'},
+                'nl': {'code': 'nl', 'lng_code': 'LANG_NL'},
+                'pl': {'code': 'pl', 'lng_code': 'LANG_PL'},
+                'ru': {'code': 'ru', 'lng_code': 'LANG_RU'},
+                'vi': {'code': 'vi', 'lng_code': 'LANG_VI'},
+                'zh-cn': {'code': 'zh-cn', 'lng_code': 'LANG_ZH_CN'}
+            };
+            return {
+                value : languages,
+                $get : function(){
+                    return {
+                        value : languages
+                    };
+                }
+            };
+        })
+        .config(['$translateProvider', '$routeProvider', '$httpProvider', '$locationProvider', '$compileProvider', 'localStorageServiceProvider', 'languagesProvider',
+            function ($translateProvider, $routeProvider, $httpProvider, $locationProvider, $compileProvider, localStorageServiceProvider, languagesProvider) {
                 //Router config
                 $routeProvider
                     .when('/settings', {
@@ -125,13 +152,20 @@
                 $httpProvider.defaults.headers.get['Cache-Control'] = 'no-cache';
                 $httpProvider.defaults.headers.get['Pragma'] = 'no-cache';
 
+                var langs = [];
+                for (var lang in languagesProvider.value) {
+                    if ( ! languagesProvider.value.hasOwnProperty(lang)) {
+                        continue;
+                    }
+                    langs.push(lang);
+                }
 
                 $translateProvider
                     .useStaticFilesLoader({
                         prefix: 'translations/locale-',
                         suffix: '.json'
                     })
-                    .registerAvailableLanguageKeys(['cs', 'de', 'en', 'es', 'fi', 'fr', 'hr', 'it', 'ja', 'ko', 'nl', 'pl', 'ru', 'vi', 'zh-cn'], {
+                    .registerAvailableLanguageKeys(langs, {
                         'de_*': 'de',
                         'en_*': 'en',
                         'es_*': 'es',
@@ -142,7 +176,8 @@
                     })
                     .fallbackLanguage('en')
                     .determinePreferredLanguage()
-                    .useSanitizeValueStrategy('escape');
+                    .useSanitizeValueStrategy('escape')
+                    .useCookieStorage();
 
             }])
         .filter('typeof', function() {
