@@ -7,11 +7,17 @@ wget http://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js -O src/common
 wget https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css -O src/common/data/css/lib/datatables.min.css
 
 wget https://code.angularjs.org/1.7.3/angular.min.js -O src/common/data/js/lib/angular.min.js
+wget https://code.angularjs.org/1.7.3/angular.min.js.map -O src/common/data/js/lib/angular.min.js.map
 wget https://code.angularjs.org/1.7.3/angular-cookies.min.js -O src/common/data/js/lib/angular-cookies.min.js
+wget https://code.angularjs.org/1.7.3/angular-cookies.min.js.map -O src/common/data/js/lib/angular-cookies.min.js.map
 wget https://code.angularjs.org/1.7.3/angular-animate.min.js -O src/common/data/js/lib/angular-animate.min.js
+wget https://code.angularjs.org/1.7.3/angular-animate.min.js.map -O src/common/data/js/lib/angular-animate.min.js.map
 wget https://code.angularjs.org/1.7.3/angular-route.min.js -O src/common/data/js/lib/angular-route.min.js
+wget https://code.angularjs.org/1.7.3/angular-route.min.js.map -O src/common/data/js/lib/angular-route.min.js.map
 wget https://code.angularjs.org/1.7.3/angular-sanitize.min.js -O src/common/data/js/lib/angular-sanitize.min.js
+wget https://code.angularjs.org/1.7.3/angular-sanitize.min.js.map -O src/common/data/js/lib/angular-sanitize.min.js.map
 wget https://code.angularjs.org/1.7.3/angular-touch.min.js -O src/common/data/js/lib/angular-touch.min.js
+wget https://code.angularjs.org/1.7.3/angular-touch.min.js.map -O src/common/data/js/lib/angular-touch.min.js.map
 wget https://code.angularjs.org/1.7.3/angular-csp.css -O src/common/data/css/lib/angular-csp.css
 wget https://code.angularjs.org/1.7.3/angular-mocks.js -O unittests/data/js/lib/angular-mocks.js
 

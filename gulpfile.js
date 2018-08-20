@@ -256,7 +256,7 @@ var build = function(build_path, type) {
             "src/common/data/view/templates.js",
             "src/common/data/js/google-analytics.js"
         ])
-            .pipe(maps.init())
+            .pipe(maps.init({loadMaps: true}))
             .pipe(uglify({
                 output: {
                     comments: saveLicense
@@ -289,7 +289,7 @@ var build = function(build_path, type) {
             'src/webclient/data/service-worker.js'
         ])
             .pipe(replace('%%PSONOVERSION%%', timestamp))
-            .pipe(maps.init())
+            .pipe(maps.init({loadMaps: true}))
             .pipe(uglify({
                 output: {
                     comments: saveLicense
