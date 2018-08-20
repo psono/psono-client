@@ -24,6 +24,8 @@
                 "../src/common/data/js/lib/papaparse.min.js",
                 "../src/common/data/js/lib/fast-xml-parser.js",
                 "../src/common/data/js/lib/angular.min.js",
+                "../src/common/data/js/lib/raven.min.js",
+                "../src/common/data/js/raven.js",
                 "../src/common/data/js/lib/angular-cookies.min.js",
                 "../src/common/data/js/lib/angular-animate.min.js",
                 "../src/common/data/js/lib/angular-touch.min.js",

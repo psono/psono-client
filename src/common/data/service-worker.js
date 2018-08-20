@@ -120,6 +120,8 @@ self.addEventListener('install', function(event) {
                 './js/lib/fast-xml-parser.js',
 
                 './js/lib/angular.min.js',
+                './js/lib/raven.min.js',
+                './js/raven.js',
                 './js/lib/angular-cookies.min.js',
                 './js/lib/angular-animate.min.js',
                 './js/lib/angular-touch.min.js',
