@@ -1,4 +1,4 @@
-(function(angular) {
+(function(angular, Raven) {
     'use strict';
 
     /**
@@ -267,6 +267,10 @@
                     session_password,
                     user_sauce
                 );
+
+                Raven.setUserContext({
+                    username: managerBase.find_key('config', 'user_username')
+                });
 
                 storage.insert('config', {key: 'user_id', value: activation_data.data.user.id});
                 storage.insert('config', {key: 'user_token', value: token});
@@ -603,6 +607,8 @@
          * @returns {promise} Returns a promise with the logout status
          */
         var logout = function () {
+
+            Raven.setUserContext();
 
             var onSuccess = function () {
 
@@ -1491,4 +1497,4 @@
         'helper', 'device', 'managerBase', 'managerDatastore', 'shareBlueprint',
         'itemBlueprint', 'cryptoLibrary', managerDatastoreUser]);
 
-}(angular));
+}(angular, Raven));
