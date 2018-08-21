@@ -12,7 +12,7 @@
         </div>
 
         <uib-tabset class="tabset_expand">
-            <uib-tab heading="Existing Keys">
+            <uib-tab heading="{{'EXISTING_KEYS' | translate}}">
 
                 <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
                     <thead>
@@ -45,7 +45,7 @@
                     </tbody>
                 </table>
             </uib-tab>
-            <uib-tab heading="Add New Key"  active="data.add_recipients_tab_active">
+            <uib-tab heading="{{'ADD_NEW_KEY' | translate}}"  active="data.add_recipients_tab_active">
                 <div class="form-group" ng-class="{true: 'has-error'}[submitted && modalAddGPGUserForm.name.$invalid]">
                     <input type="email" name="new_email" class="form-control" id="new_email" placeholder="{{'EMAIL' | translate}}" ng-model="data.new_email">
                     <p class="help-block" ng-show="submitted && modalAddGPGUserForm.name.$error.required">{{'EMAIL_IS_REQUIRED' | translate}}</p>
@@ -55,7 +55,7 @@
                 </div>
                 <div class="form-group">
                     <textarea class="form-control"
-                              placeholder="or provice the public key manually, including: -----BEGIN PGP PUBLIC KEY BLOCK----- and -----END PGP PUBLIC KEY BLOCK-----"
+                              placeholder="{{'OR_PROVIDE_THE_PUBLIC_KEY_MANUALLY_INCLUDING' | translate}}: -----BEGIN PGP PUBLIC KEY BLOCK----- and -----END PGP PUBLIC KEY BLOCK-----"
                               ng-model="data.new_public_key"></textarea>
                 </div>
                 <div class="form-group" ng-if="data.new_public_key | fingerprint">

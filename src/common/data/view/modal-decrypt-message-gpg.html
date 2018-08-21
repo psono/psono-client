@@ -41,7 +41,7 @@
 
     <div class="modal-body" ng-if="data.decrypting_complete">
         <div class="form-group">
-            <label>Decrypted Message:</label>
+            <label>{{'DECRYPTED_MESSAGE' | translate}}:</label>
             <div class="yui3-cssreset">
                 <!-- message contains potentially dangerous html content, so we are using angularjs sanitizer -->
                 <div ng-if="data.decrypted_message" ng-bind-html="data.decrypted_message"></div>
