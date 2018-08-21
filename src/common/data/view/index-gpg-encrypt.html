@@ -2,42 +2,42 @@
 
     <div ng-controller="GPGEncryptMessageCtrl" class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">Encrypt Message</h3>
+            <h3 class="panel-title">{{'ENCRYPT_MESSAGE' | translate}}</h3>
         </div>
         <div class="panel-body" ng-if="!data.encrypting">
 
             <div class="form-group">
-                <label>Message:</label>
+                <label>{{'MESSAGE' | translate}}:</label>
                 <textarea class="form-control"
-                          placeholder="Your Message"
+                          placeholder="{{'YOUR_MESSAGE' | translate}}"
                           ng-model="data.message"></textarea>
 
             </div>
 
 
             <div class="checkbox">
-                <label><input type="checkbox" ng-model="data.sign_message"> Sign message?</label>
+                <label><input type="checkbox" ng-model="data.sign_message"> {{'SIGN_MESSAGE_QUESTIONMARK' | translate}}</label>
             </div>
 
             <div class="form-group alert alert-danger" ng-repeat="e in errors">
                 <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
             </div>
             <div class="form-group">
-                <button ng-click="encrypt()" type="submit" class="btn btn-primary">Encrypt</button>
-                <button ng-click="open_address_book()" type="submit" class="btn btn-default">Open Address Book</button>
+                <button ng-click="encrypt()" type="submit" class="btn btn-primary">{{'ENCRYPT' | translate}}</button>
+                <button ng-click="open_address_book()" type="submit" class="btn btn-default">{{'OPEN_ADDRESS_BOOK' | translate}}</button>
             </div>
 
             <hr style="margin-top: 4px">
 
             <div class="form-group">
                 <div class="row">
-                    <label class="col-xs-3 col-sm-2">Recipients:</label>
+                    <label class="col-xs-3 col-sm-2">{{'RECIPIENTS' | translate}}:</label>
                 </div>
                 <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
                     <thead>
                     <tr>
-                        <th>E-Mail</th>
-                        <th>Fingerprint</th>
+                        <th>{{'EMAIL' | translate}}</th>
+                        <th>{{'FINGERPRINT' | translate}}</th>
                         <th> </th>
                         <th>&nbsp;</th>
                     </tr>
@@ -65,7 +65,7 @@
             </div>
 
             <div class="form-group" ng-if="data.sign_message">
-                <label>Your Key:</label>
+                <label>{{'YOUR_KEY' | translate}}:</label>
                 <select class="form-control"
                         ng-options="item as item.label for item in data.private_key_options track by item.id"
                         ng-model="data.private_key"></select>
@@ -85,7 +85,7 @@
                            text-align: center;
                            animation: fa-spin 2s infinite linear;
                            vertical-align: middle;">&#xf110;</i>
-                    Encrypting
+                    {{'ENCRYPTING' | translate}}
                 </div>
             </div>
         </div>
