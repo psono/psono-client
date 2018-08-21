@@ -116,6 +116,11 @@ body {
   border-color: $dark-hightlight-hover-color;
 }
 
+.loginbox-translate.open .dropdown-toggle.btn-primary {
+  background-color: $dark-color;
+  border-color: $dark-color;
+}
+
 .btn-primary:active:hover,
 .btn-primary.active:hover,
 .open > .dropdown-toggle.btn-primary:hover,

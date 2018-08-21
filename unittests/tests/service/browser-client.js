@@ -7,6 +7,7 @@
         }));
 
         var mockedWindow;
+        var mockedCookies;
         beforeEach(function () {
             mockedWindow = {
                 open: function(url, target) {},
@@ -14,9 +15,16 @@
                     href: 'asdf'
                 }
             };
+            mockedCookies = {
+                get: function() {
+                },
+                put: function() {
+                }
+            };
 
             module(function ($provide) {
                 $provide.value('$window', mockedWindow);
+                $provide.value('$cookies', mockedCookies);
             });
 
         });

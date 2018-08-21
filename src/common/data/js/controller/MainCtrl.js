@@ -1,4 +1,4 @@
-(function(angular) {
+(function(angular, Raven) {
     'use strict';
 
     /**
@@ -73,6 +73,7 @@
 
                 browserClient.load_version().then(function(version) {
                     $scope.version = version;
+                    Raven.setRelease(version);
                 });
                 managerDatastore.register('on_datastore_overview_update', refresh_datastore_dropdown);
             }
@@ -201,4 +202,4 @@
             }
         }]
     );
-}(angular));
+}(angular, Raven));

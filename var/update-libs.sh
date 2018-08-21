@@ -6,13 +6,20 @@ wget https://raw.githubusercontent.com/angular-ui/bootstrap/gh-pages/ui-bootstra
 wget http://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js -O src/common/data/js/lib/datatables.min.js
 wget https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css -O src/common/data/css/lib/datatables.min.css
 
-wget https://code.angularjs.org/1.7.2/angular.min.js -O src/common/data/js/lib/angular.min.js
-wget https://code.angularjs.org/1.7.2/angular-animate.min.js -O src/common/data/js/lib/angular-animate.min.js
-wget https://code.angularjs.org/1.7.2/angular-route.min.js -O src/common/data/js/lib/angular-route.min.js
-wget https://code.angularjs.org/1.7.2/angular-sanitize.min.js -O src/common/data/js/lib/angular-sanitize.min.js
-wget https://code.angularjs.org/1.7.2/angular-touch.min.js -O src/common/data/js/lib/angular-touch.min.js
-wget https://code.angularjs.org/1.7.2/angular-csp.css -O src/common/data/css/lib/angular-csp.css
-wget https://code.angularjs.org/1.7.2/angular-mocks.js -O unittests/data/js/lib/angular-mocks.js
+wget https://code.angularjs.org/1.7.3/angular.min.js -O src/common/data/js/lib/angular.min.js
+wget https://code.angularjs.org/1.7.3/angular.min.js.map -O src/common/data/js/lib/angular.min.js.map
+wget https://code.angularjs.org/1.7.3/angular-cookies.min.js -O src/common/data/js/lib/angular-cookies.min.js
+wget https://code.angularjs.org/1.7.3/angular-cookies.min.js.map -O src/common/data/js/lib/angular-cookies.min.js.map
+wget https://code.angularjs.org/1.7.3/angular-animate.min.js -O src/common/data/js/lib/angular-animate.min.js
+wget https://code.angularjs.org/1.7.3/angular-animate.min.js.map -O src/common/data/js/lib/angular-animate.min.js.map
+wget https://code.angularjs.org/1.7.3/angular-route.min.js -O src/common/data/js/lib/angular-route.min.js
+wget https://code.angularjs.org/1.7.3/angular-route.min.js.map -O src/common/data/js/lib/angular-route.min.js.map
+wget https://code.angularjs.org/1.7.3/angular-sanitize.min.js -O src/common/data/js/lib/angular-sanitize.min.js
+wget https://code.angularjs.org/1.7.3/angular-sanitize.min.js.map -O src/common/data/js/lib/angular-sanitize.min.js.map
+wget https://code.angularjs.org/1.7.3/angular-touch.min.js -O src/common/data/js/lib/angular-touch.min.js
+wget https://code.angularjs.org/1.7.3/angular-touch.min.js.map -O src/common/data/js/lib/angular-touch.min.js.map
+wget https://code.angularjs.org/1.7.3/angular-csp.css -O src/common/data/css/lib/angular-csp.css
+wget https://code.angularjs.org/1.7.3/angular-mocks.js -O unittests/data/js/lib/angular-mocks.js
 
 wget https://raw.githubusercontent.com/Kraku/angular-complexify/master/build/angular-complexify.min.js -O src/common/data/js/lib/angular-complexify.min.js
 wget https://raw.githubusercontent.com/grevory/angular-local-storage/master/dist/angular-local-storage.min.js -O src/common/data/js/lib/angular-local-storage.min.js
@@ -32,6 +39,7 @@ wget https://raw.githubusercontent.com/mholt/PapaParse/master/papaparse.min.js -
 wget https://raw.githubusercontent.com/NaturalIntelligence/fast-xml-parser/master/lib/parser.js -O src/common/data/js/lib/fast-xml-parser.js
 
 wget https://cdn.rawgit.com/angular-translate/bower-angular-translate/2.18.1/angular-translate.min.js -O src/common/data/js/lib/angular-translate.min.js
+wget https://cdn.rawgit.com/angular-translate/bower-angular-translate-storage-cookie/2.18.1/angular-translate-storage-cookie.min.js -O src/common/data/js/lib/angular-translate-storage-cookie.min.js
 wget https://cdn.rawgit.com/angular-translate/bower-angular-translate-loader-url/2.18.1/angular-translate-loader-url.min.js -O src/common/data/js/lib/angular-translate-loader-url.min.js
 wget https://cdn.rawgit.com/angular-translate/bower-angular-translate-loader-static-files/2.18.1/angular-translate-loader-static-files.min.js -O src/common/data/js/lib//angular-translate-loader-static-files.min.js
 
@@ -44,7 +52,9 @@ wget https://raw.githubusercontent.com/jtblin/angular-chart.js/master/dist/angul
 wget https://raw.githubusercontent.com/openpgpjs/openpgpjs/v3.0.11/dist/openpgp.min.js -O src/common/data/js/lib/openpgp.min.js
 wget https://raw.githubusercontent.com/openpgpjs/openpgpjs/v3.0.11/dist/openpgp.worker.min.js -O src/common/data/js/lib/openpgp.worker.min.js
 
+wget https://cdn.ravenjs.com/3.26.4/angular/raven.min.js -O src/common/data/js/lib/raven.min.js
 
 wget https://raw.githubusercontent.com/dcposch/blakejs/master/blake2b.js -O src/common/data/js/lib/blake2b.js # modified
+
 
 

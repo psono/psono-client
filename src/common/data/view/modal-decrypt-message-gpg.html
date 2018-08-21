@@ -1,14 +1,14 @@
 <form name="modalDecryptMessageGPGForm" novalidate>
     <div class="modal-header">
         <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
-        <h3 class="modal-title">Decrypt Message</h3>
+        <h3 class="modal-title">{{'DECRYPT_MESSAGE' | translate}}</h3>
     </div>
     <div class="modal-body" ng-if="!data.decrypting && !data.decrypting_complete">
 
         <div class="form-group">
-            <label>Encrypted Message:</label>
+            <label>{{'ENCRYPTED_MESSAGE' | translate}}:</label>
             <textarea class="form-control"
-                      placeholder="Your Message"
+                      placeholder="{{'ENCRYPTED_MESSAGE' | translate}}"
                       ng-model="data.message"></textarea>
 
         </div>
@@ -17,7 +17,7 @@
             <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
         </div>
         <div class="form-group">
-            <button ng-click="decrypt()" type="submit-" class="btn btn-primary">Decrypt</button>
+            <button ng-click="decrypt()" type="submit-" class="btn btn-primary">{{'DECRYPT' | translate}}</button>
         </div>
 
 
@@ -34,7 +34,7 @@
                            text-align: center;
                            animation: fa-spin 2s infinite linear;
                            vertical-align: middle;">&#xf110;</i>
-                Decrypting
+                {{'DECRYPTING' | translate}}
             </div>
         </div>
     </div>

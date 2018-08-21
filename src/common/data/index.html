@@ -177,7 +177,25 @@
 
         <div class="loginbox dark">
             <img src="img/logo.png" alt="Psono Web Client" id="logo">
-            <a href="https://psono.com/" target="_blank" rel="noopener"><i class="fa fa-info-circle fa-pull-right" aria-hidden="true"> Info</i></a>
+            <a href="https://psono.com/" target="_blank" rel="noopener" class="infolabel"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+
+            <div class="btn-group loginbox-translate" uib-dropdown keyboard-nav>
+                <button id="language-picker" type="button" class="btn btn-primary" uib-dropdown-toggle>
+                    {{active.lang.lng_code | translate}} <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" aria-labelledby="language-picker">
+                    <li role="menuitem" ng-repeat="lang in languages">
+                        <a href="" ng-click="change_language(lang)" ng-if="lang.active">
+                            {{lang.lng_code | translate}}
+                        </a>
+                    </li>
+                    <li role="menuitem">
+                        <a target="_blank" rel="noopener" href="https://poeditor.com/join/project/Aiea8D0WIr">
+                            {{'NOT_LISTED' | translate}}
+                        </a>
+                    </li>
+                </ul>
+            </div>
 
             <form name="loginForm" ng-if="view === 'default'" autocomplete="off">
                 <!-- default View -->
@@ -413,6 +431,9 @@
 
 <!-- Angular Juju -->
 <script src="js/lib/angular.min.js" type="application/javascript"></script>
+<script src="js/lib/raven.min.js" type="application/javascript"></script>
+<script src="js/raven.js" type="application/javascript"></script>
+<script src="js/lib/angular-cookies.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-animate.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-touch.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-complexify.min.js" type="application/javascript"></script>
@@ -423,6 +444,7 @@
 <script src="js/lib/angular-local-storage.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-snap.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-translate.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-translate-storage-cookie.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-translate-loader-url.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-translate-loader-static-files.min.js" type="application/javascript"></script>
 <script src="js/lib/ui-bootstrap-tpls.min.js" type="application/javascript"></script>
@@ -512,6 +534,7 @@
 <script src="js/service/account.js" type="application/javascript"></script>
 <script src="js/service/settings.js" type="application/javascript"></script>
 <script src="js/service/manager-base.js" type="application/javascript"></script>
+<script src="js/service/language-picker.js" type="application/javascript"></script>
 <script src="js/service/manager.js" type="application/javascript"></script>
 <script src="js/service/manager-widget.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore.js" type="application/javascript"></script>

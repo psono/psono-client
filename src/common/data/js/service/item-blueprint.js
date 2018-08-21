@@ -462,7 +462,7 @@
         var _additionalFunction = {
             share: {
                 id: 'share',
-                name: 'Share',
+                name: 'SHARE',
                 icon: 'fa fa-user-plus',
                 hide_offline: true,
                 ngClass: function(item) {
@@ -658,7 +658,7 @@
             },
             show_share_rights: {
                 id: 'show_share_rights',
-                name: 'Rights Overview',
+                name: 'RIGHTS_OVERVIEW',
                 icon: 'fa fa-list',
                 hide_offline: true,
                 ngClass: function(item) {
@@ -701,7 +701,7 @@
             },
             copy_username_to_clipboard: {
                 id: 'copy_username_to_clipboard',
-                name: 'Copy Username',
+                name: 'COPY_USERNAME',
                 icon: 'fa fa-clipboard',
                 ngClass: function(item) {
                     if (item.hasOwnProperty('share_rights') && item.share_rights.read !== true) {
@@ -717,7 +717,7 @@
             },
             copy_password_to_clipboard: {
                 id: 'copy_password_to_clipboard',
-                name: 'Copy Password',
+                name: 'COPY_PASSWORD',
                 icon: 'fa fa-clipboard',
                 ngClass: function(item) {
                     if (item.hasOwnProperty('share_rights') && item.share_rights.read !== true) {

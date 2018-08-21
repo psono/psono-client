@@ -52,6 +52,22 @@
 
         });
 
+        var mockedCookies;
+        beforeEach(function () {
+
+            mockedCookies = {
+                get: function() {
+                },
+                put: function() {
+                }
+            };
+
+            module(function ($provide) {
+                $provide.value('$cookies', mockedCookies);
+            });
+
+        });
+
         var secret_key = '77285ecc77ff7c8475d7866e1c7bcb382b7fdf9239b7f326299f1abf8d17dd81';
         var decrypted_data = {
             website_password_username: 'my-user',

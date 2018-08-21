@@ -126,6 +126,9 @@ var build = function(build_path, type) {
             "src/common/data/js/lib/papaparse.min.js",
             "src/common/data/js/lib/fast-xml-parser.js",
             "src/common/data/js/lib/angular.min.js",
+            "src/common/data/js/lib/raven.min.js",
+            "src/common/data/js/raven.js",
+            "src/common/data/js/lib/angular-cookies.min.js",
             "src/common/data/js/lib/angular-animate.min.js",
             "src/common/data/js/lib/angular-touch.min.js",
             "src/common/data/js/lib/angular-complexify.min.js",
@@ -136,6 +139,7 @@ var build = function(build_path, type) {
             "src/common/data/js/lib/angular-local-storage.min.js",
             "src/common/data/js/lib/angular-snap.min.js",
             "src/common/data/js/lib/angular-translate.min.js",
+            "src/common/data/js/lib/angular-translate-storage-cookie.min.js",
             "src/common/data/js/lib/angular-translate-loader-url.min.js",
             "src/common/data/js/lib/angular-translate-loader-static-files.min.js",
             "src/common/data/js/lib/ui-bootstrap-tpls.min.js",
@@ -225,6 +229,7 @@ var build = function(build_path, type) {
             "src/common/data/js/service/account.js",
             "src/common/data/js/service/settings.js",
             "src/common/data/js/service/manager-base.js",
+            "src/common/data/js/service/language-picker.js",
             "src/common/data/js/service/manager.js",
             "src/common/data/js/service/manager-widget.js",
             "src/common/data/js/service/manager-datastore.js",
@@ -253,7 +258,7 @@ var build = function(build_path, type) {
             "src/common/data/view/templates.js",
             "src/common/data/js/google-analytics.js"
         ])
-            .pipe(maps.init())
+            .pipe(maps.init({loadMaps: true}))
             .pipe(uglify({
                 output: {
                     comments: saveLicense
@@ -286,7 +291,7 @@ var build = function(build_path, type) {
             'src/webclient/data/service-worker.js'
         ])
             .pipe(replace('%%PSONOVERSION%%', timestamp))
-            .pipe(maps.init())
+            .pipe(maps.init({loadMaps: true}))
             .pipe(uglify({
                 output: {
                     comments: saveLicense

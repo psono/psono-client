@@ -109,7 +109,7 @@
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
-                            <h3 class="panel-title">{{'EDIT' | translate}} {{bp.selected.name}}</h3>
+                            <h3 class="panel-title">{{'EDIT' | translate}} {{bp.selected.name | translate}}</h3>
                         </div>
                         <div class="panel-body">
                         <!--
@@ -145,7 +145,7 @@
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu">
                                         <li role="menuitem" ng-repeat="di in n.dropmenuItems track by $index" ng-if="!di.hide_offline || !offline">
-                                            <a href="" ng-click="di.onclick('editEntryForm-'+ n.name, di)"><i class="{{di.icon}}"></i>{{di.text}}</a>
+                                            <a href="" ng-click="di.onclick('editEntryForm-'+ n.name, di)"><i class="{{di.icon}}"></i>{{di.text | translate}}</a>
                                         </li>
                                     </ul>
                                 </div>
@@ -188,7 +188,7 @@
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu">
                                                 <li role="menuitem" ng-repeat="di in n.dropmenuItems track by $index" ng-if="!di.hide_offline || !offline">
-                                                    <a href="" ng-click="di.onclick('editEntryForm-'+ n.name, di)"><i class="{{di.icon}}"></i>{{di.text}}</a>
+                                                    <a href="" ng-click="di.onclick('editEntryForm-'+ n.name, di)"><i class="{{di.icon}}"></i>{{di.text | translate}}</a>
                                                 </li>
                                             </ul>
                                         </div>
@@ -231,7 +231,7 @@
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu">
                                         <li role="menuitem" ng-repeat="di in n.dropmenuItems track by $index" ng-if="!di.hide_offline || !offline">
-                                            <a href="#" ng-click="di.onclick('editEntryForm-'+ n.name, di)"><i class="{{di.icon}}"></i>{{di.text}}</a>
+                                            <a href="#" ng-click="di.onclick('editEntryForm-'+ n.name, di)"><i class="{{di.icon}}"></i>{{di.text | translate}}</a>
                                         </li>
                                     </ul>
                                 </div>
@@ -278,7 +278,7 @@
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu">
                                             <li role="menuitem" ng-repeat="di in n.dropmenuItems track by $index" ng-if="!di.hide_offline || !offline">
-                                                <a href="#" ng-click="di.onclick('editEntryForm-'+ n.name, di)"><i class="{{di.icon}}"></i>{{di.text}}</a>
+                                                <a href="#" ng-click="di.onclick('editEntryForm-'+ n.name, di)"><i class="{{di.icon}}"></i>{{di.text | translate}}</a>
                                             </li>
                                         </ul>
                                     </div>

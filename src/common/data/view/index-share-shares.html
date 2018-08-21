@@ -6,26 +6,26 @@
             -->
         </div>
         <div class="title col-sm-4">
-            <h1>Pending share requests</h1>
+            <h1>{{'PENDING_REQUESTS' | translate}}</h1>
         </div>
     </div>
 
     <div class="panel panel-default">
         <div class="panel-heading clearfix">
-            <h3 class="panel-title">Pending Requests</h3>
+            <h3 class="panel-title">{{'PENDING_REQUESTS' | translate}}</h3>
         </div>
         <div class="panel-body in" aria-expanded="true" aria-hidden="false" style="height: auto;">
 
             <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
                 <thead>
                 <tr>
-                    <th>Username</th>
-                    <th>Title</th>
-                    <th>Read</th>
-                    <th>Write</th>
-                    <th>Grant</th>
-                    <th>Accept</th>
-                    <th>Decline</th>
+                    <th>{{'USERNAME' | translate}}</th>
+                    <th>{{'TITLE' | translate}}</th>
+                    <th>{{'READ' | translate}}</th>
+                    <th>{{'WRITE' | translate}}</th>
+                    <th>{{'GRANT' | translate}}</th>
+                    <th>{{'ACCEPT' | translate}}</th>
+                    <th>{{'DECLINE' | translate}}</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -52,12 +52,12 @@
                     </td>
                     <td>
                         <button type="button" class="btn btn-default btn-sm" ng-click="accept(share, shares)">
-                            Accept
+                            {{'ACCEPT' | translate}}
                         </button>
                     </td>
                     <td>
                         <button type="button" class="btn btn-default btn-sm" ng-click="decline(share, shares)">
-                            Decline
+                            {{'DECLINE' | translate}}
                         </button>
                     </td>
                 </tr>
