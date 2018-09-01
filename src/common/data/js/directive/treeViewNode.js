@@ -639,7 +639,7 @@
                         '   class="tree-item" ng-repeat="item in ' + attrs.treeViewNode + '.data.' + itemsProperty + ' track by $index">' +
 
                         '<div ng-click="$event.stopPropagation(); editItem(item, $event)" class="tree-item-object" ' +
-                        '   ng-class="{ selected: isSelected(item), notSelectable: ! isSelectable(node) }" data-target="menu-{{ item.id }}"' +
+                        '   ng-class="{ selected: isSelected(item), notSelectable: ! isSelectable(item) }" data-target="menu-{{ item.id }}"' +
                         '   context-menu="contextMenuOnShow(\'menu-\'+item.id)"' +
                         '   context-menu-close="contextMenuOnClose(\'menu-\'+item.id)">' +
                         '<span class="fa-stack">' +
