@@ -239,6 +239,7 @@ self.addEventListener('install', function(event) {
                 './js/service/import-keepassx-org-csv.js',
                 './js/service/import-keepass-info-csv.js',
                 './js/service/import-keepass-info-xml.js',
+                './js/service/manager-status.js',
                 './js/service/manager-secret.js',
                 './js/service/manager-share.js',
                 './js/service/manager-datastore-password.js',

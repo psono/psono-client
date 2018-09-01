@@ -138,6 +138,7 @@
                 "../src/common/data/js/service/import-keepassx-org-csv.js",
                 "../src/common/data/js/service/import-keepass-info-csv.js",
                 "../src/common/data/js/service/import-keepass-info-xml.js",
+                "../src/common/data/js/service/manager-status.js",
                 "../src/common/data/js/service/manager-secret.js",
                 "../src/common/data/js/service/manager-share.js",
                 "../src/common/data/js/service/manager-datastore-password.js",

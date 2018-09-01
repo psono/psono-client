@@ -124,6 +124,9 @@
             <li ng-class="get_link_state('/share/pendingshares')">
                 <a class="navigationitem2" href="#!/share/pendingshares">
                     <span class="fa-stack"><i class="fa fa-share-alt fa-fw"></i></span>{{'PENDING_REQUESTS' | translate}}
+                    <span class="badge float-right" ng-if="server_status.data.unaccepted_shares_count">
+                        {{ server_status.data.unaccepted_shares_count }}
+                    </span>
                 </a>
             </li>
             <li ng-class="get_link_state('/share/users')">
@@ -134,6 +137,9 @@
             <li ng-class="get_link_state('/groups')">
                 <a class="navigationitem2" href="#!/groups">
                     <span class="fa-stack"><i class="fa fa-users fa-fw"></i></span>{{'GROUPS' | translate}}
+                    <span class="badge float-right" ng-if="server_status.data.unaccepted_groups_count || server_status.data.unapproved_group_shares_count">
+                        {{ server_status.data.unaccepted_groups_count + server_status.data.unapproved_group_shares_count }}
+                    </span>
                 </a>
             </li>
             <li ng-class="get_link_state('/security-report')">
@@ -550,6 +556,7 @@
 <script src="js/service/import-keepassx-org-csv.js" type="application/javascript"></script>
 <script src="js/service/import-keepass-info-csv.js" type="application/javascript"></script>
 <script src="js/service/import-keepass-info-xml.js" type="application/javascript"></script>
+<script src="js/service/manager-status.js" type="application/javascript"></script>
 <script src="js/service/manager-secret.js" type="application/javascript"></script>
 <script src="js/service/manager-share.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore-password.js" type="application/javascript"></script>

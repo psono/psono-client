@@ -211,8 +211,8 @@
                 return parts.join(' ');
             };
         }])
-        .run(['$rootScope', '$location', '$routeParams', '$http', '$templateCache', 'managerSecret', 'offlineCache',
-            function ($rootScope, $location, $routeParams, $http, $templateCache, managerSecret, offlineCache) {
+        .run(['$rootScope', '$location', '$routeParams', '$http', '$templateCache', 'managerSecret', 'offlineCache', 'managerStatus',
+            function ($rootScope, $location, $routeParams, $http, $templateCache, managerSecret, offlineCache, managerStatus) {
 
                 $rootScope.$on( "$routeChangeStart", function(event, next, current) {
                     var offline_redirect_urls = [
