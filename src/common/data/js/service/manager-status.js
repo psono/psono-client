@@ -64,6 +64,7 @@
             var is_offline = offlineCache.is_active();
 
             var broadcast_on_change = function(new_server_status) {
+
                 var status_updated = typeof(status) === 'undefined' || JSON.stringify(new_server_status.data) !== JSON.stringify(status.data);
 
                 if (status_updated) {

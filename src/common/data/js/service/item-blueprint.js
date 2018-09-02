@@ -55,6 +55,7 @@
                                 icon: "fa fa-cogs",
                                 text:"GENERATE_PASSWORD",
                                 hide_offline: true,
+                                hide_on_not_write: true,
                                 onclick:function(id, item) {
                                     angular.element(document.querySelector('#'+id)).val(registrations['generate']()).trigger('input');
                                 }

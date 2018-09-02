@@ -13,9 +13,10 @@
      * @description
      * Controller for the "Edit Entry" modal
      */
-    angular.module('psonocli').controller('ModalEditEntryCtrl', ['$rootScope', '$scope', '$uibModalInstance', 'itemBlueprint', 'offlineCache', 'node', 'path', 'data',
-        function ($rootScope, $scope, $uibModalInstance, itemBlueprint, offlineCache, node, path, data) {
+    angular.module('psonocli').controller('ModalEditEntryCtrl', ['$rootScope', '$scope', '$uibModal', '$uibModalInstance', 'itemBlueprint', 'offlineCache', 'node', 'path', 'data',
+        function ($rootScope, $scope, $uibModal, $uibModalInstance, itemBlueprint, offlineCache, node, path, data) {
 
+            $scope.show_history = show_history;
             $scope.reset = reset;
             $scope.save = save;
             $scope.cancel = cancel;
@@ -56,6 +57,33 @@
                     if (typeof $scope.bp.selected.onEditModalOpen !== 'undefined') {
                         $scope.bp.selected.onEditModalOpen($scope.bp.selected);
                     }
+                });
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalEditEntryCtrl#show_history
+             * @methodOf psonocli.controller:ModalEditEntryCtrl
+             *
+             * @description
+             * Triggered once someone clicks show history button
+             */
+            function show_history(node) {
+
+                var modalInstance = $uibModal.open({
+                    templateUrl: 'view/modal-history.html',
+                    controller: 'ModalHistoryCtrl',
+                    resolve: {
+                        node: function () {
+                            return node;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function () {
+                    // User clicked the yes button
+                }, function () {
+                    // cancel triggered
                 });
             }
 
