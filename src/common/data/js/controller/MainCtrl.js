@@ -81,7 +81,7 @@
                 });
 
                 $rootScope.$on('server_status_updated', function(event, data) {
-                    $scope.server_status.data = status.data;
+                    $scope.server_status.data = data.data;
                 });
 
 
