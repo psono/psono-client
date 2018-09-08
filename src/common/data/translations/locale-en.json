@@ -357,5 +357,7 @@
   "OR_WORDLIST": "or wordlist e.g.: follow charge genre ...",
   "LOST_PASSWORD": "Lost password",
   "PRIVACY_POLICY": "Privacy Policy",
-  "ABOUT_US": "About Us"
+  "ABOUT_US": "About Us",
+  "MANIFEST_APP_DESC": "Psono Password Manager, store and share your passwords securely.",
+  "WEBSTORE_MAIN_DESCRIPTION": "It's used to securely create, store and share passwords with others across multiple devices. Never use a password twice again.\nNo password will ever leave your computer unencrypted.\nAn overview of Psono's security approach can be found here:\nhttps://psono.com/security/\nAn overview of Psono's features can be found here:\nhttps://psono.com/features-for-users"
 }
