@@ -19,7 +19,7 @@
 
     var managerStatus = function ($rootScope, $q, $interval, localStorageService, apiClient, managerBase, managerDatastoreUser, offlineCache) {
 
-        var interval_time = 60000;
+        var interval_time = 300000; // in ms, 300000 = 300s = 5min
         var status;
 
         activate();
