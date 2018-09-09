@@ -2,7 +2,7 @@
 
     <div ng-controller="GPGDecryptMessageCtrl" class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">Decrypted Message</h3>
+            <h3 class="panel-title">{{'DECRYPTED_MESSAGE' | translate}}</h3>
         </div>
         <div class="panel-body">
 
@@ -15,13 +15,13 @@
 
             <div ng-if="!data.decrypting">
                 <div class="row">
-                    <label class="col-xs-3 col-sm-2">Sender:</label>
+                    <label class="col-xs-3 col-sm-2">{{'SENDER' | translate}}:</label>
                     <div class="col-xs-9 col-sm-10">{{data.sender}}</div>
                 </div>
             </div>
             <hr style="margin-top: 4px">
             <div ng-if="!data.decrypting">
-                <label>Message:</label>
+                <label>{{'MESSAGE' | translate}}:</label>
                 <div class="yui3-cssreset">
                     <!-- message contains potentially dangerous html content, so we are using angularjs sanitizer -->
                     <div ng-if="data.message" ng-bind-html="data.message"></div>
@@ -37,7 +37,7 @@
                            text-align: center;
                            animation: fa-spin 2s infinite linear;
                            vertical-align: middle;">&#xf110;</i>
-                    Decrypting
+                    {{'DECRYPTING' | translate}}
                 </div>
             </div>
 

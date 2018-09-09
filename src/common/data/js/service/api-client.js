@@ -567,6 +567,56 @@
             return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#read_secret_history
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax GET request with the token as authentication to read the history for a secret as a list
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} secret_id the secret ID
+         *
+         * @returns {promise} promise
+         */
+        var read_secret_history = function (token, session_secret_key, secret_id) {
+            var endpoint = '/secret/history/' + secret_id + '/';
+            var connection_type = "GET";
+            var data = null;
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#read_history
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax GET request with the token as authentication to get the details of a history entry
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} secret_history_id the secret ID
+         *
+         * @returns {promise} promise
+         */
+        var read_history = function (token, session_secret_key, secret_history_id) {
+            var endpoint = '/history/' + secret_history_id + '/';
+            var connection_type = "GET";
+            var data = null;
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
 
         /**
          * @ngdoc
@@ -1239,6 +1289,31 @@
             };
             var headers = {
                 "Authorization": "Token "+ token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#read_status
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax GET request to query the server for the status
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         *
+         * @returns {promise} Returns a promise with the user information
+         */
+        var read_status = function (token, session_secret_key) {
+            var endpoint = '/user/status/';
+            var connection_type = "GET";
+            var data = null;
+
+            var headers = {
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -2036,6 +2111,8 @@
             write_recoverycode: write_recoverycode,
             enable_recoverycode: enable_recoverycode,
             set_password: set_password,
+            read_secret_history: read_secret_history,
+            read_history : read_history,
             read_datastore: read_datastore,
             write_datastore: write_datastore,
             create_datastore: create_datastore,
@@ -2061,6 +2138,7 @@
             read_ga: read_ga,
             activate_ga: activate_ga,
             delete_ga: delete_ga,
+            read_status: read_status,
             create_ga: create_ga,
             read_duo: read_duo,
             activate_duo: activate_duo,

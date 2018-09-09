@@ -42,54 +42,73 @@
         activate();
 
         function activate() {
-            chrome.tabs.onActivated.addListener(function(activeInfo) {
-                activeTabId = activeInfo.tabId;
-            });
 
-            chrome.omnibox.onInputChanged.addListener(on_input_changed);
-            chrome.omnibox.onInputEntered.addListener(on_input_entered);
-            chrome.omnibox.setDefaultSuggestion({
-                description: "Search datastore: <match>%s</match>"
-            });
-            browser.runtime.onMessage.addListener(on_message);
-            browser.webRequest.onAuthRequired.addListener(on_auth_required, {urls: ["<all_urls>"]}, ["asyncBlocking"]);
+            if (typeof chrome.tabs !== 'undefined') {
+                chrome.tabs.onActivated.addListener(function(activeInfo) {
+                    activeTabId = activeInfo.tabId;
+                });
+            }
+
+            if (typeof chrome.omnibox !== 'undefined') {
+                chrome.omnibox.onInputChanged.addListener(on_input_changed);
+                chrome.omnibox.onInputEntered.addListener(on_input_entered);
+                chrome.omnibox.setDefaultSuggestion({
+                    description: "Search datastore: <match>%s</match>"
+                });
+
+            }
+            if (typeof browser.runtime.onMessage !== 'undefined') {
+                browser.runtime.onMessage.addListener(on_message);
+            }
+            if (typeof browser.webRequest !== 'undefined') {
+                browser.webRequest.onAuthRequired.addListener(on_auth_required, {urls: ["<all_urls>"]}, ["asyncBlocking"]);
+            }
             // browser.webRequest.onBeforeRequest.addListener(on_before_request, {urls: ["<all_urls>"]}, ["blocking", "requestBody"]);
             // browser.webRequest.onBeforeSendHeaders.addListener(on_before_send_headers, {urls: ["<all_urls>"]}, ["blocking", "requestHeaders"]);
 
-            browser.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex){
-                if (notificationId.startsWith('new-password-detected-')  && buttonIndex === 0) {
-                    save_last_login_credentials();
-                }
-                chrome.notifications.clear(notificationId)
-            });
-
-            // set url to open if someone uninstalls our extension
-            browser.runtime.setUninstallURL("https://psono.com/uninstall-successfull/");
-
-            // set url to open if someone installs our extension
-            browser.runtime.onInstalled.addListener(function(details) {
-                if(details.reason !== "install"){
-                    return;
-                }
-
-                browser.tabs.create({
-                    url: 'https://www.psono.pw/register.html'
+            if (typeof browser.notifications !== 'undefined') {
+                browser.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex){
+                    if (notificationId.startsWith('new-password-detected-')  && buttonIndex === 0) {
+                        save_last_login_credentials();
+                    }
+                    chrome.notifications.clear(notificationId)
                 });
-            });
+            }
 
-            // count tabs to logout on browser close
-            browser.tabs.query({currentWindow: true}, function( tabs ){
-                num_tabs = tabs.length;
-            });
-            browser.tabs.onCreated.addListener(function(tab){
-                num_tabs++;
-            });
-            browser.tabs.onRemoved.addListener(function(tabId){
-                num_tabs--;
-                if( num_tabs === 0 && managerDatastoreUser.get_default('trust_device') !== true) {
-                    managerDatastoreUser.logout();
-                }
-            });
+            if (typeof browser.runtime.setUninstallURL !== 'undefined') {
+                // set url to open if someone uninstalls our extension
+                browser.runtime.setUninstallURL("https://psono.com/uninstall-successfull/");
+            }
+
+
+            if (typeof browser.runtime.onInstalled !== 'undefined') {
+                // set url to open if someone installs our extension
+                browser.runtime.onInstalled.addListener(function(details) {
+                    if(details.reason !== "install"){
+                        return;
+                    }
+
+                    browser.tabs.create({
+                        url: 'https://www.psono.pw/register.html'
+                    });
+                });
+            }
+
+            if (typeof browser.tabs !== 'undefined') {
+                // count tabs to logout on browser close
+                browser.tabs.query({currentWindow: true}, function( tabs ){
+                    num_tabs = tabs.length;
+                });
+                browser.tabs.onCreated.addListener(function(tab){
+                    num_tabs++;
+                });
+                browser.tabs.onRemoved.addListener(function(tabId){
+                    num_tabs--;
+                    if( num_tabs === 0 && managerDatastoreUser.get_default('trust_device') !== true) {
+                        managerDatastoreUser.logout();
+                    }
+                });
+            }
 
             browserClient.disable_browser_password_saving();
         }

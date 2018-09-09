@@ -11,7 +11,7 @@
      * @requires psonocli.offlineCache
      *
      * @description
-     * Controller for the "AcceptShare" modal
+     * Controller for the "Go Offline" modal
      */
     angular.module('psonocli').controller('ModalGoOfflineCtrl', ['$scope', '$rootScope', '$uibModalInstance', '$uibModal',
         'offlineCache', 'managerDatastore', 'managerDatastorePassword', 'managerExport', 'helper',
@@ -73,7 +73,7 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:ModalGoOfflineCtrl#approve
+             * @name psonocli.controller:ModalGoOfflineCtrl#potentially_close_modal
              * @methodOf psonocli.controller:ModalGoOfflineCtrl
              *
              * @description

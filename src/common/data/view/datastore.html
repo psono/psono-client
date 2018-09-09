@@ -90,7 +90,7 @@
                            text-align: center;
                            animation: fa-spin 2s infinite linear;
                            vertical-align: middle;">&#xf110;</i>
-                        Loading
+                        {{'LOADING' | translate}}
                     </div>
 
                 </div>
@@ -250,8 +250,9 @@
                         </div>
 
                         <!-- Advanced -->
-                        <div class="text-right" ng-hide="!has_advanced(bp.selected)">
-                            <a href="" ng-click="isCollapsed = !isCollapsed">{{'ADVANCED' | translate}}</a>
+                        <div class="text-right">
+                            <a ng-hide="!has_advanced(bp.selected)" href="" ng-click="isCollapsed = !isCollapsed">{{'ADVANCED' | translate}}</a>
+                            <a href="" ng-click="show_history(node)" ng-if="!offline">{{'SHOW_HISTORY' | translate}}</a>
                         </div>
 
 

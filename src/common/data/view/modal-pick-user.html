@@ -1,14 +1,14 @@
 <form name="newGroupForm" novalidate>
     <div class="modal-header">
         <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
-        <h3 class="modal-title">Pick User</h3>
+        <h3 class="modal-title">{{'PICK_USER' | translate}}</h3>
     </div>
     <div class="modal-body">
         <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
             <thead>
             <tr>
-                <th>Username</th>
-                <th class="hidden-xs hidden-sm">Public Key</th>
+                <th>{{'USERNAME' | translate}}</th>
+                <th class="hidden-xs hidden-sm">{{'PUBLIC_KEY' | translate}}</th>
                 <th>&nbsp;</th>
             </tr>
             </thead>

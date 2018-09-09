@@ -1,9 +1,11 @@
 {
   "manifest_version": 2,
 
-  "name": "Psono.PW Password Manager",
-  "short_name": "Psono.PW Password Manager",
-  "description": "Psono Password Manager",
+  "name": "Psono - Free Password Manager",
+  "short_name": "Psono - Free Password Manager",
+  "author": "Psono",
+  "description": "__MSG_appDesc__",
+  "default_locale": "en",
   "version": "1.0.0",
   "homepage_url":"https://psono.com/",
 

@@ -26,10 +26,10 @@
      */
     angular.module('psonocli').controller('MainCtrl', ['$scope', '$rootScope', '$filter', '$timeout', 'account',
         'managerDatastorePassword', 'managerDatastoreUser', 'managerDatastore', 'managerSecret', 'browserClient',
-        'storage', 'offlineCache', 'snapRemote', '$window', '$route', '$routeParams', '$location', '$uibModal',
+        'storage', 'offlineCache', 'snapRemote', '$window', '$route', '$routeParams', '$location', '$uibModal', 'managerStatus',
         function ($scope, $rootScope, $filter, $timeout, account,
                   managerDatastorePassword, managerDatastoreUser, managerDatastore, managerSecret, browserClient,
-                  storage, offlineCache, snapRemote, $window, $route, $routeParams, $location, $uibModal) {
+                  storage, offlineCache, snapRemote, $window, $route, $routeParams, $location, $uibModal, managerStatus) {
 
 
             $scope.open_tab = browserClient.open_tab;
@@ -43,6 +43,11 @@
 
             $scope.user_username = account.get_account_detail('user_username');
             $scope.messages = [];
+            $scope.server_status = {
+                data: {
+
+                }
+            };
             $scope.data_stores=[];
 
             /* test background page */
@@ -68,6 +73,15 @@
 
                 $rootScope.$on('offline_mode_disabled', function() {
                     $scope.offline = false;
+                });
+
+
+                managerStatus.get_status().then(function(status) {
+                    $scope.server_status.data = status.data;
+                });
+
+                $rootScope.$on('server_status_updated', function(event, data) {
+                    $scope.server_status.data = data.data;
                 });
 
 
