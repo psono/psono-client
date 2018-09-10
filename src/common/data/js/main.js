@@ -55,7 +55,7 @@
                 'cs': {'code': 'cs', 'lng_code': 'LANG_CS'},
                 'de': {'code': 'de', 'lng_code': 'LANG_DE', 'active': true},
                 'en': {'code': 'en', 'lng_code': 'LANG_EN', 'active': true, 'default': true},
-                'es': {'code': 'es', 'lng_code': 'LANG_ES'},
+                'es': {'code': 'es', 'lng_code': 'LANG_ES', 'active': true},
                 'fi': {'code': 'fi', 'lng_code': 'LANG_FI'},
                 'fr': {'code': 'fr', 'lng_code': 'LANG_FR'},
                 'hr': {'code': 'hr', 'lng_code': 'LANG_HR', 'active': true},
