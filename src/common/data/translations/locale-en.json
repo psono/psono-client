@@ -345,6 +345,7 @@
   "SEND": "Send",
   "CLOSE": "Close",
   "YES": "Yes",
+  "NO": "No",
   "ABORT": "Abort",
   "DANGER": "Danger",
   "INFO": "Info",
