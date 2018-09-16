@@ -626,8 +626,8 @@
             var secret_object = {
                 website_password_title: parsed_url.authority || '',
                 website_password_url: url,
-                website_password_username: "",
-                website_password_password: password,
+                website_password_username: username || "",
+                website_password_password: password || "",
                 website_password_notes: "",
                 website_password_auto_submit: false,
                 website_password_url_filter: parsed_url.authority || ''
