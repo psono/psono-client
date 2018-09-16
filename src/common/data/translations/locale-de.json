@@ -1,4 +1,7 @@
 {
+  "PSONO_WILL_STORE_THE_PASSWORD_ENCRYPTED": "Psono wird das Passwort verschlüsselt speichern",
+  "NEW_PASSWORD_DETECTED": "Neues Passwort erkannt",
+  "DO_YOU_WANT_TO_SAVE_THIS_PASSWORD": "Möchten sie das Passwort speichern?",
   "PICK_ONE_SERVER_BELOW_OR_ENTER_URL": "Wählen sie einen Server von unten aus oder geben sie eine neue URL ein",
   "UNLOCK": "Entsperren",
   "UNLOCK_OFFLINE_CACHE": "Offline Cache entsperren",
