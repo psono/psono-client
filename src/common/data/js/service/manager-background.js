@@ -6,6 +6,7 @@
      * @name psonocli.managerBackground
      * @requires $q
      * @requires $timeout
+     * @requires $translate
      * @requires psonocli.managerBase
      * @requires psonocli.storage
      * @requires psonocli.managerDatastorePassword
@@ -25,7 +26,7 @@
      * @description
      * Service that handles the complete background process
      */
-    var managerBackground = function($q, $timeout, managerBase, managerSecret, storage, managerDatastorePassword,
+    var managerBackground = function($q, $timeout, $translate, managerBase, managerSecret, storage, managerDatastorePassword,
                                      managerDatastore, managerDatastoreUser, helper, cryptoLibrary, apiClient, device,
                                      browser, chrome, browserClient, settings, openpgp, offlineCache) {
 
@@ -782,15 +783,24 @@
                 return;
             }
 
-            browser.notifications.create('new-password-detected-' + cryptoLibrary.generate_uuid(), {
-                "type": 'basic',
-                "iconUrl": "img/icon-64.png",
-                "title": "New Password detected",
-                "message": "Do you want to save this password?",
-                "contextMessage": "Psono will store the password encrypted",
-                "buttons": [{"title": "Yes"}, {"title": "No"}],
-                "eventTime": Date.now() + 4 * 1000
-            })
+            $translate([
+                'NEW_PASSWORD_DETECTED',
+                'DO_YOU_WANT_TO_SAVE_THIS_PASSWORD',
+                'PSONO_WILL_STORE_THE_PASSWORD_ENCRYPTED',
+                'YES',
+                'NO'
+            ]).then(function (translations) {
+
+                browser.notifications.create('new-password-detected-' + cryptoLibrary.generate_uuid(), {
+                    "type": 'basic',
+                    "iconUrl": "img/icon-64.png",
+                    "title": translations.NEW_PASSWORD_DETECTED,
+                    "message": translations.DO_YOU_WANT_TO_SAVE_THIS_PASSWORD,
+                    "contextMessage": translations.PSONO_WILL_STORE_THE_PASSWORD_ENCRYPTED,
+                    "buttons": [{"title": translations.YES}, {"title": translations.NO}],
+                    "eventTime": Date.now() + 4 * 1000
+                })
+            });
         }
 
         /**
@@ -1020,7 +1030,7 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerBackground", ['$q', '$timeout', 'managerBase', 'managerSecret', 'storage', 'managerDatastorePassword','managerDatastore',
+    app.factory("managerBackground", ['$q', '$timeout', '$translate', 'managerBase', 'managerSecret', 'storage', 'managerDatastorePassword','managerDatastore',
         'managerDatastoreUser', 'helper', 'cryptoLibrary', 'apiClient', 'device', 'browser', 'chrome',
         'browserClient', 'settings', 'openpgp', 'offlineCache', managerBackground]);
 
