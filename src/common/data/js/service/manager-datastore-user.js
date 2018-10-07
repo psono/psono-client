@@ -1267,6 +1267,29 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastoreUser#read_emergency_codes
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Returns a list of configured emergency codes
+         *
+         * @returns {promise} Returns a promise with the emergency codes
+         */
+        var read_emergency_codes = function() {
+
+            var onSuccess = function (request) {
+                return request.data['emegency_codes'];
+
+            };
+            var onError = function () {
+                // pass
+            };
+            return apiClient.read_emergency_codes(managerBase.get_token(), managerBase.get_session_secret_key())
+                .then(onSuccess, onError)
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastoreUser#get_email
          * @methodOf psonocli.managerDatastoreUser
          *
@@ -1483,6 +1506,7 @@
             activate_yubikey_otp: activate_yubikey_otp,
             delete_yubikey_otp: delete_yubikey_otp,
             get_sessions: get_sessions,
+            read_emergency_codes : read_emergency_codes,
             get_email: get_email,
             delete_session: delete_session,
             delete_other_sessions: delete_other_sessions,

@@ -1,4 +1,10 @@
 {
+  "PERSON": "Person",
+  "PERSON_YOU_GIVE_THIS_CODE_TO_EG_SISTER": "Person you give this code to, e.g. sister",
+  "NEW_EMERGENCY_CODES": "New Emergency Codes",
+  "EXISTING_EMERGENCY_CODES": "Existing Emergency Codes",
+  "EMERGENCY_CODES": "Emergency Codes",
+  "EMERGENCY_CODES_DESCRIPTION": "Emergency Codes allows other trustworthy people to login on your behalf. In contrast to recovery codes the other person has to wait a bit before the code will grant access. Further you will be informed once someone activates such a code giving you the chance to prevent this action.",
   "PSONO_WILL_STORE_THE_PASSWORD_ENCRYPTED": "Psono will store the password encrypted",
   "NEW_PASSWORD_DETECTED": "New Password detected",
   "DO_YOU_WANT_TO_SAVE_THIS_PASSWORD": "Do you want to save this password?",

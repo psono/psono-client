@@ -322,6 +322,34 @@
             return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#read_emergency_codes
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax GET request get all emergency codes
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         *
+         * @returns {promise} promise
+         */
+        var read_emergency_codes = function(token, session_secret_key) {
+
+            var endpoint = '/emergencycode/';
+            var connection_type = "GET";
+            var data = null;
+
+            var headers = {
+                "Authorization": "Token "+ token
+            };
+
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
         /**
          * @ngdoc
          * @name psonocli.apiClient#logout
@@ -2104,6 +2132,7 @@
             yubikey_otp_verify: yubikey_otp_verify,
             activate_token: activate_token,
             get_sessions: get_sessions,
+            read_emergency_codes: read_emergency_codes,
             logout: logout,
             register: register,
             verify_email: verify_email,

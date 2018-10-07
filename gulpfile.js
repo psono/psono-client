@@ -195,6 +195,7 @@ var build = function(build_path, type) {
             "src/common/data/js/controller/modal/ShareEditEntryCtrl.js",
             "src/common/data/js/controller/modal/ShareEntryCtrl.js",
             "src/common/data/js/controller/modal/ShareNewEntryCtrl.js",
+            "src/common/data/js/controller/modal/ShowEmergencyCodesCtrl.js",
             "src/common/data/js/controller/modal/ShowRecoverycodeCtrl.js",
             "src/common/data/js/controller/modal/UnlockOfflineCacheCtrl.js",
             "src/common/data/js/controller/modal/DeleteAccountCtrl.js",
