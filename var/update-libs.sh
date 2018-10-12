@@ -1,34 +1,34 @@
 #!/usr/bin/env bash
 wget https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js -O src/common/data/js/lib/jquery.min.js
 wget https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js -O src/common/data/js/lib/jquery-ui.min.js
-wget https://raw.githubusercontent.com/angular-ui/bootstrap-bower/master/ui-bootstrap-tpls.min.js -O src/common/data/js/lib/ui-bootstrap-tpls.min.js
+wget https://raw.githubusercontent.com/angular-ui/bootstrap-bower/2.5.0/ui-bootstrap-tpls.min.js -O src/common/data/js/lib/ui-bootstrap-tpls.min.js
 wget https://raw.githubusercontent.com/angular-ui/bootstrap/gh-pages/ui-bootstrap-2.5.0-csp.css -O src/common/data/css/lib/ui-bootstrap-csp.css
 wget http://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js -O src/common/data/js/lib/datatables.min.js
 wget https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css -O src/common/data/css/lib/datatables.min.css
 
-wget https://code.angularjs.org/1.7.4/angular.min.js -O src/common/data/js/lib/angular.min.js
-wget https://code.angularjs.org/1.7.4/angular.min.js.map -O src/common/data/js/lib/angular.min.js.map
-wget https://code.angularjs.org/1.7.4/angular-cookies.min.js -O src/common/data/js/lib/angular-cookies.min.js
-wget https://code.angularjs.org/1.7.4/angular-cookies.min.js.map -O src/common/data/js/lib/angular-cookies.min.js.map
-wget https://code.angularjs.org/1.7.4/angular-animate.min.js -O src/common/data/js/lib/angular-animate.min.js
-wget https://code.angularjs.org/1.7.4/angular-animate.min.js.map -O src/common/data/js/lib/angular-animate.min.js.map
-wget https://code.angularjs.org/1.7.4/angular-route.min.js -O src/common/data/js/lib/angular-route.min.js
-wget https://code.angularjs.org/1.7.4/angular-route.min.js.map -O src/common/data/js/lib/angular-route.min.js.map
-wget https://code.angularjs.org/1.7.4/angular-sanitize.min.js -O src/common/data/js/lib/angular-sanitize.min.js
-wget https://code.angularjs.org/1.7.4/angular-sanitize.min.js.map -O src/common/data/js/lib/angular-sanitize.min.js.map
-wget https://code.angularjs.org/1.7.4/angular-touch.min.js -O src/common/data/js/lib/angular-touch.min.js
-wget https://code.angularjs.org/1.7.4/angular-touch.min.js.map -O src/common/data/js/lib/angular-touch.min.js.map
-wget https://code.angularjs.org/1.7.4/angular-csp.css -O src/common/data/css/lib/angular-csp.css
-wget https://code.angularjs.org/1.7.4/angular-mocks.js -O unittests/data/js/lib/angular-mocks.js
+wget https://code.angularjs.org/1.7.5/angular.min.js -O src/common/data/js/lib/angular.min.js
+wget https://code.angularjs.org/1.7.5/angular.min.js.map -O src/common/data/js/lib/angular.min.js.map
+wget https://code.angularjs.org/1.7.5/angular-cookies.min.js -O src/common/data/js/lib/angular-cookies.min.js
+wget https://code.angularjs.org/1.7.5/angular-cookies.min.js.map -O src/common/data/js/lib/angular-cookies.min.js.map
+wget https://code.angularjs.org/1.7.5/angular-animate.min.js -O src/common/data/js/lib/angular-animate.min.js
+wget https://code.angularjs.org/1.7.5/angular-animate.min.js.map -O src/common/data/js/lib/angular-animate.min.js.map
+wget https://code.angularjs.org/1.7.5/angular-route.min.js -O src/common/data/js/lib/angular-route.min.js
+wget https://code.angularjs.org/1.7.5/angular-route.min.js.map -O src/common/data/js/lib/angular-route.min.js.map
+wget https://code.angularjs.org/1.7.5/angular-sanitize.min.js -O src/common/data/js/lib/angular-sanitize.min.js
+wget https://code.angularjs.org/1.7.5/angular-sanitize.min.js.map -O src/common/data/js/lib/angular-sanitize.min.js.map
+wget https://code.angularjs.org/1.7.5/angular-touch.min.js -O src/common/data/js/lib/angular-touch.min.js
+wget https://code.angularjs.org/1.7.5/angular-touch.min.js.map -O src/common/data/js/lib/angular-touch.min.js.map
+wget https://code.angularjs.org/1.7.5/angular-csp.css -O src/common/data/css/lib/angular-csp.css
+wget https://code.angularjs.org/1.7.5/angular-mocks.js -O unittests/data/js/lib/angular-mocks.js
 
 wget https://raw.githubusercontent.com/Kraku/angular-complexify/master/build/angular-complexify.min.js -O src/common/data/js/lib/angular-complexify.min.js
 wget https://raw.githubusercontent.com/grevory/angular-local-storage/master/dist/angular-local-storage.min.js -O src/common/data/js/lib/angular-local-storage.min.js
 wget https://raw.githubusercontent.com/techfort/LokiJS/master/build/lokijs.min.js -O src/common/data/js/lib/lokijs.min.js
-wget https://raw.githubusercontent.com/RubaXa/Sortable/master/Sortable.min.js -O src/common/data/js/lib/sortable.min.js
-wget https://raw.githubusercontent.com/jakiestfu/Snap.js/develop/snap.min.js -O src/common/data/js/lib/snap.min.js
-wget https://raw.githubusercontent.com/emn178/js-sha512/master/build/sha512.min.js -O src/common/data/js/lib/sha512.min.js
-wget https://raw.githubusercontent.com/emn178/js-sha256/master/build/sha256.min.js -O src/common/data/js/lib/sha256.min.js
-wget https://raw.githubusercontent.com/emn178/js-sha1/master/build/sha1.min.js -O src/common/data/js/lib/sha1.min.js
+wget https://raw.githubusercontent.com/RubaXa/Sortable/1.5.1/Sortable.min.js -O src/common/data/js/lib/sortable.min.js
+wget https://raw.githubusercontent.com/jakiestfu/Snap.js/1.9.3/snap.min.js -O src/common/data/js/lib/snap.min.js
+wget https://raw.githubusercontent.com/emn178/js-sha512/v0.8.0/build/sha512.min.js -O src/common/data/js/lib/sha512.min.js
+wget https://raw.githubusercontent.com/emn178/js-sha256/v0.9.0/build/sha256.min.js -O src/common/data/js/lib/sha256.min.js
+wget https://raw.githubusercontent.com/emn178/js-sha1/v0.6.0/build/sha1.min.js -O src/common/data/js/lib/sha1.min.js
 wget https://raw.githubusercontent.com/3nsoft/ecma-nacl/master/dist/lib-browser/ecma-nacl.min.js -O src/common/data/js/lib/ecma-nacl.min.js
 wget https://raw.githubusercontent.com/jackspirou/clientjs/master/dist/client.min.js -O src/common/data/js/lib/client.min.js
 
@@ -43,7 +43,7 @@ wget https://cdn.rawgit.com/angular-translate/bower-angular-translate-storage-co
 wget https://cdn.rawgit.com/angular-translate/bower-angular-translate-loader-url/2.18.1/angular-translate-loader-url.min.js -O src/common/data/js/lib/angular-translate-loader-url.min.js
 wget https://cdn.rawgit.com/angular-translate/bower-angular-translate-loader-static-files/2.18.1/angular-translate-loader-static-files.min.js -O src/common/data/js/lib//angular-translate-loader-static-files.min.js
 
-wget https://raw.githubusercontent.com/ftlabs/fastclick/master/lib/fastclick.js -O src/common/data/js/lib/fastclick.js
+wget https://raw.githubusercontent.com/ftlabs/fastclick/v1.0.6/lib/fastclick.js -O src/common/data/js/lib/fastclick.js
 
 
 wget https://raw.githubusercontent.com/chartjs/Chart.js/v2.7.1/dist/Chart.min.js -O src/common/data/js/lib/chart.min.js
