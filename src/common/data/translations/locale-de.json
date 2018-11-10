@@ -1,4 +1,5 @@
 {
+  "EXPORT_HAS_BEEN_DISABLED": "Der Server Administrator hat das Export Feature deaktiviert. Bitte wenden sie sich an den Administrator.",
   "SECONDS": "Sekunden",
   "EMERGENCY_CODE_ACTIVATED": "Notfall Code Akttivierungs-Countdown gestartet. Sie können sich einloggen sobald der Countdown abgelaufen ist. Bitte wiederholen sie den Schritt in:",
   "EMERGENCY_CODE_WAITING": "Der Notfall Code Akttivierungs-Countdown wurde bereits gestartet. Sie können sich einloggen sobald der Countdown abgelaufen ist. Bitte wiederholen sie den Schritt in:",

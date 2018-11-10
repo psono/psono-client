@@ -24,9 +24,13 @@
 
             $scope.export_datastore = export_datastore;
 
+            $scope.export_disabled = managerExport.export_disabled();
+
             activate();
 
             function activate() {
+
+
                 managerExport.on('export-started', function(){
                     $scope.state.download_ongoing = true;
                 });

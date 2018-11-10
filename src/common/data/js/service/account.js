@@ -19,15 +19,13 @@
     var account = function($q, $uibModal, $filter, storage, helper, managerDatastoreUser, managerDatastoreSetting) {
 
         var _default_tab = 'overview';
+        var _tabs_already_loaded = false;
 
         var _tabs = [
             { key: 'overview', title: 'OVERVIEW', description: 'OVERVIEW_DESCRIPTION' },
             { key: 'change-email', title: 'CHANGE_E_MAIL', description: 'CHANGE_E_MAIL_DESCRIPTION' },
             { key: 'change-password', title: 'CHANGE_PASSWORD', description: 'CHANGE_PASSWORD_DESCRIPTION' },
-            { key: 'generate-password-recovery', title: 'GENERATE_PASSWORD_RECOVERY', description: 'GENERATE_PASSWORD_RECOVERY_DESCRIPTION' },
-            { key: 'emergency-codes', title: 'EMERGENCY_CODES', description: 'EMERGENCY_CODES_DESCRIPTION' },
-            { key: 'multifactor-authentication', title: 'MULTIFACTOR_AUTHENTICATION', description: 'MULTIFACTOR_AUTHENTICATION_DESCRIPTION' },
-            { key: 'delete-account', title: 'DELETE_ACCOUNT', description: 'DELETE_ACCOUNT_DESCRIPTION' }
+            { key: 'multifactor-authentication', title: 'MULTIFACTOR_AUTHENTICATION', description: 'MULTIFACTOR_AUTHENTICATION_DESCRIPTION' }
         ];
 
         var _account = {
@@ -56,7 +54,7 @@
                 { key: "setting_password_repeat", field: "input", type: "password", title: "NEW_PASSWORD_REPEAT", placeholder: "NEW_PASSWORD_REPEAT", tab: 'change-password'},
                 { key: "setting_password_password_old", field: "input", type: "password", title: "OLD_PASSWORD", placeholder: "OLD_PASSWORD", tab: 'change-password'},
                 // Password Recovery
-                { name: "generate_password_recovery_button", field: "button", type: "button", title: "NEW_PASSWORD_RECOVERY_CODE", btnLabel: "GENERATE", class: 'btn-primary', onClick:"onClickGenerateNewPasswordRecoveryCode", tab: 'generate-password-recovery' },
+                { name: "generate_password_recovery_button", field: "button", type: "button", title: "NEW_PASSWORD_RECOVERY_CODE", btnLabel: "GENERATE", class: 'btn-primary', onClick:"onClickGenerateNewPasswordRecoveryCode", tab: 'recovery-codes' },
                 // Emergency Codes
                 { name: "emergency_code_setup", field: "button", type: "button", title: "EMERGENCY_CODES", btnLabel: "CONFIGURE", class: 'btn-primary', onClick:"onClickConfigureEmergencyCodes", tab: 'emergency-codes' },
                 // 2FA
@@ -196,7 +194,8 @@
             if (!server_info) {
                 return
             }
-            var allowed_second_factors = storage.find_key('config', 'server_info').value['allowed_second_factors'];
+
+            var allowed_second_factors = server_info.value['allowed_second_factors'];
 
 
             if (typeof(allowed_second_factors) === 'undefined') {
@@ -212,6 +211,23 @@
             if (allowed_second_factors.indexOf('duo') !== -1) {
                 _account.fields.push({ name: "duo_setup", field: "button", type: "button", title: "DUO_PUSH_OR_CODE", btnLabel: "CONFIGURE", class: 'btn-primary', onClick:"onClickConfigureDuo", tab: 'multifactor-authentication' })
             }
+
+            if (_tabs_already_loaded === false) {
+
+                if (!server_info.value.hasOwnProperty('compliance_disable_emergency_codes') || server_info.value['compliance_disable_emergency_codes'] === false) {
+                    _tabs.push({ key: 'emergency-codes', title: 'EMERGENCY_CODES', description: 'EMERGENCY_CODES_DESCRIPTION' })
+                }
+
+                if (!server_info.value.hasOwnProperty('compliance_disable_recovery_codes') || server_info.value['compliance_disable_recovery_codes'] === false) {
+                    _tabs.push({ key: 'recovery-codes', title: 'GENERATE_PASSWORD_RECOVERY', description: 'GENERATE_PASSWORD_RECOVERY_DESCRIPTION' })
+                }
+
+                // load delete account last
+                _tabs.push({ key: 'delete-account', title: 'DELETE_ACCOUNT', description: 'DELETE_ACCOUNT_DESCRIPTION' });
+
+                _tabs_already_loaded = true;
+            }
+
         }
 
         /**

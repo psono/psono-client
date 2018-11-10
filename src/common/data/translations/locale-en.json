@@ -1,4 +1,5 @@
 {
+  "EXPORT_HAS_BEEN_DISABLED": "The server administrator has disabled the export feature. Please talk to your administrator.",
   "SECONDS": "seconds",
   "EMERGENCY_CODE_ACTIVATED": "Emergency code activation countdown started. You can login once the countdown is finished. Please repeat this step in:",
   "EMERGENCY_CODE_WAITING": "The emergency code activation countdown has already been started. You can login once the countdown is finished. Please repeat this step in:",
