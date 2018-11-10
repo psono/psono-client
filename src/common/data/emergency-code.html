@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html ng-app="psonocli" class="datastore" ng-csp ng-strict-di>
 <head>
-    <title>Open Secret</title>
+    <title>Lost Password</title>
     <meta charset="utf-8">
 
     <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
@@ -34,25 +34,158 @@
     <link href="css/style.css" rel="stylesheet">
     <!-- endbuild -->
 
-    <link href="css/open-secret.css" rel="stylesheet">
+    <link href="css/datastore.css" rel="stylesheet">
 </head>
 <body>
-<div  ng-controller="OpenSecretCtrl" class="ng-cloak">
 
-    <div class="loading-lock">
+<div ng-controller="ActivateEmergencyCodeCtrl" class="ng-cloak">
+    <!-- Not logged in, show the login form -->
+    <div class="wrapper">
 
-        <img src="img/logo.png" alt="Psono Web Client" id="logo">
+        <div class="lostpasswordbox dark">
+            <img src="img/logo.png" alt="Psono Web Client" id="logo">
 
-        <div class="loading-lock-logo">
-            <div class="loading-lock-logo-unloaded">
-                <i class="fa fa-lock" ></i>
-            </div>
-            <div class="loading-lock-logo-loaded">
-                <i id="loading-lock-logo-loaded-fa" class="fa fa-lock" ></i>
-            </div>
-        </div>
-        <div class="loading-lock-text">
-            {{'DECRYPTING_SECRET' | translate}}
+            <form name="emergencycodeActivationForm" ng-if="!data.status && view === 'default'">
+                <div ng-class="{'input-group': emergencycodeActivationFormUsername == null || emergencycodeActivationFormUsername.indexOf('@') == -1}">
+                    <input type="text" class="form-control" id="lostpasswordUsername" placeholder="{{'USERNAME' | translate}}"
+                           ng-model="emergencycodeActivationFormUsername" required aria-describedby="username-addon" autofocus>
+                    <span class="input-group-addon" id="username-addon"
+                          ng-if="emergencycodeActivationFormUsername == null || emergencycodeActivationFormUsername.indexOf('@') == -1">@{{selected_server_domain}}</span>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-xs-6 form-group">
+                        <input type="text" class="form-control" id="code1" placeholder="DdSLuiDcPuY2F"
+                               ng-model="emergencycodeActivationFormCode1.value"
+                               ng-class="emergencycodeActivationFormCode1.class"
+                               ng-change="code_changing(emergencycodeActivationFormCode1)">
+                    </div>
+
+                    <div class="col-xs-6 form-group">
+                        <input type="text" class="form-control" id="code2" placeholder="Dsxf82sKQdqPs"
+                               ng-model="emergencycodeActivationFormCode2.value"
+                               ng-class="emergencycodeActivationFormCode2.class"
+                               ng-change="code_changing(emergencycodeActivationFormCode2)">
+                    </div>
+                </div>
+
+                <input type="text" class="form-control" id="words" placeholder="{{'OR_WORDLIST' | translate}}"
+                       ng-model="emergencycodeActivationFormWords.value"
+                       ng-class="emergencycodeActivationFormWords.class"
+                       ng-change="words_changing(emergencycodeActivationFormWords)">
+
+                <br>
+
+
+                <div class="form-group">
+                    <button ng-click="arm_emergency_code(emergencycodeActivationFormUsername, emergencycodeActivationFormCode1.value, emergencycodeActivationFormCode2.value, emergencycodeActivationFormWords.value)"
+                            type="submit" class="btn btn-danger">{{'ACTIVATE_EMERGENCY_CODE' | translate}}</button>
+                </div>
+
+                <div class="form-group alert alert-info" ng-repeat="e in msgs">
+                    <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
+                </div>
+
+                <div class="form-group alert alert-danger" ng-repeat="e in errors">
+                    <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
+                </div>
+
+                <div class="form-group hideinputcharakter">
+
+                    <label for="serverselection">{{'SERVER' | translate}}: </label>
+                    <input type="text" id="serverselection"
+                           uib-popover-template="'view/popover-server-select.html'"
+                           popover-trigger="'focus'"
+                           ng-model="selected_server_url"
+                           ng-change="changing(selected_server_url)"
+                           class="form-control">
+                </div>
+
+            </form>
+
+            <form name="newServerForm" ng-if="view === 'new_server'">
+                <!-- new Server View -->
+                <div class="form-group">
+                    <h4>{{'NEW_SERVER' | translate}}</h4>
+                </div>
+                <div class="form-group">
+                    <p>{{'FINGERPRINT_OF_THE_NEW_SERVER' | translate}}:</p>
+                    <textarea class="form-control" id="newServerFingerprint"
+                              placeholder="{{'FINGERPRINT_OF_THE_NEW_SERVER' | translate}}"
+                              ng-model="newServerFingerprint" readonly="readonly"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <button ng-click="approve_new_server()" type="submit"
+                            class="btn btn-danger">{{'APPROVE' | translate}}</button>
+                    <a href="#" ng-click="disapprove_new_server()">{{'CANCEL' | translate}}</a>
+                </div>
+
+                <div class="form-group alert alert-danger" ng-repeat="e in errors">
+                    <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
+                </div>
+
+                <div class="form-group">
+                    <div class="alert alert-info">
+                        <strong>{{'INFO' | translate}}!</strong> {{'IT_APPEARS_THAT_YOU_WANT_TO_CONNECT' | translate}}
+                    </div>
+                </div>
+            </form>
+
+            <form name="signatureChangedForm" ng-if="view === 'signature_changed'">
+                <!-- signature changed View -->
+                <div class="form-group">
+                    <h4>{{'SERVER_SIGNATURE_CHANGED' | translate}}:</h4>
+                </div>
+                <div class="form-group">
+                    <p>{{'THE_NEW_FINGERPRINT_IS' | translate}}:</p>
+                    <textarea class="form-control" id="changedFingerprint"
+                              placeholder="{{'FINGERPRINT_OF_THE_NEW_SERVER' | translate}}"
+                              ng-model="changedFingerprint" readonly="readonly"></textarea>
+                </div>
+                <div class="form-group">
+                    <p>{{'THE_OLD_FINGERPRINT_WAS' | translate}}:</p>
+                    <textarea class="form-control" id="oldFingerprint"
+                              placeholder="{{'FINGERPRINT_OF_THE_OLD_SERVER' | translate}}"
+                              ng-model="oldFingerprint" readonly="readonly"></textarea>
+                </div>
+                <div class="form-group">
+                    <div class="alert alert-danger">
+                        <strong>{{'DANGER' | translate}}!</strong> {{'THE_SIGNATURE_OF_THE_SERVER_CHANGED' | translate}}<br><br><strong>{{'CONTACT_THE_OWNER_OF_THE_SERVER' | translate}}</strong>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <button ng-click="disapprove_new_server()" type="submit"
+                            class="btn btn-danger">{{'CANCEL' | translate}}</button>
+                    <a href="#" ng-click="approve_new_server()">{{'IGNORE_AND_CONTINUE' | translate}}</a>
+                </div>
+
+                <div class="form-group alert alert-danger" ng-repeat="e in errors">
+                    <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
+                </div>
+            </form>
+
+            <form name="setpasswordForm" ng-if="data.status && view === 'default'" autocomplete="off">
+                <div class="form-group alert alert-success" ng-if="data.status === 'started'">
+                    <strong>{{'SUCCESS' | translate}}:</strong> <span>{{'EMERGENCY_CODE_ACTIVATED' | translate}} {{ data.remaining_wait_time }} {{'SECONDS' | translate}}</span>
+                </div>
+                <div class="form-group alert alert-info" ng-if="data.status === 'waiting'">
+                    <strong>{{'INFO' | translate}}:</strong> <span>{{'EMERGENCY_CODE_WAITING' | translate}} {{ data.remaining_wait_time }} {{'SECONDS' | translate}}</span>
+                </div>
+
+
+
+                <div ng-if="data.status === 'active'" class="big-font-icon-and-msg">
+                    <i class="fa fa-thumbs-o-up"></i>
+                    <div><span>{{'SUCCESS' | translate}}</span></div>
+                </div>
+
+                <div class="form-group text-center">
+                    <a href="index.html" class="btn btn-danger" role="button">{{'BACK_TO_HOME' | translate}}</a>
+                </div>
+            </form>
+
         </div>
     </div>
 </div>

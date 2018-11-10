@@ -160,6 +160,7 @@ self.addEventListener('install', function(event) {
                 './js/controller/GPGDecryptMessageCtrl.js',
                 './js/controller/GPGEncryptMessageCtrl.js',
                 './js/controller/LostPasswordCtrl.js',
+                './js/controller/ActivateEmergencyCodeCtrl.js',
                 './js/controller/MainCtrl.js',
                 './js/controller/modal/AcceptShareCtrl.js',
                 './js/controller/modal/ConfigureGoogleAuthenticatorCtrl.js',

@@ -166,6 +166,7 @@ var build = function(build_path, type) {
             "src/common/data/js/controller/GPGDecryptMessageCtrl.js",
             "src/common/data/js/controller/GPGEncryptMessageCtrl.js",
             "src/common/data/js/controller/LostPasswordCtrl.js",
+            "src/common/data/js/controller/ActivateEmergencyCodeCtrl.js",
             "src/common/data/js/controller/MainCtrl.js",
             "src/common/data/js/controller/modal/AcceptShareCtrl.js",
             "src/common/data/js/controller/modal/ConfigureGoogleAuthenticatorCtrl.js",

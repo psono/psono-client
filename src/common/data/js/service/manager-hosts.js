@@ -122,6 +122,28 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerHost#info
+         * @methodOf psonocli.managerHost
+         *
+         * @description
+         * Returns the server info
+         *
+         * @returns {promise} Server info
+         */
+        function info() {
+
+            var onSuccess = function(response){
+
+                response.data['decoded_info'] = JSON.parse(response.data['info']);
+
+                return response
+            };
+            return apiClient.info().then(onSuccess);
+        }
+
+
+        /**
+         * @ngdoc
          * @name psonocli.managerHost#check_host
          * @methodOf psonocli.managerHost
          *
@@ -141,14 +163,13 @@
                 var check_result;
                 var data = response.data;
                 var server_url = server['url'].toLowerCase();
-                var info = JSON.parse(data['info']);
 
                 if (! cryptoLibrary.validate_signature(data['info'], data['signature'], data['verify_key'])) {
                     return {
                         server_url: server_url,
                         status: 'invalid_signature',
                         verify_key: undefined,
-                        info: info
+                        info: data['decoded_info']
                     };
                 }
 
@@ -159,7 +180,7 @@
                         server_url: server_url,
                         status: 'matched',
                         verify_key: data['verify_key'],
-                        info: info
+                        info: data['decoded_info']
                     };
                 } else if(check_result['status'] === 'signature_changed') {
 
@@ -168,19 +189,19 @@
                         status: 'signature_changed',
                         verify_key: data['verify_key'],
                         verify_key_old: check_result['verify_key_old'],
-                        info: info
+                        info: data['decoded_info']
                     };
                 } else {
                     return {
                         server_url: server_url,
                         status: 'new_server',
                         verify_key: data['verify_key'],
-                        info: info
+                        info: data['decoded_info']
                     };
                 }
             };
 
-            return apiClient.info().then(onSuccess);
+            return info().then(onSuccess);
         }
 
         /**
@@ -245,6 +266,7 @@
             get_current_host: get_current_host,
             get_current_host_url: get_current_host_url,
             check_known_hosts: check_known_hosts,
+            info: info,
             check_host: check_host,
             approve_host: approve_host,
             delete_known_host: delete_known_host,
