@@ -201,7 +201,7 @@
                 ga_token: ga_token
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -229,7 +229,7 @@
                 duo_token: duo_token
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -257,7 +257,7 @@
                 yubikey_otp: yubikey_otp
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -288,7 +288,7 @@
                 verification_nonce: verification_nonce
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -315,9 +315,106 @@
             var data = null;
 
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#read_emergency_codes
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax GET request get all emergency codes
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         *
+         * @returns {promise} promise
+         */
+        var read_emergency_codes = function(token, session_secret_key) {
+
+            var endpoint = '/emergencycode/';
+            var connection_type = "GET";
+            var data = null;
+
+            var headers = {
+                "Authorization": "Token " + token
+            };
+
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#create_emergency_code
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax PUT request to create a datatore with the token as authentication and optional already some data,
+         * together with the encrypted secret key and nonce
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         *
+         * @param {string} description The description of the emergency code
+         * @param {string} activation_delay The delay till someone can activate this code in seconds
+         * @param {string} emergency_authkey The emergency_authkey (derivative of the emergency_password)
+         * @param {string} emergency_data The Recovery Data, an encrypted json object
+         * @param {string} emergency_data_nonce The nonce used for the encryption of the data
+         * @param {string} emergency_sauce The random sauce used as salt
+         *
+         * @returns {promise} promise
+         */
+        var create_emergency_code = function (token, session_secret_key, description, activation_delay, emergency_authkey, emergency_data, emergency_data_nonce, emergency_sauce) {
+            var endpoint = '/emergencycode/';
+            var connection_type = "POST";
+            var data = {
+                description: description,
+                activation_delay: activation_delay,
+                emergency_authkey: emergency_authkey,
+                emergency_data: emergency_data,
+                emergency_data_nonce: emergency_data_nonce,
+                emergency_sauce: emergency_sauce
+            };
+            var headers = {
+                "Authorization": "Token " + token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#delete_emergency_code
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax DELETE request to delete a given emergency code
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} emergency_code_id The emergency code id to delete
+         *
+         * @returns {promise} Returns a promise which can succeed or fail
+         */
+        var delete_emergency_code = function (token, session_secret_key, emergency_code_id) {
+            var endpoint = '/emergencycode/';
+            var connection_type = "DELETE";
+            var data = {
+                emergency_code_id: emergency_code_id
+            };
+
+            var headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Token " + token
+            };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
         };
@@ -343,7 +440,7 @@
                 'session_id': session_id
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -449,7 +546,7 @@
                 secret_key_nonce: secret_key_nonce
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -482,7 +579,7 @@
                 recovery_sauce: recovery_sauce
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -507,6 +604,60 @@
             var data = {
                 username: username,
                 recovery_authkey: recovery_authkey
+            };
+            var headers = null;
+
+            return call(connection_type, endpoint, data, headers);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#arm_emergency_code
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * AJAX POST request to the backend with the emergency_code_authkey to initiate the activation of the emergency code
+         *
+         * @param {string} username the account's username e.g dummy@example.com
+         * @param {string} emergency_authkey The emergency_code (derivative of the recovery_password)
+         *
+         * @returns {promise} Returns a promise with the recovery_data
+         */
+        var arm_emergency_code = function(username, emergency_authkey) {
+            var endpoint = '/emergency-login/';
+            var connection_type = "POST";
+            var data = {
+                username: username,
+                emergency_authkey: emergency_authkey
+            };
+            var headers = null;
+
+            return call(connection_type, endpoint, data, headers);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#activate_emergency_code
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * AJAX POST request to the backend to actually actually activate the emergency code and get an active session back
+         *
+         * @param {string} username the account's username e.g dummy@example.com
+         * @param {string} emergency_authkey The emergency_authkey (derivative of the recovery_password)
+         * @param {string} update_data The private and secret key object encrypted with the verifier
+         * @param {string} update_data_nonce The nonce of the encrypted private and secret key object
+         *
+         * @returns {promise} Returns a promise with the recovery_data
+         */
+        var activate_emergency_code = function(username, emergency_authkey, update_data, update_data_nonce) {
+            var endpoint = '/emergency-login/';
+            var connection_type = "PUT";
+            var data = {
+                username: username,
+                emergency_authkey: emergency_authkey,
+                update_data: update_data,
+                update_data_nonce: update_data_nonce
             };
             var headers = null;
 
@@ -561,7 +712,7 @@
             var connection_type = "GET";
             var data = null;
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -586,7 +737,7 @@
             var connection_type = "GET";
             var data = null;
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -611,7 +762,7 @@
             var connection_type = "GET";
             var data = null;
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -654,7 +805,7 @@
                 secret_key_nonce: encrypted_data_secret_key_nonce
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -684,7 +835,7 @@
             };
             var headers = {
                 "Content-Type": "application/json",
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -724,7 +875,7 @@
                 is_default: is_default
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -750,7 +901,7 @@
             var connection_type = "GET";
             var data = null;
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key, synchronous)
@@ -787,7 +938,7 @@
                 parent_share_id: parent_share_id
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -818,7 +969,7 @@
                 data_nonce: encrypted_data_nonce
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -849,7 +1000,7 @@
                 new_parent_datastore_id: new_parent_datastore_id
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -877,7 +1028,7 @@
             };
             var headers = {
                 "Content-Type": "application/json",
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -903,7 +1054,7 @@
             var connection_type = "GET";
             var data = null;
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -928,7 +1079,7 @@
             var connection_type = "GET";
             var data = null;
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -971,7 +1122,7 @@
                 link_id: link_id
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1002,7 +1153,7 @@
                 data_nonce: encrypted_data_nonce
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1027,7 +1178,7 @@
             var connection_type = "GET";
             var data = null;
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1051,7 +1202,7 @@
             var connection_type = "GET";
             var data = null;
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1103,7 +1254,7 @@
                 grant: grant
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1142,7 +1293,7 @@
                 grant: grant
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1172,7 +1323,7 @@
             };
             var headers = {
                 "Content-Type": "application/json",
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1196,7 +1347,7 @@
             var connection_type = "GET";
             var data = null;
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1230,7 +1381,7 @@
                 key_type: key_type
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1257,7 +1408,7 @@
                 share_right_id: share_right_id
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1288,7 +1439,7 @@
                 user_email: user_email,
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1340,7 +1491,7 @@
                 title: title
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1365,7 +1516,7 @@
             var data = null;
 
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1395,7 +1546,7 @@
             };
 
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1424,7 +1575,7 @@
 
             var headers = {
                 "Content-Type": "application/json",
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1457,7 +1608,7 @@
                 host: host
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1482,7 +1633,7 @@
             var data = null;
 
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1512,7 +1663,7 @@
             };
 
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1541,7 +1692,7 @@
 
             var headers = {
                 "Content-Type": "application/json",
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1570,7 +1721,7 @@
                 yubikey_otp: yubikey_otp
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1595,7 +1746,7 @@
             var data = null;
 
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1625,7 +1776,7 @@
             };
 
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1654,7 +1805,7 @@
 
             var headers = {
                 "Content-Type": "application/json",
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1689,7 +1840,7 @@
                 parent_datastore_id: parent_datastore_id
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1721,7 +1872,7 @@
                 new_parent_datastore_id: new_parent_datastore_id
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1749,7 +1900,7 @@
             };
             var headers = {
                 "Content-Type": "application/json",
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1774,7 +1925,7 @@
             var connection_type = "GET";
             var data = null;
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1813,7 +1964,7 @@
                 public_key: public_key
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1843,7 +1994,7 @@
             };
 
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1872,7 +2023,7 @@
 
             var headers = {
                 "Content-Type": "application/json",
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1898,7 +2049,7 @@
             var connection_type = "GET";
             var data = null;
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1946,7 +2097,7 @@
                 share_admin: share_admin
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -1978,7 +2129,7 @@
                 share_admin: share_admin
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -2007,7 +2158,7 @@
 
             var headers = {
                 "Content-Type": "application/json",
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -2035,7 +2186,7 @@
                 membership_id: membership_id
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -2062,7 +2213,7 @@
                 membership_id: membership_id
             };
             var headers = {
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -2090,7 +2241,7 @@
             };
             var headers = {
                 "Content-Type": "application/json",
-                "Authorization": "Token "+ token
+                "Authorization": "Token " + token
             };
 
             return call(connection_type, endpoint, data, headers, session_secret_key);
@@ -2104,12 +2255,17 @@
             yubikey_otp_verify: yubikey_otp_verify,
             activate_token: activate_token,
             get_sessions: get_sessions,
+            read_emergency_codes: read_emergency_codes,
+            create_emergency_code: create_emergency_code,
+            delete_emergency_code: delete_emergency_code,
             logout: logout,
             register: register,
             verify_email: verify_email,
             update_user: update_user,
             write_recoverycode: write_recoverycode,
             enable_recoverycode: enable_recoverycode,
+            arm_emergency_code: arm_emergency_code,
+            activate_emergency_code: activate_emergency_code,
             set_password: set_password,
             read_secret_history: read_secret_history,
             read_history : read_history,

@@ -150,7 +150,7 @@
                         </div>
                         <hr>
 
-                        <form class="form-horizontal">
+                        <form class="form-horizontal" ng-if="!export_disabled">
                             <div class="form-group">
                                 <label class="control-label col-sm-2" for="export_type">
                                     {{'TYPE' | translate}}:
@@ -181,6 +181,11 @@
                                 <strong>{{'SUCCESS' | translate}}:</strong> <span translate="{{ e }}"></span>
                             </div>
                         </form>
+
+                        <div class="form-group alert alert-info" ng-if="export_disabled">
+                            <strong>{{'INFO' | translate}}:</strong> <span>{{ 'EXPORT_HAS_BEEN_DISABLED' | translate }}</span>
+                        </div>
+
                     </div>
 
                 </uib-tab>

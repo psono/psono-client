@@ -746,6 +746,84 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastoreUser#arm_emergency_code
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Ajax POST request to activate the emergency code
+         *
+         * @param {string} username The username of the user
+         * @param {string} emergency_code The emergency code in base58 format
+         * @param {string} server The server to send the recovery code to
+         * @param {object} server_info Some info about the server including its public key
+         * @param {object} verify_key The signature of the server
+         *
+         * @returns {promise} Returns a promise with the emergency code activation status
+         */
+        var arm_emergency_code = function (username, emergency_code, server, server_info, verify_key) {
+
+            storage.upsert('config', {key: 'user_username', value: username});
+            storage.upsert('config', {key: 'server', value: server});
+
+            var emergency_authkey = cryptoLibrary.generate_authkey(username, emergency_code);
+
+            var onSuccess = function (data) {
+
+                if (data.data.status === 'started' || data.data.status === 'waiting') {
+                    return data.data
+                }
+
+                var emergency_data = JSON.parse(cryptoLibrary.decrypt_secret(data.data.emergency_data, data.data.emergency_data_nonce, emergency_code, data.data.emergency_sauce));
+
+                storage.upsert('config', {key: 'user_private_key', value: emergency_data.user_private_key});
+                storage.upsert('config', {key: 'user_secret_key', value: emergency_data.user_secret_key});
+                storage.upsert('config', {key: 'user_sauce', value: data.data.user_sauce});
+
+                var session_key = cryptoLibrary.generate_public_private_keypair();
+
+                var login_info = JSON.stringify({
+                    'device_time': new Date().toISOString(),
+                    'device_fingerprint': device.get_device_fingerprint(),
+                    'device_description': device.get_device_description(),
+                    'session_public_key': session_key.public_key
+
+                });
+
+                var update_request_enc = cryptoLibrary.encrypt_data_public_key(login_info, data.data.verifier_public_key, emergency_data.user_private_key);
+
+                var onSuccess = function (data) {
+
+                    var login_info = JSON.parse(cryptoLibrary.decrypt_data_public_key(data.data.login_info, data.data.login_info_nonce, server_info['public_key'], session_key.private_key));
+
+                    storage.upsert('config', {key: 'server_info', value: server_info});
+                    storage.upsert('config', {key: 'server_verify_key', value: verify_key});
+                    storage.upsert('config', {key: 'user_id', value: login_info.user_id});
+                    storage.upsert('config', {key: 'user_token', value: login_info.token});
+                    storage.upsert('config', {key: 'user_email', value: login_info.user_email});
+                    storage.upsert('config', {key: 'session_secret_key', value: login_info.session_secret_key});
+                    storage.upsert('config', {key: 'user_public_key', value: login_info.user_public_key});
+
+                    storage.save();
+
+                    return {
+                        'status': 'active'
+                    };
+                };
+
+                var onError = function(data){
+                    return $q.reject(data);
+                };
+
+                return apiClient.activate_emergency_code(username, emergency_authkey, update_request_enc.text, update_request_enc.nonce)
+                    .then(onSuccess, onError);
+            };
+
+            return apiClient.arm_emergency_code(username, emergency_authkey)
+                .then(onSuccess);
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastoreUser#set_password
          * @methodOf psonocli.managerDatastoreUser
          *
@@ -1267,6 +1345,95 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastoreUser#read_emergency_codes
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Returns a list of configured emergency codes
+         *
+         * @returns {promise} Returns a promise with the emergency codes
+         */
+        var read_emergency_codes = function() {
+
+            var onSuccess = function (request) {
+                return request.data['emegency_codes'];
+
+            };
+            var onError = function () {
+                // pass
+            };
+            return apiClient.read_emergency_codes(managerBase.get_token(), managerBase.get_session_secret_key())
+                .then(onSuccess, onError)
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#create_emergency_code
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Creates the emergency code. Will
+         *
+         * @param {string} title The title of the emergency code
+         * @param {string} lead_time The lead time till someone can activate this code in seconds
+         *
+         * @returns {promise} Returns a promise with the emergency code
+         */
+        var create_emergency_code = function(title, lead_time) {
+
+            var emergency_password = cryptoLibrary.generate_recovery_code();
+            var emergency_authkey = cryptoLibrary.generate_authkey(managerBase.find_key_nolimit('config', 'user_username'), emergency_password['base58']);
+            var emergency_sauce = cryptoLibrary.generate_user_sauce();
+
+            var emergency_data_dec = {
+                'user_private_key': managerBase.find_key_nolimit('config', 'user_private_key'),
+                'user_secret_key': managerBase.find_key_nolimit('config', 'user_secret_key')
+            };
+
+            var emergency_data = cryptoLibrary.encrypt_secret(JSON.stringify(emergency_data_dec), emergency_password['base58'], emergency_sauce);
+
+            var onSuccess = function (request) {
+                return {
+                    'username': managerBase.find_key('config', 'user_username'),
+                    'emergency_password': helper.split_string_in_chunks(emergency_password['base58_checksums'], 13).join('-'),
+                    'emergency_words': emergency_password['words'].join(' ')
+                };
+
+            };
+            var onError = function (request) {
+                return $q.reject(request.data);
+            };
+            return apiClient.create_emergency_code(managerBase.get_token(), managerBase.get_session_secret_key(), title,
+                lead_time, emergency_authkey, emergency_data.text, emergency_data.nonce, emergency_sauce)
+                .then(onSuccess, onError)
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#delete_emergency_code
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Deletes an emergency code
+         *
+         * @param {string} emergency_code_id The id of the emergency code to delete
+         *
+         * @returns {promise} Returns a promise with true or false
+         */
+        var delete_emergency_code = function(emergency_code_id) {
+
+            var onSuccess = function (request) {
+                // pass
+            };
+            var onError = function () {
+                // pass
+            };
+            return apiClient.delete_emergency_code(managerBase.get_token(), managerBase.get_session_secret_key(), emergency_code_id)
+                .then(onSuccess, onError)
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastoreUser#get_email
          * @methodOf psonocli.managerDatastoreUser
          *
@@ -1461,6 +1628,7 @@
             activate_token: activate_token,
             logout: logout,
             recovery_enable: recovery_enable,
+            arm_emergency_code: arm_emergency_code,
             set_password: set_password,
             is_logged_in: is_logged_in,
             require_two_fa_setup: require_two_fa_setup,
@@ -1483,6 +1651,9 @@
             activate_yubikey_otp: activate_yubikey_otp,
             delete_yubikey_otp: delete_yubikey_otp,
             get_sessions: get_sessions,
+            read_emergency_codes : read_emergency_codes,
+            create_emergency_code : create_emergency_code,
+            delete_emergency_code : delete_emergency_code,
             get_email: get_email,
             delete_session: delete_session,
             delete_other_sessions: delete_other_sessions,
