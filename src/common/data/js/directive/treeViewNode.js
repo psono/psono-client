@@ -10,13 +10,12 @@
      * @requires $timeout
      * @requires $uibModal
      * @requires psonocli.offlineCache
-     * @requires psonocli.managerDatastorePassword
      * @restrict A
      *
      * @description
      * Directive for the node in a tree structure
      */
-    var treeViewNode = function($rootScope, $q, $compile, $timeout, $uibModal, offlineCache, managerDatastorePassword) {
+    var treeViewNode = function($rootScope, $q, $compile, $timeout, $uibModal, offlineCache) {
         return {
             restrict: 'A',
             require: '^treeView',
@@ -283,11 +282,11 @@
                         }
                     });
 
-                    modalInstance.result.then(function () {
-                        // User clicked the yes button
-
-                        if (typeof options.onMoveNode === "function") {
-                            options.onMoveNode(node, getPropertyPath(idProperty));
+                    modalInstance.result.then(function (breadcrumbs) {
+                        // User clicked the prime button
+                        var node_path = getPropertyPath(idProperty, node);
+                        if (typeof options.onMoveItem === "function") {
+                            options.onMoveNode(node_path, breadcrumbs['id_breadcrumbs']);
                         }
 
                     }, function () {
@@ -410,70 +409,12 @@
                         }
                     });
 
-                    // modalInstance.result.then(function () {
-                    //     // User clicked the yes button
-                    //
-                    //
-                    //
-                    //
-                    //     if (typeof options.onMoveItem === "function") {
-                    //         options.onMoveItem(item, getPropertyPath(idProperty, item));
-                    //     }
-                    //
-                    // }, function () {
-                    //     // cancel triggered
-                    // });
-
-
-
                     modalInstance.result.then(function (breadcrumbs) {
                         // User clicked the prime button
-
-                        var onSuccess = function (datastore) {
-
-                            // if (item.share_right_delete === false && typeof(analyzed_breadcrumbs['parent_share_id']) !== 'undefined') {
-                            //     // No grant right, yet the parent is a a share?!?
-                            //     alert("Wups, this should not happen. Error: 4dc9aa69-2244-4268-9840-5cb0a7982020");
-                            // }
-                            //
-                            // if (analyzed_breadcrumbs['target']['share_rights']['write'] !== true) {
-                            //     alert("Wups, this should not happen. Error: c7e1c11d-45f5-427e-b041-73b9650f4895");
-                            // }
-
-
-                            var item_path = getPropertyPath(idProperty, item);
-
+                        var item_path = getPropertyPath(idProperty, item);
+                        if (typeof options.onMoveItem === "function") {
                             options.onMoveItem(item_path, breadcrumbs['id_breadcrumbs']);
-
-                            // var onSuccess = function (share) {
-                            //
-                            //     if (typeof share.name === "undefined") {
-                            //         share.name = item.share_right_title;
-                            //     }
-                            //
-                            //     var shares = [share];
-                            //
-                            //     managerDatastorePassword.create_share_links_in_datastore(shares, analyzed_breadcrumbs['target'],
-                            //         analyzed_breadcrumbs['parent_path'], analyzed_breadcrumbs['path'],
-                            //         analyzed_breadcrumbs['parent_share_id'], analyzed_breadcrumbs['parent_datastore_id'],
-                            //         datastore);
-                            //
-                            // };
-                            //
-                            // var onError = function (data) {
-                            //     //pass
-                            // };
-                            //
-                            // managerShare.accept_share_right(item.share_right_id, item.share_right_key,
-                            //     item.share_right_key_nonce, breadcrumbs.user.data.user_public_key
-                            // ).then(onSuccess, onError);
-                        };
-                        var onError = function (data) {
-                            //pass
-                        };
-
-                        managerDatastorePassword.get_password_datastore()
-                            .then(onSuccess, onError);
+                        }
 
                     }, function () {
                         // cancel triggered
@@ -756,6 +697,6 @@
     };
 
     var app = angular.module('ngTree');
-    app.directive('treeViewNode', ['$rootScope', '$q', '$compile', '$timeout', '$uibModal', 'offlineCache', 'managerDatastorePassword', treeViewNode]);
+    app.directive('treeViewNode', ['$rootScope', '$q', '$compile', '$timeout', '$uibModal', 'offlineCache', treeViewNode]);
 
 }(angular));

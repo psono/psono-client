@@ -416,15 +416,9 @@
          * @param {TreeObject} datastore The datastore
          * @param {Array} item_path the current path of the item
          * @param {Array} target_path the path where we want to put the item
-         * @param {string} type type of the item ('item' or 'folder')
+         * @param {string} type type of the item ('items' or 'folders')
          */
         var move_item = function(datastore, item_path, target_path, type) {
-
-            console.log(datastore);
-            console.log(item_path);
-            console.log(target_path);
-            console.log(type);
-            return;
 
             var i;
             var closest_parent;
@@ -434,14 +428,18 @@
 
             var orig_target_path;
 
-            if (target_path === null) {
+            if (type !== 'items' && type !== 'folders') {
+                return
+            }
+
+            if (target_path === null || typeof(target_path) === 'undefined') {
                 orig_target_path = [];
             } else {
                 orig_target_path = target_path.slice();
             }
 
             var target = datastore;
-            if (target_path !== null) {
+            if (target_path !== null && typeof(target_path) !== 'undefined') {
                 // find drop zone
                 var val1 = managerDatastorePassword.find_in_datastore(target_path, datastore);
                 target = val1[0][val1[1]];
@@ -511,15 +509,24 @@
                 managerShareLink.on_share_moved(child_shares[i].share.id, closest_parent);
             }
 
-            var check_parent = function (element, target, type) {
-                return element.hasOwnProperty("parent_" + type + "_id") && target.hasOwnProperty("parent_" + type + "_id")
-                    && (target['parent_' + type + '_id'] === element['parent_' + type + '_id']
-                    || (target.hasOwnProperty('share_id') && target[type + '_id'] === element['parent_' + type + '_id']));
+            var check_if_parent_stayed_the_same = function (element, target, type) {
+
+                var test_has_parent_property_failed = ! element.hasOwnProperty("parent_" + type + "_id") || ! target.hasOwnProperty("parent_" + type + "_id");
+                if (test_has_parent_property_failed) {
+                    return false
+                }
+
+                var test_element_parent_id_is_null_failed = typeof(element['parent_' + type + '_id']) === 'undefined';
+                if (test_element_parent_id_is_null_failed) {
+                    return false
+                }
+
+                return (target['parent_' + type + '_id'] === element['parent_' + type + '_id']) ||
+                    (target.hasOwnProperty(type + '_id') && target[type + '_id'] === element['parent_' + type + '_id']);
             };
 
-
             // if parent_share or parent_datastore did not change, then we are done here
-            if (check_parent(element, target, 'share') || check_parent(element, target, 'datastore')) {
+            if (check_if_parent_stayed_the_same(element, target, 'share') || check_if_parent_stayed_the_same(element, target, 'datastore')) {
                 return;
             }
 
@@ -530,9 +537,12 @@
                 );
                 managerSecretLink.on_secret_moved(secret_links[i].id, closest_parent);
             }
-            if (secret_links.length > 0) {
-                managerDatastorePassword.update_parents(closest_parent, closest_parent.parent_share_id, closest_parent.parent_datastore_id);
-            }
+            
+            // update the parents inside of the new target
+            closest_parent = managerShare.get_closest_parent_share(
+                target_path_copy2, datastore, datastore, 0
+            );
+            managerDatastorePassword.update_parents(closest_parent, closest_parent.parent_share_id, closest_parent.parent_datastore_id);
         };
 
         /**

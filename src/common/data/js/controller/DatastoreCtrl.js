@@ -87,7 +87,7 @@
                  * @param target_path The path to the target node
                  */
                 onMoveNode: function (item_path, target_path) {
-                    return move_item($scope, item_path, target_path, 'folder');
+                    return move_item($scope, item_path, target_path, 'folders');
                 },
 
                 /**
@@ -129,7 +129,7 @@
                  * @param target_path The path to target folder
                  */
                 onMoveItem: function (item_path, target_path) {
-                    return move_item($scope, item_path, target_path, 'item');
+                    return move_item($scope, item_path, target_path, 'items');
                 },
 
                 /**
