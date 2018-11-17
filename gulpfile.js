@@ -158,6 +158,7 @@ var build = function(build_path, type) {
             "src/common/data/js/directive/treeViewNode.js",
 
             "src/common/data/js/controller/AcceptShareCtrl.js",
+            "src/common/data/js/controller/MoveEntryCtrl.js",
             "src/common/data/js/controller/AccountCtrl.js",
             "src/common/data/js/controller/ActivationCtrl.js",
             "src/common/data/js/controller/DatastoreCtrl.js",
@@ -169,6 +170,7 @@ var build = function(build_path, type) {
             "src/common/data/js/controller/ActivateEmergencyCodeCtrl.js",
             "src/common/data/js/controller/MainCtrl.js",
             "src/common/data/js/controller/modal/AcceptShareCtrl.js",
+            "src/common/data/js/controller/modal/MoveEntryCtrl.js",
             "src/common/data/js/controller/modal/ConfigureGoogleAuthenticatorCtrl.js",
             "src/common/data/js/controller/modal/DeleteOtherSessionsCtrl.js",
             "src/common/data/js/controller/modal/AddGPGReceiverCtrl.js",

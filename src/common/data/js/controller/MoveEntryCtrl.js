@@ -3,7 +3,7 @@
 
     /**
      * @ngdoc controller
-     * @name psonocli.controller:AcceptShareCtrl
+     * @name psonocli.controller:MoveEntryCtrl
      * @requires $scope
      * @requires $uibModal
      * @requires $timeout
@@ -17,7 +17,7 @@
      * @description
      * Main Controller for the acceptshare widget
      */
-    angular.module('psonocli').controller('AcceptShareCtrl', ["$scope", "manager", "managerDatastorePassword",
+    angular.module('psonocli').controller('MoveEntryCtrl', ["$scope", "manager", "managerDatastorePassword",
         "$uibModal", "itemBlueprint", "managerWidget",
         "message", "$timeout", 'dropDownMenuWatcher',
         function($scope, manager, managerDatastorePassword,
@@ -148,8 +148,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:AcceptShareCtrl#contextMenuOnShow
-             * @methodOf psonocli.controller:AcceptShareCtrl
+             * @name psonocli.controller:MoveEntryCtrl#contextMenuOnShow
+             * @methodOf psonocli.controller:MoveEntryCtrl
              *
              * @description
              * Counts the open context menus counter up
@@ -162,8 +162,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:AcceptShareCtrl#contextMenuOnClose
-             * @methodOf psonocli.controller:AcceptShareCtrl
+             * @name psonocli.controller:MoveEntryCtrl#contextMenuOnClose
+             * @methodOf psonocli.controller:MoveEntryCtrl
              *
              * @description
              * Counts the open context menus counter down
@@ -176,8 +176,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:AcceptShareCtrl#openNewFolder
-             * @methodOf psonocli.controller:AcceptShareCtrl
+             * @name psonocli.controller:MoveEntryCtrl#openNewFolder
+             * @methodOf psonocli.controller:MoveEntryCtrl
              *
              * @description
              * Forwards the call to open the modal for a new folder
@@ -190,8 +190,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:AcceptShareCtrl#contextMenuOnClose
-             * @methodOf psonocli.controller:AcceptShareCtrl
+             * @name psonocli.controller:MoveEntryCtrl#contextMenuOnClose
+             * @methodOf psonocli.controller:MoveEntryCtrl
              *
              * @description
              * Opens the modal for a new entry
@@ -206,8 +206,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:AcceptShareCtrl#openNewItem
-             * @methodOf psonocli.controller:AcceptShareCtrl
+             * @name psonocli.controller:MoveEntryCtrl#openNewItem
+             * @methodOf psonocli.controller:MoveEntryCtrl
              *
              * @description
              * Forwards the call to open the modal for a new item
@@ -220,8 +220,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:AcceptShareCtrl#open_edit_item
-             * @methodOf psonocli.controller:AcceptShareCtrl
+             * @name psonocli.controller:MoveEntryCtrl#open_edit_item
+             * @methodOf psonocli.controller:MoveEntryCtrl
              *
              * @description
              * Opens the modal to edit a entry
@@ -236,8 +236,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:AcceptShareCtrl#move_item
-             * @methodOf psonocli.controller:AcceptShareCtrl
+             * @name psonocli.controller:MoveEntryCtrl#move_item
+             * @methodOf psonocli.controller:MoveEntryCtrl
              *
              * @description
              * Moves an item
@@ -253,8 +253,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:AcceptShareCtrl#delete_item
-             * @methodOf psonocli.controller:AcceptShareCtrl
+             * @name psonocli.controller:MoveEntryCtrl#delete_item
+             * @methodOf psonocli.controller:MoveEntryCtrl
              *
              * @description
              * Deletes an item from the datastore

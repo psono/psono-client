@@ -420,6 +420,12 @@
          */
         var move_item = function(datastore, item_path, target_path, type) {
 
+            console.log(datastore);
+            console.log(item_path);
+            console.log(target_path);
+            console.log(type);
+            return;
+
             var i;
             var closest_parent;
 

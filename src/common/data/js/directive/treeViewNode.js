@@ -10,13 +10,13 @@
      * @requires $timeout
      * @requires $uibModal
      * @requires psonocli.offlineCache
-     * @requires ngTree.dropDownMenuWatcher
+     * @requires psonocli.managerDatastorePassword
      * @restrict A
      *
      * @description
      * Directive for the node in a tree structure
      */
-    var treeViewNode = function($rootScope, $q, $compile, $timeout, $uibModal, offlineCache, dropDownMenuWatcher) {
+    var treeViewNode = function($rootScope, $q, $compile, $timeout, $uibModal, offlineCache, managerDatastorePassword) {
         return {
             restrict: 'A',
             require: '^treeView',
@@ -28,8 +28,6 @@
                     displayProperty = options.displayProperty,
                     idProperty = options.idProperty,
                     collapsible = options.collapsible;
-
-                scope.blockMove = options.blockMove;
 
                 $timeout(function(){
                     scope.treeView = scope.treeView;
@@ -247,7 +245,7 @@
                         controller: 'ModalVerifyCtrl',
                         resolve: {
                             title: function () {
-                                return 'Delete Folder';
+                                return 'DELETE_FOLDER';
                             },
                             description: function () {
                                 return 'You are about to delete the folder and all its content. Are you sure?';
@@ -268,15 +266,41 @@
                 };
 
                 /**
+                 * fired if someone clicks "move node" and triggers the function defined in the properties
+                 *
+                 * @param node
+                 * @param event
+                 */
+                scope.moveNode  = function (node, event) {
+
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'view/modal-move-entry.html',
+                        controller: 'ModalMoveEntryCtrl',
+                        resolve: {
+                            title: function () {
+                                return 'MOVE_FOLDER';
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function () {
+                        // User clicked the yes button
+
+                        if (typeof options.onMoveNode === "function") {
+                            options.onMoveNode(node, getPropertyPath(idProperty));
+                        }
+
+                    }, function () {
+                        // cancel triggered
+                    });
+                };
+
+                /**
                  * fired if someone selects a node
                  *
                  * @param event
                  */
                 scope.selectNode = function (event) {
-
-                    if (controller.isDragEvent(event)) {
-                        return;
-                    }
 
                     if (collapsible) {
                         controller.toggleExpanded(scope.node);
@@ -301,11 +325,6 @@
                  * @param event
                  */
                 scope.editItem = function (item, event) {
-
-                    if (controller.isDragEvent(event)) {
-                        return;
-                    }
-
                     if (typeof options.onEditItem === "function") {
                         options.onEditItem(item, getPropertyPath(idProperty, item));
                     }
@@ -345,14 +364,14 @@
                  * @param item
                  * @param event
                  */
-                scope.delete_item  = function (item, event) {
+                scope.deleteItem  = function (item, event) {
 
                     var modalInstance = $uibModal.open({
                         templateUrl: 'view/modal-verify.html',
                         controller: 'ModalVerifyCtrl',
                         resolve: {
                             title: function () {
-                                return 'Delete Entry';
+                                return 'DELETE_ENTRY';
                             },
                             description: function () {
                                 return 'You are about to delete this entry. Are you sure?';
@@ -366,6 +385,95 @@
                         if (typeof options.onDeleteItem === "function") {
                             options.onDeleteItem(item, getPropertyPath(idProperty, item));
                         }
+
+                    }, function () {
+                        // cancel triggered
+                    });
+                };
+
+
+                /**
+                 * fired if someone clicks "move item" and triggers the function defined in the properties
+                 *
+                 * @param item
+                 * @param event
+                 */
+                scope.moveItem  = function (item, event) {
+
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'view/modal-move-entry.html',
+                        controller: 'ModalMoveEntryCtrl',
+                        resolve: {
+                            title: function () {
+                                return 'MOVE_ENTRY';
+                            }
+                        }
+                    });
+
+                    // modalInstance.result.then(function () {
+                    //     // User clicked the yes button
+                    //
+                    //
+                    //
+                    //
+                    //     if (typeof options.onMoveItem === "function") {
+                    //         options.onMoveItem(item, getPropertyPath(idProperty, item));
+                    //     }
+                    //
+                    // }, function () {
+                    //     // cancel triggered
+                    // });
+
+
+
+                    modalInstance.result.then(function (breadcrumbs) {
+                        // User clicked the prime button
+
+                        var onSuccess = function (datastore) {
+
+                            // if (item.share_right_delete === false && typeof(analyzed_breadcrumbs['parent_share_id']) !== 'undefined') {
+                            //     // No grant right, yet the parent is a a share?!?
+                            //     alert("Wups, this should not happen. Error: 4dc9aa69-2244-4268-9840-5cb0a7982020");
+                            // }
+                            //
+                            // if (analyzed_breadcrumbs['target']['share_rights']['write'] !== true) {
+                            //     alert("Wups, this should not happen. Error: c7e1c11d-45f5-427e-b041-73b9650f4895");
+                            // }
+
+
+                            var item_path = getPropertyPath(idProperty, item);
+
+                            options.onMoveItem(item_path, breadcrumbs['id_breadcrumbs']);
+
+                            // var onSuccess = function (share) {
+                            //
+                            //     if (typeof share.name === "undefined") {
+                            //         share.name = item.share_right_title;
+                            //     }
+                            //
+                            //     var shares = [share];
+                            //
+                            //     managerDatastorePassword.create_share_links_in_datastore(shares, analyzed_breadcrumbs['target'],
+                            //         analyzed_breadcrumbs['parent_path'], analyzed_breadcrumbs['path'],
+                            //         analyzed_breadcrumbs['parent_share_id'], analyzed_breadcrumbs['parent_datastore_id'],
+                            //         datastore);
+                            //
+                            // };
+                            //
+                            // var onError = function (data) {
+                            //     //pass
+                            // };
+                            //
+                            // managerShare.accept_share_right(item.share_right_id, item.share_right_key,
+                            //     item.share_right_key_nonce, breadcrumbs.user.data.user_public_key
+                            // ).then(onSuccess, onError);
+                        };
+                        var onError = function (data) {
+                            //pass
+                        };
+
+                        managerDatastorePassword.get_password_datastore()
+                            .then(onSuccess, onError);
 
                     }, function () {
                         // cancel triggered
@@ -393,11 +501,7 @@
                  * @param event
                  */
                 scope.clickItem = function (item, event) {
-                    event.cancelBubble = true;
-                    if(event.stopPropagation) event.stopPropagation();
-                    if (!controller.isDragInProgress()) {
-                        controller.clickItem(item, getPropertyPath(idProperty));
-                    }
+                    controller.clickItem(item, getPropertyPath(idProperty));
                 };
 
 
@@ -420,96 +524,6 @@
                     return controller.isSelectable(node);
                 };
 
-                /**
-                 * executed once a drag completes before the drop
-                 *
-                 * @param data
-                 * @param evt
-                 * @param type
-                 */
-                scope.onDragComplete = function(data, evt, type) {
-                    controller.incCounter();
-
-                    if (data === null) {
-                        return;
-                    }
-
-                    var idPath = [];
-                    if (type === 'item') {
-                        idPath = getPropertyPath(idProperty, data);
-                    } else {
-                        idPath = getPropertyPath(idProperty);
-                    }
-
-                    controller.setLastDraggedItem(data, idPath, null);
-
-                };
-
-                /**
-                 * executed multiple times when a drag starts and only the first execute holds the true data,
-                 * therefore it remembers the data together with a 'I-already-run'-flag. This flag gets reset
-                 * by the draggable:end event
-                 *
-                 * @param data
-                 * @param evt
-                 * @param type
-                 */
-                scope.onDragStart = function(data, evt, type) {
-                    if (controller.isDragStarted()) {
-                        // Already started, fires a couple of time and only the first one has true data
-                        return;
-                    }
-                    controller.setDragInProgress();
-
-                    controller.setDragStarted();
-
-                    var idPath = [];
-                    if (type === 'item') {
-                        idPath = getPropertyPath(idProperty, data);
-                    } else {
-                        idPath = getPropertyPath(idProperty);
-                    }
-
-                    controller.setLastDraggedItem(data, idPath, type);
-                };
-
-                /**
-                 * executed multiple times when a drag stops and only the first execute holds the true data
-                 *
-                 * @param data
-                 * @param evt
-                 * @param type
-                 */
-                scope.onDragStop = function(data, evt, type) {
-                    controller.setDragFinished();
-                };
-
-                /**
-                 * executed once a drop completes after the drag on top of another folder / item
-                 *
-                 * @param data
-                 * @param evt
-                 */
-                scope.onDropComplete = function(data, evt) {
-                    var counter = controller.decCounter();
-
-                    if (offlineCache.is_active()) {
-                        return;
-                    }
-
-                    if (counter !== 0 || evt.data === null) {
-                        return;
-                    }
-
-                    var target_path = getPropertyPath(idProperty);
-                    if (evt.data.id === target_path[target_path.length - 1]) {
-                        return;
-                    }
-
-                    controller.cancel_draggable_end_timeouts();
-
-                    controller.onAnyDrop(evt, target_path);
-                };
 
                 /**
                  * triggered once a dropdown menu opens or closes
@@ -528,10 +542,7 @@
                 function render() {
                     var template =
                         // Handle folders
-                        '<div ng-drag="true" ng-drag-data="node" ng-drag-success="onDragComplete($data, $event, \'folder\')" ' +
-                        '    ng-drag-start="onDragStart($data, $event, \'folder\')" prevent-move="blockMove()"' +
-                        '    ng-drag-stop="onDragStop($data, $event, \'folder\')"' +
-                        '    ng-drop="true" ng-drop-success="onDropComplete(node,$event)" ' +
+                        '<div ' +
                         '    ng-mousedown="$event.stopPropagation()" ng-show="!node.hidden"' +
                         '    class="tree-folder" ng-repeat="node in ' + attrs.treeViewNode + '.data.' + foldersProperty + ' track by $index">' +
 
@@ -578,6 +589,11 @@
                         '       ng-class="{hidden: node.share_rights.write === false}">' +
                         '       <a href="#"><i class="{{ textConfig.new_entry.icon }}"></i>{{ ::textConfig.new_entry.name | translate }}</a>' +
                         '    </li>' +
+                        '    <li role="menuitem"' +
+                        '       ng-class="{hidden: node.share_rights.delete === false}"' +
+                        '       ng-click="moveNode(node, $event)">' +
+                        '       <a href="#"><i class="fa fa-arrows"></i>{{::\'MOVE\' | translate}}</a>' +
+                        '    </li>' +
                         '    <li class="divider"' +
                         '       ng-class="{hidden: node.share_rights.delete === false || node.share_rights.write === false}"></li>' +
                         '    <li role="menuitem"' +
@@ -619,6 +635,11 @@
                         '       ng-class="{hidden: node.share_rights.write === false}">' +
                         '       <a href="#"><i class="{{ textConfig.new_entry.icon }}"></i>{{ ::textConfig.new_entry.name | translate }}</a>' +
                         '    </li>' +
+                        '    <li role="menuitem"' +
+                        '       ng-class="{hidden: node.share_rights.delete === false}"' +
+                        '       ng-click="moveNode(node, $event)">' +
+                        '       <a href="#"><i class="fa fa-arrows"></i>{{::\'MOVE\' | translate}}</a>' +
+                        '    </li>' +
                         '    <li class="divider"' +
                         '       ng-class="{hidden: node.share_rights.delete === false || node.share_rights.write === false}"></li>' +
                         '    <li role="menuitem"' +
@@ -632,9 +653,7 @@
                         '</div>' + // end ng-repeat node
 
                         // Handle items
-                        '<div ng-drag="true" ng-drag-data="item" ng-drag-success="onDragComplete($data, $event, \'item\')" ' +
-                        '   ng-drag-start="onDragStart($data, $event, \'item\')" prevent-move="blockMove()"' +
-                        '   ng-drag-stop="onDragStop($data, $event, \'item\')"' +
+                        '<div ' +
                         '   ng-mousedown="$event.stopPropagation()" ng-show="!item.hidden"' +
                         '   class="tree-item" ng-repeat="item in ' + attrs.treeViewNode + '.data.' + itemsProperty + ' track by $index">' +
 
@@ -649,7 +668,7 @@
                         '</span>' +
                         '<span class="tree-item-name">{{ item.' + displayProperty + ' }}</span>' +
                         '<span class="node-open-link" ng-if="item.type === \'website_password\' || item.type === \'bookmark\'">' +
-                        '<a href="#" class="btn btn-default" ng-click="$event.stopPropagation(); clickItem(item, $event)">' +
+                        '<a href="#" class="btn btn-default" ng-click="$event.preventDefault(); $event.stopPropagation(); clickItem(item, $event)">' +
                         '    <i class="fa fa-external-link"></i>' +
                         '</a>' +
                         '</span>' +
@@ -676,11 +695,15 @@
                         '       ng-class="{hidden: item.share_rights.write === true || item.share_rights.read === false || item.type === \'user\'}">' +
                         '       <a href="#"><i class="fa fa-eye"></i>{{::\'SHOW\' | translate}}</a>' +
                         '    </li>' +
+                        '    <li role="menuitem" ng-if="!offline"' +
+                        '       ng-class="{hidden: item.share_rights.delete === false}"' +
+                        '       ng-click="moveItem(item, $event)">' +
+                        '       <a href="#"><i class="fa fa-arrows"></i>{{::\'MOVE\' | translate}}</a>' +
                         '    <li class="divider" ng-if="!offline"' +
                         '       ng-class="{hidden: item.share_rights.delete === false || item.share_rights.read === false}"></li>' +
                         '    <li role="menuitem" ng-if="!offline"' +
                         '       ng-class="{hidden: item.share_rights.delete === false}"' +
-                        '       ng-click="delete_item(item, $event)">' +
+                        '       ng-click="deleteItem(item, $event)">' +
                         '       <a href="#"><i class="fa fa-trash"></i>{{::\'DELETE\' | translate}}</a>' +
                         '    </li>' +
                         '</ul>' +
@@ -707,11 +730,15 @@
                         '       ng-class="{hidden: item.share_rights.write === true || item.share_rights.read === false || item.type === \'user\'}">' +
                         '       <a href="#"><i class="fa fa-eye"></i>{{::\'SHOW\' | translate}}</a>' +
                         '    </li>' +
+                        '    <li role="menuitem" ng-if="!offline"' +
+                        '       ng-class="{hidden: item.share_rights.delete === false}"' +
+                        '       ng-click="moveItem(item, $event)">' +
+                        '       <a href="#"><i class="fa fa-arrows"></i>{{::\'MOVE\' | translate}}</a>' +
                         '    <li class="divider"' +
                         '       ng-class="{hidden: item.share_rights.delete === false || item.share_rights.read === false}"></li>' +
                         '    <li role="menuitem" ng-if="!offline"' +
                         '       ng-class="{hidden: item.share_rights.delete === false}"' +
-                        '       ng-click="delete_item(item, $event)">' +
+                        '       ng-click="deleteItem(item, $event)">' +
                         '       <a href="#"><i class="fa fa-trash"></i>{{::\'DELETE\' | translate}}</a>' +
                         '    </li>' +
                         '</ul>' +
@@ -729,6 +756,6 @@
     };
 
     var app = angular.module('ngTree');
-    app.directive('treeViewNode', ['$rootScope', '$q', '$compile', '$timeout', '$uibModal', 'offlineCache', 'dropDownMenuWatcher', treeViewNode]);
+    app.directive('treeViewNode', ['$rootScope', '$q', '$compile', '$timeout', '$uibModal', 'offlineCache', 'managerDatastorePassword', treeViewNode]);
 
 }(angular));

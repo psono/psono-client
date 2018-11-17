@@ -27,7 +27,6 @@
         function($q, $rootScope, $scope, $uibModal, $routeParams, $timeout,
                  manager, managerDatastorePassword, managerDatastore, offlineCache,
                  itemBlueprint, managerWidget, managerSecret, dropDownMenuWatcher){
-            var contextMenusOpen = 0;
 
             $scope.contextMenuOnShow = contextMenuOnShow;
             $scope.contextMenuOnClose = contextMenuOnClose;
@@ -81,6 +80,15 @@
                 onDeleteNode: function (node, path) {
                     return delete_item($scope, node, path);
                 },
+                /**
+                 * Triggered once someone clicks the move node entry
+                 *
+                 * @param item_path The path of the node in question
+                 * @param target_path The path to the target node
+                 */
+                onMoveNode: function (item_path, target_path) {
+                    return move_item($scope, item_path, target_path, 'folder');
+                },
 
                 /**
                  * Triggered once someone wants to edit a node entry
@@ -112,6 +120,16 @@
                  */
                 onDeleteItem: function (item, path) {
                     return delete_item($scope, item, path);
+                },
+
+                /**
+                 * Triggered once someone wants to move a node entry
+                 *
+                 * @param item_path The path of the item
+                 * @param target_path The path to target folder
+                 */
+                onMoveItem: function (item_path, target_path) {
+                    return move_item($scope, item_path, target_path, 'item');
                 },
 
                 /**
@@ -153,34 +171,6 @@
                  */
                 onAdditionalButtonItem: function(item, path, myFunction) {
                     myFunction(item,path);
-                },
-
-                /**
-                 * triggered once someone wants to move an item
-                 *
-                 * @param item_path
-                 * @param target_path
-                 */
-                onItemDropComplete: function (item_path, target_path) {
-                    return move_item($scope, item_path, target_path, 'items');
-                },
-
-                /**
-                 * triggered once someone wants to move a folder
-                 *
-                 * @param item_path
-                 * @param target_path
-                 */
-                onFolderDropComplete: function (item_path, target_path) {
-                    return move_item($scope, item_path, target_path, 'folders');
-                },
-                /**
-                 * blocks move if context menus are open
-                 *
-                 * @returns {boolean}
-                 */
-                blockMove: function() {
-                    return contextMenusOpen > 0;
                 },
                 contextMenuOnShow: $scope.contextMenuOnShow,
                 contextMenuOnClose: $scope.contextMenuOnClose,
@@ -305,14 +295,10 @@
 
             function contextMenuOnShow(div_id) {
                 dropDownMenuWatcher.on_open(div_id);
-                contextMenusOpen++;
             }
 
             function contextMenuOnClose(div_id) {
                 dropDownMenuWatcher.on_close(div_id);
-                $timeout(function() {
-                    contextMenusOpen--;
-                }, 500);
             }
 
             // Modals

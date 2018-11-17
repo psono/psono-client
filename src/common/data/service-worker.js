@@ -152,6 +152,7 @@ self.addEventListener('install', function(event) {
                 './js/directive/treeViewNode.js',
 
                 './js/controller/AcceptShareCtrl.js',
+                './js/controller/MoveEntryCtrl.js',
                 './js/controller/AccountCtrl.js',
                 './js/controller/ActivationCtrl.js',
                 './js/controller/DatastoreCtrl.js',
@@ -163,6 +164,7 @@ self.addEventListener('install', function(event) {
                 './js/controller/ActivateEmergencyCodeCtrl.js',
                 './js/controller/MainCtrl.js',
                 './js/controller/modal/AcceptShareCtrl.js',
+                './js/controller/modal/MoveEntryCtrl.js',
                 './js/controller/modal/ConfigureGoogleAuthenticatorCtrl.js',
                 './js/controller/modal/DeleteOtherSessionsCtrl.js',
                 './js/controller/modal/AddGPGReceiverCtrl.js',
