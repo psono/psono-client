@@ -24,7 +24,6 @@ wget https://code.angularjs.org/1.7.5/angular-mocks.js -O unittests/data/js/lib/
 wget https://raw.githubusercontent.com/Kraku/angular-complexify/master/build/angular-complexify.min.js -O src/common/data/js/lib/angular-complexify.min.js
 wget https://raw.githubusercontent.com/grevory/angular-local-storage/master/dist/angular-local-storage.min.js -O src/common/data/js/lib/angular-local-storage.min.js
 wget https://raw.githubusercontent.com/techfort/LokiJS/master/build/lokijs.min.js -O src/common/data/js/lib/lokijs.min.js
-wget https://raw.githubusercontent.com/RubaXa/Sortable/1.5.1/Sortable.min.js -O src/common/data/js/lib/sortable.min.js
 wget https://raw.githubusercontent.com/jakiestfu/Snap.js/1.9.3/snap.min.js -O src/common/data/js/lib/snap.min.js
 wget https://raw.githubusercontent.com/emn178/js-sha512/v0.8.0/build/sha512.min.js -O src/common/data/js/lib/sha512.min.js
 wget https://raw.githubusercontent.com/emn178/js-sha256/v0.9.0/build/sha256.min.js -O src/common/data/js/lib/sha256.min.js

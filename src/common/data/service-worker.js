@@ -111,7 +111,6 @@ self.addEventListener('install', function(event) {
                 './js/lib/datatables.min.js',
                 './js/lib/snap.min.js',
                 './js/lib/jquery-ui.min.js',
-                './js/lib/sortable.min.js',
                 './js/lib/lokijs.min.js',
                 './js/lib/qrcode.min.js',
                 './js/lib/fastclick.js',

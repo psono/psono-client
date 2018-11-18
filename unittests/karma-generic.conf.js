@@ -16,7 +16,6 @@
                 "../src/common/data/js/lib/datatables.min.js",
                 "../src/common/data/js/lib/snap.min.js",
                 "../src/common/data/js/lib/jquery-ui.min.js",
-                "../src/common/data/js/lib/sortable.min.js",
                 "../src/common/data/js/lib/lokijs.min.js",
                 "../src/common/data/js/lib/qrcode.min.js",
                 "../src/common/data/js/lib/fastclick.js",
