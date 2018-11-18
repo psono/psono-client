@@ -410,10 +410,10 @@
          * @methodOf psonocli.managerWidget
          *
          * @description
-         * Tests if a parent stayed the same
+         * Tests if a parent changed or stayed the same
          *
-         * Returns true if the parents stayed the same
-         * Returns false if the parents changed
+         * Returns true if the parent changed
+         * Returns false if the parent stayed the same
          *
          * If its unsure what to do this function will return false
          *
