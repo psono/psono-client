@@ -48,7 +48,7 @@
 
 
     angular.module('psonocli', ['ngRoute', 'ng', 'ui.bootstrap', 'snap', 'chieffancypants.loadingBar', 'ngAnimate',
-            'LocalStorageModule', 'ngTree', 'ngDraggable', 'ng-context-menu', 'ui.select', 'ngSanitize',
+            'LocalStorageModule', 'ngTree', 'ng-context-menu', 'ui.select', 'ngSanitize',
             'angular-complexify', 'datatables', 'chart.js', 'pascalprecht.translate', 'ngCookies'])
         .provider('languages', function(){
             var languages = {

@@ -143,7 +143,6 @@ var build = function(build_path, type) {
             "src/common/data/js/lib/angular-translate-loader-url.min.js",
             "src/common/data/js/lib/angular-translate-loader-static-files.min.js",
             "src/common/data/js/lib/ui-bootstrap-tpls.min.js",
-            "src/common/data/js/lib/ngdraggable.js",
             "src/common/data/js/lib/angular-ui-select.js",
             "src/common/data/js/lib/ng-context-menu.js",
             "src/common/data/js/lib/angular-datatables.js",
