@@ -286,6 +286,7 @@
                         // User clicked the prime button
                         var node_path = getPropertyPath(idProperty, node);
                         if (typeof options.onMoveItem === "function") {
+                            node_path.pop();
                             options.onMoveNode(node_path, breadcrumbs['id_breadcrumbs']);
                         }
 

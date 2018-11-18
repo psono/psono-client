@@ -88,6 +88,25 @@
                 onEditItem: function (item, path) {
                     open_edit_item(item, path);
                 },
+                /**
+                 * Triggered once someone clicks the move node entry
+                 *
+                 * @param item_path The path of the node in question
+                 * @param target_path The path to the target node
+                 */
+                onMoveNode: function (item_path, target_path) {
+                    return move_item($scope, item_path, target_path, 'folders');
+                },
+
+                /**
+                 * Triggered once someone wants to move a node entry
+                 *
+                 * @param item_path The path of the item
+                 * @param target_path The path to target folder
+                 */
+                onMoveItem: function (item_path, target_path) {
+                    return move_item($scope, item_path, target_path, 'items');
+                },
 
                 /**
                  * Triggered once someone wants to create a new folder

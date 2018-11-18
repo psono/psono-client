@@ -404,6 +404,69 @@
             return true;
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.managerWidget#check_if_parent_changed
+         * @methodOf psonocli.managerWidget
+         *
+         * @description
+         * Tests if a parent stayed the same
+         *
+         * Returns true if the parents stayed the same
+         * Returns false if the parents changed
+         *
+         * If its unsure what to do this function will return false
+         *
+         * @param element The element that is changing
+         * @param target The new parent
+         *
+         * @returns {boolean}
+         */
+        var check_if_parent_changed = function (element, target) {
+
+            var test1 = target.hasOwnProperty('share_id') &&
+                typeof(target['share_id']) !== 'undefined' &&
+                target['share_id'] !== null &&
+                target['share_id'] !== '' && (
+                    !element.hasOwnProperty("parent_share_id") ||
+                    typeof(element['parent_share_id']) === 'undefined' ||
+                    element['parent_share_id'] === null ||
+                    target['share_id'] !== element['parent_share_id']
+                );
+
+            var test2 = target.hasOwnProperty('datastore_id') &&
+                typeof(target['datastore_id']) !== 'undefined' &&
+                target['datastore_id'] !== null &&
+                target['datastore_id'] !== '' && (
+                    !element.hasOwnProperty("parent_datastore_id") ||
+                    typeof(element['parent_datastore_id']) === 'undefined' ||
+                    element['parent_datastore_id'] === null ||
+                    target['datastore_id'] !== element['parent_datastore_id']
+                );
+
+            var test3 = target.hasOwnProperty('parent_datastore_id') &&
+                typeof(target['parent_datastore_id']) !== 'undefined' &&
+                target['parent_datastore_id'] !== null &&
+                target['parent_datastore_id'] !== '' && (
+                    !element.hasOwnProperty("parent_datastore_id") ||
+                    typeof(element['parent_datastore_id']) === 'undefined' ||
+                    element['parent_datastore_id'] === null ||
+                    target['parent_datastore_id'] !== element['parent_datastore_id']
+                );
+
+            var test4 = target.hasOwnProperty('parent_share_id') &&
+                typeof(target['parent_share_id']) !== 'undefined' &&
+                target['parent_share_id'] !== null &&
+                target['parent_share_id'] !== '' && (
+                    !element.hasOwnProperty("parent_share_id") ||
+                    typeof(element['parent_share_id']) === 'undefined' ||
+                    element['parent_share_id'] === null ||
+                    target['parent_share_id'] !== element['parent_share_id']
+                );
+
+            return test1 || test2 || test3 || test4;
+        };
+
 
         /**
          * @ngdoc
@@ -509,24 +572,8 @@
                 managerShareLink.on_share_moved(child_shares[i].share.id, closest_parent);
             }
 
-            var check_if_parent_stayed_the_same = function (element, target, type) {
-
-                var test_has_parent_property_failed = ! element.hasOwnProperty("parent_" + type + "_id") || ! target.hasOwnProperty("parent_" + type + "_id");
-                if (test_has_parent_property_failed) {
-                    return false
-                }
-
-                var test_element_parent_id_is_null_failed = typeof(element['parent_' + type + '_id']) === 'undefined';
-                if (test_element_parent_id_is_null_failed) {
-                    return false
-                }
-
-                return (target['parent_' + type + '_id'] === element['parent_' + type + '_id']) ||
-                    (target.hasOwnProperty(type + '_id') && target[type + '_id'] === element['parent_' + type + '_id']);
-            };
-
             // if parent_share or parent_datastore did not change, then we are done here
-            if (check_if_parent_stayed_the_same(element, target, 'share') || check_if_parent_stayed_the_same(element, target, 'datastore')) {
+            if (!check_if_parent_changed(element, target)) {
                 return;
             }
 
@@ -542,7 +589,19 @@
             closest_parent = managerShare.get_closest_parent_share(
                 target_path_copy2, datastore, datastore, 0
             );
-            managerDatastorePassword.update_parents(closest_parent, closest_parent.parent_share_id, closest_parent.parent_datastore_id);
+
+            var new_parent_datastore_id = undefined;
+            var new_parent_share_id = undefined;
+            if (closest_parent.hasOwnProperty('datastore_id')) {
+                new_parent_datastore_id = closest_parent.datastore_id;
+            } else {
+                new_parent_share_id = closest_parent.share_id;
+            }
+
+            element.parent_datastore_id = new_parent_datastore_id;
+            element.parent_share_id = new_parent_share_id;
+
+            managerDatastorePassword.update_parents(element, new_parent_share_id, new_parent_datastore_id);
         };
 
         /**
