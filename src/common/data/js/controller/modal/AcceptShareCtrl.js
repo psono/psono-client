@@ -39,7 +39,7 @@
                 /**
                  * message is sent once someone selects another folder in the datastore
                  */
-                message.on("modal_accept_share_breadcrumbs_update", function (data) {
+                message.on("node_breadcrumbs_update", function (data) {
                     $scope.breadcrumbs = data;
                 });
 

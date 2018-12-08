@@ -102,7 +102,68 @@
 
                 </uib-tab>
 
-                <uib-tab index="2" heading="{{'KNOWN_HOSTS' | translate}}" select="open_tab('known-hosts')">
+                <uib-tab index="2" heading="{{'API_KEYS' | translate}}" select="open_tab('data-stores')">
+                    <div ng-controller="OtherAPIKeyCtrl">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6">
+                                <h2>{{'API_KEYS' | translate}}:</h2>
+                                {{'HERE_YOU_CAN_MANAGE_ALL_YOUR_API_KEYS' | translate}}
+                            </div>
+                            <div class="col-xs-12 col-sm-6" ng-if="!api_keys_disabled">
+                                <button type="submit" class="btn btn-primary btn-primary pull-right" ng-click="create_new_api_key()"><i class="fa fa-plus"></i> {{'CREATE_NEW_API_KEY' | translate}}</button>
+                                <div class='clearfix'></div>
+                            </div>
+                        </div>
+                        <hr>
+
+                        <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs" ng-if="!api_keys_disabled">
+                            <thead>
+                            <tr>
+                                <th>{{'TITLE' | translate}}</th>
+                                <th>{{'SECRETS_ONLY' | translate}}</th>
+                                <th>{{'INSECURE' | translate}}</th>
+                                <th>{{'ACTIVE' | translate}}</th>
+                                <th>{{'EDIT' | translate}}</th>
+                                <th>{{'DELETE' | translate}}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="api_key in api_keys">
+                                <td>{{ api_key.title }}</td>
+                                <td>
+                                    <i ng-if="api_key.restrict_to_secrets" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                                    <i ng-if="!api_key.restrict_to_secrets" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                                </td>
+                                <td>
+                                    <i ng-if="api_key.allow_insecure_access" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                                    <i ng-if="!api_key.allow_insecure_access" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                                </td>
+                                <td>
+                                    <i ng-if="api_key.active" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                                    <i ng-if="!api_key.active" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-default btn-sm" ng-click="edit_api_key(api_key)" >
+                                        <i class="fa fa-wrench" aria-hidden="true"><span style="display: none">0</span></i>
+                                    </button>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-default btn-sm" ng-if="!api_key.is_default" ng-click="delete_api_key(api_key)" >
+                                        <i class="fa fa-trash" aria-hidden="true"><span style="display: none">0</span></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="form-group alert alert-info" ng-if="api_keys_disabled">
+                            <strong>{{'INFO' | translate}}:</strong> <span>{{ 'API_KEYS_HAVE_BEEN_DISABLED' | translate }}</span>
+                        </div>
+                    </div>
+
+                </uib-tab>
+
+                <uib-tab index="3" heading="{{'KNOWN_HOSTS' | translate}}" select="open_tab('known-hosts')">
                     <div ng-controller="KnownHostsCtrl">
                         <div class="row">
                             <div class="col-xs-12 col-sm-12">
@@ -140,7 +201,7 @@
 
                 </uib-tab>
 
-                <uib-tab index="3" heading="{{'EXPORT' | translate}}" select="open_tab('export')">
+                <uib-tab index="4" heading="{{'EXPORT' | translate}}" select="open_tab('export')">
                     <div ng-controller="ExportCtrl">
                         <div class="row">
                             <div class="col-xs-12 col-sm-12">
@@ -190,7 +251,7 @@
 
                 </uib-tab>
 
-                <uib-tab index="4" heading="{{'IMPORT' | translate}}" select="open_tab('import')">
+                <uib-tab index="5" heading="{{'IMPORT' | translate}}" select="open_tab('import')">
                     <div ng-controller="ImportCtrl">
                         <div class="row">
                             <div class="col-xs-12 col-sm-12">

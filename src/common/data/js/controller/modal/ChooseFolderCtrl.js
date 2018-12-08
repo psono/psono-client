@@ -3,7 +3,7 @@
 
     /**
      * @ngdoc controller
-     * @name psonocli.controller:ModalMoveEntryCtrl
+     * @name psonocli.controller:ModalChooseFolderCtrl
      * @requires $scope
      * @requires $uibModalInstance
      * @requires $uibModal
@@ -15,7 +15,7 @@
      * @description
      * Controller for the "MoveEntry" modal
      */
-    angular.module('psonocli').controller('ModalMoveEntryCtrl', ['$scope', '$uibModalInstance', '$uibModal',
+    angular.module('psonocli').controller('ModalChooseFolderCtrl', ['$scope', '$uibModalInstance', '$uibModal',
         'managerDatastoreUser', 'message', 'shareBlueprint', 'title',
         function ($scope, $uibModalInstance, $uibModal,
                   managerDatastoreUser, message, shareBlueprint, title) {
@@ -34,7 +34,7 @@
                 /**
                  * message is sent once someone selects another folder in the datastore
                  */
-                message.on("modal_accept_share_breadcrumbs_update", function (data) {
+                message.on("node_breadcrumbs_update", function (data) {
                     $scope.breadcrumbs = data;
                 });
 
@@ -42,8 +42,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:ModalMoveEntryCtrl#cut_breadcrumbs
-             * @methodOf psonocli.controller:ModalMoveEntryCtrl
+             * @name psonocli.controller:ModalChooseFolderCtrl#cut_breadcrumbs
+             * @methodOf psonocli.controller:ModalChooseFolderCtrl
              *
              * @description
              * triggered once someone clicks on one of the breadcrumbs in the path
@@ -64,8 +64,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:ModalMoveEntryCtrl#clear_breadcrumbs
-             * @methodOf psonocli.controller:ModalMoveEntryCtrl
+             * @name psonocli.controller:ModalChooseFolderCtrl#clear_breadcrumbs
+             * @methodOf psonocli.controller:ModalChooseFolderCtrl
              *
              * @description
              * triggered once someone clicks the "delete" button near path. The function will clear the breadcrumbs.
@@ -77,8 +77,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:ModalMoveEntryCtrl#save
-             * @methodOf psonocli.controller:ModalMoveEntryCtrl
+             * @name psonocli.controller:ModalChooseFolderCtrl#save
+             * @methodOf psonocli.controller:ModalChooseFolderCtrl
              *
              * @description
              * Triggered once someone clicks the save button in the modal
@@ -92,8 +92,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:ModalMoveEntryCtrl#cancel
-             * @methodOf psonocli.controller:ModalMoveEntryCtrl
+             * @name psonocli.controller:ModalChooseFolderCtrl#cancel
+             * @methodOf psonocli.controller:ModalChooseFolderCtrl
              *
              * @description
              * Triggered once someone clicks the cancel button in the modal

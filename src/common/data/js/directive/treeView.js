@@ -71,23 +71,6 @@
                 };
 
                 /**
-                 * called by the directive whenever an item is selected to handle the possible option
-                 *
-                 * @param item
-                 * @param breadcrumbs
-                 */
-                self.selectItem = function (item, breadcrumbs) {
-                    if (selectedNode) {
-                        selectedNode = undefined;
-                    }
-                    selectedItem = item;
-
-                    if (typeof options.onItemSelect === "function") {
-                        options.onItemSelect(item, breadcrumbs);
-                    }
-                };
-
-                /**
                  * called by the directive whenever an item is clicked to handle the possible option
                  *
                  * @param item
@@ -95,17 +78,6 @@
                 self.clickItem = function (item) {
                     if (typeof options.on_item_click === "function") {
                         options.on_item_click(item);
-                    }
-                };
-
-                /**
-                 * called by the directive whenever a node is clicked to handle the possible option
-                 *
-                 * @param node
-                 */
-                self.clickNode = function (node) {
-                    if (typeof options.onNodeClick === "function") {
-                        options.onNodeClick(node);
                     }
                 };
 

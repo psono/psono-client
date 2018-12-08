@@ -247,7 +247,7 @@
                                 return 'DELETE_FOLDER';
                             },
                             description: function () {
-                                return 'You are about to delete the folder and all its content. Are you sure?';
+                                return 'DELETE_FOLDER_WARNING';
                             }
                         }
                     });
@@ -273,8 +273,8 @@
                 scope.moveNode  = function (node, event) {
 
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal-move-entry.html',
-                        controller: 'ModalMoveEntryCtrl',
+                        templateUrl: 'view/modal-choose-folder.html',
+                        controller: 'ModalChooseFolderCtrl',
                         resolve: {
                             title: function () {
                                 return 'MOVE_FOLDER';
@@ -307,15 +307,6 @@
                     }
 
                     controller.selectNode(scope.node, getPropertyPath(), getPropertyPath(idProperty));
-                };
-
-                /**
-                 * fired if someone clicks a node
-                 *
-                 * @param event
-                 */
-                scope.clickNode = function (event) {
-                    controller.clickNode(scope.node, getPropertyPath(idProperty));
                 };
 
                 /**
@@ -374,7 +365,7 @@
                                 return 'DELETE_ENTRY';
                             },
                             description: function () {
-                                return 'You are about to delete this entry. Are you sure?';
+                                return 'DELETE_ENTRY_WARNING';
                             }
                         }
                     });
@@ -401,8 +392,8 @@
                 scope.moveItem  = function (item, event) {
 
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal-move-entry.html',
-                        controller: 'ModalMoveEntryCtrl',
+                        templateUrl: 'view/modal-choose-folder.html',
+                        controller: 'ModalChooseFolderCtrl',
                         resolve: {
                             title: function () {
                                 return 'MOVE_ENTRY';
@@ -420,20 +411,6 @@
                     }, function () {
                         // cancel triggered
                     });
-                };
-                /**
-                 * fired if someone selects an item
-                 *
-                 * @param item
-                 * @param event
-                 */
-                scope.selectItem = function (item, event) {
-
-                    if (!controller.isSelectable(item)) {
-                        return;
-                    }
-
-                    controller.selectItem(item, getPropertyPath(displayProperty, item));
                 };
 
                 /**

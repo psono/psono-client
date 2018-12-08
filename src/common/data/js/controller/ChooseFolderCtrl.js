@@ -3,7 +3,7 @@
 
     /**
      * @ngdoc controller
-     * @name psonocli.controller:MoveEntryCtrl
+     * @name psonocli.controller:ChooseFolderCtrl
      * @requires $scope
      * @requires $uibModal
      * @requires $timeout
@@ -17,7 +17,7 @@
      * @description
      * Main Controller for the acceptshare widget
      */
-    angular.module('psonocli').controller('MoveEntryCtrl', ["$scope", "manager", "managerDatastorePassword",
+    angular.module('psonocli').controller('ChooseFolderCtrl', ["$scope", "manager", "managerDatastorePassword",
         "$uibModal", "itemBlueprint", "managerWidget",
         "message", "$timeout", 'dropDownMenuWatcher',
         function($scope, manager, managerDatastorePassword,
@@ -42,7 +42,7 @@
                 onNodeSelect: function (node, breadcrumbs, id_breadcrumbs) {
                     $scope.breadcrumbs = breadcrumbs;
                     $scope.node = node;
-                    message.emit("modal_accept_share_breadcrumbs_update",
+                    message.emit("node_breadcrumbs_update",
                         {'breadcrumbs': breadcrumbs, 'id_breadcrumbs': id_breadcrumbs});
                 },
                 /**
@@ -167,8 +167,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:MoveEntryCtrl#contextMenuOnShow
-             * @methodOf psonocli.controller:MoveEntryCtrl
+             * @name psonocli.controller:ChooseFolderCtrl#contextMenuOnShow
+             * @methodOf psonocli.controller:ChooseFolderCtrl
              *
              * @description
              * Counts the open context menus counter up
@@ -181,8 +181,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:MoveEntryCtrl#contextMenuOnClose
-             * @methodOf psonocli.controller:MoveEntryCtrl
+             * @name psonocli.controller:ChooseFolderCtrl#contextMenuOnClose
+             * @methodOf psonocli.controller:ChooseFolderCtrl
              *
              * @description
              * Counts the open context menus counter down
@@ -195,8 +195,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:MoveEntryCtrl#openNewFolder
-             * @methodOf psonocli.controller:MoveEntryCtrl
+             * @name psonocli.controller:ChooseFolderCtrl#openNewFolder
+             * @methodOf psonocli.controller:ChooseFolderCtrl
              *
              * @description
              * Forwards the call to open the modal for a new folder
@@ -209,8 +209,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:MoveEntryCtrl#contextMenuOnClose
-             * @methodOf psonocli.controller:MoveEntryCtrl
+             * @name psonocli.controller:ChooseFolderCtrl#contextMenuOnClose
+             * @methodOf psonocli.controller:ChooseFolderCtrl
              *
              * @description
              * Opens the modal for a new entry
@@ -225,8 +225,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:MoveEntryCtrl#openNewItem
-             * @methodOf psonocli.controller:MoveEntryCtrl
+             * @name psonocli.controller:ChooseFolderCtrl#openNewItem
+             * @methodOf psonocli.controller:ChooseFolderCtrl
              *
              * @description
              * Forwards the call to open the modal for a new item
@@ -239,8 +239,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:MoveEntryCtrl#open_edit_item
-             * @methodOf psonocli.controller:MoveEntryCtrl
+             * @name psonocli.controller:ChooseFolderCtrl#open_edit_item
+             * @methodOf psonocli.controller:ChooseFolderCtrl
              *
              * @description
              * Opens the modal to edit a entry
@@ -255,8 +255,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:MoveEntryCtrl#move_item
-             * @methodOf psonocli.controller:MoveEntryCtrl
+             * @name psonocli.controller:ChooseFolderCtrl#move_item
+             * @methodOf psonocli.controller:ChooseFolderCtrl
              *
              * @description
              * Moves an item
@@ -272,8 +272,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:MoveEntryCtrl#delete_item
-             * @methodOf psonocli.controller:MoveEntryCtrl
+             * @name psonocli.controller:ChooseFolderCtrl#delete_item
+             * @methodOf psonocli.controller:ChooseFolderCtrl
              *
              * @description
              * Deletes an item from the datastore

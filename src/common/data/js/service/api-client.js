@@ -1908,6 +1908,244 @@
 
         /**
          * @ngdoc
+         * @name psonocli.apiClient#read_api_key
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax GET request with the token as authentication to get the current user's api keys
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid|undefined} [api_key_id=null] (optional) api key id
+         *
+         * @returns {promise} promise
+         */
+        var read_api_key = function (token, session_secret_key, api_key_id) {
+            var endpoint = '/api-key/' + ( !api_key_id ? '' : api_key_id + '/');
+            var connection_type = "GET";
+            var data = null;
+            var headers = {
+                "Authorization": "Token " + token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#read_api_key_secrets
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax GET request with the token as authentication to read all the secrets of a specific api key
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} api_key_id The ID of the api key
+         *
+         * @returns {promise} promise
+         */
+        var read_api_key_secrets = function (token, session_secret_key, api_key_id) {
+            var endpoint = '/api-key/secret/' + api_key_id + '/';
+            var connection_type = "GET";
+            var data = null;
+            var headers = {
+                "Authorization": "Token " + token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#create_api_key
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax PUT request to create a api_key with the token as authentication and together with the name of the api_key
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {string} title title of the new api_key
+         * @param {string} public_key The public key of the api key
+         * @param {string} private_key encrypted private key of the api_key
+         * @param {string} private_key_nonce nonce for private key
+         * @param {string} secret_key encrypted secret key of the api_key
+         * @param {string} secret_key_nonce nonce for secret key
+         * @param {string} user_private_key encrypted private key of the user
+         * @param {string} user_private_key_nonce nonce for private key
+         * @param {string} user_secret_key encrypted secret key of the user
+         * @param {string} user_secret_key_nonce nonce for secret key
+         * @param {bool} restrict_to_secrets Restrict to secrets
+         * @param {bool} allow_insecure_access Allow insecure access
+         * @param {string} verify_key The verify key as a derivat of the private key
+         *
+         * @returns {promise} promise
+         */
+        var create_api_key = function (token, session_secret_key, title, public_key, private_key ,private_key_nonce, secret_key,
+                                       secret_key_nonce, user_private_key, user_private_key_nonce, user_secret_key, user_secret_key_nonce,
+                                       restrict_to_secrets, allow_insecure_access, verify_key) {
+
+            var endpoint = '/api-key/';
+            var connection_type = "PUT";
+            var data = {
+                title: title,
+                public_key: public_key,
+                private_key: private_key,
+                private_key_nonce: private_key_nonce,
+                secret_key: secret_key,
+                secret_key_nonce: secret_key_nonce,
+                user_private_key: user_private_key,
+                user_private_key_nonce: user_private_key_nonce,
+                user_secret_key: user_secret_key,
+                user_secret_key_nonce: user_secret_key_nonce,
+                restrict_to_secrets: restrict_to_secrets,
+                allow_insecure_access: allow_insecure_access,
+                verify_key: verify_key
+            };
+
+            var headers = {
+                "Authorization": "Token " + token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#add_secret_to_api_key
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax PUT request to add a secret to an api key
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} api_key_id The id of the api key
+         * @param {uuid} secret_id The id of the secret
+         * @param {string} title encrypted title of the api_key
+         * @param {string} title_nonce nonce for title
+         * @param {string} secret_key encrypted secret key of the api_key
+         * @param {string} secret_key_nonce nonce for secret key
+         *
+         * @returns {promise} promise
+         */
+        var add_secret_to_api_key = function (token, session_secret_key, api_key_id, secret_id, title, title_nonce, secret_key, secret_key_nonce) {
+
+            var endpoint = '/api-key/secret/';
+            var connection_type = "PUT";
+            var data = {
+                api_key_id: api_key_id,
+                secret_id: secret_id,
+                title: title,
+                title_nonce: title_nonce,
+                secret_key: secret_key,
+                secret_key_nonce: secret_key_nonce
+            };
+
+            var headers = {
+                "Authorization": "Token " + token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#update_api_key
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax POST request to update a given api key
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} api_key_id The api_key id to update
+         * @param {string} name The new name of the api_key
+         * @param {bool} restrict_to_secrets Restrict to secrets
+         * @param {bool} allow_insecure_access Allow insecure access
+         *
+         * @returns {promise} Returns a promise which can succeed or fail
+         */
+        var update_api_key = function (token, session_secret_key, api_key_id, name, restrict_to_secrets, allow_insecure_access) {
+            var endpoint = '/api-key/';
+            var connection_type = "POST";
+            var data = {
+                api_key_id: api_key_id,
+                name: name,
+                restrict_to_secrets: restrict_to_secrets,
+                allow_insecure_access: allow_insecure_access
+            };
+
+            var headers = {
+                "Authorization": "Token " + token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#delete_api_key
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax DELETE request to delete an api key
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} api_key_id The api_key id to delete
+         *
+         * @returns {promise} Returns a promise which can succeed or fail
+         */
+        var delete_api_key = function (token, session_secret_key, api_key_id) {
+            var endpoint = '/api-key/';
+            var connection_type = "DELETE";
+            var data = {
+                api_key_id: api_key_id
+            };
+
+            var headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Token " + token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#delete_api_key_secret
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax DELETE request to delete a given secret access right from an api key
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} api_key_secret_id The api_key_secret_id to delete
+         *
+         * @returns {promise} Returns a promise which can succeed or fail
+         */
+        var delete_api_key_secret = function (token, session_secret_key, api_key_secret_id) {
+            var endpoint = '/api-key/secret/';
+            var connection_type = "DELETE";
+            var data = {
+                api_key_secret_id: api_key_secret_id
+            };
+
+            var headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Token " + token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.apiClient#read_group
          * @methodOf psonocli.apiClient
          *
@@ -2307,6 +2545,13 @@
             create_share_link: create_share_link,
             move_share_link: move_share_link,
             delete_share_link: delete_share_link,
+            read_api_key: read_api_key,
+            read_api_key_secrets: read_api_key_secrets,
+            create_api_key: create_api_key,
+            add_secret_to_api_key: add_secret_to_api_key,
+            update_api_key: update_api_key,
+            delete_api_key: delete_api_key,
+            delete_api_key_secret: delete_api_key_secret,
             read_group: read_group,
             create_group: create_group,
             update_group: update_group,

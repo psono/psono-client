@@ -53,25 +53,6 @@
                     $scope.node = node;
                 },
                 /**
-                 * Triggered once someone selects an item
-                 *
-                 * @param item
-                 * @param breadcrumbs
-                 * @param id_breadcrumbs
-                 */
-                onItemSelect: function (item, breadcrumbs, id_breadcrumbs) {
-                    $scope.breadcrumbs = breadcrumbs;
-                    $scope.node = item;
-                },
-                /**
-                 * Triggered once someone clicks on a node
-                 *
-                 * @param node
-                 * @param path
-                 */
-                onNodeClick: function(node, path) {
-                },
-                /**
                  * Triggered once someone clicks the delete node entry
                  *
                  * @param node The node in question

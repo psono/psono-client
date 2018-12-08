@@ -69,12 +69,10 @@
          * @methodOf psonocli.managerExport
          *
          * @description
-         * sends an event message to the export service
-         *
-         * @param {string} event The event to trigger
-         * @param {*} data The payload data to send to the subscribed callback functions
+         * Returns weather the server allows the export feature or not
+         * By default it will return false (indicate enabled export)
          */
-        var export_disabled = function (event, data) {
+        var export_disabled = function () {
 
             var server_info =  storage.find_key('config', 'server_info');
 

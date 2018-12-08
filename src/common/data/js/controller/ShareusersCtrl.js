@@ -43,26 +43,6 @@
                     //managerSecret.onNodeSelect(node);
                 },
                 /**
-                 * Triggered once someone selects an item
-                 *
-                 * @param item
-                 * @param breadcrumbs
-                 */
-                onItemSelect: function (item, breadcrumbs, id_breadcrumbs) {
-                    $scope.breadcrumbs = breadcrumbs;
-                    $scope.node = item;
-                    //managerSecret.onItemSelect(item);
-                },
-                /**
-                 * Triggered once someone clicks on a node
-                 *
-                 * @param node
-                 * @param path
-                 */
-                onNodeClick: function (node, path) {
-                    //managerSecret.onNodeClick(node, path);
-                },
-                /**
                  * Triggered once someone clicks the move node entry
                  *
                  * @param item_path The path of the node in question

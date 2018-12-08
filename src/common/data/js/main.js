@@ -29,7 +29,7 @@
      * @property {string} port The query, evething after '#' e.g. 'anotherParameter=test'
      *
      * @typedef {Object} TreeObject
-     * @property {uuid} [datastore_id] The datastore id if its the top
+     * @property {uuid} [datastore_id] The datastore id ifit'sthe top
      * @property {uuid} [parent_datastore_id] The parent datastore id
      * @property {uuid} [parent_share_id] The parent share id
      * @property {object} [share_rights] All the share rights in an object
