@@ -22,7 +22,6 @@
             $scope.reset = reset;
             $scope.save = save;
             $scope.cancel = cancel;
-            $scope.has_advanced = shareBlueprint.has_advanced;
 
             $scope.parent = parent;
             $scope.path = path;

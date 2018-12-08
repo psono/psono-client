@@ -219,7 +219,15 @@
 
                 };
 
-                managerSecret.create_secret(secret_object, link_id, parent_datastore_id, parent_share_id)
+                managerSecret.create_secret(
+                    secret_object,
+                    link_id,
+                    parent_datastore_id,
+                    parent_share_id,
+                    content['callback_data']['callback_url'],
+                    content['callback_data']['callback_user'],
+                    content['callback_data']['callback_pass']
+                )
                     .then(onSuccess, onError);
 
             }, function () {
@@ -279,7 +287,13 @@
                         managerDatastorePassword.save_datastore_content(datastore, [path]);
                     };
 
-                    managerSecret.write_secret(node.secret_id, node.secret_key, secret_object)
+                    managerSecret.write_secret(
+                        node.secret_id,
+                        node.secret_key,
+                        secret_object,
+                        content['callback_data']['callback_url'],
+                        content['callback_data']['callback_user'],
+                        content['callback_data']['callback_pass'])
                         .then(onSuccess, onError);
 
                 }

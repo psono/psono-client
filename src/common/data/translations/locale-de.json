@@ -1,4 +1,8 @@
 {
+  "CALLBACK_PASS": "Callback Passwort",
+  "CALLBACK_USER": "Callback Benutzer",
+  "CALLBACK_URL": "Callback URL",
+  "CALLBACK_URL_PLACEHOLDER": "Callback URL z.B. https://beispiel.com/irgendwas",
   "ID": "ID",
   "DETAILS": "Details",
   "API_KEY_DETAILS": "API Schlüssel Details",

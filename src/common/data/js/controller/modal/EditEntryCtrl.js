@@ -20,7 +20,7 @@
             $scope.reset = reset;
             $scope.save = save;
             $scope.cancel = cancel;
-            $scope.has_advanced = itemBlueprint.has_advanced;
+            $scope.toggle_input_type = toggle_input_type;
 
             $scope.node = node;
             $scope.path = path;
@@ -113,7 +113,7 @@
                 if ($scope.editEntryForm.$invalid) {
                     return;
                 }
-
+                $scope.bp.selected['callback_data'] = data;
                 $uibModalInstance.close($scope.bp.selected);
             }
 
@@ -127,6 +127,24 @@
              */
             function cancel() {
                 $uibModalInstance.dismiss('cancel');
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalEditEntryCtrl#toggle_input_type
+             * @methodOf psonocli.controller:ModalEditEntryCtrl
+             *
+             * @description
+             * toggles the type of an input
+             *
+             * @param id
+             */
+            function toggle_input_type(id) {
+                if (document.getElementById(id).type === 'text') {
+                    document.getElementById(id).type = 'password';
+                } else {
+                    document.getElementById(id).type = 'text';
+                }
             }
         }]);
 

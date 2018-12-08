@@ -32,9 +32,13 @@
          * @param {uuid} link_id the local id of the share in the data structure
          * @param {uuid|undefined} [parent_datastore_id] (optional) The id of the parent datastore, may be left empty if the share resides in a share
          * @param {uuid|undefined} [parent_share_id] (optional) The id of the parent share, may be left empty if the share resides in the datastore
+         * @param {string} callback_url The callback ULR
+         * @param {string} callback_user The callback user
+         * @param {string} callback_pass The callback password
+         *
          * @returns {promise} Returns a promise with the new secret_id
          */
-        var create_secret = function (content, link_id, parent_datastore_id, parent_share_id) {
+        var create_secret = function (content, link_id, parent_datastore_id, parent_share_id, callback_url, callback_user, callback_pass) {
             var secret_key = cryptoLibrary.generate_secret_key();
 
             var json_content = JSON.stringify(content);
@@ -50,7 +54,7 @@
             };
 
             return apiClient.create_secret(managerBase.get_token(),
-                managerBase.get_session_secret_key(), c.text, c.nonce, link_id, parent_datastore_id, parent_share_id)
+                managerBase.get_session_secret_key(), c.text, c.nonce, link_id, parent_datastore_id, parent_share_id, callback_url, callback_user, callback_pass)
                 .then(onSuccess, onError);
         };
 
@@ -77,6 +81,9 @@
                 var secret = JSON.parse(cryptoLibrary.decrypt_data(content.data.data, content.data.data_nonce, secret_key));
                 secret['create_date'] = content.data['create_date'];
                 secret['write_date'] = content.data['write_date'];
+                secret['callback_url'] = content.data['callback_url'];
+                secret['callback_user'] = content.data['callback_user'];
+                secret['callback_pass'] = content.data['callback_pass'];
                 return secret;
             };
 
@@ -102,10 +109,13 @@
          * @param {uuid} secret_id The id of the secret
          * @param {string} secret_key The secret key of the secret
          * @param {object} content The new content for the given secret
+         * @param {string} callback_url The callback ULR
+         * @param {string} callback_user The callback user
+         * @param {string} callback_pass The callback password
          *
          * @returns {promise} Returns a promise with the secret id
          */
-        var write_secret = function(secret_id, secret_key, content) {
+        var write_secret = function(secret_id, secret_key, content, callback_url, callback_user, callback_pass) {
 
             var json_content = JSON.stringify(content);
 
@@ -120,7 +130,7 @@
             };
 
             return apiClient.write_secret(managerBase.get_token(),
-                managerBase.get_session_secret_key(), secret_id, c.text, c.nonce)
+                managerBase.get_session_secret_key(), secret_id, c.text, c.nonce, callback_url, callback_user, callback_pass)
                 .then(onSuccess, onError);
         };
 

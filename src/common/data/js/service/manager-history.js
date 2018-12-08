@@ -58,6 +58,9 @@
                 var secret = JSON.parse(cryptoLibrary.decrypt_data(content.data.data, content.data.data_nonce, secret_key));
                 secret['create_date'] = content.data['create_date'];
                 secret['write_date'] = content.data['write_date'];
+                secret['callback_url'] = content.data['callback_url'];
+                secret['callback_user'] = content.data['callback_user'];
+                secret['callback_pass'] = content.data['callback_pass'];
                 return secret;
             };
 

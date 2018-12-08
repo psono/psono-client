@@ -924,10 +924,14 @@
          * @param {string} link_id the local id of the share in the datastructure
          * @param {string|undefined} [parent_datastore_id] (optional) id of the parent datastore, may be left empty if the share resides in a share
          * @param {string|undefined} [parent_share_id] (optional) id of the parent share, may be left empty if the share resides in the datastore
+         * @param {string} callback_url The callback ULR
+         * @param {string} callback_user The callback user
+         * @param {string} callback_pass The callback password
          *
          * @returns {promise} Returns a promise with the new secret_id
          */
-        var create_secret = function (token, session_secret_key, encrypted_data, encrypted_data_nonce, link_id, parent_datastore_id, parent_share_id) {
+        var create_secret = function (token, session_secret_key, encrypted_data, encrypted_data_nonce, link_id,
+                                      parent_datastore_id, parent_share_id, callback_url, callback_user, callback_pass) {
             var endpoint = '/secret/';
             var connection_type = "PUT";
             var data = {
@@ -935,7 +939,10 @@
                 data_nonce: encrypted_data_nonce,
                 link_id: link_id,
                 parent_datastore_id: parent_datastore_id,
-                parent_share_id: parent_share_id
+                parent_share_id: parent_share_id,
+                callback_url: callback_url,
+                callback_user: callback_user,
+                callback_pass: callback_pass
             };
             var headers = {
                 "Authorization": "Token " + token
@@ -957,16 +964,22 @@
          * @param {uuid} secret_id the secret ID
          * @param {string|undefined} [encrypted_data] (optional) data for the new secret
          * @param {string|undefined} [encrypted_data_nonce] (optional) nonce for data, necessary if data is provided
+         * @param {string} callback_url The callback ULR
+         * @param {string} callback_user The callback user
+         * @param {string} callback_pass The callback password
          *
          * @returns {promise} promise
          */
-        var write_secret = function (token, session_secret_key, secret_id, encrypted_data, encrypted_data_nonce) {
+        var write_secret = function (token, session_secret_key, secret_id, encrypted_data, encrypted_data_nonce, callback_url, callback_user, callback_pass) {
             var endpoint = '/secret/';
             var connection_type = "POST";
             var data = {
                 secret_id: secret_id,
                 data: encrypted_data,
-                data_nonce: encrypted_data_nonce
+                data_nonce: encrypted_data_nonce,
+                callback_url: callback_url,
+                callback_user: callback_user,
+                callback_pass: callback_pass
             };
             var headers = {
                 "Authorization": "Token " + token

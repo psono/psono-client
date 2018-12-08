@@ -16,14 +16,19 @@
         function ($scope, $uibModalInstance, itemBlueprint, helper, parent, path) {
 
             $scope.reset = reset;
-            $scope.has_advanced = itemBlueprint.has_advanced;
             $scope.save = save;
             $scope.cancel = cancel;
+            $scope.toggle_input_type = toggle_input_type;
 
             $scope.parent = parent;
             $scope.path = path;
             $scope.name = '';
             $scope.content = '';
+            $scope.data = {
+                'callback_url': '',
+                'callback_user': '',
+                'callback_pass': ''
+            };
             $scope.isCollapsed = true;
             $scope.errors = [];
 
@@ -90,7 +95,7 @@
                 if ($scope.errors.length > 0) {
                     return;
                 }
-
+                $scope.bp.selected['callback_data'] = $scope.data;
                 $uibModalInstance.close($scope.bp.selected);
             }
 
@@ -104,6 +109,24 @@
              */
             function cancel() {
                 $uibModalInstance.dismiss('cancel');
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalDatastoreNewEntryCtrl#toggle_input_type
+             * @methodOf psonocli.controller:ModalDatastoreNewEntryCtrl
+             *
+             * @description
+             * toggles the type of an input
+             *
+             * @param id
+             */
+            function toggle_input_type(id) {
+                if (document.getElementById(id).type === 'text') {
+                    document.getElementById(id).type = 'password';
+                } else {
+                    document.getElementById(id).type = 'text';
+                }
             }
         }]);
 

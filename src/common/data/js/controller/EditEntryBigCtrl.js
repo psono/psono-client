@@ -19,7 +19,7 @@
             $scope.reset = reset;
             $scope.save = save;
             $scope.cancel = cancel;
-            $scope.has_advanced = itemBlueprint.has_advanced;
+            $scope.toggle_input_type = toggle_input_type;
 
             // $scope.node = node;
             // $scope.path = path;
@@ -42,7 +42,6 @@
                     $scope.path=args.path;
                     $scope.data=args.data;
                     $scope.name = args.node.name;
-                    $scope.has_advanced = itemBlueprint.has_advanced
                     $scope.bp = {
                         all: itemBlueprint.get_blueprints(),
                         selected: itemBlueprint.get_blueprint($scope.node.type)
@@ -115,6 +114,7 @@
                 if ($scope.editEntryForm.$invalid) {
                     return;
                 }
+                $scope.bp.selected['callback_data'] = $scope.data;
                 onSave($scope.bp.selected);
 
                 $rootScope.$broadcast('close-entry-big', {});
@@ -131,6 +131,24 @@
             function cancel() {
                 $rootScope.$broadcast('close-entry-big', {});
                 onClose();
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalEditEntryBigCtrl#toggle_input_type
+             * @methodOf psonocli.controller:ModalEditEntryBigCtrl
+             *
+             * @description
+             * toggles the type of an input
+             *
+             * @param id
+             */
+            function toggle_input_type(id) {
+                if (document.getElementById(id).type === 'text') {
+                    document.getElementById(id).type = 'password';
+                } else {
+                    document.getElementById(id).type = 'text';
+                }
             }
         }]);
 

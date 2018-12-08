@@ -8,12 +8,14 @@
             <thead>
             <tr>
                 <th>{{'DATE' | translate}}</th>
+                <th>{{'USER' | translate}}</th>
                 <th></th>
             </tr>
             </thead>
             <tbody>
             <tr ng-repeat="history_item in data.history">
                 <td>{{ history_item.create_date }}</td>
+                <td>{{ history_item.username | limitTo:20 }}{{ history_item.username.length > 20 ? '...' : ''}}</td>
                 <td>
                     <button type="button" class="btn btn-default btn-sm" ng-click="show_history_item(history_item)">
                         <i class="fa fa-eye"></i> {{'SHOW' | translate}}
