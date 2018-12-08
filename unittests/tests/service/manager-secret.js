@@ -168,6 +168,9 @@
 
                 decrypted_data.create_date = undefined;
                 decrypted_data.write_date = undefined;
+                decrypted_data.callback_url = undefined;
+                decrypted_data.callback_user = undefined;
+                decrypted_data.callback_pass = undefined;
 
                 expect(data).toEqual(decrypted_data);
             },function(){
