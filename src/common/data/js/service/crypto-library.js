@@ -484,6 +484,25 @@
             return nacl.signing.verify(converter.from_hex(signature), converter.encode_utf8(message), converter.from_hex(verify_key));
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.cryptoLibrary#get_verify_key
+         * @methodOf psonocli.cryptoLibrary
+         *
+         * @description
+         * Returns the verify key for a given seed
+         *
+         * @param {string} seed The seed
+         *
+         * @returns {boolean} Returns the verify key for a given seed
+         */
+        var get_verify_key = function(seed) {
+
+            var pair = nacl.signing.generate_keypair(converter.from_hex(seed));
+
+            return converter.to_hex(pair.pkey);
+        };
+
         return {
             randomBytes: randomBytes,
             sha1: sha1,
@@ -505,7 +524,8 @@
             recovery_code_strip_checksums: recovery_code_strip_checksums,
             recovery_password_chunk_pass_checksum: recovery_password_chunk_pass_checksum,
             generate_uuid: generate_uuid,
-            validate_signature: validate_signature
+            validate_signature: validate_signature,
+            get_verify_key: get_verify_key
         };
     };
 

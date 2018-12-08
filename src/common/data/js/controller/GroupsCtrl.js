@@ -179,10 +179,10 @@
                     controller: 'ModalVerifyCtrl',
                     resolve: {
                         title: function () {
-                            return 'Leave Group';
+                            return 'LEAVE_GROUP';
                         },
                         description: function () {
-                            return 'You are about to leave the group. You will lose access to shares that belong to the group. Are you sure?';
+                            return 'LEAVE_GROUP_WARNING';
                         }
                     }
                 });

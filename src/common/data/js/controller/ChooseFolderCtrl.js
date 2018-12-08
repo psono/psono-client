@@ -3,7 +3,7 @@
 
     /**
      * @ngdoc controller
-     * @name psonocli.controller:AcceptShareCtrl
+     * @name psonocli.controller:ChooseFolderCtrl
      * @requires $scope
      * @requires $uibModal
      * @requires $timeout
@@ -17,7 +17,7 @@
      * @description
      * Main Controller for the acceptshare widget
      */
-    angular.module('psonocli').controller('AcceptShareCtrl', ["$scope", "manager", "managerDatastorePassword",
+    angular.module('psonocli').controller('ChooseFolderCtrl', ["$scope", "manager", "managerDatastorePassword",
         "$uibModal", "itemBlueprint", "managerWidget",
         "message", "$timeout", 'dropDownMenuWatcher',
         function($scope, manager, managerDatastorePassword,
@@ -88,6 +88,25 @@
                 onEditItem: function (item, path) {
                     open_edit_item(item, path);
                 },
+                /**
+                 * Triggered once someone clicks the move node entry
+                 *
+                 * @param item_path The path of the node in question
+                 * @param target_path The path to the target node
+                 */
+                onMoveNode: function (item_path, target_path) {
+                    return move_item($scope, item_path, target_path, 'folders');
+                },
+
+                /**
+                 * Triggered once someone wants to move a node entry
+                 *
+                 * @param item_path The path of the item
+                 * @param target_path The path to target folder
+                 */
+                onMoveItem: function (item_path, target_path) {
+                    return move_item($scope, item_path, target_path, 'items');
+                },
 
                 /**
                  * Triggered once someone wants to create a new folder
@@ -148,8 +167,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:AcceptShareCtrl#contextMenuOnShow
-             * @methodOf psonocli.controller:AcceptShareCtrl
+             * @name psonocli.controller:ChooseFolderCtrl#contextMenuOnShow
+             * @methodOf psonocli.controller:ChooseFolderCtrl
              *
              * @description
              * Counts the open context menus counter up
@@ -162,8 +181,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:AcceptShareCtrl#contextMenuOnClose
-             * @methodOf psonocli.controller:AcceptShareCtrl
+             * @name psonocli.controller:ChooseFolderCtrl#contextMenuOnClose
+             * @methodOf psonocli.controller:ChooseFolderCtrl
              *
              * @description
              * Counts the open context menus counter down
@@ -176,8 +195,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:AcceptShareCtrl#openNewFolder
-             * @methodOf psonocli.controller:AcceptShareCtrl
+             * @name psonocli.controller:ChooseFolderCtrl#openNewFolder
+             * @methodOf psonocli.controller:ChooseFolderCtrl
              *
              * @description
              * Forwards the call to open the modal for a new folder
@@ -190,8 +209,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:AcceptShareCtrl#contextMenuOnClose
-             * @methodOf psonocli.controller:AcceptShareCtrl
+             * @name psonocli.controller:ChooseFolderCtrl#contextMenuOnClose
+             * @methodOf psonocli.controller:ChooseFolderCtrl
              *
              * @description
              * Opens the modal for a new entry
@@ -206,8 +225,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:AcceptShareCtrl#openNewItem
-             * @methodOf psonocli.controller:AcceptShareCtrl
+             * @name psonocli.controller:ChooseFolderCtrl#openNewItem
+             * @methodOf psonocli.controller:ChooseFolderCtrl
              *
              * @description
              * Forwards the call to open the modal for a new item
@@ -220,8 +239,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:AcceptShareCtrl#open_edit_item
-             * @methodOf psonocli.controller:AcceptShareCtrl
+             * @name psonocli.controller:ChooseFolderCtrl#open_edit_item
+             * @methodOf psonocli.controller:ChooseFolderCtrl
              *
              * @description
              * Opens the modal to edit a entry
@@ -236,8 +255,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:AcceptShareCtrl#move_item
-             * @methodOf psonocli.controller:AcceptShareCtrl
+             * @name psonocli.controller:ChooseFolderCtrl#move_item
+             * @methodOf psonocli.controller:ChooseFolderCtrl
              *
              * @description
              * Moves an item
@@ -253,8 +272,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:AcceptShareCtrl#delete_item
-             * @methodOf psonocli.controller:AcceptShareCtrl
+             * @name psonocli.controller:ChooseFolderCtrl#delete_item
+             * @methodOf psonocli.controller:ChooseFolderCtrl
              *
              * @description
              * Deletes an item from the datastore

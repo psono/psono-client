@@ -3,7 +3,7 @@
 
     /**
      * @ngdoc controller
-     * @name psonocli.controller:AcceptShareCtrl
+     * @name psonocli.controller:ChooseSecretsCtrl
      * @requires $scope
      * @requires $uibModal
      * @requires $timeout
@@ -17,7 +17,7 @@
      * @description
      * Main Controller for the acceptshare widget
      */
-    angular.module('psonocli').controller('AcceptShareCtrl', ["$scope", "manager", "managerDatastorePassword",
+    angular.module('psonocli').controller('ChooseSecretsCtrl', ["$scope", "manager", "managerDatastorePassword",
         "$uibModal", "itemBlueprint", "managerWidget",
         "message", "$timeout", 'dropDownMenuWatcher',
         function($scope, manager, managerDatastorePassword,
@@ -32,19 +32,6 @@
             $scope.structure = { data: {}} ;
 
             $scope.options = {
-                /**
-                 * Triggered once someone selects a node
-                 *
-                 * @param node
-                 * @param breadcrumbs
-                 * @param id_breadcrumbs
-                 */
-                onNodeSelect: function (node, breadcrumbs, id_breadcrumbs) {
-                    $scope.breadcrumbs = breadcrumbs;
-                    $scope.node = node;
-                    message.emit("node_breadcrumbs_update",
-                        {'breadcrumbs': breadcrumbs, 'id_breadcrumbs': id_breadcrumbs});
-                },
                 /**
                  * Triggered once someone clicks the delete node entry
                  *
@@ -86,7 +73,27 @@
                  * @param path The path to the item
                  */
                 onEditItem: function (item, path) {
-                    open_edit_item(item, path);
+                    message.emit("item_breadcrumbs_update",
+                        {'item': item, 'path': path});
+                },
+                /**
+                 * Triggered once someone clicks the move node entry
+                 *
+                 * @param item_path The path of the node in question
+                 * @param target_path The path to the target node
+                 */
+                onMoveNode: function (item_path, target_path) {
+                    return move_item($scope, item_path, target_path, 'folders');
+                },
+
+                /**
+                 * Triggered once someone wants to move a node entry
+                 *
+                 * @param item_path The path of the item
+                 * @param target_path The path to target folder
+                 */
+                onMoveItem: function (item_path, target_path) {
+                    return move_item($scope, item_path, target_path, 'items');
                 },
 
                 /**
@@ -127,7 +134,7 @@
                  * @returns {boolean}
                  */
                 isSelectable: function (node) {
-                    return ! node.hasOwnProperty('share_rights') || !! (node.share_rights.read && node.share_rights.write)
+                    return ! node.hasOwnProperty('share_rights') || !! (node.share_rights.read)
                 },
                 contextMenuOnShow: $scope.contextMenuOnShow,
                 contextMenuOnClose: $scope.contextMenuOnClose,
@@ -148,8 +155,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:AcceptShareCtrl#contextMenuOnShow
-             * @methodOf psonocli.controller:AcceptShareCtrl
+             * @name psonocli.controller:ChooseSecretsCtrl#contextMenuOnShow
+             * @methodOf psonocli.controller:ChooseSecretsCtrl
              *
              * @description
              * Counts the open context menus counter up
@@ -162,8 +169,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:AcceptShareCtrl#contextMenuOnClose
-             * @methodOf psonocli.controller:AcceptShareCtrl
+             * @name psonocli.controller:ChooseSecretsCtrl#contextMenuOnClose
+             * @methodOf psonocli.controller:ChooseSecretsCtrl
              *
              * @description
              * Counts the open context menus counter down
@@ -176,8 +183,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:AcceptShareCtrl#openNewFolder
-             * @methodOf psonocli.controller:AcceptShareCtrl
+             * @name psonocli.controller:ChooseSecretsCtrl#openNewFolder
+             * @methodOf psonocli.controller:ChooseSecretsCtrl
              *
              * @description
              * Forwards the call to open the modal for a new folder
@@ -190,8 +197,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:AcceptShareCtrl#contextMenuOnClose
-             * @methodOf psonocli.controller:AcceptShareCtrl
+             * @name psonocli.controller:ChooseSecretsCtrl#contextMenuOnClose
+             * @methodOf psonocli.controller:ChooseSecretsCtrl
              *
              * @description
              * Opens the modal for a new entry
@@ -206,8 +213,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:AcceptShareCtrl#openNewItem
-             * @methodOf psonocli.controller:AcceptShareCtrl
+             * @name psonocli.controller:ChooseSecretsCtrl#openNewItem
+             * @methodOf psonocli.controller:ChooseSecretsCtrl
              *
              * @description
              * Forwards the call to open the modal for a new item
@@ -220,24 +227,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:AcceptShareCtrl#open_edit_item
-             * @methodOf psonocli.controller:AcceptShareCtrl
-             *
-             * @description
-             * Opens the modal to edit a entry
-             *
-             * @param {object} node The item to edit
-             * @param {array} path The path
-             * @param {string} size The size of the modal
-             */
-            function open_edit_item (node, path, size) {
-                managerWidget.open_edit_item($scope.structure.data, node, path, size);
-            }
-
-            /**
-             * @ngdoc
-             * @name psonocli.controller:AcceptShareCtrl#move_item
-             * @methodOf psonocli.controller:AcceptShareCtrl
+             * @name psonocli.controller:ChooseSecretsCtrl#move_item
+             * @methodOf psonocli.controller:ChooseSecretsCtrl
              *
              * @description
              * Moves an item
@@ -253,8 +244,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:AcceptShareCtrl#delete_item
-             * @methodOf psonocli.controller:AcceptShareCtrl
+             * @name psonocli.controller:ChooseSecretsCtrl#delete_item
+             * @methodOf psonocli.controller:ChooseSecretsCtrl
              *
              * @description
              * Deletes an item from the datastore

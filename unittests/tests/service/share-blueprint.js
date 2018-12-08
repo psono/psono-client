@@ -92,12 +92,6 @@
             ])).toBe('TestUserName (123456789)');
 
         }));
-
-        it('has_advanced', inject(function (shareBlueprint) {
-
-            expect(shareBlueprint.has_advanced({'fields': [{ position: "advanced" }]})).toBeTruthy();
-            expect(shareBlueprint.has_advanced({'fields': [{ }]})).toBeFalsy();
-        }));
     });
 
 }).call();

@@ -29,7 +29,7 @@
      * @property {string} port The query, evething after '#' e.g. 'anotherParameter=test'
      *
      * @typedef {Object} TreeObject
-     * @property {uuid} [datastore_id] The datastore id if its the top
+     * @property {uuid} [datastore_id] The datastore id ifit'sthe top
      * @property {uuid} [parent_datastore_id] The parent datastore id
      * @property {uuid} [parent_share_id] The parent share id
      * @property {object} [share_rights] All the share rights in an object
@@ -48,7 +48,7 @@
 
 
     angular.module('psonocli', ['ngRoute', 'ng', 'ui.bootstrap', 'snap', 'chieffancypants.loadingBar', 'ngAnimate',
-            'LocalStorageModule', 'ngTree', 'ngDraggable', 'ng-context-menu', 'ui.select', 'ngSanitize',
+            'LocalStorageModule', 'ngTree', 'ng-context-menu', 'ui.select', 'ngSanitize',
             'angular-complexify', 'datatables', 'chart.js', 'pascalprecht.translate', 'ngCookies'])
         .provider('languages', function(){
             var languages = {

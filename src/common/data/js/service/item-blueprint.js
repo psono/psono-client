@@ -841,30 +841,6 @@
 
         /**
          * @ngdoc
-         * @name psonocli.itemBlueprint#has_advanced
-         * @methodOf psonocli.itemBlueprint
-         *
-         * @description
-         * analyzes the fields of an item following a blueprint to determine if any field has position advanced
-         *
-         * @param {object} blueprint_item The blueprint item with fields that we want to search
-         * @returns {boolean} Returns if the items has fields with position advanced
-         */
-        var has_advanced = function (blueprint_item) {
-            if (typeof(blueprint_item) === 'undefined') {
-                return false;
-            }
-            for (var i = 0; i < blueprint_item.fields.length; i++) {
-                if (blueprint_item.fields[i].hasOwnProperty('position') && blueprint_item.fields[i]['position'] === 'advanced') {
-                    return true;
-                }
-            }
-
-            return false;
-        };
-
-        /**
-         * @ngdoc
          * @name psonocli.itemBlueprint#blueprint_has_on_click_new_tab
          * @methodOf psonocli.itemBlueprint
          *
@@ -938,7 +914,6 @@
             get_blueprints: get_blueprints,
             get_default_blueprint_key: get_default_blueprint_key,
             get_default_blueprint: get_default_blueprint,
-            has_advanced: has_advanced,
             blueprint_has_on_click_new_tab: blueprint_has_on_click_new_tab,
             blueprint_on_open_secret: blueprint_on_open_secret,
             blueprint_msg_before_open_secret: blueprint_msg_before_open_secret,

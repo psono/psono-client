@@ -26,8 +26,7 @@
             controller: ['$scope', '$rootScope', '$timeout', function ($scope, $rootScope, $timeout) {
                 var self = this,
                     selectedNode,
-                    selectedItem,
-                    counter = 0;
+                    selectedItem;
 
                 var options = angular.extend({}, treeViewDefaults, $scope.treeViewOptions);
 
@@ -72,23 +71,6 @@
                 };
 
                 /**
-                 * called by the directive whenever an item is selected to handle the possible option
-                 *
-                 * @param item
-                 * @param breadcrumbs
-                 */
-                self.selectItem = function (item, breadcrumbs) {
-                    if (selectedNode) {
-                        selectedNode = undefined;
-                    }
-                    selectedItem = item;
-
-                    if (typeof options.onItemSelect === "function") {
-                        options.onItemSelect(item, breadcrumbs);
-                    }
-                };
-
-                /**
                  * called by the directive whenever an item is clicked to handle the possible option
                  *
                  * @param item
@@ -96,17 +78,6 @@
                 self.clickItem = function (item) {
                     if (typeof options.on_item_click === "function") {
                         options.on_item_click(item);
-                    }
-                };
-
-                /**
-                 * called by the directive whenever a node is clicked to handle the possible option
-                 *
-                 * @param node
-                 */
-                self.clickNode = function (node) {
-                    if (typeof options.onNodeClick === "function") {
-                        options.onNodeClick(node);
                     }
                 };
 
@@ -156,212 +127,6 @@
                     return options;
                 };
 
-                /**
-                 * returns the global counter
-                 * @returns {number}
-                 */
-                self.getCounter = function() {
-                    return counter;
-                };
-
-                /**
-                 * increases the global counter
-                 *
-                 * @returns {number}
-                 */
-                self.incCounter = function() {
-                    counter = counter + 1;
-                    return counter;
-                };
-
-                /**
-                 * decreases the global counter
-                 *
-                 * @returns {number}
-                 */
-                self.decCounter = function() {
-                    counter = counter - 1;
-                    return counter;
-                };
-
-                var lastDraggedItem = null;
-                var lastDraggedItemPath = null;
-                var lastDraggedItemType = null;
-
-                /**
-                 * remembers the last dragged item and path to that item
-                 *
-                 * @param data
-                 * @param idPath
-                 * @param type
-                 */
-                self.setLastDraggedItem = function(data, idPath, type) {
-                    lastDraggedItem = data;
-                    lastDraggedItemPath = idPath;
-                    lastDraggedItemType = type;
-                };
-
-                /**
-                 * returns the last dragged item and the path to that item
-                 *
-                 * @returns {{data: *, path: *}}
-                 */
-                self.getLastDraggedItem = function() {
-                    return {data: lastDraggedItem, path: lastDraggedItemPath, type: lastDraggedItemType};
-                };
-
-                /**
-                 * the core function to actually do some of the drag and drop handling logic
-                 *
-                 * @param evt
-                 * @param target_path
-                 */
-                self.onAnyDrop = function (evt, target_path) {
-
-                    if (options.blockMove()) {
-                        return;
-                    }
-
-                    var dragged_item = self.getLastDraggedItem();
-                    var node_type;
-                    if (dragged_item.type === null && evt.hasOwnProperty('element')) {
-                        node_type = self.getNodeType(evt);
-                    } else if (dragged_item.type !== null){
-                        node_type = dragged_item.type;
-                    } else {
-                        // only a click, not a real drag n drop
-                        return;
-                    }
-
-                    // lets avoid some unnecessary logic whenever the dragged item is already at the target position
-                    if (dragged_item.path.length === 1 && target_path === null) {
-                        // target is already at the top
-                        return;
-                    }
-
-                    if (target_path !== null && dragged_item.path[dragged_item.path.length - 2] === target_path[target_path.length - 1]) {
-                        // target folder location did not change
-                        return;
-                    }
-
-                    var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal-verify.html',
-                        controller: 'ModalVerifyCtrl',
-                        resolve: {
-                            title: function () {
-                                return 'Move Entry';
-                            },
-                            description: function () {
-                                return 'You are about to move the entry. Are you sure?';
-                            }
-                        }
-                    });
-
-                    modalInstance.result.then(function () {
-                        // User clicked the yes button
-
-                        if (node_type === 'item' && typeof options.onItemDropComplete === "function") {
-                            options.onItemDropComplete(dragged_item.path, target_path);
-                        }
-
-                        if (node_type === 'folder' && typeof options.onFolderDropComplete === "function") {
-                            options.onFolderDropComplete(dragged_item.path, target_path);
-                        }
-
-                    }, function () {
-                        // cancel triggered
-                    });
-
-                };
-
-                var dragstarted = false;
-
-                /**
-                 * retuns weather the the drag already started or not
-                 *
-                 * @returns {boolean}
-                 */
-                self.isDragStarted = function () {
-                    return dragstarted;
-                };
-
-                /**
-                 * sets the drag state to started
-                 */
-                self.setDragStarted = function (){
-                    dragstarted = true;
-                };
-
-                /**
-                 * resets the drag state
-                 */
-                self.resetDragStarted = function () {
-                    dragstarted = false;
-                };
-
-                var drags_in_progress = 0;
-                var drag_start_client_y = 0;
-                /**
-                 * increments the drag in progress counter.
-                 */
-                self.setDragInProgress = function (){
-                    drags_in_progress = drags_in_progress + 1;
-                };
-
-                /**
-                 * increments the drag in progress counter.
-                 */
-                self.isDragEvent = function (event){
-                    return Math.abs(event.clientY - drag_start_client_y) > 3;
-                };
-
-                /**
-                 * indicates if there is still a drag in progress
-                 */
-                self.isDragInProgress = function (){
-                    return drags_in_progress > 0;
-                };
-
-                /**
-                 * decrements the drag in progress counter.
-                 */
-                self.setDragFinished = function (){
-                    if (self.isDragInProgress()) {
-                        drags_in_progress = drags_in_progress - 1;
-                    }
-                };
-
-                self.draggable_end_timeouts = [];
-
-                /**
-                 * triggered once a drag ends with or without dropping it on top of another folder / item
-                 */
-                $rootScope.$on('draggable:end', function(evt, args) {
-                    self.resetDragStarted();
-
-                    self.draggable_end_timeouts.push($timeout(function() {
-                        self.onAnyDrop(evt, null)
-                    }, 100));
-
-                });
-
-                /**
-                 * triggered once a drag ends with or without dropping it on top of another folder / item
-                 */
-                $rootScope.$on('draggable:longpress', function(event, args) {
-                    drag_start_client_y = args.event.clientY;
-                });
-
-
-                /**
-                 * cancels all draggable end timeouts
-                 */
-                self.cancel_draggable_end_timeouts = function () {
-                    for (var i = 0; i < self.draggable_end_timeouts.length; i++) {
-                        $timeout.cancel(self.draggable_end_timeouts[i]);
-                    }
-                    self.draggable_end_timeouts = [];
-                };
 
                 /**
                  * takes an event (usually the drop event) and returns the type of the dropped item.

@@ -1,0 +1,83 @@
+<form name="modalMoveEntryForm" novalidate>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title">{{ title | translate }}</h3>
+    </div>
+    <div class="modal-body">
+
+        <label for="modalMoveEntryForm-path" class="smalllabel">{{'PATH' | translate}}</label>
+        <div class="input-group path_box_parent">
+            <div id="modalMoveEntryForm-path" class="path_box form-control">
+                <span ng-if="!breadcrumbs.breadcrumbs">\</span>
+                <span class="path_box_breadcrumb"
+                      ng-click="cut_breadcrumbs($index, b)"
+                      ng-class="{'disabled': ! b.share_rights.read || ! b.share_rights.write}"
+                      ng-repeat="b in breadcrumbs.breadcrumbs track by $index">\{{b.name}}</span>
+            </div>
+
+            <span class="input-group-btn">
+                <button class="btn btn-default" ng-disabled="!breadcrumbs.breadcrumbs"
+                        ng-click="clear_breadcrumbs()" type="button">
+                    <i class="fa fa-ban"></i>
+                </button>
+            </span>
+        </div>
+
+        <div ng-controller="ChooseFolderCtrl" class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">{{'CHOOSE_LOCATION' | translate}}</h3>
+            </div>
+            <div class="panel-body">
+                <div data-target="menu-acceptshare-main" context-menu="contextMenuOnShow('menu-acceptshare-main')" context-menu-close="contextMenuOnClose('menu-acceptshare-main')" class="expand15">
+
+                    <div class="dropdown position-fixed dropdown-rightclick" id="menu-acceptshare-main">
+                        <ul class="dropdown-menu" role="menu">
+                            <li role="menuitem" ng-click="openNewFolder($event)">
+                                <a href="#!/share/pendingshares"><i class="fa fa-folder"></i>{{'NEW_FOLDER' | translate}}</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!--
+                    <div>
+                        <span ng-repeat="b in breadcrumbs track by $index">
+                            &gt; {{b}}
+                        </span>
+                    </div>
+                    -->
+
+                    <div tree-view="structure" tree-view-options="options" ng-if="structure.loaded && (structure.data.folders || structure.data.items)">
+
+                    </div>
+
+                    <div ng-if="structure.loaded && !(structure.data.folders || structure.data.items)">
+                        {{'NO_FOLDER_SO_FAR' | translate}}
+                    </div>
+
+                    <div ng-if="!structure.loaded">
+
+                        <div class="big-font-icon-and-msg">
+                            <i style="
+                           display: inline-block;
+                           font: normal normal normal 14px/1 FontAwesome;
+                           text-rendering: auto;
+                           font-size: 3em;
+                           text-align: center;
+                           animation: fa-spin 2s infinite linear;
+                           vertical-align: middle;">&#xf110;</i>
+                            {{'LOADING' | translate}}
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn" type="button" ng-click="cancel();">{{'CLOSE' | translate}}</button>
+        <button class="btn btn-primary" type="submit" ng-click="save()">{{'OK' | translate}}</button>
+    </div>
+</form>
