@@ -40,7 +40,7 @@
 <div ng-controller="WrapperCtrl" class="ng-cloak" id="panel">
 <div ng-if="view === 'logged_in'" ng-controller="PanelCtrl">
 
-    <form name="searchForm" ng-if="!show_2fa_button">
+    <form name="searchForm" ng-if="!show_2fa_button" autocomplete="off">
         <div class="form-group">
             <input id="datastoresearch" name="datastoresearch" class="form-control" ng-model="datastore.search"
                    placeholder="{{'SEARCH_DATSTORE' | translate}}" autofocus>
@@ -163,7 +163,7 @@
         </div>
     </form>
 
-    <form name="newServerForm" ng-if="view === 'new_server'">
+    <form name="newServerForm" ng-if="view === 'new_server'" autocomplete="off">
         <!-- new Server View -->
         <div class="form-group">
             <h4>{{'NEW_SERVER' | translate}}</h4>
@@ -192,7 +192,7 @@
         </div>
     </form>
 
-    <form name="signatureChangedForm" ng-if="view === 'signature_changed'">
+    <form name="signatureChangedForm" ng-if="view === 'signature_changed'" autocomplete="off">
         <!-- signature changed View -->
         <div class="form-group">
             <h4>{{'SERVER_SIGNATURE_CHANGED' | translate}}:</h4>
@@ -226,7 +226,7 @@
         </div>
     </form>
 
-    <form name="askPlainForm" ng-if="view === 'ask_send_plain'">
+    <form name="askPlainForm" ng-if="view === 'ask_send_plain'" autocomplete="off">
         <!-- signature changed View -->
         <div class="form-group">
             <h4>{{'SERVER_ASKS_FOR_YOUR_PLAINTEXT_PASSWORD' | translate}}:</h4>
@@ -249,7 +249,7 @@
         </div>
     </form>
 
-    <form name="googleAuthenticatorForm" ng-if="view === 'google_authenticator_2fa'">
+    <form name="googleAuthenticatorForm" ng-if="view === 'google_authenticator_2fa'" autocomplete="off">
         <!-- google_authenticator_2fa View -->
         <div class="form-group">
             {{'ENTER_YOUR_GOOGLE_AUTHENTICATOR_CODE' | translate}}:
@@ -270,7 +270,7 @@
         </div>
     </form>
 
-    <form name="yubikeyOTPForm" ng-if="view === 'yubikey_otp_2fa'">
+    <form name="yubikeyOTPForm" ng-if="view === 'yubikey_otp_2fa'" autocomplete="off">
         <!-- yubikey_otp_2fa View -->
         <div class="form-group">
             {{'ENTER_YOUR_YUBIKEY_OTP_TOKEN' | translate}}:
@@ -291,7 +291,7 @@
         </div>
     </form>
 
-    <form name="duoForm" ng-if="view === 'duo_2fa'">
+    <form name="duoForm" ng-if="view === 'duo_2fa'" autocomplete="off">
         <!-- duo_2fa View -->
         <div class="form-group">
             {{'APPROVE_THE_PUSH_NOTIFICATION' | translate}}:
