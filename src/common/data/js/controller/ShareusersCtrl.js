@@ -210,6 +210,9 @@
                         },
                         hide_advanced: function () {
                             return true
+                        },
+                        hide_history: function () {
+                            return true
                         }
                     }
                 });
@@ -309,7 +312,6 @@
              * @param size
              */
             function open_edit_item(node, path, size) {
-
                 var modalInstance = $uibModal.open({
                     templateUrl: 'view/modal-edit-entry.html',
                     controller: 'ModalShareEditEntryCtrl',
@@ -323,6 +325,12 @@
                         },
                         data: function () {
                             return node.data;
+                        },
+                        hide_advanced: function () {
+                            return true
+                        },
+                        hide_history: function () {
+                            return true
                         }
                     }
                 });

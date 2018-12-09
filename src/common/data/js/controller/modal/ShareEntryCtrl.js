@@ -142,6 +142,9 @@
                         },
                         hide_advanced: function () {
                             return true
+                        },
+                        hide_history: function () {
+                            return true
                         }
                     }
                 });
