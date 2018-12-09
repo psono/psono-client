@@ -1,4 +1,6 @@
 {
+  "ENTRY_LINK": "Link to the entry",
+  "FOLDER_LINK": "Link to the folder",
   "CALLBACK_PASS": "Callback Password",
   "CALLBACK_USER": "Callback User",
   "CALLBACK_URL": "Callback URL",

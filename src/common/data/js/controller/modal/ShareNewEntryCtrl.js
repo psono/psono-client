@@ -15,9 +15,9 @@
      * Controller for the "New Entry" modal
      */
     angular.module('psonocli').controller('ModalShareNewEntryCtrl', ['$scope', '$uibModalInstance', 'managerHost',
-        'shareBlueprint', 'browserClient', 'helper', 'parent', 'path',
+        'shareBlueprint', 'browserClient', 'helper', 'parent', 'path', 'hide_advanced', 'hide_history',
         function ($scope, $uibModalInstance, managerHost,
-                  shareBlueprint, browserClient, helper, parent, path) {
+                  shareBlueprint, browserClient, helper, parent, path, hide_advanced, hide_history) {
 
             $scope.reset = reset;
             $scope.save = save;
@@ -28,6 +28,8 @@
             $scope.name = '';
             $scope.content = '';
             $scope.isCollapsed = true;
+            $scope.hide_advanced = hide_advanced;
+            $scope.hide_history = hide_history;
             $scope.errors = [];
             $scope.bp = {
                 all: shareBlueprint.get_blueprints(),

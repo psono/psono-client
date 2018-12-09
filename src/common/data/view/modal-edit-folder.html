@@ -8,6 +8,9 @@
             <input type="text" name="name" class="form-control" id="folderName" placeholder="{{'FOLDER_NAME' | translate}}" ng-model="name" required>
             <p class="help-block" ng-show="submitted && newFolderForm.name.$error.required">{{'FOLDER_NAME_IS_REQUIRED' | translate}}</p>
         </div>
+        <div class="form-group">
+            {{'FOLDER_LINK' | translate}}: <a href="{{ 'index.html#!/datastore/search/' + node.id }}">{{ node.id }}</a>
+        </div>
     </div>
     <div class="modal-footer">
         <button class="btn btn-primary" type="submit" ng-click="save()">{{'SAVE' | translate}}</button>

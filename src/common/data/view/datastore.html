@@ -251,8 +251,8 @@
 
                         <!-- Advanced -->
                         <div class="text-right">
-                            <a href="" ng-click="isCollapsed = !isCollapsed">{{'ADVANCED' | translate}}</a>
-                            <a href="" ng-click="show_history(node)" ng-if="!offline">{{'SHOW_HISTORY' | translate}}</a>
+                            <a href="" ng-click="isCollapsed = !isCollapsed" ng-show="!hide_advanced">{{'ADVANCED' | translate}}</a>
+                            <a href="" ng-click="show_history(node)" ng-if="!offline" ng-show="!hide_history">{{'SHOW_HISTORY' | translate}}</a>
                         </div>
 
 
@@ -315,6 +315,9 @@
                                         </button>
                                     </span>
                                 </div>
+                            </div>
+                            <div class="form-group">
+                                {{'ENTRY_LINK' | translate}}: <a href="{{ 'index.html#!/datastore/search/' + node.id }}">{{ node.id }}</a>
                             </div>
 
                         </div>

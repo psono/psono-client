@@ -1486,6 +1486,12 @@
                         }
                         if (searchTree.items[i].name.toLowerCase().indexOf(searchStrings[ii]) > -1) {
                             containCounter++
+                        } else if(searchTree.items[i].hasOwnProperty('id') && searchTree.items[i]['id'] === searchStrings[ii]) {
+                            containCounter++
+                        } else if(searchTree.items[i].hasOwnProperty('secret_id') && searchTree.items[i]['secret_id'] === searchStrings[ii]) {
+                            containCounter++
+                        } else if(searchTree.items[i].hasOwnProperty('share_id') && searchTree.items[i]['share_id'] === searchStrings[ii]) {
+                            containCounter++
                         }
                     }
                     if (containCounter === searchStrings.length) {
@@ -1501,6 +1507,10 @@
                 containCounter = 0;
                 for (ii = searchStrings.length - 1; ii >= 0; ii--) {
                     if (searchTree.name.toLowerCase().indexOf(searchStrings[ii]) > -1) {
+                        containCounter++
+                    } else if(searchTree.hasOwnProperty('id') && searchTree['id'] === searchStrings[ii]) {
+                        containCounter++
+                    } else if(searchTree.hasOwnProperty('share_id') && searchTree['share_id'] === searchStrings[ii]) {
                         containCounter++
                     }
                 }

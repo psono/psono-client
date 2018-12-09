@@ -19,9 +19,9 @@
      * Main Controller for the shareusers widget
      */
     angular.module('psonocli').controller('ShareusersCtrl', ["$scope", "$interval", "managerSecret", "managerDatastoreUser",
-        "$uibModal", "shareBlueprint", "managerWidget", "$timeout", "dropDownMenuWatcher", 'cryptoLibrary',
+        "$uibModal", "shareBlueprint", "managerWidget", "$timeout", "dropDownMenuWatcher", 'cryptoLibrary', 'managerDatastorePassword',
         function ($scope, $interval, managerSecret, managerDatastoreUser, $uibModal, shareBlueprint,
-                  managerWidget, $timeout, dropDownMenuWatcher, cryptoLibrary) {
+                  managerWidget, $timeout, dropDownMenuWatcher, cryptoLibrary, managerDatastorePassword) {
 
             $scope.contextMenuOnShow = contextMenuOnShow;
             $scope.contextMenuOnClose = contextMenuOnClose;
@@ -154,6 +154,21 @@
                     });
             }
 
+            /**
+             * all about the datastore search:
+             */
+
+            $scope.$watch('tosearchTreeFilter', function(newValue) {
+                managerDatastorePassword.modifyTreeForSearch(newValue, $scope.structure.data);
+            });
+
+            /**
+             * clears the input field for the tree search
+             */
+            $scope.clearSearchTreeForm = function () {
+                $scope.tosearchTreeFilter = '';
+            };
+
             function contextMenuOnShow(div_id) {
                 dropDownMenuWatcher.on_open(div_id);
             }
@@ -192,6 +207,12 @@
                         },
                         path: function () {
                             return path;
+                        },
+                        hide_advanced: function () {
+                            return true
+                        },
+                        hide_history: function () {
+                            return true
                         }
                     }
                 });
@@ -235,9 +256,29 @@
                         user_object.data[content.fields[i].name] = content.fields[i].value;
                     }
 
-                    parent.items.push(user_object);
+                    // check if we do not already have the user in our trusted user datastore
+                    // skip if we already have it
+                    var existing_locations = managerDatastorePassword.search_in_datastore(user_object, $scope.structure.data, function(a, b) {
+                        if (!a.hasOwnProperty('data')) {
+                            return false
+                        }
+                        if (!b.hasOwnProperty('data')) {
+                            return false
+                        }
+                        if (!a['data'].hasOwnProperty('user_public_key')) {
+                            return false
+                        }
+                        if (!b['data'].hasOwnProperty('user_public_key')) {
+                            return false
+                        }
+                        return a['data']['user_public_key'] === b['data']['user_public_key']
+                    });
 
-                    managerDatastoreUser.save_datastore_content($scope.structure.data);
+                    if (existing_locations.length < 1) {
+                        parent.items.push(user_object);
+                        managerDatastoreUser.save_datastore_content($scope.structure.data);
+                    }
+
 
                 }, function () {
                     // cancel triggered
@@ -271,7 +312,6 @@
              * @param size
              */
             function open_edit_item(node, path, size) {
-
                 var modalInstance = $uibModal.open({
                     templateUrl: 'view/modal-edit-entry.html',
                     controller: 'ModalShareEditEntryCtrl',
@@ -285,6 +325,12 @@
                         },
                         data: function () {
                             return node.data;
+                        },
+                        hide_advanced: function () {
+                            return true
+                        },
+                        hide_history: function () {
+                            return true
                         }
                     }
                 });
