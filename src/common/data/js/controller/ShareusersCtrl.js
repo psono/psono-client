@@ -154,6 +154,21 @@
                     });
             }
 
+            /**
+             * all about the datastore search:
+             */
+
+            $scope.$watch('tosearchTreeFilter', function(newValue) {
+                managerDatastorePassword.modifyTreeForSearch(newValue, $scope.structure.data);
+            });
+
+            /**
+             * clears the input field for the tree search
+             */
+            $scope.clearSearchTreeForm = function () {
+                $scope.tosearchTreeFilter = '';
+            };
+
             function contextMenuOnShow(div_id) {
                 dropDownMenuWatcher.on_open(div_id);
             }

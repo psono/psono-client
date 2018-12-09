@@ -16,6 +16,32 @@
         </div>
         <div class="panel-body">
 
+            <form name="searchTreeForm" class="widget-searchform">
+                <div class="row">
+                    <div class="expandable" ng-class="{'col-xs-offset-4 col-xs-8 col-sm-offset-6 col-sm-6 col-md-offset-8 col-md-4': !focused, 'col-xs-12 col-sm-12 col-md-offset-6 col-md-6 focused': focused}">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="tosearchTreeForm" placeholder="{{'SEARCH' | translate}}"
+                                   ng-focus="focused = true" ng-blur="focused = false"
+                                   ng-model="tosearchTreeFilter">
+                            <span class="input-group-btn">
+                        <button class="btn btn-default" ng-disabled="!tosearchTreeFilter"
+                                ng-click="clearSearchTreeForm()" type="button"><i class="fa fa-ban"></i></button>
+
+                        <div class="btn-group" uib-dropdown is-open="status.isopen" ng-if="!offline">
+                            <button id="dropdownMenuRightTop" type="button" class="btn btn-primary" uib-dropdown-toggle>
+                                <i class="fa fa-cogs"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" aria-labelledby="dropdownMenuRightTop">
+                                <li role="menuitem" ng-click="openNewFolder($event)"><a href=""><i class="fa fa-folder"></i>{{'NEW_FOLDER' | translate}}</a></li>
+                                <li role="menuitem" ng-click="openNewItem($event)"><a href=""><i class="fa fa-plus"></i>{{'NEW_USER' | translate}}</a></li>
+                            </ul>
+                        </div>
+                    </span>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
             <div data-target="menu-shareusers-main" context-menu="contextMenuOnShow('menu-shareusers-main')" context-menu-close="contextMenuOnClose('menu-shareusers-main')" class="expand15">
 
                 <div class="dropdown position-fixed dropdown-rightclick" id="menu-shareusers-main">

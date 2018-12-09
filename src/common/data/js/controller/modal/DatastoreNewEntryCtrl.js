@@ -81,7 +81,6 @@
                         }
                     }
                     if (field.hasOwnProperty("validationType")) {
-                        console.log(field);
                         if (field['validationType'].toLowerCase() === 'url' && field['value'] && !helper.is_valid_url(field['value'])) {
                             $scope.errors.push('Invalid URL in ' + field['title']);
                         }
