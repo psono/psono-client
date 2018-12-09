@@ -199,9 +199,17 @@
                        ng-model="data.callback_user">
             </div>
             <div class="form-group">
-                <input type="password" name="callback_pass" class="form-control"
-                       id="editEntryForm-callback_pass" placeholder="{{ 'CALLBACK_PASS' | translate}}"
-                       ng-model="data.callback_pass">
+                <div class="input-group">
+                    <input type="password" class="form-control" id="callback_pass" placeholder="{{ 'CALLBACK_PASS' | translate}}"  ng-model="data.callback_pass">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" ng-click="toggle_input_type('callback_pass')">
+                            <i class="fa fa-eye-slash"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                {{'ENTRY_LINK' | translate}}: <a href="{{ 'index.html#!/datastore/search/' + node.id }}">{{ node.id }}</a>
             </div>
             <!--
             <div class="form-group">
