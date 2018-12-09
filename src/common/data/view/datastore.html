@@ -251,7 +251,7 @@
 
                         <!-- Advanced -->
                         <div class="text-right">
-                            <a href="" ng-click="isCollapsed = !isCollapsed">{{'ADVANCED' | translate}}</a>
+                            <a href="" ng-click="isCollapsed = !isCollapsed" ng-if="!hide_advanced">{{'ADVANCED' | translate}}</a>
                             <a href="" ng-click="show_history(node)" ng-if="!offline">{{'SHOW_HISTORY' | translate}}</a>
                         </div>
 

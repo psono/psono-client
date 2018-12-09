@@ -19,9 +19,9 @@
      * Main Controller for the shareusers widget
      */
     angular.module('psonocli').controller('ShareusersCtrl', ["$scope", "$interval", "managerSecret", "managerDatastoreUser",
-        "$uibModal", "shareBlueprint", "managerWidget", "$timeout", "dropDownMenuWatcher", 'cryptoLibrary',
+        "$uibModal", "shareBlueprint", "managerWidget", "$timeout", "dropDownMenuWatcher", 'cryptoLibrary', 'managerDatastorePassword',
         function ($scope, $interval, managerSecret, managerDatastoreUser, $uibModal, shareBlueprint,
-                  managerWidget, $timeout, dropDownMenuWatcher, cryptoLibrary) {
+                  managerWidget, $timeout, dropDownMenuWatcher, cryptoLibrary, managerDatastorePassword) {
 
             $scope.contextMenuOnShow = contextMenuOnShow;
             $scope.contextMenuOnClose = contextMenuOnClose;
@@ -192,6 +192,9 @@
                         },
                         path: function () {
                             return path;
+                        },
+                        hide_advanced: function () {
+                            return true
                         }
                     }
                 });
@@ -235,9 +238,29 @@
                         user_object.data[content.fields[i].name] = content.fields[i].value;
                     }
 
-                    parent.items.push(user_object);
+                    // check if we do not already have the user in our trusted user datastore
+                    // skip if we already have it
+                    var existing_locations = managerDatastorePassword.search_in_datastore(user_object, $scope.structure.data, function(a, b) {
+                        if (!a.hasOwnProperty('data')) {
+                            return false
+                        }
+                        if (!b.hasOwnProperty('data')) {
+                            return false
+                        }
+                        if (!a['data'].hasOwnProperty('user_public_key')) {
+                            return false
+                        }
+                        if (!b['data'].hasOwnProperty('user_public_key')) {
+                            return false
+                        }
+                        return a['data']['user_public_key'] === b['data']['user_public_key']
+                    });
 
-                    managerDatastoreUser.save_datastore_content($scope.structure.data);
+                    if (existing_locations.length < 1) {
+                        parent.items.push(user_object);
+                        managerDatastoreUser.save_datastore_content($scope.structure.data);
+                    }
+
 
                 }, function () {
                     // cancel triggered

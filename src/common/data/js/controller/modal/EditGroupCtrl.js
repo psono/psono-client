@@ -107,6 +107,9 @@
                         },
                         path: function () {
                             return [];
+                        },
+                        hide_advanced: function () {
+                            return true
                         }
                     }
                 });
