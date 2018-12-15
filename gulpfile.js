@@ -457,7 +457,7 @@ gulp.task('firefox-deploy', function() {
 });
 
 
-gulp.task('updateversion', function() {
+gulp.task('updateversion', function(cb) {
 
     var commit_tag = process.env.CI_COMMIT_TAG;
     var commit_sha = process.env.CI_COMMIT_SHA;
@@ -495,6 +495,8 @@ gulp.task('updateversion', function() {
             }))
             .pipe(gulp.dest(path.join("./build/", browser)));
     });
+
+    cb();
 });
 
 
