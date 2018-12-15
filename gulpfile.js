@@ -463,6 +463,7 @@ gulp.task('updateversion', function(cb) {
     var commit_sha = process.env.CI_COMMIT_SHA;
 
     if (! /^v\d*\.\d*\.\d*$/.test(commit_tag)) {
+        cb();
         return;
     }
 
