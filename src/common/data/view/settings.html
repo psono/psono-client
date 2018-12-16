@@ -17,7 +17,7 @@
         </div>
         <div class="panel-body" style="height: auto;">
 
-            <form class="form-horizontal" role="form">
+            <form class="form-horizontal" role="form" autocomplete="off">
                 <uib-tabset class="tabset_expand" active="active_tab">
 
                     <uib-tab index="$index" ng-repeat="tab in tabs" heading="{{ tab.title | translate }}"  select="open_tab(tab.key)">

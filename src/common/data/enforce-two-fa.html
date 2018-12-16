@@ -50,7 +50,7 @@
                 <h4>{{'SECOND_FACTOR_REQUIRED' | translate}}:</h4>
             </div>
 
-            <form>
+            <form autocomplete="off">
                 <div class="row" ng-repeat="field in account.fields" style="padding-bottom: 10px;">
                     <label class="control-label col-xs-7 col-sm-7 col-md-7">
                         {{field.title | translate}}

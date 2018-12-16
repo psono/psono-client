@@ -17,7 +17,6 @@ var run = require('gulp-run');
 var sass = require('gulp-sass');
 var jwt = require('jsonwebtoken');
 var karma_server = require('karma').Server;
-var runSequence = require('run-sequence');
 var webstore_upload = require('webstore-upload');
 
 var fs = require("fs");
@@ -58,7 +57,7 @@ var build = function(build_path, type) {
             "src/common/data/css/lib/angular-datatables.css",
             "src/common/data/css/lib/datatables.bootstrap.css",
             "src/common/data/css/lib/angular-ui-select.css",
-            "src/common/data/css/lib/loading-barbar.min.css",
+            "src/common/data/css/lib/loading-bar.min.css",
             'src/common/data/css/angular-tree-view.css',
             'src/common/data/css/style.css'
         ])
@@ -369,11 +368,10 @@ gulp.task('build-chrome', function() {
 
 });
 
-gulp.task('default', function(callback) {
-    runSequence(['sass', 'template'],
-        ['build-chrome', 'build-firefox', 'build-webclient'],
-        callback);
-});
+gulp.task('default', gulp.series(
+    gulp.parallel('sass', 'template'),
+    gulp.parallel('build-chrome', 'build-firefox', 'build-webclient')
+));
 
 /**
  * Watcher to compile the project again once something changes
@@ -382,7 +380,8 @@ gulp.task('default', function(callback) {
  * - initiates the task for the creation of the firefox build folder
  * - initiates the task for the creation of the chrome build folder
  */
-gulp.task('watch', ['default'], function() {
+gulp.task('watch', gulp.series('default',
+function() {
     gulp.watch([
         'src/common/data/**/*',
         'src/chrome/**/*',
@@ -391,8 +390,7 @@ gulp.task('watch', ['default'], function() {
         '!src/common/data/css/**/*',
         '!src/common/data/sass/**/*.scss'], ['build-webclient', 'build-firefox', 'build-chrome']);
     gulp.watch('src/common/data/sass/**/*.scss', ['default']);
-});
-
+}));
 
 /**
  * Deploys the Chrome Extension to the Chrome Web Store
@@ -459,12 +457,13 @@ gulp.task('firefox-deploy', function() {
 });
 
 
-gulp.task('updateversion', function() {
+gulp.task('updateversion', function(cb) {
 
     var commit_tag = process.env.CI_COMMIT_TAG;
     var commit_sha = process.env.CI_COMMIT_SHA;
 
     if (! /^v\d*\.\d*\.\d*$/.test(commit_tag)) {
+        cb();
         return;
     }
 
@@ -497,6 +496,8 @@ gulp.task('updateversion', function() {
             }))
             .pipe(gulp.dest(path.join("./build/", browser)));
     });
+
+    cb();
 });
 
 
@@ -504,7 +505,7 @@ gulp.task('updateversion', function() {
  * Create ngdocs documentation once and exit
  */
 
-gulp.task('docs', [], function () {
+gulp.task('docs', function () {
 
     var options = {
         html5Mode: false,

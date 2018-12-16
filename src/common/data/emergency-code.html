@@ -45,7 +45,7 @@
         <div class="lostpasswordbox dark">
             <img src="img/logo.png" alt="Psono Web Client" id="logo">
 
-            <form name="emergencycodeActivationForm" ng-if="!data.status && view === 'default'">
+            <form name="emergencycodeActivationForm" ng-if="!data.status && view === 'default'" autocomplete="off">
                 <div ng-class="{'input-group': emergencycodeActivationFormUsername == null || emergencycodeActivationFormUsername.indexOf('@') == -1}">
                     <input type="text" class="form-control" id="lostpasswordUsername" placeholder="{{'USERNAME' | translate}}"
                            ng-model="emergencycodeActivationFormUsername" required aria-describedby="username-addon" autofocus>
@@ -103,7 +103,7 @@
 
             </form>
 
-            <form name="newServerForm" ng-if="view === 'new_server'">
+            <form name="newServerForm" ng-if="view === 'new_server'" autocomplete="off">
                 <!-- new Server View -->
                 <div class="form-group">
                     <h4>{{'NEW_SERVER' | translate}}</h4>
@@ -132,7 +132,7 @@
                 </div>
             </form>
 
-            <form name="signatureChangedForm" ng-if="view === 'signature_changed'">
+            <form name="signatureChangedForm" ng-if="view === 'signature_changed'" autocomplete="off">
                 <!-- signature changed View -->
                 <div class="form-group">
                     <h4>{{'SERVER_SIGNATURE_CHANGED' | translate}}:</h4>
