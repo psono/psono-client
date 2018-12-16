@@ -395,7 +395,7 @@ function() {
 /**
  * Deploys the Chrome Extension to the Chrome Web Store
  */
-gulp.task('chrome-deploy', function() {
+gulp.task('chrome-deploy', function(cb) {
 
     var client_id = process.env.webstore_client_id;
     var client_secret = process.env.webstore_client_secret;
@@ -428,12 +428,14 @@ gulp.task('chrome-deploy', function() {
         .catch(function(err) {
             console.error(err);
         });
+
+    cb();
 });
 
 /**
  * Deploys the Firefox Extension to the Firefox Web Store
  */
-gulp.task('firefox-deploy', function() {
+gulp.task('firefox-deploy', function(cb) {
 
     var jwt_issuer = process.env.mozilla_jwt_issuer;
     var jwt_secret = process.env.mozilla_jwt_secret;
@@ -452,8 +454,9 @@ gulp.task('firefox-deploy', function() {
         algorithm: 'HS256'  // HMAC-SHA256 signing algorithm
     });
 
-    return run('curl "https://addons.mozilla.org/api/v3/addons/'+mozilla_addon_id+'/versions/'+ version +'/" -g -XPUT --form "upload=@firefox-extension.zip" -H "Authorization: JWT '+ token +'"').exec()
-        .pipe(gulp.dest('output'));
+    run('curl "https://addons.mozilla.org/api/v3/addons/'+mozilla_addon_id+'/versions/'+ version +'/" -g -XPUT --form "upload=@firefox-extension.zip" -H "Authorization: JWT '+ token +'"').exec();
+
+    cb();
 });
 
 
