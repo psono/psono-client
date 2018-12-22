@@ -90,6 +90,9 @@
                 },
                 generate_public_private_keypair: function() {
                     return  public_private_keypair;
+                },
+                generate_uuid: function() {
+                    return 'a60c07a2-132a-47b3-9b94-1cfd5771aaae'
                 }
             };
 

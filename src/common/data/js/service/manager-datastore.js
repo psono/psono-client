@@ -112,7 +112,6 @@
          * @returns {promise} Promise with the datastore that belongs to the given id
          */
         var get_datastore_with_id = function (datastore_id) {
-
             var onError = function(result) {
                 // pass
             };
