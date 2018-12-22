@@ -449,8 +449,9 @@
                 function render() {
                     var template =
                         // Handle folders
+                        '<div>' +
                         '<div ' +
-                        '    ng-mousedown="$event.stopPropagation()" ng-show="!node.hidden"' +
+                        '    ng-mousedown="$event.stopPropagation()" ng-if="!node.hidden"' +
                         '    class="tree-folder" ng-repeat="node in ' + attrs.treeViewNode + '.data.' + foldersProperty + ' track by $index">' +
 
                         '<div class="tree-folder-title" data-target="menu-{{ ::node.id }}"' +
@@ -477,7 +478,7 @@
                         '       ng-if="!f.hide_offline || !offline"' +
                         '       ng-click="additionalButtonItem(node, $event, f.onClick, true)"' +
                         '       ng-class="::f.ngClass(node)"' +
-                        '       ng-repeat="f in getAdditionalButtons(node)">' +
+                        '       ng-repeat="f in ::getAdditionalButtons(node)">' +
                         '       <a href="#"><i ng-class="::f.icon"></i>{{ ::f.name | translate }}</a>' +
                         '    </li>' +
                         '    <li ng-if="getAdditionalButtons(node) && getAdditionalButtons(node).length > 0 && !offline" class="divider"></li>' +
@@ -523,7 +524,7 @@
                         '       ng-if="!f.hide_offline || !offline"' +
                         '       ng-click="additionalButtonItem(node, $event, f.onClick, true)"' +
                         '       ng-class="::f.ngClass(node)"' +
-                        '       ng-repeat="f in getAdditionalButtons(node)">' +
+                        '       ng-repeat="f in ::getAdditionalButtons(node)">' +
                         '    <a href="#"><i ng-class="::f.icon"></i>{{ ::f.name | translate }}</a>' +
                         '    </li>' +
                         '    <li ng-if="getAdditionalButtons(node) && getAdditionalButtons(node).length > 0 && !offline" class="divider"></li>' +
@@ -561,7 +562,7 @@
 
                         // Handle items
                         '<div ' +
-                        '   ng-mousedown="$event.stopPropagation()" ng-show="!item.hidden"' +
+                        '   ng-mousedown="$event.stopPropagation()" ng-if="!item.hidden"' +
                         '   class="tree-item" ng-repeat="item in ' + attrs.treeViewNode + '.data.' + itemsProperty + ' track by $index">' +
 
                         '<div ng-click="$event.stopPropagation(); editItem(item, $event)" class="tree-item-object" ' +
@@ -588,7 +589,7 @@
                         '       ng-if="!f.hide_offline || !offline"' +
                         '       ng-click="additionalButtonItem(item, $event, f.onClick, false)"' +
                         '       ng-class="::f.ngClass(item)"' +
-                        '       ng-repeat="f in getAdditionalButtons(item)">' +
+                        '       ng-repeat="f in ::getAdditionalButtons(item)">' +
                         '       <a href="#"><i ng-class="::f.icon"></i>{{ ::f.name | translate }}</a>' +
                         '    </li>' +
                         '    <li ng-if="getAdditionalButtons(item) && getAdditionalButtons(item).length > 0 && !offline" class="divider"></li>' +
@@ -623,7 +624,7 @@
                         '       ng-if="!f.hide_offline || !offline"' +
                         '       ng-click="additionalButtonItem(item, $event, f.onClick, false)"' +
                         '       ng-class="::f.ngClass(item)"' +
-                        '       ng-repeat="f in getAdditionalButtons(item)">' +
+                        '       ng-repeat="f in ::getAdditionalButtons(item)">' +
                         '       <a href="#"><i ng-class="::f.icon"></i>{{ ::f.name | translate }}</a>' +
                         '    </li>' +
                         '    <li ng-if="getAdditionalButtons(item) && getAdditionalButtons(item).length > 0 && !offline" class="divider"></li>' +
@@ -651,7 +652,8 @@
                         '</ul>' +
                         '</div>'+
 
-                        '</div>'; // end ng-repeat item
+                        '</div>' + // end ng-repeat item
+                        '</div>'; // end top div
 
                     //Rendering template.
                     element.html('').append($compile(template)(scope));
