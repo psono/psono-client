@@ -11,7 +11,7 @@
         }));
 
         it('get_device_fingerprint', inject(function (device) {
-            expect(device.get_device_fingerprint()).toEqual(jasmine.any(Number));
+            expect(device.get_device_fingerprint()).toEqual(jasmine.any(String));
         }));
 
         it('is_ie', inject(function (device) {
