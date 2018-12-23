@@ -143,6 +143,12 @@
                         } else {
                             path.push(nodeScope.node[property]);
                         }
+                        while (nodeScope.$parent && nodeScope.$parent.node) {
+                            if (!nodeScope.node.hasOwnProperty('id') || !nodeScope.$parent.node.hasOwnProperty('id') || nodeScope.node.id !== nodeScope.$parent.node.id) {
+                                break;
+                            }
+                            nodeScope = nodeScope.$parent;
+                        }
                         nodeScope = nodeScope.$parent;
                     }
                     return path.reverse();
@@ -293,7 +299,6 @@
                     if (collapsible) {
                         controller.toggleExpanded(scope.node);
                     }
-
                     controller.selectNode(scope.node, getPropertyPath(), getPropertyPath(idProperty));
                 };
 
