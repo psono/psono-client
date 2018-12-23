@@ -131,7 +131,7 @@
         it('on_share_moved_with_datastore', inject(function (managerShareLink) {
 
             var link_id = 'f1654f03-3415-4cd8-ad49-960300636f5f';
-            var new_parent_share_id = null;
+            var new_parent_share_id = undefined;
             var new_parent_datastore_id = '6cb1714c-e6ec-4fec-9203-2904171539b3';
             // fake datastore
             var parent = {
@@ -164,7 +164,7 @@
 
             var link_id = '0838264a-5d7b-4a5f-9150-09890c5dfdea';
             var new_parent_share_id = 'b765577c-5183-4ef1-913f-3571d6a3c918';
-            var new_parent_datastore_id = null;
+            var new_parent_datastore_id = undefined;
             // fake datastore
             var parent = {
                 'share_id': new_parent_share_id
