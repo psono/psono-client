@@ -1,25 +1,24 @@
 <form name="modalDeleteDatastoreForm" novalidate autocomplete="off">
     <div class="modal-header">
         <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
-        <h3 class="modal-title">Delete Datastore</h3>
+        <h3 class="modal-title">{{'DELETE_DATASTORE' | translate}}</h3>
     </div>
     <div class="modal-body">
         <div class="form-group" ng-class="{true: 'has-error'}[submitted && modalDeleteDatastoreForm.password.$invalid]">
-            <input type="password" name="password" class="form-control" id="folderName" placeholder="Your Password" ng-model="password" required autofocus>
-            <p class="help-block" ng-show="submitted && modalDeleteDatastoreForm.password.$error.required">Your password is required</p>
+            <input type="password" name="password" class="form-control" id="folderName" placeholder="{{'YOUR_PASSWORD' | translate}}" ng-model="password" required autofocus>
+            <p class="help-block" ng-show="submitted && modalDeleteDatastoreForm.password.$error.required">{{'YOUR_PASSWORD_IS_REQUIRED' | translate}}</p>
         </div>
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
-            <strong>Error:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
         </div>
 
         <div class="form-group alert alert-danger">
-            <strong>Danger!</strong> It is impossible to revert this action. Deleting a datastore is permanent. All
-            content of the datastore will be lost!
+            <strong>{{'DANGER' | translate}}!</strong> {{'IT_IS_IMPOSSIBLE_TO_REVERT_DELETE_DATASTORE' | translate}}
         </div>
     </div>
     <div class="modal-footer">
-        <button class="btn" type="button" ng-click="cancel();">Close</button>
-        <button class="btn btn-primary" type="submit" ng-click="submitted=true;save()">Delete</button>
+        <button class="btn" type="button" ng-click="cancel();">{{'CLOSE' | translate}}</button>
+        <button class="btn btn-primary" type="submit" ng-click="submitted=true;save()">{{'DELETE' | translate}}</button>
     </div>
 </form>

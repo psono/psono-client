@@ -1,7 +1,10 @@
 (function () {
     describe('Service: importKeePassCsv test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('importKeePassCsv exists', inject(function (importKeePassCsv) {
             expect(importKeePassCsv).toBeDefined();

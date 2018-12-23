@@ -1,7 +1,10 @@
 (function () {
     describe('Service: settings test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('settings exists', inject(function (settings) {
             expect(settings).toBeDefined();

@@ -1,7 +1,10 @@
 (function () {
     describe('Service: helper test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('helper exists', inject(function (helper) {
             expect(helper).toBeDefined();

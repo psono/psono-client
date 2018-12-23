@@ -1,18 +1,18 @@
-<form name="modalSetupYubikeyOTPForm" novalidate>
+<form name="modalSetupYubikeyOTPForm" novalidate autocomplete="off">
     <div class="modal-header">
         <button type="button" class="close" ng-click="close()"><span aria-hidden="true">&times;</span></button>
-        <h3 class="modal-title">YubiKeys</h3>
+        <h3 class="modal-title">{{'YUBIKEY' | translate}}</h3>
     </div>
     <div class="modal-body">
 
         <uib-tabset>
 
-            <uib-tab heading="Existing YubiKeys">
+            <uib-tab heading="{{'EXISTING_YUBIKEYS' | translate}}">
                 <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
                     <thead>
                     <tr>
                         <th>YubiKey Title</th>
-                        <th>Delete</th>
+                        <th>{{'DELETE' | translate}}</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -20,16 +20,16 @@
                         <td>{{ yubikey_otp.title }}</td>
                         <td>
                             <button type="button" class="btn btn-default btn-sm" ng-click="delete_yubikey_otp(yubikey_otps, yubikey_otp.id)">
-                                Delete
+                                {{'DELETE' | translate}}
                             </button>
                         </td>
                     </tr>
                     </tbody>
                 </table>
-                <span ng-repeat="e in delete_errors" class="help-block">{{e}}</span>
+                <div ng-repeat="e in delete_errors" class="help-block"><span translate="{{ e }}"></span></div>
             </uib-tab>
 
-            <uib-tab heading="New YubiKey">
+            <uib-tab heading="{{'NEW_YUBIKEYS' | translate}}">
                 <br>
 
                 <div class="form-horizontal">
@@ -37,32 +37,36 @@
 
                         <label class="control-label col-sm-6 col-md-4"
                                for="newYubiKeyForm-title">
-                            <span>Title</span>
+                            <span>{{'TITLE' | translate}}</span>
                         </label>
 
                         <div class="col-sm-6 col-md-8">
                             <input type="text" ng-model="new_yubikey_otp.title"
                                    ng-required="true"
-                                   placeholder="Title of your YubiKey" id="newYubiKeyForm-title"
+                                   placeholder="{{'TITLE_OF_YOUR_YUBIKEY' | translate}}" id="newYubiKeyForm-title"
                                    name="title"
                                    class="form-control">
-                            <span ng-repeat="e in errors" class="help-block">{{e}}</span>
+                            <div ng-repeat="e in errors" class="help-block">
+                                <span translate="{{ e }}"></span>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group">
 
                         <label class="control-label col-sm-6 col-md-4"
                                for="newYubiKeyForm-otp">
-                            <span>YubiKey OTP</span>
+                            <span>{{'YUBIKEY_OTP' | translate}}</span>
                         </label>
 
                         <div class="col-sm-6 col-md-8">
                             <input type="text" ng-model="new_yubikey_otp.otp"
                                    ng-required="true"
-                                   placeholder="One of your YubiKey OTPs" id="newYubiKeyForm-otp"
+                                   placeholder="{{'ONE_OF_YOUR_YUBIKEY_OTPS' | translate}}" id="newYubiKeyForm-otp"
                                    name="otp"
                                    class="form-control" ng-keyup="$event.keyCode == 13 && create_yubikey_otp(new_yubikey_otp)">
-                            <span ng-repeat="e in errors" class="help-block">{{e}}</span>
+                            <div ng-repeat="e in errors" class="help-block">
+                                <span translate="{{ e }}"></span>
+                            </div>
                         </div>
                     </div>
 
@@ -73,6 +77,6 @@
 
     </div>
     <div class="modal-footer">
-        <button class="btn" type="button" ng-click="close();">Close</button>
+        <button class="btn" type="button" ng-click="close();">{{'CLOSE' | translate}}</button>
     </div>
 </form>

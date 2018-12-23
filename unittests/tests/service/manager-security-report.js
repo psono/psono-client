@@ -1,7 +1,10 @@
 (function () {
     describe('Service: managerSecurityReport test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('managerSecurityReport exists', inject(function (managerSecurityReport) {
             expect(managerSecurityReport).toBeDefined();

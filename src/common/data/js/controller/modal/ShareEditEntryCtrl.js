@@ -11,23 +11,23 @@
      * @description
      * Controller for the "Edit Entry" modal
      */
-    angular.module('psonocli').controller('ModalShareEditEntryCtrl', ['$scope', '$uibModalInstance', 'shareBlueprint', 'node', 'path', 'data',
-        function ($scope, $uibModalInstance, shareBlueprint, node, path, data) {
+    angular.module('psonocli').controller('ModalShareEditEntryCtrl', ['$scope', '$uibModalInstance', 'shareBlueprint', 'node', 'path', 'data', 'hide_advanced', 'hide_history',
+        function ($scope, $uibModalInstance, shareBlueprint, node, path, data, hide_advanced, hide_history) {
 
             $scope.reset = reset;
             $scope.save = save;
             $scope.cancel = cancel;
-            $scope.has_advanced = shareBlueprint.has_advanced;
 
             $scope.node = node;
             $scope.path = path;
             $scope.name = node.name;
+            $scope.hide_advanced = hide_advanced;
+            $scope.hide_history = hide_history;
             $scope.content = '';
             $scope.isCollapsed = true;
             $scope.errors = [];
 
             activate();
-
             function activate() {
                 $scope.bp = {
                     all: shareBlueprint.get_blueprints(),

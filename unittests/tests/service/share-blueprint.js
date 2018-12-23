@@ -1,7 +1,10 @@
 (function () {
     describe('Service: shareBlueprint test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         var shareBlueprint;
         beforeEach(inject(function($injector){
@@ -88,12 +91,6 @@
                 { name: "user_public_key", value: '123456789' }
             ])).toBe('TestUserName (123456789)');
 
-        }));
-
-        it('has_advanced', inject(function (shareBlueprint) {
-
-            expect(shareBlueprint.has_advanced({'fields': [{ position: "advanced" }]})).toBeTruthy();
-            expect(shareBlueprint.has_advanced({'fields': [{ }]})).toBeFalsy();
         }));
     });
 

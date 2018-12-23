@@ -1,9 +1,13 @@
 (function () {
     describe('Service: browserClient test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         var mockedWindow;
+        var mockedCookies;
         beforeEach(function () {
             mockedWindow = {
                 open: function(url, target) {},
@@ -11,9 +15,16 @@
                     href: 'asdf'
                 }
             };
+            mockedCookies = {
+                get: function() {
+                },
+                put: function() {
+                }
+            };
 
             module(function ($provide) {
                 $provide.value('$window', mockedWindow);
+                $provide.value('$cookies', mockedCookies);
             });
 
         });
@@ -22,6 +33,7 @@
         beforeEach(inject(function($injector){
             // unwrap necessary services
             $httpBackend = $injector.get('$httpBackend');
+            $httpBackend.when('GET', "view/datastore.html").respond({});
         }));
 
         it('browserClient exists', inject(function (browserClient) {

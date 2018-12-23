@@ -48,24 +48,24 @@
             <div ng-if="success" class="big-font-icon-and-msg">
                 <i class="fa fa-thumbs-o-up"></i>
 
-                <div ng-repeat="e in msgs">{{e}}</div>
+                <div ng-repeat="e in msgs"><span translate="{{ e }}"></span></div>
             </div>
 
             <div ng-if="success" class="form-group text-center">
-                <a href="index.html" class="btn btn-danger" role="button">Back to home</a>
+                <a href="index.html" class="btn btn-danger" role="button">{{'BACK_TO_HOME' | translate}}</a>
             </div>
 
             <form name="registerForm" ng-if="!success" autocomplete="off">
                 <div ng-class="{'input-group': registerFormUsername == null || registerFormUsername.indexOf('@') == -1}">
-                    <input type="text" class="form-control" id="registerUsername" placeholder="Username" ng-model="registerFormUsername" required aria-describedby="username-addon" autofocus>
+                    <input type="text" class="form-control" id="registerUsername" placeholder="{{'USERNAME' | translate}}" ng-model="registerFormUsername" required aria-describedby="username-addon" autofocus>
                     <span class="input-group-addon" id="username-addon" ng-if="registerFormUsername == null || registerFormUsername.indexOf('@') == -1">@{{selected_server_domain}}</span>
                 </div>
                 <br>
                 <div class="form-group">
-                    <input type="email" class="form-control" id="registerEmail" placeholder="E-Mail" ng-model="registerFormEmail" required>
+                    <input type="email" class="form-control" id="registerEmail" placeholder="{{'E_MAIL' | translate}}" ng-model="registerFormEmail" required>
                 </div>
                 <div class="form-group">
-                    <input type="password" class="form-control" id="registerPassword" placeholder="Password" ng-model="registerFormPassword" required>
+                    <input type="password" class="form-control" id="registerPassword" placeholder="{{'PASSWORD' | translate}}" ng-model="registerFormPassword" required>
 
                     <uib-progressbar value="registerFormPassword | complexify" ng-if="(registerFormPassword | complexify) > 0">
                         <span complexify="registerFormPassword"></span>%
@@ -75,24 +75,24 @@
 
 
                 <div class="form-group">
-                    <input type="password" class="form-control" id="registerPasswordRepeat" placeholder="Password (repeat)" ng-model="registerFormPasswordRepeat" required>
+                    <input type="password" class="form-control" id="registerPasswordRepeat" placeholder="{{'PASSWORD_REPEAT' | translate}}" ng-model="registerFormPasswordRepeat" required>
                 </div>
 
                 <div class="form-group">
-                    <button ng-click="register(registerFormEmail, registerFormUsername, registerFormPassword, registerFormPasswordRepeat)" type="submit" class="btn btn-danger">Register</button>
+                    <button ng-click="register(registerFormEmail, registerFormUsername, registerFormPassword, registerFormPasswordRepeat)" type="submit" class="btn btn-danger">{{'REGISTER' | translate}}</button>
                 </div>
 
                 <div class="form-group alert alert-danger" ng-repeat="e in errors">
-                    <strong>Error:</strong> {{e}}
+                    <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
                 </div>
 
                 <div class="form-group alert alert-info" ng-repeat="e in msgs">
-                    <strong>Error:</strong> {{e}}
+                    <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
                 </div>
 
                 <div class="form-group hideinputcharakter">
 
-                    <label for="serverselection">Server: </label>
+                    <label for="serverselection">{{'SERVER' | translate}}: </label>
                     <input type="text" id="serverselection"
                            uib-popover-template="'view/popover-server-select.html'"
                            popover-trigger="'focus'"
@@ -134,7 +134,6 @@
 <script src="js/lib/datatables.min.js" type="text/javascript"></script>
 <script src="js/lib/snap.min.js" type="text/javascript"></script>
 <script src="js/lib/jquery-ui.min.js"></script>
-<script src="js/lib/sortable.min.js" type="application/javascript"></script>
 <script src="js/lib/lokijs.min.js" type="application/javascript"></script>
 <script src="js/lib/qrcode.min.js" type="application/javascript"></script>
 <script src="js/lib/fastclick.js" type="application/javascript"></script>
@@ -145,6 +144,9 @@
 
 <!-- Angular Juju -->
 <script src="js/lib/angular.min.js" type="application/javascript"></script>
+<script src="js/lib/raven.min.js" type="application/javascript"></script>
+<script src="js/raven.js" type="application/javascript"></script>
+<script src="js/lib/angular-cookies.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-animate.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-touch.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-complexify.min.js" type="application/javascript"></script>
@@ -154,9 +156,12 @@
 <script src="js/lib/angular-sanitize.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-local-storage.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-snap.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-translate.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-translate-storage-cookie.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-translate-loader-url.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-translate-loader-static-files.min.js" type="application/javascript"></script>
 <script src="js/lib/ui-bootstrap-tpls.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-datatables.js" type="application/javascript"></script>
-<script src="js/lib/ngdraggable.js" type="application/javascript"></script>
 <script src="js/lib/angular-ui-select.js" type="application/javascript"></script>
 <script src="js/lib/ng-context-menu.js" type="application/javascript"></script>
 
@@ -170,6 +175,8 @@
 <script src="js/directive/treeViewNode.js" type="application/javascript"></script>
 
 <script src="js/controller/AcceptShareCtrl.js"></script>
+<script src="js/controller/ChooseFolderCtrl.js"></script>
+<script src="js/controller/ChooseSecretsCtrl.js"></script>
 <script src="js/controller/AccountCtrl.js" type="application/javascript"></script>
 <script src="js/controller/ActivationCtrl.js" type="application/javascript"></script>
 <script src="js/controller/DatastoreCtrl.js"></script>
@@ -178,14 +185,19 @@
 <script src="js/controller/GPGDecryptMessageCtrl.js" type="application/javascript"></script>
 <script src="js/controller/GPGEncryptMessageCtrl.js" type="application/javascript"></script>
 <script src="js/controller/LostPasswordCtrl.js" type="application/javascript"></script>
+<script src="js/controller/ActivateEmergencyCodeCtrl.js" type="application/javascript"></script>
 <script src="js/controller/MainCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/AcceptShareCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/ChooseFolderCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/ChooseSecretsCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ConfigureGoogleAuthenticatorCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/DeleteOtherSessionsCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/AddGPGReceiverCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ConfigureDuoCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ConfigureYubiKeyOTPCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/CreateDatastoreCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/CreateAPIKeyCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/EditAPIKeyCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/EditDatastoreCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/DeleteDatastoreCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/DatastoreNewEntryCtrl.js" type="application/javascript"></script>
@@ -193,6 +205,7 @@
 <script src="js/controller/modal/EditEntryCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/EditFolderCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/GoOfflineCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/HistoryCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/NewFolderCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/VerifyCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/NewGroupCtrl.js" type="application/javascript"></script>
@@ -206,6 +219,7 @@
 <script src="js/controller/modal/ShareEditEntryCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ShareEntryCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ShareNewEntryCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/ShowEmergencyCodesCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ShowRecoverycodeCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/UnlockOfflineCacheCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/DeleteAccountCtrl.js" type="application/javascript"></script>
@@ -215,6 +229,7 @@
 <script src="js/controller/SessionsCtrl.js" type="application/javascript"></script>
 <script src="js/controller/KnownHostsCtrl.js" type="application/javascript"></script>
 <script src="js/controller/OtherDatastoreCtrl.js" type="application/javascript"></script>
+<script src="js/controller/OtherAPIKeyCtrl.js" type="application/javascript"></script>
 <script src="js/controller/ExportCtrl.js" type="application/javascript"></script>
 <script src="js/controller/ImportCtrl.js" type="application/javascript"></script>
 <script src="js/controller/PanelCtrl.js" type="application/javascript"></script>
@@ -242,9 +257,11 @@
 <script src="js/service/account.js" type="application/javascript"></script>
 <script src="js/service/settings.js" type="application/javascript"></script>
 <script src="js/service/manager-base.js" type="application/javascript"></script>
+<script src="js/service/language-picker.js" type="application/javascript"></script>
 <script src="js/service/manager.js" type="application/javascript"></script>
 <script src="js/service/manager-widget.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore.js" type="application/javascript"></script>
+<script src="js/service/manager-api-keys.js" type="application/javascript"></script>
 <script src="js/service/manager-secret-link.js" type="application/javascript"></script>
 <script src="js/service/manager-share-link.js" type="application/javascript"></script>
 <script src="js/service/manager-export.js" type="application/javascript"></script>
@@ -258,12 +275,14 @@
 <script src="js/service/import-keepassx-org-csv.js" type="application/javascript"></script>
 <script src="js/service/import-keepass-info-csv.js" type="application/javascript"></script>
 <script src="js/service/import-keepass-info-xml.js" type="application/javascript"></script>
+<script src="js/service/manager-status.js" type="application/javascript"></script>
 <script src="js/service/manager-secret.js" type="application/javascript"></script>
 <script src="js/service/manager-share.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore-password.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore-user.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore-gpg-user.js" type="application/javascript"></script>
 <script src="js/service/manager-groups.js" type="application/javascript"></script>
+<script src="js/service/manager-history.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore-setting.js" type="application/javascript"></script>
 <script src="js/service/browser-client.js" type="application/javascript"></script>
 <script src="js/service/drop-down-menu-watcher.js" type="application/javascript"></script>

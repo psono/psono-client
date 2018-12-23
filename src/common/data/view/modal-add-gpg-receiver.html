@@ -1,15 +1,15 @@
-<form name="modalAddGPGReceiverForm" novalidate>
+<form name="modalAddGPGReceiverForm" novalidate autocomplete="off">
     <div class="modal-header">
         <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
-        <h3 class="modal-title">Address Book</h3>
+        <h3 class="modal-title">{{'ADDRESS_BOOK' | translate}}</h3>
     </div>
     <div class="modal-body">
         <uib-tabset class="tabset_expand">
-            <uib-tab heading="Known Recipients List">
+            <uib-tab heading="{{'KNOWN_RECIPIENTS_LIST' | translate}}">
                 <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
                     <thead>
                     <tr>
-                        <th>E-Mail</th>
+                        <th>{{'EMAIL' | translate}}</th>
                         <th>&nbsp;</th>
                         <th>&nbsp;</th>
                         <th>&nbsp;</th>
@@ -37,27 +37,27 @@
                     </tbody>
                 </table>
             </uib-tab>
-            <uib-tab heading="Add New Recipient"  active="data.add_recipients_tab_active">
+            <uib-tab heading="{{'ADD_NEW_RECIPIENT' | translate}}"  active="data.add_recipients_tab_active">
                 <div class="form-group" ng-class="{true: 'has-error'}[submitted && modalAddGPGUserForm.name.$invalid]">
                     <input type="email" name="email" class="form-control" id="email" placeholder="Email" ng-model="data.new_email">
-                    <p class="help-block" ng-show="submitted && modalAddGPGUserForm.name.$error.required">The email is required</p>
+                    <p class="help-block" ng-show="submitted && modalAddGPGUserForm.name.$error.required">{{'EMAIL_IS_REQUIRED' | translate}}</p>
                 </div>
                 <div class="form-group">
-                    <button class="btn" type="button" ng-click="search_public_key_server();">Search Public Key Server </button>
+                    <button class="btn" type="button" ng-click="search_public_key_server();">{{'SEARCH_PUBLIC_KEY_SERVER' | translate}} </button>
                 </div>
                 <div class="form-group">
                     <textarea class="form-control"
-                              placeholder="or provice the public key manually, including: -----BEGIN PGP PUBLIC KEY BLOCK----- and -----END PGP PUBLIC KEY BLOCK-----"
+                              placeholder="{{'OR_PROVIDE_THE_PUBLIC_KEY_MANUALLY_INCLUDING' | translate}}: -----BEGIN PGP PUBLIC KEY BLOCK----- and -----END PGP PUBLIC KEY BLOCK-----"
                               ng-model="data.new_public_key"></textarea>
                 </div>
                 <div class="form-group" ng-if="data.new_public_key | fingerprint">
-                    Fingerprint: {{data.new_public_key | fingerprint}}
+                    {{'FINGERPRINT' | translate}}: {{data.new_public_key | fingerprint}}
                 </div>
                 <div class="form-group" ng-if="data.new_public_key | fingerprint">
-                    <button class="btn btn-primary" type="button" ng-click="add_new_recipient();">Add</button>
+                    <button class="btn btn-primary" type="button" ng-click="add_new_recipient();">{{'ADD' | translate}}</button>
                 </div>
                 <div class="form-group" ng-if="data.new_public_key | fingerprint">
-                    <span class="error" ng-repeat="e in errors">{{e}}</span>
+                    <div class="error" ng-repeat="e in errors"><span translate="{{ e }}"></span></div>
                 </div>
 
             </uib-tab>
@@ -66,6 +66,6 @@
 
     </div>
     <div class="modal-footer">
-        <button class="btn" type="button" ng-click="cancel();">Close</button>
+        <button class="btn" type="button" ng-click="cancel();">{{'CLOSE' | translate}}</button>
     </div>
 </form>

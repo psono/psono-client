@@ -1,7 +1,10 @@
 (function () {
     describe('Service: managerSecret test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('managerSecret exists', inject(function (managerSecret) {
             expect(managerSecret).toBeDefined();
@@ -49,6 +52,22 @@
 
         });
 
+        var mockedCookies;
+        beforeEach(function () {
+
+            mockedCookies = {
+                get: function() {
+                },
+                put: function() {
+                }
+            };
+
+            module(function ($provide) {
+                $provide.value('$cookies', mockedCookies);
+            });
+
+        });
+
         var secret_key = '77285ecc77ff7c8475d7866e1c7bcb382b7fdf9239b7f326299f1abf8d17dd81';
         var decrypted_data = {
             website_password_username: 'my-user',
@@ -74,6 +93,9 @@
                 },
                 decrypt_data: function(text, nonce, secret_key) {
                     return JSON.stringify(decrypted_data)
+                },
+                generate_uuid: function() {
+                    return 'a60c07a2-132a-47b3-9b94-1cfd5771aaae'
                 }
             };
 
@@ -87,6 +109,9 @@
         beforeEach(inject(function($injector){
             // unwrap necessary services
             $httpBackend = $injector.get('$httpBackend');
+
+
+            $httpBackend.when('GET', "view/datastore.html").respond({});
         }));
 
         it('create_secret', inject(function (managerSecret) {
@@ -146,6 +171,9 @@
 
                 decrypted_data.create_date = undefined;
                 decrypted_data.write_date = undefined;
+                decrypted_data.callback_url = undefined;
+                decrypted_data.callback_user = undefined;
+                decrypted_data.callback_pass = undefined;
 
                 expect(data).toEqual(decrypted_data);
             },function(){

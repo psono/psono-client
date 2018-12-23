@@ -1,7 +1,10 @@
 (function () {
     describe('Service: cryptoLibrary test suite #1', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('cryptoLibrary exists', inject(function (cryptoLibrary) {
             expect(cryptoLibrary).toBeDefined();
@@ -9,15 +12,23 @@
 
 
         var mockedWindow;
+        var mockedCookies;
         beforeEach(function () {
             mockedWindow = {
                 crypto: {
                     // No window.crypto.getRandomValues
                 }
             };
+            mockedCookies = {
+                get: function() {
+                },
+                put: function() {
+                }
+            };
 
             module(function ($provide) {
                 $provide.value('$window', mockedWindow);
+                $provide.value('$cookies', mockedCookies);
             });
 
         });
@@ -36,7 +47,10 @@
 (function () {
     describe('Service: cryptoLibrary test suite #2', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('cryptoLibrary exists', inject(function (cryptoLibrary) {
             expect(cryptoLibrary).toBeDefined();

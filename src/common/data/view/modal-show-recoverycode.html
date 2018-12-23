@@ -1,41 +1,40 @@
-<form name="modalShowRecoverycodeForm" novalidate>
+<form name="modalShowRecoverycodeForm" novalidate autocomplete="off">
     <div class="modal-header">
         <button type="button" class="close" ng-click="close()"><span aria-hidden="true">&times;</span></button>
-        <h3 class="modal-title">Recovery Information</h3>
+        <h3 class="modal-title">{{'RECOVERY_INFORMATION' | translate}}</h3>
     </div>
     <div class="modal-body">
 
         <div>
             <p>
-                <strong>Username:</strong>
+                <strong>{{'USERNAME' | translate}}:</strong>
             </p>
             <div class="text-center" style="font-family:monospace;">
                 {{recovery_information.username}}
             </div>
             <p>
-                <strong>Code:</strong>
+                <strong>{{'CODE' | translate}}:</strong>
             </p>
             <div class="text-center" style="font-family:monospace;">
                 {{recovery_information.recovery_password}}
             </div>
             <p>
-                <strong>OR:</strong>
+                <strong>{{'OR' | translate}}:</strong>
             </p>
             <div class="text-center" style="font-family:monospace;">
                 {{recovery_information.recovery_words}}
             </div>
             <hr>
-            <p>Please save this information to recover from a lost password.</p>
+            <p>{{'SAVE_INFORMATION_TO_RECOVER' | translate}}</p>
         </div>
 
         <div class="alert alert-warning">
-            <strong>Warning!</strong> Earlier generated recovery codes have been overwritten
-            and will not work anymore!
+            <strong>{{'WARNING' | translate}}!</strong> {{'EARLIER_GENERATED_RECOVERY_CODES' | translate}}
         </div>
 
 
     </div>
     <div class="modal-footer">
-        <button class="btn" type="button" ng-click="close();">Close</button>
+        <button class="btn" type="button" ng-click="close();">{{'CLOSE' | translate}}</button>
     </div>
 </form>

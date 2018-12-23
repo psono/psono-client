@@ -25,7 +25,6 @@
     "karma-coverage": "~1.1.1",
     "karma-firefox-launcher": "~1.0.0",
     "karma-jasmine": "~1.1.0",
-    "run-sequence": "^1.2.2",
     "uglify-save-license": "^0.4.1",
     "webstore-upload": "0.0.7"
   }

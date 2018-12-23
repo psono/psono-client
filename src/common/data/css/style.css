@@ -18,6 +18,21 @@ h1, h2 {
 #logo {
   margin-bottom: 10px; }
 
+.infolabel .fa-info-circle {
+  vertical-align: top; }
+
+.loginbox-translate {
+  position: absolute;
+  top: 20px;
+  right: 10px;
+  color: #b1b6c1; }
+  .loginbox-translate .btn-primary, .loginbox-translate .btn-primary:hover, .loginbox-translate .btn-primary:focus, .loginbox-translate .btn-primary:active, .loginbox-translate .btn-primary.active, .loginbox-translate .open .dropdown-toggle.btn-primary {
+    background-color: #151f2b;
+    border-color: #151f2b; }
+
+#panel .loginbox-translate {
+  top: 10px; }
+
 .loginbox .pull-right {
   line-height: 31px; }
 

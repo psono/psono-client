@@ -14,7 +14,7 @@
 
         var on_open = function(dropdown_menu_id) {
             if (opened_dropdown_menu !== '') {
-                angular.element('#' + opened_dropdown_menu).parent().removeClass('open');
+                //angular.element('#' + opened_dropdown_menu).parent().removeClass('open');
             }
             opened_dropdown_menu = dropdown_menu_id;
         };

@@ -1,7 +1,10 @@
 (function () {
     describe('Service: managerShare test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('managerShare exists', inject(function (managerShare) {
             expect(managerShare).toBeDefined();
@@ -77,6 +80,9 @@
                 },
                 decrypt_data: function(text, nonce, secret_key) {
                     return JSON.stringify(decrypted_data)
+                },
+                generate_uuid: function() {
+                    return 'a60c07a2-132a-47b3-9b94-1cfd5771aaae'
                 }
             };
 
@@ -90,6 +96,8 @@
         beforeEach(inject(function($injector){
             // unwrap necessary services
             $httpBackend = $injector.get('$httpBackend');
+
+            $httpBackend.when('GET', "view/datastore.html").respond({});
         }));
 
         it('read_share', inject(function (managerShare) {

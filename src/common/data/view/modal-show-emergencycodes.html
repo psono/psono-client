@@ -1,0 +1,132 @@
+<form name="modalSetupGoogleAuthenticatorForm" novalidate autocomplete="off">
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="close()"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title">{{'EMERGENCY_CODES' | translate}}</h3>
+    </div>
+    <div class="modal-body">
+
+
+        <uib-tabset>
+
+            <uib-tab heading="{{'EXISTING_EMERGENCY_CODES' | translate}}">
+
+
+                <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
+                    <thead>
+                    <tr>
+                        <th>{{'PERSON' | translate}}</th>
+                        <th>{{'LEAD_TIME_IN_HOURS' | translate}}</th>
+                        <th>{{'ACTIVATED' | translate}}</th>
+                        <th>{{'DELETE' | translate}}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="emergency_code in emergency_codes">
+                        <td>{{ emergency_code.description }}</td>
+                        <td>{{ emergency_code.activation_delay / 60 / 60 }}</td>
+                        <td ng-if="emergency_code.activation_date === null">{{ 'NO' | translate }}</td>
+                        <td ng-if="emergency_code.activation_date !== null">{{ emergency_code.activation_date }}</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-sm" ng-click="delete_emergency_code(emergency_codes, emergency_code.id)">
+                                {{'DELETE' | translate}}
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div ng-repeat="e in delete_errors" class="help-block"><span translate="{{ e }}"></span></div>
+            </uib-tab>
+
+            <uib-tab heading="{{'NEW_EMERGENCY_CODES' | translate}}">
+                <br>
+
+                <div class="form-horizontal" ng-if="step === 'step1'">
+                    <div class="row form-group">
+
+                        <label class="control-label col-sm-6 col-md-4"
+                               for="newEmergencycodeForm-title">
+                            <span>{{'PERSON' | translate}}</span>
+                        </label>
+
+                        <div class="col-sm-6 col-md-8">
+                            <input type="text" ng-model="new_emergency_code.title"
+                                   ng-required="true"
+                                   placeholder="{{'PERSON_YOU_GIVE_THIS_CODE_TO_EG_SISTER' | translate}}" id="newEmergencycodeForm-title"
+                                   name="title"
+                                   class="form-control">
+                        </div>
+                    </div>
+                    <div class="row form-group">
+
+                        <label class="control-label col-sm-6 col-md-4"
+                               for="newEmergencycodeForm-lead-time">
+                            <span>{{'LEAD_TIME_IN_HOURS' | translate}}</span>
+                        </label>
+
+                        <div class="col-sm-6 col-md-8">
+                            <input type="text" ng-model="new_emergency_code.lead_time"
+                                   ng-required="true"
+                                   placeholder="{{'LEAD_TIME_IN_HOURS_PLACEHOLDER' | translate}}" id="newEmergencycodeForm-lead-time"
+                                   name="title"
+                                   class="form-control">
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label class="control-label col-sm-6 col-md-4">
+                            &nbsp;
+                        </label>
+
+                        <div class="col-sm-6 col-md-8">
+                            <button class="btn btn-primary btn-primary" ng-click="create_emergency_code(new_emergency_code)" type="button">{{'CREATE' | translate}}</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group alert alert-danger" ng-repeat="e in errors">
+                        <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
+                    </div>
+                </div>
+                
+                <div class="form-horizontal" ng-if="step === 'step2'">
+                    <div>
+                        <p>{{'SEND_THIS_EMERGENCY_INFORMATION_INFO' | translate}}</p>
+                        <hr>
+                        <p>{{'INFO_FOR_EMERGENCY_CODE' | translate}}</p>
+                        <p>
+                            <strong>{{'URL' | translate}}:</strong>
+                        </p>
+                        <div class="text-center" style="font-family:monospace;">
+                            {{new_emergency_code.url}}
+                        </div>
+                        <p>
+                            <strong>{{'USERNAME' | translate}}:</strong>
+                        </p>
+                        <div class="text-center" style="font-family:monospace;">
+                            {{new_emergency_code.username}}
+                        </div>
+                        <p>
+                            <strong>{{'CODE' | translate}}:</strong>
+                        </p>
+                        <div class="text-center" style="font-family:monospace;">
+                            {{new_emergency_code.emergency_password}}
+                        </div>
+                        <p>
+                            <strong>{{'OR' | translate}}:</strong>
+                        </p>
+                        <div class="text-center" style="font-family:monospace;">
+                            {{new_emergency_code.emergency_words}}
+                        </div>
+                    </div>
+                    <br>
+                    <div class="alert alert-warning">
+                        <strong>{{'WARNING' | translate}}!</strong> {{'WARNING_OF_EMERGENCY_CODE' | translate}}
+                    </div>
+                </div>
+
+            </uib-tab>
+        </uib-tabset>
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn" type="button" ng-click="close();">{{'CLOSE' | translate}}</button>
+    </div>
+</form>

@@ -49,15 +49,15 @@
 
                 $scope.rights = [{
                     id: 'read',
-                    name: 'Read',
+                    name: 'READ',
                     initial_value: true
                 }, {
                     id: 'write',
-                    name: 'Write',
+                    name: 'WRITE',
                     initial_value: true
                 }, {
                     id: 'grant',
-                    name: 'Grant',
+                    name: 'GRANT',
                     initial_value: true
                 }];
 
@@ -139,6 +139,12 @@
                         },
                         path: function () {
                             return [];
+                        },
+                        hide_advanced: function () {
+                            return true
+                        },
+                        hide_history: function () {
+                            return true
                         }
                     }
                 });

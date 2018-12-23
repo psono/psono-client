@@ -19,11 +19,9 @@
      * Main Controller for the shareusers widget
      */
     angular.module('psonocli').controller('ShareusersCtrl', ["$scope", "$interval", "managerSecret", "managerDatastoreUser",
-        "$uibModal", "shareBlueprint", "managerWidget", "$timeout", "dropDownMenuWatcher", 'cryptoLibrary',
+        "$uibModal", "shareBlueprint", "managerWidget", "$timeout", "dropDownMenuWatcher", 'cryptoLibrary', 'managerDatastorePassword',
         function ($scope, $interval, managerSecret, managerDatastoreUser, $uibModal, shareBlueprint,
-                  managerWidget, $timeout, dropDownMenuWatcher, cryptoLibrary) {
-
-            var contextMenusOpen = 0;
+                  managerWidget, $timeout, dropDownMenuWatcher, cryptoLibrary, managerDatastorePassword) {
 
             $scope.contextMenuOnShow = contextMenuOnShow;
             $scope.contextMenuOnClose = contextMenuOnClose;
@@ -45,24 +43,23 @@
                     //managerSecret.onNodeSelect(node);
                 },
                 /**
-                 * Triggered once someone selects an item
+                 * Triggered once someone clicks the move node entry
                  *
-                 * @param item
-                 * @param breadcrumbs
+                 * @param item_path The path of the node in question
+                 * @param target_path The path to the target node
                  */
-                onItemSelect: function (item, breadcrumbs, id_breadcrumbs) {
-                    $scope.breadcrumbs = breadcrumbs;
-                    $scope.node = item;
-                    //managerSecret.onItemSelect(item);
+                onMoveNode: function (item_path, target_path) {
+                    return move_item($scope, item_path, target_path, 'folders');
                 },
+
                 /**
-                 * Triggered once someone clicks on a node
+                 * Triggered once someone wants to move a node entry
                  *
-                 * @param node
-                 * @param path
+                 * @param item_path The path of the item
+                 * @param target_path The path to target folder
                  */
-                onNodeClick: function (node, path) {
-                    //managerSecret.onNodeClick(node, path);
+                onMoveItem: function (item_path, target_path) {
+                    return move_item($scope, item_path, target_path, 'items');
                 },
                 /**
                  * Triggered once someone clicks the delete node entry
@@ -71,12 +68,7 @@
                  * @param path The path to the node
                  */
                 onDeleteNode: function (node, path) {
-                    // TODO ask for confirmation
-
-                    var val = managerWidget.find_in_structure(path, $scope.structure.data);
-                    if (val)
-                        val[0].splice(val[1], 1);
-                    managerDatastoreUser.save_datastore_content($scope.structure.data);
+                    return delete_item($scope, node, path);
                 },
 
                 /**
@@ -104,15 +96,11 @@
                  *
                  * @param item The item in question
                  * @param path The path to the item
+                 *
+                 * @returns {*}
                  */
                 onDeleteItem: function (item, path) {
-                    // TODO ask for confirmation
-
-                    var val = managerWidget.find_in_structure(path, $scope.structure.data);
-                    if (val)
-                        val[0].splice(val[1], 1);
-
-                    managerDatastoreUser.save_datastore_content($scope.structure.data);
+                    return delete_item($scope, item, path);
                 },
 
                 /**
@@ -144,88 +132,6 @@
                 onNewItem: function (parent, path) {
                     open_new_item(parent, path)
                 },
-
-                /**
-                 * triggered once someone wants to move an item
-                 *
-                 * @param item_path
-                 * @param target_path
-                 */
-                onItemDropComplete: function (item_path, target_path) {
-
-                    var target = $scope.structure.data;
-                    if (target_path !== null) {
-                        // find drop zone
-                        var val1 = managerWidget.find_in_structure(target_path, $scope.structure.data);
-                        target = val1[0][val1[1]];
-                    }
-                    // find element
-                    var val2 = managerWidget.find_in_structure(item_path, $scope.structure.data);
-
-                    if (val2 === false) {
-                        return;
-                    }
-                    var element = val2[0][val2[1]];
-
-                    // check if we have folders, otherwise create the array
-                    if (!target.hasOwnProperty('items')) {
-                        target.items = [];
-                    }
-
-                    // add the element to the other folders
-                    target.items.push(element);
-
-                    // delete the array at hte current position
-                    val2[0].splice(val2[1], 1);
-
-                    managerDatastoreUser.save_datastore_content($scope.structure.data);
-                },
-
-                /**
-                 * triggered once someone wants to move a folder
-                 *
-                 * @param item_path
-                 * @param target_path
-                 */
-                onFolderDropComplete: function (item_path, target_path) {
-
-
-                    var target = $scope.structure.data;
-                    if (target_path !== null) {
-                        // find drop zone
-                        var val1 = managerWidget.find_in_structure(target_path, $scope.structure.data);
-                        target = val1[0][val1[1]];
-                    }
-
-                    // find element
-                    var val2 = managerWidget.find_in_structure(item_path, $scope.structure.data);
-
-                    if (val2 === false) {
-                        return;
-                    }
-                    var element = val2[0][val2[1]];
-
-                    // check if we have folders, otherwise create the array
-                    if (!target.hasOwnProperty('folders')) {
-                        target.folders = [];
-                    }
-
-                    // add the element to the other folders
-                    target.folders.push(element);
-
-                    // delete the array at hte current position
-                    val2[0].splice(val2[1], 1);
-
-                    managerDatastoreUser.save_datastore_content($scope.structure.data);
-                },
-                /**
-                 * blocks move if context menus are open
-                 *
-                 * @returns {boolean}
-                 */
-                blockMove: function () {
-                    return contextMenusOpen > 0;
-                },
                 contextMenuOnShow: $scope.contextMenuOnShow,
                 contextMenuOnClose: $scope.contextMenuOnClose,
 
@@ -248,16 +154,27 @@
                     });
             }
 
+            /**
+             * all about the datastore search:
+             */
+
+            $scope.$watch('tosearchTreeFilter', function(newValue) {
+                managerDatastorePassword.modifyTreeForSearch(newValue, $scope.structure.data);
+            });
+
+            /**
+             * clears the input field for the tree search
+             */
+            $scope.clearSearchTreeForm = function () {
+                $scope.tosearchTreeFilter = '';
+            };
+
             function contextMenuOnShow(div_id) {
                 dropDownMenuWatcher.on_open(div_id);
-                contextMenusOpen++;
             }
 
             function contextMenuOnClose(div_id) {
                 dropDownMenuWatcher.on_close(div_id);
-                $timeout(function() {
-                    contextMenusOpen--;
-                }, 500);
             }
 
             // Modals
@@ -267,6 +184,11 @@
             }
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ShareusersCtrl#open_new_item
+             * @methodOf psonocli.controller:ShareusersCtrl
+             *
+             * @description
              * Opens the modal for a new user entry
              *
              * @param parent
@@ -285,6 +207,12 @@
                         },
                         path: function () {
                             return path;
+                        },
+                        hide_advanced: function () {
+                            return true
+                        },
+                        hide_history: function () {
+                            return true
                         }
                     }
                 });
@@ -328,20 +256,55 @@
                         user_object.data[content.fields[i].name] = content.fields[i].value;
                     }
 
-                    parent.items.push(user_object);
+                    // check if we do not already have the user in our trusted user datastore
+                    // skip if we already have it
+                    var existing_locations = managerDatastorePassword.search_in_datastore(user_object, $scope.structure.data, function(a, b) {
+                        if (!a.hasOwnProperty('data')) {
+                            return false
+                        }
+                        if (!b.hasOwnProperty('data')) {
+                            return false
+                        }
+                        if (!a['data'].hasOwnProperty('user_public_key')) {
+                            return false
+                        }
+                        if (!b['data'].hasOwnProperty('user_public_key')) {
+                            return false
+                        }
+                        return a['data']['user_public_key'] === b['data']['user_public_key']
+                    });
 
-                    managerDatastoreUser.save_datastore_content($scope.structure.data);
+                    if (existing_locations.length < 1) {
+                        parent.items.push(user_object);
+                        managerDatastoreUser.save_datastore_content($scope.structure.data);
+                    }
+
 
                 }, function () {
                     // cancel triggered
                 });
             }
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ShareusersCtrl#openNewItem
+             * @methodOf psonocli.controller:ShareusersCtrl
+             *
+             * @description
+             * Initiates the opening of the new item modal
+             *
+             * @param event
+             */
             function openNewItem(event) {
                 open_new_item(undefined, []);
             }
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ShareusersCtrl#open_edit_item
+             * @methodOf psonocli.controller:ShareusersCtrl
+             *
+             * @description
              * Opens the modal to edit a entry
              *
              * @param node
@@ -349,7 +312,6 @@
              * @param size
              */
             function open_edit_item(node, path, size) {
-
                 var modalInstance = $uibModal.open({
                     templateUrl: 'view/modal-edit-entry.html',
                     controller: 'ModalShareEditEntryCtrl',
@@ -363,6 +325,12 @@
                         },
                         data: function () {
                             return node.data;
+                        },
+                        hide_advanced: function () {
+                            return true
+                        },
+                        hide_history: function () {
+                            return true
                         }
                     }
                 });
@@ -409,6 +377,39 @@
                 }, function () {
                     // cancel triggered
                 });
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ShareusersCtrl#move_item
+             * @methodOf psonocli.controller:ShareusersCtrl
+             *
+             * @description
+             * Moves an item
+             *
+             * @param {object} scope the scope
+             * @param {array} item_path the path of the item
+             * @param {array} target_path the path where we want to put the item
+             * @param {string} type type of the item (item or folder)
+             */
+            function move_item(scope, item_path, target_path, type) {
+                managerWidget.move_item(scope.structure.data, item_path, target_path, type);
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ShareusersCtrl#delete_item
+             * @methodOf psonocli.controller:ShareusersCtrl
+             *
+             * @description
+             * Deletes an item from the datastore
+             *
+             * @param {object} scope the scope
+             * @param {object} item the item
+             * @param {array} path the path to the item
+             */
+            function delete_item(scope, item, path) {
+                managerWidget.delete_item(scope.structure.data, item, path);
             }
 
         }]);

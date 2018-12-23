@@ -6,18 +6,20 @@
      * @name psonocli.controller:ModalEditEntryBigCtrl
      * @requires $scope
      * @requires $rootScope
+     * @requires $uibModal
      * @requires psonocli.itemBlueprint
      *
      * @description
      * Controller for the "Edit Entry" modal
      */
-    angular.module('psonocli').controller('ModalEditEntryBigCtrl', ['$scope', '$rootScope', 'itemBlueprint',
-        function ($scope, $rootScope, itemBlueprint) {
+    angular.module('psonocli').controller('ModalEditEntryBigCtrl', ['$scope', '$rootScope', '$uibModal', 'itemBlueprint',
+        function ($scope, $rootScope, $uibModal, itemBlueprint) {
 
+            $scope.show_history = show_history;
             $scope.reset = reset;
             $scope.save = save;
             $scope.cancel = cancel;
-            $scope.has_advanced = itemBlueprint.has_advanced;
+            $scope.toggle_input_type = toggle_input_type;
 
             // $scope.node = node;
             // $scope.path = path;
@@ -40,7 +42,6 @@
                     $scope.path=args.path;
                     $scope.data=args.data;
                     $scope.name = args.node.name;
-                    $scope.has_advanced = itemBlueprint.has_advanced
                     $scope.bp = {
                         all: itemBlueprint.get_blueprints(),
                         selected: itemBlueprint.get_blueprint($scope.node.type)
@@ -57,6 +58,33 @@
                             $scope.bp.selected.onEditModalOpen($scope.bp.selected);
                         }
                     });
+                });
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalEditEntryBigCtrl#show_history
+             * @methodOf psonocli.controller:ModalEditEntryBigCtrl
+             *
+             * @description
+             * Triggered once someone clicks show history button
+             */
+            function show_history(node) {
+
+                var modalInstance = $uibModal.open({
+                    templateUrl: 'view/modal-history.html',
+                    controller: 'ModalHistoryCtrl',
+                    resolve: {
+                        node: function () {
+                            return node;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function () {
+                    // User clicked the yes button
+                }, function () {
+                    // cancel triggered
                 });
             }
 
@@ -86,6 +114,7 @@
                 if ($scope.editEntryForm.$invalid) {
                     return;
                 }
+                $scope.bp.selected['callback_data'] = $scope.data;
                 onSave($scope.bp.selected);
 
                 $rootScope.$broadcast('close-entry-big', {});
@@ -102,6 +131,24 @@
             function cancel() {
                 $rootScope.$broadcast('close-entry-big', {});
                 onClose();
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalEditEntryBigCtrl#toggle_input_type
+             * @methodOf psonocli.controller:ModalEditEntryBigCtrl
+             *
+             * @description
+             * toggles the type of an input
+             *
+             * @param id
+             */
+            function toggle_input_type(id) {
+                if (document.getElementById(id).type === 'text') {
+                    document.getElementById(id).type = 'password';
+                } else {
+                    document.getElementById(id).type = 'text';
+                }
             }
         }]);
 

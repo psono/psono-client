@@ -27,42 +27,43 @@
         var _blueprints = {
             website_password: {
                 id: "website_password", // Unique ID
-                name: "Password", // Displayed in Dropdown Menu
+                name: "PASSWORD", // Displayed in Dropdown Menu
                 title_field: "website_password_title", // is the main column, that is used as filename
                 urlfilter_field: "website_password_url_filter", // is the filter column for url matching
                 autosubmit_field: "website_password_auto_submit", // is the filter column for auto submit
                 search: ['website_password_title', 'website_password_url_filter'], // are searched when the user search his entries
                 fields: [ // All fields for this object with unique names
-                    { name: "website_password_title", field: "input", type: "text", title: "Title", placeholder: "Title", required: true},
+                    { name: "website_password_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true},
                     { name: "website_password_url", field: "input", type: "text", validationType: "url", title: "URL", placeholder: "URL", onChange: "onChangeUrl"},
-                    { name: "website_password_username", field: "input", type: "text", title: "Username", placeholder: "Username"},
-                    { name: "website_password_password", field: "input", type: "password", title: "Password", placeholder: "Password",
+                    { name: "website_password_username", field: "input", type: "text", title: "USERNAME", placeholder: "USERNAME"},
+                    { name: "website_password_password", field: "input", type: "password", title: "PASSWORD", placeholder: "PASSWORD",
                         dropmenuItems:[
                             {
                                 icon: "fa fa-eye-slash",
-                                text:"Show Password",
+                                text:"SHOW_PASSWORD",
                                 onclick:function(id, item) {
                                     if (document.getElementById(id).type === 'text') {
                                         document.getElementById(id).type = 'password';
-                                        item.text = 'Show Password';
+                                        item.text = 'SHOW_PASSWORD';
                                     } else {
                                         document.getElementById(id).type = 'text';
-                                        item.text = 'Hide Password';
+                                        item.text = 'HIDE_PASSWORD';
                                     }
                                 }
                             },
                             {
                                 icon: "fa fa-cogs",
-                                text:"Generate Password",
+                                text:"GENERATE_PASSWORD",
                                 hide_offline: true,
+                                hide_on_not_write: true,
                                 onclick:function(id, item) {
                                     angular.element(document.querySelector('#'+id)).val(registrations['generate']()).trigger('input');
                                 }
                             }
                         ]},
-                    { name: "website_password_notes", field: "textarea", title: "Notes", placeholder: "Notes"},
-                    { name: "website_password_auto_submit", field: "input", type:"checkbox", title: "Automatic submit", position: "advanced"},
-                    { name: "website_password_url_filter", field: "textarea", title: "Domain Filter", placeholder: "URL filter e.g. example.com or sub.example.com", position: "advanced"}
+                    { name: "website_password_notes", field: "textarea", title: "NOTES", placeholder: "NOTES"},
+                    { name: "website_password_auto_submit", field: "input", type:"checkbox", title: "AUTOMATIC_SUBMIT", position: "advanced"},
+                    { name: "website_password_url_filter", field: "textarea", title: "DOMAIN_FILTER", placeholder: "URL_FILTER_EG", position: "advanced"}
                 ],
                 /**
                  * triggered whenever url is changing.
@@ -139,12 +140,12 @@
             },
             note: {
                 id: "note",
-                name: "Note",
+                name: "NOTE",
                 title_field: "note_title",
                 search: ['note_title'],
                 fields: [
-                    { name: "note_title", field: "input", type: "text", title: "Title", placeholder: "Name", required: true},
-                    { name: "note_notes", field: "textarea", title: "Notes", placeholder: "Notes"}
+                    { name: "note_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true},
+                    { name: "note_notes", field: "textarea", title: "NOTES", placeholder: "NOTES"}
                 ]
             },
             file: {
@@ -305,20 +306,20 @@
             },
             mail_gpg_own_key: {
                 id: "mail_gpg_own_key",
-                name: "GPG Key",
+                name: "GPG_KEY",
                 title_field: "mail_gpg_own_key_title",
                 search: ['mail_gpg_own_key_title', 'mail_gpg_own_key_email'],
                 fields: [
-                    { name: "mail_gpg_own_key_title", field: "input", type: "text", title: "Title", hidden: true, placeholder: "Name", required: true},
-                    { name: "mail_gpg_own_key_email", field: "input", type: "text", title: "Email", placeholder: "Email", hidden: true, readonly: true},
-                    { name: "mail_gpg_own_key_name", field: "input", type: "text", title: "Name", placeholder: "Name", hidden: true, readonly: true},
-                    { name: "mail_gpg_own_key_public", field: "textarea", title: "Public Key", placeholder: "Public Key", hidden: true, readonly: true},
-                    { name: "mail_gpg_own_key_private", field: "textarea", title: "Private Key", placeholder: "Private Key", hidden: true, readonly: true},
-                    { name: "mail_gpg_own_key_publish", field: "input", type:"checkbox", title: "Publish Public Key", hidden: true},
-                    { name: "mail_gpg_own_key_generate_new", field: "button", type: "button", title: "Generate New", hidden: true, class: 'btn-primary', onClick:"onClickGenerateNewButton" },
-                    { name: "mail_gpg_own_key_generate_import_text", field: "button", type: "button", title: "Import (as text)", hidden: true, class: 'btn-primary', onClick:"onClickImportAsTextButton" },
-                    { name: "mail_gpg_own_key_encrypt_message", field: "button", type: "button", title: "Encrypt Message", hidden: true, class: 'btn-default', onClick:"onClickEncryptMessageButton" },
-                    { name: "mail_gpg_own_key_decrypt_message", field: "button", type: "button", title: "Decrypt Message", hidden: true, class: 'btn-default', onClick:"onClickDecryptMessageButton" }
+                    { name: "mail_gpg_own_key_title", field: "input", type: "text", title: "TITLE", hidden: true, placeholder: "TITLE", required: true},
+                    { name: "mail_gpg_own_key_email", field: "input", type: "text", title: "EMAIL", placeholder: "EMAIL", hidden: true, readonly: true},
+                    { name: "mail_gpg_own_key_name", field: "input", type: "text", title: "NAME", placeholder: "NAME", hidden: true, readonly: true},
+                    { name: "mail_gpg_own_key_public", field: "textarea", title: "PUBLIC_KEY", placeholder: "PUBLIC_KEY", hidden: true, readonly: true},
+                    { name: "mail_gpg_own_key_private", field: "textarea", title: "PRIVATE_KEY", placeholder: "PRIVATE_KEY", hidden: true, readonly: true},
+                    { name: "mail_gpg_own_key_publish", field: "input", type:"checkbox", title: "PUBLISH_PUBLIC_KEY", hidden: true},
+                    { name: "mail_gpg_own_key_generate_new", field: "button", type: "button", title: "GENERATE_NEW_GPG_KEY", hidden: true, class: 'btn-primary', onClick:"onClickGenerateNewButton" },
+                    { name: "mail_gpg_own_key_generate_import_text", field: "button", type: "button", title: "IMPORT_AS_TEXT", hidden: true, class: 'btn-primary', onClick:"onClickImportAsTextButton" },
+                    { name: "mail_gpg_own_key_encrypt_message", field: "button", type: "button", title: "ENCRYPT_MESSAGE", hidden: true, class: 'btn-default', onClick:"onClickEncryptMessageButton" },
+                    { name: "mail_gpg_own_key_decrypt_message", field: "button", type: "button", title: "DECRYPT_MESSAGE", hidden: true, class: 'btn-default', onClick:"onClickDecryptMessageButton" }
                 ],
                 /**
                  * triggered whenever the "Generate New" button is clicked.
@@ -508,15 +509,15 @@
             },
             bookmark: {
                 id: "bookmark", // Unique ID
-                name: "Bookmark", // Displayed in Dropdown Menu
+                name: "BOOKMARK", // Displayed in Dropdown Menu
                 title_field: "bookmark_title", // is the main column, that is used as filename
                 urlfilter_field: "bookmark_url_filter", // is the filter column for url matching
                 search: ['bookmark_title', 'bookmark_url_filter'], // are searched when the user search his entries
                 fields: [ // All fields for this object with unique names
-                    { name: "bookmark_title", field: "input", type: "text", title: "Title", placeholder: "Title", required: true},
+                    { name: "bookmark_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true},
                     { name: "bookmark_url", field: "input", type: "text", validationType: "url", title: "URL", placeholder: "URL", onChange: "onChangeUrl"},
-                    { name: "bookmark_notes", field: "textarea", title: "Notes", placeholder: "Notes"},
-                    { name: "bookmark_url_filter", field: "textarea", title: "Domain Filter", placeholder: "URL filter e.g. example.com or sub.example.com", position: "advanced"}
+                    { name: "bookmark_notes", field: "textarea", title: "NOTES", placeholder: "NOTES"},
+                    { name: "bookmark_url_filter", field: "textarea", title: "DOMAIN_FILTER", placeholder: "URL_FILTER_EG", position: "advanced"}
                 ],
                 /**
                  * triggered whenever url is changing.
@@ -618,7 +619,7 @@
         var _additionalFunction = {
             share: {
                 id: 'share',
-                name: 'Share',
+                name: 'SHARE',
                 icon: 'fa fa-user-plus',
                 hide_offline: true,
                 ngClass: function(item) {
@@ -814,7 +815,7 @@
             },
             show_share_rights: {
                 id: 'show_share_rights',
-                name: 'Rights Overview',
+                name: 'RIGHTS_OVERVIEW',
                 icon: 'fa fa-list',
                 hide_offline: true,
                 ngClass: function(item) {
@@ -857,7 +858,7 @@
             },
             copy_username_to_clipboard: {
                 id: 'copy_username_to_clipboard',
-                name: 'Copy Username',
+                name: 'COPY_USERNAME',
                 icon: 'fa fa-clipboard',
                 ngClass: function(item) {
                     if (item.hasOwnProperty('share_rights') && item.share_rights.read !== true) {
@@ -873,7 +874,7 @@
             },
             copy_password_to_clipboard: {
                 id: 'copy_password_to_clipboard',
-                name: 'Copy Password',
+                name: 'COPY_PASSWORD',
                 icon: 'fa fa-clipboard',
                 ngClass: function(item) {
                     if (item.hasOwnProperty('share_rights') && item.share_rights.read !== true) {
@@ -996,30 +997,6 @@
 
         /**
          * @ngdoc
-         * @name psonocli.itemBlueprint#has_advanced
-         * @methodOf psonocli.itemBlueprint
-         *
-         * @description
-         * analyzes the fields of an item following a blueprint to determine if any field has position advanced
-         *
-         * @param {object} blueprint_item The blueprint item with fields that we want to search
-         * @returns {boolean} Returns if the items has fields with position advanced
-         */
-        var has_advanced = function (blueprint_item) {
-            if (typeof(blueprint_item) === 'undefined') {
-                return false;
-            }
-            for (var i = 0; i < blueprint_item.fields.length; i++) {
-                if (blueprint_item.fields[i].hasOwnProperty('position') && blueprint_item.fields[i]['position'] === 'advanced') {
-                    return true;
-                }
-            }
-
-            return false;
-        };
-
-        /**
-         * @ngdoc
          * @name psonocli.itemBlueprint#blueprint_has_on_click_new_tab
          * @methodOf psonocli.itemBlueprint
          *
@@ -1093,7 +1070,6 @@
             get_blueprints: get_blueprints,
             get_default_blueprint_key: get_default_blueprint_key,
             get_default_blueprint: get_default_blueprint,
-            has_advanced: has_advanced,
             blueprint_has_on_click_new_tab: blueprint_has_on_click_new_tab,
             blueprint_on_open_secret: blueprint_on_open_secret,
             blueprint_msg_before_open_secret: blueprint_msg_before_open_secret,

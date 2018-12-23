@@ -1,7 +1,10 @@
 (function () {
     describe('Service: apiClient test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         var $httpBackend, cryptoLibrary;
 
@@ -13,6 +16,7 @@
             spyOn(cryptoLibrary, "encrypt_data").and.callFake(function(json_data, session_secret_key) {
                 return JSON.parse(json_data);
             });
+            $httpBackend.when('GET', "view/datastore.html").respond({});
         }));
 
         it('apiClient exists', inject(function (apiClient) {

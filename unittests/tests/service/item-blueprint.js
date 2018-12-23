@@ -1,7 +1,10 @@
 (function () {
     describe('Service: itemBlueprint test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('itemBlueprint exists', inject(function (itemBlueprint) {
             expect(itemBlueprint).toBeDefined();
@@ -31,28 +34,6 @@
 
         it('get_blueprint:False', inject(function (itemBlueprint) {
             expect(itemBlueprint.get_default_blueprint_key()).toBe("website_password");
-        }));
-
-        it('has_advanced: No position', inject(function (itemBlueprint) {
-            expect(itemBlueprint.has_advanced({
-                fields: [{}]
-            })).toBeFalsy();
-        }));
-
-        it('has_advanced: position but not advanced', inject(function (itemBlueprint) {
-            expect(itemBlueprint.has_advanced({
-                fields: [{
-                    position: 'asdf'
-                }]
-            })).toBeFalsy();
-        }));
-
-        it('has_advanced: position but not advanced', inject(function (itemBlueprint) {
-            expect(itemBlueprint.has_advanced({
-                fields: [{
-                    position: 'advanced'
-                }]
-            })).toBeTruthy();
         }));
     });
 

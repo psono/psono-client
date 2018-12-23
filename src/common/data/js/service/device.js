@@ -4,11 +4,13 @@
     /**
      * @ngdoc service
      * @name psonocli.device
+     * @requires psonocli.storage
+     * @requires psonocli.cryptoLibrary
      * @description
      *
      * Service with some device functions that do not fit anywhere else
      */
-    var device = function($q) {
+    var device = function(storage, cryptoLibrary) {
 
         var client_js = new ClientJS();
 
@@ -16,26 +18,7 @@
 
         activate();
         function activate() {
-            get_device_fingerprint_async().then(function(local_fingerprint){
-                fingerprint = local_fingerprint;
-            })
-        }
 
-
-        /**
-         * @ngdoc
-         * @name psonocli.device#get_device_fingerprint_async
-         * @methodOf psonocli.device
-         *
-         * @description
-         * Returns the device fingerprint
-         *
-         * @returns {promise} Returns promise with the device fingerprint
-         */
-        function get_device_fingerprint_async() {
-            return $q(function(resolve, reject) {
-                resolve(client_js.getFingerprint());
-            });
         }
 
         /**
@@ -49,10 +32,15 @@
          * @returns {string} Fingerprint of the device
          */
         function get_device_fingerprint() {
-            if (fingerprint) {
-                return fingerprint;
+
+            fingerprint = storage.find_key('persistent', 'fingerprint');
+            if (fingerprint == null) {
+                fingerprint = cryptoLibrary.generate_uuid();
+                storage.upsert('persistent', {key: 'fingerprint', value: fingerprint});
+            } else {
+                fingerprint = fingerprint['value'];
             }
-            fingerprint = client_js.getFingerprint();
+
             return fingerprint;
         }
 
@@ -172,6 +160,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("device", ['$q', device]);
+    app.factory("device", ['storage', 'cryptoLibrary', device]);
 
 }(angular, ClientJS));

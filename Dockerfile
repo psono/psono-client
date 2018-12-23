@@ -1,7 +1,7 @@
 FROM psono-docker.jfrog.io/alpine:latest
 LABEL maintainer="Sascha Pfeiffer <sascha.pfeiffer@psono.com>"
 
-ENV NGINX_VERSION 1.15.1
+ENV NGINX_VERSION 1.15.7
 
 RUN apk upgrade --no-cache \
     && GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
@@ -47,7 +47,7 @@ RUN apk upgrade --no-cache \
 		zlib-dev \
 		linux-headers \
 		curl \
-		gnupg \
+		gnupg1 \
 		geoip-dev \
 	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz -o nginx.tar.gz \
 	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz.asc  -o nginx.tar.gz.asc \

@@ -1,7 +1,10 @@
 (function () {
     describe('Service: managerBase test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         // other users public / private key pair
         var other_public_key = 'ed7293c239164855aca4c2e6edb19e09bba41e3451603ec427782d45f2d57b39';

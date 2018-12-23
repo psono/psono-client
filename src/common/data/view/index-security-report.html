@@ -6,36 +6,34 @@
             -->
         </div>
         <div class="title col-sm-4">
-            <h1>Security Report</h1>
+            <h1>{{'SECURITY_REPORT' | translate}}</h1>
         </div>
     </div>
 
     <div class="panel panel-default" ng-if="state.report_complete">
         <div class="panel-heading clearfix">
-            <h3 class="panel-title">Security Report</h3>
+            <h3 class="panel-title">{{'SECURITY_REPORT' | translate}}</h3>
         </div>
         <div class="panel-body in" aria-expanded="true" aria-hidden="false" style="height: auto;">
 
             <div class="alert alert-warning" ng-if="!analysis.user_summary.multifactor_auth_enabled">
-                <strong>Warning!</strong> Please consider enabling multifactor authentication as it significantly
-                improves your account's security.
+                <strong>{{'WARNING' | translate}}!</strong> {{'CONSIDER_ENABLING_MULTIFACTOR_AUTHENTICATION' | translate}}
             </div>
 
             <div class="alert alert-warning" ng-if="!analysis.user_summary.recovery_code_enabled">
-                <strong>Warning!</strong> Please consider creating a recovery code to recover your account in case of a
-                lost passwords.
+                <strong>{{'WARNING' | translate}}!</strong> {{'CONSIDER_ENABLING_RECOVERY_CODES' | translate}}
             </div>
 
             <div class="row">
                 <div class="col-xs-3">
-                    <h5>Password Strength</h5>
+                    <h5>{{'PASSWORD_STRENGTH' | translate}}</h5>
                     <canvas id="doughnut_password_strength" class="chart chart-doughnut"
                             chart-colors="password_strength_colors"
                             chart-data="password_strength_data"
                             chart-labels="password_strength_labels">
                     </canvas>
-                    <p class="text-center" ng-if="analysis.password_summary.weak">{{ analysis.password_summary.weak }} weak passwords</p>
-                    <p class="text-center" ng-if="!analysis.password_summary.weak">No weak passwords</p>
+                    <p class="text-center" ng-if="analysis.password_summary.weak">{{ analysis.password_summary.weak }} {{'WEAK_PASSWORDS' | translate}}</p>
+                    <p class="text-center" ng-if="!analysis.password_summary.weak">{{'NO_WEAK_PASSWORDS' | translate}}</p>
                 </div>
                 <div class="col-xs-3">
                     <h5>Duplicates</h5>
@@ -44,8 +42,8 @@
                             chart-data="duplicate_data"
                             chart-labels="duplicate_labels">
                     </canvas>
-                    <p class="text-center" ng-if="analysis.password_summary.duplicate">{{ analysis.password_summary.duplicate }} duplicates</p>
-                    <p class="text-center" ng-if="!analysis.password_summary.duplicate">No duplicates</p>
+                    <p class="text-center" ng-if="analysis.password_summary.duplicate">{{ analysis.password_summary.duplicate }} {{'DUPLICATES' | translate}}</p>
+                    <p class="text-center" ng-if="!analysis.password_summary.duplicate">{{'NO_DUPLICATES' | translate}}</p>
                 </div>
                 <div class="col-xs-3">
                     <h5>Average Score</h5>
@@ -54,29 +52,29 @@
                             chart-data="average_score_data"
                             chart-labels="average_score_labels">
                     </canvas>
-                    <p class="text-center">{{ analysis.password_summary.average_rating }}% score</p>
+                    <p class="text-center">{{ analysis.password_summary.average_rating }}% {{'SCORE' | translate}}</p>
                 </div>
                 <div class="col-xs-3">
-                    <h5>Password Age</h5>
+                    <h5>{{'PASSWORD_AGE' | translate}}</h5>
                     <canvas id="doughnut_password_update_age" class="chart chart-doughnut"
                             chart-colors="password_update_age_colors"
                             chart-data="password_update_age_data"
                             chart-labels="password_update_age_labels">
                     </canvas>
-                    <p class="text-center">{{ analysis.password_summary.average_update_age }} days</p>
+                    <p class="text-center">{{ analysis.password_summary.average_update_age }} {{'DAYS' | translate}}</p>
                 </div>
             </div>
 
             <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
                 <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Password</th>
-                    <th>Rating</th>
-                    <th>Age</th>
-                    <th ng-if="check_haveibeenpwned">Pwned</th>
-                    <th>Duplicate</th>
-                    <th>Advise</th>
+                    <th>{{'NAME' | translate}}</th>
+                    <th>{{'PASSWORD' | translate}}</th>
+                    <th>{{'RATING' | translate}}</th>
+                    <th>{{'AGE' | translate}}</th>
+                    <th ng-if="check_haveibeenpwned">{{'PWNED' | translate}}</th>
+                    <th>{{'DUPLICATE' | translate}}</th>
+                    <th>{{'ADVISE' | translate}}</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -95,7 +93,7 @@
                         </div>
                     </td>
                     <td>{{ pw.rating }}</td>
-                    <td>{{ pw.write_age }} days</td>
+                    <td>{{ pw.write_age }} {{'DAYS' | translate}}</td>
                     <td ng-if="check_haveibeenpwned">
                         <i class="fa fa-exclamation-triangle" aria-hidden="true" ng-if="pw.pwned"></i>
                         <span style="display: none" ng-if="!pw.pwned">0</span>
@@ -106,7 +104,8 @@
                         <span style="display: none" ng-if="!pw.duplicate">0</span>
                         <span style="display: none" ng-if="pw.duplicate">1</span>
                     </td>
-                    <td>{{ pw.advise }}</td>
+                    <!--<td>{{ pw.advise | translate:pw }}</td>-->
+                    <td translate="{{ pw.advise }}" translate-values='pw'></td>
                 </tr>
                 </tbody>
             </table>
@@ -116,49 +115,45 @@
 
     <div class="panel panel-default" ng-if="!state.report_complete">
         <div class="panel-heading clearfix">
-            <h3 class="panel-title">Generate Security Report</h3>
+            <h3 class="panel-title">{{'GENERATE_SECURITY_REPORT' | translate}}</h3>
         </div>
         <div class="panel-body in" aria-expanded="true" aria-hidden="false" style="height: auto;">
 
             <div class="alert alert-info">
-                <strong>Info!</strong> Psono's goal is to increase your security awareness with this report. We will
-                analyze all passwords for their strength and complexity, and give you tips how to improve security and
-                which passwords you should change. In the process we will read all passwords and other information from
-                the server and then decrypt and analyse them completely in your browser.
+                <strong>{{'INFO' | translate}}!</strong> {{'SECURITY_REPORT_GOAL' | translate}}
             </div>
-            <form class="form-horizontal">
+            <form class="form-horizontal" autocomplete="off">
                 <div class="form-group">
                     <label class="control-label col-sm-2" for="password">
-                        Your Password <em>(optional)</em>
+                        {{'YOUR_PASSWORD' | translate}} <em>{{'OPTIONAL_IN_BRACKETS' | translate}}</em>
                     </label>
                     <div class="col-sm-10">
-                        <input type="password" class="form-control" id="password" placeholder="(optional) Your Password"
+                        <input type="password" class="form-control" id="password" placeholder="{{'OPTIONAL_IN_BRACKETS' | translate}} {{'YOUR_PASSWORD' | translate}}"
                                ng-model="password">
                     </div>
                 </div>
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
                         <input type="checkbox" ng-model="check_haveibeenpwned">
-                        Check against <a href="https://haveibeenpwned.com/Passwords" target="_blank" rel="noopener">haveibeenpwned.com service</a>
-                        using the <a href="https://haveibeenpwned.com/API/v2#SearchingPwnedPasswordsByRange" target="_blank" rel="noopener">/range API</a>?
+                        {{'CHECK_AGAINST' | translate}} <a href="https://haveibeenpwned.com/Passwords" target="_blank" rel="noopener">haveibeenpwned.com</a> (<a href="https://haveibeenpwned.com/API/v2#SearchingPwnedPasswordsByRange" target="_blank" rel="noopener">/range API</a>)?
                     </div>
                 </div>
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
-                        <button type="submit" class="btn btn-primary btn-primary" ng-click="generate_security_report(password, check_haveibeenpwned)">Start Analysis</button>
+                        <button type="submit" class="btn btn-primary btn-primary" ng-click="generate_security_report(password, check_haveibeenpwned)">{{'START_ANALYSIS' | translate}}</button>
                     </div>
                 </div>
 
                 <div class="form-group alert alert-danger" ng-repeat="e in errors">
-                    <strong>Error:</strong> {{e}}
+                    <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
                 </div>
 
                 <div class="form-group alert alert-info" ng-repeat="e in msgs">
-                    <strong>Error:</strong> {{e}}
+                    <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
                 </div>
 
                 <div ng-if="state.download_ongoing">
-                    <strong>Downloading Passwords from the server:</strong>
+                    <strong>{{'DOWNLOADING_PASSWORDS' | translate}}:</strong>
                     <uib-progressbar max="state.open_secret_requests" value="state.closed_secret_request" ng-if="state.download_ongoing">
                         <span style="color:white; white-space:nowrap;">{{ state.closed_secret_request }} / {{ state.open_secret_requests }}</span>
                     </uib-progressbar>
@@ -166,7 +161,7 @@
                 </div>
 
                 <div ng-if="state.haveibeenpwned_ongoing">
-                    <strong>Haveibeenpawnd Analysis:</strong>
+                    <strong>{{'HAVEIBEENPAWND_ANALYSIS' | translate}}:</strong>
                     <uib-progressbar max="state.open_haveibeenpwned_requests" value="state.closed_haveibeenpwned_requests" ng-if="state.haveibeenpwned_ongoing">
                         <span style="color:white; white-space:nowrap;">{{ state.closed_haveibeenpwned_requests }} / {{ state.open_haveibeenpwned_requests }}</span>
                     </uib-progressbar>
@@ -174,7 +169,7 @@
                 </div>
             </form>
             <div class="alert alert-warning">
-                <strong>Warning!</strong> This analysis can take several minutes to complete.
+                <strong>{{'WARNING' | translate}}!</strong> {{'ANALYSIS_CAN_TAKE_SEVERAL_MINUTES' | translate}}
             </div>
 
         </div>

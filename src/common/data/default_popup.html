@@ -40,10 +40,10 @@
 <div ng-controller="WrapperCtrl" class="ng-cloak" id="panel">
 <div ng-if="view === 'logged_in'" ng-controller="PanelCtrl">
 
-    <form name="searchForm" ng-if="!show_2fa_button">
+    <form name="searchForm" ng-if="!show_2fa_button" autocomplete="off">
         <div class="form-group">
             <input id="datastoresearch" name="datastoresearch" class="form-control" ng-model="datastore.search"
-                   placeholder="Search datastore..." autofocus>
+                   placeholder="{{'SEARCH_DATSTORE' | translate}}" autofocus>
         </div>
         <hr>
         <ul class="navigations">
@@ -63,27 +63,27 @@
                     <ul class="dropdown-menu dropdown-button-menu"
                         aria-labelledby="drop_node_{{searchEntry.key}}">
                         <li role="menuitem" ng-click="copy_username(searchEntry)">
-                            <a href="#"><i class="fa fa-clipboard"></i>Copy Username</a>
+                            <a href="#"><i class="fa fa-clipboard"></i>{{'COPY_USERNAME' | translate}}</a>
                         </li>
                         <li role="menuitem" ng-click="copy_password(searchEntry)">
-                            <a href="#"><i class="fa fa-clipboard"></i>Copy Password</a>
+                            <a href="#"><i class="fa fa-clipboard"></i>{{'COPY_PASSWORD' | translate}}</a>
                         </li>
                         <li role="menuitem" ng-click="edit_item(searchEntry)">
-                            <a href="#"><i class="fa fa-wrench"></i>Show / Edit</a>
+                            <a href="#"><i class="fa fa-wrench"></i>{{'SHOW_OR_EDIT' | translate}}</a>
                         </li>
                     </ul>
                 </span>
             </li>
             <li ng-if="datastore.filteredSearcArray.length === 0 && datastore.search !== ''">
-                <a href="#" onclick="return false;">No entry found ...</a>
+                <a href="#" onclick="return false;">{{'NO_ENTRY_FOUND' | translate}}</a>
             </li>
         </ul>
 
         <ul class="navigations" ng-if="!datastore.search">
-            <li><a href="#" class="navigationitem" ng-click="open_tab('index.html')">Open Datastore</a></li>
+            <li><a href="#" class="navigationitem" ng-click="open_tab('index.html')">{{'OPEN_DATASTORE' | translate}}</a></li>
 
-            <li><a href="#" class="navigationitem" ng-click="generate_password()" ng-if="!offline">Generate Password</a></li>
-            <li><a href="#" class="navigationitem" ng-click="bookmark()" ng-if="!offline">Bookmark</a></li>
+            <li><a href="#" class="navigationitem" ng-click="generate_password()" ng-if="!offline">{{'GENERATE_PASSWORD' | translate}}</a></li>
+            <li><a href="#" class="navigationitem" ng-click="bookmark()" ng-if="!offline">{{'BOOKMARK' | translate}}</a></li>
             <!--<li><a href="https://www.psono.pw/help" target="_blank">Help</a></li>-->
 
         </ul>
@@ -91,50 +91,68 @@
         <hr>
 
         <div class="btn-group">
-            <button ng-click="logout()" type="submit" class="btn btn-danger">Logout</button>
+            <button ng-click="logout()" type="submit" class="btn btn-danger">{{'LOGOUT' | translate}}</button>
         </div>
     </form>
     <div ng-if="show_2fa_button">
         <div class="alert alert-info">
-            <strong>Info!</strong> Your administrator requires that you setup a second factor. Please choose one and set it up.
+            <strong>{{'INFO' | translate}}!</strong> {{'ADMINISTRATOR_REQUIRES_SECOND_FACTOR' | translate}}
         </div>
-        <button ng-click="open_tab('enforce-two-fa.html')" type="submit" class="btn btn-danger">Setup Two Factor</button>
-        <button ng-click="logout()" class="btn btn-default">Logout</button>
+        <button ng-click="open_tab('enforce-two-fa.html')" type="submit" class="btn btn-danger">{{'SETUP_SECOND_FACTOR' | translate}}</button>
+        <button ng-click="logout()" class="btn btn-default">{{'LOGOUT' | translate}}</button>
     </div>
 </div>
 <div ng-if="view === 'logged_out'" ng-controller="LoginCtrl" class="loginbox">
     <!-- Not logged in, show the login form -->
     <img src="img/logo.png" alt="Psono Web Client" id="logo">
-    <a href="https://psono.com/" target="_blank" rel="noopener"><i class="fa fa-info-circle fa-pull-right" aria-hidden="true"> Info</i></a>
+    <a href="https://psono.com/" target="_blank" rel="noopener" class="infolabel"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+
+    <div class="btn-group loginbox-translate" uib-dropdown keyboard-nav>
+        <button id="language-picker" type="button" class="btn btn-primary" uib-dropdown-toggle>
+            {{active.lang.lng_code | translate}} <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" aria-labelledby="language-picker">
+            <li role="menuitem" ng-repeat="lang in languages">
+                <a href="" ng-click="change_language(lang)" ng-if="lang.active">
+                    {{lang.lng_code | translate}}
+                </a>
+            </li>
+            <li role="menuitem">
+                <a target="_blank" rel="noopener" href="https://poeditor.com/join/project/Aiea8D0WIr">
+                    {{'NOT_LISTED' | translate}}
+                </a>
+            </li>
+        </ul>
+    </div>
 
     <form name="loginForm" ng-if="view === 'default'" autocomplete="off">
         <div ng-class="{'input-group': loginFormUsername == null || loginFormUsername.indexOf('@') == -1}">
-            <input type="text" class="form-control" id="loginUsername" placeholder="Username" ng-model="loginFormUsername" required aria-describedby="username-addon" autofocus>
+            <input type="text" class="form-control" id="loginUsername" placeholder="{{'USERNAME' | translate}}" ng-model="loginFormUsername" required aria-describedby="username-addon" autofocus>
             <span class="input-group-addon" id="username-addon" ng-if="loginFormUsername == null || loginFormUsername.indexOf('@') == -1">@{{selected_server_domain}}</span>
         </div>
         <br>
         <div class="form-group">
-            <input type="password" class="form-control" id="loginPassword" placeholder="Password" ng-model="loginFormPassword" required>
+            <input type="password" class="form-control" id="loginPassword" placeholder="{{'PASSWORD' | translate}}" ng-model="loginFormPassword" required>
         </div>
         <div class="checkbox">
-            <label><input type="checkbox" ng-model="loginFormRemember"> Remember username and server</label>
+            <label><input type="checkbox" ng-model="loginFormRemember"> {{'REMEMBER_USERNAME_AND_SERVER' | translate}}</label>
         </div>
         <div class="checkbox">
-            <label><input type="checkbox" ng-model="loginFormTrustDevice"> Trust device</label>
+            <label><input type="checkbox" ng-model="loginFormTrustDevice"> {{'TRUST_DEVICE' | translate}}</label>
         </div>
 
         <div class="form-group">
-            <button ng-click="initiate_login(loginFormUsername, loginFormPassword, loginFormRemember, loginFormTrustDevice, false)" type="submit" class="btn btn-danger">Login <i class="fa fa-sign-in" aria-hidden="true"></i></button>
-            <a href="#" ng-click="open_tab('register.html')">Register</a>
+            <button ng-click="initiate_login(loginFormUsername, loginFormPassword, loginFormRemember, loginFormTrustDevice, false)" type="submit" class="btn btn-danger">{{'LOGIN' | translate}} <i class="fa fa-sign-in" aria-hidden="true"></i></button>
+            <a href="#" ng-click="open_tab('register.html')">{{'REGISTER' | translate}}</a>
         </div>
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
-            <strong>Error:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
         </div>
 
         <div class="form-group hideinputcharakter">
 
-            <label for="serverselection">Server: </label>
+            <label for="serverselection">{{'SERVER' | translate}}: </label>
             <input type="text" id="serverselection"
                    uib-popover-template="'view/popover-server-select.html'"
                    popover-trigger="'focus'"
@@ -145,156 +163,152 @@
         </div>
     </form>
 
-    <form name="newServerForm" ng-if="view === 'new_server'">
+    <form name="newServerForm" ng-if="view === 'new_server'" autocomplete="off">
         <!-- new Server View -->
         <div class="form-group">
-            <h4>New Server</h4>
+            <h4>{{'NEW_SERVER' | translate}}</h4>
         </div>
         <div class="form-group">
-            <p>Fingerprint of the new server:</p>
+            <p>{{'FINGERPRINT_OF_THE_NEW_SERVER' | translate}}:</p>
             <textarea class="form-control" id="newServerFingerprint"
-                      placeholder="Fingerprint of the new server"
+                      placeholder="{{'FINGERPRINT_OF_THE_NEW_SERVER' | translate}}"
                       ng-model="newServerFingerprint" readonly="readonly"></textarea>
         </div>
 
         <div class="form-group">
             <button ng-click="approve_new_server()" type="submit"
-                    class="btn btn-danger">Approve</button>
-            <a href="#" ng-click="disapprove_new_server()">Cancel</a>
+                    class="btn btn-danger">{{'APPROVE' | translate}}</button>
+            <a href="#" ng-click="disapprove_new_server()">{{'CANCEL' | translate}}</a>
         </div>
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
-            <strong>Error:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
         </div>
 
         <div class="form-group">
             <div class="alert alert-info">
-                <strong>Info!</strong> It appears, that you want to connect to this server for the first time.
-                Please verify that the fingerprint of the server is correct before approving.
+                <strong>{{'INFO' | translate}}!</strong> {{'IT_APPEARS_THAT_YOU_WANT_TO_CONNECT' | translate}}
             </div>
         </div>
     </form>
 
-    <form name="signatureChangedForm" ng-if="view === 'signature_changed'">
+    <form name="signatureChangedForm" ng-if="view === 'signature_changed'" autocomplete="off">
         <!-- signature changed View -->
         <div class="form-group">
-            <h4>Server signature changed:</h4>
+            <h4>{{'SERVER_SIGNATURE_CHANGED' | translate}}:</h4>
         </div>
         <div class="form-group">
-            <p>The new presented fingerprint is:</p>
+            <p>{{'THE_NEW_FINGERPRINT_IS' | translate}}:</p>
             <textarea class="form-control" id="changedFingerprint"
-                      placeholder="Fingerprint of the new server"
+                      placeholder="{{'FINGERPRINT_OF_THE_NEW_SERVER' | translate}}"
                       ng-model="changedFingerprint" readonly="readonly"></textarea>
         </div>
         <div class="form-group">
-            <p>The old fingerprint was:</p>
+            <p>{{'THE_OLD_FINGERPRINT_WAS' | translate}}:</p>
             <textarea class="form-control" id="oldFingerprint"
-                      placeholder="Fingerprint of the old server"
+                      placeholder="{{'FINGERPRINT_OF_THE_OLD_SERVER' | translate}}"
                       ng-model="oldFingerprint" readonly="readonly"></textarea>
         </div>
         <div class="form-group">
             <div class="alert alert-danger">
-                <strong>Danger!</strong> The signature of the server changed. It could mean that the connection
-                to the server has been compromised.<br><br><strong>Please contact the owner of this server.</strong>
+                <strong>{{'DANGER' | translate}}!</strong> {{'THE_SIGNATURE_OF_THE_SERVER_CHANGED' | translate}}<br><br><strong>{{'CONTACT_THE_OWNER_OF_THE_SERVER' | translate}}</strong>
             </div>
         </div>
 
         <div class="form-group">
             <button ng-click="disapprove_new_server()" type="submit"
-                    class="btn btn-danger">Cancel</button>
-            <a href="#" ng-click="approve_new_server()">Ignore and continue.</a>
+                    class="btn btn-danger">{{'CANCEL' | translate}}</button>
+            <a href="#" ng-click="approve_new_server()">{{'IGNORE_AND_CONTINUE' | translate}}</a>
         </div>
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
-            <strong>Error:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
         </div>
     </form>
 
-    <form name="askPlainForm" ng-if="view === 'ask_send_plain'">
+    <form name="askPlainForm" ng-if="view === 'ask_send_plain'" autocomplete="off">
         <!-- signature changed View -->
         <div class="form-group">
-            <h4>Server asks for your plaintext password:</h4>
+            <h4>{{'SERVER_ASKS_FOR_YOUR_PLAINTEXT_PASSWORD' | translate}}:</h4>
         </div>
         <div class="form-group">
             <div class="alert alert-warning">
-                <strong>Danger!</strong> Accepting this will send your plain password to the server and should only be allowed
-                if you are using LDAP or similar authentication methods. You can decline this, but this might fail in an
-                authentication failure.
+                <strong>{{'DANGER' | translate}}!</strong> {{'ACCEPTING_THIS_WILL_SEND_YOUR_PLAIN_PASSWORD' | translate}}
             </div>
         </div>
 
         <div class="form-group">
             <button ng-click="approve_send_plain()" type="submit"
-                    class="btn btn-warning">Approve (unsafe)</button>
+                    class="btn btn-warning">{{'APPROVE_UNSAFE' | translate}}</button>
             <button ng-click="disapprove_send_plain()" type="submit"
-                    class="btn btn-success">Decline (safe)</button>
+                    class="btn btn-success">{{'DECLINE_SAFE' | translate}}</button>
         </div>
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
-            <strong>Error:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
         </div>
     </form>
 
-    <form name="googleAuthenticatorForm" ng-if="view === 'google_authenticator_2fa'">
+    <form name="googleAuthenticatorForm" ng-if="view === 'google_authenticator_2fa'" autocomplete="off">
         <!-- google_authenticator_2fa View -->
         <div class="form-group">
-            Please enter your Google Authenticator Code:
+            {{'ENTER_YOUR_GOOGLE_AUTHENTICATOR_CODE' | translate}}:
         </div>
         <div class="form-group">
-            <input type="text" class="form-control" id="gaToken" placeholder="Google Authenticator Token"
+            <input type="text" class="form-control" id="gaToken" placeholder="{{'GOOGLE_AUTHENTICATOR_CODE' | translate}}"
                    ng-model="googleAuthenticatorFormGAToken" required maxlength="6" minlength="6">
         </div>
 
         <div class="form-group">
             <button ng-click="ga_verify(googleAuthenticatorFormGAToken)" type="submit"
-                    class="btn btn-danger">Send</button>
-            <button class="btn" type="button" ng-click="cancel();">Close</button>
+                    class="btn btn-danger">{{'SEND' | translate}}</button>
+            <button class="btn" type="button" ng-click="cancel();">{{'CLOSE' | translate}}</button>
         </div>
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
-            <strong>Error:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
         </div>
     </form>
 
-    <form name="yubikeyOTPForm" ng-if="view === 'yubikey_otp_2fa'">
+    <form name="yubikeyOTPForm" ng-if="view === 'yubikey_otp_2fa'" autocomplete="off">
         <!-- yubikey_otp_2fa View -->
         <div class="form-group">
-            Please enter your YubiKey OTP Token:
+            {{'ENTER_YOUR_YUBIKEY_OTP_TOKEN' | translate}}:
         </div>
         <div class="form-group">
-            <input type="text" class="form-control" id="yubikeyOTPToken" placeholder="YubiKey Token"
+            <input type="text" class="form-control" id="yubikeyOTPToken" placeholder="{{'YUBIKEY_TOKEN' | translate}}"
                    ng-model="yubikeyOTPFormToken" required>
         </div>
 
         <div class="form-group">
             <button ng-click="yubikey_otp_verify(yubikeyOTPFormToken)" type="submit"
-                    class="btn btn-danger">Send</button>
-            <button class="btn" type="button" ng-click="cancel();">Close</button>
+                    class="btn btn-danger">{{'SEND' | translate}}</button>
+            <button class="btn" type="button" ng-click="cancel();">{{'CLOSE' | translate}}</button>
         </div>
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
-            <strong>Error:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
         </div>
     </form>
 
-    <form name="duoForm" ng-if="view === 'duo_2fa'">
+    <form name="duoForm" ng-if="view === 'duo_2fa'" autocomplete="off">
         <!-- duo_2fa View -->
         <div class="form-group">
-            Approve the push notification on your mobile or provide your Duo Code:
+            {{'APPROVE_THE_PUSH_NOTIFICATION' | translate}}:
         </div>
         <div class="form-group">
-            <input type="text" class="form-control" id="duoToken" placeholder="Duo Code"
+            <input type="text" class="form-control" id="duoToken" placeholder="{{'DUO_CODE' | translate}}"
                    ng-model="duoFormToken" required>
         </div>
 
         <div class="form-group">
             <button ng-click="duo_verify(duoFormToken)" type="submit"
-                    class="btn btn-danger">Send</button>
-            <button class="btn" type="button" ng-click="cancel();">Close</button>
+                    class="btn btn-danger">{{'SEND' | translate}}</button>
+            <button class="btn" type="button" ng-click="cancel();">{{'CLOSE' | translate}}</button>
         </div>
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
-            <strong>Error:</strong> {{e}}
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
         </div>
     </form>
 </div>
@@ -329,7 +343,6 @@
 <script src="js/lib/datatables.min.js" type="text/javascript"></script>
 <script src="js/lib/snap.min.js" type="text/javascript"></script>
 <script src="js/lib/jquery-ui.min.js"></script>
-<script src="js/lib/sortable.min.js" type="application/javascript"></script>
 <script src="js/lib/lokijs.min.js" type="application/javascript"></script>
 <script src="js/lib/qrcode.min.js" type="application/javascript"></script>
 <script src="js/lib/fastclick.js" type="application/javascript"></script>
@@ -340,6 +353,9 @@
 
 <!-- Angular Juju -->
 <script src="js/lib/angular.min.js" type="application/javascript"></script>
+<script src="js/lib/raven.min.js" type="application/javascript"></script>
+<script src="js/raven.js" type="application/javascript"></script>
+<script src="js/lib/angular-cookies.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-animate.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-touch.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-complexify.min.js" type="application/javascript"></script>
@@ -349,9 +365,12 @@
 <script src="js/lib/angular-sanitize.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-local-storage.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-snap.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-translate.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-translate-storage-cookie.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-translate-loader-url.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-translate-loader-static-files.min.js" type="application/javascript"></script>
 <script src="js/lib/ui-bootstrap-tpls.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-datatables.js" type="application/javascript"></script>
-<script src="js/lib/ngdraggable.js" type="application/javascript"></script>
 <script src="js/lib/angular-ui-select.js" type="application/javascript"></script>
 <script src="js/lib/ng-context-menu.js" type="application/javascript"></script>
 
@@ -365,6 +384,8 @@
 <script src="js/directive/treeViewNode.js" type="application/javascript"></script>
 
 <script src="js/controller/AcceptShareCtrl.js"></script>
+<script src="js/controller/ChooseFolderCtrl.js"></script>
+<script src="js/controller/ChooseSecretsCtrl.js"></script>
 <script src="js/controller/AccountCtrl.js" type="application/javascript"></script>
 <script src="js/controller/ActivationCtrl.js" type="application/javascript"></script>
 <script src="js/controller/DatastoreCtrl.js"></script>
@@ -373,14 +394,19 @@
 <script src="js/controller/GPGDecryptMessageCtrl.js" type="application/javascript"></script>
 <script src="js/controller/GPGEncryptMessageCtrl.js" type="application/javascript"></script>
 <script src="js/controller/LostPasswordCtrl.js" type="application/javascript"></script>
+<script src="js/controller/ActivateEmergencyCodeCtrl.js" type="application/javascript"></script>
 <script src="js/controller/MainCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/AcceptShareCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/ChooseFolderCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/ChooseSecretsCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ConfigureGoogleAuthenticatorCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/DeleteOtherSessionsCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/AddGPGReceiverCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ConfigureDuoCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ConfigureYubiKeyOTPCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/CreateDatastoreCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/CreateAPIKeyCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/EditAPIKeyCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/EditDatastoreCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/DeleteDatastoreCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/DatastoreNewEntryCtrl.js" type="application/javascript"></script>
@@ -388,6 +414,7 @@
 <script src="js/controller/modal/EditEntryCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/EditFolderCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/GoOfflineCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/HistoryCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/NewFolderCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/VerifyCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/NewGroupCtrl.js" type="application/javascript"></script>
@@ -401,6 +428,7 @@
 <script src="js/controller/modal/ShareEditEntryCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ShareEntryCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ShareNewEntryCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/ShowEmergencyCodesCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ShowRecoverycodeCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/UnlockOfflineCacheCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/DeleteAccountCtrl.js" type="application/javascript"></script>
@@ -410,6 +438,7 @@
 <script src="js/controller/SessionsCtrl.js" type="application/javascript"></script>
 <script src="js/controller/KnownHostsCtrl.js" type="application/javascript"></script>
 <script src="js/controller/OtherDatastoreCtrl.js" type="application/javascript"></script>
+<script src="js/controller/OtherAPIKeyCtrl.js" type="application/javascript"></script>
 <script src="js/controller/ExportCtrl.js" type="application/javascript"></script>
 <script src="js/controller/ImportCtrl.js" type="application/javascript"></script>
 <script src="js/controller/PanelCtrl.js" type="application/javascript"></script>
@@ -437,9 +466,11 @@
 <script src="js/service/account.js" type="application/javascript"></script>
 <script src="js/service/settings.js" type="application/javascript"></script>
 <script src="js/service/manager-base.js" type="application/javascript"></script>
+<script src="js/service/language-picker.js" type="application/javascript"></script>
 <script src="js/service/manager.js" type="application/javascript"></script>
 <script src="js/service/manager-widget.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore.js" type="application/javascript"></script>
+<script src="js/service/manager-api-keys.js" type="application/javascript"></script>
 <script src="js/service/manager-secret-link.js" type="application/javascript"></script>
 <script src="js/service/manager-share-link.js" type="application/javascript"></script>
 <script src="js/service/manager-export.js" type="application/javascript"></script>
@@ -453,12 +484,14 @@
 <script src="js/service/import-keepassx-org-csv.js" type="application/javascript"></script>
 <script src="js/service/import-keepass-info-csv.js" type="application/javascript"></script>
 <script src="js/service/import-keepass-info-xml.js" type="application/javascript"></script>
+<script src="js/service/manager-status.js" type="application/javascript"></script>
 <script src="js/service/manager-secret.js" type="application/javascript"></script>
 <script src="js/service/manager-share.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore-password.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore-user.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore-gpg-user.js" type="application/javascript"></script>
 <script src="js/service/manager-groups.js" type="application/javascript"></script>
+<script src="js/service/manager-history.js" type="application/javascript"></script>
 <script src="js/service/manager-datastore-setting.js" type="application/javascript"></script>
 <script src="js/service/browser-client.js" type="application/javascript"></script>
 <script src="js/service/drop-down-menu-watcher.js" type="application/javascript"></script>

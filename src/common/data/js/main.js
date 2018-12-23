@@ -29,7 +29,7 @@
      * @property {string} port The query, evething after '#' e.g. 'anotherParameter=test'
      *
      * @typedef {Object} TreeObject
-     * @property {uuid} [datastore_id] The datastore id if its the top
+     * @property {uuid} [datastore_id] The datastore id ifit'sthe top
      * @property {uuid} [parent_datastore_id] The parent datastore id
      * @property {uuid} [parent_share_id] The parent share id
      * @property {object} [share_rights] All the share rights in an object
@@ -48,10 +48,37 @@
 
 
     angular.module('psonocli', ['ngRoute', 'ng', 'ui.bootstrap', 'snap', 'chieffancypants.loadingBar', 'ngAnimate',
-            'LocalStorageModule', 'ngTree', 'ngDraggable', 'ng-context-menu', 'ui.select', 'ngSanitize',
-            'angular-complexify', 'datatables', 'chart.js'])
-        .config(['$routeProvider', '$httpProvider', '$locationProvider', '$compileProvider', 'localStorageServiceProvider',
-            function ($routeProvider, $httpProvider, $locationProvider, $compileProvider, localStorageServiceProvider) {
+            'LocalStorageModule', 'ngTree', 'ng-context-menu', 'ui.select', 'ngSanitize',
+            'angular-complexify', 'datatables', 'chart.js', 'pascalprecht.translate', 'ngCookies'])
+        .provider('languages', function(){
+            var languages = {
+                'cs': {'code': 'cs', 'lng_code': 'LANG_CS', 'active': true},
+                'de': {'code': 'de', 'lng_code': 'LANG_DE', 'active': true},
+                'en': {'code': 'en', 'lng_code': 'LANG_EN', 'active': true, 'default': true},
+                'es': {'code': 'es', 'lng_code': 'LANG_ES', 'active': true},
+                'fi': {'code': 'fi', 'lng_code': 'LANG_FI'},
+                'fr': {'code': 'fr', 'lng_code': 'LANG_FR', 'active': true},
+                'hr': {'code': 'hr', 'lng_code': 'LANG_HR', 'active': true},
+                'it': {'code': 'it', 'lng_code': 'LANG_IT', 'active': true},
+                'ja': {'code': 'ja', 'lng_code': 'LANG_JA'},
+                'ko': {'code': 'ko', 'lng_code': 'LANG_KO'},
+                'nl': {'code': 'nl', 'lng_code': 'LANG_NL', 'active': true},
+                'pl': {'code': 'pl', 'lng_code': 'LANG_PL'},
+                'ru': {'code': 'ru', 'lng_code': 'LANG_RU'},
+                'vi': {'code': 'vi', 'lng_code': 'LANG_VI'},
+                'zh-cn': {'code': 'zh-cn', 'lng_code': 'LANG_ZH_CN'}
+            };
+            return {
+                value : languages,
+                $get : function(){
+                    return {
+                        value : languages
+                    };
+                }
+            };
+        })
+        .config(['$translateProvider', '$routeProvider', '$httpProvider', '$locationProvider', '$compileProvider', 'localStorageServiceProvider', 'languagesProvider',
+            function ($translateProvider, $routeProvider, $httpProvider, $locationProvider, $compileProvider, localStorageServiceProvider, languagesProvider) {
                 //Router config
                 $routeProvider
                     .when('/settings', {
@@ -113,8 +140,8 @@
                         controller: 'DatastoreCtrl'
                     });
 
-                $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|s?ftp|mailto|tel|file|chrome-extension|blob):/);
-                $compileProvider.imgSrcSanitizationWhitelist(/^\s*((https?|ftp|file|chrome-extension|blob):|data:image\/)/);
+                $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|s?ftp|mailto|tel|file|chrome-extension|moz-extension|blob):/);
+                $compileProvider.imgSrcSanitizationWhitelist(/^\s*((https?|ftp|file|chrome-extension|moz-extension|blob):|data:image\/)/);
 
                 // Prevent caching for IE
                 // taken from https://stackoverflow.com/a/19771501/4582775
@@ -124,6 +151,33 @@
                 $httpProvider.defaults.headers.get['If-Modified-Since'] = 'Mon, 26 Jul 1997 05:00:00 GMT';
                 $httpProvider.defaults.headers.get['Cache-Control'] = 'no-cache';
                 $httpProvider.defaults.headers.get['Pragma'] = 'no-cache';
+
+                var langs = [];
+                for (var lang in languagesProvider.value) {
+                    if ( ! languagesProvider.value.hasOwnProperty(lang)) {
+                        continue;
+                    }
+                    langs.push(lang);
+                }
+
+                $translateProvider
+                    .useStaticFilesLoader({
+                        prefix: 'translations/locale-',
+                        suffix: '.json'
+                    })
+                    .registerAvailableLanguageKeys(langs, {
+                        'de_*': 'de',
+                        'en_*': 'en',
+                        'es_*': 'es',
+                        'fr_*': 'fr',
+                        'it_*': 'it',
+                        'zh_*': 'zh-cn',
+                        '*': 'en'
+                    })
+                    .fallbackLanguage('en')
+                    .determinePreferredLanguage()
+                    .useSanitizeValueStrategy('escape')
+                    .useCookieStorage();
 
             }])
         .filter('typeof', function() {
@@ -157,8 +211,8 @@
                 return parts.join(' ');
             };
         }])
-        .run(['$rootScope', '$location', '$routeParams', '$http', '$templateCache', 'managerSecret', 'offlineCache',
-            function ($rootScope, $location, $routeParams, $http, $templateCache, managerSecret, offlineCache) {
+        .run(['$rootScope', '$location', '$routeParams', '$http', '$templateCache', 'managerSecret', 'offlineCache', 'managerStatus',
+            function ($rootScope, $location, $routeParams, $http, $templateCache, managerSecret, offlineCache, managerStatus) {
 
                 $rootScope.$on( "$routeChangeStart", function(event, next, current) {
                     var offline_redirect_urls = [

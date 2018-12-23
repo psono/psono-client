@@ -9,12 +9,13 @@
      * @requires $timeout
      * @requires psonocli.managerSecret
      * @requires psonocli.managerDatastorePassword
+     * @requires psonocli.storage
      *
      * @description
      * Service to manage the export of datastores
      */
 
-    var managerExport = function($q, $window, $timeout, managerSecret, managerDatastorePassword) {
+    var managerExport = function($q, $window, $timeout, managerSecret, managerDatastorePassword, storage) {
 
         var _exporter = [{
             name: 'JSON (import compatible)',
@@ -60,6 +61,29 @@
             for (var i = registrations[event].length - 1; i >= 0; i--) {
                 registrations[event][i](data);
             }
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerExport#export_disabled
+         * @methodOf psonocli.managerExport
+         *
+         * @description
+         * Returns weather the server allows the export feature or not
+         * By default it will return false (indicate enabled export)
+         */
+        var export_disabled = function () {
+
+            var server_info =  storage.find_key('config', 'server_info');
+
+            if (server_info === null) {
+                return true
+            }
+            if (!server_info.value.hasOwnProperty('compliance_disable_export')) {
+                return false
+            }
+
+            return server_info.value['compliance_disable_export'];
         };
 
         /**
@@ -336,6 +360,7 @@
         return {
             on:on,
             emit:emit,
+            export_disabled: export_disabled,
             get_exporter:get_exporter,
             fetch_datastore:fetch_datastore,
             export_datastore:export_datastore,
@@ -344,6 +369,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerExport", ['$q', '$window', '$timeout', 'managerSecret', 'managerDatastorePassword', managerExport]);
+    app.factory("managerExport", ['$q', '$window', '$timeout', 'managerSecret', 'managerDatastorePassword', 'storage', managerExport]);
 
 }(angular));

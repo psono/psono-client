@@ -1,7 +1,10 @@
 (function () {
     describe('Service: converter test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('converter exists', inject(function (converter) {
             expect(converter).toBeDefined();

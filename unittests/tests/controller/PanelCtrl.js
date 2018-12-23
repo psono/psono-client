@@ -1,7 +1,10 @@
 (function () {
     describe('Controller: PanelCtrl test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         var $controller, $rootScope, $httpBackend, $scope, $location, storage;
 

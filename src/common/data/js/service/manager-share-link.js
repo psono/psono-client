@@ -53,8 +53,8 @@
          * Moves a link between a share and a datastore or another (parent-)share
          *
          * @param {uuid} link_id The link id
-         * @param {uuid|undefined} [new_parent_share_id=null] (optional) new parent share ID, necessary if no new_datastore_id is provided
-         * @param {uuid|undefined} [new_parent_datastore_id=null] (optional) new datastore ID, necessary if no new_parent_share_id is provided
+         * @param {uuid|undefined} [new_parent_share_id] (optional) new parent share ID, necessary if no new_datastore_id is provided
+         * @param {uuid|undefined} [new_parent_datastore_id] (optional) new datastore ID, necessary if no new_parent_share_id is provided
          *
          * @returns {promise} Returns a promise with the status of the move
          */
@@ -113,8 +113,8 @@
          * @returns {promise} Returns a promise with the status of the move
          */
         var on_share_moved = function(link_id, parent) {
-            var new_parent_share_id = null,
-                new_parent_datastore_id = null;
+            var new_parent_share_id = undefined,
+                new_parent_datastore_id = undefined;
 
             if (parent.hasOwnProperty("share_id")) {
                 new_parent_share_id = parent.share_id;

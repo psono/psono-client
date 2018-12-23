@@ -14,8 +14,7 @@
      * @requires psonocli.helper
      *
      * @description
-     * managerBase is 'like' a base class for all managers. It contains functions that should be accessible by several
-     * managers but should never be added in any other services (because of design pattern and security reasons)
+     * managerDatastore collects all functions to edit / update / create a datastore and to work with it.
      */
 
     var managerDatastore = function($q, $timeout, browserClient, managerBase, apiClient, cryptoLibrary, storage, helper) {
@@ -32,7 +31,7 @@
          * @description
          * Returns the overview of all datastores that belong to this user
          *
-         * @param {boolean} force_fresh Force fresh call to the backend
+         * @param {boolean} [force_fresh] (optional) Force fresh call to the backend
          *
          * @returns {promise} Promise with the datastore overview
          */
@@ -113,7 +112,6 @@
          * @returns {promise} Promise with the datastore that belongs to the given id
          */
         var get_datastore_with_id = function (datastore_id) {
-
             var onError = function(result) {
                 // pass
             };

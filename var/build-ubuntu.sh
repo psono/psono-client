@@ -11,5 +11,6 @@ yarn install && \
 yarn global add gulp && \
 yarn global add addons-linter && \
 yarn global add karma-cli && \
+yarn global add node-poeditor && \
 gulp && \
 gulp updateversion

@@ -30,7 +30,8 @@ body {
   .panel-body .widget-searchform {
     position: absolute;
     right: 2px;
-    top: -36px; }
+    top: -36px;
+    width: 100%; }
 
 .note {
   font-style: italic; }
@@ -83,6 +84,10 @@ body {
 .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {
   background-color: #2ba880;
   border-color: #2ba880; }
+
+.loginbox-translate.open .dropdown-toggle.btn-primary {
+  background-color: #151f2b;
+  border-color: #151f2b; }
 
 .btn-primary:active:hover,
 .btn-primary.active:hover,

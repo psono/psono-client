@@ -1,4 +1,4 @@
-(function(angular) {
+(function(angular, Raven) {
     'use strict';
 
     /**
@@ -26,10 +26,10 @@
      */
     angular.module('psonocli').controller('MainCtrl', ['$scope', '$rootScope', '$filter', '$timeout', 'account',
         'managerDatastorePassword', 'managerDatastoreUser', 'managerDatastore', 'managerSecret', 'browserClient',
-        'storage', 'offlineCache', 'snapRemote', '$window', '$route', '$routeParams', '$location', '$uibModal',
+        'storage', 'offlineCache', 'snapRemote', '$window', '$route', '$routeParams', '$location', '$uibModal', 'managerStatus',
         function ($scope, $rootScope, $filter, $timeout, account,
                   managerDatastorePassword, managerDatastoreUser, managerDatastore, managerSecret, browserClient,
-                  storage, offlineCache, snapRemote, $window, $route, $routeParams, $location, $uibModal) {
+                  storage, offlineCache, snapRemote, $window, $route, $routeParams, $location, $uibModal, managerStatus) {
 
 
             $scope.open_tab = browserClient.open_tab;
@@ -43,6 +43,11 @@
 
             $scope.user_username = account.get_account_detail('user_username');
             $scope.messages = [];
+            $scope.server_status = {
+                data: {
+
+                }
+            };
             $scope.data_stores=[];
 
             /* test background page */
@@ -71,8 +76,18 @@
                 });
 
 
+                managerStatus.get_status().then(function(status) {
+                    $scope.server_status.data = status.data;
+                });
+
+                $rootScope.$on('server_status_updated', function(event, data) {
+                    $scope.server_status.data = data.data;
+                });
+
+
                 browserClient.load_version().then(function(version) {
                     $scope.version = version;
+                    Raven.setRelease(version);
                 });
                 managerDatastore.register('on_datastore_overview_update', refresh_datastore_dropdown);
             }
@@ -201,4 +216,4 @@
             }
         }]
     );
-}(angular));
+}(angular, Raven));

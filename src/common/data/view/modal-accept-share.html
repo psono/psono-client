@@ -1,4 +1,4 @@
-<form name="modalAcceptShareForm" novalidate>
+<form name="modalAcceptShareForm" novalidate autocomplete="off">
     <div class="modal-header">
         <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
         <h3 class="modal-title">{{ title }}</h3>
@@ -8,7 +8,7 @@
         <label ng-if="!item.share_right_read" for="modalAcceptShareForm-title" class="smalllabel">Title</label>
         <input ng-if="!item.share_right_read" id="modalAcceptShareForm-title" ng-model="item.share_right_title" class="form-control" type="text">
 
-        <label for="modalAcceptShareForm-path" class="smalllabel">Path</label>
+        <label for="modalAcceptShareForm-path" class="smalllabel">{{'PATH' | translate}}</label>
         <div class="input-group path_box_parent">
             <div id="modalAcceptShareForm-path" class="path_box form-control">
                 <span ng-if="!breadcrumbs.breadcrumbs">\</span>
@@ -28,7 +28,7 @@
 
         <div ng-controller="AcceptShareCtrl" class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title">Choose location</h3>
+                <h3 class="panel-title">{{'CHOOSE_LOCATION' | translate}}</h3>
             </div>
             <div class="panel-body">
                 <div data-target="menu-acceptshare-main" context-menu="contextMenuOnShow('menu-acceptshare-main')" context-menu-close="contextMenuOnClose('menu-acceptshare-main')" class="expand15">
@@ -36,7 +36,7 @@
                     <div class="dropdown position-fixed dropdown-rightclick" id="menu-acceptshare-main">
                         <ul class="dropdown-menu" role="menu">
                             <li role="menuitem" ng-click="openNewFolder($event)">
-                                <a href="#!/share/pendingshares"><i class="fa fa-folder"></i>New Folder</a>
+                                <a href="#!/share/pendingshares"><i class="fa fa-folder"></i>{{'NEW_FOLDER' | translate}}</a>
                             </li>
                         </ul>
                     </div>
@@ -54,7 +54,7 @@
                     </div>
 
                     <div ng-if="structure.loaded && !(structure.data.folders || structure.data.items)">
-                        No Folders so far
+                        {{'NO_FOLDER_SO_FAR' | translate}}
                     </div>
 
                     <div ng-if="!structure.loaded">
@@ -68,7 +68,7 @@
                            text-align: center;
                            animation: fa-spin 2s infinite linear;
                            vertical-align: middle;">&#xf110;</i>
-                            Loading
+                            {{'LOADING' | translate}}
                         </div>
 
                     </div>
@@ -91,36 +91,34 @@
             <!--&lt;!&ndash; End Acceptshare Widget &ndash;&gt;-->
         <!--</div>-->
 
-        <h4 ng-if="!hide_user">shared by:</h4>
+        <h4 ng-if="!hide_user">{{'SHARED_BY' | translate}}:</h4>
 
         <div class="form-group" ng-if="!hide_user">
             <label ng-if="user.data.user_name" class="smalllabel" for="modalAcceptShareForm-user-name">
-                Username: <span ng-if="!user_is_trusted" class="text-danger">(not trusted)</span>
+                {{'USERNAME' | translate}}: <span ng-if="!user_is_trusted" class="text-danger">{{'NOT_TRUSTED_BRACKETS' | translate}}</span>
             </label>
-            <input ng-if="user.data.user_name" id="modalAcceptShareForm-user-name" type="text" placeholder="Name"
+            <input ng-if="user.data.user_name" id="modalAcceptShareForm-user-name" type="text" placeholder="{{'NAME' | translate}}"
                    ng-value="user.data.user_name" class="form-control" disabled="disabled">
             <label ng-if="!user.data.user_name" class="smalllabel" for="modalAcceptShareForm-user-username">
-                Username <span ng-if="!user_is_trusted" class="text-danger">(not trusted)</span>
+                {{'USERNAME' | translate}} <span ng-if="!user_is_trusted" class="text-danger">{{'NOT_TRUSTED_BRACKETS' | translate}}</span>
             </label>
-            <input ng-if="!user.data.user_name" id="modalAcceptShareForm-user-username" type="text" placeholder="Username"
+            <input ng-if="!user.data.user_name" id="modalAcceptShareForm-user-username" type="text" placeholder="{{'USERNAME' | translate}}"
                    ng-value="user.data.user_username" class="form-control" disabled="disabled">
             <label class="smalllabel" for="modalAcceptShareForm-user-public-key">
-                Public Key: <span ng-if="!user_is_trusted" class="text-danger">(not trusted)</span>
+                {{'PUBLIC_KEY' | translate}}: <span ng-if="!user_is_trusted" class="text-danger">{{'NOT_TRUSTED_BRACKETS' | translate}}</span>
             </label>
-            <input id="modalAcceptShareForm-user-public-key" type="text" placeholder="Public Key"
+            <input id="modalAcceptShareForm-user-public-key" type="text" placeholder="{{'PUBLIC_KEY' | translate}}"
                    ng-value="user.data.user_public_key" class="form-control" disabled="disabled">
         </div>
 
         <div ng-if="!user_is_trusted && !hide_user">
-            <span class="text-danger"><strong>Attention:</strong></span> You never confirmed this user's identity. Please ask the user on a "secure" channel if that
-            really is his public key.
-            If you confirmed this public key and want to add it to your trusted user datastore click here:
-            <a href="#!/share/pendingshares" ng-click="trust(user_list)">Add to trusted users</a>.
+            <span class="text-danger"><strong>{{'ATTENTION' | translate}}:</strong></span> {{'YOU_NEVER_CONFIRMED_THIS_USERS_IDENTITY' | translate}}
+            <a href="#!/share/pendingshares" ng-click="trust(user_list)">{{'ADD_TO_TRUSTED_USERS' | translate}}</a>.
         </div>
 
     </div>
     <div class="modal-footer">
-        <button class="btn" type="button" ng-click="cancel();">Close</button>
-        <button class="btn btn-primary" type="submit" ng-click="save()">OK</button>
+        <button class="btn" type="button" ng-click="cancel();">{{'CLOSE' | translate}}</button>
+        <button class="btn btn-primary" type="submit" ng-click="save()">{{'OK' | translate}}</button>
     </div>
 </form>

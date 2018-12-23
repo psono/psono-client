@@ -24,8 +24,6 @@
                  $uibModal, itemBlueprint, managerWidget, message,
                  $timeout, dropDownMenuWatcher){
 
-            var contextMenusOpen = 0;
-
             $scope.contextMenuOnShow = contextMenuOnShow;
             $scope.contextMenuOnClose = contextMenuOnClose;
             $scope.openNewFolder = openNewFolder;
@@ -44,7 +42,7 @@
                 onNodeSelect: function (node, breadcrumbs, id_breadcrumbs) {
                     $scope.breadcrumbs = breadcrumbs;
                     $scope.node = node;
-                    message.emit("modal_accept_share_breadcrumbs_update",
+                    message.emit("node_breadcrumbs_update",
                         {'breadcrumbs': breadcrumbs, 'id_breadcrumbs': id_breadcrumbs});
                 },
                 /**
@@ -123,17 +121,6 @@
                 },
 
                 /**
-                 * triggered once someone wants to move an item
-                 *
-                 * @param item_path
-                 * @param target_path
-                 * @returns {*}
-                 */
-                onItemDropComplete: function (item_path, target_path) {
-                    return move_item($scope, item_path, target_path, 'items');
-                },
-
-                /**
                  * Filters out share folders which we cannot read nor write to as possible target for our accept share
                  *
                  * @param node
@@ -141,25 +128,6 @@
                  */
                 isSelectable: function (node) {
                     return ! node.hasOwnProperty('share_rights') || !! (node.share_rights.read && node.share_rights.write)
-                },
-
-                /**
-                 * triggered once someone wants to move a folder
-                 *
-                 * @param item_path
-                 * @param target_path
-                 * @returns {*}
-                 */
-                onFolderDropComplete: function (item_path, target_path) {
-                    return move_item($scope, item_path, target_path, 'folders');
-                },
-                /**
-                 * blocks move if context menus are open
-                 *
-                 * @returns {boolean}
-                 */
-                blockMove: function() {
-                    return contextMenusOpen > 0;
                 },
                 contextMenuOnShow: $scope.contextMenuOnShow,
                 contextMenuOnClose: $scope.contextMenuOnClose,
@@ -190,7 +158,6 @@
              */
             function contextMenuOnShow(div_id) {
                 dropDownMenuWatcher.on_open(div_id);
-                contextMenusOpen++;
             }
 
             /**
@@ -205,9 +172,6 @@
              */
             function contextMenuOnClose(div_id) {
                 dropDownMenuWatcher.on_close(div_id);
-                $timeout(function() {
-                    contextMenusOpen--;
-                }, 500);
             }
 
             /**

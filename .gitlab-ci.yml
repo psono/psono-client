@@ -34,6 +34,16 @@ test-linter:
     - addons-linter ./build/firefox
 
 
+test-upload-translations:
+  stage: test
+  image: psono-docker.jfrog.io/python:3
+  script:
+    - pip install requests
+    - python3 var/sync_translations.py
+  only:
+    - develop
+
+
 build-docker-image:
   except:
     - schedules
@@ -44,6 +54,7 @@ build-docker-image:
   variables:
     DOCKER_HOST: 'tcp://docker:2375'
   script:
+    - sh ./var/download_translations_from_artifactory.sh
     - sh ./var/build-ubuntu.sh
     - curl -fSL "https://download.docker.com/linux/static/stable/x86_64/docker-17.12.1-ce.tgz" -o docker.tgz && echo "1270dce1bd7e1838d62ae21d2505d87f16efc1d9074645571daaefdfd0c14054 *docker.tgz" | sha256sum -c - && tar -xzvf docker.tgz && mv docker/* /usr/local/bin/ && rm -Rf docker*
     - docker info
@@ -63,6 +74,7 @@ build-firefox-extension:
   stage: build
   image: psono-docker.jfrog.io/ubuntu:16.04
   script:
+    - sh ./var/download_translations_from_artifactory.sh
     - sh ./var/build-ubuntu.sh
     - sh ./var/package-firefox-extension.sh
     - curl -fL https://getcli.jfrog.io | sh
@@ -85,6 +97,7 @@ build-chrome-extension:
   stage: build
   image: psono-docker.jfrog.io/ubuntu:16.04
   script:
+    - sh ./var/download_translations_from_artifactory.sh
     - sh ./var/build-ubuntu.sh
     - sh ./var/package-chrome-extension.sh
     - curl -fL https://getcli.jfrog.io | sh
@@ -107,6 +120,7 @@ build-webclient:
   stage: build
   image: psono-docker.jfrog.io/ubuntu:16.04
   script:
+    - sh ./var/download_translations_from_artifactory.sh
     - sh ./var/build-ubuntu.sh
     - sh ./var/package-webclient.sh
     - curl -fL https://getcli.jfrog.io | sh

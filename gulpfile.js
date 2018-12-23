@@ -17,7 +17,6 @@ var run = require('gulp-run');
 var sass = require('gulp-sass');
 var jwt = require('jsonwebtoken');
 var karma_server = require('karma').Server;
-var runSequence = require('run-sequence');
 var webstore_upload = require('webstore-upload');
 
 var fs = require("fs");
@@ -58,7 +57,7 @@ var build = function(build_path, type) {
             "src/common/data/css/lib/angular-datatables.css",
             "src/common/data/css/lib/datatables.bootstrap.css",
             "src/common/data/css/lib/angular-ui-select.css",
-            "src/common/data/css/lib/loading-barbar.min.css",
+            "src/common/data/css/lib/loading-bar.min.css",
             'src/common/data/css/angular-tree-view.css',
             'src/common/data/css/style.css'
         ])
@@ -89,6 +88,10 @@ var build = function(build_path, type) {
     gulp.src(['src/common/data/fonts/**/*'])
         .pipe(gulp.dest(path.join(build_path, 'fonts')));
 
+    // All files in data/translations
+    gulp.src(['src/common/data/translations/**/*'])
+        .pipe(gulp.dest(path.join(build_path, 'translations')));
+
     // All files in data/img
     gulp.src(['src/common/data/img/**/*'])
         .pipe(gulp.dest(path.join(build_path, 'img')));
@@ -115,7 +118,6 @@ var build = function(build_path, type) {
             "src/common/data/js/lib/datatables.min.js",
             "src/common/data/js/lib/snap.min.js",
             "src/common/data/js/lib/jquery-ui.min.js",
-            "src/common/data/js/lib/sortable.min.js",
             "src/common/data/js/lib/lokijs.min.js",
             "src/common/data/js/lib/qrcode.min.js",
             "src/common/data/js/lib/fastclick.js",
@@ -123,6 +125,9 @@ var build = function(build_path, type) {
             "src/common/data/js/lib/papaparse.min.js",
             "src/common/data/js/lib/fast-xml-parser.js",
             "src/common/data/js/lib/angular.min.js",
+            "src/common/data/js/lib/raven.min.js",
+            "src/common/data/js/raven.js",
+            "src/common/data/js/lib/angular-cookies.min.js",
             "src/common/data/js/lib/angular-animate.min.js",
             "src/common/data/js/lib/angular-touch.min.js",
             "src/common/data/js/lib/angular-complexify.min.js",
@@ -132,8 +137,11 @@ var build = function(build_path, type) {
             "src/common/data/js/lib/angular-sanitize.min.js",
             "src/common/data/js/lib/angular-local-storage.min.js",
             "src/common/data/js/lib/angular-snap.min.js",
+            "src/common/data/js/lib/angular-translate.min.js",
+            "src/common/data/js/lib/angular-translate-storage-cookie.min.js",
+            "src/common/data/js/lib/angular-translate-loader-url.min.js",
+            "src/common/data/js/lib/angular-translate-loader-static-files.min.js",
             "src/common/data/js/lib/ui-bootstrap-tpls.min.js",
-            "src/common/data/js/lib/ngdraggable.js",
             "src/common/data/js/lib/angular-ui-select.js",
             "src/common/data/js/lib/ng-context-menu.js",
             "src/common/data/js/lib/angular-datatables.js",
@@ -148,6 +156,8 @@ var build = function(build_path, type) {
             "src/common/data/js/directive/treeViewNode.js",
 
             "src/common/data/js/controller/AcceptShareCtrl.js",
+            "src/common/data/js/controller/ChooseFolderCtrl.js",
+            "src/common/data/js/controller/ChooseSecretsCtrl.js",
             "src/common/data/js/controller/AccountCtrl.js",
             "src/common/data/js/controller/ActivationCtrl.js",
             "src/common/data/js/controller/DatastoreCtrl.js",
@@ -156,14 +166,19 @@ var build = function(build_path, type) {
             "src/common/data/js/controller/GPGDecryptMessageCtrl.js",
             "src/common/data/js/controller/GPGEncryptMessageCtrl.js",
             "src/common/data/js/controller/LostPasswordCtrl.js",
+            "src/common/data/js/controller/ActivateEmergencyCodeCtrl.js",
             "src/common/data/js/controller/MainCtrl.js",
             "src/common/data/js/controller/modal/AcceptShareCtrl.js",
+            "src/common/data/js/controller/modal/ChooseFolderCtrl.js",
+            "src/common/data/js/controller/modal/ChooseSecretsCtrl.js",
             "src/common/data/js/controller/modal/ConfigureGoogleAuthenticatorCtrl.js",
             "src/common/data/js/controller/modal/DeleteOtherSessionsCtrl.js",
             "src/common/data/js/controller/modal/AddGPGReceiverCtrl.js",
             "src/common/data/js/controller/modal/ConfigureDuoCtrl.js",
             "src/common/data/js/controller/modal/ConfigureYubiKeyOTPCtrl.js",
             "src/common/data/js/controller/modal/CreateDatastoreCtrl.js",
+            "src/common/data/js/controller/modal/CreateAPIKeyCtrl.js",
+            "src/common/data/js/controller/modal/EditAPIKeyCtrl.js",
             "src/common/data/js/controller/modal/EditDatastoreCtrl.js",
             "src/common/data/js/controller/modal/DeleteDatastoreCtrl.js",
             "src/common/data/js/controller/modal/DatastoreNewEntryCtrl.js",
@@ -171,6 +186,7 @@ var build = function(build_path, type) {
             "src/common/data/js/controller/modal/EditEntryCtrl.js",
             "src/common/data/js/controller/modal/EditFolderCtrl.js",
             "src/common/data/js/controller/modal/GoOfflineCtrl.js",
+            "src/common/data/js/controller/modal/HistoryCtrl.js",
             "src/common/data/js/controller/modal/NewFolderCtrl.js",
             "src/common/data/js/controller/modal/VerifyCtrl.js",
             "src/common/data/js/controller/modal/NewGroupCtrl.js",
@@ -184,6 +200,7 @@ var build = function(build_path, type) {
             "src/common/data/js/controller/modal/ShareEditEntryCtrl.js",
             "src/common/data/js/controller/modal/ShareEntryCtrl.js",
             "src/common/data/js/controller/modal/ShareNewEntryCtrl.js",
+            "src/common/data/js/controller/modal/ShowEmergencyCodesCtrl.js",
             "src/common/data/js/controller/modal/ShowRecoverycodeCtrl.js",
             "src/common/data/js/controller/modal/UnlockOfflineCacheCtrl.js",
             "src/common/data/js/controller/modal/DeleteAccountCtrl.js",
@@ -193,6 +210,7 @@ var build = function(build_path, type) {
             "src/common/data/js/controller/SessionsCtrl.js",
             "src/common/data/js/controller/KnownHostsCtrl.js",
             "src/common/data/js/controller/OtherDatastoreCtrl.js",
+            "src/common/data/js/controller/OtherAPIKeyCtrl.js",
             "src/common/data/js/controller/ExportCtrl.js",
             "src/common/data/js/controller/ImportCtrl.js",
             "src/common/data/js/controller/PanelCtrl.js",
@@ -220,9 +238,11 @@ var build = function(build_path, type) {
             "src/common/data/js/service/account.js",
             "src/common/data/js/service/settings.js",
             "src/common/data/js/service/manager-base.js",
+            "src/common/data/js/service/language-picker.js",
             "src/common/data/js/service/manager.js",
             "src/common/data/js/service/manager-widget.js",
             "src/common/data/js/service/manager-datastore.js",
+            "src/common/data/js/service/manager-api-keys.js",
             "src/common/data/js/service/manager-secret-link.js",
             "src/common/data/js/service/manager-share-link.js",
             "src/common/data/js/service/manager-export.js",
@@ -236,12 +256,14 @@ var build = function(build_path, type) {
             "src/common/data/js/service/import-keepassx-org-csv.js",
             "src/common/data/js/service/import-keepass-info-csv.js",
             "src/common/data/js/service/import-keepass-info-xml.js",
+            "src/common/data/js/service/manager-status.js",
             "src/common/data/js/service/manager-secret.js",
             "src/common/data/js/service/manager-share.js",
             "src/common/data/js/service/manager-datastore-password.js",
             "src/common/data/js/service/manager-datastore-user.js",
             "src/common/data/js/service/manager-datastore-gpg-user.js",
             "src/common/data/js/service/manager-groups.js",
+            "src/common/data/js/service/manager-history.js",
             "src/common/data/js/service/manager-datastore-setting.js",
             "src/common/data/js/service/browser-client.js",
             "src/common/data/js/service/drop-down-menu-watcher.js",
@@ -249,7 +271,7 @@ var build = function(build_path, type) {
             "src/common/data/view/templates.js",
             "src/common/data/js/google-analytics.js"
         ])
-            .pipe(maps.init())
+            .pipe(maps.init({loadMaps: true}))
             .pipe(uglify({
                 output: {
                     comments: saveLicense
@@ -282,7 +304,7 @@ var build = function(build_path, type) {
             'src/webclient/data/service-worker.js'
         ])
             .pipe(replace('%%PSONOVERSION%%', timestamp))
-            .pipe(maps.init())
+            .pipe(maps.init({loadMaps: true}))
             .pipe(uglify({
                 output: {
                     comments: saveLicense
@@ -349,11 +371,10 @@ gulp.task('build-chrome', function() {
 
 });
 
-gulp.task('default', function(callback) {
-    runSequence(['sass', 'template'],
-        ['build-chrome', 'build-firefox', 'build-webclient'],
-        callback);
-});
+gulp.task('default', gulp.series(
+    gulp.parallel('sass', 'template'),
+    gulp.parallel('build-chrome', 'build-firefox', 'build-webclient')
+));
 
 /**
  * Watcher to compile the project again once something changes
@@ -362,7 +383,8 @@ gulp.task('default', function(callback) {
  * - initiates the task for the creation of the firefox build folder
  * - initiates the task for the creation of the chrome build folder
  */
-gulp.task('watch', ['default'], function() {
+gulp.task('watch', gulp.series('default',
+function() {
     gulp.watch([
         'src/common/data/**/*',
         'src/chrome/**/*',
@@ -371,13 +393,12 @@ gulp.task('watch', ['default'], function() {
         '!src/common/data/css/**/*',
         '!src/common/data/sass/**/*.scss'], ['build-webclient', 'build-firefox', 'build-chrome']);
     gulp.watch('src/common/data/sass/**/*.scss', ['default']);
-});
-
+}));
 
 /**
  * Deploys the Chrome Extension to the Chrome Web Store
  */
-gulp.task('chrome-deploy', function() {
+gulp.task('chrome-deploy', function(cb) {
 
     var client_id = process.env.webstore_client_id;
     var client_secret = process.env.webstore_client_secret;
@@ -410,12 +431,14 @@ gulp.task('chrome-deploy', function() {
         .catch(function(err) {
             console.error(err);
         });
+
+    cb();
 });
 
 /**
  * Deploys the Firefox Extension to the Firefox Web Store
  */
-gulp.task('firefox-deploy', function() {
+gulp.task('firefox-deploy', function(cb) {
 
     var jwt_issuer = process.env.mozilla_jwt_issuer;
     var jwt_secret = process.env.mozilla_jwt_secret;
@@ -434,17 +457,19 @@ gulp.task('firefox-deploy', function() {
         algorithm: 'HS256'  // HMAC-SHA256 signing algorithm
     });
 
-    return run('curl "https://addons.mozilla.org/api/v3/addons/'+mozilla_addon_id+'/versions/'+ version +'/" -g -XPUT --form "upload=@firefox-extension.zip" -H "Authorization: JWT '+ token +'"').exec()
-        .pipe(gulp.dest('output'));
+    run('curl "https://addons.mozilla.org/api/v3/addons/'+mozilla_addon_id+'/versions/'+ version +'/" -g -XPUT --form "upload=@firefox-extension.zip" -H "Authorization: JWT '+ token +'"').exec();
+
+    cb();
 });
 
 
-gulp.task('updateversion', function() {
+gulp.task('updateversion', function(cb) {
 
     var commit_tag = process.env.CI_COMMIT_TAG;
     var commit_sha = process.env.CI_COMMIT_SHA;
 
     if (! /^v\d*\.\d*\.\d*$/.test(commit_tag)) {
+        cb();
         return;
     }
 
@@ -477,6 +502,8 @@ gulp.task('updateversion', function() {
             }))
             .pipe(gulp.dest(path.join("./build/", browser)));
     });
+
+    cb();
 });
 
 
@@ -484,7 +511,7 @@ gulp.task('updateversion', function() {
  * Create ngdocs documentation once and exit
  */
 
-gulp.task('docs', [], function () {
+gulp.task('docs', function () {
 
     var options = {
         html5Mode: false,

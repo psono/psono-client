@@ -1,14 +1,17 @@
 (function () {
     describe('Service: device test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('device exists', inject(function (device) {
             expect(device).toBeDefined();
         }));
 
         it('get_device_fingerprint', inject(function (device) {
-            expect(device.get_device_fingerprint()).toEqual(jasmine.any(Number));
+            expect(device.get_device_fingerprint()).toEqual(jasmine.any(String));
         }));
 
         it('is_ie', inject(function (device) {

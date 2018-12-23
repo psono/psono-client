@@ -39,6 +39,7 @@ body {
     position: absolute;
     right: 2px;
     top: -36px;
+    width: 100%;
   }
 }
 
@@ -114,6 +115,11 @@ body {
 .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {
   background-color: $dark-hightlight-hover-color;
   border-color: $dark-hightlight-hover-color;
+}
+
+.loginbox-translate.open .dropdown-toggle.btn-primary {
+  background-color: $dark-color;
+  border-color: $dark-color;
 }
 
 .btn-primary:active:hover,

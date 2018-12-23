@@ -1,7 +1,10 @@
 (function () {
     describe('Service: account test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('account exists', inject(function (account) {
             expect(account).toBeDefined();

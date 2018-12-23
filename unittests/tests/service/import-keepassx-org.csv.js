@@ -1,7 +1,10 @@
 (function () {
     describe('Service: importKeePassXCsv test suite', function () {
 
-        beforeEach(module('psonocli'));
+        beforeEach(module('psonocli', function ($translateProvider) {
+
+            $translateProvider.translations('en', {});
+        }));
 
         it('importKeePassXCsv exists', inject(function (importKeePassXCsv) {
             expect(importKeePassXCsv).toBeDefined();
