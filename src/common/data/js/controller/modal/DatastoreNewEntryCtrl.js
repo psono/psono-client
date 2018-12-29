@@ -95,12 +95,8 @@
                     return;
                 }
 
-                if ($scope.bp.selected.hasOwnProperty('beforeSave')) {
-                    $scope.bp.selected.beforeSave($scope.bp.selected, datastore, parent, path)
-                }
-
-                if ( $scope.bp.selected.hasOwnProperty('skipRegularCreate') && $scope.bp.selected['skipRegularCreate']) {
-                    $uibModalInstance.close();
+                if ($scope.bp.selected.hasOwnProperty('alternativeSave')) {
+                    $scope.bp.selected.alternativeSave($scope.bp.selected, parent, path, $uibModalInstance.close)
                 } else {
                     $scope.bp.selected['callback_data'] = $scope.data;
                     $uibModalInstance.close($scope.bp.selected);

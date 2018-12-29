@@ -4,10 +4,14 @@
     /**
      * @ngdoc service
      * @name psonocli.itemBlueprint
+     * @requires $q
      * @requires $rootScope
      * @requires $window
      * @requires $uibModal
      * @requires psonocli.helper
+     * @requires psonocli.cryptoLibrary
+     * @requires psonocli.storage
+     * @requires psonocli.apiFileserver
      *
      * @description
      * Service that provides the possible item blueprints e.g.:
@@ -18,603 +22,631 @@
      */
 
 
-    var itemBlueprint = function($rootScope, $window, $uibModal, helper, cryptoLibrary, apiFileserver) {
+    var itemBlueprint = function($q, $rootScope, $window, $uibModal, helper, cryptoLibrary, storage, apiFileserver) {
 
         var _default = "website_password";
 
         var registrations = {};
 
-        var _blueprints = {
-            website_password: {
-                id: "website_password", // Unique ID
-                name: "PASSWORD", // Displayed in Dropdown Menu
-                title_field: "website_password_title", // is the main column, that is used as filename
-                urlfilter_field: "website_password_url_filter", // is the filter column for url matching
-                autosubmit_field: "website_password_auto_submit", // is the filter column for auto submit
-                search: ['website_password_title', 'website_password_url_filter'], // are searched when the user search his entries
-                fields: [ // All fields for this object with unique names
-                    { name: "website_password_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true},
-                    { name: "website_password_url", field: "input", type: "text", validationType: "url", title: "URL", placeholder: "URL", onChange: "onChangeUrl"},
-                    { name: "website_password_username", field: "input", type: "text", title: "USERNAME", placeholder: "USERNAME"},
-                    { name: "website_password_password", field: "input", type: "password", title: "PASSWORD", placeholder: "PASSWORD",
-                        dropmenuItems:[
-                            {
-                                icon: "fa fa-eye-slash",
-                                text:"SHOW_PASSWORD",
-                                onclick:function(id, item) {
-                                    if (document.getElementById(id).type === 'text') {
-                                        document.getElementById(id).type = 'password';
-                                        item.text = 'SHOW_PASSWORD';
-                                    } else {
-                                        document.getElementById(id).type = 'text';
-                                        item.text = 'HIDE_PASSWORD';
-                                    }
-                                }
-                            },
-                            {
-                                icon: "fa fa-cogs",
-                                text:"GENERATE_PASSWORD",
-                                hide_offline: true,
-                                hide_on_not_write: true,
-                                onclick:function(id, item) {
-                                    angular.element(document.querySelector('#'+id)).val(registrations['generate']()).trigger('input');
+        var _blueprint_website_password = {
+            id: "website_password", // Unique ID
+            name: "PASSWORD", // Displayed in Dropdown Menu
+            title_field: "website_password_title", // is the main column, that is used as filename
+            urlfilter_field: "website_password_url_filter", // is the filter column for url matching
+            autosubmit_field: "website_password_auto_submit", // is the filter column for auto submit
+            search: ['website_password_title', 'website_password_url_filter'], // are searched when the user search his entries
+            fields: [ // All fields for this object with unique names
+                { name: "website_password_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true},
+                { name: "website_password_url", field: "input", type: "text", validationType: "url", title: "URL", placeholder: "URL", onChange: "onChangeUrl"},
+                { name: "website_password_username", field: "input", type: "text", title: "USERNAME", placeholder: "USERNAME"},
+                { name: "website_password_password", field: "input", type: "password", title: "PASSWORD", placeholder: "PASSWORD",
+                    dropmenuItems:[
+                        {
+                            icon: "fa fa-eye-slash",
+                            text:"SHOW_PASSWORD",
+                            onclick:function(id, item) {
+                                if (document.getElementById(id).type === 'text') {
+                                    document.getElementById(id).type = 'password';
+                                    item.text = 'SHOW_PASSWORD';
+                                } else {
+                                    document.getElementById(id).type = 'text';
+                                    item.text = 'HIDE_PASSWORD';
                                 }
                             }
-                        ]},
-                    { name: "website_password_notes", field: "textarea", title: "NOTES", placeholder: "NOTES"},
-                    { name: "website_password_auto_submit", field: "input", type:"checkbox", title: "AUTOMATIC_SUBMIT", position: "advanced"},
-                    { name: "website_password_url_filter", field: "textarea", title: "DOMAIN_FILTER", placeholder: "URL_FILTER_EG", position: "advanced"}
-                ],
-                /**
-                 * triggered whenever url is changing.
-                 * gets the fields and returns the default domain filter
-                 *
-                 * @param fields
-                 * @returns {string}
-                 */
-                onChangeUrl: function(fields){
-
-                    var url;
-                    var domain_filter_col;
-
-                    var i;
-                    for (i = 0; i < fields.length; i++) {
-                        if (fields[i].name === "website_password_url") {
-                            url = fields[i].value;
-                            break;
+                        },
+                        {
+                            icon: "fa fa-cogs",
+                            text:"GENERATE_PASSWORD",
+                            hide_offline: true,
+                            hide_on_not_write: true,
+                            onclick:function(id, item) {
+                                angular.element(document.querySelector('#'+id)).val(registrations['generate']()).trigger('input');
+                            }
                         }
-                    }
+                    ]},
+                { name: "website_password_notes", field: "textarea", title: "NOTES", placeholder: "NOTES"},
+                { name: "website_password_auto_submit", field: "input", type:"checkbox", title: "AUTOMATIC_SUBMIT", position: "advanced"},
+                { name: "website_password_url_filter", field: "textarea", title: "DOMAIN_FILTER", placeholder: "URL_FILTER_EG", position: "advanced"}
+            ],
+            /**
+             * triggered whenever url is changing.
+             * gets the fields and returns the default domain filter
+             *
+             * @param fields
+             * @returns {string}
+             */
+            onChangeUrl: function(fields){
 
-                    for (i = 0; i < fields.length; i++) {
-                        if (fields[i].name === "website_password_url_filter") {
-                            domain_filter_col = fields[i];
-                            break;
-                        }
-                    }
+                var url;
+                var domain_filter_col;
 
-                    if (typeof url === "undefined") {
-                        domain_filter_col.value = "";
-                        return "";
-                    }
-
-                    // get only toplevel domain
-                    var parsed_url = helper.parse_url(url);
-
-                    if (typeof(parsed_url.authority) === 'undefined' && url) {
-                        domain_filter_col.value = url;
-                        return url;
-                    } else if (typeof(parsed_url.authority) === 'undefined') {
-                        domain_filter_col.value = "";
-                        return '';
-                    } else {
-                        domain_filter_col.value = parsed_url.authority;
-                        return parsed_url.authority;
-                    }
-                },
-                onClickNewTab: true,
-                /**
-                 * will open a new tab
-                 *
-                 * @param content
-                 */
-                onOpenSecret: function(content) {
-                    $window.location.href = content.website_password_url;
-                },
-                /**
-                 * returns the message content with the username and password for the website
-                 *
-                 * @param content
-                 * @returns {{key: string, content: {username: *, password: *}}}
-                 */
-                msgBeforeOpenSecret: function(content) {
-                    return {
-                        key: "fillpassword",
-                        content: {
-                            username: content.website_password_username,
-                            password: content.website_password_password,
-                            authority: content.website_password_url_filter,
-                            auto_submit: content.website_password_auto_submit
-                        }
+                var i;
+                for (i = 0; i < fields.length; i++) {
+                    if (fields[i].name === "website_password_url") {
+                        url = fields[i].value;
+                        break;
                     }
                 }
-            },
-            note: {
-                id: "note",
-                name: "NOTE",
-                title_field: "note_title",
-                search: ['note_title'],
-                fields: [
-                    { name: "note_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true},
-                    { name: "note_notes", field: "textarea", title: "NOTES", placeholder: "NOTES"}
-                ]
-            },
-            file: {
-                id: "file",
-                name: "File",
-                title_field: "file_title",
-                search: ['file_title'],
-                fields: [
-                    { name: "file_title", field: "input", type: "text", title: "Title", placeholder: "Name", required: true},
-                    { name: "file", field: "input", type: "file", title: "File", placeholder: "File", required: true, onChange: "onChangeData"},
-                    { name: "file_id", field: "input", title: "File ID", placeholder: "File ID", hidden: true},
-                    { name: "file_secret_key", field: "input", title: "File Secret Key", placeholder: "File Secret Key", hidden: true},
-                    { name: "file_size", field: "input", title: "File Size", placeholder: "File Size (bytes)", hidden: true}
-                ],
 
-                /**
-                 * triggered whenever file data is changing.
-                 * gets the fields and returns the default domain filter
-                 *
-                 * @param fields
-                 * @returns {string}
-                 */
-                onChangeData: function(fields){
-
-                    var field_file_data;
-                    var field_file_title;
-
-                    var i;
-                    for (i = 0; i < fields.length; i++) {
-                        if (fields[i].name === "file") {
-                            field_file_data = fields[i];
-                        }
-                        if (fields[i].name === "file_title") {
-                            field_file_title = fields[i];
-                        }
-                    }
-                    if (!field_file_title.value) {
-                        field_file_title.value=field_file_data.value.replace(/^.*[\\\/]/, '');
-                    }
-                    console.log(field_file_data);
-
-                },
-
-                /**
-                 * triggered before storing it.
-                 *
-                 * @param selected
-                 * @param datastore
-                 * @param parent
-                 * @param path
-                 */
-                beforeSave: function(selected, datastore, parent, path){
-
-                    var file_secret_key = cryptoLibrary.generate_secret_key();
-                    var file_id = cryptoLibrary.generate_uuid();
-
-
-
-                    /**
-                     * Uploads a file in chunks
-                     *
-                     * @param file
-                     * @param file_id
-                     * @param file_secret_key
-                     */
-                    function upload_file(file, file_id, file_secret_key) {
-
-                        var time_start = new Date().getTime();
-
-                        var on_load_end = function(bytes, file_secret_key, chunk_position, is_last) {
-                            console.log(bytes);
-                            console.log("on_load_end " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
-                            time_start = new Date().getTime();
-                            var encrypted_bytes = cryptoLibrary.encrypt_file(bytes, file_secret_key);
-                            console.log("encrypt_file " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
-                            time_start = new Date().getTime();
-
-                            var hash = cryptoLibrary.blake2b(encrypted_bytes);
-                            console.log("blake2b " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
-                            time_start = new Date().getTime();
-
-                            apiFileserver.upload(encrypted_bytes, hash).then(function() {
-                                console.log("upload " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
-                                time_start = new Date().getTime();
-                            });
-                        };
-
-                        var read_file_chunk = function(file, file_slice_start, bytes_to_go, on_load_end, file_secret_key, chunk_position, is_last) {
-                            var file_reader = new FileReader();
-                            var file_slice;
-
-                            file_reader.onloadend = function(event) {
-                                var bytes = new Uint8Array(event.target.result);
-                                on_load_end(bytes, file_secret_key, chunk_position, is_last);
-                            };
-
-                            file_slice = file.slice(file_slice_start, file_slice_start + bytes_to_go);
-
-                            file_reader.readAsArrayBuffer(file_slice);
-
-                        };
-
-                        var chunk_position = 1;
-                        var is_last = false;
-                        var is_first = true;
-                        var file_slice_start = 0;
-                        var file_chunk_size = 128*1024*1024; // in bytes. e.g. 128*1024*1024 = 128 MB
-                        var chunk_length = Math.ceil(file.size / file_chunk_size);
-
-                        while (file_slice_start <= file.size) {
-                            var bytes_to_go = Math.min(file_chunk_size, file.size-file_slice_start);
-                            if (bytes_to_go === 0 && !is_first) {
-                                break;
-                            }
-                            is_last = file_slice_start + bytes_to_go === file.size;
-                            read_file_chunk(file, file_slice_start, bytes_to_go, on_load_end, file_secret_key, chunk_position, is_last);
-                            file_slice_start = file_slice_start + bytes_to_go;
-                            is_first = false;
-                        }
-                    }
-
-                    function get_dom_file(dom_field) {
-                        if (dom_field.files.length <= 0) {
-                            return;
-                        }
-                        return dom_field.files[0];
-                    }
-
-
-                    function get_dom_file_field(selected_fields) {
-
-                        for (var i = 0; i < selected_fields.length; i++) {
-                            var field = selected_fields[i];
-                            if (!field.hasOwnProperty("type") || field['type'] !== 'file' ) {
-                                continue;
-                            }
-
-                            if (angular.element('#newEntryForm-' + field['name']).length > 0) {
-                                return angular.element('#newEntryForm-' + field['name'])[0];
-                            }
-                        }
-
-                        return false;
-                    }
-
-                    var dom_field = get_dom_file_field(selected.fields);
-
-                    if (dom_field) {
-                        var file = get_dom_file(dom_field);
-                        if (!file) {
-                            return;
-                        }
-                        upload_file(file, file_id, file_secret_key)
-                    }
-
-                    selected.skipRegularCreate = true;
-                }
-            },
-            mail_gpg_own_key: {
-                id: "mail_gpg_own_key",
-                name: "GPG_KEY",
-                title_field: "mail_gpg_own_key_title",
-                search: ['mail_gpg_own_key_title', 'mail_gpg_own_key_email'],
-                fields: [
-                    { name: "mail_gpg_own_key_title", field: "input", type: "text", title: "TITLE", hidden: true, placeholder: "TITLE", required: true},
-                    { name: "mail_gpg_own_key_email", field: "input", type: "text", title: "EMAIL", placeholder: "EMAIL", hidden: true, readonly: true},
-                    { name: "mail_gpg_own_key_name", field: "input", type: "text", title: "NAME", placeholder: "NAME", hidden: true, readonly: true},
-                    { name: "mail_gpg_own_key_public", field: "textarea", title: "PUBLIC_KEY", placeholder: "PUBLIC_KEY", hidden: true, readonly: true},
-                    { name: "mail_gpg_own_key_private", field: "textarea", title: "PRIVATE_KEY", placeholder: "PRIVATE_KEY", hidden: true, readonly: true},
-                    { name: "mail_gpg_own_key_publish", field: "input", type:"checkbox", title: "PUBLISH_PUBLIC_KEY", hidden: true},
-                    { name: "mail_gpg_own_key_generate_new", field: "button", type: "button", title: "GENERATE_NEW_GPG_KEY", hidden: true, class: 'btn-primary', onClick:"onClickGenerateNewButton" },
-                    { name: "mail_gpg_own_key_generate_import_text", field: "button", type: "button", title: "IMPORT_AS_TEXT", hidden: true, class: 'btn-primary', onClick:"onClickImportAsTextButton" },
-                    { name: "mail_gpg_own_key_encrypt_message", field: "button", type: "button", title: "ENCRYPT_MESSAGE", hidden: true, class: 'btn-default', onClick:"onClickEncryptMessageButton" },
-                    { name: "mail_gpg_own_key_decrypt_message", field: "button", type: "button", title: "DECRYPT_MESSAGE", hidden: true, class: 'btn-default', onClick:"onClickDecryptMessageButton" }
-                ],
-                /**
-                 * triggered whenever the "Generate New" button is clicked.
-                 * Will open a new modal so the user can enter his details, and once the modal closes show the details for this entry.
-                 *
-                 * @param node
-                 * @param fields
-                 * @param errors
-                 * @param form_control
-                 * @param selected_server_domain
-                 */
-                onClickGenerateNewButton: function(node, fields, errors, form_control, selected_server_domain){
-
-                    var show_key = function(data) {
-
-                        for (var i = 0; i < fields.length; i++) {
-                            if (fields[i].name === "mail_gpg_own_key_title") {
-                                fields[i].value = data.title;
-                                fields[i].hidden = false;
-                            }
-                            if (fields[i].name === "mail_gpg_own_key_name") {
-                                fields[i].value = data.name;
-                                fields[i].hidden = false;
-                            }
-                            if (fields[i].name === "mail_gpg_own_key_email") {
-                                fields[i].value = data.email;
-                                fields[i].hidden = false;
-                            }
-                            if (fields[i].name === "mail_gpg_own_key_public") {
-                                fields[i].value = data.public_key;
-                                fields[i].hidden = false;
-                            }
-                            if (fields[i].name === "mail_gpg_own_key_private") {
-                                fields[i].value = data.private_key;
-                                fields[i].hidden = false;
-                            }
-                        }
-                    };
-
-                    var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal-generate-new-mail-gpg-key.html',
-                        controller: 'ModalGenerateNewMailGPGKeyCtrl',
-                        backdrop: 'static',
-                        resolve: {
-                        }
-                    });
-
-                    modalInstance.result.then(function (data) {
-                        show_key(data);
-                        //form_control['block_submit'] = false;
-                    }, function () {
-                        // cancel triggered
-                    });
-
-                },
-                /**
-                 * triggered whenever the "Import (as text)" button is clicked.
-                 * Will open a new modal so the user can copy paste his keys, and once the modal closes show the details for this entry.
-                 *
-                 * @param node
-                 * @param fields
-                 * @param errors
-                 * @param form_control
-                 * @param selected_server_domain
-                 */
-                onClickImportAsTextButton: function(node, fields, errors, form_control, selected_server_domain){
-
-                    var show_key = function(data) {
-
-                        for (var i = 0; i < fields.length; i++) {
-                            if (fields[i].name === "mail_gpg_own_key_title") {
-                                fields[i].value = data.title;
-                                fields[i].hidden = false;
-                            }
-                            if (fields[i].name === "mail_gpg_own_key_name") {
-                                fields[i].value = data.name;
-                                fields[i].hidden = false;
-                            }
-                            if (fields[i].name === "mail_gpg_own_key_email") {
-                                fields[i].value = data.email;
-                                fields[i].hidden = false;
-                            }
-                            if (fields[i].name === "mail_gpg_own_key_public") {
-                                fields[i].value = data.public_key;
-                                fields[i].hidden = false;
-                            }
-                            if (fields[i].name === "mail_gpg_own_key_private") {
-                                fields[i].value = data.private_key;
-                                fields[i].hidden = false;
-                            }
-                        }
-                    };
-
-                    var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal-import-mail-gpg-key-as-text.html',
-                        controller: 'ModalImportMailGPGKeyAsTextCtrl',
-                        backdrop: 'static',
-                        resolve: {
-                        }
-                    });
-
-                    modalInstance.result.then(function (data) {
-                        show_key(data);
-                        //form_control['block_submit'] = false;
-                    }, function () {
-                        // cancel triggered
-                    });
-
-                },
-                /**
-                 * triggered whenever the "Encrypt Message" button is clicked.
-                 * Will open a new modal where the user can encrypt a message for specific receivers.
-                 *
-                 * @param node
-                 * @param fields
-                 * @param errors
-                 * @param form_control
-                 * @param selected_server_domain
-                 */
-                onClickEncryptMessageButton: function(node, fields, errors, form_control, selected_server_domain){
-                    var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal-encrypt-message-gpg.html',
-                        controller: 'ModalEncryptMessageGPGCtrl',
-                        backdrop: 'static',
-                        resolve: {
-                            secret_id: function() {
-                                return node.secret_id;
-                            }
-                        }
-                    });
-
-                    modalInstance.result.then(function (data) {
-                        // pass
-                    }, function () {
-                        // cancel triggered
-                    });
-
-                },
-                /**
-                 * triggered whenever the "Decrypt Message" button is clicked.
-                 * Will open a new modal where the user can decrypt a message.
-                 *
-                 * @param node
-                 * @param fields
-                 * @param errors
-                 * @param form_control
-                 * @param selected_server_domain
-                 */
-                onClickDecryptMessageButton: function(node, fields, errors, form_control, selected_server_domain){
-                    var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal-decrypt-message-gpg.html',
-                        controller: 'ModalDecryptMessageGPGCtrl',
-                        backdrop: 'static',
-                        resolve: {
-                            secret_id: function() {
-                                return node.secret_id;
-                            }
-                        }
-                    });
-
-                    modalInstance.result.then(function (data) {
-                        // pass
-                    }, function () {
-                        // cancel triggered
-                    });
-
-                },
-                onEditModalOpen: function(node) {
-                    var showInEditOnly = [
-                        "mail_gpg_own_key_title",
-                        "mail_gpg_own_key_email",
-                        "mail_gpg_own_key_name",
-                        "mail_gpg_own_key_public",
-                        "mail_gpg_own_key_encrypt_message",
-                        "mail_gpg_own_key_decrypt_message"
-                    ];
-                    for (var i = 0; i < node.fields.length; i++) {
-                        node.fields[i].hidden = !(showInEditOnly.indexOf(node.fields[i].name) > -1);
-                    }
-                },
-                onNewModalOpen: function(node) {
-                    var showInNewOnly = ["mail_gpg_own_key_generate_new", "mail_gpg_own_key_generate_import_text"];
-                    for (var i = 0; i < node.fields.length; i++) {
-                        node.fields[i].hidden = !(showInNewOnly.indexOf(node.fields[i].name) > -1);
+                for (i = 0; i < fields.length; i++) {
+                    if (fields[i].name === "website_password_url_filter") {
+                        domain_filter_col = fields[i];
+                        break;
                     }
                 }
-            },
-            bookmark: {
-                id: "bookmark", // Unique ID
-                name: "BOOKMARK", // Displayed in Dropdown Menu
-                title_field: "bookmark_title", // is the main column, that is used as filename
-                urlfilter_field: "bookmark_url_filter", // is the filter column for url matching
-                search: ['bookmark_title', 'bookmark_url_filter'], // are searched when the user search his entries
-                fields: [ // All fields for this object with unique names
-                    { name: "bookmark_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true},
-                    { name: "bookmark_url", field: "input", type: "text", validationType: "url", title: "URL", placeholder: "URL", onChange: "onChangeUrl"},
-                    { name: "bookmark_notes", field: "textarea", title: "NOTES", placeholder: "NOTES"},
-                    { name: "bookmark_url_filter", field: "textarea", title: "DOMAIN_FILTER", placeholder: "URL_FILTER_EG", position: "advanced"}
-                ],
-                /**
-                 * triggered whenever url is changing.
-                 * gets the fields and returns the default domain filter
-                 *
-                 * @param fields
-                 * @returns {string}
-                 */
-                onChangeUrl: function(fields){
 
-                    var url;
-                    var domain_filter_col;
-
-                    var i;
-                    for (i = 0; i < fields.length; i++) {
-                        if (fields[i].name === "bookmark_url") {
-                            url = fields[i].value;
-                            break;
-                        }
-                    }
-
-                    for (i = 0; i < fields.length; i++) {
-                        if (fields[i].name === "bookmark_url_filter") {
-                            domain_filter_col = fields[i];
-                            break;
-                        }
-                    }
-
-                    if (typeof url === "undefined") {
-                        domain_filter_col.value = "";
-                        return "";
-                    }
-
-                    // get only toplevel domain
-                    var parsed_url = helper.parse_url(url);
-
-                    if (typeof(parsed_url.authority) === 'undefined') {
-                        domain_filter_col.value = "";
-                        return '';
-                    } else {
-                        domain_filter_col.value = parsed_url.authority;
-                        return parsed_url.authority;
-                    }
-                },
-                onClickNewTab: true,
-                /**
-                 * will open a new tab
-                 *
-                 * @param content
-                 */
-                onOpenSecret: function(content) {
-                    $window.location.href = content.bookmark_url;
+                if (typeof url === "undefined") {
+                    domain_filter_col.value = "";
+                    return "";
                 }
-            }/*,
-            dummy: {
-                id: "dummy",
-                name: "Dummy",
-                title_field: "dummy_title",
-                search: ['dummy_title'],
-                tabs: [
-                    {
-                        id: "dummy_tab_1",
-                        title: "Title of Tab 1"
-                    },
-                    {
-                        id: "dummy_tab_2",
-                        title:"Title of Tab 2"
+
+                // get only toplevel domain
+                var parsed_url = helper.parse_url(url);
+
+                if (typeof(parsed_url.authority) === 'undefined' && url) {
+                    domain_filter_col.value = url;
+                    return url;
+                } else if (typeof(parsed_url.authority) === 'undefined') {
+                    domain_filter_col.value = "";
+                    return '';
+                } else {
+                    domain_filter_col.value = parsed_url.authority;
+                    return parsed_url.authority;
+                }
+            },
+            onClickNewTab: true,
+            /**
+             * will open a new tab
+             *
+             * @param content
+             */
+            onOpenSecret: function(content) {
+                $window.location.href = content.website_password_url;
+            },
+            /**
+             * returns the message content with the username and password for the website
+             *
+             * @param content
+             * @returns {{key: string, content: {username: *, password: *}}}
+             */
+            msgBeforeOpenSecret: function(content) {
+                return {
+                    key: "fillpassword",
+                    content: {
+                        username: content.website_password_username,
+                        password: content.website_password_password,
+                        authority: content.website_password_url_filter,
+                        auto_submit: content.website_password_auto_submit
                     }
-                ],
-                fields: [
-                    { name: "dummy_title", field: "input", type: "text", title: "Dummy field 1", placeholder: "Put your dummy 1 content here", required: true, tab: 'dummy_tab_2',
-                        dropmenuItems:[
-                            { icon: "fa fa-cogs", text:"Generate Password", onclick:function(id) { alert("Generate Password triggered " + id); } },
-                            { icon: "fa fa-eye-slash", text:"Show Password", onclick:function(id) { alert("Show Password triggered " + id); } }
-                        ]
-                    },
-                    { name: "dummy_notes", field: "textarea", title: "Dummy field 2", placeholder: "Put your dummy 2 content here", required: false, tab: 'dummy_tab_1',
-                        dropmenuItems:[
-                            { icon: "fa fa-cogs", text:"Generate Password", onclick:function(id) { alert("Generate Password triggered " + id); } },
-                            { icon: "fa fa-eye-slash", text:"Show Password", onclick:function(id) { alert("Show Password triggered " + id); } }
-                        ]
-                    },
-                    { name: "dummy_before", field: "input", title: "Before Tabs", placeholder: "Before tab", required: false,
-                        dropmenuItems:[
-                            { icon: "fa fa-cogs", text:"Generate Password", onclick:function(id) { alert("Generate Password triggered " + id); } },
-                            { icon: "fa fa-eye-slash", text:"Show Password", onclick:function(id) { alert("Show Password triggered " + id); } }
-                        ]
-                    },
-                    { name: "dummy_after", field: "input", title: "after Tabs", placeholder: "After tab", required: false, position: "after",
-                        dropmenuItems:[
-                            { icon: "fa fa-cogs", text:"Generate Password", onclick:function(id) { alert("Generate Password triggered " + id); } },
-                            { icon: "fa fa-eye-slash", text:"Show Password", onclick:function(id) { alert("Show Password triggered " + id); } }
-                        ]
-                    }
-                ]
-            }*/
+                }
+            }
         };
+        var _blueprint_note = {
+            id: "note",
+            name: "NOTE",
+            title_field: "note_title",
+            search: ['note_title'],
+            fields: [
+                { name: "note_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true},
+                { name: "note_notes", field: "textarea", title: "NOTES", placeholder: "NOTES"}
+            ]
+        };
+
+        var _blueprint_file = {
+            id: "file",
+            name: "FILE",
+            title_field: "file_title",
+            search: ['file_title'],
+            fields: [
+                { name: "file_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true},
+                { name: "file", field: "input", type: "file", title: "FILE", placeholder: "FILE", required: true, onChange: "onChangeData"},
+                { name: "file_id", field: "input", title: "FILE_ID", placeholder: "FILE_ID", hidden: true},
+                { name: "file_secret_key", field: "input", title: "FILE_SECRET_KEY", placeholder: "FILE_SECRET_KEY", hidden: true},
+                { name: "file_size", field: "input", title: "FILE_SIZE", placeholder: "FILE_SIZE_BYTES", hidden: true}
+            ],
+
+            /**
+             * triggered whenever file data is changing.
+             * gets the fields and returns the default domain filter
+             *
+             * @param fields
+             * @returns {string}
+             */
+            onChangeData: function(fields){
+
+                var field_file_data;
+                var field_file_title;
+
+                var i;
+                for (i = 0; i < fields.length; i++) {
+                    if (fields[i].name === "file") {
+                        field_file_data = fields[i];
+                    }
+                    if (fields[i].name === "file_title") {
+                        field_file_title = fields[i];
+                    }
+                }
+                if (!field_file_title.value) {
+                    field_file_title.value=field_file_data.value.replace(/^.*[\\\/]/, '');
+                }
+                console.log(field_file_data);
+
+            },
+
+            /**
+             * triggered before storing it.
+             *
+             * @param selected
+             * @param datastore
+             * @param parent
+             * @param path
+             * @param modalClose
+             */
+            alternativeSave: function(selected, parent, path, modalClose){
+
+                var file_secret_key = cryptoLibrary.generate_secret_key();
+                var file_id = cryptoLibrary.generate_uuid();
+
+                var shard_id = 'd7054d0a-060f-46f9-abc8-31b206f8171d';
+
+                /**
+                 * Uploads a file in chunks
+                 *
+                 * @param file
+                 * @param file_id
+                 * @param file_secret_key
+                 */
+                function upload_file(file, file_id, file_secret_key) {
+
+
+                    var defer = $q.defer();
+
+                    var secret_promise_array = [];
+
+                    var time_start = new Date().getTime();
+
+                    var on_load_end = function(bytes, file_secret_key, chunk_position, is_last, resolve) {
+                        console.log("on_load_end " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
+                        time_start = new Date().getTime();
+                        var encrypted_bytes = cryptoLibrary.encrypt_file(bytes, file_secret_key);
+                        console.log("encrypt_file " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
+                        time_start = new Date().getTime();
+
+                        var hash = cryptoLibrary.blake2b(encrypted_bytes);
+                        console.log("blake2b " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
+                        time_start = new Date().getTime();
+
+                        apiFileserver.upload(new Blob([encrypted_bytes], {type: 'application/octet-stream'}), shard_id, hash).then(function() {
+                            console.log("upload " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
+                            time_start = new Date().getTime();
+                            resolve()
+                        });
+                    };
+
+                    var read_file_chunk = function(file, file_slice_start, bytes_to_go, on_load_end, file_secret_key, chunk_position, is_last, resolve) {
+                        console.log("read_file_chunk");
+                        var file_reader = new FileReader();
+                        var file_slice;
+
+                        file_reader.onloadend = function(event) {
+                            var bytes = new Uint8Array(event.target.result);
+                            on_load_end(bytes, file_secret_key, chunk_position, is_last, resolve);
+                        };
+
+                        file_slice = file.slice(file_slice_start, file_slice_start + bytes_to_go);
+
+                        file_reader.readAsArrayBuffer(file_slice);
+
+                    };
+
+                    var chunk_position = 1;
+                    var is_last = false;
+                    var is_first = true;
+                    var file_slice_start = 0;
+                    var file_chunk_size = 128*1024*1024; //128*1024*1024; // in bytes. e.g. 128*1024*1024 Bytes = 128 MB
+                    var file_chunk_count = Math.ceil(file.size / file_chunk_size);
+
+                    while (file_slice_start <= file.size) {
+                        var bytes_to_go = Math.min(file_chunk_size, file.size-file_slice_start);
+                        if (bytes_to_go === 0 && !is_first) {
+                            break;
+                        }
+                        is_last = file_slice_start + bytes_to_go === file.size;
+                        var defer_single = $q.defer();
+                        secret_promise_array.push($q.when(defer_single.promise));
+                        read_file_chunk(file, file_slice_start, bytes_to_go, on_load_end, file_secret_key, chunk_position, is_last, defer_single.resolve);
+                        file_slice_start = file_slice_start + bytes_to_go;
+                        is_first = false;
+                        chunk_position = chunk_position + 1;
+                    }
+
+                    $q.all(secret_promise_array).then(function() {
+                        defer.resolve();
+                    });
+
+                    return defer.promise;
+                }
+
+                function get_dom_file(dom_field) {
+                    if (dom_field.files.length <= 0) {
+                        return;
+                    }
+                    return dom_field.files[0];
+                }
+
+
+                function get_dom_file_field(selected_fields) {
+
+                    for (var i = 0; i < selected_fields.length; i++) {
+                        var field = selected_fields[i];
+                        if (!field.hasOwnProperty("type") || field['type'] !== 'file' ) {
+                            continue;
+                        }
+
+                        if (angular.element('#newEntryForm-' + field['name']).length > 0) {
+                            return angular.element('#newEntryForm-' + field['name'])[0];
+                        }
+                    }
+
+                    return false;
+                }
+
+                var dom_field = get_dom_file_field(selected.fields);
+
+                if (dom_field) {
+                    var file = get_dom_file(dom_field);
+                    if (!file) {
+                        return;
+                    }
+                    upload_file(file, file_id, file_secret_key).then(function() {
+                        console.log("upload_file resolved");
+                    })
+                }
+
+                selected.skipRegularCreate = true;
+            }
+        };
+
+        var _blueprint_mail_gpg_own_key = {
+            id: "mail_gpg_own_key",
+            name: "GPG_KEY",
+            title_field: "mail_gpg_own_key_title",
+            search: ['mail_gpg_own_key_title', 'mail_gpg_own_key_email'],
+            fields: [
+                { name: "mail_gpg_own_key_title", field: "input", type: "text", title: "TITLE", hidden: true, placeholder: "TITLE", required: true},
+                { name: "mail_gpg_own_key_email", field: "input", type: "text", title: "EMAIL", placeholder: "EMAIL", hidden: true, readonly: true},
+                { name: "mail_gpg_own_key_name", field: "input", type: "text", title: "NAME", placeholder: "NAME", hidden: true, readonly: true},
+                { name: "mail_gpg_own_key_public", field: "textarea", title: "PUBLIC_KEY", placeholder: "PUBLIC_KEY", hidden: true, readonly: true},
+                { name: "mail_gpg_own_key_private", field: "textarea", title: "PRIVATE_KEY", placeholder: "PRIVATE_KEY", hidden: true, readonly: true},
+                { name: "mail_gpg_own_key_publish", field: "input", type:"checkbox", title: "PUBLISH_PUBLIC_KEY", hidden: true},
+                { name: "mail_gpg_own_key_generate_new", field: "button", type: "button", title: "GENERATE_NEW_GPG_KEY", hidden: true, class: 'btn-primary', onClick:"onClickGenerateNewButton" },
+                { name: "mail_gpg_own_key_generate_import_text", field: "button", type: "button", title: "IMPORT_AS_TEXT", hidden: true, class: 'btn-primary', onClick:"onClickImportAsTextButton" },
+                { name: "mail_gpg_own_key_encrypt_message", field: "button", type: "button", title: "ENCRYPT_MESSAGE", hidden: true, class: 'btn-default', onClick:"onClickEncryptMessageButton" },
+                { name: "mail_gpg_own_key_decrypt_message", field: "button", type: "button", title: "DECRYPT_MESSAGE", hidden: true, class: 'btn-default', onClick:"onClickDecryptMessageButton" }
+            ],
+            /**
+             * triggered whenever the "Generate New" button is clicked.
+             * Will open a new modal so the user can enter his details, and once the modal closes show the details for this entry.
+             *
+             * @param node
+             * @param fields
+             * @param errors
+             * @param form_control
+             * @param selected_server_domain
+             */
+            onClickGenerateNewButton: function(node, fields, errors, form_control, selected_server_domain){
+
+                var show_key = function(data) {
+
+                    for (var i = 0; i < fields.length; i++) {
+                        if (fields[i].name === "mail_gpg_own_key_title") {
+                            fields[i].value = data.title;
+                            fields[i].hidden = false;
+                        }
+                        if (fields[i].name === "mail_gpg_own_key_name") {
+                            fields[i].value = data.name;
+                            fields[i].hidden = false;
+                        }
+                        if (fields[i].name === "mail_gpg_own_key_email") {
+                            fields[i].value = data.email;
+                            fields[i].hidden = false;
+                        }
+                        if (fields[i].name === "mail_gpg_own_key_public") {
+                            fields[i].value = data.public_key;
+                            fields[i].hidden = false;
+                        }
+                        if (fields[i].name === "mail_gpg_own_key_private") {
+                            fields[i].value = data.private_key;
+                            fields[i].hidden = false;
+                        }
+                    }
+                };
+
+                var modalInstance = $uibModal.open({
+                    templateUrl: 'view/modal-generate-new-mail-gpg-key.html',
+                    controller: 'ModalGenerateNewMailGPGKeyCtrl',
+                    backdrop: 'static',
+                    resolve: {
+                    }
+                });
+
+                modalInstance.result.then(function (data) {
+                    show_key(data);
+                    //form_control['block_submit'] = false;
+                }, function () {
+                    // cancel triggered
+                });
+
+            },
+            /**
+             * triggered whenever the "Import (as text)" button is clicked.
+             * Will open a new modal so the user can copy paste his keys, and once the modal closes show the details for this entry.
+             *
+             * @param node
+             * @param fields
+             * @param errors
+             * @param form_control
+             * @param selected_server_domain
+             */
+            onClickImportAsTextButton: function(node, fields, errors, form_control, selected_server_domain){
+
+                var show_key = function(data) {
+
+                    for (var i = 0; i < fields.length; i++) {
+                        if (fields[i].name === "mail_gpg_own_key_title") {
+                            fields[i].value = data.title;
+                            fields[i].hidden = false;
+                        }
+                        if (fields[i].name === "mail_gpg_own_key_name") {
+                            fields[i].value = data.name;
+                            fields[i].hidden = false;
+                        }
+                        if (fields[i].name === "mail_gpg_own_key_email") {
+                            fields[i].value = data.email;
+                            fields[i].hidden = false;
+                        }
+                        if (fields[i].name === "mail_gpg_own_key_public") {
+                            fields[i].value = data.public_key;
+                            fields[i].hidden = false;
+                        }
+                        if (fields[i].name === "mail_gpg_own_key_private") {
+                            fields[i].value = data.private_key;
+                            fields[i].hidden = false;
+                        }
+                    }
+                };
+
+                var modalInstance = $uibModal.open({
+                    templateUrl: 'view/modal-import-mail-gpg-key-as-text.html',
+                    controller: 'ModalImportMailGPGKeyAsTextCtrl',
+                    backdrop: 'static',
+                    resolve: {
+                    }
+                });
+
+                modalInstance.result.then(function (data) {
+                    show_key(data);
+                    //form_control['block_submit'] = false;
+                }, function () {
+                    // cancel triggered
+                });
+
+            },
+            /**
+             * triggered whenever the "Encrypt Message" button is clicked.
+             * Will open a new modal where the user can encrypt a message for specific receivers.
+             *
+             * @param node
+             * @param fields
+             * @param errors
+             * @param form_control
+             * @param selected_server_domain
+             */
+            onClickEncryptMessageButton: function(node, fields, errors, form_control, selected_server_domain){
+                var modalInstance = $uibModal.open({
+                    templateUrl: 'view/modal-encrypt-message-gpg.html',
+                    controller: 'ModalEncryptMessageGPGCtrl',
+                    backdrop: 'static',
+                    resolve: {
+                        secret_id: function() {
+                            return node.secret_id;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function (data) {
+                    // pass
+                }, function () {
+                    // cancel triggered
+                });
+
+            },
+            /**
+             * triggered whenever the "Decrypt Message" button is clicked.
+             * Will open a new modal where the user can decrypt a message.
+             *
+             * @param node
+             * @param fields
+             * @param errors
+             * @param form_control
+             * @param selected_server_domain
+             */
+            onClickDecryptMessageButton: function(node, fields, errors, form_control, selected_server_domain){
+                var modalInstance = $uibModal.open({
+                    templateUrl: 'view/modal-decrypt-message-gpg.html',
+                    controller: 'ModalDecryptMessageGPGCtrl',
+                    backdrop: 'static',
+                    resolve: {
+                        secret_id: function() {
+                            return node.secret_id;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function (data) {
+                    // pass
+                }, function () {
+                    // cancel triggered
+                });
+
+            },
+            onEditModalOpen: function(node) {
+                var showInEditOnly = [
+                    "mail_gpg_own_key_title",
+                    "mail_gpg_own_key_email",
+                    "mail_gpg_own_key_name",
+                    "mail_gpg_own_key_public",
+                    "mail_gpg_own_key_encrypt_message",
+                    "mail_gpg_own_key_decrypt_message"
+                ];
+                for (var i = 0; i < node.fields.length; i++) {
+                    node.fields[i].hidden = !(showInEditOnly.indexOf(node.fields[i].name) > -1);
+                }
+            },
+            onNewModalOpen: function(node) {
+                var showInNewOnly = ["mail_gpg_own_key_generate_new", "mail_gpg_own_key_generate_import_text"];
+                for (var i = 0; i < node.fields.length; i++) {
+                    node.fields[i].hidden = !(showInNewOnly.indexOf(node.fields[i].name) > -1);
+                }
+            }
+        };
+
+        var _blueprint_bookmark = {
+            id: "bookmark", // Unique ID
+            name: "BOOKMARK", // Displayed in Dropdown Menu
+            title_field: "bookmark_title", // is the main column, that is used as filename
+            urlfilter_field: "bookmark_url_filter", // is the filter column for url matching
+            search: ['bookmark_title', 'bookmark_url_filter'], // are searched when the user search his entries
+            fields: [ // All fields for this object with unique names
+                { name: "bookmark_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true},
+                { name: "bookmark_url", field: "input", type: "text", validationType: "url", title: "URL", placeholder: "URL", onChange: "onChangeUrl"},
+                { name: "bookmark_notes", field: "textarea", title: "NOTES", placeholder: "NOTES"},
+                { name: "bookmark_url_filter", field: "textarea", title: "DOMAIN_FILTER", placeholder: "URL_FILTER_EG", position: "advanced"}
+            ],
+            /**
+             * triggered whenever url is changing.
+             * gets the fields and returns the default domain filter
+             *
+             * @param fields
+             * @returns {string}
+             */
+            onChangeUrl: function(fields){
+
+                var url;
+                var domain_filter_col;
+
+                var i;
+                for (i = 0; i < fields.length; i++) {
+                    if (fields[i].name === "bookmark_url") {
+                        url = fields[i].value;
+                        break;
+                    }
+                }
+
+                for (i = 0; i < fields.length; i++) {
+                    if (fields[i].name === "bookmark_url_filter") {
+                        domain_filter_col = fields[i];
+                        break;
+                    }
+                }
+
+                if (typeof url === "undefined") {
+                    domain_filter_col.value = "";
+                    return "";
+                }
+
+                // get only toplevel domain
+                var parsed_url = helper.parse_url(url);
+
+                if (typeof(parsed_url.authority) === 'undefined') {
+                    domain_filter_col.value = "";
+                    return '';
+                } else {
+                    domain_filter_col.value = parsed_url.authority;
+                    return parsed_url.authority;
+                }
+            },
+            onClickNewTab: true,
+            /**
+             * will open a new tab
+             *
+             * @param content
+             */
+            onOpenSecret: function(content) {
+                $window.location.href = content.bookmark_url;
+            }
+        };
+
+        var _blueprints = {
+            website_password: _blueprint_website_password,
+            note: _blueprint_note,
+            mail_gpg_own_key: _blueprint_mail_gpg_own_key,
+            bookmark: _blueprint_bookmark
+            // dummy: {
+            //     id: "dummy",
+            //     name: "Dummy",
+            //     title_field: "dummy_title",
+            //     search: ['dummy_title'],
+            //     tabs: [
+            //         {
+            //             id: "dummy_tab_1",
+            //             title: "Title of Tab 1"
+            //         },
+            //         {
+            //             id: "dummy_tab_2",
+            //             title:"Title of Tab 2"
+            //         }
+            //     ],
+            //     fields: [
+            //         { name: "dummy_title", field: "input", type: "text", title: "Dummy field 1", placeholder: "Put your dummy 1 content here", required: true, tab: 'dummy_tab_2',
+            //             dropmenuItems:[
+            //                 { icon: "fa fa-cogs", text:"Generate Password", onclick:function(id) { alert("Generate Password triggered " + id); } },
+            //                 { icon: "fa fa-eye-slash", text:"Show Password", onclick:function(id) { alert("Show Password triggered " + id); } }
+            //             ]
+            //         },
+            //         { name: "dummy_notes", field: "textarea", title: "Dummy field 2", placeholder: "Put your dummy 2 content here", required: false, tab: 'dummy_tab_1',
+            //             dropmenuItems:[
+            //                 { icon: "fa fa-cogs", text:"Generate Password", onclick:function(id) { alert("Generate Password triggered " + id); } },
+            //                 { icon: "fa fa-eye-slash", text:"Show Password", onclick:function(id) { alert("Show Password triggered " + id); } }
+            //             ]
+            //         },
+            //         { name: "dummy_before", field: "input", title: "Before Tabs", placeholder: "Before tab", required: false,
+            //             dropmenuItems:[
+            //                 { icon: "fa fa-cogs", text:"Generate Password", onclick:function(id) { alert("Generate Password triggered " + id); } },
+            //                 { icon: "fa fa-eye-slash", text:"Show Password", onclick:function(id) { alert("Show Password triggered " + id); } }
+            //             ]
+            //         },
+            //         { name: "dummy_after", field: "input", title: "after Tabs", placeholder: "After tab", required: false, position: "after",
+            //             dropmenuItems:[
+            //                 { icon: "fa fa-cogs", text:"Generate Password", onclick:function(id) { alert("Generate Password triggered " + id); } },
+            //                 { icon: "fa fa-eye-slash", text:"Show Password", onclick:function(id) { alert("Show Password triggered " + id); } }
+            //             ]
+            //         }
+            //     ]
+            // }
+        };
+
+
 
         var _additionalFunction = {
             share: {
@@ -890,6 +922,28 @@
             }
         };
 
+        activate();
+
+        function activate() {
+            if (server_supports_files()) {
+                _blueprints.file = _blueprint_file
+            }
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.itemBlueprint#server_supports_files
+         * @methodOf psonocli.itemBlueprint
+         *
+         * @description
+         * returns whether the server supports files or not
+         *
+         * @returns {boolean} returns whether the server supports files or not
+         */
+        function server_supports_files() {
+            return storage.find_key('config', 'server_info').value && storage.find_key('config', 'server_info').value.hasOwnProperty('files') && storage.find_key('config', 'server_info').value['files']
+        }
+
         /**
          * @ngdoc
          * @name psonocli.itemBlueprint#get_additional_functions
@@ -902,7 +956,7 @@
          *
          * @returns {Array} The list of all additional functions
          */
-        var get_additional_functions = function(item) {
+        function get_additional_functions(item) {
 
             var result = [];
 
@@ -922,7 +976,7 @@
                 result.push(_additionalFunction[property]);
             }
             return result;
-        };
+        }
 
         /**
          * @ngdoc
@@ -934,7 +988,7 @@
          *
          * @returns {Array} The list of all blueprints
          */
-        var get_blueprints = function () {
+        function get_blueprints() {
 
             var result = [];
 
@@ -944,7 +998,7 @@
                 }
             }
             return result;
-        };
+        }
 
         /**
          * @ngdoc
@@ -958,13 +1012,13 @@
          *
          * @returns {object|false} The blueprint or false
          */
-        var get_blueprint = function (key) {
+        function get_blueprint(key) {
             if (_blueprints.hasOwnProperty(key)){
                 return angular.copy(_blueprints[key]);
             } else {
                 return false;
             }
-        };
+        }
 
 
         /**
@@ -977,9 +1031,9 @@
          *
          * @returns {string} Returns the key of the default blueprint
          */
-        var get_default_blueprint_key = function () {
+        function get_default_blueprint_key() {
             return _default;
-        };
+        }
 
         /**
          * @ngdoc
@@ -991,9 +1045,9 @@
          *
          * @returns {object} Returns the default blueprint
          */
-        var get_default_blueprint = function () {
+        function get_default_blueprint() {
             return get_blueprint(get_default_blueprint_key());
-        };
+        }
 
         /**
          * @ngdoc
@@ -1006,10 +1060,10 @@
          * @param {string} key The key of the blueprint
          * @returns {boolean} Returns if the specified blueprint opens a new tab on click
          */
-        var blueprint_has_on_click_new_tab = function(key) {
+        function blueprint_has_on_click_new_tab(key) {
             var bp = get_blueprint(key);
             return !!(bp && bp.onClickNewTab);
-        };
+        }
 
         /**
          * @ngdoc
@@ -1022,12 +1076,12 @@
          * @param {string} key The key of the blueprint
          * @param {object} content The payload of the "onOpenSecret" call
          */
-        var blueprint_on_open_secret = function (key, content) {
+        function blueprint_on_open_secret(key, content) {
             var bp = get_blueprint(key);
             if (bp.hasOwnProperty('onOpenSecret')) {
                 bp.onOpenSecret(content);
             }
-        };
+        }
 
         /**
          * @ngdoc
@@ -1042,12 +1096,12 @@
          * @param {object} content The message for the before open secret call
          * @returns {object} The message object to send
          */
-        var blueprint_msg_before_open_secret = function (key, content) {
+        function blueprint_msg_before_open_secret(key, content) {
             var bp = get_blueprint(key);
             if (bp.hasOwnProperty('msgBeforeOpenSecret')) {
                 return bp.msgBeforeOpenSecret(content);
             }
-        };
+        }
 
         /**
          * @ngdoc
@@ -1078,6 +1132,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("itemBlueprint", ['$rootScope', '$window', '$uibModal', 'helper', 'cryptoLibrary', 'apiFileserver', itemBlueprint]);
+    app.factory("itemBlueprint", ['$q', '$rootScope', '$window', '$uibModal', 'helper', 'cryptoLibrary', 'storage', 'apiFileserver', itemBlueprint]);
 
 }(angular));

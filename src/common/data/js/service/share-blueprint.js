@@ -26,209 +26,212 @@
 
         var registrations = {};
 
-        var _blueprints = {
-            user: {
-                id: "user",
-                name: "User",
-                title_field: "user_username",
-                search: ['user_name', 'user_username'],
-                fields: [
-                    { name: "user_search_button", field: "button", type: "button", title: "Search", hidden: true, class: 'btn-primary', onClick:"onClickSearchButton" },
-                    { name: "user_name", field: "input", type: "text", title: "Name", placeholder: "Name (optional)", hidden: true},
-                    { name: "user_id", field: "input", type: "text", title: "ID", placeholder: "ID", required: true, hidden: true, readonly: true },
-                    { name: "user_username", field: "input", type: "text", title: "Username", placeholder: "Username", required: true, hidden: true, readonly: true },
-                    { name: "user_public_key", field: "textarea", title: "Public Key", placeholder: "Public Key", required: true, hidden: true, readonly: true,
-                        note: 'To verify that this is the user you want to share data with, ask him if this is really his public key.' }
-                ],
-                getName: function(fields) {
-                    var vals= {};
-                    var visible_name = '';
-                    for (var i = 0; i < fields.length; i++) {
-                        if (fields[i].hasOwnProperty('value')) {
-                            vals[fields[i].name] = fields[i].value;
-                        }
-                    }
 
-                    if (vals.user_name && vals['user_name'].length > 0) {
-                        visible_name += vals['user_name'];
-                    } else {
-                        visible_name += vals['user_username'];
-                    }
-                    visible_name += ' ('+vals['user_public_key']+')';
-                    return visible_name;
-                },
-                /**
-                 * triggered whenever the search username input is changing.
-                 * adjusts the visibility of the search button according to the input value
-                 *
-                 * @param fields
-                 * @param selected_server_domain
-                 */
-                onChangeSearch: function(fields, selected_server_domain){
-                    var has_search_username = false;
-
-                    var possible_username = '';
-
-                    var i;
-                    for (i = 0; i < fields.length; i++) {
-                        if (fields[i].name === "user_search_username") {
-                            if (fields[i].value && fields[i].value.length > 0) {
-
-                                if (allow_user_search_by_username_partial && fields[i].value.length > 2) {
-                                    has_search_username = true;
-                                } else if (!allow_user_search_by_username_partial) {
-                                    possible_username = helper.form_full_username(fields[i].value, selected_server_domain);
-
-                                    // Regex obtained from Angular JS
-                                    if (email_regexp.test(possible_username)) {
-                                        has_search_username = true;
-                                    }
-                                }
-                            }
-                        }
-                        if (fields[i].name === "user_search_email") {
-                            if (fields[i].value && fields[i].value.length > 0) {
-                                // Regex obtained from Angular JS
-                                if (email_regexp.test(fields[i].value)) {
-                                    has_search_username = true;
-                                }
-                            }
-                        }
-                    }
-
-                    for (i = 0; i < fields.length; i++) {
-                        if (fields[i].name === "user_search_button") {
-                            fields[i].hidden = !has_search_username;
-                            break;
-                        }
-                    }
-                },
-                /**
-                 * triggered whenever the search button is clicked.
-                 * triggers a search to the backend for a valid user with that email address
-                 *
-                 * @param node
-                 * @param fields
-                 * @param errors
-                 * @param form_control
-                 * @param selected_server_domain
-                 */
-                onClickSearchButton: function(node, fields, errors, form_control, selected_server_domain){
-
-                    var search_username = '';
-                    var search_email = '';
-                    errors.splice(0,errors.length);
-
-                    var i;
-                    for (i = 0; i < fields.length; i++) {
-                        if (fields[i].name === "user_search_username") {
-                            search_username = fields[i].value;
-                        }
-                        if (fields[i].name === "user_search_email") {
-                            search_email = fields[i].value;
-                        }
-                    }
-                    if (!allow_user_search_by_username_partial) {
-                        search_username = helper.form_full_username(search_username, selected_server_domain);
-                    }
-
-                    var show_user = function(id, username, public_key) {
-
-                        for (i = 0; i < fields.length; i++) {
-                            if (fields[i].name === "user_name") {
-                                fields[i].hidden = false;
-                            }
-                            if (fields[i].name === "user_id") {
-                                fields[i].value = id;
-                            }
-                            if (fields[i].name === "user_username") {
-                                fields[i].value = username;
-                                fields[i].hidden = false;
-                            }
-                            if (fields[i].name === "user_public_key") {
-                                fields[i].value = public_key;
-                                fields[i].hidden = false;
-                            }
-                        }
-                    };
-
-
-                    var onSuccess = function(data) {
-                        data = data.data;
-
-                        if (Object.prototype.toString.call(data) === '[object Array]') {
-
-                            var modalInstance = $uibModal.open({
-                                templateUrl: 'view/modal-pick-user.html',
-                                controller: 'ModalPickUserCtrl',
-                                backdrop: 'static',
-                                size: 'lg',
-                                resolve: {
-                                    data: function () {
-                                        return data;
-                                    }
-                                }
-                            });
-
-                            modalInstance.result.then(function (data) {
-                                show_user(data.id, data.username, data.public_key);
-                                form_control['block_submit'] = false;
-                            }, function () {
-                                // cancel triggered
-                            });
-
-                        } else {
-                            show_user(data.id, data.username, data.public_key);
-                            form_control['block_submit'] = false;
-                        }
-                    };
-
-                    var onError = function(data) {
-
-                        for (i = 0; i < fields.length; i++) {
-                            if (fields[i].name === "user_name") {
-                                fields[i].hidden = true;
-                            }
-                            if (fields[i].name === "user_id") {
-                                fields[i].value = '';
-                            }
-                            if (fields[i].name === "user_username") {
-                                fields[i].hidden = true;
-                                fields[i].value = '';
-                            }
-                            if (fields[i].name === "user_public_key") {
-                                fields[i].hidden = true;
-                                fields[i].value = '';
-                            }
-                        }
-
-                        if (data.status === 400) {
-                            form_control['block_submit'] = true;
-                            errors.push("User not found.");
-                        } else {
-                            alert("Ups, this should not happen. ");
-                        }
-                    };
-
-                    registrations['search_user'](search_username, search_email).then(onSuccess, onError)
-
-                },
-                /**
-                 * will open a new tab
-                 *
-                 * @param content
-                 */
-                onOpenSecret: function(content) {
-
-                },
-                onEditModalOpen: function(node) {
-                    var showInEditOnly = ["user_name", "user_id", "user_username", "user_public_key"];
-                    for (var i = 0; i < node.fields.length; i++) {
-                        node.fields[i].hidden = !(showInEditOnly.indexOf(node.fields[i].name) > -1);
+        var _blueprint_user = {
+            id: "user",
+            name: "User",
+            title_field: "user_username",
+            search: ['user_name', 'user_username'],
+            fields: [
+                { name: "user_search_button", field: "button", type: "button", title: "Search", hidden: true, class: 'btn-primary', onClick:"onClickSearchButton" },
+                { name: "user_name", field: "input", type: "text", title: "Name", placeholder: "Name (optional)", hidden: true},
+                { name: "user_id", field: "input", type: "text", title: "ID", placeholder: "ID", required: true, hidden: true, readonly: true },
+                { name: "user_username", field: "input", type: "text", title: "Username", placeholder: "Username", required: true, hidden: true, readonly: true },
+                { name: "user_public_key", field: "textarea", title: "Public Key", placeholder: "Public Key", required: true, hidden: true, readonly: true,
+                    note: 'To verify that this is the user you want to share data with, ask him if this is really his public key.' }
+            ],
+            getName: function(fields) {
+                var vals= {};
+                var visible_name = '';
+                for (var i = 0; i < fields.length; i++) {
+                    if (fields[i].hasOwnProperty('value')) {
+                        vals[fields[i].name] = fields[i].value;
                     }
                 }
 
+                if (vals.user_name && vals['user_name'].length > 0) {
+                    visible_name += vals['user_name'];
+                } else {
+                    visible_name += vals['user_username'];
+                }
+                visible_name += ' ('+vals['user_public_key']+')';
+                return visible_name;
+            },
+            /**
+             * triggered whenever the search username input is changing.
+             * adjusts the visibility of the search button according to the input value
+             *
+             * @param fields
+             * @param selected_server_domain
+             */
+            onChangeSearch: function(fields, selected_server_domain){
+                var has_search_username = false;
+
+                var possible_username = '';
+
+                var i;
+                for (i = 0; i < fields.length; i++) {
+                    if (fields[i].name === "user_search_username") {
+                        if (fields[i].value && fields[i].value.length > 0) {
+
+                            if (allow_user_search_by_username_partial && fields[i].value.length > 2) {
+                                has_search_username = true;
+                            } else if (!allow_user_search_by_username_partial) {
+                                possible_username = helper.form_full_username(fields[i].value, selected_server_domain);
+
+                                // Regex obtained from Angular JS
+                                if (email_regexp.test(possible_username)) {
+                                    has_search_username = true;
+                                }
+                            }
+                        }
+                    }
+                    if (fields[i].name === "user_search_email") {
+                        if (fields[i].value && fields[i].value.length > 0) {
+                            // Regex obtained from Angular JS
+                            if (email_regexp.test(fields[i].value)) {
+                                has_search_username = true;
+                            }
+                        }
+                    }
+                }
+
+                for (i = 0; i < fields.length; i++) {
+                    if (fields[i].name === "user_search_button") {
+                        fields[i].hidden = !has_search_username;
+                        break;
+                    }
+                }
+            },
+            /**
+             * triggered whenever the search button is clicked.
+             * triggers a search to the backend for a valid user with that email address
+             *
+             * @param node
+             * @param fields
+             * @param errors
+             * @param form_control
+             * @param selected_server_domain
+             */
+            onClickSearchButton: function(node, fields, errors, form_control, selected_server_domain){
+
+                var search_username = '';
+                var search_email = '';
+                errors.splice(0,errors.length);
+
+                var i;
+                for (i = 0; i < fields.length; i++) {
+                    if (fields[i].name === "user_search_username") {
+                        search_username = fields[i].value;
+                    }
+                    if (fields[i].name === "user_search_email") {
+                        search_email = fields[i].value;
+                    }
+                }
+                if (!allow_user_search_by_username_partial) {
+                    search_username = helper.form_full_username(search_username, selected_server_domain);
+                }
+
+                var show_user = function(id, username, public_key) {
+
+                    for (i = 0; i < fields.length; i++) {
+                        if (fields[i].name === "user_name") {
+                            fields[i].hidden = false;
+                        }
+                        if (fields[i].name === "user_id") {
+                            fields[i].value = id;
+                        }
+                        if (fields[i].name === "user_username") {
+                            fields[i].value = username;
+                            fields[i].hidden = false;
+                        }
+                        if (fields[i].name === "user_public_key") {
+                            fields[i].value = public_key;
+                            fields[i].hidden = false;
+                        }
+                    }
+                };
+
+
+                var onSuccess = function(data) {
+                    data = data.data;
+
+                    if (Object.prototype.toString.call(data) === '[object Array]') {
+
+                        var modalInstance = $uibModal.open({
+                            templateUrl: 'view/modal-pick-user.html',
+                            controller: 'ModalPickUserCtrl',
+                            backdrop: 'static',
+                            size: 'lg',
+                            resolve: {
+                                data: function () {
+                                    return data;
+                                }
+                            }
+                        });
+
+                        modalInstance.result.then(function (data) {
+                            show_user(data.id, data.username, data.public_key);
+                            form_control['block_submit'] = false;
+                        }, function () {
+                            // cancel triggered
+                        });
+
+                    } else {
+                        show_user(data.id, data.username, data.public_key);
+                        form_control['block_submit'] = false;
+                    }
+                };
+
+                var onError = function(data) {
+
+                    for (i = 0; i < fields.length; i++) {
+                        if (fields[i].name === "user_name") {
+                            fields[i].hidden = true;
+                        }
+                        if (fields[i].name === "user_id") {
+                            fields[i].value = '';
+                        }
+                        if (fields[i].name === "user_username") {
+                            fields[i].hidden = true;
+                            fields[i].value = '';
+                        }
+                        if (fields[i].name === "user_public_key") {
+                            fields[i].hidden = true;
+                            fields[i].value = '';
+                        }
+                    }
+
+                    if (data.status === 400) {
+                        form_control['block_submit'] = true;
+                        errors.push("User not found.");
+                    } else {
+                        alert("Ups, this should not happen. ");
+                    }
+                };
+
+                registrations['search_user'](search_username, search_email).then(onSuccess, onError)
+
+            },
+            /**
+             * will open a new tab
+             *
+             * @param content
+             */
+            onOpenSecret: function(content) {
+
+            },
+            onEditModalOpen: function(node) {
+                var showInEditOnly = ["user_name", "user_id", "user_username", "user_public_key"];
+                for (var i = 0; i < node.fields.length; i++) {
+                    node.fields[i].hidden = !(showInEditOnly.indexOf(node.fields[i].name) > -1);
+                }
             }
+
+        };
+
+        var _blueprints = {
+            user: _blueprint_user
         };
 
         var _additionalFunction = {

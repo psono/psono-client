@@ -149,7 +149,7 @@
             var secret_promise_array = [];
 
             for (var i = 0; i < secrets.length; i++) {
-                var promise =  add_secret_to_api_key(api_key_id, api_key_secret_key, secrets[i])
+                var promise = add_secret_to_api_key(api_key_id, api_key_secret_key, secrets[i]);
                 secret_promise_array.push($q.when(promise));
             }
 

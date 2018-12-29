@@ -146,6 +146,12 @@
 
             modalInstance.result.then(function (content) {
 
+                console.log(content);
+
+                if (typeof content === 'undefined') {
+                    return;
+                }
+
                 if (typeof parent === 'undefined') {
                     parent = datastore;
                 }

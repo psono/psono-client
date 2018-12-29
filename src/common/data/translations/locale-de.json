@@ -1,4 +1,6 @@
 {
+  "FILE_SIZE": "Dateigröße",
+  "FILE_SIZE_BYTES": "Dateigröße (in Bytes)",
   "ENTRY_LINK": "Link zum Eintrag",
   "FOLDER_LINK": "Link zum Ordner",
   "CALLBACK_PASS": "Callback Passwort",
