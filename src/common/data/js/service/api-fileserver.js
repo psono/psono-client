@@ -16,7 +16,7 @@
      * Service to talk to the psono REST api
      */
 
-    var apiFileserver = function($http, $q, $rootScope, storage, cryptoLibrary, device) {
+    var apiFileserver = function($http, $q, $rootScope, storage, cryptoLibrary, device, offlineCache) {
 
         var decrypt_data = function(session_secret_key, data, req) {
             if (session_secret_key && data !== null
@@ -69,20 +69,22 @@
          * @description
          * Ajax POST request to upload a file chunk
          *
-         * @param {Uint8Array} file_chunk The content of the file chunk to upload
-         * @param {uuid} shard_id The target shard ID
-         * @param {string} hash_blake2b The blake2b hash
+         * @param {string} token The token of the user
+         * @param {Blob} chunk The content of the chunk to upload
+         * @param {string} ticket The ticket to authenticate the upload
+         * @param {string} ticket_nonce The nonce of the ticket
          *
          * @returns {promise} promise
          */
-        var upload = function (file_chunk, shard_id, hash_blake2b) {
+        var upload = function (token, chunk, ticket, ticket_nonce) {
 
             var endpoint = '/upload/';
             var connection_type = "POST";
             var data = new FormData();
-            data.append('file', file_chunk);
-            data.append('shard_id', shard_id);
-            data.append('hash_blake2b', hash_blake2b);
+            data.append('token', token);
+            data.append('chunk', chunk);
+            data.append('ticket', ticket);
+            data.append('ticket_nonce', ticket_nonce);
             var headers = {
                 'Content-Type': undefined
             };

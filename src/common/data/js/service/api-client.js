@@ -2470,6 +2470,44 @@
             return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#create_file
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax PUT request to create a file with the token as authentication
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {string} shard_id The id of the target shard
+         * @param {int} size The size of the complete file in bytes
+         * @param {int} chunk_count The amount of chunks that this file is split into
+         * @param {string} link_id the local id of the file in the datastructure
+         * @param {string|undefined} [parent_datastore_id] (optional) id of the parent datastore, may be left empty if the share resides in a share
+         * @param {string|undefined} [parent_share_id] (optional) id of the parent share, may be left empty if the share resides in the datastore
+         *
+         * @returns {promise} Returns a promise with the new file_id
+         */
+        var create_file = function (token, session_secret_key, shard_id, size, chunk_count, link_id, parent_datastore_id, parent_share_id) {
+            var endpoint = '/file/';
+            var connection_type = "PUT";
+            var data = {
+                shard_id: shard_id,
+                size: size,
+                chunk_count: chunk_count,
+                link_id: link_id,
+                parent_datastore_id: parent_datastore_id,
+                parent_share_id: parent_share_id
+            };
+            var headers = {
+                "Authorization": "Token " + token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
         /**
          * @ngdoc
          * @name psonocli.apiClient#delete_account
@@ -2575,6 +2613,7 @@
             delete_membership: delete_membership,
             accept_membership: accept_membership,
             decline_membership: decline_membership,
+            create_file: create_file,
             delete_account: delete_account
         };
     };

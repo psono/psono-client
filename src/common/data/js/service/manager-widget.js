@@ -129,6 +129,11 @@
          * @param {string} size The size of the modal
          */
         var open_new_item = function (datastore, parent, path, size) {
+
+            if (typeof parent === 'undefined') {
+                parent = datastore;
+            }
+
             var modalInstance = $uibModal.open({
                 templateUrl: 'view/modal-new-entry.html',
                 controller: 'ModalDatastoreNewEntryCtrl',
@@ -150,10 +155,6 @@
 
                 if (typeof content === 'undefined') {
                     return;
-                }
-
-                if (typeof parent === 'undefined') {
-                    parent = datastore;
                 }
 
                 if (typeof parent.items === 'undefined') {

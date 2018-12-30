@@ -11,7 +11,7 @@
      * @requires psonocli.helper
      * @requires psonocli.cryptoLibrary
      * @requires psonocli.storage
-     * @requires psonocli.apiFileserver
+     * @requires psonocli.managerFileTransfer
      *
      * @description
      * Service that provides the possible item blueprints e.g.:
@@ -22,7 +22,7 @@
      */
 
 
-    var itemBlueprint = function($q, $rootScope, $window, $uibModal, helper, cryptoLibrary, storage, apiFileserver) {
+    var itemBlueprint = function($q, $rootScope, $window, $uibModal, helper, cryptoLibrary, storage, managerFileTransfer) {
 
         var _default = "website_password";
 
@@ -205,7 +205,8 @@
             alternativeSave: function(selected, parent, path, modalClose){
 
                 var file_secret_key = cryptoLibrary.generate_secret_key();
-                var file_id = cryptoLibrary.generate_uuid();
+                var file_chunk_size = 128*1024*1024; //128*1024*1024; // in bytes. e.g. 128*1024*1024 Bytes = 128 MB
+                var link_id = cryptoLibrary.generate_uuid();
 
                 var shard_id = 'd7054d0a-060f-46f9-abc8-31b206f8171d';
 
@@ -216,7 +217,7 @@
                  * @param file_id
                  * @param file_secret_key
                  */
-                function upload_file(file, file_id, file_secret_key) {
+                function multi_chunk_upload(file, file_id, file_secret_key) {
 
 
                     var defer = $q.defer();
@@ -236,7 +237,7 @@
                         console.log("blake2b " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
                         time_start = new Date().getTime();
 
-                        apiFileserver.upload(new Blob([encrypted_bytes], {type: 'application/octet-stream'}), shard_id, hash).then(function() {
+                        managerFileTransfer.upload(new Blob([encrypted_bytes], {type: 'application/octet-stream'}), file_id, chunk_position, shard_id, hash).then(function() {
                             console.log("upload " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
                             time_start = new Date().getTime();
                             resolve()
@@ -263,8 +264,6 @@
                     var is_last = false;
                     var is_first = true;
                     var file_slice_start = 0;
-                    var file_chunk_size = 128*1024*1024; //128*1024*1024; // in bytes. e.g. 128*1024*1024 Bytes = 128 MB
-                    var file_chunk_count = Math.ceil(file.size / file_chunk_size);
 
                     while (file_slice_start <= file.size) {
                         var bytes_to_go = Math.min(file_chunk_size, file.size-file_slice_start);
@@ -318,9 +317,31 @@
                     if (!file) {
                         return;
                     }
-                    upload_file(file, file_id, file_secret_key).then(function() {
-                        console.log("upload_file resolved");
-                    })
+
+                    var chunk_count = Math.ceil(file.size / file_chunk_size);
+                    var size = file.size;
+
+                    var parent_datastore_id = undefined;
+                    var parent_share_id = undefined;
+
+                    if (parent.hasOwnProperty("share_id")) {
+                        parent_share_id = parent.share_id;
+                    } else if(parent.hasOwnProperty("datastore_id")) {
+                        parent_datastore_id = parent.datastore_id;
+                    }
+
+                    var onSuccess = function(file_id){
+                        multi_chunk_upload(file, file_id, file_secret_key).then(function() {
+                            console.log("multi_chunk_upload resolved");
+                        })
+                    };
+
+                    var onError = function() {
+                        //pass
+                    };
+
+                    managerFileTransfer.create_file(shard_id, size + chunk_count * 40, chunk_count, link_id, parent_datastore_id, parent_share_id)
+                        .then(onSuccess, onError);
                 }
 
                 selected.skipRegularCreate = true;
@@ -941,7 +962,7 @@
          * @returns {boolean} returns whether the server supports files or not
          */
         function server_supports_files() {
-            return storage.find_key('config', 'server_info').value && storage.find_key('config', 'server_info').value.hasOwnProperty('files') && storage.find_key('config', 'server_info').value['files']
+            return storage.find_key('config', 'server_info') && storage.find_key('config', 'server_info').value && storage.find_key('config', 'server_info').value.hasOwnProperty('files') && storage.find_key('config', 'server_info').value['files']
         }
 
         /**
@@ -1132,6 +1153,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("itemBlueprint", ['$q', '$rootScope', '$window', '$uibModal', 'helper', 'cryptoLibrary', 'storage', 'apiFileserver', itemBlueprint]);
+    app.factory("itemBlueprint", ['$q', '$rootScope', '$window', '$uibModal', 'helper', 'cryptoLibrary', 'storage', 'managerFileTransfer', itemBlueprint]);
 
 }(angular));
