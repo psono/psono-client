@@ -96,7 +96,17 @@
                 }
 
                 if ($scope.bp.selected.hasOwnProperty('alternativeSave')) {
+
+
+                    var onSuccess = function(){
+                        // pass
+                    };
+
+                    var onError = function(error) {
+                        $scope.errors.push(error);
+                    };
                     $scope.bp.selected.alternativeSave($scope.bp.selected, parent, path, $uibModalInstance.close)
+                        .then(onSuccess, onError);
                 } else {
                     $scope.bp.selected['callback_data'] = $scope.data;
                     $uibModalInstance.close($scope.bp.selected);

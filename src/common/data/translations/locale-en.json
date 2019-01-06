@@ -1,4 +1,5 @@
 {
+  "NO_FILESERVER_AVAILABLE": "No fileserver available",
   "FILE_SIZE": "File Size",
   "FILE_SIZE_BYTES": "File Size (in bytes)",
   "ENTRY_LINK": "Link to the entry",

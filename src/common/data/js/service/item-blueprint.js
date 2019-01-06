@@ -208,16 +208,15 @@
                 var file_chunk_size = 128*1024*1024; //128*1024*1024; // in bytes. e.g. 128*1024*1024 Bytes = 128 MB
                 var link_id = cryptoLibrary.generate_uuid();
 
-                var shard_id = 'd7054d0a-060f-46f9-abc8-31b206f8171d';
-
                 /**
                  * Uploads a file in chunks
                  *
+                 * @param shard
                  * @param file
                  * @param file_id
                  * @param file_secret_key
                  */
-                function multi_chunk_upload(file, file_id, file_secret_key) {
+                function multi_chunk_upload(shard, file, file_id, file_secret_key) {
 
 
                     var defer = $q.defer();
@@ -237,7 +236,7 @@
                         console.log("blake2b " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
                         time_start = new Date().getTime();
 
-                        managerFileTransfer.upload(new Blob([encrypted_bytes], {type: 'application/octet-stream'}), file_id, chunk_position, shard_id, hash).then(function() {
+                        managerFileTransfer.upload(new Blob([encrypted_bytes], {type: 'application/octet-stream'}), file_id, chunk_position, shard, hash).then(function() {
                             console.log("upload " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
                             time_start = new Date().getTime();
                             resolve()
@@ -286,6 +285,12 @@
                     return defer.promise;
                 }
 
+                /**
+                 * Takes a dom field and returns the first file or nothing
+                 *
+                 * @param dom_field
+                 * @returns {*}
+                 */
                 function get_dom_file(dom_field) {
                     if (dom_field.files.length <= 0) {
                         return;
@@ -312,11 +317,40 @@
 
                 var dom_field = get_dom_file_field(selected.fields);
 
-                if (dom_field) {
-                    var file = get_dom_file(dom_field);
-                    if (!file) {
-                        return;
+                selected.skipRegularCreate = true;
+
+                if (!dom_field) {
+                    return;
+                }
+                var file = get_dom_file(dom_field);
+                if (!file) {
+                    return;
+                }
+
+                var onSuccess = function(shards){
+
+                    shards = managerFileTransfer.filter_shards(shards, null, true);
+
+                    if (shards.length < 1) {
+                        return $q.reject('NO_FILESERVER_AVAILABLE')
                     }
+
+                    var shard;
+                    if (shards.length > 1) {
+                        // TODO open modal to select target shard
+                    } else {
+                        shard = shards[0]
+                    }
+
+                    var onSuccess = function(file_id){
+                        multi_chunk_upload(shard, file, file_id, file_secret_key).then(function() {
+                            console.log("multi_chunk_upload resolved");
+                        })
+                    };
+
+                    var onError = function() {
+                        //pass
+                    };
 
                     var chunk_count = Math.ceil(file.size / file_chunk_size);
                     var size = file.size;
@@ -330,21 +364,16 @@
                         parent_datastore_id = parent.datastore_id;
                     }
 
-                    var onSuccess = function(file_id){
-                        multi_chunk_upload(file, file_id, file_secret_key).then(function() {
-                            console.log("multi_chunk_upload resolved");
-                        })
-                    };
-
-                    var onError = function() {
-                        //pass
-                    };
-
-                    managerFileTransfer.create_file(shard_id, size + chunk_count * 40, chunk_count, link_id, parent_datastore_id, parent_share_id)
+                    managerFileTransfer.create_file(shard['shard_id'], size + chunk_count * 40, chunk_count, link_id, parent_datastore_id, parent_share_id)
                         .then(onSuccess, onError);
-                }
+                };
 
-                selected.skipRegularCreate = true;
+                var onError = function() {
+                    //pass
+                };
+
+                return managerFileTransfer.read_shards()
+                    .then(onSuccess, onError);
             }
         };
 

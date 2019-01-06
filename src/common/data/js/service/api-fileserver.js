@@ -28,17 +28,15 @@
             return data;
         };
 
-        var call = function(connection_type, endpoint, data, headers, session_secret_key, transformRequest) {
+        var call = function(fileserver_url, connection_type, endpoint, data, headers, session_secret_key, transformRequest) {
 
             if (!transformRequest) {
                 transformRequest = $http.defaults.transformRequest;
             }
 
-            var backend = 'https://browserplugins.chickahoona.com/fileserver01';
-
             var req = {
                 method: connection_type,
-                url: backend + endpoint,
+                url: fileserver_url + endpoint,
                 data: data,
                 transformRequest: transformRequest
             };
@@ -69,6 +67,7 @@
          * @description
          * Ajax POST request to upload a file chunk
          *
+         * @param {string} fileserver_url The url of the target fileserver
          * @param {string} token The token of the user
          * @param {Blob} chunk The content of the chunk to upload
          * @param {string} ticket The ticket to authenticate the upload
@@ -76,7 +75,7 @@
          *
          * @returns {promise} promise
          */
-        var upload = function (token, chunk, ticket, ticket_nonce) {
+        var upload = function (fileserver_url, token, chunk, ticket, ticket_nonce) {
 
             var endpoint = '/upload/';
             var connection_type = "POST";
@@ -89,7 +88,7 @@
                 'Content-Type': undefined
             };
 
-            return call(connection_type, endpoint, data, headers, '', angular.identity);
+            return call(fileserver_url, connection_type, endpoint, data, headers, '', angular.identity);
         };
 
         /**
@@ -100,16 +99,18 @@
          * @description
          * Ajax GET request to get the server info
          *
+         * @param {string} fileserver_url The url of the target fileserver
+         *
          * @returns {promise} promise
          */
-        var info = function () {
+        var info = function (fileserver_url) {
 
             var endpoint = '/info/';
             var connection_type = "GET";
             var data = null;
             var headers = null;
 
-            return call(connection_type, endpoint, data, headers);
+            return call(fileserver_url, connection_type, endpoint, data, headers);
         };
 
         return {

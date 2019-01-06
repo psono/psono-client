@@ -2536,6 +2536,31 @@
             return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#read_shards
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax GET request with the token as authentication to get the available shards and fileservers
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         *
+         * @returns {promise} promise
+         */
+        var read_shards = function (token, session_secret_key) {
+
+            var endpoint = '/shard/';
+            var connection_type = "GET";
+            var data = null;
+            var headers = {
+                "Authorization": "Token " + token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
         return {
             info: info,
             login: login,
@@ -2614,7 +2639,8 @@
             accept_membership: accept_membership,
             decline_membership: decline_membership,
             create_file: create_file,
-            delete_account: delete_account
+            delete_account: delete_account,
+            read_shards: read_shards
         };
     };
 
