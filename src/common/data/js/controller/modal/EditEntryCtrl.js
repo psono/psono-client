@@ -15,7 +15,6 @@
      */
     angular.module('psonocli').controller('ModalEditEntryCtrl', ['$rootScope', '$scope', '$uibModal', '$uibModalInstance', 'itemBlueprint', 'offlineCache', 'node', 'path', 'data',
         function ($rootScope, $scope, $uibModal, $uibModalInstance, itemBlueprint, offlineCache, node, path, data) {
-
             $scope.show_history = show_history;
             $scope.reset = reset;
             $scope.save = save;
@@ -47,7 +46,9 @@
                     selected: itemBlueprint.get_blueprint($scope.node.type)
                 };
 
+                console.log($scope.data);
                 for (var i = $scope.bp.selected.fields.length - 1; i >= 0; i--) {
+                    console.log($scope.bp.selected.fields[i].name);
                     if ($scope.data.hasOwnProperty($scope.bp.selected.fields[i].name)) {
                         $scope.bp.selected.fields[i].value = $scope.data[$scope.bp.selected.fields[i].name];
                     }

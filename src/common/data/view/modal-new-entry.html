@@ -221,17 +221,17 @@
                           ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
                 <p class="help-block note" ng-hide="n.hidden">{{n.note}}</p>
             </div>
-            <div class="form-group">
+            <div class="form-group" ng-if="!bp.selected.hide_callback">
                 <input type="text" name="callback_url" class="form-control"
                        id="editEntryForm-callback_url" placeholder="{{ 'CALLBACK_URL_PLACEHOLDER' | translate}}"
                        ng-model="data.callback_url">
             </div>
-            <div class="form-group">
+            <div class="form-group" ng-if="!bp.selected.hide_callback">
                 <input type="text" name="callback_user" class="form-control"
                        id="editEntryForm-callback_user" placeholder="{{ 'CALLBACK_USER' | translate}}"
                        ng-model="data.callback_user">
             </div>
-            <div class="form-group">
+            <div class="form-group" ng-if="!bp.selected.hide_callback">
                 <div class="input-group">
                     <input type="password" class="form-control" id="callback_pass" placeholder="{{ 'CALLBACK_PASS' | translate}}"  ng-model="data.callback_pass">
                     <span class="input-group-btn">

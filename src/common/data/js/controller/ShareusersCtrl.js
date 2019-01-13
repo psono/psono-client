@@ -14,14 +14,17 @@
      * @requires psonocli.shareBlueprint
      * @requires psonocli.managerWidget
      * @requires psonocli.cryptoLibrary
+     * @requires psonocli.managerFileTransfer
      *
      * @description
      * Main Controller for the shareusers widget
      */
     angular.module('psonocli').controller('ShareusersCtrl', ["$scope", "$interval", "managerSecret", "managerDatastoreUser",
-        "$uibModal", "shareBlueprint", "managerWidget", "$timeout", "dropDownMenuWatcher", 'cryptoLibrary', 'managerDatastorePassword',
-        function ($scope, $interval, managerSecret, managerDatastoreUser, $uibModal, shareBlueprint,
-                  managerWidget, $timeout, dropDownMenuWatcher, cryptoLibrary, managerDatastorePassword) {
+        "$uibModal", "shareBlueprint", "managerWidget", "$timeout", "dropDownMenuWatcher", 'cryptoLibrary',
+        'managerDatastorePassword', 'managerFileTransfer',
+        function ($scope, $interval, managerSecret, managerDatastoreUser,
+                  $uibModal, shareBlueprint, managerWidget, $timeout, dropDownMenuWatcher, cryptoLibrary,
+                  managerDatastorePassword, managerFileTransfer) {
 
             $scope.contextMenuOnShow = contextMenuOnShow;
             $scope.contextMenuOnClose = contextMenuOnClose;
@@ -88,7 +91,11 @@
                  * @param path The path to the item
                  */
                 on_item_click: function (item, path) {
-                    managerSecret.on_item_click(item, path);
+                    if (item.type === 'file') {
+                        return managerFileTransfer.on_item_click(item, path);
+                    } else {
+                        return managerSecret.on_item_click(item, path);
+                    }
                 },
 
                 /**

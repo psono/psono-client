@@ -95,17 +95,17 @@
                     return;
                 }
 
-                if ($scope.bp.selected.hasOwnProperty('alternativeSave')) {
-
-
+                if ($scope.bp.selected.hasOwnProperty('preSave')) {
                     var onSuccess = function(){
-                        // pass
+                        $uibModalInstance.close($scope.bp.selected);
                     };
 
-                    var onError = function(error) {
-                        $scope.errors.push(error);
+                    var onError = function(errors) {
+                        for (var i = 0; i < errors.length; i++) {
+                            $scope.errors.push(errors[i]);
+                        }
                     };
-                    $scope.bp.selected.alternativeSave($scope.bp.selected, parent, path, $uibModalInstance.close)
+                    $scope.bp.selected.preSave($scope.bp.selected, parent, path)
                         .then(onSuccess, onError);
                 } else {
                     $scope.bp.selected['callback_data'] = $scope.data;

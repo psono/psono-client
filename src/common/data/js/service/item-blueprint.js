@@ -5,7 +5,7 @@
      * @ngdoc service
      * @name psonocli.itemBlueprint
      * @requires $q
-     * @requires $rootScope
+     * @requires browserClient
      * @requires $window
      * @requires $uibModal
      * @requires psonocli.helper
@@ -22,7 +22,7 @@
      */
 
 
-    var itemBlueprint = function($q, $rootScope, $window, $uibModal, helper, cryptoLibrary, storage, managerFileTransfer) {
+    var itemBlueprint = function($q, browserClient, $window, $uibModal, helper, cryptoLibrary, storage, managerFileTransfer) {
 
         var _default = "website_password";
 
@@ -161,13 +161,18 @@
                 { name: "file_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true},
                 { name: "file", field: "input", type: "file", title: "FILE", placeholder: "FILE", required: true, onChange: "onChangeData"},
                 { name: "file_id", field: "input", title: "FILE_ID", placeholder: "FILE_ID", hidden: true},
+                { name: "file_shard_id", field: "input", title: "FILE_SHARD_ID", placeholder: "FILE_SHARD_ID", hidden: true},
                 { name: "file_secret_key", field: "input", title: "FILE_SECRET_KEY", placeholder: "FILE_SECRET_KEY", hidden: true},
-                { name: "file_size", field: "input", title: "FILE_SIZE", placeholder: "FILE_SIZE_BYTES", hidden: true}
+                { name: "file_size", field: "input", title: "FILE_SIZE", placeholder: "FILE_SIZE_BYTES", hidden: true},
+                { name: "file_chunks", field: "input", type: "text", title: "FILE_CHUNKS", placeholder: "FILE_CHUNKS", hidden: true},
             ],
+            hide_history: true,
+            hide_callback: true,
+            non_secret_fields: ['file_title', 'file_id', 'file_shard_id', 'file_secret_key', 'file_size', 'file_chunks'],
 
             /**
              * triggered whenever file data is changing.
-             * gets the fields and returns the default domain filter
+             * gets the fields and sets the title field with the file name
              *
              * @param fields
              * @returns {string}
@@ -186,10 +191,10 @@
                         field_file_title = fields[i];
                     }
                 }
+
                 if (!field_file_title.value) {
                     field_file_title.value=field_file_data.value.replace(/^.*[\\\/]/, '');
                 }
-                console.log(field_file_data);
 
             },
 
@@ -197,26 +202,27 @@
              * triggered before storing it.
              *
              * @param selected
-             * @param datastore
              * @param parent
              * @param path
-             * @param modalClose
              */
-            alternativeSave: function(selected, parent, path, modalClose){
+            preSave: function(selected, parent, path){
 
                 var file_secret_key = cryptoLibrary.generate_secret_key();
-                var file_chunk_size = 128*1024*1024; //128*1024*1024; // in bytes. e.g. 128*1024*1024 Bytes = 128 MB
+                var file_chunk_size = 8*1024*1024; //128*1024*1024; // in bytes. e.g. 128*1024*1024 Bytes = 128 MB
                 var link_id = cryptoLibrary.generate_uuid();
 
                 /**
-                 * Uploads a file in chunks
+                 * Uploads a file in chunks and returns the array of hashs
                  *
                  * @param shard
                  * @param file
-                 * @param file_id
+                 * @param file_transfer_id
                  * @param file_secret_key
+                 * @param file_chunk_size
+                 *
+                 * @returns {promise} Promise with the chunks uploaded
                  */
-                function multi_chunk_upload(shard, file, file_id, file_secret_key) {
+                function multi_chunk_upload(shard, file, file_transfer_id, file_secret_key, file_chunk_size) {
 
 
                     var defer = $q.defer();
@@ -232,14 +238,17 @@
                         console.log("encrypt_file " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
                         time_start = new Date().getTime();
 
-                        var hash = cryptoLibrary.blake2b(encrypted_bytes);
+                        var hash_blake2b = cryptoLibrary.blake2b(encrypted_bytes);
                         console.log("blake2b " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
                         time_start = new Date().getTime();
 
-                        managerFileTransfer.upload(new Blob([encrypted_bytes], {type: 'application/octet-stream'}), file_id, chunk_position, shard, hash).then(function() {
+                        managerFileTransfer.upload(new Blob([encrypted_bytes], {type: 'application/octet-stream'}), file_transfer_id, chunk_position, shard, hash_blake2b).then(function() {
                             console.log("upload " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
                             time_start = new Date().getTime();
-                            resolve()
+                            return resolve({
+                                'chunk_position': chunk_position,
+                                'hash_blake2b': hash_blake2b
+                            })
                         });
                     };
 
@@ -264,6 +273,8 @@
                     var is_first = true;
                     var file_slice_start = 0;
 
+                    var chunks = {};
+
                     while (file_slice_start <= file.size) {
                         var bytes_to_go = Math.min(file_chunk_size, file.size-file_slice_start);
                         if (bytes_to_go === 0 && !is_first) {
@@ -271,7 +282,10 @@
                         }
                         is_last = file_slice_start + bytes_to_go === file.size;
                         var defer_single = $q.defer();
-                        secret_promise_array.push($q.when(defer_single.promise));
+                        secret_promise_array.push($q.when(defer_single.promise.then(function(chunk) {
+                            chunks[chunk['chunk_position']] = chunk['hash_blake2b'];
+                            return;
+                        })));
                         read_file_chunk(file, file_slice_start, bytes_to_go, on_load_end, file_secret_key, chunk_position, is_last, defer_single.resolve);
                         file_slice_start = file_slice_start + bytes_to_go;
                         is_first = false;
@@ -279,7 +293,7 @@
                     }
 
                     $q.all(secret_promise_array).then(function() {
-                        defer.resolve();
+                        defer.resolve(chunks);
                     });
 
                     return defer.promise;
@@ -317,14 +331,14 @@
 
                 var dom_field = get_dom_file_field(selected.fields);
 
-                selected.skipRegularCreate = true;
+                selected.skipSecretCreate = true;
 
                 if (!dom_field) {
-                    return;
+                    return $q.reject(['NO_FILE_SELECTED']);
                 }
                 var file = get_dom_file(dom_field);
                 if (!file) {
-                    return;
+                    return $q.reject(['NO_FILE_SELECTED']);
                 }
 
                 var onSuccess = function(shards){
@@ -332,7 +346,7 @@
                     shards = managerFileTransfer.filter_shards(shards, null, true);
 
                     if (shards.length < 1) {
-                        return $q.reject('NO_FILESERVER_AVAILABLE')
+                        return $q.reject(['NO_FILESERVER_AVAILABLE'])
                     }
 
                     var shard;
@@ -342,14 +356,32 @@
                         shard = shards[0]
                     }
 
-                    var onSuccess = function(file_id){
-                        multi_chunk_upload(shard, file, file_id, file_secret_key).then(function() {
-                            console.log("multi_chunk_upload resolved");
+                    var onSuccess = function(data){
+                        return multi_chunk_upload(shard, file, data['file_transfer_id'], file_secret_key, file_chunk_size).then(function(chunks) {
+                            for (var i = 0; i < selected.fields.length; i++) {
+                                if (selected.fields[i].name === 'file_chunks') {
+                                    selected.fields[i].value = chunks;
+                                }
+                                if (selected.fields[i].name === 'file_id') {
+                                    selected.fields[i].value = data['file_id'];
+                                }
+                                if (selected.fields[i].name === 'file_secret_key') {
+                                    selected.fields[i].value = file_secret_key;
+                                }
+                                if (selected.fields[i].name === 'file_shard_id') {
+                                    selected.fields[i].value = shard['shard_id'];
+                                }
+                            }
                         })
                     };
 
-                    var onError = function() {
-                        //pass
+                    var onError = function(data) {
+                        if (data.hasOwnProperty('non_field_errors') && data.non_field_errors.length > 0) {
+                            return $q.reject(data.non_field_errors)
+                        } else {
+                            console.log(data);
+                            alert("Error, should not happen.");
+                        }
                     };
 
                     var chunk_count = Math.ceil(file.size / file_chunk_size);
@@ -364,7 +396,7 @@
                         parent_datastore_id = parent.datastore_id;
                     }
 
-                    managerFileTransfer.create_file(shard['shard_id'], size + chunk_count * 40, chunk_count, link_id, parent_datastore_id, parent_share_id)
+                    return managerFileTransfer.create_file(shard['shard_id'], size + chunk_count * 40, chunk_count, link_id, parent_datastore_id, parent_share_id)
                         .then(onSuccess, onError);
                 };
 
@@ -978,6 +1010,14 @@
             if (server_supports_files()) {
                 _blueprints.file = _blueprint_file
             }
+
+            browserClient.on("login", function () {
+                if (server_supports_files()) {
+                    _blueprints.file = _blueprint_file
+                } else if (_blueprints.hasOwnProperty('file')){
+                    delete _blueprints.file;
+                }
+            });
         }
 
         /**
@@ -1182,6 +1222,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("itemBlueprint", ['$q', '$rootScope', '$window', '$uibModal', 'helper', 'cryptoLibrary', 'storage', 'managerFileTransfer', itemBlueprint]);
+    app.factory("itemBlueprint", ['$q', 'browserClient', '$window', '$uibModal', 'helper', 'cryptoLibrary', 'storage', 'managerFileTransfer', itemBlueprint]);
 
 }(angular));

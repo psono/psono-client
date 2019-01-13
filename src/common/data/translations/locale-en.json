@@ -1,4 +1,10 @@
 {
+  "FILE_ID": "File ID",
+  "FILE_SHARD_ID": "File shard ID",
+  "FILE_CHUNKS": "File chunks",
+  "NO_PERMISSION_OR_NOT_EXIST": "You don't have permission to access or it does not exist.",
+  "INSUFFICIENT_FUNDS": "Insufficient funds",
+  "NO_FILE_SELECTED": "No file selected",
   "NO_FILESERVER_AVAILABLE": "No fileserver available",
   "FILE_SIZE": "File Size",
   "FILE_SIZE_BYTES": "File Size (in bytes)",
@@ -136,6 +142,7 @@
   "GRANT": "Grant",
   "ACCEPTED": "Accepted",
   "DECRYPTING_SECRET": "Decrypting Secret ...",
+  "DECRYPTING_FILE": "Decrypting File ...",
   "SET_NEW_PASSWORD": "Set new password",
   "SECOND_FACTOR_REQUIRED": "Second factor required",
   "ACTIVATE": "Activate",

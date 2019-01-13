@@ -1,4 +1,10 @@
 {
+  "FILE_ID": "Datei ID",
+  "FILE_SHARD_ID": "Datei shard ID",
+  "FILE_CHUNKS": "Datei Stück",
+  "NO_PERMISSION_OR_NOT_EXIST": "Es existiert nicht existent oder sie haben keine Berechtigung.",
+  "INSUFFICIENT_FUNDS": "Guthaben zu niedrig",
+  "NO_FILE_SELECTED": "Keine Datei ausgewählt",
   "NO_FILESERVER_AVAILABLE": "Kein Fileserver verfügbar",
   "FILE_SIZE": "Dateigröße",
   "FILE_SIZE_BYTES": "Dateigröße (in Bytes)",
@@ -136,6 +142,7 @@
   "GRANT": "Gewähren",
   "ACCEPTED": "Akzeptiert",
   "DECRYPTING_SECRET": "Secret entschlüsseln ...",
+  "DECRYPTING_FILE": "Datei entschlüsseln ...",
   "SET_NEW_PASSWORD": "Neues passwort speichern",
   "SECOND_FACTOR_REQUIRED": "Zweiter Faktor erforderlich",
   "ACTIVATE": "Aktivieren",

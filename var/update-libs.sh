@@ -30,6 +30,7 @@ wget https://raw.githubusercontent.com/emn178/js-sha256/v0.9.0/build/sha256.min.
 wget https://raw.githubusercontent.com/emn178/js-sha1/v0.6.0/build/sha1.min.js -O src/common/data/js/lib/sha1.min.js
 wget https://raw.githubusercontent.com/3nsoft/ecma-nacl/master/dist/lib-browser/ecma-nacl.min.js -O src/common/data/js/lib/ecma-nacl.min.js
 wget https://raw.githubusercontent.com/jackspirou/clientjs/master/dist/client.min.js -O src/common/data/js/lib/client.min.js
+wget https://raw.githubusercontent.com/eligrey/FileSaver.js/master/dist/FileSaver.min.js -O src/common/data/js/lib/FileSaver.min.js
 
 wget https://raw.githubusercontent.com/chieffancypants/angular-loading-bar/master/build/loading-bar.min.css -O src/common/data/css/lib/loading-bar.min.css
 wget https://raw.githubusercontent.com/chieffancypants/angular-loading-bar/master/build/loading-bar.min.js -O src/common/data/js/lib/loading-bar.min.js
@@ -37,10 +38,10 @@ wget https://raw.githubusercontent.com/kazuhikoarase/qrcode-generator/master/js/
 wget https://raw.githubusercontent.com/mholt/PapaParse/master/papaparse.min.js -O src/common/data/js/lib/papaparse.min.js
 wget https://raw.githubusercontent.com/NaturalIntelligence/fast-xml-parser/master/lib/parser.js -O src/common/data/js/lib/fast-xml-parser.js
 
-wget https://cdn.rawgit.com/angular-translate/bower-angular-translate/2.18.1/angular-translate.min.js -O src/common/data/js/lib/angular-translate.min.js
-wget https://cdn.rawgit.com/angular-translate/bower-angular-translate-storage-cookie/2.18.1/angular-translate-storage-cookie.min.js -O src/common/data/js/lib/angular-translate-storage-cookie.min.js
-wget https://cdn.rawgit.com/angular-translate/bower-angular-translate-loader-url/2.18.1/angular-translate-loader-url.min.js -O src/common/data/js/lib/angular-translate-loader-url.min.js
-wget https://cdn.rawgit.com/angular-translate/bower-angular-translate-loader-static-files/2.18.1/angular-translate-loader-static-files.min.js -O src/common/data/js/lib//angular-translate-loader-static-files.min.js
+wget https://raw.githubusercontent.com/angular-translate/bower-angular-translate/2.18.1/angular-translate.min.js -O src/common/data/js/lib/angular-translate.min.js
+wget https://raw.githubusercontent.com/angular-translate/bower-angular-translate-storage-cookie/2.18.1/angular-translate-storage-cookie.min.js -O src/common/data/js/lib/angular-translate-storage-cookie.min.js
+wget https://raw.githubusercontent.com/angular-translate/bower-angular-translate-loader-url/2.18.1/angular-translate-loader-url.min.js -O src/common/data/js/lib/angular-translate-loader-url.min.js
+wget https://raw.githubusercontent.com/angular-translate/bower-angular-translate-loader-static-files/2.18.1/angular-translate-loader-static-files.min.js -O src/common/data/js/lib//angular-translate-loader-static-files.min.js
 
 wget https://raw.githubusercontent.com/ftlabs/fastclick/v1.0.6/lib/fastclick.js -O src/common/data/js/lib/fastclick.js
 

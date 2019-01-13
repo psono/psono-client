@@ -21,12 +21,12 @@
      * @description
      * Main Controller for the datastore widget
      */
-    angular.module('psonocli').controller('DatastoreCtrl', ["$q", "$rootScope", "$scope", "$uibModal", "$routeParams", "$timeout",
-        "manager", "managerDatastorePassword", 'managerDatastore', 'offlineCache',
-        "itemBlueprint", "managerWidget", "managerSecret", "dropDownMenuWatcher",
-        function($q, $rootScope, $scope, $uibModal, $routeParams, $timeout,
-                 manager, managerDatastorePassword, managerDatastore, offlineCache,
-                 itemBlueprint, managerWidget, managerSecret, dropDownMenuWatcher){
+    angular.module('psonocli').controller('DatastoreCtrl', ["$q", "$rootScope", "$scope", "$uibModal", "$routeParams",
+        "$timeout", "manager", "managerDatastorePassword", 'managerDatastore', 'offlineCache', "itemBlueprint",
+        "managerWidget", "managerSecret", "dropDownMenuWatcher", "managerFileTransfer",
+        function($q, $rootScope, $scope, $uibModal, $routeParams,
+                 $timeout, manager, managerDatastorePassword, managerDatastore, offlineCache, itemBlueprint,
+                 managerWidget, managerSecret, dropDownMenuWatcher, managerFileTransfer){
 
             $scope.contextMenuOnShow = contextMenuOnShow;
             $scope.contextMenuOnClose = contextMenuOnClose;
@@ -83,14 +83,17 @@
 
                 /**
                  * Triggered once someone clicks on a node entry
-                 * Forwards to the opener of the "open-secret.html" page
+                 * Forwards to the opener of the "open-secret.html" page or the file download
                  *
                  * @param item The item in question
                  * @param path The path to the item
                  */
                 on_item_click: function (item, path) {
-
-                    return managerSecret.on_item_click(item, path);
+                    if (item.type === 'file') {
+                        return managerFileTransfer.on_item_click(item, path);
+                    } else {
+                        return managerSecret.on_item_click(item, path);
+                    }
                 },
 
                 /**

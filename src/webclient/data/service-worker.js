@@ -11,6 +11,7 @@ self.addEventListener('install', function(event) {
                 './index.html',
                 './lost-password.html',
                 './open-secret.html',
+                './download-file.html',
                 './popup_pgp.html',
                 './privacy-policy.html',
                 './privacy-policy-content.html',

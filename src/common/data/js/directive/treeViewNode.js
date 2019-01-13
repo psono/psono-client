@@ -585,6 +585,11 @@
                         '    <i class="fa fa-external-link"></i>' +
                         '</a>' +
                         '</span>' +
+                        '<span class="node-open-link" ng-if="item.type === \'file\'">' +
+                        '<a href="#" class="btn btn-default" ng-click="$event.preventDefault(); $event.stopPropagation(); clickItem(item, $event)">' +
+                        '    <i class="fa fa-download"></i>' +
+                        '</a>' +
+                        '</span>' +
                         '<span class="node-dropdown" uib-dropdown on-toggle="toggled(open, \'drop_item_\' + item.id)">' +
                         '<a class="btn btn-default editbutton" href="#" role="button" id="drop_item_{{ ::item.id }}" uib-dropdown-toggle  ng-click="$event.stopPropagation()">' +
                         '    <i class="fa fa-cogs"></i>' +

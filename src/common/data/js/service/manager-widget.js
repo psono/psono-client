@@ -151,8 +151,6 @@
 
             modalInstance.result.then(function (content) {
 
-                console.log(content);
-
                 if (typeof content === 'undefined') {
                     return;
                 }
@@ -188,6 +186,12 @@
                         && content.autosubmit_field === content.fields[i].name) {
                         datastore_object.autosubmit = content.fields[i].value;
                     }
+
+                    if (content.hasOwnProperty("non_secret_fields")
+                        && content.non_secret_fields.indexOf(content.fields[i].name) !== -1) {
+                        datastore_object[content.fields[i].name] = content.fields[i].value;
+                    }
+
                     secret_object[content.fields[i].name] = content.fields[i].value;
                 }
 
@@ -206,9 +210,8 @@
                     parent_datastore_id = closest_share['datastore_id'];
                 }
 
-                var onSuccess = function(e) {
-                    datastore_object['secret_id'] = e.secret_id;
-                    datastore_object['secret_key'] = e.secret_key;
+
+                var save_datastore = function() {
 
                     parent.items.push(datastore_object);
 
@@ -223,19 +226,29 @@
                         }
                         content.fields[i].value = '';
                     }
+                };
+
+                var onSuccess = function(e) {
+                    datastore_object['secret_id'] = e.secret_id;
+                    datastore_object['secret_key'] = e.secret_key;
+                    save_datastore();
 
                 };
 
-                managerSecret.create_secret(
-                    secret_object,
-                    link_id,
-                    parent_datastore_id,
-                    parent_share_id,
-                    content['callback_data']['callback_url'],
-                    content['callback_data']['callback_user'],
-                    content['callback_data']['callback_pass']
-                )
-                    .then(onSuccess, onError);
+                if (content.skipSecretCreate) {
+                    save_datastore();
+                } else {
+                    managerSecret.create_secret(
+                        secret_object,
+                        link_id,
+                        parent_datastore_id,
+                        parent_share_id,
+                        content['callback_data']['callback_url'],
+                        content['callback_data']['callback_user'],
+                        content['callback_data']['callback_pass']
+                    )
+                        .then(onSuccess, onError);
+                }
 
             }, function () {
                 // cancel triggered
@@ -338,8 +351,13 @@
                 }
             };
 
-            managerSecret.read_secret(node.secret_id, node.secret_key)
-                .then(onSuccess, onError);
+            if (typeof(node.secret_id) === 'undefined') {
+                onSuccess(node)
+            } else {
+                managerSecret.read_secret(node.secret_id, node.secret_key)
+                    .then(onSuccess, onError);
+            }
+
         };
 
         /**

@@ -6,29 +6,14 @@
      * @name psonocli.apiFileserver
      * @requires $http
      * @requires $q
-     * @requires $rootScope
-     * @requires psonocli.storage
-     * @requires psonocli.cryptoLibrary
-     * @requires psonocli.device
-     * @requires psonocli.offlineCache
      *
      * @description
      * Service to talk to the psono REST api
      */
 
-    var apiFileserver = function($http, $q, $rootScope, storage, cryptoLibrary, device, offlineCache) {
+    var apiFileserver = function($http, $q) {
 
-        var decrypt_data = function(session_secret_key, data, req) {
-            if (session_secret_key && data !== null
-                && data.hasOwnProperty('data')
-                && data.data.hasOwnProperty('text')
-                && data.data.hasOwnProperty('nonce')) {
-                data.data = JSON.parse(cryptoLibrary.decrypt_data(data.data.text, data.data.nonce, session_secret_key));
-            }
-            return data;
-        };
-
-        var call = function(fileserver_url, connection_type, endpoint, data, headers, session_secret_key, transformRequest) {
+        var call = function(fileserver_url, connection_type, endpoint, data, headers, transformRequest, responseType) {
 
             if (!transformRequest) {
                 transformRequest = $http.defaults.transformRequest;
@@ -38,7 +23,8 @@
                 method: connection_type,
                 url: fileserver_url + endpoint,
                 data: data,
-                transformRequest: transformRequest
+                transformRequest: transformRequest,
+                responseType: responseType
             };
 
             req.headers = headers;
@@ -46,11 +32,11 @@
             return $q(function(resolve, reject) {
 
                 var onSuccess = function(data) {
-                    return resolve(decrypt_data(session_secret_key, data, req));
+                    return resolve(data);
                 };
 
                 var onError = function(data) {
-                    return reject(decrypt_data(session_secret_key, data, req));
+                    return resolve(data);
                 };
 
                 $http(req)
@@ -88,7 +74,38 @@
                 'Content-Type': undefined
             };
 
-            return call(fileserver_url, connection_type, endpoint, data, headers, '', angular.identity);
+            return call(fileserver_url, connection_type, endpoint, data, headers, angular.identity);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiFileserver#download
+         * @methodOf psonocli.apiFileserver
+         *
+         * @description
+         * Ajax POST request to download a file chunk
+         *
+         * @param {string} fileserver_url The url of the target fileserver
+         * @param {string} token The token of the user
+         * @param {string} ticket The ticket to authenticate the download
+         * @param {string} ticket_nonce The nonce of the ticket
+         *
+         * @returns {promise} promise
+         */
+        var download = function (fileserver_url, token, ticket, ticket_nonce) {
+
+            var endpoint = '/download/';
+            var connection_type = "POST";
+            var data = {
+                token: token,
+                ticket: ticket,
+                ticket_nonce: ticket_nonce
+            };
+
+            var headers = {
+            };
+
+            return call(fileserver_url, connection_type, endpoint, data, headers,  undefined, 'arraybuffer');
         };
 
         /**
@@ -115,11 +132,12 @@
 
         return {
             info: info,
-            upload: upload
+            upload: upload,
+            download: download
         };
     };
 
     var app = angular.module('psonocli');
-    app.factory("apiFileserver", ['$http', '$q', '$rootScope', 'storage', 'cryptoLibrary', 'device', 'offlineCache', apiFileserver]);
+    app.factory("apiFileserver", ['$http', '$q', apiFileserver]);
 
 }(angular));

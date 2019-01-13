@@ -468,6 +468,15 @@
                             ['search', 'urlfilter']
 
                         ]);
+                        managerDatastore.fill_storage('datastore-file-leafs', datastore, [
+                            ['key', 'file_id'],
+                            ['file_id', 'file_id'],
+                            ['file_shard_id', 'file_shard_id'],
+                            ['file_secret_key', 'file_secret_key'],
+                            ['file_chunks', 'file_chunks'],
+                            ['file_title', 'file_title']
+
+                        ]);
 
                         password_datastore_read = true;
 
@@ -518,9 +527,22 @@
             // datastore has changed, so lets regenerate local lookup
             managerDatastore.fill_storage('datastore-password-leafs', datastore, [
                 ['key', 'secret_id'],
+                ['secret_id', 'secret_id'],
                 ['value', 'secret_key'],
                 ['name', 'name'],
-                ['urlfilter', 'urlfilter']
+                ['urlfilter', 'urlfilter'],
+                ['autosubmit', 'autosubmit'],
+                ['search', 'urlfilter']
+            ]);
+
+            managerDatastore.fill_storage('datastore-file-leafs', datastore, [
+                ['key', 'file_id'],
+                ['file_id', 'file_id'],
+                ['file_shard_id', 'file_shard_id'],
+                ['file_secret_key', 'file_secret_key'],
+                ['file_chunks', 'file_chunks'],
+                ['file_title', 'file_title']
+
             ]);
 
             datastore = managerBase.filter_datastore_content(datastore);
