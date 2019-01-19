@@ -36,7 +36,7 @@
                 };
 
                 var onError = function(data) {
-                    return resolve(data);
+                    return reject(data);
                 };
 
                 $http(req)

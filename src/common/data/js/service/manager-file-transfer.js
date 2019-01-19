@@ -19,6 +19,35 @@
 
     var managerFileTransfer = function($q, helper, storage, managerBase, browserClient, cryptoLibrary , converter, apiClient, apiFileserver) {
 
+        /**
+         * @ngdoc
+         * @name psonocli.managerFileTransfer#read_file
+         * @methodOf psonocli.managerFileTransfer
+         *
+         * @description
+         * Triggered once someone wants to read a file
+         *
+         * @param file_id The id of the file to read
+         *
+         * @returns {promise} promise
+         */
+        var read_file = function (file_id) {
+
+
+            var onError = function(result) {
+                return $q.reject(result.data)
+            };
+
+            var onSuccess = function(result) {
+                return result.data;
+            };
+
+            return apiClient.read_file(managerBase.get_token(),
+                managerBase.get_session_secret_key(), file_id)
+                .then(onSuccess, onError);
+
+        };
+
 
         /**
          * @ngdoc
@@ -179,7 +208,6 @@
         var on_item_click = function(item) {
 
             read_shards().then(function(data){
-                console.log(data);
                 storage.upsert('config', {'key': 'shards', 'value': data});
                 storage.save();
                 browserClient.open_tab('download-file.html#!/file/download/'+item.file_id).then(function (window) {
@@ -237,14 +265,13 @@
         };
 
 
-        var download = function (chunk_position, shard, hash_blake2b) {
+        var download = function (file_transfer_id, chunk_position, shard, hash_blake2b) {
             var ticket = {
-                'shard_id': shard['shard_id'],
+                'file_transfer_id': file_transfer_id,
                 'hash_blake2b': hash_blake2b
             };
 
             var ticket_enc = cryptoLibrary.encrypt_data(JSON.stringify(ticket), managerBase.get_session_secret_key());
-            console.log(shard['fileserver']);
             var fileserver;
             if (shard['fileserver'].length > 1) {
                 // math random should be good enough here, don't use for crypto!
@@ -255,6 +282,7 @@
             }
 
             var onError = function(result) {
+                console.log(result);
                 return $q.reject(result.data)
             };
 
@@ -290,10 +318,6 @@
                 return
             }
 
-            var chunk_count = Object.keys(file.file_chunks).length;
-
-            var next_chunk_id = 1;
-
             var shards_dict = create_shard_read_dict(shards);
             var shard_id = file['file_shard_id'];
 
@@ -301,57 +325,48 @@
                 alert("No Fileserver available offering the location for this file");
                 return
             }
-            var shard = shards_dict[shard_id];
 
-            var allblobs = [];
 
+
+            function onSuccess(data) {
+
+                var file_transfer_id = data.file_transfer_id;
+
+                var shard = shards_dict[shard_id];
+                var next_chunk_id = 1;
+                var allblobs = [];
+                var chunk_count = Object.keys(file.file_chunks).length;
+
+                function onError(data) {
+                    console.log(data);
+                    // pass
+                }
+
+                function on_chunk_download(data) {
+                    next_chunk_id = next_chunk_id + 1;
+                    data = cryptoLibrary.decrypt_file(new Uint8Array(data), file['file_secret_key']);
+                    allblobs.push(data);
+                    if (next_chunk_id > chunk_count) {
+                        var concat = new Blob(allblobs, {type: 'application/octet-string'});
+                        saveAs(concat, file['file_title']);
+                    } else {
+                        return download(file_transfer_id, next_chunk_id, shard, file.file_chunks[next_chunk_id]).then(on_chunk_download, onError);
+                    }
+                }
+
+                download(file_transfer_id, next_chunk_id, shard, file.file_chunks[next_chunk_id]).then(on_chunk_download, onError);
+
+            }
             function onError(data) {
                 console.log(data);
                 // pass
             }
 
-            function on_chunk_download(data) {
-                next_chunk_id = next_chunk_id + 1;
-                // TODO decrypt data
-                data = cryptoLibrary.decrypt_file(new Uint8Array(data), file['file_secret_key']);
-                console.log(data);
-                allblobs.push(data);
-                if (next_chunk_id > chunk_count) {
-                    var concat = new Blob(allblobs, {type: 'application/octet-string'});
-                    console.log(concat);
-                    saveAs(concat, file['file_title']);
-                } else {
-                    return download(next_chunk_id, shard, file.file_chunks[next_chunk_id]).then(on_chunk_download, onError);
-                }
-            }
-
-            download(next_chunk_id, shard, file.file_chunks[next_chunk_id]).then(on_chunk_download, onError);
-
-            console.log(file);
-            console.log(shard);
-            console.log(chunk_count);
-
-
-
-            // var blob01 = new Blob([new Uint8Array(128*1024*1024)], {type: 'application/octet-string'});
-            // var blob02 = new Blob([new Uint8Array(128*1024*1024)], {type: 'application/octet-string'});
-            // var blob03 = new Blob([new Uint8Array(128*1024*1024)], {type: 'application/octet-string'});
-            // var blob04 = new Blob([new Uint8Array(128*1024*1024)], {type: 'application/octet-string'});
-            // var blob05 = new Blob([new Uint8Array(128*1024*1024)], {type: 'application/octet-string'});
-            // var blob06 = new Blob([new Uint8Array(128*1024*1024)], {type: 'application/octet-string'});
-            // var blob07 = new Blob([new Uint8Array(128*1024*1024)], {type: 'application/octet-string'});
-            // var blob08 = new Blob([new Uint8Array(128*1024*1024)], {type: 'application/octet-string'});
-            // var blob09 = new Blob([new Uint8Array(128*1024*1024)], {type: 'application/octet-string'});
-            // var blob10 = new Blob([new Uint8Array(128*1024*1024)], {type: 'application/octet-string'});
-            // var allblobs = [blob01, blob02, blob03, blob04, blob05, blob06, blob07, blob08, blob09, blob10];
-            // var concat = new Blob(allblobs, {type: 'application/octet-string'});
-            // console.log("concatinated blob: ", concat);
-            // saveAs(concat, file['file_title']);
-
-
+            read_file(file_id).then(onSuccess, onError);
         };
 
         return {
+            read_file: read_file,
             create_file: create_file,
             upload: upload,
             read_shards: read_shards,

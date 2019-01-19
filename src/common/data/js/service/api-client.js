@@ -2477,6 +2477,32 @@
          * @methodOf psonocli.apiClient
          *
          * @description
+         * Ajax GET request to read a file with the token as authentication
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {string} file_id The id of the file
+         *
+         * @returns {promise} Returns a promise with the new file_id and file_transfer_id
+         */
+        var read_file = function (token, session_secret_key, file_id) {
+            var endpoint = '/file/' + file_id + '/';
+            var connection_type = "GET";
+            var data = null;
+            var headers = {
+                "Authorization": "Token " + token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#create_file
+         * @methodOf psonocli.apiClient
+         *
+         * @description
          * Ajax PUT request to create a file with the token as authentication
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
@@ -2488,7 +2514,7 @@
          * @param {string|undefined} [parent_datastore_id] (optional) id of the parent datastore, may be left empty if the share resides in a share
          * @param {string|undefined} [parent_share_id] (optional) id of the parent share, may be left empty if the share resides in the datastore
          *
-         * @returns {promise} Returns a promise with the new file_id
+         * @returns {promise} Returns a promise with the new file_id and file_transfer_id
          */
         var create_file = function (token, session_secret_key, shard_id, size, chunk_count, link_id, parent_datastore_id, parent_share_id) {
             var endpoint = '/file/';
@@ -2638,6 +2664,7 @@
             delete_membership: delete_membership,
             accept_membership: accept_membership,
             decline_membership: decline_membership,
+            read_file: read_file,
             create_file: create_file,
             delete_account: delete_account,
             read_shards: read_shards
