@@ -956,16 +956,17 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastorePassword#get_all_secret_links
+         * @name psonocli.managerDatastorePassword#get_all_elements_with_property
          * @methodOf psonocli.managerDatastorePassword
          *
          * @description
-         * returns all secret links in element. Doesn't cross share borders.
+         * returns searches an element recursive for items with a property. Doesn't cross share borders.
          *
-         * @param {object} element the element to search
-         * @returns {Array} List of secret links
+         * @param {object} element the tree structure with shares to search
+         * @param {string} property the property to search for
+         * @returns {Array} List of element ids and the paths
          */
-        var get_all_secret_links = function(element) {
+        var get_all_elements_with_property = function(element, property) {
 
             var links = [];
 
@@ -976,7 +977,7 @@
              * @param {Array} links
              * @param {Array} path
              */
-            var get_all_secret_links_recursive = function(element, links, path) {
+            var get_all_elements_with_property_recursive = function(element, links, path) {
                 var n, l;
                 var new_path = path.slice();
                 new_path.push(element.id);
@@ -985,8 +986,8 @@
                     return;
                 }
 
-                // check if the element itself, is a link to a secret
-                if (element.hasOwnProperty('secret_id')) {
+                // check if the element itself has the property
+                if (element.hasOwnProperty(property)) {
                     links.push({
                         id: element.id,
                         path: new_path
@@ -999,7 +1000,7 @@
                         if (element.items[n].hasOwnProperty('share_id')) {
                             continue;
                         }
-                        get_all_secret_links_recursive(element.items[n], links, new_path);
+                        get_all_elements_with_property_recursive(element.items[n], links, new_path);
                     }
                 }
 
@@ -1009,14 +1010,44 @@
                         if (element.folders[n].hasOwnProperty('share_id')) {
                             continue;
                         }
-                        get_all_secret_links_recursive(element.folders[n], links, new_path);
+                        get_all_elements_with_property_recursive(element.folders[n], links, new_path);
                     }
                 }
             };
 
-            get_all_secret_links_recursive(element, links, []);
+            get_all_elements_with_property_recursive(element, links, []);
 
             return links;
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#get_all_secret_links
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * returns all secret links in element. Doesn't cross share borders.
+         *
+         * @param {object} element the element to search
+         * @returns {Array} List of secret links
+         */
+        var get_all_secret_links = function(element) {
+            return get_all_elements_with_property(element, 'secret_id');
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#get_all_file_links
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * returns all file links in element. Doesn't cross share borders.
+         *
+         * @param {object} element the element to search
+         * @returns {Array} List of secret links
+         */
+        var get_all_file_links = function(element) {
+            return get_all_elements_with_property(element, 'file_id');
         };
 
         /**
@@ -1652,6 +1683,7 @@
             search_in_datastore: search_in_datastore,
             get_all_child_shares: get_all_child_shares,
             get_all_secret_links: get_all_secret_links,
+            get_all_file_links: get_all_file_links,
             on_share_added: on_share_added,
             on_share_moved: on_share_moved,
             on_share_deleted: on_share_deleted,

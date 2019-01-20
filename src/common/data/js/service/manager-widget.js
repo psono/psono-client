@@ -12,6 +12,7 @@
      * @requires psonocli.managerSecret
      * @requires psonocli.managerShareLink
      * @requires psonocli.managerSecretLink
+     * @requires psonocli.managerFileLink
      * @requires psonocli.itemBlueprint
      * @requires psonocli.cryptoLibrary
      *
@@ -20,7 +21,7 @@
      */
 
     var managerWidget = function ($rootScope, $window, $uibModal, managerDatastorePassword, managerShare, managerSecret, managerShareLink,
-                                  managerSecretLink, itemBlueprint, cryptoLibrary) {
+                                  managerSecretLink, managerFileLink, itemBlueprint, cryptoLibrary) {
 
 
         /**
@@ -158,10 +159,9 @@
                 if (typeof parent.items === 'undefined') {
                     parent.items = [];
                 }
-                var link_id = cryptoLibrary.generate_uuid();
 
                 var datastore_object = {
-                    id: link_id,
+                    id: content['link_id'],
                     type: content.id
                 };
                 var secret_object = {};
@@ -240,7 +240,7 @@
                 } else {
                     managerSecret.create_secret(
                         secret_object,
-                        link_id,
+                        content['link_id'],
                         parent_datastore_id,
                         parent_share_id,
                         content['callback_data']['callback_url'],
@@ -590,6 +590,7 @@
                 managerDatastorePassword.get_all_child_shares([], datastore, child_shares, 1, element);
             }
             var secret_links = managerDatastorePassword.get_all_secret_links(element);
+            var file_links = managerDatastorePassword.get_all_file_links(element);
 
             // lets update for every child_share the share_index
             for (i = child_shares.length - 1; i >= 0; i--) {
@@ -622,6 +623,14 @@
                     target_path_copy2.concat(secret_links[i].path), datastore, datastore, 1
                 );
                 managerSecretLink.on_secret_moved(secret_links[i].id, closest_parent);
+            }
+
+            // adjust the links for every secret link (and therefore update the rights)
+            for (i = file_links.length - 1; i >= 0; i--) {
+                closest_parent = managerShare.get_closest_parent_share(
+                    target_path_copy2.concat(file_links[i].path), datastore, datastore, 1
+                );
+                managerFileLink.on_file_moved(file_links[i].id, closest_parent);
             }
 
             // update the parents inside of the new target
@@ -685,6 +694,7 @@
             }
 
             var secret_links = managerDatastorePassword.get_all_secret_links(element);
+            var file_links = managerDatastorePassword.get_all_file_links(element);
 
             // lets update for every child_share the share_index
             for (i = child_shares.length - 1; i >= 0; i--) {
@@ -706,6 +716,10 @@
             // adjust the links for every secret link (and therefore update the rights)
             for (i = secret_links.length - 1; i >= 0; i--) {
                 managerSecretLink.on_secret_deleted(secret_links[i].id);
+            }
+            // adjust the links for every secret link (and therefore update the rights)
+            for (i = file_links.length - 1; i >= 0; i--) {
+                managerFileLink.on_file_deleted(file_links[i].id);
             }
         };
 
@@ -855,6 +869,6 @@
 
     var app = angular.module('psonocli');
     app.factory("managerWidget", ['$rootScope', '$window', '$uibModal', 'managerDatastorePassword', 'managerShare', 'managerSecret',
-        'managerShareLink', 'managerSecretLink', 'itemBlueprint', 'cryptoLibrary', managerWidget]);
+        'managerShareLink', 'managerSecretLink', 'managerFileLink', 'itemBlueprint', 'cryptoLibrary', managerWidget]);
 
 }(angular));

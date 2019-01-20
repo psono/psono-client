@@ -9,13 +9,14 @@
      * @requires psonocli.apiClient
      * @requires psonocli.cryptoLibrary
      * @requires psonocli.managerSecretLink
+     * @requires psonocli.managerFileLink
      * @requires psonocli.itemBlueprint
      *
      * @description
      * Service to handle all share related tasks
      */
 
-    var managerShare = function($q, managerBase, apiClient, cryptoLibrary, managerSecretLink,
+    var managerShare = function($q, managerBase, apiClient, cryptoLibrary, managerSecretLink, managerFileLink,
                                 itemBlueprint) {
 
         /**
@@ -161,6 +162,12 @@
                     managerSecretLink.move_secret_link(old_link_id, content.data.share_id)
                 } else {
                     managerSecretLink.move_secret_links(filtered_content, content.data.share_id);
+                }
+
+                if (filtered_content.hasOwnProperty('file_id')) {
+                    managerFileLink.move_file_link(old_link_id, content.data.share_id)
+                } else {
+                    managerFileLink.move_file_links(filtered_content, content.data.share_id);
                 }
 
 
@@ -514,7 +521,7 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerShare", ['$q', 'managerBase', 'apiClient', 'cryptoLibrary', 'managerSecretLink',
+    app.factory("managerShare", ['$q', 'managerBase', 'apiClient', 'cryptoLibrary', 'managerSecretLink', 'managerFileLink',
         'itemBlueprint', managerShare]);
 
 }(angular));

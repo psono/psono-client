@@ -244,6 +244,7 @@ self.addEventListener('install', function(event) {
                 './js/service/manager-share-link.js',
                 './js/service/manager-export.js',
                 './js/service/manager-file-transfer.js',
+                './js/service/manager-file-link.js',
                 './js/service/manager-hosts.js',
                 './js/service/manager-import.js',
                 './js/service/manager-security-report.js',

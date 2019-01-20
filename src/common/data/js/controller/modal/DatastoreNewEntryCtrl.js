@@ -7,13 +7,14 @@
      * @requires $scope
      * @requires $uibModalInstance
      * @requires psonocli.itemBlueprint
+     * @requires psonocli.cryptoLibrary
      * @requires psonocli.helper
      *
      * @description
      * Controller for the "New Entry" modal
      */
-    angular.module('psonocli').controller('ModalDatastoreNewEntryCtrl', ['$scope', '$uibModalInstance', 'itemBlueprint', 'helper', 'parent', 'path',
-        function ($scope, $uibModalInstance, itemBlueprint, helper, parent, path) {
+    angular.module('psonocli').controller('ModalDatastoreNewEntryCtrl', ['$scope', '$uibModalInstance', 'itemBlueprint', 'cryptoLibrary', 'helper', 'parent', 'path',
+        function ($scope, $uibModalInstance, itemBlueprint, cryptoLibrary, helper, parent, path) {
 
             $scope.reset = reset;
             $scope.save = save;
@@ -94,6 +95,8 @@
                 if ($scope.errors.length > 0) {
                     return;
                 }
+
+                $scope.bp.selected['link_id'] = cryptoLibrary.generate_uuid();
 
                 if ($scope.bp.selected.hasOwnProperty('preSave')) {
                     var onSuccess = function(){

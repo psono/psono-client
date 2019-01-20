@@ -192,7 +192,7 @@
                     }
                 }
 
-                if (!field_file_title.value) {
+                if (!field_file_title.value && field_file_data.value) {
                     field_file_title.value=field_file_data.value.replace(/^.*[\\\/]/, '');
                 }
 
@@ -209,7 +209,6 @@
 
                 var file_secret_key = cryptoLibrary.generate_secret_key();
                 var file_chunk_size = 8*1024*1024; //128*1024*1024; // in bytes. e.g. 128*1024*1024 Bytes = 128 MB
-                var link_id = cryptoLibrary.generate_uuid();
 
                 /**
                  * Uploads a file in chunks and returns the array of hashs
@@ -396,7 +395,7 @@
                         parent_datastore_id = parent.datastore_id;
                     }
 
-                    return managerFileTransfer.create_file(shard['shard_id'], size + chunk_count * 40, chunk_count, link_id, parent_datastore_id, parent_share_id)
+                    return managerFileTransfer.create_file(shard['shard_id'], size + chunk_count * 40, chunk_count, selected['link_id'], parent_datastore_id, parent_share_id)
                         .then(onSuccess, onError);
                 };
 

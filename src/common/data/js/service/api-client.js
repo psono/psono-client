@@ -1049,6 +1049,65 @@
 
         /**
          * @ngdoc
+         * @name psonocli.apiClient#move_file_link
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax POST request with the token as authentication to move a link between a file and a datastore or a share
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} link_id the link id
+         * @param {uuid|undefined} [new_parent_share_id=null] (optional) new parent share ID, necessary if no new_parent_datastore_id is provided
+         * @param {uuid|undefined} [new_parent_datastore_id=null] (optional) new datastore ID, necessary if no new_parent_share_id is provided
+         *
+         * @returns {promise} Returns promise with the status of the move
+         */
+        var move_file_link = function (token, session_secret_key, link_id, new_parent_share_id, new_parent_datastore_id) {
+            var endpoint = '/file/link/';
+            var connection_type = "POST";
+            var data = {
+                link_id: link_id,
+                new_parent_share_id: new_parent_share_id,
+                new_parent_datastore_id: new_parent_datastore_id
+            };
+            var headers = {
+                "Authorization": "Token " + token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#delete_file_link
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax DELETE request with the token as authentication to delete the file link
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} link_id The link id
+         *
+         * @returns {promise} Returns a promise with the status of the delete operation
+         */
+        var delete_file_link = function (token, session_secret_key, link_id) {
+            var endpoint = '/file/link/';
+            var connection_type = "DELETE";
+            var data = {
+                link_id: link_id
+            };
+            var headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Token " + token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.apiClient#read_share
          * @methodOf psonocli.apiClient
          *
@@ -2618,6 +2677,8 @@
             create_secret: create_secret,
             move_secret_link: move_secret_link,
             delete_secret_link: delete_secret_link,
+            move_file_link: move_file_link,
+            delete_file_link: delete_file_link,
             read_share:read_share,
             read_shares: read_shares,
             write_share: write_share,

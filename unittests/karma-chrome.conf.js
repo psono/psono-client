@@ -146,6 +146,7 @@
                 "../src/common/data/js/service/manager-share-link.js",
                 "../src/common/data/js/service/manager-export.js",
                 "../src/common/data/js/service/manager-file-transfer.js",
+                "../src/common/data/js/service/manager-file-link.js",
                 "../src/common/data/js/service/manager-hosts.js",
                 "../src/common/data/js/service/manager-import.js",
                 "../src/common/data/js/service/manager-security-report.js",
