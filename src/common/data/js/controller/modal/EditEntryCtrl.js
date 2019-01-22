@@ -46,9 +46,7 @@
                     selected: itemBlueprint.get_blueprint($scope.node.type)
                 };
 
-                console.log($scope.data);
                 for (var i = $scope.bp.selected.fields.length - 1; i >= 0; i--) {
-                    console.log($scope.bp.selected.fields[i].name);
                     if ($scope.data.hasOwnProperty($scope.bp.selected.fields[i].name)) {
                         $scope.bp.selected.fields[i].value = $scope.data[$scope.bp.selected.fields[i].name];
                     }

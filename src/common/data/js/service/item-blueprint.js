@@ -395,6 +395,10 @@
                         parent_datastore_id = parent.datastore_id;
                     }
 
+                    if (size === 0) {
+                        return $q.resolve()
+                    }
+
                     return managerFileTransfer.create_file(shard['shard_id'], size + chunk_count * 40, chunk_count, selected['link_id'], parent_datastore_id, parent_share_id)
                         .then(onSuccess, onError);
                 };

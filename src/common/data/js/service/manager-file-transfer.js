@@ -210,7 +210,7 @@
             read_shards().then(function(data){
                 storage.upsert('config', {'key': 'shards', 'value': data});
                 storage.save();
-                browserClient.open_tab('download-file.html#!/file/download/'+item.file_id).then(function (window) {
+                browserClient.open_tab('download-file.html#!/file/download/'+item.id).then(function (window) {
                     //window.psono_offline_cache_encryption_key = offlineCache.get_encryption_key();
                 });
             });
@@ -304,16 +304,21 @@
          * @description
          * Downloads a file
          *
-         * @param {string} file_id The id of the file to download
+         * @param {string} id The id of the file to download
          */
-        var download_file = function(file_id) {
+        var download_file = function(id) {
 
-            var file = storage.find_key('datastore-file-leafs', file_id);
-            var shards = storage.find_key('config', 'shards');
-
+            var file = storage.find_key('datastore-file-leafs', id);
             if (file === null || typeof(file) === 'undefined') {
                 return
             }
+
+            if (!file.hasOwnProperty('file_shard_id') || !file.hasOwnProperty('file_id')) {
+                saveAs(new Blob([''], {type: 'text/plain;charset=utf-8'}), file['file_title']);
+                return
+            }
+
+            var shards = storage.find_key('config', 'shards');
             if (shards === null || typeof(shards) === 'undefined') {
                 return
             }
@@ -362,7 +367,7 @@
                 // pass
             }
 
-            read_file(file_id).then(onSuccess, onError);
+            read_file(file['file_id']).then(onSuccess, onError);
         };
 
         return {

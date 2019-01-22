@@ -126,7 +126,7 @@
                         templateUrl: 'view/index-gpg-encrypt.html'
                     })
                     .when('/secret/:type/:secret_id', {})
-                    .when('/file/download/:file_id', {})
+                    .when('/file/download/:id', {})
                     .when('/activation-code/:activation_code', {})
                     .when('/datastore/search/:default_search', {
                         templateUrl: 'view/datastore.html',
@@ -237,8 +237,8 @@
                         return;
                     }
                     redirect = '/file/download/';
-                    if ($location.path().substring(0, redirect.length) === redirect && $routeParams.hasOwnProperty('file_id')) {
-                        managerFileTransfer.download_file($routeParams.file_id);
+                    if ($location.path().substring(0, redirect.length) === redirect && $routeParams.hasOwnProperty('id')) {
+                        managerFileTransfer.download_file($routeParams.id);
                         return;
                     }
                 });
