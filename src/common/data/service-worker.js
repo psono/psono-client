@@ -36,7 +36,6 @@ self.addEventListener('install', function(event) {
                 './css/contentscript.css',
                 './css/datastore.css',
                 './css/main.css',
-                './css/open-secret.css',
                 './css/style.css',
 
                 './fonts/FontAwesome.otf',

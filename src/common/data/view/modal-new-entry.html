@@ -3,7 +3,7 @@
         <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
         <h3 class="modal-title">{{'NEW' | translate}} {{bp.selected.name | translate}}</h3>
     </div>
-    <div class="modal-body">
+    <div class="modal-body" ng-if="!state.processing">
 
         <ui-select ng-model="bp.selected" class="form-group" on-select="reset()">
             <ui-select-match>
@@ -252,7 +252,14 @@
         </div>
 
     </div>
+    <div class="modal-body" ng-if="state.processing">
+
+        <uib-progressbar max="state.open_requests" value="state.closed_request" ng-if="state.processing">
+            <span style="color:white; white-space:nowrap;">{{ state.closed_request }} / {{ state.open_requests }}</span>
+        </uib-progressbar>
+
+    </div>
     <div class="modal-footer">
-        <button class="btn btn-primary" ng-disabled="form_control.block_submit" type="button" ng-click="submitted=true; save();">OK</button>
+        <button class="btn btn-primary" ng-disabled="form_control.block_submit || processing" type="button" ng-click="submitted=true; save();">OK</button>
     </div>
 </form>

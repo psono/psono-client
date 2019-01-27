@@ -22,7 +22,6 @@ self.addEventListener('install', function(event) {
                 './css/contentscript.css',
                 './css/datastore.css',
                 './css/main.css',
-                './css/open-secret.css',
 
                 './fonts/FontAwesome.otf',
                 './fonts/fontawesome-webfont.eot?v=4.7.0',

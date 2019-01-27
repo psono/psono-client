@@ -68,8 +68,7 @@ var build = function(build_path, type) {
         gulp.src([
             'src/common/data/css/contentscript.css',
             'src/common/data/css/datastore.css',
-            'src/common/data/css/main.css',
-            'src/common/data/css/open-secret.css'
+            'src/common/data/css/main.css'
         ])
             .pipe(cleanCSS({compatibility: 'ie8'}))
             .pipe(gulp.dest(path.join(build_path, 'css')));

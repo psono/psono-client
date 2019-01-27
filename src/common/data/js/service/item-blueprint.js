@@ -208,7 +208,8 @@
             preSave: function(selected, parent, path){
 
                 var file_secret_key = cryptoLibrary.generate_secret_key();
-                var file_chunk_size = 8*1024*1024; //128*1024*1024; // in bytes. e.g. 128*1024*1024 Bytes = 128 MB
+                //var file_chunk_size = 8*1024*1024; // in bytes. e.g.   8*1024*1024 Bytes =   8 MB
+                var file_chunk_size = 128*1024*1024; // in bytes. e.g. 128*1024*1024 Bytes = 128 MB
 
                 /**
                  * Uploads a file in chunks and returns the array of hashs
@@ -223,21 +224,19 @@
                  */
                 function multi_chunk_upload(shard, file, file_transfer_id, file_secret_key, file_chunk_size) {
 
-
-                    var defer = $q.defer();
-
-                    var secret_promise_array = [];
-
                     var time_start = new Date().getTime();
 
-                    var on_load_end = function(bytes, file_secret_key, chunk_position, is_last, resolve) {
+                    var on_load_end = function(bytes, file_secret_key, chunk_position, resolve) {
+                        registrations['upload_step_complete']('ENCRYPT_FILE_CHUNK');
                         console.log("on_load_end " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
                         time_start = new Date().getTime();
                         var encrypted_bytes = cryptoLibrary.encrypt_file(bytes, file_secret_key);
+                        registrations['upload_step_complete']('HASH_FILE_CHUNK');
                         console.log("encrypt_file " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
                         time_start = new Date().getTime();
 
                         var hash_blake2b = cryptoLibrary.blake2b(encrypted_bytes);
+                        registrations['upload_step_complete']('UPLOAD_FILE_CHUNK');
                         console.log("blake2b " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
                         time_start = new Date().getTime();
 
@@ -251,14 +250,14 @@
                         });
                     };
 
-                    var read_file_chunk = function(file, file_slice_start, bytes_to_go, on_load_end, file_secret_key, chunk_position, is_last, resolve) {
+                    var read_file_chunk = function(file, file_slice_start, bytes_to_go, on_load_end, file_secret_key, chunk_position, resolve) {
                         console.log("read_file_chunk");
                         var file_reader = new FileReader();
                         var file_slice;
 
                         file_reader.onloadend = function(event) {
                             var bytes = new Uint8Array(event.target.result);
-                            on_load_end(bytes, file_secret_key, chunk_position, is_last, resolve);
+                            on_load_end(bytes, file_secret_key, chunk_position, resolve);
                         };
 
                         file_slice = file.slice(file_slice_start, file_slice_start + bytes_to_go);
@@ -267,35 +266,65 @@
 
                     };
 
+
+
                     var chunk_position = 1;
-                    var is_last = false;
                     var is_first = true;
                     var file_slice_start = 0;
-
                     var chunks = {};
+                    var max_chunks = Math.ceil(file.size / file_chunk_size);
 
-                    while (file_slice_start <= file.size) {
+                    registrations['upload_started'](max_chunks * 4 + 1);
+
+                    // new sequential approach
+                    function read_next_chunk() {
+                        registrations['upload_step_complete']('READ_FILE_CHUNK');
+                        var defer_single = $q.defer();
+
                         var bytes_to_go = Math.min(file_chunk_size, file.size-file_slice_start);
                         if (bytes_to_go === 0 && !is_first) {
-                            break;
+                            registrations['upload_complete']();
+                            return defer_single.resolve(chunks);
                         }
-                        is_last = file_slice_start + bytes_to_go === file.size;
-                        var defer_single = $q.defer();
-                        secret_promise_array.push($q.when(defer_single.promise.then(function(chunk) {
-                            chunks[chunk['chunk_position']] = chunk['hash_blake2b'];
-                            return;
-                        })));
-                        read_file_chunk(file, file_slice_start, bytes_to_go, on_load_end, file_secret_key, chunk_position, is_last, defer_single.resolve);
+
+                        read_file_chunk(file, file_slice_start, bytes_to_go, on_load_end, file_secret_key, chunk_position, defer_single.resolve);
                         file_slice_start = file_slice_start + bytes_to_go;
                         is_first = false;
                         chunk_position = chunk_position + 1;
+
+                        return $q.when(defer_single.promise.then(function(chunk) {
+                            chunks[chunk['chunk_position']] = chunk['hash_blake2b'];
+                            return read_next_chunk();
+                        }));
                     }
 
-                    $q.all(secret_promise_array).then(function() {
-                        defer.resolve(chunks);
-                    });
+                    return read_next_chunk();
 
-                    return defer.promise;
+                    // old parallel approach
+                    // var secret_promise_array = [];
+                    // var defer = $q.defer();
+                    //
+                    // while (file_slice_start <= file.size) {
+                    //     var bytes_to_go = Math.min(file_chunk_size, file.size-file_slice_start);
+                    //     if (bytes_to_go === 0 && !is_first) {
+                    //         break;
+                    //     }
+                    //     var defer_single = $q.defer();
+                    //     secret_promise_array.push($q.when(defer_single.promise.then(function(chunk) {
+                    //         chunks[chunk['chunk_position']] = chunk['hash_blake2b'];
+                    //         return;
+                    //     })));
+                    //     read_file_chunk(file, file_slice_start, bytes_to_go, on_load_end, file_secret_key, chunk_position, defer_single.resolve);
+                    //     file_slice_start = file_slice_start + bytes_to_go;
+                    //     is_first = false;
+                    //     chunk_position = chunk_position + 1;
+                    // }
+                    //
+                    // $q.all(secret_promise_array).then(function() {
+                    //     defer.resolve(chunks);
+                    // });
+                    //
+                    // return defer.promise;
                 }
 
                 /**
