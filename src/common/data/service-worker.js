@@ -100,7 +100,6 @@ self.addEventListener('install', function(event) {
 
 
                 './js/lib/ecma-nacl.min.js',
-                './js/lib/blake2b.js',
                 './js/lib/openpgp.min.js',
                 './js/lib/sha512.min.js',
                 './js/lib/sha256.min.js',
@@ -146,6 +145,7 @@ self.addEventListener('install', function(event) {
 
                 './js/main.js',
                 './js/service-worker-load.js',
+                './js/crypto-worker.js',
 
                 './js/directive/fileReader.js',
                 './js/directive/treeView.js',

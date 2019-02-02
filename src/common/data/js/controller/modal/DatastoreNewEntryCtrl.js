@@ -26,6 +26,7 @@
             $scope.state = {
                 open_requests: 0,
                 closed_request: 0,
+                percentage_complete: 0,
                 next_step: '',
                 processing: false
             };
@@ -54,8 +55,6 @@
                     }
                 });
 
-                console.log("activate");
-
                 itemBlueprint.register('upload_started', function(max){
                     $scope.state.processing = true;
                     $scope.state.open_requests = max;
@@ -63,6 +62,7 @@
 
                 itemBlueprint.register('upload_step_complete', function(next_step){
                     $scope.state.closed_request = $scope.state.closed_request + 1;
+                    $scope.state.percentage_complete = Math.round($scope.state.closed_request / $scope.state.open_requests * 1000) / 10;
                     $scope.state.next_step = next_step;
                     console.log("REGISTERED: " + next_step);
                 });
@@ -82,6 +82,7 @@
                 $scope.submitted = false;
                 $scope.state.open_requests = 0;
                 $scope.state.closed_request = 0;
+                $scope.state.percentage_complete = 0;
                 $scope.state.next_step ='';
                 $scope.state.processing = false;
             }

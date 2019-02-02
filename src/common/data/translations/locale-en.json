@@ -1,4 +1,7 @@
 {
+  "HASHING_FILE_CHUNK": "Hashing chunk...",
+  "UPLOADING_FILE_CHUNK": "Uploading chunk...",
+  "ENCRYPTING_FILE_CHUNK": "Encrypting chunk ...",
   "FILE_ID": "File ID",
   "FILE_SHARD_ID": "File shard ID",
   "FILE_CHUNKS": "File chunks",

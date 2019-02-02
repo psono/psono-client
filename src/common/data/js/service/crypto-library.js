@@ -1,4 +1,4 @@
-(function(angular, require, sha512, sha256, sha1, uuid, blake) {
+(function(angular, require, sha512, sha256, sha1, uuid) {
     'use strict';
 
     /**
@@ -17,7 +17,7 @@
         this.name = "InvalidRecoveryCodeException";
     }
 
-    var cryptoLibrary = function($window, $timeout, converter, helper) {
+    var cryptoLibrary = function($q, $window, $timeout, converter, helper) {
 
         var nacl = require('ecma-nacl');
 
@@ -70,25 +70,6 @@
                 scrypt_lookup_table = {};
             }, 60000);
         }
-
-        /**
-         * @ngdoc
-         * @name psonocli.cryptoLibrary#blake2b
-         * @methodOf psonocli.cryptoLibrary
-         *
-         * @description
-         * Returns the blake2b hash
-         * Base: https://github.com/dcposch/blakejs
-         *
-         * @param {Uint8Array} input The input data
-         * @param {Uint8Array} key (optional) key Uint8Array, up to 64 bytes
-         * @param {Uint8Array} outlen (optional) output length in bytes, default 64
-         *
-         * @returns {String} Returns the hex representation of the hash
-         */
-        var blake2b = function (input, key, outlen) {
-            return converter.to_hex(blake.blake2b(input, key, outlen))
-        };
 
 
         /**
@@ -255,6 +236,42 @@
 
         /**
          * @ngdoc
+         * @name psonocli.cryptoLibrary#run_crypto_work_async
+         * @methodOf psonocli.cryptoLibrary
+         *
+         * @description
+         * runs async jobs
+         *
+         * @param job
+         * @param kwargs
+         * @param transfers
+         *
+         * @returns {PromiseLike<any> | f | * | e | promise}
+         */
+        var run_crypto_work_async = function(job, kwargs, transfers) {
+
+            var defer = $q.defer();
+
+            var crypto_worker = new Worker('js/crypto-worker.js');
+
+            function handle_message_from_worker(msg) {
+                crypto_worker.terminate();
+                defer.resolve(msg.data.kwargs);
+            }
+
+            crypto_worker.addEventListener('message', handle_message_from_worker);
+            crypto_worker.postMessage(
+                {
+                    job: job,
+                    kwargs: kwargs
+                },
+                transfers
+            );
+            return defer.promise;
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.cryptoLibrary#encrypt_file
          * @methodOf psonocli.cryptoLibrary
          *
@@ -264,13 +281,26 @@
          * @param {Uint8Array} data The data of the file in Uint8Array encoding
          * @param {string} secret_key The secret key you want to use to encrypt the data
          *
-         * @returns {Uint8Array} The encrypted text prepended with the nonce
+         * @returns {promise} A promise that will return the encrypted file with the nonce as Uint8Array
          */
         var encrypt_file = function (data, secret_key) {
-            var k = converter.from_hex(secret_key);
-            var n = randomBytes(24);
+            // sync code
+            // var k = converter.from_hex(secret_key);
+            // var n = randomBytes(24);
+            //
+            // return  nacl.secret_box.formatWN.pack(data, n, k);
 
-            return nacl.secret_box.formatWN.pack(data, n, k);
+            var k = converter.from_hex(secret_key).buffer;
+            var n = randomBytes(24).buffer;
+            var arrayBuffer = data.buffer;
+
+            return run_crypto_work_async('encrypt_file', {
+                data: arrayBuffer,
+                k: k,
+                n: n
+            }, [arrayBuffer]).then(function(buffer) {
+                return new Uint8Array(buffer)
+            });
         };
 
         /**
@@ -284,12 +314,23 @@
          * @param {Uint8Array} text The encrypted data of the file in Uint8Array encoding with prepended nonce
          * @param {string} secret_key The secret key used in the past to encrypt the text
          *
-         * @returns {string} The decrypted data
+         * @returns {promise} A promise that will return the decrypted data as Uint8Array
          */
         var decrypt_file = function (text, secret_key) {
-            var k = converter.from_hex(secret_key);
+            // sync code
+            // var k = converter.from_hex(secret_key);
+            //
+            // return nacl.secret_box.formatWN.open(text, k);
 
-            return nacl.secret_box.formatWN.open(text, k);
+            var k = converter.from_hex(secret_key).buffer;
+            var arrayBuffer = text.buffer;
+
+            return run_crypto_work_async('decrypt_file', {
+                text: arrayBuffer,
+                k: k
+            }, [arrayBuffer]).then(function(buffer) {
+                return new Uint8Array(buffer)
+            });
         };
 
         /**
@@ -614,7 +655,6 @@
             sha1: sha1,
             sha256: sha256,
             sha512: sha512,
-            blake2b: blake2b,
             password_scrypt: password_scrypt,
             generate_authkey: generate_authkey,
             generate_secret_key: generate_secret_key,
@@ -639,7 +679,7 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("cryptoLibrary", ['$window', '$timeout', 'converter', 'helper', cryptoLibrary]);
+    app.factory("cryptoLibrary", ['$q', '$window', '$timeout', 'converter', 'helper', cryptoLibrary]);
 
-}(angular, require, sha512, sha256, sha1, uuid, blake));
+}(angular, require, sha512, sha256, sha1, uuid));
 

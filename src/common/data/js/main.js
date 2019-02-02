@@ -214,6 +214,7 @@
         }])
         .run(['$rootScope', '$location', '$routeParams', '$http', '$templateCache', 'managerSecret', 'managerFileTransfer', 'offlineCache', 'managerStatus',
             function ($rootScope, $location, $routeParams, $http, $templateCache, managerSecret, managerFileTransfer, offlineCache, managerStatus) {
+                $rootScope.entity = 'main_thread';
 
                 $rootScope.$on( "$routeChangeStart", function(event, next, current) {
                     var offline_redirect_urls = [

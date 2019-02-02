@@ -224,34 +224,31 @@
                  */
                 function multi_chunk_upload(shard, file, file_transfer_id, file_secret_key, file_chunk_size) {
 
-                    var time_start = new Date().getTime();
-
                     var on_load_end = function(bytes, file_secret_key, chunk_position, resolve) {
-                        registrations['upload_step_complete']('ENCRYPT_FILE_CHUNK');
-                        console.log("on_load_end " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
-                        time_start = new Date().getTime();
-                        var encrypted_bytes = cryptoLibrary.encrypt_file(bytes, file_secret_key);
-                        registrations['upload_step_complete']('HASH_FILE_CHUNK');
-                        console.log("encrypt_file " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
-                        time_start = new Date().getTime();
+                        console.timeEnd('read_file_chunk');
+                        console.time('encrypt_file');
+                        cryptoLibrary.encrypt_file(bytes, file_secret_key).then(function(encrypted_bytes) {
+                            registrations['upload_step_complete']('HASHING_FILE_CHUNK');
+                            console.timeEnd('encrypt_file');
 
-                        var hash_blake2b = cryptoLibrary.blake2b(encrypted_bytes);
-                        registrations['upload_step_complete']('UPLOAD_FILE_CHUNK');
-                        console.log("blake2b " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
-                        time_start = new Date().getTime();
+                            console.time('sha512');
+                            var hash_checksum = cryptoLibrary.sha512(encrypted_bytes);
+                            console.timeEnd('sha512');
 
-                        managerFileTransfer.upload(new Blob([encrypted_bytes], {type: 'application/octet-stream'}), file_transfer_id, chunk_position, shard, hash_blake2b).then(function() {
-                            console.log("upload " + chunk_position + " " + (new Date().getTime() - time_start)/1000);
-                            time_start = new Date().getTime();
-                            return resolve({
-                                'chunk_position': chunk_position,
-                                'hash_blake2b': hash_blake2b
-                            })
+                            registrations['upload_step_complete']('UPLOADING_FILE_CHUNK');
+
+                            console.time('upload');
+                            managerFileTransfer.upload(new Blob([encrypted_bytes], {type: 'application/octet-stream'}), file_transfer_id, chunk_position, shard, hash_checksum).then(function() {
+                                console.timeEnd('upload');
+                                return resolve({
+                                    'chunk_position': chunk_position,
+                                    'hash_checksum': hash_checksum
+                                })
+                            });
                         });
                     };
 
                     var read_file_chunk = function(file, file_slice_start, bytes_to_go, on_load_end, file_secret_key, chunk_position, resolve) {
-                        console.log("read_file_chunk");
                         var file_reader = new FileReader();
                         var file_slice;
 
@@ -269,39 +266,41 @@
 
 
                     var chunk_position = 1;
-                    var is_first = true;
                     var file_slice_start = 0;
                     var chunks = {};
                     var max_chunks = Math.ceil(file.size / file_chunk_size);
 
-                    registrations['upload_started'](max_chunks * 4 + 1);
+                    registrations['upload_started'](max_chunks * 3 + 1);
 
                     // new sequential approach
                     function read_next_chunk() {
-                        registrations['upload_step_complete']('READ_FILE_CHUNK');
-                        var defer_single = $q.defer();
 
                         var bytes_to_go = Math.min(file_chunk_size, file.size-file_slice_start);
-                        if (bytes_to_go === 0 && !is_first) {
+                        if (bytes_to_go === 0) {
                             registrations['upload_complete']();
-                            return defer_single.resolve(chunks);
+                            return $q.resolve(chunks);
                         }
 
+                        registrations['upload_step_complete']('ENCRYPTING_FILE_CHUNK');
+
+                        var defer_single = $q.defer();
+                        console.time('read_file_chunk');
                         read_file_chunk(file, file_slice_start, bytes_to_go, on_load_end, file_secret_key, chunk_position, defer_single.resolve);
+
                         file_slice_start = file_slice_start + bytes_to_go;
-                        is_first = false;
                         chunk_position = chunk_position + 1;
 
-                        return $q.when(defer_single.promise.then(function(chunk) {
-                            chunks[chunk['chunk_position']] = chunk['hash_blake2b'];
+                        return defer_single.promise.then(function(chunk) {
+                            chunks[chunk['chunk_position']] = chunk['hash_checksum'];
                             return read_next_chunk();
-                        }));
+                        });
                     }
 
                     return read_next_chunk();
 
                     // old parallel approach
                     // var secret_promise_array = [];
+                    // var is_first = true;
                     // var defer = $q.defer();
                     //
                     // while (file_slice_start <= file.size) {
@@ -311,7 +310,7 @@
                     //     }
                     //     var defer_single = $q.defer();
                     //     secret_promise_array.push($q.when(defer_single.promise.then(function(chunk) {
-                    //         chunks[chunk['chunk_position']] = chunk['hash_blake2b'];
+                    //         chunks[chunk['chunk_position']] = chunk['hash_checksum'];
                     //         return;
                     //     })));
                     //     read_file_chunk(file, file_slice_start, bytes_to_go, on_load_end, file_secret_key, chunk_position, defer_single.resolve);

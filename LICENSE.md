@@ -245,14 +245,6 @@
 
 ----
 
-## blakejs: Creative Commons CC0
-
-    Source: https://github.com/dcposch/blakejs
-
-    Creative Commons CC0. Ported from the reference C implementation in RFC 7693.
-
-----
-
 ## js-sha512: MIT
 
     Copyright 2014-2015 emn178@gmail.com

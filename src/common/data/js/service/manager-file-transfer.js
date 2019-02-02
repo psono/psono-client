@@ -96,16 +96,16 @@
          * @param {uuid} file_transfer_id The id of the file transfer
          * @param {int} chunk_position The sequence number of the chunk to determine the order
          * @param {uuid} shard The target shard
-         * @param {string} hash_blake2b The blake2b hash
+         * @param {string} hash_checksum The sha512 hash
          *
          * @returns {promise} promise
          */
-        var upload = function (chunk, file_transfer_id, chunk_position, shard, hash_blake2b) {
+        var upload = function (chunk, file_transfer_id, chunk_position, shard, hash_checksum) {
 
             var ticket = {
                 'file_transfer_id': file_transfer_id,
                 'chunk_position': chunk_position,
-                'hash_blake2b': hash_blake2b
+                'hash_checksum': hash_checksum
             };
 
             var ticket_enc = cryptoLibrary.encrypt_data(JSON.stringify(ticket), managerBase.get_session_secret_key());
@@ -265,10 +265,10 @@
         };
 
 
-        var download = function (file_transfer_id, chunk_position, shard, hash_blake2b) {
+        var download = function (file_transfer_id, chunk_position, shard, hash_checksum) {
             var ticket = {
                 'file_transfer_id': file_transfer_id,
-                'hash_blake2b': hash_blake2b
+                'hash_checksum': hash_checksum
             };
 
             var ticket_enc = cryptoLibrary.encrypt_data(JSON.stringify(ticket), managerBase.get_session_secret_key());
@@ -313,7 +313,7 @@
                 return
             }
 
-            if (!file.hasOwnProperty('file_shard_id') || !file.hasOwnProperty('file_id')) {
+            if (!file.hasOwnProperty('file_shard_id') || !file.hasOwnProperty('file_id') || !file['file_shard_id'] || !file['file_id']) {
                 saveAs(new Blob([''], {type: 'text/plain;charset=utf-8'}), file['file_title']);
                 return
             }
@@ -332,7 +332,6 @@
             }
 
 
-
             function onSuccess(data) {
 
                 var file_transfer_id = data.file_transfer_id;
@@ -349,17 +348,20 @@
 
                 function on_chunk_download(data) {
                     next_chunk_id = next_chunk_id + 1;
-                    data = cryptoLibrary.decrypt_file(new Uint8Array(data), file['file_secret_key']);
-                    allblobs.push(data);
-                    if (next_chunk_id > chunk_count) {
-                        var concat = new Blob(allblobs, {type: 'application/octet-string'});
-                        saveAs(concat, file['file_title']);
-                    } else {
-                        return download(file_transfer_id, next_chunk_id, shard, file.file_chunks[next_chunk_id]).then(on_chunk_download, onError);
-                    }
+                    return cryptoLibrary.decrypt_file(new Uint8Array(data), file['file_secret_key']).then(function(data) {
+
+                        allblobs.push(data);
+                        if (next_chunk_id > chunk_count) {
+                            var concat = new Blob(allblobs, {type: 'application/octet-string'});
+                            saveAs(concat, file['file_title']);
+                            close();
+                        } else {
+                            return download(file_transfer_id, next_chunk_id, shard, file.file_chunks[next_chunk_id]).then(on_chunk_download, onError);
+                        }
+                    });
                 }
 
-                download(file_transfer_id, next_chunk_id, shard, file.file_chunks[next_chunk_id]).then(on_chunk_download, onError);
+                return download(file_transfer_id, next_chunk_id, shard, file.file_chunks[next_chunk_id]).then(on_chunk_download, onError);
 
             }
             function onError(data) {

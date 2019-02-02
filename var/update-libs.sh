@@ -53,7 +53,5 @@ wget https://raw.githubusercontent.com/openpgpjs/openpgpjs/v3.0.11/dist/openpgp.
 
 wget https://cdn.ravenjs.com/3.26.4/angular/raven.min.js -O src/common/data/js/lib/raven.min.js
 
-wget https://raw.githubusercontent.com/dcposch/blakejs/master/blake2b.js -O src/common/data/js/lib/blake2b.js # modified
-
 
 
