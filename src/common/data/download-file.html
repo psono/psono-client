@@ -35,23 +35,26 @@
     <!-- endbuild -->
 </head>
 <body>
-<div  ng-controller="OpenSecretCtrl" class="ng-cloak">
+<div  ng-controller="DownloadFileCtrl" class="ng-cloak">
 
-    <div class="loading-lock">
+    <div class="progress-box">
 
         <img src="img/logo.png" alt="Psono Web Client" id="logo">
 
-        <div class="loading-lock-logo">
-            <div class="loading-lock-logo-unloaded">
-                <i class="fa fa-lock" ></i>
-            </div>
-            <div class="loading-lock-logo-loaded">
-                <i id="loading-lock-logo-loaded-fa" class="fa fa-lock" ></i>
-            </div>
+        <uib-progressbar max="state.open_requests" value="state.closed_request" style="margin-top:50px" ng-if="!errors">
+            <span style="color:white; white-space:nowrap;">{{ state.percentage_complete }} %</span>
+        </uib-progressbar>
+        <span translate="{{ state.next_step }}"></span>
+
+        <div class="form-group alert alert-danger" ng-repeat="e in errors">
+            <strong>{{'ERROR' | translate}}:</strong>
+            <span translate="{{ e }}" ng-if="e !== 'INSUFFICIENT_FUNDS' || !credit_buy_address"></span>
+            <span translate="{{ 'INSUFFICIENT_FUNDS_WITH_CREDIT_BUY_ADDRESS' }}" ng-if="e === 'INSUFFICIENT_FUNDS' && credit_buy_address"></span>
+            <a ng-href="{{ credit_buy_address }}" ng-if="e === 'INSUFFICIENT_FUNDS' && credit_buy_address" rel="nofollow noopener" target="_blank">
+                <span translate="{{ 'BUY' }}"></span>
+            </a>
         </div>
-        <div class="loading-lock-text">
-            {{'DECRYPTING_FILE' | translate}}
-        </div>
+
     </div>
 </div>
 <div ng-show="::false" style="position: fixed; height: 100%; width: 100%; background-color: #0f1118; top: 0; left: 0; z-index: 10000;">
@@ -174,6 +177,7 @@
 <script src="js/controller/modal/DeleteAccountCtrl.js" type="application/javascript"></script>
 <script src="js/controller/EditEntryBigCtrl.js" type="application/javascript"></script>
 <script src="js/controller/OpenSecretCtrl.js" type="application/javascript"></script>
+<script src="js/controller/DownloadFileCtrl.js" type="application/javascript"></script>
 <script src="js/controller/OtherCtrl.js" type="application/javascript"></script>
 <script src="js/controller/SessionsCtrl.js" type="application/javascript"></script>
 <script src="js/controller/KnownHostsCtrl.js" type="application/javascript"></script>

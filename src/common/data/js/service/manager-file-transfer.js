@@ -19,6 +19,8 @@
 
     var managerFileTransfer = function($q, helper, storage, managerBase, browserClient, cryptoLibrary , converter, apiClient, apiFileserver) {
 
+        var registrations = {};
+
         /**
          * @ngdoc
          * @name psonocli.managerFileTransfer#read_file
@@ -266,6 +268,9 @@
 
 
         var download = function (file_transfer_id, chunk_position, shard, hash_checksum) {
+
+            registrations['download_step_complete']('DOWNLOADING_FILE_CHUNK');
+
             var ticket = {
                 'file_transfer_id': file_transfer_id,
                 'hash_checksum': hash_checksum
@@ -314,6 +319,7 @@
             }
 
             if (!file.hasOwnProperty('file_shard_id') || !file.hasOwnProperty('file_id') || !file['file_shard_id'] || !file['file_id']) {
+                registrations['download_complete']();
                 saveAs(new Blob([''], {type: 'text/plain;charset=utf-8'}), file['file_title']);
                 return
             }
@@ -341,20 +347,25 @@
                 var allblobs = [];
                 var chunk_count = Object.keys(file.file_chunks).length;
 
+                registrations['download_started'](chunk_count * 2 + 1);
+
                 function onError(data) {
                     console.log(data);
                     // pass
                 }
 
                 function on_chunk_download(data) {
+
+                    registrations['download_step_complete']('DECRYPTING_FILE_CHUNK');
+
                     next_chunk_id = next_chunk_id + 1;
                     return cryptoLibrary.decrypt_file(new Uint8Array(data), file['file_secret_key']).then(function(data) {
 
                         allblobs.push(data);
                         if (next_chunk_id > chunk_count) {
                             var concat = new Blob(allblobs, {type: 'application/octet-string'});
+                            registrations['download_complete']();
                             saveAs(concat, file['file_title']);
-                            close();
                         } else {
                             return download(file_transfer_id, next_chunk_id, shard, file.file_chunks[next_chunk_id]).then(on_chunk_download, onError);
                         }
@@ -365,11 +376,25 @@
 
             }
             function onError(data) {
-                console.log(data);
-                // pass
+                return $q.reject(data);
             }
 
-            read_file(file['file_id']).then(onSuccess, onError);
+            return read_file(file['file_id']).then(onSuccess, onError);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerFileTransfer#register
+         * @methodOf psonocli.managerFileTransfer
+         *
+         * @description
+         * used to register functions for callbacks
+         *
+         * @param {string} key The key of the function (usually the function name)
+         * @param {function} func The call back function
+         */
+        var register = function (key, func) {
+            registrations[key] = func;
         };
 
         return {
@@ -379,7 +404,8 @@
             read_shards: read_shards,
             filter_shards: filter_shards,
             on_item_click: on_item_click,
-            download_file: download_file
+            download_file: download_file,
+            register: register
         };
     };
 

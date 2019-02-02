@@ -64,7 +64,6 @@
                     $scope.state.closed_request = $scope.state.closed_request + 1;
                     $scope.state.percentage_complete = Math.round($scope.state.closed_request / $scope.state.open_requests * 1000) / 10;
                     $scope.state.next_step = next_step;
-                    console.log("REGISTERED: " + next_step);
                 });
 
                 itemBlueprint.register('upload_complete', reset);
@@ -98,6 +97,7 @@
              */
             function save() {
                 $scope.errors = [];
+                $scope.credit_buy_address = itemBlueprint.server_credit_buy_address();
 
                 for (var i = 0; i < $scope.bp.selected.fields.length; i++) {
                     var field = $scope.bp.selected.fields[i];
@@ -131,6 +131,7 @@
                     };
 
                     var onError = function(errors) {
+
                         for (var i = 0; i < errors.length; i++) {
                             $scope.errors.push(errors[i]);
                             reset();

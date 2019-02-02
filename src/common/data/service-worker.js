@@ -202,6 +202,7 @@ self.addEventListener('install', function(event) {
                 './js/controller/modal/DeleteAccountCtrl.js',
                 './js/controller/EditEntryBigCtrl.js',
                 './js/controller/OpenSecretCtrl.js',
+                './js/controller/DownloadFileCtrl.js',
                 './js/controller/OtherCtrl.js',
                 './js/controller/SessionsCtrl.js',
                 './js/controller/KnownHostsCtrl.js',

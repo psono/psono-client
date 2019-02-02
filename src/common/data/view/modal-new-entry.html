@@ -245,7 +245,11 @@
         </div>
 
         <div ng-repeat="e in errors" class="help-block">
-            <span translate="{{ e }}"></span>
+            <span translate="{{ e }}" ng-if="e !== 'INSUFFICIENT_FUNDS' || !credit_buy_address"></span>
+            <span translate="{{ 'INSUFFICIENT_FUNDS_WITH_CREDIT_BUY_ADDRESS' }}" ng-if="e === 'INSUFFICIENT_FUNDS' && credit_buy_address"></span>
+            <a ng-href="{{ credit_buy_address }}" ng-if="e === 'INSUFFICIENT_FUNDS' && credit_buy_address" rel="nofollow noopener" target="_blank">
+                <span translate="{{ 'BUY' }}"></span>
+            </a>
         </div>
         <div ng-repeat="e in msgs" class="help-block">
             <span translate="{{ e }}"></span>

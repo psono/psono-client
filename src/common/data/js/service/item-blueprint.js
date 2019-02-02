@@ -1067,6 +1067,25 @@
 
         /**
          * @ngdoc
+         * @name psonocli.itemBlueprint#server_credit_buy_address
+         * @methodOf psonocli.itemBlueprint
+         *
+         * @description
+         * returns the servers credit buy address if it has one or false
+         *
+         * @returns {boolean} returns whether the servers credit buy address
+         */
+        function server_credit_buy_address() {
+
+            var has_buy_address = storage.find_key('config', 'server_info') && storage.find_key('config', 'server_info').value && storage.find_key('config', 'server_info').value.hasOwnProperty('credit_buy_address');
+            if(!has_buy_address) {
+                return false;
+            }
+            return storage.find_key('config', 'server_info').value['credit_buy_address'];
+        }
+
+        /**
+         * @ngdoc
          * @name psonocli.itemBlueprint#get_additional_functions
          * @methodOf psonocli.itemBlueprint
          *
@@ -1248,7 +1267,8 @@
             blueprint_has_on_click_new_tab: blueprint_has_on_click_new_tab,
             blueprint_on_open_secret: blueprint_on_open_secret,
             blueprint_msg_before_open_secret: blueprint_msg_before_open_secret,
-            register: register
+            register: register,
+            server_credit_buy_address: server_credit_buy_address
         };
     };
 

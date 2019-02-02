@@ -7,6 +7,8 @@
   "FILE_CHUNKS": "File chunks",
   "NO_PERMISSION_OR_NOT_EXIST": "You don't have permission to access or it does not exist.",
   "INSUFFICIENT_FUNDS": "Insufficient funds",
+  "INSUFFICIENT_FUNDS_WITH_CREDIT_BUY_ADDRESS": "Insufficient funds, you can buy some here:",
+  "BUY": "Buy",
   "NO_FILE_SELECTED": "No file selected",
   "NO_FILESERVER_AVAILABLE": "No fileserver available",
   "FILE_SIZE": "File Size",

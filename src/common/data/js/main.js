@@ -237,11 +237,6 @@
                         managerSecret.redirect_secret($routeParams.type, $routeParams.secret_id);
                         return;
                     }
-                    redirect = '/file/download/';
-                    if ($location.path().substring(0, redirect.length) === redirect && $routeParams.hasOwnProperty('id')) {
-                        managerFileTransfer.download_file($routeParams.id);
-                        return;
-                    }
                 });
             }]);
 }(angular));
