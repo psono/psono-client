@@ -34,6 +34,7 @@
   "MOVE_FOLDER": "Ordner verschieben",
   "DELETE_FOLDER": "Ordner löschen",
   "MOVE": "Verschieben",
+  "API_KEYS_HAVE_BEEN_DISABLED": "Der Server Administrator hat API Keys deaktiviert. Bitte wenden sie sich an den Administrator.",
   "EXPORT_HAS_BEEN_DISABLED": "Der Server Administrator hat das Export Feature deaktiviert. Bitte wenden sie sich an den Administrator.",
   "SECONDS": "Sekunden",
   "EMERGENCY_CODE_ACTIVATED": "Notfall Code Akttivierungs-Countdown gestartet. Sie können sich einloggen sobald der Countdown abgelaufen ist. Bitte wiederholen sie den Schritt in:",
