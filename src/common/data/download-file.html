@@ -44,7 +44,7 @@
         <uib-progressbar max="state.open_requests" value="state.closed_request" style="margin-top:15px" ng-if="state.processing">
             <span style="color:white; white-space:nowrap;">{{ state.percentage_complete }} %</span>
         </uib-progressbar>
-        <span translate="{{ state.next_step }}"></span>
+        <span translate="{{ state.next_step }}" ng-if="state.processing"></span>
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
             <strong>{{'ERROR' | translate}}:</strong>

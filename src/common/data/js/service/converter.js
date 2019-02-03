@@ -1,4 +1,4 @@
-(function(angular, uuid) {
+(function(angular, uuid, TextDecoder) {
     'use strict';
 
     /**
@@ -495,6 +495,26 @@
             return Mnemonic.fromHex(val).toWords();
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.converter#bytest_to_string
+         * @methodOf psonocli.converter
+         *
+         * @description
+         * Converts bytes (arraybuffer or uint8array) to string with the specified encoding (default utf-8)
+         *
+         * @param bytes
+         * @param encoding
+         *
+         * @returns {*}
+         */
+        var bytes_to_string  = function(bytes, encoding) {
+            if (typeof(encoding) === 'undefined') {
+                encoding = 'utf-8'
+            }
+            return new TextDecoder(encoding).decode(bytes);
+        };
+
 
         return {
             // Conversion functions
@@ -513,12 +533,13 @@
             uuid_to_hex: uuid_to_hex,
             hex_to_uuid: hex_to_uuid,
             words_to_hex: words_to_hex,
-            hex_to_words: hex_to_words
+            hex_to_words: hex_to_words,
+            bytes_to_string : bytes_to_string
         };
     };
 
     var app = angular.module('psonocli');
     app.factory("converter", [converter]);
 
-}(angular, uuid));
+}(angular, uuid, TextDecoder));
 

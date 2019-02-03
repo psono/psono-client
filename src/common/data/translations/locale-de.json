@@ -1,4 +1,5 @@
 {
+  "CHUNK_NOT_AVAILABLE": "Chunk not available. Please try again later.",
   "DOWNLOAD_COMPLETED": "Download abgeschlossen",
   "DOWNLOADING_FILE_CHUNK": "Lade Chunk herunter...",
   "DECRYPTING_FILE_CHUNK": "Entschlüssele Chunk...",

@@ -57,6 +57,7 @@
                     var onError = function(data) {
                         if (data.hasOwnProperty('non_field_errors')) {
                             $scope.errors = data.non_field_errors;
+                            $scope.state.next_step = '';
                             $scope.state.processing = false;
                         } else {
                             console.log(data);

@@ -350,8 +350,7 @@
                 registrations['download_started'](chunk_count * 2);
 
                 function onError(data) {
-                    console.log(data);
-                    // pass
+                    return $q.reject(data);
                 }
 
                 function on_chunk_download(data) {

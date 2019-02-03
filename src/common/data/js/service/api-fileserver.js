@@ -6,12 +6,13 @@
      * @name psonocli.apiFileserver
      * @requires $http
      * @requires $q
+     * @requires psonocli.converter
      *
      * @description
      * Service to talk to the psono REST api
      */
 
-    var apiFileserver = function($http, $q) {
+    var apiFileserver = function($http, $q, converter) {
 
         var call = function(fileserver_url, connection_type, endpoint, data, headers, transformRequest, responseType) {
 
@@ -105,7 +106,14 @@
             var headers = {
             };
 
-            return call(fileserver_url, connection_type, endpoint, data, headers,  undefined, 'arraybuffer');
+            return call(fileserver_url, connection_type, endpoint, data, headers,  undefined, 'arraybuffer').then(function(data) {
+                return data
+            },function(data) {
+                if (data.status === 400) {
+                    data.data = JSON.parse(converter.bytes_to_string(data.data));
+                }
+                return $q.reject(data)
+            });
         };
 
         /**
@@ -138,6 +146,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("apiFileserver", ['$http', '$q', apiFileserver]);
+    app.factory("apiFileserver", ['$http', '$q', 'converter', apiFileserver]);
 
 }(angular));
