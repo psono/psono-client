@@ -1,4 +1,7 @@
 {
+  "DOWNLOAD_COMPLETED": "Download completed",
+  "DOWNLOADING_FILE_CHUNK": "Downloading chunk...",
+  "DECRYPTING_FILE_CHUNK": "Decrypting chunk...",
   "HASHING_FILE_CHUNK": "Hashing chunk...",
   "UPLOADING_FILE_CHUNK": "Uploading chunk...",
   "ENCRYPTING_FILE_CHUNK": "Encrypting chunk ...",

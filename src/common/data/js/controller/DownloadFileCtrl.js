@@ -31,7 +31,7 @@
 
                 managerFileTransfer.register('download_started', function(max){
                     $scope.state.processing = true;
-                    $scope.state.open_requests = max;
+                    $scope.state.open_requests = max + 1;
                 });
 
                 managerFileTransfer.register('download_step_complete', function(next_step){
@@ -40,19 +40,24 @@
                     $scope.state.next_step = next_step;
                 });
 
-                managerFileTransfer.register('download_complete', reset);
+                managerFileTransfer.register('download_complete', function() {
+                    $scope.state.closed_request = $scope.state.closed_request + 1;
+                    $scope.state.percentage_complete = Math.round($scope.state.closed_request / $scope.state.open_requests * 1000) / 10;
+                    $scope.state.next_step = 'DOWNLOAD_COMPLETED';
+                });
 
 
                 $scope.$on('$routeChangeSuccess', function () {
 
 
                     var onSuccess = function(data) {
-                        console.log(data);
+                        // pass
                     };
 
                     var onError = function(data) {
                         if (data.hasOwnProperty('non_field_errors')) {
                             $scope.errors = data.non_field_errors;
+                            $scope.state.processing = false;
                         } else {
                             console.log(data);
                             alert("Error, should not happen.");

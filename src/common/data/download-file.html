@@ -41,7 +41,7 @@
 
         <img src="img/logo.png" alt="Psono Web Client" id="logo">
 
-        <uib-progressbar max="state.open_requests" value="state.closed_request" style="margin-top:50px" ng-if="!errors">
+        <uib-progressbar max="state.open_requests" value="state.closed_request" style="margin-top:15px" ng-if="state.processing">
             <span style="color:white; white-space:nowrap;">{{ state.percentage_complete }} %</span>
         </uib-progressbar>
         <span translate="{{ state.next_step }}"></span>

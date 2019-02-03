@@ -70,7 +70,6 @@
          */
         var create_file = function (shard_id, size, chunk_count, link_id, parent_datastore_id, parent_share_id) {
 
-
             var onError = function(result) {
                 return $q.reject(result.data)
             };
@@ -333,8 +332,9 @@
             var shard_id = file['file_shard_id'];
 
             if (!shards_dict.hasOwnProperty(shard_id)) {
-                alert("No Fileserver available offering the location for this file");
-                return
+                return $q.reject({
+                    non_field_errors: ['NO_FILESERVER_AVAILABLE']
+                })
             }
 
 
@@ -347,7 +347,7 @@
                 var allblobs = [];
                 var chunk_count = Object.keys(file.file_chunks).length;
 
-                registrations['download_started'](chunk_count * 2 + 1);
+                registrations['download_started'](chunk_count * 2);
 
                 function onError(data) {
                     console.log(data);

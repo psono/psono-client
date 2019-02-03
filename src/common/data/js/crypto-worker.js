@@ -1,4 +1,6 @@
-self.importScripts('lib/ecma-nacl.min.js');
+if( 'function' === typeof self.importScripts) {
+    self.importScripts('lib/ecma-nacl.min.js');
+}
 
 var nacl = require('ecma-nacl');
 
