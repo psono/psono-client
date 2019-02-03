@@ -294,7 +294,6 @@ var build = function(build_path, type) {
             'src/common/data/js/**/*',
             '!src/common/data/js/google-analytics.js',
             '!src/common/data/js/service-worker-load.js',
-            '!src/common/data/js/crypto-worker.js',
             '!src/common/data/js/service/browser-client.js'
         ])
             .pipe(gulp.dest(path.join(build_path, 'js')));
