@@ -46,9 +46,11 @@
                     selected: itemBlueprint.get_blueprint($scope.node.type)
                 };
 
-                for (var i = $scope.bp.selected.fields.length - 1; i >= 0; i--) {
-                    if ($scope.data.hasOwnProperty($scope.bp.selected.fields[i].name)) {
-                        $scope.bp.selected.fields[i].value = $scope.data[$scope.bp.selected.fields[i].name];
+                if ($scope.bp.selected.hasOwnProperty('fields')) {
+                    for (var i = $scope.bp.selected.fields.length - 1; i >= 0; i--) {
+                        if ($scope.data.hasOwnProperty($scope.bp.selected.fields[i].name)) {
+                            $scope.bp.selected.fields[i].value = $scope.data[$scope.bp.selected.fields[i].name];
+                        }
                     }
                 }
 
