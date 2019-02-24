@@ -5,6 +5,22 @@ wget https://raw.githubusercontent.com/angular-ui/bootstrap-bower/2.5.0/ui-boots
 wget https://raw.githubusercontent.com/angular-ui/bootstrap/gh-pages/ui-bootstrap-2.5.0-csp.css -O src/common/data/css/lib/ui-bootstrap-csp.css
 wget http://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js -O src/common/data/js/lib/datatables.min.js
 wget https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css -O src/common/data/css/lib/datatables.min.css
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Czech.json -O src/common/data/translations/lib/datatables.cs.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/German.json -O src/common/data/translations/lib/datatables.de.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/English.json -O src/common/data/translations/lib/datatables.en.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json -O src/common/data/translations/lib/datatables.es.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Finnish.json -O src/common/data/translations/lib/datatables.fi.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/French.json -O src/common/data/translations/lib/datatables.fr.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Hungarian.json -O src/common/data/translations/lib/datatables.hr.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Italian.json -O src/common/data/translations/lib/datatables.it.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Japanese.json -O src/common/data/translations/lib/datatables.ja.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Korean.json -O src/common/data/translations/lib/datatables.ko.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Dutch.json -O src/common/data/translations/lib/datatables.nl.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Polish.json -O src/common/data/translations/lib/datatables.pl.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Russian.json -O src/common/data/translations/lib/datatables.ru.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Vietnamese.json -O src/common/data/translations/lib/datatables.vi.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Chinese.json -O src/common/data/translations/lib/datatables.zh-cn.json
+
 
 wget https://code.angularjs.org/1.7.7/angular.min.js -O src/common/data/js/lib/angular.min.js
 wget https://code.angularjs.org/1.7.7/angular.min.js.map -O src/common/data/js/lib/angular.min.js.map

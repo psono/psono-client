@@ -3,26 +3,26 @@
 
     /**
      * @ngdoc controller
-     * @name psonocli.controller:ModalEditFileExchangeCtrl
+     * @name psonocli.controller:ModalEditFileRepositoryCtrl
      * @requires $scope
      * @requires $q
      * @requires $uibModal
      * @requires $uibModalInstance
-     * @requires psonocli.managerFileExchange
+     * @requires psonocli.managerFileRepository
      * @requires psonocli.helper
      *
      * @description
-     * Controller for the "Edit File Exchange" modal in Other
+     * Controller for the "Edit File Repository" modal in Other
      */
-    angular.module('psonocli').controller('ModalEditFileExchangeCtrl', ['$scope', '$q', '$uibModal', '$uibModalInstance',
-        'managerFileExchange', 'managerDatastorePassword', 'helper', 'file_exchange',
+    angular.module('psonocli').controller('ModalEditFileRepositoryCtrl', ['$scope', '$q', '$uibModal', '$uibModalInstance',
+        'managerFileRepository', 'managerDatastorePassword', 'helper', 'file_repository',
         function ($scope, $q, $uibModal, $uibModalInstance,
-                  managerFileExchange, managerDatastorePassword, helper, file_exchange) {
+                  managerFileRepository, managerDatastorePassword, helper, file_repository) {
 
             $scope.errors = [];
-            $scope.file_exchange = file_exchange;
+            $scope.file_repository = file_repository;
             $scope.title = '';
-            $scope.types = managerFileExchange.get_possible_types();
+            $scope.types = managerFileRepository.get_possible_types();
             $scope.storage_config = {
 
             };
@@ -34,19 +34,19 @@
             activate();
 
             function activate() {
-                $scope.title = file_exchange.title;
-                $scope.selected_type = file_exchange.type;
-                $scope.active = file_exchange.active;
-                if (file_exchange.type === 'gcp_cloud_storage') {
-                    $scope.storage_config['gcp_cloud_storage_bucket'] = file_exchange.gcp_cloud_storage_bucket;
-                    $scope.storage_config['gcp_cloud_storage_json_key'] = file_exchange.gcp_cloud_storage_json_key
+                $scope.title = file_repository.title;
+                $scope.selected_type = file_repository.type;
+                $scope.active = file_repository.active;
+                if (file_repository.type === 'gcp_cloud_storage') {
+                    $scope.storage_config['gcp_cloud_storage_bucket'] = file_repository.gcp_cloud_storage_bucket;
+                    $scope.storage_config['gcp_cloud_storage_json_key'] = file_repository.gcp_cloud_storage_json_key
                 }
             }
 
             /**
              * @ngdoc
-             * @name psonocli.controller:ModalEditFileExchangeCtrl#save
-             * @methodOf psonocli.controller:ModalEditFileExchangeCtrl
+             * @name psonocli.controller:ModalEditFileRepositoryCtrl#save
+             * @methodOf psonocli.controller:ModalEditFileRepositoryCtrl
              *
              * @description
              * Triggered once someone clicks the save button in the modal
@@ -80,7 +80,7 @@
                     return;
                 }
 
-                if ($scope.modalEditFileExchangeForm.$invalid) {
+                if ($scope.modalEditFileRepositoryForm.$invalid) {
                     return;
                 }
                 var onError = function(result) {
@@ -92,15 +92,15 @@
                     $uibModalInstance.close();
                 };
 
-                return managerFileExchange.update_file_exchange(file_exchange.id, $scope.title, $scope.selected_type,
+                return managerFileRepository.update_file_repository(file_repository.id, $scope.title, $scope.selected_type,
                     $scope.storage_config['gcp_cloud_storage_bucket'], $scope.storage_config['gcp_cloud_storage_json_key'], $scope.active)
                     .then(onSuccess, onError);
             }
 
             /**
              * @ngdoc
-             * @name psonocli.controller:ModalEditFileExchangeCtrl#toggle_input_type
-             * @methodOf psonocli.controller:ModalEditFileExchangeCtrl
+             * @name psonocli.controller:ModalEditFileRepositoryCtrl#toggle_input_type
+             * @methodOf psonocli.controller:ModalEditFileRepositoryCtrl
              *
              * @description
              * Triggered once someone clicks Toggle button on an input field
@@ -116,8 +116,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:ModalEditFileExchangeCtrl#close
-             * @methodOf psonocli.controller:ModalEditFileExchangeCtrl
+             * @name psonocli.controller:ModalEditFileRepositoryCtrl#close
+             * @methodOf psonocli.controller:ModalEditFileRepositoryCtrl
              *
              * @description
              * Triggered once someone clicks the close button in the modal

@@ -163,21 +163,21 @@
 
                 </uib-tab>
 
-                <uib-tab index="3" heading="{{'FILE_EXCHANGES' | translate}}" select="open_tab('file-exchanges')">
-                    <div ng-controller="OtherFileExchangeCtrl">
+                <uib-tab index="3" heading="{{'FILE_REPOSITORYS' | translate}}" select="open_tab('file-repositorys')">
+                    <div ng-controller="OtherFileRepositoryCtrl">
                         <div class="row">
                             <div class="col-xs-12 col-sm-6">
-                                <h2>{{'FILE_EXCHANGES' | translate}}:</h2>
-                                {{'HERE_YOU_CAN_MANAGE_ALL_YOUR_FILE_EXCHANGES' | translate}}
+                                <h2>{{'FILE_REPOSITORYS' | translate}}:</h2>
+                                {{'HERE_YOU_CAN_MANAGE_ALL_YOUR_FILE_REPOSITORYS' | translate}}
                             </div>
-                            <div class="col-xs-12 col-sm-6" ng-if="!file_exchanges_disabled">
-                                <button type="submit" class="btn btn-primary btn-primary pull-right" ng-click="create_new_file_exchange()"><i class="fa fa-plus"></i> {{'CREATE_NEW_FILE_EXCHANGE' | translate}}</button>
+                            <div class="col-xs-12 col-sm-6" ng-if="!file_repositorys_disabled">
+                                <button type="submit" class="btn btn-primary btn-primary pull-right" ng-click="create_new_file_repository()"><i class="fa fa-plus"></i> {{'CREATE_NEW_FILE_REPOSITORY' | translate}}</button>
                                 <div class='clearfix'></div>
                             </div>
                         </div>
                         <hr>
 
-                        <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs" ng-if="!file_exchanges_disabled">
+                        <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs" ng-if="!file_repositorys_disabled">
                             <thead>
                             <tr>
                                 <th>{{'TITLE' | translate}}</th>
@@ -188,20 +188,20 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr ng-repeat="file_exchange in file_exchanges">
-                                <td>{{ file_exchange.title }}</td>
-                                <td>{{ file_exchange.type }}</td>
+                            <tr ng-repeat="file_repository in file_repositorys">
+                                <td>{{ file_repository.title }}</td>
+                                <td>{{ file_repository.type }}</td>
                                 <td>
-                                    <i ng-if="file_exchange.active" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
-                                    <i ng-if="!file_exchange.active" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                                    <i ng-if="file_repository.active" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                                    <i ng-if="!file_repository.active" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-default btn-sm" ng-click="edit_file_exchange(file_exchange)" >
+                                    <button type="button" class="btn btn-default btn-sm" ng-click="edit_file_repository(file_repository)" >
                                         <i class="fa fa-wrench" aria-hidden="true"><span style="display: none">0</span></i>
                                     </button>
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-default btn-sm" ng-if="!file_exchange.is_default" ng-click="delete_file_exchange(file_exchange)" >
+                                    <button type="button" class="btn btn-default btn-sm" ng-if="!file_repository.is_default" ng-click="delete_file_repository(file_repository)" >
                                         <i class="fa fa-trash" aria-hidden="true"><span style="display: none">0</span></i>
                                     </button>
                                 </td>
@@ -209,7 +209,7 @@
                             </tbody>
                         </table>
 
-                        <div class="form-group alert alert-info" ng-if="file_exchanges_disabled">
+                        <div class="form-group alert alert-info" ng-if="file_repositorys_disabled">
                             <strong>{{'INFO' | translate}}:</strong> <span>{{ 'FILE_STORAGES_HAVE_BEEN_DISABLED' | translate }}</span>
                         </div>
                     </div>

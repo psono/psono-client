@@ -1,12 +1,12 @@
-<form name="modalCreateFileExchangeForm" novalidate autocomplete="off">
+<form name="modalEditFileRepositoryForm" novalidate autocomplete="off">
     <div class="modal-header">
         <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
-        <h3 class="modal-title">{{'CREATE_NEW_FILE_EXCHANGE' | translate}}</h3>
+        <h3 class="modal-title">{{'EDIT_FILE_REPOSITORY' | translate}}</h3>
     </div>
     <div class="modal-body">
-        <div class="form-group" ng-class="{true: 'has-error'}[submitted && modalCreateFileExchangeForm.title.$invalid]">
+        <div class="form-group" ng-class="{true: 'has-error'}[submitted && modalEditFileRepositoryForm.title.$invalid]">
             <input type="text" name="title" class="form-control" id="folderName" placeholder="{{'TITLE' | translate}}" ng-model="title" required autofocus>
-            <p class="help-block" ng-show="submitted && modalCreateFileExchangeForm.title.$error.required">{{'TITLE_IS_REQUIRED' | translate}}</p>
+            <p class="help-block" ng-show="submitted && modalEditFileRepositoryForm.title.$error.required">{{'TITLE_IS_REQUIRED' | translate}}</p>
         </div>
 
         <div class="form-group">
@@ -29,6 +29,11 @@
             </div>
         </div>
 
+        <div class="form-group">
+            <input type="checkbox" ng-model="active">
+            {{'ACTIVE' | translate}}
+        </div>
+
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
             <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e  | translate}}"></span>
         </div>
@@ -37,6 +42,6 @@
 
     <div class="modal-footer">
         <button class="btn" type="button" ng-click="cancel();">{{'CLOSE' | translate}}</button>
-        <button class="btn btn-primary" type="submit" ng-click="submitted=true;save()">{{'CREATE' | translate}}</button>
+        <button class="btn btn-primary" type="submit" ng-click="submitted=true;save()">{{'SAVE' | translate}}</button>
     </div>
 </form>

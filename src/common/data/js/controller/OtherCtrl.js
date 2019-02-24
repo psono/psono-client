@@ -21,7 +21,7 @@
                 'sessions': 0,
                 'data-stores': 1,
                 'api-keys': 2,
-                'file-exchanges': 3,
+                'file-repositorys': 3,
                 'known-hosts': 4,
                 'export': 5,
                 'import': 6

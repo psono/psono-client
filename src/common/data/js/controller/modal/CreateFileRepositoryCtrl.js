@@ -3,25 +3,25 @@
 
     /**
      * @ngdoc controller
-     * @name psonocli.controller:ModalCreateFileExchangeCtrl
+     * @name psonocli.controller:ModalCreateFileRepositoryCtrl
      * @requires $scope
      * @requires $q
      * @requires $uibModal
      * @requires $uibModalInstance
-     * @requires psonocli.managerFileExchange
+     * @requires psonocli.managerFileRepository
      * @requires psonocli.helper
      *
      * @description
-     * Controller for the "Create File Exchange" modal in Other
+     * Controller for the "Create File Repository" modal in Other
      */
-    angular.module('psonocli').controller('ModalCreateFileExchangeCtrl', ['$scope', '$q', '$uibModal', '$uibModalInstance',
-        'managerFileExchange', 'helper',
+    angular.module('psonocli').controller('ModalCreateFileRepositoryCtrl', ['$scope', '$q', '$uibModal', '$uibModalInstance',
+        'managerFileRepository', 'helper',
         function ($scope, $q, $uibModal, $uibModalInstance,
-                  managerFileExchange, helper) {
+                  managerFileRepository, helper) {
 
             $scope.errors = [];
             $scope.title = '';
-            $scope.types = managerFileExchange.get_possible_types();
+            $scope.types = managerFileRepository.get_possible_types();
             $scope.selected_type = '';
             $scope.storage_config = {
 
@@ -38,8 +38,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:ModalCreateFileExchangeCtrl#save
-             * @methodOf psonocli.controller:ModalCreateFileExchangeCtrl
+             * @name psonocli.controller:ModalCreateFileRepositoryCtrl#save
+             * @methodOf psonocli.controller:ModalCreateFileRepositoryCtrl
              *
              * @description
              * Triggered once someone clicks the save button in the modal
@@ -73,7 +73,7 @@
                 }
 
 
-                if ($scope.modalCreateFileExchangeForm.$invalid) {
+                if ($scope.modalCreateFileRepositoryForm.$invalid) {
                     return;
                 }
                 var onError = function(result) {
@@ -84,15 +84,15 @@
                     $uibModalInstance.close();
                 };
 
-                return managerFileExchange.create_file_exchange($scope.title, $scope.selected_type,
+                return managerFileRepository.create_file_repository($scope.title, $scope.selected_type,
                     $scope.storage_config['gcp_cloud_storage_bucket'], $scope.storage_config['gcp_cloud_storage_json_key'])
                     .then(onSuccess, onError);
             }
 
             /**
              * @ngdoc
-             * @name psonocli.controller:ModalCreateFileExchangeCtrl#close
-             * @methodOf psonocli.controller:ModalCreateFileExchangeCtrl
+             * @name psonocli.controller:ModalCreateFileRepositoryCtrl#close
+             * @methodOf psonocli.controller:ModalCreateFileRepositoryCtrl
              *
              * @description
              * Triggered once someone clicks the close button in the modal

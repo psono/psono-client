@@ -12,7 +12,7 @@
      * @requires psonocli.cryptoLibrary
      * @requires psonocli.storage
      * @requires psonocli.managerFileTransfer
-     * @requires psonocli.managerFileExchange
+     * @requires psonocli.managerFileRepository
      *
      * @description
      * Service that provides the possible item blueprints e.g.:
@@ -23,7 +23,7 @@
      */
 
 
-    var itemBlueprint = function($q, browserClient, $window, $uibModal, helper, cryptoLibrary, storage, managerFileTransfer, managerFileExchange) {
+    var itemBlueprint = function($q, browserClient, $window, $uibModal, helper, cryptoLibrary, storage, managerFileTransfer, managerFileRepository) {
 
         var _default = "website_password";
 
@@ -164,15 +164,15 @@
                 { name: "file_id", field: "input", title: "FILE_ID", placeholder: "FILE_ID", hidden: true},
                 { name: "file_shard_id", field: "input", title: "FILE_SHARD_ID", placeholder: "FILE_SHARD_ID", hidden: true},
                 { name: "file_shards", field: "select", title: "TARGET_SHARD", placeholder: "TARGET_SHARD", values: [], hidden: true},
-                { name: "file_exchange_id", field: "input", title: "FILE_EXCHANGE_ID", placeholder: "FILE_EXCHANGE_ID", hidden: true},
-                { name: "file_exchanges", field: "select", title: "TARGET_EXCHANGE", placeholder: "TARGET_EXCHANGE", values: [], hidden: true},
+                { name: "file_repository_id", field: "input", title: "FILE_REPOSITORY_ID", placeholder: "FILE_REPOSITORY_ID", hidden: true},
+                { name: "file_repositorys", field: "select", title: "TARGET_REPOSITORY", placeholder: "TARGET_REPOSITORY", values: [], hidden: true},
                 { name: "file_secret_key", field: "input", title: "FILE_SECRET_KEY", placeholder: "FILE_SECRET_KEY", hidden: true},
                 { name: "file_size", field: "input", title: "FILE_SIZE", placeholder: "FILE_SIZE_BYTES", hidden: true},
                 { name: "file_chunks", field: "input", type: "text", title: "FILE_CHUNKS", placeholder: "FILE_CHUNKS", hidden: true, value: {}},
             ],
             hide_history: true,
             hide_callback: true,
-            non_secret_fields: ['file_title', 'file_id', 'file_shard_id', 'file_exchange_id', 'file_secret_key', 'file_size', 'file_chunks'],
+            non_secret_fields: ['file_title', 'file_id', 'file_shard_id', 'file_repository_id', 'file_secret_key', 'file_size', 'file_chunks'],
 
             /**
              * Initialize the blueprint
@@ -187,26 +187,26 @@
 
                 var promises = [];
                 promises.push(_blueprint_file.getShards());
-                promises.push(_blueprint_file.getFileExchanges());
+                promises.push(_blueprint_file.getFileRepositorys());
 
                 $q.all(promises).then(function() {
                     var shard_count = _blueprint_file.field_index['file_shards'].values.length;
-                    var file_exchange_count = _blueprint_file.field_index['file_exchanges'].values.length;
-                    var all_possibilities_count = shard_count + file_exchange_count;
+                    var file_repository_count = _blueprint_file.field_index['file_repositorys'].values.length;
+                    var all_possibilities_count = shard_count + file_repository_count;
 
                     if (all_possibilities_count === 0) {
                         // no possiblity, the user will get an error anyway when he wants to create the file
                         return
                     }
 
-                    if (shard_count > 0 && file_exchange_count === 0) {
+                    if (shard_count > 0 && file_repository_count === 0) {
                         // only shards are available, so lets pick the first shard as default shard
                         _blueprint_file.field_index['file_shards'].value = _blueprint_file.field_index['file_shards'].values[0];
                     }
 
-                    if (shard_count === 0 && file_exchange_count > 0) {
-                        // only exchanges are available, so lets pick the first exchange as default exchange
-                        _blueprint_file.field_index['file_exchanges'].value = _blueprint_file.field_index['file_exchanges'].values[0];
+                    if (shard_count === 0 && file_repository_count > 0) {
+                        // only repositorys are available, so lets pick the first repository as default repository
+                        _blueprint_file.field_index['file_repositorys'].value = _blueprint_file.field_index['file_repositorys'].values[0];
                     }
 
                     if (all_possibilities_count === 1) {
@@ -217,8 +217,8 @@
                     if (shard_count > 0) {
                         _blueprint_file.field_index['file_shards'].hidden = false;
                     }
-                    if (file_exchange_count > 0) {
-                        _blueprint_file.field_index['file_exchanges'].hidden = false;
+                    if (file_repository_count > 0) {
+                        _blueprint_file.field_index['file_repositorys'].hidden = false;
                     }
                 });
             },
@@ -242,21 +242,21 @@
             },
 
             /**
-             * Loads the possible file exchanges
+             * Loads the possible file repositorys
              *
              * @returns {array}
              */
-            getFileExchanges: function(){
+            getFileRepositorys: function(){
 
-                return managerFileExchange.read_file_exchanges().then(function (file_exchanges) {
+                return managerFileRepository.read_file_repositorys().then(function (file_repositorys) {
 
-                    file_exchanges = managerFileExchange.filter_file_exchanges(file_exchanges, null, true, true);
+                    file_repositorys = managerFileRepository.filter_file_repositorys(file_repositorys, null, true, true);
 
-                    for (var i = 0; i < file_exchanges.length; i++) {
-                        file_exchanges[i]['name'] =  file_exchanges[i]['title'];
+                    for (var i = 0; i < file_repositorys.length; i++) {
+                        file_repositorys[i]['name'] =  file_repositorys[i]['title'];
                     }
 
-                    _blueprint_file.field_index['file_exchanges'].values = file_exchanges;
+                    _blueprint_file.field_index['file_repositorys'].values = file_repositorys;
                 });
             },
 
@@ -301,30 +301,30 @@
                 //var file_chunk_size = 8*1024*1024; // in bytes. e.g.   8*1024*1024 Bytes =   8 MB
                 var file_chunk_size = 128*1024*1024; // in bytes. e.g. 128*1024*1024 Bytes = 128 MB
 
-                var is_file_exchange_upload = !!selected['field_index']['file_exchanges'].value;
+                var is_file_repository_upload = !!selected['field_index']['file_repositorys'].value;
                 var is_file_shard_upload = !!selected['field_index']['file_shards'].value;
 
-                var has_file_exchange = selected['field_index']['file_exchanges'].values.length !== 0;
+                var has_file_repository = selected['field_index']['file_repositorys'].values.length !== 0;
                 var has_file_shard = selected['field_index']['file_shards'].values.length !== 0;
 
-                if (!has_file_exchange && !has_file_shard) {
+                if (!has_file_repository && !has_file_shard) {
                     return $q.reject(['NO_FILESERVER_AVAILABLE']);
                 }
 
-                if (is_file_exchange_upload && is_file_shard_upload) {
-                    return $q.reject(['SELECT_EITHER_SHARD_OR_EXCHANGE']);
+                if (is_file_repository_upload && is_file_shard_upload) {
+                    return $q.reject(['SELECT_EITHER_SHARD_OR_REPOSITORY']);
                 }
 
-                if (!is_file_exchange_upload && !is_file_shard_upload) {
-                    return $q.reject(['SELECT_EITHER_SHARD_OR_EXCHANGE']);
+                if (!is_file_repository_upload && !is_file_shard_upload) {
+                    return $q.reject(['SELECT_EITHER_SHARD_OR_REPOSITORY']);
                 }
 
                 var shard = selected['field_index']['file_shards'].value;
-                var file_exchange = selected['field_index']['file_exchanges'].value;
+                var file_repository = selected['field_index']['file_repositorys'].value;
 
-                var file_exchange_id = undefined;
-                if (is_file_exchange_upload) {
-                    file_exchange_id = file_exchange['id'];
+                var file_repository_id = undefined;
+                if (is_file_repository_upload) {
+                    file_repository_id = file_repository['id'];
                 }
 
                 var shard_id = undefined;
@@ -336,7 +336,7 @@
                  * Uploads a file in chunks and returns the array of hashs
                  *
                  * @param shard
-                 * @param file_exchange
+                 * @param file_repository
                  * @param file
                  * @param file_transfer_id
                  * @param file_secret_key
@@ -344,7 +344,7 @@
                  *
                  * @returns {promise} Promise with the chunks uploaded
                  */
-                function multi_chunk_upload(shard, file_exchange, file, file_transfer_id, file_secret_key, file_chunk_size) {
+                function multi_chunk_upload(shard, file_repository, file, file_transfer_id, file_secret_key, file_chunk_size) {
 
                     var on_load_end = function(bytes, chunk_size, file_secret_key, chunk_position, resolve) {
                         console.timeEnd('read_file_chunk');
@@ -362,7 +362,7 @@
                             console.time('upload');
 
 
-                            managerFileTransfer.upload(new Blob([encrypted_bytes], {type: 'application/octet-stream'}), file_transfer_id, chunk_size, chunk_position, shard, file_exchange, hash_checksum).then(function() {
+                            managerFileTransfer.upload(new Blob([encrypted_bytes], {type: 'application/octet-stream'}), file_transfer_id, chunk_size, chunk_position, shard, file_repository, hash_checksum).then(function() {
                                 console.timeEnd('upload');
                                 return resolve({
                                     'chunk_position': chunk_position,
@@ -373,6 +373,7 @@
                     };
 
                     var read_file_chunk = function(file, file_slice_start, chunk_size, on_load_end, file_secret_key, chunk_position, resolve) {
+                        console.time('read_file_chunk');
                         var file_reader = new FileReader();
                         var file_slice;
 
@@ -492,7 +493,7 @@
                 }
 
                 var onSuccess = function(data){
-                    return multi_chunk_upload(shard, file_exchange, file, data['file_transfer_id'], file_secret_key, file_chunk_size).then(function(chunks) {
+                    return multi_chunk_upload(shard, file_repository, file, data['file_transfer_id'], file_secret_key, file_chunk_size).then(function(chunks) {
                         for (var i = 0; i < selected.fields.length; i++) {
                             if (selected.fields[i].name === 'file_chunks') {
                                 selected.fields[i].value = chunks;
@@ -506,8 +507,8 @@
                             if (selected.fields[i].name === 'file_shard_id' && shard && shard.hasOwnProperty('shard_id')) {
                                 selected.fields[i].value = shard['shard_id'];
                             }
-                            if (selected.fields[i].name === 'file_exchange_id' && file_exchange && file_exchange.hasOwnProperty('file_exchange')) {
-                                selected.fields[i].value = file_exchange['id'];
+                            if (selected.fields[i].name === 'file_repository_id' && file_repository && file_repository.hasOwnProperty('file_repository')) {
+                                selected.fields[i].value = file_repository['id'];
                             }
                         }
                     })
@@ -538,7 +539,7 @@
                     return $q.resolve()
                 }
 
-                return managerFileTransfer.create_file(shard_id, file_exchange_id, size + chunk_count * 40, chunk_count, selected['link_id'], parent_datastore_id, parent_share_id)
+                return managerFileTransfer.create_file(shard_id, file_repository_id, size + chunk_count * 40, chunk_count, selected['link_id'], parent_datastore_id, parent_share_id)
                     .then(onSuccess, onError);
             }
         };
@@ -1376,6 +1377,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("itemBlueprint", ['$q', 'browserClient', '$window', '$uibModal', 'helper', 'cryptoLibrary', 'storage', 'managerFileTransfer', 'managerFileExchange', itemBlueprint]);
+    app.factory("itemBlueprint", ['$q', 'browserClient', '$window', '$uibModal', 'helper', 'cryptoLibrary', 'storage', 'managerFileTransfer', 'managerFileRepository', itemBlueprint]);
 
 }(angular));

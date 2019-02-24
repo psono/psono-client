@@ -2218,7 +2218,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.apiClient#read_file_exchange
+         * @name psonocli.apiClient#read_file_repository
          * @methodOf psonocli.apiClient
          *
          * @description
@@ -2226,12 +2226,12 @@
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
-         * @param {uuid|undefined} [file_exchange_id=null] (optional) api key id
+         * @param {uuid|undefined} [file_repository_id=null] (optional) api key id
          *
          * @returns {promise} promise
          */
-        var read_file_exchange = function (token, session_secret_key, file_exchange_id) {
-            var endpoint = '/file-exchange/' + ( !file_exchange_id ? '' : file_exchange_id + '/');
+        var read_file_repository = function (token, session_secret_key, file_repository_id) {
+            var endpoint = '/file-repository/' + ( !file_repository_id ? '' : file_repository_id + '/');
             var connection_type = "GET";
             var data = null;
             var headers = {
@@ -2244,24 +2244,24 @@
 
         /**
          * @ngdoc
-         * @name psonocli.apiClient#create_file_exchange
+         * @name psonocli.apiClient#create_file_repository
          * @methodOf psonocli.apiClient
          *
          * @description
-         * Ajax PUT request to create a file_exchange with the token as authentication and together with the name of the file_exchange
+         * Ajax PUT request to create a file_repository with the token as authentication and together with the name of the file_repository
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
-         * @param {string} title title of the new file exchange
-         * @param {string} type The type of the new file exchange
+         * @param {string} title title of the new file repository
+         * @param {string} type The type of the new file repository
          * @param {string} [gcp_cloud_storage_bucket] (optional) The gcp cloud storage bucket
          * @param {string} [gcp_cloud_storage_json_key] (optional) The gcp cloud storage json key
          *
          * @returns {promise} promise
          */
-        var create_file_exchange = function (token, session_secret_key, title, type, gcp_cloud_storage_bucket, gcp_cloud_storage_json_key) {
+        var create_file_repository = function (token, session_secret_key, title, type, gcp_cloud_storage_bucket, gcp_cloud_storage_json_key) {
 
-            var endpoint = '/file-exchange/';
+            var endpoint = '/file-repository/';
             var connection_type = "PUT";
             var data = {
                 title: title,
@@ -2279,7 +2279,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.apiClient#update_file_exchange
+         * @name psonocli.apiClient#update_file_repository
          * @methodOf psonocli.apiClient
          *
          * @description
@@ -2287,20 +2287,20 @@
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
-         * @param {uuid} file_exchange_id The file_exchange id to update
-         * @param {string} title title of the new file exchange
-         * @param {string} type The type of the new file exchange
+         * @param {uuid} file_repository_id The file_repository id to update
+         * @param {string} title title of the new file repository
+         * @param {string} type The type of the new file repository
          * @param {string} [gcp_cloud_storage_bucket] (optional) The gcp cloud storage bucket
          * @param {string} [gcp_cloud_storage_json_key] (optional) The gcp cloud storage json key
          * @param {bool} active Active or not
          *
          * @returns {promise} Returns a promise which can succeed or fail
          */
-        var update_file_exchange = function (token, session_secret_key, file_exchange_id, title, type, gcp_cloud_storage_bucket, gcp_cloud_storage_json_key, active) {
-            var endpoint = '/file-exchange/';
+        var update_file_repository = function (token, session_secret_key, file_repository_id, title, type, gcp_cloud_storage_bucket, gcp_cloud_storage_json_key, active) {
+            var endpoint = '/file-repository/';
             var connection_type = "POST";
             var data = {
-                file_exchange_id: file_exchange_id,
+                file_repository_id: file_repository_id,
                 title: title,
                 type: type,
                 gcp_cloud_storage_bucket: gcp_cloud_storage_bucket,
@@ -2317,7 +2317,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.apiClient#delete_file_exchange
+         * @name psonocli.apiClient#delete_file_repository
          * @methodOf psonocli.apiClient
          *
          * @description
@@ -2325,15 +2325,15 @@
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
-         * @param {uuid} file_exchange_id The file_exchange id to delete
+         * @param {uuid} file_repository_id The file_repository id to delete
          *
          * @returns {promise} Returns a promise which can succeed or fail
          */
-        var delete_file_exchange = function (token, session_secret_key, file_exchange_id) {
-            var endpoint = '/file-exchange/';
+        var delete_file_repository = function (token, session_secret_key, file_repository_id) {
+            var endpoint = '/file-repository/';
             var connection_type = "DELETE";
             var data = {
-                file_exchange_id: file_exchange_id
+                file_repository_id: file_repository_id
             };
 
             var headers = {
@@ -2347,11 +2347,11 @@
 
         /**
          * @ngdoc
-         * @name psonocli.apiClient#file_exchange_upload
+         * @name psonocli.apiClient#file_repository_upload
          * @methodOf psonocli.apiClient
          *
          * @description
-         * Ajax PUT request to upload a file to an file exchange with the token as authentication
+         * Ajax PUT request to upload a file to an file repository with the token as authentication
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
@@ -2362,9 +2362,9 @@
          *
          * @returns {promise} promise
          */
-        var file_exchange_upload = function (token, session_secret_key, file_transfer_id, chunk_size, chunk_position, hash_checksum) {
+        var file_repository_upload = function (token, session_secret_key, file_transfer_id, chunk_size, chunk_position, hash_checksum) {
 
-            var endpoint = '/file-exchange/upload/';
+            var endpoint = '/file-repository/upload/';
             var connection_type = "PUT";
             var data = {
                 file_transfer_id: file_transfer_id,
@@ -2383,11 +2383,11 @@
 
         /**
          * @ngdoc
-         * @name psonocli.apiClient#file_exchange_download
+         * @name psonocli.apiClient#file_repository_download
          * @methodOf psonocli.apiClient
          *
          * @description
-         * Ajax PUT request to upload a file to an file exchange with the token as authentication
+         * Ajax PUT request to upload a file to an file repository with the token as authentication
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
@@ -2396,9 +2396,9 @@
          *
          * @returns {promise} promise
          */
-        var file_exchange_download = function (token, session_secret_key, file_transfer_id, hash_checksum) {
+        var file_repository_download = function (token, session_secret_key, file_transfer_id, hash_checksum) {
 
-            var endpoint = '/file-exchange/download/';
+            var endpoint = '/file-repository/download/';
             var connection_type = "PUT";
             var data = {
                 file_transfer_id: file_transfer_id,
@@ -2763,7 +2763,7 @@
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
          * @param {string|undefined} shard_id (optional) The id of the target shard
-         * @param {string|undefined} file_exchange_id (optional) The id of the target file exchange
+         * @param {string|undefined} file_repository_id (optional) The id of the target file repository
          * @param {int} size The size of the complete file in bytes
          * @param {int} chunk_count The amount of chunks that this file is split into
          * @param {string} link_id the local id of the file in the datastructure
@@ -2772,12 +2772,12 @@
          *
          * @returns {promise} Returns a promise with the new file_id and file_transfer_id
          */
-        var create_file = function (token, session_secret_key, shard_id, file_exchange_id, size, chunk_count, link_id, parent_datastore_id, parent_share_id) {
+        var create_file = function (token, session_secret_key, shard_id, file_repository_id, size, chunk_count, link_id, parent_datastore_id, parent_share_id) {
             var endpoint = '/file/';
             var connection_type = "PUT";
             var data = {
                 shard_id: shard_id,
-                file_exchange_id: file_exchange_id,
+                file_repository_id: file_repository_id,
                 size: size,
                 chunk_count: chunk_count,
                 link_id: link_id,
@@ -2913,12 +2913,12 @@
             update_api_key: update_api_key,
             delete_api_key: delete_api_key,
             delete_api_key_secret: delete_api_key_secret,
-            read_file_exchange: read_file_exchange,
-            create_file_exchange: create_file_exchange,
-            update_file_exchange: update_file_exchange,
-            delete_file_exchange: delete_file_exchange,
-            file_exchange_upload: file_exchange_upload,
-            file_exchange_download: file_exchange_download,
+            read_file_repository: read_file_repository,
+            create_file_repository: create_file_repository,
+            update_file_repository: update_file_repository,
+            delete_file_repository: delete_file_repository,
+            file_repository_upload: file_repository_upload,
+            file_repository_download: file_repository_download,
             read_group: read_group,
             create_group: create_group,
             update_group: update_group,
