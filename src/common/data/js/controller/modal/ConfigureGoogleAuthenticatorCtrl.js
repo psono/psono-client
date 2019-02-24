@@ -13,8 +13,19 @@
      * @description
      * Controller for the "Setup Google Authenticator" modal
      */
-    angular.module('psonocli').controller('ModalConfigureGoogleAuthenticatorCtrl', ['$q', '$scope', '$uibModalInstance', 'managerDatastoreUser', 'helper',
-        function ($q, $scope, $uibModalInstance, managerDatastoreUser, helper) {
+    angular.module('psonocli').controller('ModalConfigureGoogleAuthenticatorCtrl', ['$q', '$scope', '$uibModalInstance',
+        'managerDatastoreUser', 'helper', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'languagePicker',
+        function ($q, $scope, $uibModalInstance,
+                  managerDatastoreUser, helper, DTOptionsBuilder, DTColumnDefBuilder, languagePicker) {
+
+            $scope.dtOptions = DTOptionsBuilder
+                .newOptions()
+                .withLanguageSource('translations/datatables.' + languagePicker.get_active_language_code() + '.json');
+
+            $scope.dtColumnDefs = [
+                DTColumnDefBuilder.newColumnDef(0),
+                DTColumnDefBuilder.newColumnDef(1)
+            ];
 
             $scope.create_ga = create_ga;
             $scope.activate_ga = activate_ga;

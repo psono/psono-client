@@ -17,9 +17,22 @@
      * Controller for the "Edit Group" modal
      */
     angular.module('psonocli').controller('ModalEditGroupCtrl', ['$scope', '$uibModal', '$uibModalInstance',
-        'managerGroups', 'managerDatastoreUser', 'managerShare', 'shareBlueprint', 'cryptoLibrary', 'helper', 'account', 'group_id',
+        'managerGroups', 'managerDatastoreUser', 'managerShare', 'shareBlueprint', 'cryptoLibrary', 'helper', 'languagePicker', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'account', 'group_id',
         function ($scope, $uibModal, $uibModalInstance,
-                  managerGroups, managerDatastoreUser, managerShare, shareBlueprint, cryptoLibrary, helper, account, group_id) {
+                  managerGroups, managerDatastoreUser, managerShare, shareBlueprint, cryptoLibrary, helper, languagePicker, DTOptionsBuilder, DTColumnDefBuilder, account, group_id) {
+
+            $scope.dtOptions = DTOptionsBuilder
+                .newOptions()
+                .withLanguageSource('translations/datatables.' + languagePicker.get_active_language_code() + '.json');
+
+            $scope.dtColumnDefs = [
+                DTColumnDefBuilder.newColumnDef(0),
+                DTColumnDefBuilder.newColumnDef(1),
+                DTColumnDefBuilder.newColumnDef(2),
+                DTColumnDefBuilder.newColumnDef(3),
+                DTColumnDefBuilder.newColumnDef(4)
+            ];
+
             var i;
             var original_group_name;
             var group;
