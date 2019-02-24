@@ -3,14 +3,14 @@
 
     /**
      * @ngdoc controller
-     * @name psonocli.controller:ExportCtrl
+     * @name psonocli.controller:OtherExportCtrl
      * @requires $scope
      * @requires psonocli.managerExport
      *
      * @description
      * Controller for the "Export" tab in the "Others" menu
      */
-    angular.module('psonocli').controller('ExportCtrl', ['$scope', 'managerExport',
+    angular.module('psonocli').controller('OtherExportCtrl', ['$scope', 'managerExport',
         function ($scope, managerExport) {
 
             $scope.export_options = {
@@ -52,8 +52,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:ExportCtrl#export_datastore
-             * @methodOf psonocli.controller:ExportCtrl
+             * @name psonocli.controller:OtherExportCtrl#export_datastore
+             * @methodOf psonocli.controller:OtherExportCtrl
              *
              * @description
              * Exports all data of a datastore

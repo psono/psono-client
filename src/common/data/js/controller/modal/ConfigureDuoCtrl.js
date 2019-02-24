@@ -13,8 +13,17 @@
      * @description
      * Controller for the "Setup Duo" modal
      */
-    angular.module('psonocli').controller('ModalConfigureDuoCtrl', ['$q', '$scope', '$uibModalInstance', 'managerDatastoreUser', 'helper',
-        function ($q, $scope, $uibModalInstance, managerDatastoreUser, helper) {
+    angular.module('psonocli').controller('ModalConfigureDuoCtrl', ['$q', '$scope', '$uibModalInstance', 'managerDatastoreUser', 'helper', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'languagePicker',
+        function ($q, $scope, $uibModalInstance, managerDatastoreUser, helper, DTOptionsBuilder, DTColumnDefBuilder, languagePicker) {
+
+            $scope.dtOptions = DTOptionsBuilder
+                .newOptions()
+                .withLanguageSource('translations/datatables.' + languagePicker.get_active_language_code() + '.json');
+
+            $scope.dtColumnDefs = [
+                DTColumnDefBuilder.newColumnDef(0),
+                DTColumnDefBuilder.newColumnDef(1)
+            ];
 
             $scope.create_duo = create_duo;
             $scope.activate_duo = activate_duo;

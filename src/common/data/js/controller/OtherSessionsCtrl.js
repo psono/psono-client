@@ -3,7 +3,7 @@
 
     /**
      * @ngdoc controller
-     * @name psonocli.controller:SessionsCtrl
+     * @name psonocli.controller:OtherSessionsCtrl
      * @requires $rootScope
      * @requires $scope
      * @requires $routeParams
@@ -13,7 +13,7 @@
      * @description
      * Controller for the Sessions tab in the "Others" menu
      */
-    angular.module('psonocli').controller('SessionsCtrl', ['$rootScope', '$scope', '$routeParams', 'managerDatastoreUser', 'helper', 'languagePicker', 'DTOptionsBuilder', 'DTColumnDefBuilder',
+    angular.module('psonocli').controller('OtherSessionsCtrl', ['$rootScope', '$scope', '$routeParams', 'managerDatastoreUser', 'helper', 'languagePicker', 'DTOptionsBuilder', 'DTColumnDefBuilder',
         function ($rootScope, $scope, $routeParams, managerDatastoreUser, helper, languagePicker, DTOptionsBuilder, DTColumnDefBuilder) {
 
             $scope.dtOptions = DTOptionsBuilder
@@ -40,8 +40,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:SessionsCtrl#delete_session
-             * @methodOf psonocli.controller:SessionsCtrl
+             * @name psonocli.controller:OtherSessionsCtrl#delete_session
+             * @methodOf psonocli.controller:OtherSessionsCtrl
              *
              * @description
              * deletes an open session with given session id

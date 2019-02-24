@@ -12,14 +12,16 @@
      * Controller for the "Display share rights" modal
      */
     angular.module('psonocli').controller('ModalDisplayShareRightsCtrl', ['$scope', '$uibModalInstance', 'itemBlueprint', 'node', 'path',
-        'share_details', 'managerShare', 'DTOptionsBuilder', 'DTColumnDefBuilder',
-        function ($scope, $uibModalInstance, itemBlueprint, node, path, share_details, managerShare, DTOptionsBuilder, DTColumnDefBuilder) {
+        'share_details', 'managerShare', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'languagePicker',
+        function ($scope, $uibModalInstance, itemBlueprint, node, path, share_details, managerShare, DTOptionsBuilder, DTColumnDefBuilder, languagePicker) {
 
             $scope.cancel = cancel;
             $scope.delete_right = delete_right;
             $scope.toggle_right = toggle_right;
 
-            $scope.dtOptions = DTOptionsBuilder.newOptions();
+            $scope.dtOptions = DTOptionsBuilder
+                .newOptions()
+                .withLanguageSource('translations/datatables.' + languagePicker.get_active_language_code() + '.json');
             $scope.dtColumnDefs = [
                 DTColumnDefBuilder.newColumnDef(0),
                 DTColumnDefBuilder.newColumnDef(1),
