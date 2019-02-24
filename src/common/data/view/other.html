@@ -19,6 +19,7 @@
             <uib-tabset class="tabset_expand" active="active_tab">
 
                 <uib-tab index="0" heading="{{'SESSIONS' | translate}}" select="open_tab('sessions')">
+                    <pre>{{dtOptions}}</pre>
                     <div ng-controller="SessionsCtrl">
                         <div class="row">
                             <div class="col-xs-12 col-sm-12">
@@ -217,7 +218,7 @@
                 </uib-tab>
 
                 <uib-tab index="4" heading="{{'KNOWN_HOSTS' | translate}}" select="open_tab('known-hosts')">
-                    <div ng-controller="KnownHostsCtrl">
+                    <div ng-controller="OtherKnownHostsCtrl">
                         <div class="row">
                             <div class="col-xs-12 col-sm-12">
                                 <h2>{{'KNOWN_HOSTS' | translate}}:</h2>

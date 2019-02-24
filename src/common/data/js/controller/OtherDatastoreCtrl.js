@@ -12,8 +12,19 @@
      * @description
      * Controller for the Datastore tab in the "Others" menu
      */
-    angular.module('psonocli').controller('OtherDatastoreCtrl', ['$scope', '$uibModal', 'managerDatastore', 'helper',
-        function ($scope, $uibModal, managerDatastore, helper) {
+    angular.module('psonocli').controller('OtherDatastoreCtrl', ['$scope', '$uibModal', 'managerDatastore', 'helper', 'languagePicker', 'DTOptionsBuilder', 'DTColumnDefBuilder',
+        function ($scope, $uibModal, managerDatastore, helper, languagePicker, DTOptionsBuilder, DTColumnDefBuilder) {
+
+            $scope.dtOptions = DTOptionsBuilder
+                .newOptions()
+                .withLanguageSource('translations/datatables.' + languagePicker.get_active_language_code() + '.json');
+
+            $scope.dtColumnDefs = [
+                DTColumnDefBuilder.newColumnDef(0),
+                DTColumnDefBuilder.newColumnDef(1),
+                DTColumnDefBuilder.newColumnDef(2),
+                DTColumnDefBuilder.newColumnDef(3)
+            ];
 
             $scope.create_new_datastore = create_new_datastore;
             $scope.edit_data_store = edit_data_store;

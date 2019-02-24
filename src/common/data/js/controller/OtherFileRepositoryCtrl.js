@@ -11,8 +11,20 @@
      * @description
      * Controller for the Datastore tab in the "Others" menu
      */
-    angular.module('psonocli').controller('OtherFileRepositoryCtrl', ['$scope', '$uibModal', 'managerFileRepository',
-        function ($scope, $uibModal, managerFileRepository) {
+    angular.module('psonocli').controller('OtherFileRepositoryCtrl', ['$scope', '$uibModal', 'managerFileRepository', 'languagePicker', 'DTOptionsBuilder', 'DTColumnDefBuilder',
+        function ($scope, $uibModal, managerFileRepository, languagePicker, DTOptionsBuilder, DTColumnDefBuilder) {
+
+            $scope.dtOptions = DTOptionsBuilder
+                .newOptions()
+                .withLanguageSource('translations/datatables.' + languagePicker.get_active_language_code() + '.json');
+
+            $scope.dtColumnDefs = [
+                DTColumnDefBuilder.newColumnDef(0),
+                DTColumnDefBuilder.newColumnDef(1),
+                DTColumnDefBuilder.newColumnDef(2),
+                DTColumnDefBuilder.newColumnDef(3),
+                DTColumnDefBuilder.newColumnDef(4)
+            ];
 
             $scope.create_new_file_repository = create_new_file_repository;
             $scope.edit_file_repository = edit_file_repository;

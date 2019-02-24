@@ -211,7 +211,7 @@ var build = function(build_path, type) {
             "src/common/data/js/controller/DownloadFileCtrl.js",
             "src/common/data/js/controller/OtherCtrl.js",
             "src/common/data/js/controller/SessionsCtrl.js",
-            "src/common/data/js/controller/KnownHostsCtrl.js",
+            "src/common/data/js/controller/OtherKnownHostsCtrl.js",
             "src/common/data/js/controller/OtherDatastoreCtrl.js",
             "src/common/data/js/controller/OtherAPIKeyCtrl.js",
             "src/common/data/js/controller/OtherFileRepositoryCtrl.js",

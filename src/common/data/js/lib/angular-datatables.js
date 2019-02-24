@@ -1,5 +1,5 @@
 /*!
- * angular-datatables - v0.5.6
+ * angular-datatables - v0.6.4
  * https://github.com/l-lin/angular-datatables
  * License: MIT
  */
@@ -14,7 +14,7 @@ if (typeof module !== "undefined" && typeof exports !== "undefined" && module.ex
         .directive('datatable', dataTable);
 
     /* @ngInject */
-    function dataTable($q, $http, DTRendererFactory, DTRendererService, DTPropertyUtil) {
+    function dataTable($q, $http, $log, DTRendererFactory, DTRendererService, DTPropertyUtil) {
         compileDirective.$inject = ['tElm'];
         ControllerDirective.$inject = ['$scope'];
         return {
@@ -93,8 +93,11 @@ if (typeof module !== "undefined" && typeof exports !== "undefined" && module.ex
                         // See https://github.com/l-lin/angular-datatables/issues/181
                         if (options.language && options.language.url) {
                             var languageDefer = $q.defer();
+                            var languageUrl = options.language.url;
                             $http.get(options.language.url).then(function(language) {
-                                languageDefer.resolve(language);
+                                languageDefer.resolve(language.data);
+                            }, function() {
+                                $log.error('Could not fetch the content of the language from ' + languageUrl);
                             });
                             options.language = languageDefer.promise;
                         }
@@ -116,15 +119,15 @@ if (typeof module !== "undefined" && typeof exports !== "undefined" && module.ex
                     if (_dtInstance && _dtInstance._renderer) {
                         _dtInstance._renderer.withOptions(options)
                             .render($elem, $scope, staticHTML).then(function(dtInstance) {
-                            _dtInstance = dtInstance;
-                            _setDTInstance(dtInstance);
-                        });
+                                _dtInstance = dtInstance;
+                                _setDTInstance(dtInstance);
+                            });
                     } else {
                         DTRendererFactory.fromOptions(options, isNgDisplay)
                             .render($elem, $scope, staticHTML).then(function(dtInstance) {
-                            _dtInstance = dtInstance;
-                            _setDTInstance(dtInstance);
-                        });
+                                _dtInstance = dtInstance;
+                                _setDTInstance(dtInstance);
+                            });
                     }
                 });
             }
@@ -138,7 +141,7 @@ if (typeof module !== "undefined" && typeof exports !== "undefined" && module.ex
             }
         }
     }
-    dataTable.$inject = ['$q', '$http', 'DTRendererFactory', 'DTRendererService', 'DTPropertyUtil'];
+    dataTable.$inject = ['$q', '$http', '$log', 'DTRendererFactory', 'DTRendererService', 'DTPropertyUtil'];
 
     'use strict';
     angular.module('datatables.factory', [])
@@ -896,21 +899,21 @@ if (typeof module !== "undefined" && typeof exports !== "undefined" && module.ex
                 }
                 var _ngRepeatAttr = _match[1];
 
-                var _alreadyRendered = false;
-
                 _parentScope.$watchCollection(_ngRepeatAttr, function() {
-                    if (_oTable && _alreadyRendered) {
+                    if (_oTable) {
+                        DTRendererService.showLoading(_$elem, _parentScope);
                         _destroyAndCompile();
                     }
                     $timeout(function() {
-                        _alreadyRendered = true;
-                        // Ensure that prerender is called when the collection is updated
-                        // See https://github.com/l-lin/angular-datatables/issues/502
-                        DTRendererService.preRender(renderer.options);
-                        var result = DTRendererService.hideLoadingAndRenderDataTable(_$elem, renderer.options);
-                        _oTable = result.DataTable;
-                        DTInstanceFactory.copyDTProperties(result, dtInstance);
-                        defer.resolve(dtInstance);
+                        if (!_oTable) {
+                            // Ensure that prerender is called when the collection is updated
+                            // See https://github.com/l-lin/angular-datatables/issues/502
+                            DTRendererService.preRender(renderer.options);
+                            var result = DTRendererService.hideLoadingAndRenderDataTable(_$elem, renderer.options);
+                            _oTable = result.DataTable;
+                            DTInstanceFactory.copyDTProperties(result, dtInstance);
+                            defer.resolve(dtInstance);
+                        }
                     }, 0, false);
                 }, true);
                 return defer.promise;
@@ -942,6 +945,7 @@ if (typeof module !== "undefined" && typeof exports !== "undefined" && module.ex
                     _newParentScope.$destroy();
                 }
                 _oTable.ngDestroy();
+                _oTable = null;
                 // Re-compile because we lost the angular binding to the existing data
                 _$elem.html(_staticHTML);
                 _newParentScope = _parentScope.$new();
