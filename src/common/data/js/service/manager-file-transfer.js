@@ -17,7 +17,7 @@
      * Service to manage everything around file transfer
      */
 
-    var managerFileTransfer = function($q, helper, storage, managerBase, browserClient, cryptoLibrary , converter, apiClient, apiFileserver) {
+    var managerFileTransfer = function($q, helper, storage, managerBase, browserClient, cryptoLibrary , converter, apiClient, apiFileserver, apiGCP) {
 
         var registrations = {};
 
@@ -59,7 +59,8 @@
          * @description
          * Triggered once someone wants to create a file object
          *
-         * @param shard_id The id of the shard this upload goes to
+         * @param shard_id (optional) The id of the shard this upload goes to
+         * @param file_exchange_id (optional) The id of the file exchange this upload goes to
          * @param size The file size in bytes
          * @param chunk_count The amount of chunks to upload
          * @param link_id The id of the link
@@ -68,7 +69,7 @@
          *
          * @returns {promise} promise
          */
-        var create_file = function (shard_id, size, chunk_count, link_id, parent_datastore_id, parent_share_id) {
+        var create_file = function (shard_id, file_exchange_id, size, chunk_count, link_id, parent_datastore_id, parent_share_id) {
 
             var onError = function(result) {
                 return $q.reject(result.data)
@@ -79,7 +80,7 @@
             };
 
             return apiClient.create_file(managerBase.get_token(),
-                managerBase.get_session_secret_key(), shard_id, size, chunk_count, link_id, parent_datastore_id, parent_share_id)
+                managerBase.get_session_secret_key(), shard_id, file_exchange_id, size, chunk_count, link_id, parent_datastore_id, parent_share_id)
                 .then(onSuccess, onError);
 
         };
@@ -96,12 +97,12 @@
          * @param {Blob} chunk The content of the chunk to upload
          * @param {uuid} file_transfer_id The id of the file transfer
          * @param {int} chunk_position The sequence number of the chunk to determine the order
-         * @param {uuid} shard The target shard
+         * @param {object} shard The target shard
          * @param {string} hash_checksum The sha512 hash
          *
          * @returns {promise} promise
          */
-        var upload = function (chunk, file_transfer_id, chunk_position, shard, hash_checksum) {
+        var upload_shard = function(chunk, file_transfer_id, chunk_position, shard, hash_checksum) {
 
             var ticket = {
                 'file_transfer_id': file_transfer_id,
@@ -130,6 +131,106 @@
 
             return apiFileserver.upload(fileserver['fileserver_url'], managerBase.get_token(), chunk, ticket_enc.text, ticket_enc.nonce)
                 .then(onSuccess, onError);
+        };
+
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerFileTransfer#upload
+         * @methodOf psonocli.managerFileTransfer
+         *
+         * @description
+         * Triggered once someone wants to actually upload the file
+         *
+         * @param {Blob} chunk The content of the chunk to upload
+         * @param {uuid} file_transfer_id The id of the file transfer
+         * @param {int} chunk_size The size of the complete chunk in bytes
+         * @param {int} chunk_position The sequence number of the chunk to determine the order
+         * @param {string} hash_checksum The sha512 hash
+         *
+         * @returns {promise} promise
+         */
+        var upload_file_exchange_gcp_cloud_storage = function(chunk, file_transfer_id, chunk_size, chunk_position, hash_checksum) {
+
+            var onError = function(result) {
+                return $q.reject(result.data)
+            };
+
+            var onSuccess = function(result) {
+
+                var onError = function(result) {
+                    return $q.reject(result.data)
+                };
+
+                var onSuccess = function(result) {
+                    return result;
+                };
+
+                return apiGCP.upload(result.data.url, chunk)
+                    .then(onSuccess, onError);
+            };
+
+            return apiClient.file_exchange_upload(managerBase.get_token(),
+                managerBase.get_session_secret_key(), file_transfer_id, chunk_size, chunk_position, hash_checksum)
+                .then(onSuccess, onError);
+
+
+            //
+            // var ticket = {
+            //     'file_transfer_id': file_transfer_id,
+            //     'chunk_position': chunk_position,
+            //     'hash_checksum': hash_checksum
+            // };
+            //
+            // var ticket_enc = cryptoLibrary.encrypt_data(JSON.stringify(ticket), managerBase.get_session_secret_key());
+            //
+            // var fileserver;
+            // if (shard['fileserver'].length > 1) {
+            //     // math random should be good enough here, don't use for crypto!
+            //     var pos = Math.floor(Math.random() * shard['fileserver'].length);
+            //     fileserver = shard['fileserver'][pos];
+            // } else {
+            //     fileserver = shard['fileserver'][0];
+            // }
+            //
+            // var onError = function(result) {
+            //     return $q.reject(result.data)
+            // };
+            //
+            // var onSuccess = function(result) {
+            //     return result.data;
+            // };
+            //
+            // return apiFileserver.upload(fileserver['fileserver_url'], managerBase.get_token(), chunk, ticket_enc.text, ticket_enc.nonce)
+            //     .then(onSuccess, onError);
+        };
+
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerFileTransfer#upload
+         * @methodOf psonocli.managerFileTransfer
+         *
+         * @description
+         * Triggered once someone wants to actually upload the file
+         *
+         * @param {Blob} chunk The content of the chunk to upload
+         * @param {uuid} file_transfer_id The id of the file transfer
+         * @param {int} chunk_size The size of the complete chunk in bytes
+         * @param {int} chunk_position The sequence number of the chunk to determine the order
+         * @param {object|undefined} shard (optional) The target shard
+         * @param {object|undefined} file_exchange (optional) The target file exchange
+         * @param {string} hash_checksum The sha512 hash
+         *
+         * @returns {promise} promise
+         */
+        var upload = function (chunk, file_transfer_id, chunk_size, chunk_position, shard, file_exchange, hash_checksum) {
+
+            if (typeof(shard) !== 'undefined') {
+                return upload_shard(chunk, file_transfer_id, chunk_position, shard, hash_checksum);
+            } else if (typeof(file_exchange) !== 'undefined' && file_exchange['type'] === 'gcp_cloud_storage') {
+                return upload_file_exchange_gcp_cloud_storage(chunk, file_transfer_id, chunk_size, chunk_position, hash_checksum);
+            }
 
         };
 
@@ -266,7 +367,21 @@
         };
 
 
-        var download = function (file_transfer_id, chunk_position, shard, hash_checksum) {
+        /**
+         * @ngdoc
+         * @name psonocli.managerFileTransfer#shard_download
+         * @methodOf psonocli.managerFileTransfer
+         *
+         * @description
+         * Downloads a file from a shard
+         *
+         * @param file_transfer_id
+         * @param shard
+         * @param hash_checksum
+         *
+         * @returns {PromiseLike<T | void> | Promise<T | void> | *}
+         */
+        var shard_download = function (file_transfer_id, shard, hash_checksum) {
 
             registrations['download_step_complete']('DOWNLOADING_FILE_CHUNK');
 
@@ -302,26 +417,59 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerFileTransfer#download_file
+         * @name psonocli.managerFileTransfer#file_exchange_download
          * @methodOf psonocli.managerFileTransfer
          *
          * @description
-         * Downloads a file
+         * Downloads a file from a file exchange
          *
-         * @param {string} id The id of the file to download
+         * @param file_transfer_id
+         * @param hash_checksum
+         *
+         * @returns {PromiseLike<T | void> | Promise<T | void> | *}
          */
-        var download_file = function(id) {
+        var file_exchange_download = function (file_transfer_id, hash_checksum) {
 
-            var file = storage.find_key('datastore-file-leafs', id);
-            if (file === null || typeof(file) === 'undefined') {
-                return
-            }
+            registrations['download_step_complete']('DOWNLOADING_FILE_CHUNK');
 
-            if (!file.hasOwnProperty('file_shard_id') || !file.hasOwnProperty('file_id') || !file['file_shard_id'] || !file['file_id']) {
-                registrations['download_complete']();
-                saveAs(new Blob([''], {type: 'text/plain;charset=utf-8'}), file['file_title']);
-                return
-            }
+            var onError = function(result) {
+                console.log(result);
+                return $q.reject(result.data)
+            };
+
+            var onSuccess = function(result) {
+
+                var onError = function(result) {
+                    console.log(result);
+                    return $q.reject(result.data)
+                };
+
+                var onSuccess = function(result) {
+                    return result.data;
+                };
+
+                return apiGCP.download(result.data.url)
+                    .then(onSuccess, onError);
+            };
+
+            return apiClient.file_exchange_download(managerBase.get_token(), managerBase.get_session_secret_key(), file_transfer_id, hash_checksum)
+                .then(onSuccess, onError);
+
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerFileTransfer#download_file_from_shard
+         * @methodOf psonocli.managerFileTransfer
+         *
+         * @description
+         * Downloads a file from a shard
+         *
+         * @param file
+         *
+         * @returns {promise}
+         */
+        var download_file_from_shard = function (file) {
 
             var shards = storage.find_key('config', 'shards');
             if (shards === null || typeof(shards) === 'undefined') {
@@ -366,12 +514,12 @@
                             registrations['download_complete']();
                             saveAs(concat, file['file_title']);
                         } else {
-                            return download(file_transfer_id, next_chunk_id, shard, file.file_chunks[next_chunk_id]).then(on_chunk_download, onError);
+                            return shard_download(file_transfer_id, shard, file.file_chunks[next_chunk_id]).then(on_chunk_download, onError);
                         }
                     });
                 }
 
-                return download(file_transfer_id, next_chunk_id, shard, file.file_chunks[next_chunk_id]).then(on_chunk_download, onError);
+                return shard_download(file_transfer_id, shard, file.file_chunks[next_chunk_id]).then(on_chunk_download, onError);
 
             }
             function onError(data) {
@@ -379,6 +527,97 @@
             }
 
             return read_file(file['file_id']).then(onSuccess, onError);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerFileTransfer#download_file_from_file_exchange
+         * @methodOf psonocli.managerFileTransfer
+         *
+         * @description
+         * Downloads a file from a file exchange
+         *
+         * @param file
+         *
+         * @returns {promise}
+         */
+        var download_file_from_file_exchange = function (file) {
+
+
+            function onSuccess(data) {
+
+                var file_transfer_id = data.file_transfer_id;
+
+                var next_chunk_id = 1;
+                var allblobs = [];
+                var chunk_count = Object.keys(file.file_chunks).length;
+
+                registrations['download_started'](chunk_count * 2);
+
+                function onError(data) {
+                    return $q.reject(data);
+                }
+
+                function on_chunk_download(data) {
+
+                    registrations['download_step_complete']('DECRYPTING_FILE_CHUNK');
+
+                    next_chunk_id = next_chunk_id + 1;
+                    return cryptoLibrary.decrypt_file(new Uint8Array(data), file['file_secret_key']).then(function(data) {
+
+                        allblobs.push(data);
+                        if (next_chunk_id > chunk_count) {
+                            var concat = new Blob(allblobs, {type: 'application/octet-string'});
+                            registrations['download_complete']();
+                            saveAs(concat, file['file_title']);
+                        } else {
+                            return file_exchange_download(file_transfer_id, file.file_chunks[next_chunk_id]).then(on_chunk_download, onError);
+                        }
+                    });
+                }
+
+                return file_exchange_download(file_transfer_id, file.file_chunks[next_chunk_id]).then(on_chunk_download, onError);
+
+            }
+            function onError(data) {
+                console.log(data);
+                return $q.reject(data);
+            }
+
+            return read_file(file['file_id']).then(onSuccess, onError);
+        };
+
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerFileTransfer#download_file
+         * @methodOf psonocli.managerFileTransfer
+         *
+         * @description
+         * Downloads a file
+         *
+         * @param {string} id The id of the file to download
+         *
+         * @returns {promise}
+         */
+        var download_file = function(id) {
+
+            var file = storage.find_key('datastore-file-leafs', id);
+            if (file === null || typeof(file) === 'undefined') {
+                return $q.resolve();
+            }
+
+            if (!file.hasOwnProperty('file_id') || !file.hasOwnProperty('file_chunks') || !file['file_id'] || Object.keys(file.file_chunks).length === 0) {
+                registrations['download_complete']();
+                saveAs(new Blob([''], {type: 'text/plain;charset=utf-8'}), file['file_title']);
+                return $q.resolve();
+            }
+
+            if (file.hasOwnProperty('file_shard_id')) {
+                return download_file_from_shard(file);
+            } else {
+                return download_file_from_file_exchange(file);
+            }
         };
 
         /**
@@ -409,6 +648,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerFileTransfer", ['$q', 'helper', 'storage', 'managerBase', 'browserClient', 'cryptoLibrary', 'converter', 'apiClient', 'apiFileserver', managerFileTransfer]);
+    app.factory("managerFileTransfer", ['$q', 'helper', 'storage', 'managerBase', 'browserClient', 'cryptoLibrary', 'converter', 'apiClient', 'apiFileserver', 'apiGCP', managerFileTransfer]);
 
 }(angular, saveAs));

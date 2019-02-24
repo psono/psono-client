@@ -52,7 +52,7 @@
              */
             function create_group(size) {
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-new-group.html',
+                    templateUrl: 'view/modal/new-group.html',
                     controller: 'ModalNewGroupCtrl',
                     size: size,
                     resolve: {}
@@ -89,7 +89,7 @@
             function edit_group(group_id, size) {
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-edit-group.html',
+                    templateUrl: 'view/modal/edit-group.html',
                     controller: 'ModalEditGroupCtrl',
                     size: size,
                     resolve: {
@@ -175,7 +175,7 @@
             function leave_group(group) {
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-verify.html',
+                    templateUrl: 'view/modal/verify.html',
                     controller: 'ModalVerifyCtrl',
                     resolve: {
                         title: function () {
@@ -221,7 +221,7 @@
             function delete_group(group_id) {
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-verify.html',
+                    templateUrl: 'view/modal/verify.html',
                     controller: 'ModalVerifyCtrl',
                     resolve: {
                         title: function () {
@@ -265,7 +265,7 @@
             function accept_group(group) {
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-accept-share.html',
+                    templateUrl: 'view/modal/accept-share.html',
                     controller: 'ModalAcceptShareCtrl',
                     resolve: {
                         title: function () {
@@ -351,7 +351,7 @@
                 var outstanding_share_index = $scope.outstanding_share_index[group.group_id];
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-accept-share.html',
+                    templateUrl: 'view/modal/accept-share.html',
                     controller: 'ModalAcceptShareCtrl',
                     resolve: {
                         title: function () {

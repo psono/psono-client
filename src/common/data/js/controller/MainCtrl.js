@@ -104,7 +104,7 @@
 
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-create-datastore.html',
+                    templateUrl: 'view/modal/create-datastore.html',
                     controller: 'ModalCreateDatastoreCtrl',
                     resolve: {}
                 });
@@ -137,7 +137,7 @@
              */
             function go_offline() {
                 $uibModal.open({
-                    templateUrl: 'view/modal-go-offline.html',
+                    templateUrl: 'view/modal/go-offline.html',
                     controller: 'ModalGoOfflineCtrl',
                     backdrop: 'static',
                     resolve: {

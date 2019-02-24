@@ -1528,10 +1528,10 @@
 
                 storage.upsert('config', {key: 'user_email', value: new_email});
                 storage.save();
-                return {msgs: ['Saved successfully']}
+                return {msgs: ['SAVE_SUCCESS']}
             };
             var onError = function() {
-                return {errors: ['Old password incorrect']}
+                return {errors: ['OLD_PASSWORD_INCORRECT']}
             };
             return update_user(new_email, null, authkey_old)
                 .then(onSuccess, onError);
@@ -1576,10 +1576,10 @@
             secret_key_enc = cryptoLibrary.encrypt_secret(user_secret_key.value, new_password, user_sauce);
 
             onSuccess = function(data) {
-                return {msgs: ['Saved successfully']}
+                return {msgs: ['SAVE_SUCCESS']}
             };
             onError = function() {
-                return {errors: ['Old password incorrect']}
+                return {errors: ['OLD_PASSWORD_INCORRECT']}
             };
 
             return update_user(null, new_authkey, authkey_old, priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce)

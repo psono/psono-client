@@ -99,7 +99,7 @@
             function add_user() {
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-new-entry.html',
+                    templateUrl: 'view/modal/new-entry.html',
                     controller: 'ModalShareNewEntryCtrl',
                     backdrop: 'static',
                     resolve: {

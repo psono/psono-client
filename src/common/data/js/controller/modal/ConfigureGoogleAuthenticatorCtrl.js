@@ -56,7 +56,7 @@
                 $scope.errors = [];
 
                 if (typeof(new_ga.title) === 'undefined' || new_ga.title === '') {
-                    $scope.errors = ['Title is required'];
+                    $scope.errors = ['TITLE_IS_REQUIRED'];
                     return $q.resolve();
                 }
 
@@ -99,7 +99,7 @@
                 $scope.errors = [];
 
                 if (typeof(new_ga.code) === 'undefined' || new_ga.code === '') {
-                    $scope.errors = ['Code is required'];
+                    $scope.errors = ['CODE_IS_REQUIRED'];
                     return $q.resolve();
                 }
 
@@ -108,7 +108,7 @@
                         $scope.errors = [];
                         $uibModalInstance.dismiss('close');
                     } else {
-                        $scope.errors = ['Code incorrect. Please try again.'];
+                        $scope.errors = ['CODE_INCORRECT'];
                     }
                 };
 

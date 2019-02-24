@@ -53,7 +53,7 @@
 
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-create-api-key.html',
+                    templateUrl: 'view/modal/create-api-key.html',
                     controller: 'ModalCreateAPIKeyCtrl',
                     resolve: {}
                 });
@@ -86,7 +86,7 @@
                 var onSuccess = function(api_key) {
 
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal-edit-api-key.html',
+                        templateUrl: 'view/modal/edit-api-key.html',
                         controller: 'ModalEditAPIKeyCtrl',
                         resolve: {
                             api_key: function () {
@@ -118,7 +118,7 @@
             function delete_api_key(api_key) {
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-verify.html',
+                    templateUrl: 'view/modal/verify.html',
                     controller: 'ModalVerifyCtrl',
                     resolve: {
                         title: function () {

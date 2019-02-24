@@ -5,7 +5,7 @@
     </div>
     <div class="modal-body" ng-if="!state.processing">
 
-        <ui-select ng-model="bp.selected" class="form-group" on-select="reset()">
+        <ui-select ng-model="bp.selected" class="form-group" on-select="on_select()">
             <ui-select-match>
                 <span>{{ $select.selected.name | translate }}</span>
             </ui-select-match>
@@ -23,6 +23,16 @@
                        ng-change="bp.selected[n.onChange](bp.selected.fields, selected_server_domain)">
                 <span class="input-group-addon" id="{{n.name}}-addon" ng-if="n.usernameInputGroupAddon && (n.value == null || n.value.indexOf('@') == -1)">@{{selected_server_domain}}</span>
             </div>
+
+            <ui-select ng-model="n.value" ng-if="n.field == 'select'" ng-hide="n.hidden">
+                <ui-select-match placeholder="{{ n.placeholder | translate }}">
+                    <span>{{ n.value.name | translate }}</span>
+                </ui-select-match>
+                <!--<ui-select-choices repeat="value in bp.selected[n.get_values]()">-->
+                <ui-select-choices repeat="value in n.values">
+                    <span>{{value.name | translate}}</span>
+                </ui-select-choices>
+            </ui-select>
 
             <input ng-if="n.field == 'input' && !n.dropmenuItems && !n.usernameInputGroupAddon" type="{{n.type}}" name="{{n.name}}"
                    ng-class="{'form-control': n.type !== 'checkbox'}"
@@ -58,7 +68,7 @@
                       ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
                       placeholder="{{n.placeholder | translate}}"  ng-required="n.required && !n.hidden"
                       ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
-            <p class="help-block note" ng-hide="n.hidden">{{n.note}}</p>
+            <p class="help-block note" ng-hide="n.hidden">{{n.note | translate}}</p>
 
         </div>
 
@@ -111,7 +121,7 @@
                               ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
                               placeholder="{{n.placeholder | translate}}"  ng-required="n.required && !n.hidden"
                               ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
-                    <p class="help-block note" ng-hide="n.hidden">{{n.note}}</p>
+                    <p class="help-block note" ng-hide="n.hidden">{{n.note | translate}}</p>
 
                 </div>
             </uib-tab>
@@ -163,7 +173,7 @@
                       ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
                       placeholder="{{n.placeholder | translate}}"  ng-required="n.required && !n.hidden"
                       ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
-            <p class="help-block note" ng-hide="n.hidden">{{n.note}}</p>
+            <p class="help-block note" ng-hide="n.hidden">{{n.note | translate}}</p>
 
         </div>
 
@@ -219,7 +229,7 @@
                       ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
                       placeholder="{{n.placeholder | translate}}"  ng-required="n.required && !n.hidden"
                           ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
-                <p class="help-block note" ng-hide="n.hidden">{{n.note}}</p>
+                <p class="help-block note" ng-hide="n.hidden">{{n.note | translate}}</p>
             </div>
             <div class="form-group" ng-if="!bp.selected.hide_callback">
                 <input type="text" name="callback_url" class="form-control"

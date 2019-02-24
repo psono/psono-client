@@ -234,7 +234,7 @@
                 scope.deleteNode  = function (node, event) {
 
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal-verify.html',
+                        templateUrl: 'view/modal/verify.html',
                         controller: 'ModalVerifyCtrl',
                         resolve: {
                             title: function () {
@@ -267,7 +267,7 @@
                 scope.moveNode  = function (node, event) {
 
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal-choose-folder.html',
+                        templateUrl: 'view/modal/choose-folder.html',
                         controller: 'ModalChooseFolderCtrl',
                         resolve: {
                             title: function () {
@@ -351,7 +351,7 @@
                 scope.deleteItem  = function (item, event) {
 
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal-verify.html',
+                        templateUrl: 'view/modal/verify.html',
                         controller: 'ModalVerifyCtrl',
                         resolve: {
                             title: function () {
@@ -385,7 +385,7 @@
                 scope.moveItem  = function (item, event) {
 
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal-choose-folder.html',
+                        templateUrl: 'view/modal/choose-folder.html',
                         controller: 'ModalChooseFolderCtrl',
                         resolve: {
                             title: function () {

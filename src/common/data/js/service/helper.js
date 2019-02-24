@@ -106,6 +106,26 @@
 
         /**
          * @ngdoc
+         * @name psonocli.helper#is_valid_json
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Returns weather we have a valid json or not
+         *
+         * @param str
+         * @returns {boolean}
+         */
+        function is_valid_json(str) {
+            try {
+                JSON.parse(str);
+            } catch (e) {
+                return false;
+            }
+            return true;
+        }
+
+        /**
+         * @ngdoc
          * @name psonocli.helper#is_valid_email
          * @methodOf psonocli.helper
          *
@@ -510,6 +530,7 @@
         return {
             parse_url: parse_url,
             is_valid_url: is_valid_url,
+            is_valid_json: is_valid_json,
             is_valid_email: is_valid_email,
             get_domain: get_domain,
             array_starts_with: array_starts_with,

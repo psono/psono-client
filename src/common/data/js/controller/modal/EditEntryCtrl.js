@@ -72,7 +72,7 @@
             function show_history(node) {
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-history.html',
+                    templateUrl: 'view/modal/history.html',
                     controller: 'ModalHistoryCtrl',
                     resolve: {
                         node: function () {

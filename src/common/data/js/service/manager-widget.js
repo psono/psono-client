@@ -40,7 +40,7 @@
         var open_new_folder = function (parent, path, data_structure, manager) {
 
             var modalInstance = $uibModal.open({
-                templateUrl: 'view/modal-new-folder.html',
+                templateUrl: 'view/modal/new-folder.html',
                 controller: 'ModalNewFolderCtrl',
                 backdrop: 'static',
                 resolve: {
@@ -92,7 +92,7 @@
         var open_edit_folder = function (node, path, data_structure, manager, size) {
 
             var modalInstance = $uibModal.open({
-                templateUrl: 'view/modal-edit-folder.html',
+                templateUrl: 'view/modal/edit-folder.html',
                 controller: 'ModalEditFolderCtrl',
                 backdrop: 'static',
                 size: size,
@@ -136,7 +136,7 @@
             }
 
             var modalInstance = $uibModal.open({
-                templateUrl: 'view/modal-new-entry.html',
+                templateUrl: 'view/modal/new-entry.html',
                 controller: 'ModalDatastoreNewEntryCtrl',
                 backdrop: 'static',
                 size: size,
@@ -328,7 +328,7 @@
                     });
                 } else {
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal-edit-entry.html',
+                        templateUrl: 'view/modal/edit-entry.html',
                         controller: 'ModalEditEntryCtrl',
                         backdrop: 'static',
                         size: size,

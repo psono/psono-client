@@ -49,7 +49,7 @@
                 $scope.errors = [];
 
                 if (typeof(new_yubikey_otp.title) === 'undefined' || new_yubikey_otp.title === '') {
-                    $scope.errors = ['Title is required'];
+                    $scope.errors = ['TITLE_IS_REQUIRED'];
                     return $q.resolve();
                 }
 

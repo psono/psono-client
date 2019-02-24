@@ -102,7 +102,7 @@
 
                 </uib-tab>
 
-                <uib-tab index="2" heading="{{'API_KEYS' | translate}}" select="open_tab('data-stores')">
+                <uib-tab index="2" heading="{{'API_KEYS' | translate}}" select="open_tab('api-keys')">
                     <div ng-controller="OtherAPIKeyCtrl">
                         <div class="row">
                             <div class="col-xs-12 col-sm-6">
@@ -163,7 +163,60 @@
 
                 </uib-tab>
 
-                <uib-tab index="3" heading="{{'KNOWN_HOSTS' | translate}}" select="open_tab('known-hosts')">
+                <uib-tab index="3" heading="{{'FILE_EXCHANGES' | translate}}" select="open_tab('file-exchanges')">
+                    <div ng-controller="OtherFileExchangeCtrl">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6">
+                                <h2>{{'FILE_EXCHANGES' | translate}}:</h2>
+                                {{'HERE_YOU_CAN_MANAGE_ALL_YOUR_FILE_EXCHANGES' | translate}}
+                            </div>
+                            <div class="col-xs-12 col-sm-6" ng-if="!file_exchanges_disabled">
+                                <button type="submit" class="btn btn-primary btn-primary pull-right" ng-click="create_new_file_exchange()"><i class="fa fa-plus"></i> {{'CREATE_NEW_FILE_EXCHANGE' | translate}}</button>
+                                <div class='clearfix'></div>
+                            </div>
+                        </div>
+                        <hr>
+
+                        <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs" ng-if="!file_exchanges_disabled">
+                            <thead>
+                            <tr>
+                                <th>{{'TITLE' | translate}}</th>
+                                <th>{{'TYPE' | translate}}</th>
+                                <th>{{'ACTIVE' | translate}}</th>
+                                <th>{{'EDIT' | translate}}</th>
+                                <th>{{'DELETE' | translate}}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="file_exchange in file_exchanges">
+                                <td>{{ file_exchange.title }}</td>
+                                <td>{{ file_exchange.type }}</td>
+                                <td>
+                                    <i ng-if="file_exchange.active" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
+                                    <i ng-if="!file_exchange.active" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-default btn-sm" ng-click="edit_file_exchange(file_exchange)" >
+                                        <i class="fa fa-wrench" aria-hidden="true"><span style="display: none">0</span></i>
+                                    </button>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-default btn-sm" ng-if="!file_exchange.is_default" ng-click="delete_file_exchange(file_exchange)" >
+                                        <i class="fa fa-trash" aria-hidden="true"><span style="display: none">0</span></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="form-group alert alert-info" ng-if="file_exchanges_disabled">
+                            <strong>{{'INFO' | translate}}:</strong> <span>{{ 'FILE_STORAGES_HAVE_BEEN_DISABLED' | translate }}</span>
+                        </div>
+                    </div>
+
+                </uib-tab>
+
+                <uib-tab index="4" heading="{{'KNOWN_HOSTS' | translate}}" select="open_tab('known-hosts')">
                     <div ng-controller="KnownHostsCtrl">
                         <div class="row">
                             <div class="col-xs-12 col-sm-12">
@@ -201,7 +254,7 @@
 
                 </uib-tab>
 
-                <uib-tab index="4" heading="{{'EXPORT' | translate}}" select="open_tab('export')">
+                <uib-tab index="5" heading="{{'EXPORT' | translate}}" select="open_tab('export')">
                     <div ng-controller="ExportCtrl">
                         <div class="row">
                             <div class="col-xs-12 col-sm-12">
@@ -251,7 +304,7 @@
 
                 </uib-tab>
 
-                <uib-tab index="5" heading="{{'IMPORT' | translate}}" select="open_tab('import')">
+                <uib-tab index="6" heading="{{'IMPORT' | translate}}" select="open_tab('import')">
                     <div ng-controller="ImportCtrl">
                         <div class="row">
                             <div class="col-xs-12 col-sm-12">

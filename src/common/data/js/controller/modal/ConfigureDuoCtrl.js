@@ -61,19 +61,19 @@
                 $scope.errors = [];
 
                 if (typeof(new_duo.title) === 'undefined' || new_duo.title === '') {
-                    $scope.errors.push('Title is required');
+                    $scope.errors.push('TITLE_IS_REQUIRED');
                 }
 
                 if (typeof(new_duo.integration_key) === 'undefined' || new_duo.integration_key === '') {
-                    $scope.errors.push('Integration Key is required');
+                    $scope.errors.push('INTEGRATION_KEY_IS_REQUIRED');
                 }
 
                 if (typeof(new_duo.secret_key) === 'undefined' || new_duo.secret_key === '') {
-                    $scope.errors.push('Secret Key is required');
+                    $scope.errors.push('SECRET_KEY_IS_REQUIRED');
                 }
 
                 if (typeof(new_duo.host) === 'undefined' || new_duo.host === '') {
-                    $scope.errors.push('Host is required');
+                    $scope.errors.push('HOST_IS_REQUIRED');
                 }
 
                 if ($scope.errors.length !== 0) {
@@ -127,7 +127,7 @@
                     if(successful) {
                         $uibModalInstance.dismiss('close');
                     } else {
-                        $scope.errors = ['Code incorrect. Please try again.'];
+                        $scope.errors = ['CODE_INCORRECT'];
                     }
                 };
 

@@ -133,7 +133,7 @@
                     if(successful) {
                         $uibModalInstance.dismiss('close');
                     } else {
-                        $scope.errors = ['Code incorrect. Please try again.'];
+                        $scope.errors = ['CODE_INCORRECT'];
                     }
                 };
 

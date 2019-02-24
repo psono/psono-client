@@ -79,7 +79,7 @@
             function accept(item, pending_shares) {
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-accept-share.html',
+                    templateUrl: 'view/modal/accept-share.html',
                     controller: 'ModalAcceptShareCtrl',
                     resolve: {
                         title: function () {

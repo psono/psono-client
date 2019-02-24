@@ -205,7 +205,7 @@
             function open_new_item(parent, path, size) {
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-new-entry.html',
+                    templateUrl: 'view/modal/new-entry.html',
                     controller: 'ModalShareNewEntryCtrl',
                     size: size,
                     resolve: {
@@ -320,7 +320,7 @@
              */
             function open_edit_item(node, path, size) {
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-edit-entry.html',
+                    templateUrl: 'view/modal/edit-entry.html',
                     controller: 'ModalShareEditEntryCtrl',
                     size: size,
                     resolve: {

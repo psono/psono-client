@@ -17,6 +17,7 @@
         function ($scope, $uibModalInstance, itemBlueprint, cryptoLibrary, helper, parent, path) {
 
             $scope.reset = reset;
+            $scope.on_select = on_select;
             $scope.save = save;
             $scope.cancel = cancel;
             $scope.toggle_input_type = toggle_input_type;
@@ -86,6 +87,21 @@
                 $scope.state.processing = false;
             }
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalDatastoreNewEntryCtrl#on_select
+             * @methodOf psonocli.controller:ModalDatastoreNewEntryCtrl
+             *
+             * @description
+             * Triggered once someone selects another entry
+             */
+            function on_select() {
+                reset();
+                if ($scope.bp.selected.hasOwnProperty('activate')) {
+                    $scope.bp.selected.activate();
+                }
+            }
+
 
             /**
              * @ngdoc
@@ -103,7 +119,7 @@
                     var field = $scope.bp.selected.fields[i];
                     if (field.hasOwnProperty("required")) {
                         if (field['required'] && field['value'] !== false && !field['value']) {
-                            $scope.errors.push(field['title'] + ' is required');
+                            $scope.errors.push(field['title'] + '_IS_REQUIRED');
                             continue;
                         }
                     }

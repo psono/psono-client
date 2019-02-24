@@ -42,7 +42,8 @@
 
                 managerFileTransfer.register('download_complete', function() {
                     $scope.state.closed_request = $scope.state.closed_request + 1;
-                    $scope.state.percentage_complete = Math.round($scope.state.closed_request / $scope.state.open_requests * 1000) / 10;
+                    $scope.state.percentage_complete = 100;
+                    $scope.state.processing = true;
                     $scope.state.next_step = 'DOWNLOAD_COMPLETED';
                 });
 

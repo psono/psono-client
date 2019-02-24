@@ -57,7 +57,7 @@
 
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-create-datastore.html',
+                    templateUrl: 'view/modal/create-datastore.html',
                     controller: 'ModalCreateDatastoreCtrl',
                     resolve: {}
                 });
@@ -93,7 +93,7 @@
             function edit_data_store(data_store) {
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-edit-datastore.html',
+                    templateUrl: 'view/modal/edit-datastore.html',
                     controller: 'ModalEditDatastoreCtrl',
                     resolve: {
                         data_store: function () {
@@ -133,7 +133,7 @@
             function delete_datastore(data_store) {
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-delete-datastore.html',
+                    templateUrl: 'view/modal/delete-datastore.html',
                     controller: 'ModalDeleteDatastoreCtrl',
                     resolve: {
                         data_store: function () {

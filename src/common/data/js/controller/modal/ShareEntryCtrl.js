@@ -96,7 +96,7 @@
              */
             function create_group(size) {
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-new-group.html',
+                    templateUrl: 'view/modal/new-group.html',
                     controller: 'ModalNewGroupCtrl',
                     size: size,
                     resolve: {}
@@ -131,7 +131,7 @@
             function add_user() {
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-new-entry.html',
+                    templateUrl: 'view/modal/new-entry.html',
                     controller: 'ModalShareNewEntryCtrl',
                     backdrop: 'static',
                     resolve: {

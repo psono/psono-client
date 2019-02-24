@@ -174,7 +174,7 @@
             } else {
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-unlock-offline-cache.html',
+                    templateUrl: 'view/modal/unlock-offline-cache.html',
                     controller: 'ModalUnlockOfflineCacheCtrl',
                     backdrop: 'static',
                     resolve: {

@@ -33,12 +33,12 @@
             title_field: "user_username",
             search: ['user_name', 'user_username'],
             fields: [
-                { name: "user_search_button", field: "button", type: "button", title: "Search", hidden: true, class: 'btn-primary', onClick:"onClickSearchButton" },
-                { name: "user_name", field: "input", type: "text", title: "Name", placeholder: "Name (optional)", hidden: true},
+                { name: "user_search_button", field: "button", type: "button", title: "SEARCH", hidden: true, class: 'btn-primary', onClick:"onClickSearchButton" },
+                { name: "user_name", field: "input", type: "text", title: "NAME", placeholder: "NAME_OPTIONAL", hidden: true},
                 { name: "user_id", field: "input", type: "text", title: "ID", placeholder: "ID", required: true, hidden: true, readonly: true },
-                { name: "user_username", field: "input", type: "text", title: "Username", placeholder: "Username", required: true, hidden: true, readonly: true },
-                { name: "user_public_key", field: "textarea", title: "Public Key", placeholder: "Public Key", required: true, hidden: true, readonly: true,
-                    note: 'To verify that this is the user you want to share data with, ask him if this is really his public key.' }
+                { name: "user_username", field: "input", type: "text", title: "USERNAME", placeholder: "USERNAME", required: true, hidden: true, readonly: true },
+                { name: "user_public_key", field: "textarea", title: "PUBLIC_KEY", placeholder: "PUBLIC_KEY", required: true, hidden: true, readonly: true,
+                    note: 'TO_VERIFY_PUBLIC_KEY' }
             ],
             getName: function(fields) {
                 var vals= {};
@@ -159,7 +159,7 @@
                     if (Object.prototype.toString.call(data) === '[object Array]') {
 
                         var modalInstance = $uibModal.open({
-                            templateUrl: 'view/modal-pick-user.html',
+                            templateUrl: 'view/modal/pick-user.html',
                             controller: 'ModalPickUserCtrl',
                             backdrop: 'static',
                             size: 'lg',
@@ -246,20 +246,20 @@
             });
 
             if (storage.find_key('config', 'server_info') === null) {
-                _blueprints.user.fields.splice(0, 0, { name: "user_search_username", field: "input", type: "text", title: "Username", placeholder: "Username", onChange: "onChangeSearch", usernameInputGroupAddon: true });
+                _blueprints.user.fields.splice(0, 0, { name: "user_search_username", field: "input", type: "text", title: "USERNAME", placeholder: "USERNAME", onChange: "onChangeSearch", usernameInputGroupAddon: true });
                 return;
             }
             allow_user_search_by_email = storage.find_key('config', 'server_info').value['allow_user_search_by_email'];
             allow_user_search_by_username_partial = storage.find_key('config', 'server_info').value['allow_user_search_by_username_partial'];
 
             if (allow_user_search_by_username_partial) {
-                _blueprints.user.fields.splice(0, 0, { name: "user_search_username", field: "input", type: "text", title: "Username", placeholder: "Username", onChange: "onChangeSearch" });
+                _blueprints.user.fields.splice(0, 0, { name: "user_search_username", field: "input", type: "text", title: "USERNAME", placeholder: "USERNAME", onChange: "onChangeSearch" });
             } else {
-                _blueprints.user.fields.splice(0, 0, { name: "user_search_username", field: "input", type: "text", title: "Username", placeholder: "Username", onChange: "onChangeSearch", usernameInputGroupAddon: true });
+                _blueprints.user.fields.splice(0, 0, { name: "user_search_username", field: "input", type: "text", title: "USERNAME", placeholder: "USERNAME", onChange: "onChangeSearch", usernameInputGroupAddon: true });
             }
 
             if (allow_user_search_by_email) {
-                _blueprints.user.fields.splice(1, 0, { name: "user_search_email", field: "input", type: "text", validationType: "email", title: "E-mail", placeholder: "E-mail", onChange: "onChangeSearch" });
+                _blueprints.user.fields.splice(1, 0, { name: "user_search_email", field: "input", type: "text", validationType: "email", title: "EMAIL", placeholder: "EMAIL", onChange: "onChangeSearch" });
             }
         }
 
