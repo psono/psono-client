@@ -2347,6 +2347,162 @@
 
         /**
          * @ngdoc
+         * @name psonocli.apiClient#create_file_repository_right
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax PUT request to create a file repository right for another user for a file repository with the token as authentication
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} file_repository_id ID of the file_repository
+         * @param {uuid} user_id ID of the user
+         * @param {boolean} read Weather the users should have read rights to read the details
+         * @param {boolean} write Weather the users should have read rights to write / update details
+         * @param {boolean} grant Weather the users should have read rights to modify other users read and write priviliges
+         *
+         * @returns {promise} promise
+         */
+        var create_file_repository_right = function (token, session_secret_key, file_repository_id, user_id, read, write,
+                                                     grant) {
+            var endpoint = '/file-repository/right/';
+            var connection_type = "PUT";
+            var data = {
+                file_repository_id: file_repository_id,
+                user_id: user_id,
+                read: read,
+                write: write,
+                grant: grant
+            };
+            var headers = {
+                "Authorization": "Token " + token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#update_file_repository_right
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax POST request to update a file repository right with the token as authentication
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} file_repository_right_id The file_repository_right id to update
+         * @param {boolean} read Weather the users should have read rights to read the details
+         * @param {boolean} write Weather the users should have read rights to write / update details
+         * @param {boolean} grant Weather the users should have read rights to modify other users read and write priviliges
+         *
+         * @returns {promise} promise
+         */
+        var update_file_repository_right = function (token, session_secret_key, file_repository_right_id, read, write, grant) {
+            var endpoint = '/file-repository/right/';
+            var connection_type = "POST";
+            var data = {
+                file_repository_right_id: file_repository_right_id,
+                read: read,
+                write: write,
+                grant: grant
+            };
+            var headers = {
+                "Authorization": "Token " + token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#delete_file_repository_right
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax DELETE request to delete a given file repository right
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} file_repository_right_id The file repository right id to delete
+         *
+         * @returns {promise} Returns a promise which can succeed or fail
+         */
+        var delete_file_repository_right = function (token, session_secret_key, file_repository_right_id) {
+            var endpoint = '/file-repository/right/';
+            var connection_type = "DELETE";
+            var data = {
+                file_repository_right_id: file_repository_right_id
+            };
+
+            var headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Token " + token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#accept_file_repository_right
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax POST request to accept a file repository share
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} file_repository_right_id The file_repository user id to accept
+         *
+         * @returns {promise} Returns a promise which can succeed or fail
+         */
+        var accept_file_repository_right = function (token, session_secret_key, file_repository_right_id) {
+            var endpoint = '/file-repository/accept/';
+            var connection_type = "POST";
+            var data = {
+                file_repository_right_id: file_repository_right_id
+            };
+
+            var headers = {
+                "Authorization": "Token " + token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#decline_file_repository_right
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax POST request to decline a file repository share
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} file_repository_right_id The file_repository user id to decline
+         *
+         * @returns {promise} Returns a promise which can succeed or fail
+         */
+        var decline_file_repository_right = function (token, session_secret_key, file_repository_right_id) {
+            var endpoint = '/file-repository/decline/';
+            var connection_type = "POST";
+            var data = {
+                file_repository_right_id: file_repository_right_id
+            };
+
+            var headers = {
+                "Authorization": "Token " + token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+
+        /**
+         * @ngdoc
          * @name psonocli.apiClient#file_repository_upload
          * @methodOf psonocli.apiClient
          *
@@ -2917,6 +3073,11 @@
             create_file_repository: create_file_repository,
             update_file_repository: update_file_repository,
             delete_file_repository: delete_file_repository,
+            create_file_repository_right: create_file_repository_right,
+            update_file_repository_right: update_file_repository_right,
+            delete_file_repository_right: delete_file_repository_right,
+            accept_file_repository_right: accept_file_repository_right,
+            decline_file_repository_right: decline_file_repository_right,
             file_repository_upload: file_repository_upload,
             file_repository_download: file_repository_download,
             read_group: read_group,

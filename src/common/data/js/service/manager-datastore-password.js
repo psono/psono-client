@@ -1576,6 +1576,7 @@
             }
             searchTree.hidden = !show;
             searchTree.expanded_temporary = newValue !== '';
+            searchTree.is_expanded = searchTree.expanded_temporary || searchTree.expanded;
 
             return show;
         };

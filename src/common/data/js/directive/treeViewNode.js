@@ -73,7 +73,7 @@
                 scope.getFolderIconClass = typeof options.folderIcon === 'function'
                     ? options.folderIcon
                     : function (node) {
-                        return 'fa fa-folder' + (node.expanded || node.expanded_temporary ? '-open' : '');
+                        return 'fa fa-folder' + (node.is_expanded ? '-open' : '');
                     };
 
                 /**
@@ -293,13 +293,14 @@
                  * fired if someone selects a node
                  *
                  * @param event
+                 * @param node
                  */
-                scope.selectNode = function (event) {
+                scope.selectNode = function (event, node) {
 
                     if (collapsible) {
-                        controller.toggleExpanded(scope.node);
+                        controller.toggleExpanded(node);
                     }
-                    controller.selectNode(scope.node, getPropertyPath(), getPropertyPath(idProperty));
+                    controller.selectNode(node, getPropertyPath(), getPropertyPath(idProperty));
                 };
 
                 /**
@@ -463,7 +464,7 @@
                         '   context-menu="contextMenuOnShow(\'menu-\'+node.id)"' +
                         '   context-menu-close="contextMenuOnClose(\'menu-\'+node.id)">' +
                         '<div href="#" class="tree-folder-header"' +
-                        '   ng-click="$event.stopPropagation(); selectNode($event)" ng-class="::{ selected: isSelected(node), notSelectable: ! isSelectable(node) }">' +
+                        '   ng-click="$event.stopPropagation(); selectNode($event, node)" ng-class="::{ selected: isSelected(node), notSelectable: ! isSelectable(node) }">' +
                         '<span class="fa-stack">' +
                         '<i class="" ng-class="getFolderIconClass(node)"></i>' +
                         '<i ng-if="node.share_id" class="fa fa-circle fa-stack-2x text-danger is-shared"></i>' +
@@ -517,7 +518,7 @@
                         '</ul>' +
                         '</span>' +
                         '</div>' +
-                        '<div class="tree-folder-content"'+ (collapsible ? ' ng-show="node.expanded || node.expanded_temporary"' : '') + '>' +
+                        '<div class="tree-folder-content"'+ (collapsible ? ' ng-if="node.is_expanded"' : '') + ' >' +
                         '<div tree-view-node="{\'data\': node}">' +
                         '</div>' +
                         '</div>' +

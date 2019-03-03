@@ -26,6 +26,8 @@
     var itemBlueprint = function($q, browserClient, $window, $uibModal, helper, cryptoLibrary, storage, managerFileTransfer, managerFileRepository) {
 
         var _default = "website_password";
+        var _shards = [];
+        var _filesrepositories = [];
 
         var registrations = {};
 
@@ -163,9 +165,8 @@
                 { name: "file", field: "input", type: "file", title: "FILE", placeholder: "FILE", required: true, onChange: "onChangeData"},
                 { name: "file_id", field: "input", title: "FILE_ID", placeholder: "FILE_ID", hidden: true},
                 { name: "file_shard_id", field: "input", title: "FILE_SHARD_ID", placeholder: "FILE_SHARD_ID", hidden: true},
-                { name: "file_shards", field: "select", title: "TARGET_SHARD", placeholder: "TARGET_SHARD", values: [], hidden: true},
                 { name: "file_repository_id", field: "input", title: "FILE_REPOSITORY_ID", placeholder: "FILE_REPOSITORY_ID", hidden: true},
-                { name: "file_repositorys", field: "select", title: "TARGET_REPOSITORY", placeholder: "TARGET_REPOSITORY", values: [], hidden: true},
+                { name: "file_destinations", field: "select", title: "TARGET_STORAGE", placeholder: "TARGET_STORAGE", values: [], hidden: true},
                 { name: "file_secret_key", field: "input", title: "FILE_SECRET_KEY", placeholder: "FILE_SECRET_KEY", hidden: true},
                 { name: "file_size", field: "input", title: "FILE_SIZE", placeholder: "FILE_SIZE_BYTES", hidden: true},
                 { name: "file_chunks", field: "input", type: "text", title: "FILE_CHUNKS", placeholder: "FILE_CHUNKS", hidden: true, value: {}},
@@ -187,12 +188,14 @@
 
                 var promises = [];
                 promises.push(_blueprint_file.getShards());
-                promises.push(_blueprint_file.getFileRepositorys());
+                promises.push(_blueprint_file.getFileRepositories());
 
                 $q.all(promises).then(function() {
-                    var shard_count = _blueprint_file.field_index['file_shards'].values.length;
-                    var file_repository_count = _blueprint_file.field_index['file_repositorys'].values.length;
+                    var shard_count = _shards.length;
+                    var file_repository_count = _filesrepositories.length;
                     var all_possibilities_count = shard_count + file_repository_count;
+
+                    _blueprint_file.field_index['file_destinations'].values = _shards.concat(_filesrepositories);
 
                     if (all_possibilities_count === 0) {
                         // no possiblity, the user will get an error anyway when he wants to create the file
@@ -201,12 +204,12 @@
 
                     if (shard_count > 0 && file_repository_count === 0) {
                         // only shards are available, so lets pick the first shard as default shard
-                        _blueprint_file.field_index['file_shards'].value = _blueprint_file.field_index['file_shards'].values[0];
+                        _blueprint_file.field_index['file_destinations'].value = _shards[0];
                     }
 
                     if (shard_count === 0 && file_repository_count > 0) {
-                        // only repositorys are available, so lets pick the first repository as default repository
-                        _blueprint_file.field_index['file_repositorys'].value = _blueprint_file.field_index['file_repositorys'].values[0];
+                        // only repositories are available, so lets pick the first repository as default repository
+                        _blueprint_file.field_index['file_destinations'].value = _filesrepositories[0];
                     }
 
                     if (all_possibilities_count === 1) {
@@ -215,10 +218,7 @@
                     }
 
                     if (shard_count > 0) {
-                        _blueprint_file.field_index['file_shards'].hidden = false;
-                    }
-                    if (file_repository_count > 0) {
-                        _blueprint_file.field_index['file_repositorys'].hidden = false;
+                        _blueprint_file.field_index['file_destinations'].hidden = false;
                     }
                 });
             },
@@ -235,28 +235,30 @@
 
                     for (var i = 0; i < shards.length; i++) {
                         shards[i]['name'] =  shards[i]['shard_title'];
+                        shards[i]['destination_type'] =  'shard';
                     }
 
-                    _blueprint_file.field_index['file_shards'].values = shards;
+                    _shards = shards;
                 });
             },
 
             /**
-             * Loads the possible file repositorys
+             * Loads the possible file repositories
              *
              * @returns {array}
              */
-            getFileRepositorys: function(){
+            getFileRepositories: function(){
 
-                return managerFileRepository.read_file_repositorys().then(function (file_repositorys) {
+                return managerFileRepository.read_file_repositories().then(function (file_repositories) {
 
-                    file_repositorys = managerFileRepository.filter_file_repositorys(file_repositorys, null, true, true);
+                    file_repositories = managerFileRepository.filter_file_repositories(file_repositories, null, null, true, true);
 
-                    for (var i = 0; i < file_repositorys.length; i++) {
-                        file_repositorys[i]['name'] =  file_repositorys[i]['title'];
+                    for (var i = 0; i < file_repositories.length; i++) {
+                        file_repositories[i]['name'] =  file_repositories[i]['title'];
+                        file_repositories[i]['destination_type'] =  'file_repository';
                     }
 
-                    _blueprint_file.field_index['file_repositorys'].values = file_repositorys;
+                    _filesrepositories = file_repositories;
                 });
             },
 
@@ -301,11 +303,13 @@
                 //var file_chunk_size = 8*1024*1024; // in bytes. e.g.   8*1024*1024 Bytes =   8 MB
                 var file_chunk_size = 128*1024*1024; // in bytes. e.g. 128*1024*1024 Bytes = 128 MB
 
-                var is_file_repository_upload = !!selected['field_index']['file_repositorys'].value;
-                var is_file_shard_upload = !!selected['field_index']['file_shards'].value;
+                console.log(selected);
 
-                var has_file_repository = selected['field_index']['file_repositorys'].values.length !== 0;
-                var has_file_shard = selected['field_index']['file_shards'].values.length !== 0;
+                var is_file_repository_upload = selected['field_index']['file_destinations'].value['destination_type'] ===  'file_repository';
+                var is_file_shard_upload = selected['field_index']['file_destinations'].value['destination_type'] ===  'shard';
+
+                var has_file_repository = _filesrepositories.length !== 0;
+                var has_file_shard = _shards.length !== 0;
 
                 if (!has_file_repository && !has_file_shard) {
                     return $q.reject(['NO_FILESERVER_AVAILABLE']);
@@ -319,17 +323,20 @@
                     return $q.reject(['SELECT_EITHER_SHARD_OR_REPOSITORY']);
                 }
 
-                var shard = selected['field_index']['file_shards'].value;
-                var file_repository = selected['field_index']['file_repositorys'].value;
+                var destination = selected['field_index']['file_destinations'].value;
 
                 var file_repository_id = undefined;
-                if (is_file_repository_upload) {
-                    file_repository_id = file_repository['id'];
-                }
-
                 var shard_id = undefined;
+                var file_repository = undefined;
+                var shard = undefined;
+
+                if (is_file_repository_upload) {
+                    file_repository_id = destination['id'];
+                    file_repository = destination;
+                }
                 if (is_file_shard_upload) {
-                    shard_id = shard['shard_id'];
+                    shard_id = destination['id'];
+                    shard = destination;
                 }
 
                 /**
@@ -504,10 +511,10 @@
                             if (selected.fields[i].name === 'file_secret_key') {
                                 selected.fields[i].value = file_secret_key;
                             }
-                            if (selected.fields[i].name === 'file_shard_id' && shard && shard.hasOwnProperty('shard_id')) {
-                                selected.fields[i].value = shard['shard_id'];
+                            if (selected.fields[i].name === 'file_shard_id' && shard && shard.hasOwnProperty('id')) {
+                                selected.fields[i].value = shard['id'];
                             }
-                            if (selected.fields[i].name === 'file_repository_id' && file_repository && file_repository.hasOwnProperty('file_repository')) {
+                            if (selected.fields[i].name === 'file_repository_id' && file_repository && file_repository.hasOwnProperty('id')) {
                                 selected.fields[i].value = file_repository['id'];
                             }
                         }

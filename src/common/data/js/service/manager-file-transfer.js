@@ -337,10 +337,10 @@
                 if (!shards.value[i]['read']) {
                     continue;
                 }
-                if (!shards_dict.hasOwnProperty(shards.value[i]['shard_id'])) {
-                    shards_dict[shards.value[i]['shard_id']] = {
+                if (!shards_dict.hasOwnProperty(shards.value[i]['id'])) {
+                    shards_dict[shards.value[i]['id']] = {
                         'fileserver' : [],
-                        'shard_id' : shards.value[i]['shard_id']
+                        'id' : shards.value[i]['id']
                     };
                 }
 
@@ -348,7 +348,7 @@
                     if (!shards.value[i]['fileserver'][ii]['read']) {
                         continue;
                     }
-                    shards_dict[shards.value[i]['shard_id']]['fileserver'].push(shards.value[i]['fileserver'][ii])
+                    shards_dict[shards.value[i]['id']]['fileserver'].push(shards.value[i]['fileserver'][ii])
                 }
             }
 

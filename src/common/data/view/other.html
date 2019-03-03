@@ -163,21 +163,21 @@
 
                 </uib-tab>
 
-                <uib-tab index="3" heading="{{'FILE_REPOSITORYS' | translate}}" select="open_tab('file-repositorys')">
+                <uib-tab index="3" heading="{{'FILE_REPOSITORIES' | translate}}" select="open_tab('file-repositories')">
                     <div ng-controller="OtherFileRepositoryCtrl">
                         <div class="row">
                             <div class="col-xs-12 col-sm-6">
-                                <h2>{{'FILE_REPOSITORYS' | translate}}:</h2>
-                                {{'HERE_YOU_CAN_MANAGE_ALL_YOUR_FILE_REPOSITORYS' | translate}}
+                                <h2>{{'FILE_REPOSITORIES' | translate}}:</h2>
+                                {{'HERE_YOU_CAN_MANAGE_ALL_YOUR_FILE_REPOSITORIES' | translate}}
                             </div>
-                            <div class="col-xs-12 col-sm-6" ng-if="!file_repositorys_disabled">
+                            <div class="col-xs-12 col-sm-6" ng-if="!file_repositories_disabled">
                                 <button type="submit" class="btn btn-primary btn-primary pull-right" ng-click="create_new_file_repository()"><i class="fa fa-plus"></i> {{'CREATE_NEW_FILE_REPOSITORY' | translate}}</button>
                                 <div class='clearfix'></div>
                             </div>
                         </div>
                         <hr>
 
-                        <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs" ng-if="!file_repositorys_disabled">
+                        <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs" ng-if="!file_repositories_disabled">
                             <thead>
                             <tr>
                                 <th>{{'TITLE' | translate}}</th>
@@ -185,10 +185,11 @@
                                 <th>{{'ACTIVE' | translate}}</th>
                                 <th>{{'EDIT' | translate}}</th>
                                 <th>{{'DELETE' | translate}}</th>
+                                <th>&nbsp;</th>
                             </tr>
                             </thead>
                             <tbody>
-                            <tr ng-repeat="file_repository in file_repositorys">
+                            <tr ng-repeat="file_repository in file_repositories">
                                 <td>{{ file_repository.title }}</td>
                                 <td>{{ file_repository.type }}</td>
                                 <td>
@@ -196,20 +197,28 @@
                                     <i ng-if="!file_repository.active" class="fa fa-ban" aria-hidden="true"><span style="display: none">0</span></i>
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-default btn-sm" ng-click="edit_file_repository(file_repository)" >
+                                    <button type="button" class="btn btn-default btn-sm" ng-click="edit_file_repository(file_repository)" ng-disabled="!file_repository.accepted || !file_repository.read">
                                         <i class="fa fa-wrench" aria-hidden="true"><span style="display: none">0</span></i>
                                     </button>
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-default btn-sm" ng-if="!file_repository.is_default" ng-click="delete_file_repository(file_repository)" >
+                                    <button type="button" class="btn btn-default btn-sm" ng-if="!file_repository.is_default" ng-click="delete_file_repository(file_repository)"  ng-disabled="!file_repository.accepted || !file_repository.write || !file_repository.grant">
                                         <i class="fa fa-trash" aria-hidden="true"><span style="display: none">0</span></i>
+                                    </button>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-default btn-sm" ng-click="accept(file_repository)" ng-if="!file_repository.accepted">
+                                        {{'ACCEPT' | translate}}
+                                    </button>
+                                    <button type="button" class="btn btn-default btn-sm" ng-click="decline(file_repository)" ng-if="file_repository.accepted">
+                                        {{'DECLINE' | translate}}
                                     </button>
                                 </td>
                             </tr>
                             </tbody>
                         </table>
 
-                        <div class="form-group alert alert-info" ng-if="file_repositorys_disabled">
+                        <div class="form-group alert alert-info" ng-if="file_repositories_disabled">
                             <strong>{{'INFO' | translate}}:</strong> <span>{{ 'FILE_STORAGES_HAVE_BEEN_DISABLED' | translate }}</span>
                         </div>
                     </div>

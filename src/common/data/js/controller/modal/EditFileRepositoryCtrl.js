@@ -15,9 +15,24 @@
      * Controller for the "Edit File Repository" modal in Other
      */
     angular.module('psonocli').controller('ModalEditFileRepositoryCtrl', ['$scope', '$q', '$uibModal', '$uibModalInstance',
-        'managerFileRepository', 'managerDatastorePassword', 'helper', 'file_repository',
+        'managerFileRepository', 'managerDatastorePassword', 'helper', 'DTOptionsBuilder', 'DTColumnDefBuilder',
+        'languagePicker', 'file_repository',
         function ($scope, $q, $uibModal, $uibModalInstance,
-                  managerFileRepository, managerDatastorePassword, helper, file_repository) {
+                  managerFileRepository, managerDatastorePassword, helper, DTOptionsBuilder, DTColumnDefBuilder,
+                  languagePicker, file_repository) {
+
+            $scope.dtOptions = DTOptionsBuilder
+                .newOptions()
+                .withLanguageSource('translations/datatables.' + languagePicker.get_active_language_code() + '.json');
+
+            $scope.dtColumnDefs = [
+                DTColumnDefBuilder.newColumnDef(0),
+                DTColumnDefBuilder.newColumnDef(1),
+                DTColumnDefBuilder.newColumnDef(2),
+                DTColumnDefBuilder.newColumnDef(3),
+                DTColumnDefBuilder.newColumnDef(4),
+                DTColumnDefBuilder.newColumnDef(5)
+            ];
 
             $scope.errors = [];
             $scope.file_repository = file_repository;
@@ -34,9 +49,13 @@
             activate();
 
             function activate() {
+                console.log(file_repository);
                 $scope.title = file_repository.title;
                 $scope.selected_type = file_repository.type;
                 $scope.active = file_repository.active;
+                $scope.read = file_repository.read;
+                $scope.write = file_repository.write;
+                $scope.grant = file_repository.grant;
                 if (file_repository.type === 'gcp_cloud_storage') {
                     $scope.storage_config['gcp_cloud_storage_bucket'] = file_repository.gcp_cloud_storage_bucket;
                     $scope.storage_config['gcp_cloud_storage_json_key'] = file_repository.gcp_cloud_storage_json_key
