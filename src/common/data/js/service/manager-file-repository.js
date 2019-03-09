@@ -68,6 +68,91 @@
                 .then(onSuccess, onError);
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.managerFileRepository#create_file_repository_right
+         * @methodOf psonocli.managerFileRepository
+         *
+         * @description
+         * Creates a file repository right for another user
+         *
+         * @param file_repository_id
+         * @param user_id
+         * @param read
+         * @param write
+         * @param grant
+         *
+         * @returns {PromiseLike<T> | Promise<T> | *}
+         */
+        var create_file_repository_right = function(file_repository_id, user_id, read, write, grant) {
+
+            var onSuccess = function (result) {
+                return result.data;
+            };
+            var onError = function () {
+                // pass
+            };
+
+            return apiClient.create_file_repository_right(managerBase.get_token(),
+                managerBase.get_session_secret_key(), file_repository_id, user_id, read, write, grant)
+                .then(onSuccess, onError);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerFileRepository#update_file_repository_right
+         * @methodOf psonocli.managerFileRepository
+         *
+         * @description
+         * Updates a file repository right for another user
+         *
+         * @param file_repository_right_id
+         * @param read
+         * @param write
+         * @param grant
+         *
+         * @returns {PromiseLike<T> | Promise<T> | *}
+         */
+        var update_file_repository_right = function(file_repository_right_id, read, write, grant) {
+
+            var onSuccess = function (result) {
+                return result.data;
+            };
+            var onError = function () {
+                // pass
+            };
+
+            return apiClient.update_file_repository_right(managerBase.get_token(),
+                managerBase.get_session_secret_key(), file_repository_right_id, read, write, grant)
+                .then(onSuccess, onError);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerFileRepository#delete_file_repository_right
+         * @methodOf psonocli.managerFileRepository
+         *
+         * @description
+         * Deletes a file repository right for another user
+         *
+         * @param file_repository_right_id
+         *
+         * @returns {PromiseLike<T> | Promise<T> | *}
+         */
+        var delete_file_repository_right = function(file_repository_right_id) {
+
+            var onSuccess = function (result) {
+                return result.data;
+            };
+            var onError = function () {
+                // pass
+            };
+
+            return apiClient.delete_file_repository_right(managerBase.get_token(),
+                managerBase.get_session_secret_key(), file_repository_right_id)
+                .then(onSuccess, onError);
+        };
+
 
         /**
          * @ngdoc
@@ -300,6 +385,9 @@
 
         return {
             accept: accept,
+            create_file_repository_right: create_file_repository_right,
+            update_file_repository_right : update_file_repository_right ,
+            delete_file_repository_right: delete_file_repository_right,
             get_possible_types: get_possible_types,
             read_file_repository: read_file_repository,
             read_file_repositories: read_file_repositories,

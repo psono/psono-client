@@ -197,7 +197,7 @@
         var filter_datastore_content = function(content) {
             var content_copy  = helper.duplicate_object(content);
 
-            var filter = ['expanded', 'expanded_temporary',  'is_expanded', 'filter', 'hidden', 'share_rights', 'parent_share_id', 'parent_datastore_id'];
+            var filter = ['expanded', 'expanded_temporary',  'is_expanded', 'filter', 'hidden', 'share_rights', 'path', 'parent_share_id', 'parent_datastore_id'];
 
             var filter_content = function (content, filter) {
                 var i, m;

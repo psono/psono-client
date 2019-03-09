@@ -1,4 +1,8 @@
 {
+  "USER_SELECTION": "User selection",
+  "ADD_RIGHT": "Add right",
+  "INFO_NO_READ_RIGHTS_FOR_FILE_REPOSITORY_RIGHT": "You do not have the necessary permissions to view the configuration of this data repository.",
+  "INFO_NO_GRANT_RIGHTS_FOR_FILE_REPOSITORY_RIGHT": "You do not have the necessary permissions to edit other users rights.",
   "CONFIG": "Configuration",
   "RIGHTS": "Access rights",
   "USER_HAS_ALREADY_RIGHTS_FOR_FILE_REPOSITORY": "The user has already other rights for this file repository",

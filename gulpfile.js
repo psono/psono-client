@@ -193,6 +193,7 @@ var build = function(build_path, type) {
             "src/common/data/js/controller/modal/VerifyCtrl.js",
             "src/common/data/js/controller/modal/NewGroupCtrl.js",
             "src/common/data/js/controller/modal/PickUserCtrl.js",
+            "src/common/data/js/controller/modal/SelectUserCtrl.js",
             "src/common/data/js/controller/modal/EditGroupCtrl.js",
             "src/common/data/js/controller/modal/EncryptMessageGPGCtrl.js",
             "src/common/data/js/controller/modal/DecryptMessageGPGCtrl.js",

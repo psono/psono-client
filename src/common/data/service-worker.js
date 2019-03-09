@@ -205,6 +205,7 @@ self.addEventListener('install', function(event) {
                 './js/controller/modal/VerifyCtrl.js',
                 './js/controller/modal/NewGroupCtrl.js',
                 './js/controller/modal/PickUserCtrl.js',
+                './js/controller/modal/SelectUserCtrl.js',
                 './js/controller/modal/EditGroupCtrl.js',
                 './js/controller/modal/EncryptMessageGPGCtrl.js',
                 './js/controller/modal/DecryptMessageGPGCtrl.js',

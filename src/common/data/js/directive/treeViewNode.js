@@ -32,6 +32,9 @@
                     scope.treeView = scope.treeView;
                 }, 5000);
 
+                scope.attrs = attrs;
+                scope.element = element;
+
 
                 scope.offline = offlineCache.is_active();
                 $rootScope.$on('offline_mode_enabled', function() {
@@ -121,37 +124,40 @@
                  * returns a list of the property of the nodes from root to the targeted item. Can be used for
                  * breadcrumbs for example.
                  *
-                 * @param property The property that should be put into the list
-                 * @param item The item up to which you want to generate the list
+                 * @param orig_path The path as array of IDs to the target
                  * @returns {Array.<T>} A list of the nodes property
                  */
-                var getPropertyPath = function (property, item) {
-                    var path = [];
+                var getPropertyPath = function (orig_path){
 
-                    if (typeof item !== 'undefined') {
-                        if (typeof property === 'undefined') {
-                            path.push(item);
-                        } else {
-                            path.push(item[property]);
-                        }
-                    }
+                    var path = orig_path.slice();
 
-                    var nodeScope = scope;
-                    while (nodeScope.node) {
-                        if (typeof property === 'undefined') {
-                            path.push(nodeScope.node);
-                        } else {
-                            path.push(nodeScope.node[property]);
-                        }
-                        while (nodeScope.$parent && nodeScope.$parent.node) {
-                            if (!nodeScope.node.hasOwnProperty('id') || !nodeScope.$parent.node.hasOwnProperty('id') || nodeScope.node.id !== nodeScope.$parent.node.id) {
-                                break;
+                    var getPropertyPathRecursive = function(path, datastore, current_property_path) {
+
+                        var to_search = path[0];
+                        var n, l;
+                        var rest = path.slice(1);
+
+                        if (datastore.hasOwnProperty('folders')) {
+                            for (n = 0, l= datastore.folders.length; n < l; n++) {
+                                if (datastore.folders[n].id === to_search) {
+                                    current_property_path.push(datastore.folders[n]);
+                                    return getPropertyPathRecursive(rest, datastore.folders[n], current_property_path);
+                                }
                             }
-                            nodeScope = nodeScope.$parent;
                         }
-                        nodeScope = nodeScope.$parent;
-                    }
-                    return path.reverse();
+                        if (datastore.hasOwnProperty('items')) {
+                            for (n = 0, l= datastore.items.length; n < l; n++) {
+                                if (datastore.items[n].id === to_search) {
+                                    current_property_path.push(datastore.items[n]);
+                                    return getPropertyPathRecursive(rest, datastore.items[n], current_property_path);
+                                }
+                            }
+                        }
+
+                        return current_property_path;
+                    };
+
+                    return getPropertyPathRecursive(path, scope.treeView.data, [])
                 };
 
                 /**
@@ -167,7 +173,7 @@
                     }
 
                     if (typeof options.onEditNode === "function") {
-                        options.onEditNode(node, getPropertyPath(idProperty));
+                        options.onEditNode(node, node.path);
                     }
                 };
 
@@ -183,11 +189,10 @@
                 scope.additionalButtonItem = function (item, event, my_function, folder) {
 
                     if (typeof options.onAdditionalButtonItem === "function") {
-
                         if (folder) {
-                            options.onAdditionalButtonItem(scope.node, getPropertyPath(idProperty), my_function);
+                            options.onAdditionalButtonItem(item, item.path, my_function);
                         } else {
-                            options.onAdditionalButtonItem(item, getPropertyPath(idProperty, item), my_function);
+                            options.onAdditionalButtonItem(item, item.path, my_function);
                         }
                     }
                 };
@@ -204,7 +209,7 @@
                     }
 
                     if (typeof options.onNewFolder === "function") {
-                        options.onNewFolder(node, getPropertyPath(idProperty));
+                        options.onNewFolder(node, node.path);
                     }
                 };
 
@@ -221,7 +226,7 @@
                     }
 
                     if (typeof options.onNewItem === "function") {
-                        options.onNewItem(node, getPropertyPath(idProperty));
+                        options.onNewItem(node, node.path);
                     }
                 };
 
@@ -250,7 +255,8 @@
                         // User clicked the yes button
 
                         if (typeof options.onDeleteNode === "function") {
-                            options.onDeleteNode(node, getPropertyPath(idProperty));
+                            console.log(node);
+                            options.onDeleteNode(node, node.path);
                         }
 
                     }, function () {
@@ -278,9 +284,8 @@
 
                     modalInstance.result.then(function (breadcrumbs) {
                         // User clicked the prime button
-                        var node_path = getPropertyPath(idProperty, node);
+                        var node_path = node.path.slice();
                         if (typeof options.onMoveItem === "function") {
-                            node_path.pop();
                             options.onMoveNode(node_path, breadcrumbs['id_breadcrumbs']);
                         }
 
@@ -300,7 +305,7 @@
                     if (collapsible) {
                         controller.toggleExpanded(node);
                     }
-                    controller.selectNode(node, getPropertyPath(), getPropertyPath(idProperty));
+                    controller.selectNode(node, getPropertyPath(node.path), node.path);
                 };
 
                 /**
@@ -311,7 +316,7 @@
                  */
                 scope.editItem = function (item, event) {
                     if (typeof options.onEditItem === "function") {
-                        options.onEditItem(item, getPropertyPath(idProperty, item));
+                        options.onEditItem(item, item.path);
                     }
                 };
 
@@ -324,7 +329,7 @@
                 scope.newFolderItem = function (item, event) {
 
                     if (typeof options.onNewFolder === "function") {
-                        options.onNewFolder(scope.node, getPropertyPath(idProperty));
+                        options.onNewFolder(item, item.path);
                     }
                 };
 
@@ -338,7 +343,7 @@
                 scope.newEntryItem = function (item, event) {
 
                     if (typeof options.onNewItem === "function") {
-                        options.onNewItem(scope.node, getPropertyPath(idProperty));
+                        options.onNewItem(item, item.path);
                     }
                 };
 
@@ -368,7 +373,7 @@
                         // User clicked the yes button
 
                         if (typeof options.onDeleteItem === "function") {
-                            options.onDeleteItem(item, getPropertyPath(idProperty, item));
+                            options.onDeleteItem(item, item.path);
                         }
 
                     }, function () {
@@ -397,7 +402,7 @@
 
                     modalInstance.result.then(function (breadcrumbs) {
                         // User clicked the prime button
-                        var item_path = getPropertyPath(idProperty, item);
+                        var item_path = item.path;
                         if (typeof options.onMoveItem === "function") {
                             options.onMoveItem(item_path, breadcrumbs['id_breadcrumbs']);
                         }
@@ -414,7 +419,7 @@
                  * @param event
                  */
                 scope.clickItem = function (item, event) {
-                    controller.clickItem(item, getPropertyPath(idProperty));
+                    controller.clickItem(item, item.path);
                 };
 
 

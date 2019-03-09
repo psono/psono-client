@@ -68,6 +68,8 @@
 
                 parent['expanded'] = true;
 
+                managerDatastorePassword.update_paths_recursive(data_structure, []);
+
                 manager.save_datastore_content(data_structure, [path]);
 
             }, function () {
@@ -209,6 +211,8 @@
                 } else {
                     parent_datastore_id = closest_share['datastore_id'];
                 }
+
+                managerDatastorePassword.update_paths_recursive(datastore, []);
 
 
                 var save_datastore = function() {
@@ -550,9 +554,11 @@
             // find element
             var val2 = managerDatastorePassword.find_in_datastore(item_path, datastore);
 
+            console.log("check1");
             if (val2 === false) {
                 return;
             }
+            console.log("check1 pass");
             var element = val2[0][val2[1]];
 
             // check if we have folders / items array, otherwise create the array
@@ -560,10 +566,12 @@
                 target[type] = [];
             }
 
+            console.log("check2");
             //prevent the move of shares if rights are not sufficient
             if (!canMoveFolder(element, target)) {
                 return;
             }
+            console.log("check2 pass");
 
             // add the element to the other folders / items
             target[type].push(element);
@@ -599,6 +607,9 @@
                     target_path_copy.concat(child_shares[i].path), datastore, 1,
                     child_shares[i].path.length + 1);
             }
+
+            managerDatastorePassword.update_paths_recursive(datastore, []);
+            console.log(datastore);
 
             // and save everything (before we update the links and might lose some necessary rights)
             managerDatastorePassword.save_datastore_content(datastore, [orig_item_path, orig_target_path]);
