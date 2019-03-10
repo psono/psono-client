@@ -2365,7 +2365,7 @@
          */
         var create_file_repository_right = function (token, session_secret_key, file_repository_id, user_id, read, write,
                                                      grant) {
-            var endpoint = '/file-repository/right/';
+            var endpoint = '/file-repository-right/';
             var connection_type = "PUT";
             var data = {
                 file_repository_id: file_repository_id,
@@ -2400,7 +2400,7 @@
          * @returns {promise} promise
          */
         var update_file_repository_right = function (token, session_secret_key, file_repository_right_id, read, write, grant) {
-            var endpoint = '/file-repository/right/';
+            var endpoint = '/file-repository-right/';
             var connection_type = "POST";
             var data = {
                 file_repository_right_id: file_repository_right_id,
@@ -2430,7 +2430,7 @@
          * @returns {promise} Returns a promise which can succeed or fail
          */
         var delete_file_repository_right = function (token, session_secret_key, file_repository_right_id) {
-            var endpoint = '/file-repository/right/';
+            var endpoint = '/file-repository-right/';
             var connection_type = "DELETE";
             var data = {
                 file_repository_right_id: file_repository_right_id
@@ -2459,7 +2459,7 @@
          * @returns {promise} Returns a promise which can succeed or fail
          */
         var accept_file_repository_right = function (token, session_secret_key, file_repository_right_id) {
-            var endpoint = '/file-repository/accept/';
+            var endpoint = '/file-repository-right/accept/';
             var connection_type = "POST";
             var data = {
                 file_repository_right_id: file_repository_right_id
@@ -2487,7 +2487,7 @@
          * @returns {promise} Returns a promise which can succeed or fail
          */
         var decline_file_repository_right = function (token, session_secret_key, file_repository_right_id) {
-            var endpoint = '/file-repository/decline/';
+            var endpoint = '/file-repository-right/decline/';
             var connection_type = "POST";
             var data = {
                 file_repository_right_id: file_repository_right_id

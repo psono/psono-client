@@ -61,12 +61,40 @@
                 if (typeof parent.folders === 'undefined') {
                     parent.folders = [];
                 }
-                parent.folders.push({
+
+                var datastore_object = {
                     id: cryptoLibrary.generate_uuid(),
                     name: name
-                });
+                };
+
+                parent.folders.push(datastore_object);
 
                 parent['expanded'] = true;
+
+                var closest_share = managerShare.get_closest_parent_share(path.slice(), data_structure,
+                    data_structure, 0);
+
+                if (closest_share.hasOwnProperty('share_id')) {
+                    datastore_object['parent_share_id'] = closest_share['share_id'];
+                } else {
+                    datastore_object['parent_datastore_id'] = closest_share['datastore_id'];
+                }
+
+                if (closest_share.hasOwnProperty('datastore_id')) {
+                    datastore_object['share_rights'] = {
+                        "read": true,
+                        "write": true,
+                        "grant": true,
+                        "delete": true
+                    };
+                } else {
+                    datastore_object['share_rights'] = {
+                        "read": closest_share['share_rights']['read'],
+                        "write": closest_share['share_rights']['write'],
+                        "grant": closest_share['share_rights']['grant'] && closest_share['share_rights']['write'],
+                        "delete": closest_share['share_rights']['write']
+                    };
+                }
 
                 managerDatastorePassword.update_paths_recursive(data_structure, []);
 
@@ -208,11 +236,27 @@
 
                 if (closest_share.hasOwnProperty('share_id')) {
                     parent_share_id = closest_share['share_id'];
+                    datastore_object['parent_share_id'] = closest_share['share_id'];
                 } else {
                     parent_datastore_id = closest_share['datastore_id'];
+                    datastore_object['parent_datastore_id'] = closest_share['datastore_id'];
                 }
 
-                managerDatastorePassword.update_paths_recursive(datastore, []);
+                if (closest_share.hasOwnProperty('datastore_id')) {
+                    datastore_object['share_rights'] = {
+                        "read": true,
+                        "write": true,
+                        "grant": true,
+                        "delete": true
+                    };
+                } else {
+                    datastore_object['share_rights'] = {
+                        "read": closest_share['share_rights']['read'],
+                        "write": closest_share['share_rights']['write'],
+                        "grant": closest_share['share_rights']['grant'] && closest_share['share_rights']['write'],
+                        "delete": closest_share['share_rights']['write']
+                    };
+                }
 
 
                 var save_datastore = function() {
@@ -220,6 +264,8 @@
                     parent.items.push(datastore_object);
 
                     parent['expanded'] = true;
+
+                    managerDatastorePassword.update_paths_recursive(datastore, []);
 
                     managerDatastorePassword.save_datastore_content(datastore, [path]);
 
@@ -311,14 +357,21 @@
                         managerDatastorePassword.save_datastore_content(datastore, [path]);
                     };
 
-                    managerSecret.write_secret(
-                        node.secret_id,
-                        node.secret_key,
-                        secret_object,
-                        content['callback_data']['callback_url'],
-                        content['callback_data']['callback_user'],
-                        content['callback_data']['callback_pass'])
-                        .then(onSuccess, onError);
+                    var bp = itemBlueprint.get_blueprint(node.type);
+
+                    if (bp.hasOwnProperty('preUpdate')) {
+                        bp.preUpdate(node, secret_object)
+                            .then(onSuccess, onError);
+                    } else {
+                        managerSecret.write_secret(
+                            node.secret_id,
+                            node.secret_key,
+                            secret_object,
+                            content['callback_data']['callback_url'],
+                            content['callback_data']['callback_user'],
+                            content['callback_data']['callback_pass'])
+                            .then(onSuccess, onError);
+                    }
 
                 }
 
@@ -554,11 +607,9 @@
             // find element
             var val2 = managerDatastorePassword.find_in_datastore(item_path, datastore);
 
-            console.log("check1");
             if (val2 === false) {
                 return;
             }
-            console.log("check1 pass");
             var element = val2[0][val2[1]];
 
             // check if we have folders / items array, otherwise create the array
@@ -566,12 +617,10 @@
                 target[type] = [];
             }
 
-            console.log("check2");
             //prevent the move of shares if rights are not sufficient
             if (!canMoveFolder(element, target)) {
                 return;
             }
-            console.log("check2 pass");
 
             // add the element to the other folders / items
             target[type].push(element);
@@ -609,7 +658,6 @@
             }
 
             managerDatastorePassword.update_paths_recursive(datastore, []);
-            console.log(datastore);
 
             // and save everything (before we update the links and might lose some necessary rights)
             managerDatastorePassword.save_datastore_content(datastore, [orig_item_path, orig_target_path]);

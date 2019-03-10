@@ -252,7 +252,7 @@
                         //pass
                     };
 
-                    managerFileRepository.delete_file_repository(file_repository.id)
+                    managerFileRepository.decline(file_repository.file_repository_right_id)
                         .then(onSuccess, onError);
 
 

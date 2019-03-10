@@ -33,7 +33,8 @@
             var onSuccess = function (result) {
                 return result.data;
             };
-            var onError = function () {
+            var onError = function (data) {
+                console.log(data);
                 // pass
             };
 
@@ -183,6 +184,12 @@
         var read_file_repository = function(file_repository_id) {
 
             var onSuccess = function (result) {
+                var storage_object = storage.find_key('config', 'user_id');
+                if (storage_object && result.data.hasOwnProperty('file_repository_rights')) {
+                    for (var i = 0; i < result.data['file_repository_rights'].length; i++) {
+                        result.data['file_repository_rights'][i]['own_user'] = result.data['file_repository_rights'][i]['user_id'] === storage_object.value;
+                    }
+                }
                 return result.data;
             };
             var onError = function () {
@@ -385,8 +392,9 @@
 
         return {
             accept: accept,
+            decline: decline,
             create_file_repository_right: create_file_repository_right,
-            update_file_repository_right : update_file_repository_right ,
+            update_file_repository_right : update_file_repository_right,
             delete_file_repository_right: delete_file_repository_right,
             get_possible_types: get_possible_types,
             read_file_repository: read_file_repository,

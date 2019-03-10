@@ -162,7 +162,7 @@
             search: ['file_title'],
             fields: [
                 { name: "file_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true},
-                { name: "file", field: "input", type: "file", title: "FILE", placeholder: "FILE", required: true, onChange: "onChangeData"},
+                { name: "file", field: "input", type: "file", title: "FILE", placeholder: "FILE", required: true, onChange: "onChangeData", hidden_edit: true},
                 { name: "file_id", field: "input", title: "FILE_ID", placeholder: "FILE_ID", hidden: true},
                 { name: "file_shard_id", field: "input", title: "FILE_SHARD_ID", placeholder: "FILE_SHARD_ID", hidden: true},
                 { name: "file_repository_id", field: "input", title: "FILE_REPOSITORY_ID", placeholder: "FILE_REPOSITORY_ID", hidden: true},
@@ -173,6 +173,7 @@
             ],
             hide_history: true,
             hide_callback: true,
+            hide_offline: true,
             non_secret_fields: ['file_title', 'file_id', 'file_shard_id', 'file_repository_id', 'file_secret_key', 'file_size', 'file_chunks'],
 
             /**
@@ -297,13 +298,11 @@
              * @param parent
              * @param path
              */
-            preSave: function(selected, parent, path){
+            preCreate: function(selected, parent, path){
 
                 var file_secret_key = cryptoLibrary.generate_secret_key();
                 //var file_chunk_size = 8*1024*1024; // in bytes. e.g.   8*1024*1024 Bytes =   8 MB
                 var file_chunk_size = 128*1024*1024; // in bytes. e.g. 128*1024*1024 Bytes = 128 MB
-
-                console.log(selected);
 
                 var is_file_repository_upload = selected['field_index']['file_destinations'].value['destination_type'] ===  'file_repository';
                 var is_file_shard_upload = selected['field_index']['file_destinations'].value['destination_type'] ===  'shard';
@@ -548,6 +547,21 @@
 
                 return managerFileTransfer.create_file(shard_id, file_repository_id, size + chunk_count * 40, chunk_count, selected['link_id'], parent_datastore_id, parent_share_id)
                     .then(onSuccess, onError);
+            },
+
+
+            /**
+             * triggered before updating it.
+             *
+             * @param node
+             * @param secret_object
+             */
+            preUpdate: function(node, secret_object){
+                var keys = Object.keys(secret_object);
+                for (var i = 0; i < keys.length; i++) {
+                    node[keys[i]] = secret_object[keys[i]];
+                }
+                return $q.resolve()
             }
         };
 

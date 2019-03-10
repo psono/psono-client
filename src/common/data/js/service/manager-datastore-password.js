@@ -1733,6 +1733,7 @@
             get_inaccessible_shares: get_inaccessible_shares,
             get_all_own_pgp_keys: get_all_own_pgp_keys,
             update_paths_recursive: update_paths_recursive,
+            update_share_rights_of_folders_and_items: update_share_rights_of_folders_and_items
         };
     };
 
