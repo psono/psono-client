@@ -13,8 +13,19 @@
      * @description
      * Controller for the "Setup Google Authenticator" modal
      */
-    angular.module('psonocli').controller('ModalConfigureGoogleAuthenticatorCtrl', ['$q', '$scope', '$uibModalInstance', 'managerDatastoreUser', 'helper',
-        function ($q, $scope, $uibModalInstance, managerDatastoreUser, helper) {
+    angular.module('psonocli').controller('ModalConfigureGoogleAuthenticatorCtrl', ['$q', '$scope', '$uibModalInstance',
+        'managerDatastoreUser', 'helper', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'languagePicker',
+        function ($q, $scope, $uibModalInstance,
+                  managerDatastoreUser, helper, DTOptionsBuilder, DTColumnDefBuilder, languagePicker) {
+
+            $scope.dtOptions = DTOptionsBuilder
+                .newOptions()
+                .withLanguageSource('translations/datatables.' + languagePicker.get_active_language_code() + '.json');
+
+            $scope.dtColumnDefs = [
+                DTColumnDefBuilder.newColumnDef(0),
+                DTColumnDefBuilder.newColumnDef(1)
+            ];
 
             $scope.create_ga = create_ga;
             $scope.activate_ga = activate_ga;
@@ -56,7 +67,7 @@
                 $scope.errors = [];
 
                 if (typeof(new_ga.title) === 'undefined' || new_ga.title === '') {
-                    $scope.errors = ['Title is required'];
+                    $scope.errors = ['TITLE_IS_REQUIRED'];
                     return $q.resolve();
                 }
 
@@ -99,7 +110,7 @@
                 $scope.errors = [];
 
                 if (typeof(new_ga.code) === 'undefined' || new_ga.code === '') {
-                    $scope.errors = ['Code is required'];
+                    $scope.errors = ['CODE_IS_REQUIRED'];
                     return $q.resolve();
                 }
 
@@ -108,7 +119,7 @@
                         $scope.errors = [];
                         $uibModalInstance.dismiss('close');
                     } else {
-                        $scope.errors = ['Code incorrect. Please try again.'];
+                        $scope.errors = ['CODE_INCORRECT'];
                     }
                 };
 

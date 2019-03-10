@@ -12,6 +12,7 @@
      * @requires psonocli.managerSecret
      * @requires psonocli.managerShareLink
      * @requires psonocli.managerSecretLink
+     * @requires psonocli.managerFileLink
      * @requires psonocli.itemBlueprint
      * @requires psonocli.cryptoLibrary
      *
@@ -20,7 +21,7 @@
      */
 
     var managerWidget = function ($rootScope, $window, $uibModal, managerDatastorePassword, managerShare, managerSecret, managerShareLink,
-                                     managerSecretLink, itemBlueprint, cryptoLibrary) {
+                                  managerSecretLink, managerFileLink, itemBlueprint, cryptoLibrary) {
 
 
         /**
@@ -39,7 +40,7 @@
         var open_new_folder = function (parent, path, data_structure, manager) {
 
             var modalInstance = $uibModal.open({
-                templateUrl: 'view/modal-new-folder.html',
+                templateUrl: 'view/modal/new-folder.html',
                 controller: 'ModalNewFolderCtrl',
                 backdrop: 'static',
                 resolve: {
@@ -60,12 +61,42 @@
                 if (typeof parent.folders === 'undefined') {
                     parent.folders = [];
                 }
-                parent.folders.push({
+
+                var datastore_object = {
                     id: cryptoLibrary.generate_uuid(),
                     name: name
-                });
+                };
+
+                parent.folders.push(datastore_object);
 
                 parent['expanded'] = true;
+
+                var closest_share = managerShare.get_closest_parent_share(path.slice(), data_structure,
+                    data_structure, 0);
+
+                if (closest_share.hasOwnProperty('share_id')) {
+                    datastore_object['parent_share_id'] = closest_share['share_id'];
+                } else {
+                    datastore_object['parent_datastore_id'] = closest_share['datastore_id'];
+                }
+
+                if (closest_share.hasOwnProperty('datastore_id')) {
+                    datastore_object['share_rights'] = {
+                        "read": true,
+                        "write": true,
+                        "grant": true,
+                        "delete": true
+                    };
+                } else {
+                    datastore_object['share_rights'] = {
+                        "read": closest_share['share_rights']['read'],
+                        "write": closest_share['share_rights']['write'],
+                        "grant": closest_share['share_rights']['grant'] && closest_share['share_rights']['write'],
+                        "delete": closest_share['share_rights']['write']
+                    };
+                }
+
+                managerDatastorePassword.update_paths_recursive(data_structure, []);
 
                 manager.save_datastore_content(data_structure, [path]);
 
@@ -91,7 +122,7 @@
         var open_edit_folder = function (node, path, data_structure, manager, size) {
 
             var modalInstance = $uibModal.open({
-                templateUrl: 'view/modal-edit-folder.html',
+                templateUrl: 'view/modal/edit-folder.html',
                 controller: 'ModalEditFolderCtrl',
                 backdrop: 'static',
                 size: size,
@@ -129,8 +160,13 @@
          * @param {string} size The size of the modal
          */
         var open_new_item = function (datastore, parent, path, size) {
+
+            if (typeof parent === 'undefined') {
+                parent = datastore;
+            }
+
             var modalInstance = $uibModal.open({
-                templateUrl: 'view/modal-new-entry.html',
+                templateUrl: 'view/modal/new-entry.html',
                 controller: 'ModalDatastoreNewEntryCtrl',
                 backdrop: 'static',
                 size: size,
@@ -146,17 +182,16 @@
 
             modalInstance.result.then(function (content) {
 
-                if (typeof parent === 'undefined') {
-                    parent = datastore;
+                if (typeof content === 'undefined') {
+                    return;
                 }
 
                 if (typeof parent.items === 'undefined') {
                     parent.items = [];
                 }
-                var link_id = cryptoLibrary.generate_uuid();
 
                 var datastore_object = {
-                    id: link_id,
+                    id: content['link_id'],
                     type: content.id
                 };
                 var secret_object = {};
@@ -181,6 +216,12 @@
                         && content.autosubmit_field === content.fields[i].name) {
                         datastore_object.autosubmit = content.fields[i].value;
                     }
+
+                    if (content.hasOwnProperty("non_secret_fields")
+                        && content.non_secret_fields.indexOf(content.fields[i].name) !== -1) {
+                        datastore_object[content.fields[i].name] = content.fields[i].value;
+                    }
+
                     secret_object[content.fields[i].name] = content.fields[i].value;
                 }
 
@@ -195,17 +236,36 @@
 
                 if (closest_share.hasOwnProperty('share_id')) {
                     parent_share_id = closest_share['share_id'];
+                    datastore_object['parent_share_id'] = closest_share['share_id'];
                 } else {
                     parent_datastore_id = closest_share['datastore_id'];
+                    datastore_object['parent_datastore_id'] = closest_share['datastore_id'];
                 }
 
-                var onSuccess = function(e) {
-                    datastore_object['secret_id'] = e.secret_id;
-                    datastore_object['secret_key'] = e.secret_key;
+                if (closest_share.hasOwnProperty('datastore_id')) {
+                    datastore_object['share_rights'] = {
+                        "read": true,
+                        "write": true,
+                        "grant": true,
+                        "delete": true
+                    };
+                } else {
+                    datastore_object['share_rights'] = {
+                        "read": closest_share['share_rights']['read'],
+                        "write": closest_share['share_rights']['write'],
+                        "grant": closest_share['share_rights']['grant'] && closest_share['share_rights']['write'],
+                        "delete": closest_share['share_rights']['write']
+                    };
+                }
+
+
+                var save_datastore = function() {
 
                     parent.items.push(datastore_object);
 
                     parent['expanded'] = true;
+
+                    managerDatastorePassword.update_paths_recursive(datastore, []);
 
                     managerDatastorePassword.save_datastore_content(datastore, [path]);
 
@@ -216,19 +276,29 @@
                         }
                         content.fields[i].value = '';
                     }
+                };
+
+                var onSuccess = function(e) {
+                    datastore_object['secret_id'] = e.secret_id;
+                    datastore_object['secret_key'] = e.secret_key;
+                    save_datastore();
 
                 };
 
-                managerSecret.create_secret(
-                    secret_object,
-                    link_id,
-                    parent_datastore_id,
-                    parent_share_id,
-                    content['callback_data']['callback_url'],
-                    content['callback_data']['callback_user'],
-                    content['callback_data']['callback_pass']
-                )
-                    .then(onSuccess, onError);
+                if (content.skipSecretCreate) {
+                    save_datastore();
+                } else {
+                    managerSecret.create_secret(
+                        secret_object,
+                        content['link_id'],
+                        parent_datastore_id,
+                        parent_share_id,
+                        content['callback_data']['callback_url'],
+                        content['callback_data']['callback_user'],
+                        content['callback_data']['callback_pass']
+                    )
+                        .then(onSuccess, onError);
+                }
 
             }, function () {
                 // cancel triggered
@@ -287,14 +357,21 @@
                         managerDatastorePassword.save_datastore_content(datastore, [path]);
                     };
 
-                    managerSecret.write_secret(
-                        node.secret_id,
-                        node.secret_key,
-                        secret_object,
-                        content['callback_data']['callback_url'],
-                        content['callback_data']['callback_user'],
-                        content['callback_data']['callback_pass'])
-                        .then(onSuccess, onError);
+                    var bp = itemBlueprint.get_blueprint(node.type);
+
+                    if (bp.hasOwnProperty('preUpdate')) {
+                        bp.preUpdate(node, secret_object)
+                            .then(onSuccess, onError);
+                    } else {
+                        managerSecret.write_secret(
+                            node.secret_id,
+                            node.secret_key,
+                            secret_object,
+                            content['callback_data']['callback_url'],
+                            content['callback_data']['callback_user'],
+                            content['callback_data']['callback_pass'])
+                            .then(onSuccess, onError);
+                    }
 
                 }
 
@@ -308,7 +385,7 @@
                     });
                 } else {
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal-edit-entry.html',
+                        templateUrl: 'view/modal/edit-entry.html',
                         controller: 'ModalEditEntryCtrl',
                         backdrop: 'static',
                         size: size,
@@ -331,8 +408,13 @@
                 }
             };
 
-            managerSecret.read_secret(node.secret_id, node.secret_key)
-                .then(onSuccess, onError);
+            if (typeof(node.secret_id) === 'undefined') {
+                onSuccess(node)
+            } else {
+                managerSecret.read_secret(node.secret_id, node.secret_key)
+                    .then(onSuccess, onError);
+            }
+
         };
 
         /**
@@ -565,6 +647,7 @@
                 managerDatastorePassword.get_all_child_shares([], datastore, child_shares, 1, element);
             }
             var secret_links = managerDatastorePassword.get_all_secret_links(element);
+            var file_links = managerDatastorePassword.get_all_file_links(element);
 
             // lets update for every child_share the share_index
             for (i = child_shares.length - 1; i >= 0; i--) {
@@ -573,6 +656,8 @@
                     target_path_copy.concat(child_shares[i].path), datastore, 1,
                     child_shares[i].path.length + 1);
             }
+
+            managerDatastorePassword.update_paths_recursive(datastore, []);
 
             // and save everything (before we update the links and might lose some necessary rights)
             managerDatastorePassword.save_datastore_content(datastore, [orig_item_path, orig_target_path]);
@@ -598,7 +683,15 @@
                 );
                 managerSecretLink.on_secret_moved(secret_links[i].id, closest_parent);
             }
-            
+
+            // adjust the links for every secret link (and therefore update the rights)
+            for (i = file_links.length - 1; i >= 0; i--) {
+                closest_parent = managerShare.get_closest_parent_share(
+                    target_path_copy2.concat(file_links[i].path), datastore, datastore, 1
+                );
+                managerFileLink.on_file_moved(file_links[i].id, closest_parent);
+            }
+
             // update the parents inside of the new target
             closest_parent = managerShare.get_closest_parent_share(
                 target_path_copy2, datastore, datastore, 0
@@ -660,6 +753,7 @@
             }
 
             var secret_links = managerDatastorePassword.get_all_secret_links(element);
+            var file_links = managerDatastorePassword.get_all_file_links(element);
 
             // lets update for every child_share the share_index
             for (i = child_shares.length - 1; i >= 0; i--) {
@@ -681,6 +775,10 @@
             // adjust the links for every secret link (and therefore update the rights)
             for (i = secret_links.length - 1; i >= 0; i--) {
                 managerSecretLink.on_secret_deleted(secret_links[i].id);
+            }
+            // adjust the links for every secret link (and therefore update the rights)
+            for (i = file_links.length - 1; i >= 0; i--) {
+                managerFileLink.on_file_deleted(file_links[i].id);
             }
         };
 
@@ -830,6 +928,6 @@
 
     var app = angular.module('psonocli');
     app.factory("managerWidget", ['$rootScope', '$window', '$uibModal', 'managerDatastorePassword', 'managerShare', 'managerSecret',
-        'managerShareLink', 'managerSecretLink', 'itemBlueprint', 'cryptoLibrary', managerWidget]);
+        'managerShareLink', 'managerSecretLink', 'managerFileLink', 'itemBlueprint', 'cryptoLibrary', managerWidget]);
 
 }(angular));

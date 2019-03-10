@@ -130,6 +130,7 @@
                 'share_index',
                 'parent_share_id',
                 'share_id',
+                'path',
                 'share_rights',
                 'share_secret_key'
             ];
@@ -142,6 +143,7 @@
                 'secret_id',
                 'secret_key',
                 'share_id',
+                'path',
                 'share_rights',
                 'share_secret_key'
             ];

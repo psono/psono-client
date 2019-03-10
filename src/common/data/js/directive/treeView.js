@@ -87,9 +87,10 @@
                  * @param node
                  */
                 self.toggleExpanded = function (node) {
-                    var new_expand_status = ! (node.expanded || node.expanded_temporary);
+                    var new_expand_status = ! (node.is_expanded);
                     node.expanded = new_expand_status;
                     node.expanded_temporary = new_expand_status;
+                    node.is_expanded = ! node.is_expanded;
                 };
 
                 /**

@@ -19,8 +19,8 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastore#read_api_key
-         * @methodOf psonocli.managerDatastore
+         * @name psonocli.managerAPIKeys#read_api_key
+         * @methodOf psonocli.managerAPIKeys
          *
          * @description
          * Returns one api keys
@@ -49,8 +49,8 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastore#read_api_keys
-         * @methodOf psonocli.managerDatastore
+         * @name psonocli.managerAPIKeys#read_api_keys
+         * @methodOf psonocli.managerAPIKeys
          *
          * @description
          * Returns all api keys
@@ -73,8 +73,8 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastore#read_api_key_secrets
-         * @methodOf psonocli.managerDatastore
+         * @name psonocli.managerAPIKeys#read_api_key_secrets
+         * @methodOf psonocli.managerAPIKeys
          *
          * @description
          * Returns all api keys
@@ -100,8 +100,8 @@
         };
         /**
          * @ngdoc
-         * @name psonocli.managerDatastore#add_secret_to_api_key
-         * @methodOf psonocli.managerDatastore
+         * @name psonocli.managerAPIKeys#add_secret_to_api_key
+         * @methodOf psonocli.managerAPIKeys
          *
          * @description
          * Adds one secret to an api key
@@ -131,8 +131,8 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastore#add_secrets_to_api_key
-         * @methodOf psonocli.managerDatastore
+         * @name psonocli.managerAPIKeys#add_secrets_to_api_key
+         * @methodOf psonocli.managerAPIKeys
          *
          * @description
          * Adds multiple secrets to an api key
@@ -149,7 +149,7 @@
             var secret_promise_array = [];
 
             for (var i = 0; i < secrets.length; i++) {
-                var promise =  add_secret_to_api_key(api_key_id, api_key_secret_key, secrets[i])
+                var promise = add_secret_to_api_key(api_key_id, api_key_secret_key, secrets[i]);
                 secret_promise_array.push($q.when(promise));
             }
 
@@ -162,8 +162,8 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastore#create_api_key
-         * @methodOf psonocli.managerDatastore
+         * @name psonocli.managerAPIKeys#create_api_key
+         * @methodOf psonocli.managerAPIKeys
          *
          * @description
          * Creates an API Key
@@ -222,8 +222,8 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastore#update_api_key
-         * @methodOf psonocli.managerDatastore
+         * @name psonocli.managerAPIKeys#update_api_key
+         * @methodOf psonocli.managerAPIKeys
          *
          * @description
          * Updates an API Key
@@ -249,8 +249,8 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastore#delete_api_key
-         * @methodOf psonocli.managerDatastore
+         * @name psonocli.managerAPIKeys#delete_api_key
+         * @methodOf psonocli.managerAPIKeys
          *
          * @description
          * Deletes an API Key
@@ -279,8 +279,8 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastore#delete_api_key_secret
-         * @methodOf psonocli.managerDatastore
+         * @name psonocli.managerAPIKeys#delete_api_key_secret
+         * @methodOf psonocli.managerAPIKeys
          *
          * @description
          * Deletes an API Key secret
@@ -366,3 +366,4 @@
     app.factory("managerAPIKeys", ['$q', 'managerBase', 'apiClient', 'storage', 'cryptoLibrary', managerAPIKeys]);
 
 }(angular));
+

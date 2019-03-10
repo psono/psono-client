@@ -64,7 +64,7 @@
                     write_pgp()
                 } else {
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal-unlock-offline-cache.html',
+                        templateUrl: 'view/modal/unlock-offline-cache.html',
                         controller: 'ModalUnlockOfflineCacheCtrl',
                         backdrop: 'static',
                         resolve: {
@@ -348,7 +348,7 @@
             function open_address_book(email) {
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-add-gpg-receiver.html',
+                    templateUrl: 'view/modal/add-gpg-receiver.html',
                     controller: 'ModalAddGPGReceiverCtrl',
                     resolve: {
                         email: function() {
@@ -398,7 +398,7 @@
             function edit_gpg_user(user) {
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-edit-gpg-user.html',
+                    templateUrl: 'view/modal/edit-gpg-user.html',
                     controller: 'ModalEditGPGUserCtrl',
                     resolve: {
                         user: function() {

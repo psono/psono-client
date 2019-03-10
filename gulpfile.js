@@ -68,8 +68,7 @@ var build = function(build_path, type) {
         gulp.src([
             'src/common/data/css/contentscript.css',
             'src/common/data/css/datastore.css',
-            'src/common/data/css/main.css',
-            'src/common/data/css/open-secret.css'
+            'src/common/data/css/main.css'
         ])
             .pipe(cleanCSS({compatibility: 'ie8'}))
             .pipe(gulp.dest(path.join(build_path, 'css')));
@@ -114,6 +113,7 @@ var build = function(build_path, type) {
             "src/common/data/js/lib/chart.min.js",
             "src/common/data/js/lib/jquery.min.js",
             "src/common/data/js/lib/client.min.js",
+            "src/common/data/js/lib/FileSaver.min.js",
             "src/common/data/js/lib/datatables.min.js",
             "src/common/data/js/lib/snap.min.js",
             "src/common/data/js/lib/jquery-ui.min.js",
@@ -148,6 +148,7 @@ var build = function(build_path, type) {
             "src/common/data/js/module/ng-tree.js",
 
             "src/common/data/js/main.js",
+            "src/common/data/js/crypto-worker.js",
             "src/webclient/data/js/service-worker-load.js",
 
             "src/common/data/js/directive/fileReader.js",
@@ -177,12 +178,14 @@ var build = function(build_path, type) {
             "src/common/data/js/controller/modal/ConfigureYubiKeyOTPCtrl.js",
             "src/common/data/js/controller/modal/CreateDatastoreCtrl.js",
             "src/common/data/js/controller/modal/CreateAPIKeyCtrl.js",
+            "src/common/data/js/controller/modal/CreateFileRepositoryCtrl.js",
             "src/common/data/js/controller/modal/EditAPIKeyCtrl.js",
             "src/common/data/js/controller/modal/EditDatastoreCtrl.js",
             "src/common/data/js/controller/modal/DeleteDatastoreCtrl.js",
             "src/common/data/js/controller/modal/DatastoreNewEntryCtrl.js",
             "src/common/data/js/controller/modal/DisplayShareRightsCtrl.js",
             "src/common/data/js/controller/modal/EditEntryCtrl.js",
+            "src/common/data/js/controller/modal/EditFileRepositoryCtrl.js",
             "src/common/data/js/controller/modal/EditFolderCtrl.js",
             "src/common/data/js/controller/modal/GoOfflineCtrl.js",
             "src/common/data/js/controller/modal/HistoryCtrl.js",
@@ -190,6 +193,7 @@ var build = function(build_path, type) {
             "src/common/data/js/controller/modal/VerifyCtrl.js",
             "src/common/data/js/controller/modal/NewGroupCtrl.js",
             "src/common/data/js/controller/modal/PickUserCtrl.js",
+            "src/common/data/js/controller/modal/SelectUserCtrl.js",
             "src/common/data/js/controller/modal/EditGroupCtrl.js",
             "src/common/data/js/controller/modal/EncryptMessageGPGCtrl.js",
             "src/common/data/js/controller/modal/DecryptMessageGPGCtrl.js",
@@ -205,13 +209,15 @@ var build = function(build_path, type) {
             "src/common/data/js/controller/modal/DeleteAccountCtrl.js",
             "src/common/data/js/controller/EditEntryBigCtrl.js",
             "src/common/data/js/controller/OpenSecretCtrl.js",
+            "src/common/data/js/controller/DownloadFileCtrl.js",
             "src/common/data/js/controller/OtherCtrl.js",
-            "src/common/data/js/controller/SessionsCtrl.js",
-            "src/common/data/js/controller/KnownHostsCtrl.js",
+            "src/common/data/js/controller/OtherSessionsCtrl.js",
+            "src/common/data/js/controller/OtherKnownHostsCtrl.js",
             "src/common/data/js/controller/OtherDatastoreCtrl.js",
             "src/common/data/js/controller/OtherAPIKeyCtrl.js",
-            "src/common/data/js/controller/ExportCtrl.js",
-            "src/common/data/js/controller/ImportCtrl.js",
+            "src/common/data/js/controller/OtherFileRepositoryCtrl.js",
+            "src/common/data/js/controller/OtherExportCtrl.js",
+            "src/common/data/js/controller/OtherImportCtrl.js",
             "src/common/data/js/controller/PanelCtrl.js",
             "src/common/data/js/controller/RegisterCtrl.js",
             "src/common/data/js/controller/SettingsCtrl.js",
@@ -222,6 +228,8 @@ var build = function(build_path, type) {
             "src/common/data/js/controller/Enforce2FaCtrl.js",
 
             "src/common/data/js/service/api-client.js",
+            "src/common/data/js/service/api-gcp.js",
+            "src/common/data/js/service/api-fileserver.js",
             "src/common/data/js/service/api-pwnedpasswords.js",
             "src/common/data/js/service/helper.js",
             "src/common/data/js/service/device.js",
@@ -244,6 +252,9 @@ var build = function(build_path, type) {
             "src/common/data/js/service/manager-secret-link.js",
             "src/common/data/js/service/manager-share-link.js",
             "src/common/data/js/service/manager-export.js",
+            "src/common/data/js/service/manager-file-transfer.js",
+            "src/common/data/js/service/manager-file-link.js",
+            "src/common/data/js/service/manager-file-repository.js",
             "src/common/data/js/service/manager-hosts.js",
             "src/common/data/js/service/manager-import.js",
             "src/common/data/js/service/manager-security-report.js",

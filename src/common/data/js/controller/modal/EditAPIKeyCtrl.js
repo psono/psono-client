@@ -12,7 +12,7 @@
      * @requires psonocli.helper
      *
      * @description
-     * Controller for the "Create Datastore" modal in Other
+     * Controller for the "Edit API Key" modal in Other
      */
     angular.module('psonocli').controller('ModalEditAPIKeyCtrl', ['$scope', '$q', '$uibModal', '$uibModalInstance',
         'managerAPIKeys', 'managerDatastorePassword', 'helper', 'api_key',
@@ -94,7 +94,7 @@
             function add_new_secret() {
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-choose-secrets.html',
+                    templateUrl: 'view/modal/choose-secrets.html',
                     controller: 'ModalChooseSecretsCtrl',
                     resolve: {
                         title: function () {

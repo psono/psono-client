@@ -47,7 +47,7 @@
                 managerHistory.read_history(history_item.id, node.secret_key).then(function(data) {
 
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal-show-entry.html',
+                        templateUrl: 'view/modal/show-entry.html',
                         controller: 'ModalEditEntryCtrl',
                         backdrop: 'static',
                         resolve: {

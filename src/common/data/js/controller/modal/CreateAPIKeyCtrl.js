@@ -74,7 +74,7 @@
 
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-choose-secrets.html',
+                    templateUrl: 'view/modal/choose-secrets.html',
                     controller: 'ModalChooseSecretsCtrl',
                     resolve: {
                         title: function () {

@@ -64,7 +64,7 @@
                 'ko': {'code': 'ko', 'lng_code': 'LANG_KO'},
                 'nl': {'code': 'nl', 'lng_code': 'LANG_NL', 'active': true},
                 'pl': {'code': 'pl', 'lng_code': 'LANG_PL'},
-                'ru': {'code': 'ru', 'lng_code': 'LANG_RU'},
+                'ru': {'code': 'ru', 'lng_code': 'LANG_RU', 'active': true},
                 'vi': {'code': 'vi', 'lng_code': 'LANG_VI'},
                 'zh-cn': {'code': 'zh-cn', 'lng_code': 'LANG_ZH_CN'}
             };
@@ -126,6 +126,7 @@
                         templateUrl: 'view/index-gpg-encrypt.html'
                     })
                     .when('/secret/:type/:secret_id', {})
+                    .when('/file/download/:id', {})
                     .when('/activation-code/:activation_code', {})
                     .when('/datastore/search/:default_search', {
                         templateUrl: 'view/datastore.html',
@@ -211,8 +212,9 @@
                 return parts.join(' ');
             };
         }])
-        .run(['$rootScope', '$location', '$routeParams', '$http', '$templateCache', 'managerSecret', 'offlineCache', 'managerStatus',
-            function ($rootScope, $location, $routeParams, $http, $templateCache, managerSecret, offlineCache, managerStatus) {
+        .run(['$rootScope', '$location', '$routeParams', '$http', '$templateCache', 'managerSecret', 'managerFileTransfer', 'offlineCache', 'managerStatus',
+            function ($rootScope, $location, $routeParams, $http, $templateCache, managerSecret, managerFileTransfer, offlineCache, managerStatus) {
+                $rootScope.entity = 'main_thread';
 
                 $rootScope.$on( "$routeChangeStart", function(event, next, current) {
                     var offline_redirect_urls = [
@@ -233,6 +235,7 @@
                     var redirect = '/secret/';
                     if ($location.path().substring(0, redirect.length) === redirect && $routeParams.hasOwnProperty('secret_id')) {
                         managerSecret.redirect_secret($routeParams.type, $routeParams.secret_id);
+                        return;
                     }
                 });
             }]);

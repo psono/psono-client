@@ -14,7 +14,6 @@
      */
     angular.module('psonocli').controller('ModalEditEntryBigCtrl', ['$scope', '$rootScope', '$uibModal', 'itemBlueprint',
         function ($scope, $rootScope, $uibModal, itemBlueprint) {
-
             $scope.show_history = show_history;
             $scope.reset = reset;
             $scope.save = save;
@@ -72,7 +71,7 @@
             function show_history(node) {
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-history.html',
+                    templateUrl: 'view/modal/history.html',
                     controller: 'ModalHistoryCtrl',
                     resolve: {
                         node: function () {

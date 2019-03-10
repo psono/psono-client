@@ -68,7 +68,7 @@
             onClickOpenDeleteAccountModal: function (node) {
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-delete-account.html',
+                    templateUrl: 'view/modal/delete-account.html',
                     controller: 'ModalDeleteAccountCtrl',
                     backdrop: 'static',
                     resolve: {
@@ -86,7 +86,7 @@
 
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-show-emergencycodes.html',
+                    templateUrl: 'view/modal/show-emergencycodes.html',
                     controller: 'ModalShowEmergencyCodesCtrl',
                     backdrop: 'static',
                     resolve: {
@@ -105,7 +105,7 @@
                 var onSuccess = function(recovery_information) {
 
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal-show-recoverycode.html',
+                        templateUrl: 'view/modal/show-recoverycode.html',
                         controller: 'ModalShowRecoverycodeCtrl',
                         backdrop: 'static',
                         resolve: {
@@ -131,7 +131,7 @@
             },
             onClickConfigureGoogleAuthenticator: function (node) {
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-setup-google-authenticator.html',
+                    templateUrl: 'view/modal/setup-google-authenticator.html',
                     controller: 'ModalConfigureGoogleAuthenticatorCtrl',
                     backdrop: 'static',
                     resolve: {}
@@ -146,7 +146,7 @@
             },
             onClickConfigureYubiKeyOTP: function (node) {
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-setup-yubikey-otp.html',
+                    templateUrl: 'view/modal/setup-yubikey-otp.html',
                     controller: 'ModalConfigureYubiKeyOTPCtrl',
                     backdrop: 'static',
                     resolve: {}
@@ -161,7 +161,7 @@
             },
             onClickConfigureDuo: function (node) {
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-setup-duo.html',
+                    templateUrl: 'view/modal/setup-duo.html',
                     controller: 'ModalConfigureDuoCtrl',
                     backdrop: 'static',
                     resolve: {}
@@ -431,7 +431,7 @@
                             specials['setting_password_password_old'].value = '';
 
                             $uibModal.open({
-                                templateUrl: 'view/modal-delete-other-sessions.html',
+                                templateUrl: 'view/modal/delete-other-sessions.html',
                                 controller: 'ModalDeleteOtherSessionsCtrl',
                                 backdrop: 'static',
                                 resolve: {}

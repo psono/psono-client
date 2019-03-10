@@ -352,3 +352,82 @@ h1, h2 {
 
 /* CSS fix for angular-ui explained here: https://angular-ui.github.io/bootstrap/ */
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+
+.progress-box {
+
+  width:340px;
+  height:170px;
+  padding:20px;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  margin: -70px 0 0 -170px;
+  border-radius: 4px;
+
+  background-color: $dark-color;
+  color: $dark-normal-color;
+
+  text-align: center;
+
+  .progress {
+    margin-top: 20px;
+  }
+}
+
+.loading-lock {
+
+  width:340px;
+  height:260px;
+  padding:20px;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  margin: -70px 0 0 -170px;
+  border-radius: 4px;
+
+  background-color: $dark-color;
+  color: $dark-normal-color;
+
+  text-align: center;
+
+  .loading-lock-logo {
+    font-size: 90px;
+    position: relative;
+    height: 130px;
+
+    .loading-lock-logo-unloaded {
+      color: $dark-background;
+      position: absolute;
+      top: 0;
+      margin-left: 50%;
+      i {
+        margin-left: -100%;
+        overflow: hidden;
+      }
+    }
+
+    .loading-lock-logo-loaded {
+      color: $dark-hightlight-color;
+      position: absolute;
+      top: 0;
+      margin-left: 50%;
+      i {
+        // width - margin-left == 200%
+        margin-left: -200%;
+        width: 0;
+        overflow: hidden;
+      }
+    }
+  }
+  .loading-lock-text {
+
+  }
+}
+
+
+
+

@@ -115,7 +115,7 @@
             function edit_gpg_user(user) {
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-edit-gpg-user.html',
+                    templateUrl: 'view/modal/edit-gpg-user.html',
                     controller: 'ModalEditGPGUserCtrl',
                     resolve: {
                         user: function() {

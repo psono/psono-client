@@ -81,17 +81,17 @@
                     var field = $scope.bp.selected.fields[i];
                     if (field.hasOwnProperty("required")) {
                         if (field['required'] && field['value'] !== false && !field['value']) {
-                            $scope.errors.push(field['title'] + ' is required');
+                            $scope.errors.push(field['title'] + '_IS_REQUIRED');
                             continue;
                         }
                     }
                     if (field.hasOwnProperty("type")) {
                         if (field['type'].toLowerCase() === 'url' && field['value'] && !helper.is_valid_url(field['value'])) {
-                            $scope.errors.push('Invalid URL in ' + field['title']);
+                            $scope.errors.push('INVALID_URL_IN_' + field['title']);
                             continue;
                         }
                         if (field['type'].toLowerCase() === 'email' && field['value'] && !helper.is_valid_email(field['value'])) {
-                            $scope.errors.push('Invalid URL in ' + field['title']);
+                            $scope.errors.push('INVALID_EMAIL_IN_' + field['title']);
                             continue;
                         }
                     }

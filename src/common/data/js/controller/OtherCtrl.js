@@ -19,11 +19,12 @@
             var default_tab = 'sessions';
             var tabs = {
                 'sessions': 0,
-                'api-keys': 1,
-                'data-stores': 2,
-                'known-hosts': 3,
-                'export': 4,
-                'import': 5
+                'data-stores': 1,
+                'api-keys': 2,
+                'file-repositories': 3,
+                'known-hosts': 4,
+                'export': 5,
+                'import': 6
             };
 
 

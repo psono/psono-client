@@ -16,9 +16,21 @@
      * Controller for the Share view
      */
     angular.module('psonocli').controller('ShareCtrl', ['$scope', '$routeParams', '$uibModal', 'managerShare',
-        'managerShareLink', 'managerDatastorePassword', 'cryptoLibrary',
+        'managerShareLink', 'managerDatastorePassword', 'cryptoLibrary', 'languagePicker', 'DTOptionsBuilder', 'DTColumnDefBuilder',
         function ($scope, $routeParams, $uibModal, managerShare,
-                  managerShareLink, managerDatastorePassword, cryptoLibrary) {
+                  managerShareLink, managerDatastorePassword, cryptoLibrary, languagePicker, DTOptionsBuilder, DTColumnDefBuilder) {
+
+            $scope.dtOptions = DTOptionsBuilder
+                .newOptions()
+                .withLanguageSource('translations/datatables.' + languagePicker.get_active_language_code() + '.json');
+
+            $scope.dtColumnDefs = [
+                DTColumnDefBuilder.newColumnDef(0),
+                DTColumnDefBuilder.newColumnDef(1),
+                DTColumnDefBuilder.newColumnDef(2),
+                DTColumnDefBuilder.newColumnDef(3),
+                DTColumnDefBuilder.newColumnDef(4)
+            ];
 
             $scope.accept = accept;
             $scope.decline = decline;
@@ -79,7 +91,7 @@
             function accept(item, pending_shares) {
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-accept-share.html',
+                    templateUrl: 'view/modal/accept-share.html',
                     controller: 'ModalAcceptShareCtrl',
                     resolve: {
                         title: function () {

@@ -17,7 +17,7 @@
         this.name = "InvalidRecoveryCodeException";
     }
 
-    var cryptoLibrary = function($window, $timeout, converter, helper) {
+    var cryptoLibrary = function($q, $window, $timeout, converter, helper) {
 
         var nacl = require('ecma-nacl');
 
@@ -236,6 +236,105 @@
 
         /**
          * @ngdoc
+         * @name psonocli.cryptoLibrary#run_crypto_work_async
+         * @methodOf psonocli.cryptoLibrary
+         *
+         * @description
+         * runs async jobs
+         *
+         * @param job
+         * @param kwargs
+         * @param transfers
+         *
+         * @returns {PromiseLike<any> | f | * | e | promise}
+         */
+        var run_crypto_work_async = function(job, kwargs, transfers) {
+
+            var defer = $q.defer();
+
+            var crypto_worker = new Worker('js/crypto-worker.js');
+
+            function handle_message_from_worker(msg) {
+                crypto_worker.terminate();
+                defer.resolve(msg.data.kwargs);
+            }
+
+            crypto_worker.addEventListener('message', handle_message_from_worker);
+            crypto_worker.postMessage(
+                {
+                    job: job,
+                    kwargs: kwargs
+                },
+                transfers
+            );
+            return defer.promise;
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.cryptoLibrary#encrypt_file
+         * @methodOf psonocli.cryptoLibrary
+         *
+         * @description
+         * Encrypts a file (in Uint8 representation)
+         *
+         * @param {Uint8Array} data The data of the file in Uint8Array encoding
+         * @param {string} secret_key The secret key you want to use to encrypt the data
+         *
+         * @returns {promise} A promise that will return the encrypted file with the nonce as Uint8Array
+         */
+        var encrypt_file = function (data, secret_key) {
+            // sync code
+            // var k = converter.from_hex(secret_key);
+            // var n = randomBytes(24);
+            //
+            // return  nacl.secret_box.formatWN.pack(data, n, k);
+
+            var k = converter.from_hex(secret_key).buffer;
+            var n = randomBytes(24).buffer;
+            var arrayBuffer = data.buffer;
+
+            return run_crypto_work_async('encrypt_file', {
+                data: arrayBuffer,
+                k: k,
+                n: n
+            }, [arrayBuffer]).then(function(buffer) {
+                return new Uint8Array(buffer)
+            });
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.cryptoLibrary#decrypt_file
+         * @methodOf psonocli.cryptoLibrary
+         *
+         * @description
+         * Decrypts a file (in Uint8 representation) with prepended nonce
+         *
+         * @param {Uint8Array} text The encrypted data of the file in Uint8Array encoding with prepended nonce
+         * @param {string} secret_key The secret key used in the past to encrypt the text
+         *
+         * @returns {promise} A promise that will return the decrypted data as Uint8Array
+         */
+        var decrypt_file = function (text, secret_key) {
+            // sync code
+            // var k = converter.from_hex(secret_key);
+            //
+            // return nacl.secret_box.formatWN.open(text, k);
+
+            var k = converter.from_hex(secret_key).buffer;
+            var arrayBuffer = text.buffer;
+
+            return run_crypto_work_async('decrypt_file', {
+                text: arrayBuffer,
+                k: k
+            }, [arrayBuffer]).then(function(buffer) {
+                return new Uint8Array(buffer)
+            });
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.cryptoLibrary#encrypt_data
          * @methodOf psonocli.cryptoLibrary
          *
@@ -260,6 +359,54 @@
                 text: converter.to_hex(c)
             };
         };
+
+        // /**
+        //  * @ngdoc
+        //  * @name psonocli.cryptoLibrary#encrypt_data
+        //  * @methodOf psonocli.cryptoLibrary
+        //  *
+        //  * @description
+        //  * Takes the data and the secret_key as hex and encrypts the data.
+        //  * Returns the nonce and the cipher text as hex.
+        //  *
+        //  * @param {string} data The data you want to encrypt
+        //  * @param {string} secret_key The secret key you want to use to encrypt the data
+        //  * @param {string} format The data returned, either hex or raw
+        //  *
+        //  * @returns {EncryptedValue} The encrypted text and the nonce
+        //  */
+        // var encrypt_data = function (data, secret_key, format) {
+        //
+        //     var k = converter.from_hex(secret_key);
+        //
+        //     var m;
+        //     if (typeof(data) === 'string') {
+        //         m = converter.encode_utf8(data);
+        //     } else {
+        //         m = data;
+        //     }
+        //
+        //     var n = randomBytes(24);
+        //     var c = nacl.secret_box.pack(m, n, k);
+        //
+        //     if (format === 'hex') {
+        //         return {
+        //             nonce: converter.to_hex(n),
+        //             text: converter.to_hex(c)
+        //         };
+        //     } else if (format === 'raw') {
+        //         return {
+        //             nonce: n,
+        //             text: c
+        //         };
+        //     } else {
+        //         // default hex
+        //         return {
+        //             nonce: converter.to_hex(n),
+        //             text: converter.to_hex(c)
+        //         };
+        //     }
+        // };
 
         /**
          * @ngdoc
@@ -514,6 +661,8 @@
             generate_public_private_keypair: generate_public_private_keypair,
             encrypt_secret: encrypt_secret,
             decrypt_secret: decrypt_secret,
+            encrypt_file: encrypt_file,
+            decrypt_file: decrypt_file,
             encrypt_data: encrypt_data,
             decrypt_data: decrypt_data,
             encrypt_data_public_key: encrypt_data_public_key,
@@ -530,7 +679,7 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("cryptoLibrary", ['$window', '$timeout', 'converter', 'helper', cryptoLibrary]);
+    app.factory("cryptoLibrary", ['$q', '$window', '$timeout', 'converter', 'helper', cryptoLibrary]);
 
 }(angular, require, sha512, sha256, sha1, uuid));
 

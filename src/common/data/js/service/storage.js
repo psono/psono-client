@@ -40,6 +40,11 @@
                 indices: ['key', 'urlfilter', 'name'],
                 uniques: ['key']
             },
+            'datastore-file-leafs': {
+                name: 'datastore-file-leafs',
+                indices: ['key'],
+                uniques: ['key']
+            },
             'datastore-user-leafs': {
                 name: 'datastore-user-leafs',
                 indices: ['key', 'filter', 'name'],

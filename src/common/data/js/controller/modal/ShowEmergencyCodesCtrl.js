@@ -14,8 +14,21 @@
      * @description
      * Controller for the "Setup Emergency Codes" modal
      */
-    angular.module('psonocli').controller('ModalShowEmergencyCodesCtrl', ['$q', '$scope', '$translate', '$uibModalInstance', 'managerDatastoreUser', 'managerHost', 'helper',
-        function ($q, $scope, $translate, $uibModalInstance, managerDatastoreUser, managerHost, helper) {
+    angular.module('psonocli').controller('ModalShowEmergencyCodesCtrl', ['$q', '$scope', '$translate',
+        '$uibModalInstance', 'managerDatastoreUser', 'managerHost', 'helper', 'DTOptionsBuilder', 'DTColumnDefBuilder',
+        'languagePicker',
+        function ($q, $scope, $translate,
+                  $uibModalInstance, managerDatastoreUser, managerHost, helper, DTOptionsBuilder, DTColumnDefBuilder,
+                  languagePicker) {
+
+            $scope.dtOptions = DTOptionsBuilder
+                .newOptions()
+                .withLanguageSource('translations/datatables.' + languagePicker.get_active_language_code() + '.json');
+
+            $scope.dtColumnDefs = [
+                DTColumnDefBuilder.newColumnDef(0),
+                DTColumnDefBuilder.newColumnDef(1)
+            ];
 
             var _translations;
             var _server_info;
@@ -42,7 +55,6 @@
 
                 managerDatastoreUser.read_emergency_codes()
                     .then(function(emergency_codes) {
-                        console.log(emergency_codes);
                         $scope.emergency_codes = emergency_codes;
                     });
 
@@ -133,7 +145,7 @@
                     if(successful) {
                         $uibModalInstance.dismiss('close');
                     } else {
-                        $scope.errors = ['Code incorrect. Please try again.'];
+                        $scope.errors = ['CODE_INCORRECT'];
                     }
                 };
 

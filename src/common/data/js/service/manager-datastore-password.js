@@ -431,6 +431,37 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastorePassword#update_paths
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * Sets the "path" attribute for all folders and items
+         *
+         * @param datastore
+         * @param parent_path
+         */
+        var update_paths_recursive = function(datastore, parent_path) {
+            var i;
+            if (datastore.hasOwnProperty('items')) {
+                for (i = 0; i < datastore['items'].length; i++) {
+                    datastore['items'][i]['path'] = parent_path.slice();
+                    datastore['items'][i]['path'].push(datastore['items'][i]['id']);
+                }
+            }
+            if (datastore.hasOwnProperty('folders')) {
+                for (i = 0; i < datastore['folders'].length; i++) {
+                    datastore['folders'][i]['path'] = parent_path.slice();
+                    datastore['folders'][i]['path'].push(datastore['folders'][i]['id']);
+                    var parent_path_copy = parent_path.slice();
+                    parent_path_copy.push(datastore['folders'][i]['id']);
+                    update_paths_recursive(datastore['folders'][i], parent_path_copy);
+                }
+            }
+        };
+
+
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastorePassword#get_password_datastore
          * @methodOf psonocli.managerDatastorePassword
          *
@@ -458,6 +489,9 @@
                     }
 
                     var onSuccess = function (datastore) {
+
+                        update_paths_recursive(datastore, []);
+
                         managerDatastore.fill_storage('datastore-password-leafs', datastore, [
                             ['key', 'secret_id'],
                             ['secret_id', 'secret_id'],
@@ -466,6 +500,16 @@
                             ['urlfilter', 'urlfilter'],
                             ['autosubmit', 'autosubmit'],
                             ['search', 'urlfilter']
+
+                        ]);
+                        managerDatastore.fill_storage('datastore-file-leafs', datastore, [
+                            ['key', 'id'],
+                            ['file_id', 'file_id'],
+                            ['file_shard_id', 'file_shard_id'],
+                            ['file_size', 'file_size'],
+                            ['file_secret_key', 'file_secret_key'],
+                            ['file_chunks', 'file_chunks'],
+                            ['file_title', 'file_title']
 
                         ]);
 
@@ -518,9 +562,23 @@
             // datastore has changed, so lets regenerate local lookup
             managerDatastore.fill_storage('datastore-password-leafs', datastore, [
                 ['key', 'secret_id'],
+                ['secret_id', 'secret_id'],
                 ['value', 'secret_key'],
                 ['name', 'name'],
-                ['urlfilter', 'urlfilter']
+                ['urlfilter', 'urlfilter'],
+                ['autosubmit', 'autosubmit'],
+                ['search', 'urlfilter']
+            ]);
+
+            managerDatastore.fill_storage('datastore-file-leafs', datastore, [
+                ['key', 'id'],
+                ['file_id', 'file_id'],
+                ['file_shard_id', 'file_shard_id'],
+                ['file_size', 'file_size'],
+                ['file_secret_key', 'file_secret_key'],
+                ['file_chunks', 'file_chunks'],
+                ['file_title', 'file_title']
+
             ]);
 
             datastore = managerBase.filter_datastore_content(datastore);
@@ -934,16 +992,17 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastorePassword#get_all_secret_links
+         * @name psonocli.managerDatastorePassword#get_all_elements_with_property
          * @methodOf psonocli.managerDatastorePassword
          *
          * @description
-         * returns all secret links in element. Doesn't cross share borders.
+         * returns searches an element recursive for items with a property. Doesn't cross share borders.
          *
-         * @param {object} element the element to search
-         * @returns {Array} List of secret links
+         * @param {object} element the tree structure with shares to search
+         * @param {string} property the property to search for
+         * @returns {Array} List of element ids and the paths
          */
-        var get_all_secret_links = function(element) {
+        var get_all_elements_with_property = function(element, property) {
 
             var links = [];
 
@@ -954,7 +1013,7 @@
              * @param {Array} links
              * @param {Array} path
              */
-            var get_all_secret_links_recursive = function(element, links, path) {
+            var get_all_elements_with_property_recursive = function(element, links, path) {
                 var n, l;
                 var new_path = path.slice();
                 new_path.push(element.id);
@@ -963,8 +1022,8 @@
                     return;
                 }
 
-                // check if the element itself, is a link to a secret
-                if (element.hasOwnProperty('secret_id')) {
+                // check if the element itself has the property
+                if (element.hasOwnProperty(property)) {
                     links.push({
                         id: element.id,
                         path: new_path
@@ -977,7 +1036,7 @@
                         if (element.items[n].hasOwnProperty('share_id')) {
                             continue;
                         }
-                        get_all_secret_links_recursive(element.items[n], links, new_path);
+                        get_all_elements_with_property_recursive(element.items[n], links, new_path);
                     }
                 }
 
@@ -987,14 +1046,44 @@
                         if (element.folders[n].hasOwnProperty('share_id')) {
                             continue;
                         }
-                        get_all_secret_links_recursive(element.folders[n], links, new_path);
+                        get_all_elements_with_property_recursive(element.folders[n], links, new_path);
                     }
                 }
             };
 
-            get_all_secret_links_recursive(element, links, []);
+            get_all_elements_with_property_recursive(element, links, []);
 
             return links;
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#get_all_secret_links
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * returns all secret links in element. Doesn't cross share borders.
+         *
+         * @param {object} element the element to search
+         * @returns {Array} List of secret links
+         */
+        var get_all_secret_links = function(element) {
+            return get_all_elements_with_property(element, 'secret_id');
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#get_all_file_links
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * returns all file links in element. Doesn't cross share borders.
+         *
+         * @param {object} element the element to search
+         * @returns {Array} List of secret links
+         */
+        var get_all_file_links = function(element) {
+            return get_all_elements_with_property(element, 'file_id');
         };
 
         /**
@@ -1521,6 +1610,7 @@
             }
             searchTree.hidden = !show;
             searchTree.expanded_temporary = newValue !== '';
+            searchTree.is_expanded = searchTree.expanded_temporary || searchTree.expanded;
 
             return show;
         };
@@ -1630,6 +1720,7 @@
             search_in_datastore: search_in_datastore,
             get_all_child_shares: get_all_child_shares,
             get_all_secret_links: get_all_secret_links,
+            get_all_file_links: get_all_file_links,
             on_share_added: on_share_added,
             on_share_moved: on_share_moved,
             on_share_deleted: on_share_deleted,
@@ -1640,7 +1731,9 @@
             create_share_links_in_datastore: create_share_links_in_datastore,
             modifyTreeForSearch: modifyTreeForSearch,
             get_inaccessible_shares: get_inaccessible_shares,
-            get_all_own_pgp_keys: get_all_own_pgp_keys
+            get_all_own_pgp_keys: get_all_own_pgp_keys,
+            update_paths_recursive: update_paths_recursive,
+            update_share_rights_of_folders_and_items: update_share_rights_of_folders_and_items
         };
     };
 

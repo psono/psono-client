@@ -11,8 +11,21 @@
      * @description
      * Controller for the Datastore tab in the "Others" menu
      */
-    angular.module('psonocli').controller('OtherAPIKeyCtrl', ['$scope', '$uibModal', 'managerAPIKeys',
-        function ($scope, $uibModal, managerAPIKeys) {
+    angular.module('psonocli').controller('OtherAPIKeyCtrl', ['$scope', '$uibModal', 'managerAPIKeys', 'languagePicker', 'DTOptionsBuilder', 'DTColumnDefBuilder',
+        function ($scope, $uibModal, managerAPIKeys, languagePicker, DTOptionsBuilder, DTColumnDefBuilder) {
+
+            $scope.dtOptions = DTOptionsBuilder
+                .newOptions()
+                .withLanguageSource('translations/datatables.' + languagePicker.get_active_language_code() + '.json');
+
+            $scope.dtColumnDefs = [
+                DTColumnDefBuilder.newColumnDef(0),
+                DTColumnDefBuilder.newColumnDef(1),
+                DTColumnDefBuilder.newColumnDef(2),
+                DTColumnDefBuilder.newColumnDef(3),
+                DTColumnDefBuilder.newColumnDef(4),
+                DTColumnDefBuilder.newColumnDef(5)
+            ];
 
             $scope.create_new_api_key = create_new_api_key;
             $scope.edit_api_key = edit_api_key;
@@ -53,7 +66,7 @@
 
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-create-api-key.html',
+                    templateUrl: 'view/modal/create-api-key.html',
                     controller: 'ModalCreateAPIKeyCtrl',
                     resolve: {}
                 });
@@ -86,7 +99,7 @@
                 var onSuccess = function(api_key) {
 
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal-edit-api-key.html',
+                        templateUrl: 'view/modal/edit-api-key.html',
                         controller: 'ModalEditAPIKeyCtrl',
                         resolve: {
                             api_key: function () {
@@ -118,7 +131,7 @@
             function delete_api_key(api_key) {
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-verify.html',
+                    templateUrl: 'view/modal/verify.html',
                     controller: 'ModalVerifyCtrl',
                     resolve: {
                         title: function () {

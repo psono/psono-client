@@ -3,7 +3,7 @@
 
     /**
      * @ngdoc controller
-     * @name psonocli.controller:ImportCtrl
+     * @name psonocli.controller:OtherImportCtrl
      * @requires $scope
      * @requires psonocli.managerImport
      * @requires psonocli.importChromeCsv
@@ -16,7 +16,7 @@
      * @description
      * Controller for the "Import" tab in the "Others" menu
      */
-    angular.module('psonocli').controller('ImportCtrl', ['$scope', 'managerImport', 'importPsonoPwJson', 'importChromeCsv',
+    angular.module('psonocli').controller('OtherImportCtrl', ['$scope', 'managerImport', 'importPsonoPwJson', 'importChromeCsv',
         'importLastPassComCsv', 'importKeePassCsv', 'importKeePassXml', 'importKeePassXCsv',
         function ($scope, managerImport, importPsonoPwJson, importChromeCsv,
                   importLastPassComCsv, importKeePassCsv, importKeePassXml, importKeePassXCsv) {
@@ -56,8 +56,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:ImportCtrl#import_datastore
-             * @methodOf psonocli.controller:ImportCtrl
+             * @name psonocli.controller:OtherImportCtrl#import_datastore
+             * @methodOf psonocli.controller:OtherImportCtrl
              *
              * @description
              * Imports all data of a datastore

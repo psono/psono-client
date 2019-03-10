@@ -3,7 +3,7 @@
 
     /**
      * @ngdoc controller
-     * @name psonocli.controller:KnownHostsCtrl
+     * @name psonocli.controller:OtherKnownHostsCtrl
      * @requires $scope
      * @requires psonocli.managerHost
      * @requires psonocli.helper
@@ -11,8 +11,19 @@
      * @description
      * Controller for the KnownHosts tab in the "Others" menu
      */
-    angular.module('psonocli').controller('KnownHostsCtrl', ['$scope', 'managerHost', 'helper',
-        function ($scope, managerHost, helper) {
+    angular.module('psonocli').controller('OtherKnownHostsCtrl', ['$scope', 'managerHost', 'helper', 'languagePicker', 'DTOptionsBuilder', 'DTColumnDefBuilder',
+        function ($scope, managerHost, helper, languagePicker, DTOptionsBuilder, DTColumnDefBuilder) {
+
+            $scope.dtOptions = DTOptionsBuilder
+                .newOptions()
+                .withLanguageSource('translations/datatables.' + languagePicker.get_active_language_code() + '.json');
+
+            $scope.dtColumnDefs = [
+                DTColumnDefBuilder.newColumnDef(0),
+                DTColumnDefBuilder.newColumnDef(1),
+                DTColumnDefBuilder.newColumnDef(2),
+                DTColumnDefBuilder.newColumnDef(3)
+            ];
 
             $scope.known_hosts=[];
             $scope.delete_known_host = delete_known_host;
@@ -34,8 +45,8 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:KnownHostsCtrl#delete_known_host
-             * @methodOf psonocli.controller:KnownHostsCtrl
+             * @name psonocli.controller:OtherKnownHostsCtrl#delete_known_host
+             * @methodOf psonocli.controller:OtherKnownHostsCtrl
              *
              * @description
              * deletes a known host with given fingerprint

@@ -32,6 +32,9 @@
                     scope.treeView = scope.treeView;
                 }, 5000);
 
+                scope.attrs = attrs;
+                scope.element = element;
+
 
                 scope.offline = offlineCache.is_active();
                 $rootScope.$on('offline_mode_enabled', function() {
@@ -73,7 +76,7 @@
                 scope.getFolderIconClass = typeof options.folderIcon === 'function'
                     ? options.folderIcon
                     : function (node) {
-                        return 'fa fa-folder' + (node.expanded || node.expanded_temporary ? '-open' : '');
+                        return 'fa fa-folder' + (node.is_expanded ? '-open' : '');
                     };
 
                 /**
@@ -121,37 +124,40 @@
                  * returns a list of the property of the nodes from root to the targeted item. Can be used for
                  * breadcrumbs for example.
                  *
-                 * @param property The property that should be put into the list
-                 * @param item The item up to which you want to generate the list
+                 * @param orig_path The path as array of IDs to the target
                  * @returns {Array.<T>} A list of the nodes property
                  */
-                var getPropertyPath = function (property, item) {
-                    var path = [];
+                var getPropertyPath = function (orig_path){
 
-                    if (typeof item !== 'undefined') {
-                        if (typeof property === 'undefined') {
-                            path.push(item);
-                        } else {
-                            path.push(item[property]);
-                        }
-                    }
+                    var path = orig_path.slice();
 
-                    var nodeScope = scope;
-                    while (nodeScope.node) {
-                        if (typeof property === 'undefined') {
-                            path.push(nodeScope.node);
-                        } else {
-                            path.push(nodeScope.node[property]);
-                        }
-                        while (nodeScope.$parent && nodeScope.$parent.node) {
-                            if (!nodeScope.node.hasOwnProperty('id') || !nodeScope.$parent.node.hasOwnProperty('id') || nodeScope.node.id !== nodeScope.$parent.node.id) {
-                                break;
+                    var getPropertyPathRecursive = function(path, datastore, current_property_path) {
+
+                        var to_search = path[0];
+                        var n, l;
+                        var rest = path.slice(1);
+
+                        if (datastore.hasOwnProperty('folders')) {
+                            for (n = 0, l= datastore.folders.length; n < l; n++) {
+                                if (datastore.folders[n].id === to_search) {
+                                    current_property_path.push(datastore.folders[n]);
+                                    return getPropertyPathRecursive(rest, datastore.folders[n], current_property_path);
+                                }
                             }
-                            nodeScope = nodeScope.$parent;
                         }
-                        nodeScope = nodeScope.$parent;
-                    }
-                    return path.reverse();
+                        if (datastore.hasOwnProperty('items')) {
+                            for (n = 0, l= datastore.items.length; n < l; n++) {
+                                if (datastore.items[n].id === to_search) {
+                                    current_property_path.push(datastore.items[n]);
+                                    return getPropertyPathRecursive(rest, datastore.items[n], current_property_path);
+                                }
+                            }
+                        }
+
+                        return current_property_path;
+                    };
+
+                    return getPropertyPathRecursive(path, scope.treeView.data, [])
                 };
 
                 /**
@@ -167,7 +173,7 @@
                     }
 
                     if (typeof options.onEditNode === "function") {
-                        options.onEditNode(node, getPropertyPath(idProperty));
+                        options.onEditNode(node, node.path);
                     }
                 };
 
@@ -183,11 +189,10 @@
                 scope.additionalButtonItem = function (item, event, my_function, folder) {
 
                     if (typeof options.onAdditionalButtonItem === "function") {
-
                         if (folder) {
-                            options.onAdditionalButtonItem(scope.node, getPropertyPath(idProperty), my_function);
+                            options.onAdditionalButtonItem(item, item.path, my_function);
                         } else {
-                            options.onAdditionalButtonItem(item, getPropertyPath(idProperty, item), my_function);
+                            options.onAdditionalButtonItem(item, item.path, my_function);
                         }
                     }
                 };
@@ -204,7 +209,7 @@
                     }
 
                     if (typeof options.onNewFolder === "function") {
-                        options.onNewFolder(node, getPropertyPath(idProperty));
+                        options.onNewFolder(node, node.path);
                     }
                 };
 
@@ -221,7 +226,7 @@
                     }
 
                     if (typeof options.onNewItem === "function") {
-                        options.onNewItem(node, getPropertyPath(idProperty));
+                        options.onNewItem(node, node.path);
                     }
                 };
 
@@ -234,7 +239,7 @@
                 scope.deleteNode  = function (node, event) {
 
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal-verify.html',
+                        templateUrl: 'view/modal/verify.html',
                         controller: 'ModalVerifyCtrl',
                         resolve: {
                             title: function () {
@@ -250,7 +255,8 @@
                         // User clicked the yes button
 
                         if (typeof options.onDeleteNode === "function") {
-                            options.onDeleteNode(node, getPropertyPath(idProperty));
+                            console.log(node);
+                            options.onDeleteNode(node, node.path);
                         }
 
                     }, function () {
@@ -267,7 +273,7 @@
                 scope.moveNode  = function (node, event) {
 
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal-choose-folder.html',
+                        templateUrl: 'view/modal/choose-folder.html',
                         controller: 'ModalChooseFolderCtrl',
                         resolve: {
                             title: function () {
@@ -278,9 +284,8 @@
 
                     modalInstance.result.then(function (breadcrumbs) {
                         // User clicked the prime button
-                        var node_path = getPropertyPath(idProperty, node);
+                        var node_path = node.path.slice();
                         if (typeof options.onMoveItem === "function") {
-                            node_path.pop();
                             options.onMoveNode(node_path, breadcrumbs['id_breadcrumbs']);
                         }
 
@@ -293,13 +298,14 @@
                  * fired if someone selects a node
                  *
                  * @param event
+                 * @param node
                  */
-                scope.selectNode = function (event) {
+                scope.selectNode = function (event, node) {
 
                     if (collapsible) {
-                        controller.toggleExpanded(scope.node);
+                        controller.toggleExpanded(node);
                     }
-                    controller.selectNode(scope.node, getPropertyPath(), getPropertyPath(idProperty));
+                    controller.selectNode(node, getPropertyPath(node.path), node.path);
                 };
 
                 /**
@@ -310,7 +316,7 @@
                  */
                 scope.editItem = function (item, event) {
                     if (typeof options.onEditItem === "function") {
-                        options.onEditItem(item, getPropertyPath(idProperty, item));
+                        options.onEditItem(item, item.path);
                     }
                 };
 
@@ -323,7 +329,7 @@
                 scope.newFolderItem = function (item, event) {
 
                     if (typeof options.onNewFolder === "function") {
-                        options.onNewFolder(scope.node, getPropertyPath(idProperty));
+                        options.onNewFolder(item, item.path);
                     }
                 };
 
@@ -337,7 +343,7 @@
                 scope.newEntryItem = function (item, event) {
 
                     if (typeof options.onNewItem === "function") {
-                        options.onNewItem(scope.node, getPropertyPath(idProperty));
+                        options.onNewItem(item, item.path);
                     }
                 };
 
@@ -351,7 +357,7 @@
                 scope.deleteItem  = function (item, event) {
 
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal-verify.html',
+                        templateUrl: 'view/modal/verify.html',
                         controller: 'ModalVerifyCtrl',
                         resolve: {
                             title: function () {
@@ -367,7 +373,7 @@
                         // User clicked the yes button
 
                         if (typeof options.onDeleteItem === "function") {
-                            options.onDeleteItem(item, getPropertyPath(idProperty, item));
+                            options.onDeleteItem(item, item.path);
                         }
 
                     }, function () {
@@ -385,7 +391,7 @@
                 scope.moveItem  = function (item, event) {
 
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal-choose-folder.html',
+                        templateUrl: 'view/modal/choose-folder.html',
                         controller: 'ModalChooseFolderCtrl',
                         resolve: {
                             title: function () {
@@ -396,7 +402,7 @@
 
                     modalInstance.result.then(function (breadcrumbs) {
                         // User clicked the prime button
-                        var item_path = getPropertyPath(idProperty, item);
+                        var item_path = item.path;
                         if (typeof options.onMoveItem === "function") {
                             options.onMoveItem(item_path, breadcrumbs['id_breadcrumbs']);
                         }
@@ -413,7 +419,7 @@
                  * @param event
                  */
                 scope.clickItem = function (item, event) {
-                    controller.clickItem(item, getPropertyPath(idProperty));
+                    controller.clickItem(item, item.path);
                 };
 
 
@@ -463,7 +469,7 @@
                         '   context-menu="contextMenuOnShow(\'menu-\'+node.id)"' +
                         '   context-menu-close="contextMenuOnClose(\'menu-\'+node.id)">' +
                         '<div href="#" class="tree-folder-header"' +
-                        '   ng-click="$event.stopPropagation(); selectNode($event)" ng-class="::{ selected: isSelected(node), notSelectable: ! isSelectable(node) }">' +
+                        '   ng-click="$event.stopPropagation(); selectNode($event, node)" ng-class="::{ selected: isSelected(node), notSelectable: ! isSelectable(node) }">' +
                         '<span class="fa-stack">' +
                         '<i class="" ng-class="getFolderIconClass(node)"></i>' +
                         '<i ng-if="node.share_id" class="fa fa-circle fa-stack-2x text-danger is-shared"></i>' +
@@ -517,7 +523,7 @@
                         '</ul>' +
                         '</span>' +
                         '</div>' +
-                        '<div class="tree-folder-content"'+ (collapsible ? ' ng-show="node.expanded || node.expanded_temporary"' : '') + '>' +
+                        '<div class="tree-folder-content"'+ (collapsible ? ' ng-if="node.is_expanded"' : '') + ' >' +
                         '<div tree-view-node="{\'data\': node}">' +
                         '</div>' +
                         '</div>' +
@@ -585,8 +591,14 @@
                         '    <i class="fa fa-external-link"></i>' +
                         '</a>' +
                         '</span>' +
+                        '<span class="node-open-link" ng-if="item.type === \'file\' && !offline">' +
+                        '<a href="#" class="btn btn-default" ng-click="$event.preventDefault(); $event.stopPropagation(); clickItem(item, $event)">' +
+                        '    <i class="fa fa-download"></i>' +
+                        '</a>' +
+                        '</span>' +
                         '<span class="node-dropdown" uib-dropdown on-toggle="toggled(open, \'drop_item_\' + item.id)">' +
-                        '<a class="btn btn-default editbutton" href="#" role="button" id="drop_item_{{ ::item.id }}" uib-dropdown-toggle  ng-click="$event.stopPropagation()">' +
+                        '<a ng-if="!offline || item.type !== \'file\'"' +
+                        '   class="btn btn-default editbutton" href="#" role="button" id="drop_item_{{ ::item.id }}" uib-dropdown-toggle  ng-click="$event.stopPropagation()">' +
                         '    <i class="fa fa-cogs"></i>' +
                         '</a>' +
                         '<ul class="dropdown-menu dropdown-button-menu" aria-labelledby="drop_item_{{ ::item.id }}" ng-click="$event.preventDefault(); $event.stopPropagation();">' +

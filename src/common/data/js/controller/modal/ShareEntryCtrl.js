@@ -13,14 +13,15 @@
      * @requires psonocli.managerDatastoreUser
      * @requires psonocli.cryptoLibrary
      * @requires psonocli.helper
+     * @requires psonocli.languagePicker
      *
      * @description
      * Controller for the "Share Entry" modal
      */
     angular.module('psonocli').controller('ModalShareEntryCtrl', ['$scope', '$uibModalInstance', '$uibModal', 'shareBlueprint',
-        'managerDatastoreUser', 'managerGroups', 'node', 'path', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'cryptoLibrary', 'helper',
+        'managerDatastoreUser', 'managerGroups', 'node', 'path', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'cryptoLibrary', 'helper', 'languagePicker',
         function ($scope, $uibModalInstance, $uibModal, shareBlueprint,
-                  managerDatastoreUser, managerGroups, node, path, DTOptionsBuilder, DTColumnDefBuilder, cryptoLibrary, helper) {
+                  managerDatastoreUser, managerGroups, node, path, DTOptionsBuilder, DTColumnDefBuilder, cryptoLibrary, helper, languagePicker) {
 
             $scope.add_user = add_user;
             $scope.create_group = create_group;
@@ -28,7 +29,10 @@
             $scope.save = save;
             $scope.cancel = cancel;
 
-            $scope.dtOptions = DTOptionsBuilder.newOptions();
+            $scope.dtOptions = DTOptionsBuilder
+                .newOptions()
+                .withLanguageSource('translations/datatables.' + languagePicker.get_active_language_code() + '.json');
+
             $scope.dtColumnDefs = [
                 DTColumnDefBuilder.newColumnDef(0),
                 DTColumnDefBuilder.newColumnDef(1).notSortable()
@@ -96,7 +100,7 @@
              */
             function create_group(size) {
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-new-group.html',
+                    templateUrl: 'view/modal/new-group.html',
                     controller: 'ModalNewGroupCtrl',
                     size: size,
                     resolve: {}
@@ -131,7 +135,7 @@
             function add_user() {
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-new-entry.html',
+                    templateUrl: 'view/modal/new-entry.html',
                     controller: 'ModalShareNewEntryCtrl',
                     backdrop: 'static',
                     resolve: {

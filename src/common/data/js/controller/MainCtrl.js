@@ -38,7 +38,7 @@
             $scope.logout = managerDatastoreUser.logout;
             $scope.go_offline = go_offline;
             $scope.go_online = go_online;
-            $scope.on_item_click = managerSecret.on_item_click;
+            $scope.on_item_click = on_item_click;
             $scope.on_datastore_switch_click = on_datastore_switch_click;
 
             $scope.user_username = account.get_account_detail('user_username');
@@ -104,7 +104,7 @@
 
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'view/modal-create-datastore.html',
+                    templateUrl: 'view/modal/create-datastore.html',
                     controller: 'ModalCreateDatastoreCtrl',
                     resolve: {}
                 });
@@ -137,7 +137,7 @@
              */
             function go_offline() {
                 $uibModal.open({
-                    templateUrl: 'view/modal-go-offline.html',
+                    templateUrl: 'view/modal/go-offline.html',
                     controller: 'ModalGoOfflineCtrl',
                     backdrop: 'static',
                     resolve: {
@@ -213,6 +213,20 @@
                 } else {
                     return '';
                 }
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:MainCtrl#on_item_click
+             * @methodOf psonocli.controller:MainCtrl
+             *
+             * @description
+             * Triggered once someone clicks an item
+             *
+             * @param {object} item The item to open
+             */
+            function on_item_click(item) {
+                managerSecret.on_item_click(item)
             }
         }]
     );

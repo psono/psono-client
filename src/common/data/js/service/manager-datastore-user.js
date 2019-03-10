@@ -6,6 +6,7 @@
      * @name psonocli.managerDatastoreUser
      * @requires $q
      * @requires $rootScope
+     * @requires $uibModal
      * @requires psonocli.apiClient
      * @requires psonocli.browserClient
      * @requires psonocli.storage
@@ -20,7 +21,7 @@
      * Service to manage the user datastore and user related functions
      */
 
-    var managerDatastoreUser = function($q, $rootScope, apiClient, browserClient, storage,
+    var managerDatastoreUser = function($q, $rootScope, $uibModal, apiClient, browserClient, storage,
                                         helper, device, managerBase, managerDatastore, shareBlueprint,
                                         itemBlueprint, cryptoLibrary) {
 
@@ -1528,10 +1529,10 @@
 
                 storage.upsert('config', {key: 'user_email', value: new_email});
                 storage.save();
-                return {msgs: ['Saved successfully']}
+                return {msgs: ['SAVE_SUCCESS']}
             };
             var onError = function() {
-                return {errors: ['Old password incorrect']}
+                return {errors: ['OLD_PASSWORD_INCORRECT']}
             };
             return update_user(new_email, null, authkey_old)
                 .then(onSuccess, onError);
@@ -1576,10 +1577,10 @@
             secret_key_enc = cryptoLibrary.encrypt_secret(user_secret_key.value, new_password, user_sauce);
 
             onSuccess = function(data) {
-                return {msgs: ['Saved successfully']}
+                return {msgs: ['SAVE_SUCCESS']}
             };
             onError = function() {
-                return {errors: ['Old password incorrect']}
+                return {errors: ['OLD_PASSWORD_INCORRECT']}
             };
 
             return update_user(null, new_authkey, authkey_old, priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce)
@@ -1612,6 +1613,40 @@
 
 
             return apiClient.delete_account(managerBase.get_token(), managerBase.get_session_secret_key(), authkey).then(onSuccess, onError);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#select_users
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Allows the to select a known user (and add a new user to the trusted user list)
+         *
+         * @returns {promise} Returns a promise with the selected user
+         */
+        var select_users = function() {
+
+            var deferred = $q.defer();
+
+            var modalInstance = $uibModal.open({
+                templateUrl: 'view/modal/select-user.html',
+                controller: 'ModalSelectUserCtrl',
+                size: 'lg',
+                backdrop: 'static',
+                resolve: {
+                }
+            });
+
+            modalInstance.result.then(function (data) {
+                // Someone selected a user
+                deferred.resolve(data);
+            }, function () {
+                // cancel triggered
+                deferred.resolve();
+            });
+
+            return deferred.promise;
         };
 
         shareBlueprint.register('search_user', search_user);
@@ -1659,12 +1694,13 @@
             delete_other_sessions: delete_other_sessions,
             save_new_email: save_new_email,
             save_new_password: save_new_password,
-            delete_account: delete_account
+            delete_account: delete_account,
+            select_users: select_users
         };
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerDatastoreUser", ['$q', '$rootScope', 'apiClient', 'browserClient', 'storage',
+    app.factory("managerDatastoreUser", ['$q', '$rootScope', '$uibModal', 'apiClient', 'browserClient', 'storage',
         'helper', 'device', 'managerBase', 'managerDatastore', 'shareBlueprint',
         'itemBlueprint', 'cryptoLibrary', managerDatastoreUser]);
 

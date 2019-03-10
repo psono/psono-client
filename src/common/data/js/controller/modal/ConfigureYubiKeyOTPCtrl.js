@@ -13,8 +13,19 @@
      * @description
      * Controller for the "Setup Google Authenticator" modal
      */
-    angular.module('psonocli').controller('ModalConfigureYubiKeyOTPCtrl', ['$scope', '$q', '$uibModalInstance', 'managerDatastoreUser', 'helper',
-        function ($scope, $q, $uibModalInstance, managerDatastoreUser, helper) {
+    angular.module('psonocli').controller('ModalConfigureYubiKeyOTPCtrl', ['$scope', '$q', '$uibModalInstance',
+        'managerDatastoreUser', 'helper', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'languagePicker',
+        function ($scope, $q, $uibModalInstance,
+                  managerDatastoreUser, helper, DTOptionsBuilder, DTColumnDefBuilder, languagePicker) {
+
+            $scope.dtOptions = DTOptionsBuilder
+                .newOptions()
+                .withLanguageSource('translations/datatables.' + languagePicker.get_active_language_code() + '.json');
+
+            $scope.dtColumnDefs = [
+                DTColumnDefBuilder.newColumnDef(0),
+                DTColumnDefBuilder.newColumnDef(1)
+            ];
 
             $scope.create_yubikey_otp = create_yubikey_otp;
             $scope.delete_yubikey_otp = delete_yubikey_otp;
@@ -49,7 +60,7 @@
                 $scope.errors = [];
 
                 if (typeof(new_yubikey_otp.title) === 'undefined' || new_yubikey_otp.title === '') {
-                    $scope.errors = ['Title is required'];
+                    $scope.errors = ['TITLE_IS_REQUIRED'];
                     return $q.resolve();
                 }
 

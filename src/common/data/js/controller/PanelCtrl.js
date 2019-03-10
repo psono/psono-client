@@ -36,7 +36,7 @@
             $scope.open_tab = browserClient.open_tab;
             $scope.logout = managerDatastoreUser.logout;
             $scope.filterBySearch = filterBySearch;
-            $scope.on_item_click = managerSecret.on_item_click;
+            $scope.on_item_click = on_item_click;
             $scope.edit_item = edit_item;
             $scope.generate_password = generate_password;
             $scope.bookmark = bookmark;
@@ -61,8 +61,19 @@
                     //console.log(ele);
                 });
 
+                manager.storage_on('datastore-file-leafs', 'update', function (ele) {
+                    //console.log("main.js update");
+                    //console.log(ele);
+                });
+
 
                 manager.storage_on('datastore-password-leafs', 'insert', function (ele) {
+                    //console.log("main.js insert");
+                    $scope.searchArray.push(ele);
+                });
+
+
+                manager.storage_on('datastore-file-leafs', 'insert', function (ele) {
                     //console.log("main.js insert");
                     $scope.searchArray.push(ele);
                 });
@@ -78,10 +89,21 @@
                     }
                 });
 
+
+                manager.storage_on('datastore-file-leafs', 'delete', function (ele) {
+                    //console.log("main.js update");
+                    //console.log(ele);
+                    for (var i = $scope.searchArray.length - 1; i >= 0; i--) {
+                        if ($scope.searchArray[i].key === ele.key) {
+                            $scope.searchArray.splice(i, 1);
+                        }
+                    }
+                });
+
                 if (offlineCache.is_active() && offlineCache.is_locked()) {
 
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal-unlock-offline-cache.html',
+                        templateUrl: 'view/modal/unlock-offline-cache.html',
                         controller: 'ModalUnlockOfflineCacheCtrl',
                         backdrop: 'static',
                         resolve: {
@@ -184,6 +206,21 @@
                 // check if either the name or the urlfilter of our entry match our search input of the
                 // "search datastore..." field
                 return password_filter(datastore_entry);
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:PanelCtrl#on_item_click
+             * @methodOf psonocli.controller:MainCtrl
+             *
+             * @description
+             * Triggered once someone clicks an item
+             *
+             * @param {object} item The item to open
+             */
+            function on_item_click(item) {
+                console.log(item);
+                managerSecret.on_item_click(item)
             }
 
         }]
