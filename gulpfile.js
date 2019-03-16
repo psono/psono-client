@@ -114,6 +114,7 @@ var build = function(build_path, type) {
             "src/common/data/js/lib/jquery.min.js",
             "src/common/data/js/lib/client.min.js",
             "src/common/data/js/lib/FileSaver.min.js",
+            "src/common/data/js/lib/text-decoder-polyfill.min.js",
             "src/common/data/js/lib/datatables.min.js",
             "src/common/data/js/lib/snap.min.js",
             "src/common/data/js/lib/jquery-ui.min.js",
