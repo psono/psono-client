@@ -38,6 +38,7 @@ WEBHOOKS = {
     'ko': 'https://api.poeditor.com/webhooks/f9b7e46774',
     'nl': 'https://api.poeditor.com/webhooks/e9759d447d',
     'pl': 'https://api.poeditor.com/webhooks/c509027422',
+    'pt': 'https://api.poeditor.com/webhooks/2ac051e460',
     'ru': 'https://api.poeditor.com/webhooks/9230be9768',
     'vi': 'https://api.poeditor.com/webhooks/ae0b49bd93',
     'zh-cn': 'https://api.poeditor.com/webhooks/22ed2bb261',
