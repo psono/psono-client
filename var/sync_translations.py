@@ -25,17 +25,44 @@ LANGUAGE_CODES = [
     "ji", "zu"
 ]
 
+WEBHOOKS = {
+    'cs': 'https://api.poeditor.com/webhooks/6f9ccaf590',
+    'de': 'https://api.poeditor.com/webhooks/cc03403af4',
+    'en': 'https://api.poeditor.com/webhooks/0f5aeab8bc',
+    'es': 'https://api.poeditor.com/webhooks/ab77f8945a',
+    'fi': 'https://api.poeditor.com/webhooks/b8096339f3',
+    'fr': 'https://api.poeditor.com/webhooks/54848feabf',
+    'hr': 'https://api.poeditor.com/webhooks/08749311d2',
+    'it': 'https://api.poeditor.com/webhooks/c935515d00',
+    'ja': 'https://api.poeditor.com/webhooks/333879768e',
+    'ko': 'https://api.poeditor.com/webhooks/f9b7e46774',
+    'nl': 'https://api.poeditor.com/webhooks/e9759d447d',
+    'pl': 'https://api.poeditor.com/webhooks/c509027422',
+    'ru': 'https://api.poeditor.com/webhooks/9230be9768',
+    'vi': 'https://api.poeditor.com/webhooks/ae0b49bd93',
+    'zh-cn': 'https://api.poeditor.com/webhooks/22ed2bb261',
+}
+
 
 def upload_language(lang):
 
-    params = (
-        ('api_token', POEDITOR_API_KEY),
-        ('id_project', POEDITOR_PROJECT_ID),
-        ('language', lang),
-        ('operation', 'import_terms_and_translations'),
-    )
+    if lang in WEBHOOKS:
+        params = (
+            ('api_token', POEDITOR_API_KEY),
+            ('id_project', POEDITOR_PROJECT_ID),
+        )
 
-    r = requests.post('https://poeditor.com/api/webhooks/gitlab', params=params)
+        r = requests.post(WEBHOOKS[lang], params=params)
+    else:
+        print("Error: upload_language " + lang + " No webhook configured for this language")
+    #     params = (
+    #         ('api_token', POEDITOR_API_KEY),
+    #         ('id_project', POEDITOR_PROJECT_ID),
+    #         ('language', lang),
+    #         ('operation', 'import_terms_and_translations'),
+    #     )
+    #
+    #     r = requests.post('https://poeditor.com/api/webhooks/gitlab', params=params)
     if not r.ok or r.text != 'Request received':
         print("Error: upload_language " + lang)
         print(r.text)
@@ -97,6 +124,7 @@ def get_languages():
         print(r.json())
         exit(1)
     result = r.json()
+    print(result['result']['languages'])
     return result['result']['languages']
 
 
