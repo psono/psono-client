@@ -37,9 +37,10 @@ def upload_language(lang):
 
     r = requests.post('https://poeditor.com/api/webhooks/gitlab', params=params)
     if not r.ok or r.text != 'Request received':
-        print("Error: upload_language")
-        print(r.json())
+        print("Error: upload_language " + lang)
+        print(r.text)
         exit(1)
+    print("Success: upload_language " + lang)
 
 def download_language(lang):
     data = [
@@ -54,7 +55,7 @@ def download_language(lang):
 
     if not r.ok:
         print("Error: download_language")
-        print(r.json())
+        print(r.text)
         exit(1)
 
     result = r.json()
@@ -68,9 +69,11 @@ def download_language(lang):
             r.raw.decode_content = True
             shutil.copyfileobj(r.raw, f)
 
+    print("Success: download_language " + lang)
+
     return path
 
-def deploy_to_artifactory(artifactory_user, artifactory_pass, artifactory_url, path, file):
+def deploy_to_artifactory(artifactory_user, artifactory_pass, artifactory_url, path, lang, file):
     with open(file, 'rb') as f:
         r = requests.put(artifactory_url + path  + file,
                          data=f,
@@ -80,7 +83,7 @@ def deploy_to_artifactory(artifactory_user, artifactory_pass, artifactory_url, p
         print(r.json())
         exit(1)
     result = r.json()
-    print(result)
+    print("Success: deploy_to_artifactory " + lang)
 
 def get_languages():
     data = [
@@ -108,7 +111,7 @@ def main():
             exit(1)
         upload_language(language_code)
         file = download_language(language_code)
-        deploy_to_artifactory(ARTIFACTORY_USER, ARTIFACTORY_PASS, ARTIFACTORY_URL, ARTIFACTORY_PATH, file)
+        deploy_to_artifactory(ARTIFACTORY_USER, ARTIFACTORY_PASS, ARTIFACTORY_URL, ARTIFACTORY_PATH, language_code, file)
 
     print("Success")
 
