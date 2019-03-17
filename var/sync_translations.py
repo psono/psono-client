@@ -25,21 +25,50 @@ LANGUAGE_CODES = [
     "ji", "zu"
 ]
 
+WEBHOOKS = {
+    'cs': 'https://api.poeditor.com/webhooks/6f9ccaf590',
+    'de': 'https://api.poeditor.com/webhooks/cc03403af4',
+    'en': 'https://api.poeditor.com/webhooks/0f5aeab8bc',
+    'es': 'https://api.poeditor.com/webhooks/ab77f8945a',
+    'fi': 'https://api.poeditor.com/webhooks/b8096339f3',
+    'fr': 'https://api.poeditor.com/webhooks/54848feabf',
+    'hr': 'https://api.poeditor.com/webhooks/08749311d2',
+    'it': 'https://api.poeditor.com/webhooks/c935515d00',
+    'ja': 'https://api.poeditor.com/webhooks/333879768e',
+    'ko': 'https://api.poeditor.com/webhooks/f9b7e46774',
+    'nl': 'https://api.poeditor.com/webhooks/e9759d447d',
+    'pl': 'https://api.poeditor.com/webhooks/c509027422',
+    'pt': 'https://api.poeditor.com/webhooks/2ac051e460',
+    'ru': 'https://api.poeditor.com/webhooks/9230be9768',
+    'vi': 'https://api.poeditor.com/webhooks/ae0b49bd93',
+    'zh-cn': 'https://api.poeditor.com/webhooks/22ed2bb261',
+}
+
 
 def upload_language(lang):
 
-    params = (
-        ('api_token', POEDITOR_API_KEY),
-        ('id_project', POEDITOR_PROJECT_ID),
-        ('language', lang),
-        ('operation', 'import_terms_and_translations'),
-    )
+    if lang in WEBHOOKS:
+        params = (
+            ('api_token', POEDITOR_API_KEY),
+            ('id_project', POEDITOR_PROJECT_ID),
+        )
 
-    r = requests.post('https://poeditor.com/api/webhooks/gitlab', params=params)
+        r = requests.post(WEBHOOKS[lang], params=params)
+    else:
+        print("Error: upload_language " + lang + " No webhook configured for this language")
+    #     params = (
+    #         ('api_token', POEDITOR_API_KEY),
+    #         ('id_project', POEDITOR_PROJECT_ID),
+    #         ('language', lang),
+    #         ('operation', 'import_terms_and_translations'),
+    #     )
+    #
+    #     r = requests.post('https://poeditor.com/api/webhooks/gitlab', params=params)
     if not r.ok or r.text != 'Request received':
-        print("Error: upload_language")
-        print(r.json())
+        print("Error: upload_language " + lang)
+        print(r.text)
         exit(1)
+    print("Success: upload_language " + lang)
 
 def download_language(lang):
     data = [
@@ -54,7 +83,7 @@ def download_language(lang):
 
     if not r.ok:
         print("Error: download_language")
-        print(r.json())
+        print(r.text)
         exit(1)
 
     result = r.json()
@@ -68,9 +97,11 @@ def download_language(lang):
             r.raw.decode_content = True
             shutil.copyfileobj(r.raw, f)
 
+    print("Success: download_language " + lang)
+
     return path
 
-def deploy_to_artifactory(artifactory_user, artifactory_pass, artifactory_url, path, file):
+def deploy_to_artifactory(artifactory_user, artifactory_pass, artifactory_url, path, lang, file):
     with open(file, 'rb') as f:
         r = requests.put(artifactory_url + path  + file,
                          data=f,
@@ -80,7 +111,7 @@ def deploy_to_artifactory(artifactory_user, artifactory_pass, artifactory_url, p
         print(r.json())
         exit(1)
     result = r.json()
-    print(result)
+    print("Success: deploy_to_artifactory " + lang)
 
 def get_languages():
     data = [
@@ -94,6 +125,7 @@ def get_languages():
         print(r.json())
         exit(1)
     result = r.json()
+    print(result['result']['languages'])
     return result['result']['languages']
 
 
@@ -108,7 +140,7 @@ def main():
             exit(1)
         upload_language(language_code)
         file = download_language(language_code)
-        deploy_to_artifactory(ARTIFACTORY_USER, ARTIFACTORY_PASS, ARTIFACTORY_URL, ARTIFACTORY_PATH, file)
+        deploy_to_artifactory(ARTIFACTORY_USER, ARTIFACTORY_PASS, ARTIFACTORY_URL, ARTIFACTORY_PATH, language_code, file)
 
     print("Success")
 

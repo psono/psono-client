@@ -506,6 +506,7 @@
                             ['key', 'id'],
                             ['file_id', 'file_id'],
                             ['file_shard_id', 'file_shard_id'],
+                            ['file_repository_id', 'file_repository_id'],
                             ['file_size', 'file_size'],
                             ['file_secret_key', 'file_secret_key'],
                             ['file_chunks', 'file_chunks'],

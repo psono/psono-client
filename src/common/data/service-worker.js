@@ -124,6 +124,7 @@ self.addEventListener('install', function(event) {
                 './js/lib/chart.min.js',
                 './js/lib/client.min.js',
                 './js/lib/FileSaver.min.js',
+                './js/lib/text-decoder-polyfill.min.js',
                 './js/lib/jquery.min.js',
                 './js/lib/datatables.min.js',
                 './js/lib/snap.min.js',

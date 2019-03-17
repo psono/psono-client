@@ -124,6 +124,12 @@ h1, h2 {
   .popover-content a {
     color: #151f2b; }
 
+.modal-edit {
+  position: -webkit-sticky;
+  /* Safari */
+  position: sticky;
+  top: 0; }
+
 /* All Tree Changes */
 .tree::before {
   bottom: 23px;
