@@ -613,7 +613,7 @@
                 return $q.resolve();
             }
 
-            if (file.hasOwnProperty('file_shard_id')) {
+            if (file.hasOwnProperty('file_shard_id') && file['file_shard_id']) {
                 return download_file_from_shard(file);
             } else {
                 return download_file_from_file_repository(file);
