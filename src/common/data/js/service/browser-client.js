@@ -130,7 +130,20 @@
                 url: "config.json"
             };
 
-            return $http(req);
+            var onSuccess = function(orig_json_config) {
+                var new_config = orig_json_config.data;
+
+                return $q.resolve(new_config);
+            };
+
+            var onError = function(error) {
+                //should not happen
+                console.log(error);
+                return $q.reject(error);
+            };
+
+            return $http(req)
+                .then(onSuccess, onError);
         };
 
         /**
@@ -276,8 +289,8 @@
                 if (Object.keys(config).length === 0) {
 
 
-                    var onSuccess = function(data) {
-                        config = data.data;
+                    var onSuccess = function(new_config) {
+                        config = new_config;
                         return resolve(_get_config(key));
                     };
 
