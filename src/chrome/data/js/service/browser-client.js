@@ -109,7 +109,34 @@
                 url: "config.json"
             };
 
-            return $http(req);
+            var onSuccess = function(orig_json_config) {
+
+                var new_config = orig_json_config.data;
+
+                var deferred = $q.defer();
+
+                var onStorageRetrieve = function(storage_item) {
+                    try {
+                        new_config = JSON.parse(storage_item.ConfigJson);
+                    } catch (e) {
+                        // pass
+                    }
+                    return deferred.resolve(new_config);
+                };
+
+                chrome.storage.managed.get('ConfigJson', onStorageRetrieve);
+
+                return deferred.promise;
+            };
+
+            var onError = function(error) {
+                //should not happen
+                console.log(error);
+                return $q.reject(error);
+            };
+
+            return $http(req)
+                .then(onSuccess, onError);
         };
 
         /**
@@ -219,8 +246,8 @@
                 if (Object.keys(config).length === 0) {
 
 
-                    var onSuccess = function(data) {
-                        config = data.data;
+                    var onSuccess = function(new_config) {
+                        config = new_config;
                         return resolve(_get_config(key));
                     };
 

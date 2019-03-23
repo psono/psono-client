@@ -27,6 +27,9 @@
     "http://*/*",
     "https://*/*"
   ],
+  "storage": {
+    "managed_schema": "managed_storage.json"
+  },
   "icons": {
     "16": "data/img/icon-16.png",
     "32": "data/img/icon-32.png",
