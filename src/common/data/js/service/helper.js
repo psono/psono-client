@@ -519,9 +519,11 @@
          * @param {string} test Testable string
          */
         function get_password_filter(test) {
+
             var searchStrings = test.toLowerCase().split(" ");
 
             return function(datastore_entry) {
+
                 var containCounter = 0;
                 for (var ii = searchStrings.length - 1; ii >= 0; ii--) {
                     if (typeof(datastore_entry.name) === 'undefined') {
