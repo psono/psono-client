@@ -123,9 +123,14 @@
                     managerDatastorePassword.get_password_datastore();
                 }
 
-
+                var filterTimeout;
                 $scope.$watch('datastore.search', function (value) {
-                    password_filter = helper.get_password_filter(value);
+                    if (filterTimeout) {
+                        $timeout.cancel(filterTimeout);
+                    }
+                    filterTimeout = $timeout(function() {
+                        password_filter = helper.get_password_filter(value);
+                    }, 250); // delay 250 ms
                 });
             }
 

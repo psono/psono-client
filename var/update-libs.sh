@@ -75,5 +75,21 @@ wget https://raw.githubusercontent.com/samthor/fast-text-encoding/master/text.mi
 
 wget https://cdn.ravenjs.com/3.26.4/angular/raven.min.js -O src/common/data/js/lib/raven.min.js
 
+wget https://github.com/tonsky/FiraCode/raw/1.206/distr/eot/FiraCode-Bold.eot -O src/common/data/fonts/FiraCode-Bold.eot
+wget https://github.com/tonsky/FiraCode/raw/1.206/distr/eot/FiraCode-Light.eot -O src/common/data/fonts/FiraCode-Light.eot
+wget https://github.com/tonsky/FiraCode/raw/1.206/distr/eot/FiraCode-Medium.eot -O src/common/data/fonts/FiraCode-Medium.eot
+wget https://github.com/tonsky/FiraCode/raw/1.206/distr/eot/FiraCode-Regular.eot -O src/common/data/fonts/FiraCode-Regular.eot
+wget https://github.com/tonsky/FiraCode/raw/1.206/distr/woff/FiraCode-Bold.woff -O src/common/data/fonts/FiraCode-Bold.woff
+wget https://github.com/tonsky/FiraCode/raw/1.206/distr/woff/FiraCode-Light.woff -O src/common/data/fonts/FiraCode-Light.woff
+wget https://github.com/tonsky/FiraCode/raw/1.206/distr/woff/FiraCode-Medium.woff -O src/common/data/fonts/FiraCode-Medium.woff
+wget https://github.com/tonsky/FiraCode/raw/1.206/distr/woff/FiraCode-Regular.woff -O src/common/data/fonts/FiraCode-Regular.woff
+wget https://github.com/tonsky/FiraCode/raw/1.206/distr/woff2/FiraCode-Bold.woff2 -O src/common/data/fonts/FiraCode-Bold.woff2
+wget https://github.com/tonsky/FiraCode/raw/1.206/distr/woff2/FiraCode-Light.woff2 -O src/common/data/fonts/FiraCode-Light.woff2
+wget https://github.com/tonsky/FiraCode/raw/1.206/distr/woff2/FiraCode-Medium.woff2 -O src/common/data/fonts/FiraCode-Medium.woff2
+wget https://github.com/tonsky/FiraCode/raw/1.206/distr/woff2/FiraCode-Regular.woff2 -O src/common/data/fonts/FiraCode-Regular.woff2
+wget https://github.com/tonsky/FiraCode/raw/1.206/distr/ttf/FiraCode-Bold.ttf -O src/common/data/fonts/FiraCode-Bold.ttf
+wget https://github.com/tonsky/FiraCode/raw/1.206/distr/ttf/FiraCode-Light.ttf -O src/common/data/fonts/FiraCode-Light.ttf
+wget https://github.com/tonsky/FiraCode/raw/1.206/distr/ttf/FiraCode-Medium.ttf -O src/common/data/fonts/FiraCode-Medium.ttf
+wget https://github.com/tonsky/FiraCode/raw/1.206/distr/ttf/FiraCode-Regular.ttf -O src/common/data/fonts/FiraCode-Regular.ttf
 
 

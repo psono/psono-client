@@ -12,6 +12,9 @@ h1, h2 {
   font-size: 20px;
   margin: 0; }
 
+.monospace {
+  font-family: 'Fira Code', monospace; }
+
 #panel {
   padding: 10px; }
 

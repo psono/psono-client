@@ -165,8 +165,14 @@
              * all about the datastore search:
              */
 
+            var filterTimeout;
             $scope.$watch('tosearchTreeFilter', function(newValue) {
-                managerDatastorePassword.modifyTreeForSearch(newValue, $scope.structure.data);
+                if (filterTimeout) {
+                    $timeout.cancel(filterTimeout);
+                }
+                filterTimeout = $timeout(function() {
+                    managerDatastorePassword.modifyTreeForSearch(newValue, $scope.structure.data);
+                }, 300); // delay 300 ms
             });
 
             /**

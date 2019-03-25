@@ -54,6 +54,7 @@ var build = function(build_path, type) {
             "src/common/data/css/lib/datatables.min.css",
             "src/common/data/css/lib/angular-snap.css",
             "src/common/data/css/lib/font-awesome.min.css",
+            "src/common/data/css/lib/fira_code.css",
             "src/common/data/css/lib/angular-datatables.css",
             "src/common/data/css/lib/datatables.bootstrap.css",
             "src/common/data/css/lib/angular-ui-select.css",
