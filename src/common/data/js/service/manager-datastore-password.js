@@ -1555,36 +1555,19 @@
 
             var show = false;
 
-            var i, ii;
+            var i;
             if (searchTree.hasOwnProperty('folders')) {
                 for (i = searchTree.folders.length - 1; searchTree.folders && i >= 0; i--) {
                     show = modifyTreeForSearch(newValue, searchTree.folders[i]) || show;
                 }
             }
 
-            newValue = newValue.toLowerCase();
-            var searchStrings = newValue.split(" ");
+            var password_filter = helper.get_password_filter(newValue);
 
             // Test title of the items
-            var containCounter = 0;
             if (searchTree.hasOwnProperty('items')) {
                 for (i = searchTree.items.length - 1; searchTree.items && i >= 0; i--) {
-                    containCounter = 0;
-                    for (ii = searchStrings.length - 1; ii >= 0; ii--) {
-                        if (typeof(searchTree.items[i].name) === 'undefined') {
-                            continue;
-                        }
-                        if (searchTree.items[i].name.toLowerCase().indexOf(searchStrings[ii]) > -1) {
-                            containCounter++
-                        } else if(searchTree.items[i].hasOwnProperty('id') && searchTree.items[i]['id'] === searchStrings[ii]) {
-                            containCounter++
-                        } else if(searchTree.items[i].hasOwnProperty('secret_id') && searchTree.items[i]['secret_id'] === searchStrings[ii]) {
-                            containCounter++
-                        } else if(searchTree.items[i].hasOwnProperty('share_id') && searchTree.items[i]['share_id'] === searchStrings[ii]) {
-                            containCounter++
-                        }
-                    }
-                    if (containCounter === searchStrings.length) {
+                    if (password_filter(searchTree.items[i])) {
                         searchTree.items[i].hidden = false;
                         show = true;
                     } else {
@@ -1594,17 +1577,7 @@
             }
             // Test title of the folder
             if (typeof searchTree.name !== 'undefined') {
-                containCounter = 0;
-                for (ii = searchStrings.length - 1; ii >= 0; ii--) {
-                    if (searchTree.name.toLowerCase().indexOf(searchStrings[ii]) > -1) {
-                        containCounter++
-                    } else if(searchTree.hasOwnProperty('id') && searchTree['id'] === searchStrings[ii]) {
-                        containCounter++
-                    } else if(searchTree.hasOwnProperty('share_id') && searchTree['share_id'] === searchStrings[ii]) {
-                        containCounter++
-                    }
-                }
-                if (containCounter === searchStrings.length) {
+                if (password_filter(searchTree)) {
                     show = true;
                     showFolderContentRecursive(searchTree);
                 }

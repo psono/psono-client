@@ -519,10 +519,27 @@
          * @param {string} test Testable string
          */
         function get_password_filter(test) {
-            var regex = new RegExp(test.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1"), 'i');
+            var searchStrings = test.toLowerCase().split(" ");
 
             return function(datastore_entry) {
-                return regex.test(datastore_entry.name) || regex.test(datastore_entry.urlfilter);
+                var containCounter = 0;
+                for (var ii = searchStrings.length - 1; ii >= 0; ii--) {
+                    if (typeof(datastore_entry.name) === 'undefined') {
+                        continue;
+                    }
+                    if (datastore_entry.hasOwnProperty('name') && datastore_entry['name'].toLowerCase().indexOf(searchStrings[ii]) > -1) {
+                        containCounter++
+                    } else if (datastore_entry.hasOwnProperty('urlfilter') && datastore_entry['urlfilter'] && datastore_entry['urlfilter'].toLowerCase().indexOf(searchStrings[ii]) > -1) {
+                        containCounter++
+                    } else if(datastore_entry.hasOwnProperty('id') && datastore_entry['id'] === searchStrings[ii]) {
+                        containCounter++
+                    } else if(datastore_entry.hasOwnProperty('secret_id') && datastore_entry['secret_id'] === searchStrings[ii]) {
+                        containCounter++
+                    } else if(datastore_entry.hasOwnProperty('share_id') && datastore_entry['share_id'] === searchStrings[ii]) {
+                        containCounter++
+                    }
+                }
+                return containCounter === searchStrings.length;
             }
         }
 
