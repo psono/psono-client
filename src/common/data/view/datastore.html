@@ -127,7 +127,7 @@
                         <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
                              ng-if="!n.tab && (!n.position || n.position == 'before')">
 
-                            <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                            <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
                                    id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
                                    ng-model="n.value" ng-hide="n.hidden || n.hidden_edit" ng-readonly="n.readonly"
                                    ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems" ng-hide="n.hidden || n.hidden_edit">{{n.title | translate}}</span>
@@ -135,7 +135,7 @@
                             <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden || n.hidden_edit" ng-click="bp.selected[n.onClick](node, bp.selected.fields, errors)">{{n.title | translate}}</button>
 
                             <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
-                                <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                                <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
                                        id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
                                        ng-model="n.value" ng-hide="n.hidden || n.hidden_edit" ng-readonly="n.readonly"
                                        ng-change="bp.selected[n.onChange](bp.selected.fields)">
@@ -157,7 +157,7 @@
 
 
                             <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
-                                      ng-class="{'form-control': n.type !== 'checkbox'}" id="editEntryForm-{{n.name}}"
+                                      ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}" id="editEntryForm-{{n.name}}"
                                       placeholder="{{n.placeholder | translate}}"  ng-required="n.required && !n.hidden && !n.hidden_edit"
                                       ng-model="n.value" ng-hide="n.hidden || n.hidden_edit" ng-readonly="n.readonly"></textarea>
 
@@ -170,7 +170,7 @@
                                 <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
                                      ng-if="n.tab == tab.id">
 
-                                    <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                                    <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
                                            id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
                                            ng-model="n.value" ng-hide="n.hidden || n.hidden_edit" ng-readonly="n.readonly"
                                            ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems" ng-hide="n.hidden || n.hidden_edit">{{n.title | translate}}</span>
@@ -178,7 +178,7 @@
                                     <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden || n.hidden_edit" ng-click="bp.selected[n.onClick](node, bp.selected.fields, errors)">{{n.title | translate}}</button>
 
                                     <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
-                                        <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                                        <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
                                                id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
                                                ng-model="n.value" ng-hide="n.hidden || n.hidden_edit" ng-readonly="n.readonly"
                                                ng-change="bp.selected[n.onChange](bp.selected.fields)">
@@ -200,7 +200,7 @@
                                     </uib-progressbar>
 
                                     <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
-                                              ng-class="{'form-control': n.type !== 'checkbox'}" id="editEntryForm-{{n.name}}"
+                                              ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}" id="editEntryForm-{{n.name}}"
                                               placeholder="{{n.placeholder | translate}}"  ng-required="n.required && !n.hidden && !n.hidden_edit"
                                               ng-model="n.value" ng-hide="n.hidden || n.hidden_edit" ng-readonly="n.readonly"></textarea>
 
@@ -213,7 +213,7 @@
                         <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
                              ng-if="!n.tab && n.position == 'after'">
 
-                            <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                            <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
                                    id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
                                    ng-model="n.value" ng-hide="n.hidden || n.hidden_edit" ng-readonly="n.readonly"
                                    ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems" ng-hide="n.hidden || n.hidden_edit">{{n.title | translate}}</span>
@@ -221,7 +221,7 @@
                             <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden || n.hidden_edit" ng-click="bp.selected[n.onClick](node, bp.selected.fields, errors)">{{n.title | translate}}</button>
 
                             <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
-                                <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                                <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
                                        id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
                                        ng-model="n.value" ng-hide="n.hidden || n.hidden_edit" ng-readonly="n.readonly"
                                        ng-change="bp.selected[n.onChange](bp.selected.fields)">
@@ -243,7 +243,7 @@
                             </uib-progressbar>
 
                             <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
-                                      ng-class="{'form-control': n.type !== 'checkbox'}" id="editEntryForm-{{n.name}}"
+                                      ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}" id="editEntryForm-{{n.name}}"
                                       placeholder="{{n.placeholder | translate}}"  ng-required="n.required && !n.hidden && !n.hidden_edit"
                                       ng-model="n.value" ng-hide="n.hidden || n.hidden_edit" ng-readonly="n.readonly"></textarea>
 
@@ -261,7 +261,7 @@
                             <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
                                  ng-if="!n.tab && n.position == 'advanced'">
 
-                                <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                                <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
                                        id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
                                        ng-model="n.value" ng-hide="n.hidden || n.hidden_edit" ng-readonly="n.readonly"
                                        ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems" ng-hide="n.hidden || n.hidden_edit">{{n.title | translate}}</span>
@@ -269,7 +269,7 @@
                                 <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden || n.hidden_edit" ng-click="bp.selected[n.onClick](node, bp.selected.fields, errors)">{{n.title | translate}}</button>
 
                                 <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
-                                    <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                                    <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
                                            id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
                                            ng-model="n.value" ng-hide="n.hidden || n.hidden_edit"
                                            ng-change="bp.selected[n.onChange](bp.selected.fields)">
@@ -291,7 +291,7 @@
                                 </uib-progressbar>
 
                                 <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
-                                          ng-class="{'form-control': n.type !== 'checkbox'}" id="editEntryForm-{{n.name}}"
+                                          ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}" id="editEntryForm-{{n.name}}"
                                           placeholder="{{n.placeholder | translate}}"  ng-required="n.required && !n.hidden && !n.hidden_edit"
                                           ng-model="n.value" ng-hide="n.hidden || n.hidden_edit" ng-readonly="n.readonly"></textarea>
 

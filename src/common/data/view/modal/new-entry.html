@@ -35,7 +35,7 @@
             </ui-select>
 
             <input ng-if="n.field == 'input' && !n.dropmenuItems && !n.usernameInputGroupAddon" type="{{n.type}}" name="{{n.name}}"
-                   ng-class="{'form-control': n.type !== 'checkbox'}"
+                   ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
                    id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden"
                    ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
                    ng-change="bp.selected[n.onChange](bp.selected.fields)">
@@ -43,7 +43,7 @@
             <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](node, bp.selected.fields, errors, form_control, selected_server_domain)">{{n.title | translate}}</button>
 
             <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
-                <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
                        id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden"
                        ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
                        ng-change="bp.selected[n.onChange](bp.selected.fields)">
@@ -65,7 +65,7 @@
             </uib-progressbar>
 
             <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
-                      ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
+                      ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}" id="newEntryForm-{{n.name}}"
                       placeholder="{{n.placeholder | translate}}"  ng-required="n.required && !n.hidden"
                       ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
             <p class="help-block note" ng-hide="n.hidden">{{n.note | translate}}</p>
@@ -87,7 +87,7 @@
                         <span class="input-group-addon" id="{{n.name}}-addon" ng-if="n.usernameInputGroupAddon && (n.value == null || n.value.indexOf('@') == -1)">@{{selected_server_domain}}</span>
                     </div>
 
-                    <input ng-if="n.field == 'input' && !n.dropmenuItems && !n.usernameInputGroupAddon" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                    <input ng-if="n.field == 'input' && !n.dropmenuItems && !n.usernameInputGroupAddon" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
                            id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden"
                            ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
                            ng-change="bp.selected[n.onChange](bp.selected.fields)">
@@ -96,7 +96,7 @@
                     <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](node, bp.selected.fields, errors, form_control, selected_server_domain)">{{n.title | translate}}</button>
 
                     <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
-                        <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                        <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
                                id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden"
                                ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
                                ng-change="bp.selected[n.onChange](bp.selected.fields)">
@@ -118,7 +118,7 @@
                     </uib-progressbar>
 
                     <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
-                              ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
+                              ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}" id="newEntryForm-{{n.name}}"
                               placeholder="{{n.placeholder | translate}}"  ng-required="n.required && !n.hidden"
                               ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
                     <p class="help-block note" ng-hide="n.hidden">{{n.note | translate}}</p>
@@ -139,7 +139,7 @@
                 <span class="input-group-addon" id="{{n.name}}-addon" ng-if="n.usernameInputGroupAddon && (n.value == null || n.value.indexOf('@') == -1)">@{{selected_server_domain}}</span>
             </div>
 
-            <input ng-if="n.field == 'input' && !n.dropmenuItems && !n.usernameInputGroupAddon" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+            <input ng-if="n.field == 'input' && !n.dropmenuItems && !n.usernameInputGroupAddon" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
                    id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden"
                    ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
                    ng-change="bp.selected[n.onChange](bp.selected.fields)">
@@ -148,7 +148,7 @@
             <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](node, bp.selected.fields, errors, form_control, selected_server_domain)">{{n.title | translate}}</button>
 
             <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
-                <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
                        id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden"
                        ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
                        ng-change="bp.selected[n.onChange](bp.selected.fields)">
@@ -170,7 +170,7 @@
             </uib-progressbar>
 
             <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
-                      ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
+                      ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}" id="newEntryForm-{{n.name}}"
                       placeholder="{{n.placeholder | translate}}"  ng-required="n.required && !n.hidden"
                       ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
             <p class="help-block note" ng-hide="n.hidden">{{n.note | translate}}</p>
@@ -195,7 +195,7 @@
                     <span class="input-group-addon" id="{{n.name}}-addon" ng-if="n.usernameInputGroupAddon && (n.value == null || n.value.indexOf('@') == -1)">@{{selected_server_domain}}</span>
                 </div>
 
-                <input ng-if="n.field == 'input' && !n.dropmenuItems && !n.usernameInputGroupAddon" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                <input ng-if="n.field == 'input' && !n.dropmenuItems && !n.usernameInputGroupAddon" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
                        id="newEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden"
                        ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
                        ng-change="bp.selected[n.onChange](bp.selected.fields)">
@@ -204,7 +204,7 @@
                 <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden" ng-click="bp.selected[n.onClick](node, bp.selected.fields, errors, form_control, selected_server_domain)">{{n.title | translate}}</button>
 
                 <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
-                    <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox'}"
+                    <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
                            id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden"
                            ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"
                            ng-change="bp.selected[n.onChange](bp.selected.fields)">
@@ -226,7 +226,7 @@
                 </uib-progressbar>
 
                 <textarea ng-if="n.field == 'textarea'" name="{{n.name}}"
-                      ng-class="{'form-control': n.type !== 'checkbox'}" id="newEntryForm-{{n.name}}"
+                      ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}" id="newEntryForm-{{n.name}}"
                       placeholder="{{n.placeholder | translate}}"  ng-required="n.required && !n.hidden"
                           ng-model="n.value" ng-hide="n.hidden" ng-readonly="n.readonly"></textarea>
                 <p class="help-block note" ng-hide="n.hidden">{{n.note | translate}}</p>
