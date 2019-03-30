@@ -167,6 +167,7 @@
          */
         var get_possible_types = function() {
             return [
+                {value: 'aws_s3', title: 'AWS S3'},
                 {value: 'gcp_cloud_storage', title: 'GCP Cloud Storage'}
             ];
         };
@@ -237,10 +238,14 @@
          * @param {string} type The type of the new file repository
          * @param {string} [gcp_cloud_storage_bucket] (optional) The gcp cloud storage bucket
          * @param {string} [gcp_cloud_storage_json_key] (optional) The gcp cloud storage json key
+         * @param {string} [aws_s3_bucket] (optional) The s3 bucket
+         * @param {string} [aws_s3_region] (optional) The s3 region
+         * @param {string} [aws_s3_access_key_id] (optional) The s3 access key
+         * @param {string} [aws_s3_secret_access_key] (optional) The s3 secret key
          *
          * @returns {promise} Promise with the new id
          */
-        var create_file_repository = function(title, type, gcp_cloud_storage_bucket, gcp_cloud_storage_json_key) {
+        var create_file_repository = function(title, type, gcp_cloud_storage_bucket, gcp_cloud_storage_json_key, aws_s3_bucket, aws_s3_region, aws_s3_access_key_id, aws_s3_secret_access_key) {
 
             var onSuccess = function (result) {
                 var file_repository_id = result.data['file_repository_id'];
@@ -258,7 +263,11 @@
                 title,
                 type,
                 gcp_cloud_storage_bucket,
-                gcp_cloud_storage_json_key
+                gcp_cloud_storage_json_key,
+                aws_s3_bucket,
+                aws_s3_region,
+                aws_s3_access_key_id,
+                aws_s3_secret_access_key
             )
                 .then(onSuccess, onError);
         };
@@ -276,11 +285,16 @@
          * @param {string} type The type of the new file repository
          * @param {string} [gcp_cloud_storage_bucket] (optional) The gcp cloud storage bucket
          * @param {string} [gcp_cloud_storage_json_key] (optional) The gcp cloud storage json key
+         * @param {string} [aws_s3_bucket] (optional) The s3 bucket
+         * @param {string} [aws_s3_region] (optional) The s3 region
+         * @param {string} [aws_s3_access_key_id] (optional) The s3 access key
+         * @param {string} [aws_s3_secret_access_key] (optional) The s3 secret key
          * @param {bool} active
          *
          * @returns {promise} Promise with the new id
          */
-        var update_file_repository = function(file_repository_id, title, type, gcp_cloud_storage_bucket, gcp_cloud_storage_json_key, active) {
+        var update_file_repository = function(file_repository_id, title, type, gcp_cloud_storage_bucket, gcp_cloud_storage_json_key, active,
+                                              aws_s3_bucket, aws_s3_region, aws_s3_access_key_id, aws_s3_secret_access_key) {
 
             return apiClient.update_file_repository(
                 managerBase.get_token(),
@@ -290,7 +304,11 @@
                 type,
                 gcp_cloud_storage_bucket,
                 gcp_cloud_storage_json_key,
-                active
+                active,
+                aws_s3_bucket,
+                aws_s3_region,
+                aws_s3_access_key_id,
+                aws_s3_secret_access_key
             )
         };
 

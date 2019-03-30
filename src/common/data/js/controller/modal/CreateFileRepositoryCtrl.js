@@ -72,6 +72,55 @@
                     return;
                 }
 
+                if ($scope.selected_type === 'aws_s3' && !$scope.storage_config['aws_s3_bucket']) {
+                    $scope.errors.push('BUCKET_IS_REQUIRED');
+                    return;
+                }
+
+                if ($scope.selected_type === 'aws_s3' && !$scope.storage_config['aws_s3_region']) {
+                    $scope.errors.push('REGION_IS_REQUIRED');
+                    return;
+                }
+
+                var aws_regions = [
+                    'us-east-1', // USA Ost (Nord-Virginia)
+                    'us-east-2', // USA Ost (Ohio)
+                    'us-west-1', // USA West (Nordkalifornien)
+                    'us-west-2', // USA West (Oregon)
+                    'ap-south-1', // Asien-Pazifik (Mumbai)
+                    'ap-northeast-1', // Asien-Pazifik (Tokio)
+                    'ap-northeast-2', // Asien-Pazifik (Seoul
+                    'ap-northeast-3', // Asien-Pazifik (Osaka-Lokal)
+                    'ap-southeast-1', // Asien-Pazifik (Singapur)
+                    'ap-southeast-2', // Asien-Pazifik (Sydney)
+                    'ca-central-1', // Kanada (Zentral)
+                    'cn-north-1', // China (Peking)
+                    'cn-northwest-1', // China (Ningxia)
+                    'eu-central-1', // EU (Frankfurt)
+                    'eu-west-1', // EU (Irland)
+                    'eu-west-2', // EU (London)
+                    'eu-west-3', // EU (Paris)
+                    'eu-north-1', // EU (Stockholm)
+                    'sa-east-1', // Südamerika (Sao Paulo)
+                    'us-gov-east-1', // AWS GovCloud (USA Ost)
+                    'us-gov-west-1' // AWS GovCloud (USA)
+                ];
+
+                if ($scope.selected_type === 'aws_s3' && aws_regions.indexOf($scope.storage_config['aws_s3_region']) === -1) {
+                    $scope.errors.push('REGION_IS_INVALID');
+                    return;
+                }
+
+                if ($scope.selected_type === 'aws_s3' && !$scope.storage_config['aws_s3_access_key_id']) {
+                    $scope.errors.push('ACCESS_KEY_ID_IS_REQUIRED');
+                    return;
+                }
+
+                if ($scope.selected_type === 'aws_s3' && !$scope.storage_config['aws_s3_secret_access_key']) {
+                    $scope.errors.push('SECRET_ACCESS_KEY_IS_REQUIRED');
+                    return;
+                }
+
 
                 if ($scope.modalCreateFileRepositoryForm.$invalid) {
                     return;
@@ -84,8 +133,16 @@
                     $uibModalInstance.close();
                 };
 
-                return managerFileRepository.create_file_repository($scope.title, $scope.selected_type,
-                    $scope.storage_config['gcp_cloud_storage_bucket'], $scope.storage_config['gcp_cloud_storage_json_key'])
+                return managerFileRepository.create_file_repository(
+                    $scope.title,
+                    $scope.selected_type,
+                    $scope.storage_config['gcp_cloud_storage_bucket'],
+                    $scope.storage_config['gcp_cloud_storage_json_key'],
+                    $scope.storage_config['aws_s3_bucket'],
+                    $scope.storage_config['aws_s3_region'],
+                    $scope.storage_config['aws_s3_access_key_id'],
+                    $scope.storage_config['aws_s3_secret_access_key']
+                )
                     .then(onSuccess, onError);
             }
 

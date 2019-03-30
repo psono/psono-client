@@ -62,7 +62,13 @@
                 $scope.grant = file_repository.grant;
                 if (file_repository.type === 'gcp_cloud_storage') {
                     $scope.storage_config['gcp_cloud_storage_bucket'] = file_repository.gcp_cloud_storage_bucket;
-                    $scope.storage_config['gcp_cloud_storage_json_key'] = file_repository.gcp_cloud_storage_json_key
+                    $scope.storage_config['gcp_cloud_storage_json_key'] = file_repository.gcp_cloud_storage_json_key;
+                }
+                if (file_repository.type === 'aws_s3') {
+                    $scope.storage_config['aws_s3_bucket'] = file_repository.aws_s3_bucket;
+                    $scope.storage_config['aws_s3_region'] = file_repository.aws_s3_region;
+                    $scope.storage_config['aws_s3_access_key_id'] = file_repository.aws_s3_access_key_id;
+                    $scope.storage_config['aws_s3_secret_access_key'] = file_repository.aws_s3_secret_access_key;
                 }
             }
 
@@ -103,6 +109,26 @@
                     return;
                 }
 
+                if ($scope.selected_type === 'aws_s3' && !$scope.storage_config['aws_s3_bucket']) {
+                    $scope.errors.push('BUCKET_IS_REQUIRED');
+                    return;
+                }
+
+                if ($scope.selected_type === 'aws_s3' && !$scope.storage_config['aws_s3_region']) {
+                    $scope.errors.push('REGION_IS_REQUIRED');
+                    return;
+                }
+
+                if ($scope.selected_type === 'aws_s3' && !$scope.storage_config['aws_s3_access_key_id']) {
+                    $scope.errors.push('ACCESS_KEY_ID_IS_REQUIRED');
+                    return;
+                }
+
+                if ($scope.selected_type === 'aws_s3' && !$scope.storage_config['aws_s3_secret_access_key']) {
+                    $scope.errors.push('SECRET_ACCESS_KEY_IS_REQUIRED');
+                    return;
+                }
+
                 if ($scope.modalEditFileRepositoryForm.$invalid) {
                     return;
                 }
@@ -115,8 +141,18 @@
                     $uibModalInstance.close();
                 };
 
-                return managerFileRepository.update_file_repository(file_repository.id, $scope.title, $scope.selected_type,
-                    $scope.storage_config['gcp_cloud_storage_bucket'], $scope.storage_config['gcp_cloud_storage_json_key'], $scope.active)
+                return managerFileRepository.update_file_repository(
+                    file_repository.id,
+                    $scope.title,
+                    $scope.selected_type,
+                    $scope.storage_config['gcp_cloud_storage_bucket'],
+                    $scope.storage_config['gcp_cloud_storage_json_key'],
+                    $scope.active,
+                    $scope.storage_config['aws_s3_bucket'],
+                    $scope.storage_config['aws_s3_region'],
+                    $scope.storage_config['aws_s3_access_key_id'],
+                    $scope.storage_config['aws_s3_secret_access_key']
+                )
                     .then(onSuccess, onError);
             }
 

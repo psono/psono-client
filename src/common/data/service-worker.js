@@ -259,6 +259,7 @@ self.addEventListener('install', function(event) {
 
                 './js/service/api-client.js',
                 './js/service/api-gcp.js',
+                './js/service/api-aws.js',
                 './js/service/api-fileserver.js',
                 './js/service/api-pwnedpasswords.js',
                 './js/service/helper.js',

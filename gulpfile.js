@@ -231,6 +231,7 @@ var build = function(build_path, type) {
 
             "src/common/data/js/service/api-client.js",
             "src/common/data/js/service/api-gcp.js",
+            "src/common/data/js/service/api-aws.js",
             "src/common/data/js/service/api-fileserver.js",
             "src/common/data/js/service/api-pwnedpasswords.js",
             "src/common/data/js/service/helper.js",
