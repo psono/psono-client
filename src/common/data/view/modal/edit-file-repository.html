@@ -28,10 +28,26 @@
                         </div>
 
                         <div class="form-group">
-                <textarea class="form-control"
-                          placeholder="{{'JSON_KEY' | translate}}"
-                          ng-model="storage_config.gcp_cloud_storage_json_key"></textarea>
+                            <textarea class="form-control"
+                                      placeholder="{{'JSON_KEY' | translate}}"
+                                      ng-model="storage_config.gcp_cloud_storage_json_key"></textarea>
 
+                        </div>
+                    </div>
+
+
+                    <div ng-if="selected_type === 'aws_s3'">
+                        <div class="form-group">
+                            <input type="text" name="aws_s3_bucket" class="form-control" id="aws_s3_bucket" placeholder="{{'BUCKET' | translate}}" ng-model="storage_config.aws_s3_bucket">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="aws_s3_region" class="form-control" id="aws_s3_region" placeholder="{{'REGION' | translate}}" ng-model="storage_config.aws_s3_region">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="aws_s3_access_key_id" class="form-control" id="aws_s3_access_key_id" placeholder="{{'ACCESS_KEY_ID' | translate}}" ng-model="storage_config.aws_s3_access_key_id">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="aws_s3_secret_access_key" class="form-control" id="aws_s3_secret_access_key" placeholder="{{'SECRET_ACCESS_KEY' | translate}}" ng-model="storage_config.aws_s3_secret_access_key">
                         </div>
                     </div>
 

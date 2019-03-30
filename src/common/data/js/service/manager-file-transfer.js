@@ -10,14 +10,17 @@
      * @requires psonocli.managerBase
      * @requires psonocli.browserClient
      * @requires psonocli.cryptoLibrary
+     * @requires psonocli.converter
      * @requires psonocli.apiClient
      * @requires psonocli.apiFileserver
+     * @requires psonocli.apiGCP
+     * @requires psonocli.apiAWS
      *
      * @description
      * Service to manage everything around file transfer
      */
 
-    var managerFileTransfer = function($q, helper, storage, managerBase, browserClient, cryptoLibrary , converter, apiClient, apiFileserver, apiGCP) {
+    var managerFileTransfer = function($q, helper, storage, managerBase, browserClient, cryptoLibrary , converter, apiClient, apiFileserver, apiGCP, apiAWS) {
 
         var registrations = {};
 
@@ -136,11 +139,11 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerFileTransfer#upload
+         * @name psonocli.managerFileTransfer#upload_file_repository_gcp_cloud_storage
          * @methodOf psonocli.managerFileTransfer
          *
          * @description
-         * Triggered once someone wants to actually upload the file
+         * Triggered once someone wants to actually upload the file to GCP Cloud Storage
          *
          * @param {Blob} chunk The content of the chunk to upload
          * @param {uuid} file_transfer_id The id of the file transfer
@@ -173,36 +176,48 @@
             return apiClient.file_repository_upload(managerBase.get_token(),
                 managerBase.get_session_secret_key(), file_transfer_id, chunk_size, chunk_position, hash_checksum)
                 .then(onSuccess, onError);
+        };
 
 
-            //
-            // var ticket = {
-            //     'file_transfer_id': file_transfer_id,
-            //     'chunk_position': chunk_position,
-            //     'hash_checksum': hash_checksum
-            // };
-            //
-            // var ticket_enc = cryptoLibrary.encrypt_data(JSON.stringify(ticket), managerBase.get_session_secret_key());
-            //
-            // var fileserver;
-            // if (shard['fileserver'].length > 1) {
-            //     // math random should be good enough here, don't use for crypto!
-            //     var pos = Math.floor(Math.random() * shard['fileserver'].length);
-            //     fileserver = shard['fileserver'][pos];
-            // } else {
-            //     fileserver = shard['fileserver'][0];
-            // }
-            //
-            // var onError = function(result) {
-            //     return $q.reject(result.data)
-            // };
-            //
-            // var onSuccess = function(result) {
-            //     return result.data;
-            // };
-            //
-            // return apiFileserver.upload(fileserver['fileserver_url'], managerBase.get_token(), chunk, ticket_enc.text, ticket_enc.nonce)
-            //     .then(onSuccess, onError);
+        /**
+         * @ngdoc
+         * @name psonocli.managerFileTransfer#upload_file_repository_aws_s3
+         * @methodOf psonocli.managerFileTransfer
+         *
+         * @description
+         * Triggered once someone wants to actually upload the file to AWS S3
+         *
+         * @param {Blob} chunk The content of the chunk to upload
+         * @param {uuid} file_transfer_id The id of the file transfer
+         * @param {int} chunk_size The size of the complete chunk in bytes
+         * @param {int} chunk_position The sequence number of the chunk to determine the order
+         * @param {string} hash_checksum The sha512 hash
+         *
+         * @returns {promise} promise
+         */
+        var upload_file_repository_aws_s3 = function(chunk, file_transfer_id, chunk_size, chunk_position, hash_checksum) {
+
+            var onError = function(result) {
+                return $q.reject(result.data)
+            };
+
+            var onSuccess = function(result) {
+
+                var onError = function(result) {
+                    return $q.reject(result.data)
+                };
+
+                var onSuccess = function(result) {
+                    return result;
+                };
+
+                return apiAWS.upload(result.data.url, result.data.fields, chunk)
+                    .then(onSuccess, onError);
+            };
+
+            return apiClient.file_repository_upload(managerBase.get_token(),
+                managerBase.get_session_secret_key(), file_transfer_id, chunk_size, chunk_position, hash_checksum)
+                .then(onSuccess, onError);
         };
 
 
@@ -230,6 +245,8 @@
                 return upload_shard(chunk, file_transfer_id, chunk_position, shard, hash_checksum);
             } else if (typeof(file_repository) !== 'undefined' && file_repository['type'] === 'gcp_cloud_storage') {
                 return upload_file_repository_gcp_cloud_storage(chunk, file_transfer_id, chunk_size, chunk_position, hash_checksum);
+            } else if (typeof(file_repository) !== 'undefined' && file_repository['type'] === 'aws_s3') {
+                return upload_file_repository_aws_s3(chunk, file_transfer_id, chunk_size, chunk_position, hash_checksum);
             }
 
         };
@@ -648,6 +665,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerFileTransfer", ['$q', 'helper', 'storage', 'managerBase', 'browserClient', 'cryptoLibrary', 'converter', 'apiClient', 'apiFileserver', 'apiGCP', managerFileTransfer]);
+    app.factory("managerFileTransfer", ['$q', 'helper', 'storage', 'managerBase', 'browserClient', 'cryptoLibrary', 'converter', 'apiClient', 'apiFileserver', 'apiGCP', 'apiAWS', managerFileTransfer]);
 
 }(angular, saveAs));
