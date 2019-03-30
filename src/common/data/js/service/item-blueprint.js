@@ -203,22 +203,15 @@
                         return
                     }
 
-                    if (shard_count > 0 && file_repository_count === 0) {
+                    if (shard_count > 0) {
                         // only shards are available, so lets pick the first shard as default shard
                         _blueprint_file.field_index['file_destinations'].value = _shards[0];
-                    }
-
-                    if (shard_count === 0 && file_repository_count > 0) {
+                    } else if (file_repository_count > 0) {
                         // only repositories are available, so lets pick the first repository as default repository
                         _blueprint_file.field_index['file_destinations'].value = _filesrepositories[0];
                     }
 
-                    if (all_possibilities_count === 1) {
-                        // only 1 possiblity, we dont have to confuse the user by showing the dropdown menus
-                        return
-                    }
-
-                    if (shard_count > 0) {
+                    if (all_possibilities_count > 1) {
                         _blueprint_file.field_index['file_destinations'].hidden = false;
                     }
                 });
