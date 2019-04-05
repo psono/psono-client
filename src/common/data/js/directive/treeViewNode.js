@@ -636,7 +636,7 @@
                         '</div>' +
 
                         '<div class="dropdown position-fixed dropdown-rightclick" id="menu-{{ ::item.id }}">' +
-                        '<ul class="dropdown-menu" role="menu" ng-click="$event.preventDefault(); $event.stopPropagation();">' +
+                        '<ul class="dropdown-menu" role="menu" ng-click="$event.preventDefault(); ">' +
                         '    <li role="menuitem"' +
                         '       ng-if="!f.hide_offline || !offline"' +
                         '       ng-click="additionalButtonItem(item, $event, f.onClick, false)"' +
