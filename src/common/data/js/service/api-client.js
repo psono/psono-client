@@ -2291,7 +2291,7 @@
          * @methodOf psonocli.apiClient
          *
          * @description
-         * Ajax POST request to update a given api key
+         * Ajax POST request to update a given file repository
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
@@ -2337,7 +2337,7 @@
          * @methodOf psonocli.apiClient
          *
          * @description
-         * Ajax DELETE request to delete an api key
+         * Ajax DELETE request to delete a file repository
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key

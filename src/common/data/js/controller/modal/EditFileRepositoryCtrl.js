@@ -35,12 +35,8 @@
             ];
 
             $scope.errors = [];
-            $scope.file_repository = file_repository;
             $scope.title = '';
             $scope.types = managerFileRepository.get_possible_types();
-            $scope.storage_config = {
-
-            };
 
             $scope.cancel = cancel;
             $scope.save = save;
@@ -54,22 +50,10 @@
             activate();
 
             function activate() {
-                $scope.title = file_repository.title;
-                $scope.selected_type = file_repository.type;
-                $scope.active = file_repository.active;
+                $scope.file_repository = file_repository;
                 $scope.read = file_repository.read;
                 $scope.write = file_repository.write;
                 $scope.grant = file_repository.grant;
-                if (file_repository.type === 'gcp_cloud_storage') {
-                    $scope.storage_config['gcp_cloud_storage_bucket'] = file_repository.gcp_cloud_storage_bucket;
-                    $scope.storage_config['gcp_cloud_storage_json_key'] = file_repository.gcp_cloud_storage_json_key;
-                }
-                if (file_repository.type === 'aws_s3') {
-                    $scope.storage_config['aws_s3_bucket'] = file_repository.aws_s3_bucket;
-                    $scope.storage_config['aws_s3_region'] = file_repository.aws_s3_region;
-                    $scope.storage_config['aws_s3_access_key_id'] = file_repository.aws_s3_access_key_id;
-                    $scope.storage_config['aws_s3_secret_access_key'] = file_repository.aws_s3_secret_access_key;
-                }
             }
 
             /**
@@ -84,47 +68,47 @@
 
                 $scope.errors = [];
 
-                if (!$scope.title) {
+                if (!$scope.file_repository.title) {
                     $scope.errors.push('TITLE_IS_REQUIRED');
                     return;
                 }
 
-                if (!$scope.selected_type) {
+                if (!$scope.file_repository.type) {
                     $scope.errors.push('TYPE_IS_REQUIRED');
                     return;
                 }
 
-                if ($scope.selected_type === 'gcp_cloud_storage' && !$scope.storage_config['gcp_cloud_storage_bucket']) {
+                if ($scope.file_repository.type === 'gcp_cloud_storage' && !$scope.file_repository['gcp_cloud_storage_bucket']) {
                     $scope.errors.push('BUCKET_IS_REQUIRED');
                     return;
                 }
 
-                if ($scope.selected_type === 'gcp_cloud_storage' && !$scope.storage_config['gcp_cloud_storage_json_key']) {
+                if ($scope.file_repository.type === 'gcp_cloud_storage' && !$scope.file_repository['gcp_cloud_storage_json_key']) {
                     $scope.errors.push('JSON_KEY_IS_REQUIRED');
                     return;
                 }
 
-                if ($scope.selected_type === 'gcp_cloud_storage' && !helper.is_valid_json($scope.storage_config['gcp_cloud_storage_json_key'])) {
+                if ($scope.file_repository.type === 'gcp_cloud_storage' && !helper.is_valid_json($scope.file_repository['gcp_cloud_storage_json_key'])) {
                     $scope.errors.push('JSON_KEY_IS_INVALID');
                     return;
                 }
 
-                if ($scope.selected_type === 'aws_s3' && !$scope.storage_config['aws_s3_bucket']) {
+                if ($scope.file_repository.type === 'aws_s3' && !$scope.file_repository['aws_s3_bucket']) {
                     $scope.errors.push('BUCKET_IS_REQUIRED');
                     return;
                 }
 
-                if ($scope.selected_type === 'aws_s3' && !$scope.storage_config['aws_s3_region']) {
+                if ($scope.file_repository.type === 'aws_s3' && !$scope.file_repository['aws_s3_region']) {
                     $scope.errors.push('REGION_IS_REQUIRED');
                     return;
                 }
 
-                if ($scope.selected_type === 'aws_s3' && !$scope.storage_config['aws_s3_access_key_id']) {
+                if ($scope.file_repository.type === 'aws_s3' && !$scope.file_repository['aws_s3_access_key_id']) {
                     $scope.errors.push('ACCESS_KEY_ID_IS_REQUIRED');
                     return;
                 }
 
-                if ($scope.selected_type === 'aws_s3' && !$scope.storage_config['aws_s3_secret_access_key']) {
+                if ($scope.file_repository.type === 'aws_s3' && !$scope.file_repository['aws_s3_secret_access_key']) {
                     $scope.errors.push('SECRET_ACCESS_KEY_IS_REQUIRED');
                     return;
                 }
@@ -143,15 +127,15 @@
 
                 return managerFileRepository.update_file_repository(
                     file_repository.id,
-                    $scope.title,
-                    $scope.selected_type,
-                    $scope.storage_config['gcp_cloud_storage_bucket'],
-                    $scope.storage_config['gcp_cloud_storage_json_key'],
-                    $scope.active,
-                    $scope.storage_config['aws_s3_bucket'],
-                    $scope.storage_config['aws_s3_region'],
-                    $scope.storage_config['aws_s3_access_key_id'],
-                    $scope.storage_config['aws_s3_secret_access_key']
+                    $scope.file_repository.title,
+                    $scope.file_repository.type,
+                    $scope.file_repository['gcp_cloud_storage_bucket'],
+                    $scope.file_repository['gcp_cloud_storage_json_key'],
+                    $scope.file_repository.active,
+                    $scope.file_repository['aws_s3_bucket'],
+                    $scope.file_repository['aws_s3_region'],
+                    $scope.file_repository['aws_s3_access_key_id'],
+                    $scope.file_repository['aws_s3_secret_access_key']
                 )
                     .then(onSuccess, onError);
             }
