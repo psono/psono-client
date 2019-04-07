@@ -373,8 +373,6 @@
                         // User clicked the yes button
 
                         if (typeof options.onDeleteItem === "function") {
-                            console.log(item);
-                            return; // TODO REMOVE THIS LINE
                             options.onDeleteItem(item, item.path);
                         }
 
