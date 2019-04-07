@@ -56,7 +56,7 @@
                 <div class="form-group" ng-if="data.new_public_key | fingerprint">
                     <button class="btn btn-primary" type="button" ng-click="add_new_recipient();">{{'ADD' | translate}}</button>
                 </div>
-                <div class="form-group" ng-if="data.new_public_key | fingerprint">
+                <div class="form-group">
                     <div class="error" ng-repeat="e in errors"><span translate="{{ e }}"></span></div>
                 </div>
 

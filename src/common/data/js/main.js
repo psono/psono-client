@@ -186,9 +186,8 @@
                 return typeof obj
             };
         })
-        .filter('fingerprint', ['openpgp', function(openpgp) {
+        .filter('fingerprint', ['openpgp', 'converter', function(openpgp, converter) {
             return function(obj) {
-
                 if (!obj) {
                     return ''
                 }
@@ -197,6 +196,7 @@
                     var key = openpgp.key.readArmored(obj).keys[0];
                     if (key) {
                         obj = key.primaryKey.fingerprint;
+                        obj = converter.to_hex(obj);
                     } else {
                         obj = '';
                     }

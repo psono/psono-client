@@ -428,7 +428,6 @@
 
         };
 
-
         /**
          * @ngdoc
          * @name psonocli.managerDatastorePassword#update_paths
@@ -441,24 +440,8 @@
          * @param parent_path
          */
         var update_paths_recursive = function(datastore, parent_path) {
-            var i;
-            if (datastore.hasOwnProperty('items')) {
-                for (i = 0; i < datastore['items'].length; i++) {
-                    datastore['items'][i]['path'] = parent_path.slice();
-                    datastore['items'][i]['path'].push(datastore['items'][i]['id']);
-                }
-            }
-            if (datastore.hasOwnProperty('folders')) {
-                for (i = 0; i < datastore['folders'].length; i++) {
-                    datastore['folders'][i]['path'] = parent_path.slice();
-                    datastore['folders'][i]['path'].push(datastore['folders'][i]['id']);
-                    var parent_path_copy = parent_path.slice();
-                    parent_path_copy.push(datastore['folders'][i]['id']);
-                    update_paths_recursive(datastore['folders'][i], parent_path_copy);
-                }
-            }
+            return managerDatastore.update_paths_recursive(datastore, parent_path);
         };
-
 
         /**
          * @ngdoc

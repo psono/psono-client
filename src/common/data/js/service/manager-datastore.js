@@ -230,6 +230,37 @@
                 .then(onSuccess, onError);
         };
 
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastore#update_paths
+         * @methodOf psonocli.managerDatastore
+         *
+         * @description
+         * Sets the "path" attribute for all folders and items
+         *
+         * @param datastore
+         * @param parent_path
+         */
+        var update_paths_recursive = function(datastore, parent_path) {
+            var i;
+            if (datastore.hasOwnProperty('items')) {
+                for (i = 0; i < datastore['items'].length; i++) {
+                    datastore['items'][i]['path'] = parent_path.slice();
+                    datastore['items'][i]['path'].push(datastore['items'][i]['id']);
+                }
+            }
+            if (datastore.hasOwnProperty('folders')) {
+                for (i = 0; i < datastore['folders'].length; i++) {
+                    datastore['folders'][i]['path'] = parent_path.slice();
+                    datastore['folders'][i]['path'].push(datastore['folders'][i]['id']);
+                    var parent_path_copy = parent_path.slice();
+                    parent_path_copy.push(datastore['folders'][i]['id']);
+                    update_paths_recursive(datastore['folders'][i], parent_path_copy);
+                }
+            }
+        };
+
         /**
          * @ngdoc
          * @name psonocli.managerDatastore#get_datastore
@@ -594,6 +625,7 @@
             get_datastore_with_id: get_datastore_with_id,
             create_datastore: create_datastore,
             delete_datastore: delete_datastore,
+            update_paths_recursive: update_paths_recursive,
             get_datastore: get_datastore,
             add_node_to_storage: add_node_to_storage,
             fill_storage: fill_storage,
