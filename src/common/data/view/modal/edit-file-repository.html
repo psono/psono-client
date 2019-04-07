@@ -11,48 +11,48 @@
                     <br>
 
                     <div class="form-group" ng-class="{true: 'has-error'}[submitted && modalEditFileRepositoryForm.title.$invalid]">
-                        <input type="text" name="title" class="form-control" id="folderName" placeholder="{{'TITLE' | translate}}" ng-model="title" required autofocus>
+                        <input type="text" name="title" class="form-control" id="folderName" placeholder="{{'TITLE' | translate}}" ng-model="file_repository.title" required autofocus>
                         <p class="help-block" ng-show="submitted && modalEditFileRepositoryForm.title.$error.required">{{'TITLE_IS_REQUIRED' | translate}}</p>
                     </div>
-
+                    <pre>{{ file_repository | json }}</pre>
                     <div class="form-group">
-                        <select class="form-control" ng-model="selected_type">
+                        <select class="form-control" ng-model="file_repository.type">
                             <option ng-repeat="x in types" value="{{x.value}}">{{x.title}}</option>
                         </select>
                     </div>
 
 
-                    <div ng-if="selected_type === 'gcp_cloud_storage'">
+                    <div ng-if="file_repository.type === 'gcp_cloud_storage'">
                         <div class="form-group">
-                            <input type="text" name="gcp_cloud_storage_bucket" class="form-control" id="gcp_cloud_storage_bucket" placeholder="{{'BUCKET' | translate}}" ng-model="storage_config.gcp_cloud_storage_bucket">
+                            <input type="text" name="gcp_cloud_storage_bucket" class="form-control" id="gcp_cloud_storage_bucket" placeholder="{{'BUCKET' | translate}}" ng-model="file_repository.gcp_cloud_storage_bucket">
                         </div>
 
                         <div class="form-group">
                             <textarea class="form-control"
                                       placeholder="{{'JSON_KEY' | translate}}"
-                                      ng-model="storage_config.gcp_cloud_storage_json_key"></textarea>
+                                      ng-model="file_repository.gcp_cloud_storage_json_key"></textarea>
 
                         </div>
                     </div>
 
 
-                    <div ng-if="selected_type === 'aws_s3'">
+                    <div ng-if="file_repository.type === 'aws_s3'">
                         <div class="form-group">
-                            <input type="text" name="aws_s3_bucket" class="form-control" id="aws_s3_bucket" placeholder="{{'BUCKET' | translate}}" ng-model="storage_config.aws_s3_bucket">
+                            <input type="text" name="aws_s3_bucket" class="form-control" id="aws_s3_bucket" placeholder="{{'BUCKET' | translate}}" ng-model="file_repository.aws_s3_bucket">
                         </div>
                         <div class="form-group">
-                            <input type="text" name="aws_s3_region" class="form-control" id="aws_s3_region" placeholder="{{'REGION' | translate}}" ng-model="storage_config.aws_s3_region">
+                            <input type="text" name="aws_s3_region" class="form-control" id="aws_s3_region" placeholder="{{'REGION' | translate}}" ng-model="file_repository.aws_s3_region">
                         </div>
                         <div class="form-group">
-                            <input type="text" name="aws_s3_access_key_id" class="form-control" id="aws_s3_access_key_id" placeholder="{{'ACCESS_KEY_ID' | translate}}" ng-model="storage_config.aws_s3_access_key_id">
+                            <input type="text" name="aws_s3_access_key_id" class="form-control" id="aws_s3_access_key_id" placeholder="{{'ACCESS_KEY_ID' | translate}}" ng-model="file_repository.aws_s3_access_key_id">
                         </div>
                         <div class="form-group">
-                            <input type="text" name="aws_s3_secret_access_key" class="form-control" id="aws_s3_secret_access_key" placeholder="{{'SECRET_ACCESS_KEY' | translate}}" ng-model="storage_config.aws_s3_secret_access_key">
+                            <input type="text" name="aws_s3_secret_access_key" class="form-control" id="aws_s3_secret_access_key" placeholder="{{'SECRET_ACCESS_KEY' | translate}}" ng-model="file_repository.aws_s3_secret_access_key">
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <input type="checkbox" ng-model="active">
+                        <input type="checkbox" ng-model="file_repository.active">
                         {{'ACTIVE' | translate}}
                     </div>
 

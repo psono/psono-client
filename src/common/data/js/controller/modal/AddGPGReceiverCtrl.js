@@ -91,13 +91,13 @@
                 };
 
                 hkp.lookup(options).then(function(public_key) {
-                    if (typeof(public_key) !== 'undefined') {
-                        $scope.$evalAsync(function() {
+                    $scope.$evalAsync(function() {
+                        if (typeof(public_key) !== 'undefined') {
                             $scope.data.new_public_key = public_key;
-                        });
-                    } else {
-                        $scope.errors.push("No public key found for this email.")
-                    }
+                        } else {
+                            $scope.errors.push("No public key found for this email.");
+                        }
+                    });
                 }, function(error) {
                     console.log(error);
                 });

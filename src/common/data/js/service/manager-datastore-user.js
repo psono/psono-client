@@ -873,6 +873,21 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastorePassword#update_paths
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * Sets the "path" attribute for all folders and items
+         *
+         * @param datastore
+         * @param parent_path
+         */
+        var update_paths_recursive = function(datastore, parent_path) {
+            return managerDatastore.update_paths_recursive(datastore, parent_path);
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastoreUser#get_user_datastore
          * @methodOf psonocli.managerDatastoreUser
          *
@@ -886,8 +901,7 @@
             var type = "user";
             var description = "default";
 
-
-            var onSuccess = function (result) {
+            var onSuccess = function (datastore) {
                 /*
                  _fill_storage('datastore-user-leafs', result, [
                  ['key', 'secret_id'],
@@ -896,8 +910,9 @@
                  ['filter', 'filter']
                  ]);
                  */
+                update_paths_recursive(datastore, []);
 
-                return result
+                return datastore
             };
             var onError = function () {
                 // pass

@@ -8,6 +8,7 @@
      * @requires $window
      * @requires $uibModal
      * @requires psonocli.managerDatastorePassword
+     * @requires psonocli.managerDatastoreUser
      * @requires psonocli.managerShare
      * @requires psonocli.managerSecret
      * @requires psonocli.managerShareLink
@@ -20,7 +21,8 @@
      * Service that is something like the base class for adf widgets
      */
 
-    var managerWidget = function ($rootScope, $window, $uibModal, managerDatastorePassword, managerShare, managerSecret, managerShareLink,
+    var managerWidget = function ($rootScope, $window, $uibModal, managerDatastorePassword, managerDatastoreUser,
+                                  managerShare, managerSecret, managerShareLink,
                                   managerSecretLink, managerFileLink, itemBlueprint, cryptoLibrary) {
 
 
@@ -722,11 +724,11 @@
          * @param {TreeObject} datastore The datastore
          * @param {object} item The item to delete
          * @param {Array} path The path to the item
+         * @param {string} type The type of the datastore (e.g. 'password' or 'user')
          */
-        var delete_item = function(datastore, item, path) {
+        var delete_item = function(datastore, item, path, type) {
 
             var i;
-            // TODO ask for confirmation
 
             var item_path_copy = path.slice();
             var element_path_that_changed = path.slice();
@@ -766,7 +768,11 @@
             }
 
             // and save everything (before we update the links and might lose some necessary rights)
-            managerDatastorePassword.save_datastore_content(datastore, [element_path_that_changed]);
+            if (type === 'password') {
+                managerDatastorePassword.save_datastore_content(datastore, [element_path_that_changed]);
+            } else if(type === 'user') {
+                managerDatastoreUser.save_datastore_content(datastore, [element_path_that_changed]);
+            }
 
             // adjust the links for every child_share (and therefore update the rights)
             for (i = child_shares.length - 1; i >= 0; i--) {
@@ -927,7 +933,8 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerWidget", ['$rootScope', '$window', '$uibModal', 'managerDatastorePassword', 'managerShare', 'managerSecret',
+    app.factory("managerWidget", ['$rootScope', '$window', '$uibModal', 'managerDatastorePassword', 'managerDatastoreUser',
+        'managerShare', 'managerSecret',
         'managerShareLink', 'managerSecretLink', 'managerFileLink', 'itemBlueprint', 'cryptoLibrary', managerWidget]);
 
 }(angular));

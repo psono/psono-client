@@ -30,8 +30,9 @@
             var type = "gpg-user";
             var description = "default";
 
-            var onSuccess = function (result) {
-                return result
+            var onSuccess = function (datastore) {
+                managerDatastore.update_paths_recursive(datastore, []);
+                return datastore
             };
             var onError = function () {
                 // pass
