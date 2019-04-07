@@ -283,7 +283,7 @@
              * @param {array} path the path to the item
              */
             function delete_item(scope, item, path) {
-                managerWidget.delete_item(scope.structure.data, item, path);
+                managerWidget.delete_item(scope.structure.data, item, path, 'password');
             }
 
         }]);

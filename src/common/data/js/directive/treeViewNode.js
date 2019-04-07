@@ -253,9 +253,7 @@
 
                     modalInstance.result.then(function () {
                         // User clicked the yes button
-
                         if (typeof options.onDeleteNode === "function") {
-                            console.log(node);
                             options.onDeleteNode(node, node.path);
                         }
 
@@ -371,7 +369,6 @@
 
                     modalInstance.result.then(function () {
                         // User clicked the yes button
-
                         if (typeof options.onDeleteItem === "function") {
                             options.onDeleteItem(item, item.path);
                         }
