@@ -215,7 +215,7 @@
          * @description
          * removes all objects in all dbs (excluding the persistent one) or only in the specified one
          *
-         * @param {string} db (optional) The database
+         * @param {string} [db] (optional) The database
          */
         function remove_all(db) {
             if (typeof db !== 'undefined') {

@@ -638,12 +638,13 @@
                 });
             }
 
-            return apiClient.logout(managerBase.get_token())
+            return apiClient.logout(managerBase.get_token(), managerBase.get_session_secret_key())
                 .then(onSuccess, onError);
         };
 
         $rootScope.$on('force_logout', function() {
-            logout();
+            managerBase.delete_local_data();
+            browserClient.emit("logout", null);
         });
 
         /**
