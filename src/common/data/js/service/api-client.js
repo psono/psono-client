@@ -434,6 +434,7 @@
          * @returns {promise} Returns a promise with the logout status
          */
         var logout = function (token, session_secret_key, session_id) {
+
             var endpoint = '/authentication/logout/';
             var connection_type = "POST";
             var data = {

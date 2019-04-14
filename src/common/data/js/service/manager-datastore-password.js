@@ -914,7 +914,61 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastorePassword#get_all_child_shares
+         * @name psonocli.managerDatastorePassword#get_all_child_shares_by_path
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * fills other_children with all child shares of a given path
+         *
+         * @param {TreeObject|undefined} obj the object to search
+         * @param {int|undefined} share_distance hare_distance the distance in shares to search (-1 = unlimited search, 0 stop search)
+         * @param {Array} other_children The list of found children that will be updated with new findings
+         * @param {Array} [path] (optional)  The path to prepend, if not provided an empty path will be assumed.
+         */
+        var get_all_child_shares = function(obj, share_distance, other_children, path) {
+
+            if (typeof(path) === 'undefined') {
+                path = []
+            }
+
+            var n, l, new_path;
+            if (share_distance === 0) {
+                return
+            }
+            //search in folders
+            if (obj.hasOwnProperty('folders')) {
+                for (n = 0, l = obj.folders.length; n < l; n++) {
+                    new_path = path.slice();
+                    new_path.push(obj.folders[n].id);
+                    if (typeof(obj.folders[n].share_id) !== 'undefined') {
+                        other_children.push({
+                            share: obj.folders[n],
+                            path: new_path
+                        });
+                        get_all_child_shares(obj.folders[n], share_distance-1, other_children, new_path);
+                    } else {
+                        get_all_child_shares(obj.folders[n], share_distance, other_children, new_path);
+                    }
+                }
+            }
+            // search in items
+            if (obj.hasOwnProperty('items')) {
+                for (n = 0, l = obj.items.length; n < l; n++) {
+                    new_path = path.slice();
+                    new_path.push(obj.items[n].id);
+                    if (typeof(obj.items[n].share_id) !== 'undefined') {
+                        other_children.push({
+                            share: obj.items[n],
+                            path: new_path
+                        });
+                    }
+                }
+            }
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#get_all_child_shares_by_path
          * @methodOf psonocli.managerDatastorePassword
          *
          * @description
@@ -922,13 +976,12 @@
          *
          * @param {Array} path The path to search for child shares
          * @param {TreeObject|undefined} [datastore] (optional) if obj provided
-         * @param {Array} other_children The list of found children
+         * @param {Array} other_children The list of found children that will be updated with new findings
          * @param {int|undefined} [share_distance] (optional) share_distance the distance in shares to search (-1 = unlimited search, 0 stop search)
          * @param {TreeObject|undefined} [obj] (optional)  if not provided we will search it in the datastore according to the provided path first
          */
-        var get_all_child_shares = function(path, datastore, other_children, share_distance, obj) {
+        var get_all_child_shares_by_path = function(path, datastore, other_children, share_distance, obj) {
 
-            var n, l, new_path;
             if (share_distance === 0) {
                 return
             }
@@ -937,40 +990,12 @@
                 var path_copy = path.slice();
                 var search = find_in_datastore(path_copy, datastore);
                 obj = search[0][search[1]];
-                return get_all_child_shares(path, datastore, other_children, share_distance, obj)
+                return get_all_child_shares(obj, share_distance, other_children, path)
             } else if (obj === false) {
                 // TODO Handle not found
                 console.log("HANDLE not found!");
             } else {
-                //search in folders
-                if (obj.hasOwnProperty('folders')) {
-                    for (n = 0, l = obj.folders.length; n < l; n++) {
-                        new_path = path.slice();
-                        new_path.push(obj.folders[n].id);
-                        if (typeof(obj.folders[n].share_id) !== 'undefined') {
-                            other_children.push({
-                                share: obj.folders[n],
-                                path: new_path
-                            });
-                            get_all_child_shares(new_path, obj, other_children, share_distance-1, obj.folders[n]);
-                        } else {
-                            get_all_child_shares(new_path, obj, other_children, share_distance, obj.folders[n]);
-                        }
-                    }
-                }
-                // search in items
-                if (obj.hasOwnProperty('items')) {
-                    for (n = 0, l = obj.items.length; n < l; n++) {
-                        new_path = path.slice();
-                        new_path.push(obj.items[n].id);
-                        if (typeof(obj.items[n].share_id) !== 'undefined') {
-                            other_children.push({
-                                share: obj.items[n],
-                                path: new_path
-                            });
-                        }
-                    }
-                }
+                get_all_child_shares(obj, share_distance, other_children, path)
             }
         };
 
@@ -1664,6 +1689,7 @@
         itemBlueprint.register('save_datastore_content', save_datastore_content);
         itemBlueprint.register('find_in_datastore', find_in_datastore);
         itemBlueprint.register('on_share_added', on_share_added);
+        managerShare.register('get_all_child_shares', get_all_child_shares);
         settings.register('get_password_datastore', get_password_datastore);
 
         return {
@@ -1675,6 +1701,7 @@
             bookmark_active_tab: bookmark_active_tab,
             find_in_datastore: find_in_datastore,
             search_in_datastore: search_in_datastore,
+            get_all_child_shares_by_path: get_all_child_shares_by_path,
             get_all_child_shares: get_all_child_shares,
             get_all_secret_links: get_all_secret_links,
             get_all_file_links: get_all_file_links,

@@ -22,10 +22,11 @@
         function ($scope, $route, $routeParams, $filter, $location, $timeout, managerDatastoreUser,
                   browserClient, helper) {
 
-
+            $scope.is_logged_in = managerDatastoreUser.is_logged_in();
             $scope.select_server = select_server;
             $scope.changing = changing;
             $scope.activate_code = activate_code;
+            $scope.logout = logout;
 
             activate();
 
@@ -58,6 +59,12 @@
 
                 browserClient.get_base_url().then(function(base_url){
                     $scope.base_url = base_url;
+                });
+
+                browserClient.on("logout", function () {
+                    $timeout(function () {
+                        $scope.is_logged_in = managerDatastoreUser.is_logged_in();
+                    });
                 });
             }
 
@@ -113,6 +120,12 @@
              */
             function activate_code (activation_code) {
 
+                var is_logged_in = managerDatastoreUser.is_logged_in();
+
+                if (is_logged_in) {
+                    return;
+                }
+
                 function onError() {
                     alert("Error, should not happen.");
                 }
@@ -144,9 +157,22 @@
                 }
             }
 
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ActivationCtrl#logout
+             * @methodOf psonocli.controller:ActivationCtrl
+             *
+             * @description
+             * Triggered either automatically or by pressing the activate button
+             */
+            function logout() {
+                managerDatastoreUser.logout();
+            }
+
             /* preselected values */
             $scope.$on('$routeChangeSuccess', function () {
                 $scope.activationFormKey = $routeParams['activation_code'];
+
                 if ($routeParams.hasOwnProperty('activation_code') && $routeParams['activation_code'].length > 0) {
                     $timeout(function(){
                         activate_code($routeParams['activation_code']);

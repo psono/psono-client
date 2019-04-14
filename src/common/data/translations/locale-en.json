@@ -1,4 +1,10 @@
 {
+  "REGISTRATION_SUCCESSFUL": "Successfully registered.",
+  "REGISTRATION_HAS_BEEN_DISABLED": "Registration has been disabled.",
+  "REGISTRATION_FAILED_USERNAME_ALREADY_EXISTS": "Registration failed. Username already exists.",
+  "REGISTRATION_FAILED_USERNAME_AND_EMAIL_HAVE_TO_MATCH": "Registration failed. Username and email have to match.",
+  "REGISTRATION_EMAIL_DELIVERY_FAILED": "Registration E-Mail delivery failed. Account not created.",
+  "BEFORE_ACTIVATION_LOGOUT": "You are currently logged in. Before activating another account please logout.",
   "USER_SELECTION": "User selection",
   "ADD_RIGHT": "Add right",
   "INFO_NO_READ_RIGHTS_FOR_FILE_REPOSITORY_RIGHT": "You do not have the necessary permissions to view the configuration of this data repository.",

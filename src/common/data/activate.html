@@ -57,7 +57,7 @@
             </div>
 
 
-            <form name="activationForm" ng-if="!success" autocomplete="off">
+            <form name="activationForm" ng-if="!success && !is_logged_in" autocomplete="off">
                 <div class="form-group">
                     <textarea rows="3" class="form-control" id="activationKey" placeholder="{{'KEY' | translate}}" ng-model="activationFormKey" required></textarea>
                 </div>
@@ -86,6 +86,15 @@
                 </div>
 
             </form>
+
+            <div ng-if="is_logged_in">
+                <div class="form-group alert alert-info">
+                    <strong>{{'INFO' | translate}}!</strong> {{'BEFORE_ACTIVATION_LOGOUT' | translate}}
+                </div>
+                <div class="form-group">
+                    <button ng-click="logout()" type="submit" class="btn btn-danger">{{'LOGOUT' | translate}}</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>

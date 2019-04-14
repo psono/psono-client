@@ -10,6 +10,7 @@
      * @requires psonocli.cryptoLibrary
      * @requires psonocli.managerSecretLink
      * @requires psonocli.managerFileLink
+     * @requires psonocli.managerShareLink
      * @requires psonocli.itemBlueprint
      *
      * @description
@@ -17,7 +18,8 @@
      */
 
     var managerShare = function($q, managerBase, apiClient, cryptoLibrary, managerSecretLink, managerFileLink,
-                                itemBlueprint) {
+                                managerShareLink, itemBlueprint) {
+        var registrations = {};
 
         /**
          * @ngdoc
@@ -137,6 +139,9 @@
         var create_share = function (content, parent_share_id,
                                      parent_datastore_id, link_id) {
 
+            var child_shares = [];
+            registrations['get_all_child_shares'](content, 1, child_shares, []);
+
             var filtered_content = managerBase.filter_datastore_content(content);
             var old_link_id;
 
@@ -168,6 +173,11 @@
                     managerFileLink.move_file_link(old_link_id, content.data.share_id)
                 } else {
                     managerFileLink.move_file_links(filtered_content, content.data.share_id);
+                }
+
+                // Update all child shares to be now a child of this share.
+                for (var i = 0; i < child_shares.length; i++) {
+                    managerShareLink.move_share_link(child_shares[i]['share']['id'], content.data.share_id, undefined)
                 }
 
 
@@ -496,6 +506,21 @@
             return false;
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.managerShare#register
+         * @methodOf psonocli.managerShare
+         *
+         * @description
+         * used to register functions to bypass circular dependencies
+         *
+         * @param {string} key The key of the function (usually the function name)
+         * @param {function} func The call back function
+         */
+        var register = function (key, func) {
+            registrations[key] = func;
+        };
+
         // registrations
 
         itemBlueprint.register('read_share_rights', read_share_rights);
@@ -516,12 +541,13 @@
             decrypt_share: decrypt_share,
             accept_share_right: accept_share_right,
             decline_share_right: decline_share_right,
-            get_closest_parent_share: get_closest_parent_share
+            get_closest_parent_share: get_closest_parent_share,
+            register: register
         };
     };
 
     var app = angular.module('psonocli');
     app.factory("managerShare", ['$q', 'managerBase', 'apiClient', 'cryptoLibrary', 'managerSecretLink', 'managerFileLink',
-        'itemBlueprint', managerShare]);
+        'managerShareLink', 'itemBlueprint', managerShare]);
 
 }(angular));
