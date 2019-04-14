@@ -1,4 +1,5 @@
 {
+  "BEFORE_ACTIVATION_LOGOUT": "Sie sind derzeit eingeloggt. Bevor sie einen anderen Account aktivieren sollten sie sich abmelden.",
   "USER_SELECTION": "Benutzerauswahl",
   "ADD_RIGHT": "Recht hinzufügen",
   "INFO_NO_READ_RIGHTS_FOR_FILE_REPOSITORY_RIGHT": "Sie haben nicht die nötigen Berechtigungen um die Konfiguration des Datenrepositories einsehen zu können.",
@@ -119,7 +120,7 @@
   "ADD_NEW_KEY": "Neuen Schlüssel hinzufügen",
   "EXISTING_KEYS": "Existierende Schlüssel",
   "PASSWORD_CHANGE_LOGOUT_OTHER_DEVICES": "Sie haben ihr Passwort geändert. Wir empfehlen ihnen ihre andere Geräte abzumelden!",
-  "LOGOUT_OTHER_DEVICES": "Andere Geräte ausloggen",
+  "LOGOUT_OTHER_DEVICES": "Andere Geräte abmelden",
   "IT_IS_IMPOSSIBLE_TO_REVERT_DELETE_DATASTORE": "Diese Aktion ist unumkehrbar. Die Löschung eines Datastores ist Permanent. Jeglicher Inhalt des Datenspeichers geht dabei verloren!",
   "YOUR_PASSWORD_IS_REQUIRED": "Dein Passwort ist erforderlich",
   "DELETE_DATASTORE": "Datenspeicher Löschen",

@@ -1,4 +1,5 @@
 {
+  "BEFORE_ACTIVATION_LOGOUT": "You are currently logged in. Before activating another account please logout.",
   "USER_SELECTION": "User selection",
   "ADD_RIGHT": "Add right",
   "INFO_NO_READ_RIGHTS_FOR_FILE_REPOSITORY_RIGHT": "You do not have the necessary permissions to view the configuration of this data repository.",
