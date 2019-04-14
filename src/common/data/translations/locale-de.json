@@ -1,4 +1,5 @@
 {
+  "REGISTRATION_SUCCESSFUL": "Successfully registered.",
   "REGISTRATION_HAS_BEEN_DISABLED": "Registrierung ist abgeschalten.",
   "REGISTRATION_FAILED_USERNAME_ALREADY_EXISTS": "Registrierungsfehler. Der Benutzername existiert bereits.",
   "REGISTRATION_FAILED_USERNAME_AND_EMAIL_HAVE_TO_MATCH": "Registrierungsfehler. Der Benutzername und die E-Mail müssen gleich sein.",
