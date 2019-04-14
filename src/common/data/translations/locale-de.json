@@ -1,4 +1,8 @@
 {
+  "REGISTRATION_HAS_BEEN_DISABLED": "Registrierung ist abgeschalten.",
+  "REGISTRATION_FAILED_USERNAME_ALREADY_EXISTS": "Registrierungsfehler. Der Benutzername existiert bereits.",
+  "REGISTRATION_FAILED_USERNAME_AND_EMAIL_HAVE_TO_MATCH": "Registrierungsfehler. Der Benutzername und die E-Mail müssen gleich sein.",
+  "REGISTRATION_EMAIL_DELIVERY_FAILED": "Registrierungs E-Mail Versand fehlgeschlagen. Benutzeraccount nicht erstellt.",
   "BEFORE_ACTIVATION_LOGOUT": "Sie sind derzeit eingeloggt. Bevor sie einen anderen Account aktivieren sollten sie sich abmelden.",
   "USER_SELECTION": "Benutzerauswahl",
   "ADD_RIGHT": "Recht hinzufügen",
