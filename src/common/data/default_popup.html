@@ -44,7 +44,7 @@
     <form name="searchForm" ng-if="!show_2fa_button" autocomplete="off">
         <div class="form-group">
             <input id="datastoresearch" name="datastoresearch" class="form-control" ng-model="datastore.search"
-                   placeholder="{{'SEARCH_DATSTORE' | translate}}" autofocus>
+                   placeholder="{{'SEARCH_DATSTORE' | translate}}" auto-focus>
         </div>
         <hr>
         <ul class="navigations">
@@ -382,6 +382,7 @@
 <script src="js/service-worker-load.js" type="application/javascript"></script>
 <script src="js/crypto-worker.js" type="application/javascript"></script>
 
+<script src="js/directive/autoFocus.js" type="application/javascript"></script>
 <script src="js/directive/fileReader.js" type="application/javascript"></script>
 <script src="js/directive/treeView.js" type="application/javascript"></script>
 <script src="js/directive/treeViewNode.js" type="application/javascript"></script>

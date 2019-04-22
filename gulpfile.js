@@ -153,6 +153,7 @@ var build = function(build_path, type) {
             "src/common/data/js/crypto-worker.js",
             "src/webclient/data/js/service-worker-load.js",
 
+            "src/common/data/js/directive/autoFocus.js",
             "src/common/data/js/directive/fileReader.js",
             "src/common/data/js/directive/treeView.js",
             "src/common/data/js/directive/treeViewNode.js",

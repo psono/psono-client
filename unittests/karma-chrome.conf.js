@@ -52,6 +52,7 @@
                 "../src/common/data/js/service-worker-load.js",
                 "../src/common/data/js/crypto-worker.js",
 
+                "../src/common/data/js/directive/autoFocus.js",
                 "../src/common/data/js/directive/fileReader.js",
                 "../src/common/data/js/directive/treeView.js",
                 "../src/common/data/js/directive/treeViewNode.js",
