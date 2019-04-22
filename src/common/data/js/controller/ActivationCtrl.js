@@ -34,21 +34,13 @@
 
                 var onSuccess = function(config) {
 
-                    // TODO interpret "allow_custom_server"
                     // TODO check last visited server for "preselection"
 
                     /* Server selection with preselection */
                     $scope.servers = config['backend_servers'];
                     $scope.filtered_servers = $scope.servers;
-                    $scope.selected_server = $scope.servers[0];
-                    $scope.selected_server_title = $scope.selected_server.title;
-                    $scope.selected_server_url = $scope.selected_server.url;
-                    $scope.selected_server_domain = helper.get_domain($scope.selected_server.url);
-                    if ($scope.selected_server.domain) {
-                        $scope.selected_server_domain = $scope.selected_server.domain;
-                    } else {
-                        $scope.selected_server_domain = helper.get_domain($scope.selected_server.url);
-                    }
+                    $scope.allow_custom_server = !config.hasOwnProperty('allow_custom_server') || (config.hasOwnProperty('allow_custom_server') && config['allow_custom_server']);
+                    select_server($scope.servers[0]);
                 };
 
                 var onError = function() {

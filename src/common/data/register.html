@@ -91,7 +91,7 @@
                     <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
                 </div>
 
-                <div class="form-group hideinputcharakter">
+                <div ng-if="allow_custom_server" class="form-group hideinputcharakter">
 
                     <label for="serverselection">{{'SERVER' | translate}}: </label>
                     <input type="text" id="serverselection"

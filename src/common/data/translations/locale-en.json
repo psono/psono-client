@@ -1,4 +1,6 @@
 {
+  "USER_LIMIT_REACHED": "User limit reached.",
+  "LICENSE_EXPIRED": "License expired.",
   "REGISTRATION_SUCCESSFUL": "Successfully registered.",
   "REGISTRATION_HAS_BEEN_DISABLED": "Registration has been disabled.",
   "REGISTRATION_FAILED_USERNAME_ALREADY_EXISTS": "Registration failed. Username already exists.",
