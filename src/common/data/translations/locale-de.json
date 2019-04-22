@@ -1,4 +1,5 @@
 {
+  "USERNAME_OR_RECOVERY_CODE_INCORRECT": "Benutzername oder Wiederherstellungs Code ungültig.",
   "USER_LIMIT_REACHED": "Benutzerlimit erreicht.",
   "LICENSE_EXPIRED": "Lizenz abgelaufen.",
   "REGISTRATION_SUCCESSFUL": "Successfully registered.",

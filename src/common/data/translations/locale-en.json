@@ -1,4 +1,5 @@
 {
+  "USERNAME_OR_RECOVERY_CODE_INCORRECT": "Username or recovery code incorrect.",
   "USER_LIMIT_REACHED": "User limit reached.",
   "LICENSE_EXPIRED": "License expired.",
   "REGISTRATION_SUCCESSFUL": "Successfully registered.",
