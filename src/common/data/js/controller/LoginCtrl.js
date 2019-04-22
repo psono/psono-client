@@ -68,6 +68,8 @@
                     $scope.loginFormTrustDevice = persistent_trust_device === true;
 
                     $scope.allow_custom_server = !config.hasOwnProperty('allow_custom_server') || (config.hasOwnProperty('allow_custom_server') && config['allow_custom_server']);
+                    $scope.allow_registration = !config.hasOwnProperty('allow_registration') || (config.hasOwnProperty('allow_registration') && config['allow_registration']);
+                    $scope.allow_lost_password = !config.hasOwnProperty('allow_lost_password') || (config.hasOwnProperty('allow_lost_password') && config['allow_lost_password']);
 
                     /* Server selection with preselection */
                     $scope.servers = config['backend_servers'];

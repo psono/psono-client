@@ -2,6 +2,7 @@
   "USER_LIMIT_REACHED": "User limit reached.",
   "LICENSE_EXPIRED": "License expired.",
   "REGISTRATION_SUCCESSFUL": "Successfully registered.",
+  "PASSWORD_RESET_HAS_BEEN_DISABLED": "The password reset functionality has been disabled.",
   "REGISTRATION_HAS_BEEN_DISABLED": "Registration has been disabled.",
   "REGISTRATION_FAILED_USERNAME_ALREADY_EXISTS": "Registration failed. Username already exists.",
   "REGISTRATION_FAILED_USERNAME_AND_EMAIL_HAVE_TO_MATCH": "Registration failed. Username and email have to match.",
