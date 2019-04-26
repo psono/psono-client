@@ -7,6 +7,7 @@
      * @requires $q
      * @requires $rootScope
      * @requires $uibModal
+     * @requires $location
      * @requires psonocli.apiClient
      * @requires psonocli.browserClient
      * @requires psonocli.storage
@@ -21,7 +22,7 @@
      * Service to manage the user datastore and user related functions
      */
 
-    var managerDatastoreUser = function($q, $rootScope, $uibModal, apiClient, browserClient, storage,
+    var managerDatastoreUser = function($q, $rootScope, $uibModal, $location, apiClient, browserClient, storage,
                                         helper, device, managerBase, managerDatastore, shareBlueprint,
                                         itemBlueprint, cryptoLibrary) {
 
@@ -594,6 +595,99 @@
             }
 
             return apiClient.login(login_info_enc['text'], login_info_enc['nonce'], session_keys.public_key, session_duration)
+                .then(onSuccess, onError);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#saml_login
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Ajax POST request to the backend to initiate the saml login request
+         *
+         * @param {object} provider The provider config
+         * @param {boolean|undefined} remember Remember the username and server
+         * @param {boolean|undefined} trust_device Trust the device for 30 days or logout when browser closes
+         * @param {object} server The server object to send the login request to
+         * @param {object} server_info Some info about the server including its public key
+         * @param {object} verify_key The signature of the server
+         *
+         * @returns {promise} Returns a promise with the login status
+         */
+        var saml_login = function(provider, remember, trust_device, server, server_info, verify_key) {
+
+            managerBase.delete_local_data();
+
+            if (remember) {
+                storage.upsert('persistent', {key: 'server', value: server});
+            } else {
+                if (storage.key_exists('persistent', 'username')) {
+                    storage.remove('persistent', storage.find_key('persistent', 'username'));
+                }
+                if (storage.key_exists('persistent', 'server')) {
+                    storage.remove('persistent', storage.find_key('persistent', 'server'));
+                }
+                storage.save();
+            }
+            storage.upsert('persistent', {key: 'trust_device', value: trust_device});
+
+            if (!server_info.hasOwnProperty('allowed_second_factors')) {
+                server_info['allowed_second_factors'] = ['yubikey_otp', 'google_authenticator', 'duo'];
+            }
+
+            if (!server_info.hasOwnProperty('allow_user_search_by_email')) {
+                server_info['allow_user_search_by_email'] = false;
+            }
+
+            storage.upsert('config', {key: 'server_info', value: server_info});
+            storage.upsert('config', {key: 'server_verify_key', value: verify_key});
+            // TODO
+            //storage.upsert('config', {key: 'user_username', value: username});
+            storage.upsert('config', {key: 'server', value: server});
+
+            session_keys = cryptoLibrary.generate_public_private_keypair();
+
+            var onError = function(response){
+
+                // in case of any error we remove the items we already added to our storage
+                // maybe we adjust this behaviour at some time
+                storage.remove('config', storage.find_key('config', 'server'));
+                storage.save();
+
+                return $q.reject({
+                    response:"error",
+                    error_data: response.data
+                });
+            };
+
+            var onSuccess = function (response) {
+                console.log(response)
+                //return handle_login_response(response, password, session_keys, server_info['public_key']);
+            };
+            var login_info = {
+                'return_to_url': $location.absUrl().split('#')[0].split('/').slice(0, -1).join('/') + '/index.html',
+                'device_time': new Date().toISOString(),
+                'device_fingerprint': device.get_device_fingerprint(),
+                'device_description': device.get_device_description()
+            };
+
+            login_info = JSON.stringify(login_info);
+
+            // encrypt the login infos
+            var login_info_enc = cryptoLibrary.encrypt_data_public_key(
+                login_info,
+                server_info['public_key'],
+                session_keys.private_key
+            );
+
+
+            var session_duration = 24*60*60;
+            if (trust_device) {
+                session_duration = 24*60*60*30;
+            }
+
+            return apiClient.saml_initiate_login(provider['provider_id'], login_info_enc['text'], login_info_enc['nonce'], session_keys.public_key, session_duration)
                 .then(onSuccess, onError);
         };
 
@@ -1673,6 +1767,7 @@
             activate_code: activate_code,
             get_default: get_default,
             login: login,
+            saml_login: saml_login,
             ga_verify: ga_verify,
             duo_verify: duo_verify,
             yubikey_otp_verify: yubikey_otp_verify,
@@ -1716,7 +1811,7 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerDatastoreUser", ['$q', '$rootScope', '$uibModal', 'apiClient', 'browserClient', 'storage',
+    app.factory("managerDatastoreUser", ['$q', '$rootScope', '$uibModal', '$location', 'apiClient', 'browserClient', 'storage',
         'helper', 'device', 'managerBase', 'managerDatastore', 'shareBlueprint',
         'itemBlueprint', 'cryptoLibrary', managerDatastoreUser]);
 

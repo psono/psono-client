@@ -42,6 +42,7 @@
             $scope.yubikey_otp_verify = yubikey_otp_verify;
             $scope.duo_verify = duo_verify;
             $scope.initiate_login = initiate_login;
+            $scope.initiate_saml_login = initiate_saml_login;
             $scope.load_default_view = load_default_view;
             $scope.cancel = cancel;
 
@@ -70,6 +71,10 @@
                     $scope.allow_custom_server = !config.hasOwnProperty('allow_custom_server') || (config.hasOwnProperty('allow_custom_server') && config['allow_custom_server']);
                     $scope.allow_registration = !config.hasOwnProperty('allow_registration') || (config.hasOwnProperty('allow_registration') && config['allow_registration']);
                     $scope.allow_lost_password = !config.hasOwnProperty('allow_lost_password') || (config.hasOwnProperty('allow_lost_password') && config['allow_lost_password']);
+                    $scope.authkey_enabled = config['authentication_methods'].indexOf('AUTHKEY') !== -1;
+                    $scope.ldap_enabled = config['authentication_methods'].indexOf('LDAP') !== -1;
+                    $scope.saml_enabled = config['authentication_methods'].indexOf('SAML') !== -1;
+                    $scope.saml_provider = config['saml_provider'];
 
                     /* Server selection with preselection */
                     $scope.servers = config['backend_servers'];
@@ -81,8 +86,8 @@
                     }
                 };
 
-                var onError = function() {
-
+                var onError = function(data) {
+                    console.log(data);
                 };
 
                 browserClient.get_config().then(onSuccess, onError);
@@ -100,6 +105,7 @@
              */
             function select_server(server) {
                 //triggered when selecting an server
+
                 $scope.selected_server = server;
                 $scope.selected_server_title = server.title;
                 $scope.selected_server_url = server.url;
@@ -393,8 +399,11 @@
              * Checks the server info if the Sever might need the plaintext password and asks the users if its ok or not
              *
              * @param server_check
+             * @param disable_send_plain Param to disable any plain text password transmission
+             *
+             * @returns {promise} A promise with weather the client should send the plaintext password or not
              */
-            function ask_send_plain(server_check) {
+            function ask_send_plain(server_check, disable_send_plain) {
 
                 function has_ldap_auth(server_check) {
                     return server_check.hasOwnProperty('info') && server_check['info'].hasOwnProperty('authentication_methods') && server_check['info']['authentication_methods'].indexOf('LDAP') !== -1
@@ -402,7 +411,7 @@
 
                 return $q(function(resolve, reject) {
 
-                    if (has_ldap_auth(server_check)) {
+                    if (!disable_send_plain && has_ldap_auth(server_check)) {
 
                         $scope.approve_send_plain = function () {
                             return resolve(true);
@@ -429,7 +438,7 @@
              * @methodOf psonocli.controller:LoginCtrl
              *
              * @description
-             * Triggered once someone clicks the login button and with initiate the login sequence
+             * Triggered once someone clicks the login button and will initiate the login sequence
              *
              * @param {string} username The username
              * @param {string} password The password
@@ -489,7 +498,74 @@
                                 .then(onSuccess, onError);
                         };
                         if (continue_login) {
-                            ask_send_plain(server_check).then(onSuccess, onError);
+                            ask_send_plain(server_check, false).then(onSuccess, onError);
+                        }
+                    };
+                    verify_server_signature(server_check).then(onSuccess, onError);
+                };
+                managerHost.check_host(angular.copy($scope.selected_server)).then(onSuccess, onError);
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LoginCtrl#initiate_login
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Triggered once someone clicks the login button for a SAML provider and will initiate the login sequence
+             *
+             * @param {string} provider The provider config from config.json passed down
+             * @param {boolean|undefined} remember Remember username and server
+             * @param {boolean|undefined} trust_device Trust the device for 30 days or logout when browser closes
+             * @param {boolean} two_fa_redirect Redirect user to enforce-two-fa.html or let another controller handle it
+             */
+            function initiate_saml_login(provider, remember, trust_device, two_fa_redirect) {
+
+                redirect_on_two_fa_missing = two_fa_redirect;
+
+                var onError = function() {
+                    $scope.errors = ['Server offline.']
+                };
+
+                var onSuccess = function(server_check) {
+
+                    var onError = function() {
+                        // pass
+                    };
+
+                    var onSuccess = function(continue_login) {
+
+                        var onError = function() {
+                            // pass
+                        };
+
+                        var onSuccess = function(send_plain) {
+
+                            var onSuccess = function (required_multifactors) {
+                                return next_login_step(required_multifactors);
+                            };
+
+                            var onError = function (data) {
+                                $scope.view = 'default';
+                                console.log(data);
+
+                                if (data.error_data === null) {
+                                    $scope.errors = ['Server offline.']
+                                } else if (data.error_data.hasOwnProperty('non_field_errors')) {
+                                    $scope.errors = data.error_data.non_field_errors;
+                                } else if (data.error_data.hasOwnProperty('username')) {
+                                    $scope.errors = data.error_data.username;
+                                } else {
+                                    $scope.errors = ['Server offline.']
+                                }
+                            };
+
+                            managerDatastoreUser.saml_login(provider, remember, trust_device,
+                                angular.copy($scope.selected_server), server_check['info'], server_check['verify_key'])
+                                .then(onSuccess, onError);
+                        };
+                        if (continue_login) {
+                            ask_send_plain(server_check, true).then(onSuccess, onError);
                         }
                     };
                     verify_server_signature(server_check).then(onSuccess, onError);

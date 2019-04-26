@@ -77,13 +77,23 @@
 
                 <form name="loginForm" ng-if="view === 'default'" autocomplete="off">
                     <!-- default View -->
-                    <div ng-class="{'input-group': loginFormUsername == null || loginFormUsername.indexOf('@') == -1}">
+                    <div ng-if="authkey_enabled || ldap_enabled" ng-class="{'input-group': loginFormUsername == null || loginFormUsername.indexOf('@') == -1}">
                         <input type="text" class="form-control" id="loginUsername" placeholder="{{'USERNAME' | translate}}" ng-model="loginFormUsername" required aria-describedby="username-addon" autofocus>
                         <span class="input-group-addon" id="username-addon" ng-if="loginFormUsername == null || loginFormUsername.indexOf('@') == -1">@{{selected_server_domain}}</span>
                     </div>
-                    <br>
-                    <div class="form-group">
+                    <br ng-if="authkey_enabled || ldap_enabled">
+                    <div ng-if="authkey_enabled || ldap_enabled" class="form-group">
                         <input type="password" class="form-control" id="loginPassword" placeholder="{{'PASSWORD' | translate}}" ng-model="loginFormPassword" required>
+                    </div>
+                    <br ng-if="authkey_enabled || ldap_enabled">
+                    <div ng-if="saml_enabled" ng-repeat="provider in saml_provider">
+                        <div class="form-group">
+                            {{ provider.title }}
+                        </div>
+                        <div class="form-group">
+                            <button ng-click="initiate_saml_login(provider, loginFormRemember, loginFormTrustDevice, true)" type="submit" class="btn btn-danger">{{ provider.button_name}} <i class="fa fa-sign-in" aria-hidden="true"></i></button>
+                            <a ng-if="provider.registration_url" ng-href="{{ provider.registration_url }}">{{'REGISTER' | translate}}</a>
+                        </div>
                     </div>
                     <div class="checkbox">
                         <label><input type="checkbox" ng-model="loginFormRemember"> {{'REMEMBER_USERNAME_AND_SERVER' | translate}}</label>
@@ -92,9 +102,9 @@
                         <label><input type="checkbox" ng-model="loginFormTrustDevice"> {{'TRUST_DEVICE' | translate}}</label>
                     </div>
 
-                    <div class="form-group">
-                        <button ng-click="initiate_login(loginFormUsername, loginFormPassword, loginFormRemember, loginFormTrustDevice, true)" type="submit" class="btn btn-danger">{{'LOGIN' | translate}} <i class="fa fa-sign-in" aria-hidden="true"></i></button>
-                        <a ng-if="allow_registration" href="register.html">{{'REGISTER' | translate}}</a>
+                    <div ng-if="authkey_enabled || ldap_enabled" class="form-group">
+                        <button ng-if="authkey_enabled || ldap_enabled" ng-click="initiate_login(loginFormUsername, loginFormPassword, loginFormRemember, loginFormTrustDevice, true)" type="submit" class="btn btn-danger">{{'LOGIN' | translate}} <i class="fa fa-sign-in" aria-hidden="true"></i></button>
+                        <a ng-if="allow_registration && authkey_enabled" href="register.html">{{'REGISTER' | translate}}</a>
                     </div>
 
                     <div class="form-group alert alert-danger" ng-repeat="e in errors">

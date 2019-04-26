@@ -133,6 +133,13 @@
             var onSuccess = function(orig_json_config) {
                 var new_config = orig_json_config.data;
 
+                if (!new_config.hasOwnProperty('authentication_methods')) {
+                    new_config['authentication_methods'] = ["AUTHKEY", "LDAP", "SAML"];
+                }
+                if (!new_config.hasOwnProperty('saml_provider')) {
+                    new_config['saml_provider'] = [];
+                }
+
                 return $q.resolve(new_config);
             };
 

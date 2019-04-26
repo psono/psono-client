@@ -121,6 +121,13 @@
                     } catch (e) {
                         // pass
                     }
+                    if (!new_config.hasOwnProperty('authentication_methods')) {
+                        new_config['authentication_methods'] = ["AUTHKEY", "LDAP", "SAML"];
+                    }
+                    if (!new_config.hasOwnProperty('saml_provider')) {
+                        new_config['saml_provider'] = [];
+                    }
+
                     return deferred.resolve(new_config);
                 };
 
