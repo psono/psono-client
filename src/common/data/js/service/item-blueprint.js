@@ -346,23 +346,14 @@
                 function multi_chunk_upload(shard, file_repository, file, file_transfer_id, file_secret_key, file_chunk_size) {
 
                     var on_load_end = function(bytes, chunk_size, file_secret_key, chunk_position, resolve) {
-                        console.timeEnd('read_file_chunk');
-                        console.time('encrypt_file');
                         cryptoLibrary.encrypt_file(bytes, file_secret_key).then(function(encrypted_bytes) {
                             registrations['upload_step_complete']('HASHING_FILE_CHUNK');
-                            console.timeEnd('encrypt_file');
 
-                            console.time('sha512');
                             var hash_checksum = cryptoLibrary.sha512(encrypted_bytes);
-                            console.timeEnd('sha512');
 
                             registrations['upload_step_complete']('UPLOADING_FILE_CHUNK');
 
-                            console.time('upload');
-
-
                             managerFileTransfer.upload(new Blob([encrypted_bytes], {type: 'application/octet-stream'}), file_transfer_id, chunk_size, chunk_position, shard, file_repository, hash_checksum).then(function() {
-                                console.timeEnd('upload');
                                 return resolve({
                                     'chunk_position': chunk_position,
                                     'hash_checksum': hash_checksum
@@ -372,7 +363,6 @@
                     };
 
                     var read_file_chunk = function(file, file_slice_start, chunk_size, on_load_end, file_secret_key, chunk_position, resolve) {
-                        console.time('read_file_chunk');
                         var file_reader = new FileReader();
                         var file_slice;
 
