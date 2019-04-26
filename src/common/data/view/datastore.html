@@ -25,7 +25,7 @@
                         <div class="input-group">
                             <input type="text" class="form-control" id="tosearchTreeForm" placeholder="{{'SEARCH' | translate}}"
                                    ng-focus="focused = true" ng-blur="focused = false"
-                                   ng-model="tosearchTreeFilter">
+                                   ng-model="tosearchTreeFilter" auto-focus>
                             <span class="input-group-btn">
                         <button class="btn btn-default" ng-disabled="!tosearchTreeFilter"
                                 ng-click="clearSearchTreeForm()" type="button"><i class="fa fa-ban"></i></button>

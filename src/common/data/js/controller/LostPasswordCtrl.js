@@ -53,12 +53,14 @@
 
                 var onSuccess = function(config) {
 
-                    // TODO interpret "allow_custom_server"
                     // TODO check last visited server for "preselection"
 
                     /* Server selection with preselection */
                     $scope.servers = config['backend_servers'];
                     $scope.filtered_servers = $scope.servers;
+                    $scope.allow_custom_server = !config.hasOwnProperty('allow_custom_server') || (config.hasOwnProperty('allow_custom_server') && config['allow_custom_server']);
+                    $scope.allow_registration = !config.hasOwnProperty('allow_registration') || (config.hasOwnProperty('allow_registration') && config['allow_registration']);
+                    $scope.allow_lost_password = !config.hasOwnProperty('allow_lost_password') || (config.hasOwnProperty('allow_lost_password') && config['allow_lost_password']);
                     if (persistent_server) {
                         select_server(persistent_server);
                     } else {
@@ -97,8 +99,6 @@
                 } else {
                     $scope.selected_server_domain = helper.get_domain(server.url);
                 }
-
-                // TODO interpret "allow_custom_server"
 
                 if(helper.endsWith($scope.lostpasswordFormUsername, '@' + $scope.selected_server_domain)) {
                     $scope.lostpasswordFormUsername = $scope.lostpasswordFormUsername.slice(0, - ('@' + $scope.selected_server_domain).length);

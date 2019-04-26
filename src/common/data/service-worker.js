@@ -181,6 +181,7 @@ self.addEventListener('install', function(event) {
                 './js/service-worker-load.js',
                 './js/crypto-worker.js',
 
+                './js/directive/autoFocus.js',
                 './js/directive/fileReader.js',
                 './js/directive/treeView.js',
                 './js/directive/treeViewNode.js',

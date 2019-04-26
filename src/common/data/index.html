@@ -223,14 +223,14 @@
 
                 <div class="form-group">
                     <button ng-click="initiate_login(loginFormUsername, loginFormPassword, loginFormRemember, loginFormTrustDevice, true)" type="submit" class="btn btn-danger">{{'LOGIN' | translate}} <i class="fa fa-sign-in" aria-hidden="true"></i></button>
-                    <a href="register.html">{{'REGISTER' | translate}}</a>
+                    <a ng-if="allow_registration" href="register.html">{{'REGISTER' | translate}}</a>
                 </div>
 
                 <div class="form-group alert alert-danger" ng-repeat="e in errors">
                     <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
                 </div>
 
-                <div class="form-group hideinputcharakter">
+                <div ng-if="allow_custom_server" class="form-group hideinputcharakter">
 
                     <label for="serverselection">{{'SERVER' | translate}}: </label>
                     <input type="text" id="serverselection"
@@ -392,7 +392,7 @@
             </form>
 
             <div class="box-footer">
-                <a href="lost-password.html">{{'LOST_PASSWORD' | translate}}?</a> <a href="privacy-policy.html">{{'PRIVACY_POLICY' | translate}}</a>
+                <a ng-if="allow_lost_password" href="lost-password.html">{{'LOST_PASSWORD' | translate}}?</a> <a href="privacy-policy.html">{{'PRIVACY_POLICY' | translate}}</a>
             </div>
         </div>
     </div>
@@ -466,6 +466,7 @@
 <script src="js/service-worker-load.js" type="application/javascript"></script>
 <script src="js/crypto-worker.js" type="application/javascript"></script>
 
+<script src="js/directive/autoFocus.js" type="application/javascript"></script>
 <script src="js/directive/fileReader.js" type="application/javascript"></script>
 <script src="js/directive/treeView.js" type="application/javascript"></script>
 <script src="js/directive/treeViewNode.js" type="application/javascript"></script>

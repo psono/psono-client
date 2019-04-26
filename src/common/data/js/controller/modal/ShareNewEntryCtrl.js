@@ -45,14 +45,10 @@
                     /* Server selection with preselection */
                     $scope.servers = config['backend_servers'];
                     $scope.filtered_servers = $scope.servers;
-                    $scope.selected_server = managerHost.get_current_host();
-                    $scope.selected_server_title = $scope.selected_server.title;
-                    $scope.selected_server_url = $scope.selected_server.url;
-                    if ($scope.selected_server.domain) {
-                        $scope.selected_server_domain = $scope.selected_server.domain; 
-                    } else {
-                        $scope.selected_server_domain = helper.get_domain($scope.selected_server.url);
-                    }
+                    $scope.allow_custom_server = !config.hasOwnProperty('allow_custom_server') || (config.hasOwnProperty('allow_custom_server') && config['allow_custom_server']);
+                    $scope.allow_registration = !config.hasOwnProperty('allow_registration') || (config.hasOwnProperty('allow_registration') && config['allow_registration']);
+                    $scope.allow_lost_password = !config.hasOwnProperty('allow_lost_password') || (config.hasOwnProperty('allow_lost_password') && config['allow_lost_password']);
+                    select_server(managerHost.get_current_host());
                 };
 
                 var onError = function() {
@@ -69,6 +65,33 @@
             }
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ModalShareNewEntryCtrl#select_server
+             * @methodOf psonocli.controller:ModalShareNewEntryCtrl
+             *
+             * @description
+             * Select a server from the offered choices
+             *
+             * @param {object} server The selected server
+             */
+            function select_server(server) {
+                //triggered when selecting an server
+                $scope.selected_server = server;
+                $scope.selected_server_title = server.title;
+                $scope.selected_server_url = server.url;
+                if (server.domain) {
+                    $scope.selected_server_domain = server.domain;
+                } else {
+                    $scope.selected_server_domain = helper.get_domain(server.url);
+                }
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalShareNewEntryCtrl#reset
+             * @methodOf psonocli.controller:ModalShareNewEntryCtrl
+             *
+             * @description
              * Sets submitted to false
              */
             function reset() {
@@ -76,6 +99,11 @@
             }
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ModalShareNewEntryCtrl#save
+             * @methodOf psonocli.controller:ModalShareNewEntryCtrl
+             *
+             * @description
              * Triggered once someone clicks the save button in the modal
              */
             function save() {
@@ -110,6 +138,11 @@
             }
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:ModalShareNewEntryCtrl#cancel
+             * @methodOf psonocli.controller:ModalShareNewEntryCtrl
+             *
+             * @description
              * Triggered once someone clicks the cancel button in the modal
              */
             function cancel() {

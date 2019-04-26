@@ -26,20 +26,15 @@
             function activate() {
                 var onSuccess = function(config) {
 
-                    // TODO interpret "allow_custom_server"
                     // TODO check last visited server for "preselection"
 
                     /* Server selection with preselection */
                     $scope.servers = config['backend_servers'];
                     $scope.filtered_servers = $scope.servers;
-                    $scope.selected_server = $scope.servers[0];
-                    $scope.selected_server_title = $scope.selected_server.title;
-                    $scope.selected_server_url = $scope.selected_server.url;
-                    if ($scope.selected_server.domain) {
-                        $scope.selected_server_domain = $scope.selected_server.domain;
-                    } else {
-                        $scope.selected_server_domain = helper.get_domain($scope.selected_server.url);
-                    }
+                    $scope.allow_custom_server = !config.hasOwnProperty('allow_custom_server') || (config.hasOwnProperty('allow_custom_server') && config['allow_custom_server']);
+                    $scope.allow_registration = !config.hasOwnProperty('allow_registration') || (config.hasOwnProperty('allow_registration') && config['allow_registration']);
+                    $scope.allow_lost_password = !config.hasOwnProperty('allow_lost_password') || (config.hasOwnProperty('allow_lost_password') && config['allow_lost_password']);
+                    select_server($scope.servers[0]);
                 };
 
                 var onError = function() {
@@ -49,7 +44,7 @@
                 browserClient.get_config().then(onSuccess, onError);
 
                 /* preselected values */
-                // $scope.registerFormEmail = "register@saschapfeiffer.com";
+                // $scope.registerFormEmail = "register@example.com";
                 // $scope.registerFormUsername = "register";
                 // $scope.registerFormPassword = "myPassword";
                 // $scope.registerFormPasswordRepeat = "myPassword";

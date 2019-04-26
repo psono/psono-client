@@ -67,7 +67,9 @@
                     $scope.loginFormRemember = persistent_username !== "";
                     $scope.loginFormTrustDevice = persistent_trust_device === true;
 
-                    // TODO interpret "allow_custom_server"
+                    $scope.allow_custom_server = !config.hasOwnProperty('allow_custom_server') || (config.hasOwnProperty('allow_custom_server') && config['allow_custom_server']);
+                    $scope.allow_registration = !config.hasOwnProperty('allow_registration') || (config.hasOwnProperty('allow_registration') && config['allow_registration']);
+                    $scope.allow_lost_password = !config.hasOwnProperty('allow_lost_password') || (config.hasOwnProperty('allow_lost_password') && config['allow_lost_password']);
 
                     /* Server selection with preselection */
                     $scope.servers = config['backend_servers'];
@@ -84,21 +86,6 @@
                 };
 
                 browserClient.get_config().then(onSuccess, onError);
-            }
-
-            /**
-             * @ngdoc
-             * @name psonocli.controller:LoginCtrl#change_language
-             * @methodOf psonocli.controller:LoginCtrl
-             *
-             * @description
-             * Changes the language
-             *
-             * @param {string} lang The language to use
-             */
-            function change_language(lang) {
-                $scope.active['lang'] = lang;
-                languagePicker.changeLanguage(lang.code)
             }
 
             /**
@@ -125,6 +112,21 @@
                 if(helper.endsWith($scope.loginFormUsername, '@' + $scope.selected_server_domain)) {
                     $scope.loginFormUsername = $scope.loginFormUsername.slice(0, - ('@' + $scope.selected_server_domain).length);
                 }
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LoginCtrl#change_language
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Changes the language
+             *
+             * @param {string} lang The language to use
+             */
+            function change_language(lang) {
+                $scope.active['lang'] = lang;
+                languagePicker.changeLanguage(lang.code)
             }
 
             /**

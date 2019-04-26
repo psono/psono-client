@@ -4,5 +4,7 @@
     "url": "https://www.psono.pw/server"
   }],
   "base_url": "https://www.psono.pw/",
-  "allow_custom_server": true
+  "allow_custom_server": true,
+  "allow_registration": true,
+  "allow_lost_password": true
 }
