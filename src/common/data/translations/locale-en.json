@@ -1,4 +1,8 @@
 {
+  "USER_NOT_PART_OF_REQUIRED_GROUP": "Your account is not part of one of the authorized groups.",
+  "NO_SAML_TOKEN_ID_PROVIDED": "No SAML token id provided.",
+  "LOGIN_INFO_CANNOT_BE_DECRYPTED": "Login information could not be decrypted by the server.",
+  "SAML_TOKEN_NOT_FOUND_ALREADY_USED_OR_EXPIRED": "SAML token not found, already used or expired.",
   "USERNAME_OR_RECOVERY_CODE_INCORRECT": "Username or recovery code incorrect.",
   "USER_LIMIT_REACHED": "User limit reached.",
   "LICENSE_EXPIRED": "License expired.",

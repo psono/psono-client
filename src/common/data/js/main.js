@@ -127,6 +127,7 @@
                     })
                     .when('/secret/:type/:secret_id', {})
                     .when('/file/download/:id', {})
+                    .when('/saml/token/:saml_token_id', {})
                     .when('/activation-code/:activation_code', {})
                     .when('/datastore/search/:default_search', {
                         templateUrl: 'view/datastore.html',

@@ -91,6 +91,13 @@
                 };
 
                 browserClient.get_config().then(onSuccess, onError);
+
+                $scope.$on('$routeChangeSuccess', function () {
+                    if (typeof($routeParams.saml_token_id) !== 'undefined') {
+                        saml_login($routeParams.saml_token_id);
+                        $location.path('/');
+                    }
+                });
             }
 
             /**
@@ -508,6 +515,37 @@
 
             /**
              * @ngdoc
+             * @name psonocli.controller:LoginCtrl#saml_login
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Triggered once someone comes back from a redirect to a index.html#!/saml/token/... url
+             * Will try to use the token to authenticate and login
+             *
+             * @param {string} saml_token_id The saml token id
+             */
+            function saml_login(saml_token_id) {
+
+
+                var onSuccess = function(required_multifactors) {
+                    return next_login_step(required_multifactors);
+                };
+
+                var onError = function(data) {
+                    if (data.hasOwnProperty('non_field_errors')) {
+                        $scope.errors = data.non_field_errors;
+                        $scope.view = 'default';
+                    } else {
+                        console.log(data);
+                        alert("Error, should not happen.");
+                    }
+                };
+
+                managerDatastoreUser.saml_login(saml_token_id).then(onSuccess, onError);
+            }
+
+            /**
+             * @ngdoc
              * @name psonocli.controller:LoginCtrl#initiate_login
              * @methodOf psonocli.controller:LoginCtrl
              *
@@ -560,7 +598,7 @@
                                 }
                             };
 
-                            managerDatastoreUser.saml_login(provider, remember, trust_device,
+                            managerDatastoreUser.saml_initiate_login(provider, remember, trust_device,
                                 angular.copy($scope.selected_server), server_check['info'], server_check['verify_key'])
                                 .then(onSuccess, onError);
                         };

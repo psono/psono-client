@@ -8,6 +8,7 @@
      * @requires $rootScope
      * @requires $uibModal
      * @requires $location
+     * @requires $window
      * @requires psonocli.apiClient
      * @requires psonocli.browserClient
      * @requires psonocli.storage
@@ -22,8 +23,8 @@
      * Service to manage the user datastore and user related functions
      */
 
-    var managerDatastoreUser = function($q, $rootScope, $uibModal, $location, apiClient, browserClient, storage,
-                                        helper, device, managerBase, managerDatastore, shareBlueprint,
+    var managerDatastoreUser = function($q, $rootScope, $uibModal, $location, $window, apiClient,
+                                        browserClient, storage, helper, device, managerBase, managerDatastore, shareBlueprint,
                                         itemBlueprint, cryptoLibrary) {
 
         var required_multifactors = [];
@@ -600,7 +601,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastoreUser#saml_login
+         * @name psonocli.managerDatastoreUser#saml_initiate_login
          * @methodOf psonocli.managerDatastoreUser
          *
          * @description
@@ -615,7 +616,7 @@
          *
          * @returns {promise} Returns a promise with the login status
          */
-        var saml_login = function(provider, remember, trust_device, server, server_info, verify_key) {
+        var saml_initiate_login = function(provider, remember, trust_device, server, server_info, verify_key) {
 
             managerBase.delete_local_data();
 
@@ -645,8 +646,7 @@
             // TODO
             //storage.upsert('config', {key: 'user_username', value: username});
             storage.upsert('config', {key: 'server', value: server});
-
-            session_keys = cryptoLibrary.generate_public_private_keypair();
+            storage.save();
 
             var onError = function(response){
 
@@ -662,17 +662,40 @@
             };
 
             var onSuccess = function (response) {
-                console.log(response)
-                //return handle_login_response(response, password, session_keys, server_info['public_key']);
+                $window.location.href = response.data.saml_redirect_url;
             };
+
+            return apiClient.saml_initiate_login(provider['provider_id'], $location.absUrl().split('#')[0].split('/').slice(0, -1).join('/') + '/index.html#!/saml/token/')
+                .then(onSuccess, onError);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#saml_login
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * The second step in the login process of the SAML login after the initialization and all the redirect juju
+         * of SAML
+         *
+         * @param {string} saml_token_id The id of the saml token
+         *
+         * @returns {promise} Returns a promise with the login status
+         */
+        var saml_login = function(saml_token_id) {
+
             var login_info = {
-                'return_to_url': $location.absUrl().split('#')[0].split('/').slice(0, -1).join('/') + '/index.html',
+                'saml_token_id': saml_token_id,
                 'device_time': new Date().toISOString(),
                 'device_fingerprint': device.get_device_fingerprint(),
                 'device_description': device.get_device_description()
             };
 
+            var server_info = storage.find_key('config', 'server_info').value;
+
             login_info = JSON.stringify(login_info);
+
+            session_keys = cryptoLibrary.generate_public_private_keypair();
 
             // encrypt the login infos
             var login_info_enc = cryptoLibrary.encrypt_data_public_key(
@@ -681,13 +704,54 @@
                 session_keys.private_key
             );
 
+            var onError = function(response){
+                return $q.reject(response.data);
+            };
+
+            var onSuccess = function (response) {
+                var login_info_decrypted_json = cryptoLibrary.decrypt_data_public_key(response.data['login_info'], response.data['login_info_nonce'], server_info['public_key'], session_keys.private_key);
+                var login_info_decrypted = JSON.parse(login_info_decrypted_json);
+                var login_data_decrypted_json = cryptoLibrary.decrypt_data_public_key(login_info_decrypted['data'], login_info_decrypted['data_nonce'], login_info_decrypted['server_session_public_key'], session_keys.private_key);
+                var login_data_decrypted = JSON.parse(login_data_decrypted_json);
+
+                storage.upsert('config', {key: 'user_username', value: login_data_decrypted.user.username});
+                storage.upsert('config', {key: 'user_has_two_factor', value: login_data_decrypted['required_multifactors'].length > 0});
+                token = login_data_decrypted.token;
+                session_secret_key = login_data_decrypted.session_secret_key;
+                user_sauce = login_data_decrypted.user.user_sauce;
+                user_public_key = login_data_decrypted.user.public_key;
+                session_password = login_data_decrypted.password;
+
+                // decrypt user private key
+                user_private_key = cryptoLibrary.decrypt_secret(
+                    login_data_decrypted.user.private_key,
+                    login_data_decrypted.user.private_key_nonce,
+                    login_data_decrypted.password,
+                    user_sauce
+                );
+
+                // decrypt the user_validator
+                var user_validator = cryptoLibrary.decrypt_data_public_key(
+                    login_data_decrypted.user_validator,
+                    login_data_decrypted.user_validator_nonce,
+                    login_info_decrypted['server_session_public_key'],
+                    user_private_key
+                );
+
+                // encrypt the validator as verification
+                verification = cryptoLibrary.encrypt_data(
+                    user_validator,
+                    session_secret_key
+                );
+
+                required_multifactors = login_data_decrypted['required_multifactors'];
+
+                return required_multifactors;
+            };
 
             var session_duration = 24*60*60;
-            if (trust_device) {
-                session_duration = 24*60*60*30;
-            }
 
-            return apiClient.saml_initiate_login(provider['provider_id'], login_info_enc['text'], login_info_enc['nonce'], session_keys.public_key, session_duration)
+            return apiClient.saml_login(login_info_enc['text'], login_info_enc['nonce'], session_keys.public_key, session_duration)
                 .then(onSuccess, onError);
         };
 
@@ -1767,6 +1831,7 @@
             activate_code: activate_code,
             get_default: get_default,
             login: login,
+            saml_initiate_login: saml_initiate_login,
             saml_login: saml_login,
             ga_verify: ga_verify,
             duo_verify: duo_verify,
@@ -1811,8 +1876,8 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerDatastoreUser", ['$q', '$rootScope', '$uibModal', '$location', 'apiClient', 'browserClient', 'storage',
-        'helper', 'device', 'managerBase', 'managerDatastore', 'shareBlueprint',
+    app.factory("managerDatastoreUser", ['$q', '$rootScope', '$uibModal', '$location', '$window', 'apiClient',
+        'browserClient', 'storage', 'helper', 'device', 'managerBase', 'managerDatastore', 'shareBlueprint',
         'itemBlueprint', 'cryptoLibrary', managerDatastoreUser]);
 
 }(angular, Raven));
