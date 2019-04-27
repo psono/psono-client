@@ -7,10 +7,6 @@
   "allow_custom_server": true,
   "allow_registration": true,
   "allow_lost_password": true,
-  "authentication_methods": ["SAML"],
-  "saml_provider": [{
-    "title": "Company Login",
-    "provider_id": 1,
-    "button_name": "SAML SSO Login"
-  }]
+  "authentication_methods": ["AUTHKEY", "LDAP"],
+  "saml_provider": []
 }
