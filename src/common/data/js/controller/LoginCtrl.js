@@ -579,8 +579,8 @@
 
                         var onSuccess = function(send_plain) {
 
-                            var onSuccess = function (required_multifactors) {
-                                return next_login_step(required_multifactors);
+                            var onSuccess = function () {
+                                // should never come here
                             };
 
                             var onError = function (data) {

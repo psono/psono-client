@@ -14,7 +14,7 @@
      * The browser interface, responsible for the cross browser / platform compatibility.
      */
 
-    var browserClient = function($rootScope, $q, $templateRequest, $http, $window, $document) {
+    var browserClient = function($rootScope, $q, $templateRequest, $http, $location, $window, $document) {
 
         var config = {};
         var events = [
@@ -44,6 +44,34 @@
                 var new_window = $window.open(url, '_blank');
                 resolve(new_window);
             });
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.browserClient#get_saml_return_to_url
+         * @methodOf psonocli.browserClient
+         *
+         * @description
+         * cosntructs and returns the "return to" address for SAML
+         *
+         * @returns {string}
+         */
+        var get_saml_return_to_url = function() {
+            return $location.absUrl().split('#')[0].split('/').slice(0, -1).join('/') + '/index.html#!/saml/token/';
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.browserClient#launch_web_auth_flow
+         * @methodOf psonocli.browserClient
+         *
+         * @description
+         * Launches the web authflow
+         *
+         * @param {string} url The url to open
+         */
+        var launch_web_auth_flow = function(url) {
+            $window.location.href = url
         };
 
         /**
@@ -380,6 +408,8 @@
         return {
             get_client_type: get_client_type,
             open_tab: open_tab,
+            get_saml_return_to_url: get_saml_return_to_url,
+            launch_web_auth_flow: launch_web_auth_flow,
             open_tab_bg: open_tab_bg,
             open_popup: open_popup,
             close_opened_popup: close_opened_popup,
@@ -401,6 +431,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("browserClient", ['$rootScope', '$q', '$templateRequest', '$http', '$window', '$document', browserClient]);
+    app.factory("browserClient", ['$rootScope', '$q', '$templateRequest', '$http', '$location', '$window', '$document', browserClient]);
 
 }(angular));

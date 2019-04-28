@@ -662,10 +662,12 @@
             };
 
             var onSuccess = function (response) {
-                $window.location.href = response.data.saml_redirect_url;
+                browserClient.launch_web_auth_flow(response.data.saml_redirect_url);
             };
 
-            return apiClient.saml_initiate_login(provider['provider_id'], $location.absUrl().split('#')[0].split('/').slice(0, -1).join('/') + '/index.html#!/saml/token/')
+            var return_to_url = browserClient.get_saml_return_to_url();
+
+            return apiClient.saml_initiate_login(provider['provider_id'], return_to_url)
                 .then(onSuccess, onError);
         };
 
