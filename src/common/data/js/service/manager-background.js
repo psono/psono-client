@@ -61,9 +61,7 @@
             if (typeof browser.runtime.onMessage !== 'undefined') {
                 browser.runtime.onMessage.addListener(on_message);
             }
-            if (typeof browser.webRequest !== 'undefined') {
-                browser.webRequest.onAuthRequired.addListener(on_auth_required, {urls: ["<all_urls>"]}, ["asyncBlocking"]);
-            }
+            browserClient.register_auth_required_listener(on_auth_required);
             // browser.webRequest.onBeforeRequest.addListener(on_before_request, {urls: ["<all_urls>"]}, ["blocking", "requestBody"]);
             // browser.webRequest.onBeforeSendHeaders.addListener(on_before_send_headers, {urls: ["<all_urls>"]}, ["blocking", "requestHeaders"]);
 
