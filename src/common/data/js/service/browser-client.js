@@ -23,6 +23,18 @@
         ];
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#register_auth_required_listener
+         * @methodOf psonocli.browserClient
+         *
+         * @description
+         * Registers a listener with browser.webRequest.onAuthRequired.addListener
+         */
+        var register_auth_required_listener = function(callback) {
+            // pass don't do anything
+        };
+
+        /**
          * Returns the client type
          */
         var get_client_type = function(url) {
@@ -371,6 +383,7 @@
         }
 
         return {
+            register_auth_required_listener: register_auth_required_listener,
             get_client_type: get_client_type,
             open_tab: open_tab,
             open_tab_bg: open_tab_bg,

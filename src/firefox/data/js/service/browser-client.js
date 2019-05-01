@@ -13,6 +13,24 @@
         });
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#register_auth_required_listener
+         * @methodOf psonocli.browserClient
+         *
+         * @description
+         * Registers a listener with chrome.webRequest.onAuthRequired.addListener
+         */
+        var register_auth_required_listener = function(callback) {
+            if (typeof browser.webRequest !== 'undefined') {
+                browser.webRequest.onAuthRequired.addListener(function(details) {
+                    return new Promise(function(resolve, reject) {
+                        return callback(details, reject)
+                    })
+                }, {urls: ["<all_urls>"]}, ["blocking"]);
+            }
+        };
+
+        /**
          * Returns the client type
          */
         var get_client_type = function() {
