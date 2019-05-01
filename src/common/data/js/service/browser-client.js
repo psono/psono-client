@@ -75,6 +75,11 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#open_tab_bg
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * Opens the URL in a new browser tab (from the background page)
          *
          * @param url
@@ -85,6 +90,11 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#open_popup
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * Opens the URL in a popup
          *
          * @param url
@@ -96,6 +106,11 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#close_opened_popup
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * Closes a popup
          *
          * @param window_id

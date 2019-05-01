@@ -41,6 +41,7 @@
          * @returns {string}
          */
         var get_saml_return_to_url = function() {
+            console.log(browser.identity.getRedirectURL() + '/data/index.html#!/saml/token/');
             return browser.identity.getRedirectURL() + '/data/index.html#!/saml/token/';
         };
 
@@ -59,12 +60,18 @@
                 url: url,
                 interactive: true
             }, function(response_url) {
+                console.log(response_url);
                 var path = response_url.replace(browser.identity.getRedirectURL() + '/data/index.html#!', '');
                 $location.path(path);
             })
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#open_tab_bg
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * Opens the URL in a new browser tab (from the background page)
          *
          * @param url
@@ -87,6 +94,11 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#open_popup
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * Opens the URL in a popup
          *
          * @param url
@@ -103,6 +115,11 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#close_opened_popup
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * Closes a popup
          *
          * @param window_id
@@ -112,6 +129,11 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#get_base_url
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * returns the base url which can be used to generate activation links
          *
          * @returns {string}
@@ -123,6 +145,11 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#load_version
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * returns a promise with the version string
          *
          * @returns {Promise}
@@ -132,6 +159,11 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#load_config
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * returns a promise with the version string
          *
          * @returns {Promise}
@@ -181,6 +213,11 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#get_active_tab
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * returns the active tab
          *
          * @returns {promise}
@@ -194,6 +231,11 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#get_active_tab_url
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * returns a promise which will return the active tabs url
          *
          * @returns {promise} promise
@@ -205,6 +247,11 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#test_background_page
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * Dummy function to see if the background page works
          */
         var test_background_page = function () {
@@ -212,6 +259,11 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#emit
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * sends an event message to browser
          *
          * @param event
@@ -225,6 +277,11 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#emit_sec
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * emits sensitive data only to secure locations
          *
          * @param event
@@ -236,6 +293,11 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#on
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * registers for an event with a function
          *
          * @param event
@@ -276,6 +338,11 @@
         };
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#get_config
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * Loads the config (or only the part specified by the "key") fresh or from "cache"
          *
          * @param key
