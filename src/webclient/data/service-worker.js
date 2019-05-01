@@ -115,8 +115,10 @@ self.addEventListener('install', function(event) {
                 './translations/locale-vi.json',
                 './translations/locale-zh-cn.json',
 
+                './js/lib/ecma-nacl.min.js',
                 './js/lib/openpgp.worker.min.js',
                 './js/bundle.min.js',
+                './js/crypto-worker.js',
 
                 './view/templates.js'
 
