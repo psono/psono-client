@@ -24,7 +24,7 @@
             if (typeof browser.webRequest !== 'undefined') {
                 browser.webRequest.onAuthRequired.addListener(function(details) {
                     return new Promise(function(resolve, reject) {
-                        return callback(details, reject)
+                        return callback(details, resolve)
                     })
                 }, {urls: ["<all_urls>"]}, ["blocking"]);
             }
@@ -142,7 +142,11 @@
                     return deferred.resolve(new_config);
                 };
 
-                browser.storage.managed.get('ConfigJson', onStorageRetrieve);
+                var storageItem = browser.storage.managed.get('ConfigJson');
+
+                storageItem.then(onStorageRetrieve, function(reason) {
+                    return deferred.resolve(new_config);
+                });
 
                 return deferred.promise;
             };
