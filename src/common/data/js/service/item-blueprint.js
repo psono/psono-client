@@ -297,6 +297,10 @@
                 //var file_chunk_size = 8*1024*1024; // in bytes. e.g.   8*1024*1024 Bytes =   8 MB
                 var file_chunk_size = 128*1024*1024; // in bytes. e.g. 128*1024*1024 Bytes = 128 MB
 
+                if (typeof(selected['field_index']['file_destinations'].value) === 'undefined') {
+                    return $q.reject(['NO_FILESERVER_AVAILABLE']);
+                }
+
                 var is_file_repository_upload = selected['field_index']['file_destinations'].value['destination_type'] ===  'file_repository';
                 var is_file_shard_upload = selected['field_index']['file_destinations'].value['destination_type'] ===  'shard';
 

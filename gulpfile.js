@@ -150,7 +150,6 @@ var build = function(build_path, type) {
             "src/common/data/js/module/ng-tree.js",
 
             "src/common/data/js/main.js",
-            "src/common/data/js/crypto-worker.js",
             "src/webclient/data/js/service-worker-load.js",
 
             "src/common/data/js/directive/autoFocus.js",
@@ -294,9 +293,15 @@ var build = function(build_path, type) {
             .pipe(gulp.dest(path.join(build_path, 'js')));
 
         gulp.src([
+            "src/common/data/js/lib/ecma-nacl.min.js",
             'src/common/data/js/lib/openpgp.worker.min.js'
         ])
             .pipe(gulp.dest(path.join(build_path, 'js', 'lib')));
+
+        gulp.src([
+            "src/common/data/js/crypto-worker.js"
+        ])
+            .pipe(gulp.dest(path.join(build_path, 'js')));
 
     } else {
 
