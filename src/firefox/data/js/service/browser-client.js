@@ -355,6 +355,7 @@
         }
 
         return {
+            register_auth_required_listener: register_auth_required_listener,
             get_client_type: get_client_type,
             open_tab: open_tab,
             open_tab_bg: open_tab_bg,
