@@ -526,6 +526,10 @@
                     parent_share_id = parent.share_id;
                 } else if(parent.hasOwnProperty("datastore_id")) {
                     parent_datastore_id = parent.datastore_id;
+                } else if(parent.hasOwnProperty("parent_datastore_id") && typeof(parent.parent_datastore_id) !== 'undefined') {
+                    parent_datastore_id = parent.parent_datastore_id;
+                } else if(parent.hasOwnProperty("parent_share_id") && typeof(parent.parent_share_id) !== 'undefined') {
+                    parent_share_id = parent.parent_share_id;
                 }
 
                 if (size === 0) {
