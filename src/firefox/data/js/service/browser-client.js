@@ -13,6 +13,24 @@
         });
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#register_auth_required_listener
+         * @methodOf psonocli.browserClient
+         *
+         * @description
+         * Registers a listener with chrome.webRequest.onAuthRequired.addListener
+         */
+        var register_auth_required_listener = function(callback) {
+            if (typeof browser.webRequest !== 'undefined') {
+                browser.webRequest.onAuthRequired.addListener(function(details) {
+                    return new Promise(function(resolve, reject) {
+                        return callback(details, resolve)
+                    })
+                }, {urls: ["<all_urls>"]}, ["blocking"]);
+            }
+        };
+
+        /**
          * Returns the client type
          */
         var get_client_type = function() {
@@ -197,7 +215,11 @@
                     return deferred.resolve(new_config);
                 };
 
-                browser.storage.managed.get('ConfigJson', onStorageRetrieve);
+                var storageItem = browser.storage.managed.get('ConfigJson');
+
+                storageItem.then(onStorageRetrieve, function(reason) {
+                    return deferred.resolve(new_config);
+                });
 
                 return deferred.promise;
             };
@@ -445,6 +467,7 @@
         }
 
         return {
+            register_auth_required_listener: register_auth_required_listener,
             get_client_type: get_client_type,
             open_tab: open_tab,
             get_saml_return_to_url: get_saml_return_to_url,

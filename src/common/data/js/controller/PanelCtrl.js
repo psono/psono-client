@@ -224,7 +224,6 @@
              * @param {object} item The item to open
              */
             function on_item_click(item) {
-                console.log(item);
                 managerSecret.on_item_click(item)
             }
 
