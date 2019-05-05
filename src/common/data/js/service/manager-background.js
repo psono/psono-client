@@ -175,7 +175,8 @@
                 'read-gpg': read_gpg,
                 'write-gpg': write_gpg,
                 'write-gpg-complete': write_gpg_complete,
-                'set-offline-cache-encryption-key': set_offline_cache_encryption_key
+                'set-offline-cache-encryption-key': set_offline_cache_encryption_key,
+                'launch-web-auth-flow-in-background': launch_web_auth_flow_in_background
             };
 
             if (event_functions.hasOwnProperty(request.event)){
@@ -758,6 +759,31 @@
             var encryption_key = request.data.encryption_key;
             offlineCache.set_encryption_key(encryption_key);
 
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerBackground#launch_web_auth_flow_in_background
+         * @methodOf psonocli.managerBackground
+         *
+         * @description
+         * Triggers the web auth flow in the background of an extension
+         * used in the firefox extension, as the panel collapses and wont allow the processing
+         * of the rest of the authentication flow.
+         *
+         * @param {object} request The message sent by the calling script.
+         * @param {object} sender The sender of the message
+         * @param {function} sendResponse Function to call (at most once) when you have a response.
+         */
+        function launch_web_auth_flow_in_background(request, sender, sendResponse) {
+
+            browser.identity.launchWebAuthFlow({
+                url: request.data.url,
+                interactive: true
+            }, function(response_url) {
+                var saml_token_id = response_url.replace(browserClient.get_saml_return_to_url(), '');
+                browserClient.open_tab_bg('/data/index.html#!/saml/token/' + saml_token_id);
+            })
         }
 
         /**

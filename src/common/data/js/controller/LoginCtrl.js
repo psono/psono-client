@@ -579,8 +579,11 @@
 
                         var onSuccess = function(send_plain) {
 
-                            var onSuccess = function () {
-                                // should never come here
+                            var onSuccess = function (saml_token_id) {
+                                // comes only here in extensions
+                                if (saml_token_id) {
+                                    return saml_login(saml_token_id);
+                                }
                             };
 
                             var onError = function (data) {

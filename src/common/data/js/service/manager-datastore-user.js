@@ -662,7 +662,7 @@
             };
 
             var onSuccess = function (response) {
-                browserClient.launch_web_auth_flow(response.data.saml_redirect_url);
+                return browserClient.launch_web_auth_flow(response.data.saml_redirect_url);
             };
 
             var return_to_url = browserClient.get_saml_return_to_url();

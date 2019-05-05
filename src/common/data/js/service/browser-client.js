@@ -30,16 +30,21 @@
          * @description
          * Registers a listener with browser.webRequest.onAuthRequired.addListener
          */
-        var register_auth_required_listener = function(callback) {
+        function register_auth_required_listener(callback) {
             // pass don't do anything
-        };
+        }
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#get_client_type
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * Returns the client type
          */
-        var get_client_type = function(url) {
+        function get_client_type(url) {
             return 'webclient'
-        };
+        }
 
         /**
          * @ngdoc
@@ -51,12 +56,12 @@
          *
          * @param {string} url The url to open
          */
-        var open_tab = function(url) {
+        function open_tab(url) {
             return $q(function (resolve) {
                 var new_window = $window.open(url, '_blank');
                 resolve(new_window);
             });
-        };
+        }
 
         /**
          * @ngdoc
@@ -68,9 +73,9 @@
          *
          * @returns {string}
          */
-        var get_saml_return_to_url = function() {
+        function get_saml_return_to_url() {
             return $location.absUrl().split('#')[0].split('/').slice(0, -1).join('/') + '/index.html#!/saml/token/';
-        };
+        }
 
         /**
          * @ngdoc
@@ -82,9 +87,10 @@
          *
          * @param {string} url The url to open
          */
-        var launch_web_auth_flow = function(url) {
-            $window.location.href = url
-        };
+        function launch_web_auth_flow(url) {
+            $window.location.href = url;
+            return $q.resolve();
+        }
 
         /**
          * @ngdoc
@@ -97,9 +103,9 @@
          * @param url
          * @param callback_function
          */
-        var open_tab_bg = function(url, callback_function) {
+        function open_tab_bg(url, callback_function) {
             // pass, websites have no background page
-        };
+        }
 
         /**
          * @ngdoc
@@ -112,10 +118,10 @@
          * @param url
          * @param callback_function
          */
-        var open_popup = function(url, callback_function) {
+        function open_popup(url, callback_function) {
             var win = $window.open(url, '_blank', "width=800,height=600");
             win.onload = function() { win.RunCallbackFunction = callback_function; };
-        };
+        }
 
         /**
          * @ngdoc
@@ -127,9 +133,9 @@
          *
          * @param window_id
          */
-        var close_opened_popup = function(window_id) {
+        function close_opened_popup(window_id) {
             // pass
-        };
+        }
 
         /**
          * @ngdoc
@@ -141,7 +147,7 @@
          *
          * @returns {string} The base url
          */
-        var get_base_url = function() {
+        function get_base_url() {
 
             var onSuccess = function(base_url) {
                 return base_url;
@@ -151,7 +157,7 @@
             };
 
             return get_config('base_url').then(onSuccess, onError);
-        };
+        }
 
         /**
          * @ngdoc
@@ -163,9 +169,9 @@
          *
          * @returns {promise} promise
          */
-        var load_version = function() {
+        function load_version() {
             return $templateRequest('./VERSION.txt');
-        };
+        }
 
 
         /**
@@ -178,7 +184,7 @@
          *
          * @returns {promise} promise
          */
-        var load_config = function() {
+        function load_config() {
 
             var req = {
                 method: 'GET',
@@ -206,7 +212,7 @@
 
             return $http(req)
                 .then(onSuccess, onError);
-        };
+        }
 
         /**
          * @ngdoc
@@ -218,14 +224,14 @@
          *
          * @returns {promise} promise
          */
-        var get_active_tab = function() {
+        function get_active_tab() {
             return $q(function (resolve) {
                 resolve({
                     title: $document.title,
                     url: $window.location.href
                 });
             });
-        };
+        }
 
         /**
          * @ngdoc
@@ -237,11 +243,11 @@
          *
          * @returns {promise} promise
          */
-        var get_active_tab_url = function() {
+        function get_active_tab_url() {
             return get_active_tab().then(function(tab){
                 return tab.url;
             });
-        };
+        }
 
         /**
          * @ngdoc
@@ -251,9 +257,9 @@
          * @description
          * Dummy function to see if the background page works
          */
-        var test_background_page = function () {
+        function test_background_page() {
             return false;
-        };
+        }
 
         /**
          * @ngdoc
@@ -266,9 +272,9 @@
          * @param {string} event The event
          * @param {*} data The payload for the event
          */
-        var emit = function (event, data) {
+        function emit(event, data) {
             $rootScope.$broadcast(event, '');
-        };
+        }
 
         /**
          * @ngdoc
@@ -283,9 +289,9 @@
          * @param {*} data The payload for the event
          * @param {function} fnc An optional callback function with the return value
          */
-        var emit_sec = function(event, data, fnc) {
+        function emit_sec(event, data, fnc) {
 
-        };
+        }
 
         /**
          * @ngdoc
@@ -300,14 +306,14 @@
          *
          * @returns {boolean} Returns if the registration was successful
          */
-        var on = function (event, myFunction) {
+        function on(event, myFunction) {
 
             if(events.indexOf(event) === -1)
                 return false;
 
             $rootScope.$on(event, myFunction);
             return true;
-        };
+        }
 
         /**
          * @ngdoc
@@ -321,7 +327,7 @@
          * @returns {*} The config value
          * @private
          */
-        var _get_config = function(key) {
+        function _get_config(key) {
 
             if (typeof(key) === 'undefined') {
                 return angular.copy(config);
@@ -331,7 +337,7 @@
             }
 
             return null;
-        };
+        }
 
         /**
          * @ngdoc
@@ -345,7 +351,7 @@
          *
          * @returns {promise} A promise with the config value
          */
-        var get_config = function (key) {
+        function get_config(key) {
             return $q(function(resolve, reject) {
 
                 if (Object.keys(config).length === 0) {
@@ -367,8 +373,7 @@
                     return resolve(_get_config(key));
                 }
             });
-
-        };
+        }
 
         /**
          * @ngdoc
@@ -378,9 +383,9 @@
          * @description
          * Closes the popup
          */
-        var close_popup = function() {
+        function close_popup() {
             // pass
-        };
+        }
 
         /**
          * @ngdoc
@@ -392,9 +397,9 @@
          *
          * @returns {promise} A promise with the success or failure state
          */
-        var disable_browser_password_saving = function() {
+        function disable_browser_password_saving() {
             return $q.resolve('nothing done');
-        };
+        }
 
 
         /**
