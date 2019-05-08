@@ -64,6 +64,7 @@
                 'ko': {'code': 'ko', 'lng_code': 'LANG_KO'},
                 'nl': {'code': 'nl', 'lng_code': 'LANG_NL', 'active': true},
                 'pl': {'code': 'pl', 'lng_code': 'LANG_PL'},
+                'pt': {'code': 'pt', 'lng_code': 'LANG_PT', 'active': true},
                 'ru': {'code': 'ru', 'lng_code': 'LANG_RU', 'active': true},
                 'vi': {'code': 'vi', 'lng_code': 'LANG_VI'},
                 'zh-cn': {'code': 'zh-cn', 'lng_code': 'LANG_ZH_CN'}

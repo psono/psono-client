@@ -13,6 +13,7 @@ curl -o src/common/data/translations/locale-it.json https://psono.jfrog.io/psono
 curl -o src/common/data/translations/locale-ja.json https://psono.jfrog.io/psono/psono/client/languages/locale-ja.json && \
 curl -o src/common/data/translations/locale-ko.json https://psono.jfrog.io/psono/psono/client/languages/locale-ko.json && \
 curl -o src/common/data/translations/locale-nl.json https://psono.jfrog.io/psono/psono/client/languages/locale-nl.json && \
+curl -o src/common/data/translations/locale-pt.json https://psono.jfrog.io/psono/psono/client/languages/locale-pt.json && \
 curl -o src/common/data/translations/locale-pl.json https://psono.jfrog.io/psono/psono/client/languages/locale-pl.json && \
 curl -o src/common/data/translations/locale-ru.json https://psono.jfrog.io/psono/psono/client/languages/locale-ru.json && \
 curl -o src/common/data/translations/locale-vi.json https://psono.jfrog.io/psono/psono/client/languages/locale-vi.json && \
