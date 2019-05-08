@@ -63,7 +63,7 @@
                 'ja': {'code': 'ja', 'lng_code': 'LANG_JA'},
                 'ko': {'code': 'ko', 'lng_code': 'LANG_KO'},
                 'nl': {'code': 'nl', 'lng_code': 'LANG_NL', 'active': true},
-                'pl': {'code': 'pl', 'lng_code': 'LANG_PL'},
+                'pl': {'code': 'pl', 'lng_code': 'LANG_PL', 'active': true},
                 'pt': {'code': 'pt', 'lng_code': 'LANG_PT', 'active': true},
                 'ru': {'code': 'ru', 'lng_code': 'LANG_RU', 'active': true},
                 'vi': {'code': 'vi', 'lng_code': 'LANG_VI'},
