@@ -2,6 +2,13 @@
 # poeditor language codes: https://poeditor.com/docs/languages
 apt-get update && \
 apt-get install -y curl && \
+curl -o src/common/data/translations/locale-da.json https://psono.jfrog.io/psono/psono/client/languages/locale-da.json && \
+curl -o src/common/data/translations/locale-sv.json https://psono.jfrog.io/psono/psono/client/languages/locale-sv.json && \
+curl -o src/common/data/translations/locale-no.json https://psono.jfrog.io/psono/psono/client/languages/locale-no.json && \
+curl -o src/common/data/translations/locale-he.json https://psono.jfrog.io/psono/psono/client/languages/locale-he.json && \
+curl -o src/common/data/translations/locale-ar.json https://psono.jfrog.io/psono/psono/client/languages/locale-ar.json && \
+curl -o src/common/data/translations/locale-hi.json https://psono.jfrog.io/psono/psono/client/languages/locale-hi.json && \
+curl -o src/common/data/translations/locale-bn.json https://psono.jfrog.io/psono/psono/client/languages/locale-bn.json && \
 curl -o src/common/data/translations/locale-cs.json https://psono.jfrog.io/psono/psono/client/languages/locale-cs.json && \
 curl -o src/common/data/translations/locale-de.json https://psono.jfrog.io/psono/psono/client/languages/locale-de.json && \
 curl -o src/common/data/translations/locale-en.json https://psono.jfrog.io/psono/psono/client/languages/locale-en.json && \
