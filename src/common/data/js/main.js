@@ -175,6 +175,8 @@
                         suffix: '.json'
                     })
                     .registerAvailableLanguageKeys(langs, {
+                        'ar_*': 'ar',
+                        'bn_*': 'bn',
                         'de_*': 'de',
                         'en_*': 'en',
                         'es_*': 'es',

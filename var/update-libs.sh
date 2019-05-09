@@ -6,7 +6,7 @@ wget https://raw.githubusercontent.com/angular-ui/bootstrap/gh-pages/ui-bootstra
 wget http://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js -O src/common/data/js/lib/datatables.min.js
 wget https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css -O src/common/data/css/lib/datatables.min.css
 
-wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Danish.jsonn -O src/common/data/translations/datatables.da.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Danish.json -O src/common/data/translations/datatables.da.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Swedish.json -O src/common/data/translations/datatables.sv.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Norwegian.json -O src/common/data/translations/datatables.no.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Hebrew.json -O src/common/data/translations/datatables.he.json
