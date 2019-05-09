@@ -67,6 +67,13 @@
                 'pt': {'code': 'pt', 'lng_code': 'LANG_PT', 'active': true},
                 'ru': {'code': 'ru', 'lng_code': 'LANG_RU', 'active': true},
                 'vi': {'code': 'vi', 'lng_code': 'LANG_VI'},
+                'da': {'code': 'da', 'lng_code': 'LANG_DA'},
+                'sv': {'code': 'sv', 'lng_code': 'LANG_SV'},
+                'no': {'code': 'no', 'lng_code': 'LANG_NO'},
+                'he': {'code': 'he', 'lng_code': 'LANG_HE'},
+                'ar': {'code': 'ar', 'lng_code': 'LANG_AR'},
+                'hi': {'code': 'hi', 'lng_code': 'LANG_HI'},
+                'bn': {'code': 'bn', 'lng_code': 'LANG_BN'},
                 'zh-cn': {'code': 'zh-cn', 'lng_code': 'LANG_ZH_CN'}
             };
             return {
