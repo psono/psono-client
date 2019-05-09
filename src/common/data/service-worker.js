@@ -99,6 +99,13 @@ self.addEventListener('install', function(event) {
                 './img/sort_desc.png',
                 './img/sort_desc_disabled.png',
 
+                './translations/datatables.da.json',
+                './translations/datatables.sv.json',
+                './translations/datatables.no.json',
+                './translations/datatables.he.json',
+                './translations/datatables.ar.json',
+                './translations/datatables.hi.json',
+                './translations/datatables.bn.json',
                 './translations/datatables.cs.json',
                 './translations/datatables.de.json',
                 './translations/datatables.en.json',

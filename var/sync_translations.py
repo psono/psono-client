@@ -22,10 +22,17 @@ LANGUAGE_CODES = [
     "es", "es-ar", "es-gt", "es-cr", "es-pa", "es-do", "es-mx", "es-ve", "es-co",
     "es-pe", "es-ec", "es-cl", "es-uy", "es-py", "es-bo", "es-sv", "es-hn", "es-ni",
     "es-pr", "sx", "sv", "sv-fi", "th", "ts", "tn", "tr", "uk", "ur", "ve", "vi", "xh",
-    "ji", "zu"
+    "ji", "zu", "ar", "bn"
 ]
 
 WEBHOOKS = {
+    'da': 'https://api.poeditor.com/webhooks/60e08a38a1',
+    'sv': 'https://api.poeditor.com/webhooks/e04cf1e71b',
+    'no': 'https://api.poeditor.com/webhooks/f958402063',
+    'he': 'https://api.poeditor.com/webhooks/11fd52a022',
+    'ar': 'https://api.poeditor.com/webhooks/b547e9ea05',
+    'hi': 'https://api.poeditor.com/webhooks/2216d07c14',
+    'bn': 'https://api.poeditor.com/webhooks/6aa3031574',
     'cs': 'https://api.poeditor.com/webhooks/6f9ccaf590',
     'de': 'https://api.poeditor.com/webhooks/cc03403af4',
     'en': 'https://api.poeditor.com/webhooks/0f5aeab8bc',
