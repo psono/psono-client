@@ -118,6 +118,8 @@ self.addEventListener('install', function(event) {
                 './translations/locale-ko.json',
                 './translations/locale-nl.json',
                 './translations/locale-pl.json',
+                './translations/locale-pt_PT.json',
+                './translations/locale-pt_BR.json',
                 './translations/locale-ru.json',
                 './translations/locale-vi.json',
                 './translations/locale-zh-cn.json',

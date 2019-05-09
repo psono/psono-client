@@ -64,7 +64,8 @@
                 'ko': {'code': 'ko', 'lng_code': 'LANG_KO'},
                 'nl': {'code': 'nl', 'lng_code': 'LANG_NL', 'active': true},
                 'pl': {'code': 'pl', 'lng_code': 'LANG_PL', 'active': true},
-                'pt': {'code': 'pt', 'lng_code': 'LANG_PT', 'active': true},
+                'pt_PT': {'code': 'pt_PT', 'lng_code': 'LANG_PT_PT', 'active': true},
+                'pt_BR': {'code': 'pt_BR', 'lng_code': 'LANG_PT_BR', 'active': true},
                 'ru': {'code': 'ru', 'lng_code': 'LANG_RU', 'active': true},
                 'vi': {'code': 'vi', 'lng_code': 'LANG_VI'},
                 'da': {'code': 'da', 'lng_code': 'LANG_DA'},
@@ -74,7 +75,7 @@
                 'ar': {'code': 'ar', 'lng_code': 'LANG_AR'},
                 'hi': {'code': 'hi', 'lng_code': 'LANG_HI'},
                 'bn': {'code': 'bn', 'lng_code': 'LANG_BN'},
-                'zh-cn': {'code': 'zh-cn', 'lng_code': 'LANG_ZH_CN'}
+                'zh_CN': {'code': 'zh_CN', 'lng_code': 'LANG_ZH_CN'}
             };
             return {
                 value : languages,
