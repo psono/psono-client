@@ -26,8 +26,8 @@ wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Japanese.json -O src/commo
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Korean.json -O src/common/data/translations/datatables.ko.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Dutch.json -O src/common/data/translations/datatables.nl.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Polish.json -O src/common/data/translations/datatables.pl.json
-wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json -O src/common/data/translations/datatables.pt_BR.json
-wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese.json -O src/common/data/translations/datatables.pt_PT.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json -O src/common/data/translations/datatables.pt-br.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese.json -O src/common/data/translations/datatables.pt.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Russian.json -O src/common/data/translations/datatables.ru.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Vietnamese.json -O src/common/data/translations/datatables.vi.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Chinese.json -O src/common/data/translations/datatables.zh-cn.json
