@@ -21,6 +21,19 @@ h1, h2 {
   font-family: 'Fira Code', monospace;
 }
 
+p.horizontalline {
+  width: 100%;
+  text-align: center;
+  border-bottom: 1px solid $dark-background;
+  line-height: 0.1em;
+  margin: 10px 0 20px;
+}
+
+p.horizontalline span {
+  background: $dark-color;
+  padding: 0 10px;
+}
+
 #panel {
   padding: 10px;
 }
