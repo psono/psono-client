@@ -63,10 +63,19 @@
                 'ja': {'code': 'ja', 'lng_code': 'LANG_JA'},
                 'ko': {'code': 'ko', 'lng_code': 'LANG_KO'},
                 'nl': {'code': 'nl', 'lng_code': 'LANG_NL', 'active': true},
-                'pl': {'code': 'pl', 'lng_code': 'LANG_PL'},
+                'pl': {'code': 'pl', 'lng_code': 'LANG_PL', 'active': true},
+                'pt': {'code': 'pt', 'lng_code': 'LANG_PT_PT', 'active': true},
+                'pt-br': {'code': 'pt-br', 'lng_code': 'LANG_PT_BR', 'active': true},
                 'ru': {'code': 'ru', 'lng_code': 'LANG_RU', 'active': true},
                 'vi': {'code': 'vi', 'lng_code': 'LANG_VI'},
-                'zh-cn': {'code': 'zh-cn', 'lng_code': 'LANG_ZH_CN'}
+                'da': {'code': 'da', 'lng_code': 'LANG_DA'},
+                'sv': {'code': 'sv', 'lng_code': 'LANG_SV'},
+                'no': {'code': 'no', 'lng_code': 'LANG_NO'},
+                'he': {'code': 'he', 'lng_code': 'LANG_HE'},
+                'ar': {'code': 'ar', 'lng_code': 'LANG_AR'},
+                'hi': {'code': 'hi', 'lng_code': 'LANG_HI'},
+                'bn': {'code': 'bn', 'lng_code': 'LANG_BN'},
+                'zh_CN': {'code': 'zh_CN', 'lng_code': 'LANG_ZH_CN'}
             };
             return {
                 value : languages,
@@ -168,6 +177,8 @@
                         suffix: '.json'
                     })
                     .registerAvailableLanguageKeys(langs, {
+                        'ar_*': 'ar',
+                        'bn_*': 'bn',
                         'de_*': 'de',
                         'en_*': 'en',
                         'es_*': 'es',

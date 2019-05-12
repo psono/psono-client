@@ -5,6 +5,15 @@ wget https://raw.githubusercontent.com/angular-ui/bootstrap-bower/2.5.0/ui-boots
 wget https://raw.githubusercontent.com/angular-ui/bootstrap/gh-pages/ui-bootstrap-2.5.0-csp.css -O src/common/data/css/lib/ui-bootstrap-csp.css
 wget http://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js -O src/common/data/js/lib/datatables.min.js
 wget https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css -O src/common/data/css/lib/datatables.min.css
+
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Danish.json -O src/common/data/translations/datatables.da.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Swedish.json -O src/common/data/translations/datatables.sv.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Norwegian.json -O src/common/data/translations/datatables.no.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Hebrew.json -O src/common/data/translations/datatables.he.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Arabic.json -O src/common/data/translations/datatables.ar.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Hindi.json -O src/common/data/translations/datatables.hi.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/English.json -O src/common/data/translations/datatables.bn.json
+
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Czech.json -O src/common/data/translations/datatables.cs.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/German.json -O src/common/data/translations/datatables.de.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/English.json -O src/common/data/translations/datatables.en.json
@@ -17,6 +26,7 @@ wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Japanese.json -O src/commo
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Korean.json -O src/common/data/translations/datatables.ko.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Dutch.json -O src/common/data/translations/datatables.nl.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Polish.json -O src/common/data/translations/datatables.pl.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json -O src/common/data/translations/datatables.pt-br.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese.json -O src/common/data/translations/datatables.pt.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Russian.json -O src/common/data/translations/datatables.ru.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Vietnamese.json -O src/common/data/translations/datatables.vi.json
