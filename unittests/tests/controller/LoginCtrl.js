@@ -77,7 +77,7 @@
 
         // it('login', function() {
         //
-        //     $scope.loginFormUsername = 'test-username';
+        //     $scope.login_data.username = 'test-username';
         //     $scope.loginFormPassword = 'test-password';
         //
         //     var user_validator = cryptoLibrary.generate_secret_key();;
@@ -102,7 +102,7 @@
         //         function(method, url, data) {
         //             // Validate request parameters:
         //             data = JSON.parse(data);
-        //             expect(data.username).toEqual($scope.loginFormUsername + '@psono.pw');
+        //             expect(data.username).toEqual($scope.login_data.username + '@psono.pw');
         //             expect(data.authkey).toEqual('1b03cedd5c1d7816283bfd8ade4b7ca0d1e5e773bb54ceaa2d706a7a9efba6944404141e4944db7da01caa3ec8d53054f66158858dcef5f1934ea7d590198f36');
         //
         //             var session_secret_key_enc = cryptoLibrary.encrypt_data_public_key(session_secret_key, data.public_key, session_key_pair.private_key);
@@ -150,7 +150,7 @@
         //             }];
         //         });
         //
-        //     $scope.login($scope.loginFormUsername, $scope.loginFormPassword);
+        //     $scope.login($scope.login_data.username, $scope.loginFormPassword);
         //     $httpBackend.flush();
         //
         //     expect(storage.find_key('config', 'user_id')['value']).toEqual(user_id);

@@ -35,6 +35,8 @@
             $scope.active = {
                 'lang': languagePicker.get_active_language()
             };
+            $scope.login_data = {
+            };
             $scope.change_language = change_language;
             $scope.select_server = select_server;
             $scope.changing = changing;
@@ -63,10 +65,10 @@
                     var persistent_trust_device = managerDatastoreUser.get_default('trust_device');
 
                     /* preselected values */
-                    $scope.loginFormUsername = persistent_username;
-                    // $scope.loginFormPassword = "myPassword";
-                    $scope.loginFormRemember = persistent_username !== "";
-                    $scope.loginFormTrustDevice = persistent_trust_device === true;
+                    $scope.login_data['username'] = persistent_username;
+                    //$scope.login_data['password'] = "myPassword";
+                    $scope.login_data['remember'] = persistent_username !== "";
+                    $scope.login_data['trust'] = persistent_trust_device === true;
 
                     $scope.allow_custom_server = !config.hasOwnProperty('allow_custom_server') || (config.hasOwnProperty('allow_custom_server') && config['allow_custom_server']);
                     $scope.allow_registration = !config.hasOwnProperty('allow_registration') || (config.hasOwnProperty('allow_registration') && config['allow_registration']);
@@ -122,8 +124,8 @@
                     $scope.selected_server_domain = helper.get_domain(server.url);
                 }
 
-                if(helper.endsWith($scope.loginFormUsername, '@' + $scope.selected_server_domain)) {
-                    $scope.loginFormUsername = $scope.loginFormUsername.slice(0, - ('@' + $scope.selected_server_domain).length);
+                if(helper.endsWith($scope.login_data.username, '@' + $scope.selected_server_domain)) {
+                    $scope.login_data.username = $scope.login_data.username.slice(0, - ('@' + $scope.selected_server_domain).length);
                 }
             }
 
@@ -159,8 +161,8 @@
                 $scope.selected_server_domain = helper.get_domain(url);
                 $scope.filtered_servers = $filter('filter')($scope.servers, {url: url});
 
-                if(helper.endsWith($scope.loginFormUsername, '@' + $scope.selected_server_domain)) {
-                    $scope.loginFormUsername = $scope.loginFormUsername.slice(0, - ('@' + $scope.selected_server_domain).length);
+                if(helper.endsWith($scope.login_data.username, '@' + $scope.selected_server_domain)) {
+                    $scope.login_data.username = $scope.login_data.username.slice(0, - ('@' + $scope.selected_server_domain).length);
                 }
             }
 
@@ -184,7 +186,6 @@
                 }
 
                 var onError = function(data) {
-                    console.log(data);
                     if (data.error_data === null) {
                         $scope.errors = ['Server offline.']
                     } else if (data.error_data.hasOwnProperty('non_field_errors')) {
@@ -454,13 +455,13 @@
              * @param {boolean} two_fa_redirect Redirect user to enforce-two-fa.html or let another controller handle it
              */
             function initiate_login(username, password, remember, trust_device, two_fa_redirect) {
+
                 if (username === undefined || password === undefined) {
                     // Dont do anything if username or password is wrong,
                     // because the html5 form validation will tell the user
                     // whats wrong
                     return;
                 }
-
                 redirect_on_two_fa_missing = two_fa_redirect;
 
                 var onError = function() {
