@@ -323,7 +323,7 @@
   "PASSWORD_HAS_BEEN_COMPROMISED": "Passwort ändern, es wurde bereits kompromittiert.",
   "PASSWORD_HAS_BEEN_COMPROMISED_MULTIPLE_TIMES": "Passwort ändern, es wurde bereits {{ pwned }} mal kompromittiert.",
   "ANALYSIS_CAN_TAKE_SEVERAL_MINUTES": "Diese Analyse kann mehrere Minuten benötigen.",
-  "HAVEIBEENPAWND_ANALYSIS": "Haveibeenpawnd Analyse",
+  "HAVEIBEENPWND_ANALYSIS": "Haveibeenpawnd Analyse",
   "DOWNLOADING_PASSWORDS": "Herunterladen von Passwörtern",
   "START_ANALYSIS": "Analyse Starten",
   "CHECK_AGAINST": "Checken gegen",

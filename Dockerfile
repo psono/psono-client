@@ -2,7 +2,6 @@ FROM psono-docker.jfrog.io/nginx:alpine
 
 LABEL maintainer="Sascha Pfeiffer <sascha.pfeiffer@psono.com>"
 
-
 RUN apk upgrade --no-cache \
 	&& apk add --no-cache curl
 

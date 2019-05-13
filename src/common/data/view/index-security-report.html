@@ -161,7 +161,7 @@
                 </div>
 
                 <div ng-if="state.haveibeenpwned_ongoing">
-                    <strong>{{'HAVEIBEENPAWND_ANALYSIS' | translate}}:</strong>
+                    <strong>{{'HAVEIBEENPWND_ANALYSIS' | translate}}:</strong>
                     <uib-progressbar max="state.open_haveibeenpwned_requests" value="state.closed_haveibeenpwned_requests" ng-if="state.haveibeenpwned_ongoing">
                         <span style="color:white; white-space:nowrap;">{{ state.closed_haveibeenpwned_requests }} / {{ state.open_haveibeenpwned_requests }}</span>
                     </uib-progressbar>

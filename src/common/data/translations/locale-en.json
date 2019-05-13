@@ -323,7 +323,7 @@
   "PASSWORD_HAS_BEEN_COMPROMISED": "Change password, it has been compromised.",
   "PASSWORD_HAS_BEEN_COMPROMISED_MULTIPLE_TIMES": "Change password, it has been compromised {{ pwned }} times.",
   "ANALYSIS_CAN_TAKE_SEVERAL_MINUTES": "This analysis can take several minutes to complete.",
-  "HAVEIBEENPAWND_ANALYSIS": "Haveibeenpawnd Analysis",
+  "HAVEIBEENPWND_ANALYSIS": "Haveibeenpawnd Analysis",
   "DOWNLOADING_PASSWORDS": "Downloading passwords",
   "START_ANALYSIS": "Start Analysis",
   "CHECK_AGAINST": "Check against",
