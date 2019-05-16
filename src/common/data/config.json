@@ -6,5 +6,6 @@
   "base_url": "https://www.psono.pw/",
   "allow_custom_server": true,
   "allow_registration": true,
-  "allow_lost_password": true
+  "allow_lost_password": true,
+  "authentication_methods": ["AUTHKEY", "LDAP"]
 }

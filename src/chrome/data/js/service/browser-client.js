@@ -1,7 +1,7 @@
 (function(angular, $, window) {
     'use strict';
 
-    var browserClient = function($rootScope, $q, $templateRequest, $http) {
+    var browserClient = function($rootScope, $q, $templateRequest, $http, $location) {
 
         var registrations = {};
 
@@ -20,37 +20,91 @@
          * @description
          * Registers a listener with chrome.webRequest.onAuthRequired.addListener
          */
-        var register_auth_required_listener = function(callback) {
+        function register_auth_required_listener(callback) {
             if (typeof chrome.webRequest !== 'undefined') {
                 chrome.webRequest.onAuthRequired.addListener(callback, {urls: ["<all_urls>"]}, ["asyncBlocking"]);
             }
-        };
+        }
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#get_client_type
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * Returns the client type
          */
-        var get_client_type = function() {
+        function get_client_type() {
             return 'chrome_extension'
-        };
+        }
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#open_tab
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * Opens the URL in a new browser tab
          * @param url
          */
-        var open_tab = function(url) {
+        function open_tab(url) {
             return $q(function (resolve) {
                 var new_window = window.open(url, '_blank');
                 resolve(new_window);
             });
-        };
+        }
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#get_saml_return_to_url
+         * @methodOf psonocli.browserClient
+         *
+         * @description
+         * cosntructs and returns the "return to" address for SAML
+         *
+         * @returns {string}
+         */
+        function get_saml_return_to_url() {
+            return chrome.identity.getRedirectURL() + '/data/index.html#!/saml/token/';
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.browserClient#launch_web_auth_flow
+         * @methodOf psonocli.browserClient
+         *
+         * @description
+         * Launches the web authflow
+         *
+         * @param {string} url The url to open
+         */
+        function launch_web_auth_flow(url) {
+
+            return $q(function(resolve, reject) {
+
+                chrome.identity.launchWebAuthFlow({
+                    url: url,
+                    interactive: true
+                }, function(response_url) {
+                    var saml_token_id = response_url.replace(get_saml_return_to_url(), '');
+                    resolve(saml_token_id)
+                })
+
+            });
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.browserClient#open_tab_bg
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * Opens the URL in a new browser tab (from the background page)
          *
          * @param url
          * @param callback_function
          */
-        var open_tab_bg = function(url, callback_function) {
+        function open_tab_bg(url, callback_function) {
             chrome.tabs.create({
                 url: url
             }, function(tab) {
@@ -64,15 +118,20 @@
                     }
                 });
             });
-        };
+        }
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#open_popup
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * Opens the URL in a popup
          *
          * @param url
          * @param callback_function
          */
-        var open_popup = function(url, callback_function) {
+        function open_popup(url, callback_function) {
 
             chrome.windows.create({
                 url: url,
@@ -80,43 +139,63 @@
                 width: 800,
                 height: 600
             }, callback_function);
-        };
+        }
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#close_opened_popup
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * Closes a popup
          *
          * @param window_id
          */
-        var close_opened_popup = function(window_id) {
+        function close_opened_popup(window_id) {
             return chrome.windows.remove(window_id);
-        };
+        }
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#get_base_url
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * returns the base url which can be used to generate activation links
          *
          * @returns {string}
          */
-        var get_base_url = function() {
+        function get_base_url() {
             return $q(function (resolve) {
                 resolve("chrome-extension://"+chrome.runtime.id+"/data/");
             });
-        };
+        }
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#load_version
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * returns a promise with the version string
          *
          * @returns {Promise}
          */
-        var load_version = function() {
+        function load_version() {
             return $templateRequest('./VERSION.txt');
-        };
+        }
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#load_config
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * returns a promise with the version string
          *
          * @returns {Promise}
          */
-        var load_config = function() {
+        function load_config() {
 
             var req = {
                 method: 'GET',
@@ -135,6 +214,13 @@
                     } catch (e) {
                         // pass
                     }
+                    if (!new_config.hasOwnProperty('authentication_methods')) {
+                        new_config['authentication_methods'] = ["AUTHKEY", "LDAP", "SAML"];
+                    }
+                    if (!new_config.hasOwnProperty('saml_provider')) {
+                        new_config['saml_provider'] = [];
+                    }
+
                     return deferred.resolve(new_config);
                 };
 
@@ -151,64 +237,94 @@
 
             return $http(req)
                 .then(onSuccess, onError);
-        };
+        }
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#get_active_tab
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * returns the active tab
          *
          * @returns {promise}
          */
-        var get_active_tab = function() {
+        function get_active_tab() {
             return $q(function (resolve) {
                 chrome.tabs.query({active: true, currentWindow: true}, function(arrayOfTabs) {
                     resolve(arrayOfTabs[0])}
                 );
             });
-        };
+        }
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#get_active_tab_url
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * returns a promise which will return the active tabs url
          *
          * @returns {promise} promise
          */
-        var get_active_tab_url = function() {
+        function get_active_tab_url() {
             return get_active_tab().then(function(tab){
                 return tab.url;
             });
-        };
+        }
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#test_background_page
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * Dummy function to see if the background page works
          */
-        var test_background_page = function () {
+        function test_background_page () {
             return backgroundPage.bg.test();
-        };
+        }
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#emit
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * sends an event message to browser
          *
          * @param event
          * @param data
          */
-        var emit = function (event, data) {
+        function emit (event, data) {
             chrome.runtime.sendMessage({event: event, data: data}, function(response) {
                 //console.log(response);
             });
             $rootScope.$broadcast(event, '');
-        };
+        }
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#emit_sec
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * emits sensitive data only to secure locations
          *
          * @param event
          * @param data
          * @param fnc
          */
-        var emit_sec = function(event, data, fnc) {
+        function emit_sec(event, data, fnc) {
             chrome.runtime.sendMessage({event: event, data: data}, fnc);
-        };
+        }
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#on
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * registers for an event with a function
          *
          * @param event
@@ -216,7 +332,7 @@
          *
          * @returns {boolean}
          */
-        var on = function (event, myFunction) {
+        function on(event, myFunction) {
 
             $rootScope.$on(event, myFunction);
 
@@ -224,7 +340,7 @@
                 registrations[event] = [];
             }
             registrations[event].push(myFunction);
-        };
+        }
 
 
         var config = {};
@@ -236,7 +352,7 @@
          * @returns {*}
          * @private
          */
-        var _get_config = function(key) {
+        function _get_config(key) {
 
             if (typeof(key) === 'undefined') {
                 return config;
@@ -246,15 +362,20 @@
             }
 
             return null;
-        };
+        }
 
         /**
+         * @ngdoc
+         * @name psonocli.browserClient#get_config
+         * @methodOf psonocli.browserClient
+         *
+         * @description
          * Loads the config (or only the part specified by the "key") fresh or from "cache"
          *
          * @param key
          * @returns {*}
          */
-        var get_config = function (key) {
+        function get_config(key) {
             return $q(function(resolve, reject) {
 
                 if (Object.keys(config).length === 0) {
@@ -277,7 +398,7 @@
                 }
             });
 
-        };
+        }
 
         /**
          * @ngdoc
@@ -287,9 +408,9 @@
          * @description
          * Closes the popup
          */
-        var close_popup = function() {
+        function close_popup() {
             window.close()
-        };
+        }
 
         /**
          * @ngdoc
@@ -301,7 +422,7 @@
          *
          * @returns {promise} A promise with the success or failure state
          */
-        var disable_browser_password_saving = function() {
+        function disable_browser_password_saving() {
             return $q(function(resolve, reject) {
                 chrome.privacy.services.passwordSavingEnabled.get({}, function(details) {
                     if (details.levelOfControl === 'controllable_by_this_extension') {
@@ -316,7 +437,7 @@
                     }
                 });
             });
-        };
+        }
 
 
         /**
@@ -366,6 +487,8 @@
             register_auth_required_listener: register_auth_required_listener,
             get_client_type: get_client_type,
             open_tab: open_tab,
+            get_saml_return_to_url: get_saml_return_to_url,
+            launch_web_auth_flow: launch_web_auth_flow,
             open_tab_bg: open_tab_bg,
             open_popup: open_popup,
             close_opened_popup: close_opened_popup,
@@ -382,11 +505,11 @@
             close_popup:close_popup,
             disable_browser_password_saving:disable_browser_password_saving,
             copy_to_clipboard: copy_to_clipboard,
-            getOfflineCacheEncryptionKey: getOfflineCacheEncryptionKey,
+            getOfflineCacheEncryptionKey: getOfflineCacheEncryptionKey
         };
     };
 
     var app = angular.module('psonocli');
-    app.factory("browserClient", ['$rootScope', '$q', '$templateRequest', '$http', browserClient]);
+    app.factory("browserClient", ['$rootScope', '$q', '$templateRequest', '$http', '$location', browserClient]);
 
 }(angular, $, window));

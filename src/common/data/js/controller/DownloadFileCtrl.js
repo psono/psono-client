@@ -47,9 +47,7 @@
                     $scope.state.next_step = 'DOWNLOAD_COMPLETED';
                 });
 
-
                 $scope.$on('$routeChangeSuccess', function () {
-
 
                     var onSuccess = function(data) {
                         // pass
