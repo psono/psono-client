@@ -1,4 +1,11 @@
 {
+  "DELETE_GROUP": "Gruppe löschen",
+  "DELETE_GROUP_WARNING": "Sie sind dabei diese Grupep zu lösschen. Alle Shares der Gruppe gehen dabei verloren oder werden unzugänglich. Sind sie sicher?",
+  "AFFECTED_GROUPS": "Betroffene Gruppen",
+  "AFFECTED_FILE_REPOSITORIES": "Betroffene Daten Repositories",
+  "AFFECTED_API_KEYS": "Betroffene API Schlüssel",
+  "AFFECTED_FOLDERS": "Betroffene Ordner",
+  "AFFECTED_ENTRIES": "Betroffene Einträge",
   "USER_NOT_PART_OF_REQUIRED_GROUP": "Ihr Nutzerkonto ist nicht in einer der dafür berechtigten Gruppen",
   "NO_SAML_TOKEN_ID_PROVIDED": "Keine SAML token ID angegeben.",
   "LOGIN_INFO_CANNOT_BE_DECRYPTED": "Login Informationen konnten vom Server nicht entschlüsselt werden.",

@@ -142,6 +142,12 @@
                         },
                         description: function () {
                             return 'DELETE_FILE_REPOSITORY_WARNING';
+                        },
+                        entries: function () {
+                            return [file_repository.title];
+                        },
+                        affected_entries_text: function () {
+                            return 'AFFECTED_FILE_REPOSITORIES';
                         }
                     }
                 });
@@ -229,6 +235,12 @@
                         },
                         description: function () {
                             return 'DELETE_FILE_REPOSITORY_RIGHT_WARNING';
+                        },
+                        entries: function () {
+                            return [file_repository.title];
+                        },
+                        affected_entries_text: function () {
+                            return 'AFFECTED_FILE_REPOSITORIES';
                         }
                     }
                 });

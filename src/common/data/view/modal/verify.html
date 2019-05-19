@@ -5,6 +5,13 @@
     </div>
     <div class="modal-body">
 
+        <div class="form-group" ng-if="entries">
+            <strong>{{ affected_entries_text | translate}}:</strong>
+            <ul style="margin-top:10px">
+                <li ng-repeat="entry in entries">{{ entry }}</li>
+            </ul>
+        </div>
+
         <div class="form-group alert alert-danger">
             <strong>{{'DANGER' | translate}}!</strong> {{ description | translate }}
         </div>

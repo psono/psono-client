@@ -1,4 +1,11 @@
 {
+  "DELETE_GROUP": "Delete Group",
+  "DELETE_GROUP_WARNING": "You are about to delete the group. All shares will be lost / become inaccessible. Are you sure?",
+  "AFFECTED_GROUPS": "Affected groups",
+  "AFFECTED_FILE_REPOSITORIES": "Affected file repositories",
+  "AFFECTED_API_KEYS": "Affected API keys",
+  "AFFECTED_FOLDERS": "Affected folders",
+  "AFFECTED_ENTRIES": "Affected entries",
   "USER_NOT_PART_OF_REQUIRED_GROUP": "Your account is not part of one of the authorized groups.",
   "NO_SAML_TOKEN_ID_PROVIDED": "No SAML token id provided.",
   "LOGIN_INFO_CANNOT_BE_DECRYPTED": "Login information could not be decrypted by the server.",
