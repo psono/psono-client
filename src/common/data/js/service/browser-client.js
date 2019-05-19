@@ -200,6 +200,21 @@
                 if (!new_config.hasOwnProperty('saml_provider')) {
                     new_config['saml_provider'] = [];
                 }
+                if (!new_config.hasOwnProperty('more_links')) {
+                    new_config['more_links'] = [{
+                        'href': 'https://doc.psono.com/',
+                        'title': 'DOCUMENTATION',
+                        'class': 'fa-book'
+                    },{
+                        'href': 'privacy-policy.html',
+                        'title': 'PRIVACY_POLICY',
+                        'class': 'fa-user-secret'
+                    },{
+                        'href': 'https://www.psono.com',
+                        'title': 'ABOUT_US',
+                        'class': 'fa-info-circle'
+                    }];
+                }
 
                 return $q.resolve(new_config);
             };

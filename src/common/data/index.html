@@ -149,22 +149,12 @@
                 </a>
             </li>
         </ul>
-        <h2>{{'MORE' | translate}}</h2>
-        <ul class="navigations">
-            <!--<li><a href="https://www.psono.pw/help" target="_blank">Help</a></li>-->
-            <li>
-                <a class="navigationitem2" href="https://doc.psono.com/" target="_blank" rel="noopener">
-                    <span class="fa-stack"><i class="fa fa-book fa-fw" aria-hidden="true"></i></span>{{'DOCUMENTATION' | translate}}
-                </a>
-            </li>
-            <li>
-                <a class="navigationitem2" href="privacy-policy.html" target="_blank" rel="noopener">
-                    <span class="fa-stack"><i class="fa fa-user-secret fa-fw" aria-hidden="true"></i></span>{{'PRIVACY_POLICY' | translate}}
-                </a>
-            </li>
-            <li>
-                <a class="navigationitem2" href="https://www.psono.com" target="_blank" rel="noopener">
-                    <span class="fa-stack"><i class="fa fa-info-circle fa-fw" aria-hidden="true"></i></span>{{'ABOUT_US' | translate}}
+        <h2 ng-if="more_links && more_links.length">{{'MORE' | translate}}</h2>
+        <ul class="navigations" ng-if="more_links">
+
+            <li ng-repeat="l in more_links">
+                <a class="navigationitem2" ng-href="{{ l.href }}" target="_blank" rel="noopener">
+                    <span class="fa-stack"><i class="fa fa-fw" ng-class="l.class" aria-hidden="true"></i></span>{{l.title | translate}}
                 </a>
             </li>
         </ul>
@@ -215,7 +205,7 @@
                         <a ng-if="provider.registration_url" ng-href="{{ provider.registration_url }}">{{'REGISTER' | translate}}</a>
                     </div>
                 </div>
-                <p ng-if="saml_enabled && saml_provider && (authkey_enabled || ldap_enabled)" class="horizontalline"><span>{{'OR' | translate}}</span></p>
+                <p ng-if="saml_enabled && saml_provider && saml_provider.length && (authkey_enabled || ldap_enabled)" class="horizontalline"><span>{{'OR' | translate}}</span></p>
                 <div ng-if="authkey_enabled || ldap_enabled" ng-class="{'input-group': login_data.username == null || login_data.username.indexOf('@') == -1}">
                     <input type="text" class="form-control" id="loginUsername" placeholder="{{'USERNAME' | translate}}" ng-model="login_data.username" required aria-describedby="username-addon" autofocus>
                     <span class="input-group-addon" id="username-addon" ng-if="login_data.username == null || login_data.username.indexOf('@') == -1">@{{selected_server_domain}}</span>
