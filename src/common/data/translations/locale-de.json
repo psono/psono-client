@@ -1,4 +1,6 @@
 {
+  "USERNAME_VALIDATION_NAME_CONTAINS_INVALID_CHARS": "Benutzernamen dürfen nur Buchstaben, Zahlen, Bindestriche und Punkte enthalten",
+  "USERNAME_VALIDATION_NAME_TOO_SHORT": "Benutzername zu kurz",
   "DELETE_GROUP": "Gruppe löschen",
   "DELETE_GROUP_WARNING": "Sie sind dabei diese Grupep zu lösschen. Alle Shares der Gruppe gehen dabei verloren oder werden unzugänglich. Sind sie sicher?",
   "AFFECTED_GROUPS": "Betroffene Gruppen",
