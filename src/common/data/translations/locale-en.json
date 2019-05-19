@@ -1,4 +1,6 @@
 {
+  "ACCOUNT_DELETION_DISABLED": "Benutzerkonten können auf diesem Server nicht gelöscht werden",
+  "PASSWORD_INCORRECT": "Password falsch",
   "USERNAME_VALIDATION_NAME_CONTAINS_INVALID_CHARS": "Usernames may only contain letters, numbers, periods and dashes",
   "USERNAME_VALIDATION_NAME_TOO_SHORT": "Username too short",
   "DELETE_GROUP": "Delete Group",

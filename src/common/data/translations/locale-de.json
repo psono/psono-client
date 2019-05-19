@@ -1,4 +1,6 @@
 {
+  "ACCOUNT_DELETION_DISABLED": "Useraccounts cannot be deleted on this server",
+  "PASSWORD_INCORRECT": "Password incorrect",
   "USERNAME_VALIDATION_NAME_CONTAINS_INVALID_CHARS": "Benutzernamen dürfen nur Buchstaben, Zahlen, Bindestriche und Punkte enthalten",
   "USERNAME_VALIDATION_NAME_TOO_SHORT": "Benutzername zu kurz",
   "DELETE_GROUP": "Gruppe löschen",
