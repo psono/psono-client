@@ -247,6 +247,12 @@
                             },
                             description: function () {
                                 return 'DELETE_FOLDER_WARNING';
+                            },
+                            entries: function () {
+                                return [node.name];
+                            },
+                            affected_entries_text: function () {
+                                return 'AFFECTED_FOLDERS';
                             }
                         }
                     });
@@ -363,6 +369,12 @@
                             },
                             description: function () {
                                 return 'DELETE_ENTRY_WARNING';
+                            },
+                            entries: function () {
+                                return [item.name];
+                            },
+                            affected_entries_text: function () {
+                                return 'AFFECTED_ENTRIES';
                             }
                         }
                     });

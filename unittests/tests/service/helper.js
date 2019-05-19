@@ -144,11 +144,11 @@
         }));
 
         it('is_valid_username not allowed chars', inject(function (helper) {
-            expect(helper.is_valid_username('ab@cd') === true).toBeFalsy();
+            expect(helper.is_valid_username('ab%cd') === true).toBeFalsy();
         }));
 
         it('is_valid_username too small', inject(function (helper) {
-            expect(helper.is_valid_username('ab') === true).toBeFalsy();
+            expect(helper.is_valid_username('a') === true).toBeFalsy();
         }));
 
         it('is_valid_username start with .', inject(function (helper) {

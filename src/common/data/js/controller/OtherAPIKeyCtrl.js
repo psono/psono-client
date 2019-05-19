@@ -139,6 +139,12 @@
                         },
                         description: function () {
                             return 'DELETE_API_KEY_WARNING';
+                        },
+                        entries: function () {
+                            return [api_key.title];
+                        },
+                        affected_entries_text: function () {
+                            return 'AFFECTED_API_KEYS';
                         }
                     }
                 });

@@ -10,14 +10,16 @@
      * @description
      * Controller for the "delete verification" modal
      */
-    angular.module('psonocli').controller('ModalVerifyCtrl', ['$scope', '$uibModalInstance', 'title', 'description',
-        function ($scope, $uibModalInstance, title, description) {
+    angular.module('psonocli').controller('ModalVerifyCtrl', ['$scope', '$uibModalInstance', 'title', 'description', 'entries', 'affected_entries_text',
+        function ($scope, $uibModalInstance, title, description, entries, affected_entries_text) {
 
             $scope.confirm = confirm;
             $scope.cancel = cancel;
 
             $scope.title = title;
             $scope.description = description;
+            $scope.entries = entries;
+            $scope.affected_entries_text = affected_entries_text;
 
             /**
              * @ngdoc

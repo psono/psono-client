@@ -183,6 +183,12 @@
                         },
                         description: function () {
                             return 'LEAVE_GROUP_WARNING';
+                        },
+                        entries: function () {
+                            return [group.name];
+                        },
+                        affected_entries_text: function () {
+                            return 'AFFECTED_GROUPS';
                         }
                     }
                 });
@@ -216,19 +222,27 @@
              * @description
              * Deletes a given group
              *
-             * @param {uuid} group_id The id of the group to delete
+             * @param {object} group The group to delete
              */
-            function delete_group(group_id) {
+            function delete_group(group) {
+
+                var group_id = group['group_id'];
 
                 var modalInstance = $uibModal.open({
                     templateUrl: 'view/modal/verify.html',
                     controller: 'ModalVerifyCtrl',
                     resolve: {
                         title: function () {
-                            return 'Delete Group';
+                            return 'DELETE_GROUP';
                         },
                         description: function () {
-                            return 'You are about to delete the group. All shares will be lost / become inaccessible. Are you sure?';
+                            return 'DELETE_GROUP_WARNING';
+                        },
+                        entries: function () {
+                            return [group.name];
+                        },
+                        affected_entries_text: function () {
+                            return 'AFFECTED_GROUPS';
                         }
                     }
                 });
@@ -443,7 +457,7 @@
              * @description
              * Declines a given membership request
              *
-             * @param {uuid} group The group to decline
+             * @param {object} group The group to decline
              */
             function decline_group(group) {
 

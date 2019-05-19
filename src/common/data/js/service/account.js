@@ -223,7 +223,10 @@
                 }
 
                 // load delete account last
-                _tabs.push({ key: 'delete-account', title: 'DELETE_ACCOUNT', description: 'DELETE_ACCOUNT_DESCRIPTION' });
+
+                if (!server_info.value.hasOwnProperty('compliance_disable_delete_account') || server_info.value['compliance_disable_delete_account'] === false) {
+                    _tabs.push({ key: 'delete-account', title: 'DELETE_ACCOUNT', description: 'DELETE_ACCOUNT_DESCRIPTION' });
+                }
 
                 _tabs_already_loaded = true;
             }

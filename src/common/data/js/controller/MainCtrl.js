@@ -75,8 +75,15 @@
                     $scope.offline = false;
                 });
 
+                browserClient.load_config().then(function (config) {
+                    $scope.more_links = config['more_links'];
+                });
+
 
                 managerStatus.get_status().then(function(status) {
+                    if (typeof(status) === 'undefined') {
+                        return;
+                    }
                     $scope.server_status.data = status.data;
                 });
 

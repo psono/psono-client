@@ -358,11 +358,11 @@
             var USERNAME_REGEXP = /^[a-z0-9.\-]*$/i;
             var error;
             if( ! USERNAME_REGEXP.test(username)) {
-                return 'Usernames may only contain letters, numbers, periods and dashes';
+                return 'USERNAME_VALIDATION_NAME_CONTAINS_INVALID_CHARS';
             }
 
-            if (username.length < 3) {
-                return 'Usernames may not be shorter than 3 chars';
+            if (username.length < 2) {
+                return 'USERNAME_VALIDATION_NAME_TOO_SHORT';
             }
 
             error = validate_username_start(username, [".", "-"]);
