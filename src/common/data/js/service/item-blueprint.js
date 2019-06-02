@@ -1087,6 +1087,9 @@
                     if (item.hasOwnProperty('share_rights') && item.share_rights.grant === false) {
                         return 'hidden';
                     }
+                    if (!server_supports_link_shares()) {
+                        return 'hidden'
+                    }
                 },
                 onClick: function(item, path) {
 
@@ -1225,6 +1228,20 @@
          */
         function server_supports_files() {
             return storage.find_key('config', 'server_info') && storage.find_key('config', 'server_info').value && storage.find_key('config', 'server_info').value.hasOwnProperty('files') && storage.find_key('config', 'server_info').value['files']
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.itemBlueprint#server_supports_link_shares
+         * @methodOf psonocli.itemBlueprint
+         *
+         * @description
+         * returns whether the server supports link shares or not
+         *
+         * @returns {boolean} returns whether the server supports link shares or not
+         */
+        function server_supports_link_shares() {
+            return storage.find_key('config', 'server_info') && storage.find_key('config', 'server_info').value && (!storage.find_key('config', 'server_info').value.hasOwnProperty('compliance_disable_link_shares') || ! storage.find_key('config', 'server_info').value['compliance_disable_link_shares'])
         }
 
         /**
