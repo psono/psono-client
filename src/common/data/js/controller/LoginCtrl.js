@@ -25,19 +25,14 @@
     angular.module('psonocli').controller('LoginCtrl', ['$scope', '$sce', '$templateRequest', '$templateCache', '$q',
         '$rootScope', '$filter', '$timeout',
         'managerDatastoreUser', 'managerHost', 'browserClient', 'storage',
-        'snapRemote', '$window', '$route', '$routeParams', '$location', 'helper', 'languagePicker',
+        'snapRemote', '$window', '$route', '$routeParams', '$location', 'helper',
         function ($scope, $sce, $templateRequest, $templateCache, $q,
                   $rootScope, $filter, $timeout,
                   managerDatastoreUser, managerHost, browserClient, storage,
-                  snapRemote, $window, $route, $routeParams, $location, helper, languagePicker) {
+                  snapRemote, $window, $route, $routeParams, $location, helper) {
 
-            $scope.languages = languagePicker.get_language_array();
-            $scope.active = {
-                'lang': languagePicker.get_active_language()
-            };
             $scope.login_data = {
             };
-            $scope.change_language = change_language;
             $scope.select_server = select_server;
             $scope.changing = changing;
             $scope.ga_verify = ga_verify;
@@ -127,21 +122,6 @@
                 if(helper.endsWith($scope.login_data.username, '@' + $scope.selected_server_domain)) {
                     $scope.login_data.username = $scope.login_data.username.slice(0, - ('@' + $scope.selected_server_domain).length);
                 }
-            }
-
-            /**
-             * @ngdoc
-             * @name psonocli.controller:LoginCtrl#change_language
-             * @methodOf psonocli.controller:LoginCtrl
-             *
-             * @description
-             * Changes the language
-             *
-             * @param {string} lang The language to use
-             */
-            function change_language(lang) {
-                $scope.active['lang'] = lang;
-                languagePicker.changeLanguage(lang.code)
             }
 
             /**

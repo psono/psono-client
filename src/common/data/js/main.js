@@ -1,4 +1,4 @@
-(function (angular) {
+(function (angular, moment) {
     'use strict';
 
     /**
@@ -48,7 +48,7 @@
 
 
     angular.module('psonocli', ['ngRoute', 'ng', 'ui.bootstrap', 'snap', 'chieffancypants.loadingBar', 'ngAnimate',
-            'LocalStorageModule', 'ngTree', 'ng-context-menu', 'ui.select', 'ngSanitize',
+            'LocalStorageModule', 'ngTree', 'ng-context-menu', 'ui.select', 'ngSanitize', 'ae-datetimepicker',
             'angular-complexify', 'datatables', 'chart.js', 'pascalprecht.translate', 'ngCookies'])
         .provider('languages', function(){
             var languages = {
@@ -128,6 +128,10 @@
                         templateUrl: 'view/index-security-report.html',
                         controller: 'SecurityReportCtrl'
                     })
+                    .when('/active-link-shares', {
+                        templateUrl: 'view/index-active-link-shares.html',
+                        controller: 'ActiveLinkSharesCtrl'
+                    })
                     .when('/gpg/read/:gpg_message_id', {
                         templateUrl: 'view/index-gpg-decrypt.html'
                     })
@@ -138,6 +142,7 @@
                     .when('/file/download/:id', {})
                     .when('/saml/token/:saml_token_id', {})
                     .when('/activation-code/:activation_code', {})
+                    .when('/link-share-access/:link_share_id/:link_share_secret/:backend_server_url', {})
                     .when('/datastore/search/:default_search', {
                         templateUrl: 'view/datastore.html',
                         controller: 'DatastoreCtrl'
@@ -192,6 +197,7 @@
                     .useSanitizeValueStrategy('escape')
                     .useCookieStorage();
 
+
             }])
         .filter('typeof', function() {
             return function(obj) {
@@ -224,8 +230,13 @@
                 return parts.join(' ');
             };
         }])
-        .run(['$rootScope', '$location', '$routeParams', '$http', '$templateCache', 'managerSecret', 'managerFileTransfer', 'offlineCache', 'managerStatus',
-            function ($rootScope, $location, $routeParams, $http, $templateCache, managerSecret, managerFileTransfer, offlineCache, managerStatus) {
+        .filter('moment', [function() {
+            return function(obj) {
+                return moment(obj).format('L LT')
+            };
+        }])
+        .run(['$rootScope', '$location', '$routeParams', '$http', '$templateCache', 'managerSecret', 'managerFileTransfer', 'offlineCache', 'languagePicker', 'managerStatus',
+            function ($rootScope, $location, $routeParams, $http, $templateCache, managerSecret, managerFileTransfer, offlineCache, languagePicker, managerStatus) {
                 $rootScope.entity = 'main_thread';
 
                 $rootScope.$on( "$routeChangeStart", function(event, next, current) {
@@ -250,8 +261,11 @@
                         return;
                     }
                 });
+                $rootScope.$on('$translateChangeSuccess', function(data) {
+                    moment.locale(languagePicker.get_active_language_code());
+                });
             }]);
-}(angular));
+}(angular, moment));
 
 
 /* creates the base href tag for angular location */

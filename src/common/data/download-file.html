@@ -21,6 +21,7 @@
     <link href="css/lib/opensans.css" rel="stylesheet" />
     <link href="css/lib/angular-csp.css" rel="stylesheet">
     <link href="css/lib/bootstrap.css" rel="stylesheet">
+    <link href="css/lib/bootstrap-datetimepicker.min.css" rel="stylesheet">
     <link href="css/lib/ui-bootstrap-csp.css" rel="stylesheet">
     <link href="css/lib/datatables.min.css" rel="stylesheet">
     <link href="css/lib/angular-snap.css" rel="stylesheet">
@@ -38,9 +39,28 @@
 <body>
 <div  ng-controller="DownloadFileCtrl" class="ng-cloak">
 
-    <div class="progress-box">
+    <div class="progress-box text-center">
 
         <img src="img/logo.png" alt="Psono Web Client" id="logo">
+        <a href="https://psono.com/" target="_blank" rel="noopener" class="infolabel"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+
+        <div class="btn-group loginbox-translate" uib-dropdown keyboard-nav ng-controller="LanguagePickerCtrl">
+            <button id="language-picker" type="button" class="btn btn-primary" uib-dropdown-toggle>
+                {{active.lang.lng_code | translate}} <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" aria-labelledby="language-picker">
+                <li role="menuitem" ng-repeat="lang in languages">
+                    <a href="" ng-click="change_language(lang)" ng-if="lang.active">
+                        {{lang.lng_code | translate}}
+                    </a>
+                </li>
+                <li role="menuitem">
+                    <a target="_blank" rel="noopener" href="https://poeditor.com/join/project/Aiea8D0WIr">
+                        {{'NOT_LISTED' | translate}}
+                    </a>
+                </li>
+            </ul>
+        </div>
 
         <uib-progressbar max="state.open_requests" value="state.closed_request" style="margin-top:15px" ng-if="state.processing">
             <span style="color:white; white-space:nowrap;">{{ state.percentage_complete }} %</span>
@@ -103,6 +123,8 @@
 <script src="js/lib/angular-animate.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-touch.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-complexify.min.js" type="application/javascript"></script>
+<script src="js/lib/moment-with-locales.min.js" type="application/javascript"></script>
+<script src="js/lib/bootstrap-datetimepicker.min.js" type="application/javascript"></script>
 <script src="js/lib/loading-bar.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-chart.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-route.min.js" type="application/javascript"></script>
@@ -110,6 +132,7 @@
 <script src="js/lib/angular-local-storage.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-snap.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-translate.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-eonasdan-datetimepicker.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-translate-storage-cookie.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-translate-loader-url.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-translate-loader-static-files.min.js" type="application/javascript"></script>
@@ -134,8 +157,11 @@
 <script src="js/controller/ChooseSecretsCtrl.js"></script>
 <script src="js/controller/AccountCtrl.js" type="application/javascript"></script>
 <script src="js/controller/ActivationCtrl.js" type="application/javascript"></script>
+<script src="js/controller/ActiveLinkSharesCtrl.js" type="application/javascript"></script>
 <script src="js/controller/DatastoreCtrl.js"></script>
 <script src="js/controller/SecurityReportCtrl.js" type="application/javascript"></script>
+<script src="js/controller/LanguagePickerCtrl.js" type="application/javascript"></script>
+<script src="js/controller/LinkShareAccessCtrl.js" type="application/javascript"></script>
 <script src="js/controller/LoginCtrl.js" type="application/javascript"></script>
 <script src="js/controller/GPGDecryptMessageCtrl.js" type="application/javascript"></script>
 <script src="js/controller/GPGEncryptMessageCtrl.js" type="application/javascript"></script>
@@ -175,6 +201,8 @@
 <script src="js/controller/modal/GenerateNewMailGPGKeyCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ImportMailGPGKeyAsTextCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ShareEditEntryCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/CreateLinkShareCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/EditLinkShareCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ShareEntryCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ShareNewEntryCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ShowEmergencyCodesCtrl.js" type="application/javascript"></script>
@@ -232,6 +260,7 @@
 <script src="js/service/manager-file-repository.js" type="application/javascript"></script>
 <script src="js/service/manager-hosts.js" type="application/javascript"></script>
 <script src="js/service/manager-import.js" type="application/javascript"></script>
+<script src="js/service/manager-link-share.js" type="application/javascript"></script>
 <script src="js/service/manager-security-report.js" type="application/javascript"></script>
 <script src="js/service/import-chrome-csv.js" type="application/javascript"></script>
 <script src="js/service/import-psono-pw-json.js" type="application/javascript"></script>

@@ -44,7 +44,7 @@
                                     <i ng-if="session.current_session" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-default btn-sm" ng-if="!session.current_session" ng-click="delete_session(session.id)" >
+                                    <button type="button" class="btn btn-default btn-sm" ng-if="!session.current_session" ng-click="delete_session(session.id)"  alt="{{'DELETE' | translate}}">
                                         <i class="fa fa-trash" aria-hidden="true"><span style="display: none">0</span></i>
                                     </button>
                                 </td>
@@ -91,7 +91,7 @@
                                     </button>
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-default btn-sm" ng-if="!data_store.is_default" ng-click="delete_datastore(data_store)" >
+                                    <button type="button" class="btn btn-default btn-sm" ng-if="!data_store.is_default" ng-click="delete_datastore(data_store)"  alt="{{'DELETE' | translate}}">
                                         <i class="fa fa-trash" aria-hidden="true"><span style="display: none">0</span></i>
                                     </button>
                                 </td>
@@ -148,7 +148,7 @@
                                     </button>
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-default btn-sm" ng-if="!api_key.is_default" ng-click="delete_api_key(api_key)" >
+                                    <button type="button" class="btn btn-default btn-sm" ng-if="!api_key.is_default" ng-click="delete_api_key(api_key)"  alt="{{'DELETE' | translate}}">
                                         <i class="fa fa-trash" aria-hidden="true"><span style="display: none">0</span></i>
                                     </button>
                                 </td>
@@ -202,7 +202,7 @@
                                     </button>
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-default btn-sm" ng-if="!file_repository.is_default" ng-click="delete_file_repository(file_repository)"  ng-disabled="!file_repository.accepted || !file_repository.write || !file_repository.grant">
+                                    <button type="button" class="btn btn-default btn-sm" ng-if="!file_repository.is_default" ng-click="delete_file_repository(file_repository)"  ng-disabled="!file_repository.accepted || !file_repository.write || !file_repository.grant" alt="{{'DELETE' | translate}}">
                                         <i class="fa fa-trash" aria-hidden="true"><span style="display: none">0</span></i>
                                     </button>
                                 </td>
@@ -252,7 +252,7 @@
                                     <i ng-if="host.current_host" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-default btn-sm" ng-click="delete_known_host(host)" >
+                                    <button type="button" class="btn btn-default btn-sm" ng-click="delete_known_host(host)"  alt="{{'DELETE' | translate}}">
                                         <i class="fa fa-trash" aria-hidden="true"><span style="display: none">0</span></i>
                                     </button>
                                 </td>

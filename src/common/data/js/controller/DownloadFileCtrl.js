@@ -63,7 +63,7 @@
                             alert("Error, should not happen.");
                         }
                     };
-                    managerFileTransfer.download_file($routeParams.id).then(onSuccess, onError);
+                    managerFileTransfer.download_file_by_storage_id($routeParams.id).then(onSuccess, onError);
                 });
             }
 

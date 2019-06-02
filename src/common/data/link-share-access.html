@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html ng-app="psonocli" class="datastore" ng-csp ng-strict-di>
 <head>
-    <title>Psono PW</title>
+    <title>Link Share Access</title>
     <meta charset="utf-8">
 
     <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
@@ -15,8 +15,6 @@
     <meta name="viewport" content="width=device-width, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-
-    <link rel="search" type="application/opensearchdescription+xml" title="Search Psono " href="search.xml" />
 
     <!-- build:build_min_css -->
     <link href="css/lib/cssreset-context-min.css" rel="stylesheet" />
@@ -37,50 +35,138 @@
     <link href="css/angular-tree-view.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
     <!-- endbuild -->
-
-    <link href="css/datastore.css" rel="stylesheet">
 </head>
 <body>
-<div  ng-controller="Enforce2FaCtrl" class="ng-cloak">
-    <div class="wrapper">
+<div  ng-controller="LinkShareAccessCtrl" class="ng-cloak dark">
 
-        <div class="loginbox dark">
-            <img src="img/logo.png" alt="Psono Web Client" id="logo">
-            <a href="https://psono.com/" target="_blank" rel="noopener" class="infolabel"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+    <div class="progress-box">
 
-            <div class="form-group">
-                <h4>{{'SECOND_FACTOR_REQUIRED' | translate}}:</h4>
+        <img src="img/logo.png" alt="Psono Web Client" id="logo">
+        <a href="https://psono.com/" target="_blank" rel="noopener" class="infolabel"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+
+        <div class="btn-group loginbox-translate" uib-dropdown keyboard-nav ng-controller="LanguagePickerCtrl">
+            <button id="language-picker" type="button" class="btn btn-primary" uib-dropdown-toggle>
+                {{active.lang.lng_code | translate}} <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" aria-labelledby="language-picker">
+                <li role="menuitem" ng-repeat="lang in languages">
+                    <a href="" ng-click="change_language(lang)" ng-if="lang.active">
+                        {{lang.lng_code | translate}}
+                    </a>
+                </li>
+                <li role="menuitem">
+                    <a target="_blank" rel="noopener" href="https://poeditor.com/join/project/Aiea8D0WIr">
+                        {{'NOT_LISTED' | translate}}
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <form ng-if="view === 'default'" autocomplete="off">
+            <p ng-if="!state.processing">{{'ENTER_PASSPHRASE' | translate}}</p>
+
+            <div class="form-group" ng-if="!state.processing">
+                <input type="password" name="passphrase" class="form-control" id="passphrase" placeholder="{{'PASSPHRASE' | translate}}" ng-model="state.passphrase">
             </div>
 
-            <form autocomplete="off">
-                <div class="row" ng-repeat="field in account.fields" style="padding-bottom: 10px;">
-                    <label class="control-label col-xs-7 col-sm-7 col-md-7">
-                        {{field.title | translate}}
-                    </label>
-                    <div class="col-xs-5 col-sm-5 col-md-5" ng-if="field.type !== 'label_only'">
-                        <button class="btn btn-primary {{field.class}}"
-                                ng-click="account[field.onClick]()"
-                                type="{{field.type}}" ng-hide="field.hidden" ng-click="">{{field.btnLabel | translate}}</button>
+            <div class="form-group" ng-if="!state.processing">
+                <button ng-click="initiate_link_share_access()" type="submit"
+                        class="btn btn-danger">{{'SEND' | translate}}</button>
+            </div>
 
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="alert alert-info">
-                        <strong>{{'INFO' | translate}}!</strong> {{'ADMINISTRATOR_REQUIRES_SECOND_FACTOR' | translate}}
-                    </div>
-                </div>
+            <uib-progressbar max="state.open_requests" value="state.closed_request" style="margin-top:15px" ng-if="state.processing">
+                <span style="color:white; white-space:nowrap;">{{ state.percentage_complete }} %</span>
+            </uib-progressbar>
+            <span translate="{{ state.next_step }}" ng-if="state.processing"></span>
 
-                <div class="row" style="padding-bottom: 20px;">
-                    <div class="col-xs-5 col-sm-5 col-md-5">
-                        <button ng-click="logout()" type="submit" class="btn btn-default">{{'LOGOUT' | translate}} <i class="fa fa-sign-in" aria-hidden="true"></i></button>
-                    </div>
-                </div>
+            <div class="form-group alert alert-danger" ng-repeat="e in errors">
+                <strong>{{'ERROR' | translate}}:</strong>
+                <span translate="{{ e }}" ng-if="e !== 'INSUFFICIENT_FUNDS' || !credit_buy_address"></span>
+                <span translate="{{ 'INSUFFICIENT_FUNDS_WITH_CREDIT_BUY_ADDRESS' }}" ng-if="e === 'INSUFFICIENT_FUNDS' && credit_buy_address"></span>
+                <a ng-href="{{ credit_buy_address }}" ng-if="e === 'INSUFFICIENT_FUNDS' && credit_buy_address" rel="nofollow noopener" target="_blank">
+                    <span translate="{{ 'BUY' }}"></span>
+                </a>
+            </div>
 
-                <div class="form-group alert alert-danger" ng-repeat="e in errors">
-                    <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
+            <div ng-if="allow_custom_server && !state.processing" class="form-group hideinputcharakter">
+
+                <label for="serverselection">{{'SERVER' | translate}}: </label>
+                <input type="text" id="serverselection"
+                       uib-popover-template="'view/popover-server-select.html'"
+                       popover-trigger="'focus'"
+                       ng-model="selected_server_url"
+                       ng-change="changing(selected_server_url)"
+                       class="form-control">
+            </div>
+        </form>
+
+        <form name="newServerForm" ng-if="view === 'new_server'" autocomplete="off">
+            <!-- new Server View -->
+            <div class="form-group">
+                <h4>{{'NEW_SERVER' | translate}}</h4>
+            </div>
+            <div class="form-group">
+                <p>{{'FINGERPRINT_OF_THE_NEW_SERVER' | translate}}:</p>
+                <textarea class="form-control" id="newServerFingerprint"
+                          placeholder="{{'FINGERPRINT_OF_THE_NEW_SERVER' | translate}}"
+                          ng-model="newServerFingerprint" readonly="readonly"></textarea>
+            </div>
+
+            <div class="form-group">
+                <button ng-click="approve_new_server()" type="submit"
+                        class="btn btn-danger">{{'APPROVE' | translate}}</button>
+                <a href="#" ng-click="disapprove_new_server()">{{'CANCEL' | translate}}</a>
+            </div>
+
+            <div class="form-group alert alert-danger" ng-repeat="e in errors">
+                <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
+            </div>
+
+            <div class="form-group">
+                <div class="alert alert-info">
+                    <strong>{{'INFO' | translate}}!</strong> {{'IT_APPEARS_THAT_YOU_WANT_TO_CONNECT' | translate}}
                 </div>
-            </form>
+            </div>
+        </form>
+
+        <form name="signatureChangedForm" ng-if="view === 'signature_changed'" autocomplete="off">
+            <!-- signature changed View -->
+            <div class="form-group">
+                <h4>{{'SERVER_SIGNATURE_CHANGED' | translate}}:</h4>
+            </div>
+            <div class="form-group">
+                <p>{{'THE_NEW_FINGERPRINT_IS' | translate}}:</p>
+                <textarea class="form-control" id="changedFingerprint"
+                          placeholder="{{'FINGERPRINT_OF_THE_NEW_SERVER' | translate}}"
+                          ng-model="changedFingerprint" readonly="readonly"></textarea>
+            </div>
+            <div class="form-group">
+                <p>{{'THE_OLD_FINGERPRINT_WAS' | translate}}:</p>
+                <textarea class="form-control" id="oldFingerprint"
+                          placeholder="{{'FINGERPRINT_OF_THE_OLD_SERVER' | translate}}"
+                          ng-model="oldFingerprint" readonly="readonly"></textarea>
+            </div>
+            <div class="form-group">
+                <div class="alert alert-danger">
+                    <strong>{{'DANGER' | translate}}!</strong> {{'THE_SIGNATURE_OF_THE_SERVER_CHANGED' | translate}}<br><br><strong>{{'CONTACT_THE_OWNER_OF_THE_SERVER' | translate}}</strong>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button ng-click="disapprove_new_server()" type="submit"
+                        class="btn btn-danger">{{'CANCEL' | translate}}</button>
+                <a href="#" ng-click="approve_new_server()">{{'IGNORE_AND_CONTINUE' | translate}}</a>
+            </div>
+
+            <div class="form-group alert alert-danger" ng-repeat="e in errors">
+                <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
+            </div>
+        </form>
+
+        <div class="box-footer">
+            <a href="privacy-policy.html">{{'PRIVACY_POLICY' | translate}}</a>
         </div>
+
     </div>
 </div>
 <div ng-show="::false" style="position: fixed; height: 100%; width: 100%; background-color: #0f1118; top: 0; left: 0; z-index: 10000;">
@@ -94,7 +180,6 @@
            animation: fa-spin 2s infinite linear;
            vertical-align: middle;">&#xf110;</i> Loading<noscript><br>JavaScript is disabled</noscript>
     </div>
-
 </div>
 
 <!-- build:build_min_js -->

@@ -12,6 +12,12 @@ h1, h2 {
   font-size: 20px;
   margin: 0; }
 
+a {
+  color: #151f2b; }
+
+.btn-link {
+  color: #151f2b; }
+
 .monospace {
   font-family: 'Fira Code', monospace; }
 
@@ -49,17 +55,6 @@ p.horizontalline span {
 
 .loginbox .pull-right {
   line-height: 31px; }
-
-.loginbox .box-footer {
-  position: absolute;
-  text-align: center;
-  margin-left: auto;
-  margin-right: auto;
-  left: 0;
-  right: 0;
-  bottom: -30px; }
-  .loginbox .box-footer a {
-    color: #333333; }
 
 .wrapper {
   overflow: auto;
@@ -113,6 +108,16 @@ p.horizontalline span {
   .dark .btn-danger {
     background-color: #2dbb93;
     border-color: #2dbb93; }
+  .dark .box-footer {
+    position: absolute;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    bottom: -30px; }
+    .dark .box-footer a {
+      color: #333333; }
   .dark .form-control:focus {
     border-color: #2dbb93; }
   .dark .navigations .node-open-link {
@@ -275,9 +280,11 @@ p.horizontalline span {
 .nav, .pagination, .carousel, .panel-title a {
   cursor: pointer; }
 
+.text-center {
+  text-align: center; }
+
 .progress-box {
   width: 340px;
-  height: 170px;
   padding: 20px;
   position: absolute;
   top: 50%;
@@ -285,8 +292,7 @@ p.horizontalline span {
   margin: -70px 0 0 -170px;
   border-radius: 4px;
   background-color: #151f2b;
-  color: #b1b6c1;
-  text-align: center; }
+  color: #b1b6c1; }
   .progress-box .progress {
     margin-top: 20px; }
 
@@ -323,3 +329,12 @@ p.horizontalline span {
         margin-left: -200%;
         width: 0;
         overflow: hidden; }
+
+.bootstrap-datetimepicker-widget table td.today:before {
+  border-bottom-color: #151f2b; }
+
+.bootstrap-datetimepicker-widget table td.active, .bootstrap-datetimepicker-widget table td.active:hover {
+  background-color: #2dbb93; }
+
+.bootstrap-datetimepicker-widget table td span.active {
+  background-color: #151f2b; }
