@@ -19,6 +19,7 @@
     <link href="css/lib/opensans.css" rel="stylesheet" />
     <link href="css/lib/angular-csp.css" rel="stylesheet">
     <link href="css/lib/bootstrap.css" rel="stylesheet">
+    <link href="css/lib/bootstrap-datetimepicker.min.css" rel="stylesheet">
     <link href="css/lib/ui-bootstrap-csp.css" rel="stylesheet">
     <link href="css/lib/datatables.min.css" rel="stylesheet">
     <link href="css/lib/angular-snap.css" rel="stylesheet">
@@ -93,6 +94,8 @@
 <script src="js/lib/angular-animate.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-touch.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-complexify.min.js" type="application/javascript"></script>
+<script src="js/lib/moment-with-locales.min.js" type="application/javascript"></script>
+<script src="js/lib/bootstrap-datetimepicker.min.js" type="application/javascript"></script>
 <script src="js/lib/loading-bar.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-chart.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-route.min.js" type="application/javascript"></script>
@@ -100,6 +103,7 @@
 <script src="js/lib/angular-local-storage.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-snap.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-translate.min.js" type="application/javascript"></script>
+<script src="js/lib/angular-eonasdan-datetimepicker.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-translate-storage-cookie.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-translate-loader-url.min.js" type="application/javascript"></script>
 <script src="js/lib/angular-translate-loader-static-files.min.js" type="application/javascript"></script>
@@ -124,8 +128,11 @@
 <script src="js/controller/ChooseSecretsCtrl.js"></script>
 <script src="js/controller/AccountCtrl.js" type="application/javascript"></script>
 <script src="js/controller/ActivationCtrl.js" type="application/javascript"></script>
+<script src="js/controller/ActiveLinkSharesCtrl.js" type="application/javascript"></script>
 <script src="js/controller/DatastoreCtrl.js"></script>
 <script src="js/controller/SecurityReportCtrl.js" type="application/javascript"></script>
+<script src="js/controller/LanguagePickerCtrl.js" type="application/javascript"></script>
+<script src="js/controller/LinkShareAccessCtrl.js" type="application/javascript"></script>
 <script src="js/controller/LoginCtrl.js" type="application/javascript"></script>
 <script src="js/controller/GPGDecryptMessageCtrl.js" type="application/javascript"></script>
 <script src="js/controller/GPGEncryptMessageCtrl.js" type="application/javascript"></script>
@@ -165,6 +172,8 @@
 <script src="js/controller/modal/GenerateNewMailGPGKeyCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ImportMailGPGKeyAsTextCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ShareEditEntryCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/CreateLinkShareCtrl.js" type="application/javascript"></script>
+<script src="js/controller/modal/EditLinkShareCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ShareEntryCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ShareNewEntryCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/ShowEmergencyCodesCtrl.js" type="application/javascript"></script>
@@ -222,6 +231,7 @@
 <script src="js/service/manager-file-repository.js" type="application/javascript"></script>
 <script src="js/service/manager-hosts.js" type="application/javascript"></script>
 <script src="js/service/manager-import.js" type="application/javascript"></script>
+<script src="js/service/manager-link-share.js" type="application/javascript"></script>
 <script src="js/service/manager-security-report.js" type="application/javascript"></script>
 <script src="js/service/import-chrome-csv.js" type="application/javascript"></script>
 <script src="js/service/import-psono-pw-json.js" type="application/javascript"></script>

@@ -39,7 +39,7 @@
                         <tr ng-repeat="secret in secrets.data">
                             <td>{{ secret.name }}</td>
                             <td>
-                                <button type="button" class="btn btn-default btn-sm" ng-click="remove_secret(secret)">
+                                <button type="button" class="btn btn-default btn-sm" ng-click="remove_secret(secret)" alt="{{'DELETE' | translate}}">
                                     <i class="fa fa-trash" aria-hidden="true"></i>
                                 </button>
                             </td>

@@ -17,6 +17,14 @@ h1, h2 {
   margin: 0;
 }
 
+a {
+  color: $dark-color;
+}
+
+.btn-link {
+  color: $dark-color;
+}
+
 .monospace {
   font-family: 'Fira Code', monospace;
 }
@@ -64,19 +72,6 @@ p.horizontalline span {
 .loginbox {
   .pull-right {
     line-height: 31px;
-  }
-
-  .box-footer {
-    position: absolute;
-    text-align: center;
-    margin-left: auto;
-    margin-right: auto;
-    left: 0;
-    right: 0;
-    bottom: -30px;
-    a {
-      color: #333333;
-    }
   }
 }
 
@@ -150,6 +145,20 @@ p.horizontalline span {
     border-color: $dark-hightlight-color;
   }
 
+
+
+.box-footer {
+  position: absolute;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  bottom: -30px;
+  a {
+    color: #333333;
+  }
+}
 
   .form-control:focus {
     border-color: $dark-hightlight-color;
@@ -376,10 +385,13 @@ p.horizontalline span {
 /* CSS fix for angular-ui explained here: https://angular-ui.github.io/bootstrap/ */
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
 
+.text-center{
+  text-align: center;
+}
+
 .progress-box {
 
   width:340px;
-  height:170px;
   padding:20px;
 
   position: absolute;
@@ -391,8 +403,6 @@ p.horizontalline span {
 
   background-color: $dark-color;
   color: $dark-normal-color;
-
-  text-align: center;
 
   .progress {
     margin-top: 20px;
@@ -449,6 +459,19 @@ p.horizontalline span {
   .loading-lock-text {
 
   }
+}
+
+// Datetime picker
+
+
+.bootstrap-datetimepicker-widget table td.today:before {
+  border-bottom-color: $dark-color;
+}
+.bootstrap-datetimepicker-widget table td.active, .bootstrap-datetimepicker-widget table td.active:hover {
+  background-color: $dark-hightlight-color;
+}
+.bootstrap-datetimepicker-widget table td span.active {
+  background-color: $dark-color;
 }
 
 

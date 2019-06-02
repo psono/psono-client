@@ -108,6 +108,7 @@
                     };
 
                     var onError = function(data) {
+                        console.log(data);
 
                         if (data.status === 401) {
                             $rootScope.$broadcast('force_logout', '');
@@ -2583,31 +2584,29 @@
          * @description
          * Ajax PUT request to upload a file to an file repository with the token as authentication
          *
-         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
-         * @param {string} session_secret_key The session secret key
          * @param {uuid} file_transfer_id The id of the file transfer
+         * @param {string} file_transfer_secret_key The file transfer secret key
          * @param {int} chunk_size The size of the complete chunk in bytes
          * @param {int} chunk_position The sequence number of the chunk to determine the order
          * @param {string} hash_checksum The sha512 hash
          *
          * @returns {promise} promise
          */
-        var file_repository_upload = function (token, session_secret_key, file_transfer_id, chunk_size, chunk_position, hash_checksum) {
+        var file_repository_upload = function (file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum) {
 
             var endpoint = '/file-repository/upload/';
             var connection_type = "PUT";
             var data = {
-                file_transfer_id: file_transfer_id,
                 chunk_size: chunk_size,
                 chunk_position: chunk_position,
                 hash_checksum: hash_checksum
             };
 
             var headers = {
-                "Authorization": "Token " + token
+                "Authorization": "Filetransfer " + file_transfer_id
             };
 
-            return call(connection_type, endpoint, data, headers, session_secret_key);
+            return call(connection_type, endpoint, data, headers, file_transfer_secret_key);
         };
 
 
@@ -2619,27 +2618,25 @@
          * @description
          * Ajax PUT request to upload a file to an file repository with the token as authentication
          *
-         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
-         * @param {string} session_secret_key The session secret key
          * @param {uuid} file_transfer_id The id of the file transfer
+         * @param {string} file_transfer_secret_key The file transfer secret key
          * @param {string} hash_checksum The sha512 hash
          *
          * @returns {promise} promise
          */
-        var file_repository_download = function (token, session_secret_key, file_transfer_id, hash_checksum) {
+        var file_repository_download = function (file_transfer_id, file_transfer_secret_key, hash_checksum) {
 
             var endpoint = '/file-repository/download/';
             var connection_type = "PUT";
             var data = {
-                file_transfer_id: file_transfer_id,
                 hash_checksum: hash_checksum
             };
 
             var headers = {
-                "Authorization": "Token " + token
+                "Authorization": "Filetransfer " + file_transfer_id
             };
 
-            return call(connection_type, endpoint, data, headers, session_secret_key);
+            return call(connection_type, endpoint, data, headers, file_transfer_secret_key);
         };
 
         /**
@@ -3074,6 +3071,164 @@
             return call(connection_type, endpoint, data, headers, session_secret_key);
         };
 
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#create_link_share
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Creates a link share
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} secret_id The id of the secret
+         * @param {uuid} file_id The id of the file
+         * @param {string} node The encrypted node in hex format
+         * @param {string} node_nonce The nonce of the encrypted node in hex format
+         * @param {string} public_title The public title of the link share
+         * @param {int|null} allowed_reads The amount of allowed access requests before this link secret becomes invalid
+         * @param {string|null} passphrase The passphrase to protect the link secret
+         * @param {string|null} valid_till The valid till time in iso format
+         *
+         * @returns {promise} Promise with the new link_secret_id
+         */
+        var create_link_share = function (token, session_secret_key, secret_id, file_id, node, node_nonce, public_title,
+                                          allowed_reads, passphrase, valid_till) {
+            var endpoint = '/link-share/';
+            var connection_type = "PUT";
+            var data = {
+                secret_id: secret_id,
+                file_id: file_id,
+                node: node,
+                node_nonce: node_nonce,
+                public_title: public_title,
+                allowed_reads: allowed_reads,
+                passphrase: passphrase,
+                valid_till: valid_till
+            };
+            var headers = {
+                "Authorization": "Token " + token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#read_link_share
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax GET request to get a list of all created and still active link shares
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         *
+         * @returns {promise} Returns a promise with a list of all active link shares
+         */
+        var read_link_share = function (token, session_secret_key) {
+            var endpoint = '/link-share/';
+            var connection_type = "GET";
+            var data = null;
+
+            var headers = {
+                "Authorization": "Token " + token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#update_link_share
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax POST request to update a given link share
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} link_share_id The id of the link share
+         * @param {string} public_title The news public_title of the link share
+         * @param {int|null} allowed_reads The new amount of allowed access requests before this link secret becomes invalid
+         * @param {string|null} passphrase The new passphrase to protect the link secret
+         * @param {string|null} valid_till The new valid till time in iso format
+         *
+         * @returns {promise} Returns a promise which can succeed or fail
+         */
+        var update_link_share = function (token, session_secret_key, link_share_id, public_title, allowed_reads, passphrase, valid_till) {
+            var endpoint = '/link-share/';
+            var connection_type = "POST";
+            var data = {
+                link_share_id: link_share_id,
+                public_title: public_title,
+                allowed_reads: allowed_reads,
+                passphrase: passphrase,
+                valid_till: valid_till
+            };
+
+            var headers = {
+                "Authorization": "Token " + token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#delete_link_share
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax DELETE request to delete a given link share
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {uuid} link_share_id The link share id to delete
+         *
+         * @returns {promise} Returns a promise which can succeed or fail
+         */
+        var delete_link_share = function (token, session_secret_key, link_share_id) {
+            var endpoint = '/link-share/';
+            var connection_type = "DELETE";
+            var data = {
+                link_share_id: link_share_id
+            };
+
+            var headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Token " + token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#link_share_access
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax POST request with the token as authentication to access the secret behind a link share
+         *
+         * @param {uuid} link_share_id The link share id
+         * @param {string|null} [passphrase=null] (optional) The passphrase
+         *
+         * @returns {promise} promise
+         */
+        var link_share_access = function (link_share_id, passphrase) {
+            var endpoint = '/link-share-access/';
+            var connection_type = "POST";
+            var data = {
+                link_share_id: link_share_id,
+                passphrase: passphrase
+            };
+            var headers = null;
+
+            return call(connection_type, endpoint, data, headers);
+        };
+
         return {
             info: info,
             login: login,
@@ -3169,7 +3324,12 @@
             read_file: read_file,
             create_file: create_file,
             delete_account: delete_account,
-            read_shards: read_shards
+            read_shards: read_shards,
+            create_link_share: create_link_share,
+            read_link_share: read_link_share,
+            update_link_share: update_link_share,
+            delete_link_share: delete_link_share,
+            link_share_access: link_share_access
         };
     };
 

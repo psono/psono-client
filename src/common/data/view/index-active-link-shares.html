@@ -1,0 +1,50 @@
+<div class="container-fluid">
+    <div class="navi row">
+        <div class="location col-sm-8">
+            <!--
+            <span> <a href="#!/share/pendingshares">/share/pendingshares</a> </span>
+            -->
+        </div>
+        <div class="title col-sm-4">
+            <h1>{{'ACTIVE_LINK_SHARES' | translate}}</h1>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading clearfix">
+            <h3 class="panel-title">{{'ACTIVE_LINK_SHARES' | translate}}</h3>
+        </div>
+        <div class="panel-body in" aria-expanded="true" aria-hidden="false" style="height: auto;">
+
+            <table datatable="ng" class="row-border hover" dt-options="dtOptions" dt-column-defs="dtColumnDefs">
+                <thead>
+                <tr>
+                    <th>{{'PUBLIC_TITLE' | translate}}</th>
+                    <th>{{'VALID_TILL' | translate}}</th>
+                    <th>{{'ALLOWED_USAGE' | translate}}</th>
+                    <th>{{'EDIT' | translate}}</th>
+                    <th>{{'DELETE' | translate}}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="link_share in link_shares">
+                    <td>{{ link_share.public_title }}</td>
+                    <td>{{ link_share.valid_till | moment }}</td>
+                    <td>{{ link_share.allowed_reads }}</td>
+                    <td>
+                        <button type="button" class="btn btn-default btn-sm" ng-click="edit_link_share(link_share, link_shares)" alt="{{'EDIT' | translate}}">
+                            <i class="fa fa-wrench" aria-hidden="true"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-default btn-sm" ng-click="delete_link_share(link_share, link_shares)" alt="{{'DELETE' | translate}}">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>

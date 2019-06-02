@@ -77,9 +77,9 @@
          * @methodOf psonocli.managerAPIKeys
          *
          * @description
-         * Returns all api keys
+         * Returns all secrets of an api key
          *
-         * @returns {promise} Promise with the api keys
+         * @returns {promise} Promise with the secrets
          */
         var read_api_key_secrets = function(api_key_id) {
 

@@ -527,7 +527,7 @@
                         '    <li role="menuitem"' +
                         '       ng-class="::{hidden: node.share_rights.delete === false}"' +
                         '       ng-click="deleteNode(node, $event)">' +
-                        '       <a href="#"><i class="fa fa-trash"></i>{{::\'DELETE\' | translate}}</a>' +
+                        '       <a href="#" alt="{{\'DELETE\' | translate}}"><i class="fa fa-trash"></i>{{::\'DELETE\' | translate}}</a>' +
                         '    </li>' +
                         '</ul>' +
                         '</span>' +
@@ -573,7 +573,7 @@
                         '    <li role="menuitem"' +
                         '       ng-class="::{hidden: node.share_rights.delete === false}"' +
                         '       ng-click="deleteNode(node, $event)">' +
-                        '       <a href="#"><i class="fa fa-trash"></i>{{ ::\'DELETE\' | translate }}</a>' +
+                        '       <a href="#" alt="{{\'DELETE\' | translate}}"><i class="fa fa-trash"></i>{{ ::\'DELETE\' | translate }}</a>' +
                         '    </li>' +
                         '</ul>' +
                         '</div>'+
@@ -638,7 +638,7 @@
                         '    <li role="menuitem" ng-if="!offline"' +
                         '       ng-class="::{hidden: item.share_rights.delete === false}"' +
                         '       ng-click="deleteItem(item, $event)">' +
-                        '       <a href="#"><i class="fa fa-trash"></i>{{ ::\'DELETE\' | translate }}</a>' +
+                        '       <a href="#" alt="{{\'DELETE\' | translate}}"><i class="fa fa-trash"></i>{{ ::\'DELETE\' | translate }}</a>' +
                         '    </li>' +
                         '</ul>' +
                         '</span>' +
@@ -673,7 +673,7 @@
                         '    <li role="menuitem" ng-if="!offline"' +
                         '       ng-class="::{hidden: item.share_rights.delete === false}"' +
                         '       ng-click="deleteItem(item, $event)">' +
-                        '       <a href="#"><i class="fa fa-trash"></i>{{::\'DELETE\' | translate}}</a>' +
+                        '       <a href="#" alt="{{\'DELETE\' | translate}}"><i class="fa fa-trash"></i>{{::\'DELETE\' | translate}}</a>' +
                         '    </li>' +
                         '</ul>' +
                         '</div>'+

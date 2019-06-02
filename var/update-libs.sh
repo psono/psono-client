@@ -51,6 +51,11 @@ wget https://code.angularjs.org/1.7.7/angular-touch.min.js.map -O src/common/dat
 wget https://code.angularjs.org/1.7.7/angular-csp.css -O src/common/data/css/lib/angular-csp.css
 wget https://code.angularjs.org/1.7.7/angular-mocks.js -O unittests/data/js/lib/angular-mocks.js
 
+wget https://raw.githubusercontent.com/moment/moment/2.24.0/min/moment-with-locales.min.js -O src/common/data/js/lib/moment-with-locales.min.js
+wget https://raw.githubusercontent.com/Eonasdan/bootstrap-datetimepicker/v4.17.45/build/js/bootstrap-datetimepicker.min.js -O src/common/data/js/lib/bootstrap-datetimepicker.min.js
+wget https://raw.githubusercontent.com/Eonasdan/bootstrap-datetimepicker/v4.17.45/build/css/bootstrap-datetimepicker.min.css -O src/common/data/css/lib/bootstrap-datetimepicker.min.css
+wget https://raw.githubusercontent.com/atais/angular-eonasdan-datetimepicker/0.3.9/dist/angular-eonasdan-datetimepicker.min.js -O src/common/data/js/lib/angular-eonasdan-datetimepicker.min.js
+
 wget https://raw.githubusercontent.com/Kraku/angular-complexify/master/build/angular-complexify.min.js -O src/common/data/js/lib/angular-complexify.min.js
 wget https://raw.githubusercontent.com/grevory/angular-local-storage/master/dist/angular-local-storage.min.js -O src/common/data/js/lib/angular-local-storage.min.js
 wget https://raw.githubusercontent.com/techfort/LokiJS/master/build/lokijs.min.js -O src/common/data/js/lib/lokijs.min.js

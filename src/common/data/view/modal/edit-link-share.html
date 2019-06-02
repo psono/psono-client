@@ -1,0 +1,86 @@
+<form name="createLinkShareForm" novalidate autocomplete="off">
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title" ng-if="!state.link_share_access_url">{{'EDIT_LINK_SHARE' | translate}}</h3>
+    </div>
+    <div class="modal-body" ng-if="!state.link_share_access_url">
+
+        <!--
+        <div class="row" style="font-weight: bold">
+            <div class="col-md-4"  ng-repeat="right in rights">
+                {{ right.name }}
+            </div>
+        </div>
+        -->
+
+        <div class="row">
+            <div class="col-xs-12 col-sm-4" for="public_title" style="margin-top: 8px">{{'PUBLIC_TITLE' | translate}}</div>
+            <div class="col-xs-12 col-sm-8">
+                <input type="text" name="public_title" class="form-control" id="public_title" placeholder="" ng-model="state.public_title">
+                <p class="small">{{'INFO_PUBLIC_TITLE_WILL_BE_VISIBLE' | translate}}</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12 col-sm-4" for="allowed_reads" style="margin-top: 8px">{{'ALLOWED_USAGE' | translate}}</div>
+            <div class="col-xs-12 col-sm-8">
+                <input type="number" min="1" name="allowed_reads" class="form-control" id="allowed_reads" placeholder="" ng-model="state.allowed_reads">
+                <p class="small">{{'INFO_HOW_OFTEN_CAN_LINK_SHARE_BE_USED' | translate}}</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12 col-sm-4" for="valid_till" style="margin-top: 8px">{{'VALID_TILL' | translate}}</div>
+            <div class="col-xs-12 col-sm-8">
+                <div class="input-group" datetimepicker ng-model="state.valid_till" options="datepicker.options">
+                    <input class="form-control"/>
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                </div>
+                <p class="small">{{'INFO_HOW_LONG_CAN_LINK_SHARE_BE_USED' | translate}}</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12 col-sm-4" for="valid_till">{{'CHANGE_PASSPHRASE' | translate}}</div>
+            <div class="col-xs-12 col-sm-8">
+                <input type="checkbox" ng-model="state.change_passphrase">
+            </div>
+        </div>
+
+        <div class="row" ng-if="state.change_passphrase">
+            <div class="col-xs-12 col-sm-4" for="passphrase" style="margin-top: 8px">{{'PASSPHRASE' | translate}}</div>
+            <div class="col-xs-12 col-sm-8">
+                <input type="password" name="passphrase" class="form-control" id="passphrase" placeholder="" ng-model="state.passphrase">
+
+                <uib-progressbar value="state.passphrase | complexify" ng-if="(state.passphrase | complexify) > 0">
+                    <span complexify="state.passphrase"></span>%
+                    <span complexify="state.passphrase" type="verbal"></span>
+                </uib-progressbar>
+
+                <p class="small">{{'SHARE_LINK_PASSPHRASE_INFO' | translate}}</p>
+            </div>
+        </div>
+
+        <div class="row" ng-if="state.change_passphrase && state.passphrase">
+            <div class="col-xs-12 col-sm-4" for="passphrase_repeat" style="margin-top: 8px">{{'PASSPHRASE_REPEAT' | translate}}</div>
+            <div class="col-xs-12 col-sm-8">
+                <input type="password" name="passphrase_repeat" class="form-control" id="passphrase_repeat" placeholder="" ng-model="state.passphrase_repeat">
+            </div>
+        </div>
+
+
+
+        <div class="alert alert-danger" ng-repeat="e in errors">
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
+        </div>
+
+        <div class="form-group alert alert-info" ng-repeat="e in msgs">
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
+        </div>
+
+    </div>
+    <div class="modal-footer" ng-if="!state.link_share_access_url">
+        <button class="btn" type="button" ng-click="cancel();">{{'CANCEL' | translate}}</button>
+        <button class="btn btn-primary" type="button" ng-click="submitted=true; edit();">{{'EDIT' | translate}}</button>
+    </div>
+</form>

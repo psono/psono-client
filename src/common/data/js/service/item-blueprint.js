@@ -342,12 +342,13 @@
                  * @param file_repository
                  * @param file
                  * @param file_transfer_id
+                 * @param {string} file_transfer_secret_key The hex encoded secret key for the file transfer
                  * @param file_secret_key
                  * @param file_chunk_size
                  *
                  * @returns {promise} Promise with the chunks uploaded
                  */
-                function multi_chunk_upload(shard, file_repository, file, file_transfer_id, file_secret_key, file_chunk_size) {
+                function multi_chunk_upload(shard, file_repository, file, file_transfer_id, file_transfer_secret_key, file_secret_key, file_chunk_size) {
 
                     var on_load_end = function(bytes, chunk_size, file_secret_key, chunk_position, resolve) {
                         cryptoLibrary.encrypt_file(bytes, file_secret_key).then(function(encrypted_bytes) {
@@ -357,7 +358,7 @@
 
                             registrations['upload_step_complete']('UPLOADING_FILE_CHUNK');
 
-                            managerFileTransfer.upload(new Blob([encrypted_bytes], {type: 'application/octet-stream'}), file_transfer_id, chunk_size, chunk_position, shard, file_repository, hash_checksum).then(function() {
+                            managerFileTransfer.upload(new Blob([encrypted_bytes], {type: 'application/octet-stream'}), file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, shard, file_repository, hash_checksum).then(function() {
                                 return resolve({
                                     'chunk_position': chunk_position,
                                     'hash_checksum': hash_checksum
@@ -486,7 +487,7 @@
                 }
 
                 var onSuccess = function(data){
-                    return multi_chunk_upload(shard, file_repository, file, data['file_transfer_id'], file_secret_key, file_chunk_size).then(function(chunks) {
+                    return multi_chunk_upload(shard, file_repository, file, data['file_transfer_id'], data['file_transfer_secret_key'], file_secret_key, file_chunk_size).then(function(chunks) {
                         for (var i = 0; i < selected.fields.length; i++) {
                             if (selected.fields[i].name === 'file_chunks') {
                                 selected.fields[i].value = chunks;
@@ -1064,6 +1065,51 @@
                             },
                             path: function () {
                                 return path;
+                            }
+                        }
+                    });
+
+                    // User clicked the final share button
+                    modalInstance.result.then(on_modal_close_success, function () {
+                        // cancel triggered
+                    });
+                }
+            },
+            link_share: {
+                id: 'link_share',
+                name: 'LINK_SHARE',
+                icon: 'fa fa-link',
+                hide_offline: true,
+                ngClass: function(item) {
+                    if (!item.hasOwnProperty('type')) {
+                        return 'hidden';
+                    }
+                    if (item.hasOwnProperty('share_rights') && item.share_rights.grant === false) {
+                        return 'hidden';
+                    }
+                },
+                onClick: function(item, path) {
+
+                    if (item.hasOwnProperty('share_rights') && item.share_rights.grant === false) {
+                        return;
+                    }
+
+                    /**
+                     * User clicked the "Create" button
+                     *
+                     * @param content
+                     */
+                    var on_modal_close_success = function (content) {
+                        console.log(content)
+                    };
+
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'view/modal/create-link-share.html',
+                        controller: 'ModalCreateLinkShareCtrl',
+                        backdrop: 'static',
+                        resolve: {
+                            node: function () {
+                                return item;
                             }
                         }
                     });

@@ -55,19 +55,19 @@
          * Ajax POST request to upload a file chunk
          *
          * @param {string} fileserver_url The url of the target fileserver
-         * @param {string} token The token of the user
+         * @param {string} file_transfer_id The file transfer id
          * @param {Blob} chunk The content of the chunk to upload
          * @param {string} ticket The ticket to authenticate the upload
          * @param {string} ticket_nonce The nonce of the ticket
          *
          * @returns {promise} promise
          */
-        var upload = function (fileserver_url, token, chunk, ticket, ticket_nonce) {
+        var upload = function (fileserver_url, file_transfer_id, chunk, ticket, ticket_nonce) {
 
             var endpoint = '/upload/';
             var connection_type = "POST";
             var data = new FormData();
-            data.append('token', token);
+            data.append('file_transfer_id', file_transfer_id);
             data.append('chunk', chunk);
             data.append('ticket', ticket);
             data.append('ticket_nonce', ticket_nonce);
@@ -87,18 +87,18 @@
          * Ajax POST request to download a file chunk
          *
          * @param {string} fileserver_url The url of the target fileserver
-         * @param {string} token The token of the user
+         * @param {string} file_transfer_id The file transfer id
          * @param {string} ticket The ticket to authenticate the download
          * @param {string} ticket_nonce The nonce of the ticket
          *
          * @returns {promise} promise
          */
-        var download = function (fileserver_url, token, ticket, ticket_nonce) {
+        var download = function (fileserver_url, file_transfer_id, ticket, ticket_nonce) {
 
             var endpoint = '/download/';
             var connection_type = "POST";
             var data = {
-                token: token,
+                file_transfer_id: file_transfer_id,
                 ticket: ticket,
                 ticket_nonce: ticket_nonce
             };

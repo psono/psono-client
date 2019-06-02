@@ -6,6 +6,7 @@ self.addEventListener('install', function(event) {
             return cache.addAll([
                 './',
                 './activate.html',
+                './link-share-access.html',
                 './config.json',
                 './enforce-two-fa.html',
                 './index.html',
