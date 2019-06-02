@@ -5,7 +5,7 @@
   "UNKNOW_FILE_REPOSITORY_TYPE": "Unknown file repository type",
   "EITHER_SECRET_OR_FILE_REQUIRED_NOT_BOTH": "Either secret or file required, not both",
   "EITHER_SECRET_OR_FILE_REQUIRED": "Either secret or file required",
-  "ENTER_PASSPHRASE": "Enter your passphrase:",
+  "ENTER_PASSPHRASE": "Enter the passphrase:",
   "PASSPHRASE_REQUIRED": "Passphrase required",
   "VALID_TILL_CANNOT_BE_IN_THE_PAST": "'Valid till' cannot be in the past.",
   "CHANGE_PASSPHRASE": "Change passphrase",

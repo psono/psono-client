@@ -5,7 +5,7 @@
   "UNKNOW_FILE_REPOSITORY_TYPE": "Unbekannter file repository typ",
   "EITHER_SECRET_OR_FILE_REQUIRED_NOT_BOTH": "Entweder Secret oder Datei erforderlich. nicht beides",
   "EITHER_SECRET_OR_FILE_REQUIRED": "Entweder Secret oder Datei erforderlich",
-  "ENTER_PASSPHRASE": "Geben sie ihre Passphrase ein:",
+  "ENTER_PASSPHRASE": "Geben sie die Passphrase ein:",
   "PASSPHRASE_REQUIRED": "Passphrase erforderlich",
   "VALID_TILL_CANNOT_BE_IN_THE_PAST": "'Gültig bis' kann nicht in der Vergangenheit liegen.",
   "CHANGE_PASSPHRASE": "Passphrase editieren",
