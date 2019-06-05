@@ -113,6 +113,26 @@
                     return;
                 }
 
+                if ($scope.file_repository.type === 'do_spaces' && !$scope.file_repository['do_space']) {
+                    $scope.errors.push('SPACE_IS_REQUIRED');
+                    return;
+                }
+
+                if ($scope.file_repository.type === 'do_spaces' && !$scope.file_repository['do_region']) {
+                    $scope.errors.push('REGION_IS_REQUIRED');
+                    return;
+                }
+
+                if ($scope.file_repository.type === 'do_spaces' && !$scope.file_repository['do_key']) {
+                    $scope.errors.push('KEY_IS_REQUIRED');
+                    return;
+                }
+
+                if ($scope.file_repository.type === 'do_spaces' && !$scope.file_repository['do_secret']) {
+                    $scope.errors.push('SECRET_IS_REQUIRED');
+                    return;
+                }
+
                 if ($scope.modalEditFileRepositoryForm.$invalid) {
                     return;
                 }
@@ -135,7 +155,11 @@
                     $scope.file_repository['aws_s3_bucket'],
                     $scope.file_repository['aws_s3_region'],
                     $scope.file_repository['aws_s3_access_key_id'],
-                    $scope.file_repository['aws_s3_secret_access_key']
+                    $scope.file_repository['aws_s3_secret_access_key'],
+                    $scope.file_repository['do_space'],
+                    $scope.file_repository['do_region'],
+                    $scope.file_repository['do_key'],
+                    $scope.file_repository['do_secret']
                 )
                     .then(onSuccess, onError);
             }

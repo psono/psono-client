@@ -2319,10 +2319,17 @@
          * @param {string} [aws_s3_region] (optional) The s3 region
          * @param {string} [aws_s3_access_key_id] (optional) The s3 access key
          * @param {string} [aws_s3_secret_access_key] (optional) The s3 secret key
+         * @param {string} [do_space] (optional) The digital ocean space
+         * @param {string} [do_region] (optional) The digital ocean region
+         * @param {string} [do_key] (optional) The digital ocean key
+         * @param {string} [do_secret] (optional) The digital ocean secret
          *
          * @returns {promise} promise
          */
-        var create_file_repository = function (token, session_secret_key, title, type, gcp_cloud_storage_bucket, gcp_cloud_storage_json_key, aws_s3_bucket, aws_s3_region, aws_s3_access_key_id, aws_s3_secret_access_key) {
+        var create_file_repository = function (token, session_secret_key, title, type,
+                                               gcp_cloud_storage_bucket, gcp_cloud_storage_json_key,
+                                               aws_s3_bucket, aws_s3_region, aws_s3_access_key_id, aws_s3_secret_access_key,
+                                               do_space, do_region, do_key, do_secret) {
 
             var endpoint = '/file-repository/';
             var connection_type = "PUT";
@@ -2334,7 +2341,11 @@
                 aws_s3_bucket: aws_s3_bucket,
                 aws_s3_region: aws_s3_region,
                 aws_s3_access_key_id: aws_s3_access_key_id,
-                aws_s3_secret_access_key: aws_s3_secret_access_key
+                aws_s3_secret_access_key: aws_s3_secret_access_key,
+                do_space: do_space,
+                do_region: do_region,
+                do_key: do_key,
+                do_secret: do_secret
             };
 
             var headers = {
@@ -2363,11 +2374,18 @@
          * @param {string} [aws_s3_region] (optional) The s3 region
          * @param {string} [aws_s3_access_key_id] (optional) The s3 access key
          * @param {string} [aws_s3_secret_access_key] (optional) The s3 secret key
+         * @param {string} [do_space] (optional) The digital ocean space
+         * @param {string} [do_region] (optional) The digital ocean region
+         * @param {string} [do_key] (optional) The digital ocean key
+         * @param {string} [do_secret] (optional) The digital ocean secret
          * @param {bool} active Active or not
          *
          * @returns {promise} Returns a promise which can succeed or fail
          */
-        var update_file_repository = function (token, session_secret_key, file_repository_id, title, type, gcp_cloud_storage_bucket, gcp_cloud_storage_json_key, active, aws_s3_bucket, aws_s3_region, aws_s3_access_key_id, aws_s3_secret_access_key) {
+        var update_file_repository = function (token, session_secret_key, file_repository_id, title, type,
+                                               gcp_cloud_storage_bucket, gcp_cloud_storage_json_key, active,
+                                               aws_s3_bucket, aws_s3_region, aws_s3_access_key_id, aws_s3_secret_access_key,
+                                               do_space, do_region, do_key, do_secret) {
             var endpoint = '/file-repository/';
             var connection_type = "POST";
             var data = {
@@ -2380,7 +2398,11 @@
                 aws_s3_bucket: aws_s3_bucket,
                 aws_s3_region: aws_s3_region,
                 aws_s3_access_key_id: aws_s3_access_key_id,
-                aws_s3_secret_access_key: aws_s3_secret_access_key
+                aws_s3_secret_access_key: aws_s3_secret_access_key,
+                do_space: do_space,
+                do_region: do_region,
+                do_key: do_key,
+                do_secret: do_secret
             };
 
             var headers = {

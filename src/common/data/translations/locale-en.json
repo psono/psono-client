@@ -1,4 +1,8 @@
 {
+  "SECRET": "Secret",
+  "SPACE": "Space",
+  "KEY_IS_REQUIRED": "The key is required",
+  "SECRET_IS_REQUIRED": "The secret is required",
   "ACCOUNT_NOT_VERIFIED": "Account not verified",
   "USER_INACTIVE_OR_DELETED": "User inactive or deleted",
   "FILE_TRANSFER_INVALID": "File transfer invalid",
@@ -67,6 +71,7 @@
   "UNKNOWN_TYPE": "Unknown type",
   "JSON_KEY_IS_INVALID": "JSON key is invalid",
   "TYPE_IS_REQUIRED": "Type is required",
+  "SPACE_IS_REQUIRED": "Space is required",
   "BUCKET_IS_REQUIRED": "Bucket is required",
   "REGION_IS_REQUIRED": "Region is required",
   "REGION_IS_INVALID": "Region is invalid",
