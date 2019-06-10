@@ -48,18 +48,14 @@
                 "../src/common/data/js/lib/angular-ui-select.js",
                 "../src/common/data/js/lib/ng-context-menu.js",
                 "../src/common/data/js/lib/angular-datatables.js",
-
                 "../src/common/data/js/module/ng-tree.js",
-
                 "../src/common/data/js/main.js",
                 "../src/common/data/js/service-worker-load.js",
                 "../src/common/data/js/crypto-worker.js",
-
                 "../src/common/data/js/directive/autoFocus.js",
                 "../src/common/data/js/directive/fileReader.js",
                 "../src/common/data/js/directive/treeView.js",
                 "../src/common/data/js/directive/treeViewNode.js",
-
                 "../src/common/data/js/controller/AcceptShareCtrl.js",
                 "../src/common/data/js/controller/ChooseFolderCtrl.js",
                 "../src/common/data/js/controller/ChooseSecretsCtrl.js",
@@ -202,18 +198,31 @@
                 '../src/**/!(*lib)/*.js': ['coverage']
             },
             coverageReporter: {
-                type : 'html',
+                type : 'text-summary',
                 dir : 'coverage/'
             },
             reporters: ['progress', 'coverage'],
             port: 9876,
             colors: true,
+            browserNoActivityTimeout: 100000,
             logLevel: config.LOG_INFO,
             autoWatch: true,
-            browsers: ['Chrome'],
+            browsers: ['Chromium_headless'],
             singleRun: true,
+            customLaunchers: {
+                Chromium_headless: {
+                    base: 'Chromium',
+                    flags: [
+                        '--disable-gpu',
+                        '--headless',
+                        '--no-sandbox',
+                        '--remote-debugging-port=9222'
+                    ]
+                }
+            },
             concurrency: Infinity
         });
     };
 
 }).call(this);
+

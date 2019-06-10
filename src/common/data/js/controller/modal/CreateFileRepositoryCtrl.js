@@ -121,6 +121,39 @@
                     return;
                 }
 
+                if ($scope.selected_type === 'do_spaces' && !$scope.storage_config['do_space']) {
+                    $scope.errors.push('SPACE_IS_REQUIRED');
+                    return;
+                }
+
+                if ($scope.selected_type === 'do_spaces' && !$scope.storage_config['do_region']) {
+                    $scope.errors.push('REGION_IS_REQUIRED');
+                    return;
+                }
+
+                var do_spaces_regions = [
+                    'ams3',
+                    'fra1',
+                    'nyc3',
+                    'sfo2',
+                    'sgp1'
+                ];
+
+                if ($scope.selected_type === 'do_spaces' && do_spaces_regions.indexOf($scope.storage_config['do_region']) === -1) {
+                    $scope.errors.push('REGION_IS_INVALID');
+                    return;
+                }
+
+                if ($scope.selected_type === 'do_spaces' && !$scope.storage_config['do_key']) {
+                    $scope.errors.push('KEY_IS_REQUIRED');
+                    return;
+                }
+
+                if ($scope.selected_type === 'do_spaces' && !$scope.storage_config['do_secret']) {
+                    $scope.errors.push('SECRET_IS_REQUIRED');
+                    return;
+                }
+
 
                 if ($scope.modalCreateFileRepositoryForm.$invalid) {
                     return;
@@ -141,7 +174,11 @@
                     $scope.storage_config['aws_s3_bucket'],
                     $scope.storage_config['aws_s3_region'],
                     $scope.storage_config['aws_s3_access_key_id'],
-                    $scope.storage_config['aws_s3_secret_access_key']
+                    $scope.storage_config['aws_s3_secret_access_key'],
+                    $scope.storage_config['do_space'],
+                    $scope.storage_config['do_region'],
+                    $scope.storage_config['do_key'],
+                    $scope.storage_config['do_secret']
                 )
                     .then(onSuccess, onError);
             }

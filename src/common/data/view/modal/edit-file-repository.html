@@ -14,7 +14,7 @@
                         <input type="text" name="title" class="form-control" id="folderName" placeholder="{{'TITLE' | translate}}" ng-model="file_repository.title" required autofocus>
                         <p class="help-block" ng-show="submitted && modalEditFileRepositoryForm.title.$error.required">{{'TITLE_IS_REQUIRED' | translate}}</p>
                     </div>
-                    <pre>{{ file_repository | json }}</pre>
+
                     <div class="form-group">
                         <select class="form-control" ng-model="file_repository.type">
                             <option ng-repeat="x in types" value="{{x.value}}">{{x.title}}</option>
@@ -35,7 +35,6 @@
                         </div>
                     </div>
 
-
                     <div ng-if="file_repository.type === 'aws_s3'">
                         <div class="form-group">
                             <input type="text" name="aws_s3_bucket" class="form-control" id="aws_s3_bucket" placeholder="{{'BUCKET' | translate}}" ng-model="file_repository.aws_s3_bucket">
@@ -48,6 +47,22 @@
                         </div>
                         <div class="form-group">
                             <input type="text" name="aws_s3_secret_access_key" class="form-control" id="aws_s3_secret_access_key" placeholder="{{'SECRET_ACCESS_KEY' | translate}}" ng-model="file_repository.aws_s3_secret_access_key">
+                        </div>
+                    </div>
+
+
+                    <div ng-if="file_repository.type === 'do_spaces'">
+                        <div class="form-group">
+                            <input type="text" name="do_space" class="form-control" id="do_space" placeholder="{{'SPACE' | translate}}" ng-model="file_repository.do_space">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="do_region" class="form-control" id="do_region" placeholder="{{'REGION' | translate}}" ng-model="file_repository.do_region">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="do_key" class="form-control" id="do_key" placeholder="{{'KEY' | translate}}" ng-model="file_repository.do_key">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="do_secret" class="form-control" id="do_secret" placeholder="{{'SECRET' | translate}}" ng-model="file_repository.do_secret">
                         </div>
                     </div>
 

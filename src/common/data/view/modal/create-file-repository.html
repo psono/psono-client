@@ -45,6 +45,22 @@
             </div>
         </div>
 
+
+        <div ng-if="selected_type === 'do_spaces'">
+            <div class="form-group">
+                <input type="text" name="do_space" class="form-control" id="do_space" placeholder="{{'SPACE' | translate}}" ng-model="storage_config.do_space">
+            </div>
+            <div class="form-group">
+                <input type="text" name="do_region" class="form-control" id="do_region" placeholder="{{'REGION' | translate}}" ng-model="storage_config.do_region">
+            </div>
+            <div class="form-group">
+                <input type="text" name="do_key" class="form-control" id="do_key" placeholder="{{'KEY' | translate}}" ng-model="storage_config.do_key">
+            </div>
+            <div class="form-group">
+                <input type="text" name="do_secret" class="form-control" id="do_secret" placeholder="{{'SECRET' | translate}}" ng-model="storage_config.do_secret">
+            </div>
+        </div>
+
         <div class="form-group alert alert-danger" ng-repeat="e in errors">
             <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e  | translate}}"></span>
         </div>
