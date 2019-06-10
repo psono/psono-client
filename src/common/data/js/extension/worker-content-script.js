@@ -450,10 +450,23 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      */
     function on_return_secret (data) {
 
+        var fill_field_helper = function(field, value) {
+            field.value = value;
+
+            // jQuery event triggering is not working for angular apps
+            if ("createEvent" in document) {
+                var evt = document.createEvent("HTMLEvents");
+                evt.initEvent("change", false, true);
+                field.dispatchEvent(evt);
+            } else {
+                field.fireEvent("onchange");
+            }
+        };
+
         for (var i = 0; i < myForms.length; i++) {
             if (myForms[i].username.isEqualNode(last_request_element) || myForms[i].password.isEqualNode(last_request_element)) {
-                myForms[i].username.value = data.website_password_username;
-                myForms[i].password.value = data.website_password_password;
+                fill_field_helper(myForms[i].username, data.website_password_username);
+                fill_field_helper(myForms[i].password, data.website_password_password);
 
                 for (var ii = 0; ii < dropInstances.length; ii++) {
                     dropInstances[ii].close();
