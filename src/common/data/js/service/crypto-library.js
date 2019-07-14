@@ -94,7 +94,12 @@
             var l = 64; // 64 Bytes = 512 Bits
             var k;
 
+            console.log(password);
+            console.log(salt);
+
             var lookup_hash = sha512(password) + sha512(salt);
+
+            console.log(lookup_hash);
 
             if (scrypt_lookup_table.hasOwnProperty(lookup_hash)) {
                 k = scrypt_lookup_table[lookup_hash];
