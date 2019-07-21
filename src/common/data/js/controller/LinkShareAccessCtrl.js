@@ -251,7 +251,7 @@
             function initiate_link_share_access(remember, trust_device, two_fa_redirect) {
 
                 var onError = function() {
-                    $scope.errors = ['Server offline.']
+                    $scope.errors = ['SERVER_OFFLINE']
                 };
 
                 var onSuccess = function(server_check) {

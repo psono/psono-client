@@ -229,7 +229,7 @@
                     if (data.hasOwnProperty('data') && data.data.hasOwnProperty('non_field_errors')) {
                         $scope.errors = data.data.non_field_errors;
                     } else if (!data.hasOwnProperty('data')) {
-                        $scope.errors = ['Server offline.'];
+                        $scope.errors = ['SERVER_OFFLINE'];
                     } else {
                         alert("Error, should not happen.");
                     }

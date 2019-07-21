@@ -136,7 +136,7 @@
                         $scope.success = true;
                     } else {
                         if (data.error_data === null) {
-                            $scope.errors.push('Server offline.');
+                            $scope.errors.push('SERVER_OFFLINE');
                         } else {
                             for (var property in data.error_data) {
                                 if (data.error_data.hasOwnProperty(property)) {

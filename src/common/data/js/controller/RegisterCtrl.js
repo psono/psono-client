@@ -129,7 +129,7 @@
                     } else {
                         // handle server is offline
                         if (data.error_data === null) {
-                            $scope.errors.push('Server offline.');
+                            $scope.errors.push('SERVER_OFFLINE');
                             return;
                         }
 
@@ -157,7 +157,7 @@
 
                 test_result = helper.is_valid_email(email);
                 if (test_result !== true) {
-                    $scope.errors.push("Invalid Email provided");
+                    $scope.errors.push("INVALID_EMAIL_FORMAT");
                     return;
                 }
 

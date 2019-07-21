@@ -287,7 +287,7 @@
 
 
                 var onError = function() {
-                    $scope.errors = ['Server offline.']
+                    $scope.errors = ['SERVER_OFFLINE']
                 };
 
                 var onSuccess = function(server_check) {
@@ -305,7 +305,7 @@
                             } else if (data.hasOwnProperty('data') && data.data.hasOwnProperty('detail')) {
                                 $scope.errors = [data.data.detail];
                             } else if (!data.hasOwnProperty('data')) {
-                                $scope.errors = ['Server offline.'];
+                                $scope.errors = ['SERVER_OFFLINE'];
                             } else {
                                 alert("Error, should not happen.");
                             }

@@ -137,7 +137,7 @@
          * @description
          * Ajax GET request to get the server info
          *
-         * @returns {promise} promise
+         * @returns {promise} Returns a promise with server's public information
          */
         var info = function () {
 
