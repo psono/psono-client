@@ -274,7 +274,7 @@
          *
          * @returns {promise} Promise with the datastore's content
          */
-        var get_datastore = function(type, id) {
+            var get_datastore = function(type, id) {
 
             var onError = function(result) {
                 // pass
