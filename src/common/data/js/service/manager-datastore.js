@@ -85,11 +85,11 @@
 
                 var datastore_id = '';
                 for (var i = 0; i < stores.length; i++) {
-                    if (stores[i].type === type && stores[i].is_default) {
-                        datastore_id = stores[i].id
+                    if (stores[i].type !== type || !stores[i].is_default) {
+                        continue;
                     }
+                    return stores[i].id
                 }
-
                 return datastore_id
             };
             var onError = function () {
@@ -177,6 +177,9 @@
                     if (is_default) {
                         // New datastore is the new default, so update the existing list
                         for (var i = 0; i < temp_datastore_overview.data.datastores.length; i++) {
+                            if (temp_datastore_overview.data.datastores[i].type !== type) {
+                                continue;
+                            }
                             temp_datastore_overview.data.datastores[i].is_default = false;
                         }
                     }
@@ -274,7 +277,7 @@
          *
          * @returns {promise} Promise with the datastore's content
          */
-            var get_datastore = function(type, id) {
+        var get_datastore = function(type, id) {
 
             var onError = function(result) {
                 // pass
