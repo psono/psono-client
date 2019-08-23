@@ -169,10 +169,7 @@
             $httpBackend.when('POST', "https://www.psono.pw/server/authentication/logout/").respond(
                 function(method, url, data, headers, params) {
                     // Validate request parameters:
-                    data = JSON.parse(data);
-
-                    // will fail for everything that is no ISO date and return NAN which is not bigger than 0
-                    expect(Date.parse(data.request_time) > 0).toBeTruthy();
+                    expect(data === JSON.stringify({})).toBeTruthy();
 
                     expect(headers.Authorization).toEqual('Token ' + token);
                     expect(headers['Authorization-Validator']).toEqual(jasmine.any(String));
@@ -198,8 +195,6 @@
                     data = JSON.parse(data);
 
                     expect(data.session_id).toEqual(session_id);
-                    // will fail for everything that is no ISO date and return NAN which is not bigger than 0
-                    expect(Date.parse(data.request_time) > 0).toBeTruthy();
 
                     expect(headers.Authorization).toEqual('Token ' + token);
                     expect(headers['Authorization-Validator']).toEqual(jasmine.any(String));

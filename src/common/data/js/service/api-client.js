@@ -44,9 +44,6 @@
             var backend = server['value']['url'];
 
             if (session_secret_key && data !== null) {
-                // TODO remove later once all servers have the new REPLAY PROTECTION mechanism
-                data['request_time'] = new Date().toISOString();
-
                 data = cryptoLibrary.encrypt_data(JSON.stringify(data), session_secret_key);
             }
 
@@ -137,7 +134,7 @@
          * @description
          * Ajax GET request to get the server info
          *
-         * @returns {promise} promise
+         * @returns {promise} Returns a promise with server's public information
          */
         var info = function () {
 
@@ -764,7 +761,7 @@
          * @param {string} session_secret_key The session secret key
          * @param {uuid|undefined} [datastore_id=null] (optional) the datastore ID
          *
-         * @returns {promise} promise
+         * @returns {promise} Returns a promise with the encrypted datastore
          */
         var read_datastore = function (token, session_secret_key, datastore_id) {
             var endpoint = '/datastore/' + ( !datastore_id ? '' : datastore_id + '/');

@@ -39,7 +39,7 @@
             autosubmit_field: "website_password_auto_submit", // is the filter column for auto submit
             search: ['website_password_title', 'website_password_url_filter'], // are searched when the user search his entries
             fields: [ // All fields for this object with unique names
-                { name: "website_password_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true},
+                { name: "website_password_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true, error_message_required: 'TITLE_IS_REQUIRED' },
                 { name: "website_password_url", field: "input", type: "text", validationType: "url", title: "URL", placeholder: "URL", onChange: "onChangeUrl"},
                 { name: "website_password_username", field: "input", type: "text", title: "USERNAME", placeholder: "USERNAME"},
                 { name: "website_password_password", field: "input", type: "password", title: "PASSWORD", placeholder: "PASSWORD",
@@ -150,7 +150,7 @@
             title_field: "note_title",
             search: ['note_title'],
             fields: [
-                { name: "note_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true},
+                { name: "note_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true, error_message_required: 'TITLE_IS_REQUIRED'},
                 { name: "note_notes", field: "textarea", title: "NOTES", placeholder: "NOTES"}
             ]
         };
@@ -161,8 +161,8 @@
             title_field: "file_title",
             search: ['file_title'],
             fields: [
-                { name: "file_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true},
-                { name: "file", field: "input", type: "file", title: "FILE", placeholder: "FILE", required: true, onChange: "onChangeData", hidden_edit: true},
+                { name: "file_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true, error_message_required: 'TITLE_IS_REQUIRED'},
+                { name: "file", field: "input", type: "file", title: "FILE", placeholder: "FILE", required: true, onChange: "onChangeData", hidden_edit: true, error_message_required: 'FILE_IS_REQUIRED'},
                 { name: "file_id", field: "input", title: "FILE_ID", placeholder: "FILE_ID", hidden: true},
                 { name: "file_shard_id", field: "input", title: "FILE_SHARD_ID", placeholder: "FILE_SHARD_ID", hidden: true},
                 { name: "file_repository_id", field: "input", title: "FILE_REPOSITORY_ID", placeholder: "FILE_REPOSITORY_ID", hidden: true},
@@ -563,7 +563,7 @@
             title_field: "mail_gpg_own_key_title",
             search: ['mail_gpg_own_key_title', 'mail_gpg_own_key_email'],
             fields: [
-                { name: "mail_gpg_own_key_title", field: "input", type: "text", title: "TITLE", hidden: true, placeholder: "TITLE", required: true},
+                { name: "mail_gpg_own_key_title", field: "input", type: "text", title: "TITLE", hidden: true, placeholder: "TITLE", required: true, error_message_required: 'TITLE_IS_REQUIRED'},
                 { name: "mail_gpg_own_key_email", field: "input", type: "text", title: "EMAIL", placeholder: "EMAIL", hidden: true, readonly: true},
                 { name: "mail_gpg_own_key_name", field: "input", type: "text", title: "NAME", placeholder: "NAME", hidden: true, readonly: true},
                 { name: "mail_gpg_own_key_public", field: "textarea", title: "PUBLIC_KEY", placeholder: "PUBLIC_KEY", hidden: true, readonly: true},
@@ -768,7 +768,7 @@
             urlfilter_field: "bookmark_url_filter", // is the filter column for url matching
             search: ['bookmark_title', 'bookmark_url_filter'], // are searched when the user search his entries
             fields: [ // All fields for this object with unique names
-                { name: "bookmark_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true},
+                { name: "bookmark_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true, error_message_required: 'TITLE_IS_REQUIRED'},
                 { name: "bookmark_url", field: "input", type: "text", validationType: "url", title: "URL", placeholder: "URL", onChange: "onChangeUrl"},
                 { name: "bookmark_notes", field: "textarea", title: "NOTES", placeholder: "NOTES"},
                 { name: "bookmark_url_filter", field: "textarea", title: "DOMAIN_FILTER", placeholder: "URL_FILTER_EG", position: "advanced"}

@@ -216,6 +216,7 @@
                         '--disable-gpu',
                         '--headless',
                         '--no-sandbox',
+                        '--disable-dev-shm-usage',
                         '--remote-debugging-port=9222'
                     ]
                 }

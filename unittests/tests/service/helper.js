@@ -30,7 +30,8 @@
                 authority: 'example.com',
                 full_domain: 'example.com',
                 top_domain: 'example.com',
-                port: null, path: '/url-part/',
+                port: null,
+                path: '/url-part/',
                 query: undefined,
                 fragment: 'is-not-part'
             });
@@ -49,7 +50,7 @@
             });
         }));
 
-        it('parse_url sub domain', inject(function (helper) {
+        it('parse_url sub domain with port', inject(function (helper) {
             expect(helper.parse_url('http://test.example.com:6000/url-part/#is-not-part')).toEqual({
                 scheme: 'http',
                 authority: 'test.example.com:6000',
