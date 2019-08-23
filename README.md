@@ -17,7 +17,7 @@ The documentation for the psono server can be found here:
 
 ## Support
 
-[![Browserstack](https://3fxtqy18kygf3on3bu39kh93-wpengine.netdna-ssl.com/wp-content/themes/browserstack/img/browserstack-logo.svg)](https://www.browserstack.com/)
+[![Browserstack](https://i.imgur.com/hPwc0jS.png)](https://www.browserstack.com/)
 
 Browserstack provides us the ability to test our client on various devices.
 
