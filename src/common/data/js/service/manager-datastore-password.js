@@ -244,7 +244,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastorePassword#read_shares
+         * @name psonocli.managerDatastorePassword#_read_shares
          * @methodOf psonocli.managerDatastorePassword
          *
          * @description
@@ -252,14 +252,14 @@
          *
          * @param {TreeObject} datastore The datastore tree
          * @param {object} share_rights_dict Dictionary of shares and their share rights
-         * @param {object} share_index The share index
-         * @param {object} all_share_data The shared cache to not query every share multiple times
          * @returns {promise} Returns promise that resolves either when the initial datastore is loaded or when all shares with subshares are loaded
          */
-        var read_shares = function(datastore, share_rights_dict, share_index, all_share_data) {
+        var _read_shares = function(datastore, share_rights_dict) {
             var open_calls = 0;
             var all_calls = [];
+            var all_share_data = {};
             var content;
+            var share_index = datastore.share_index;
 
             var parent_share_rights = {
                 'read': true,
@@ -503,7 +503,7 @@
                     };
                     var onError = function (datastore) {};
 
-                    return read_shares(datastore, share_rights_dict, datastore.share_index, {})
+                    return _read_shares(datastore, share_rights_dict)
                         .then(onSuccess, onError);
 
                 };
@@ -808,7 +808,7 @@
          * @param {object} folder The folder to search
          * @param {uuid} search_id The id of the element one is looking for
          *
-         * @returns {[]|boolean} Returns a tuple of the containing list and index or false if not found
+         * @returns {[]} Returns a tuple of the containing list and index or raises an error if not found
          */
         var find_object = function(folder, search_id) {
 
@@ -831,7 +831,7 @@
                 }
             }
             // something went wrong, couldn't find the item / folder here
-            return false;
+            throw new RangeError('ObjectNotFound');
         };
 
 
@@ -864,7 +864,7 @@
                     return find_in_datastore(rest, datastore.folders[n]);
                 }
             }
-            return false;
+            throw new RangeError('ObjectNotFound');
         };
 
 

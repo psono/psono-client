@@ -1,4 +1,6 @@
 {
+  "REFRESH": "Refresh",
+  "RETRY": "Retry",
   "INVALID_EMAIL_FORMAT": "Ungültiges E-Mail Format",
   "SERVER_OFFLINE": "Server offline",
   "SERVER_OFFLINE_DETAILS": "Es gab ein Verbindungsproblem. Bitte überprüfen sie ihre Internet / Netzwerk Verbindung und die Adresse des Servers. Server offline.",
