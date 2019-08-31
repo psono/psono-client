@@ -349,7 +349,9 @@
                         // No specific share rights for this share, lets assume inherited rights and check if we have parent read rights
                         if (!share_rights_dict.hasOwnProperty(share_id) && !parent_share_rights.read) {
 
-                            content = angular.copy(parent_share_rights);
+                            content = {
+                                'rights': angular.copy(parent_share_rights)
+                            };
 
                             update_paths_with_data(datastore, share_index[share_id].paths[i], content, parent_share_rights, parent_share_id, undefined);
                             continue;
