@@ -1,4 +1,5 @@
 {
+  "PASSPHRASE_INCORRECT": "Passphrase incorrect. Please try again.",
   "REFRESH": "Refresh",
   "RETRY": "Retry",
   "INVALID_EMAIL_FORMAT": "Invalid email format",

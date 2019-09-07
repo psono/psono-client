@@ -522,27 +522,29 @@
 
             var searchStrings = test.toLowerCase().split(" ");
 
-            return function(datastore_entry) {
+            function filter (datastore_entry) {
 
                 var containCounter = 0;
                 for (var ii = searchStrings.length - 1; ii >= 0; ii--) {
                     if (typeof(datastore_entry.name) === 'undefined') {
                         continue;
                     }
-                    if (datastore_entry.hasOwnProperty('name') && datastore_entry['name'].toLowerCase().indexOf(searchStrings[ii]) > -1) {
-                        containCounter++
+                    if (datastore_entry.hasOwnProperty('name') && datastore_entry['name'] && datastore_entry['name'].toLowerCase().indexOf(searchStrings[ii]) > -1) {
+                        containCounter++;
                     } else if (datastore_entry.hasOwnProperty('urlfilter') && datastore_entry['urlfilter'] && datastore_entry['urlfilter'].toLowerCase().indexOf(searchStrings[ii]) > -1) {
-                        containCounter++
+                        containCounter++;
                     } else if(datastore_entry.hasOwnProperty('id') && datastore_entry['id'] === searchStrings[ii]) {
-                        containCounter++
+                        containCounter++;
                     } else if(datastore_entry.hasOwnProperty('secret_id') && datastore_entry['secret_id'] === searchStrings[ii]) {
-                        containCounter++
+                        containCounter++;
                     } else if(datastore_entry.hasOwnProperty('share_id') && datastore_entry['share_id'] === searchStrings[ii]) {
-                        containCounter++
+                        containCounter++;
                     }
                 }
                 return containCounter === searchStrings.length;
             }
+            
+            return filter;
         }
 
 

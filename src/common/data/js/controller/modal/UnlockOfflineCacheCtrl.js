@@ -32,10 +32,8 @@
                 if (offlineCache.unlock($scope.password)) {
                     $uibModalInstance.close();
                 } else {
-                    $scope.errors = ['Incorrect passphrase'];
+                    $scope.errors = ['PASSPHRASE_INCORRECT'];
                 }
-
-
             }
 
             /**
