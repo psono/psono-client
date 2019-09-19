@@ -58,6 +58,14 @@
                             }
                         },
                         {
+                            icon: "fa fa-clipboard",
+                            text:"COPY_PASSWORD",
+                            onclick:function(id, item) {
+                                var password = document.getElementById("editEntryForm-website_password_password").value;
+                                browserClient.copy_to_clipboard(password)
+                            }
+                        },
+                        {
                             icon: "fa fa-cogs",
                             text:"GENERATE_PASSWORD",
                             hide_offline: true,
