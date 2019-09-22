@@ -268,7 +268,7 @@
                 .then(create_secrets)
                 .then(update_datastore)
                 .then(function() {
-                    return {msgs: ['Import successful.']}
+                    return {msgs: ['IMPORT_SUCCESSFUL']}
                 });
         };
 

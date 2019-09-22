@@ -81,7 +81,7 @@
             function search_public_key_server () {
                 $scope.errors = [];
                 if (!$scope.data.new_email) {
-                    $scope.errors.push("E-Mail required.");
+                    $scope.errors.push("EMAIL_IS_REQUIRED");
                     return;
                 }
 
@@ -95,7 +95,7 @@
                         if (typeof(public_key) !== 'undefined') {
                             $scope.data.new_public_key = public_key;
                         } else {
-                            $scope.errors.push("No public key found for this email.");
+                            $scope.errors.push("NO_PUBLIC_KEY_FOUND_FOR_EMAIL");
                         }
                     });
                 }, function(error) {
@@ -167,19 +167,15 @@
             function add_new_recipient () {
                 $scope.errors = [];
                 if (!$scope.data.new_public_key) {
-                    $scope.errors.push("Public Key required.");
-                    return;
-                }
-                if (!$scope.data.new_public_key) {
-                    $scope.errors.push("Public Key required.");
+                    $scope.errors.push("PUBLIC_KEY_IS_REQUIRED");
                     return;
                 }
                 if (!$scope.data.new_email) {
-                    $scope.errors.push("E-Mail not provided.");
+                    $scope.errors.push("EMAIL_IS_REQUIRED");
                     return;
                 }
                 if (!helper.is_valid_email($scope.data.new_email)) {
-                    $scope.errors.push("Invalid E-Mail address.");
+                    $scope.errors.push("INVALID_EMAIL_FORMAT");
                     return;
                 }
 

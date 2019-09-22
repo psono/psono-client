@@ -48,12 +48,12 @@
                 $scope.errors = [];
 
                 if (!$scope.data['title']) {
-                    $scope.errors.push('Title missing.');
+                    $scope.errors.push('TITLE_IS_REQUIRED');
                     return;
                 }
 
                 if (!$scope.data['email']) {
-                    $scope.errors.push('Email missing.');
+                    $scope.errors.push('EMAIL_IS_REQUIRED');
                     return;
                 }
 
@@ -81,7 +81,7 @@
                 } catch(err) {
 
                     $scope.generating = false;
-                    $scope.errors.push('Email address invalid.')
+                    $scope.errors.push('INVALID_EMAIL_IN_EMAIL')
                 }
             }
 

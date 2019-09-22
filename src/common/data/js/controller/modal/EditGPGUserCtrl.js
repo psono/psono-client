@@ -68,7 +68,7 @@
             function add_new_public_key() {
                 $scope.errors = [];
                 if (!$scope.data.new_public_key) {
-                    $scope.errors.push("Public Key required.");
+                    $scope.errors.push("PUBLIC_KEY_IS_REQUIRED");
                     return;
                 }
 
@@ -144,7 +144,7 @@
             function search_public_key_server () {
                 $scope.errors = [];
                 if (!$scope.data.new_email) {
-                    $scope.errors.push("E-Mail required.");
+                    $scope.errors.push("EMAIL_IS_REQUIRED");
                     return;
                 }
 
@@ -159,7 +159,7 @@
                             $scope.data.new_public_key = public_key;
                         });
                     } else {
-                        $scope.errors.push("No public key found for this email.")
+                        $scope.errors.push("NO_PUBLIC_KEY_FOUND_FOR_EMAIL")
                     }
                 }, function(error) {
                     console.log(error);

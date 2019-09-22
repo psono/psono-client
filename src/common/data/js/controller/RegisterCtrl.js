@@ -125,7 +125,7 @@
                 function onRequestReturn(data) {
                     if (data.response === "success") {
                         $scope.success = true;
-                        $scope.msgs.push('Successful, check your e-mail.');
+                        $scope.msgs.push('SUCCESSFUL_CHECK_EMAIL');
                     } else {
                         // handle server is offline
                         if (data.error_data === null) {

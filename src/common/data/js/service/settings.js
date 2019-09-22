@@ -289,7 +289,7 @@
                     }
                     set_settings(_settings['fields']);
 
-                    return resolve({msgs: ['Saved successfully']})
+                    return resolve({msgs: ['SAVE_SUCCESS']})
                 };
                 return totalSuccess();
             });
