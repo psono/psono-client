@@ -472,7 +472,7 @@
                         '<div>' +
                         '<div ' +
                         '    ng-mousedown="$event.stopPropagation()" ng-if="!node.hidden"' +
-                        '    class="tree-folder" ng-repeat="node in ' + attrs.treeViewNode + '.data.' + foldersProperty + ' track by $index">' +
+                        '    class="tree-folder" ng-repeat="node in ' + attrs.treeViewNode + '.data.' + foldersProperty + ' | orderBy:\'' + displayProperty + '\' track by $index">' +
 
                         '<div class="tree-folder-title" data-target="menu-{{ ::node.id }}"' +
                         '   context-menu="contextMenuOnShow(\'menu-\'+node.id)"' +
@@ -583,7 +583,7 @@
                         // Handle items
                         '<div ' +
                         '   ng-mousedown="$event.stopPropagation()" ng-if="!item.hidden"' +
-                        '   class="tree-item" ng-repeat="item in ' + attrs.treeViewNode + '.data.' + itemsProperty + ' track by $index">' +
+                        '   class="tree-item" ng-repeat="item in ' + attrs.treeViewNode + '.data.' + itemsProperty + ' | orderBy:\'' + displayProperty + '\' track by $index">' +
 
                         '<div ng-click="$event.stopPropagation(); editItem(item, $event)" class="tree-item-object" ' +
                         '   ng-class="::{ selected: isSelected(item), notSelectable: ! isSelectable(item) }" data-target="menu-{{ ::item.id }}"' +
