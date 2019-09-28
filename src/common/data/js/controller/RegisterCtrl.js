@@ -8,14 +8,16 @@
      * @requires $route
      * @requires $filter
      * @requires psonocli.managerDatastoreUser
+     * @requires psonocli.managerHost
      * @requires psonocli.browserClient
      * @requires psonocli.helper
+     * @requires psonocli.storage
      *
      * @description
      * Controller for the registration view
      */
-    angular.module('psonocli').controller('RegisterCtrl', ['$scope', '$route', '$filter', 'managerDatastoreUser', 'browserClient', 'helper',
-        function ($scope, $route, $filter, managerDatastoreUser, browserClient, helper) {
+    angular.module('psonocli').controller('RegisterCtrl', ['$scope', '$route', '$filter', 'managerDatastoreUser', 'managerHost', 'browserClient', 'helper', 'storage',
+        function ($scope, $route, $filter, managerDatastoreUser, managerHost, browserClient, helper, storage) {
 
             $scope.select_server = select_server;
             $scope.changing = changing;
@@ -125,7 +127,7 @@
                 function onRequestReturn(data) {
                     if (data.response === "success") {
                         $scope.success = true;
-                        $scope.msgs.push('Successful, check your e-mail.');
+                        $scope.msgs.push('SUCCESSFUL_CHECK_EMAIL');
                     } else {
                         // handle server is offline
                         if (data.error_data === null) {
@@ -149,30 +151,41 @@
                     return;
                 }
 
-                test_result = helper.is_valid_password(password, password2);
-                if (test_result !== true) {
-                    $scope.errors.push(test_result);
-                    return;
-                }
+                storage.upsert('config', {key: 'server', value: angular.copy($scope.selected_server)});
 
-                test_result = helper.is_valid_email(email);
-                if (test_result !== true) {
-                    $scope.errors.push("INVALID_EMAIL_FORMAT");
-                    return;
-                }
+                managerHost.info()
+                    .then(function(info) {
+                        // TODO test info object for password policy
 
-                username = helper.form_full_username(username, $scope.selected_server_domain);
+                        var test_error = helper.is_valid_password(password, password2);
+                        if (test_error) {
+                            $scope.errors.push(test_error);
+                            return;
+                        }
 
-                test_result = helper.is_valid_username(username);
-                if (test_result !== true) {
-                    $scope.errors.push(test_result);
-                    return;
-                }
+                        test_result = helper.is_valid_email(email);
+                        if (test_result !== true) {
+                            $scope.errors.push("INVALID_EMAIL_FORMAT");
+                            return;
+                        }
 
-                // TODO forbid weak and poor passwords
+                        username = helper.form_full_username(username, $scope.selected_server_domain);
 
-                managerDatastoreUser.register(email, username, password, angular.copy($scope.selected_server))
-                    .then(onRequestReturn, onError);
+                        test_result = helper.is_valid_username(username);
+                        if (test_result !== true) {
+                            $scope.errors.push(test_result);
+                            return;
+                        }
+
+                        // TODO forbid weak and poor passwords
+
+                        managerDatastoreUser.register(email, username, password, angular.copy($scope.selected_server))
+                            .then(onRequestReturn, onError);
+                    }, function() {
+                        console.log("arfg");
+                        // handle server is offline
+                        $scope.errors.push('SERVER_OFFLINE');
+                    });
             }
         }]
     );

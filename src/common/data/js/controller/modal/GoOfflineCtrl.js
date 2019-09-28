@@ -45,10 +45,10 @@
              *
              */
             function approve() {
-                var test_result = helper.is_valid_password($scope.state.password, $scope.state.password_repeat);
-                if (test_result !== true) {
+                var test_error = helper.is_valid_password($scope.state.password, $scope.state.password_repeat);
+                if (test_error) {
                     $scope.state.errors = [
-                        test_result
+                        test_error
                     ];
                     return;
                 }

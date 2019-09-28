@@ -39,7 +39,7 @@
                             <tbody>
                             <tr ng-repeat="session in sessions">
                                 <td>{{ session.device_description }}</td>
-                                <td>{{ session.create_date }}</td>
+                                <td>{{ session.create_date | moment }}</td>
                                 <td>
                                     <i ng-if="session.current_session" class="fa fa-check" aria-hidden="true"><span style="display: none">1</span></i>
                                 </td>

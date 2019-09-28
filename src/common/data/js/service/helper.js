@@ -344,11 +344,11 @@
          *
          * @description
          * Determines if the username is a valid username (validates only the front part before any @).
-         * If yes the function returns true. If not, the function returns an error string
+         * If not, the function returns an error string
          *
          * @param {string} username A string that could be a valid username
          *
-         * @returns {boolean|string} Returns true or a string with the error
+         * @returns {null|string} Returns true or a string with the error
          */
         function is_valid_username(username) {
 
@@ -380,7 +380,7 @@
                 return error;
             }
 
-            return true;
+            return null;
         }
 
         /**
@@ -418,23 +418,23 @@
          *
          * @description
          * Determines if the password is a valid password.
-         * If yes the function returns true. If not, the function returns an error string
+         * If not, the function returns an error string
          *
          * @param {string} password A string that could be a valid password
          * @param {string} password2 The second password that needs to match the first
          *
-         * @returns {boolean|string} Returns true or a string with the error
+         * @returns {string|null} Returns a string with the error or null
          */
         function is_valid_password(password, password2) {
 
             if (password.length < 12) {
-                return "Password too short (min 12 chars).";
+                return "PASSWORD_TOO_SHORT";
             }
 
             if (password !== password2) {
-                return "Passwords don't match.";
+                return "PASSWORDS_DONT_MATCH";
             }
-            return true;
+            return null;
         }
 
         /**
@@ -522,27 +522,29 @@
 
             var searchStrings = test.toLowerCase().split(" ");
 
-            return function(datastore_entry) {
+            function filter (datastore_entry) {
 
                 var containCounter = 0;
                 for (var ii = searchStrings.length - 1; ii >= 0; ii--) {
                     if (typeof(datastore_entry.name) === 'undefined') {
                         continue;
                     }
-                    if (datastore_entry.hasOwnProperty('name') && datastore_entry['name'].toLowerCase().indexOf(searchStrings[ii]) > -1) {
-                        containCounter++
+                    if (datastore_entry.hasOwnProperty('name') && datastore_entry['name'] && datastore_entry['name'].toLowerCase().indexOf(searchStrings[ii]) > -1) {
+                        containCounter++;
                     } else if (datastore_entry.hasOwnProperty('urlfilter') && datastore_entry['urlfilter'] && datastore_entry['urlfilter'].toLowerCase().indexOf(searchStrings[ii]) > -1) {
-                        containCounter++
+                        containCounter++;
                     } else if(datastore_entry.hasOwnProperty('id') && datastore_entry['id'] === searchStrings[ii]) {
-                        containCounter++
+                        containCounter++;
                     } else if(datastore_entry.hasOwnProperty('secret_id') && datastore_entry['secret_id'] === searchStrings[ii]) {
-                        containCounter++
+                        containCounter++;
                     } else if(datastore_entry.hasOwnProperty('share_id') && datastore_entry['share_id'] === searchStrings[ii]) {
-                        containCounter++
+                        containCounter++;
                     }
                 }
                 return containCounter === searchStrings.length;
             }
+
+            return filter;
         }
 
 

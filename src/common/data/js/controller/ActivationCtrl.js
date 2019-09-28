@@ -132,7 +132,7 @@
                     $scope.errors = [];
                     $scope.msgs = [];
                     if (data.response === "success") {
-                        $scope.msgs.push('Successful, please login.');
+                        $scope.msgs.push('SUCCESSFUL_PLEASE_LOGIN');
                         $scope.success = true;
                     } else {
                         if (data.error_data === null) {

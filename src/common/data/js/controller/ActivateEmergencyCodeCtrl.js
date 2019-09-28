@@ -276,12 +276,12 @@
                     emergency_code = converter.hex_to_base58(converter.words_to_hex(words.split(' ')));
                 } else if (typeof(code1) !== 'undefined' && code1 !== '' && typeof(code2) !== 'undefined' && code2 !== ''){
                     if (!cryptoLibrary.recovery_password_chunk_pass_checksum(code1) || !cryptoLibrary.recovery_password_chunk_pass_checksum(code2)) {
-                        $scope.errors.push("At least one of your codes is wrong");
+                        $scope.errors.push("AT_LEAST_ONE_CODE_INCORRECT");
                         return;
                     }
                     emergency_code = cryptoLibrary.recovery_code_strip_checksums(code1+code2);
                 } else {
-                    $scope.errors.push("something strange happened...");
+                    $scope.errors.push("SOMETHING_STRANGE_HAPPENED");
                     return;
                 }
 
@@ -351,9 +351,9 @@
              */
             function set_new_password(username, emergency_code, password, password2, emergency_code_date) {
 
-                var test_result = helper.is_valid_password(password, password2);
-                if (test_result !== true) {
-                    $scope.errors = [test_result];
+                var test_error = helper.is_valid_password(password, password2);
+                if (test_error) {
+                    $scope.errors = [test_error];
                     return;
                 }
 

@@ -607,11 +607,12 @@
             }
 
             // find element
-            var val2 = managerDatastorePassword.find_in_datastore(item_path, datastore);
-
-            if (val2 === false) {
+            try {
+                var val2 = managerDatastorePassword.find_in_datastore(item_path, datastore);
+            } catch (e) {
                 return;
             }
+
             var element = val2[0][val2[1]];
 
             // check if we have folders / items array, otherwise create the array

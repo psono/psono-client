@@ -137,9 +137,9 @@
 
                 managerBase.delete_local_data();
 
-                storage.insert('config', {key: 'user_email', value: email});
-                storage.insert('config', {key: 'user_username', value: username});
-                storage.insert('config', {key: 'server', value: server});
+                storage.upsert('config', {key: 'user_email', value: email});
+                storage.upsert('config', {key: 'user_username', value: username});
+                storage.upsert('config', {key: 'server', value: server});
 
                 var pair = cryptoLibrary.generate_public_private_keypair();
                 var user_sauce = cryptoLibrary.generate_user_sauce();
@@ -1733,13 +1733,13 @@
 
             var authkey_old, new_authkey, user_private_key, user_secret_key, user_sauce, priv_key_enc, secret_key_enc, onSuccess, onError;
 
-            var test_result = helper.is_valid_password(new_password, new_password_repeat);
-            if (test_result !== true) {
-                return $q.reject({errors: [test_result]})
+            var test_error = helper.is_valid_password(new_password, new_password_repeat);
+            if (test_error) {
+                return $q.reject({errors: [test_error]})
             }
 
             if (old_password === null || old_password.length === 0) {
-                return $q.reject({errors: ['Old password empty']})
+                return $q.reject({errors: ['OLD_PASSWORD_REQUIRED']})
             }
 
             authkey_old = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, old_password);

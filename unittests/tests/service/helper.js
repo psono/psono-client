@@ -185,7 +185,7 @@
         }));
 
         it('is_valid_username valid', inject(function (helper) {
-            expect(helper.is_valid_username('abc') === true).toBeTruthy();
+            expect(helper.is_valid_username('abc') === null).toBeTruthy();
         }));
 
 
@@ -243,9 +243,9 @@
 
             var password1 = '12345678901';
 
-            var is_valid = helper.is_valid_password(password1, password1);
+            var test_error = helper.is_valid_password(password1, password1);
 
-            expect(is_valid).toEqual("Password too short (min 12 chars).");
+            expect(test_error).toEqual("PASSWORD_TOO_SHORT");
         }));
 
 
@@ -254,9 +254,9 @@
             var password1 = '123456789012';
             var password2 = '123456789013';
 
-            var is_valid = helper.is_valid_password(password1, password2);
+            var test_error = helper.is_valid_password(password1, password2);
 
-            expect(is_valid).toEqual("Passwords don't match.");
+            expect(test_error).toEqual("PASSWORDS_DONT_MATCH");
         }));
 
     });

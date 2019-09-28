@@ -51,27 +51,27 @@
                 var private_key = $scope.data['private_key'].trim();
 
                 if (!$scope.data['title']) {
-                    $scope.errors.push('Title missing.');
+                    $scope.errors.push('TITLE_IS_REQUIRED');
                     return;
                 }
 
                 if (!public_key) {
-                    $scope.errors.push('Public key missing.');
+                    $scope.errors.push('YOUR_PUBLIC_GPG_KEY_IS_REQUIRED');
                     return;
                 }
 
                 if (!public_key.startsWith('-----BEGIN PGP PUBLIC KEY BLOCK-----') || !public_key.endsWith('-----END PGP PUBLIC KEY BLOCK-----')) {
-                    $scope.errors.push('Public key does not contain either the starting or finishing tag.');
+                    $scope.errors.push('PUBLIC_KEY_MISSING_TAGS');
                     return;
                 }
 
                 if (!private_key) {
-                    $scope.errors.push('Private key missing.');
+                    $scope.errors.push('YOUR_PRIVATE_GPG_KEY_IS_REQUIRED');
                     return;
                 }
 
                 if (!private_key.startsWith('-----BEGIN PGP PRIVATE KEY BLOCK-----') || !private_key.endsWith('-----END PGP PRIVATE KEY BLOCK-----')) {
-                    $scope.errors.push('Private key does not contain either the starting or finishing tag.');
+                    $scope.errors.push('PRIVATE_KEY_MISSING_TAGS');
                     return;
                 }
 
@@ -79,12 +79,12 @@
                 var public_key_obj = openpgp.key.readArmored(public_key);
 
                 if (private_key_obj.keys.length > 1) {
-                    $scope.errors.push('Sorry, but your private key contains more than one private key.');
+                    $scope.errors.push('PRIVATE_KEY_CONTAINS_MULTIPLE_KEYS');
                     return;
                 }
 
                 if (public_key_obj.keys.length > 1) {
-                    $scope.errors.push('Sorry, but your public key contains more than one public key.');
+                    $scope.errors.push('PUBLIC_KEY_CONTAINS_MULTIPLE_KEYS');
                     return;
                 }
 
@@ -110,7 +110,7 @@
                         $scope.data['public_key'] = pub_key.armor();
                         $uibModalInstance.close($scope.data);
                     }, function(error) {
-                        if (error.message === 'Key packet is already decrypted.') {
+                        if (error.message === 'KEY_PACKET_IS_ALREADY_DECRYPTED') {
                             $scope.data['private_key'] = priv_key.armor();
                             $scope.data['public_key'] = pub_key.armor();
                             console.log(pub_key);

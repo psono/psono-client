@@ -354,7 +354,7 @@
             return fetch_datastore(type)
                 .then(download_export)
                 .then(function() {
-                    return {msgs: ['Export successful.']}
+                    return {msgs: ['EXPORT_SUCCESSFUL']}
                 });
 
         };

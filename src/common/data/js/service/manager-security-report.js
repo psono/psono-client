@@ -440,7 +440,7 @@
                     continue;
                 }
                 if (analysis.passwords[i].write_age > 180) {
-                    analysis.passwords[i].advise = 'Update password, its too old.';
+                    analysis.passwords[i].advise = 'ADVISE_PASSWORD_TOO_OLD';
                 }
             }
 
@@ -584,7 +584,7 @@
                 .then(function(analysis) {
                     emit('generation-complete', {});
                     return {
-                        msgs: ['Analysis successful.'],
+                        msgs: ['ANALYSIS_SUCCESSFUL'],
                         analysis: analysis
                     }
                 });
