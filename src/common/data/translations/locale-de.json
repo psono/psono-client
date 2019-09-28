@@ -1,4 +1,5 @@
 {
+  "ACCESS_DENIED": "Zugriff verweigert",
   "SOMETHING_STRANGE_HAPPENED": "etwas unerwartetes ist passiert...",
   "NO_PUBLIC_KEY_FOUND_FOR_EMAIL": "Kein Public Key für diese E-Mail Adresse gefunden.",
   "KEY_PACKET_IS_ALREADY_DECRYPTED": "Schlüssel Paket ist bereits entschlüsselt.",
