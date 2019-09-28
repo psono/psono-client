@@ -185,7 +185,7 @@
         }));
 
         it('is_valid_username valid', inject(function (helper) {
-            expect(helper.is_valid_username('abc') === true).toBeTruthy();
+            expect(helper.is_valid_username('abc') === null).toBeTruthy();
         }));
 
 

@@ -82,6 +82,15 @@
             $scope.registerFormPassword = "my-registration-password";
             $scope.registerFormPasswordRepeat = "my-registration-password";
 
+            $httpBackend.when('GET', "https://www.psono.pw/server/info/").respond(
+                function(method, url, data, headers, params) {
+                    // Validate request parameters:
+                    data = JSON.parse(data);
+
+                    // return answer
+                    return [200, {}];
+                });
+
             $httpBackend.when('POST', "https://www.psono.pw/server/authentication/register/").respond(
                 function(method, url, data) {
                     // Validate request parameters:
