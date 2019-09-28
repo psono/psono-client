@@ -151,7 +151,7 @@
                     return;
                 }
 
-                storage.insert('config', {key: 'server', value: angular.copy($scope.selected_server)});
+                storage.upsert('config', {key: 'server', value: angular.copy($scope.selected_server)});
 
                 managerHost.info()
                     .then(function(info) {

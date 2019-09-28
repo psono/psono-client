@@ -245,7 +245,7 @@
 
             var test_error = helper.is_valid_password(password1, password1);
 
-            expect(test_error).toEqual("Password too short (min 12 chars).");
+            expect(test_error).toEqual("PASSWORD_TOO_SHORT");
         }));
 
 
@@ -256,7 +256,7 @@
 
             var test_error = helper.is_valid_password(password1, password2);
 
-            expect(test_error).toEqual("Passwords don't match.");
+            expect(test_error).toEqual("PASSWORDS_DONT_MATCH");
         }));
 
     });

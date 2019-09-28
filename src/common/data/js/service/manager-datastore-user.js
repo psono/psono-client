@@ -137,9 +137,9 @@
 
                 managerBase.delete_local_data();
 
-                storage.insert('config', {key: 'user_email', value: email});
-                storage.insert('config', {key: 'user_username', value: username});
-                storage.insert('config', {key: 'server', value: server});
+                storage.upsert('config', {key: 'user_email', value: email});
+                storage.upsert('config', {key: 'user_username', value: username});
+                storage.upsert('config', {key: 'server', value: server});
 
                 var pair = cryptoLibrary.generate_public_private_keypair();
                 var user_sauce = cryptoLibrary.generate_user_sauce();

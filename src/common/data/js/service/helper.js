@@ -344,11 +344,11 @@
          *
          * @description
          * Determines if the username is a valid username (validates only the front part before any @).
-         * If yes the function returns true. If not, the function returns an error string
+         * If not, the function returns an error string
          *
          * @param {string} username A string that could be a valid username
          *
-         * @returns {boolean|string} Returns true or a string with the error
+         * @returns {null|string} Returns true or a string with the error
          */
         function is_valid_username(username) {
 
@@ -380,7 +380,7 @@
                 return error;
             }
 
-            return true;
+            return null;
         }
 
         /**
@@ -418,7 +418,7 @@
          *
          * @description
          * Determines if the password is a valid password.
-         * If yes the function returns true. If not, the function returns an error string
+         * If not, the function returns an error string
          *
          * @param {string} password A string that could be a valid password
          * @param {string} password2 The second password that needs to match the first
