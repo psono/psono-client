@@ -271,9 +271,9 @@
              */
             function set_new_password(username, recovery_code, password, password2, recovery_data) {
 
-                var test_result = helper.is_valid_password(password, password2);
-                if (test_result !== true) {
-                    $scope.errors = [test_result];
+                var test_error = helper.is_valid_password(password, password2);
+                if (test_error) {
+                    $scope.errors = [test_error];
                     return;
                 }
 

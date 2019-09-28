@@ -1,4 +1,7 @@
 {
+  "PASSWORD_TOO_SHORT": "Password too short.",
+  "PASSWORDS_DONT_MATCH": "Passwords don't match.",
+  "OLD_PASSWORD_REQUIRED": "Old password required",
   "ACCESS_DENIED": "Access denied",
   "SOMETHING_STRANGE_HAPPENED": "something strange happened...",
   "NO_PUBLIC_KEY_FOUND_FOR_EMAIL": "No public key found for this email.",

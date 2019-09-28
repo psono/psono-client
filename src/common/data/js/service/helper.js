@@ -423,18 +423,18 @@
          * @param {string} password A string that could be a valid password
          * @param {string} password2 The second password that needs to match the first
          *
-         * @returns {boolean|string} Returns true or a string with the error
+         * @returns {string|null} Returns a string with the error or null
          */
         function is_valid_password(password, password2) {
 
             if (password.length < 12) {
-                return "Password too short (min 12 chars).";
+                return "PASSWORD_TOO_SHORT";
             }
 
             if (password !== password2) {
-                return "Passwords don't match.";
+                return "PASSWORDS_DONT_MATCH";
             }
-            return true;
+            return null;
         }
 
         /**
@@ -543,7 +543,7 @@
                 }
                 return containCounter === searchStrings.length;
             }
-            
+
             return filter;
         }
 

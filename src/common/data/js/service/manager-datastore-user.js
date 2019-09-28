@@ -1733,13 +1733,13 @@
 
             var authkey_old, new_authkey, user_private_key, user_secret_key, user_sauce, priv_key_enc, secret_key_enc, onSuccess, onError;
 
-            var test_result = helper.is_valid_password(new_password, new_password_repeat);
-            if (test_result !== true) {
-                return $q.reject({errors: [test_result]})
+            var test_error = helper.is_valid_password(new_password, new_password_repeat);
+            if (test_error) {
+                return $q.reject({errors: [test_error]})
             }
 
             if (old_password === null || old_password.length === 0) {
-                return $q.reject({errors: ['Old password empty']})
+                return $q.reject({errors: ['OLD_PASSWORD_REQUIRED']})
             }
 
             authkey_old = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, old_password);

@@ -243,9 +243,9 @@
 
             var password1 = '12345678901';
 
-            var is_valid = helper.is_valid_password(password1, password1);
+            var test_error = helper.is_valid_password(password1, password1);
 
-            expect(is_valid).toEqual("Password too short (min 12 chars).");
+            expect(test_error).toEqual("Password too short (min 12 chars).");
         }));
 
 
@@ -254,9 +254,9 @@
             var password1 = '123456789012';
             var password2 = '123456789013';
 
-            var is_valid = helper.is_valid_password(password1, password2);
+            var test_error = helper.is_valid_password(password1, password2);
 
-            expect(is_valid).toEqual("Passwords don't match.");
+            expect(test_error).toEqual("Passwords don't match.");
         }));
 
     });
