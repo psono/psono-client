@@ -265,7 +265,7 @@
                 // Validate now the username
                 username = helper.form_full_username(username, $scope.selected_server_domain);
                 test_result = helper.is_valid_username(username);
-                if (test_result !== true) {
+                if (test_result) {
                     $scope.errors.push(test_result);
                     return;
                 }
