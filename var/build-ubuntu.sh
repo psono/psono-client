@@ -5,7 +5,7 @@ curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
 apt-get install -y nodejs && \
 node --version && \
 npm --version && \
-npm install --global yarn && \
+npm install --global yarn@1.18.0 && \
 yarn config set registry https://psono.jfrog.io/psono/api/npm/npm/ && \
 yarn install && \
 yarn global add gulp && \
