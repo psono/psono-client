@@ -1,4 +1,5 @@
 {
+  "RECOVERY_CODES_DISABLED": "Recovery codes have been disabled.",
   "PASSWORD_TOO_SHORT": "Password too short.",
   "PASSWORDS_DONT_MATCH": "Passwords don't match.",
   "OLD_PASSWORD_REQUIRED": "Old password required",

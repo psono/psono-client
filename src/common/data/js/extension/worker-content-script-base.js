@@ -79,9 +79,10 @@ var ClassWorkerContentScriptBase = function (browser, jQuery, setTimeout) {
      * @param mouseMove
      */
     function modify_input_field(input, background_image, position, document, click, mouseOver, mouseOut, mouseMove) {
-        input.style.backgroundImage = 'url("'+background_image+'")';
-        input.style.backgroundPosition = position;
-        input.style.backgroundRepeat = 'no-repeat';
+        input.style.setProperty('background-image', 'url("'+background_image+'")', 'important');
+        input.style.setProperty('background-position', position, 'important');
+        input.style.setProperty('background-repeat', 'no-repeat', 'important');
+        input.style.setProperty('background-size', 'auto', 'important');
 
         if (mouseOver) {
             input.addEventListener('mouseover', mouseOver);
