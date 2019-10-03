@@ -133,6 +133,8 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      */
     function add_form_buttons(document) {
 
+        var padding_right;
+
         // Lets start with searching all input fields and forms
         // if we find a password field, we remember that and take the field before as username field
 
@@ -165,14 +167,16 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
                     continue;
 
                 // username field is inputs[r]
-                base.modify_input_field(inputs[r], background_image, 'center right', document, click, mouseOver, mouseOut, mouseMove);
+                padding_right = jQuery(inputs[r]).css('padding-right');
+                base.modify_input_field(inputs[r], background_image, 'center right ' + padding_right, document, click, mouseOver, mouseOut, mouseMove);
 
                 newForm.username = inputs[r];
                 break;
             }
 
             // Password field is inputs[i]
-            base.modify_input_field(inputs[i], background_image, 'center right', document, click, mouseOver, mouseOut, mouseMove);
+            padding_right = jQuery(inputs[i]).css('padding-right');
+            base.modify_input_field(inputs[i], background_image, 'center right ' + padding_right, document, click, mouseOver, mouseOut, mouseMove);
 
             newForm.password = inputs[i];
 
@@ -237,7 +241,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * @param evt Mouse over event
      */
     function mouseOver(evt) {
-        evt.target.style.backgroundImage = 'url("' + background_image_hover + '")';
+        evt.target.style.setProperty('background-image', 'url("'+background_image_hover+'")', 'important');
     }
 
     /**
@@ -246,7 +250,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * @param evt Mouse out event
      */
     function mouseOut(evt) {
-        evt.target.style.backgroundImage = 'url("' + background_image + '")';
+        evt.target.style.setProperty('background-image', 'url("'+background_image+'")', 'important');
     }
 
     /**
@@ -257,9 +261,9 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      */
     function mouseMove (evt) {
         if (getDistance(evt) < 30) {
-            evt.target.style.cursor = 'pointer';
+            evt.target.style.setProperty('cursor', 'pointer', 'important');
         } else {
-            evt.target.style.cursor = 'auto';
+            evt.target.style.setProperty('cursor', 'auto', 'important');
         }
     }
 
