@@ -1,4 +1,5 @@
 {
+  "RECOVERY_CODES_DISABLED": "Wiederherstellungs Codes wurden deaktiviert.",
   "PASSWORD_TOO_SHORT": "Passwort zu kurz.",
   "PASSWORDS_DONT_MATCH": "Passwörter nicht identisch.",
   "OLD_PASSWORD_REQUIRED": "Altes Passwort erfoderlich",
