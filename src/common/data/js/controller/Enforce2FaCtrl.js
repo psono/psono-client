@@ -58,8 +58,9 @@
              * Triggered once the user clicks the logout button
              */
             function logout() {
-                managerDatastoreUser.logout();
-                $window.location.href = 'index.html';
+                managerDatastoreUser.logout().then(function (value) {
+                    $window.location.href = 'index.html';
+                });
             }
 
 
