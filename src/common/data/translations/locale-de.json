@@ -1,4 +1,5 @@
 {
+  "BACK": "Zurück",
   "RECOVERY_CODES_DISABLED": "Wiederherstellungs Codes wurden deaktiviert.",
   "PASSWORD_TOO_SHORT": "Passwort zu kurz.",
   "PASSWORDS_DONT_MATCH": "Passwörter nicht identisch.",
@@ -284,6 +285,7 @@
   "SEARCH_DATSTORE": "Datenspeicher durchsuchen ...",
   "SETUP_SECOND_FACTOR": "Zweiten Faktor konfigurieren",
   "ADMINISTRATOR_REQUIRES_SECOND_FACTOR": "Dein Administrator erfordert dass du einen zweiten Faktor einsetzt. Bitte wähle einen und konfiguriere ihn.",
+  "ADMINISTRATOR_REQUIRES_SECOND_FACTOR_GO_TO_WEBSITE": "Dein Administrator erfordert dass du einen zweiten Faktor einsetzt. Bitte nutze das Webinterface der Webseite um einen zu konfigurieren.",
   "NO_ENTRY_FOUND": "Kein Eintrag gefunden ...",
   "OPEN_DATASTORE": "Datenspeicher öffnen",
   "COPY_USERNAME": "Benutzernamen Kopieren",
