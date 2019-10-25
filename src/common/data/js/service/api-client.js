@@ -1262,7 +1262,7 @@
          * @methodOf psonocli.apiClient
          *
          * @description
-         * Ajax PUT request with the token as authentication and the new share content
+         * Ajax PUT request with the token as authentication and the share's new content
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key

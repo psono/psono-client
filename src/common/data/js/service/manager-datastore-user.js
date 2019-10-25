@@ -1696,7 +1696,7 @@
         var save_new_email = function(new_email, verification_password) {
 
             if (verification_password === null || verification_password.length === 0) {
-                return $q.reject({errors: ['Old password empty']})
+                return $q.reject({errors: ['OLD_PASSWORD_REQUIRED']})
             }
 
             var authkey_old = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, verification_password);
@@ -1708,7 +1708,7 @@
                 return {msgs: ['SAVE_SUCCESS']}
             };
             var onError = function() {
-                return {errors: ['OLD_PASSWORD_INCORRECT']}
+                return $q.reject({errors: ['OLD_PASSWORD_INCORRECT']})
             };
             return update_user(new_email, null, authkey_old)
                 .then(onSuccess, onError);
@@ -1756,7 +1756,7 @@
                 return {msgs: ['SAVE_SUCCESS']}
             };
             onError = function() {
-                return {errors: ['OLD_PASSWORD_INCORRECT']}
+                return $q.reject({errors: ['OLD_PASSWORD_INCORRECT']})
             };
 
             return update_user(null, new_authkey, authkey_old, priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce)
