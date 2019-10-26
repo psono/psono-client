@@ -275,27 +275,10 @@
                  * @param event
                  */
                 scope.moveNode  = function (node, event) {
-
-                    var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal/choose-folder.html',
-                        controller: 'ModalChooseFolderCtrl',
-                        resolve: {
-                            title: function () {
-                                return 'MOVE_FOLDER';
-                            }
-                        }
-                    });
-
-                    modalInstance.result.then(function (breadcrumbs) {
-                        // User clicked the prime button
-                        var node_path = node.path.slice();
-                        if (typeof options.onMoveItem === "function") {
-                            options.onMoveNode(node_path, breadcrumbs['id_breadcrumbs']);
-                        }
-
-                    }, function () {
-                        // cancel triggered
-                    });
+                    var node_path = node.path.slice();
+                    if (typeof options.onMoveItem === "function") {
+                        options.onMoveNode(node_path);
+                    }
                 };
 
                 /**
@@ -398,27 +381,10 @@
                  * @param event
                  */
                 scope.moveItem  = function (item, event) {
-
-                    var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal/choose-folder.html',
-                        controller: 'ModalChooseFolderCtrl',
-                        resolve: {
-                            title: function () {
-                                return 'MOVE_ENTRY';
-                            }
-                        }
-                    });
-
-                    modalInstance.result.then(function (breadcrumbs) {
-                        // User clicked the prime button
-                        var item_path = item.path;
-                        if (typeof options.onMoveItem === "function") {
-                            options.onMoveItem(item_path, breadcrumbs['id_breadcrumbs']);
-                        }
-
-                    }, function () {
-                        // cancel triggered
-                    });
+                    var item_path = item.path;
+                    if (typeof options.onMoveItem === "function") {
+                        options.onMoveItem(item_path);
+                    }
                 };
 
                 /**

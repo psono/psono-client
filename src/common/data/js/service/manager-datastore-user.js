@@ -1071,6 +1071,12 @@
                  ['filter', 'filter']
                  ]);
                  */
+                managerDatastore.update_share_rights_of_folders_and_items(datastore, {
+                    'read': true,
+                    'write': true,
+                    'grant': true,
+                    'delete': true
+                });
                 update_paths_recursive(datastore, []);
 
                 return datastore

@@ -579,8 +579,9 @@
          * @param {Array} item_path the current path of the item
          * @param {Array} target_path the path where we want to put the item
          * @param {string} type type of the item ('items' or 'folders')
+         * @param {string} datastore_type The type of the datastore (e.g. 'password' or 'user')
          */
-        var move_item = function(datastore, item_path, target_path, type) {
+        var move_item = function(datastore, item_path, target_path, type, datastore_type) {
 
             var i;
             var closest_parent;
@@ -726,9 +727,9 @@
          * @param {TreeObject} datastore The datastore
          * @param {object} item The item to delete
          * @param {Array} path The path to the item
-         * @param {string} type The type of the datastore (e.g. 'password' or 'user')
+         * @param {string} datastore_type The type of the datastore (e.g. 'password' or 'user')
          */
-        var delete_item = function(datastore, item, path, type) {
+        var delete_item = function(datastore, item, path, datastore_type) {
 
             var i;
 
@@ -770,9 +771,9 @@
             }
 
             // and save everything (before we update the links and might lose some necessary rights)
-            if (type === 'password') {
+            if (datastore_type === 'password') {
                 managerDatastorePassword.save_datastore_content(datastore, [element_path_that_changed]);
-            } else if(type === 'user') {
+            } else if(datastore_type === 'user') {
                 managerDatastoreUser.save_datastore_content(datastore, [element_path_that_changed]);
             }
 

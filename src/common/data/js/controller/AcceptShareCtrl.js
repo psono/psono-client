@@ -248,7 +248,7 @@
              * @param {string} type type of the item (item or folder)
              */
             function move_item(scope, item_path, target_path, type) {
-                managerWidget.move_item(scope.structure.data, item_path, target_path, type);
+                managerWidget.move_item(scope.structure.data, item_path, target_path, type, 'password');
             }
 
             /**

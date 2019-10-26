@@ -23,7 +23,7 @@
             </span>
         </div>
 
-        <div ng-controller="ChooseFolderCtrl" class="panel panel-default">
+        <div ng-controller="ChooseFolderCtrl" class="panel panel-default" ng-init="init(datastore, datastore_type)">
             <div class="panel-heading">
                 <h3 class="panel-title">{{'CHOOSE_LOCATION' | translate}}</h3>
             </div>

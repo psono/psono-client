@@ -16,9 +16,9 @@
      * Controller for the "MoveEntry" modal
      */
     angular.module('psonocli').controller('ModalChooseFolderCtrl', ['$scope', '$uibModalInstance', '$uibModal',
-        'managerDatastoreUser', 'message', 'shareBlueprint', 'title',
+        'managerDatastoreUser', 'message', 'shareBlueprint', 'title', 'datastore', 'datastore_type',
         function ($scope, $uibModalInstance, $uibModal,
-                  managerDatastoreUser, message, shareBlueprint, title) {
+                  managerDatastoreUser, message, shareBlueprint, title, datastore, datastore_type) {
 
             $scope.cut_breadcrumbs = cut_breadcrumbs;
             $scope.clear_breadcrumbs = clear_breadcrumbs;
@@ -26,6 +26,8 @@
             $scope.cancel = cancel;
 
             $scope.title = title;
+            $scope.datastore = datastore;
+            $scope.datastore_type = datastore_type;
 
             activate();
 
