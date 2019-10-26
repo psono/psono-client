@@ -34,6 +34,11 @@
         var numberMinCount = 1;
         var specialMinCount = 1;
 
+        $rootScope.$on('force_logout', function() {
+            _share_index = {};
+            password_datastore_read = false;
+        });
+
         /**
          * checks if the given password complies with the minimal complexity
          *

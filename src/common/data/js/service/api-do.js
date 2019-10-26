@@ -9,7 +9,7 @@
      * @requires psonocli.converter
      *
      * @description
-     * Service to talk to the psono REST api
+     * Service to talk to the Digital Ocean and upload or download files
      */
 
     var apiDO = function($http, $q, converter) {

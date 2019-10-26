@@ -17,11 +17,16 @@
      * managerDatastore collects all functions to edit / update / create a datastore and to work with it.
      */
 
-    var managerDatastore = function($q, $timeout, browserClient, managerBase, apiClient, cryptoLibrary, storage, helper) {
+    var managerDatastore = function($q, $rootScope, $timeout, browserClient, managerBase, apiClient, cryptoLibrary, storage, helper) {
 
         var registrations = {};
         var temp_datastore_key_storage = {};
         var temp_datastore_overview = false;
+
+        $rootScope.$on('force_logout', function() {
+            temp_datastore_key_storage = {};
+            temp_datastore_overview = false;
+        });
 
         /**
          * @ngdoc
@@ -642,6 +647,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerDatastore", ['$q', '$timeout', 'browserClient', 'managerBase', 'apiClient', 'cryptoLibrary', 'storage', 'helper', managerDatastore]);
+    app.factory("managerDatastore", ['$q', '$rootScope', '$timeout', 'browserClient', 'managerBase', 'apiClient', 'cryptoLibrary', 'storage', 'helper', managerDatastore]);
 
 }(angular));
