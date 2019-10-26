@@ -540,6 +540,10 @@
          */
         var save_datastore_content = function (type, description, content) {
 
+            if (content.hasOwnProperty('datastore_id')) {
+                return save_datastore_content_with_id(content['datastore_id'], content);
+            }
+
             var onError = function(result) {
                 // pass
             };

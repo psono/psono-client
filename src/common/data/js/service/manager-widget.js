@@ -323,6 +323,7 @@
         var open_edit_item = function(datastore, node, path, size) {
 
             var onError = function(result) {
+                console.log(result);
                 // pass
             };
 
