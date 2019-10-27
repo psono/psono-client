@@ -169,7 +169,6 @@ self.addEventListener('install', function(event) {
                 './js/lib/lokijs.min.js',
                 './js/lib/qrcode.min.js',
                 './js/lib/fastclick.js',
-                './js/lib/password-generator.js',
                 './js/lib/papaparse.min.js',
                 './js/lib/fast-xml-parser.js',
 

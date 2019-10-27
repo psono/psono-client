@@ -1,4 +1,4 @@
-(function(angular, generate_password) {
+(function(angular) {
     'use strict';
 
     /**
@@ -26,8 +26,6 @@
         var registrations = {};
         var _share_index = {};
         var password_datastore_read = false;
-
-        var memorable = false;
 
         var uppercaseMinCount = 1;
         var lowercaseMinCount = 1;
@@ -57,10 +55,12 @@
             var n = password.match(new RegExp("(["+escape_reg_exp(settings.get_setting('setting_password_numbers'))+"])", "g"));
             var sc = password.match(new RegExp("(["+escape_reg_exp(settings.get_setting('setting_password_special_chars'))+"])", "g"));
 
-            return uc && (settings.get_setting('setting_password_letters_uppercase').length === 0 || uc.length >= uppercaseMinCount) &&
-                lc && (settings.get_setting('setting_password_letters_lowercase').length === 0 || lc.length >= lowercaseMinCount) &&
-                n && (settings.get_setting('setting_password_numbers').length === 0 || n.length >= numberMinCount) &&
-                sc && (settings.get_setting('setting_password_special_chars').length === 0 || sc.length >= specialMinCount);
+            var uc_test_result = settings.get_setting('setting_password_letters_uppercase').length === 0 || ( uc && uc.length >= uppercaseMinCount);
+            var lc_test_result = settings.get_setting('setting_password_letters_lowercase').length === 0 || ( lc && lc.length >= lowercaseMinCount);
+            var n_test_result = settings.get_setting('setting_password_numbers').length === 0 || ( n && n.length >= numberMinCount);
+            var sc_test_result = settings.get_setting('setting_password_special_chars').length === 0 ||  (sc && sc.length >= specialMinCount);
+
+            return uc_test_result && lc_test_result && n_test_result && sc_test_result;
         };
 
         /**
@@ -81,6 +81,31 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastorePassword#generate_password
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * generates a password based on the length requirement and a string with all allowed characters
+         *
+         * @param {int}  length The length of the password
+         * @param {string}  allowed_characters A string containing all allowed characters
+         *
+         * @returns {string} Returns the password
+         */
+        var generate_password = function(length, allowed_characters) {
+            var allowed_characters_length = allowed_characters.length;
+            var password = '';
+
+            for (var i = 0; i < length; i++) {
+                var pos = Math.floor(cryptoLibrary.random() * allowed_characters_length);
+                password = password + allowed_characters.charAt(pos);
+            }
+
+            return password;
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastorePassword#generate
          * @methodOf psonocli.managerDatastorePassword
          *
@@ -92,11 +117,11 @@
         var generate = function () {
             var password = "";
             while (!is_strong_enough(password)) {
-                password = generate_password(settings.get_setting('setting_password_length'), memorable,
-                    new RegExp('['+escape_reg_exp(settings.get_setting('setting_password_letters_uppercase') +
-                        settings.get_setting('setting_password_letters_lowercase') +
-                        settings.get_setting('setting_password_numbers') +
-                        settings.get_setting('setting_password_special_chars'))+']'));
+                password = generate_password(settings.get_setting('setting_password_length'),
+                    settings.get_setting('setting_password_letters_uppercase') +
+                    settings.get_setting('setting_password_letters_lowercase') +
+                    settings.get_setting('setting_password_numbers') +
+                    settings.get_setting('setting_password_special_chars'));
             }
             return password;
         };
@@ -1685,4 +1710,4 @@
     app.factory("managerDatastorePassword", ['$q', '$rootScope', 'managerBase', 'managerSecret', 'managerShareLink', 'managerDatastore', 'managerShare',
         'itemBlueprint', 'helper', 'settings', 'browserClient', 'cryptoLibrary', managerDatastorePassword]);
 
-}(angular, generatePassword));
+}(angular));

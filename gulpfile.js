@@ -123,7 +123,6 @@ var build = function(build_path, type) {
             "src/common/data/js/lib/lokijs.min.js",
             "src/common/data/js/lib/qrcode.min.js",
             "src/common/data/js/lib/fastclick.js",
-            "src/common/data/js/lib/password-generator.js",
             "src/common/data/js/lib/papaparse.min.js",
             "src/common/data/js/lib/fast-xml-parser.js",
             "src/common/data/js/lib/angular.min.js",
