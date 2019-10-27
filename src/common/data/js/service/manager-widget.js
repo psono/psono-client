@@ -903,6 +903,9 @@
             if(item.type === 'bookmark') {
                 return 'fa fa-bookmark-o'
             }
+            if(item.type === 'note') {
+                return 'fa fa-sticky-note-o'
+            }
 
             if(item.type === 'website_password') {
                 return 'fa fa-key'
