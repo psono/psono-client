@@ -17,11 +17,16 @@
      * managerDatastore collects all functions to edit / update / create a datastore and to work with it.
      */
 
-    var managerDatastore = function($q, $timeout, browserClient, managerBase, apiClient, cryptoLibrary, storage, helper) {
+    var managerDatastore = function($q, $rootScope, $timeout, browserClient, managerBase, apiClient, cryptoLibrary, storage, helper) {
 
         var registrations = {};
         var temp_datastore_key_storage = {};
         var temp_datastore_overview = false;
+
+        $rootScope.$on('force_logout', function() {
+            temp_datastore_key_storage = {};
+            temp_datastore_overview = false;
+        });
 
         /**
          * @ngdoc
@@ -260,6 +265,52 @@
                     var parent_path_copy = parent_path.slice();
                     parent_path_copy.push(datastore['folders'][i]['id']);
                     update_paths_recursive(datastore['folders'][i], parent_path_copy);
+                }
+            }
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastore#update_share_rights_of_folders_and_items
+         * @methodOf psonocli.managerDatastore
+         *
+         * @description
+         * Sets the share_rights for folders and items, based on the users rights on the share.
+         * Calls recursive itself for all folders and skips nested shares.
+         *
+         * @param {TreeObject} obj The tree object to update
+         * @param {RightObject} share_rights The share rights to update it with.
+         */
+        var update_share_rights_of_folders_and_items = function(obj, share_rights) {
+            var n;
+
+            if (obj.hasOwnProperty('datastore_id')) {
+                // pass
+            } else if (obj.hasOwnProperty('share_id')) {
+                share_rights['read'] = obj['share_rights']['read'];
+                share_rights['write'] = obj['share_rights']['write'];
+                share_rights['grant'] = obj['share_rights']['grant'] && obj['share_rights']['write'];
+                share_rights['delete'] = obj['share_rights']['write'];
+            }
+
+            // check all folders recursive
+            if (obj.hasOwnProperty('folders')) {
+                for (n = 0; n < obj.folders.length; n++) {
+                    // lets not go inside of a new share, and don't touch the share_rights as they will come directly from the share
+                    if (obj.folders[n].hasOwnProperty('share_id')) {
+                        continue;
+                    }
+                    obj.folders[n]['share_rights'] = share_rights;
+                    update_share_rights_of_folders_and_items(obj.folders[n], share_rights);
+                }
+            }
+            // check all items
+            if (obj.hasOwnProperty('items')) {
+                for (n = 0; n < obj.items.length; n++) {
+                    if (obj.items[n].hasOwnProperty('share_id')) {
+                        continue;
+                    }
+                    obj.items[n]['share_rights'] = share_rights;
                 }
             }
         };
@@ -535,6 +586,10 @@
          */
         var save_datastore_content = function (type, description, content) {
 
+            if (content.hasOwnProperty('datastore_id')) {
+                return save_datastore_content_with_id(content['datastore_id'], content);
+            }
+
             var onError = function(result) {
                 // pass
             };
@@ -629,6 +684,7 @@
             create_datastore: create_datastore,
             delete_datastore: delete_datastore,
             update_paths_recursive: update_paths_recursive,
+            update_share_rights_of_folders_and_items: update_share_rights_of_folders_and_items,
             get_datastore: get_datastore,
             add_node_to_storage: add_node_to_storage,
             fill_storage: fill_storage,
@@ -642,6 +698,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerDatastore", ['$q', '$timeout', 'browserClient', 'managerBase', 'apiClient', 'cryptoLibrary', 'storage', 'helper', managerDatastore]);
+    app.factory("managerDatastore", ['$q', '$rootScope', '$timeout', 'browserClient', 'managerBase', 'apiClient', 'cryptoLibrary', 'storage', 'helper', managerDatastore]);
 
 }(angular));

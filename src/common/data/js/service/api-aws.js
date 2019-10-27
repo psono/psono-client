@@ -9,7 +9,7 @@
      * @requires psonocli.converter
      *
      * @description
-     * Service to talk to the psono REST api
+     * Service to talk to the AWS S3 and upload or download files
      */
 
     var apiAWS = function($http, $q, converter) {

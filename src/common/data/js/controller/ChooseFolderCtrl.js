@@ -17,10 +17,10 @@
      * @description
      * Main Controller for the acceptshare widget
      */
-    angular.module('psonocli').controller('ChooseFolderCtrl', ["$scope", "manager", "managerDatastorePassword",
+    angular.module('psonocli').controller('ChooseFolderCtrl', ["$scope", "manager", "managerDatastorePassword", "managerDatastoreUser",
         "$uibModal", "itemBlueprint", "managerWidget",
         "message", "$timeout", 'dropDownMenuWatcher',
-        function($scope, manager, managerDatastorePassword,
+        function($scope, manager, managerDatastorePassword, managerDatastoreUser,
                  $uibModal, itemBlueprint, managerWidget, message,
                  $timeout, dropDownMenuWatcher){
 
@@ -30,6 +30,11 @@
             $scope.openNewItem = openNewItem;
 
             $scope.structure = { data: {}} ;
+
+            $scope.init = function(datastore, datastore_type) {
+                $scope.datastore = datastore;
+                $scope.datastore_type = datastore_type;
+            };
 
             $scope.options = {
                 /**
@@ -64,7 +69,11 @@
                  * @param path The path to the node
                  */
                 onEditNode: function (node, path) {
-                    managerWidget.open_edit_folder(node, path, $scope.structure.data, managerDatastorePassword)
+                    if ($scope.datastore_type === 'password') {
+                        managerWidget.open_edit_folder(node, path, $scope.structure.data, managerDatastorePassword)
+                    } else if ($scope.datastore_type === 'user') {
+                        managerWidget.open_edit_folder(node, path, $scope.structure.data, managerDatastoreUser)
+                    }
                 },
 
                 /**
@@ -92,20 +101,60 @@
                  * Triggered once someone clicks the move node entry
                  *
                  * @param item_path The path of the node in question
-                 * @param target_path The path to the target node
                  */
-                onMoveNode: function (item_path, target_path) {
-                    return move_item($scope, item_path, target_path, 'folders');
+                onMoveNode: function (item_path) {
+
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'view/modal/choose-folder.html',
+                        controller: 'ModalChooseFolderCtrl',
+                        resolve: {
+                            title: function () {
+                                return 'MOVE_FOLDER';
+                            },
+                            datastore: function() {
+                                return $scope.structure.data;
+                            },
+                            datastore_type: function() {
+                                return $scope.datastore_type;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function (breadcrumbs) {
+                        // User clicked the prime button
+                        return move_item($scope, item_path, breadcrumbs['id_breadcrumbs'], 'folders');
+                    }, function () {
+                        // cancel triggered
+                    });
                 },
 
                 /**
                  * Triggered once someone wants to move a node entry
                  *
                  * @param item_path The path of the item
-                 * @param target_path The path to target folder
                  */
-                onMoveItem: function (item_path, target_path) {
-                    return move_item($scope, item_path, target_path, 'items');
+                onMoveItem: function (item_path) {
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'view/modal/choose-folder.html',
+                        controller: 'ModalChooseFolderCtrl',
+                        resolve: {
+                            title: function () {
+                                return 'MOVE_ENTRY';
+                            },
+                            datastore: function() {
+                                return $scope.structure.data;
+                            },
+                            datastore_type: function() {
+                                return $scope.datastore_type;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function (breadcrumbs) {
+                        move_item($scope, item_path, breadcrumbs['id_breadcrumbs'], 'items')
+                    }, function () {
+                        // cancel triggered
+                    });
                 },
 
                 /**
@@ -115,7 +164,11 @@
                  * @param path The path to the parent
                  */
                 onNewFolder: function (parent, path) {
-                    managerWidget.open_new_folder(parent, path, $scope.structure.data, managerDatastorePassword);
+                    if ($scope.datastore_type === 'password') {
+                        managerWidget.open_new_folder(parent, path, $scope.structure.data, managerDatastorePassword);
+                    } else if ($scope.datastore_type === 'user') {
+                        managerWidget.open_new_folder(parent, path, $scope.structure.data, managerDatastoreUser);
+                    }
                 },
 
                 /**
@@ -158,11 +211,19 @@
             activate();
 
             function activate() {
-                managerDatastorePassword.get_password_datastore()
-                    .then(function(data) {
-                        $scope.structure.data = data;
-                        $scope.structure.loaded = true;
-                    });
+
+                var onSuccess = function (data) {
+                    $scope.structure.data = data;
+                    $scope.structure.loaded = true;
+                };
+
+                if ($scope.datastore_type === 'password') {
+                    managerDatastorePassword.get_password_datastore()
+                        .then(onSuccess);
+                } else if ($scope.datastore_type === 'user') {
+                    managerDatastoreUser.get_user_datastore()
+                        .then(onSuccess);
+                }
             }
 
             /**
@@ -204,7 +265,12 @@
              * @param {object} event The event triggering this
              */
             function openNewFolder(event) {
-                managerWidget.open_new_folder(undefined, [], $scope.structure.data, managerDatastorePassword);
+
+                if ($scope.datastore_type === 'password') {
+                    managerWidget.open_new_folder(undefined, [], $scope.structure.data, managerDatastorePassword);
+                } else if ($scope.datastore_type === 'user') {
+                    managerWidget.open_new_folder(undefined, [], $scope.structure.data, managerDatastoreUser);
+                }
             }
 
             /**
@@ -267,7 +333,7 @@
              * @param {string} type type of the item (item or folder)
              */
             function move_item(scope, item_path, target_path, type) {
-                managerWidget.move_item(scope.structure.data, item_path, target_path, type);
+                managerWidget.move_item(scope.structure.data, item_path, target_path, type, $scope.datastore_type);
             }
 
             /**
@@ -283,7 +349,7 @@
              * @param {array} path the path to the item
              */
             function delete_item(scope, item, path) {
-                managerWidget.delete_item(scope.structure.data, item, path, 'password');
+                managerWidget.delete_item(scope.structure.data, item, path, $scope.datastore_type);
             }
 
         }]);

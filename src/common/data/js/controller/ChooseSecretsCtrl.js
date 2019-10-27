@@ -80,20 +80,60 @@
                  * Triggered once someone clicks the move node entry
                  *
                  * @param item_path The path of the node in question
-                 * @param target_path The path to the target node
                  */
-                onMoveNode: function (item_path, target_path) {
-                    return move_item($scope, item_path, target_path, 'folders');
+                onMoveNode: function (item_path) {
+
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'view/modal/choose-folder.html',
+                        controller: 'ModalChooseFolderCtrl',
+                        resolve: {
+                            title: function () {
+                                return 'MOVE_FOLDER';
+                            },
+                            datastore: function() {
+                                return $scope.structure.data;
+                            },
+                            datastore_type: function() {
+                                return 'password';
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function (breadcrumbs) {
+                        // User clicked the prime button
+                        return move_item($scope, item_path, breadcrumbs['id_breadcrumbs'], 'folders');
+                    }, function () {
+                        // cancel triggered
+                    });
                 },
 
                 /**
                  * Triggered once someone wants to move a node entry
                  *
                  * @param item_path The path of the item
-                 * @param target_path The path to target folder
                  */
-                onMoveItem: function (item_path, target_path) {
-                    return move_item($scope, item_path, target_path, 'items');
+                onMoveItem: function (item_path) {
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'view/modal/choose-folder.html',
+                        controller: 'ModalChooseFolderCtrl',
+                        resolve: {
+                            title: function () {
+                                return 'MOVE_ENTRY';
+                            },
+                            datastore: function() {
+                                return $scope.structure.data;
+                            },
+                            datastore_type: function() {
+                                return 'password';
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function (breadcrumbs) {
+                        move_item($scope, item_path, breadcrumbs['id_breadcrumbs'], 'items')
+                    }, function () {
+                        // cancel triggered
+                    });
                 },
 
                 /**
@@ -239,7 +279,7 @@
              * @param {string} type type of the item (item or folder)
              */
             function move_item(scope, item_path, target_path, type) {
-                managerWidget.move_item(scope.structure.data, item_path, target_path, type);
+                managerWidget.move_item(scope.structure.data, item_path, target_path, type, 'password');
             }
 
             /**

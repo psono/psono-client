@@ -9,7 +9,7 @@
      * @requires psonocli.converter
      *
      * @description
-     * Service to talk to the psono REST api
+     * Service to talk to the Google Cloud Platform and upload or download files
      */
 
     var apiGCP = function($http, $q, converter) {
