@@ -267,8 +267,6 @@
 
                         update_paths_with_data(datastore, path, content, parent_share_rights, parent_share_id, parent_datastore_id);
 
-
-
                         read_shares_recursive(sub_datastore, share_rights_dict, content.data.share_index, all_share_data, content.rights, share_id, undefined, parent_share_stack);
                         open_calls--;
                     };

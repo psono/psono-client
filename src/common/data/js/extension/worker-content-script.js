@@ -224,13 +224,14 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * element and the mouse at the moment of the click
      *
      * @param evt event
+     * @param target The target that this event was bound to
      * @returns {number} Distance
      */
-    function getDistance(evt) {
+    function getDistance(evt, target) {
 
-        return jQuery(evt.target).width()
+        return jQuery(target).width()
             - evt.pageX
-            + evt.target.getBoundingClientRect().left
+            + target.getBoundingClientRect().left
             + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
 
     }
@@ -239,8 +240,9 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * triggered once the mouse is over the input field. Used to set the background to the hover image
      *
      * @param evt Mouse over event
+     * @param target The original element that this event was bound to
      */
-    function mouseOver(evt) {
+    function mouseOver(evt, target) {
         evt.target.style.setProperty('background-image', 'url("'+background_image_hover+'")', 'important');
     }
 
@@ -248,8 +250,9 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * triggered once the mouse leaves the input field. Used to set the background to the normal image
      *
      * @param evt Mouse out event
+     * @param target The original element that this event was bound to
      */
-    function mouseOut(evt) {
+    function mouseOut(evt, target) {
         evt.target.style.setProperty('background-image', 'url("'+background_image+'")', 'important');
     }
 
@@ -258,9 +261,10 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * to the right border
      *
      * @param evt Mouse move event
+     * @param target The original element that this event was bound to
      */
-    function mouseMove (evt) {
-        if (getDistance(evt) < 30) {
+    function mouseMove (evt, target) {
+        if (getDistance(evt, target) < 30) {
             evt.target.style.setProperty('cursor', 'pointer', 'important');
         } else {
             evt.target.style.setProperty('cursor', 'auto', 'important');
@@ -311,10 +315,11 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * once a click happens outside of the dropdown menu
      *
      * @param evt Click event
+     * @param target The original element that this event was bound to
      * @param document The document the click occurred in
      */
-    function click(evt, document) {
-        if (getDistance(evt) < 30) {
+    function click(evt, target, document) {
+        if (getDistance(evt, target) < 30) {
 
             var open_datastore_class = 'psono_open-datastore-' + uuid.v4();
             var request_secret_class = 'psono_request-secret-' + uuid.v4();

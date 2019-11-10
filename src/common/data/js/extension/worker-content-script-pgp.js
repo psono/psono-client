@@ -221,10 +221,11 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
      * once a click happens outside of the dropdown menu
      *
      * @param evt Click event
+     * @param target The original element that this event was bound to
      * @param click_data The data specified before to pass on
      */
-    function onClick(evt, click_data) {
-        if (getDistance(evt) < 30 && getDistance(evt) > 0) {
+    function onClick(evt, target, click_data) {
+        if (getDistance(evt, target) < 30 && getDistance(evt, target) > 0) {
             var field = jQuery(click_data['node']);
             var receiver = click_data['get_receiver'](click_data['node']);
             encryptGPG (field, receiver)
@@ -236,14 +237,15 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
      * element and the mouse at the moment of the click
      *
      * @param evt event
+     * @param target The target that this element was bound to
      * @returns {number} Distance
      */
-    function getDistance(evt) {
+    function getDistance(evt, target) {
 
-        var left_border = evt.target.getBoundingClientRect().left;
-        var top_border = evt.target.getBoundingClientRect().top;
+        var left_border = target.getBoundingClientRect().left;
+        var top_border = target.getBoundingClientRect().top;
 
-        var distance_x = jQuery(evt.target).width()
+        var distance_x = jQuery(target).width()
             - evt.pageX
             + left_border
             + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
@@ -262,8 +264,9 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
      * triggered once the mouse is over the input field. Used to set the background to the hover image
      *
      * @param evt Mouse over event
+     * @param target The original element that this event was bound to
      */
-    function mouseOver(evt) {
+    function mouseOver(evt, target) {
         //evt.target.style.backgroundImage = 'url("' + background_image_hover + '")';
     }
 
@@ -271,8 +274,9 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
      * triggered once the mouse leaves the input field. Used to set the background to the normal image
      *
      * @param evt Mouse out event
+     * @param target The original element that this event was bound to
      */
-    function mouseOut(evt) {
+    function mouseOut(evt, target) {
         //evt.target.style.backgroundImage = 'url("' + background_image + '")';
     }
 
@@ -281,9 +285,10 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
      * to the right border
      *
      * @param evt Mouse move event
+     * @param target The original element that this event was bound to
      */
-    function mouseMove (evt) {
-        if (getDistance(evt) < 30 && getDistance(evt) > 0) {
+    function mouseMove (evt, target) {
+        if (getDistance(evt, target) < 30 && getDistance(evt, target) > 0) {
             evt.target.style.cursor = 'pointer';
         } else {
             evt.target.style.cursor = 'auto';
