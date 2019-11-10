@@ -55,6 +55,36 @@
             }
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.cryptoLibrary#random
+         * @methodOf psonocli.cryptoLibrary
+         *
+         * @description
+         * Returns a cryptographically secure random number between 0 (included) and 1 (excluded)
+         *
+         * @returns {number} Random number between 0 and 1
+         */
+        var random = function() {
+            var bs;
+            var byte;
+            if ($window && $window.crypto && $window.crypto.getRandomValues) {
+                // add in-browser implementation
+                bs = new Uint32Array(1);
+                $window.crypto.getRandomValues(bs);
+                byte = bs[0];
+            } else if ($window && $window.msCrypto && $window.msCrypto.getRandomValues) {
+                // add in-browser implementation
+                bs = new Uint32Array(1);
+                $window.msCrypto.getRandomValues(bs);
+                byte = bs[0];
+            } else {
+                throw new Error("No cryptographic random number generator");
+            }
+
+            return byte / (0xffffffff + 1);
+        };
+
         var scrypt_lookup_table = {};
 
         /**
@@ -651,6 +681,7 @@
         };
 
         return {
+            random: random,
             randomBytes: randomBytes,
             sha1: sha1,
             sha256: sha256,

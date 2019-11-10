@@ -85,17 +85,23 @@ var ClassWorkerContentScriptBase = function (browser, jQuery, setTimeout) {
         input.style.setProperty('background-size', 'auto', 'important');
 
         if (mouseOver) {
-            input.addEventListener('mouseover', mouseOver);
+            input.addEventListener('mouseover', function(evt) {
+                mouseOver(evt, this)
+            });
         }
         if (mouseOut) {
-            input.addEventListener('mouseout', mouseOut);
+            input.addEventListener('mouseout', function(evt) {
+                mouseOut(evt, this)
+            });
         }
         if (mouseMove) {
-            input.addEventListener('mousemove', mouseMove);
+            input.addEventListener('mousemove', function(evt) {
+                mouseMove(evt, this)
+            });
         }
         if (click) {
             input.addEventListener('click', function(evt) {
-                click(evt, document)
+                click(evt, this, document)
             });
         }
     }
