@@ -91,17 +91,23 @@
 
                 var onSuccess = function(duo) {
 
+                    $scope.duos.push({
+                        'id': duo.id,
+                        'title': new_duo['title']
+                    });
+                    $scope.new_duo['id'] = duo.id;
+
+                    if (duo.uri === '') {
+                        goto_step3();
+                        return;
+                    }
                     var typeNumber = 6;
                     var errorCorrectionLevel = 'L';
                     var qr = qrcode(typeNumber, errorCorrectionLevel);
                     qr.addData(duo.uri);
                     qr.make();
                     $scope.duo_html = qr.createImgTag(4, 16);
-                    $scope.duos.push({
-                        'id': duo.id,
-                        'title': new_duo['title']
-                    });
-                    $scope.new_duo['id'] = duo.id;
+
                     $scope.step = "step2";
                 };
 
