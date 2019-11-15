@@ -42,6 +42,7 @@
 
             $scope.duos = [];
             $scope.step = "step1";
+            $scope.system_wide_duo_exists = managerDatastoreUser.system_wide_duo_exists();
 
             activate();
 
@@ -69,24 +70,26 @@
 
                 $scope.errors = [];
 
-                if (typeof(new_duo.title) === 'undefined' || new_duo.title === '') {
-                    $scope.errors.push('TITLE_IS_REQUIRED');
-                }
+                if (!$scope.system_wide_duo_exists) {
+                    if (typeof(new_duo.title) === 'undefined' || new_duo.title === '') {
+                        $scope.errors.push('TITLE_IS_REQUIRED');
+                    }
 
-                if (typeof(new_duo.integration_key) === 'undefined' || new_duo.integration_key === '') {
-                    $scope.errors.push('INTEGRATION_KEY_IS_REQUIRED');
-                }
+                    if (typeof(new_duo.integration_key) === 'undefined' || new_duo.integration_key === '') {
+                        $scope.errors.push('INTEGRATION_KEY_IS_REQUIRED');
+                    }
 
-                if (typeof(new_duo.secret_key) === 'undefined' || new_duo.secret_key === '') {
-                    $scope.errors.push('SECRET_KEY_IS_REQUIRED');
-                }
+                    if (typeof(new_duo.secret_key) === 'undefined' || new_duo.secret_key === '') {
+                        $scope.errors.push('SECRET_KEY_IS_REQUIRED');
+                    }
 
-                if (typeof(new_duo.host) === 'undefined' || new_duo.host === '') {
-                    $scope.errors.push('HOST_IS_REQUIRED');
-                }
+                    if (typeof(new_duo.host) === 'undefined' || new_duo.host === '') {
+                        $scope.errors.push('HOST_IS_REQUIRED');
+                    }
 
-                if ($scope.errors.length !== 0) {
-                    return $q.resolve();
+                    if ($scope.errors.length !== 0) {
+                        return $q.resolve();
+                    }
                 }
 
                 var onSuccess = function(duo) {
@@ -120,7 +123,7 @@
                     }
                 };
 
-                return managerDatastoreUser.create_duo(new_duo.title, new_duo.integration_key, new_duo.secret_key, new_duo.host).then(onSuccess, onError);
+                return managerDatastoreUser.create_duo($scope.system_wide_duo_exists, new_duo.title, new_duo.integration_key, new_duo.secret_key, new_duo.host).then(onSuccess, onError);
             }
 
             /**

@@ -36,7 +36,7 @@
                 <br>
 
                 <div class="form-horizontal" ng-if="step === 'step1'">
-                    <div class="row form-group">
+                    <div class="row form-group" ng-if="!system_wide_duo_exists">
 
                         <label class="control-label col-sm-6 col-md-4"
                                for="newDuoForm-title">
@@ -51,7 +51,7 @@
                                    class="form-control">
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row form-group" ng-if="!system_wide_duo_exists">
 
                         <label class="control-label col-sm-6 col-md-4"
                                for="newDuoForm-integration_key">
@@ -66,7 +66,7 @@
                                    class="form-control">
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row form-group" ng-if="!system_wide_duo_exists">
 
                         <label class="control-label col-sm-6 col-md-4"
                                for="newDuoForm-secret_key">
@@ -81,7 +81,7 @@
                                    class="form-control">
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row form-group" ng-if="!system_wide_duo_exists">
 
                         <label class="control-label col-sm-6 col-md-4"
                                for="newDuoForm-host">

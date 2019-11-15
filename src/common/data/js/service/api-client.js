@@ -1726,10 +1726,11 @@
          *
          * @returns {promise} Returns a promise with the secret
          */
-        var create_duo = function (token, session_secret_key, title, integration_key, secret_key, host) {
+        var create_duo = function (token, session_secret_key, use_system_wide_duo, title, integration_key, secret_key, host) {
             var endpoint = '/user/duo/';
             var connection_type = "PUT";
             var data = {
+                use_system_wide_duo: use_system_wide_duo,
                 title: title,
                 integration_key: integration_key,
                 secret_key: secret_key,
