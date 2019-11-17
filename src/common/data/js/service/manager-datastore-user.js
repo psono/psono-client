@@ -1300,6 +1300,7 @@
          * @description
          * creates a duo
          *
+         * @param {boolean} use_system_wide_duo Wether to use the system wide duo or not
          * @param {string} title The title of the duo
          * @param {string} integration_key The integration_key of the duo
          * @param {string} secret_key The secret_key of the duo
@@ -1307,7 +1308,7 @@
          *
          * @returns {promise} Returns a promise with the user information
          */
-        var create_duo = function(title, integration_key, secret_key, host) {
+        var create_duo = function(use_system_wide_duo, title, integration_key, secret_key, host) {
 
             var onSuccess = function (request) {
 
@@ -1321,7 +1322,7 @@
                 return $q.reject(request.data);
             };
 
-            return apiClient.create_duo(managerBase.get_token(), managerBase.get_session_secret_key(), title, integration_key, secret_key, host)
+            return apiClient.create_duo(managerBase.get_token(), managerBase.get_session_secret_key(), use_system_wide_duo, title, integration_key, secret_key, host)
                 .then(onSuccess, onError)
         };
 
@@ -1831,6 +1832,26 @@
             return deferred.promise;
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastoreUser#system_wide_duo_exists
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Returns weather a system wide duo exists or not
+         *
+         * @returns Returns weather a system wide duo exists or not
+         */
+        var system_wide_duo_exists = function() {
+
+            var system_wide_duo_exists = false;
+            if (storage.find_key('config', 'server_info').value.hasOwnProperty('system_wide_duo_exists')) {
+                system_wide_duo_exists = storage.find_key('config', 'server_info').value['system_wide_duo_exists'];
+            }
+
+            return system_wide_duo_exists;
+        };
+
         shareBlueprint.register('search_user', search_user);
 
         return {
@@ -1879,7 +1900,8 @@
             save_new_email: save_new_email,
             save_new_password: save_new_password,
             delete_account: delete_account,
-            select_users: select_users
+            select_users: select_users,
+            system_wide_duo_exists: system_wide_duo_exists,
         };
     };
 

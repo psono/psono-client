@@ -32,12 +32,16 @@
                   snapRemote, $window, $route, $routeParams, $location, helper) {
 
             $scope.login_data = {
+                multifactor_enabled: true
             };
             $scope.select_server = select_server;
             $scope.changing = changing;
             $scope.ga_verify = ga_verify;
             $scope.yubikey_otp_verify = yubikey_otp_verify;
             $scope.duo_verify = duo_verify;
+            $scope.show_duo_2fa_form = show_duo_2fa_form;
+            $scope.show_ga_2fa_form = show_ga_2fa_form;
+            $scope.show_yubikey_otp_2fa_form = show_yubikey_otp_2fa_form;
             $scope.initiate_login = initiate_login;
             $scope.initiate_saml_login = initiate_saml_login;
             $scope.load_default_view = load_default_view;
@@ -178,7 +182,13 @@
                 };
 
                 var onSuccess = function(required_multifactors) {
-                    return next_login_step(required_multifactors);
+
+                    var index = required_multifactors.indexOf('google_authenticator_2fa');
+                    if (index !== -1) {
+                        required_multifactors.splice(index, 1);
+                    }
+
+                    return next_login_step(required_multifactors, true);
                 };
 
                 managerDatastoreUser.ga_verify(ga_token, angular.copy($scope.selected_server)).then(onSuccess, onError);
@@ -219,7 +229,13 @@
                 };
 
                 var onSuccess = function(required_multifactors) {
-                    return next_login_step(required_multifactors);
+
+                    var index = required_multifactors.indexOf('yubikey_otp_2fa');
+                    if (index !== -1) {
+                        required_multifactors.splice(index, 1);
+                    }
+
+                    return next_login_step(required_multifactors, true);
                 };
 
                 managerDatastoreUser.yubikey_otp_verify(yubikey_otp_token, angular.copy($scope.selected_server)).then(onSuccess, onError);
@@ -253,7 +269,13 @@
                 };
 
                 var onSuccess = function(required_multifactors) {
-                    return next_login_step(required_multifactors);
+
+                    var index = required_multifactors.indexOf('duo_2fa');
+                    if (index !== -1) {
+                        required_multifactors.splice(index, 1);
+                    }
+
+                    return next_login_step(required_multifactors, true);
                 };
 
                 managerDatastoreUser.duo_verify(duo_token).then(onSuccess, onError);
@@ -273,6 +295,43 @@
 
             /**
              * @ngdoc
+             * @name psonocli.controller:LoginCtrl#show_duo_2fa_form
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Shows the 2FA form for duo
+             */
+            function show_duo_2fa_form() {
+                duo_verify();
+                $scope.view = 'duo_2fa'
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LoginCtrl#show_ga_2fa_form
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Shows the 2FA form for Google Authenticator
+             */
+            function show_ga_2fa_form() {
+                $scope.view = 'google_authenticator_2fa'
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LoginCtrl#show_yubikey_otp_2fa_form
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Shows the 2FA form for Yubikey
+             */
+            function show_yubikey_otp_2fa_form() {
+                $scope.view = 'yubikey_otp_2fa';
+            }
+
+            /**
+             * @ngdoc
              * @name psonocli.controller:LoginCtrl#next_login_step
              * @methodOf psonocli.controller:LoginCtrl
              *
@@ -280,14 +339,14 @@
              * Triggered once someone clicks the login button
              *
              * @param {array} required_multifactors The username
+             * @param {boolean} solved_two_fa Wether one 2fa has been solved
              */
-            function next_login_step(required_multifactors) {
+            function next_login_step(required_multifactors, solved_two_fa) {
                 $scope.errors = [];
+                $scope.login_data['required_multifactors'] = required_multifactors;
 
-                if (required_multifactors.length === 0) {
-
+                if (required_multifactors.length === 0 || (solved_two_fa && $scope.login_data['multifactor_enabled'] === false)) {
                     var onError = function(data) {
-                        console.log(data);
                         if (data.error_data === null) {
                             $scope.errors = ['SERVER_OFFLINE']
                         } else if (data.error_data.hasOwnProperty('non_field_errors')) {
@@ -310,17 +369,20 @@
                     return managerDatastoreUser.activate_token().then(onSuccess, onError);
                 }
 
-                var multifactor_method = required_multifactors.shift();
-
-                if (multifactor_method === 'google_authenticator_2fa') {
-                    $scope.view = 'google_authenticator_2fa';
-                } else if (multifactor_method === 'yubikey_otp_2fa') {
-                    $scope.view = 'yubikey_otp_2fa';
-                } else if (multifactor_method === 'duo_2fa') {
-                    $scope.view = 'duo_2fa';
-                    duo_verify();
+                if ($scope.login_data['multifactor_enabled'] === false && required_multifactors.length > 1) {
+                    $scope.view = 'pick_second_factor';
                 } else {
-                    alert('Unknown Multifactor Method requested. Please upgrade your client.')
+                    var multifactor_method = required_multifactors[0];
+
+                    if (multifactor_method === 'google_authenticator_2fa') {
+                        show_ga_2fa_form();
+                    } else if (multifactor_method === 'yubikey_otp_2fa') {
+                        show_yubikey_otp_2fa_form();
+                    } else if (multifactor_method === 'duo_2fa') {
+                        show_duo_2fa_form();
+                    } else {
+                        alert('Unknown Multifactor Method requested. Please upgrade your client.')
+                    }
                 }
             }
 
@@ -450,6 +512,10 @@
 
                 var onSuccess = function(server_check) {
 
+                    if (server_check['info'].hasOwnProperty('multifactor_enabled')) {
+                        $scope.login_data['multifactor_enabled'] = server_check['info']['multifactor_enabled'];
+                    }
+
                     var onError = function() {
                         // pass
                     };
@@ -509,7 +575,7 @@
 
 
                 var onSuccess = function(required_multifactors) {
-                    return next_login_step(required_multifactors);
+                    return next_login_step(required_multifactors, false);
                 };
 
                 var onError = function(data) {
