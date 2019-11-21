@@ -510,6 +510,7 @@
   "ENTER_YOUR_YUBIKEY_OTP_TOKEN": "Bitte geben sie ihren YubiKey OTP Token ein",
   "APPROVE_THE_PUSH_NOTIFICATION": "Bestätigen sie die Push-Mitteilung auf ihrem Mobiltelefon oder geben sie ihren Duo Code ein",
   "YUBIKEY_TOKEN": "YubiKey Token",
+  "YUBIKEY_TITLE": "YubiKey Titel",
   "NAVIGATION": "Navigation",
   "MORE": "Mehr",
   "SHARE_DETAILS": "Share Details",
