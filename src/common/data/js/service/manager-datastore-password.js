@@ -1386,6 +1386,7 @@
 
             var path;
             var parent_path;
+            var parent_share;
 
             var target;
             var parent_share_id;
@@ -1400,7 +1401,7 @@
                 target = val1[0][val1[1]];
 
                 // get the parent (share or datastore)
-                var parent_share = managerShare.get_closest_parent_share(path_copy, datastore, datastore, 0);
+                parent_share = managerShare.get_closest_parent_share(path_copy, datastore, datastore, 0);
                 if (parent_share.hasOwnProperty("datastore_id")) {
                     parent_datastore_id = parent_share.datastore_id;
                 } else if (parent_share.hasOwnProperty("share_id")){
@@ -1412,12 +1413,14 @@
                 path = [];
                 parent_path = [];
                 target = datastore;
+                parent_share = datastore;
                 parent_datastore_id = target.datastore_id;
             }
 
             return {
                 'path': path,
                 'parent_path': parent_path,
+                'parent_share': parent_share,
                 'target': target,
                 'parent_share_id': parent_share_id,
                 'parent_datastore_id': parent_datastore_id
@@ -1440,10 +1443,20 @@
          * @param {uuid} parent_share_id The parent Share ID (if the parent is a share)
          * @param {uuid} parent_datastore_id The parent Datastore ID (if the parent is a datastore)
          * @param {TreeObject} datastore The complete password datastore
+         * @param {TreeObject} parent_share The target share or datastore
          *
          * @returns {Array} The paths of changes
          */
-        var create_share_link_in_datastore = function (share, target, path, parent_share_id, parent_datastore_id, datastore) {
+        var create_share_link_in_datastore = function (share, target, path, parent_share_id, parent_datastore_id, datastore, parent_share) {
+
+
+            if (parent_share.hasOwnProperty('share_index')
+                && parent_share['share_index'].hasOwnProperty(share.share_id)
+                && parent_share['share_index'][share.share_id].hasOwnProperty('paths')
+                && parent_share['share_index'][share.share_id]['paths'].length > 0) {
+                // share already exists in this parent share / datastore, so we prevent creation of duplicates
+                return [];
+            }
 
             var link_id = cryptoLibrary.generate_uuid();
 
@@ -1486,17 +1499,19 @@
          * @param {uuid} parent_share_id The parent Share ID (if the parent is a share)
          * @param {uuid} parent_datastore_id The parent Datastore ID (if the parent is a datastore)
          * @param {TreeObject} datastore The complete password datastore
+         * @param {TreeObject} parent_share The target share or datastore
          *
          * @returns {promise} Returns a promise with the success of the action
          */
-        var create_share_links_in_datastore = function(shares, target, parent_path, path, parent_share_id, parent_datastore_id, datastore) {
+        var create_share_links_in_datastore = function(shares, target, parent_path, path, parent_share_id, parent_datastore_id, datastore, parent_share) {
 
             var changed_paths = [parent_path];
 
             for (var i = 0; i < shares.length; i ++) {
                 var share = shares[i];
+
                 changed_paths.concat(
-                    create_share_link_in_datastore(share, target, angular.copy(path), parent_share_id, parent_datastore_id, datastore)
+                    create_share_link_in_datastore(share, target, angular.copy(path), parent_share_id, parent_datastore_id, datastore, parent_share)
                 )
             }
 

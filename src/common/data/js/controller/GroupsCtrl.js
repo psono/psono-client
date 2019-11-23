@@ -322,7 +322,7 @@
                             managerDatastorePassword.create_share_links_in_datastore(shares, analyzed_breadcrumbs['target'],
                                 analyzed_breadcrumbs['parent_path'], analyzed_breadcrumbs['path'],
                                 analyzed_breadcrumbs['parent_share_id'], analyzed_breadcrumbs['parent_datastore_id'],
-                                datastore);
+                                analyzed_breadcrumbs['parent_share'], datastore);
 
                             mark_group_accepted(group.group_id);
                         };
@@ -425,7 +425,7 @@
                             managerDatastorePassword.create_share_links_in_datastore(shares, analyzed_breadcrumbs['target'],
                                 analyzed_breadcrumbs['parent_path'], analyzed_breadcrumbs['path'],
                                 analyzed_breadcrumbs['parent_share_id'], analyzed_breadcrumbs['parent_datastore_id'],
-                                datastore);
+                                analyzed_breadcrumbs['parent_share'], datastore);
 
                             delete $scope.outstanding_share_index[group.group_id];
                         };
