@@ -76,7 +76,10 @@
                 };
 
                 var onSuccess = function(result) {
-                    $uibModalInstance.close();
+                    api_key.title = $scope.title;
+                    api_key.restrict_to_secrets = $scope.restrict_to_secrets;
+                    api_key.allow_insecure_access = $scope.allow_insecure_access;
+                    $uibModalInstance.close(api_key);
                 };
 
                 return managerAPIKeys.update_api_key(api_key.id, $scope.title, $scope.restrict_to_secrets, $scope.allow_insecure_access)
