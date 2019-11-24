@@ -135,7 +135,7 @@
                             managerDatastorePassword.create_share_links_in_datastore(shares, analyzed_breadcrumbs['target'],
                                 analyzed_breadcrumbs['parent_path'], analyzed_breadcrumbs['path'],
                                 analyzed_breadcrumbs['parent_share_id'], analyzed_breadcrumbs['parent_datastore_id'],
-                                datastore);
+                                analyzed_breadcrumbs['parent_share'], datastore);
 
                             remove_item_from_pending_list(item, pending_shares);
                         };

@@ -96,19 +96,23 @@
                     // pass
                 };
 
-                var onSuccess = function(api_key) {
+                var onSuccess = function(api_key_full_details) {
 
                     var modalInstance = $uibModal.open({
                         templateUrl: 'view/modal/edit-api-key.html',
                         controller: 'ModalEditAPIKeyCtrl',
                         resolve: {
                             api_key: function () {
-                                return api_key;
+                                return api_key_full_details;
                             }
                         }
                     });
 
-                    modalInstance.result.then(function (form) {
+                    modalInstance.result.then(function (updated_api_key) {
+                        api_key.title = updated_api_key.title;
+                        api_key.restrict_to_secrets = updated_api_key.restrict_to_secrets;
+                        api_key.allow_insecure_access = updated_api_key.allow_insecure_access;
+                        api_key.active = updated_api_key.active;
                         // save triggered
                     }, function () {
                         // cancel triggered

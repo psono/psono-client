@@ -2198,12 +2198,12 @@
          *
          * @returns {promise} Returns a promise which can succeed or fail
          */
-        var update_api_key = function (token, session_secret_key, api_key_id, name, restrict_to_secrets, allow_insecure_access) {
+        var update_api_key = function (token, session_secret_key, api_key_id, title, restrict_to_secrets, allow_insecure_access) {
             var endpoint = '/api-key/';
             var connection_type = "POST";
             var data = {
                 api_key_id: api_key_id,
-                name: name,
+                title: title,
                 restrict_to_secrets: restrict_to_secrets,
                 allow_insecure_access: allow_insecure_access
             };
