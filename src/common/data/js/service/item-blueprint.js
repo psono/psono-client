@@ -129,9 +129,10 @@
             /**
              * will open a new tab
              *
+             * @param secret_id
              * @param content
              */
-            onOpenSecret: function(content) {
+            onOpenSecret: function(secret_id, content) {
                 $window.location.href = content.website_password_url;
             },
             /**
@@ -160,7 +161,16 @@
             fields: [
                 { name: "note_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true, error_message_required: 'TITLE_IS_REQUIRED'},
                 { name: "note_notes", field: "textarea", title: "NOTES", placeholder: "NOTES"}
-            ]
+            ],
+            /**
+             * will open the search tab
+             *
+             * @param secret_id
+             * @param content
+             */
+            onOpenSecret: function(secret_id, content) {
+                $window.location.href = 'index.html#!/datastore/search/' + secret_id;
+            }
         };
 
         var _blueprint_file = {
@@ -223,6 +233,15 @@
                         _blueprint_file.field_index['file_destinations'].hidden = false;
                     }
                 });
+            },
+            /**
+             * will open the search tab
+             *
+             * @param secret_id
+             * @param content
+             */
+            onOpenSecret: function(secret_id, content) {
+                $window.location.href = 'index.html#!/datastore/search/' + secret_id;
             },
 
             /**
@@ -766,6 +785,15 @@
                 for (var i = 0; i < node.fields.length; i++) {
                     node.fields[i].hidden = !(showInNewOnly.indexOf(node.fields[i].name) > -1);
                 }
+            },
+            /**
+             * will open the search tab
+             *
+             * @param secret_id
+             * @param content
+             */
+            onOpenSecret: function(secret_id, content) {
+                $window.location.href = 'index.html#!/datastore/search/' + secret_id;
             }
         };
 
@@ -828,9 +856,10 @@
             /**
              * will open a new tab
              *
+             * @param secret_id
              * @param content
              */
-            onOpenSecret: function(content) {
+            onOpenSecret: function(secret_id, content) {
                 $window.location.href = content.bookmark_url;
             }
         };
@@ -1401,12 +1430,13 @@
          * triggers open secret function
          *
          * @param {string} key The key of the blueprint
+         * @param {string} secret_id The id of the secret
          * @param {object} content The payload of the "onOpenSecret" call
          */
-        function blueprint_on_open_secret(key, content) {
+        function blueprint_on_open_secret(key, secret_id, content) {
             var bp = get_blueprint(key);
             if (bp.hasOwnProperty('onOpenSecret')) {
-                bp.onOpenSecret(content);
+                bp.onOpenSecret(secret_id, content);
             }
         }
 

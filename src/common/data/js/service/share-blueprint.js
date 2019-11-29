@@ -213,14 +213,6 @@
                 registrations['search_user'](search_username, search_email).then(onSuccess, onError)
 
             },
-            /**
-             * will open a new tab
-             *
-             * @param content
-             */
-            onOpenSecret: function(content) {
-
-            },
             onEditModalOpen: function(node) {
                 var showInEditOnly = ["user_name", "user_id", "user_username", "user_public_key"];
                 for (var i = 0; i < node.fields.length; i++) {
@@ -393,12 +385,13 @@
          * triggers open secret function
          *
          * @param {string} key The key of the blueprint
+         * @param {string} secret_id The id of the secret
          * @param {object} content The payload of the "onOpenSecret" call
          */
-        var blueprint_on_open_secret = function (key, content) {
+        var blueprint_on_open_secret = function (key, secret_id, content) {
             var bp = get_blueprint(key);
             if (bp.hasOwnProperty('onOpenSecret')) {
-                bp.onOpenSecret(content);
+                bp.onOpenSecret(secret_id, content);
             }
         };
 
