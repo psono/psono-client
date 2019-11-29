@@ -13,8 +13,8 @@
      * @description
      * Controller for the "Edit Entry" modal
      */
-    angular.module('psonocli').controller('ModalEditEntryCtrl', ['$rootScope', '$scope', '$uibModal', '$uibModalInstance', 'itemBlueprint', 'offlineCache', 'node', 'path', 'data',
-        function ($rootScope, $scope, $uibModal, $uibModalInstance, itemBlueprint, offlineCache, node, path, data) {
+    angular.module('psonocli').controller('ModalEditEntryCtrl', ['$rootScope', '$scope', '$uibModal', '$uibModalInstance', 'itemBlueprint', 'helper', 'offlineCache', 'node', 'path', 'data',
+        function ($rootScope, $scope, $uibModal, $uibModalInstance, itemBlueprint, helper, offlineCache, node, path, data) {
             $scope.show_history = show_history;
             $scope.reset = reset;
             $scope.save = save;
@@ -111,9 +111,33 @@
              */
             function save() {
 
+                $scope.errors = [];
                 if ($scope.editEntryForm.$invalid) {
                     return;
                 }
+                for (var i = 0; i < $scope.bp.selected.fields.length; i++) {
+                    var field = $scope.bp.selected.fields[i];
+                    if (field.hasOwnProperty("required")) {
+                        if (field['required'] && field['value'] !== false && !field['value']) {
+                            $scope.errors.push(field['title'] + '_IS_REQUIRED');
+                            continue;
+                        }
+                    }
+                    if (field.hasOwnProperty("validationType")) {
+                        if (field['validationType'].toLowerCase() === 'url' && field['value'] && !helper.is_valid_url(field['value'])) {
+                            $scope.errors.push('Invalid URL in ' + field['title']);
+                        }
+                        if (field['validationType'].toLowerCase() === 'email' && field['value'] && !helper.is_valid_email(field['value'])) {
+                            $scope.errors.push('Invalid URL in ' + field['title']);
+                        }
+                    }
+
+                }
+
+                if ($scope.errors.length > 0) {
+                    return;
+                }
+
                 $scope.bp.selected['callback_data'] = data;
                 $uibModalInstance.close($scope.bp.selected);
             }
