@@ -44,7 +44,7 @@
         <div class="row">
             <div class="col-xs-12 col-sm-4" for="passphrase" style="margin-top: 8px">{{'PASSPHRASE' | translate}}</div>
             <div class="col-xs-12 col-sm-8">
-                <input type="password" name="passphrase" class="form-control" id="passphrase" placeholder="" ng-model="state.passphrase">
+                <input type="password" autocomplete="new-password" name="passphrase" class="form-control" id="passphrase" placeholder="" ng-model="state.passphrase">
 
                 <uib-progressbar value="state.passphrase | complexify" ng-if="(state.passphrase | complexify) > 0">
                     <span complexify="state.passphrase"></span>%
@@ -55,10 +55,10 @@
             </div>
         </div>
 
-        <div class="row" ng-if="state.passphrase">
+        <div class="row">
             <div class="col-xs-12 col-sm-4" for="passphrase_repeat" style="margin-top: 8px">{{'PASSPHRASE_REPEAT' | translate}}</div>
             <div class="col-xs-12 col-sm-8">
-                <input type="password" name="passphrase_repeat" class="form-control" id="passphrase_repeat" placeholder="" ng-model="state.passphrase_repeat">
+                <input type="password" autocomplete="new-password" name="passphrase_repeat" class="form-control" id="passphrase_repeat" placeholder="" ng-model="state.passphrase_repeat">
             </div>
         </div>
 
