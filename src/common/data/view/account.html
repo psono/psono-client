@@ -41,6 +41,7 @@
                                        ng-if="field.type != 'button'"
                                        ng-required="{{field.required}}"
                                        ng-readonly="{{field.readonly}}"
+                                       ng-attr-autocomplete="{{field.autocomplete}}"
                                        placeholder="{{field.placeholder | translate}}" id="accountForm-{{field.key}}"
                                        name="{{field.key}}"
                                        class="form-control">

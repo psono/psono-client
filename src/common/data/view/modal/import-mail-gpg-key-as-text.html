@@ -9,7 +9,7 @@
             <p class="help-block" ng-show="submitted && newMailKeyForm.name.$error.required">{{'TITLE_IS_REQUIRED' | translate}}</p>
         </div>
         <div class="form-group" ng-class="{true: 'has-error'}[submitted && newMailKeyForm.passphrase.$invalid]">
-            <input type="password" name="passphrase" class="form-control" id="keyPassphrase" placeholder="{{'YOUR_KEYS_PASSPHRASE' | translate}}" ng-model="data.passphrase">
+            <input type="password" autocomplete="new-password" name="passphrase" class="form-control" id="keyPassphrase" placeholder="{{'YOUR_KEYS_PASSPHRASE' | translate}}" ng-model="data.passphrase">
         </div>
         <div class="form-group" ng-class="{true: 'has-error'}[submitted && newMailKeyForm.public_key.$invalid]">
             <textarea class="form-control"

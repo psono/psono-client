@@ -4,6 +4,7 @@
     /**
      * @ngdoc service
      * @name psonocli.managerSecret
+     * @requires $q
      * @requires $rootScope
      * @requires $uibModal
      * @requires psonocli.managerBase
@@ -17,7 +18,7 @@
      * Service to handle all secret related tasks
      */
 
-    var managerSecret = function($rootScope, $uibModal, managerBase, apiClient, cryptoLibrary,
+    var managerSecret = function($q, $rootScope, $uibModal, managerBase, apiClient, cryptoLibrary,
                            itemBlueprint, browserClient, offlineCache) {
 
         /**
@@ -74,7 +75,7 @@
          */
         var read_secret = function(secret_id, secret_key, synchronous) {
             var onError = function(result) {
-                // pass
+                return $q.reject(result)
             };
 
             var onSuccess = function(content) {
@@ -148,6 +149,7 @@
         var redirect_secret = function(type, secret_id) {
 
             function redirect() {
+
                 var secret_key = managerBase.find_key_nolimit('datastore-password-leafs', secret_id);
 
                 var onError = function(result) {
@@ -161,7 +163,7 @@
                         browserClient.emit_sec(msg.key, msg.content);
                     }
 
-                    itemBlueprint.blueprint_on_open_secret(type, decrypted_secret);
+                    itemBlueprint.blueprint_on_open_secret(type, secret_id, decrypted_secret);
                 };
 
                 read_secret(secret_id, secret_key)
@@ -266,7 +268,7 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerSecret", ['$rootScope', '$uibModal', 'managerBase', 'apiClient', 'cryptoLibrary',
+    app.factory("managerSecret", ['$q', '$rootScope', '$uibModal', 'managerBase', 'apiClient', 'cryptoLibrary',
         'itemBlueprint', 'browserClient', 'offlineCache', managerSecret]);
 
 }(angular));

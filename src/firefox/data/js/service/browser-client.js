@@ -437,7 +437,28 @@
          * @returns {promise} A promise with the success or failure state
          */
         function disable_browser_password_saving() {
-            return $q.resolve('nothing done');
+            return $q(function(resolve, reject) {
+                function onSet(result) {
+                    if (result) {
+                        resolve("Hooray, it worked!");
+                    } else {
+                        reject("Sadness!");
+                    }
+                }
+
+                var getting = browser.privacy.services.passwordSavingEnabled.get({});
+                getting.then(function (got) {
+                    if ((got.levelOfControl === "controlled_by_this_extension") ||
+                        (got.levelOfControl === "controllable_by_this_extension")) {
+                        var setting = browser.privacy.services.passwordSavingEnabled.set({
+                            value: false
+                        });
+                        setting.then(onSet);
+                    } else {
+                        reject("Sadness!");
+                    }
+                });
+            });
         }
 
 

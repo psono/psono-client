@@ -9,7 +9,7 @@ npm install --global yarn@1.18.0 && \
 yarn config set registry https://psono.jfrog.io/psono/api/npm/npm/ && \
 yarn install && \
 yarn global add gulp && \
-yarn global add addons-linter && \
+yarn global add addons-linter@1.17.0&& \
 yarn global add karma-cli && \
 yarn global add node-poeditor && \
 gulp && \

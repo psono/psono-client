@@ -50,9 +50,9 @@
                 { key: "setting_email", field: "input", type: "email", title: "NEW_E_MAIL", placeholder: "NEW_E_MAIL", required: true, tab: 'change-email'},
                 { key: "setting_email_password_old", field: "input", type: "password", title: "CURRENT_PASSWORD", placeholder: "CURRENT_PASSWORD", tab: 'change-email'},
                 // Change Password
-                { key: "setting_password", field: "input", type: "password", title: "NEW_PASSWORD", placeholder: "NEW_PASSWORD", tab: 'change-password', complexify: true},
-                { key: "setting_password_repeat", field: "input", type: "password", title: "NEW_PASSWORD_REPEAT", placeholder: "NEW_PASSWORD_REPEAT", tab: 'change-password'},
                 { key: "setting_password_password_old", field: "input", type: "password", title: "OLD_PASSWORD", placeholder: "OLD_PASSWORD", tab: 'change-password'},
+                { key: "setting_password", field: "input", type: "password", title: "NEW_PASSWORD", placeholder: "NEW_PASSWORD", tab: 'change-password', complexify: true, autocomplete: "new-password"},
+                { key: "setting_password_repeat", field: "input", type: "password", title: "NEW_PASSWORD_REPEAT", placeholder: "NEW_PASSWORD_REPEAT", tab: 'change-password', autocomplete: "new-password"},
                 // Password Recovery
                 { name: "generate_password_recovery_button", field: "button", type: "button", title: "NEW_PASSWORD_RECOVERY_CODE", btnLabel: "GENERATE", class: 'btn-primary', onClick:"onClickGenerateNewPasswordRecoveryCode", tab: 'recovery-codes' },
                 // Emergency Codes
