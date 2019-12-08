@@ -19,6 +19,7 @@
         </div>
         <div class="panel-body">
 
+
             <form name="searchTreeForm" class="widget-searchform" autocomplete="off">
                 <div class="row">
                     <div class="expandable" ng-class="{'col-xs-offset-4 col-xs-8 col-sm-offset-6 col-sm-6 col-md-offset-8 col-md-4': !focused, 'col-xs-12 col-sm-12 col-md-offset-6 col-md-6 focused': focused}">
@@ -47,7 +48,7 @@
 
             <div data-target="menu-datastore-main" context-menu="contextMenuOnShow('menu-datastore-main')" context-menu-close="contextMenuOnClose('menu-datastore-main')" class="expand15">
 
-                <div class="dropdown position-fixed dropdown-rightclick" id="menu-datastore-main">
+                <div class="dropdown position-fixed dropdown-rightclick" id="menu-datastore-main" ng-if="!offline">
                     <ul class="dropdown-menu" role="menu">
                         <li role="menuitem" ng-click="openNewFolder($event)"><a href=""><i class="fa fa-folder"></i>{{'NEW_FOLDER' | translate}}</a></li>
                         <li role="menuitem" ng-click="openNewItem($event)"><a href=""><i class="fa fa-plus"></i>{{'NEW_ENTRY' | translate}}</a></li>
