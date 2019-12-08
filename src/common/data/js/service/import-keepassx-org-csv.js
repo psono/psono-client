@@ -50,7 +50,6 @@
          * @returns {*} Returns the specified folder object, containing items and folders
          */
         function get_folder_helper(path, folder) {
-
             var next_folder_name;
             var next_folder;
 
@@ -76,7 +75,7 @@
                 folder['folders'].push(next_folder);
             }
 
-            return next_folder
+            return get_folder_helper(path, next_folder);
         }
 
         /**
