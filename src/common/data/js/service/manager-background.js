@@ -44,6 +44,8 @@
 
         function activate() {
 
+            browserClient.disable_browser_password_saving();
+
             if (typeof chrome.tabs !== 'undefined') {
                 chrome.tabs.onActivated.addListener(function(activeInfo) {
                     activeTabId = activeInfo.tabId;
@@ -108,8 +110,6 @@
                     }
                 });
             }
-
-            browserClient.disable_browser_password_saving();
         }
 
         // /*
