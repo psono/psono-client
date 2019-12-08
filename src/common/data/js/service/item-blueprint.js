@@ -42,7 +42,7 @@
                 { name: "website_password_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true, error_message_required: 'TITLE_IS_REQUIRED' },
                 { name: "website_password_url", field: "input", type: "text", validationType: "url", title: "URL", placeholder: "URL", onChange: "onChangeUrl"},
                 { name: "website_password_username", field: "input", type: "text", title: "USERNAME", placeholder: "USERNAME"},
-                { name: "website_password_password", field: "input", type: "password", title: "PASSWORD", placeholder: "PASSWORD",
+                { name: "website_password_password", field: "input", type: "password", title: "PASSWORD", placeholder: "PASSWORD", autocomplete: "new-password",
                     dropmenuItems:[
                         {
                             icon: "fa fa-eye-slash",

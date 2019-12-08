@@ -86,7 +86,7 @@
                     <input type="email" class="form-control" id="registerEmail" placeholder="{{'E_MAIL' | translate}}" ng-model="registerFormEmail" required>
                 </div>
                 <div class="form-group">
-                    <input type="password" class="form-control" id="registerPassword" placeholder="{{'PASSWORD' | translate}}" ng-model="registerFormPassword" required>
+                    <input type="password" autocomplete="new-password" class="form-control" id="registerPassword" placeholder="{{'PASSWORD' | translate}}" ng-model="registerFormPassword" required>
 
                     <uib-progressbar value="registerFormPassword | complexify" ng-if="(registerFormPassword | complexify) > 0">
                         <span complexify="registerFormPassword"></span>%
@@ -96,7 +96,7 @@
 
 
                 <div class="form-group">
-                    <input type="password" class="form-control" id="registerPasswordRepeat" placeholder="{{'PASSWORD_REPEAT' | translate}}" ng-model="registerFormPasswordRepeat" required>
+                    <input type="password" autocomplete="new-password" class="form-control" id="registerPasswordRepeat" placeholder="{{'PASSWORD_REPEAT' | translate}}" ng-model="registerFormPasswordRepeat" required>
                 </div>
 
                 <div class="form-group">
