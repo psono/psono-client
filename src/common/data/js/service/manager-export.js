@@ -321,14 +321,15 @@
          * Fetches the datastore with all secrets ready to download or analyze
          *
          * @param {string} type The selected type of the export
+         * @param {uuid} id The id of the datastore one wants to download
          *
          * @returns {promise} Returns a promise with the exportable datastore content
          */
-        var fetch_datastore = function(type) {
+        var fetch_datastore = function(type, id) {
 
             emit('export-started', {});
 
-            return managerDatastorePassword.get_password_datastore()
+            return managerDatastorePassword.get_password_datastore(id)
                 .then(get_all_secrets)
                 .then(filter_datastore_export)
                 .then(function(data){

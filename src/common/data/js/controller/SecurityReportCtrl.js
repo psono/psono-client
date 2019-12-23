@@ -31,6 +31,7 @@
 
             $scope.name = "SecurityReportCtrl";
             $scope.check_haveibeenpwned = false;
+            $scope.send_to_server = false;
             $scope.params = $routeParams;
             $scope.routeParams = $routeParams;
             $scope.state = {
@@ -113,7 +114,7 @@
             /**
              * Analyze all secrets
              */
-            function generate_security_report(password, check_haveibeenpwned) {
+            function generate_security_report(password, check_haveibeenpwned, send_to_server) {
 
                 $scope.check_haveibeenpwned = check_haveibeenpwned;
 
@@ -151,6 +152,10 @@
                         data.analysis['password_summary']['update_older_than_90_days'],
                         data.analysis['password_summary']['update_newer_than_90_days']
                     ];
+
+                    if (send_to_server) {
+                        managerSecurityReport.send_to_server(data.analysis, check_haveibeenpwned, password);
+                    }
                 };
                 var onError = function (data) {
                     $scope.msgs = [];

@@ -36,7 +36,7 @@
                     <p class="text-center" ng-if="!analysis.password_summary.weak">{{'NO_WEAK_PASSWORDS' | translate}}</p>
                 </div>
                 <div class="col-xs-3">
-                    <h5>Duplicates</h5>
+                    <h5>{{'DUPLICATES' | translate}}</h5>
                     <canvas id="doughnut_duplicate" class="chart chart-doughnut"
                             chart-colors="duplicate_colors"
                             chart-data="duplicate_data"
@@ -46,7 +46,7 @@
                     <p class="text-center" ng-if="!analysis.password_summary.duplicate">{{'NO_DUPLICATES' | translate}}</p>
                 </div>
                 <div class="col-xs-3">
-                    <h5>Average Score</h5>
+                    <h5>{{'AVERAGE_SCORE' | translate}}</h5>
                     <canvas id="doughnut_average_score" class="chart chart-doughnut"
                             chart-colors="average_score_colors"
                             chart-data="average_score_data"
@@ -72,7 +72,7 @@
                     <th>{{'PASSWORD' | translate}}</th>
                     <th>{{'RATING' | translate}}</th>
                     <th>{{'AGE' | translate}}</th>
-                    <th ng-if="check_haveibeenpwned">{{'PWNED' | translate}}</th>
+                    <th ng-if="check_haveibeenpwned">{{'BREACHED' | translate}}</th>
                     <th>{{'DUPLICATE' | translate}}</th>
                     <th>{{'ADVISE' | translate}}</th>
                 </tr>
@@ -95,9 +95,9 @@
                     <td>{{ pw.rating }}</td>
                     <td>{{ pw.write_age }} {{'DAYS' | translate}}</td>
                     <td ng-if="check_haveibeenpwned">
-                        <i class="fa fa-exclamation-triangle" aria-hidden="true" ng-if="pw.pwned"></i>
-                        <span style="display: none" ng-if="!pw.pwned">0</span>
-                        <span style="display: none" ng-if="pw.pwned">1</span>
+                        <i class="fa fa-exclamation-triangle" aria-hidden="true" ng-if="pw.breached"></i>
+                        <span style="display: none" ng-if="!pw.breached">0</span>
+                        <span style="display: none" ng-if="pw.breached">1</span>
                     </td>
                     <td>
                         <i class="fa fa-exclamation-triangle" aria-hidden="true" ng-if="pw.duplicate"></i>
@@ -140,7 +140,13 @@
                 </div>
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
-                        <button type="submit" class="btn btn-primary btn-primary" ng-click="generate_security_report(password, check_haveibeenpwned)">{{'START_ANALYSIS' | translate}}</button>
+                        <input type="checkbox" ng-model="send_to_server">
+                        {{'SEND_TO_SERVER' | translate}}?
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="btn btn-primary btn-primary" ng-click="generate_security_report(password, check_haveibeenpwned, send_to_server)">{{'START_ANALYSIS' | translate}}</button>
                     </div>
                 </div>
 
