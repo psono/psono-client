@@ -1171,7 +1171,7 @@
                     }
                 },
                 condition: function(item) {
-                    return item.hasOwnProperty('share_id');
+                    return item.hasOwnProperty('share_id') && typeof(item.share_id) !== 'undefined';
                 },
                 onClick: function(item, path) {
 
@@ -1179,7 +1179,6 @@
                         return;
                     }
 
-                    // create the share
                     registrations['read_share_rights'](item.share_id).then(function (share_details) {
 
                         var modalInstance = $uibModal.open({
