@@ -14,7 +14,7 @@
      * The browser interface, responsible for the cross browser / platform compatibility.
      */
 
-    var browserClient = function($rootScope, $q, $templateRequest, $http, $location, $window, $document) {
+    var browserClient = function(helper, $rootScope, $q, $templateRequest, $http, $location, $window, $document) {
 
         var config = {};
         var events = [
@@ -193,6 +193,20 @@
 
             var onSuccess = function(orig_json_config) {
                 var new_config = orig_json_config.data;
+                var parsed_url = helper.parse_url($window.location.href);
+
+                if (!new_config.hasOwnProperty('base_url')) {
+                    new_config['base_url'] = parsed_url['base_url'] + '/';
+                }
+
+                if (new_config.hasOwnProperty('backend_servers')) {
+                    for (var i = 0; i < new_config['backend_servers'].length; i++) {
+                        if (new_config['backend_servers'][i].hasOwnProperty('url')) {
+                            continue;
+                        }
+                        new_config['backend_servers'][i]['url'] = parsed_url['base_url'] + '/server';
+                    }
+                }
 
                 if (!new_config.hasOwnProperty('authentication_methods')) {
                     new_config['authentication_methods'] = ["AUTHKEY", "LDAP", "SAML"];
@@ -479,6 +493,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("browserClient", ['$rootScope', '$q', '$templateRequest', '$http', '$location', '$window', '$document', browserClient]);
+    app.factory("browserClient", ['helper', '$rootScope', '$q', '$templateRequest', '$http', '$location', '$window', '$document', browserClient]);
 
 }(angular));
