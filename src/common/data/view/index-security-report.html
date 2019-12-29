@@ -133,16 +133,16 @@
                     </label>
                     <div class="col-sm-10">
                         <input type="password" class="form-control" id="password" placeholder="{{'YOUR_PASSWORD' | translate}}"
-                               ng-model="server_status.password">
+                               ng-model="state.password">
                     </div>
                 </div>
-                <div class="form-group" ng-if="server_status.password">
+                <div class="form-group" ng-if="state.password">
                     <label class="control-label col-sm-2" for="password_repeat">
                         {{'PASSWORD_REPEAT' | translate}}
                     </label>
                     <div class="col-sm-10">
                         <input type="password" class="form-control" id="password_repeat" placeholder="{{'PASSWORD_REPEAT' | translate}}"
-                               ng-model="server_status.password_repeat">
+                               ng-model="state.password_repeat">
                     </div>
                 </div>
                 <div class="form-group">
@@ -159,7 +159,7 @@
                 </div>
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
-                        <button type="submit" class="btn btn-primary btn-primary" ng-click="generate_security_report(server_status.password, server_status.password_repeat, check_haveibeenpwned, state.send_to_server)">{{'START_ANALYSIS' | translate}}</button>
+                        <button type="submit" class="btn btn-primary btn-primary" ng-click="generate_security_report(state.password, state.password_repeat, check_haveibeenpwned, state.send_to_server)">{{'START_ANALYSIS' | translate}}</button>
                     </div>
                 </div>
 

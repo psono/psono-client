@@ -36,6 +36,8 @@
             $scope.params = $routeParams;
             $scope.routeParams = $routeParams;
             $scope.state = {
+                password: '',
+                password_repeat: '',
                 send_to_server: managerSecurityReport.central_security_reports_enforced() && !managerSecurityReport.central_security_reports_disable(),
                 open_secret_requests: 0,
                 closed_secret_request: 0,
@@ -127,6 +129,9 @@
                     return;
                 }
 
+                $scope.state.password = '';
+                $scope.state.password_repeat = '';
+
                 $scope.check_haveibeenpwned = check_haveibeenpwned;
 
                 var onSuccess = function (data) {
@@ -166,7 +171,6 @@
                     ];
 
                     var onSuccess = function (data) {
-                        console.log(data);
                         // server accepted security report
                     };
 

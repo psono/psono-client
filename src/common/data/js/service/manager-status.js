@@ -41,8 +41,6 @@
          */
         function get_status(force_fresh) {
 
-            force_fresh = true;
-
             var d = new Date();
             var timestamp = d.getTime();
             var server_status = localStorageService.get('server_status');
