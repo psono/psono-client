@@ -1,4 +1,4 @@
-(function(angular, Raven) {
+(function(angular, Raven, moment) {
     'use strict';
 
     /**
@@ -11,6 +11,7 @@
      * @requires psonocli.account
      * @requires psonocli.managerDatastorePassword
      * @requires psonocli.managerDatastoreUser
+     * @requires psonocli.managerSecurityReport
      * @requires psonocli.managerSecret
      * @requires psonocli.browserClient
      * @requires psonocli.storage
@@ -25,10 +26,10 @@
      * Controller for main view
      */
     angular.module('psonocli').controller('MainCtrl', ['$scope', '$rootScope', '$filter', '$timeout', 'account',
-        'managerDatastorePassword', 'managerDatastoreUser', 'managerDatastore', 'managerSecret', 'browserClient',
+        'managerDatastorePassword', 'managerDatastoreUser', 'managerSecurityReport', 'managerDatastore', 'managerSecret', 'browserClient',
         'storage', 'offlineCache', 'snapRemote', '$window', '$route', '$routeParams', '$location', '$uibModal', 'managerStatus',
         function ($scope, $rootScope, $filter, $timeout, account,
-                  managerDatastorePassword, managerDatastoreUser, managerDatastore, managerSecret, browserClient,
+                  managerDatastorePassword, managerDatastoreUser, managerSecurityReport, managerDatastore, managerSecret, browserClient,
                   storage, offlineCache, snapRemote, $window, $route, $routeParams, $location, $uibModal, managerStatus) {
 
             $scope.enable_link_shares = storage.find_key('config', 'server_info') && storage.find_key('config', 'server_info').value && (!storage.find_key('config', 'server_info').value.hasOwnProperty('compliance_disable_link_shares') || ! storage.find_key('config', 'server_info').value['compliance_disable_link_shares'])
@@ -44,9 +45,13 @@
             $scope.user_username = account.get_account_detail('user_username');
             $scope.messages = [];
             $scope.server_status = {
+                password: '',
+                password_repeat: '',
                 data: {
 
-                }
+                },
+                new_security_report: 'NOT_REQUIRED', // Alternative choices are REQUIRED and UPCOMING
+                last_security_report_age: 0
             };
             $scope.data_stores=[];
 
@@ -84,11 +89,11 @@
                     if (typeof(status) === 'undefined') {
                         return;
                     }
-                    $scope.server_status.data = status.data;
+                    on_server_status_update(status.data);
                 });
 
                 $rootScope.$on('server_status_updated', function(event, data) {
-                    $scope.server_status.data = data.data;
+                    on_server_status_update(data.data);
                 });
 
 
@@ -97,6 +102,41 @@
                     Raven.setRelease(version);
                 });
                 managerDatastore.register('on_datastore_overview_update', refresh_datastore_dropdown);
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:OtherDatastoreCtrl#on_server_status_update
+             * @methodOf psonocli.controller:OtherDatastoreCtrl
+             *
+             * @description
+             * Triggered upon server status update. Responsible to update the scope with the data.
+             *
+             * @param data
+             */
+            function on_server_status_update(data) {
+                $scope.server_status.data = data;
+                var recurrence_interval = managerSecurityReport.central_security_reports_recurrence_interval()*1000;
+
+                if (recurrence_interval > 0) {
+                    if (data.hasOwnProperty('last_security_report_created') && data['last_security_report_created'] !== null) {
+                        var last_security_report_age__milliseconds = moment() - moment(data['last_security_report_created']);
+                        $scope.server_status.last_security_report_age = Math.ceil(last_security_report_age__milliseconds/(24*60*60*1000));
+                        if (last_security_report_age__milliseconds > recurrence_interval) {
+                            $scope.server_status.new_security_report = 'REQUIRED'
+                        } else {
+                            var days_28 = 28*24*3600*1000;
+                            var days_14 = 14*24*3600*1000;
+                            if (recurrence_interval >= days_28 && last_security_report_age__milliseconds > recurrence_interval - days_14) {
+                                $scope.server_status.new_security_report = 'SOON_REQUIRED'
+                            } else {
+                                $scope.server_status.new_security_report = 'NOT_REQUIRED'
+                            }
+                        }
+                    } else {
+                        $scope.server_status.new_security_report = 'REQUIRED'
+                    }
+                }
             }
 
             /**
@@ -237,4 +277,4 @@
             }
         }]
     );
-}(angular, Raven));
+}(angular, Raven, moment));

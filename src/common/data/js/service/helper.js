@@ -43,13 +43,19 @@
             var splitted_domain;
             var full_domain;
             var top_domain;
+            var base_url;
+            var schema;
             var port = null;
 
             // According to RFC http://www.ietf.org/rfc/rfc3986.txt Appendix B
             var pattern = new RegExp("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
             var matches =  url.match(pattern);
 
+            schema = matches[2];
+            base_url = matches[2] + '://';
+
             if (typeof(matches[4]) !== 'undefined') {
+                base_url = base_url + matches[4];
                 authority = matches[4].replace(/^(www\.)/,"");
                 splitted_authority = authority.split(":");
             }
@@ -73,7 +79,8 @@
             }
 
             return {
-                scheme: matches[2],
+                scheme: schema,
+                base_url: base_url,
                 authority: authority, //remove leading www.
                 full_domain: full_domain,
                 top_domain: top_domain,

@@ -1,4 +1,4 @@
-(function(angular) {
+(function(angular, moment) {
     'use strict';
 
     /**
@@ -113,4 +113,4 @@
             }
         }]);
 
-}(angular));
+}(angular, moment));

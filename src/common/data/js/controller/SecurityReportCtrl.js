@@ -31,11 +31,12 @@
 
             $scope.name = "SecurityReportCtrl";
             $scope.check_haveibeenpwned = false;
-            $scope.send_to_server = false;
+            $scope.disable_send_to_sever_choice = managerSecurityReport.central_security_reports_enforced();
+            $scope.hide_send_to_server = managerSecurityReport.central_security_reports_disable();
             $scope.params = $routeParams;
             $scope.routeParams = $routeParams;
             $scope.state = {
-                report_complete: false,
+                send_to_server: managerSecurityReport.central_security_reports_enforced() && !managerSecurityReport.central_security_reports_disable(),
                 open_secret_requests: 0,
                 closed_secret_request: 0,
                 download_ongoing: false,
@@ -114,11 +115,22 @@
             /**
              * Analyze all secrets
              */
-            function generate_security_report(password, check_haveibeenpwned, send_to_server) {
+            function generate_security_report(password, password_repeat, check_haveibeenpwned, send_to_server) {
+
+                $scope.errors = [];
+                if (!password) {
+                    $scope.errors.push('PASSWORD_REQUIRED');
+                    return;
+                }
+                if (password !== password_repeat) {
+                    $scope.errors.push('PASSWORDS_DONT_MATCH');
+                    return;
+                }
 
                 $scope.check_haveibeenpwned = check_haveibeenpwned;
 
                 var onSuccess = function (data) {
+
                     $scope.msgs = data.msgs;
                     $scope.errors = [];
                     $scope.state.report_complete = true;
@@ -153,8 +165,27 @@
                         data.analysis['password_summary']['update_newer_than_90_days']
                     ];
 
+                    var onSuccess = function (data) {
+                        console.log(data);
+                        // server accepted security report
+                    };
+
+                    var onError = function (data) {
+                        $scope.msgs = [];
+                        if (data.hasOwnProperty('non_field_errors')) {
+                            if (data.non_field_errors[0] === 'PASSWORD_INCORRECT') {
+                                $scope.errors = ["PASSWORD_INCORRECT_SERVER_DECLINED_SECURITY_REPORT"];
+                            } else {
+                                $scope.errors = data.non_field_errors;
+                            }
+                        } else {
+                            console.log(data);
+                            alert("Error, should not happen.");
+                        }
+                    };
+
                     if (send_to_server) {
-                        managerSecurityReport.send_to_server(data.analysis, check_haveibeenpwned, password);
+                        return managerSecurityReport.send_to_server(data.analysis, check_haveibeenpwned, password).then(onSuccess, onError);
                     }
                 };
                 var onError = function (data) {

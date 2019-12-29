@@ -11,6 +11,7 @@
      * @requires psonocli.managerDatastore
      * @requires psonocli.managerDatastoreUser
      * @requires psonocli.managerBase
+     * @requires psonocli.managerStatus
      * @requires psonocli.apiClient
      * @requires psonocli.apiPwnedpasswords
      * @requires psonocli.cryptoLibrary
@@ -21,7 +22,7 @@
      */
 
     var managerSecurityReport = function($q, $window, $timeout, managerExport, managerDatastore, managerDatastoreUser,
-                                         managerBase, apiClient, apiPwnedpasswords, cryptoLibrary, storage) {
+                                         managerBase, managerStatus, apiClient, apiPwnedpasswords, cryptoLibrary, storage) {
 
 
         var registrations = {};
@@ -658,16 +659,16 @@
          * @description
          * Sends the report to the server
          *
+         * @param {object} analysis The actual analysis
+         * @param {boolean} check_haveibeenpwned Whether haveibeenpwned was checked or not
+         * @param {string}  master_password The master password
+         *
          * @returns {promise} Returns a promise to indicate the success of this or not
          */
         var send_to_server = function(analysis, check_haveibeenpwned, master_password) {
             var entries = [];
 
-            var authkey;
-
-            if (typeof(master_password) !== "undefined" && master_password !== "") {
-                authkey = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, master_password);
-            }
+            var authkey = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, master_password);
 
             for (var i = 0; i < analysis['passwords'].length; i++) {
                 entries.push({
@@ -684,7 +685,71 @@
                     write_age: analysis['passwords'][i].write_age
                 })
             }
-            apiClient.send_security_report(managerBase.get_token(), managerBase.get_session_secret_key(), entries, check_haveibeenpwned, authkey);
+
+            var onError = function(result) {
+                return $q.reject(result.data)
+            };
+
+            var onSuccess = function(result) {
+                managerStatus.get_status(true);
+                return result.data
+            };
+
+            return apiClient.send_security_report(managerBase.get_token(), managerBase.get_session_secret_key(), entries, check_haveibeenpwned, authkey).then(onSuccess, onError);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerSecurityReport#central_security_reports_disable
+         * @methodOf psonocli.managerSecurityReport
+         *
+         * @description
+         * Returns the current status of security reports on the server
+         *
+         * @returns {boolean} Returns weather central security reports are disabled or not
+         */
+        var central_security_reports_disable = function() {
+            var config = storage.find_key('config', 'server_info').value;
+            if (config.hasOwnProperty('disable_central_security_reports')) {
+                return storage.find_key('config', 'server_info').value['disable_central_security_reports'];
+            }
+            return false;
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerSecurityReport#central_security_reports_enforced
+         * @methodOf psonocli.managerSecurityReport
+         *
+         * @description
+         * Returns the current enforcement status of security reports on the server
+         *
+         * @returns {boolean} Returns weather central security reports are enforced or not
+         */
+        var central_security_reports_enforced = function() {
+            var config = storage.find_key('config', 'server_info').value;
+            if (config.hasOwnProperty('compliance_enforce_central_security_reports')) {
+                return storage.find_key('config', 'server_info').value['compliance_enforce_central_security_reports'];
+            }
+            return false;
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerSecurityReport#central_security_reports_recurrence_interval
+         * @methodOf psonocli.managerSecurityReport
+         *
+         * @description
+         * Returns the current enforced recurrence interval for the security report
+         *
+         * @returns {boolean} Returns weather central security reports are enforced or not
+         */
+        var central_security_reports_recurrence_interval = function() {
+            var config = storage.find_key('config', 'server_info').value;
+            if (config.hasOwnProperty('compliance_central_security_reports_recurrence_interval')) {
+                return storage.find_key('config', 'server_info').value['compliance_central_security_reports_recurrence_interval'];
+            }
+            return 0;
         };
 
         return {
@@ -692,11 +757,14 @@
             emit:emit,
             generate_security_report:generate_security_report,
             send_to_server:send_to_server,
+            central_security_reports_disable:central_security_reports_disable,
+            central_security_reports_enforced:central_security_reports_enforced,
+            central_security_reports_recurrence_interval:central_security_reports_recurrence_interval,
         };
     };
 
     var app = angular.module('psonocli');
     app.factory("managerSecurityReport", ['$q', '$window', '$timeout', 'managerExport', 'managerDatastore', 'managerDatastoreUser',
-        'managerBase', 'apiClient', 'apiPwnedpasswords', 'cryptoLibrary', 'storage', managerSecurityReport]);
+        'managerBase', 'managerStatus', 'apiClient', 'apiPwnedpasswords', 'cryptoLibrary', 'storage', managerSecurityReport]);
 
 }(angular));

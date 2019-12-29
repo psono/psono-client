@@ -25,41 +25,28 @@
         activate();
 
         function activate() {
-            $interval(update_status, interval_time);
+            $interval(get_status, interval_time);
         }
-
         /**
          * @ngdoc
          * @name psonocli.managerStatus#get_status
          * @methodOf psonocli.managerStatus
          *
          * @description
-         * Returns the current status async
-         */
-        function get_status() {
-            if (status) {
-                return $q.resolve(status);
-            } else {
-                return update_status();
-            }
-        }
-
-        /**
-         * @ngdoc
-         * @name psonocli.managerStatus#update_status
-         * @methodOf psonocli.managerStatus
-         *
-         * @description
          * Queries the server for the current status of the user if the local cached status is outdated.
+         *
+         * @param {boolean} force_fresh Whether a fresh result should be fetched or a cache will do fine
          *
          * @returns {promise} Returns a promise with the current status
          */
-        function update_status() {
+        function get_status(force_fresh) {
+
+            force_fresh = true;
 
             var d = new Date();
             var timestamp = d.getTime();
             var server_status = localStorageService.get('server_status');
-            var server_status_outdated = server_status === null || server_status.valid_till < timestamp;
+            var server_status_outdated = (typeof force_fresh !== 'undefined' && force_fresh === true) || server_status === null || server_status.valid_till < timestamp;
             var is_logged_in = managerDatastoreUser.is_logged_in();
             var is_offline = offlineCache.is_active();
 
@@ -111,7 +98,7 @@
         }
 
         return {
-            get_status: get_status
+            get_status: get_status,
         };
     };
 
