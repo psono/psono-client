@@ -24,6 +24,10 @@
                 <strong>{{'WARNING' | translate}}!</strong> {{'CONSIDER_ENABLING_RECOVERY_CODES' | translate}}
             </div>
 
+            <div class="alert alert-danger" ng-repeat="e in errors">
+                <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
+            </div>
+
             <div class="row">
                 <div class="col-xs-3">
                     <h5>{{'PASSWORD_STRENGTH' | translate}}</h5>
@@ -36,7 +40,7 @@
                     <p class="text-center" ng-if="!analysis.password_summary.weak">{{'NO_WEAK_PASSWORDS' | translate}}</p>
                 </div>
                 <div class="col-xs-3">
-                    <h5>Duplicates</h5>
+                    <h5>{{'DUPLICATES' | translate}}</h5>
                     <canvas id="doughnut_duplicate" class="chart chart-doughnut"
                             chart-colors="duplicate_colors"
                             chart-data="duplicate_data"
@@ -46,7 +50,7 @@
                     <p class="text-center" ng-if="!analysis.password_summary.duplicate">{{'NO_DUPLICATES' | translate}}</p>
                 </div>
                 <div class="col-xs-3">
-                    <h5>Average Score</h5>
+                    <h5>{{'AVERAGE_SCORE' | translate}}</h5>
                     <canvas id="doughnut_average_score" class="chart chart-doughnut"
                             chart-colors="average_score_colors"
                             chart-data="average_score_data"
@@ -72,7 +76,7 @@
                     <th>{{'PASSWORD' | translate}}</th>
                     <th>{{'RATING' | translate}}</th>
                     <th>{{'AGE' | translate}}</th>
-                    <th ng-if="check_haveibeenpwned">{{'PWNED' | translate}}</th>
+                    <th ng-if="check_haveibeenpwned">{{'BREACHED' | translate}}</th>
                     <th>{{'DUPLICATE' | translate}}</th>
                     <th>{{'ADVISE' | translate}}</th>
                 </tr>
@@ -95,9 +99,9 @@
                     <td>{{ pw.rating }}</td>
                     <td>{{ pw.write_age }} {{'DAYS' | translate}}</td>
                     <td ng-if="check_haveibeenpwned">
-                        <i class="fa fa-exclamation-triangle" aria-hidden="true" ng-if="pw.pwned"></i>
-                        <span style="display: none" ng-if="!pw.pwned">0</span>
-                        <span style="display: none" ng-if="pw.pwned">1</span>
+                        <i class="fa fa-exclamation-triangle" aria-hidden="true" ng-if="pw.breached"></i>
+                        <span style="display: none" ng-if="!pw.breached">0</span>
+                        <span style="display: none" ng-if="pw.breached">1</span>
                     </td>
                     <td>
                         <i class="fa fa-exclamation-triangle" aria-hidden="true" ng-if="pw.duplicate"></i>
@@ -125,11 +129,20 @@
             <form class="form-horizontal" autocomplete="off">
                 <div class="form-group">
                     <label class="control-label col-sm-2" for="password">
-                        {{'YOUR_PASSWORD' | translate}} <em>{{'OPTIONAL_IN_BRACKETS' | translate}}</em>
+                        {{'YOUR_PASSWORD' | translate}}
                     </label>
                     <div class="col-sm-10">
-                        <input type="password" class="form-control" id="password" placeholder="{{'OPTIONAL_IN_BRACKETS' | translate}} {{'YOUR_PASSWORD' | translate}}"
-                               ng-model="password">
+                        <input type="password" class="form-control" id="password" placeholder="{{'YOUR_PASSWORD' | translate}}"
+                               ng-model="state.password">
+                    </div>
+                </div>
+                <div class="form-group" ng-if="state.password">
+                    <label class="control-label col-sm-2" for="password_repeat">
+                        {{'PASSWORD_REPEAT' | translate}}
+                    </label>
+                    <div class="col-sm-10">
+                        <input type="password" class="form-control" id="password_repeat" placeholder="{{'PASSWORD_REPEAT' | translate}}"
+                               ng-model="state.password_repeat">
                     </div>
                 </div>
                 <div class="form-group">
@@ -138,17 +151,23 @@
                         {{'CHECK_AGAINST' | translate}} <a href="https://haveibeenpwned.com/Passwords" target="_blank" rel="noopener">haveibeenpwned.com</a> (<a href="https://haveibeenpwned.com/API/v2#SearchingPwnedPasswordsByRange" target="_blank" rel="noopener">/range API</a>)?
                     </div>
                 </div>
+                <div class="form-group" ng-if="!hide_send_to_server">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <input type="checkbox" ng-model="state.send_to_server" ng-disabled="disable_send_to_sever_choice">
+                        {{'SEND_SECURITY_REPORT_TO_SERVER' | translate}}
+                    </div>
+                </div>
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
-                        <button type="submit" class="btn btn-primary btn-primary" ng-click="generate_security_report(password, check_haveibeenpwned)">{{'START_ANALYSIS' | translate}}</button>
+                        <button type="submit" class="btn btn-primary btn-primary" ng-click="generate_security_report(state.password, state.password_repeat, check_haveibeenpwned, state.send_to_server)">{{'START_ANALYSIS' | translate}}</button>
                     </div>
                 </div>
 
-                <div class="form-group alert alert-danger" ng-repeat="e in errors">
+                <div class="alert alert-danger" ng-repeat="e in errors">
                     <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
                 </div>
 
-                <div class="form-group alert alert-info" ng-repeat="e in msgs">
+                <div class="alert alert-info" ng-repeat="e in msgs">
                     <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
                 </div>
 

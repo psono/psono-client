@@ -14,6 +14,7 @@
         it('parse_url www domain', inject(function (helper) {
             expect(helper.parse_url('https://www.example.com/url-part/#is-not-part')).toEqual({
                 scheme: 'https',
+                base_url: 'https://www.example.com',
                 authority: 'example.com',
                 full_domain: 'example.com',
                 top_domain: 'example.com',
@@ -27,6 +28,7 @@
         it('parse_url top lvl domain', inject(function (helper) {
             expect(helper.parse_url('https://example.com/url-part/#is-not-part')).toEqual({
                 scheme: 'https',
+                base_url: 'https://example.com',
                 authority: 'example.com',
                 full_domain: 'example.com',
                 top_domain: 'example.com',
@@ -40,6 +42,7 @@
         it('parse_url sub domain', inject(function (helper) {
             expect(helper.parse_url('http://test.example.com/url-part/#is-not-part')).toEqual({
                 scheme: 'http',
+                base_url: 'http://test.example.com',
                 authority: 'test.example.com',
                 full_domain: 'test.example.com',
                 top_domain: 'example.com',
@@ -53,6 +56,7 @@
         it('parse_url sub domain with port', inject(function (helper) {
             expect(helper.parse_url('http://test.example.com:6000/url-part/#is-not-part')).toEqual({
                 scheme: 'http',
+                base_url: 'http://test.example.com:6000',
                 authority: 'test.example.com:6000',
                 full_domain: 'test.example.com',
                 top_domain: 'example.com',

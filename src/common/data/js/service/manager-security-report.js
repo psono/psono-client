@@ -8,17 +8,21 @@
      * @requires $window
      * @requires $timeout
      * @requires psonocli.managerExport
+     * @requires psonocli.managerDatastore
      * @requires psonocli.managerDatastoreUser
      * @requires psonocli.managerBase
+     * @requires psonocli.managerStatus
+     * @requires psonocli.apiClient
      * @requires psonocli.apiPwnedpasswords
      * @requires psonocli.cryptoLibrary
+     * @requires psonocli.storage
      *
      * @description
-     * Service to manage the export of datastores
+     * Service to manage security reports
      */
 
-    var managerSecurityReport = function($q, $window, $timeout, managerExport, managerDatastoreUser,
-                                         managerBase, apiPwnedpasswords, cryptoLibrary) {
+    var managerSecurityReport = function($q, $window, $timeout, managerExport, managerDatastore, managerDatastoreUser,
+                                         managerBase, managerStatus, apiClient, apiPwnedpasswords, cryptoLibrary, storage) {
 
 
         var registrations = {};
@@ -108,7 +112,9 @@
                 // empty password
                 return {
                     score: _MAX_SCORE,
-                    advise: ''
+                    advise: '',
+                    password_length: 0,
+                    variation_count: 0
                 };
             }
 
@@ -116,6 +122,8 @@
                 return {
                     score: _MIN_SCORE,
                     advise: 'SET_LONGER_PASSWORD',
+                    password_length: secret.website_password_password.length,
+                    variation_count: variation_count,
                     min_password_length: _MIN_PASSWORD_LENGTH
                 };
             }
@@ -123,7 +131,9 @@
             if (secret.website_password_username && secret.website_password_username !== '' && secret.website_password_password.toLowerCase().indexOf(secret.website_password_username.toLowerCase()) !== -1) {
                 return {
                     score:0,
-                    advise: 'REMOVE_USERNAME_FROM_PASSWORD'
+                    advise: 'REMOVE_USERNAME_FROM_PASSWORD',
+                    password_length: secret.website_password_password.length,
+                    variation_count: variation_count
                 };
             }
 
@@ -131,6 +141,8 @@
                 return {
                     score: _MAX_SCORE,
                     advise: '',
+                    password_length: secret.website_password_password.length,
+                    variation_count: variation_count,
                     max_password_length: _MAX_PASSWORD_LENGTH
                 };
             }
@@ -140,13 +152,17 @@
             if (secret.website_password_password.length <= _MIN_VARIATION_ENFORCE_PASSWORD_LENGTH && variation_count < _MIN_VARIATION_LENGTH) {
                 return {
                     score: Math.round(Math.max(Math.min(score * (1 - (_MIN_VARIATION_LENGTH - variation_count)*_VARIATION_PENALTY), _MAX_SCORE), _MIN_SCORE) * 10) / 10,
-                    advise: 'SET_LONGER_OR_MORE_COMPLEX_PASSWORD.'
+                    advise: 'SET_LONGER_OR_MORE_COMPLEX_PASSWORD',
+                    password_length: secret.website_password_password.length,
+                    variation_count: variation_count
                 };
             }
 
             return {
                 score: Math.round(Math.max(Math.min(score, _MAX_SCORE), _MIN_SCORE) * 10) / 10,
-                advise: 'SET_LONGER_PASSWORD_10'
+                advise: 'SET_LONGER_PASSWORD_10',
+                password_length: secret.website_password_password.length,
+                variation_count: variation_count
             };
         };
 
@@ -169,6 +185,7 @@
                 if (folder['items'][i]['type'] !== 'website_password') {
                     continue;
                 }
+                folder['items'][i]['master_password'] = false;
                 website_passwords.push(folder['items'][i]);
             }
 
@@ -185,19 +202,22 @@
          * @description
          * Takes a datastore and returns an array of website passwords
          *
-         * @param {object} datastore The datastore to filter
+         * @param {object} datastores A list of datastore to filter
          *
          * @returns {Array} Returns an array of website passwords
          */
-        var filter_website_passwords = function(datastore) {
+        var filter_website_passwords = function(datastores) {
             var website_passwords = [];
 
-            filter_website_passwords_helper(datastore, website_passwords);
+            for (var i = 0; i < datastores.length; i++) {
+                filter_website_passwords_helper(datastores[i], website_passwords);
+            }
 
             if (masterpassword) {
                website_passwords.unshift({
                    'name': 'Master Password',
-                   'website_password_password': masterpassword
+                   'website_password_password': masterpassword,
+                   'master_password': true
                })
             }
 
@@ -251,9 +271,13 @@
                 analysis.passwords.push({
                     name: secrets[i]['name'],
                     password: secrets[i]['website_password_password'],
+                    master_password: secrets[i]['master_password'],
                     rating: rating['score'],
                     min_password_length: rating['min_password_length'],
-                    pwned: rating['pwned'],
+                    password_length: rating['password_length'],
+                    variation_count: rating['variation_count'],
+                    breached: rating['breached'],
+                    type: 'website_password',
                     input_type: 'password',
                     advise: rating['advise'],
                     create_age: get_age_in_days(secrets[i]['create_date']),
@@ -326,8 +350,8 @@
                     if(suffix[0].toLowerCase() !== password_sha1_suffix) {
                         continue;
                     }
-                    entry.pwned = suffix[1];
-                    if (entry.pwned > 1) {
+                    entry.breached = suffix[1];
+                    if (entry.breached > 1) {
                         entry.advise = 'PASSWORD_HAS_BEEN_COMPROMISED_MULTIPLE_TIMES';
                     } else {
                         entry.advise = 'PASSWORD_HAS_BEEN_COMPROMISED';
@@ -337,7 +361,7 @@
 
                     return;
                 }
-                entry.pwned = 0;
+                entry.breached = 0;
             };
 
             return apiPwnedpasswords.range(password_sha1_prefix).then(onSuccess, onError);
@@ -562,6 +586,42 @@
          * @methodOf psonocli.managerSecurityReport
          *
          * @description
+         * Fetches all password datastores
+         *
+         * @returns {promise} Returns a promise with the exportable datastore content of all datastores
+         */
+        var fetch_all_password_datastores = function() {
+
+            var onError = function(result) {
+                // pass
+            };
+
+            var onSuccess = function(result) {
+                var all_calls = [];
+
+                for (var i = 0; i < result.data.datastores.length; i++) {
+                    if (result.data.datastores[i].type !== 'password') {
+                        continue;
+                    }
+                    all_calls.push(managerExport.fetch_datastore(undefined, result.data.datastores[i].id));
+                }
+                return $q.all(all_calls);
+            };
+
+
+
+            return managerDatastore.get_datastore_overview()
+                .then(onSuccess, onError);
+
+        };
+
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerSecurityReport#generate_security_report
+         * @methodOf psonocli.managerSecurityReport
+         *
+         * @description
          * Fetches all secrets
          *
          * @returns {promise} Returns a promise with the exportable datastore content
@@ -573,7 +633,7 @@
 
             emit('generation-started', {});
 
-            return managerExport.fetch_datastore()
+            return fetch_all_password_datastores()
                 .then(filter_website_passwords)
                 .then(analyze_password_length)
                 .then(analyze_password_age)
@@ -591,15 +651,120 @@
 
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.managerSecurityReport#send_to_server
+         * @methodOf psonocli.managerSecurityReport
+         *
+         * @description
+         * Sends the report to the server
+         *
+         * @param {object} analysis The actual analysis
+         * @param {boolean} check_haveibeenpwned Whether haveibeenpwned was checked or not
+         * @param {string}  master_password The master password
+         *
+         * @returns {promise} Returns a promise to indicate the success of this or not
+         */
+        var send_to_server = function(analysis, check_haveibeenpwned, master_password) {
+            var entries = [];
+
+            var authkey = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, master_password);
+
+            for (var i = 0; i < analysis['passwords'].length; i++) {
+                entries.push({
+                    name: analysis['passwords'][i].name,
+                    master_password: analysis['passwords'][i].master_password,
+                    rating: analysis['passwords'][i].rating,
+                    password_length: analysis['passwords'][i].password_length,
+                    variation_count: analysis['passwords'][i].variation_count,
+                    breached: analysis['passwords'][i].breached,
+                    type: analysis['passwords'][i].type,
+                    input_type: analysis['passwords'][i].input_type,
+                    duplicate: analysis['passwords'][i].duplicate,
+                    create_age: analysis['passwords'][i].create_age,
+                    write_age: analysis['passwords'][i].write_age
+                })
+            }
+
+            var onError = function(result) {
+                return $q.reject(result.data)
+            };
+
+            var onSuccess = function(result) {
+                managerStatus.get_status(true);
+                return result.data
+            };
+
+            return apiClient.send_security_report(managerBase.get_token(), managerBase.get_session_secret_key(), entries, check_haveibeenpwned, authkey).then(onSuccess, onError);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerSecurityReport#central_security_reports_disable
+         * @methodOf psonocli.managerSecurityReport
+         *
+         * @description
+         * Returns the current status of security reports on the server
+         *
+         * @returns {boolean} Returns weather central security reports are disabled or not
+         */
+        var central_security_reports_disable = function() {
+            var config = storage.find_key('config', 'server_info').value;
+            if (config.hasOwnProperty('disable_central_security_reports')) {
+                return storage.find_key('config', 'server_info').value['disable_central_security_reports'];
+            }
+            return false;
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerSecurityReport#central_security_reports_enforced
+         * @methodOf psonocli.managerSecurityReport
+         *
+         * @description
+         * Returns the current enforcement status of security reports on the server
+         *
+         * @returns {boolean} Returns weather central security reports are enforced or not
+         */
+        var central_security_reports_enforced = function() {
+            var config = storage.find_key('config', 'server_info').value;
+            if (config.hasOwnProperty('compliance_enforce_central_security_reports')) {
+                return storage.find_key('config', 'server_info').value['compliance_enforce_central_security_reports'];
+            }
+            return false;
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerSecurityReport#central_security_reports_recurrence_interval
+         * @methodOf psonocli.managerSecurityReport
+         *
+         * @description
+         * Returns the current enforced recurrence interval for the security report
+         *
+         * @returns {boolean} Returns weather central security reports are enforced or not
+         */
+        var central_security_reports_recurrence_interval = function() {
+            var config = storage.find_key('config', 'server_info').value;
+            if (config.hasOwnProperty('compliance_central_security_reports_recurrence_interval')) {
+                return storage.find_key('config', 'server_info').value['compliance_central_security_reports_recurrence_interval'];
+            }
+            return 0;
+        };
+
         return {
             on:on,
             emit:emit,
-            generate_security_report:generate_security_report
+            generate_security_report:generate_security_report,
+            send_to_server:send_to_server,
+            central_security_reports_disable:central_security_reports_disable,
+            central_security_reports_enforced:central_security_reports_enforced,
+            central_security_reports_recurrence_interval:central_security_reports_recurrence_interval,
         };
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerSecurityReport", ['$q', '$window', '$timeout', 'managerExport', 'managerDatastoreUser',
-        'managerBase', 'apiPwnedpasswords', 'cryptoLibrary', managerSecurityReport]);
+    app.factory("managerSecurityReport", ['$q', '$window', '$timeout', 'managerExport', 'managerDatastore', 'managerDatastoreUser',
+        'managerBase', 'managerStatus', 'apiClient', 'apiPwnedpasswords', 'cryptoLibrary', 'storage', managerSecurityReport]);
 
 }(angular));

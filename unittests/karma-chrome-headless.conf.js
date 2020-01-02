@@ -168,6 +168,7 @@
                 "../src/common/data/js/service/import-chrome-csv.js",
                 "../src/common/data/js/service/import-psono-pw-json.js",
                 "../src/common/data/js/service/import-lastpass-com-csv.js",
+                "../src/common/data/js/service/import-pwsafe-org-csv.js",
                 "../src/common/data/js/service/import-keepassx-org-csv.js",
                 "../src/common/data/js/service/import-keepass-info-csv.js",
                 "../src/common/data/js/service/import-keepass-info-xml.js",

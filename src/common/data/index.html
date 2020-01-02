@@ -147,6 +147,9 @@
             <li ng-class="get_link_state('/security-report')">
                 <a class="navigationitem2" href="#!/security-report">
                     <span class="fa-stack"><i class="fa fa-file-text fa-fw"></i></span>{{'SECURITY_REPORT' | translate}}
+                    <span class="badge float-right" ng-if="server_status.new_security_report == 'REQUIRED'">
+                        <i class="fa fa-exclamation"></i>
+                    </span>
                 </a>
             </li>
             <li ng-class="get_link_state('/active-link-shares')" ng-if="enable_link_shares">
@@ -623,6 +626,7 @@
 <script src="js/service/import-chrome-csv.js" type="application/javascript"></script>
 <script src="js/service/import-psono-pw-json.js" type="application/javascript"></script>
 <script src="js/service/import-lastpass-com-csv.js" type="application/javascript"></script>
+<script src="js/service/import-pwsafe-org-csv.js" type="application/javascript"></script>
 <script src="js/service/import-keepassx-org-csv.js" type="application/javascript"></script>
 <script src="js/service/import-keepass-info-csv.js" type="application/javascript"></script>
 <script src="js/service/import-keepass-info-xml.js" type="application/javascript"></script>

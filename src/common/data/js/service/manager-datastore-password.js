@@ -436,6 +436,8 @@
          * Returns the password datastore. In addition this function triggers the generation of the local datastore
          * storage to.
          *
+         * @param {uuid} id The id of the datastore
+         *
          * @returns {promise} Returns a promise with the datastore
          */
         var get_password_datastore = function(id) {

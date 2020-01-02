@@ -3249,6 +3249,38 @@
             return call(connection_type, endpoint, data, headers);
         };
 
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#send_security_report
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax POST request to update a file repository right with the token as authentication
+         *
+         * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+         * @param {string} session_secret_key The session secret key
+         * @param {Array} entries All the details about each entry
+         * @param {boolean} check_haveibeenpwned Whether haveibeenpwned was used or not
+         * @param {string} authkey The authkey of the user if the masterpassword was tested
+         *
+         * @returns {promise} promise
+         */
+        var send_security_report = function (token, session_secret_key, entries, check_haveibeenpwned, authkey) {
+            var endpoint = '/user/security-report/';
+            var connection_type = "POST";
+            var data = {
+                entries: entries,
+                check_haveibeenpwned: check_haveibeenpwned,
+                authkey: authkey
+            };
+            var headers = {
+                "Authorization": "Token " + token
+            };
+
+            return call(connection_type, endpoint, data, headers, session_secret_key);
+        };
+
         return {
             info: info,
             login: login,
@@ -3349,7 +3381,8 @@
             read_link_share: read_link_share,
             update_link_share: update_link_share,
             delete_link_share: delete_link_share,
-            link_share_access: link_share_access
+            link_share_access: link_share_access,
+            send_security_report: send_security_report,
         };
     };
 

@@ -1,9 +1,7 @@
 {
   "backend_servers": [{
-    "title": "Psono.pw",
-    "url": "https://www.psono.pw/server"
+    "title": "Psono.pw"
   }],
-  "base_url": "https://www.psono.pw/",
   "allow_custom_server": true,
   "allow_registration": true,
   "allow_lost_password": true,
