@@ -1,4 +1,7 @@
 {
+  "USER_DISABLED_ASK_ADMIN_TO_ENABLE": "User has been disabled. Contact an administrator to activate it.",
+  "USER_WITH_EMAIL_ALREADY_EXISTS": "User with the specified email address already exists.",
+  "USER_WITH_USERNAME_ALREADY_EXISTS": "User with the specified username already exists.",
   "PASSWORD_INCORRECT_SERVER_DECLINED_SECURITY_REPORT": "The provided passwords was incorrect. The server therefore declined the security report. Please try again.",
   "SECURITY_REPORT_REQUIRED": "Your administrator requires you to create a new security report. Please create a new one.",
   "SECURITY_REPORT_SOON_REQUIRED": "Your administrator requires you soon to create a new security report. You can create one now preemptive.",
