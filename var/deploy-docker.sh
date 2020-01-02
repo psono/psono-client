@@ -10,3 +10,8 @@ docker push psono/psono-client:latest
 # Inform production stage about new image
 curl -X POST https://hooks.microbadger.com/images/psono/psono-client/jMnJgDVZTpT4TUX-RlxTKa38Nc4=
 curl -X POST $psono_image_updater_url
+
+
+echo "Trigger psono combo rebuild"
+curl -X POST -F token=$PSONO_COMBO_TRIGGER_TOKEN -F ref=master https://gitlab.com/api/v4/projects/16086547/trigger/pipeline
+curl -X POST -F token=$PSONO_COMBO_EE_TRIGGER_TOKEN -F ref=master https://gitlab.com/api/v4/projects/16127995/trigger/pipeline
