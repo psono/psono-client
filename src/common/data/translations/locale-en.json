@@ -31,6 +31,7 @@
   "REFRESH": "Refresh",
   "RETRY": "Retry",
   "INVALID_EMAIL_FORMAT": "Invalid email format",
+  "INVALID_USERNAME_FORMAT": "Invalid username format",
   "SERVER_OFFLINE": "Server offline",
   "SERVER_OFFLINE_DETAILS": "There was a connection problem. Check your internet / network connection and the server's address. Server offline.",
   "SECRET": "Secret",
