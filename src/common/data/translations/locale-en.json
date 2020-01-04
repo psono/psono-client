@@ -1,4 +1,6 @@
 {
+  "SCAN_CONFIG": "Scan Config",
+  "QR_CLIENT_CONFIG": "QR Client Config",
   "USER_DISABLED_ASK_ADMIN_TO_ENABLE": "User has been disabled. Contact an administrator to activate it.",
   "USER_WITH_EMAIL_ALREADY_EXISTS": "User with the specified email address already exists.",
   "USER_WITH_USERNAME_ALREADY_EXISTS": "User with the specified username already exists.",
