@@ -36,6 +36,7 @@
                 { key: "user_username", field: "input", type: "email", title: "USERNAME", placeholder: "USERNAME", required: true, readonly: true, tab: 'overview'},
                 { key: "user_email", field: "input", type: "email", title: "E_MAIL", placeholder: "E_MAIL", required: true, readonly: true, tab: 'overview'},
                 { key: "user_public_key", field: "input", type: "text", title: "PUBLIC_KEY", placeholder: "PUBLIC_KEY", required: true, readonly: true, tab: 'overview'},
+                { name: "user_qr_client_config", field: "button", type: "button", title: "QR_CLIENT_CONFIG", btnLabel: "SHOW", class: 'btn-primary', onClick:"onClickShowQRClientConfig", tab: 'overview' },
                 { key: "server_label", type: "label_only", title: "SERVER_INFO", tab: 'overview'},
                 { key: "server_api_version", field: "input", type: "text", title: "SERVER_API_VERSION", placeholder: "SERVER_API_VERSION", required: true, readonly: true, tab: 'overview'},
                 { key: "server_version", field: "input", type: "text", title: "SERVER_VERSION", placeholder: "SERVER_VERSION", required: true, readonly: true, tab: 'overview'},
@@ -163,6 +164,21 @@
                 var modalInstance = $uibModal.open({
                     templateUrl: 'view/modal/setup-duo.html',
                     controller: 'ModalConfigureDuoCtrl',
+                    backdrop: 'static',
+                    resolve: {}
+                });
+
+                modalInstance.result.then(function () {
+                    // User clicked the prime button
+                }, function () {
+                    // cancel triggered
+                });
+
+            },
+            onClickShowQRClientConfig: function (node) {
+                var modalInstance = $uibModal.open({
+                    templateUrl: 'view/modal/show-qr-client-config.html',
+                    controller: 'ModalShowQRClientConfigCtrl',
                     backdrop: 'static',
                     resolve: {}
                 });

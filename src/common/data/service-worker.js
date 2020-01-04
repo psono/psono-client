@@ -263,6 +263,7 @@ self.addEventListener('install', function(event) {
                 './js/controller/modal/ShareEntryCtrl.js',
                 './js/controller/modal/ShareNewEntryCtrl.js',
                 './js/controller/modal/ShowEmergencyCodesCtrl.js',
+                './js/controller/modal/ShowQRClientConfigCtrl.js',
                 './js/controller/modal/ShowRecoverycodeCtrl.js',
                 './js/controller/modal/UnlockOfflineCacheCtrl.js',
                 './js/controller/modal/DeleteAccountCtrl.js',

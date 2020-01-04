@@ -1,4 +1,4 @@
-(function(angular, qrcode) {
+(function(angular) {
     'use strict';
 
     /**
@@ -211,4 +211,4 @@
 
         }]
     );
-}(angular, qrcode));
+}(angular));

@@ -1,0 +1,18 @@
+<form name="modalSetupGoogleAuthenticatorForm" novalidate autocomplete="off">
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="close()"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title">{{'QR_CLIENT_CONFIG' | translate}}</h3>
+    </div>
+    <div class="modal-body">
+
+        <div class="form-horizontal">
+            <div class="text-center" ng-bind-html="qr_code_html">
+
+            </div>
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn" type="button" ng-click="close();">{{'CLOSE' | translate}}</button>
+    </div>
+</form>
