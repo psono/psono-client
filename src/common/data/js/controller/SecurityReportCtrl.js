@@ -31,7 +31,7 @@
 
             $scope.name = "SecurityReportCtrl";
             $scope.check_haveibeenpwned = false;
-            $scope.disable_send_to_sever_choice = managerSecurityReport.central_security_reports_enforced();
+            $scope.disable_send_to_sever_choice = managerSecurityReport.central_security_reports_disable();
             $scope.hide_send_to_server = managerSecurityReport.central_security_reports_disable();
             $scope.params = $routeParams;
             $scope.routeParams = $routeParams;
