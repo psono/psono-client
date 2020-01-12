@@ -1,4 +1,6 @@
 {
+  "WEBSITE_PASSWORD": "Website Password",
+  "APPLICATION_PASSWORD": "Application Password",
   "SCAN_CONFIG": "Scan Config",
   "QR_CLIENT_CONFIG": "QR Client Config",
   "USER_DISABLED_ASK_ADMIN_TO_ENABLE": "User has been disabled. Contact an administrator to activate it.",

@@ -33,7 +33,7 @@
 
         var _blueprint_website_password = {
             id: "website_password", // Unique ID
-            name: "PASSWORD", // Displayed in Dropdown Menu
+            name: "WEBSITE_PASSWORD", // Displayed in Dropdown Menu
             title_field: "website_password_title", // is the main column, that is used as filename
             urlfilter_field: "website_password_url_filter", // is the filter column for url matching
             autosubmit_field: "website_password_auto_submit", // is the filter column for auto submit
@@ -151,6 +151,61 @@
                         auto_submit: content.website_password_auto_submit
                     }
                 }
+            }
+        };
+        var _blueprint_application_password = {
+            id: "application_password", // Unique ID
+            name: "APPLICATION_PASSWORD", // Displayed in Dropdown Menu
+            title_field: "application_password_title", // is the main column, that is used as filename
+            urlfilter_field: "application_password_url_filter", // is the filter column for url matching
+            autosubmit_field: "application_password_auto_submit", // is the filter column for auto submit
+            search: ['application_password_title', 'application_password_url_filter'], // are searched when the user search his entries
+            fields: [ // All fields for this object with unique names
+                { name: "application_password_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true, error_message_required: 'TITLE_IS_REQUIRED' },
+                { name: "application_password_username", field: "input", type: "text", title: "USERNAME", placeholder: "USERNAME"},
+                { name: "application_password_password", field: "input", type: "password", title: "PASSWORD", placeholder: "PASSWORD", autocomplete: "new-password",
+                    dropmenuItems:[
+                        {
+                            icon: "fa fa-eye-slash",
+                            text:"SHOW_PASSWORD",
+                            onclick:function(id, item) {
+                                if (document.getElementById(id).type === 'text') {
+                                    document.getElementById(id).type = 'password';
+                                    item.text = 'SHOW_PASSWORD';
+                                } else {
+                                    document.getElementById(id).type = 'text';
+                                    item.text = 'HIDE_PASSWORD';
+                                }
+                            }
+                        },
+                        {
+                            icon: "fa fa-clipboard",
+                            text:"COPY_PASSWORD",
+                            onclick:function(id, item) {
+                                var password = document.getElementById("editEntryForm-application_password_password").value;
+                                browserClient.copy_to_clipboard(password)
+                            }
+                        },
+                        {
+                            icon: "fa fa-cogs",
+                            text:"GENERATE_PASSWORD",
+                            hide_offline: true,
+                            hide_on_not_write: true,
+                            onclick:function(id, item) {
+                                angular.element(document.querySelector('#'+id)).val(registrations['generate']()).trigger('input');
+                            }
+                        }
+                    ]},
+                { name: "application_password_notes", field: "textarea", title: "NOTES", placeholder: "NOTES"},
+            ],
+            /**
+             * will open a new tab
+             *
+             * @param secret_id
+             * @param content
+             */
+            onOpenSecret: function(secret_id, content) {
+                $window.location.href = 'index.html#!/datastore/search/' + secret_id;
             }
         };
         var _blueprint_note = {
@@ -866,6 +921,7 @@
 
         var _blueprints = {
             website_password: _blueprint_website_password,
+            application_password: _blueprint_application_password,
             note: _blueprint_note,
             mail_gpg_own_key: _blueprint_mail_gpg_own_key,
             bookmark: _blueprint_bookmark
@@ -1202,8 +1258,8 @@
                     });
                 }
             },
-            copy_username_to_clipboard: {
-                id: 'copy_username_to_clipboard',
+            copy_website_password_username_to_clipboard: {
+                id: 'copy_website_password_username_to_clipboard',
                 name: 'COPY_USERNAME',
                 icon: 'fa fa-clipboard',
                 ngClass: function(item) {
@@ -1218,8 +1274,8 @@
                     registrations['copy_username'](item);
                 }
             },
-            copy_password_to_clipboard: {
-                id: 'copy_password_to_clipboard',
+            copy_website_password_password_to_clipboard: {
+                id: 'copy_website_password_password_to_clipboard',
                 name: 'COPY_PASSWORD',
                 icon: 'fa fa-clipboard',
                 ngClass: function(item) {
@@ -1229,6 +1285,38 @@
                 },
                 condition: function(item) {
                     return item.hasOwnProperty('type') && item['type'] === 'website_password';
+                },
+                onClick: function(item, path) {
+                    registrations['copy_password'](item);
+                }
+            },
+            copy_application_password_username_to_clipboard: {
+                id: 'copy_application_password_username_to_clipboard',
+                name: 'COPY_USERNAME',
+                icon: 'fa fa-clipboard',
+                ngClass: function(item) {
+                    if (item.hasOwnProperty('share_rights') && item.share_rights.read !== true) {
+                        return 'hidden';
+                    }
+                },
+                condition: function(item) {
+                    return item.hasOwnProperty('type') && item['type'] === 'application_password';
+                },
+                onClick: function(item, path) {
+                    registrations['copy_username'](item);
+                }
+            },
+            copy_application_password_password_to_clipboard: {
+                id: 'copy_application_password_password_to_clipboard',
+                name: 'COPY_PASSWORD',
+                icon: 'fa fa-clipboard',
+                ngClass: function(item) {
+                    if (item.hasOwnProperty('share_rights') && item.share_rights.read !== true) {
+                        return 'hidden';
+                    }
+                },
+                condition: function(item) {
+                    return item.hasOwnProperty('type') && item['type'] === 'application_password';
                 },
                 onClick: function(item, path) {
                     registrations['copy_password'](item);
