@@ -58,11 +58,11 @@
                 }, {
                     id: 'write',
                     name: 'WRITE',
-                    initial_value: true
+                    initial_value: false
                 }, {
                     id: 'grant',
                     name: 'GRANT',
-                    initial_value: true
+                    initial_value: false
                 }];
 
                 // fills selected_rights array with the default values
