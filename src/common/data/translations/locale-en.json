@@ -13,6 +13,7 @@
   "RECOVERY_CODES_DISABLED": "Recovery codes have been disabled.",
   "PASSWORD_TOO_SHORT": "Password too short.",
   "PASSWORDS_DONT_MATCH": "Passwords don't match.",
+  "PASSWORD_NOT_COMPLEX_ENOUGH": "Password not complex enough.",
   "OLD_PASSWORD_REQUIRED": "Old password required",
   "PASSWORD_REQUIRED": "Password required",
   "ACCESS_DENIED": "Access denied",

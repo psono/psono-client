@@ -418,6 +418,63 @@
             return true;
         }
 
+
+        /**
+         * @ngdoc
+         * @name psonocli.helper#has_number
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Determines if a string contains a number.
+         *
+         * @param {string} some_string A string that could be a password
+         */
+        function has_number(some_string) {
+            return /\d/.test(some_string);
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.helper#has_uppercase_letter
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Determines if a string contains an uppercase letter.
+         *
+         * @param {string} some_string A string that could be a password
+         */
+        function has_uppercase_letter(some_string) {
+            return /[A-Z]/.test(some_string);
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.helper#has_lowercase_letter
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Determines if a string contains a lowercase letter.
+         *
+         * @param {string} some_string A string that could be a password
+         */
+        function has_lowercase_letter(some_string) {
+            return /[a-z]/.test(some_string);
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.helper#has_special_character
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Determines if a string contains a special character.
+         *
+         * @param {string} some_string A string that could be a password
+         */
+        function has_special_character(some_string) {
+            return /[ !@#$%^&*§()_+\-=\[\]{};':"\\|,.<>\/?]/.test(some_string);
+        }
+
         /**
          * @ngdoc
          * @name psonocli.helper#is_valid_password
@@ -429,18 +486,50 @@
          *
          * @param {string} password A string that could be a valid password
          * @param {string} password2 The second password that needs to match the first
+         * @param {int} min_length The minimum password length
+         * @param {int} min_complexity The minimum password complexity (required character groups)
          *
          * @returns {string|null} Returns a string with the error or null
          */
-        function is_valid_password(password, password2) {
+        function is_valid_password(password, password2, min_length, min_complexity) {
 
-            if (password.length < 12) {
+            if (typeof(min_length) === 'undefined') {
+                min_length = 12;
+            }
+            if (typeof(min_complexity) === 'undefined') {
+                min_complexity = 0;
+            }
+
+
+            if (password.length < min_length) {
                 return "PASSWORD_TOO_SHORT";
             }
 
             if (password !== password2) {
                 return "PASSWORDS_DONT_MATCH";
             }
+
+            if (min_complexity > 0) {
+                var complexity = 0;
+
+                if (has_number(password)){
+                    complexity = complexity + 1;
+                }
+                if (has_uppercase_letter(password)){
+                    complexity = complexity + 1;
+                }
+                if (has_lowercase_letter(password)){
+                    complexity = complexity + 1;
+                }
+                if (has_special_character(password)){
+                    complexity = complexity + 1;
+                }
+
+                if (complexity < min_complexity) {
+                    return "PASSWORD_NOT_COMPLEX_ENOUGH";
+                }
+            }
+
             return null;
         }
 
