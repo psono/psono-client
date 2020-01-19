@@ -1,4 +1,6 @@
 {
+  "WEBSITE_PASSWORD": "Webseiten Passwort",
+  "APPLICATION_PASSWORD": "Applikations Passwort",
   "SCAN_CONFIG": "Scan Config",
   "QR_CLIENT_CONFIG": "QR Client Config",
   "USER_DISABLED_ASK_ADMIN_TO_ENABLE": "Benutzer wurde deaktiviert. Fragen sie einen Admininistrator um ihn zu aktivieren.",
@@ -11,6 +13,7 @@
   "RECOVERY_CODES_DISABLED": "Wiederherstellungs Codes wurden deaktiviert.",
   "PASSWORD_TOO_SHORT": "Passwort zu kurz.",
   "PASSWORDS_DONT_MATCH": "Passwörter nicht identisch.",
+  "PASSWORD_NOT_COMPLEX_ENOUGH": "Passwort nicht komplex genug.",
   "OLD_PASSWORD_REQUIRED": "Altes Passwort erfoderlich",
   "PASSWORD_REQUIRED": "Passwort erfoderlich",
   "ACCESS_DENIED": "Zugriff verweigert",

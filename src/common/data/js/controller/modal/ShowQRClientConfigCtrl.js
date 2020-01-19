@@ -29,7 +29,7 @@
                         var errorCorrectionLevel = 'L';
                         var qr = qrcode(typeNumber, errorCorrectionLevel);
                         qr.addData(JSON.stringify({
-                            client_config: config
+                            ConfigJson: config
                         }));
                         qr.make();
                         $scope.qr_code_html = qr.createImgTag(4, 16);

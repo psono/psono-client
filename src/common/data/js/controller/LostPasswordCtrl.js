@@ -8,6 +8,7 @@
      * @requires $route
      * @requires $filter
      * @requires psonocli.managerDatastoreUser
+     * @requires psonocli.managerHost
      * @requires psonocli.browserClient
      * @requires psonocli.helper
      * @requires psonocli.cryptoLibrary
@@ -16,9 +17,10 @@
      * @description
      * Controller for the registration view
      */
-    angular.module('psonocli').controller('LostPasswordCtrl', ['$scope', '$route', '$filter', 'managerDatastoreUser', 'browserClient',
-        'helper', 'cryptoLibrary', 'converter',
-        function ($scope, $route, $filter, managerDatastoreUser, browserClient, helper, cryptoLibrary, converter) {
+    angular.module('psonocli').controller('LostPasswordCtrl', ['$scope', '$route', '$filter', 'managerDatastoreUser',
+        'managerHost', 'browserClient', 'helper', 'cryptoLibrary', 'converter',
+        function ($scope, $route, $filter, managerDatastoreUser,
+                  managerHost, browserClient, helper, cryptoLibrary, converter) {
 
             $scope.select_server = select_server;
             $scope.changing = changing;
@@ -271,23 +273,34 @@
              */
             function set_new_password(username, recovery_code, password, password2, recovery_data) {
 
-                var test_error = helper.is_valid_password(password, password2);
-                if (test_error) {
-                    $scope.errors = [test_error];
-                    return;
-                }
+                $scope.errors = [];
 
-                function onError() {
-                    alert("Error, should not happen.");
-                }
+                managerHost.info()
+                    .then(function(info) {
+                        var test_error = helper.is_valid_password(password, password2, info.data['decoded_info']['compliance_min_master_password_length'], info.data['decoded_info']['compliance_min_master_password_complexity']);
 
-                function onSuccess() {
-                    $scope.success = true;
-                }
+                        if (test_error) {
+                            $scope.errors = [test_error];
+                            return;
+                        }
 
-                managerDatastoreUser.set_password(username, recovery_code, password, recovery_data.user_private_key,
-                    recovery_data.user_secret_key, recovery_data.user_sauce, recovery_data.verifier_public_key)
-                    .then(onSuccess, onError);
+                        function onError() {
+                            alert("Error, should not happen.");
+                        }
+
+                        function onSuccess() {
+                            $scope.success = true;
+                        }
+
+                        managerDatastoreUser.set_password(username, recovery_code, password, recovery_data.user_private_key,
+                            recovery_data.user_secret_key, recovery_data.user_sauce, recovery_data.verifier_public_key)
+                            .then(onSuccess, onError);
+
+                    }, function(data) {
+                        console.log(data);
+                        // handle server is offline
+                        $scope.errors.push('SERVER_OFFLINE');
+                    });
             }
         }]
     );

@@ -9,14 +9,19 @@
      * @requires $uibModalInstance
      * @requires $uibModal
      * @requires psonocli.offlineCache
+     * @requires psonocli.managerDatastore
+     * @requires psonocli.managerDatastorePassword
+     * @requires psonocli.managerExport
+     * @requires psonocli.managerHost
+     * @requires psonocli.helper
      *
      * @description
      * Controller for the "Go Offline" modal
      */
     angular.module('psonocli').controller('ModalGoOfflineCtrl', ['$scope', '$rootScope', '$uibModalInstance', '$uibModal',
-        'offlineCache', 'managerDatastore', 'managerDatastorePassword', 'managerExport', 'helper',
+        'offlineCache', 'managerDatastore', 'managerDatastorePassword', 'managerExport', 'managerHost', 'helper',
         function ($scope, $rootScope, $uibModalInstance, $uibModal,
-                  offlineCache, managerDatastore, managerDatastorePassword, managerExport, helper) {
+                  offlineCache, managerDatastore, managerDatastorePassword, managerExport, managerHost, helper) {
 
             $scope.cancel = cancel;
             $scope.approve = approve;
@@ -45,30 +50,41 @@
              *
              */
             function approve() {
-                var test_error = helper.is_valid_password($scope.state.password, $scope.state.password_repeat);
-                if (test_error) {
-                    $scope.state.errors = [
-                        test_error
-                    ];
-                    return;
-                }
+                $scope.state.errors = [];
 
-                $scope.state.started_load_all_datastores = true;
+                managerHost.info()
+                    .then(function(info) {
+                        var test_error = helper.is_valid_password($scope.state.password, $scope.state.password_repeat, info.data['decoded_info']['compliance_min_master_password_length'], info.data['decoded_info']['compliance_min_master_password_complexity']);
 
-                offlineCache.set_encryption_password($scope.state.password);
-                offlineCache.enable();
+                        if (test_error) {
+                            $scope.state.errors = [
+                                test_error
+                            ];
+                            return;
+                        }
 
-                managerExport.on('get-secret-started', function(){
-                    $scope.state.open_requests = $scope.state.open_requests + 1;
-                });
+                        $scope.state.started_load_all_datastores = true;
 
-                managerExport.on('get-secret-complete', function(){
-                    $scope.state.closed_requests = $scope.state.closed_requests + 1;
-                });
+                        offlineCache.set_encryption_password($scope.state.password);
+                        offlineCache.enable();
+
+                        managerExport.on('get-secret-started', function(){
+                            $scope.state.open_requests = $scope.state.open_requests + 1;
+                        });
+
+                        managerExport.on('get-secret-complete', function(){
+                            $scope.state.closed_requests = $scope.state.closed_requests + 1;
+                        });
 
 
-                managerDatastore.get_datastore_overview(true)
-                    .then(load_all_datastores)
+                        managerDatastore.get_datastore_overview(true)
+                            .then(load_all_datastores)
+
+                    }, function(data) {
+                        console.log(data);
+                        // handle server is offline
+                        $scope.state.errors.push('SERVER_OFFLINE');
+                    });
             }
 
             /**

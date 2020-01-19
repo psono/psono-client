@@ -907,6 +907,10 @@
                 return 'fa fa-sticky-note-o'
             }
 
+            if(item.type === 'application_password') {
+                return 'fa fa-cube'
+            }
+
             if(item.type === 'website_password') {
                 return 'fa fa-key'
             }

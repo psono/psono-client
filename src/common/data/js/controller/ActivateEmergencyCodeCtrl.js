@@ -351,23 +351,34 @@
              */
             function set_new_password(username, emergency_code, password, password2, emergency_code_date) {
 
-                var test_error = helper.is_valid_password(password, password2);
-                if (test_error) {
-                    $scope.errors = [test_error];
-                    return;
-                }
+                $scope.errors = [];
 
-                function onError() {
-                    alert("Error, should not happen.");
-                }
+                managerHost.info()
+                    .then(function(info) {
+                        var test_error = helper.is_valid_password(password, password2, info.data['decoded_info']['compliance_min_master_password_length'], info.data['decoded_info']['compliance_min_master_password_complexity']);
 
-                function onSuccess() {
-                    $scope.success = true;
-                }
+                        if (test_error) {
+                            $scope.errors = [test_error];
+                            return;
+                        }
 
-                managerDatastoreUser.set_password(username, emergency_code, password, emergency_code_date.user_private_key,
-                    emergency_code_date.user_secret_key, emergency_code_date.user_sauce, emergency_code_date.verifier_public_key)
-                    .then(onSuccess, onError);
+                        function onError() {
+                            alert("Error, should not happen.");
+                        }
+
+                        function onSuccess() {
+                            $scope.success = true;
+                        }
+
+                        managerDatastoreUser.set_password(username, emergency_code, password, emergency_code_date.user_private_key,
+                            emergency_code_date.user_secret_key, emergency_code_date.user_sauce, emergency_code_date.verifier_public_key)
+                            .then(onSuccess, onError);
+
+                    }, function(data) {
+                        console.log(data);
+                        // handle server is offline
+                        $scope.errors.push('SERVER_OFFLINE');
+                    });
             }
         }]
     );

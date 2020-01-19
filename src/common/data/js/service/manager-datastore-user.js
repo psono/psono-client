@@ -15,6 +15,7 @@
      * @requires psonocli.helper
      * @requires psonocli.managerBase
      * @requires psonocli.managerDatastore
+     * @requires psonocli.managerHost
      * @requires psonocli.shareBlueprint
      * @requires psonocli.itemBlueprint
      * @requires psonocli.cryptoLibrary
@@ -24,8 +25,8 @@
      */
 
     var managerDatastoreUser = function($q, $rootScope, $uibModal, $location, $window, apiClient,
-                                        browserClient, storage, helper, device, managerBase, managerDatastore, shareBlueprint,
-                                        itemBlueprint, cryptoLibrary) {
+                                        browserClient, storage, helper, device, managerBase, managerDatastore, managerHost,
+                                        shareBlueprint, itemBlueprint, cryptoLibrary) {
 
         var required_multifactors = [];
         var session_keys;
@@ -1738,36 +1739,44 @@
          */
         var save_new_password = function(new_password, new_password_repeat, old_password) {
 
-            var authkey_old, new_authkey, user_private_key, user_secret_key, user_sauce, priv_key_enc, secret_key_enc, onSuccess, onError;
+            return managerHost.info()
+                .then(function(info) {
+                    var authkey_old, new_authkey, user_private_key, user_secret_key, user_sauce, priv_key_enc, secret_key_enc, onSuccess, onError;
+                    var test_error = helper.is_valid_password(new_password, new_password_repeat, info.data['decoded_info']['compliance_min_master_password_length'], info.data['decoded_info']['compliance_min_master_password_complexity']);
+                    if (test_error) {
+                        return $q.reject({errors: [test_error]})
+                    }
 
-            var test_error = helper.is_valid_password(new_password, new_password_repeat);
-            if (test_error) {
-                return $q.reject({errors: [test_error]})
-            }
+                    if (old_password === null || old_password.length === 0) {
+                        return $q.reject({errors: ['OLD_PASSWORD_REQUIRED']})
+                    }
 
-            if (old_password === null || old_password.length === 0) {
-                return $q.reject({errors: ['OLD_PASSWORD_REQUIRED']})
-            }
+                    authkey_old = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, old_password);
 
-            authkey_old = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, old_password);
+                    new_authkey = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, new_password);
+                    user_private_key = storage.find_key('config', 'user_private_key');
+                    user_secret_key = storage.find_key('config', 'user_secret_key');
+                    user_sauce = storage.find_key('config', 'user_sauce').value;
 
-            new_authkey = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, new_password);
-            user_private_key = storage.find_key('config', 'user_private_key');
-            user_secret_key = storage.find_key('config', 'user_secret_key');
-            user_sauce = storage.find_key('config', 'user_sauce').value;
+                    priv_key_enc = cryptoLibrary.encrypt_secret(user_private_key.value, new_password, user_sauce);
+                    secret_key_enc = cryptoLibrary.encrypt_secret(user_secret_key.value, new_password, user_sauce);
 
-            priv_key_enc = cryptoLibrary.encrypt_secret(user_private_key.value, new_password, user_sauce);
-            secret_key_enc = cryptoLibrary.encrypt_secret(user_secret_key.value, new_password, user_sauce);
+                    onSuccess = function(data) {
+                        return {msgs: ['SAVE_SUCCESS']}
+                    };
+                    onError = function() {
+                        return $q.reject({errors: ['OLD_PASSWORD_INCORRECT']})
+                    };
 
-            onSuccess = function(data) {
-                return {msgs: ['SAVE_SUCCESS']}
-            };
-            onError = function() {
-                return $q.reject({errors: ['OLD_PASSWORD_INCORRECT']})
-            };
+                    return update_user(null, new_authkey, authkey_old, priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce)
+                        .then(onSuccess, onError);
 
-            return update_user(null, new_authkey, authkey_old, priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce)
-                .then(onSuccess, onError);
+                }, function(data) {
+                    console.log(data);
+                    // handle server is offline
+                    return $q.reject({errors: ['SERVER_OFFLINE']});
+                });
+
         };
 
         /**
@@ -1907,7 +1916,7 @@
 
     var app = angular.module('psonocli');
     app.factory("managerDatastoreUser", ['$q', '$rootScope', '$uibModal', '$location', '$window', 'apiClient',
-        'browserClient', 'storage', 'helper', 'device', 'managerBase', 'managerDatastore', 'shareBlueprint',
-        'itemBlueprint', 'cryptoLibrary', managerDatastoreUser]);
+        'browserClient', 'storage', 'helper', 'device', 'managerBase', 'managerDatastore', 'managerHost',
+        'shareBlueprint', 'itemBlueprint', 'cryptoLibrary', managerDatastoreUser]);
 
 }(angular, Raven));

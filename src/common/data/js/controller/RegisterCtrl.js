@@ -16,8 +16,10 @@
      * @description
      * Controller for the registration view
      */
-    angular.module('psonocli').controller('RegisterCtrl', ['$scope', '$route', '$filter', 'managerDatastoreUser', 'managerHost', 'browserClient', 'helper', 'storage',
-        function ($scope, $route, $filter, managerDatastoreUser, managerHost, browserClient, helper, storage) {
+    angular.module('psonocli').controller('RegisterCtrl', ['$scope', '$route', '$filter', 'managerDatastoreUser',
+        'managerHost', 'browserClient', 'helper', 'storage',
+        function ($scope, $route, $filter, managerDatastoreUser,
+                  managerHost, browserClient, helper, storage) {
 
             $scope.select_server = select_server;
             $scope.changing = changing;
@@ -155,9 +157,8 @@
 
                 managerHost.info()
                     .then(function(info) {
-                        // TODO test info object for password policy
+                        var test_error = helper.is_valid_password(password, password2, info.data['decoded_info']['compliance_min_master_password_length'], info.data['decoded_info']['compliance_min_master_password_complexity']);
 
-                        var test_error = helper.is_valid_password(password, password2);
                         if (test_error) {
                             $scope.errors.push(test_error);
                             return;
@@ -181,8 +182,8 @@
 
                         managerDatastoreUser.register(email, username, password, angular.copy($scope.selected_server))
                             .then(onRequestReturn, onError);
-                    }, function() {
-                        console.log("arfg");
+                    }, function(data) {
+                        console.log(data);
                         // handle server is offline
                         $scope.errors.push('SERVER_OFFLINE');
                     });
