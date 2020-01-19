@@ -1,7 +1,7 @@
 (function(angular, $, window) {
     'use strict';
 
-    var browserClient = function($rootScope, $q, $templateRequest, $http, $location) {
+    var browserClient = function(helper, $rootScope, $q, $templateRequest, $http, $location) {
 
         var registrations = {};
 
@@ -214,6 +214,21 @@
                     } catch (e) {
                         // pass
                     }
+                    var parsed_url = helper.parse_url('https://www.psono.pw/');
+
+                    if (!new_config.hasOwnProperty('base_url')) {
+                        new_config['base_url'] = parsed_url['base_url'] + '/';
+                    }
+
+                    if (new_config.hasOwnProperty('backend_servers')) {
+                        for (var i = 0; i < new_config['backend_servers'].length; i++) {
+                            if (new_config['backend_servers'][i].hasOwnProperty('url')) {
+                                continue;
+                            }
+                            new_config['backend_servers'][i]['url'] = parsed_url['base_url'] + '/server';
+                        }
+                    }
+
                     if (!new_config.hasOwnProperty('authentication_methods')) {
                         new_config['authentication_methods'] = ["AUTHKEY", "LDAP", "SAML"];
                     }
@@ -525,6 +540,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("browserClient", ['$rootScope', '$q', '$templateRequest', '$http', '$location', browserClient]);
+    app.factory("browserClient", ['helper', '$rootScope', '$q', '$templateRequest', '$http', '$location', browserClient]);
 
 }(angular, $, window));
