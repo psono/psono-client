@@ -1146,6 +1146,12 @@
 
             var parent_share = managerShare.get_closest_parent_share(path_copy, datastore, datastore, distance);
 
+            if (parent_share === false) {
+                console.log(path_copy);
+                console.log(datastore);
+                console.log(distance);
+            }
+
             // create share_index object if not exists
             if (typeof(parent_share.share_index) === 'undefined') {
                 parent_share.share_index = {};
