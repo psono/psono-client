@@ -63,8 +63,6 @@
                         _server_info = info;
                     });
 
-
-
                 $translate([
                     'TITLE_IS_REQUIRED',
                     'LEAD_TIME_IS_REQUIRED'

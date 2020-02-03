@@ -649,7 +649,7 @@
                     path: []
                 });
             } else {
-                managerDatastorePassword.get_all_child_shares_by_path([], datastore, child_shares, 1, element);
+                managerDatastorePassword.get_all_child_shares_by_path([], datastore, child_shares, element);
             }
             var secret_links = managerDatastorePassword.get_all_secret_links(element);
             var file_links = managerDatastorePassword.get_all_file_links(element);
@@ -754,7 +754,7 @@
                     path: []
                 });
             } else {
-                managerDatastorePassword.get_all_child_shares_by_path([], datastore, child_shares, 1, element);
+                managerDatastorePassword.get_all_child_shares_by_path([], datastore, child_shares, element);
             }
 
             var secret_links = managerDatastorePassword.get_all_secret_links(element);
