@@ -900,7 +900,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastorePassword#get_all_child_shares_by_path
+         * @name psonocli.managerDatastorePassword#get_all_child_shares
          * @methodOf psonocli.managerDatastorePassword
          *
          * @description
@@ -963,25 +963,20 @@
          * @param {Array} path The path to search for child shares
          * @param {TreeObject|undefined} [datastore] (optional) if obj provided
          * @param {Array} other_children The list of found children that will be updated with new findings
-         * @param {int|undefined} [share_distance] (optional) share_distance the distance in shares to search (-1 = unlimited search, 0 stop search)
          * @param {TreeObject|undefined} [obj] (optional)  if not provided we will search it in the datastore according to the provided path first
          */
-        var get_all_child_shares_by_path = function(path, datastore, other_children, share_distance, obj) {
-
-            if (share_distance === 0) {
-                return
-            }
+        var get_all_child_shares_by_path = function(path, datastore, other_children, obj) {
 
             if (typeof obj === 'undefined') {
                 var path_copy = path.slice();
                 var search = find_in_datastore(path_copy, datastore);
                 obj = search[0][search[1]];
-                return get_all_child_shares(obj, share_distance, other_children, path)
+                return get_all_child_shares(obj, 1, other_children, path)
             } else if (obj === false) {
                 // TODO Handle not found
                 console.log("HANDLE not found!");
             } else {
-                get_all_child_shares(obj, share_distance, other_children, path)
+                get_all_child_shares(obj, 1, other_children, path)
             }
         };
 
@@ -1145,6 +1140,12 @@
             var path_copy4 = path.slice();
 
             var parent_share = managerShare.get_closest_parent_share(path_copy, datastore, datastore, distance);
+
+            if (parent_share === false) {
+                console.log(path_copy);
+                console.log(datastore);
+                console.log(distance);
+            }
 
             // create share_index object if not exists
             if (typeof(parent_share.share_index) === 'undefined') {

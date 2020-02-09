@@ -7,6 +7,7 @@
      * @requires $q
      * @requires $window
      * @requires $timeout
+     * @requires $translate
      * @requires psonocli.managerExport
      * @requires psonocli.managerDatastore
      * @requires psonocli.managerDatastoreUser
@@ -21,13 +22,25 @@
      * Service to manage security reports
      */
 
-    var managerSecurityReport = function($q, $window, $timeout, managerExport, managerDatastore, managerDatastoreUser,
+    var managerSecurityReport = function($q, $window, $timeout, $translate, managerExport, managerDatastore, managerDatastoreUser,
                                          managerBase, managerStatus, apiClient, apiPwnedpasswords, cryptoLibrary, storage) {
 
 
         var registrations = {};
         var masterpassword = '';
         var haveibeenpwned = false;
+        var _translations;
+
+        activate();
+
+        function activate() {
+
+            $translate([
+                'PASSWORD_HAS_BEEN_COMPROMISED_MULTIPLE_TIMES',
+            ]).then(function (translations) {
+                _translations = translations;
+            });
+        }
 
         /**
          * @ngdoc
@@ -352,7 +365,7 @@
                     }
                     entry.breached = suffix[1];
                     if (entry.breached > 1) {
-                        entry.advise = 'PASSWORD_HAS_BEEN_COMPROMISED_MULTIPLE_TIMES';
+                        entry.advise = _translations.PASSWORD_HAS_BEEN_COMPROMISED_MULTIPLE_TIMES.replace('{{ pwned }}', parseInt(entry.breached));
                     } else {
                         entry.advise = 'PASSWORD_HAS_BEEN_COMPROMISED';
                     }
@@ -764,7 +777,7 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerSecurityReport", ['$q', '$window', '$timeout', 'managerExport', 'managerDatastore', 'managerDatastoreUser',
+    app.factory("managerSecurityReport", ['$q', '$window', '$timeout', '$translate', 'managerExport', 'managerDatastore', 'managerDatastoreUser',
         'managerBase', 'managerStatus', 'apiClient', 'apiPwnedpasswords', 'cryptoLibrary', 'storage', managerSecurityReport]);
 
 }(angular));

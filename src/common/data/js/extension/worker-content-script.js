@@ -138,7 +138,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
         // Lets start with searching all input fields and forms
         // if we find a password field, we remember that and take the field before as username field
 
-        var inputs = document.querySelectorAll("input[type='text']:not(:disabled):not([readonly]):not([type=hidden]), input[type='email']:not(:disabled):not([readonly]):not([type=hidden]), input[type='password']:not(:disabled):not([readonly]):not([type=hidden])");
+        var inputs = document.querySelectorAll("input[type='text']:not(:disabled):not([readonly]):not([type=hidden]), input:not([type]):not(:disabled):not([readonly]):not([type=hidden]), input[type='email']:not(:disabled):not([readonly]):not([type=hidden]), input[type='password']:not(:disabled):not([readonly]):not([type=hidden])");
 
         for (var i = 0; i < inputs.length; ++i) {
 
@@ -460,6 +460,11 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
     function on_return_secret (data) {
 
         var fill_field_helper = function(field, value) {
+
+            if (field === null) {
+                return;
+            }
+
             field.value = value;
 
             // jQuery event triggering is not working for angular apps
@@ -473,7 +478,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
         };
 
         for (var i = 0; i < myForms.length; i++) {
-            if (myForms[i].username.isEqualNode(last_request_element) || myForms[i].password.isEqualNode(last_request_element)) {
+            if ((myForms[i].username && myForms[i].username.isEqualNode(last_request_element)) || (myForms[i].password && myForms[i].password.isEqualNode(last_request_element))) {
                 fill_field_helper(myForms[i].username, data.website_password_username);
                 fill_field_helper(myForms[i].password, data.website_password_password);
 
