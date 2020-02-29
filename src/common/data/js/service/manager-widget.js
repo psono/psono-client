@@ -722,7 +722,8 @@
          * @methodOf psonocli.managerWidget
          *
          * @description
-         * Deletes and item from datastore
+         * Deletes an item (or folder) from a datastore
+         * Takes care that the link structure on the server is updated
          *
          * @param {TreeObject} datastore The datastore
          * @param {object} item The item to delete
