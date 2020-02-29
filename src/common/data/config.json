@@ -5,7 +5,12 @@
   "allow_custom_server": true,
   "allow_registration": true,
   "allow_lost_password": true,
-  "authentication_methods": ["AUTHKEY", "LDAP"],
+  "authentication_methods": ["AUTHKEY", "LDAP", "SAML"],
+  "saml_provider": [{
+    "title": "Some text before the button. e.g. Company Login",
+    "provider_id": 1,
+    "button_name": "SAML SSO Login"
+  }],
   "more_links": [{
     "href": "https://doc.psono.com/",
     "title": "DOCUMENTATION",

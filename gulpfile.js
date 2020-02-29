@@ -272,6 +272,7 @@ var build = function(build_path, type) {
             "src/common/data/js/service/manager-import.js",
             "src/common/data/js/service/manager-link-share.js",
             "src/common/data/js/service/manager-security-report.js",
+            "src/common/data/js/service/import-1password-csv.js",
             "src/common/data/js/service/import-chrome-csv.js",
             "src/common/data/js/service/import-psono-pw-json.js",
             "src/common/data/js/service/import-lastpass-com-csv.js",
