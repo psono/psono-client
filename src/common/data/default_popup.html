@@ -37,6 +37,7 @@
     <!-- endbuild -->
 
     <link href="css/main.css" rel="stylesheet">
+    <link href="css/default_popup.css" rel="stylesheet">
 </head>
 <body class="dark">
 <div ng-controller="WrapperCtrl" class="ng-cloak" id="panel">
@@ -109,7 +110,7 @@
     <img src="img/logo.png" alt="Psono Web Client" id="logo">
     <a href="https://psono.com/" target="_blank" rel="noopener" class="infolabel"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
 
-    <div class="btn-group loginbox-translate" uib-dropdown keyboard-nav>
+    <div class="btn-group loginbox-translate" uib-dropdown keyboard-nav ng-controller="LanguagePickerCtrl">
         <button id="language-picker" type="button" class="btn btn-primary" uib-dropdown-toggle>
             {{active.lang.lng_code | translate}} <span class="caret"></span>
         </button>
@@ -512,6 +513,7 @@
 <script src="js/service/manager-import.js" type="application/javascript"></script>
 <script src="js/service/manager-link-share.js" type="application/javascript"></script>
 <script src="js/service/manager-security-report.js" type="application/javascript"></script>
+<script src="js/service/import-1password-csv.js" type="application/javascript"></script>
 <script src="js/service/import-chrome-csv.js" type="application/javascript"></script>
 <script src="js/service/import-psono-pw-json.js" type="application/javascript"></script>
 <script src="js/service/import-lastpass-com-csv.js" type="application/javascript"></script>

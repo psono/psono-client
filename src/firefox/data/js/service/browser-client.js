@@ -253,7 +253,7 @@
                 var storageItem = browser.storage.managed.get('ConfigJson');
 
                 storageItem.then(onStorageRetrieve, function(reason) {
-                    return deferred.resolve(new_config);
+                    return onStorageRetrieve();
                 });
 
                 return deferred.promise;

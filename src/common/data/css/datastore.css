@@ -18,6 +18,11 @@ body {
   .loginbox .progress-bar, .registerbox .progress-bar, .activationbox .progress-bar, .lostpasswordbox .progress-bar {
     background-color: #2dbb93; }
 
+@media only screen and (min-width: 600px) {
+  .loginbox, .registerbox, .activationbox, .lostpasswordbox {
+    width: 540px;
+    margin: -130px 0 0 -270px; } }
+
 .privacypolicybox {
   padding: 20px 20px 20px 20px;
   border-radius: 4px; }

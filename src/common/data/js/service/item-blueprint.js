@@ -157,9 +157,8 @@
             id: "application_password", // Unique ID
             name: "APPLICATION_PASSWORD", // Displayed in Dropdown Menu
             title_field: "application_password_title", // is the main column, that is used as filename
-            urlfilter_field: "application_password_url_filter", // is the filter column for url matching
             autosubmit_field: "application_password_auto_submit", // is the filter column for auto submit
-            search: ['application_password_title', 'application_password_url_filter'], // are searched when the user search his entries
+            search: ['application_password_title'], // are searched when the user search his entries
             fields: [ // All fields for this object with unique names
                 { name: "application_password_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true, error_message_required: 'TITLE_IS_REQUIRED' },
                 { name: "application_password_username", field: "input", type: "text", title: "USERNAME", placeholder: "USERNAME"},
