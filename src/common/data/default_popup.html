@@ -109,7 +109,7 @@
     <img src="img/logo.png" alt="Psono Web Client" id="logo">
     <a href="https://psono.com/" target="_blank" rel="noopener" class="infolabel"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
 
-    <div class="btn-group loginbox-translate" uib-dropdown keyboard-nav>
+    <div class="btn-group loginbox-translate" uib-dropdown keyboard-nav ng-controller="LanguagePickerCtrl">
         <button id="language-picker" type="button" class="btn btn-primary" uib-dropdown-toggle>
             {{active.lang.lng_code | translate}} <span class="caret"></span>
         </button>
