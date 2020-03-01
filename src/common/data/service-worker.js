@@ -38,6 +38,7 @@ self.addEventListener('install', function(event) {
                 './css/angular-tree-view.css',
                 './css/contentscript.css',
                 './css/datastore.css',
+                './css/default_popup.css',
                 './css/main.css',
                 './css/style.css',
 

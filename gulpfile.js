@@ -70,6 +70,7 @@ var build = function(build_path, type) {
         gulp.src([
             'src/common/data/css/contentscript.css',
             'src/common/data/css/datastore.css',
+            'src/common/data/css/default_popup.css',
             'src/common/data/css/main.css'
         ])
             .pipe(cleanCSS({compatibility: 'ie8'}))
