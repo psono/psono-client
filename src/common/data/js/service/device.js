@@ -46,6 +46,48 @@
 
         /**
          * @ngdoc
+         * @name psonocli.device#is_mobile_android
+         * @methodOf psonocli.device
+         *
+         * @description
+         * Returns weather we have an android device or not
+         *
+         * @returns {boolean} Is this an android device
+         */
+        function is_mobile_android() {
+            return client_js.isMobileAndroid();
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.device#is_mobile_ios
+         * @methodOf psonocli.device
+         *
+         * @description
+         * Returns weather we have an ios device or not
+         *
+         * @returns {boolean} Is this an ios device
+         */
+        function is_mobile_ios() {
+            return client_js.isMobileIOS();
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.device#is_mobile
+         * @methodOf psonocli.device
+         *
+         * @description
+         * Returns weather we have an ios device or not
+         *
+         * @returns {boolean} Is this an ios device
+         */
+        function is_mobile() {
+            return client_js.isMobile();
+        }
+
+        /**
+         * @ngdoc
          * @name psonocli.device#is_ie
          * @methodOf psonocli.device
          *
@@ -150,6 +192,9 @@
 
         return {
             get_device_fingerprint: get_device_fingerprint,
+            is_mobile_android: is_mobile_android,
+            is_mobile_ios: is_mobile_ios,
+            is_mobile: is_mobile,
             is_ie: is_ie,
             is_chrome: is_chrome,
             is_firefox: is_firefox,

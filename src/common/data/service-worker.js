@@ -269,6 +269,7 @@ self.addEventListener('install', function(event) {
                 './js/controller/modal/UnlockOfflineCacheCtrl.js',
                 './js/controller/modal/DeleteAccountCtrl.js',
                 './js/controller/EditEntryBigCtrl.js',
+                './js/controller/NotificationBannerCtrl.js',
                 './js/controller/OpenSecretCtrl.js',
                 './js/controller/DownloadFileCtrl.js',
                 './js/controller/OtherCtrl.js',
