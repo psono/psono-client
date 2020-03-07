@@ -69,7 +69,6 @@
          * @returns {string}
          */
         function get_saml_return_to_url() {
-            console.log(browser.identity.getRedirectURL() + '/data/index.html#!/saml/token/');
             return browser.identity.getRedirectURL() + '/data/index.html#!/saml/token/';
         }
 
