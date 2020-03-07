@@ -41,7 +41,19 @@
     <link href="css/datastore.css" rel="stylesheet">
 </head>
 <body>
-<div  ng-controller="WrapperCtrl" class="ng-cloak">
+
+
+<div ng-controller="NotificationBannerCtrl" class="ng-cloak">
+    <div class="overlay" ng-if="show_android_download">
+        <a href="#" class="closebtn" ng-click="close()"><i class="fa fa-times" aria-hidden="true"></i></a>
+        <div class="overlay-content">
+            <a href="https://play.google.com/store/apps/details?id=com.psono.psono">{{'DOWNLOAD_PSONO' | translate}} <i class="fa fa-download" aria-hidden="true"></i></a>
+        </div>
+    </div>
+</div>
+
+
+<div ng-controller="WrapperCtrl" class="ng-cloak">
 <div ng-if="view === 'logged_in'" ng-controller="MainCtrl">
 
     <nav class="navbar navbar-default navbar-static-top">
@@ -571,6 +583,7 @@
 <script src="js/controller/modal/UnlockOfflineCacheCtrl.js" type="application/javascript"></script>
 <script src="js/controller/modal/DeleteAccountCtrl.js" type="application/javascript"></script>
 <script src="js/controller/EditEntryBigCtrl.js" type="application/javascript"></script>
+<script src="js/controller/NotificationBannerCtrl.js" type="application/javascript"></script>
 <script src="js/controller/OpenSecretCtrl.js" type="application/javascript"></script>
 <script src="js/controller/DownloadFileCtrl.js" type="application/javascript"></script>
 <script src="js/controller/OtherCtrl.js" type="application/javascript"></script>

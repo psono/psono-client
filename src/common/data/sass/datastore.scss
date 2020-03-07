@@ -187,7 +187,46 @@ body {
   margin-top:-40%;
 }
 
-  /* snap */
+
+/* overlay */
+.overlay {
+  width: 100%;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #2dbb93;
+  overflow-y: hidden;
+  transition: 0.5s;
+}
+
+.overlay-content {
+  position: relative;
+  width: 90%;
+  text-align: center;
+  padding-left: 5%;
+}
+
+.overlay a {
+  padding: 8px;
+  text-decoration: none;
+  display: block;
+  transition: 0.3s;
+}
+
+.overlay a:hover, .overlay a:focus {
+  color: #fff;
+}
+
+.overlay .closebtn {
+  position: absolute;
+  top: 0;
+  right: 5px;
+}
+
+
+
+/* snap */
 snap-content,
 [snap\:content],
 [snap-content],
