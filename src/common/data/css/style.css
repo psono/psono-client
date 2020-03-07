@@ -96,6 +96,20 @@ p.horizontalline span {
   color: inherit;
   box-shadow: none !important; }
 
+@media only screen and (min-width: 600px) {
+  .hideinputcharakter .form-control {
+    width: 450px; } }
+
+#username-addon {
+  max-width: 150px;
+  text-overflow: ellipsis;
+  overflow: hidden; }
+
+@media only screen and (min-width: 600px) {
+  #username-addon {
+    max-width: none;
+    text-overflow: clip; } }
+
 .dark {
   background-color: #151f2b;
   color: #b1b6c1; }
