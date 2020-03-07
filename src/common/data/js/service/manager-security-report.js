@@ -37,7 +37,9 @@
 
             $translate([
                 'PASSWORD_HAS_BEEN_COMPROMISED_MULTIPLE_TIMES',
-            ]).then(function (translations) {
+            ], {
+                pwned: '{{ pwned }}' // a small hack so we can replace it later manually
+            }).then(function (translations) {
                 _translations = translations;
             });
         }

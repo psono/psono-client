@@ -99,7 +99,7 @@
                     <td>{{ pw.rating }}</td>
                     <td>{{ pw.write_age }} {{'DAYS' | translate}}</td>
                     <td ng-if="check_haveibeenpwned">
-                        <i class="fa fa-exclamation-triangle" aria-hidden="true" ng-if="pw.breached"></i>
+                        <i class="fa fa-exclamation-triangle" aria-hidden="true" ng-if="pw.breached > 0"></i>
                         <span style="display: none" ng-if="!pw.breached">0</span>
                         <span style="display: none" ng-if="pw.breached">1</span>
                     </td>

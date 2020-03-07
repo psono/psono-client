@@ -87,7 +87,11 @@
             var endpoint = '/range/' + hash_chars;
             var connection_type = "GET";
             var data = null;
-            var headers = null;
+            var headers = {
+                'If-Modified-Since': undefined,
+                'Cache-Control': undefined,
+                'Pragma': undefined
+            };
 
             return call(connection_type, endpoint, data, headers);
         };
