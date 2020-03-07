@@ -220,6 +220,7 @@ var build = function(build_path, type) {
             "src/common/data/js/controller/modal/UnlockOfflineCacheCtrl.js",
             "src/common/data/js/controller/modal/DeleteAccountCtrl.js",
             "src/common/data/js/controller/EditEntryBigCtrl.js",
+            "src/common/data/js/controller/NotificationBannerCtrl.js",
             "src/common/data/js/controller/OpenSecretCtrl.js",
             "src/common/data/js/controller/DownloadFileCtrl.js",
             "src/common/data/js/controller/OtherCtrl.js",
