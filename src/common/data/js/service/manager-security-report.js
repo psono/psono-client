@@ -433,7 +433,7 @@
                     emit('get-haveibeenpwned-complete', {});
                     $timeout(function() {
                         little_helper(index + 1, password_list);
-                    }, 1500);
+                    }, 250);
                 };
 
                 analyze_haveibeenpwned_single(password_list[index]).then(onSuccess, onError);
