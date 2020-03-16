@@ -200,6 +200,10 @@
                 if (folder['items'][i]['type'] !== 'website_password') {
                     continue;
                 }
+                if (!folder['items'][i].hasOwnProperty('create_date')) {
+                    // we have no copy from the server, this usually means we received a 403
+                    continue
+                }
                 folder['items'][i]['master_password'] = false;
                 website_passwords.push(folder['items'][i]);
             }
