@@ -35,11 +35,11 @@
 
                 $scope.offline = offlineCache.is_active();
                 $rootScope.$on('offline_mode_enabled', function() {
-                    scope.offline = true;
+                    $scope.offline = true;
                 });
 
                 $rootScope.$on('offline_mode_disabled', function() {
-                    scope.offline = false;
+                    $scope.offline = false;
                 });
                 $scope.bp = {
                     all: itemBlueprint.get_blueprints(),

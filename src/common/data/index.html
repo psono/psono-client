@@ -45,9 +45,21 @@
 
 <div ng-controller="NotificationBannerCtrl" class="ng-cloak">
     <div class="overlay" ng-if="show_android_download">
-        <a href="#" class="closebtn" ng-click="close()"><i class="fa fa-times" aria-hidden="true"></i></a>
+        <a href="#" class="closebtn" ng-click="close_android()"><i class="fa fa-times" aria-hidden="true"></i></a>
         <div class="overlay-content">
             <a href="https://play.google.com/store/apps/details?id=com.psono.psono">{{'DOWNLOAD_PSONO' | translate}} <i class="fa fa-download" aria-hidden="true"></i></a>
+        </div>
+    </div>
+    <div class="overlay" ng-if="show_chrome_download">
+        <a href="#" class="closebtn" ng-click="close_chrome()"><i class="fa fa-times" aria-hidden="true"></i></a>
+        <div class="overlay-content">
+            <a href="https://chrome.google.com/webstore/detail/psono-free-password-manag/eljmjmgjkbmpmfljlmklcfineebidmlo">{{'DOWNLOAD_PSONO' | translate}} <i class="fa fa-download" aria-hidden="true"></i></a>
+        </div>
+    </div>
+    <div class="overlay" ng-if="show_firefox_download">
+        <a href="#" class="closebtn" ng-click="close_firefox()"><i class="fa fa-times" aria-hidden="true"></i></a>
+        <div class="overlay-content">
+            <a href="https://addons.mozilla.org/de/firefox/addon/psono-pw-password-manager/">{{'DOWNLOAD_PSONO' | translate}} <i class="fa fa-download" aria-hidden="true"></i></a>
         </div>
     </div>
 </div>

@@ -17,6 +17,8 @@
 
     var managerExport = function($q, $window, $timeout, managerSecret, managerDatastorePassword, storage) {
 
+        var timeout = 0;
+
         var _exporter = [{
             name: 'JSON (import compatible)',
             value: 'json'
@@ -255,12 +257,17 @@
 
                     open_secret_requests = open_secret_requests + 1;
                     emit('get-secret-started', {});
-                    managerSecret.read_secret(secret_id, secret_key)
-                        .then(onSuccess, onError);
+
+                    timeout = timeout + 50;
+                    $timeout(function(){
+                        managerSecret.read_secret(secret_id, secret_key)
+                            .then(onSuccess, onError);
+                    }, timeout);
 
                 };
                 for (var i = 0; i < items.length; i++) {
                     if(items[i].hasOwnProperty('secret_id') && items[i].hasOwnProperty('secret_key')) {
+
                         fill_secret(items[i], items[i]['secret_id'], items[i]['secret_key'])
                     }
                 }
@@ -276,12 +283,14 @@
 
                     if (folders[i].hasOwnProperty('items')) {
                         handle_items(folders[i]['items']);
+
                     }
                 }
             };
 
             return $q(function(resolve, reject) {
                 resolver = resolve;
+                timeout = 0;
 
                 if (datastore.hasOwnProperty('folders')) {
                     handle_folders(datastore['folders']);
