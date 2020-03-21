@@ -1,4 +1,7 @@
 {
+  "AUTOFILL_SERVICE_ACTIVATE_NOW_INFO": "In order to use the full feature set of the app you should activate Psono's autofill service. You can do so by pushing the button below or skip this step.",
+  "SKIP": "Skip",
+  "AUTOFILL_SERVICE": "Autofill Service",
   "DOWNLOAD_PSONO": "Download Psono",
   "WEBSITE_PASSWORD": "Website Password",
   "APPLICATION_PASSWORD": "Application Password",
@@ -294,6 +297,7 @@
   "SET_NEW_PASSWORD": "Set new password",
   "SECOND_FACTOR_REQUIRED": "Second factor required",
   "ACTIVATE": "Activate",
+  "DEACTIVATE": "Deactivate",
   "KEY": "Key",
   "BACK_TO_HOME": "Back to home",
   "SEARCH_DATSTORE": "Search datastore...",
