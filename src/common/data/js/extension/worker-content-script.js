@@ -465,7 +465,20 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
                 return;
             }
 
+            // trigger click event
+            var clickEvent = new MouseEvent('click', {
+                view: window,
+                bubbles: true,
+                cancelable: true
+            });
+            field.dispatchEvent(clickEvent);
+
+            // fill value
             field.value = value;
+
+            // trigger 'input' event
+            const inputEvent = new Event('input', { bubbles: true });
+            field.dispatchEvent(inputEvent);
 
             // jQuery event triggering is not working for angular apps
             if ("createEvent" in document) {

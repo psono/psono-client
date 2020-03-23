@@ -1,4 +1,7 @@
 {
+  "AUTOFILL_SERVICE_ACTIVATE_NOW_INFO": "Um Psono in vollem Funktionsumfang nutzen zu können sollten sie Psono's automatischen Ausfüllservice aktivieren. Sie können dies tun indem sie auf den Button unten drücken oder den Schritt überspringen.",
+  "SKIP": "Überspringen",
+  "AUTOFILL_SERVICE": "Automatischer Ausfüllservice",
   "DOWNLOAD_PSONO": "Psono herunterladen",
   "WEBSITE_PASSWORD": "Webseiten Passwort",
   "APPLICATION_PASSWORD": "Applikations Passwort",
@@ -294,6 +297,7 @@
   "SET_NEW_PASSWORD": "Neues passwort speichern",
   "SECOND_FACTOR_REQUIRED": "Zweiter Faktor erforderlich",
   "ACTIVATE": "Aktivieren",
+  "DEACTIVATE": "Deaktivieren",
   "KEY": "Schlüssel",
   "BACK_TO_HOME": "Zurück nach Hause",
   "SEARCH_DATSTORE": "Datenspeicher durchsuchen ...",
