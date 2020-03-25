@@ -46,12 +46,6 @@
                 controller: 'ModalNewFolderCtrl',
                 backdrop: 'static',
                 resolve: {
-                    parent: function () {
-                        return parent;
-                    },
-                    path: function () {
-                        return path;
-                    }
                 }
             });
 
@@ -73,8 +67,10 @@
 
                 parent['expanded'] = true;
 
-                var closest_share = managerShare.get_closest_parent_share(path.slice(), data_structure,
+                var closest_share_info = managerShare.get_closest_parent_share(path.slice(), data_structure,
                     data_structure, 0);
+
+                var closest_share = closest_share_info['closest_share'];
 
                 if (closest_share.hasOwnProperty('share_id')) {
                     datastore_object['parent_share_id'] = closest_share['share_id'];
@@ -231,8 +227,9 @@
                     // pass
                 };
 
-                var closest_share = managerShare.get_closest_parent_share(path.slice(), datastore,
+                var closest_share_info = managerShare.get_closest_parent_share(path.slice(), datastore,
                     datastore, 0);
+                var closest_share = closest_share_info['closest_share'];
 
                 var parent_share_id, parent_datastore_id;
 
@@ -585,6 +582,7 @@
 
             var i;
             var closest_parent;
+            var closest_share_info;
 
             var orig_item_path = item_path.slice();
             orig_item_path.pop();
@@ -669,9 +667,10 @@
 
             // adjust the links for every child_share (and therefore update the rights)
             for (i = child_shares.length - 1; i >= 0; i--) {
-                closest_parent = managerShare.get_closest_parent_share(
+                closest_share_info = managerShare.get_closest_parent_share(
                     target_path_copy.concat(child_shares[i].path), datastore, datastore, 1
                 );
+                closest_parent = closest_share_info['closest_share'];
 
                 managerShareLink.on_share_moved(child_shares[i].share.id, closest_parent);
             }
@@ -683,24 +682,27 @@
 
             // adjust the links for every secret link (and therefore update the rights)
             for (i = secret_links.length - 1; i >= 0; i--) {
-                closest_parent = managerShare.get_closest_parent_share(
+                closest_share_info = managerShare.get_closest_parent_share(
                     target_path_copy2.concat(secret_links[i].path), datastore, datastore, 1
                 );
+                closest_parent = closest_share_info['closest_share'];
                 managerSecretLink.on_secret_moved(secret_links[i].id, closest_parent);
             }
 
             // adjust the links for every secret link (and therefore update the rights)
             for (i = file_links.length - 1; i >= 0; i--) {
-                closest_parent = managerShare.get_closest_parent_share(
+                closest_share_info = managerShare.get_closest_parent_share(
                     target_path_copy2.concat(file_links[i].path), datastore, datastore, 1
                 );
+                closest_parent = closest_share_info['closest_share'];
                 managerFileLink.on_file_moved(file_links[i].id, closest_parent);
             }
 
             // update the parents inside of the new target
-            closest_parent = managerShare.get_closest_parent_share(
+            closest_share_info = managerShare.get_closest_parent_share(
                 target_path_copy2, datastore, datastore, 0
             );
+            closest_parent = closest_share_info['closest_share'];
 
             var new_parent_datastore_id = undefined;
             var new_parent_share_id = undefined;
