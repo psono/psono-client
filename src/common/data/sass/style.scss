@@ -169,18 +169,18 @@ p.horizontalline span {
 
 
 
-.box-footer {
-  position: absolute;
-  text-align: center;
-  margin-left: auto;
-  margin-right: auto;
-  left: 0;
-  right: 0;
-  bottom: -30px;
-  a {
-    color: #333333;
+  .box-footer {
+    position: absolute;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    bottom: -30px;
+    a {
+      color: #333333;
+    }
   }
-}
 
   .form-control:focus {
     border-color: $dark-hightlight-color;
