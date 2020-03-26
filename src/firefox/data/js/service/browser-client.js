@@ -1,9 +1,17 @@
 (function(angular, $, window) {
     'use strict';
 
-    var browserClient = function(helper, $rootScope, $q, $templateRequest, $http, $location) {
+    var browserClient = function(helper, $rootScope, $q, $templateRequest, $http, $location, storage) {
 
         var registrations = {};
+
+        activate();
+
+        function activate() {
+            storage.register("storage-reload", function(){
+                emit("storage-reload", null);
+            });
+        }
 
         browser.runtime.onMessage.addListener(
         function(request, sender, sendResponse) {
@@ -191,6 +199,8 @@
          */
         function load_config() {
 
+            var remote_config_json = storage.find_key('persistent', 'remote_config_json');
+
             var req = {
                 method: 'GET',
                 url: "config.json"
@@ -264,8 +274,12 @@
                 return $q.reject(error);
             };
 
-            return $http(req)
-                .then(onSuccess, onError);
+            if (remote_config_json === null) {
+                return $http(req)
+                    .then(onSuccess, onError);
+            } else {
+                return onSuccess({data:remote_config_json.value})
+            }
         }
 
         /**
@@ -431,6 +445,18 @@
 
         /**
          * @ngdoc
+         * @name psonocli.browserClient#clear_config_cache
+         * @methodOf psonocli.browserClient
+         *
+         * @description
+         * Clears the config cache
+         */
+        function clear_config_cache() {
+            config = {};
+        }
+
+        /**
+         * @ngdoc
          * @name psonocli.browserClient#get_config
          * @methodOf psonocli.browserClient
          *
@@ -540,6 +566,7 @@
             emit_sec: emit_sec,
             on: on,
             get_config:get_config,
+            clear_config_cache:clear_config_cache,
             close_popup:close_popup,
             disable_browser_password_saving: disable_browser_password_saving,
             copy_to_clipboard: copy_to_clipboard,
@@ -548,6 +575,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("browserClient", ['helper', '$rootScope', '$q', '$templateRequest', '$http', '$location', browserClient]);
+    app.factory("browserClient", ['helper', '$rootScope', '$q', '$templateRequest', '$http', '$location', 'storage', browserClient]);
 
 }(angular, $, window));

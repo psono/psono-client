@@ -14,13 +14,21 @@
      * The browser interface, responsible for the cross browser / platform compatibility.
      */
 
-    var browserClient = function(helper, $rootScope, $q, $templateRequest, $http, $location, $window, $document) {
+    var browserClient = function(helper, $rootScope, $q, $templateRequest, $http, $location, $window, $document, storage) {
 
         var config = {};
         var events = [
             'login',
             'logout'
         ];
+
+        activate();
+
+        function activate() {
+            storage.register("storage-reload", function(){
+                emit("storage-reload", null);
+            });
+        }
 
         /**
          * @ngdoc
@@ -186,6 +194,8 @@
          */
         function load_config() {
 
+            var remote_config_json = storage.find_key('persistent', 'remote_config_json');
+
             var req = {
                 method: 'GET',
                 url: "config.json"
@@ -239,8 +249,12 @@
                 return $q.reject(error);
             };
 
-            return $http(req)
-                .then(onSuccess, onError);
+            if (remote_config_json === null) {
+                return $http(req)
+                    .then(onSuccess, onError);
+            } else {
+                return onSuccess({data:remote_config_json.value})
+            }
         }
 
         /**
@@ -406,6 +420,18 @@
 
         /**
          * @ngdoc
+         * @name psonocli.browserClient#clear_config_cache
+         * @methodOf psonocli.browserClient
+         *
+         * @description
+         * Clears the config cache
+         */
+        function clear_config_cache() {
+            config = {};
+        }
+
+        /**
+         * @ngdoc
          * @name psonocli.browserClient#close_popup
          * @methodOf psonocli.browserClient
          *
@@ -475,6 +501,7 @@
             open_tab_bg: open_tab_bg,
             open_popup: open_popup,
             close_opened_popup: close_opened_popup,
+            clear_config_cache: clear_config_cache,
             close_popup: close_popup,
             get_base_url: get_base_url,
             load_version: load_version,
@@ -493,6 +520,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("browserClient", ['helper', '$rootScope', '$q', '$templateRequest', '$http', '$location', '$window', '$document', browserClient]);
+    app.factory("browserClient", ['helper', '$rootScope', '$q', '$templateRequest', '$http', '$location', '$window', '$document', 'storage', browserClient]);
 
 }(angular));

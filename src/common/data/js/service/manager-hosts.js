@@ -5,8 +5,10 @@
      * @ngdoc service
      * @name psonocli.managerHost
      * @requires $q
+     * @requires $http
      * @requires psonocli.apiClient
      * @requires psonocli.storage
+     * @requires psonocli.browserClient
      * @requires psonocli.managerBase
      * @requires psonocli.cryptoLibrary
      *
@@ -14,7 +16,7 @@
      * Service to manage the user datastore and user related functions
      */
 
-    var managerHost = function($q, apiClient, helper, storage, managerBase, cryptoLibrary) {
+    var managerHost = function($q, $http, apiClient, helper, storage, browserClient, managerBase, cryptoLibrary) {
 
         /**
          * @ngdoc
@@ -204,6 +206,41 @@
             return info().then(onSuccess);
         }
 
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerHost#load_remote_config
+         * @methodOf psonocli.managerHost
+         *
+         * @description
+         * Loads a remote config. It takes an url of a remote web client and loads its config.
+         * It persists the config so it does not need to be loaded multiple times
+         *
+         * @param {string} web_client_url The url of a web client without trailing slash
+         *
+         * @returns {promise} Result of the check
+         */
+        function load_remote_config(web_client_url) {
+
+            var req = {
+                method: 'GET',
+                url: web_client_url + '/config.json'
+            };
+
+            var onSuccess = function(config) {
+                storage.upsert('persistent', {'key': 'remote_config_json', 'value': config.data});
+                storage.save();
+                browserClient.clear_config_cache();
+            };
+
+            var onError = function(data) {
+                console.log(data);
+                return $q.reject(data);
+            };
+
+            return $http(req).then(onSuccess, onError);
+        }
+
         /**
          * @ngdoc
          * @name psonocli.managerHost#approve_host
@@ -268,6 +305,7 @@
             check_known_hosts: check_known_hosts,
             info: info,
             check_host: check_host,
+            load_remote_config: load_remote_config,
             approve_host: approve_host,
             delete_known_host: delete_known_host,
             update_known_hosts: update_known_hosts
@@ -275,6 +313,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerHost", ['$q', 'apiClient', 'helper', 'storage', 'managerBase', 'cryptoLibrary', managerHost]);
+    app.factory("managerHost", ['$q', '$http', 'apiClient', 'helper', 'storage', 'browserClient', 'managerBase', 'cryptoLibrary', managerHost]);
 
 }(angular));

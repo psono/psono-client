@@ -45,6 +45,7 @@
             $scope.initiate_login = initiate_login;
             $scope.initiate_saml_login = initiate_saml_login;
             $scope.load_default_view = load_default_view;
+            $scope.remote_config = remote_config;
             $scope.cancel = cancel;
 
             $scope.open_tab = browserClient.open_tab;
@@ -59,32 +60,7 @@
 
             function activate() {
                 var onSuccess = function(config) {
-                    var persistent_username = managerDatastoreUser.get_default('username');
-                    var persistent_server = managerDatastoreUser.get_default('server');
-                    var persistent_trust_device = managerDatastoreUser.get_default('trust_device');
-
-                    /* preselected values */
-                    $scope.login_data['username'] = persistent_username;
-                    //$scope.login_data['password'] = "myPassword";
-                    $scope.login_data['remember'] = persistent_username !== "";
-                    $scope.login_data['trust'] = persistent_trust_device === true;
-
-                    $scope.allow_custom_server = !config.hasOwnProperty('allow_custom_server') || (config.hasOwnProperty('allow_custom_server') && config['allow_custom_server']);
-                    $scope.allow_registration = !config.hasOwnProperty('allow_registration') || (config.hasOwnProperty('allow_registration') && config['allow_registration']);
-                    $scope.allow_lost_password = !config.hasOwnProperty('allow_lost_password') || (config.hasOwnProperty('allow_lost_password') && config['allow_lost_password']);
-                    $scope.authkey_enabled = config['authentication_methods'].indexOf('AUTHKEY') !== -1;
-                    $scope.ldap_enabled = config['authentication_methods'].indexOf('LDAP') !== -1;
-                    $scope.saml_enabled = config['authentication_methods'].indexOf('SAML') !== -1;
-                    $scope.saml_provider = config['saml_provider'];
-
-                    /* Server selection with preselection */
-                    $scope.servers = config['backend_servers'];
-                    $scope.filtered_servers = $scope.servers;
-                    if (persistent_server) {
-                        select_server(persistent_server);
-                    } else {
-                        select_server($scope.servers[0]);
-                    }
+                    return on_new_config_loaded(config);
                 };
 
                 var onError = function(data) {
@@ -99,6 +75,45 @@
                         $location.path('/');
                     }
                 });
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LoginCtrl#on_config_loaded
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Callback function that is executed once the
+             *
+             * @param {object} config The config
+             */
+            function on_new_config_loaded(config) {
+                var persistent_username = managerDatastoreUser.get_default('username');
+                var persistent_server = managerDatastoreUser.get_default('server');
+                var persistent_trust_device = managerDatastoreUser.get_default('trust_device');
+
+                /* preselected values */
+                $scope.login_data['username'] = persistent_username;
+                //$scope.login_data['password'] = "myPassword";
+                $scope.login_data['remember'] = persistent_username !== "";
+                $scope.login_data['trust'] = persistent_trust_device === true;
+
+                $scope.allow_custom_server = !config.hasOwnProperty('allow_custom_server') || (config.hasOwnProperty('allow_custom_server') && config['allow_custom_server']);
+                $scope.allow_registration = !config.hasOwnProperty('allow_registration') || (config.hasOwnProperty('allow_registration') && config['allow_registration']);
+                $scope.allow_lost_password = !config.hasOwnProperty('allow_lost_password') || (config.hasOwnProperty('allow_lost_password') && config['allow_lost_password']);
+                $scope.authkey_enabled = config['authentication_methods'].indexOf('AUTHKEY') !== -1;
+                $scope.ldap_enabled = config['authentication_methods'].indexOf('LDAP') !== -1;
+                $scope.saml_enabled = config['authentication_methods'].indexOf('SAML') !== -1;
+                $scope.saml_provider = config['saml_provider'];
+
+                /* Server selection with preselection */
+                $scope.servers = config['backend_servers'];
+                $scope.filtered_servers = $scope.servers;
+                if (persistent_server) {
+                    select_server(persistent_server);
+                } else {
+                    select_server($scope.servers[0]);
+                }
             }
 
             /**
@@ -291,6 +306,55 @@
              */
             function cancel() {
                 load_default_view();
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LoginCtrl#remote_config
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Triggered if someone clicks the "Remote Config" link in the footer
+             */
+            function remote_config() {
+
+                var onError = function() {
+                    $scope.errors = ['SERVER_OFFLINE']
+                };
+
+                var onSuccess = function(server_check) {
+
+                    var onError = function(data) {
+                        console.log(data);
+                    };
+
+                    var onSuccess = function(continue_login) {
+
+                        var onError = function(data) {
+                            console.log(data);
+                        };
+
+                        var onSuccess = function() {
+
+                            var onError = function(data) {
+                                console.log(data);
+                            };
+
+                            var onSuccess = function(config) {
+                                return on_new_config_loaded(config);
+                            };
+
+                            browserClient.get_config().then(onSuccess, onError);
+                        };
+                        if (continue_login) {
+                            load_default_view();
+                            managerHost.load_remote_config(server_check["info"]["web_client"]).then(onSuccess, onError);
+
+                        }
+                    };
+                    verify_server_signature(server_check).then(onSuccess, onError);
+                };
+                managerHost.check_host(angular.copy($scope.selected_server)).then(onSuccess, onError);
             }
 
             /**

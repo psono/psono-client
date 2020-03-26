@@ -4,12 +4,13 @@
     /**
      * @ngdoc service
      * @name psonocli.storage
-     * @requires psonocli.browserClient
      *
      * @description
      * Service that handles local storage access
      */
-    var storage = function(browserClient) {
+    var storage = function() {
+
+        var registrations = {};
 
         var loki_storage = new loki("password_manager_local_storage");
         var dbs = [];
@@ -278,7 +279,7 @@
          * saves the database, needs to be triggered once some changes are meant to be made persistent
          */
         function save() {
-            browserClient.emit("storage-reload", null);
+            emit("storage-reload", null);
             loki_storage.save();
         }
 
@@ -310,6 +311,43 @@
             });
         }
 
+        /**
+         * @ngdoc
+         * @name psonocli.storage#register
+         * @methodOf psonocli.storage
+         *
+         * @description
+         * used to register functions to bypass circular dependencies
+         *
+         * @param {string} key The key of the function (usually the function name)
+         * @param {function} func The call back function
+         */
+        var register = function (key, func) {
+            if (!registrations.hasOwnProperty(key)) {
+                registrations[key] = [];
+            }
+            registrations[key].push(func);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.storage#emit
+         * @methodOf psonocli.storage
+         *
+         * @description
+         * Small wrapper to execute all functions that have been registered for an event once the event is triggered
+         *
+         * @param {string} key The key of the event
+         * @param {*} payload The payload of the event
+         */
+        var emit = function(key, payload) {
+            if (registrations.hasOwnProperty(key)) {
+                for (var i = 0; i < registrations[key].length; i++) {
+                    registrations[key][i](payload);
+                }
+            }
+        };
+
         return {
             insert: insert,
             update: update,
@@ -321,11 +359,13 @@
             remove_all: remove_all,
             on: on,
             save: save,
-            reload: reload
+            reload: reload,
+            register: register,
+            emit: emit
         };
     };
 
     var app = angular.module('psonocli');
-    app.factory("storage", ['browserClient', storage]);
+    app.factory("storage", [storage]);
 
 }(angular, loki));
