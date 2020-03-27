@@ -316,7 +316,7 @@
              * @description
              * Triggered if someone clicks the "Remote Config" link in the footer
              */
-            function remote_config() {
+            function remote_config(url) {
 
                 var onError = function() {
                     $scope.errors = ['SERVER_OFFLINE']
@@ -348,8 +348,7 @@
                         };
                         if (continue_login) {
                             load_default_view();
-                            managerHost.load_remote_config(server_check["info"]["web_client"]).then(onSuccess, onError);
-
+                            managerHost.load_remote_config(server_check["info"]["web_client"], server_check["server_url"]).then(onSuccess, onError);
                         }
                     };
                     verify_server_signature(server_check).then(onSuccess, onError);

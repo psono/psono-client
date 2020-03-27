@@ -217,10 +217,11 @@
          * It persists the config so it does not need to be loaded multiple times
          *
          * @param {string} web_client_url The url of a web client without trailing slash
+         * @param {string} server_url The default url of the server
          *
          * @returns {promise} Result of the check
          */
-        function load_remote_config(web_client_url) {
+        function load_remote_config(web_client_url, server_url) {
 
             var req = {
                 method: 'GET',
@@ -228,6 +229,21 @@
             };
 
             var onSuccess = function(config) {
+                // we need to preserve the base_url and the backend server as they are optional and the original web
+                // client would create them dynamically
+                if (!config.data.hasOwnProperty('base_url')) {
+                    config.data['base_url'] = web_client_url;
+                }
+
+                if (config.data.hasOwnProperty('backend_servers')) {
+                    for (var i = 0; i < config.data['backend_servers'].length; i++) {
+                        if (config.data['backend_servers'][i].hasOwnProperty('url')) {
+                            continue;
+                        }
+                        config.data['backend_servers'][i]['url'] = server_url;
+                    }
+                }
+
                 storage.upsert('persistent', {'key': 'remote_config_json', 'value': config.data});
                 storage.save();
                 browserClient.clear_config_cache();

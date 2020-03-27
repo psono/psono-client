@@ -33,6 +33,9 @@
                 },
                 update: function(db, entry) {
                     my_vars[entry.key] = entry.value;
+                },
+                register: function (key, func) {
+                    // don't do anything
                 }
             };
 

@@ -55,6 +55,9 @@
                             return null;
                     }
 
+                },
+                register: function (key, func) {
+                    // don't do anything
                 }
             };
 
