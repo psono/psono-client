@@ -482,7 +482,7 @@
                 if (path.length === distance) {
                     return {
                         'closest_share': closest_share,
-                        'relative_path': relative_path,
+                        'relative_path': relative_path, //relative path inside of the share to the item
                     };
                 }
 
@@ -514,7 +514,7 @@
                 return false;
             };
 
-            return get_closest_parent_share_helper(path, datastore, closest_share, distance);
+            return get_closest_parent_share_helper(path, datastore, closest_share, path.slice(), distance);
         };
 
         /**

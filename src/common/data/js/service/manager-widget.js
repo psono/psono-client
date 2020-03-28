@@ -229,6 +229,7 @@
 
                 var closest_share_info = managerShare.get_closest_parent_share(path.slice(), datastore,
                     datastore, 0);
+                
                 var closest_share = closest_share_info['closest_share'];
 
                 var parent_share_id, parent_datastore_id;
