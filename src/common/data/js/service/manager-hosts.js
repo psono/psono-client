@@ -244,7 +244,16 @@
                     }
                 }
 
+                // we store the loaded configuration
                 storage.upsert('persistent', {'key': 'remote_config_json', 'value': config.data});
+
+                // we reset all the persisted username & server so the new config is loaded
+                if (storage.key_exists('persistent', 'username')) {
+                    storage.remove('persistent', storage.find_key('persistent', 'username'));
+                }
+                if (storage.key_exists('persistent', 'server')) {
+                    storage.remove('persistent', storage.find_key('persistent', 'server'));
+                }
                 storage.save();
                 browserClient.clear_config_cache();
             };

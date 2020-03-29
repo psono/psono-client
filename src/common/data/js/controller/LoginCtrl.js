@@ -109,6 +109,7 @@
                 /* Server selection with preselection */
                 $scope.servers = config['backend_servers'];
                 $scope.filtered_servers = $scope.servers;
+
                 if (persistent_server) {
                     select_server(persistent_server);
                 } else {
