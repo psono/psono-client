@@ -557,7 +557,8 @@
 
             for (var i = paths.length - 1; i >= 0; i--) {
 
-                var closest_share = managerShare.get_closest_parent_share(paths[i], datastore, datastore, 0);
+                var closest_share_info = managerShare.get_closest_parent_share(paths[i], datastore, datastore, 0);
+                var closest_share = closest_share_info['closest_share'];
                 if (typeof closest_share.id === 'undefined') {
                     // its the datastore
                     closest_shares['datastore'] = datastore;
@@ -1139,7 +1140,8 @@
             var path_copy3 = path.slice();
             var path_copy4 = path.slice();
 
-            var parent_share = managerShare.get_closest_parent_share(path_copy, datastore, datastore, distance);
+            var closest_share_info = managerShare.get_closest_parent_share(path_copy, datastore, datastore, distance);
+            var parent_share = closest_share_info['closest_share'];
 
             if (parent_share === false) {
                 console.log(path_copy);
@@ -1245,7 +1247,8 @@
         var on_share_deleted = function (share_id, path, datastore, distance) {
 
             var path_copy = path.slice();
-            var parent_share = managerShare.get_closest_parent_share(path_copy, datastore, datastore, distance);
+            var closest_share_info = managerShare.get_closest_parent_share(path_copy, datastore, datastore, distance);
+            var parent_share = closest_share_info['closest_share'];
             var relative_path = get_relative_path(parent_share, path.slice());
 
             /**
@@ -1404,7 +1407,8 @@
                 target = val1[0][val1[1]];
 
                 // get the parent (share or datastore)
-                parent_share = managerShare.get_closest_parent_share(path_copy, datastore, datastore, 0);
+                var closest_share_info = managerShare.get_closest_parent_share(path_copy, datastore, datastore, 0);
+                parent_share = closest_share_info['closest_share'];
                 if (parent_share.hasOwnProperty("datastore_id")) {
                     parent_datastore_id = parent_share.datastore_id;
                 } else if (parent_share.hasOwnProperty("share_id")){

@@ -10,14 +10,12 @@
      * @description
      * Controller for the "New Folder" modal
      */
-    angular.module('psonocli').controller('ModalNewFolderCtrl', ['$scope', '$uibModalInstance', 'parent', 'path',
-        function ($scope, $uibModalInstance, parent, path) {
+    angular.module('psonocli').controller('ModalNewFolderCtrl', ['$scope', '$uibModalInstance',
+        function ($scope, $uibModalInstance) {
 
             $scope.save = save;
             $scope.cancel = cancel;
 
-            $scope.parent = parent;
-            $scope.path = path;
             $scope.name = '';
 
             /**

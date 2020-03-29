@@ -1095,7 +1095,8 @@
                             registrations['get_password_datastore']().then(function(datastore) {
 
                                 var path = content.path.slice();
-                                var parent_share = registrations['get_closest_parent_share'](path, datastore, null, 1);
+                                var closest_share_info = registrations['get_closest_parent_share'](path, datastore, null, 1);
+                                var parent_share = closest_share_info['closest_share'];
                                 var parent_share_id;
                                 var parent_datastore_id;
 
