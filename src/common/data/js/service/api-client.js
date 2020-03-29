@@ -970,8 +970,7 @@
          * @methodOf psonocli.apiClient
          *
          * @description
-         * Ajax PUT request to create a datatore with the token as authentication and optional already some data,
-         * together with the encrypted secret key and nonce
+         * Ajax PUT request to create a secret with the token as authentication together with the encrypted data and nonce
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
