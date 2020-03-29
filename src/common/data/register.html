@@ -101,6 +101,7 @@
 
                 <div class="form-group">
                     <button ng-click="register(registerFormEmail, registerFormUsername, registerFormPassword, registerFormPasswordRepeat)" type="submit" class="btn btn-danger">{{'REGISTER' | translate}}</button>
+                    <a ng-if="allow_registration && authkey_enabled" href="index.html">{{'ABORT' | translate}}</a>
                 </div>
 
                 <div class="form-group alert alert-danger" ng-repeat="e in errors">
