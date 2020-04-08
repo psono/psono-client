@@ -44,6 +44,8 @@
   "INVALID_USERNAME_FORMAT": "Invalid username format",
   "SERVER_OFFLINE": "Server offline",
   "SERVER_OFFLINE_DETAILS": "There was a connection problem. Check your internet / network connection and the server's address. Server offline.",
+  "HANDSHAKE_ERROR": "SSL Error",
+  "HANDSHAKE_ERROR_DETAILS": "Unable to establish a secure connection to the server. Error in SSL certificate verification.",
   "SECRET": "Secret",
   "SPACE": "Space",
   "KEY_IS_REQUIRED": "The key is required",
