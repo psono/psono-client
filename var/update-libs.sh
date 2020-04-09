@@ -58,20 +58,20 @@ wget https://raw.githubusercontent.com/atais/angular-eonasdan-datetimepicker/0.3
 
 wget https://raw.githubusercontent.com/Kraku/angular-complexify/master/build/angular-complexify.min.js -O src/common/data/js/lib/angular-complexify.min.js
 wget https://raw.githubusercontent.com/grevory/angular-local-storage/master/dist/angular-local-storage.min.js -O src/common/data/js/lib/angular-local-storage.min.js
-wget https://raw.githubusercontent.com/techfort/LokiJS/master/build/lokijs.min.js -O src/common/data/js/lib/lokijs.min.js
+wget https://raw.githubusercontent.com/techfort/LokiJS/v1.5.8/build/lokijs.min.js -O src/common/data/js/lib/lokijs.min.js
 wget https://raw.githubusercontent.com/jakiestfu/Snap.js/1.9.3/snap.min.js -O src/common/data/js/lib/snap.min.js
 wget https://raw.githubusercontent.com/emn178/js-sha512/v0.8.0/build/sha512.min.js -O src/common/data/js/lib/sha512.min.js
 wget https://raw.githubusercontent.com/emn178/js-sha256/v0.9.0/build/sha256.min.js -O src/common/data/js/lib/sha256.min.js
 wget https://raw.githubusercontent.com/emn178/js-sha1/v0.6.0/build/sha1.min.js -O src/common/data/js/lib/sha1.min.js
-wget https://raw.githubusercontent.com/3nsoft/ecma-nacl/master/dist/lib-browser/ecma-nacl.min.js -O src/common/data/js/lib/ecma-nacl.min.js
-wget https://raw.githubusercontent.com/jackspirou/clientjs/master/dist/client.min.js -O src/common/data/js/lib/client.min.js
-wget https://raw.githubusercontent.com/eligrey/FileSaver.js/master/dist/FileSaver.min.js -O src/common/data/js/lib/FileSaver.min.js
+wget https://raw.githubusercontent.com/3nsoft/ecma-nacl/1a4d146cac514dda6ba1b761f8fbbcd24b0b640d/dist/lib-browser/ecma-nacl.min.js -O src/common/data/js/lib/ecma-nacl.min.js
+wget https://raw.githubusercontent.com/jackspirou/clientjs/d7584e10a4e45a4a96d712cd4292465aeedc0218/dist/client.min.js -O src/common/data/js/lib/client.min.js
+wget https://raw.githubusercontent.com/eligrey/FileSaver.js/v2.0.2/dist/FileSaver.min.js -O src/common/data/js/lib/FileSaver.min.js
 
 wget https://raw.githubusercontent.com/chieffancypants/angular-loading-bar/master/build/loading-bar.min.css -O src/common/data/css/lib/loading-bar.min.css
 wget https://raw.githubusercontent.com/chieffancypants/angular-loading-bar/master/build/loading-bar.min.js -O src/common/data/js/lib/loading-bar.min.js
 wget https://raw.githubusercontent.com/kazuhikoarase/qrcode-generator/master/js/qrcode.js -O src/common/data/js/lib/qrcode.min.js
-wget https://raw.githubusercontent.com/mholt/PapaParse/master/papaparse.min.js -O src/common/data/js/lib/papaparse.min.js
-wget https://raw.githubusercontent.com/NaturalIntelligence/fast-xml-parser/master/lib/parser.js -O src/common/data/js/lib/fast-xml-parser.js
+wget https://raw.githubusercontent.com/mholt/PapaParse/4.3.2/papaparse.min.js -O src/common/data/js/lib/papaparse.min.js
+wget https://raw.githubusercontent.com/NaturalIntelligence/fast-xml-parser/3.16.0/lib/parser.js -O src/common/data/js/lib/fast-xml-parser.js
 
 wget https://raw.githubusercontent.com/angular-translate/bower-angular-translate/2.18.1/angular-translate.min.js -O src/common/data/js/lib/angular-translate.min.js
 wget https://raw.githubusercontent.com/angular-translate/bower-angular-translate-storage-cookie/2.18.1/angular-translate-storage-cookie.min.js -O src/common/data/js/lib/angular-translate-storage-cookie.min.js
@@ -86,7 +86,7 @@ wget https://raw.githubusercontent.com/jtblin/angular-chart.js/master/dist/angul
 wget https://raw.githubusercontent.com/openpgpjs/openpgpjs/v3.0.11/dist/openpgp.min.js -O src/common/data/js/lib/openpgp.min.js
 wget https://raw.githubusercontent.com/openpgpjs/openpgpjs/v3.0.11/dist/openpgp.worker.min.js -O src/common/data/js/lib/openpgp.worker.min.js
 
-wget https://raw.githubusercontent.com/samthor/fast-text-encoding/master/text.min.js -O src/common/data/js/lib/text-decoder-polyfill.min.js
+wget https://raw.githubusercontent.com/samthor/fast-text-encoding/v1.0.1/text.min.js -O src/common/data/js/lib/text-decoder-polyfill.min.js
 
 wget https://cdn.ravenjs.com/3.26.4/angular/raven.min.js -O src/common/data/js/lib/raven.min.js
 
