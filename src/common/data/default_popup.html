@@ -65,10 +65,12 @@
                     </a>
                     <ul class="dropdown-menu dropdown-button-menu"
                         aria-labelledby="drop_node_{{searchEntry.key}}">
-                        <li role="menuitem" ng-click="copy_username(searchEntry)">
+                        <li role="menuitem" ng-click="copy_username(searchEntry)"
+                            ng-if="['application_password', 'website_password'].indexOf(searchEntry.type) !== -1">
                             <a href="#"><i class="fa fa-clipboard"></i>{{'COPY_USERNAME' | translate}}</a>
                         </li>
-                        <li role="menuitem" ng-click="copy_password(searchEntry)">
+                        <li role="menuitem" ng-click="copy_password(searchEntry)"
+                            ng-if="['application_password', 'website_password'].indexOf(searchEntry.type) !== -1">
                             <a href="#"><i class="fa fa-clipboard"></i>{{'COPY_PASSWORD' | translate}}</a>
                         </li>
                         <li role="menuitem" ng-click="edit_item(searchEntry)">
