@@ -511,21 +511,15 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerDatastorePassword#save_datastore_content
+         * @name psonocli.managerDatastorePassword#handle_datastore_content_changed
          * @methodOf psonocli.managerDatastorePassword
          *
          * @description
-         * Saves the password datastore with given content (including shares) based on the "paths" of all changed
-         * elements
+         * Updates the local storage and triggers the 'save_datastore_content' to reflect the changes
          *
-         * Responsible for hiding content that doesn't belong into the datastore (like the content of secrets).
-         *
-         * @param {TreeObject} datastore The real tree object you want to encrypt in the datastore
-         * @param {Array} paths The list of paths to the changed elements
+         * @param {TreeObject} datastore The datastore tree
          */
-        var save_datastore_content = function (datastore, paths) {
-            var type = "password";
-            var description = "default";
+        var handle_datastore_content_changed = function (datastore) {
 
             trigger_registration('save_datastore_content', angular.copy(datastore));
 
@@ -550,6 +544,25 @@
                 ['file_title', 'file_title']
 
             ]);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#save_datastore_content
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * Saves the password datastore with given content (including shares) based on the "paths" of all changed
+         * elements
+         *
+         * Responsible for hiding content that doesn't belong into the datastore (like the content of secrets).
+         *
+         * @param {TreeObject} datastore The real tree object you want to encrypt in the datastore
+         * @param {Array} paths The list of paths to the changed elements
+         */
+        var save_datastore_content = function (datastore, paths) {
+            var type = "password";
+            var description = "default";
 
             datastore = managerBase.filter_datastore_content(datastore);
 
@@ -1230,6 +1243,43 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastorePassword#delete_from_share_index
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * The function that actually adjusts the share_index object and deletes the shares
+         *
+         * @param share the share holding the share_index
+         * @param share_id the share_id of the share, that we want to remove from the share_index
+         * @param relative_path the relative path inside the share
+         */
+        var delete_from_share_index = function(share, share_id, relative_path) {
+
+            var already_found = false;
+
+            for (var i = share.share_index[share_id].paths.length - 1; i >= 0; i--) {
+                // delete the path from the share index entry
+                if (helper.array_starts_with(share.share_index[share_id].paths[i], relative_path)) {
+                    share.share_index[share_id].paths.splice(i, 1);
+                    already_found = true;
+                }
+                // if no paths are empty, we delete the whole share_index entry
+                if (share.share_index[share_id].paths.length === 0) {
+                    delete share.share_index[share_id];
+                }
+                // if the share_index holds no entries anymore, we delete the share_index
+                if (Object.keys(share.share_index).length === 0) {
+                    delete share.share_index;
+                }
+
+                if (already_found) {
+                    return;
+                }
+            }
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastorePassword#on_share_deleted
          * @methodOf psonocli.managerDatastorePassword
          *
@@ -1250,38 +1300,6 @@
             var closest_share_info = managerShare.get_closest_parent_share(path_copy, datastore, datastore, distance);
             var parent_share = closest_share_info['closest_share'];
             var relative_path = get_relative_path(parent_share, path.slice());
-
-            /**
-             * The function that actually adjusts the share_index object and deletes the shares
-             *
-             * @param share the share holding the share_index
-             * @param share_id the share_id of the share, that we want to remove from the share_index
-             * @param relative_path the relative path inside the share
-             */
-            var delete_from_share_index = function(share, share_id, relative_path) {
-
-                var already_found = false;
-
-                for (var i = share.share_index[share_id].paths.length - 1; i >= 0; i--) {
-                    // delete the path from the share index entry
-                    if (helper.array_starts_with(share.share_index[share_id].paths[i], relative_path)) {
-                        share.share_index[share_id].paths.splice(i, 1);
-                        already_found = true;
-                    }
-                    // if no paths are empty, we delete the whole share_index entry
-                    if (share.share_index[share_id].paths.length === 0) {
-                        delete share.share_index[share_id];
-                    }
-                    // if the share_index holds no entries anymore, we delete the share_index
-                    if (Object.keys(share.share_index).length === 0) {
-                        delete share.share_index;
-                    }
-
-                    if (already_found) {
-                        return;
-                    }
-                }
-            };
 
             // Share_id specified, so lets delete the specified one
             delete_from_share_index(parent_share, share_id, relative_path);
@@ -1702,6 +1720,7 @@
             generate: generate,
             get_password_datastore: get_password_datastore,
             save_datastore_content: save_datastore_content,
+            handle_datastore_content_changed: handle_datastore_content_changed,
             save_password: save_password,
             save_password_active_tab: save_password_active_tab,
             bookmark_active_tab: bookmark_active_tab,
@@ -1714,6 +1733,7 @@
             on_share_added: on_share_added,
             on_share_moved: on_share_moved,
             on_share_deleted: on_share_deleted,
+            delete_from_share_index: delete_from_share_index,
             update_parents: update_parents,
             register: register,
             unregister: unregister,
