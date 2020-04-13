@@ -802,6 +802,10 @@
             last_login_credentials = request.data;
             last_login_credentials['url'] = sender.url;
 
+            if (!managerDatastoreUser.is_logged_in()) {
+                return;
+            }
+
             var existing_passwords = search_website_passwords_by_urlfilter(sender.url, false);
             if (existing_passwords.length > 0) {
                 return;

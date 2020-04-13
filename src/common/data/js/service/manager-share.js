@@ -475,6 +475,7 @@
          * @returns {false|TreeObject} Returns the closest parent or false
          */
         var get_closest_parent_share = function(path, datastore, closest_share, distance) {
+            var original_path = path.slice();
 
             var get_closest_parent_share_helper = function(path, datastore, closest_share, relative_path, distance) {
                 var n,l;
@@ -483,6 +484,7 @@
                     return {
                         'closest_share': closest_share,
                         'relative_path': relative_path, //relative path inside of the share to the item
+                        'path_to_share': original_path.slice(0, original_path.length - relative_path.length), //path to the share itself
                     };
                 }
 
@@ -506,6 +508,7 @@
                             return {
                                 'closest_share': closest_share,
                                 'relative_path': relative_path,
+                                'path_to_share': original_path.slice(0, original_path.length - relative_path.length),
                             };
                         }
                     }

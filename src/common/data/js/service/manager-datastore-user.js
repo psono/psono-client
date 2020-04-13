@@ -1150,6 +1150,20 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastoreUser#handle_datastore_content_changed
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Updates the local storage and triggers the 'save_datastore_content' to reflect the changes
+         *
+         * @param {TreeObject} datastore The datastore tree
+         */
+        var handle_datastore_content_changed = function (datastore) {
+            // don't do anything
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastoreUser#save_datastore_content
          * @methodOf psonocli.managerDatastoreUser
          *
@@ -1885,6 +1899,7 @@
             recovery_generate_information: recovery_generate_information,
             get_user_datastore: get_user_datastore,
             search_user_datastore: search_user_datastore,
+            handle_datastore_content_changed: handle_datastore_content_changed,
             save_datastore_content: save_datastore_content,
             search_user: search_user,
             create_ga: create_ga,

@@ -229,8 +229,12 @@
             var secret_key = managerBase.find_key_nolimit('datastore-password-leafs', item.secret_id);
 
             var decrypted_secret = read_secret(item.secret_id, secret_key, true);
-            browserClient.copy_to_clipboard(decrypted_secret['website_password_username']);
 
+            if (item['type'] === 'application_password') {
+                browserClient.copy_to_clipboard(decrypted_secret['application_password_username']);
+            } else if (item['type'] === 'website_password') {
+                browserClient.copy_to_clipboard(decrypted_secret['website_password_username']);
+            }
         };
 
         /**
@@ -248,7 +252,12 @@
             var secret_key = managerBase.find_key_nolimit('datastore-password-leafs', item.secret_id);
 
             var decrypted_secret = read_secret(item.secret_id, secret_key, true);
-            browserClient.copy_to_clipboard(decrypted_secret['website_password_password']);
+
+            if (item['type'] === 'application_password') {
+                browserClient.copy_to_clipboard(decrypted_secret['application_password_password']);
+            } else if (item['type'] === 'website_password') {
+                browserClient.copy_to_clipboard(decrypted_secret['website_password_password']);
+            }
         };
 
         // registrations
