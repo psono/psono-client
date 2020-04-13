@@ -51,7 +51,7 @@
         <hr>
         <ul class="navigations">
             <li ng-repeat="searchEntry in datastore.filteredSearcArray = (searchArray | filter:filterBySearch)">
-                <a href="#" class="navigationitem" ng-click="edit_item(searchEntry)">{{ searchEntry.name }}</a>
+                <a href="#" class="navigationitem" ng-click="edit_item(searchEntry)"><i class="fa-fw" ng-class="::item_icon(searchEntry)"></i> {{ ::searchEntry.name }}</a>
                 <span class="node-open-link"
                       ng-if="['bookmark', 'website_password'].indexOf(searchEntry.type) !== -1"
                 >
@@ -61,12 +61,12 @@
                 </span>
                 <span class="node-dropdown dropdown" uib-dropdown="" on-toggle="toggled(open, 'drop_node_' + node.id)">
                     <a class="btn btn-default dropdown-toggle" href="#" role="button"
-                       id="drop_node_{{searchEntry.key}}" uib-dropdown-toggle=""
+                       id="drop_node_{{::searchEntry.key}}" uib-dropdown-toggle=""
                        aria-haspopup="true" aria-expanded="false">
                         <i class="fa fa-cogs"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-button-menu"
-                        aria-labelledby="drop_node_{{searchEntry.key}}">
+                        aria-labelledby="drop_node_{{::searchEntry.key}}">
                         <li role="menuitem" ng-click="copy_username(searchEntry)"
                             ng-if="['application_password', 'website_password'].indexOf(searchEntry.type) !== -1">
                             <a href="#"><i class="fa fa-clipboard"></i>{{'COPY_USERNAME' | translate}}</a>

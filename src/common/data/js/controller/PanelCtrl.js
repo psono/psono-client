@@ -12,6 +12,7 @@
      * @requires psonocli.managerDatastorePassword
      * @requires psonocli.managerDatastoreUser
      * @requires psonocli.managerSecret
+     * @requires psonocli.managerWidget
      * @requires psonocli.browserClient
      * @requires psonocli.offlineCache
      * @requires psonocli.helper
@@ -25,11 +26,11 @@
      * Controller for the panel
      */
     angular.module('psonocli').controller('PanelCtrl', ['$scope', '$rootScope', '$filter', '$timeout', 'manager',
-        'managerDatastorePassword', 'managerDatastoreUser', 'managerSecret', 'browserClient', 'offlineCache',
-        'helper', '$window', '$uibModal', '$route', '$routeParams', '$location',
+        'managerDatastorePassword', 'managerDatastoreUser', 'managerSecret', 'managerWidget', 'browserClient',
+        'offlineCache', 'helper', '$window', '$uibModal', '$route', '$routeParams', '$location',
         function ($scope, $rootScope, $filter, $timeout, manager,
-                  managerDatastorePassword, managerDatastoreUser, managerSecret, browserClient, offlineCache,
-                  helper, $window, $uibModal, $route, $routeParams, $location) {
+                  managerDatastorePassword, managerDatastoreUser, managerSecret, managerWidget, browserClient,
+                  offlineCache, helper, $window, $uibModal, $route, $routeParams, $location) {
 
             var password_filter;
 
@@ -42,6 +43,7 @@
             $scope.bookmark = bookmark;
             $scope.copy_username = managerSecret.copy_username;
             $scope.copy_password = managerSecret.copy_password;
+            $scope.item_icon = managerWidget.item_icon;
 
             $scope.searchArray = [];
             $scope.datastore = {
