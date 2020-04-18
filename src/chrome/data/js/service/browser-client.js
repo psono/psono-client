@@ -245,6 +245,9 @@
                     if (!new_config.hasOwnProperty('saml_provider')) {
                         new_config['saml_provider'] = [];
                     }
+                    if (!new_config.hasOwnProperty('disable_download_bar')) {
+                        new_config['disable_download_bar'] = false;
+                    }
                     if (!new_config.hasOwnProperty('more_links')) {
                         new_config['more_links'] = [{
                             'href': 'https://doc.psono.com/',
