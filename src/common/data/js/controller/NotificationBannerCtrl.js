@@ -12,6 +12,7 @@
      */
     angular.module('psonocli').controller('NotificationBannerCtrl', ['$scope', 'device', 'storage', 'browserClient',
         function ($scope, device, storage, browserClient) {
+            $scope.disable_download_bar = true;
             $scope.show_android_download = !storage.find_key('config', 'hide_android_download') && device.is_mobile_android();
             $scope.show_chrome_download = !storage.find_key('config', 'hide_chrome_download') && !device.is_mobile() && device.is_chrome() && browserClient.get_client_type() === 'webclient';
             $scope.show_firefox_download = !storage.find_key('config', 'hide_firefox_download') && !device.is_mobile() && device.is_firefox() && browserClient.get_client_type() === 'webclient';
@@ -19,6 +20,20 @@
             $scope.close_chrome = close_chrome;
             $scope.close_firefox = close_firefox;
 
+            activate();
+
+            function activate() {
+
+                var onSuccess = function(config) {
+                    $scope.disable_download_bar = config['disable_download_bar'];
+                };
+
+                var onError = function() {
+
+                };
+
+                browserClient.get_config().then(onSuccess, onError);
+            }
 
             /**
              * @ngdoc

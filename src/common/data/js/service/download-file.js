@@ -64,7 +64,6 @@
                     $scope.state.closed_request = $scope.state.closed_request + 1;
                     $scope.state.percentage_complete = Math.round($scope.state.closed_request / $scope.state.open_requests * 1000) / 10;
                     $scope.state.next_step = next_step;
-                    console.log("REGISTERED: " + next_step);
                 });
 
                 itemBlueprint.register('upload_complete', reset);
