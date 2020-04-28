@@ -464,6 +464,9 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
             if (field === null) {
                 return;
             }
+            if (typeof(value) === "undefined" || value === "") {
+                return;
+            }
 
             // trigger click event
             var clickEvent = new MouseEvent('click', {
