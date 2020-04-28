@@ -110,37 +110,60 @@
                     }
                 });
             }
+
+
+            $translate([
+                'OPEN_DATASTORE',
+                'RECHECK_PAGE'
+            ]).then(function (translations) {
+
+                var parent = chrome.contextMenus.create({"title": "Psono"});
+                var child1 = chrome.contextMenus.create({
+                    "title": translations.OPEN_DATASTORE,
+                    "contexts": ["all"],
+                    "parentId": parent,
+                    "onclick": open_datastore
+                });
+                var child2 = chrome.contextMenus.create({
+                    "title": translations.RECHECK_PAGE,
+                    "contexts": ["all"],
+                    "parentId": parent,
+                    "onclick": recheck_page
+                });
+            });
         }
 
-        // /*
-        //  * Dummy context menu
-        //  */
-        // function onClick(info, tab) {
-        //     console.log(JSON.stringify(info));
-        //     console.log(JSON.stringify(tab));
-        // }
-        //
-        // var contexts = [
-        //     "page"
-        // ];
-        //
-        // for (var i = 0; i < contexts.length; i++) {
-        //     var context = contexts[i];
-        //     var title = "My menuitem";
-        //     var id = chrome.contextMenus.create({"title": title, "contexts":[context], "onclick": onClick});
-        // }
-        //
-        //
-        // // Create a parent item and two children.
-        // var parent = chrome.contextMenus.create({"title": "My parent"});
-        // var child1 = chrome.contextMenus.create(
-        //     {"title": "My child 1", "parentId": parent, "onclick": onClick});
-        // var child2 = chrome.contextMenus.create(
-        //     {"title": "My child 2", "parentId": parent, "onclick": onClick});
-
-        /*
-         * Some messaging stuff
+        /**
+         * @ngdoc
+         * @name psonocli.managerBackground#open_datastore
+         * @methodOf psonocli.managerBackground
+         *
+         * @description
+         * Opens the datastore whenever someone clicks in the context menu the open datastore
+         *
+         * @param info
+         * @param tab
          */
+        function open_datastore(info, tab) {
+            browser.tabs.create({
+                url: '/data/index.html'
+            });
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerBackground#recheck_page
+         * @methodOf psonocli.managerBackground
+         *
+         * @description
+         * Triggers a check for all the forms
+         *
+         * @param info
+         * @param tab
+         */
+        function recheck_page(info, tab) {
+            // TODO implement
+        }
 
         // Start helper functions
 
