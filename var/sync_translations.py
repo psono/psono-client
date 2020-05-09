@@ -22,7 +22,7 @@ LANGUAGE_CODES = [
     "es", "es-ar", "es-gt", "es-cr", "es-pa", "es-do", "es-mx", "es-ve", "es-co",
     "es-pe", "es-ec", "es-cl", "es-uy", "es-py", "es-bo", "es-sv", "es-hn", "es-ni",
     "es-pr", "sx", "sv", "sv-fi", "th", "ts", "tn", "tr", "uk", "ur", "ve", "vi", "xh",
-    "ji", "zu", "ar", "bn"
+    "ji", "zu", "ar", "bn", "zh-hant"
 ]
 
 WEBHOOKS = {

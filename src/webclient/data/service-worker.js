@@ -108,6 +108,7 @@ self.addEventListener('install', function(event) {
                 './translations/datatables.ru.json',
                 './translations/datatables.vi.json',
                 './translations/datatables.zh-cn.json',
+                './translations/datatables.zh-hant.json',
 
                 './translations/locale-da.json',
                 './translations/locale-sv.json',
@@ -133,6 +134,7 @@ self.addEventListener('install', function(event) {
                 './translations/locale-ru.json',
                 './translations/locale-vi.json',
                 './translations/locale-zh-cn.json',
+                './translations/locale-zh-hant.json',
 
                 './js/lib/ecma-nacl.min.js',
                 './js/lib/openpgp.worker.min.js',
