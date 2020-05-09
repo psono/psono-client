@@ -50,6 +50,7 @@ WEBHOOKS = {
     'ru': 'https://api.poeditor.com/webhooks/9230be9768',
     'vi': 'https://api.poeditor.com/webhooks/ae0b49bd93',
     'zh-cn': 'https://api.poeditor.com/webhooks/22ed2bb261',
+    'zh-hant': 'https://api.poeditor.com/webhooks/92a59a18dc',
 }
 
 
