@@ -117,6 +117,7 @@
   "DELETE_FILE_REPOSITORY_RIGHT": "Delete data repository right",
   "DELETE_FILE_REPOSITORY_RIGHT_WARNING": "You are about to delete the rights to this data repository. You will lose the capability to upload files to this repository. This action is irreversible. Are you sure?",
   "UNKNOWN_TYPE": "Unknown type",
+  "UNKNOWN": "Unknown",
   "JSON_KEY_IS_INVALID": "JSON key is invalid",
   "TYPE_IS_REQUIRED": "Type is required",
   "SPACE_IS_REQUIRED": "Space is required",

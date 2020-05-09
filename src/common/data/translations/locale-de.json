@@ -117,6 +117,7 @@
   "DELETE_FILE_REPOSITORY_RIGHT": "Daten Repository Recht löschen",
   "DELETE_FILE_REPOSITORY_RIGHT_WARNING": "Sie sind dabei ihre Rechte an diesem Daten Repository zu löschen. Die Fähigkeit Daten in diesem Daten Repositry hochzuladen geht damit verloren. Die Aktion kann nicht Rückgängig gemacht werden. Sind sie sicher?",
   "UNKNOWN_TYPE": "Unbekannter Typ",
+  "UNKNOWN": "Unbekannt",
   "JSON_KEY_IS_INVALID": "JSON Key ist nicht korrekt",
   "TYPE_IS_REQUIRED": "Typ ist erforderlich",
   "SPACE_IS_REQUIRED": "Space ist erforderlich",
