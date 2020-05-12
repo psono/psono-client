@@ -127,6 +127,7 @@
   "JSON_KEY_IS_REQUIRED": "JSON Key ist erforderlich",
   "ACCESS_KEY_ID_IS_REQUIRED": "Access Key ID ist erforderlich",
   "SECRET_ACCESS_KEY_IS_REQUIRED": "Secret Access Key ist erforderlich",
+  "URL_IS_REQUIRED": "URL ist erforderlich",
   "JSON_KEY": "JSON Key",
   "BUCKET": "Bucket",
   "TARGET_STORAGE": "Ziel Speicher",
