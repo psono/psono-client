@@ -1088,6 +1088,9 @@
          * @returns {Array} List of secret links
          */
         var get_all_secret_links = function(element) {
+            if (element.hasOwnProperty("share_id")) {
+                return [];
+            }
             return get_all_elements_with_property(element, 'secret_id');
         };
 
@@ -1103,6 +1106,9 @@
          * @returns {Array} List of secret links
          */
         var get_all_file_links = function(element) {
+            if (element.hasOwnProperty("share_id")) {
+                return [];
+            }
             return get_all_elements_with_property(element, 'file_id');
         };
 

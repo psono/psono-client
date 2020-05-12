@@ -16,12 +16,14 @@
      * @requires psonocli.apiGCP
      * @requires psonocli.apiDO
      * @requires psonocli.apiAWS
+     * @requires psonocli.apiBackblaze
+     * @requires psonocli.apiOtherS3
      *
      * @description
      * Service to manage everything around file transfer
      */
 
-    var managerFileTransfer = function($q, helper, storage, managerBase, browserClient, cryptoLibrary , converter, apiClient, apiFileserver, apiGCP, apiDO, apiAWS) {
+    var managerFileTransfer = function($q, helper, storage, managerBase, browserClient, cryptoLibrary , converter, apiClient, apiFileserver, apiGCP, apiDO, apiAWS, apiBackblaze, apiOtherS3) {
 
         var registrations = {};
 
@@ -224,6 +226,90 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerFileTransfer#upload_file_repository_backblaze
+         * @methodOf psonocli.managerFileTransfer
+         *
+         * @description
+         * Triggered once someone wants to actually upload the file to Backblaze
+         *
+         * @param {Blob} chunk The content of the chunk to upload
+         * @param {uuid} file_transfer_id The id of the file transfer
+         * @param {string} file_transfer_secret_key The file transfer secret key
+         * @param {int} chunk_size The size of the complete chunk in bytes
+         * @param {int} chunk_position The sequence number of the chunk to determine the order
+         * @param {string} hash_checksum The sha512 hash
+         *
+         * @returns {promise} promise
+         */
+        var upload_file_repository_backblaze = function(chunk, file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum) {
+
+            var onError = function(result) {
+                return $q.reject(result.data)
+            };
+
+            var onSuccess = function(result) {
+
+                var onError = function(result) {
+                    return $q.reject(result.data)
+                };
+
+                var onSuccess = function(result) {
+                    return result;
+                };
+
+                return apiBackblaze.upload(result.data.url, result.data.fields, chunk)
+                    .then(onSuccess, onError);
+            };
+
+            return apiClient.file_repository_upload(file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum)
+                .then(onSuccess, onError);
+        };
+
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerFileTransfer#upload_file_repository_other_s3
+         * @methodOf psonocli.managerFileTransfer
+         *
+         * @description
+         * Triggered once someone wants to actually upload the file to another S3 compatible storage
+         *
+         * @param {Blob} chunk The content of the chunk to upload
+         * @param {uuid} file_transfer_id The id of the file transfer
+         * @param {string} file_transfer_secret_key The file transfer secret key
+         * @param {int} chunk_size The size of the complete chunk in bytes
+         * @param {int} chunk_position The sequence number of the chunk to determine the order
+         * @param {string} hash_checksum The sha512 hash
+         *
+         * @returns {promise} promise
+         */
+        var upload_file_repository_other_s3 = function(chunk, file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum) {
+
+            var onError = function(result) {
+                return $q.reject(result.data)
+            };
+
+            var onSuccess = function(result) {
+
+                var onError = function(result) {
+                    return $q.reject(result.data)
+                };
+
+                var onSuccess = function(result) {
+                    return result;
+                };
+
+                return apiOtherS3.upload(result.data.url, result.data.fields, chunk)
+                    .then(onSuccess, onError);
+            };
+
+            return apiClient.file_repository_upload(file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum)
+                .then(onSuccess, onError);
+        };
+
+
+        /**
+         * @ngdoc
          * @name psonocli.managerFileTransfer#upload_file_repository_do_spaces
          * @methodOf psonocli.managerFileTransfer
          *
@@ -293,6 +379,10 @@
                 return upload_file_repository_do_spaces(chunk, file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum);
             } else if (typeof(file_repository) !== 'undefined' && file_repository['type'] === 'aws_s3') {
                 return upload_file_repository_aws_s3(chunk, file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum);
+            } else if (typeof(file_repository) !== 'undefined' && file_repository['type'] === 'backblaze') {
+                return upload_file_repository_backblaze(chunk, file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum);
+            } else if (typeof(file_repository) !== 'undefined' && file_repository['type'] === 'other_s3') {
+                return upload_file_repository_other_s3(chunk, file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum);
             }
 
         };
@@ -514,6 +604,12 @@
 
                 if (result.data.type === 'aws_s3') {
                     return apiAWS.download(result.data.url)
+                        .then(onSuccess, onError);
+                } else if(result.data.type === 'backblaze') {
+                    return apiBackblaze.download(result.data.url)
+                        .then(onSuccess, onError);
+                } else if(result.data.type === 'other_s3') {
+                    return apiOtherS3.download(result.data.url)
                         .then(onSuccess, onError);
                 } else if(result.data.type === 'gcp_cloud_storage') {
                     return apiGCP.download(result.data.url)
@@ -763,6 +859,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerFileTransfer", ['$q', 'helper', 'storage', 'managerBase', 'browserClient', 'cryptoLibrary', 'converter', 'apiClient', 'apiFileserver', 'apiGCP', 'apiDO', 'apiAWS', managerFileTransfer]);
+    app.factory("managerFileTransfer", ['$q', 'helper', 'storage', 'managerBase', 'browserClient', 'cryptoLibrary', 'converter', 'apiClient', 'apiFileserver', 'apiGCP', 'apiDO', 'apiAWS', 'apiBackblaze', 'apiOtherS3', managerFileTransfer]);
 
 }(angular, saveAs));

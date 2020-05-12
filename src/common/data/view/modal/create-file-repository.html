@@ -46,6 +46,41 @@
         </div>
 
 
+        <div ng-if="selected_type === 'backblaze'">
+            <div class="form-group">
+                <input type="text" name="backblaze_bucket" class="form-control" id="backblaze_bucket" placeholder="{{'BUCKET' | translate}}" ng-model="storage_config.backblaze_bucket">
+            </div>
+            <div class="form-group">
+                <input type="text" name="backblaze_region" class="form-control" id="backblaze_region" placeholder="{{'REGION' | translate}}" ng-model="storage_config.backblaze_region">
+            </div>
+            <div class="form-group">
+                <input type="text" name="backblaze_access_key_id" class="form-control" id="backblaze_access_key_id" placeholder="{{'ACCESS_KEY_ID' | translate}}" ng-model="storage_config.backblaze_access_key_id">
+            </div>
+            <div class="form-group">
+                <input type="text" name="backblaze_secret_access_key" class="form-control" id="backblaze_secret_access_key" placeholder="{{'SECRET_ACCESS_KEY' | translate}}" ng-model="storage_config.backblaze_secret_access_key">
+            </div>
+        </div>
+
+
+        <div ng-if="selected_type === 'other_s3'">
+            <div class="form-group">
+                <input type="text" name="other_s3_bucket" class="form-control" id="other_s3_bucket" placeholder="{{'BUCKET' | translate}}" ng-model="storage_config.other_s3_bucket">
+            </div>
+            <div class="form-group">
+                <input type="text" name="other_s3_region" class="form-control" id="other_s3_region" placeholder="{{'REGION' | translate}}" ng-model="storage_config.other_s3_region">
+            </div>
+            <div class="form-group">
+                <input type="text" name="other_s3_endpoint_url" class="form-control" id="other_s3_endpoint_url" placeholder="{{'URL' | translate}}" ng-model="storage_config.other_s3_endpoint_url">
+            </div>
+            <div class="form-group">
+                <input type="text" name="other_s3_access_key_id" class="form-control" id="other_s3_access_key_id" placeholder="{{'ACCESS_KEY_ID' | translate}}" ng-model="storage_config.other_s3_access_key_id">
+            </div>
+            <div class="form-group">
+                <input type="text" name="other_s3_secret_access_key" class="form-control" id="other_s3_secret_access_key" placeholder="{{'SECRET_ACCESS_KEY' | translate}}" ng-model="storage_config.other_s3_secret_access_key">
+            </div>
+        </div>
+
+
         <div ng-if="selected_type === 'do_spaces'">
             <div class="form-group">
                 <input type="text" name="do_space" class="form-control" id="do_space" placeholder="{{'SPACE' | translate}}" ng-model="storage_config.do_space">

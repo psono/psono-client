@@ -168,8 +168,12 @@
         var get_possible_types = function() {
             return [
                 {value: 'aws_s3', title: 'AWS S3'},
+                // Backblaze reported (May 11, 2020, 4:11:19 PM PDT):
+                // Currently, CORS is not supported for S3 buckets. While we currently have this in development, we do not have a concrete timeline unfortunately.
+                //{value: 'backblaze', title: 'Backblaze S3'},
                 {value: 'gcp_cloud_storage', title: 'GCP Cloud Storage'},
-                {value: 'do_spaces', title: 'Digital Ocean Spaces'}
+                {value: 'do_spaces', title: 'Digital Ocean Spaces'},
+                {value: 'other_s3', title: 'Other S3 compatible storage'}
             ];
         };
 
@@ -243,6 +247,15 @@
          * @param {string} [aws_s3_region] (optional) The s3 region
          * @param {string} [aws_s3_access_key_id] (optional) The s3 access key
          * @param {string} [aws_s3_secret_access_key] (optional) The s3 secret key
+         * @param {string} [backblaze_bucket] (optional) The s3 bucket
+         * @param {string} [backblaze_region] (optional) The s3 region
+         * @param {string} [backblaze_access_key_id] (optional) The s3 access key
+         * @param {string} [backblaze_secret_access_key] (optional) The s3 secret key
+         * @param {string} [other_s3_bucket] (optional) The s3 bucket
+         * @param {string} [other_s3_region] (optional) The s3 region
+         * @param {string} [other_s3_endpoint_url] (optional) The s3 endpoint url
+         * @param {string} [other_s3_access_key_id] (optional) The s3 access key
+         * @param {string} [other_s3_secret_access_key] (optional) The s3 secret key
          * @param {string} [do_space] (optional) The digital ocean space
          * @param {string} [do_region] (optional) The digital ocean region
          * @param {string} [do_key] (optional) The digital ocean key
@@ -253,6 +266,8 @@
         var create_file_repository = function(title, type,
                                               gcp_cloud_storage_bucket, gcp_cloud_storage_json_key,
                                               aws_s3_bucket, aws_s3_region, aws_s3_access_key_id, aws_s3_secret_access_key,
+                                              backblaze_bucket, backblaze_region, backblaze_access_key_id, backblaze_secret_access_key,
+                                              other_s3_bucket, other_s3_region, other_s3_endpoint_url, other_s3_access_key_id, other_s3_secret_access_key,
                                               do_space, do_region, do_key, do_secret) {
 
             var onSuccess = function (result) {
@@ -276,6 +291,15 @@
                 aws_s3_region,
                 aws_s3_access_key_id,
                 aws_s3_secret_access_key,
+                backblaze_bucket,
+                backblaze_region,
+                backblaze_access_key_id,
+                backblaze_secret_access_key,
+                other_s3_bucket,
+                other_s3_region,
+                other_s3_endpoint_url,
+                other_s3_access_key_id,
+                other_s3_secret_access_key,
                 do_space,
                 do_region,
                 do_key,
@@ -301,6 +325,15 @@
          * @param {string} [aws_s3_region] (optional) The s3 region
          * @param {string} [aws_s3_access_key_id] (optional) The s3 access key
          * @param {string} [aws_s3_secret_access_key] (optional) The s3 secret key
+         * @param {string} [backblaze_bucket] (optional) The s3 bucket
+         * @param {string} [backblaze_region] (optional) The s3 region
+         * @param {string} [backblaze_access_key_id] (optional) The s3 access key
+         * @param {string} [backblaze_secret_access_key] (optional) The s3 secret key
+         * @param {string} [other_s3_bucket] (optional) The s3 bucket
+         * @param {string} [other_s3_region] (optional) The s3 region
+         * @param {string} [other_s3_endpoint_url] (optional) The s3 endpoint url
+         * @param {string} [other_s3_access_key_id] (optional) The s3 access key
+         * @param {string} [other_s3_secret_access_key] (optional) The s3 secret key
          * @param {string} [do_space] (optional) The digital ocean space
          * @param {string} [do_region] (optional) The digital ocean region
          * @param {string} [do_key] (optional) The digital ocean key
@@ -311,6 +344,8 @@
          */
         var update_file_repository = function(file_repository_id, title, type, gcp_cloud_storage_bucket, gcp_cloud_storage_json_key, active,
                                               aws_s3_bucket, aws_s3_region, aws_s3_access_key_id, aws_s3_secret_access_key,
+                                              backblaze_bucket, backblaze_region, backblaze_access_key_id, backblaze_secret_access_key,
+                                              other_s3_bucket, other_s3_region, other_s3_endpoint_url, other_s3_access_key_id, other_s3_secret_access_key,
                                               do_space, do_region, do_key, do_secret) {
 
             return apiClient.update_file_repository(
@@ -326,6 +361,15 @@
                 aws_s3_region,
                 aws_s3_access_key_id,
                 aws_s3_secret_access_key,
+                backblaze_bucket,
+                backblaze_region,
+                backblaze_access_key_id,
+                backblaze_secret_access_key,
+                other_s3_bucket,
+                other_s3_region,
+                other_s3_endpoint_url,
+                other_s3_access_key_id,
+                other_s3_secret_access_key,
                 do_space,
                 do_region,
                 do_key,
