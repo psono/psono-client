@@ -73,7 +73,7 @@
          * @returns {string}
          */
         function get_saml_return_to_url() {
-            return chrome.identity.getRedirectURL() + '/data/index.html#!/saml/token/';
+            return chrome.identity.getRedirectURL() + 'data/index.html#!/saml/token/';
         }
 
         /**
