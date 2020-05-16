@@ -6,6 +6,7 @@
      * @name psonocli.managerDatastorePassword
      * @requires $q
      * @requires $rootScope
+     * @requires $translate
      * @requires psonocli.managerBase
      * @requires psonocli.managerSecret
      * @requires psonocli.managerShareLink
@@ -21,7 +22,9 @@
      * Service to manage the password datastore
      */
 
-    var managerDatastorePassword = function($q, $rootScope, managerBase, managerSecret, managerShareLink, managerDatastore, managerShare, itemBlueprint, helper, settings, browserClient, cryptoLibrary) {
+    var managerDatastorePassword = function($q, $rootScope, $translate, managerBase, managerSecret, managerShareLink,
+                                            managerDatastore, managerShare, itemBlueprint, helper, settings,
+                                            browserClient, cryptoLibrary) {
 
         var registrations = {};
         var _share_index = {};
@@ -36,6 +39,19 @@
             _share_index = {};
             password_datastore_read = false;
         });
+        var translation_store = {
+            'UNKNOWN': 'Unknown'
+        }
+
+
+        activate();
+        function activate() {
+            $translate([
+                'UNKNOWN'
+            ]).then(function (translations) {
+                translation_store['UNKNOWN'] = translations.UNKNOWN
+            });
+        }
 
         /**
          * checks if the given password complies with the minimal complexity
@@ -666,7 +682,7 @@
             var parsed_url = helper.parse_url(url);
 
             var secret_object = {
-                website_password_title: parsed_url.authority || '',
+                website_password_title: parsed_url.authority || translation_store['UNKNOWN'],
                 website_password_url: url,
                 website_password_username: username || "",
                 website_password_password: password || "",
@@ -677,7 +693,7 @@
 
             var datastore_object = {
                 type: 'website_password',
-                name: parsed_url.authority || '',
+                name: parsed_url.authority || translation_store['UNKNOWN'],
                 urlfilter: parsed_url.authority || ''
             };
 
@@ -760,7 +776,7 @@
                 var parsed_url = helper.parse_url(tab.url);
 
                 var secret_object = {
-                    bookmark_title: tab.title,
+                    bookmark_title: tab.title || translation_store['UNKNOWN'],
                     bookmark_url: tab.url,
                     bookmark_notes: "",
                     bookmark_url_filter: parsed_url.authority || ''
@@ -768,7 +784,7 @@
 
                 var datastore_object = {
                     type: 'bookmark',
-                    name: tab.title,
+                    name: tab.title || translation_store['UNKNOWN'],
                     urlfilter: parsed_url.authority || ''
                 };
 
@@ -1072,6 +1088,9 @@
          * @returns {Array} List of secret links
          */
         var get_all_secret_links = function(element) {
+            if (element.hasOwnProperty("share_id")) {
+                return [];
+            }
             return get_all_elements_with_property(element, 'secret_id');
         };
 
@@ -1087,6 +1106,9 @@
          * @returns {Array} List of secret links
          */
         var get_all_file_links = function(element) {
+            if (element.hasOwnProperty("share_id")) {
+                return [];
+            }
             return get_all_elements_with_property(element, 'file_id');
         };
 
@@ -1747,7 +1769,7 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerDatastorePassword", ['$q', '$rootScope', 'managerBase', 'managerSecret', 'managerShareLink', 'managerDatastore', 'managerShare',
+    app.factory("managerDatastorePassword", ['$q', '$rootScope', '$translate', 'managerBase', 'managerSecret', 'managerShareLink', 'managerDatastore', 'managerShare',
         'itemBlueprint', 'helper', 'settings', 'browserClient', 'cryptoLibrary', managerDatastorePassword]);
 
 }(angular));

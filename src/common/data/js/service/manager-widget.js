@@ -1028,6 +1028,21 @@
                         }
 
                         managerShare.write_share(closest_share['share_id'], content.data, closest_share['share_secret_key']);
+
+                        // Update all the "links" so the server has the updated link structure
+                        // adjust the links for every child_share (and therefore update the rights)
+                        for (i = child_shares.length - 1; i >= 0; i--) {
+                            managerShareLink.on_share_deleted(child_shares[i].share.id);
+                        }
+                        // adjust the links for every secret link (and therefore update the rights)
+                        for (i = secret_links.length - 1; i >= 0; i--) {
+                            managerSecretLink.on_secret_deleted(secret_links[i].id);
+                        }
+
+                        // adjust the links for every secret link (and therefore update the rights)
+                        for (i = file_links.length - 1; i >= 0; i--) {
+                            managerFileLink.on_file_deleted(file_links[i].id);
+                        }
                     };
 
                     onError = function(e) {
@@ -1036,6 +1051,8 @@
                     };
                     managerShare.read_share(closest_share['share_id'], closest_share['share_secret_key'])
                         .then(onSuccess, onError);
+
+                    managerDatastorePassword.handle_datastore_content_changed(datastore);
                 } else {
                     // refresh datastore content before updating it
                     onError = function(result) {
@@ -1074,30 +1091,28 @@
                         }
 
                         managerDatastorePassword.save_datastore_content(datastore, [element_path_that_changed]);
+
+                        // Update all the "links" so the server has the updated link structure
+                        // adjust the links for every child_share (and therefore update the rights)
+                        for (i = child_shares.length - 1; i >= 0; i--) {
+                            managerShareLink.on_share_deleted(child_shares[i].share.id);
+                        }
+                        // adjust the links for every secret link (and therefore update the rights)
+                        for (i = secret_links.length - 1; i >= 0; i--) {
+                            managerSecretLink.on_secret_deleted(secret_links[i].id);
+                        }
+
+                        // adjust the links for every secret link (and therefore update the rights)
+                        for (i = file_links.length - 1; i >= 0; i--) {
+                            managerFileLink.on_file_deleted(file_links[i].id);
+                        }
                     };
 
-                    return managerDatastore.get_datastore_with_id(closest_share['datastore_id'])
+                    managerDatastore.get_datastore_with_id(closest_share['datastore_id'])
                         .then(onSuccess, onError);
                 }
-
-                managerDatastorePassword.handle_datastore_content_changed(datastore);
             } else if(datastore_type === 'user') {
                 managerDatastoreUser.save_datastore_content(datastore, [element_path_that_changed]);
-            }
-
-            // Update all the "links" so the server has the updated link structure
-
-            // adjust the links for every child_share (and therefore update the rights)
-            for (i = child_shares.length - 1; i >= 0; i--) {
-                managerShareLink.on_share_deleted(child_shares[i].share.id);
-            }
-            // adjust the links for every secret link (and therefore update the rights)
-            for (i = secret_links.length - 1; i >= 0; i--) {
-                managerSecretLink.on_secret_deleted(secret_links[i].id);
-            }
-            // adjust the links for every secret link (and therefore update the rights)
-            for (i = file_links.length - 1; i >= 0; i--) {
-                managerFileLink.on_file_deleted(file_links[i].id);
             }
         };
 

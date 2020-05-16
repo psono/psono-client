@@ -31,6 +31,7 @@ wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese.json -O src/com
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Russian.json -O src/common/data/translations/datatables.ru.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Vietnamese.json -O src/common/data/translations/datatables.vi.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Chinese.json -O src/common/data/translations/datatables.zh-cn.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Chinese-traditional.json -O src/common/data/translations/datatables.zh-hant.json
 
 wget https://raw.githubusercontent.com/l-lin/angular-datatables/v0.6.4/dist/angular-datatables.js -O src/common/data/js/lib/angular-datatables.js
 wget https://raw.githubusercontent.com/l-lin/angular-datatables/v0.6.4/dist/css/angular-datatables.css -O src/common/data/css/lib/angular-datatables.css

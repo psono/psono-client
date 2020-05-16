@@ -77,7 +77,7 @@
          * @returns {string}
          */
         function get_saml_return_to_url() {
-            return browser.identity.getRedirectURL() + '/data/index.html#!/saml/token/';
+            return browser.identity.getRedirectURL() + 'data/index.html#!/saml/token/';
         }
 
         /**

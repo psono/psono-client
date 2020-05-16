@@ -113,6 +113,51 @@
                     return;
                 }
 
+                if ($scope.file_repository.type === 'backblaze' && !$scope.file_repository['backblaze_bucket']) {
+                    $scope.errors.push('BUCKET_IS_REQUIRED');
+                    return;
+                }
+
+                if ($scope.file_repository.type === 'backblaze' && !$scope.file_repository['backblaze_region']) {
+                    $scope.errors.push('REGION_IS_REQUIRED');
+                    return;
+                }
+
+                if ($scope.file_repository.type === 'backblaze' && !$scope.file_repository['backblaze_access_key_id']) {
+                    $scope.errors.push('ACCESS_KEY_ID_IS_REQUIRED');
+                    return;
+                }
+
+                if ($scope.file_repository.type === 'backblaze' && !$scope.file_repository['backblaze_secret_access_key']) {
+                    $scope.errors.push('SECRET_ACCESS_KEY_IS_REQUIRED');
+                    return;
+                }
+
+                if ($scope.file_repository.type === 'other_s3' && !$scope.file_repository['other_s3_bucket']) {
+                    $scope.errors.push('BUCKET_IS_REQUIRED');
+                    return;
+                }
+
+                if ($scope.file_repository.type === 'other_s3' && !$scope.file_repository['other_s3_region']) {
+                    $scope.errors.push('REGION_IS_REQUIRED');
+                    return;
+                }
+
+                if ($scope.file_repository.type === 'other_s3' && !$scope.file_repository['other_s3_endpoint_url']) {
+                    $scope.errors.push('REGION_IS_REQUIRED');
+                    return;
+                }
+
+                if ($scope.file_repository.type === 'other_s3' && !$scope.file_repository['other_s3_access_key_id']) {
+                    $scope.errors.push('ACCESS_KEY_ID_IS_REQUIRED');
+                    return;
+                }
+
+                if ($scope.file_repository.type === 'other_s3' && !$scope.file_repository['other_s3_secret_access_key']) {
+                    $scope.errors.push('SECRET_ACCESS_KEY_IS_REQUIRED');
+                    return;
+                }
+
                 if ($scope.file_repository.type === 'do_spaces' && !$scope.file_repository['do_space']) {
                     $scope.errors.push('SPACE_IS_REQUIRED');
                     return;
@@ -156,6 +201,15 @@
                     $scope.file_repository['aws_s3_region'],
                     $scope.file_repository['aws_s3_access_key_id'],
                     $scope.file_repository['aws_s3_secret_access_key'],
+                    $scope.file_repository['backblaze_bucket'],
+                    $scope.file_repository['backblaze_region'],
+                    $scope.file_repository['backblaze_access_key_id'],
+                    $scope.file_repository['backblaze_secret_access_key'],
+                    $scope.file_repository['other_s3_bucket'],
+                    $scope.file_repository['other_s3_region'],
+                    $scope.file_repository['other_s3_endpoint_url'],
+                    $scope.file_repository['other_s3_access_key_id'],
+                    $scope.file_repository['other_s3_secret_access_key'],
                     $scope.file_repository['do_space'],
                     $scope.file_repository['do_region'],
                     $scope.file_repository['do_key'],

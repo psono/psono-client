@@ -8,16 +8,22 @@
      * @requires $q
      * @requires $uibModalInstance
      * @requires psonocli.managerDatastore
+     * @requires psonocli.managerDatastoreUser
      *
      * @description
      * Controller for the "Edit Datastore" modal in Other
      */
-    angular.module('psonocli').controller('ModalDeleteDatastoreCtrl', ['$scope', '$q', '$uibModalInstance', 'managerDatastore',
+    angular.module('psonocli').controller('ModalDeleteDatastoreCtrl', ['$scope', '$q', '$uibModalInstance',
+        'managerDatastore', 'managerDatastoreUser',
         'data_store',
-        function ($scope, $q, $uibModalInstance, managerDatastore,
+        function ($scope, $q, $uibModalInstance,
+                  managerDatastore, managerDatastoreUser,
                   data_store) {
 
+            $scope.user_authentication = managerDatastoreUser.get_authentication();
+
             $scope.data_store = data_store;
+            $scope.password = '';
 
             $scope.cancel = cancel;
             $scope.save = save;

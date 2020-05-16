@@ -276,9 +276,17 @@
                     username: managerBase.find_key('config', 'user_username')
                 });
 
+                var authentication = 'AUTHKEY'
+                if (typeof(activation_data.data.user.authentication) !== 'undefined'){
+                    // we check if authentication exists in  activation_data.data.user due to backward compatibiltiy
+                    // as the server provides this since Feb 13th 2020
+                    authentication = activation_data.data.user.authentication
+                }
+
                 storage.insert('config', {key: 'user_id', value: activation_data.data.user.id});
                 storage.insert('config', {key: 'user_token', value: token});
                 storage.insert('config', {key: 'user_email', value: activation_data.data.user.email});
+                storage.insert('config', {key: 'user_authentication', value: authentication});
                 storage.insert('config', {key: 'session_secret_key', value: session_secret_key});
                 storage.insert('config', {key: 'user_public_key', value: user_public_key});
                 storage.insert('config', {key: 'user_private_key', value: user_private_key});
@@ -1647,6 +1655,25 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastoreUser#get_authentication
+         * @methodOf psonocli.managerDatastoreUser
+         *
+         * @description
+         * Returns the user authentication method
+         *
+         * @returns {string} Returns the users authentication method
+         */
+        var get_authentication = function() {
+            var user_authentication = storage.find_key('config', 'user_authentication');
+            if (user_authentication === null) {
+                return 'AUTHKEY';
+            } else {
+                return user_authentication.value;
+            }
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastoreUser#delete_session
          * @methodOf psonocli.managerDatastoreUser
          *
@@ -1919,6 +1946,7 @@
             create_emergency_code : create_emergency_code,
             delete_emergency_code : delete_emergency_code,
             get_email: get_email,
+            get_authentication: get_authentication,
             delete_session: delete_session,
             delete_other_sessions: delete_other_sessions,
             save_new_email: save_new_email,
