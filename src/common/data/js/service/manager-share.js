@@ -271,7 +271,7 @@
                 encrypted_type;
 
             var onError = function(result) {
-                // pass
+                return $q.reject(result);
             };
 
             var onSuccess = function(content) {

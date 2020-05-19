@@ -23,9 +23,10 @@
      */
 
 
-    var itemBlueprint = function($q, browserClient, $window, $uibModal, helper, cryptoLibrary, storage, managerFileTransfer, managerFileRepository) {
+    var itemBlueprint = function($q, $translate, browserClient, $window, $uibModal, helper, cryptoLibrary, storage, managerFileTransfer, managerFileRepository) {
 
         var _default = "website_password";
+        var _translations;
         var _shards = [];
         var _filesrepositories = [];
 
@@ -287,6 +288,7 @@
                         _blueprint_file.field_index['file_destinations'].hidden = false;
                     }
                 });
+
             },
             /**
              * will open the search tab
@@ -1036,10 +1038,48 @@
                             if (selected_users.indexOf(users[i].id) < 0) {
                                 continue;
                             }
-                            registrations['create_share_right'](title, type,
-                                share_id, users[i].data.user_id, undefined,
-                                users[i].data.user_public_key, undefined, share_secret_key,
-                                rights['read'], rights['write'], rights['grant']);
+
+                            function create_user_share_right(user) {
+                                var onSuccess = function (data) {
+                                    // pass
+                                };
+                                var onError = function (result) {
+                                    var title;
+                                    var description;
+                                    if (result.data === null) {
+                                        title = 'UNKNOWN_ERROR';
+                                        description = 'UNKNOWN_ERROR_CHECK_BROWSER_CONSOLE';
+                                    } else if (result.data.hasOwnProperty('non_field_errors') && (result.data['non_field_errors'].indexOf('USER_DOES_NOT_EXIST_PROBABLY_DELETED') !== -1  || result.data['non_field_errors'].indexOf('Target user does not exist.') !== -1)) {
+                                        title = 'UNKNOWN_USER';
+                                        description = _translations.USER_DOES_NOT_EXIST_PROBABLY_DELETED + ' ' + user.name;
+                                    } else if (result.data.hasOwnProperty('non_field_errors')) {
+                                        title = 'ERROR';
+                                        description = result.data['non_field_errors'];
+                                    } else {
+                                        title = 'UNKNOWN_ERROR';
+                                        description = 'UNKNOWN_ERROR_CHECK_BROWSER_CONSOLE';
+                                    }
+
+                                    $uibModal.open({
+                                        templateUrl: 'view/modal/error.html',
+                                        controller: 'ModalErrorCtrl',
+                                        resolve: {
+                                            title: function () {
+                                                return title;
+                                            },
+                                            description: function () {
+                                                return description;
+                                            }
+                                        }
+                                    });
+                                };
+
+                                return registrations['create_share_right'](title, type,
+                                    share_id, user.data.user_id, undefined,
+                                    user.data.user_public_key, undefined, share_secret_key,
+                                    rights['read'], rights['write'], rights['grant']).then(onSuccess, onError);
+                            }
+                            create_user_share_right(users[i])
                         }
 
                         for (i = 0; i < groups.length; i++) {
@@ -1047,14 +1087,47 @@
                                 continue;
                             }
 
-                            var group_secret_key = registrations['get_group_secret_key'](
-                                groups[i].group_id, groups[i].secret_key, groups[i].secret_key_nonce,
-                                groups[i].secret_key_type, groups[i].public_key);
+                            function create_group_share_right(group) {
+                                var onSuccess = function (data) {
+                                    // pass
+                                };
+                                var onError = function (result) {
+                                    var title;
+                                    var description;
+                                    if (result.data === null) {
+                                        title = 'UNKNOWN_ERROR';
+                                        description = 'UNKNOWN_ERROR_CHECK_BROWSER_CONSOLE';
+                                    } else if (result.data.hasOwnProperty('non_field_errors')) {
+                                        title = 'ERROR';
+                                        description = result.data['non_field_errors'];
+                                    } else {
+                                        title = 'UNKNOWN_ERROR';
+                                        description = 'UNKNOWN_ERROR_CHECK_BROWSER_CONSOLE';
+                                    }
 
-                            registrations['create_share_right'](title, type,
-                                share_id, undefined, groups[i].group_id,
-                                undefined, group_secret_key, share_secret_key,
-                                rights['read'], rights['write'], rights['grant']);
+                                    $uibModal.open({
+                                        templateUrl: 'view/modal/error.html',
+                                        controller: 'ModalErrorCtrl',
+                                        resolve: {
+                                            title: function () {
+                                                return title;
+                                            },
+                                            description: function () {
+                                                return description;
+                                            }
+                                        }
+                                    });
+                                };
+
+                                var group_secret_key = registrations['get_group_secret_key'](
+                                    group.group_id, group.secret_key, group.secret_key_nonce,
+                                    group.secret_key_type, group.public_key);
+                                return registrations['create_share_right'](title, type,
+                                    share_id, undefined, group.group_id,
+                                    undefined, group_secret_key, share_secret_key,
+                                    rights['read'], rights['write'], rights['grant']).then(onSuccess, onError);
+                            }
+                            create_group_share_right(groups[i])
                         }
                     };
 
@@ -1327,6 +1400,12 @@
         activate();
 
         function activate() {
+            $translate([
+                'USER_DOES_NOT_EXIST_PROBABLY_DELETED'
+            ]).then(function (translations) {
+                _translations = translations;
+            });
+
             if (server_supports_files()) {
                 _blueprints.file = _blueprint_file
             }
@@ -1577,6 +1656,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("itemBlueprint", ['$q', 'browserClient', '$window', '$uibModal', 'helper', 'cryptoLibrary', 'storage', 'managerFileTransfer', 'managerFileRepository', itemBlueprint]);
+    app.factory("itemBlueprint", ['$q', '$translate', 'browserClient', '$window', '$uibModal', 'helper', 'cryptoLibrary', 'storage', 'managerFileTransfer', 'managerFileRepository', itemBlueprint]);
 
 }(angular));
