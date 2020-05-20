@@ -51,6 +51,7 @@
                 };
                 var onError = function (data) {
                     //pass
+                    console.log(data);
                 };
                 managerShare.read_shares().then(onSuccess, onError);
             }

@@ -73,12 +73,12 @@
             var onSuccess = function(content) {
 
                 for (var i = content.data.shares.length - 1; i >= 0; i--) {
-                    if (content.data.shares[i].share_right_title !== '') {
+                    if (content.data.shares[i].share_right_title !== '' && content.data.shares[i].share_right_create_user_public_key) {
                         content.data.shares[i].share_right_title = managerBase.decrypt_private_key(
                             content.data.shares[i].share_right_title,
                             content.data.shares[i].share_right_title_nonce,
                             content.data.shares[i].share_right_create_user_public_key
-                        )
+                        );
                     }
                 }
 
