@@ -5,6 +5,7 @@
      * @ngdoc controller
      * @name psonocli.controller:AcceptShareCtrl
      * @requires $scope
+     * @requires $parent
      * @requires $uibModal
      * @requires $timeout
      * @requires ngTree.dropDownMenuWatcher
@@ -127,7 +128,16 @@
                  * @returns {boolean}
                  */
                 isSelectable: function (node) {
-                    return ! node.hasOwnProperty('share_rights') || !! (node.share_rights.read && node.share_rights.write)
+                    // filter out all targets that are a share if the item is not allowed to be shared
+                    if (!$scope.$parent.item.share_right_grant && node.share_id) {
+                        return false
+                    }
+                    // filter out all targets that are inside of a share if the item is not allowed to be shared
+                    if (!$scope.$parent.item.share_right_grant && node.parent_share_id) {
+                        return false
+                    }
+
+                    return ! node.hasOwnProperty('share_rights') || !! (node.share_rights.read && node.share_rights.write);
                 },
                 contextMenuOnShow: $scope.contextMenuOnShow,
                 contextMenuOnClose: $scope.contextMenuOnClose,

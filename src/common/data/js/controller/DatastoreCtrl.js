@@ -68,6 +68,9 @@
                  */
                 onMoveNode: function (item_path) {
 
+                    var search = managerDatastorePassword.find_in_datastore(item_path, $scope.structure.data);
+                    var item = search[0][search[1]];
+
                     var modalInstance = $uibModal.open({
                         templateUrl: 'view/modal/choose-folder.html',
                         controller: 'ModalChooseFolderCtrl',
@@ -80,6 +83,9 @@
                             },
                             datastore_type: function() {
                                 return 'password';
+                            },
+                            item: function() {
+                                return item;
                             }
                         }
                     });
@@ -133,6 +139,10 @@
                  * @param item_path The path of the item
                  */
                 onMoveItem: function (item_path) {
+
+                    var search = managerDatastorePassword.find_in_datastore(item_path, $scope.structure.data);
+                    var item = search[0][search[1]];
+
                     var modalInstance = $uibModal.open({
                         templateUrl: 'view/modal/choose-folder.html',
                         controller: 'ModalChooseFolderCtrl',
@@ -145,6 +155,9 @@
                             },
                             datastore_type: function() {
                                 return 'password';
+                            },
+                            item: function() {
+                                return item;
                             }
                         }
                     });
