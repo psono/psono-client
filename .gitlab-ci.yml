@@ -12,7 +12,7 @@ test-unittests:
   except:
     - schedules
   stage: test
-  image: psono-docker.jfrog.io/ubuntu:16.04
+  image: psono-docker.jfrog.io/ubuntu:18.04
   script:
     - sh ./var/build-ubuntu.sh
     - apt-get install -y --no-install-recommends xvfb x11vnc fluxbox xterm chromium-browser
@@ -26,7 +26,7 @@ test-linter:
   except:
     - schedules
   stage: test
-  image: psono-docker.jfrog.io/ubuntu:16.04
+  image: psono-docker.jfrog.io/ubuntu:18.04
   script:
     - sh ./var/build-ubuntu.sh
     - cat ./build/firefox/manifest.json
@@ -48,7 +48,7 @@ build-docker-image:
   except:
     - schedules
   stage: build
-  image: psono-docker.jfrog.io/ubuntu:16.04
+  image: psono-docker.jfrog.io/ubuntu:18.04
   services:
     - docker:18-dind
   variables:
@@ -72,7 +72,7 @@ build-firefox-extension:
   except:
     - schedules
   stage: build
-  image: psono-docker.jfrog.io/ubuntu:16.04
+  image: psono-docker.jfrog.io/ubuntu:18.04
   script:
     - sh ./var/download_translations_from_artifactory.sh
     - sh ./var/build-ubuntu.sh
@@ -95,7 +95,7 @@ build-chrome-extension:
   except:
     - schedules
   stage: build
-  image: psono-docker.jfrog.io/ubuntu:16.04
+  image: psono-docker.jfrog.io/ubuntu:18.04
   script:
     - sh ./var/download_translations_from_artifactory.sh
     - sh ./var/build-ubuntu.sh
@@ -118,7 +118,7 @@ build-webclient:
   except:
     - schedules
   stage: build
-  image: psono-docker.jfrog.io/ubuntu:16.04
+  image: psono-docker.jfrog.io/ubuntu:18.04
   script:
     - sh ./var/download_translations_from_artifactory.sh
     - sh ./var/build-ubuntu.sh
@@ -141,7 +141,7 @@ release-artifacts:
   except:
     - schedules
   stage: release
-  image: psono-docker.jfrog.io/ubuntu:16.04
+  image: psono-docker.jfrog.io/ubuntu:18.04
   script:
     - apt-get update
     - apt-get install -y curl
@@ -158,7 +158,7 @@ release-docker:
   except:
     - schedules
   stage: release
-  image: psono-docker.jfrog.io/docker:git
+  image: psono-docker.jfrog.io/docker:19.03.8-git
   services:
     - docker:18-dind
   script:
@@ -175,7 +175,7 @@ release-docker:
 #  except:
 #    - schedules
 #  stage: deploy
-#  image: psono-docker.jfrog.io/docker:git
+#  image: psono-docker.jfrog.io/docker:19.03.8-git
 #  services:
 #    - docker:18-dind
 #  script:
@@ -191,7 +191,7 @@ deploy-docker:
   except:
     - schedules
   stage: deploy
-  image: psono-docker.jfrog.io/docker:git
+  image: psono-docker.jfrog.io/docker:19.03.8-git
   services:
     - docker:18-dind
   script:
@@ -209,7 +209,7 @@ deploy-github:
   except:
     - schedules
   stage: deploy
-  image: psono-docker.jfrog.io/docker:git
+  image: psono-docker.jfrog.io/docker:19.03.8-git
   services:
     - docker:18-dind
   script:
@@ -225,7 +225,7 @@ deploy-chrome:
   except:
     - schedules
   stage: deploy
-  image: psono-docker.jfrog.io/ubuntu:16.04
+  image: psono-docker.jfrog.io/ubuntu:18.04
   script:
     - sh ./var/build-ubuntu.sh
     - sh ./var/deploy-chrome-extension.sh
@@ -240,7 +240,7 @@ deploy-firefox:
   except:
     - schedules
   stage: deploy
-  image: psono-docker.jfrog.io/ubuntu:16.04
+  image: psono-docker.jfrog.io/ubuntu:18.04
   script:
     - sh ./var/build-ubuntu.sh
     - sh ./var/deploy-firefox-extension.sh
@@ -254,7 +254,7 @@ deploy-changelog:
   except:
     - schedules
   stage: deploy
-  image: psono-docker.jfrog.io/ubuntu:16.04
+  image: psono-docker.jfrog.io/ubuntu:18.04
   script:
     - sh ./var/deploy_changelog.sh
   environment:
