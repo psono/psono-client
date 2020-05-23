@@ -97,6 +97,7 @@
                 "../src/common/data/js/controller/modal/GoOfflineCtrl.js",
                 "../src/common/data/js/controller/modal/HistoryCtrl.js",
                 "../src/common/data/js/controller/modal/NewFolderCtrl.js",
+                "../src/common/data/js/controller/modal/ErrorCtrl.js",
                 "../src/common/data/js/controller/modal/VerifyCtrl.js",
                 "../src/common/data/js/controller/modal/NewGroupCtrl.js",
                 "../src/common/data/js/controller/modal/PickUserCtrl.js",

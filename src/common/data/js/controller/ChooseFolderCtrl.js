@@ -104,6 +104,9 @@
                  */
                 onMoveNode: function (item_path) {
 
+                    var search = managerDatastorePassword.find_in_datastore(item_path, $scope.structure.data);
+                    var item = search[0][search[1]];
+
                     var modalInstance = $uibModal.open({
                         templateUrl: 'view/modal/choose-folder.html',
                         controller: 'ModalChooseFolderCtrl',
@@ -116,6 +119,9 @@
                             },
                             datastore_type: function() {
                                 return $scope.datastore_type;
+                            },
+                            item: function() {
+                                return item;
                             }
                         }
                     });
@@ -134,6 +140,10 @@
                  * @param item_path The path of the item
                  */
                 onMoveItem: function (item_path) {
+
+                    var search = managerDatastorePassword.find_in_datastore(item_path, $scope.structure.data);
+                    var item = search[0][search[1]];
+
                     var modalInstance = $uibModal.open({
                         templateUrl: 'view/modal/choose-folder.html',
                         controller: 'ModalChooseFolderCtrl',
@@ -146,6 +156,9 @@
                             },
                             datastore_type: function() {
                                 return $scope.datastore_type;
+                            },
+                            item: function() {
+                                return item;
                             }
                         }
                     });
@@ -199,6 +212,29 @@
                  * @returns {boolean}
                  */
                 isSelectable: function (node) {
+                    // filter out all targets that are a share if the item is not allowed to be shared
+                    if ($scope.$parent.item.hasOwnProperty('share_rights') && !$scope.$parent.item.share_rights.grant && node.share_id) {
+                        return false
+                    }
+                    // filter out all targets that are inside of a share if the item is not allowed to be shared
+                    if (!$scope.$parent.item.share_right_grant && node.parent_share_id) {
+                        return false
+                    }
+
+                    // filter out all targets that are a share or are inside of a share if the shared object contains shares that don't allow grant
+                    if ($scope.$parent.item.hasOwnProperty('folders') && (node.parent_share_id || node.share_id)) {
+                        var child_shares = [];
+                        managerDatastorePassword.get_all_child_shares($scope.$parent.item, -1, child_shares);
+                        for (var i = 0; i < child_shares.length; i++) {
+                            if (!child_shares[i]['share'].hasOwnProperty('share_rights')) {
+                                return false;
+                            }
+                            if (!child_shares[i]['share']['share_rights']['grant']) {
+                                return false;
+                            }
+                        }
+                    }
+
                     return ! node.hasOwnProperty('share_rights') || !! (node.share_rights.read && node.share_rights.write)
                 },
                 contextMenuOnShow: $scope.contextMenuOnShow,
