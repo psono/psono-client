@@ -10,7 +10,9 @@ if (window.location.href.indexOf('https://www.psono.pw') !== -1) {
         a.src = g;
         m.parentNode.insertBefore(a, m)
     })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
-    ga('create', 'UA-85002864-3', 'auto');
-    ga('set', 'anonymizeIp', true);
+    ga('create', 'UA-85002864-3', {
+        'storage': 'none',
+        'anonymizeIp': true
+    });
     ga('send', 'pageview');
 }
