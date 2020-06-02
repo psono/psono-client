@@ -217,7 +217,7 @@
                         return false
                     }
                     // filter out all targets that are inside of a share if the item is not allowed to be shared
-                    if (!$scope.$parent.item.share_right_grant && node.parent_share_id) {
+                    if ($scope.$parent.item.hasOwnProperty('share_right_grant') && !$scope.$parent.item.share_right_grant && node.parent_share_id) {
                         return false
                     }
 
