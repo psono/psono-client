@@ -1050,7 +1050,7 @@
                                     description = _translations.USER_DOES_NOT_EXIST_PROBABLY_DELETED + ' ' + user.name;
                                 } else if (result.data.hasOwnProperty('non_field_errors')) {
                                     title = 'ERROR';
-                                    description = result.data['non_field_errors'];
+                                    description = result.data['non_field_errors'][0];
                                 } else {
                                     title = 'UNKNOWN_ERROR';
                                     description = 'UNKNOWN_ERROR_CHECK_BROWSER_CONSOLE';
@@ -1101,7 +1101,7 @@
                                     description = 'UNKNOWN_ERROR_CHECK_BROWSER_CONSOLE';
                                 } else if (result.data.hasOwnProperty('non_field_errors')) {
                                     title = 'ERROR';
-                                    description = result.data['non_field_errors'];
+                                    description = result.data['non_field_errors'][0];
                                 } else {
                                     title = 'UNKNOWN_ERROR';
                                     description = 'UNKNOWN_ERROR_CHECK_BROWSER_CONSOLE';
