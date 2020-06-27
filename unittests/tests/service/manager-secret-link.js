@@ -28,10 +28,8 @@
         });
 
         var $httpBackend;
-        var $timeout;
         beforeEach(inject(function($injector){
             // unwrap necessary services
-            $timeout = $injector.get('$timeout');
             $httpBackend = $injector.get('$httpBackend');
             cryptoLibrary = $injector.get('cryptoLibrary');
 
@@ -45,48 +43,6 @@
 
         it('managerSecretLink exists', inject(function (managerSecretLink) {
             expect(managerSecretLink).toBeDefined();
-        }));
-
-        it('move_secret_links', inject(function (managerSecretLink) {
-
-            var link_id = '6899cc6b-b096-416f-b08a-6019c8cdc6a1';
-
-            var datastore = {
-                'folders': [{
-                    'folders': [],
-                    'items': [
-                        {
-                            'secret_id': 'secret_id',
-                            'id': link_id
-                        }
-                    ]
-                }],
-                'items': []
-            };
-
-            var new_parent_share_id = '6899cc6b-b096-416f-b08a-6019c8cdc6a1';
-            var new_parent_datastore_id = 'c768179c-abb0-484c-961b-c809ab01bc33';
-
-            $httpBackend.when('POST', "https://www.psono.pw/server/secret/link/").respond(
-                function(method, url, data, headers, params) {
-                    // Validate request parameters:
-                    data = JSON.parse(data);
-
-                    expect(headers.Authorization).toEqual('Token ' + token);
-                    expect(headers['Authorization-Validator']).toEqual(jasmine.any(String));
-
-                    expect(data.link_id).toEqual(link_id);
-                    expect(data.new_parent_share_id).toEqual(new_parent_share_id);
-                    expect(data.new_parent_datastore_id).toEqual(new_parent_datastore_id);
-
-                    // return answer
-                    return [200, {}];
-                });
-
-            $timeout.flush();
-            
-            managerSecretLink.move_secret_links(datastore, new_parent_share_id, new_parent_datastore_id);
-            $httpBackend.flush();
         }));
 
         it('move_secret_link', inject(function (managerSecretLink) {
