@@ -33,8 +33,6 @@
         var move_secret_links = function(datastore, new_parent_share_id, new_parent_datastore_id) {
             var i;
             
-            console.log("move_secret_links");
-            
             function move_secret_link_timed(link_id, new_parent_share_id, new_parent_datastore_id) {
                 timeout = timeout + 50;
                 $timeout(function(){

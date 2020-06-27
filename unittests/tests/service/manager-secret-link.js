@@ -28,8 +28,10 @@
         });
 
         var $httpBackend;
+        var $timeout;
         beforeEach(inject(function($injector){
             // unwrap necessary services
+            $timeout = $injector.get('$timeout');
             $httpBackend = $injector.get('$httpBackend');
             cryptoLibrary = $injector.get('cryptoLibrary');
 
@@ -81,7 +83,8 @@
                     return [200, {}];
                 });
 
-
+            $timeout.flush();
+            
             managerSecretLink.move_secret_links(datastore, new_parent_share_id, new_parent_datastore_id);
             $httpBackend.flush();
         }));
