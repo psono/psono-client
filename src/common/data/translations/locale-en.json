@@ -1,4 +1,9 @@
 {
+  "DELETE_SHARE_RIGHT": "Delete Share Right",
+  "DELETE_OWN_SHARE_RIGHT_WARNING": "You are about to delete your own share right. You will lose all rights to this share. Are you sure?",
+  "AFFECTED_SHARE_RIGHTS": "Affected share rights",
+  "MAINTENANCE_MODE_ACTIVE": "Server under maintenance and temporary not available.",
+  "SERVER_DISABLED": "Server disabled",
   "UNKNOWN_ERROR": "Unknown error",
   "UNKNOWN_ERROR_CHECK_BROWSER_CONSOLE": "Unknown error. Please check your browser's console for details.",
   "UNKNOWN_USER": "Unknown User",
