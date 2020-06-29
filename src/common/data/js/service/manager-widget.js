@@ -115,6 +115,8 @@
                         }
                         parent.folders.push(datastore_object);
                         managerShare.write_share(closest_share['share_id'], content.data, closest_share['share_secret_key']);
+
+                        manager.handle_datastore_content_changed(data_structure);
                     };
 
                     onError = function(e) {
@@ -143,13 +145,13 @@
                         }
                         parent.folders.push(datastore_object);
                         manager.save_datastore_content(datastore, [path]);
+
+                        manager.handle_datastore_content_changed(data_structure);
                     };
 
                     return managerDatastore.get_datastore_with_id(closest_share['datastore_id'])
                         .then(onSuccess, onError);
                 }
-
-                manager.handle_datastore_content_changed(data_structure);
 
             }, function () {
                 // cancel triggered
@@ -211,6 +213,7 @@
                         }
                         folder.name = name;
                         managerShare.write_share(closest_share['share_id'], content.data, closest_share['share_secret_key']);
+                        manager.handle_datastore_content_changed(data_structure);
                     };
 
                     onError = function(e) {
@@ -236,13 +239,13 @@
 
                         folder.name = name;
                         manager.save_datastore_content(datastore, [path]);
+                        manager.handle_datastore_content_changed(data_structure);
                     };
 
                     return managerDatastore.get_datastore_with_id(closest_share['datastore_id'])
                         .then(onSuccess, onError);
                 }
 
-                manager.handle_datastore_content_changed(data_structure);
 
             }, function () {
                 // cancel triggered
@@ -389,6 +392,7 @@
                             parent.items.push(datastore_object);
 
                             managerShare.write_share(closest_share['share_id'], content.data, closest_share['share_secret_key']);
+                            managerDatastorePassword.handle_datastore_content_changed(datastore);
                         };
 
                         onError = function(e) {
@@ -417,13 +421,12 @@
                             }
                             parent.items.push(datastore_object);
                             managerDatastorePassword.save_datastore_content(datastore, [path]);
+                            managerDatastorePassword.handle_datastore_content_changed(datastore);
                         };
 
                         return managerDatastore.get_datastore_with_id(closest_share['datastore_id'])
                             .then(onSuccess, onError);
                     }
-
-                    managerDatastorePassword.handle_datastore_content_changed(datastore);
 
                     // reset form fields
                     for (var i = content.fields.length - 1; i >= 0; i--) {
@@ -543,6 +546,7 @@
                                 }
 
                                 managerShare.write_share(closest_share['share_id'], content.data, closest_share['share_secret_key']);
+                                managerDatastorePassword.handle_datastore_content_changed(datastore);
                             };
 
                             onError = function(e) {
@@ -579,13 +583,13 @@
                                 }
 
                                 managerDatastorePassword.save_datastore_content(datastore, [path]);
+                                managerDatastorePassword.handle_datastore_content_changed(datastore);
                             };
 
                             return managerDatastore.get_datastore_with_id(closest_share['datastore_id'])
                                 .then(onSuccess, onError);
                         }
 
-                        managerDatastorePassword.handle_datastore_content_changed(datastore);
                         //managerDatastorePassword.save_datastore_content(datastore, [path]);
                     };
 
@@ -1043,6 +1047,7 @@
                         for (i = file_links.length - 1; i >= 0; i--) {
                             managerFileLink.on_file_deleted(file_links[i].id);
                         }
+                        managerDatastorePassword.handle_datastore_content_changed(datastore);
                     };
 
                     onError = function(e) {
@@ -1052,7 +1057,6 @@
                     managerShare.read_share(closest_share['share_id'], closest_share['share_secret_key'])
                         .then(onSuccess, onError);
 
-                    managerDatastorePassword.handle_datastore_content_changed(datastore);
                 } else {
                     // refresh datastore content before updating it
                     onError = function(result) {
@@ -1106,6 +1110,7 @@
                         for (i = file_links.length - 1; i >= 0; i--) {
                             managerFileLink.on_file_deleted(file_links[i].id);
                         }
+                        managerDatastorePassword.handle_datastore_content_changed(datastore);
                     };
 
                     managerDatastore.get_datastore_with_id(closest_share['datastore_id'])
