@@ -22,6 +22,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
         base.on('fillpassword', on_fillpassword);
         base.on('website-password-update', on_website_password_update);
         base.on('return-secret', on_return_secret);
+        base.on('secrets-changed', on_secrets_changed);
 
         jQuery(function() {
             var i;
@@ -457,7 +458,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      *
      * @param data
      */
-    function on_return_secret (data) {
+    function on_return_secret(data) {
 
         var fill_field_helper = function(field, value) {
 
@@ -505,6 +506,15 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
                 break;
             }
         }
+    }
+
+    /**
+     * handles secret changed requests
+     *
+     * @param data
+     */
+    function on_secrets_changed(data) {
+        base.emit('website-password-refresh', document.location.toString());
     }
 
 };

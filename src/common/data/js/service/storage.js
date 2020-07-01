@@ -279,8 +279,8 @@
          * saves the database, needs to be triggered once some changes are meant to be made persistent
          */
         function save() {
-            emit("storage-reload", null);
             loki_storage.save();
+            emit("storage-reload", null);
         }
 
         /**

@@ -198,6 +198,7 @@
                 'read-gpg': read_gpg,
                 'write-gpg': write_gpg,
                 'write-gpg-complete': write_gpg_complete,
+                'secrets-changed': secret_changed,
                 'set-offline-cache-encryption-key': set_offline_cache_encryption_key,
                 'launch-web-auth-flow-in-background': launch_web_auth_flow_in_background
             };
@@ -298,9 +299,20 @@
             if (typeof(activeTabId) === 'undefined') {
                 return;
             }
+            var onError = function(data) {
+                console.log(data);
+            };
 
+            var onSuccess = function() {
+                $timeout(function() {
+                    chrome.tabs.sendMessage(activeTabId, {event: 'secrets-changed', data: {}}, function(response) {
+                        // don't do anything
+                    });
+                }, 500); // delay 500 ms to give the storage a chance to be stored
 
-            managerDatastorePassword.save_password_active_tab(request.data.password);
+            };
+            
+            managerDatastorePassword.save_password_active_tab(request.data.password).then(onSuccess, onError);
         }
 
         /**
@@ -321,7 +333,19 @@
                 return;
             }
 
-            managerDatastorePassword.bookmark_active_tab();
+            var onError = function(data) {
+                console.log(data);
+            };
+
+            var onSuccess = function() {
+                $timeout(function() {
+                    chrome.tabs.sendMessage(activeTabId, {event: 'secrets-changed', data: {}}, function(response) {
+                        // don't do anything
+                    });
+                }, 500); // delay 500 ms to give the storage a chance to be stored
+
+            };
+            managerDatastorePassword.bookmark_active_tab().then(onSuccess, onError);
         }
 
         /**
@@ -684,6 +708,48 @@
             return sendResponse({
                 receiver: pgp_receiver
             });
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerBackground#secret_changed
+         * @methodOf psonocli.managerBackground
+         *
+         * @description
+         * Triggered whenever a secret changed / updated
+         *
+         * @param {object} request The message sent by the calling script.
+         * @param {object} sender The sender of the message
+         * @param {function} sendResponse Function to call (at most once) when you have a response.
+         */
+        function secret_changed(request, sender, sendResponse) {
+            
+            $timeout(function() {
+                var url_filter = '';
+                var url_filter_fields = ['website_password_url_filter', 'bookmark_url_filter'];
+                for (var i = 0; i < url_filter_fields.length; i++) {
+                    if (request.data.hasOwnProperty(url_filter_fields[i])) {
+                        url_filter = request.data[url_filter_fields[i]];
+                        break;
+                    }
+                }
+                if (url_filter) {
+                    chrome.tabs.query({url: '*://'+url_filter+'/*'}, function(tabs) {
+                        for (var i = 0; i < tabs.length; i++) {
+                            chrome.tabs.sendMessage(tabs[i].id, {event: 'secrets-changed', data: {}}, function(response) {
+                                // don't do anything
+                            });
+                        }
+                    });
+                    chrome.tabs.query({url: '*://*.'+url_filter+'/*'}, function(tabs) {
+                        for (var i = 0; i < tabs.length; i++) {
+                            chrome.tabs.sendMessage(tabs[i].id, {event: 'secrets-changed', data: {}}, function(response) {
+                                // don't do anything
+                            });
+                        }
+                    });
+                }
+            }, 300); // delay 300 ms to give the storage a chance to be stored
         }
 
         /**

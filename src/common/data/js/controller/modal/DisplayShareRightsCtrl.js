@@ -6,14 +6,18 @@
      * @name psonocli.controller:ModalDisplayShareRightsCtrl
      * @requires $scope
      * @requires $uibModalInstance
+     * @requires $uibModal
      * @requires psonocli.itemBlueprint
      *
      * @description
      * Controller for the "Display share rights" modal
      */
-    angular.module('psonocli').controller('ModalDisplayShareRightsCtrl', ['$scope', '$uibModalInstance', 'itemBlueprint', 'node', 'path',
+    angular.module('psonocli').controller('ModalDisplayShareRightsCtrl', ['$scope', '$uibModalInstance', '$uibModal',
+        'itemBlueprint', 'storage', 'node', 'path',
         'share_details', 'managerShare', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'languagePicker',
-        function ($scope, $uibModalInstance, itemBlueprint, node, path, share_details, managerShare, DTOptionsBuilder, DTColumnDefBuilder, languagePicker) {
+        function ($scope, $uibModalInstance, $uibModal,
+                  itemBlueprint, storage, node, path,
+                  share_details, managerShare, DTOptionsBuilder, DTColumnDefBuilder, languagePicker) {
 
             $scope.cancel = cancel;
             $scope.delete_right = delete_right;
@@ -51,15 +55,15 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:ModalDisplayShareRightsCtrl#delete_right
+             * @name psonocli.controller:ModalDisplayShareRightsCtrl#delete_right_without_further_warning
              * @methodOf psonocli.controller:ModalDisplayShareRightsCtrl
              *
              * @description
-             * Triggered once someone clicks on the delete button for a share right
+             * Deletes a share right without further warning.
              *
              * @param {object} right The right to delete
              */
-            function delete_right(right) {
+            function delete_right_without_further_warning(right) {
                 var share_rights;
                 var user_share_right_id;
                 var group_share_right_id;
@@ -84,6 +88,50 @@
 
             /**
              * @ngdoc
+             * @name psonocli.controller:ModalDisplayShareRightsCtrl#delete_right
+             * @methodOf psonocli.controller:ModalDisplayShareRightsCtrl
+             *
+             * @description
+             * Triggered once someone clicks on the delete button for a share right
+             *
+             * @param {object} right The right to delete
+             */
+            function delete_right(right) {
+                
+                if (storage.find_key('persistent', 'username').value === right.username) {
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'view/modal/verify.html',
+                        controller: 'ModalVerifyCtrl',
+                        resolve: {
+                            title: function () {
+                                return 'DELETE_SHARE_RIGHT';
+                            },
+                            description: function () {
+                                return 'DELETE_OWN_SHARE_RIGHT_WARNING';
+                            },
+                            entries: function () {
+                                return [right.username];
+                            },
+                            affected_entries_text: function () {
+                                return 'AFFECTED_SHARE_RIGHTS';
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function () {
+                        // User clicked the yes button
+                        return delete_right_without_further_warning(right);
+
+                    }, function () {
+                        // cancel triggered
+                    });
+                } else {
+                    return delete_right_without_further_warning(right);
+                }
+            }
+
+            /**
+             * @ngdoc
              * @name psonocli.controller:ModalDisplayShareRightsCtrl#toggle_right
              * @methodOf psonocli.controller:ModalDisplayShareRightsCtrl
              *
@@ -93,7 +141,7 @@
              * @param {string} type The type of the right e.g. 'read' or 'grant'
              * @param {object} right The right holding object
              */
-            function toggle_right(type, right) {
+            function toggle_right_without_further_warning(type, right) {
 
 
                 var onError = function(data) {
@@ -109,6 +157,52 @@
 
                 managerShare.update_share_right(new_right.share_id, new_right.user_id, new_right.group_id, new_right.read, new_right.write, new_right.grant)
                     .then(onSuccess, onError);
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalDisplayShareRightsCtrl#toggle_right
+             * @methodOf psonocli.controller:ModalDisplayShareRightsCtrl
+             *
+             * @description
+             * Triggered once someone clicks on the right toggle button for a share right
+             *
+             * @param {string} type The type of the right e.g. 'read' or 'grant'
+             * @param {object} right The right holding object
+             */
+            function toggle_right(type, right) {
+                
+                if (type === 'grant' && storage.find_key('persistent', 'username').value === right.username) {
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'view/modal/verify.html',
+                        controller: 'ModalVerifyCtrl',
+                        resolve: {
+                            title: function () {
+                                return 'TOGGLE_GRANT_RIGHT';
+                            },
+                            description: function () {
+                                return 'TOGGLE_OWN_GRANT_RIGHT_WARNING';
+                            },
+                            entries: function () {
+                                return [right.username];
+                            },
+                            affected_entries_text: function () {
+                                return 'AFFECTED_SHARE_RIGHTS';
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function () {
+                        // User clicked the yes button
+                        return toggle_right_without_further_warning(type, right);
+
+                    }, function () {
+                        // cancel triggered
+                    });
+                } else {
+                    return toggle_right_without_further_warning(type, right);
+                }
+
             }
 
         }]);

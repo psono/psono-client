@@ -166,6 +166,7 @@
                 if (filtered_content.hasOwnProperty('secret_id')) {
                     managerSecretLink.move_secret_link(old_link_id, content.data.share_id)
                 } else {
+                    managerSecretLink.reset_secret_link_timeout();
                     managerSecretLink.move_secret_links(filtered_content, content.data.share_id);
                 }
 

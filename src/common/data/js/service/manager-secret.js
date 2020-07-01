@@ -19,7 +19,7 @@
      */
 
     var managerSecret = function($q, $rootScope, $uibModal, managerBase, apiClient, cryptoLibrary,
-                           itemBlueprint, browserClient, offlineCache) {
+                                 itemBlueprint, browserClient, offlineCache) {
 
         /**
          * @ngdoc
@@ -50,8 +50,9 @@
                 // pass
             };
 
-            var onSuccess = function(content) {
-                return {secret_id: content.data.secret_id, secret_key: secret_key};
+            var onSuccess = function(response) {
+                browserClient.emit('secrets-changed', content);
+                return {secret_id: response.data.secret_id, secret_key: secret_key};
             };
 
             return apiClient.create_secret(managerBase.get_token(),
@@ -126,8 +127,9 @@
                 // pass
             };
 
-            var onSuccess = function(content) {
-                return {secret_id: content.data.secret_id};
+            var onSuccess = function(response) {
+                browserClient.emit('secrets-changed', content);
+                return {secret_id: response.data.secret_id};
             };
 
             return apiClient.write_secret(managerBase.get_token(),

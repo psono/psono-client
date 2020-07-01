@@ -12,7 +12,9 @@
      * Service to handle all secret links related tasks
      */
 
-    var managerSecretLink = function($q, managerBase, apiClient) {
+    var managerSecretLink = function($q, $timeout, managerBase, apiClient) {
+        
+        var timeout = 0;
 
         /**
          * @ngdoc
@@ -30,14 +32,33 @@
          */
         var move_secret_links = function(datastore, new_parent_share_id, new_parent_datastore_id) {
             var i;
+            
+            function move_secret_link_timed(link_id, new_parent_share_id, new_parent_datastore_id) {
+                timeout = timeout + 50;
+                $timeout(function(){
+                    move_secret_link(link_id, new_parent_share_id, new_parent_datastore_id)
+                }, timeout);
+            }
+            
             for (i = 0; datastore.hasOwnProperty('folders') && i < datastore['folders'].length; i++) {
                 move_secret_links(datastore['folders'][i], new_parent_share_id, new_parent_datastore_id)
             }
             for (i = 0; datastore.hasOwnProperty('items') && i < datastore['items'].length; i++) {
                 if (datastore['items'][i].hasOwnProperty('secret_id')) {
-                    move_secret_link(datastore['items'][i]['id'], new_parent_share_id, new_parent_datastore_id)
+                    move_secret_link_timed(datastore['items'][i]['id'], new_parent_share_id, new_parent_datastore_id)
                 }
             }
+        };
+        /**
+         * @ngdoc
+         * @name psonocli.managerSecretLink#reset_secret_link_timeout
+         * @methodOf psonocli.managerSecretLink
+         *
+         * @description
+         * Resets the timeout for secret links. need to be called before running move_secret_links
+         */
+        var reset_secret_link_timeout = function() {
+            timeout = 0
         };
 
         /**
@@ -145,6 +166,7 @@
 
         return {
             move_secret_links: move_secret_links,
+            reset_secret_link_timeout: reset_secret_link_timeout,
             move_secret_link: move_secret_link,
             delete_secret_link: delete_secret_link,
             on_secret_moved: on_secret_moved,
@@ -153,6 +175,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerSecretLink", ['$q', 'managerBase', 'apiClient', managerSecretLink]);
+    app.factory("managerSecretLink", ['$q', '$timeout', 'managerBase', 'apiClient', managerSecretLink]);
 
 }(angular));

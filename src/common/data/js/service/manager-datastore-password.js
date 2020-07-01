@@ -536,8 +536,12 @@
          * @param {TreeObject} datastore The datastore tree
          */
         var handle_datastore_content_changed = function (datastore) {
+            
+            var datastore_copy = angular.copy(datastore)
 
-            trigger_registration('save_datastore_content', angular.copy(datastore));
+            update_paths_recursive(datastore_copy, []);
+
+            trigger_registration('save_datastore_content', datastore_copy);
 
             // datastore has changed, so lets regenerate local lookup
             managerDatastore.fill_storage('datastore-password-leafs', datastore, [
@@ -656,6 +660,8 @@
                         datastore.items.push(datastore_object);
 
                         save_datastore_content(datastore, [[]]);
+                        handle_datastore_content_changed(datastore);
+                        
                     }, onError);
             };
 
@@ -697,8 +703,8 @@
                 urlfilter: parsed_url.authority || ''
             };
 
-            var onError = function() {
-                // pass
+            var onError = function(data) {
+                console.log(data);
             };
 
             var onSuccess = function () {
@@ -738,9 +744,6 @@
                     //pass
                 };
                 var onSuccess = function(password) {
-
-                    browserClient.emit_sec('fillpassword-active-tab', {password: password});
-
                     return password;
                 };
 
