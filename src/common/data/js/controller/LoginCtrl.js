@@ -570,8 +570,12 @@
                 }
                 redirect_on_two_fa_missing = two_fa_redirect;
 
-                var onError = function() {
-                    $scope.errors = ['SERVER_OFFLINE']
+                var onError = function(response) {
+                    if (response.data.hasOwnProperty('non_field_errors')) {
+                        $scope.errors = response.data.non_field_errors;
+                    } else {
+                        $scope.errors = ['SERVER_OFFLINE']
+                    }
                 };
 
                 var onSuccess = function(server_check) {
