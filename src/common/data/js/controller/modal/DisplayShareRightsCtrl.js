@@ -98,7 +98,7 @@
              */
             function delete_right(right) {
                 
-                if (storage.find_key('persistent', 'username').value === right.username) {
+                if (storage.find_key('config', 'user_username').value === right.username) {
                     var modalInstance = $uibModal.open({
                         templateUrl: 'view/modal/verify.html',
                         controller: 'ModalVerifyCtrl',
