@@ -32,6 +32,7 @@
             $scope.contextMenuOnClose = contextMenuOnClose;
             $scope.openNewFolder = openNewFolder;
             $scope.openNewItem = openNewItem;
+            $scope.openRecyclingBin = openRecyclingBin;
             $scope.show_share_content = false;
 
             $scope.tosearchTreeFilter = $routeParams.default_search;
@@ -313,6 +314,36 @@
             function update_datastore(datastore) {
                 $scope.structure.data = datastore;
                 managerDatastorePassword.modifyTreeForSearch($scope.tosearchTreeFilter, $scope.structure.data);
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:DatastoreCtrl#openRecyclingBin
+             * @methodOf psonocli.controller:DatastoreCtrl
+             *
+             * @description
+             * Opens the recycling bin modal
+             */
+            function openRecyclingBin() {
+
+                var modalInstance = $uibModal.open({
+                    templateUrl: 'view/modal/recycling-bin.html',
+                    controller: 'ModalRecyclingBinCtrl',
+                    resolve: {
+                        datastore: function() {
+                            return $scope.structure.data;
+                        },
+                        datastore_type: function() {
+                            return 'password';
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function (breadcrumbs) {
+                    // should not really be reached
+                }, function () {
+                    // cancel triggered
+                });
             }
 
             /**

@@ -1,4 +1,5 @@
 {
+  "RECYCLING_BIN": "Recycling Bin",
   "TOGGLE_GRANT_RIGHT": "Toogle Grant Right",
   "TOGGLE_OWN_GRANT_RIGHT_WARNING": "You are about to revoke your own permission to change the permissions of users for this share. Make sure that someone else has grant rights before revoking your own. Are you sure that you want to continue?",
   "DELETE_SHARE_RIGHT": "Delete Share Right",
@@ -192,7 +193,9 @@
   "API_KEY_DETAILS": "API Key Details",
   "API_KEY_DETAIL_EXPLANATION": "Here are all the parameters of the API key.",
   "DELETE_ENTRY_WARNING": "You are about to delete this entry. If this entry is a share and you'd like it to be removed for others as well, remove share rights first before removing this entry. Are you sure?",
+  "DELETE_ENTRY_PERMANENT_WARNING": "You are about to permanently delete this entry. This action cannot be reversed. Are you sure?",
   "DELETE_FOLDER_WARNING": "You are about to delete the folder and all its content. If this folder is a share or contains shares and you'd like them to be removed for others as well, remove share rights first before removing this folder. Are you sure?",
+  "DELETE_FOLDER_PERMANENT_WARNING": "You are about to delete the folder and all its content. This action cannot be reversed. Are you sure?",
   "CHOOSE_SECRET": "Choose secret",
   "ADD_SECRET_TO_API_KEY": "Add secret to API key",
   "DELETE_API_KEY": "Delete API Key",
@@ -583,6 +586,7 @@
   "SUCCESS": "Success",
   "WARNING": "Warning",
   "DELETE": "Delete",
+  "RESTORE": "Restore",
   "GENERATE": "Generate",
   "SERVER": "Server",
   "SECURITY_REPORT": "Security Report",

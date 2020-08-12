@@ -961,8 +961,13 @@
          * @methodOf psonocli.managerWidget
          *
          * @description
-         * Deletes an item (or folder) from a datastore
-         * Takes care that the link structure on the server is updated
+         * Called when an item is supposed to be deleted
+         * 
+         * For Password Datastore:
+         * It will be marked as deleted or really deleted if it is already marked as deleted.
+         * 
+         * For User Datastore:
+         * It will always permanently trigger the deletion
          *
          * @param {TreeObject} datastore The datastore
          * @param {object} item The item to delete
@@ -970,6 +975,176 @@
          * @param {string} datastore_type The type of the datastore (e.g. 'password' or 'user')
          */
         var delete_item = function(datastore, item, path, datastore_type) {
+            if (datastore_type === 'user' || (item.hasOwnProperty('deleted') && item['deleted'])) {
+                delete_item_permanent(datastore, item, path, datastore_type);
+            } else {
+                mark_item_as_deleted(datastore, item, path, datastore_type);
+            }
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerWidget#mark_item_as_deleted
+         * @methodOf psonocli.managerWidget
+         *
+         * @description
+         * Marks an item as deleted
+         *
+         * @param {TreeObject} datastore The datastore
+         * @param {object} item The item to delete
+         * @param {Array} path The path to the item
+         * @param {string} datastore_type The type of the datastore (e.g. 'password' or 'user')
+         */
+        var mark_item_as_deleted = function(datastore, item, path, datastore_type) {
+
+            var onSuccess, onError;
+            var element_path_that_changed = path.slice();
+            element_path_that_changed.pop();
+
+            var search = managerDatastorePassword.find_in_datastore(path.slice(), datastore);
+            var element = search[0][search[1]];
+
+            element['deleted'] = true;
+            
+            var closest_share_info = managerShare.get_closest_parent_share(path.slice(), datastore,
+                datastore, 1);
+
+            var closest_share = closest_share_info['closest_share'];
+            
+            if (datastore_type === 'password') {
+                if (closest_share.hasOwnProperty('share_id')) {
+                    // refresh share content before updating the share
+                    onSuccess = function(content) {
+                        var search = managerDatastorePassword.find_in_datastore(closest_share_info['relative_path'], content.data);
+                        element = search[0][search[1]];
+
+                        element['deleted'] = true;
+                        
+                        managerShare.write_share(closest_share['share_id'], content.data, closest_share['share_secret_key']);
+                        managerDatastorePassword.handle_datastore_content_changed(datastore);
+                    };
+    
+                    onError = function(e) {
+                        // pass
+    
+                    };
+                    managerShare.read_share(closest_share['share_id'], closest_share['share_secret_key'])
+                        .then(onSuccess, onError);
+    
+                } else {
+                    // refresh datastore content before updating it
+                    onError = function(result) {
+                        // pass
+                    };
+    
+                    onSuccess = function (datastore) {
+                        var search = managerDatastorePassword.find_in_datastore(closest_share_info['relative_path'], datastore);
+                        element = search[0][search[1]];
+
+                        element['deleted'] = true;
+    
+                        managerDatastorePassword.save_datastore_content(datastore, [element_path_that_changed]);
+                        managerDatastorePassword.handle_datastore_content_changed(datastore);
+                    };
+    
+                    managerDatastore.get_datastore_with_id(closest_share['datastore_id'])
+                        .then(onSuccess, onError);
+                }
+            } else if(datastore_type === 'user') {
+                managerDatastoreUser.save_datastore_content(datastore, [element_path_that_changed]);
+            }
+            
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerWidget#reverse_mark_item_as_deleted
+         * @methodOf psonocli.managerWidget
+         *
+         * @description
+         * Reverse "Marks an item as deleted"
+         *
+         * @param {TreeObject} datastore The datastore
+         * @param {object} item The item to delete
+         * @param {Array} path The path to the item
+         * @param {string} datastore_type The type of the datastore (e.g. 'password' or 'user')
+         */
+        var reverse_mark_item_as_deleted = function(datastore, item, path, datastore_type) {
+
+            var onSuccess, onError;
+            var element_path_that_changed = path.slice();
+            element_path_that_changed.pop();
+
+            var search = managerDatastorePassword.find_in_datastore(path.slice(), datastore);
+            var element = search[0][search[1]];
+
+            delete element['deleted'];
+            
+            var closest_share_info = managerShare.get_closest_parent_share(path.slice(), datastore,
+                datastore, 1);
+
+            var closest_share = closest_share_info['closest_share'];
+            
+            if (datastore_type === 'password') {
+                if (closest_share.hasOwnProperty('share_id')) {
+                    // refresh share content before updating the share
+                    onSuccess = function(content) {
+                        var search = managerDatastorePassword.find_in_datastore(closest_share_info['relative_path'], content.data);
+                        element = search[0][search[1]];
+
+                        delete element['deleted'];
+                        
+                        managerShare.write_share(closest_share['share_id'], content.data, closest_share['share_secret_key']);
+                        managerDatastorePassword.handle_datastore_content_changed(datastore);
+                    };
+    
+                    onError = function(e) {
+                        // pass
+    
+                    };
+                    managerShare.read_share(closest_share['share_id'], closest_share['share_secret_key'])
+                        .then(onSuccess, onError);
+    
+                } else {
+                    // refresh datastore content before updating it
+                    onError = function(result) {
+                        // pass
+                    };
+    
+                    onSuccess = function (datastore) {
+                        var search = managerDatastorePassword.find_in_datastore(closest_share_info['relative_path'], datastore);
+                        element = search[0][search[1]];
+
+                        delete element['deleted'];
+    
+                        managerDatastorePassword.save_datastore_content(datastore, [element_path_that_changed]);
+                        managerDatastorePassword.handle_datastore_content_changed(datastore);
+                    };
+    
+                    managerDatastore.get_datastore_with_id(closest_share['datastore_id'])
+                        .then(onSuccess, onError);
+                }
+            } else if(datastore_type === 'user') {
+                managerDatastoreUser.save_datastore_content(datastore, [element_path_that_changed]);
+            }
+            
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerWidget#delete_item
+         * @methodOf psonocli.managerWidget
+         *
+         * @description
+         * Deletes an item (or folder) for real from a datastore
+         * Takes care that the link structure on the server is updated
+         *
+         * @param {TreeObject} datastore The datastore
+         * @param {object} item The item to delete
+         * @param {Array} path The path to the item
+         * @param {string} datastore_type The type of the datastore (e.g. 'password' or 'user')
+         */
+        var delete_item_permanent = function(datastore, item, path, datastore_type) {
 
             var i;
             var onSuccess, onError;
@@ -1268,6 +1443,7 @@
             open_edit_item: open_edit_item,
             move_item: move_item,
             delete_item: delete_item,
+            reverse_mark_item_as_deleted: reverse_mark_item_as_deleted,
             item_icon: item_icon
         };
     };

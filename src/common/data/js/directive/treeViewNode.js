@@ -437,7 +437,7 @@
                         // Handle folders
                         '<div>' +
                         '<div ' +
-                        '    ng-mousedown="$event.stopPropagation()" ng-if="!node.hidden"' +
+                        '    ng-mousedown="$event.stopPropagation()" ng-if="!node.hidden && !node.deleted"' +
                         '    class="tree-folder" ng-repeat="node in ' + attrs.treeViewNode + '.data.' + foldersProperty + ' | orderBy:\'' + displayProperty + '\' track by $index">' +
 
                         '<div class="tree-folder-title" data-target="menu-{{ ::node.id }}"' +
@@ -548,7 +548,7 @@
 
                         // Handle items
                         '<div ' +
-                        '   ng-mousedown="$event.stopPropagation()" ng-if="!item.hidden"' +
+                        '   ng-mousedown="$event.stopPropagation()" ng-if="!item.hidden && !item.deleted"' +
                         '   class="tree-item" ng-repeat="item in ' + attrs.treeViewNode + '.data.' + itemsProperty + ' | orderBy:\'' + displayProperty + '\' track by $index">' +
 
                         '<div ng-click="$event.stopPropagation(); editItem(item, $event)" class="tree-item-object" ' +

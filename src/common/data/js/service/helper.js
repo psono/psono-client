@@ -625,6 +625,9 @@
                     if (typeof(datastore_entry.name) === 'undefined') {
                         continue;
                     }
+                    if (datastore_entry.hasOwnProperty('deleted') && datastore_entry['deleted']) {
+                        continue;
+                    }
                     if (datastore_entry.hasOwnProperty('name') && datastore_entry['name'] && datastore_entry['name'].toLowerCase().indexOf(searchStrings[ii]) > -1) {
                         containCounter++;
                     } else if (datastore_entry.hasOwnProperty('urlfilter') && datastore_entry['urlfilter'] && datastore_entry['urlfilter'].toLowerCase().indexOf(searchStrings[ii]) > -1) {
