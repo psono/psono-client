@@ -322,7 +322,11 @@
              * @param {string} size The size of the modal
              */
             function open_new_item (parent, path, size) {
-                managerWidget.open_new_item($scope.structure.data, parent, path, size);
+                if ($scope.datastore_type === 'password') {
+                    managerWidget.open_new_item($scope.structure.data, parent, path, size, managerDatastorePassword);
+                } else if ($scope.datastore_type === 'user') {
+                    managerWidget.open_new_item($scope.structure.data, parent, path, size, managerDatastoreUser);
+                }
             }
 
             /**
@@ -352,7 +356,11 @@
              * @param {string} size The size of the modal
              */
             function open_edit_item (node, path, size) {
-                managerWidget.open_edit_item($scope.structure.data, node, path, size);
+                if ($scope.datastore_type === 'password') {
+                    managerWidget.open_edit_item($scope.structure.data, node, path, size, managerDatastorePassword);
+                } else if ($scope.datastore_type === 'user') {
+                    managerWidget.open_edit_item($scope.structure.data, node, path, size, managerDatastoreUser);
+                }
             }
 
             /**

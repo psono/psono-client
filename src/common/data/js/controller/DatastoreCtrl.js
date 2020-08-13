@@ -387,7 +387,7 @@
              * @param size
              */
             function open_new_item (parent, path, size) {
-                managerWidget.open_new_item($scope.structure.data, parent, path, size);
+                managerWidget.open_new_item($scope.structure.data, parent, path, size, managerDatastorePassword);
             }
 
             function openNewItem(event) {
@@ -402,7 +402,7 @@
              * @param size
              */
             function open_edit_item (node, path, size) {
-                managerWidget.open_edit_item($scope.structure.data, node, path, size);
+                managerWidget.open_edit_item($scope.structure.data, node, path, size, managerDatastorePassword);
             }
 
             /**
@@ -423,7 +423,7 @@
                 var search = managerDatastorePassword.find_in_datastore(paths[0], $scope.structure.data);
                 var node = search[0][search[1]];
 
-                managerWidget.open_edit_item($scope.structure.data, node, paths[0]);
+                managerWidget.open_edit_item($scope.structure.data, node, paths[0], managerDatastorePassword);
             }
 
 

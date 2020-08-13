@@ -1100,6 +1100,24 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastorePassword#get_datastore_with_id
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * Alias for get_password_datastore
+         *
+         * @param {uuid} id The id of the datastore
+         *
+         * @returns {promise} Returns a promise with the datastore
+         */
+        var get_datastore_with_id = function(id) {
+
+            return get_user_datastore();
+        };
+        
+        
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastoreUser#search_user_datastore
          * @methodOf psonocli.managerDatastoreUser
          *
@@ -1925,6 +1943,7 @@
             update_user: update_user,
             recovery_generate_information: recovery_generate_information,
             get_user_datastore: get_user_datastore,
+            get_datastore_with_id: get_datastore_with_id,
             search_user_datastore: search_user_datastore,
             handle_datastore_content_changed: handle_datastore_content_changed,
             save_datastore_content: save_datastore_content,
