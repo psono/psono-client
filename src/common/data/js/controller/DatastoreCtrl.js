@@ -32,6 +32,7 @@
             $scope.contextMenuOnClose = contextMenuOnClose;
             $scope.openNewFolder = openNewFolder;
             $scope.openNewItem = openNewItem;
+            $scope.openRecyclingBin = openRecyclingBin;
             $scope.show_share_content = false;
 
             $scope.tosearchTreeFilter = $routeParams.default_search;
@@ -316,6 +317,36 @@
             }
 
             /**
+             * @ngdoc
+             * @name psonocli.controller:DatastoreCtrl#openRecyclingBin
+             * @methodOf psonocli.controller:DatastoreCtrl
+             *
+             * @description
+             * Opens the recycling bin modal
+             */
+            function openRecyclingBin() {
+
+                var modalInstance = $uibModal.open({
+                    templateUrl: 'view/modal/recycling-bin.html',
+                    controller: 'ModalRecyclingBinCtrl',
+                    resolve: {
+                        datastore: function() {
+                            return $scope.structure.data;
+                        },
+                        datastore_type: function() {
+                            return 'password';
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function (breadcrumbs) {
+                    // should not really be reached
+                }, function () {
+                    // cancel triggered
+                });
+            }
+
+            /**
              * all about the datastore search:
              */
             var filterTimeout;
@@ -356,7 +387,7 @@
              * @param size
              */
             function open_new_item (parent, path, size) {
-                managerWidget.open_new_item($scope.structure.data, parent, path, size);
+                managerWidget.open_new_item($scope.structure.data, parent, path, size, managerDatastorePassword);
             }
 
             function openNewItem(event) {
@@ -371,7 +402,7 @@
              * @param size
              */
             function open_edit_item (node, path, size) {
-                managerWidget.open_edit_item($scope.structure.data, node, path, size);
+                managerWidget.open_edit_item($scope.structure.data, node, path, size, managerDatastorePassword);
             }
 
             /**
@@ -392,7 +423,7 @@
                 var search = managerDatastorePassword.find_in_datastore(paths[0], $scope.structure.data);
                 var node = search[0][search[1]];
 
-                managerWidget.open_edit_item($scope.structure.data, node, paths[0]);
+                managerWidget.open_edit_item($scope.structure.data, node, paths[0], managerDatastorePassword);
             }
 
 

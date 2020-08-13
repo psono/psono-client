@@ -211,7 +211,7 @@
              * @param {string} size The size of the modal
              */
             function open_new_item (parent, path, size) {
-                managerWidget.open_new_item($scope.structure.data, parent, path, size);
+                managerWidget.open_new_item($scope.structure.data, parent, path, size, managerDatastorePassword);
             }
 
             /**
@@ -241,7 +241,7 @@
              * @param {string} size The size of the modal
              */
             function open_edit_item (node, path, size) {
-                managerWidget.open_edit_item($scope.structure.data, node, path, size);
+                managerWidget.open_edit_item($scope.structure.data, node, path, size, managerDatastorePassword);
             }
 
             /**

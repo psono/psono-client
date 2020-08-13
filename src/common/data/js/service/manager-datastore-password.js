@@ -527,6 +527,23 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerDatastorePassword#get_password_datastore
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * Alias for get_password_datastore
+         *
+         * @param {uuid} id The id of the datastore
+         *
+         * @returns {promise} Returns a promise with the datastore
+         */
+        var get_datastore_with_id = function(id) {
+            
+            return get_password_datastore(id);
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.managerDatastorePassword#handle_datastore_content_changed
          * @methodOf psonocli.managerDatastorePassword
          *
@@ -1744,6 +1761,7 @@
         return {
             generate: generate,
             get_password_datastore: get_password_datastore,
+            get_datastore_with_id: get_datastore_with_id,
             save_datastore_content: save_datastore_content,
             handle_datastore_content_changed: handle_datastore_content_changed,
             save_password: save_password,

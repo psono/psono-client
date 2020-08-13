@@ -149,7 +149,7 @@
                         manager.handle_datastore_content_changed(data_structure);
                     };
 
-                    return managerDatastore.get_datastore_with_id(closest_share['datastore_id'])
+                    return manager.get_datastore_with_id(closest_share['datastore_id'])
                         .then(onSuccess, onError);
                 }
 
@@ -264,8 +264,9 @@
          * @param {TreeObject} parent The parent
          * @param {Array} path The path to the parent
          * @param {string} size The size of the modal
+         * @param {Object} manager manager responsible for
          */
-        var open_new_item = function (datastore, parent, path, size) {
+        var open_new_item = function (datastore, parent, path, size, manager) {
 
             if (typeof parent === 'undefined') {
                 parent = datastore;
@@ -392,7 +393,7 @@
                             parent.items.push(datastore_object);
 
                             managerShare.write_share(closest_share['share_id'], content.data, closest_share['share_secret_key']);
-                            managerDatastorePassword.handle_datastore_content_changed(datastore);
+                            manager.handle_datastore_content_changed(datastore);
                         };
 
                         onError = function(e) {
@@ -421,10 +422,10 @@
                             }
                             parent.items.push(datastore_object);
                             managerDatastorePassword.save_datastore_content(datastore, [path]);
-                            managerDatastorePassword.handle_datastore_content_changed(datastore);
+                            manager.handle_datastore_content_changed(datastore);
                         };
 
-                        return managerDatastore.get_datastore_with_id(closest_share['datastore_id'])
+                        return manager.get_datastore_with_id(closest_share['datastore_id'])
                             .then(onSuccess, onError);
                     }
 
@@ -476,8 +477,9 @@
          * @param {object} node The node to edit
          * @param {Array} path The path to the item
          * @param {string} size The size of the modal
+         * @param {Object} manager manager responsible for
          */
-        var open_edit_item = function(datastore, node, path, size) {
+        var open_edit_item = function(datastore, node, path, size, manager) {
 
             var onError = function(result) {
                 console.log(result);
@@ -546,7 +548,7 @@
                                 }
 
                                 managerShare.write_share(closest_share['share_id'], content.data, closest_share['share_secret_key']);
-                                managerDatastorePassword.handle_datastore_content_changed(datastore);
+                                manager.handle_datastore_content_changed(datastore);
                             };
 
                             onError = function(e) {
@@ -583,10 +585,10 @@
                                 }
 
                                 managerDatastorePassword.save_datastore_content(datastore, [path]);
-                                managerDatastorePassword.handle_datastore_content_changed(datastore);
+                                manager.handle_datastore_content_changed(datastore);
                             };
 
-                            return managerDatastore.get_datastore_with_id(closest_share['datastore_id'])
+                            return manager.get_datastore_with_id(closest_share['datastore_id'])
                                 .then(onSuccess, onError);
                         }
 
@@ -662,6 +664,10 @@
          * @returns {boolean} Returns weather its ok to move the item or not
          */
         var canMoveItem = function(element, target) {
+            
+            if (element.hasOwnProperty('type') && element.type === 'user') {
+                return true;
+            }
 
             // prevent the move of shares without grant rights into different shares
             if (element.share_rights.grant === false && element.hasOwnProperty('parent_share_id')
@@ -828,131 +834,144 @@
             if (type !== 'items' && type !== 'folders') {
                 return
             }
+            
+            var onSuccess = function (datastore) {
+                if (target_path === null || typeof(target_path) === 'undefined') {
+                    orig_target_path = [];
+                } else {
+                    orig_target_path = target_path.slice();
+                }
 
-            if (target_path === null || typeof(target_path) === 'undefined') {
-                orig_target_path = [];
-            } else {
-                orig_target_path = target_path.slice();
-            }
+                var target = datastore;
+                if (target_path !== null && typeof(target_path) !== 'undefined') {
+                    // find drop zone
+                    var val1 = managerDatastorePassword.find_in_datastore(target_path, datastore);
+                    target = val1[0][val1[1]];
+                }
 
-            var target = datastore;
-            if (target_path !== null && typeof(target_path) !== 'undefined') {
-                // find drop zone
-                var val1 = managerDatastorePassword.find_in_datastore(target_path, datastore);
-                target = val1[0][val1[1]];
-            }
+                // find element
+                try {
+                    var val2 = managerDatastorePassword.find_in_datastore(item_path, datastore);
+                } catch (e) {
+                    return;
+                }
 
-            // find element
-            try {
-                var val2 = managerDatastorePassword.find_in_datastore(item_path, datastore);
-            } catch (e) {
-                return;
-            }
+                var element = val2[0][val2[1]];
 
-            var element = val2[0][val2[1]];
+                // check if we have folders / items array, otherwise create the array
+                if (!target.hasOwnProperty(type)) {
+                    target[type] = [];
+                }
 
-            // check if we have folders / items array, otherwise create the array
-            if (!target.hasOwnProperty(type)) {
-                target[type] = [];
-            }
+                //prevent the move of shares if rights are not sufficient
+                if (!canMoveFolder(element, target)) {
+                    return;
+                }
 
-            //prevent the move of shares if rights are not sufficient
-            if (!canMoveFolder(element, target)) {
-                return;
-            }
-
-            // add the element to the other folders / items
-            target[type].push(element);
+                // add the element to the other folders / items
+                target[type].push(element);
 
 
-            // delete the array at hte current position
-            val2[0].splice(val2[1], 1);
+                // delete the array at hte current position
+                val2[0].splice(val2[1], 1);
 
-            var target_path_copy = orig_target_path.slice();
-            var target_path_copy2 = orig_target_path.slice();
-            var item_path_copy = orig_item_path.slice();
-            target_path_copy.push(element.id);
-            item_path_copy.push(element.id);
+                var target_path_copy = orig_target_path.slice();
+                var target_path_copy2 = orig_target_path.slice();
+                var item_path_copy = orig_item_path.slice();
+                target_path_copy.push(element.id);
+                item_path_copy.push(element.id);
 
-            // lets populate our child shares that we need to handle
-            var child_shares = [];
-            if (element.hasOwnProperty("share_id")) {
-                //we moved a share
-                child_shares.push({
-                    share: element,
-                    path: []
-                });
-            } else {
-                managerDatastorePassword.get_all_child_shares_by_path([], datastore, child_shares, element);
-            }
-            var secret_links = managerDatastorePassword.get_all_secret_links(element);
-            var file_links = managerDatastorePassword.get_all_file_links(element);
+                // lets populate our child shares that we need to handle
+                var child_shares = [];
+                if (element.hasOwnProperty("share_id")) {
+                    //we moved a share
+                    child_shares.push({
+                        share: element,
+                        path: []
+                    });
+                } else {
+                    managerDatastorePassword.get_all_child_shares_by_path([], datastore, child_shares, element);
+                }
+                var secret_links = managerDatastorePassword.get_all_secret_links(element);
+                var file_links = managerDatastorePassword.get_all_file_links(element);
 
-            // lets update for every child_share the share_index
-            for (i = child_shares.length - 1; i >= 0; i--) {
-                managerDatastorePassword.on_share_moved(
-                    child_shares[i].share.share_id, item_path_copy.concat(child_shares[i].path),
-                    target_path_copy.concat(child_shares[i].path), datastore, 1,
-                    child_shares[i].path.length + 1);
-            }
+                // lets update for every child_share the share_index
+                for (i = child_shares.length - 1; i >= 0; i--) {
+                    managerDatastorePassword.on_share_moved(
+                        child_shares[i].share.share_id, item_path_copy.concat(child_shares[i].path),
+                        target_path_copy.concat(child_shares[i].path), datastore, 1,
+                        child_shares[i].path.length + 1);
+                }
 
-            managerDatastorePassword.update_paths_recursive(datastore, []);
+                managerDatastorePassword.update_paths_recursive(datastore, []);
 
-            // and save everything (before we update the links and might lose some necessary rights)
-            managerDatastorePassword.handle_datastore_content_changed(datastore);
-            managerDatastorePassword.save_datastore_content(datastore, [orig_item_path, orig_target_path]);
+                // and save everything (before we update the links and might lose some necessary rights)
+                if (datastore_type === 'password') {
+                    managerDatastorePassword.handle_datastore_content_changed(datastore);
+                    managerDatastorePassword.save_datastore_content(datastore, [orig_item_path, orig_target_path]);
+                } else {
+                    managerDatastoreUser.save_datastore_content(datastore, [orig_item_path, orig_target_path]);
+                }
 
-            // adjust the links for every child_share (and therefore update the rights)
-            for (i = child_shares.length - 1; i >= 0; i--) {
+                // adjust the links for every child_share (and therefore update the rights)
+                for (i = child_shares.length - 1; i >= 0; i--) {
+                    closest_share_info = managerShare.get_closest_parent_share(
+                        target_path_copy.concat(child_shares[i].path), datastore, datastore, 1
+                    );
+                    closest_parent = closest_share_info['closest_share'];
+
+                    managerShareLink.on_share_moved(child_shares[i].share.id, closest_parent);
+                }
+
+                // if parent_share or parent_datastore did not change, then we are done here
+                if (!check_if_parent_changed(element, target)) {
+                    return;
+                }
+
+                // adjust the links for every secret link (and therefore update the rights)
+                for (i = secret_links.length - 1; i >= 0; i--) {
+                    closest_share_info = managerShare.get_closest_parent_share(
+                        target_path_copy2.concat(secret_links[i].path), datastore, datastore, 1
+                    );
+                    closest_parent = closest_share_info['closest_share'];
+                    managerSecretLink.on_secret_moved(secret_links[i].id, closest_parent);
+                }
+
+                // adjust the links for every secret link (and therefore update the rights)
+                for (i = file_links.length - 1; i >= 0; i--) {
+                    closest_share_info = managerShare.get_closest_parent_share(
+                        target_path_copy2.concat(file_links[i].path), datastore, datastore, 1
+                    );
+                    closest_parent = closest_share_info['closest_share'];
+                    managerFileLink.on_file_moved(file_links[i].id, closest_parent);
+                }
+
+                // update the parents inside of the new target
                 closest_share_info = managerShare.get_closest_parent_share(
-                    target_path_copy.concat(child_shares[i].path), datastore, datastore, 1
+                    target_path_copy2, datastore, datastore, 0
                 );
                 closest_parent = closest_share_info['closest_share'];
 
-                managerShareLink.on_share_moved(child_shares[i].share.id, closest_parent);
+                var new_parent_datastore_id = undefined;
+                var new_parent_share_id = undefined;
+                if (closest_parent.hasOwnProperty('datastore_id')) {
+                    new_parent_datastore_id = closest_parent.datastore_id;
+                } else {
+                    new_parent_share_id = closest_parent.share_id;
+                }
+
+                element.parent_datastore_id = new_parent_datastore_id;
+                element.parent_share_id = new_parent_share_id;
+
+                managerDatastorePassword.update_parents(element, new_parent_share_id, new_parent_datastore_id);
             }
-
-            // if parent_share or parent_datastore did not change, then we are done here
-            if (!check_if_parent_changed(element, target)) {
-                return;
-            }
-
-            // adjust the links for every secret link (and therefore update the rights)
-            for (i = secret_links.length - 1; i >= 0; i--) {
-                closest_share_info = managerShare.get_closest_parent_share(
-                    target_path_copy2.concat(secret_links[i].path), datastore, datastore, 1
-                );
-                closest_parent = closest_share_info['closest_share'];
-                managerSecretLink.on_secret_moved(secret_links[i].id, closest_parent);
-            }
-
-            // adjust the links for every secret link (and therefore update the rights)
-            for (i = file_links.length - 1; i >= 0; i--) {
-                closest_share_info = managerShare.get_closest_parent_share(
-                    target_path_copy2.concat(file_links[i].path), datastore, datastore, 1
-                );
-                closest_parent = closest_share_info['closest_share'];
-                managerFileLink.on_file_moved(file_links[i].id, closest_parent);
-            }
-
-            // update the parents inside of the new target
-            closest_share_info = managerShare.get_closest_parent_share(
-                target_path_copy2, datastore, datastore, 0
-            );
-            closest_parent = closest_share_info['closest_share'];
-
-            var new_parent_datastore_id = undefined;
-            var new_parent_share_id = undefined;
-            if (closest_parent.hasOwnProperty('datastore_id')) {
-                new_parent_datastore_id = closest_parent.datastore_id;
+            
+            
+            if (datastore_type === 'password') {
+                managerDatastorePassword.get_password_datastore(datastore.datastore_id).then(onSuccess);
             } else {
-                new_parent_share_id = closest_parent.share_id;
+                managerDatastore.get_datastore_with_id(datastore.datastore_id).then(onSuccess);
             }
-
-            element.parent_datastore_id = new_parent_datastore_id;
-            element.parent_share_id = new_parent_share_id;
-
-            managerDatastorePassword.update_parents(element, new_parent_share_id, new_parent_datastore_id);
         };
 
         /**
@@ -961,8 +980,13 @@
          * @methodOf psonocli.managerWidget
          *
          * @description
-         * Deletes an item (or folder) from a datastore
-         * Takes care that the link structure on the server is updated
+         * Called when an item is supposed to be deleted
+         * 
+         * For Password Datastore:
+         * It will be marked as deleted or really deleted if it is already marked as deleted.
+         * 
+         * For User Datastore:
+         * It will always permanently trigger the deletion
          *
          * @param {TreeObject} datastore The datastore
          * @param {object} item The item to delete
@@ -970,6 +994,176 @@
          * @param {string} datastore_type The type of the datastore (e.g. 'password' or 'user')
          */
         var delete_item = function(datastore, item, path, datastore_type) {
+            if (datastore_type === 'user' || (item.hasOwnProperty('deleted') && item['deleted'])) {
+                delete_item_permanent(datastore, item, path, datastore_type);
+            } else {
+                mark_item_as_deleted(datastore, item, path, datastore_type);
+            }
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerWidget#mark_item_as_deleted
+         * @methodOf psonocli.managerWidget
+         *
+         * @description
+         * Marks an item as deleted
+         *
+         * @param {TreeObject} datastore The datastore
+         * @param {object} item The item to delete
+         * @param {Array} path The path to the item
+         * @param {string} datastore_type The type of the datastore (e.g. 'password' or 'user')
+         */
+        var mark_item_as_deleted = function(datastore, item, path, datastore_type) {
+
+            var onSuccess, onError;
+            var element_path_that_changed = path.slice();
+            element_path_that_changed.pop();
+
+            var search = managerDatastorePassword.find_in_datastore(path.slice(), datastore);
+            var element = search[0][search[1]];
+
+            element['deleted'] = true;
+            
+            var closest_share_info = managerShare.get_closest_parent_share(path.slice(), datastore,
+                datastore, 1);
+
+            var closest_share = closest_share_info['closest_share'];
+            
+            if (datastore_type === 'password') {
+                if (closest_share.hasOwnProperty('share_id')) {
+                    // refresh share content before updating the share
+                    onSuccess = function(content) {
+                        var search = managerDatastorePassword.find_in_datastore(closest_share_info['relative_path'], content.data);
+                        element = search[0][search[1]];
+
+                        element['deleted'] = true;
+                        
+                        managerShare.write_share(closest_share['share_id'], content.data, closest_share['share_secret_key']);
+                        managerDatastorePassword.handle_datastore_content_changed(datastore);
+                    };
+    
+                    onError = function(e) {
+                        // pass
+    
+                    };
+                    managerShare.read_share(closest_share['share_id'], closest_share['share_secret_key'])
+                        .then(onSuccess, onError);
+    
+                } else {
+                    // refresh datastore content before updating it
+                    onError = function(result) {
+                        // pass
+                    };
+    
+                    onSuccess = function (datastore) {
+                        var search = managerDatastorePassword.find_in_datastore(closest_share_info['relative_path'], datastore);
+                        element = search[0][search[1]];
+
+                        element['deleted'] = true;
+    
+                        managerDatastorePassword.save_datastore_content(datastore, [element_path_that_changed]);
+                        managerDatastorePassword.handle_datastore_content_changed(datastore);
+                    };
+    
+                    managerDatastore.get_datastore_with_id(closest_share['datastore_id'])
+                        .then(onSuccess, onError);
+                }
+            } else if(datastore_type === 'user') {
+                managerDatastoreUser.save_datastore_content(datastore, [element_path_that_changed]);
+            }
+            
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerWidget#reverse_mark_item_as_deleted
+         * @methodOf psonocli.managerWidget
+         *
+         * @description
+         * Reverse "Marks an item as deleted"
+         *
+         * @param {TreeObject} datastore The datastore
+         * @param {object} item The item to delete
+         * @param {Array} path The path to the item
+         * @param {string} datastore_type The type of the datastore (e.g. 'password' or 'user')
+         */
+        var reverse_mark_item_as_deleted = function(datastore, item, path, datastore_type) {
+
+            var onSuccess, onError;
+            var element_path_that_changed = path.slice();
+            element_path_that_changed.pop();
+
+            var search = managerDatastorePassword.find_in_datastore(path.slice(), datastore);
+            var element = search[0][search[1]];
+
+            delete element['deleted'];
+            
+            var closest_share_info = managerShare.get_closest_parent_share(path.slice(), datastore,
+                datastore, 1);
+
+            var closest_share = closest_share_info['closest_share'];
+            
+            if (datastore_type === 'password') {
+                if (closest_share.hasOwnProperty('share_id')) {
+                    // refresh share content before updating the share
+                    onSuccess = function(content) {
+                        var search = managerDatastorePassword.find_in_datastore(closest_share_info['relative_path'], content.data);
+                        element = search[0][search[1]];
+
+                        delete element['deleted'];
+                        
+                        managerShare.write_share(closest_share['share_id'], content.data, closest_share['share_secret_key']);
+                        managerDatastorePassword.handle_datastore_content_changed(datastore);
+                    };
+    
+                    onError = function(e) {
+                        // pass
+    
+                    };
+                    managerShare.read_share(closest_share['share_id'], closest_share['share_secret_key'])
+                        .then(onSuccess, onError);
+    
+                } else {
+                    // refresh datastore content before updating it
+                    onError = function(result) {
+                        // pass
+                    };
+    
+                    onSuccess = function (datastore) {
+                        var search = managerDatastorePassword.find_in_datastore(closest_share_info['relative_path'], datastore);
+                        element = search[0][search[1]];
+
+                        delete element['deleted'];
+    
+                        managerDatastorePassword.save_datastore_content(datastore, [element_path_that_changed]);
+                        managerDatastorePassword.handle_datastore_content_changed(datastore);
+                    };
+    
+                    managerDatastore.get_datastore_with_id(closest_share['datastore_id'])
+                        .then(onSuccess, onError);
+                }
+            } else if(datastore_type === 'user') {
+                managerDatastoreUser.save_datastore_content(datastore, [element_path_that_changed]);
+            }
+            
+        }
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerWidget#delete_item
+         * @methodOf psonocli.managerWidget
+         *
+         * @description
+         * Deletes an item (or folder) for real from a datastore
+         * Takes care that the link structure on the server is updated
+         *
+         * @param {TreeObject} datastore The datastore
+         * @param {object} item The item to delete
+         * @param {Array} path The path to the item
+         * @param {string} datastore_type The type of the datastore (e.g. 'password' or 'user')
+         */
+        var delete_item_permanent = function(datastore, item, path, datastore_type) {
 
             var i;
             var onSuccess, onError;
@@ -1268,6 +1462,7 @@
             open_edit_item: open_edit_item,
             move_item: move_item,
             delete_item: delete_item,
+            reverse_mark_item_as_deleted: reverse_mark_item_as_deleted,
             item_icon: item_icon
         };
     };

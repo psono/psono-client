@@ -396,12 +396,22 @@
             if(typeof folder === 'undefined') {
                 return;
             }
+            
+            if (folder.hasOwnProperty('deleted') && folder['deleted']) {
+                return;
+            }
+            
             var i;
             for (i = 0; folder.hasOwnProperty("folders") && i < folder.folders.length; i ++) {
                 add_node_to_storage(db, folder.folders[i], map);
             }
 
             for (i = 0; folder.hasOwnProperty("items") && i < folder.items.length; i++) {
+                
+                if (folder.items[i].hasOwnProperty('deleted') && folder.items[i]['deleted']) {
+                    continue;
+                }
+                
                 var item = {};
 
                 for (var m = 0; m < map.length; m++) {

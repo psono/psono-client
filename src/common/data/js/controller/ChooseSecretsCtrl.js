@@ -261,7 +261,7 @@
              * @param {string} size The size of the modal
              */
             function open_new_item (parent, path, size) {
-                managerWidget.open_new_item($scope.structure.data, parent, path, size);
+                managerWidget.open_new_item($scope.structure.data, parent, path, size, managerDatastorePassword);
             }
 
             /**
