@@ -6,13 +6,18 @@
      * @name psonocli.controller:ModalRecyclingBinCtrl
      * @requires $scope
      * @requires $uibModalInstance
+     * @requires managerWidget
+     * @requires helper
      * @requires datastore
+     * @requires datastore_type
      *
      * @description
      * Controller for the "Recycling Bin" modal
      */
-    angular.module('psonocli').controller('ModalRecyclingBinCtrl', ['$scope', '$uibModal', '$uibModalInstance', 'managerWidget', 'datastore', 'datastore_type',
-        function ($scope, $uibModal, $uibModalInstance, managerWidget, datastore, datastore_type) {
+    angular.module('psonocli').controller('ModalRecyclingBinCtrl', ['$scope', '$uibModal', '$uibModalInstance',
+        'managerWidget', 'helper', 'datastore', 'datastore_type',
+        function ($scope, $uibModal, $uibModalInstance,
+                  managerWidget, helper, datastore, datastore_type) {
 
             $scope.errors = [];
             $scope.data = {
@@ -45,6 +50,10 @@
                 }
 
                 if (folder.hasOwnProperty('deleted') && folder['deleted']) {
+                    if (!folder.hasOwnProperty('share_rights') || !folder.share_rights.delete) {
+                        return;
+                    }
+                    
                     $scope.data['recycling_bin_entries'].push({
                         "path": path,
                         "item": folder,
@@ -68,6 +77,9 @@
                     path_copy = path.slice();
                     path_copy.push(folder.items[i].id)
 
+                    if (!folder.items[i].hasOwnProperty('share_rights') || !folder.items[i].share_rights.delete) {
+                        continue;
+                    }
                     $scope.data['recycling_bin_entries'].push({
                         "path": path_copy,
                         "item": folder.items[i],
@@ -86,6 +98,10 @@
              */
             function restore_entry(entry) {
                 managerWidget.reverse_mark_item_as_deleted(datastore, entry['item'], entry['path'], datastore_type)
+                helper.remove_from_array($scope.data['recycling_bin_entries'], entry, function(a, b){
+                    return a.item.id === b.item.id;
+                });
+                
             }
 
             /**
@@ -142,6 +158,10 @@
                 modalInstance.result.then(function () {
                     // User clicked the yes button
                     managerWidget.delete_item(datastore, entry['item'], entry['path'], datastore_type)
+
+                    helper.remove_from_array($scope.data['recycling_bin_entries'], entry, function(a, b){
+                        return a.item.id === b.item.id;
+                    });
                 }, function () {
                     // cancel triggered
                 });
