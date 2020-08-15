@@ -171,7 +171,7 @@
              */
             function toggle_right(type, right) {
                 
-                if (type === 'grant' && storage.find_key('persistent', 'username').value === right.username) {
+                if (type === 'grant' && storage.find_key('config', 'user_username').value === right.username) {
                     var modalInstance = $uibModal.open({
                         templateUrl: 'view/modal/verify.html',
                         controller: 'ModalVerifyCtrl',
