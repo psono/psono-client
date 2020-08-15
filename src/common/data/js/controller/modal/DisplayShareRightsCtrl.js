@@ -132,7 +132,7 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:ModalDisplayShareRightsCtrl#toggle_right
+             * @name psonocli.controller:ModalDisplayShareRightsCtrl#toggle_right_without_further_warning
              * @methodOf psonocli.controller:ModalDisplayShareRightsCtrl
              *
              * @description
@@ -142,7 +142,6 @@
              * @param {object} right The right holding object
              */
             function toggle_right_without_further_warning(type, right) {
-
 
                 var onError = function(data) {
                     // pass
