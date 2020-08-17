@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-wget https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js -O src/common/data/js/lib/jquery.min.js
+wget https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js -O src/common/data/js/lib/jquery.min.js
 wget https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js -O src/common/data/js/lib/jquery-ui.min.js
 wget https://raw.githubusercontent.com/angular-ui/bootstrap-bower/2.5.0/ui-bootstrap-tpls.min.js -O src/common/data/js/lib/ui-bootstrap-tpls.min.js
 wget https://raw.githubusercontent.com/angular-ui/bootstrap/gh-pages/ui-bootstrap-2.5.0-csp.css -O src/common/data/css/lib/ui-bootstrap-csp.css
