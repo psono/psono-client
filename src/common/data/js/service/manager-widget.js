@@ -7,6 +7,7 @@
      * @requires $rootScope
      * @requires $window
      * @requires $uibModal
+     * @requires $timeout
      * @requires psonocli.managerDatastorePassword
      * @requires psonocli.managerDatastoreUser
      * @requires psonocli.managerDatastore
@@ -22,7 +23,7 @@
      * Service that is something like the base class for adf widgets
      */
 
-    var managerWidget = function ($rootScope, $window, $uibModal, managerDatastorePassword, managerDatastoreUser,
+    var managerWidget = function ($rootScope, $window, $uibModal, $timeout, managerDatastorePassword, managerDatastoreUser,
                                   managerDatastore, managerShare, managerSecret, managerShareLink,
                                   managerSecretLink, managerFileLink, itemBlueprint, cryptoLibrary) {
 
@@ -913,14 +914,22 @@
                     managerDatastoreUser.save_datastore_content(datastore, [orig_item_path, orig_target_path]);
                 }
 
+
+                var timeout = 0;
+
                 // adjust the links for every child_share (and therefore update the rights)
                 for (i = child_shares.length - 1; i >= 0; i--) {
-                    closest_share_info = managerShare.get_closest_parent_share(
-                        target_path_copy.concat(child_shares[i].path), datastore, datastore, 1
-                    );
-                    closest_parent = closest_share_info['closest_share'];
+                    (function(child_share) {
+                        timeout = timeout + 50;
+                        $timeout(function(){
+                            closest_share_info = managerShare.get_closest_parent_share(
+                                target_path_copy.concat(child_share.path), datastore, datastore, 1
+                            );
+                            closest_parent = closest_share_info['closest_share'];
 
-                    managerShareLink.on_share_moved(child_shares[i].share.id, closest_parent);
+                            managerShareLink.on_share_moved(child_share.share.id, closest_parent);
+                        }, timeout);
+                    })(child_shares[i])
                 }
 
                 // if parent_share or parent_datastore did not change, then we are done here
@@ -930,20 +939,30 @@
 
                 // adjust the links for every secret link (and therefore update the rights)
                 for (i = secret_links.length - 1; i >= 0; i--) {
-                    closest_share_info = managerShare.get_closest_parent_share(
-                        target_path_copy2.concat(secret_links[i].path), datastore, datastore, 1
-                    );
-                    closest_parent = closest_share_info['closest_share'];
-                    managerSecretLink.on_secret_moved(secret_links[i].id, closest_parent);
+                    (function(secret_link) {
+                        timeout = timeout + 50;
+                        $timeout(function(){
+                            closest_share_info = managerShare.get_closest_parent_share(
+                                target_path_copy2.concat(secret_link.path), datastore, datastore, 1
+                            );
+                            closest_parent = closest_share_info['closest_share'];
+                            managerSecretLink.on_secret_moved(secret_link.id, closest_parent);
+                        }, timeout);
+                    })(secret_links[i])
                 }
 
-                // adjust the links for every secret link (and therefore update the rights)
+                // adjust the links for every file link (and therefore update the rights)
                 for (i = file_links.length - 1; i >= 0; i--) {
-                    closest_share_info = managerShare.get_closest_parent_share(
-                        target_path_copy2.concat(file_links[i].path), datastore, datastore, 1
-                    );
-                    closest_parent = closest_share_info['closest_share'];
-                    managerFileLink.on_file_moved(file_links[i].id, closest_parent);
+                    (function(file_link) {
+                        timeout = timeout + 50;
+                        $timeout(function(){
+                            closest_share_info = managerShare.get_closest_parent_share(
+                                target_path_copy2.concat(file_link.path), datastore, datastore, 1
+                            );
+                            closest_parent = closest_share_info['closest_share'];
+                            managerFileLink.on_file_moved(file_link.id, closest_parent);
+                        }, timeout);
+                    })(file_links[i])
                 }
 
                 // update the parents inside of the new target
@@ -968,9 +987,9 @@
             
             
             if (datastore_type === 'password') {
-                managerDatastorePassword.get_password_datastore(datastore.datastore_id).then(onSuccess);
+                return managerDatastorePassword.get_password_datastore(datastore.datastore_id).then(onSuccess);
             } else {
-                managerDatastore.get_datastore_with_id(datastore.datastore_id).then(onSuccess);
+                return managerDatastore.get_datastore_with_id(datastore.datastore_id).then(onSuccess);
             }
         };
 
@@ -1227,19 +1246,36 @@
 
                         managerShare.write_share(closest_share['share_id'], content.data, closest_share['share_secret_key']);
 
+                        var timeout = 0;
+                        
                         // Update all the "links" so the server has the updated link structure
                         // adjust the links for every child_share (and therefore update the rights)
                         for (i = child_shares.length - 1; i >= 0; i--) {
-                            managerShareLink.on_share_deleted(child_shares[i].share.id);
+                            (function(child_share) {
+                                timeout = timeout + 50;
+                                $timeout(function(){
+                                    managerShareLink.on_share_deleted(child_share.share.id);
+                                }, timeout);
+                            })(child_shares[i])
                         }
                         // adjust the links for every secret link (and therefore update the rights)
                         for (i = secret_links.length - 1; i >= 0; i--) {
-                            managerSecretLink.on_secret_deleted(secret_links[i].id);
+                            (function(secret_link) {
+                                timeout = timeout + 50;
+                                $timeout(function(){
+                                    managerSecretLink.on_secret_deleted(secret_link.id);
+                                }, timeout);
+                            })(secret_links[i])
                         }
 
-                        // adjust the links for every secret link (and therefore update the rights)
+                        // adjust the links for every file link (and therefore update the rights)
                         for (i = file_links.length - 1; i >= 0; i--) {
-                            managerFileLink.on_file_deleted(file_links[i].id);
+                            (function(file_link) {
+                                timeout = timeout + 50;
+                                $timeout(function(){
+                                    managerFileLink.on_file_deleted(file_link.id);
+                                }, timeout);
+                            })(file_links[i])
                         }
                         managerDatastorePassword.handle_datastore_content_changed(datastore);
                     };
@@ -1248,7 +1284,7 @@
                         // pass
 
                     };
-                    managerShare.read_share(closest_share['share_id'], closest_share['share_secret_key'])
+                    return managerShare.read_share(closest_share['share_id'], closest_share['share_secret_key'])
                         .then(onSuccess, onError);
 
                 } else {
@@ -1290,28 +1326,46 @@
 
                         managerDatastorePassword.save_datastore_content(datastore, [element_path_that_changed]);
 
+                        var timeout = 0;
+                        
                         // Update all the "links" so the server has the updated link structure
                         // adjust the links for every child_share (and therefore update the rights)
                         for (i = child_shares.length - 1; i >= 0; i--) {
-                            managerShareLink.on_share_deleted(child_shares[i].share.id);
+                            (function(child_share) {
+                                timeout = timeout + 50;
+                                $timeout(function(){
+                                    managerShareLink.on_share_deleted(child_share.share.id);
+                                }, timeout);
+                            })(child_shares[i])
                         }
                         // adjust the links for every secret link (and therefore update the rights)
                         for (i = secret_links.length - 1; i >= 0; i--) {
-                            managerSecretLink.on_secret_deleted(secret_links[i].id);
+                            (function(secret_link) {
+                                timeout = timeout + 50;
+                                $timeout(function(){
+                                    managerSecretLink.on_secret_deleted(secret_link.id);
+                                }, timeout);
+                            })(secret_links[i])
                         }
 
-                        // adjust the links for every secret link (and therefore update the rights)
+                        // adjust the links for every file link (and therefore update the rights)
                         for (i = file_links.length - 1; i >= 0; i--) {
-                            managerFileLink.on_file_deleted(file_links[i].id);
+                            (function(file_link) {
+                                timeout = timeout + 50;
+                                $timeout(function(){
+                                    managerFileLink.on_file_deleted(file_link.id);
+                                }, timeout);
+                            })(file_links[i])
                         }
+                        
                         managerDatastorePassword.handle_datastore_content_changed(datastore);
                     };
 
-                    managerDatastore.get_datastore_with_id(closest_share['datastore_id'])
+                    return managerDatastore.get_datastore_with_id(closest_share['datastore_id'])
                         .then(onSuccess, onError);
                 }
             } else if(datastore_type === 'user') {
-                managerDatastoreUser.save_datastore_content(datastore, [element_path_that_changed]);
+                return managerDatastoreUser.save_datastore_content(datastore, [element_path_that_changed]);
             }
         };
 
@@ -1468,7 +1522,7 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerWidget", ['$rootScope', '$window', '$uibModal', 'managerDatastorePassword', 'managerDatastoreUser',
+    app.factory("managerWidget", ['$rootScope', '$window', '$uibModal', '$timeout', 'managerDatastorePassword', 'managerDatastoreUser',
         'managerDatastore', 'managerShare', 'managerSecret',
         'managerShareLink', 'managerSecretLink', 'managerFileLink', 'itemBlueprint', 'cryptoLibrary', managerWidget]);
 
