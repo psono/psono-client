@@ -401,7 +401,7 @@
          */
         var hide_sub_share_content = function (share) {
 
-            var allowed_props = ['id', 'name', 'share_id', 'share_secret_key'];
+            var allowed_props = ['id', 'name', 'share_id', 'share_secret_key', 'deleted'];
 
             for (var share_id in share.share_index) {
                 if (!share.share_index.hasOwnProperty(share_id)) {

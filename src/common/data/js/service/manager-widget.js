@@ -1170,7 +1170,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerWidget#delete_item
+         * @name psonocli.managerWidget#delete_item_permanent
          * @methodOf psonocli.managerWidget
          *
          * @description
