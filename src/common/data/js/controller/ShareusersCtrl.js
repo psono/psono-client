@@ -225,7 +225,7 @@
                 }
                 filterTimeout = $timeout(function() {
                     managerDatastorePassword.modifyTreeForSearch(newValue, $scope.structure.data);
-                }, 500); // delay 300 ms
+                }, 300); // delay 300 ms
             });
 
             /**
