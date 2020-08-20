@@ -1626,6 +1626,10 @@
             if (typeof(newValue) === 'undefined' || typeof(searchTree) === 'undefined') {
                 return;
             }
+            
+            if (newValue.length < 3) {
+                newValue = ''
+            }
 
             var show = false;
 
