@@ -113,17 +113,17 @@
 
             // inspired by https://stackoverflow.com/questions/948172/password-strength-meter
             var variations = {
-                digits: /\d/.test(secret.website_password_password),
-                lower: /[a-z]/.test(secret.website_password_password),
-                upper: /[A-Z]/.test(secret.website_password_password),
-                nonWords: /\W/.test(secret.website_password_password)
+                digits: /\d/.test(secret.password),
+                lower: /[a-z]/.test(secret.password),
+                upper: /[A-Z]/.test(secret.password),
+                nonWords: /\W/.test(secret.password)
             };
             var variation_count = 0;
             for (var check in variations) {
                 variation_count += (variations[check] === true) ? 1 : 0;
             }
 
-            if (!secret.website_password_password) {
+            if (!secret.password) {
                 // empty password
                 return {
                     score: _MAX_SCORE,
@@ -133,42 +133,42 @@
                 };
             }
 
-            if (secret.website_password_password.length <= _MIN_PASSWORD_LENGTH) {
+            if (secret.password.length <= _MIN_PASSWORD_LENGTH) {
                 return {
                     score: _MIN_SCORE,
                     advise: 'SET_LONGER_PASSWORD',
-                    password_length: secret.website_password_password.length,
+                    password_length: secret.password.length,
                     variation_count: variation_count,
                     min_password_length: _MIN_PASSWORD_LENGTH
                 };
             }
 
-            if (secret.website_password_username && secret.website_password_username !== '' && secret.website_password_password.toLowerCase().indexOf(secret.website_password_username.toLowerCase()) !== -1) {
+            if (secret.username && secret.username !== '' && secret.password.toLowerCase().indexOf(secret.username.toLowerCase()) !== -1) {
                 return {
                     score:0,
                     advise: 'REMOVE_USERNAME_FROM_PASSWORD',
-                    password_length: secret.website_password_password.length,
+                    password_length: secret.password.length,
                     variation_count: variation_count
                 };
             }
 
-            if (secret.website_password_password.length >= _MAX_PASSWORD_LENGTH) {
+            if (secret.password.length >= _MAX_PASSWORD_LENGTH) {
                 return {
                     score: _MAX_SCORE,
                     advise: '',
-                    password_length: secret.website_password_password.length,
+                    password_length: secret.password.length,
                     variation_count: variation_count,
                     max_password_length: _MAX_PASSWORD_LENGTH
                 };
             }
 
-            var score = (secret.website_password_password.length - _MIN_PASSWORD_LENGTH) * _MAX_SCORE /(_MAX_PASSWORD_LENGTH - _MIN_PASSWORD_LENGTH);
+            var score = (secret.password.length - _MIN_PASSWORD_LENGTH) * _MAX_SCORE /(_MAX_PASSWORD_LENGTH - _MIN_PASSWORD_LENGTH);
 
-            if (secret.website_password_password.length <= _MIN_VARIATION_ENFORCE_PASSWORD_LENGTH && variation_count < _MIN_VARIATION_LENGTH) {
+            if (secret.password.length <= _MIN_VARIATION_ENFORCE_PASSWORD_LENGTH && variation_count < _MIN_VARIATION_LENGTH) {
                 return {
                     score: Math.round(Math.max(Math.min(score * (1 - (_MIN_VARIATION_LENGTH - variation_count)*_VARIATION_PENALTY), _MAX_SCORE), _MIN_SCORE) * 10) / 10,
                     advise: 'SET_LONGER_OR_MORE_COMPLEX_PASSWORD',
-                    password_length: secret.website_password_password.length,
+                    password_length: secret.password.length,
                     variation_count: variation_count
                 };
             }
@@ -176,46 +176,67 @@
             return {
                 score: Math.round(Math.max(Math.min(score, _MAX_SCORE), _MIN_SCORE) * 10) / 10,
                 advise: 'SET_LONGER_PASSWORD_10',
-                password_length: secret.website_password_password.length,
+                password_length: secret.password.length,
                 variation_count: variation_count
             };
         };
 
         /**
          * @ngdoc
-         * @name psonocli.managerSecurityReport#filter_website_passwords_helper
+         * @name psonocli.managerSecurityReport#filter_passwords_helper
          * @methodOf psonocli.managerSecurityReport
          *
          * @description
          * Little helper functions that will filter a folder object recursive and fills all found website passwords
-         * into the provided website_passwords array
+         * into the provided passwords array
          *
          * @param {object} folder The folder to filter
-         * @param {Array} website_passwords The array into which all website_passwords should be put in
+         * @param {Array} passwords The array into which all passwords should be put in
          */
-        var filter_website_passwords_helper = function(folder, website_passwords) {
+        var filter_passwords_helper = function(folder, passwords) {
             var i;
 
             for (i = 0; folder.hasOwnProperty('items') && i < folder['items'].length; i++) {
-                if (folder['items'][i]['type'] !== 'website_password') {
+                if (folder['items'][i]['type'] !== 'website_password' && folder['items'][i]['type'] !== 'application_password') {
                     continue;
                 }
                 if (!folder['items'][i].hasOwnProperty('create_date')) {
                     // we have no copy from the server, this usually means we received a 403
                     continue
                 }
-                folder['items'][i]['master_password'] = false;
-                website_passwords.push(folder['items'][i]);
+                
+                if (folder['items'][i]['type'] === 'application_password') {
+                    passwords.push({
+                        'type': folder['items'][i]['type'],
+                        'name': folder['items'][i]['name'],
+                        'username': folder['items'][i]['application_password_username'],
+                        'password': folder['items'][i]['application_password_password'],
+                        'create_date': folder['items'][i]['create_date'],
+                        'write_date': folder['items'][i]['write_date'],
+                        'master_password': false,
+                    });
+                } else {
+
+                    passwords.push({
+                        'type': folder['items'][i]['type'],
+                        'name': folder['items'][i]['name'],
+                        'username': folder['items'][i]['website_password_username'],
+                        'password': folder['items'][i]['website_password_password'],
+                        'create_date': folder['items'][i]['create_date'],
+                        'write_date': folder['items'][i]['write_date'],
+                        'master_password': false,
+                    });
+                }
             }
 
             for (i = 0; folder.hasOwnProperty('folders') && i < folder['folders'].length; i++) {
-                filter_website_passwords_helper(folder['folders'][i], website_passwords);
+                filter_passwords_helper(folder['folders'][i], passwords);
             }
         };
 
         /**
          * @ngdoc
-         * @name psonocli.managerSecurityReport#filter_website_passwords
+         * @name psonocli.managerSecurityReport#filter_passwords
          * @methodOf psonocli.managerSecurityReport
          *
          * @description
@@ -225,22 +246,23 @@
          *
          * @returns {Array} Returns an array of website passwords
          */
-        var filter_website_passwords = function(datastores) {
-            var website_passwords = [];
+        var filter_passwords = function(datastores) {
+            var passwords = [];
 
             for (var i = 0; i < datastores.length; i++) {
-                filter_website_passwords_helper(datastores[i], website_passwords);
+                filter_passwords_helper(datastores[i], passwords);
             }
 
             if (masterpassword) {
-               website_passwords.unshift({
-                   'name': 'Master Password',
-                   'website_password_password': masterpassword,
-                   'master_password': true
+                passwords.unshift({
+                    'type': 'master_password',
+                    'name': 'Master Password',
+                    'password': masterpassword,
+                    'master_password': true
                })
             }
 
-            return website_passwords;
+            return passwords;
         };
 
 
@@ -289,7 +311,7 @@
                 rating = rate_secret(secrets[i]);
                 analysis.passwords.push({
                     name: secrets[i]['name'],
-                    password: secrets[i]['website_password_password'],
+                    password: secrets[i]['password'],
                     master_password: secrets[i]['master_password'],
                     rating: rating['score'],
                     min_password_length: rating['min_password_length'],
@@ -653,7 +675,7 @@
             emit('generation-started', {});
 
             return fetch_all_password_datastores()
-                .then(filter_website_passwords)
+                .then(filter_passwords)
                 .then(analyze_password_length)
                 .then(analyze_password_age)
                 .then(analyze_password_duplicates)

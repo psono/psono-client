@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-wget https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js -O src/common/data/js/lib/jquery.min.js
+wget https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js -O src/common/data/js/lib/jquery.min.js
 wget https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js -O src/common/data/js/lib/jquery-ui.min.js
 wget https://raw.githubusercontent.com/angular-ui/bootstrap-bower/2.5.0/ui-bootstrap-tpls.min.js -O src/common/data/js/lib/ui-bootstrap-tpls.min.js
 wget https://raw.githubusercontent.com/angular-ui/bootstrap/gh-pages/ui-bootstrap-2.5.0-csp.css -O src/common/data/css/lib/ui-bootstrap-csp.css
@@ -37,20 +37,20 @@ wget https://raw.githubusercontent.com/l-lin/angular-datatables/v0.6.4/dist/angu
 wget https://raw.githubusercontent.com/l-lin/angular-datatables/v0.6.4/dist/css/angular-datatables.css -O src/common/data/css/lib/angular-datatables.css
 
 
-wget https://code.angularjs.org/1.7.9/angular.min.js -O src/common/data/js/lib/angular.min.js
-wget https://code.angularjs.org/1.7.9/angular.min.js.map -O src/common/data/js/lib/angular.min.js.map
-wget https://code.angularjs.org/1.7.9/angular-cookies.min.js -O src/common/data/js/lib/angular-cookies.min.js
-wget https://code.angularjs.org/1.7.9/angular-cookies.min.js.map -O src/common/data/js/lib/angular-cookies.min.js.map
-wget https://code.angularjs.org/1.7.9/angular-animate.min.js -O src/common/data/js/lib/angular-animate.min.js
-wget https://code.angularjs.org/1.7.9/angular-animate.min.js.map -O src/common/data/js/lib/angular-animate.min.js.map
-wget https://code.angularjs.org/1.7.9/angular-route.min.js -O src/common/data/js/lib/angular-route.min.js
-wget https://code.angularjs.org/1.7.9/angular-route.min.js.map -O src/common/data/js/lib/angular-route.min.js.map
-wget https://code.angularjs.org/1.7.9/angular-sanitize.min.js -O src/common/data/js/lib/angular-sanitize.min.js
-wget https://code.angularjs.org/1.7.9/angular-sanitize.min.js.map -O src/common/data/js/lib/angular-sanitize.min.js.map
-wget https://code.angularjs.org/1.7.9/angular-touch.min.js -O src/common/data/js/lib/angular-touch.min.js
-wget https://code.angularjs.org/1.7.9/angular-touch.min.js.map -O src/common/data/js/lib/angular-touch.min.js.map
-wget https://code.angularjs.org/1.7.9/angular-csp.css -O src/common/data/css/lib/angular-csp.css
-wget https://code.angularjs.org/1.7.9/angular-mocks.js -O unittests/data/js/lib/angular-mocks.js
+wget https://code.angularjs.org/1.8.0/angular.min.js -O src/common/data/js/lib/angular.min.js
+wget https://code.angularjs.org/1.8.0/angular.min.js.map -O src/common/data/js/lib/angular.min.js.map
+wget https://code.angularjs.org/1.8.0/angular-cookies.min.js -O src/common/data/js/lib/angular-cookies.min.js
+wget https://code.angularjs.org/1.8.0/angular-cookies.min.js.map -O src/common/data/js/lib/angular-cookies.min.js.map
+wget https://code.angularjs.org/1.8.0/angular-animate.min.js -O src/common/data/js/lib/angular-animate.min.js
+wget https://code.angularjs.org/1.8.0/angular-animate.min.js.map -O src/common/data/js/lib/angular-animate.min.js.map
+wget https://code.angularjs.org/1.8.0/angular-route.min.js -O src/common/data/js/lib/angular-route.min.js
+wget https://code.angularjs.org/1.8.0/angular-route.min.js.map -O src/common/data/js/lib/angular-route.min.js.map
+wget https://code.angularjs.org/1.8.0/angular-sanitize.min.js -O src/common/data/js/lib/angular-sanitize.min.js
+wget https://code.angularjs.org/1.8.0/angular-sanitize.min.js.map -O src/common/data/js/lib/angular-sanitize.min.js.map
+wget https://code.angularjs.org/1.8.0/angular-touch.min.js -O src/common/data/js/lib/angular-touch.min.js
+wget https://code.angularjs.org/1.8.0/angular-touch.min.js.map -O src/common/data/js/lib/angular-touch.min.js.map
+wget https://code.angularjs.org/1.8.0/angular-csp.css -O src/common/data/css/lib/angular-csp.css
+wget https://code.angularjs.org/1.8.0/angular-mocks.js -O unittests/data/js/lib/angular-mocks.js
 
 wget https://raw.githubusercontent.com/moment/moment/2.24.0/min/moment-with-locales.min.js -O src/common/data/js/lib/moment-with-locales.min.js
 wget https://raw.githubusercontent.com/Eonasdan/bootstrap-datetimepicker/v4.17.45/build/js/bootstrap-datetimepicker.min.js -O src/common/data/js/lib/bootstrap-datetimepicker.min.js

@@ -49,6 +49,7 @@
             activate();
 
             function activate(){
+                reset_fields();
 
                 $scope.$watch('bp.selected', function(newValue, oldValue) {
                     if (typeof $scope.bp.selected.onNewModalOpen !== 'undefined') {
@@ -68,6 +69,23 @@
                 });
 
                 itemBlueprint.register('upload_complete', reset);
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:ModalDatastoreNewEntryCtrl#reset_fields
+             * @methodOf psonocli.controller:ModalDatastoreNewEntryCtrl
+             *
+             * @description
+             * Resets fields to default values
+             */
+            function reset_fields() {
+                for (var i = 0; i < $scope.bp.selected.fields.length; i++) {
+                    if (!$scope.bp.selected.fields[i].hasOwnProperty('value')) {
+                        continue
+                    }
+                    delete $scope.bp.selected.fields[i]['value'];
+                }
             }
 
             /**
@@ -97,6 +115,7 @@
              */
             function on_select() {
                 reset();
+                reset_fields();
                 if ($scope.bp.selected.hasOwnProperty('activate')) {
                     $scope.bp.selected.activate();
                 }
