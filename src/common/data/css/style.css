@@ -111,10 +111,10 @@ p.horizontalline span {
     text-overflow: clip; } }
 
 .dark {
-  background-color: #151f2b;
-  color: #b1b6c1; }
+  background-color: #2d4f77;
+  color: #fff; }
   .dark a {
-    color: #b1b6c1; }
+    color: #fff; }
   .dark a.btn-danger {
     color: #fff; }
   .dark h2 {
