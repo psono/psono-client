@@ -168,32 +168,12 @@
                     </span>
                 </a>
             </li>
-            <li ng-class="get_link_state('/security-report')">
-                <a class="navigationitem2" href="#!/security-report">
-                    <span class="fa-stack"><i class="fa fa-file-text fa-fw"></i></span>{{'SECURITY_REPORT' | translate}}
-                    <span class="badge float-right" ng-if="server_status.new_security_report == 'REQUIRED'">
-                        <i class="fa fa-exclamation"></i>
-                    </span>
-                </a>
-            </li>
             <li ng-class="get_link_state('/active-link-shares')" ng-if="enable_link_shares">
                 <a class="navigationitem2" href="#!/active-link-shares">
                     <span class="fa-stack"><i class="fa fa-link fa-fw"></i></span>{{'ACTIVE_LINK_SHARES' | translate}}
                 </a>
             </li>
         </ul>
-        <h2 ng-if="more_links && more_links.length">{{'MORE' | translate}}</h2>
-        <ul class="navigations" ng-if="more_links">
-
-            <li ng-repeat="l in more_links">
-                <a class="navigationitem2" ng-href="{{ l.href }}" target="_blank" rel="noopener">
-                    <span class="fa-stack"><i class="fa fa-fw" ng-class="l.class" aria-hidden="true"></i></span>{{l.title | translate}}
-                </a>
-            </li>
-        </ul>
-        <div class="footer version">
-            PSONO: {{ version }}
-        </div>
     </div>
 
     <div snap-content>
