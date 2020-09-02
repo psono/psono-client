@@ -16,7 +16,7 @@ body {
   margin: -130px 0 0 -170px;
   border-radius: 4px; }
   .loginbox .progress-bar, .registerbox .progress-bar, .activationbox .progress-bar, .lostpasswordbox .progress-bar {
-    background-color: #2dbb93; }
+    background-color: #1A2762; }
 
 @media only screen and (min-width: 600px) {
   .loginbox, .registerbox, .activationbox, .lostpasswordbox {
@@ -80,11 +80,11 @@ body {
   margin-bottom: 8px; }
 
 .text-primary {
-  color: #2dbb93; }
+  color: #1A2762; }
 
 .btn-primary {
-  background-color: #2dbb93;
-  border-color: #2dbb93; }
+  background-color: #1A2762;
+  border-color: #1A2762; }
 
 .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {
   background-color: #2ba880;
@@ -120,10 +120,10 @@ body {
   .path_box_parent .disabled {
     cursor: not-allowed; }
   .path_box_parent .path_box_breadcrumb:hover {
-    color: #2dbb93; }
+    color: #1A2762; }
 
 .fa-circle.is-shared {
-  color: #2dbb93;
+  color: #1A2762;
   font-size: 80%;
   margin-top: 50%; }
 
@@ -148,7 +148,7 @@ body {
   z-index: 1100;
   top: 0;
   left: 0;
-  background-color: #2dbb93;
+  background-color: #1A2762;
   overflow-y: hidden;
   transition: 0.5s; }
 
