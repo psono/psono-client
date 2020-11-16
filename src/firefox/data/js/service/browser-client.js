@@ -82,6 +82,20 @@
 
         /**
          * @ngdoc
+         * @name psonocli.browserClient#get_oidc_return_to_url
+         * @methodOf psonocli.browserClient
+         *
+         * @description
+         * cosntructs and returns the "return to" address for OIDC
+         *
+         * @returns {string}
+         */
+        function get_oidc_return_to_url() {
+            return browser.identity.getRedirectURL() + 'data/index.html#!/oidc/token/';
+        }
+
+        /**
+         * @ngdoc
          * @name psonocli.browserClient#launch_web_auth_flow
          * @methodOf psonocli.browserClient
          *
@@ -235,7 +249,7 @@
                     }
 
                     if (!new_config.hasOwnProperty('authentication_methods')) {
-                        new_config['authentication_methods'] = ["AUTHKEY", "LDAP", "SAML"];
+                        new_config['authentication_methods'] = ["AUTHKEY", "LDAP", "SAML", "OIDC"];
                     }
                     if (!new_config.hasOwnProperty('saml_provider')) {
                         new_config['saml_provider'] = [];
@@ -555,6 +569,7 @@
             get_client_type: get_client_type,
             open_tab: open_tab,
             get_saml_return_to_url: get_saml_return_to_url,
+            get_oidc_return_to_url: get_oidc_return_to_url,
             launch_web_auth_flow: launch_web_auth_flow,
             open_tab_bg: open_tab_bg,
             open_popup: open_popup,

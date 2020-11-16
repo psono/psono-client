@@ -141,6 +141,7 @@
                     .when('/secret/:type/:secret_id', {})
                     .when('/file/download/:id', {})
                     .when('/saml/token/:saml_token_id', {})
+                    .when('/oidc/token/:oidc_token_id', {})
                     .when('/activation-code/:activation_code', {})
                     .when('/link-share-access/:link_share_id/:link_share_secret/:backend_server_url', {})
                     .when('/datastore/search/:default_search', {

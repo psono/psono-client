@@ -44,6 +44,7 @@
             $scope.show_yubikey_otp_2fa_form = show_yubikey_otp_2fa_form;
             $scope.initiate_login = initiate_login;
             $scope.initiate_saml_login = initiate_saml_login;
+            $scope.initiate_oidc_login = initiate_oidc_login;
             $scope.load_default_view = load_default_view;
             $scope.remote_config = remote_config;
             $scope.cancel = cancel;
@@ -72,6 +73,10 @@
                 $scope.$on('$routeChangeSuccess', function () {
                     if (typeof($routeParams.saml_token_id) !== 'undefined') {
                         saml_login($routeParams.saml_token_id);
+                        $location.path('/');
+                    }
+                    if (typeof($routeParams.oidc_token_id) !== 'undefined') {
+                        oidc_login($routeParams.oidc_token_id);
                         $location.path('/');
                     }
                 });
@@ -104,7 +109,9 @@
                 $scope.authkey_enabled = config['authentication_methods'].indexOf('AUTHKEY') !== -1;
                 $scope.ldap_enabled = config['authentication_methods'].indexOf('LDAP') !== -1;
                 $scope.saml_enabled = config['authentication_methods'].indexOf('SAML') !== -1;
+                $scope.oidc_enabled = config['authentication_methods'].indexOf('OIDC') !== -1;
                 $scope.saml_provider = config['saml_provider'];
+                $scope.oidc_provider = config['oidc_provider'];
 
                 /* Server selection with preselection */
                 $scope.servers = config['backend_servers'];
@@ -661,7 +668,38 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:LoginCtrl#initiate_login
+             * @name psonocli.controller:LoginCtrl#oidc_login
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Triggered once someone comes back from an OIDC redirect
+             * Will try to use the token to authenticate and login
+             *
+             * @param {string} oidc_token_id The saml token id
+             */
+            function oidc_login(oidc_token_id) {
+
+
+                var onSuccess = function(required_multifactors) {
+                    return next_login_step(required_multifactors, false);
+                };
+
+                var onError = function(data) {
+                    if (data.hasOwnProperty('non_field_errors')) {
+                        $scope.errors = data.non_field_errors;
+                        $scope.view = 'default';
+                    } else {
+                        console.log(data);
+                        alert("Error, should not happen.");
+                    }
+                };
+
+                managerDatastoreUser.oidc_login(oidc_token_id).then(onSuccess, onError);
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LoginCtrl#initiate_saml_login
              * @methodOf psonocli.controller:LoginCtrl
              *
              * @description
@@ -717,6 +755,76 @@
                             };
 
                             managerDatastoreUser.saml_initiate_login(provider, remember, trust_device,
+                                angular.copy($scope.selected_server), server_check['info'], server_check['verify_key'])
+                                .then(onSuccess, onError);
+                        };
+                        if (continue_login) {
+                            ask_send_plain(server_check, true).then(onSuccess, onError);
+                        }
+                    };
+                    verify_server_signature(server_check).then(onSuccess, onError);
+                };
+                managerHost.check_host(angular.copy($scope.selected_server)).then(onSuccess, onError);
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LoginCtrl#initiate_oidc_login
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Triggered once someone clicks the login button for a OIDC provider and will initiate the login sequence
+             *
+             * @param {string} provider The provider config from config.json passed down
+             * @param {boolean|undefined} remember Remember username and server
+             * @param {boolean|undefined} trust_device Trust the device for 30 days or logout when browser closes
+             * @param {boolean} two_fa_redirect Redirect user to enforce-two-fa.html or let another controller handle it
+             */
+            function initiate_oidc_login(provider, remember, trust_device, two_fa_redirect) {
+
+                redirect_on_two_fa_missing = two_fa_redirect;
+
+                var onError = function() {
+                    $scope.errors = ['SERVER_OFFLINE']
+                };
+
+                var onSuccess = function(server_check) {
+
+                    var onError = function() {
+                        // pass
+                    };
+
+                    var onSuccess = function(continue_login) {
+
+                        var onError = function() {
+                            // pass
+                        };
+
+                        var onSuccess = function(send_plain) {
+
+                            var onSuccess = function (oidc_token_id) {
+                                // comes only here in extensions
+                                if (oidc_token_id) {
+                                    return oidc_login(oidc_token_id);
+                                }
+                            };
+
+                            var onError = function (data) {
+                                $scope.view = 'default';
+                                console.log(data);
+
+                                if (data.error_data === null) {
+                                    $scope.errors = ['SERVER_OFFLINE']
+                                } else if (data.error_data.hasOwnProperty('non_field_errors')) {
+                                    $scope.errors = data.error_data.non_field_errors;
+                                } else if (data.error_data.hasOwnProperty('username')) {
+                                    $scope.errors = data.error_data.username;
+                                } else {
+                                    $scope.errors = ['SERVER_OFFLINE']
+                                }
+                            };
+
+                            managerDatastoreUser.oidc_initiate_login(provider, remember, trust_device,
                                 angular.copy($scope.selected_server), server_check['info'], server_check['verify_key'])
                                 .then(onSuccess, onError);
                         };

@@ -208,6 +208,32 @@
 
         /**
          * @ngdoc
+         * @name psonocli.apiClient#oidc_initiate_login
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax POST request to the backend with oidc_provider_id and return_to_url. Will return an url where we have
+         * to redirect the user to.
+         *
+         * @param {int} oidc_provider_id The oidc provider id
+         * @param {string} return_to_url The url to index.html
+         *
+         * @returns {promise} Returns a promise with the login status
+         */
+        var oidc_initiate_login = function(oidc_provider_id, return_to_url) {
+
+            var endpoint = '/oidc/' + oidc_provider_id + '/initiate-login/';
+            var connection_type = "POST";
+            var data = {
+                return_to_url: return_to_url
+            };
+            var headers = null;
+
+            return call(connection_type, endpoint, data, headers);
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.apiClient#saml_login
          * @methodOf psonocli.apiClient
          *
@@ -225,6 +251,37 @@
         var saml_login = function(login_info, login_info_nonce, public_key, session_duration) {
 
             var endpoint = '/saml/login/';
+            var connection_type = "POST";
+            var data = {
+                login_info: login_info,
+                login_info_nonce: login_info_nonce,
+                public_key: public_key,
+                session_duration: session_duration
+            };
+            var headers = null;
+
+            return call(connection_type, endpoint, data, headers);
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.apiClient#oidc_login
+         * @methodOf psonocli.apiClient
+         *
+         * @description
+         * Ajax POST request to the backend with email and authkey for login, saves a token together with user_id
+         * and all the different keys of a user in the apidata storage
+         *
+         * @param {string} login_info The encrypted login info (username, authkey, device fingerprint, device description)
+         * @param {string} login_info_nonce The nonce of the login info
+         * @param {string} public_key The session public key
+         * @param {int} session_duration The time the session should be valid for in seconds
+         *
+         * @returns {promise} Returns a promise with the login status
+         */
+        var oidc_login = function(login_info, login_info_nonce, public_key, session_duration) {
+
+            var endpoint = '/oidc/login/';
             var connection_type = "POST";
             var data = {
                 login_info: login_info,
@@ -3327,7 +3384,9 @@
             info: info,
             login: login,
             saml_initiate_login: saml_initiate_login,
+            oidc_initiate_login: oidc_initiate_login,
             saml_login: saml_login,
+            oidc_login: oidc_login,
             ga_verify: ga_verify,
             duo_verify: duo_verify,
             yubikey_otp_verify: yubikey_otp_verify,

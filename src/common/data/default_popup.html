@@ -133,6 +133,17 @@
     </div>
 
     <form name="loginForm" ng-if="view === 'default'" autocomplete="off">
+        <div ng-if="oidc_enabled" ng-repeat="provider in oidc_provider">
+            <div class="form-group">
+                {{ provider.title }}
+            </div>
+            <div class="form-group">
+                <button ng-click="initiate_oidc_login(provider, login_data.remember, login_data.trust, true)" type="submit" class="btn btn-danger">{{ provider.button_name}} <i class="fa fa-sign-in" aria-hidden="true"></i></button>
+                <a ng-if="provider.registration_url" ng-href="{{ provider.registration_url }}">{{'REGISTER' | translate}}</a>
+            </div>
+        </div>
+        <p ng-if="oidc_enabled && oidc_provider && oidc_provider.length && (saml_enabled || authkey_enabled || ldap_enabled)" class="horizontalline"><span>{{'OR' | translate}}</span></p>
+
         <div ng-if="saml_enabled" ng-repeat="provider in saml_provider">
             <div class="form-group">
                 {{ provider.title }}
@@ -143,6 +154,7 @@
             </div>
         </div>
         <p ng-if="saml_enabled && saml_provider && saml_provider.length && (authkey_enabled || ldap_enabled)" class="horizontalline"><span>{{'OR' | translate}}</span></p>
+        
         <div ng-if="authkey_enabled || ldap_enabled" ng-class="{'input-group': login_data.username == null || login_data.username.indexOf('@') == -1}">
             <input type="text" class="form-control" id="loginUsername" placeholder="{{'USERNAME' | translate}}" ng-model="login_data.username" required aria-describedby="username-addon" autofocus>
             <span class="input-group-addon" id="username-addon" ng-if="login_data.username == null || login_data.username.indexOf('@') == -1">@{{selected_server_domain}}</span>
