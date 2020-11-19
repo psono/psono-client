@@ -865,13 +865,17 @@
          * @param {function} sendResponse Function to call (at most once) when you have a response.
          */
         function launch_web_auth_flow_in_background(request, sender, sendResponse) {
-
             browser.identity.launchWebAuthFlow({
                 url: request.data.url,
                 interactive: true
             }, function(response_url) {
-                var saml_token_id = response_url.replace(browserClient.get_saml_return_to_url(), '');
-                browserClient.open_tab_bg('/data/index.html#!/saml/token/' + saml_token_id);
+                if (response_url.indexOf(browserClient.get_oidc_return_to_url()) !== -1) {
+                    var oidc_token_id = response_url.replace(browserClient.get_oidc_return_to_url(), '');
+                    browserClient.open_tab_bg('/data/index.html#!/oidc/token/' + oidc_token_id);
+                } else {
+                    var saml_token_id = response_url.replace(browserClient.get_saml_return_to_url(), '');
+                    browserClient.open_tab_bg('/data/index.html#!/saml/token/' + saml_token_id);
+                }
             })
         }
 

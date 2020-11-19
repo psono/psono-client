@@ -70,7 +70,9 @@
                     $scope.authkey_enabled = config['authentication_methods'].indexOf('AUTHKEY') !== -1;
                     $scope.ldap_enabled = config['authentication_methods'].indexOf('LDAP') !== -1;
                     $scope.saml_enabled = config['authentication_methods'].indexOf('SAML') !== -1;
+                    $scope.oidc_enabled = config['authentication_methods'].indexOf('OIDC') !== -1;
                     $scope.saml_provider = config['saml_provider'];
+                    $scope.oidc_provider = config['oidc_provider'];
                     if (persistent_server) {
                         select_server(persistent_server);
                     } else {

@@ -78,6 +78,20 @@
 
         /**
          * @ngdoc
+         * @name psonocli.browserClient#get_oidc_return_to_url
+         * @methodOf psonocli.browserClient
+         *
+         * @description
+         * cosntructs and returns the "return to" address for OIDC
+         *
+         * @returns {string}
+         */
+        function get_oidc_return_to_url() {
+            return chrome.identity.getRedirectURL() + 'data/index.html#!/oidc/token/';
+        }
+
+        /**
+         * @ngdoc
          * @name psonocli.browserClient#launch_web_auth_flow
          * @methodOf psonocli.browserClient
          *
@@ -94,8 +108,13 @@
                     url: url,
                     interactive: true
                 }, function(response_url) {
-                    var saml_token_id = response_url.replace(get_saml_return_to_url(), '');
-                    resolve(saml_token_id)
+                    if (response_url.indexOf(get_oidc_return_to_url()) !== -1) {
+                        var oidc_token_id = response_url.replace(get_oidc_return_to_url(), '');
+                        resolve(oidc_token_id)
+                    } else {
+                        var saml_token_id = response_url.replace(get_saml_return_to_url(), '');
+                        resolve(saml_token_id)
+                    }
                 })
 
             });
@@ -240,7 +259,7 @@
                     }
 
                     if (!new_config.hasOwnProperty('authentication_methods')) {
-                        new_config['authentication_methods'] = ["AUTHKEY", "LDAP", "SAML"];
+                        new_config['authentication_methods'] = ["AUTHKEY", "LDAP", "SAML", "OIDC"];
                     }
                     if (!new_config.hasOwnProperty('saml_provider')) {
                         new_config['saml_provider'] = [];
@@ -547,6 +566,7 @@
             get_client_type: get_client_type,
             open_tab: open_tab,
             get_saml_return_to_url: get_saml_return_to_url,
+            get_oidc_return_to_url: get_oidc_return_to_url,
             launch_web_auth_flow: launch_web_auth_flow,
             open_tab_bg: open_tab_bg,
             open_popup: open_popup,
