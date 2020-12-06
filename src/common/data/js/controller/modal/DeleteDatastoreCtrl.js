@@ -23,7 +23,9 @@
             $scope.user_authentication = managerDatastoreUser.get_authentication();
 
             $scope.data_store = data_store;
-            $scope.password = '';
+            $scope.data = {
+                'password': ''
+            };
 
             $scope.cancel = cancel;
             $scope.save = save;
@@ -59,8 +61,7 @@
                 var onSuccess = function() {
                     $uibModalInstance.close();
                 };
-
-                managerDatastore.delete_datastore($scope.data_store.id, $scope.password)
+                managerDatastore.delete_datastore($scope.data_store.id, $scope.data['password'])
                     .then(onSuccess, onError);
             }
 

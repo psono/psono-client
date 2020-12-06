@@ -5,7 +5,7 @@
     </div>
     <div class="modal-body">
         <div class="form-group" ng-class="{true: 'has-error'}[submitted && modalDeleteDatastoreForm.password.$invalid]" ng-if="user_authentication === 'AUTHKEY'">
-            <input type="password" name="password" class="form-control" id="folderName" placeholder="{{'YOUR_PASSWORD' | translate}}" ng-model="password" ng-required="user_authentication === 'AUTHKEY'" autofocus>
+            <input type="password" name="password" class="form-control" id="folderName" placeholder="{{'YOUR_PASSWORD' | translate}}" ng-model="data.password" ng-required="user_authentication === 'AUTHKEY'" autofocus>
             <p class="help-block" ng-show="submitted && modalDeleteDatastoreForm.password.$error.required">{{'YOUR_PASSWORD_IS_REQUIRED' | translate}}</p>
         </div>
 
