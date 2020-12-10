@@ -622,6 +622,7 @@
   "SERVER_ASKS_FOR_YOUR_PLAINTEXT_PASSWORD": "Server frägt nach deinem Klartext-Passwort",
   "PICK_SECOND_FACTOR": "Wählen sie eine der folgenden Zwei Faktor Optionen aus",
   "ACCEPTING_THIS_WILL_SEND_YOUR_PLAIN_PASSWORD": "Wenn sie die Anfrage genehmigen werden sie ihr Klartext-Passwort zum Server übermitteln. Sie sollten dies nur tun, wenn sie LDAP oder eine ähnliche Authentifizierungsmethode einsetzen. Sie können diese Anfrage abweisen was aber zu einem Authentifizierungsfehler führen kann.",
+  "REMEMBER_SERVER": "Server merken",
   "REMEMBER_USERNAME_AND_SERVER": "Username und Server merken",
   "TRUST_DEVICE": "Vertrauenswürdiges Gerät",
   "REGISTER": "Registrieren",

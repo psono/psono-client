@@ -164,7 +164,8 @@
             <input type="password" class="form-control" id="loginPassword" placeholder="{{'PASSWORD' | translate}}" ng-model="login_data.password" required>
         </div>
         <div class="checkbox">
-            <label><input type="checkbox" ng-model="login_data.remember"> {{'REMEMBER_USERNAME_AND_SERVER' | translate}}</label>
+            <label ng-if="authkey_enabled || ldap_enabled"><input type="checkbox" ng-model="login_data.remember"> {{'REMEMBER_USERNAME_AND_SERVER' | translate}}</label>
+            <label ng-if="!authkey_enabled && !ldap_enabled"><input type="checkbox" ng-model="login_data.remember"> {{'REMEMBER_SERVER' | translate}}</label>
         </div>
         <div class="checkbox">
             <label><input type="checkbox" ng-model="login_data.trust"> {{'TRUST_DEVICE' | translate}}</label>
