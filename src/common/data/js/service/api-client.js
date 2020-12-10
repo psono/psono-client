@@ -18,6 +18,9 @@
 
     var apiClient = function($http, $q, $rootScope, storage, cryptoLibrary, device, offlineCache) {
 
+        // TODO add later for audit log again
+        //var AUDIT_LOG_HEADER = 'Audit-Log';
+
         var decrypt_data = function(session_secret_key, data, req) {
             if (session_secret_key && data !== null
                 && data.hasOwnProperty('data')
@@ -54,6 +57,18 @@
                 };
                 headers['Authorization-Validator'] = JSON.stringify(cryptoLibrary.encrypt_data(JSON.stringify(validator), session_secret_key));
             }
+            
+            // TODO add later for audit log again
+            // var log_audit = storage.find_key('config','server_info')
+            // if (log_audit) {
+            //     log_audit = log_audit.value['log_audit']
+            // }
+            //
+            // if (session_secret_key && headers && headers.hasOwnProperty(AUDIT_LOG_HEADER) && log_audit) {
+            //     headers[AUDIT_LOG_HEADER] = JSON.stringify(cryptoLibrary.encrypt_data(JSON.stringify(headers[AUDIT_LOG_HEADER]), session_secret_key));
+            // } else if (headers && headers.hasOwnProperty(AUDIT_LOG_HEADER)) {
+            //     delete headers[AUDIT_LOG_HEADER];
+            // }
 
             var req = {
                 method: connection_type,
@@ -1019,6 +1034,10 @@
             var headers = {
                 "Authorization": "Token " + token
             };
+
+            // headers[AUDIT_LOG_HEADER] = {
+            //     'test': 'something secret'
+            // }
 
             return call(connection_type, endpoint, data, headers, session_secret_key, synchronous)
         };
