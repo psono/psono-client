@@ -25,7 +25,8 @@
         var _tabs = [
             { key: 'password-generator', title: 'PASSWORD_GENERATOR', description: 'PASSWORD_GENERATOR_DESCRIPTION' },
             { key: 'language', title: 'LANGUAGE', description: 'LANGUAGE_DESCRIPTION' },
-            { key: 'gpg', title: 'GPG', description: 'GPG_DESCRIPTION' }
+            { key: 'notification', title: 'NOTIFICATIONS', description: 'NOTIFICATIONS_DESCRIPTION' },
+            { key: 'gpg', title: 'GPG', description: 'GPG_DESCRIPTION' },
         ];
 
         var _settings = {
@@ -41,7 +42,9 @@
                 // GPG
                 { key: "gpg_default_key", field: "select", type: "select", title: "DEFAULT_KEY", default: '', get_options: "get_gpg_default_key_options", tab: 'gpg'},
                 { key: "gpg_hkp_key_server", field: "input", type: "text", title: "HKP_SERVER", placeholder: "HKP_SERVER", default: 'https://keyserver.ubuntu.com', tab: 'gpg'},
-                { key: "gpg_hkp_search", field: "input", type:"checkbox", title: "AUTOSEARCH_HKP", default: true, tab: 'gpg'}
+                { key: "gpg_hkp_search", field: "input", type: "checkbox", title: "AUTOSEARCH_HKP", default: true, tab: 'gpg' },
+                // Notification
+                { key: "enable_notification_password_copy", field: "input", type: "checkbox", title: "ENABLE_NOTIFICATION_ON_PASSWORD_COPY", default: true, tab: 'notification'},
                 // General
             ],
             get_gpg_default_key_options: function () {
