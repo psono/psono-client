@@ -304,6 +304,7 @@ self.addEventListener('install', function(event) {
                 './js/service/helper.js',
                 './js/service/device.js',
                 './js/service/message.js',
+                './js/service/notification.js',
                 './js/service/item-blueprint.js',
                 './js/service/share-blueprint.js',
                 './js/service/crypto-library.js',

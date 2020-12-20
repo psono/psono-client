@@ -520,6 +520,7 @@
   "NOTIFICATIONS": "Notifications",
   "NOTIFICATIONS_DESCRIPTION": "Specify your notifications preferences.",
   "ENABLE_NOTIFICATION_ON_PASSWORD_COPY": "Notify on password copy",
+  "PASSWORD_COPY_NOTIFICATION": "Password copied in clipboard",
   "PASSWORD_GENERATOR": "Password Generator",
   "PASSWORD_GENERATOR_DESCRIPTION": "Adjust here the settings for the password generator.",
   "RECOVERY_INFORMATION": "Recovery Information",
