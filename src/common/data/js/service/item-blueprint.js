@@ -47,14 +47,12 @@
                     dropmenuItems:[
                         {
                             icon: "fa fa-eye-slash",
-                            text:"SHOW_PASSWORD",
+                            text: 'SHOW_OR_HIDE_PASSWORD',
                             onclick:function(id, item) {
                                 if (document.getElementById(id).type === 'text') {
                                     document.getElementById(id).type = 'password';
-                                    item.text = 'SHOW_PASSWORD';
                                 } else {
                                     document.getElementById(id).type = 'text';
-                                    item.text = 'HIDE_PASSWORD';
                                 }
                             }
                         },
@@ -167,14 +165,12 @@
                     dropmenuItems:[
                         {
                             icon: "fa fa-eye-slash",
-                            text:"SHOW_PASSWORD",
+                            text: 'SHOW_OR_HIDE_PASSWORD',
                             onclick:function(id, item) {
                                 if (document.getElementById(id).type === 'text') {
                                     document.getElementById(id).type = 'password';
-                                    item.text = 'SHOW_PASSWORD';
                                 } else {
                                     document.getElementById(id).type = 'text';
-                                    item.text = 'HIDE_PASSWORD';
                                 }
                             }
                         },
