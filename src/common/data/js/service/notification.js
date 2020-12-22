@@ -26,7 +26,12 @@
         function push(notificationType, notificationContent) {
             switch (notificationType) {
                 case 'password_copy':
-                    if (settings.get_setting('enable_notification_' + notificationType)) {
+                    if (settings.get_setting('enable_notification_copy')) {
+                        browserClient.notify(notificationContent)
+                    }
+                    return
+                case 'username_copy':
+                    if (settings.get_setting('enable_notification_copy')) {
                         browserClient.notify(notificationContent)
                     }
                     return

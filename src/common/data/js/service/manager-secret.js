@@ -30,6 +30,7 @@
         function activate() {
             $translate([
                 'PASSWORD_COPY_NOTIFICATION',
+                'USERNAME_COPY_NOTIFICATION',
             ]).then(function (translations) {
                 _translations = translations;
             });
@@ -250,6 +251,10 @@
                 browserClient.copy_to_clipboard(decrypted_secret['application_password_username']);
             } else if (item['type'] === 'website_password') {
                 browserClient.copy_to_clipboard(decrypted_secret['website_password_username']);
+            }
+
+            if (_translations && _translations.USERNAME_COPY_NOTIFICATION) {
+                notification.push('username_copy', _translations.USERNAME_COPY_NOTIFICATION)
             }
         };
 

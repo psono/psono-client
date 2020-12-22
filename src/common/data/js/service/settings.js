@@ -44,7 +44,7 @@
                 { key: "gpg_hkp_key_server", field: "input", type: "text", title: "HKP_SERVER", placeholder: "HKP_SERVER", default: 'https://keyserver.ubuntu.com', tab: 'gpg'},
                 { key: "gpg_hkp_search", field: "input", type: "checkbox", title: "AUTOSEARCH_HKP", default: true, tab: 'gpg' },
                 // Notification
-                { key: "enable_notification_password_copy", field: "input", type: "checkbox", title: "ENABLE_NOTIFICATION_ON_PASSWORD_COPY", default: true, tab: 'notification'},
+                { key: "enable_notification_copy", field: "input", type: "checkbox", title: "ENABLE_NOTIFICATION_COPY", default: true, tab: 'notification'},
                 // General
             ],
             get_gpg_default_key_options: function () {
