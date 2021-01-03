@@ -1,6 +1,6 @@
 {
   "RECYCLING_BIN": "Recycling Bin",
-  "TOGGLE_GRANT_RIGHT": "Toogle Grant Right",
+  "TOGGLE_GRANT_RIGHT": "Toggle Grant Right",
   "TOGGLE_OWN_GRANT_RIGHT_WARNING": "You are about to revoke your own permission to change the permissions of users for this share. Make sure that someone else has grant rights before revoking your own. Are you sure that you want to continue?",
   "DELETE_SHARE_RIGHT": "Delete Share Right",
   "DELETE_OWN_SHARE_RIGHT_WARNING": "You are about to delete your own share right. You will lose all rights to this share. Are you sure?",
