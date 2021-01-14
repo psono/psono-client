@@ -623,7 +623,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.managerSecurityReport#generate_security_report
+         * @name psonocli.managerSecurityReport#fetch_all_password_datastores
          * @methodOf psonocli.managerSecurityReport
          *
          * @description

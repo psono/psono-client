@@ -1529,7 +1529,7 @@
 
             for (var property in _blueprints) {
                 if (_blueprints.hasOwnProperty(property)) {
-                    result.push(_blueprints[property])
+                    result.push(angular.copy(_blueprints[property]))
                 }
             }
             return result;
