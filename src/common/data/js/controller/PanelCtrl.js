@@ -10,6 +10,7 @@
      * @requires $timeout
      * @requires psonocli.manager
      * @requires psonocli.managerDatastorePassword
+     * @requires psonocli.managerDatastoreSetting
      * @requires psonocli.managerDatastoreUser
      * @requires psonocli.managerSecret
      * @requires psonocli.managerWidget
@@ -26,10 +27,10 @@
      * Controller for the panel
      */
     angular.module('psonocli').controller('PanelCtrl', ['$scope', '$rootScope', '$filter', '$timeout', 'manager',
-        'managerDatastorePassword', 'managerDatastoreUser', 'managerSecret', 'managerWidget', 'browserClient',
+        'managerDatastorePassword', 'managerDatastoreSetting', 'managerDatastoreUser', 'managerSecret', 'managerWidget', 'browserClient',
         'offlineCache', 'helper', '$window', '$uibModal', '$route', '$routeParams', '$location',
         function ($scope, $rootScope, $filter, $timeout, manager,
-                  managerDatastorePassword, managerDatastoreUser, managerSecret, managerWidget, browserClient,
+                  managerDatastorePassword, managerDatastoreSetting, managerDatastoreUser, managerSecret, managerWidget, browserClient,
                   offlineCache, helper, $window, $uibModal, $route, $routeParams, $location) {
 
             var password_filter;
@@ -134,6 +135,8 @@
                         password_filter = helper.get_password_filter(value);
                     }, 250); // delay 250 ms
                 });
+                // required, otherwise password generate always generates the default values
+                managerDatastoreSetting.get_settings_datastore()
             }
 
             /**
