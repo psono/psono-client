@@ -637,6 +637,21 @@
                     node[keys[i]] = secret_object[keys[i]];
                 }
                 return $q.resolve()
+            },
+
+
+            /**
+             * triggered before displaying e.g. an edit modal and will be called instead of read secret from the server.
+             *
+             * @param node
+             * @param secret_object
+             */
+            convertToSecret: function(node){
+                var secret = angular.copy(node);
+                
+                secret['file_title'] = node.name;
+                
+                return secret;
             }
         };
 

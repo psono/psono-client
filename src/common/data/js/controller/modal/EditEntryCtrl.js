@@ -117,11 +117,11 @@
                 }
                 for (var i = 0; i < $scope.bp.selected.fields.length; i++) {
                     var field = $scope.bp.selected.fields[i];
-                    if (field.hasOwnProperty("required")) {
-                        if (field['required'] && field['value'] !== false && !field['value']) {
-                            $scope.errors.push(field['title'] + '_IS_REQUIRED');
-                            continue;
-                        }
+                    var required = field.hasOwnProperty("required") && field['required'];
+                    var hidden_edit = field.hasOwnProperty("hidden_edit") && field['hidden_edit'];
+                    if (required && !hidden_edit && field['value'] !== false && !field['value']) {
+                        $scope.errors.push(field['title'] + '_IS_REQUIRED');
+                        continue;
                     }
                     if (field.hasOwnProperty("validationType")) {
                         if (field['validationType'].toLowerCase() === 'url' && field['value'] && !helper.is_valid_url(field['value'])) {

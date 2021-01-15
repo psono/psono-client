@@ -648,6 +648,13 @@
             };
 
             if (typeof(node.secret_id) === 'undefined') {
+                if (node.hasOwnProperty('type')) {
+                    var bp = itemBlueprint.get_blueprint(node.type);
+                    if (bp.hasOwnProperty('convertToSecret')) {
+                        onSuccess(bp.convertToSecret(node));
+                        return;
+                    }
+                }
                 onSuccess(node)
             } else {
                 managerSecret.read_secret(node.secret_id, node.secret_key)
