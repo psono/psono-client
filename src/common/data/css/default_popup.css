@@ -1,2 +1,9 @@
 body {
   min-width: 520px; }
+
+.dark .box-footer {
+  bottom: 0;
+  position: relative;
+  text-align: right; }
+  .dark .box-footer a {
+    color: #666666; }
