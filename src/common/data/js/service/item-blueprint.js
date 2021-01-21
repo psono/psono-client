@@ -250,22 +250,22 @@
              *
              * @returns {array}
              */
-            activate: function(){
-                _blueprint_file.field_index = {};
-                for (var i = 0; i < _blueprint_file.fields.length; i++) {
-                    _blueprint_file.field_index[_blueprint_file.fields[i]['name']] = _blueprint_file.fields[i]
+            activate: function(bp){
+                bp.field_index = {};
+                for (var i = 0; i < bp.fields.length; i++) {
+                    bp.field_index[bp.fields[i]['name']] = bp.fields[i]
                 }
 
                 var promises = [];
-                promises.push(_blueprint_file.getShards());
-                promises.push(_blueprint_file.getFileRepositories());
+                promises.push(bp.getShards());
+                promises.push(bp.getFileRepositories());
 
                 $q.all(promises).then(function() {
                     var shard_count = _shards.length;
                     var file_repository_count = _filesrepositories.length;
                     var all_possibilities_count = shard_count + file_repository_count;
 
-                    _blueprint_file.field_index['file_destinations'].values = _shards.concat(_filesrepositories);
+                    bp.field_index['file_destinations'].values = _shards.concat(_filesrepositories);
 
                     if (all_possibilities_count === 0) {
                         // no possiblity, the user will get an error anyway when he wants to create the file
@@ -274,14 +274,14 @@
 
                     if (shard_count > 0) {
                         // only shards are available, so lets pick the first shard as default shard
-                        _blueprint_file.field_index['file_destinations'].value = _shards[0];
+                        bp.field_index['file_destinations'].value = _shards[0];
                     } else if (file_repository_count > 0) {
                         // only repositories are available, so lets pick the first repository as default repository
-                        _blueprint_file.field_index['file_destinations'].value = _filesrepositories[0];
+                        bp.field_index['file_destinations'].value = _filesrepositories[0];
                     }
 
                     if (all_possibilities_count > 1) {
-                        _blueprint_file.field_index['file_destinations'].hidden = false;
+                        bp.field_index['file_destinations'].hidden = false;
                     }
                 });
 
