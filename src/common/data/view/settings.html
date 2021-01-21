@@ -32,11 +32,11 @@
                              class="form-group" ng-repeat="field in settings.fields"
                              ng-if="field.tab === tab.key">
 
-                            <label class="control-label col-sm-4 col-md-2"
+                            <label class="control-label col-sm-4 col-md-3"
                                    for="settingsForm-{{field.key}}">
                                 {{field.title | translate}}
                             </label>
-                            <div class="col-sm-8 col-md-10">
+                            <div class="col-sm-8 col-md-9">
                                 <input ng-if="field.field === 'input' && field.type !== 'checkbox'"
                                        type="{{field.type}}" ng-model="field.value"
                                        ng-required="{{field.required}}"

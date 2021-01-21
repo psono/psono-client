@@ -253,6 +253,7 @@ var build = function(build_path, type) {
             "src/common/data/js/service/helper.js",
             "src/common/data/js/service/device.js",
             "src/common/data/js/service/message.js",
+            "src/common/data/js/service/notification.js",
             "src/common/data/js/service/item-blueprint.js",
             "src/common/data/js/service/share-blueprint.js",
             "src/common/data/js/service/crypto-library.js",

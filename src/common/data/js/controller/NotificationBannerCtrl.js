@@ -13,10 +13,12 @@
     angular.module('psonocli').controller('NotificationBannerCtrl', ['$scope', 'device', 'storage', 'browserClient',
         function ($scope, device, storage, browserClient) {
             $scope.disable_download_bar = true;
-            $scope.show_android_download = !storage.find_key('config', 'hide_android_download') && device.is_mobile_android();
-            $scope.show_chrome_download = !storage.find_key('config', 'hide_chrome_download') && !device.is_mobile() && device.is_chrome() && browserClient.get_client_type() === 'webclient';
-            $scope.show_firefox_download = !storage.find_key('config', 'hide_firefox_download') && !device.is_mobile() && device.is_firefox() && browserClient.get_client_type() === 'webclient';
+            $scope.show_android_download = !storage.find_key('persistent', 'hide_android_download') && device.is_mobile_android();
+            $scope.show_ios_download = !storage.find_key('persistent', 'hide_ios_download') && device.is_mobile_ios();
+            $scope.show_chrome_download = !storage.find_key('persistent', 'hide_chrome_download') && !device.is_mobile() && device.is_chrome() && browserClient.get_client_type() === 'webclient';
+            $scope.show_firefox_download = !storage.find_key('persistent', 'hide_firefox_download') && !device.is_mobile() && device.is_firefox() && browserClient.get_client_type() === 'webclient';
             $scope.close_android = close_android;
+            $scope.close_ios = close_ios;
             $scope.close_chrome = close_chrome;
             $scope.close_firefox = close_firefox;
 
@@ -44,9 +46,23 @@
              * Triggered once someone clicks the close button om the install android app bar
              */
             function close_android() {
-                storage.upsert('config', {key: 'hide_android_download', value: true});
+                storage.upsert('persistent', {key: 'hide_android_download', value: true});
                 storage.save();
                 $scope.show_android_download = false;
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:NotificationBannerCtrl#close_ios
+             * @methodOf psonocli.controller:NotificationBannerCtrl
+             *
+             * @description
+             * Triggered once someone clicks the close button om the install ios app bar
+             */
+            function close_ios() {
+                storage.upsert('persistent', {key: 'hide_ios_download', value: true});
+                storage.save();
+                $scope.show_ios_download = false;
             }
             /**
              * @ngdoc
@@ -57,7 +73,7 @@
              * Triggered once someone clicks the close button om the install chrome extension bar
              */
             function close_chrome() {
-                storage.upsert('config', {key: 'hide_chrome_download', value: true});
+                storage.upsert('persistent', {key: 'hide_chrome_download', value: true});
                 storage.save();
                 $scope.show_chrome_download = false;
             }
@@ -70,7 +86,7 @@
              * Triggered once someone clicks the close button om the install firefox extension bar
              */
             function close_firefox() {
-                storage.upsert('config', {key: 'hide_firefox_download', value: true});
+                storage.upsert('persistent', {key: 'hide_firefox_download', value: true});
                 storage.save();
                 $scope.show_firefox_download = false;
             }

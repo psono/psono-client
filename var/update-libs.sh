@@ -7,6 +7,7 @@ wget http://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js -O src/common
 wget https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css -O src/common/data/css/lib/datatables.min.css
 
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Danish.json -O src/common/data/translations/datatables.da.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Slovak.json -O src/common/data/translations/datatables.sk.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Swedish.json -O src/common/data/translations/datatables.sv.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Norwegian.json -O src/common/data/translations/datatables.no.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Hebrew.json -O src/common/data/translations/datatables.he.json
@@ -20,7 +21,8 @@ wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/English.json -O src/common
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json -O src/common/data/translations/datatables.es.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Finnish.json -O src/common/data/translations/datatables.fi.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/French.json -O src/common/data/translations/datatables.fr.json
-wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Hungarian.json -O src/common/data/translations/datatables.hr.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Croatian.json -O src/common/data/translations/datatables.hr.json
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Hungarian.json -O src/common/data/translations/datatables.hu.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Italian.json -O src/common/data/translations/datatables.it.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Japanese.json -O src/common/data/translations/datatables.ja.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Korean.json -O src/common/data/translations/datatables.ko.json
@@ -37,20 +39,20 @@ wget https://raw.githubusercontent.com/l-lin/angular-datatables/v0.6.4/dist/angu
 wget https://raw.githubusercontent.com/l-lin/angular-datatables/v0.6.4/dist/css/angular-datatables.css -O src/common/data/css/lib/angular-datatables.css
 
 
-wget https://code.angularjs.org/1.8.0/angular.min.js -O src/common/data/js/lib/angular.min.js
-wget https://code.angularjs.org/1.8.0/angular.min.js.map -O src/common/data/js/lib/angular.min.js.map
-wget https://code.angularjs.org/1.8.0/angular-cookies.min.js -O src/common/data/js/lib/angular-cookies.min.js
-wget https://code.angularjs.org/1.8.0/angular-cookies.min.js.map -O src/common/data/js/lib/angular-cookies.min.js.map
-wget https://code.angularjs.org/1.8.0/angular-animate.min.js -O src/common/data/js/lib/angular-animate.min.js
-wget https://code.angularjs.org/1.8.0/angular-animate.min.js.map -O src/common/data/js/lib/angular-animate.min.js.map
-wget https://code.angularjs.org/1.8.0/angular-route.min.js -O src/common/data/js/lib/angular-route.min.js
-wget https://code.angularjs.org/1.8.0/angular-route.min.js.map -O src/common/data/js/lib/angular-route.min.js.map
-wget https://code.angularjs.org/1.8.0/angular-sanitize.min.js -O src/common/data/js/lib/angular-sanitize.min.js
-wget https://code.angularjs.org/1.8.0/angular-sanitize.min.js.map -O src/common/data/js/lib/angular-sanitize.min.js.map
-wget https://code.angularjs.org/1.8.0/angular-touch.min.js -O src/common/data/js/lib/angular-touch.min.js
-wget https://code.angularjs.org/1.8.0/angular-touch.min.js.map -O src/common/data/js/lib/angular-touch.min.js.map
-wget https://code.angularjs.org/1.8.0/angular-csp.css -O src/common/data/css/lib/angular-csp.css
-wget https://code.angularjs.org/1.8.0/angular-mocks.js -O unittests/data/js/lib/angular-mocks.js
+wget https://code.angularjs.org/1.8.2/angular.min.js -O src/common/data/js/lib/angular.min.js
+wget https://code.angularjs.org/1.8.2/angular.min.js.map -O src/common/data/js/lib/angular.min.js.map
+wget https://code.angularjs.org/1.8.2/angular-cookies.min.js -O src/common/data/js/lib/angular-cookies.min.js
+wget https://code.angularjs.org/1.8.2/angular-cookies.min.js.map -O src/common/data/js/lib/angular-cookies.min.js.map
+wget https://code.angularjs.org/1.8.2/angular-animate.min.js -O src/common/data/js/lib/angular-animate.min.js
+wget https://code.angularjs.org/1.8.2/angular-animate.min.js.map -O src/common/data/js/lib/angular-animate.min.js.map
+wget https://code.angularjs.org/1.8.2/angular-route.min.js -O src/common/data/js/lib/angular-route.min.js
+wget https://code.angularjs.org/1.8.2/angular-route.min.js.map -O src/common/data/js/lib/angular-route.min.js.map
+wget https://code.angularjs.org/1.8.2/angular-sanitize.min.js -O src/common/data/js/lib/angular-sanitize.min.js
+wget https://code.angularjs.org/1.8.2/angular-sanitize.min.js.map -O src/common/data/js/lib/angular-sanitize.min.js.map
+wget https://code.angularjs.org/1.8.2/angular-touch.min.js -O src/common/data/js/lib/angular-touch.min.js
+wget https://code.angularjs.org/1.8.2/angular-touch.min.js.map -O src/common/data/js/lib/angular-touch.min.js.map
+wget https://code.angularjs.org/1.8.2/angular-csp.css -O src/common/data/css/lib/angular-csp.css
+wget https://code.angularjs.org/1.8.2/angular-mocks.js -O unittests/data/js/lib/angular-mocks.js
 
 wget https://raw.githubusercontent.com/moment/moment/2.24.0/min/moment-with-locales.min.js -O src/common/data/js/lib/moment-with-locales.min.js
 wget https://raw.githubusercontent.com/Eonasdan/bootstrap-datetimepicker/v4.17.45/build/js/bootstrap-datetimepicker.min.js -O src/common/data/js/lib/bootstrap-datetimepicker.min.js
@@ -74,10 +76,10 @@ wget https://raw.githubusercontent.com/kazuhikoarase/qrcode-generator/master/js/
 wget https://raw.githubusercontent.com/mholt/PapaParse/4.3.2/papaparse.min.js -O src/common/data/js/lib/papaparse.min.js
 wget https://raw.githubusercontent.com/NaturalIntelligence/fast-xml-parser/3.16.0/lib/parser.js -O src/common/data/js/lib/fast-xml-parser.js
 
-wget https://raw.githubusercontent.com/angular-translate/bower-angular-translate/2.18.1/angular-translate.min.js -O src/common/data/js/lib/angular-translate.min.js
-wget https://raw.githubusercontent.com/angular-translate/bower-angular-translate-storage-cookie/2.18.1/angular-translate-storage-cookie.min.js -O src/common/data/js/lib/angular-translate-storage-cookie.min.js
-wget https://raw.githubusercontent.com/angular-translate/bower-angular-translate-loader-url/2.18.1/angular-translate-loader-url.min.js -O src/common/data/js/lib/angular-translate-loader-url.min.js
-wget https://raw.githubusercontent.com/angular-translate/bower-angular-translate-loader-static-files/2.18.1/angular-translate-loader-static-files.min.js -O src/common/data/js/lib//angular-translate-loader-static-files.min.js
+wget https://raw.githubusercontent.com/angular-translate/bower-angular-translate/2.18.4/angular-translate.min.js -O src/common/data/js/lib/angular-translate.min.js
+wget https://raw.githubusercontent.com/angular-translate/bower-angular-translate-storage-cookie/2.18.4/angular-translate-storage-cookie.min.js -O src/common/data/js/lib/angular-translate-storage-cookie.min.js
+wget https://raw.githubusercontent.com/angular-translate/bower-angular-translate-loader-url/2.18.4/angular-translate-loader-url.min.js -O src/common/data/js/lib/angular-translate-loader-url.min.js
+wget https://raw.githubusercontent.com/angular-translate/bower-angular-translate-loader-static-files/2.18.4/angular-translate-loader-static-files.min.js -O src/common/data/js/lib//angular-translate-loader-static-files.min.js
 
 wget https://raw.githubusercontent.com/ftlabs/fastclick/v1.0.6/lib/fastclick.js -O src/common/data/js/lib/fastclick.js
 

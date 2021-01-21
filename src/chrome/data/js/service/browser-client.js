@@ -544,6 +544,32 @@
             document.removeEventListener('copy', copy);
         }
 
+        /**
+         * @ngdoc
+         * @name psonocli.browserClient#notify
+         * @methodOf psonocli.browserClient
+         *
+         * @description
+         * Create a notification
+         *
+         * @param {string} content The notification content
+         */
+        function notify(content) {
+            chrome.notifications.getPermissionLevel(function (permissionLevel) {
+                if (permissionLevel === 'denied') {
+                    console.warn("Notification are denied");
+                    return
+                }
+
+                chrome.notifications.create(undefined, {
+                    type: 'basic',
+                    title: content,
+                    message: '',
+                    iconUrl: 'img/icon-32.png'
+                })
+            })
+        }
+
 
         /**
          * @ngdoc
@@ -585,6 +611,7 @@
             close_popup:close_popup,
             disable_browser_password_saving:disable_browser_password_saving,
             copy_to_clipboard: copy_to_clipboard,
+            notify: notify,
             getOfflineCacheEncryptionKey: getOfflineCacheEncryptionKey
         };
     };

@@ -47,14 +47,12 @@
                     dropmenuItems:[
                         {
                             icon: "fa fa-eye-slash",
-                            text:"SHOW_PASSWORD",
+                            text: 'SHOW_OR_HIDE_PASSWORD',
                             onclick:function(id, item) {
                                 if (document.getElementById(id).type === 'text') {
                                     document.getElementById(id).type = 'password';
-                                    item.text = 'SHOW_PASSWORD';
                                 } else {
                                     document.getElementById(id).type = 'text';
-                                    item.text = 'HIDE_PASSWORD';
                                 }
                             }
                         },
@@ -167,14 +165,12 @@
                     dropmenuItems:[
                         {
                             icon: "fa fa-eye-slash",
-                            text:"SHOW_PASSWORD",
+                            text: 'SHOW_OR_HIDE_PASSWORD',
                             onclick:function(id, item) {
                                 if (document.getElementById(id).type === 'text') {
                                     document.getElementById(id).type = 'password';
-                                    item.text = 'SHOW_PASSWORD';
                                 } else {
                                     document.getElementById(id).type = 'text';
-                                    item.text = 'HIDE_PASSWORD';
                                 }
                             }
                         },
@@ -254,22 +250,22 @@
              *
              * @returns {array}
              */
-            activate: function(){
-                _blueprint_file.field_index = {};
-                for (var i = 0; i < _blueprint_file.fields.length; i++) {
-                    _blueprint_file.field_index[_blueprint_file.fields[i]['name']] = _blueprint_file.fields[i]
+            activate: function(bp){
+                bp.field_index = {};
+                for (var i = 0; i < bp.fields.length; i++) {
+                    bp.field_index[bp.fields[i]['name']] = bp.fields[i]
                 }
 
                 var promises = [];
-                promises.push(_blueprint_file.getShards());
-                promises.push(_blueprint_file.getFileRepositories());
+                promises.push(bp.getShards());
+                promises.push(bp.getFileRepositories());
 
                 $q.all(promises).then(function() {
                     var shard_count = _shards.length;
                     var file_repository_count = _filesrepositories.length;
                     var all_possibilities_count = shard_count + file_repository_count;
 
-                    _blueprint_file.field_index['file_destinations'].values = _shards.concat(_filesrepositories);
+                    bp.field_index['file_destinations'].values = _shards.concat(_filesrepositories);
 
                     if (all_possibilities_count === 0) {
                         // no possiblity, the user will get an error anyway when he wants to create the file
@@ -278,14 +274,14 @@
 
                     if (shard_count > 0) {
                         // only shards are available, so lets pick the first shard as default shard
-                        _blueprint_file.field_index['file_destinations'].value = _shards[0];
+                        bp.field_index['file_destinations'].value = _shards[0];
                     } else if (file_repository_count > 0) {
                         // only repositories are available, so lets pick the first repository as default repository
-                        _blueprint_file.field_index['file_destinations'].value = _filesrepositories[0];
+                        bp.field_index['file_destinations'].value = _filesrepositories[0];
                     }
 
                     if (all_possibilities_count > 1) {
-                        _blueprint_file.field_index['file_destinations'].hidden = false;
+                        bp.field_index['file_destinations'].hidden = false;
                     }
                 });
 
@@ -637,6 +633,21 @@
                     node[keys[i]] = secret_object[keys[i]];
                 }
                 return $q.resolve()
+            },
+
+
+            /**
+             * triggered before displaying e.g. an edit modal and will be called instead of read secret from the server.
+             *
+             * @param node
+             * @param secret_object
+             */
+            convertToSecret: function(node){
+                var secret = angular.copy(node);
+                
+                secret['file_title'] = node.name;
+                
+                return secret;
             }
         };
 
@@ -1529,7 +1540,7 @@
 
             for (var property in _blueprints) {
                 if (_blueprints.hasOwnProperty(property)) {
-                    result.push(_blueprints[property])
+                    result.push(angular.copy(_blueprints[property]))
                 }
             }
             return result;

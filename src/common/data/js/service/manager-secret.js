@@ -7,19 +7,34 @@
      * @requires $q
      * @requires $rootScope
      * @requires $uibModal
+     * @requires $translate
      * @requires psonocli.managerBase
      * @requires psonocli.apiClient
      * @requires psonocli.cryptoLibrary
      * @requires psonocli.itemBlueprint
      * @requires psonocli.browserClient
      * @requires psonocli.offlineCache
+     * @requires psonocli.notification
      *
      * @description
      * Service to handle all secret related tasks
      */
 
-    var managerSecret = function($q, $rootScope, $uibModal, managerBase, apiClient, cryptoLibrary,
-                                 itemBlueprint, browserClient, offlineCache) {
+    var managerSecret = function($q, $rootScope, $uibModal, $translate, managerBase, apiClient, cryptoLibrary,
+                                 itemBlueprint, browserClient, offlineCache, notification) {
+
+        var _translations;
+
+        activate();
+
+        function activate() {
+            $translate([
+                'PASSWORD_COPY_NOTIFICATION',
+                'USERNAME_COPY_NOTIFICATION',
+            ]).then(function (translations) {
+                _translations = translations;
+            });
+        }
 
         /**
          * @ngdoc
@@ -237,6 +252,10 @@
             } else if (item['type'] === 'website_password') {
                 browserClient.copy_to_clipboard(decrypted_secret['website_password_username']);
             }
+
+            if (_translations && _translations.USERNAME_COPY_NOTIFICATION) {
+                notification.push('username_copy', _translations.USERNAME_COPY_NOTIFICATION)
+            }
         };
 
         /**
@@ -260,6 +279,10 @@
             } else if (item['type'] === 'website_password') {
                 browserClient.copy_to_clipboard(decrypted_secret['website_password_password']);
             }
+
+            if (_translations && _translations.PASSWORD_COPY_NOTIFICATION) {
+                notification.push('password_copy', _translations.PASSWORD_COPY_NOTIFICATION)
+            }
         };
 
         // registrations
@@ -279,7 +302,7 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerSecret", ['$q', '$rootScope', '$uibModal', 'managerBase', 'apiClient', 'cryptoLibrary',
-        'itemBlueprint', 'browserClient', 'offlineCache', managerSecret]);
+    app.factory("managerSecret", ['$q', '$rootScope', '$uibModal', '$translate', 'managerBase', 'apiClient', 'cryptoLibrary',
+        'itemBlueprint', 'browserClient', 'offlineCache', 'notification', managerSecret]);
 
 }(angular));

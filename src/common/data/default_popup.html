@@ -98,7 +98,7 @@
         <hr>
 
         <div class="btn-group">
-            <button ng-click="logout()" type="submit" class="btn btn-danger">{{'LOGOUT' | translate}}</button>
+            <button ng-click="logout()" type="button" class="btn btn-danger">{{'LOGOUT' | translate}}</button>
         </div>
     </form>
     <div ng-if="show_2fa_button">
@@ -164,7 +164,8 @@
             <input type="password" class="form-control" id="loginPassword" placeholder="{{'PASSWORD' | translate}}" ng-model="login_data.password" required>
         </div>
         <div class="checkbox">
-            <label><input type="checkbox" ng-model="login_data.remember"> {{'REMEMBER_USERNAME_AND_SERVER' | translate}}</label>
+            <label ng-if="authkey_enabled || ldap_enabled"><input type="checkbox" ng-model="login_data.remember"> {{'REMEMBER_USERNAME_AND_SERVER' | translate}}</label>
+            <label ng-if="!authkey_enabled && !ldap_enabled"><input type="checkbox" ng-model="login_data.remember"> {{'REMEMBER_SERVER' | translate}}</label>
         </div>
         <div class="checkbox">
             <label><input type="checkbox" ng-model="login_data.trust"> {{'TRUST_DEVICE' | translate}}</label>
@@ -515,6 +516,7 @@
 <script src="js/service/helper.js" type="application/javascript"></script>
 <script src="js/service/device.js" type="application/javascript"></script>
 <script src="js/service/message.js" type="application/javascript"></script>
+<script src="js/service/notification.js" type="application/javascript"></script>
 <script src="js/service/item-blueprint.js" type="application/javascript"></script>
 <script src="js/service/share-blueprint.js" type="application/javascript"></script>
 <script src="js/service/crypto-library.js" type="application/javascript"></script>

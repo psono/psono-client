@@ -648,6 +648,13 @@
             };
 
             if (typeof(node.secret_id) === 'undefined') {
+                if (node.hasOwnProperty('type')) {
+                    var bp = itemBlueprint.get_blueprint(node.type);
+                    if (bp.hasOwnProperty('convertToSecret')) {
+                        onSuccess(bp.convertToSecret(node));
+                        return;
+                    }
+                }
                 onSuccess(node)
             } else {
                 managerSecret.read_secret(node.secret_id, node.secret_key)
@@ -878,6 +885,7 @@
 
                 var target_path_copy = orig_target_path.slice();
                 var target_path_copy2 = orig_target_path.slice();
+                var target_path_copy3 = orig_target_path.slice();
                 var item_path_copy = orig_item_path.slice();
                 target_path_copy.push(element.id);
                 item_path_copy.push(element.id);
@@ -943,7 +951,7 @@
                         timeout = timeout + 50;
                         $timeout(function(){
                             closest_share_info = managerShare.get_closest_parent_share(
-                                target_path_copy2.concat(secret_link.path), datastore, datastore, 1
+                                target_path_copy2.concat(secret_link.path), datastore, datastore, 0
                             );
                             closest_parent = closest_share_info['closest_share'];
                             managerSecretLink.on_secret_moved(secret_link.id, closest_parent);
@@ -957,7 +965,7 @@
                         timeout = timeout + 50;
                         $timeout(function(){
                             closest_share_info = managerShare.get_closest_parent_share(
-                                target_path_copy2.concat(file_link.path), datastore, datastore, 1
+                                target_path_copy2.concat(file_link.path), datastore, datastore, 0
                             );
                             closest_parent = closest_share_info['closest_share'];
                             managerFileLink.on_file_moved(file_link.id, closest_parent);
@@ -967,7 +975,7 @@
 
                 // update the parents inside of the new target
                 closest_share_info = managerShare.get_closest_parent_share(
-                    target_path_copy2, datastore, datastore, 0
+                    target_path_copy3, datastore, datastore, 0
                 );
                 closest_parent = closest_share_info['closest_share'];
 

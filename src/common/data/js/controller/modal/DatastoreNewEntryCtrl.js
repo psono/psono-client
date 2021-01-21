@@ -117,7 +117,7 @@
                 reset();
                 reset_fields();
                 if ($scope.bp.selected.hasOwnProperty('activate')) {
-                    $scope.bp.selected.activate();
+                    $scope.bp.selected.activate($scope.bp.selected);
                 }
             }
 

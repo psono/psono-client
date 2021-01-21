@@ -50,6 +50,12 @@
             <a href="https://play.google.com/store/apps/details?id=com.psono.psono">{{'DOWNLOAD_PSONO' | translate}} <i class="fa fa-download" aria-hidden="true"></i></a>
         </div>
     </div>
+    <div class="overlay" ng-if="!disable_download_bar && show_ios_download">
+        <a href="#" class="closebtn" ng-click="close_ios()"><i class="fa fa-times" aria-hidden="true"></i></a>
+        <div class="overlay-content">
+            <a href="https://apps.apple.com/us/app/psono-password-manager/id1545581224">{{'DOWNLOAD_PSONO' | translate}} <i class="fa fa-download" aria-hidden="true"></i></a>
+        </div>
+    </div>
     <div class="overlay" ng-if="!disable_download_bar && show_chrome_download">
         <a href="#" class="closebtn" ng-click="close_chrome()"><i class="fa fa-times" aria-hidden="true"></i></a>
         <div class="overlay-content">
@@ -261,7 +267,8 @@
                     <input type="password" class="form-control" id="loginPassword" placeholder="{{'PASSWORD' | translate}}" ng-model="login_data.password" required>
                 </div>
                 <div class="checkbox">
-                    <label><input type="checkbox" ng-model="login_data.remember"> {{'REMEMBER_USERNAME_AND_SERVER' | translate}}</label>
+                    <label ng-if="authkey_enabled || ldap_enabled"><input type="checkbox" ng-model="login_data.remember"> {{'REMEMBER_USERNAME_AND_SERVER' | translate}}</label>
+                    <label ng-if="!authkey_enabled && !ldap_enabled"><input type="checkbox" ng-model="login_data.remember"> {{'REMEMBER_SERVER' | translate}}</label>
                 </div>
                 <div class="checkbox">
                     <label><input type="checkbox" ng-model="login_data.trust"> {{'TRUST_DEVICE' | translate}}</label>
@@ -643,6 +650,7 @@
 <script src="js/service/helper.js" type="application/javascript"></script>
 <script src="js/service/device.js" type="application/javascript"></script>
 <script src="js/service/message.js" type="application/javascript"></script>
+<script src="js/service/notification.js" type="application/javascript"></script>
 <script src="js/service/item-blueprint.js" type="application/javascript"></script>
 <script src="js/service/share-blueprint.js" type="application/javascript"></script>
 <script src="js/service/crypto-library.js" type="application/javascript"></script>

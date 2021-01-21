@@ -494,6 +494,42 @@
             input.remove();
         }
 
+        /**
+         * @ngdoc
+         * @name psonocli.browserClient#notify
+         * @methodOf psonocli.browserClient
+         *
+         * @description
+         * Create a notification
+         *
+         * @param {string} content The notification content
+         */
+        function notify(content) {
+            var options = { silent: true }
+
+            if (!('Notification' in window)) {
+                console.error('This browser does not support desktop notification');
+                return
+            }
+
+            if (Notification.permission === 'denied') {
+                console.warn('Notification are denied');
+                return
+            }
+
+            if (Notification.permission === 'granted') {
+                return new Notification(content, options);
+            }
+
+            if (Notification.permission !== 'denied') {
+                Notification.requestPermission().then(function (permission) {
+                    if (permission === 'granted') {
+                        return new Notification(content, options);
+                    }
+                });
+            }
+        }
+
 
         /**
          * @ngdoc
@@ -533,6 +569,7 @@
             get_config:get_config,
             disable_browser_password_saving: disable_browser_password_saving,
             copy_to_clipboard: copy_to_clipboard,
+            notify: notify,
             getOfflineCacheEncryptionKey: getOfflineCacheEncryptionKey
         };
     };
