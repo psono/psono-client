@@ -204,6 +204,40 @@
                 $window.location.href = 'index.html#!/datastore/search/' + secret_id;
             }
         };
+        var _blueprint_totp = {
+            id: "totp", // Unique ID
+            name: "TOTP_AUTHENTICATOR", // Displayed in Dropdown Menu
+            title_field: "totp_title", // is the main column, that is used as filename
+            autosubmit_field: "totp_auto_submit", // is the filter column for auto submit
+            search: ['totp_title'], // are searched when the user search his entries
+            fields: [ // All fields for this object with unique names
+                { name: "totp_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true, error_message_required: 'TITLE_IS_REQUIRED' },
+                { name: "totp_code", field: "input", type: "totp_code", validationType: "totp_code", title: "SECRET", placeholder: "SECRET", autocomplete: "new-totp",
+                    dropmenuItems:[
+                        {
+                            icon: "fa fa-eye-slash",
+                            text: 'SHOW_OR_HIDE',
+                            onclick:function(id, item) {
+                                if (document.getElementById(id).type === 'text') {
+                                    document.getElementById(id).type = 'password';
+                                } else {
+                                    document.getElementById(id).type = 'text';
+                                }
+                            }
+                        }
+                    ]},
+                { name: "totp_notes", field: "textarea", title: "NOTES", placeholder: "NOTES"},
+            ],
+            /**
+             * will open a new tab
+             *
+             * @param secret_id
+             * @param content
+             */
+            onOpenSecret: function(secret_id, content) {
+                $window.location.href = 'index.html#!/datastore/search/' + secret_id;
+            }
+        };
         var _blueprint_note = {
             id: "note",
             name: "NOTE",
@@ -934,6 +968,7 @@
         var _blueprints = {
             website_password: _blueprint_website_password,
             application_password: _blueprint_application_password,
+            totp: _blueprint_totp,
             note: _blueprint_note,
             mail_gpg_own_key: _blueprint_mail_gpg_own_key,
             bookmark: _blueprint_bookmark

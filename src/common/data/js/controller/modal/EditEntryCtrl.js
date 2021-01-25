@@ -7,14 +7,15 @@
      * @requires $rootScope
      * @requires $scope
      * @requires $uibModalInstance
+     * @requires $interval
      * @requires psonocli.itemBlueprint
      * @requires psonocli.offlineCache
      *
      * @description
      * Controller for the "Edit Entry" modal
      */
-    angular.module('psonocli').controller('ModalEditEntryCtrl', ['$rootScope', '$scope', '$uibModal', '$uibModalInstance', 'itemBlueprint', 'helper', 'offlineCache', 'node', 'path', 'data',
-        function ($rootScope, $scope, $uibModal, $uibModalInstance, itemBlueprint, helper, offlineCache, node, path, data) {
+    angular.module('psonocli').controller('ModalEditEntryCtrl', ['$rootScope', '$scope', '$uibModal', '$uibModalInstance', '$interval', 'itemBlueprint', 'cryptoLibrary', 'helper', 'offlineCache', 'node', 'path', 'data',
+        function ($rootScope, $scope, $uibModal, $uibModalInstance, $interval, itemBlueprint, cryptoLibrary, helper, offlineCache, node, path, data) {
             $scope.show_history = show_history;
             $scope.reset = reset;
             $scope.save = save;
@@ -27,11 +28,20 @@
             $scope.name = node.name;
             $scope.content = '';
             $scope.isCollapsed = true;
+            $scope.otherData = {
+                'totp_colors': ['#5cb85c', '#cccccc'],
+                'totp_percentage': [0],
+                'totp_options': {
+                    'aspectRatio': 1,
+                    'cutoutPercentage': 85,
+                },
+                'totp_token': '',
+            };
             $scope.errors = [];
+            var timer;
             activate();
 
             function activate(){
-
 
                 $scope.offline = offlineCache.is_active();
                 $rootScope.$on('offline_mode_enabled', function() {
@@ -53,10 +63,28 @@
                         }
                     }
                 }
+                if ($scope.node.type === 'totp') {
+                    var totp_code = ''
+                    for (i = $scope.bp.selected.fields.length - 1; i >= 0; i--) {
+                        if ($scope.bp.selected.fields[i].hasOwnProperty('type') && $scope.bp.selected.fields[i].hasOwnProperty('value') && $scope.bp.selected.fields[i]['type'] === 'totp_code') {
+                            totp_code = $scope.bp.selected.fields[i]['value'];
+                        }
+                    }
+                    timer = $interval(function() {
+                        $scope.otherData['totp_token'] = cryptoLibrary.get_totp_token(totp_code);
+                        var percentage = 100 - (30 - (Math.round(new Date().getTime() / 1000.0) % 30)) / 0.3
+                        $scope.otherData['totp_percentage'] = [percentage, 100-percentage];
+                    }, 500);
+                }
 
                 $scope.$watch('bp.selected', function(newValue, oldValue) {
                     if (typeof $scope.bp.selected.onEditModalOpen !== 'undefined') {
                         $scope.bp.selected.onEditModalOpen($scope.bp.selected);
+                    }
+                });
+                $scope.$on('$destroy', function () {
+                    if (timer) {
+                        $interval.cancel(timer);
                     }
                 });
             }

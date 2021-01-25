@@ -288,6 +288,24 @@
                 '967fd5c3c8386609c1ac57209a6f68a147a56518a7ed5df3285beea58d671f62'
             )).toBe(true);
         }));
+
+        it('sha1', inject(function (cryptoLibrary, converter) {
+            expect(cryptoLibrary.sha1(
+                'test message'
+            )).toBe("35ee8386410d41d14b3f779fc95f4695f4851682");
+        }));
+
+        it('sha256', inject(function (cryptoLibrary, converter) {
+            expect(cryptoLibrary.sha256(
+                'test message'
+            )).toBe("3f0a377ba0a4a460ecb616f6507ce0d8cfa3e704025d4fda3ed0c5ca05468728");
+        }));
+
+        it('sha512', inject(function (cryptoLibrary, converter) {
+            expect(cryptoLibrary.sha512(
+                'test message'
+            )).toBe("950b2a7effa78f51a63515ec45e03ecebe50ef2f1c41e69629b50778f11bc080002e4db8112b59d09389d10f3558f85bfdeb4f1cc55a34217af0f8547700ebf3");
+        }));
     });
 
 }).call();

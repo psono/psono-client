@@ -1,4 +1,7 @@
 {
+  "INVALID_TOTP_SECRET": "Invalid TOTP secret",
+  "INVALID_URL": "Invalid URL",
+  "TOTP_AUTHENTICATOR": "TOTP Authenticator",
   "RECYCLING_BIN": "Recycling Bin",
   "TOGGLE_GRANT_RIGHT": "Toggle Grant Right",
   "TOGGLE_OWN_GRANT_RIGHT_WARNING": "You are about to revoke your own permission to change the permissions of users for this share. Make sure that someone else has grant rights before revoking your own. Are you sure that you want to continue?",
@@ -381,6 +384,7 @@
   "GPG_KEY": "GPG Key",
   "URL": "URL",
   "BOOKMARK": "Bookmark",
+  "SHOW_OR_HIDE": "Show / Hide",
   "SHOW_OR_HIDE_PASSWORD": "Show / Hide Password",
   "GENERATE_PASSWORD": "Generate Password",
   "TITLE": "Title",

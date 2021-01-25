@@ -1501,6 +1501,10 @@
                 return 'fa fa-key'
             }
 
+            if(item.type === 'totp') {
+                return 'fa fa-qrcode'
+            }
+
             if(item.type === 'user') {
                 return 'fa fa-user'
             }
