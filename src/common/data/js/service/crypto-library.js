@@ -723,17 +723,17 @@
                 return (s < 15.5 ? '0' : '') + Math.round(s).toString(16);
             }
             function base32tohex(base32) {
-                let base32chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567',
+                var base32chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567',
                     bits = '',
                     hex = '';
 
-                for(let i = 0; i < base32.length; i++) {
-                    let val = base32chars.indexOf(base32.charAt(i).toUpperCase());
+                for(var i = 0; i < base32.length; i++) {
+                    var val = base32chars.indexOf(base32.charAt(i).toUpperCase());
                     bits += leftpad(val.toString(2), 5, '0');
                 }
 
-                for(let i = 0; i + 4 <= bits.length; i += 4) {
-                    let chunk = bits.substr(i, 4);
+                for(var i = 0; i + 4 <= bits.length; i += 4) {
+                    var chunk = bits.substr(i, 4);
                     hex = hex + parseInt(chunk, 2).toString(16);
                 }
                 return hex;
@@ -746,7 +746,7 @@
             }
             
             options = options || {};
-            let epoch, time, shaObj, hmac, offset, otp;
+            var epoch, time, shaObj, hmac, offset, otp;
             options.period = options.period || 30;
             options.algorithm = options.algorithm || 'SHA-1';
             options.digits = options.digits || 6;
