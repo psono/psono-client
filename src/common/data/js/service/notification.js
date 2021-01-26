@@ -35,11 +35,16 @@
                         browserClient.notify(notificationContent)
                     }
                     return
+                case 'totp_token_copy':
+                    if (settings.get_setting('enable_notification_copy')) {
+                        browserClient.notify(notificationContent)
+                    }
+                    return
                 default:
                     console.error("This notification type: '" + notificationType + "' doesn't exist");
             }
 
-        };
+        }
 
         return {
             push: push

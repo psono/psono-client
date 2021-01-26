@@ -1390,6 +1390,22 @@
                     });
                 }
             },
+            copy_totp_token_to_clipboard: {
+                id: 'copy_totp_token_to_clipboard',
+                name: 'COPY_TOTP_TOKEN',
+                icon: 'fa fa-clipboard',
+                ngClass: function(item) {
+                    if (item.hasOwnProperty('share_rights') && item.share_rights.read !== true) {
+                        return 'hidden';
+                    }
+                },
+                condition: function(item) {
+                    return item.hasOwnProperty('type') && item['type'] === 'totp';
+                },
+                onClick: function(item, path) {
+                    registrations['copy_totp_token'](item);
+                }
+            },
             copy_website_password_username_to_clipboard: {
                 id: 'copy_website_password_username_to_clipboard',
                 name: 'COPY_USERNAME',

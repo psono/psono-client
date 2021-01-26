@@ -29,6 +29,7 @@
 
         function activate() {
             $translate([
+                'TOTP_CODE_COPY_NOTIFICATION',
                 'PASSWORD_COPY_NOTIFICATION',
                 'USERNAME_COPY_NOTIFICATION',
             ]).then(function (translations) {
@@ -285,10 +286,34 @@
             }
         };
 
+        /**
+         * @ngdoc
+         * @name psonocli.managerDatastorePassword#copy_totp_token
+         * @methodOf psonocli.managerDatastorePassword
+         *
+         * @description
+         * Copies the TOTP token of a given secret to the clipboard
+         *
+         * @param {object} item The item of which we want to load the TOTP token into our clipboard
+         */
+        var copy_totp_token = function(item) {
+
+            var secret_key = managerBase.find_key_nolimit('datastore-password-leafs', item.secret_id);
+
+            var decrypted_secret = read_secret(item.secret_id, secret_key, true);
+
+            browserClient.copy_to_clipboard(cryptoLibrary.get_totp_token(decrypted_secret['totp_code']));
+
+            if (_translations && _translations.TOTP_TOKEN_COPY_NOTIFICATION) {
+                notification.push('totp_token_copy', _translations.TOTP_TOKEN_COPY_NOTIFICATION)
+            }
+        };
+
         // registrations
 
         itemBlueprint.register('copy_username', copy_username);
         itemBlueprint.register('copy_password', copy_password);
+        itemBlueprint.register('copy_totp_token', copy_totp_token);
 
         return {
             create_secret: create_secret,
@@ -297,7 +322,8 @@
             redirect_secret: redirect_secret,
             on_item_click: on_item_click,
             copy_username: copy_username,
-            copy_password: copy_password
+            copy_password: copy_password,
+            copy_totp_token: copy_totp_token
         };
     };
 
