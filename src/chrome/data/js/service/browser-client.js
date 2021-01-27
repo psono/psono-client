@@ -503,18 +503,18 @@
         function disable_browser_password_saving(value) {
             var oldPMValue = storage.find_key('settings', 'disable_browser_pm').value;
             value = value !== undefined ? value : oldPMValue;
-                        return $q(function(resolve, reject) {
+            return $q(function(resolve, reject) {
                 chrome.privacy.services.passwordSavingEnabled.get({}, function(details) {
-                  if (details.levelOfControl === 'controlled_by_this_extension') {
-                    chrome.privacy.services.passwordSavingEnabled.set({ value: !value }, function() {
-                      if (chrome.runtime.lastError === undefined) {
-                        resolve("Hooray, it worked!");
-                      } else {
-                        reject("Sadness!");
-                        console.log("Sadness!", chrome.runtime.lastError);
-                      }
-                    });
-                  }
+                    if (details.levelOfControl === 'controlled_by_this_extension') {
+                        chrome.privacy.services.passwordSavingEnabled.set({ value: !value }, function() {
+                            if (chrome.runtime.lastError === undefined) {
+                                resolve("Hooray, it worked!");
+                            } else {
+                                reject("Sadness!");
+                                console.log("Sadness!", chrome.runtime.lastError);
+                            }
+                        });
+                    }
                 });
             });
         }
