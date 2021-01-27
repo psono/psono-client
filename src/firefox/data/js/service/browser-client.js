@@ -508,7 +508,8 @@
 
                 var getting = browser.privacy.services.passwordSavingEnabled.get({});
                 getting.then(function (got) {
-                    if (got.levelOfControl) {
+                if ((got.levelOfControl === "controlled_by_this_extension") ||
+                    (got.levelOfControl === "controllable_by_this_extension")) {
                         var setting = browser.privacy.services.passwordSavingEnabled.set({
                             value: !value
                         });
