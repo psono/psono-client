@@ -332,6 +332,7 @@
   "READ": "Lesen",
   "WRITE": "Schreiben",
   "GRANT": "Gewähren",
+  "ADMIN": "Admin",
   "ACCEPTED": "Akzeptiert",
   "DECRYPTING_SECRET": "Secret entschlüsseln ...",
   "DECRYPTING_FILE": "Datei entschlüsseln ...",

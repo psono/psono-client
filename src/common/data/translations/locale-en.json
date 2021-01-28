@@ -332,6 +332,7 @@
   "READ": "Read",
   "WRITE": "Write",
   "GRANT": "Grant",
+  "ADMIN": "Admin",
   "ACCEPTED": "Accepted",
   "DECRYPTING_SECRET": "Decrypting Secret ...",
   "DECRYPTING_FILE": "Decrypting File ...",
