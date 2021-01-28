@@ -61,7 +61,7 @@
                     initial_value: false
                 }, {
                     id: 'grant',
-                    name: 'GRANT',
+                    name: 'ADMIN',
                     initial_value: false
                 }];
 
