@@ -108,8 +108,9 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
             if(fields[i].type === '') {
                 continue;
             }
-            if (fields[i].style.display === 'none')
+            if (fields[i].style.display === 'none') {
                 continue;
+            }
 
             if(fields[i].type === 'password') {
                 password = fields[i].value;
@@ -150,7 +151,11 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
             if (inputs[i].classList.contains('psono-add_form_buttons-covered')) {
                 continue;
             }
-
+            
+            if (inputs[i].offsetWidth < 90) {
+                continue;
+            }
+            
             inputs[i].classList.add("psono-add_form_buttons-covered");
 
             // found a password field, lets start the magic
