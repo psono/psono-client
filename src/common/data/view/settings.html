@@ -47,6 +47,7 @@
 
                                 <input ng-if="field.field === 'input' && field.type === 'checkbox'"
                                        type="{{field.type}}" ng-model="field.value"
+                                       ng-change="settings[field.onChange](settings.fields)"
                                        style="margin-top:10px;"
                                        ng-required="{{field.required}}"
                                        ng-readonly="{{field.readonly}}"

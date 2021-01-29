@@ -1,7 +1,7 @@
 (function(angular, $, window) {
     'use strict';
 
-    var browserClient = function(helper, $rootScope, $q, $templateRequest, $http, $location, storage) {
+        var browserClient = function(helper, $rootScope, $q, $templateRequest, $http, $location, storage) {
 
         var registrations = {};
 
@@ -496,15 +496,18 @@
          * @methodOf psonocli.browserClient
          *
          * @description
-         * Disables the password saving function in the browser
+         * Manipulate the password saving function in the browser
          *
          * @returns {promise} A promise with the success or failure state
          */
-        function disable_browser_password_saving() {
+        function disable_browser_password_saving(value) {
+            var oldPMValue = storage.find_key('settings', 'disable_browser_pm').value;
+            value = value !== undefined ? value : oldPMValue;
             return $q(function(resolve, reject) {
                 chrome.privacy.services.passwordSavingEnabled.get({}, function(details) {
-                    if (details.levelOfControl === 'controllable_by_this_extension') {
-                        chrome.privacy.services.passwordSavingEnabled.set({ value: false }, function() {
+                    if (details.levelOfControl === "controlled_by_this_extension" ||
+                        details.levelOfControl === "controllable_by_this_extension") {
+                        chrome.privacy.services.passwordSavingEnabled.set({ value: !value }, function() {
                             if (chrome.runtime.lastError === undefined) {
                                 resolve("Hooray, it worked!");
                             } else {

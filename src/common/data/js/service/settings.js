@@ -10,13 +10,14 @@
      * @requires psonocli.managerDatastoreUser
      * @requires psonocli.managerDatastoreSetting
      * @requires psonocli.languagePicker
+     * @requires psonocli.browserClient
      *
      * @description
      * Service that handles all the settings
      */
 
 
-    var settings = function($q, storage, managerDatastore, managerDatastoreUser, managerDatastoreSetting, languagePicker) {
+    var settings = function($q, storage, managerDatastore, managerDatastoreUser, managerDatastoreSetting, languagePicker, browserClient) {
 
         var _default_tab = 'password-generator';
 
@@ -27,6 +28,7 @@
             { key: 'language', title: 'LANGUAGE', description: 'LANGUAGE_DESCRIPTION' },
             { key: 'notification', title: 'NOTIFICATIONS', description: 'NOTIFICATIONS_DESCRIPTION' },
             { key: 'gpg', title: 'GPG', description: 'GPG_DESCRIPTION' },
+            { key: 'general', title: 'GENERAL', description: 'General settings' }
         ];
 
         var _settings = {
@@ -46,6 +48,7 @@
                 // Notification
                 { key: "enable_notification_copy", field: "input", type: "checkbox", title: "ENABLE_NOTIFICATION_COPY", default: true, tab: 'notification'},
                 // General
+                { key: "disable_browser_pm", field: "input", type: "checkbox", title: "DISABLE_BROWSER_PM", default: true, tab: "general", onChange: 'on_change_pm_lock' }
             ],
             get_gpg_default_key_options: function () {
                 return $q(function(resolve) {
@@ -99,6 +102,14 @@
                     }
                     languagePicker.changeLanguage(fields[i].value.id)
                 }
+            },
+            on_change_pm_lock: function (fields) {
+              for(var i = 0; i < fields.length; i++) {
+                if (fields[i].key !== 'disable_browser_pm') {
+                  continue;
+                }
+                browserClient.disable_browser_password_saving(fields[i].value);
+              }
             }
         };
 
@@ -325,6 +336,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("settings", ['$q', 'storage', 'managerDatastore', 'managerDatastoreUser', 'managerDatastoreSetting', 'languagePicker', settings]);
+    app.factory("settings", ['$q', 'storage', 'managerDatastore', 'managerDatastoreUser', 'managerDatastoreSetting', 'languagePicker', 'browserClient', settings]);
 
 }(angular));
