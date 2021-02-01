@@ -564,7 +564,7 @@
   "CLIENT_INFO": "Client Info",
   "OVERVIEW_DESCRIPTION": "The overview of your account with details like your public key.",
   "CHANGE_E_MAIL_DESCRIPTION": "You can provide here a new e-mail address (together with your current password for verification).",
-  "CHANGE_PASSWORD_DESCRIPTION": "You can provide here a new password address (together with your current password for verification).",
+  "CHANGE_PASSWORD_DESCRIPTION": "You can provide here a new password (together with your current password for verification).",
   "GENERATE_PASSWORD_RECOVERY_DESCRIPTION": "You should create a password recovery code to recover your account with a lost password.",
   "MULTIFACTOR_AUTHENTICATION_DESCRIPTION": "A second factor is the best security improvement for your account.",
   "DELETE_ACCOUNT_DESCRIPTION": "If you plan to delete your account you can do that here. Be aware all data will be lost.",
