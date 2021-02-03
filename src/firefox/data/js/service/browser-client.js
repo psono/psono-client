@@ -495,7 +495,12 @@
          * @returns {promise} A promise with the success or failure state
          */
         function disable_browser_password_saving(value) {
-            var oldPMValue = storage.find_key('settings', 'disable_browser_pm').value;
+            var oldPMValue = storage.find_key('settings', 'disable_browser_pm');
+            if (oldPMValue == null) {
+                oldPMValue = true;
+            } else {
+                oldPMValue = oldPMValue.value;
+            }
             value = value !== undefined ? value : oldPMValue;
             return $q(function(resolve, reject) {
                 function onSet(result) {
