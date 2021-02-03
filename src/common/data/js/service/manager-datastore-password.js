@@ -679,6 +679,8 @@
                         save_datastore_content(datastore, [[]]);
                         handle_datastore_content_changed(datastore);
                         
+                        return datastore_object;
+                        
                     }, onError);
             };
 
@@ -698,7 +700,7 @@
          * @param {string} username The username to store
          * @param {string} password The password to store
          *
-         * @returns {promise} Returns a promise with the new password
+         * @returns {promise} Returns a promise with the datastore object
          */
         var save_password = function(url, username, password) {
 
@@ -724,12 +726,12 @@
                 console.log(data);
             };
 
-            var onSuccess = function () {
+            var onSuccess = function (datastore_object) {
 
                 // we return a promise. We do not yet have a proper error handling and returning
                 // a promise might make it easier later to wait or fix errors
                 return $q(function (resolve) {
-                    resolve(password);
+                    resolve(datastore_object);
                 });
             };
 
@@ -747,7 +749,7 @@
          *
          * @param {string} password The password to store
          *
-         * @returns {promise} Returns a promise with the new password
+         * @returns {promise} Returns a promise with the datastore object
          */
         var save_password_active_tab = function(password) {
 
@@ -760,8 +762,8 @@
                 var onError = function(result) {
                     //pass
                 };
-                var onSuccess = function(password) {
-                    return password;
+                var onSuccess = function(datastore_object) {
+                    return datastore_object;
                 };
 
 
@@ -783,7 +785,7 @@
          * @description
          * Bookmarks the active tab
          *
-         * @returns {promise} Returns a promise
+         * @returns {promise} Returns a promise with the datastore object
          */
         var bookmark_active_tab = function() {
 
@@ -812,12 +814,12 @@
                     // pass
                 };
 
-                var onSuccess = function () {
+                var onSuccess = function (datastore_object) {
 
                     // we return a promise. We do not yet have a proper error handling and returning
                     // a promise might make it easier later to wait or fix errors
                     return $q(function (resolve) {
-                        resolve();
+                        resolve(datastore_object);
                     });
                 };
 
