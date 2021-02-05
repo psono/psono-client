@@ -31,8 +31,9 @@
         function ($scope, $rootScope, $filter, $timeout, account,
                   managerDatastorePassword, managerDatastoreUser, managerSecurityReport, managerDatastore, managerSecret, browserClient,
                   storage, offlineCache, snapRemote, $window, $route, $routeParams, $location, $uibModal, managerStatus) {
-
+        
             $scope.enable_link_shares = storage.find_key('config', 'server_info') && storage.find_key('config', 'server_info').value && (!storage.find_key('config', 'server_info').value.hasOwnProperty('compliance_disable_link_shares') || ! storage.find_key('config', 'server_info').value['compliance_disable_link_shares'])
+            $scope.enable_offline_mode = storage.find_key('config', 'server_info') && storage.find_key('config', 'server_info').value && (!storage.find_key('config', 'server_info').value.hasOwnProperty('compliance_disable_offline_mode') || ! storage.find_key('config', 'server_info').value['compliance_disable_offline_mode'])
             $scope.open_tab = browserClient.open_tab;
             $scope.create_new_datastore = create_new_datastore;
             $scope.get_link_state = get_link_state;
