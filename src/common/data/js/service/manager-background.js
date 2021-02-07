@@ -303,13 +303,14 @@
                 console.log(data);
             };
 
-            var onSuccess = function() {
+            var onSuccess = function(datastore_object) {
                 $timeout(function() {
                     chrome.tabs.sendMessage(activeTabId, {event: 'secrets-changed', data: {}}, function(response) {
                         // don't do anything
                     });
                 }, 500); // delay 500 ms to give the storage a chance to be stored
 
+                browserClient.open_tab('index.html#!/datastore/edit/'+datastore_object.type+'/'+datastore_object.secret_id);
             };
             
             managerDatastorePassword.save_password_active_tab(request.data.password).then(onSuccess, onError);
@@ -337,12 +338,14 @@
                 console.log(data);
             };
 
-            var onSuccess = function() {
+            var onSuccess = function(datastore_object) {
                 $timeout(function() {
                     chrome.tabs.sendMessage(activeTabId, {event: 'secrets-changed', data: {}}, function(response) {
                         // don't do anything
                     });
                 }, 500); // delay 500 ms to give the storage a chance to be stored
+
+                browserClient.open_tab('index.html#!/datastore/edit/'+datastore_object.type+'/'+datastore_object.secret_id);
 
             };
             managerDatastorePassword.bookmark_active_tab().then(onSuccess, onError);

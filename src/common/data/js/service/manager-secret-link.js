@@ -22,7 +22,8 @@
          * @methodOf psonocli.managerSecretLink
          *
          * @description
-         * Searches a datastore object and moves all links to the
+         * Searches a datastore object and moves all links to the new target
+         * Won't look into shares nor move them
          *
          * @param {object} datastore The datastore object
          * @param {uuid|undefined} [new_parent_share_id=null] (optional) New parent share ID, necessary if no new_parent_datastore_id is provided
@@ -41,12 +42,19 @@
             }
             
             for (i = 0; datastore.hasOwnProperty('folders') && i < datastore['folders'].length; i++) {
+                if (datastore['folders'][i].hasOwnProperty('share_id')) {
+                    continue;
+                }
                 move_secret_links(datastore['folders'][i], new_parent_share_id, new_parent_datastore_id)
             }
             for (i = 0; datastore.hasOwnProperty('items') && i < datastore['items'].length; i++) {
-                if (datastore['items'][i].hasOwnProperty('secret_id')) {
-                    move_secret_link_timed(datastore['items'][i]['id'], new_parent_share_id, new_parent_datastore_id)
+                if (!datastore['items'][i].hasOwnProperty('secret_id')) {
+                    continue;
                 }
+                if (datastore['items'][i].hasOwnProperty('share_id')) {
+                    continue;
+                }
+                move_secret_link_timed(datastore['items'][i]['id'], new_parent_share_id, new_parent_datastore_id)
             }
         };
         /**

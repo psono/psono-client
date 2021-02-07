@@ -142,14 +142,23 @@
                         <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
                              ng-if="!n.tab && (!n.position || n.position == 'before')">
 
-                            <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
+                            <div ng-if="n.type == 'totp_code'" style="position: relative; margin-bottom: 10px; height:200px; width:200px; margin-left: auto; margin-right: auto;">
+                                <canvas id="doughnut_totp_code" class="chart chart-doughnut"
+                                        chart-colors="otherData.totp_colors"
+                                        chart-options="otherData.totp_options"
+                                        chart-data="otherData.totp_percentage">
+                                </canvas>
+                                <div style="position: absolute; top:50%; left:50%;  transform: translate(-50%, -50%);text-align: center; font-size: 20px;">{{ otherData.totp_token }}</div>
+                            </div>
+
+                            <input ng-if="n.field == 'input' && !n.dropmenuItems && n.type !== 'totp_code'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
                                    id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
                                    ng-model="n.value" ng-hide="n.hidden || n.hidden_edit" ng-readonly="n.readonly" ng-attr-autocomplete="{{n.autocomplete}}"
                                    ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems" ng-hide="n.hidden || n.hidden_edit">{{n.title | translate}}</span>
 
                             <button ng-if="n.field == 'button'" class="btn {{n.class}}" type="{{n.type}}" ng-hide="n.hidden || n.hidden_edit" ng-click="bp.selected[n.onClick](node, bp.selected.fields, errors)">{{n.title | translate}}</button>
 
-                            <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
+                            <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems && n.type !== 'totp_code'">
                                 <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
                                        id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
                                        ng-model="n.value" ng-hide="n.hidden || n.hidden_edit" ng-readonly="n.readonly" ng-attr-autocomplete="{{n.autocomplete}}"

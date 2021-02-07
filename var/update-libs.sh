@@ -65,7 +65,7 @@ wget https://raw.githubusercontent.com/techfort/LokiJS/v1.5.8/build/lokijs.min.j
 wget https://raw.githubusercontent.com/jakiestfu/Snap.js/1.9.3/snap.min.js -O src/common/data/js/lib/snap.min.js
 wget https://raw.githubusercontent.com/emn178/js-sha512/v0.8.0/build/sha512.min.js -O src/common/data/js/lib/sha512.min.js
 wget https://raw.githubusercontent.com/emn178/js-sha256/v0.9.0/build/sha256.min.js -O src/common/data/js/lib/sha256.min.js
-wget https://raw.githubusercontent.com/emn178/js-sha1/v0.6.0/build/sha1.min.js -O src/common/data/js/lib/sha1.min.js
+wget https://raw.githubusercontent.com/Caligatio/jsSHA/master/dist/sha.js -O src/common/data/js/lib/sha1.min.js
 wget https://raw.githubusercontent.com/3nsoft/ecma-nacl/1a4d146cac514dda6ba1b761f8fbbcd24b0b640d/dist/lib-browser/ecma-nacl.min.js -O src/common/data/js/lib/ecma-nacl.min.js
 wget https://raw.githubusercontent.com/jackspirou/clientjs/d7584e10a4e45a4a96d712cd4292465aeedc0218/dist/client.min.js -O src/common/data/js/lib/client.min.js
 wget https://raw.githubusercontent.com/eligrey/FileSaver.js/v2.0.2/dist/FileSaver.min.js -O src/common/data/js/lib/FileSaver.min.js

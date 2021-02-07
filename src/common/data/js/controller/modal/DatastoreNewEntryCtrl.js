@@ -6,6 +6,7 @@
      * @name psonocli.controller:ModalDatastoreNewEntryCtrl
      * @requires $scope
      * @requires $uibModalInstance
+     * @requires $translate
      * @requires psonocli.itemBlueprint
      * @requires psonocli.cryptoLibrary
      * @requires psonocli.helper
@@ -13,8 +14,8 @@
      * @description
      * Controller for the "New Entry" modal
      */
-    angular.module('psonocli').controller('ModalDatastoreNewEntryCtrl', ['$scope', '$uibModalInstance', 'itemBlueprint', 'cryptoLibrary', 'helper', 'parent', 'path',
-        function ($scope, $uibModalInstance, itemBlueprint, cryptoLibrary, helper, parent, path) {
+    angular.module('psonocli').controller('ModalDatastoreNewEntryCtrl', ['$scope', '$uibModalInstance', '$translate', 'itemBlueprint', 'cryptoLibrary', 'helper', 'parent', 'path',
+        function ($scope, $uibModalInstance, $translate, itemBlueprint, cryptoLibrary, helper, parent, path) {
 
             $scope.reset = reset;
             $scope.on_select = on_select;
@@ -45,6 +46,7 @@
                 all: itemBlueprint.get_blueprints(),
                 selected: itemBlueprint.get_default_blueprint()
             };
+            var _translations;
 
             activate();
 
@@ -69,6 +71,12 @@
                 });
 
                 itemBlueprint.register('upload_complete', reset);
+                $translate([
+                    'INVALID_TOTP_SECRET',
+                    'INVALID_URL'
+                ]).then(function (translations) {
+                    _translations = translations;
+                });
             }
 
             /**
@@ -144,10 +152,13 @@
                     }
                     if (field.hasOwnProperty("validationType")) {
                         if (field['validationType'].toLowerCase() === 'url' && field['value'] && !helper.is_valid_url(field['value'])) {
-                            $scope.errors.push('Invalid URL in ' + field['title']);
+                            $scope.errors.push(_translations.INVALID_URL);
                         }
                         if (field['validationType'].toLowerCase() === 'email' && field['value'] && !helper.is_valid_email(field['value'])) {
-                            $scope.errors.push('Invalid URL in ' + field['title']);
+                            $scope.errors.push(_translations.INVALID_URL);
+                        }
+                        if (field['validationType'].toLowerCase() === 'totp_code' && field['value'] && !helper.is_valid_totp_code(field['value'])) {
+                            $scope.errors.push(_translations.INVALID_TOTP_SECRET);
                         }
                     }
 

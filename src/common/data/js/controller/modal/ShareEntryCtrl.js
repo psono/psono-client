@@ -11,6 +11,7 @@
      * @requires DTColumnDefBuilder
      * @requires psonocli.shareBlueprint
      * @requires psonocli.managerDatastoreUser
+     * @requires psonocli.managerDatastorePassword
      * @requires psonocli.cryptoLibrary
      * @requires psonocli.helper
      * @requires psonocli.languagePicker
@@ -19,9 +20,9 @@
      * Controller for the "Share Entry" modal
      */
     angular.module('psonocli').controller('ModalShareEntryCtrl', ['$scope', '$uibModalInstance', '$uibModal', 'shareBlueprint',
-        'managerDatastoreUser', 'managerGroups', 'node', 'path', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'cryptoLibrary', 'helper', 'languagePicker',
+        'managerDatastoreUser', 'managerDatastorePassword', 'managerGroups', 'node', 'path', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'cryptoLibrary', 'helper', 'languagePicker',
         function ($scope, $uibModalInstance, $uibModal, shareBlueprint,
-                  managerDatastoreUser, managerGroups, node, path, DTOptionsBuilder, DTColumnDefBuilder, cryptoLibrary, helper, languagePicker) {
+                  managerDatastoreUser, managerDatastorePassword, managerGroups, node, path, DTOptionsBuilder, DTColumnDefBuilder, cryptoLibrary, helper, languagePicker) {
 
             $scope.add_user = add_user;
             $scope.create_group = create_group;
@@ -61,7 +62,7 @@
                     initial_value: false
                 }, {
                     id: 'grant',
-                    name: 'GRANT',
+                    name: 'ADMIN',
                     initial_value: false
                 }];
 
@@ -187,15 +188,36 @@
                                 user_object.data[content.fields[i].name] = content.fields[i].value;
                             }
 
-                            parent.items.push(user_object);
+                            // check if we do not already have the user in our trusted user datastore
+                            // skip if we already have it
+                            var existing_locations = managerDatastorePassword.search_in_datastore(user_object, parent, function(a, b) {
+                                if (!a.hasOwnProperty('data')) {
+                                    return false
+                                }
+                                if (!b.hasOwnProperty('data')) {
+                                    return false
+                                }
+                                if (!a['data'].hasOwnProperty('user_public_key')) {
+                                    return false
+                                }
+                                if (!b['data'].hasOwnProperty('user_public_key')) {
+                                    return false
+                                }
+                                return a['data']['user_public_key'] === b['data']['user_public_key']
+                            });
 
-                            managerDatastoreUser.save_datastore_content(parent).then(function() {
-
+                            if (existing_locations.length < 1) {
+                                parent.items.push(user_object);
+                                managerDatastoreUser.save_datastore_content(parent).then(function() {
+                                    $scope.users.push(user_object);
+                                    $scope.selected_users.push(user_object.id);
+                                }, function() {
+                                    // TODO handle error
+                                });
+                            } else {
                                 $scope.users.push(user_object);
                                 $scope.selected_users.push(user_object.id);
-                            }, function() {
-                                // TODO handle error
-                            });
+                            }
                         });
 
                 }, function () {

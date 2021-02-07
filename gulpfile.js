@@ -307,7 +307,7 @@ var build = function(build_path, type) {
                 output: {
                     comments: saveLicense
                 }
-            }))
+            }).on('error', console.error))
             .pipe(concat('bundle.min.js'))
             .pipe(maps.write('./'))
             .pipe(gulp.dest(path.join(build_path, 'js')));

@@ -153,6 +153,25 @@
 
         /**
          * @ngdoc
+         * @name psonocli.helper#is_valid_totp_code
+         * @methodOf psonocli.helper
+         *
+         * @description
+         * Returns weather we have a valid TOTP code or not. A code needs to be base32 encoded and 10 bytes / 80 bits long.
+         *
+         * @param b32str
+         * @returns {boolean}
+         */
+        function is_valid_totp_code(b32str) {
+            var pattern = new RegExp("^[A-Z2-7=]+$");
+            if (b32str.length % 2 !== 0 || !pattern.test(b32str)) {
+                return false
+            }
+            return true;
+        }
+
+        /**
+         * @ngdoc
          * @name psonocli.helper#get_domain
          * @methodOf psonocli.helper
          *
@@ -652,6 +671,7 @@
             is_valid_url: is_valid_url,
             is_valid_json: is_valid_json,
             is_valid_email: is_valid_email,
+            is_valid_totp_code: is_valid_totp_code,
             get_domain: get_domain,
             array_starts_with: array_starts_with,
             create_list: create_list,

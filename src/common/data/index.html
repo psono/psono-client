@@ -120,8 +120,8 @@
                             <li role="menuitem"><a href="#!/account" ng-if="!offline"><i class="fa fa-sliders fa-fw"></i> {{'ACCOUNT' | translate}}</a></li>
                             <li role="menuitem"><a href="#!/settings" ng-if="!offline"><i class="fa fa-cogs fa-fw"></i> {{'SETTINGS' | translate}}</a></li>
                             <li role="menuitem"><a href="#!/other" ng-if="!offline"><i class="fa fa-tasks fa-fw"></i> {{'OTHER' | translate}}</a></li>
-                            <li role="menuitem"><a href="#" ng-if="!offline" ng-click="go_offline()"><i class="fa fa-plane fa-fw"></i> {{'GO_OFFLINE' | translate}}</a></li>
-                            <li role="menuitem"><a href="" ng-if="offline" ng-click="go_online()"><i class="fa fa-globe fa-fw"></i> {{'GO_ONLINE' | translate}}</a></li>
+                            <li role="menuitem"><a href="#" ng-if="enable_offline_mode && !offline" ng-click="go_offline()"><i class="fa fa-plane fa-fw"></i> {{'GO_OFFLINE' | translate}}</a></li>
+                            <li role="menuitem"><a href="" ng-if="enable_offline_mode && offline" ng-click="go_online()"><i class="fa fa-globe fa-fw"></i> {{'GO_ONLINE' | translate}}</a></li>
                             <li class="divider"></li>
                             <li role="menuitem"><a href="#" ng-click="logout()"><i class="fa fa-sign-out fa-fw"></i> {{'LOGOUT' | translate}}</a></li>
                         </ul>
@@ -131,8 +131,8 @@
                             <li role="menuitem"><a href="#!/account" ng-if="!offline"><i class="fa fa-sliders fa-fw"></i> {{'ACCOUNT' | translate}}</a></li>
                             <li role="menuitem"><a href="#!/settings" ng-if="!offline"><i class="fa fa-cogs fa-fw"></i> {{'SETTINGS' | translate}}</a></li>
                             <li role="menuitem"><a href="#!/other" ng-if="!offline"><i class="fa fa-tasks fa-fw"></i> {{'OTHER' | translate}}</a></li>
-                            <li role="menuitem"><a href="#" ng-if="!offline" ng-click="go_offline()"><i class="fa fa-plane fa-fw"></i> {{'GO_OFFLINE' | translate}}</a></li>
-                            <li role="menuitem"><a href="" ng-if="offline" ng-click="go_offline()"><i class="fa fa-globe fa-fw"></i> {{'GO_ONLINE' | translate}}</a></li>
+                            <li role="menuitem"><a href="#" ng-if="enable_offline_mode && !offline" ng-click="go_offline()"><i class="fa fa-plane fa-fw"></i> {{'GO_OFFLINE' | translate}}</a></li>
+                            <li role="menuitem"><a href="" ng-if="enable_offline_mode && offline" ng-click="go_offline()"><i class="fa fa-globe fa-fw"></i> {{'GO_ONLINE' | translate}}</a></li>
                             <li role="menuitem"><a href="#" ng-click="logout()"><i class="fa fa-sign-out fa-fw"></i> {{'LOGOUT' | translate}}</a></li>
                         </ul>
                     </div>

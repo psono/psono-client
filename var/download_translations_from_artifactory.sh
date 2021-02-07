@@ -8,6 +8,7 @@ curl -o src/common/data/translations/locale-no.json https://psono.jfrog.io/psono
 curl -o src/common/data/translations/locale-he.json https://psono.jfrog.io/psono/psono/client/languages/locale-he.json && \
 curl -o src/common/data/translations/locale-ar.json https://psono.jfrog.io/psono/psono/client/languages/locale-ar.json && \
 curl -o src/common/data/translations/locale-hi.json https://psono.jfrog.io/psono/psono/client/languages/locale-hi.json && \
+curl -o src/common/data/translations/locale-hu.json https://psono.jfrog.io/psono/psono/client/languages/locale-hu.json && \
 curl -o src/common/data/translations/locale-bn.json https://psono.jfrog.io/psono/psono/client/languages/locale-bn.json && \
 curl -o src/common/data/translations/locale-cs.json https://psono.jfrog.io/psono/psono/client/languages/locale-cs.json && \
 curl -o src/common/data/translations/locale-de.json https://psono.jfrog.io/psono/psono/client/languages/locale-de.json && \
@@ -24,6 +25,7 @@ curl -o src/common/data/translations/locale-pt.json https://psono.jfrog.io/psono
 curl -o src/common/data/translations/locale-pt-br.json https://psono.jfrog.io/psono/psono/client/languages/locale-pt-br.json && \
 curl -o src/common/data/translations/locale-pl.json https://psono.jfrog.io/psono/psono/client/languages/locale-pl.json && \
 curl -o src/common/data/translations/locale-ru.json https://psono.jfrog.io/psono/psono/client/languages/locale-ru.json && \
+curl -o src/common/data/translations/locale-sk.json https://psono.jfrog.io/psono/psono/client/languages/locale-sk.json && \
 curl -o src/common/data/translations/locale-vi.json https://psono.jfrog.io/psono/psono/client/languages/locale-vi.json && \
 curl -o src/common/data/translations/locale-zh-cn.json https://psono.jfrog.io/psono/psono/client/languages/locale-zh-cn.json && \
 curl -o src/common/data/translations/locale-zh-hant.json https://psono.jfrog.io/psono/psono/client/languages/locale-zh-hant.json

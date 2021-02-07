@@ -1,4 +1,4 @@
-(function(angular, require, sha512, sha256, sha1, uuid) {
+(function(angular, require, sha512, sha256, jsSHA, uuid) {
     'use strict';
 
     /**
@@ -53,6 +53,23 @@
             } else {
                 throw new Error("No cryptographic random number generator");
             }
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.cryptoLibrary#randomBytes
+         * @methodOf psonocli.cryptoLibrary
+         *
+         * @description
+         * Random byte generator from nacl_factory.js
+         * https://github.com/tonyg/js-nacl
+         *
+         * @returns {Uint8Array} Random byte array
+         */
+        var sha1 = function (text) {
+            var shaObj = new jsSHA("SHA-1", "TEXT", { encoding: "UTF8" });
+            shaObj.update(text);
+            return shaObj.getHash("HEX");
         };
 
         /**
@@ -680,6 +697,74 @@
             return converter.to_hex(pair.pkey);
         };
 
+        
+        /**
+         * @ngdoc
+         * @name psonocli.cryptoLibrary#get_totp_token
+         * @methodOf psonocli.cryptoLibrary
+         *
+         * @description
+         * Returns the TOTP code of a given token
+         * 
+         * From bellstrand/totp-generator licensed under MIT
+         *
+         * @param {string} key The key in base32
+         * @param {object} options The options, by default sha1 (only supported at the moment), 30 sec period and 6 digits
+         *
+         * @returns {string} Returns the TOTP token
+         */
+        var get_totp_token = function (key, options) {
+            
+            function hex2dec(s) {
+                return parseInt(s, 16);
+            }
+
+            function dec2hex(s) {
+                return (s < 15.5 ? '0' : '') + Math.round(s).toString(16);
+            }
+            function base32tohex(base32) {
+                var base32chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567',
+                    bits = '',
+                    hex = '';
+
+                for(var i = 0; i < base32.length; i++) {
+                    var val = base32chars.indexOf(base32.charAt(i).toUpperCase());
+                    bits += leftpad(val.toString(2), 5, '0');
+                }
+
+                for(var i = 0; i + 4 <= bits.length; i += 4) {
+                    var chunk = bits.substr(i, 4);
+                    hex = hex + parseInt(chunk, 2).toString(16);
+                }
+                return hex;
+            }
+            function leftpad(str, len, pad) {
+                if(len + 1 >= str.length) {
+                    str = Array(len + 1 - str.length).join(pad) + str;
+                }
+                return str;
+            }
+            
+            options = options || {};
+            var epoch, time, shaObj, hmac, offset, otp;
+            options.period = options.period || 30;
+            options.algorithm = options.algorithm || 'SHA-1';
+            options.digits = options.digits || 6;
+            key = base32tohex(key);
+            epoch = Math.round(Date.now() / 1000.0);
+            time = leftpad(dec2hex(Math.floor(epoch / options.period)), 16, '0');
+            shaObj = new jsSHA(options.algorithm, 'HEX');
+            shaObj.setHMACKey(key, 'HEX');
+            shaObj.update(time);
+            hmac = shaObj.getHMAC('HEX');
+            offset = hex2dec(hmac.substring(hmac.length - 1));
+            otp = (hex2dec(hmac.substr(offset * 2, 8)) & hex2dec('7fffffff')) + '';
+            otp = otp.substr(otp.length - options.digits, options.digits);
+            
+            return otp;
+        }
+        
+
         return {
             random: random,
             randomBytes: randomBytes,
@@ -704,12 +789,13 @@
             recovery_password_chunk_pass_checksum: recovery_password_chunk_pass_checksum,
             generate_uuid: generate_uuid,
             validate_signature: validate_signature,
-            get_verify_key: get_verify_key
+            get_verify_key: get_verify_key,
+            get_totp_token: get_totp_token
         };
     };
 
     var app = angular.module('psonocli');
     app.factory("cryptoLibrary", ['$q', '$window', '$timeout', 'converter', 'helper', cryptoLibrary]);
 
-}(angular, require, sha512, sha256, sha1, uuid));
+}(angular, require, sha512, sha256, jsSHA, uuid));
 

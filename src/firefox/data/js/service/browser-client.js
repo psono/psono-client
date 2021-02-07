@@ -490,11 +490,18 @@
          * @methodOf psonocli.browserClient
          *
          * @description
-         * Disables the password saving function in the browser
+         * Manipulate the password saving function in the browser
          *
          * @returns {promise} A promise with the success or failure state
          */
-        function disable_browser_password_saving() {
+        function disable_browser_password_saving(value) {
+            var oldPMValue = storage.find_key('settings', 'disable_browser_pm');
+            if (oldPMValue == null) {
+                oldPMValue = true;
+            } else {
+                oldPMValue = oldPMValue.value;
+            }
+            value = value !== undefined ? value : oldPMValue;
             return $q(function(resolve, reject) {
                 function onSet(result) {
                     if (result) {
@@ -505,11 +512,11 @@
                 }
 
                 var getting = browser.privacy.services.passwordSavingEnabled.get({});
-                getting.then(function (got) {
-                    if ((got.levelOfControl === "controlled_by_this_extension") ||
-                        (got.levelOfControl === "controllable_by_this_extension")) {
+                getting.then(function (details) {
+                if (details.levelOfControl === "controlled_by_this_extension" ||
+                    details.levelOfControl === "controllable_by_this_extension") {
                         var setting = browser.privacy.services.passwordSavingEnabled.set({
-                            value: false
+                            value: !value
                         });
                         setting.then(onSet);
                     } else {
