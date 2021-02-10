@@ -171,11 +171,13 @@
          * @param {string} title The title of the new api key
          * @param {bool} restrict_to_secrets
          * @param {bool} allow_insecure_access
+         * @param {bool} allow_read_access
+         * @param {bool} allow_write_access
          * @param {array} secrets Array of secrets
          *
          * @returns {promise} Promise with the new id
          */
-        var create_api_key = function(title, restrict_to_secrets, allow_insecure_access, secrets) {
+        var create_api_key = function(title, restrict_to_secrets, allow_insecure_access, allow_read_access, allow_write_access, secrets) {
 
             var api_key_secret_key = cryptoLibrary.generate_secret_key();
             var api_key_public_private_key_pair = cryptoLibrary.generate_public_private_keypair();
@@ -215,6 +217,8 @@
                 user_secret_key_enc.nonce,
                 restrict_to_secrets,
                 allow_insecure_access,
+                allow_read_access,
+                allow_write_access,
                 verify_key
             )
                 .then(onSuccess, onError);
@@ -232,10 +236,12 @@
          * @param {string} title The title of the new api key
          * @param {bool} restrict_to_secrets
          * @param {bool} allow_insecure_access
+         * @param {bool} allow_read_access
+         * @param {bool} allow_write_access
          *
          * @returns {promise} Promise with the new id
          */
-        var update_api_key = function(api_key_id, title, restrict_to_secrets, allow_insecure_access) {
+        var update_api_key = function(api_key_id, title, restrict_to_secrets, allow_insecure_access, allow_read_access, allow_write_access) {
 
             return apiClient.update_api_key(
                 managerBase.get_token(),
@@ -243,7 +249,9 @@
                 api_key_id,
                 title,
                 restrict_to_secrets,
-                allow_insecure_access
+                allow_insecure_access,
+                allow_read_access,
+                allow_write_access
             )
         };
 

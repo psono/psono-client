@@ -215,6 +215,8 @@
   "ACTIVE": "Aktiv",
   "INSECURE": "Unsicher",
   "ALLOW_INSECURE_USAGE": "Unsichere Nutzung erlauben",
+  "RIGHT_TO_READ": "Leseberechtigung (erlaubt all GET Operationen)",
+  "RIGHT_TO_WRITE": "Schreibberechtigung (erlaubt alle PUT, POST und DELETE Operationen)",
   "SECRETS_ONLY": "Secret Beschränkung",
   "HERE_YOU_CAN_MANAGE_ALL_YOUR_API_KEYS": "Hier kannst du deine ganzen API Schlüssel verwalten",
   "API_KEYS": "API Schlüssel",

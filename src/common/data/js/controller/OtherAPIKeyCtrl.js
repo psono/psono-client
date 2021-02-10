@@ -112,6 +112,8 @@
                         api_key.title = updated_api_key.title;
                         api_key.restrict_to_secrets = updated_api_key.restrict_to_secrets;
                         api_key.allow_insecure_access = updated_api_key.allow_insecure_access;
+                        api_key.read = updated_api_key.read;
+                        api_key.write = updated_api_key.write;
                         api_key.active = updated_api_key.active;
                         // save triggered
                     }, function () {
