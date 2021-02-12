@@ -22,6 +22,8 @@
             $scope.title = '';
             $scope.restrict_to_secrets = true;
             $scope.allow_insecure_access = false;
+            $scope.allow_read_access = true;
+            $scope.allow_write_access = false;
             $scope.secrets = {
                 'data': []
             };
@@ -57,7 +59,7 @@
                     $uibModalInstance.close();
                 };
 
-                return managerAPIKeys.create_api_key($scope.title, $scope.restrict_to_secrets, $scope.allow_insecure_access, $scope.secrets['data'])
+                return managerAPIKeys.create_api_key($scope.title, $scope.restrict_to_secrets, $scope.allow_insecure_access, $scope.allow_read_access, $scope.allow_write_access, $scope.secrets['data'])
                     .then(onSuccess, onError);
             }
 

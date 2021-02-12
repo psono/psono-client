@@ -438,12 +438,18 @@
                     return false;
                 }
 
-                if (!helper.endsWith(parsed_url.authority, leaf.urlfilter)) {
-                    return false;
+                if (leaf.urlfilter) {
+                    var urlfilters = leaf.urlfilter.split(/\s+/);
+                    for (var i = 0; i < urlfilters.length; i++) {
+                        if (!helper.endsWith(parsed_url.authority, urlfilters[i])) {
+                            continue;
+                        }
+                        return !only_autosubmit || (leaf.hasOwnProperty('autosubmit') && leaf['autosubmit']);
+                    }
+                    
                 }
-
-                return !only_autosubmit || (leaf.hasOwnProperty('autosubmit') && leaf['autosubmit']);
-
+                
+                return false;
             };
 
             return storage.where('datastore-password-leafs', filter);

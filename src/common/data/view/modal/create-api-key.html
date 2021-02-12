@@ -11,14 +11,20 @@
         <div class="form-group">
             <input type="checkbox" ng-model="restrict_to_secrets"> {{'SECRETS_ONLY' | translate}}?
         </div>
-        <div class="form-group">
-            <input type="checkbox" ng-model="allow_insecure_access"> {{'ALLOW_INSECURE_USAGE' | translate}}?
-        </div>
         <div class="form-group alert alert-warning" ng-if="!restrict_to_secrets">
             <strong>{{'WARNING' | translate}}!</strong> {{'API_KEY_NOT_RESTRICTED_TO_SECRETS_WARNING' | translate}}
         </div>
+        <div class="form-group">
+            <input type="checkbox" ng-model="allow_insecure_access"> {{'ALLOW_INSECURE_USAGE' | translate}}?
+        </div>
         <div class="form-group alert alert-warning" ng-if="allow_insecure_access">
             <strong>{{'WARNING' | translate}}!</strong> {{'API_KEY_INSECURE_USAGE_WARNING' | translate}}
+        </div>
+        <div class="form-group">
+            <input type="checkbox" ng-model="allow_read_access"> {{'RIGHT_TO_READ' | translate}}?
+        </div>
+        <div class="form-group">
+            <input type="checkbox" ng-model="allow_write_access"> {{'RIGHT_TO_WRITE' | translate}}?
         </div>
 
         <div class="container-fluid">

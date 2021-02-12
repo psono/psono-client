@@ -135,8 +135,11 @@
                         password_filter = helper.get_password_filter(value);
                     }, 250); // delay 250 ms
                 });
-                // required, otherwise password generate always generates the default values
-                managerDatastoreSetting.get_settings_datastore()
+                
+                if (!offlineCache.is_active()) {
+                    // required, otherwise password generate always generates the default values
+                    managerDatastoreSetting.get_settings_datastore()
+                }
             }
 
             /**

@@ -2186,13 +2186,15 @@
          * @param {string} user_secret_key_nonce nonce for secret key
          * @param {bool} restrict_to_secrets Restrict to secrets
          * @param {bool} allow_insecure_access Allow insecure access
+         * @param {bool} read Allow read access
+         * @param {bool} write Allow write access
          * @param {string} verify_key The verify key as a derivat of the private key
          *
          * @returns {promise} promise
          */
         var create_api_key = function (token, session_secret_key, title, public_key, private_key ,private_key_nonce, secret_key,
                                        secret_key_nonce, user_private_key, user_private_key_nonce, user_secret_key, user_secret_key_nonce,
-                                       restrict_to_secrets, allow_insecure_access, verify_key) {
+                                       restrict_to_secrets, allow_insecure_access, read, write, verify_key) {
 
             var endpoint = '/api-key/';
             var connection_type = "PUT";
@@ -2209,6 +2211,8 @@
                 user_secret_key_nonce: user_secret_key_nonce,
                 restrict_to_secrets: restrict_to_secrets,
                 allow_insecure_access: allow_insecure_access,
+                read: read,
+                write: write,
                 verify_key: verify_key
             };
 
@@ -2270,20 +2274,24 @@
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
          * @param {uuid} api_key_id The api_key id to update
-         * @param {string} name The new name of the api_key
+         * @param {string} title The new title of the api_key
          * @param {bool} restrict_to_secrets Restrict to secrets
          * @param {bool} allow_insecure_access Allow insecure access
+         * @param {bool} read Allow read access
+         * @param {bool} write Allow write access
          *
          * @returns {promise} Returns a promise which can succeed or fail
          */
-        var update_api_key = function (token, session_secret_key, api_key_id, title, restrict_to_secrets, allow_insecure_access) {
+        var update_api_key = function (token, session_secret_key, api_key_id, title, restrict_to_secrets, allow_insecure_access, read, write) {
             var endpoint = '/api-key/';
             var connection_type = "POST";
             var data = {
                 api_key_id: api_key_id,
                 title: title,
                 restrict_to_secrets: restrict_to_secrets,
-                allow_insecure_access: allow_insecure_access
+                read: read,
+                allow_insecure_access: allow_insecure_access,
+                write: write
             };
 
             var headers = {

@@ -24,7 +24,8 @@
             $scope.title = '';
             $scope.restrict_to_secrets = true;
             $scope.allow_insecure_access = false;
-            $scope.allow_insecure_access = true;
+            $scope.allow_read_access = true;
+            $scope.allow_write_access = false;
             $scope.secrets = {
                 'data': []
             };
@@ -42,6 +43,8 @@
                 $scope.title = api_key.title;
                 $scope.restrict_to_secrets = api_key.restrict_to_secrets;
                 $scope.allow_insecure_access = api_key.allow_insecure_access;
+                $scope.allow_read_access = api_key.read;
+                $scope.allow_write_access = api_key.write;
                 $scope.active = api_key.active;
 
                 var onError = function(result) {
@@ -79,10 +82,12 @@
                     api_key.title = $scope.title;
                     api_key.restrict_to_secrets = $scope.restrict_to_secrets;
                     api_key.allow_insecure_access = $scope.allow_insecure_access;
+                    api_key.read = $scope.allow_read_access;
+                    api_key.write = $scope.allow_write_access;
                     $uibModalInstance.close(api_key);
                 };
 
-                return managerAPIKeys.update_api_key(api_key.id, $scope.title, $scope.restrict_to_secrets, $scope.allow_insecure_access)
+                return managerAPIKeys.update_api_key(api_key.id, $scope.title, $scope.restrict_to_secrets, $scope.allow_insecure_access, $scope.allow_read_access, $scope.allow_write_access)
                     .then(onSuccess, onError);
             }
 
