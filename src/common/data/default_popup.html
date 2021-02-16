@@ -285,6 +285,36 @@
         </div>
     </form>
 
+    <form name="pickSecondFactorForm" ng-if="view === 'pick_second_factor'" autocomplete="off">
+        <!-- google_authenticator_2fa View -->
+        <div class="form-group">
+            {{'PICK_SECOND_FACTOR' | translate}}:
+        </div>
+
+        <div class="form-group" ng-if="login_data.required_multifactors.indexOf('google_authenticator_2fa') !== -1">
+            <button ng-click="show_ga_2fa_form()" type="submit"
+                    class="btn btn-danger btn-block">{{'GOOGLE_AUTHENTICATOR' | translate}}</button>
+        </div>
+
+        <div class="form-group" ng-if="login_data.required_multifactors.indexOf('yubikey_otp_2fa') !== -1">
+            <button ng-click="show_yubikey_otp_2fa_form()" type="submit"
+                    class="btn btn-danger btn-block">{{'YUBIKEY' | translate}}</button>
+        </div>
+
+        <div class="form-group" ng-if="login_data.required_multifactors.indexOf('duo_2fa') !== -1">
+            <button ng-click="show_duo_2fa_form()" type="submit"
+                    class="btn btn-danger btn-block">{{'DUO' | translate}}</button>
+        </div>
+
+        <div class="form-group">
+            <button class="btn btn-block" type="button" ng-click="cancel();">{{'CLOSE' | translate}}</button>
+        </div>
+
+        <div class="form-group alert alert-danger" ng-repeat="e in errors">
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
+        </div>
+    </form>
+
     <form name="googleAuthenticatorForm" ng-if="view === 'google_authenticator_2fa'" autocomplete="off">
         <!-- google_authenticator_2fa View -->
         <div class="form-group">
