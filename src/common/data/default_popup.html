@@ -75,6 +75,10 @@
                             ng-if="['application_password', 'website_password'].indexOf(searchEntry.type) !== -1">
                             <a href="#"><i class="fa fa-clipboard"></i>{{'COPY_PASSWORD' | translate}}</a>
                         </li>
+                        <li role="menuitem" ng-click="copy_totp_token(searchEntry)"
+                            ng-if="['totp'].indexOf(searchEntry.type) !== -1">
+                            <a href="#"><i class="fa fa-clipboard"></i>{{'COPY_TOTP_TOKEN' | translate}}</a>
+                        </li>
                         <li role="menuitem" ng-click="edit_item(searchEntry)">
                             <a href="#"><i class="fa fa-wrench"></i>{{'SHOW_OR_EDIT' | translate}}</a>
                         </li>

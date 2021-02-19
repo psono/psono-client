@@ -44,6 +44,7 @@
             $scope.bookmark = bookmark;
             $scope.copy_username = managerSecret.copy_username;
             $scope.copy_password = managerSecret.copy_password;
+            $scope.copy_totp_token = managerSecret.copy_totp_token;
             $scope.item_icon = managerWidget.item_icon;
 
             $scope.searchArray = [];
