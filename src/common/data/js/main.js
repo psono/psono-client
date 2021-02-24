@@ -72,7 +72,7 @@
                 'da': {'code': 'da', 'lng_code': 'LANG_DA'},
                 'sv': {'code': 'sv', 'lng_code': 'LANG_SV'},
                 'sk': {'code': 'sk', 'lng_code': 'LANG_SK', 'active': true},
-                'no': {'code': 'no', 'lng_code': 'LANG_NO'},
+                'no': {'code': 'no', 'lng_code': 'LANG_NO', 'active': true},
                 'he': {'code': 'he', 'lng_code': 'LANG_HE'},
                 'ar': {'code': 'ar', 'lng_code': 'LANG_AR'},
                 'hi': {'code': 'hi', 'lng_code': 'LANG_HI'},
