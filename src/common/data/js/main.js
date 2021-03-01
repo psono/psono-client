@@ -70,7 +70,7 @@
                 'ru': {'code': 'ru', 'lng_code': 'LANG_RU', 'active': true},
                 'vi': {'code': 'vi', 'lng_code': 'LANG_VI'},
                 'da': {'code': 'da', 'lng_code': 'LANG_DA'},
-                'sv': {'code': 'sv', 'lng_code': 'LANG_SV'},
+                'sv': {'code': 'sv', 'lng_code': 'LANG_SV', 'active': true},
                 'sk': {'code': 'sk', 'lng_code': 'LANG_SK', 'active': true},
                 'no': {'code': 'no', 'lng_code': 'LANG_NO', 'active': true},
                 'he': {'code': 'he', 'lng_code': 'LANG_HE'},
