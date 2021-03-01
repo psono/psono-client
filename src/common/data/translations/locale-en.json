@@ -14,7 +14,7 @@
   "UNKNOWN_ERROR": "Unknown error",
   "UNKNOWN_ERROR_CHECK_BROWSER_CONSOLE": "Unknown error. Please check your browser's console for details.",
   "UNKNOWN_USER": "Unknown User",
-  "USER_DOES_NOT_EXIST_PROBABLY_DELETED": "Nutzer does not exist on the server. He probably has been deleted. You can delete him from your trusted users datastore and try again.",
+  "USER_DOES_NOT_EXIST_PROBABLY_DELETED": "User does not exist on the server and has probably been deleted. You can delete the user from your trusted users datastore and try again.",
   "USERNAME_ALREADY_EXISTS": "Username already exists.",
   "VERIFICATION_CODE_INCORRECT": "Verification code incorrect.",
   "GA_CHALLENGE_UNSOLVED": "Google Analytics challenge unsolved.",
