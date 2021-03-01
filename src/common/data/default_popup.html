@@ -120,12 +120,12 @@
 
     <div class="btn-group loginbox-translate" uib-dropdown keyboard-nav ng-controller="LanguagePickerCtrl">
         <button id="language-picker" type="button" class="btn btn-primary" uib-dropdown-toggle>
-            {{active.lang.lng_code | translate}} <span class="caret"></span>
+            {{active.lang.lng_title_native | translate}} <span class="caret"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" aria-labelledby="language-picker">
             <li role="menuitem" ng-repeat="lang in languages">
                 <a href="" ng-click="change_language(lang)" ng-if="lang.active">
-                    {{lang.lng_code | translate}}
+                    {{lang.lng_title_native | translate}}
                 </a>
             </li>
             <li role="menuitem">
