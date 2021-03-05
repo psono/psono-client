@@ -17,7 +17,7 @@
   "USER_DOES_NOT_EXIST_PROBABLY_DELETED": "Nutzer existiert nicht auf dem Server. Vermutlich wurde er gelöscht. Sie können ihn aus dem Datenspeicher ihrer vertrauenswürdigen Nutzer löschen und es erneut versuchen.",
   "USERNAME_ALREADY_EXISTS": "Benutzername existiert bereits.",
   "VERIFICATION_CODE_INCORRECT": "Verifikationscode ungültig.",
-  "GA_CHALLENGE_UNSOLVED": "Google Analytics challenge ungelöst.",
+  "GA_CHALLENGE_UNSOLVED": "Google Authenticator challenge ungelöst.",
   "DUO_CHALLENGE_UNSOLVED": "Duo challenge ungelöst.",
   "YUBIKEY_CHALLENGE_UNSOLVED": "Yubikey challenge ungelöst.",
   "TOKEN_INCORRECT": "Token ungültig.",

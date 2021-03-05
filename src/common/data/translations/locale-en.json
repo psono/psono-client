@@ -17,7 +17,7 @@
   "USER_DOES_NOT_EXIST_PROBABLY_DELETED": "User does not exist on the server and has probably been deleted. You can delete the user from your trusted users datastore and try again.",
   "USERNAME_ALREADY_EXISTS": "Username already exists.",
   "VERIFICATION_CODE_INCORRECT": "Verification code incorrect.",
-  "GA_CHALLENGE_UNSOLVED": "Google Analytics challenge unsolved.",
+  "GA_CHALLENGE_UNSOLVED": "Google Authenticator challenge unsolved.",
   "DUO_CHALLENGE_UNSOLVED": "Duo challenge unsolved.",
   "YUBIKEY_CHALLENGE_UNSOLVED": "Yubikey challenge unsolved.",
   "TOKEN_INCORRECT": "Token incorrect.",
