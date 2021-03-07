@@ -1513,6 +1513,10 @@
                 return 'fa fa-lock'
             }
 
+            if(item.type === 'environment_variables') {
+                return 'fa fa-superscript'
+            }
+
             var pattern = /\.(\w+)$/,
                 match = pattern.exec(item.name),
                 ext = match && match[1];

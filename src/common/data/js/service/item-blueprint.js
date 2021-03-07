@@ -257,6 +257,57 @@
                 $window.location.href = 'index.html#!/datastore/search/' + secret_id;
             }
         };
+        var _blueprint_environment_variables = {
+            id: "environment_variables",
+            name: "ENVIRONMENT_VARIABLES",
+            title_field: "environment_variables_title",
+            search: ['environment_variables_title'],
+            fields: [
+                { name: "environment_variables_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true, error_message_required: 'TITLE_IS_REQUIRED'},
+                { name: "environment_variables_variables", field: "key_value_list", title: "VARIABLES", placeholder: "VARIABLES", onAdd: "onAdd", onDelete: "onDelete"},
+                { name: "environment_variables_notes", field: "textarea", title: "NOTES", placeholder: "NOTES"}
+            ],
+            /**
+             * will be called when someone clicks the add button
+             * Adds a new empty key value entry
+             *
+             * @param field
+             */
+            onAdd: function(field) {
+                if (!field.hasOwnProperty('value')) {
+                    field.value = [];
+                }
+                field.value.push({
+                    'key': '',
+                    'value': '',
+                })
+            },
+            /**
+             * will be called when someone clicks the trash symbol to delete one of the values
+             * Deletes the value with the specified index
+             *
+             * @param field
+             * @param index
+             */
+            onDelete: function(field, index) {
+                if (!field.hasOwnProperty('value')) {
+                    field.value = [];
+                }
+                if (index >= field.value.length || index < 0) {
+                    return
+                }
+                field.value.splice(index, 1);
+            },
+            /**
+             * will open the search tab
+             *
+             * @param secret_id
+             * @param content
+             */
+            onOpenSecret: function(secret_id, content) {
+                $window.location.href = 'index.html#!/datastore/search/' + secret_id;
+            }
+        };
 
         var _blueprint_file = {
             id: "file",
@@ -970,6 +1021,7 @@
             application_password: _blueprint_application_password,
             totp: _blueprint_totp,
             note: _blueprint_note,
+            environment_variables: _blueprint_environment_variables,
             mail_gpg_own_key: _blueprint_mail_gpg_own_key,
             bookmark: _blueprint_bookmark
             // dummy: {

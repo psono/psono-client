@@ -1,4 +1,8 @@
 {
+  "ADD_ENTRY": "Eintrag hinzufügen",
+  "VALUE": "Wert",
+  "VARIABLES": "Variablen",
+  "ENVIRONMENT_VARIABLES": "Umgebungsvariablen",
   "COPY_TOTP_TOKEN": "TOTP Token kopieren",
   "INVALID_TOTP_SECRET": "Ungültiger TOTP Secret",
   "INVALID_URL": "Ungültige URL",
