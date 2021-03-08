@@ -204,6 +204,10 @@
                     // we have no copy from the server, this usually means we received a 403
                     continue
                 }
+                if (folder['items'][i].hasOwnProperty('deleted') && folder['items'][i]['deleted']) {
+                    // skip all deleted 
+                    continue
+                }
                 
                 if (folder['items'][i]['type'] === 'application_password') {
                     passwords.push({
