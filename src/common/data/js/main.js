@@ -52,32 +52,32 @@
             'angular-complexify', 'datatables', 'chart.js', 'pascalprecht.translate', 'ngCookies'])
         .provider('languages', function(){
             var languages = {
-                'cs': {'code': 'cs', 'lng_code': 'LANG_CS', 'active': true},
-                'de': {'code': 'de', 'lng_code': 'LANG_DE', 'active': true},
-                'en': {'code': 'en', 'lng_code': 'LANG_EN', 'active': true, 'default': true},
-                'es': {'code': 'es', 'lng_code': 'LANG_ES', 'active': true},
-                'fi': {'code': 'fi', 'lng_code': 'LANG_FI'},
-                'fr': {'code': 'fr', 'lng_code': 'LANG_FR', 'active': true},
-                'hr': {'code': 'hr', 'lng_code': 'LANG_HR', 'active': true},
-                'hu': {'code': 'hu', 'lng_code': 'LANG_HU', 'active': true},
-                'it': {'code': 'it', 'lng_code': 'LANG_IT'},
-                'ja': {'code': 'ja', 'lng_code': 'LANG_JA'},
-                'ko': {'code': 'ko', 'lng_code': 'LANG_KO'},
-                'nl': {'code': 'nl', 'lng_code': 'LANG_NL', 'active': true},
-                'pl': {'code': 'pl', 'lng_code': 'LANG_PL', 'active': true},
-                'pt': {'code': 'pt', 'lng_code': 'LANG_PT_PT', 'active': true},
-                'pt-br': {'code': 'pt-br', 'lng_code': 'LANG_PT_BR', 'active': true},
-                'ru': {'code': 'ru', 'lng_code': 'LANG_RU', 'active': true},
-                'vi': {'code': 'vi', 'lng_code': 'LANG_VI'},
-                'da': {'code': 'da', 'lng_code': 'LANG_DA'},
-                'sv': {'code': 'sv', 'lng_code': 'LANG_SV'},
-                'sk': {'code': 'sk', 'lng_code': 'LANG_SK', 'active': true},
-                'no': {'code': 'no', 'lng_code': 'LANG_NO'},
-                'he': {'code': 'he', 'lng_code': 'LANG_HE'},
-                'ar': {'code': 'ar', 'lng_code': 'LANG_AR'},
-                'hi': {'code': 'hi', 'lng_code': 'LANG_HI'},
-                'bn': {'code': 'bn', 'lng_code': 'LANG_BN'},
-                'zh_CN': {'code': 'zh_CN', 'lng_code': 'LANG_ZH_CN'}
+                'cs': {'code': 'cs', 'lng_code': 'LANG_CS', 'lng_title_native': 'Česky','active': true},
+                'de': {'code': 'de', 'lng_code': 'LANG_DE', 'lng_title_native': 'Deutsch', 'active': true},
+                'en': {'code': 'en', 'lng_code': 'LANG_EN', 'lng_title_native': 'English', 'active': true, 'default': true},
+                'es': {'code': 'es', 'lng_code': 'LANG_ES', 'lng_title_native': 'Español', 'active': true},
+                'fi': {'code': 'fi', 'lng_code': 'LANG_FI', 'lng_title_native': 'Finnish'}, // lng_title_native incorrect
+                'fr': {'code': 'fr', 'lng_code': 'LANG_FR', 'lng_title_native': 'Français', 'active': true},
+                'hr': {'code': 'hr', 'lng_code': 'LANG_HR', 'lng_title_native': 'Croatian', 'active': true}, // lng_title_native incorrect
+                'hu': {'code': 'hu', 'lng_code': 'LANG_HU', 'lng_title_native': 'Magyar', 'active': true},
+                'it': {'code': 'it', 'lng_code': 'LANG_IT', 'lng_title_native': 'Italiano'},
+                'ja': {'code': 'ja', 'lng_code': 'LANG_JA', 'lng_title_native': 'Japanese'}, // lng_title_native incorrect
+                'ko': {'code': 'ko', 'lng_code': 'LANG_KO', 'lng_title_native': 'Korean'}, // lng_title_native incorrect
+                'nl': {'code': 'nl', 'lng_code': 'LANG_NL', 'lng_title_native': 'Nederlands', 'active': true},
+                'pl': {'code': 'pl', 'lng_code': 'LANG_PL', 'lng_title_native': 'Polish', 'active': true}, // lng_title_native incorrect
+                'pt': {'code': 'pt', 'lng_code': 'LANG_PT_PT', 'lng_title_native': 'Portuguese', 'active': true},
+                'pt-br': {'code': 'pt-br', 'lng_code': 'LANG_PT_BR', 'lng_title_native': 'Portuguese (BR)', 'active': true},
+                'ru': {'code': 'ru', 'lng_code': 'LANG_RU', 'lng_title_native': 'Русский', 'active': true},
+                'vi': {'code': 'vi', 'lng_code': 'LANG_VI', 'lng_title_native': ''}, // lng_title_native incorrect
+                'da': {'code': 'da', 'lng_code': 'LANG_DA', 'lng_title_native': ''}, // lng_title_native incorrect
+                'sv': {'code': 'sv', 'lng_code': 'LANG_SV', 'lng_title_native': 'Svenska', 'active': true},
+                'sk': {'code': 'sk', 'lng_code': 'LANG_SK', 'lng_title_native': 'Slovak', 'active': true}, // lng_title_native incorrect
+                'no': {'code': 'no', 'lng_code': 'LANG_NO', 'lng_title_native': 'Norsk', 'active': true},
+                'he': {'code': 'he', 'lng_code': 'LANG_HE', 'lng_title_native': ''}, // lng_title_native incorrect
+                'ar': {'code': 'ar', 'lng_code': 'LANG_AR', 'lng_title_native': ''}, // lng_title_native incorrect
+                'hi': {'code': 'hi', 'lng_code': 'LANG_HI', 'lng_title_native': ''}, // lng_title_native incorrect
+                'bn': {'code': 'bn', 'lng_code': 'LANG_BN', 'lng_title_native': ''}, // lng_title_native incorrect
+                'zh_CN': {'code': 'zh_CN', 'lng_code': 'LANG_ZH_CN', 'lng_title_native': '漢語'}
             };
             return {
                 value : languages,

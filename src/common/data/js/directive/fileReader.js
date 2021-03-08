@@ -16,7 +16,7 @@
             scope: {
                 fileReader:"="
             },
-            link: function(scope, element) {
+            link: function(scope, element, attrs) {
                 $(element).on('change', function(changeEvent) {
                     var files = changeEvent.target.files;
                     if (files.length) {
@@ -27,8 +27,7 @@
                                 scope.fileReader = contents;
                             });
                         };
-
-                        r.readAsText(files[0]);
+                        r.readAsText(files[0], attrs.fileEncoding);
                     }
                 });
             }

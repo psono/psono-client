@@ -75,6 +75,10 @@
                             ng-if="['application_password', 'website_password'].indexOf(searchEntry.type) !== -1">
                             <a href="#"><i class="fa fa-clipboard"></i>{{'COPY_PASSWORD' | translate}}</a>
                         </li>
+                        <li role="menuitem" ng-click="copy_totp_token(searchEntry)"
+                            ng-if="['totp'].indexOf(searchEntry.type) !== -1">
+                            <a href="#"><i class="fa fa-clipboard"></i>{{'COPY_TOTP_TOKEN' | translate}}</a>
+                        </li>
                         <li role="menuitem" ng-click="edit_item(searchEntry)">
                             <a href="#"><i class="fa fa-wrench"></i>{{'SHOW_OR_EDIT' | translate}}</a>
                         </li>
@@ -116,12 +120,12 @@
 
     <div class="btn-group loginbox-translate" uib-dropdown keyboard-nav ng-controller="LanguagePickerCtrl">
         <button id="language-picker" type="button" class="btn btn-primary" uib-dropdown-toggle>
-            {{active.lang.lng_code | translate}} <span class="caret"></span>
+            {{active.lang.lng_title_native | translate}} <span class="caret"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" aria-labelledby="language-picker">
             <li role="menuitem" ng-repeat="lang in languages">
                 <a href="" ng-click="change_language(lang)" ng-if="lang.active">
-                    {{lang.lng_code | translate}}
+                    {{lang.lng_title_native | translate}}
                 </a>
             </li>
             <li role="menuitem">
@@ -278,6 +282,36 @@
                     class="btn btn-warning">{{'APPROVE_UNSAFE' | translate}}</button>
             <button ng-click="disapprove_send_plain()" type="submit"
                     class="btn btn-success">{{'DECLINE_SAFE' | translate}}</button>
+        </div>
+
+        <div class="form-group alert alert-danger" ng-repeat="e in errors">
+            <strong>{{'ERROR' | translate}}:</strong> <span translate="{{ e }}"></span>
+        </div>
+    </form>
+
+    <form name="pickSecondFactorForm" ng-if="view === 'pick_second_factor'" autocomplete="off">
+        <!-- google_authenticator_2fa View -->
+        <div class="form-group">
+            {{'PICK_SECOND_FACTOR' | translate}}:
+        </div>
+
+        <div class="form-group" ng-if="login_data.required_multifactors.indexOf('google_authenticator_2fa') !== -1">
+            <button ng-click="show_ga_2fa_form()" type="submit"
+                    class="btn btn-danger btn-block">{{'GOOGLE_AUTHENTICATOR' | translate}}</button>
+        </div>
+
+        <div class="form-group" ng-if="login_data.required_multifactors.indexOf('yubikey_otp_2fa') !== -1">
+            <button ng-click="show_yubikey_otp_2fa_form()" type="submit"
+                    class="btn btn-danger btn-block">{{'YUBIKEY' | translate}}</button>
+        </div>
+
+        <div class="form-group" ng-if="login_data.required_multifactors.indexOf('duo_2fa') !== -1">
+            <button ng-click="show_duo_2fa_form()" type="submit"
+                    class="btn btn-danger btn-block">{{'DUO' | translate}}</button>
+        </div>
+
+        <div class="form-group">
+            <button class="btn btn-block" type="button" ng-click="cancel();">{{'CLOSE' | translate}}</button>
         </div>
 
         <div class="form-group alert alert-danger" ng-repeat="e in errors">

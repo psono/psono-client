@@ -151,6 +151,34 @@
                                 <div style="position: absolute; top:50%; left:50%;  transform: translate(-50%, -50%);text-align: center; font-size: 20px;">{{ otherData.totp_token }}</div>
                             </div>
 
+                            <!-- A key value list -->
+                            <div ng-if="n.field == 'key_value_list'">
+                                <div class="row form-group" ng-repeat="kv in n.value track by $index">
+                                    <div class="col-xs-5">
+                                        <input type="text" class="form-control" placeholder="{{'KEY' | translate}}"
+                                               ng-model="kv.key">
+                                    </div>
+
+                                    <div class="col-xs-5">
+                                        <input type="text" class="form-control" placeholder="{{'VALUE' | translate}}"
+                                               ng-model="kv.value">
+                                    </div>
+
+                                    <div class="col-xs-2">
+                                        <button type="button" class="btn btn-default btn-sm" ng-click="bp.selected[n.onDelete](n, $index)">
+                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <button type="button" class="btn btn-default btn-sm" ng-click="bp.selected[n.onAdd](n)">
+                                            <i class="fa fa-plus" aria-hidden="true"></i> {{'ADD_ENTRY' | translate}}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
                             <input ng-if="n.field == 'input' && !n.dropmenuItems && n.type !== 'totp_code'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
                                    id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
                                    ng-model="n.value" ng-hide="n.hidden || n.hidden_edit" ng-readonly="n.readonly" ng-attr-autocomplete="{{n.autocomplete}}"
@@ -193,6 +221,35 @@
 
                                 <div class="form-group" ng-repeat="n in bp.selected.fields track by $index"
                                      ng-if="n.tab == tab.id">
+
+
+                                    <!-- A key value list -->
+                                    <div ng-if="n.field == 'key_value_list'">
+                                        <div class="row form-group" ng-repeat="kv in n.value track by $index">
+                                            <div class="col-xs-5">
+                                                <input type="text" class="form-control" placeholder="{{'KEY' | translate}}"
+                                                       ng-model="kv.key">
+                                            </div>
+
+                                            <div class="col-xs-5">
+                                                <input type="text" class="form-control" placeholder="{{'VALUE' | translate}}"
+                                                       ng-model="kv.value">
+                                            </div>
+
+                                            <div class="col-xs-2">
+                                                <button type="button" class="btn btn-default btn-sm" ng-click="bp.selected[n.onDelete](n, $index)">
+                                                    <i class="fa fa-trash" aria-hidden="true"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-12">
+                                                <button type="button" class="btn btn-default btn-sm" ng-click="bp.selected[n.onAdd](n)">
+                                                    <i class="fa fa-plus" aria-hidden="true"></i> {{'ADD_ENTRY' | translate}}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
 
                                     <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
                                            id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder | translate}}" ng-required="n.required && !n.hidden && !n.hidden_edit"

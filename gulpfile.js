@@ -299,8 +299,7 @@ var build = function(build_path, type) {
             "src/common/data/js/service/browser-client.js",
             "src/common/data/js/service/drop-down-menu-watcher.js",
 
-            "src/common/data/view/templates.js",
-            "src/common/data/js/google-analytics.js"
+            "src/common/data/view/templates.js"
         ])
             .pipe(maps.init({loadMaps: true}))
             .pipe(uglify({
@@ -327,7 +326,6 @@ var build = function(build_path, type) {
 
         gulp.src([
             'src/common/data/js/**/*',
-            '!src/common/data/js/google-analytics.js',
             '!src/common/data/js/service-worker-load.js',
             '!src/common/data/js/service/browser-client.js'
         ])
