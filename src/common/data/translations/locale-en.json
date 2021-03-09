@@ -1,4 +1,5 @@
 {
+  "JSON_IMPORT_COMPATIBLE": "JSON (import compatible)",
   "ENCODING": "Encoding",
   "ADD_ENTRY": "Add entry",
   "VALUE": "Value",
@@ -613,7 +614,7 @@
   "SERVER": "Server",
   "SECURITY_REPORT": "Security Report",
   "GROUPS": "Groups",
-  "TRUSTED_USERS": "Trusted User",
+  "TRUSTED_USERS": "Trusted Users",
   "PENDING_REQUESTS": "Pending Requests",
   "HOME": "Home",
   "LOGOUT": "Logout",

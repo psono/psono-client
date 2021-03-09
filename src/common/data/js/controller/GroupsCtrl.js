@@ -10,13 +10,31 @@
      * @requires psonocli.managerGroups
      * @requires psonocli.managerDatastorePassword
      * @requires psonocli.helper
+     * @requires languagePicker
+     * @requires DTOptionsBuilder
+     * @requires DTColumnDefBuilder
      *
      * @description
      * Controller for the Group view
      */
-    angular.module('psonocli').controller('GroupsCtrl', ["$scope", "$interval", "$uibModal", "managerGroups", "managerDatastorePassword", "helper",
-        function ($scope, $interval, $uibModal, managerGroups, managerDatastorePassword, helper) {
+    angular.module('psonocli').controller('GroupsCtrl', ["$scope", "$interval", "$uibModal", "managerGroups",
+        "managerDatastorePassword", "helper", 'languagePicker', 'DTOptionsBuilder', 'DTColumnDefBuilder',
+        function ($scope, $interval, $uibModal, managerGroups,
+                  managerDatastorePassword, helper, languagePicker, DTOptionsBuilder, DTColumnDefBuilder) {
 
+            $scope.dtOptions = DTOptionsBuilder
+                .newOptions()
+                .withLanguageSource('translations/datatables.' + languagePicker.get_active_language_code() + '.json');
+
+            $scope.dtColumnDefs = [
+                DTColumnDefBuilder.newColumnDef(0),
+                DTColumnDefBuilder.newColumnDef(1),
+                DTColumnDefBuilder.newColumnDef(2),
+                DTColumnDefBuilder.newColumnDef(3),
+                DTColumnDefBuilder.newColumnDef(4),
+                DTColumnDefBuilder.newColumnDef(5)
+            ];
+            
             $scope.create_group = create_group;
             $scope.edit_group = edit_group;
             $scope.leave_group = leave_group;

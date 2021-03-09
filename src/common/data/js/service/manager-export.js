@@ -7,6 +7,7 @@
      * @requires $q
      * @requires $window
      * @requires $timeout
+     * @requires $translate
      * @requires psonocli.managerSecret
      * @requires psonocli.managerDatastorePassword
      * @requires psonocli.storage
@@ -15,14 +16,25 @@
      * Service to manage the export of datastores
      */
 
-    var managerExport = function($q, $window, $timeout, managerSecret, managerDatastorePassword, storage) {
+    var managerExport = function($q, $window, $timeout, $translate, managerSecret, managerDatastorePassword, storage) {
 
         var timeout = 0;
+        
+        var _exporter = [];
 
-        var _exporter = [{
-            name: 'JSON (import compatible)',
-            value: 'json'
-        }];
+        activate();
+
+        function activate() {
+            $translate([
+                'JSON_IMPORT_COMPATIBLE'
+            ]).then(function (translations) {
+                _exporter.push({
+                    name: translations.JSON_IMPORT_COMPATIBLE,
+                    value: 'json'
+                });
+            });
+        }
+
 
         var registrations = {};
 
@@ -381,6 +393,6 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerExport", ['$q', '$window', '$timeout', 'managerSecret', 'managerDatastorePassword', 'storage', managerExport]);
+    app.factory("managerExport", ['$q', '$window', '$timeout', '$translate', 'managerSecret', 'managerDatastorePassword', 'storage', managerExport]);
 
 }(angular));

@@ -8,6 +8,9 @@
      * @requires $uibModalInstance
      * @requires managerWidget
      * @requires helper
+     * @requires languagePicker
+     * @requires DTOptionsBuilder
+     * @requires DTColumnDefBuilder
      * @requires datastore
      * @requires datastore_type
      *
@@ -15,10 +18,20 @@
      * Controller for the "Recycling Bin" modal
      */
     angular.module('psonocli').controller('ModalRecyclingBinCtrl', ['$scope', '$uibModal', '$uibModalInstance',
-        'managerWidget', 'helper', 'datastore', 'datastore_type',
+        'managerWidget', 'helper', 'languagePicker', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'datastore', 'datastore_type',
         function ($scope, $uibModal, $uibModalInstance,
-                  managerWidget, helper, datastore, datastore_type) {
+                  managerWidget, helper, languagePicker, DTOptionsBuilder, DTColumnDefBuilder, datastore, datastore_type) {
 
+            $scope.dtOptions = DTOptionsBuilder
+                .newOptions()
+                .withLanguageSource('translations/datatables.' + languagePicker.get_active_language_code() + '.json');
+
+            $scope.dtColumnDefs = [
+                DTColumnDefBuilder.newColumnDef(0),
+                DTColumnDefBuilder.newColumnDef(1),
+                DTColumnDefBuilder.newColumnDef(2)
+            ];
+            
             $scope.errors = [];
             $scope.data = {
             };
