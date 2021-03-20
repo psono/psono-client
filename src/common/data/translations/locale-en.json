@@ -4,7 +4,7 @@
   "ADD_ENTRY": "Add entry",
   "VALUE": "Value",
   "VARIABLES": "Variables",
-  "ENVIRONMENT_VARIABLES": "Envrionment Variables",
+  "ENVIRONMENT_VARIABLES": "Environment Variables",
   "COPY_TOTP_TOKEN": "Copy TOTP token",
   "INVALID_TOTP_SECRET": "Invalid TOTP secret",
   "INVALID_URL": "Invalid URL",
