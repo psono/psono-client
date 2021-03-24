@@ -60,7 +60,7 @@
                 'fr': {'code': 'fr', 'lng_code': 'LANG_FR', 'lng_title_native': 'Français', 'active': true},
                 'hr': {'code': 'hr', 'lng_code': 'LANG_HR', 'lng_title_native': 'Croatian', 'active': true}, // lng_title_native incorrect
                 'hu': {'code': 'hu', 'lng_code': 'LANG_HU', 'lng_title_native': 'Magyar', 'active': true},
-                'it': {'code': 'it', 'lng_code': 'LANG_IT', 'lng_title_native': 'Italiano'},
+                'it': {'code': 'it', 'lng_code': 'LANG_IT', 'lng_title_native': 'Italiano', 'active': true},
                 'ja': {'code': 'ja', 'lng_code': 'LANG_JA', 'lng_title_native': 'Japanese'}, // lng_title_native incorrect
                 'ko': {'code': 'ko', 'lng_code': 'LANG_KO', 'lng_title_native': 'Korean'}, // lng_title_native incorrect
                 'nl': {'code': 'nl', 'lng_code': 'LANG_NL', 'lng_title_native': 'Nederlands', 'active': true},
