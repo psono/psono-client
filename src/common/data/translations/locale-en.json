@@ -212,7 +212,7 @@
   "DELETE_API_KEY_WARNING": "You are about to delete an API key. All people and applications using this API key will lose access. Are you sure?",
   "LEAVE_GROUP": "Leave Group",
   "LEAVE_GROUP_WARNING": "You are about to leave the group. You will lose access to shares that belong to the group. Are you sure?",
-  "API_KEY_INSECURE_USAGE_WARNING": "You are about to allow this key to use an as insecure rated methods. With this, it's possible to access secrets without the complexity of the additional transport encryption or the need to decrypt passwords locally. You should only allow this if you cannot use the official console client and have to use simpler clients (e.g. curl).",
+  "API_KEY_INSECURE_USAGE_WARNING": "You are about to allow this key to use insecure methods. With this, it's possible to access secrets without the complexity of the additional transport encryption or the need to decrypt passwords locally. You should only allow this if you cannot use the official console client and have to use simpler clients (e.g. curl).",
   "API_KEY_NOT_RESTRICTED_TO_SECRETS_WARNING": "You removed the restriction for specific secrets. As a consequence this API key will have complete access to your account.",
   "EDIT_API_KEY": "Edit API Key",
   "SECRETS": "Secrets",
