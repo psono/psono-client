@@ -290,50 +290,70 @@
          * @returns {*} Returns the account detail
          */
         var get_account_detail = function (key) {
-
-            if (key === 'user_id') {
-                return storage.find_key('config', 'user_id').value;
-            }
-
-            if (key === 'user_username') {
-                return storage.find_key('config', 'user_username').value;
-            }
-
-            if (key === 'user_public_key') {
-                return storage.find_key('config', 'user_public_key').value;
-            }
-
-            if (key === 'user_email') {
-                return storage.find_key('config', 'user_email').value;
+            var strg;
+            if (['user_id', 'user_username', 'user_public_key', 'user_email'].indexOf(key) !== -1) {
+                strg = storage.find_key('config', key);
+                if (strg === null) {
+                    return ''
+                }
+                return strg.value;
             }
 
             if (key === 'setting_email') {
-                return storage.find_key('config', 'user_email').value;
+                strg = storage.find_key('config', 'user_email');
+                if (strg === null) {
+                    return ''
+                }
+                return strg.value;
             }
 
             if (key === 'server_api_version') {
-                return storage.find_key('config', 'server_info').value['api'];
+                strg = storage.find_key('config', 'server_info');
+                if (strg === null) {
+                    return ''
+                }
+                return strg.value['api'];
             }
 
             if (key === 'server_version') {
-                return storage.find_key('config', 'server_info').value['version'];
+                strg = storage.find_key('config', 'server_info');
+                if (strg === null) {
+                    return ''
+                }
+                return strg.value['version'];
             }
 
             if (key === 'server_signature') {
-                return storage.find_key('config', 'server_verify_key').value;
+                strg = storage.find_key('config', 'server_verify_key');
+                if (strg === null) {
+                    return ''
+                }
+                return strg.value;
             }
 
             if (key === 'server_log_audit') {
-                return storage.find_key('config','server_info').value['log_audit'];
+                strg = storage.find_key('config','server_info');
+                if (strg === null) {
+                    return ''
+                }
+                return strg.value['log_audit'];
             }
 
             if (key === 'server_public_key') {
-                return storage.find_key('config', 'server_info').value['public_key'];
+                strg = storage.find_key('config', 'server_info');
+                if (strg === null) {
+                    return ''
+                }
+                return strg.value['public_key'];
             }
 
             if (key === 'server_license_type') {
-                if (storage.find_key('config','server_info').value.hasOwnProperty('license_type')) {
-                    if (storage.find_key('config','server_info').value['license_type'] === 'paid') {
+                strg = storage.find_key('config', 'server_info');
+                if (strg === null) {
+                    return 'Community Edition (CE)'
+                }
+                if (strg.value.hasOwnProperty('license_type')) {
+                    if (strg.value['license_type'] === 'paid') {
                         return 'Enterprise Edition (EE)'
                     } else {
                         return 'Enterprise Edition (EE) limited'
@@ -344,22 +364,34 @@
             }
 
             if (key === 'server_license_max_users') {
-                if (storage.find_key('config','server_info').value.hasOwnProperty('license_max_users')) {
-                    return storage.find_key('config','server_info').value['license_max_users'];
+                strg = storage.find_key('config', 'server_info');
+                if (strg === null) {
+                    return 'unlimited'
+                }
+                if (strg.value.hasOwnProperty('license_max_users')) {
+                    return strg.value['license_max_users'];
                 }
                 return 'unlimited';
             }
 
             if (key === 'server_license_valid_from') {
-                if (storage.find_key('config','server_info').value.hasOwnProperty('license_valid_from')) {
-                    return $filter('date')(storage.find_key('config','server_info').value['license_valid_from']*1000, 'mediumDate');
+                strg = storage.find_key('config', 'server_info');
+                if (strg === null) {
+                    return 'N/A'
+                }
+                if (strg.value.hasOwnProperty('license_valid_from')) {
+                    return $filter('date')(strg.value['license_valid_from']*1000, 'mediumDate');
                 }
                 return 'N/A';
             }
 
             if (key === 'server_license_valid_till') {
-                if (storage.find_key('config','server_info').value.hasOwnProperty('license_valid_till')) {
-                    return $filter('date')(storage.find_key('config','server_info').value['license_valid_till']*1000, 'mediumDate');
+                strg = storage.find_key('config', 'server_info');
+                if (strg === null) {
+                    return 'N/A'
+                }
+                if (strg.value.hasOwnProperty('license_valid_till')) {
+                    return $filter('date')(strg.value['license_valid_till']*1000, 'mediumDate');
                 }
                 return 'N/A';
             }
