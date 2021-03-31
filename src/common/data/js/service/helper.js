@@ -655,6 +655,8 @@
                         containCounter++;
                     } else if(datastore_entry.hasOwnProperty('secret_id') && datastore_entry['secret_id'] === searchStrings[ii]) {
                         containCounter++;
+                    } else if(datastore_entry.hasOwnProperty('file_id') && datastore_entry['file_id'] === searchStrings[ii]) {
+                        containCounter++;
                     } else if(datastore_entry.hasOwnProperty('share_id') && datastore_entry['share_id'] === searchStrings[ii]) {
                         containCounter++;
                     }

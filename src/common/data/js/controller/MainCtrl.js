@@ -62,7 +62,9 @@
             activate();
 
             function activate() {
-
+                if (!$scope.user_username) {
+                    managerDatastoreUser.logout();
+                }
 
                 var is_logged_in = managerDatastoreUser.is_logged_in();
                 var require_two_fa_setup = managerDatastoreUser.require_two_fa_setup();
