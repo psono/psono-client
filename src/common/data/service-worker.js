@@ -332,6 +332,7 @@ self.addEventListener('install', function(event) {
                 './js/service/manager-security-report.js',
                 './js/service/import-1password-csv.js',
                 './js/service/import-chrome-csv.js',
+                './js/service/import-enpass-json.js',
                 './js/service/import-psono-pw-json.js',
                 './js/service/import-lastpass-com-csv.js',
                 './js/service/import-pwsafe-org-csv.js',

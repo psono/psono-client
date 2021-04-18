@@ -31,6 +31,8 @@
                   managerDatastoreUser, managerHost, browserClient, storage,
                   snapRemote, $window, $route, $routeParams, $location, helper) {
 
+            $scope.saml_provider = [];
+            $scope.oidc_provider = [];
             $scope.login_data = {
                 multifactor_enabled: true
             };
@@ -45,6 +47,8 @@
             $scope.initiate_login = initiate_login;
             $scope.initiate_saml_login = initiate_saml_login;
             $scope.initiate_oidc_login = initiate_oidc_login;
+            $scope.initiate_saml_login_new_tab = initiate_saml_login_new_tab;
+            $scope.initiate_oidc_login_new_tab = initiate_oidc_login_new_tab;
             $scope.load_default_view = load_default_view;
             $scope.remote_config = remote_config;
             $scope.cancel = cancel;
@@ -79,7 +83,53 @@
                         oidc_login($routeParams.oidc_token_id);
                         $location.path('/');
                     }
+                    on_potential_saml_autologin();
+                    on_potential_oidc_autologin();
                 });
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LoginCtrl#on_potential_saml_autologin
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Checks if an autologin for saml needs to be triggered
+             */
+            function on_potential_saml_autologin() {
+                if (typeof($routeParams.saml_autologin_provider_id) === 'undefined') {
+                    return
+                }
+                for (var i = 0; i < $scope.saml_provider.length; i++) {
+                    if ($scope.saml_provider[i].provider_id.toString() !== $routeParams.saml_autologin_provider_id) {
+                        continue;
+                    }
+                    initiate_saml_login($scope.saml_provider[i], $routeParams.remember === 'true', $routeParams.trust_device === 'true', $routeParams.two_fa_redirect === 'true')
+                    $location.path('/');
+                    return
+                }
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LoginCtrl#on_potential_oidc_autologin
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Checks if an autologin for oidc needs to be triggered
+             */
+            function on_potential_oidc_autologin() {
+                if (typeof($routeParams.oidc_autologin_provider_id) === 'undefined') {
+                    return
+                }
+                for (var i = 0; i < $scope.oidc_provider.length; i++) {
+                    if ($scope.oidc_provider[i].provider_id.toString() !== $routeParams.oidc_autologin_provider_id) {
+                        continue;
+                    }
+                    initiate_oidc_login($scope.oidc_provider[i], $routeParams.remember === 'true', $routeParams.trust_device === 'true', $routeParams.two_fa_redirect === 'true')
+                    $location.path('/');
+                    return
+                }
             }
 
             /**
@@ -122,6 +172,8 @@
                 } else {
                     select_server($scope.servers[0]);
                 }
+                on_potential_saml_autologin();
+                on_potential_oidc_autologin();
             }
 
             /**
@@ -695,6 +747,42 @@
                 };
 
                 managerDatastoreUser.oidc_login(oidc_token_id).then(onSuccess, onError);
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LoginCtrl#initiate_saml_login_new_tab
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Triggered once someone clicks the login button for a SAML provider in the panel and will initiate the
+             * login sequence in a new tab
+             *
+             * @param {string} provider The provider config from config.json passed down
+             * @param {boolean|undefined} remember Remember username and server
+             * @param {boolean|undefined} trust_device Trust the device for 30 days or logout when browser closes
+             * @param {boolean} two_fa_redirect Redirect user to enforce-two-fa.html or let another controller handle it
+             */
+            function initiate_saml_login_new_tab(provider, remember, trust_device, two_fa_redirect) {
+                browserClient.open_tab('index.html#!/initiate-saml-login/'+provider.provider_id+'/'+(remember === true)+'/'+(trust_device === true)+'/'+(two_fa_redirect === true));
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:LoginCtrl#initiate_oidc_login_new_tab
+             * @methodOf psonocli.controller:LoginCtrl
+             *
+             * @description
+             * Triggered once someone clicks the login button for a OIDC provider in the panel and will initiate the
+             * login sequence in a new tab
+             *
+             * @param {string} provider The provider config from config.json passed down
+             * @param {boolean|undefined} remember Remember username and server
+             * @param {boolean|undefined} trust_device Trust the device for 30 days or logout when browser closes
+             * @param {boolean} two_fa_redirect Redirect user to enforce-two-fa.html or let another controller handle it
+             */
+            function initiate_oidc_login_new_tab(provider, remember, trust_device, two_fa_redirect) {
+                browserClient.open_tab('index.html#!/initiate-oidc-login/'+provider.provider_id+'/'+(remember === true)+'/'+(trust_device === true)+'/'+(two_fa_redirect === true));
             }
 
             /**

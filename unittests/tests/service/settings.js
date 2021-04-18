@@ -77,8 +77,8 @@
             expect(settings.get_setting('setting_password_numbers')).toBe('0123456789');
         }));
 
-        it('default setting_password_special_chars = ,.-;:_#\'+*~!"§$%&/()=?{[]}\\', inject(function (settings) {
-            expect(settings.get_setting('setting_password_special_chars')).toBe(',.-;:_#\'+*~!"§$%&/()=?{[]}\\');
+        it('default setting_password_special_chars = ,.-;:_#\'+*~!"§$%&/@()=?{[]}\\', inject(function (settings) {
+            expect(settings.get_setting('setting_password_special_chars')).toBe(',.-;:_#\'+*~!"§$%&/@()=?{[]}\\');
         }));
 
         it('get_setting(undefined) = null', inject(function (settings) {
