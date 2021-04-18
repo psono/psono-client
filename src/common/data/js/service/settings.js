@@ -38,7 +38,7 @@
                 { key: "setting_password_letters_uppercase", field: "input", type: "text", title: "LETTERS_UPPERCASE", placeholder: "LETTERS_UPPERCASE", default: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', tab: 'password-generator'},
                 { key: "setting_password_letters_lowercase", field: "input", type: "text", title: "LETTERS_LOWERCASE", placeholder: "LETTERS_LOWERCASE", default: 'abcdefghijklmnopqrstuvwxyz', tab: 'password-generator'},
                 { key: "setting_password_numbers", field: "input", type: "text", title: "NUMBERS", placeholder: "NUMBERS", required: true, default: '0123456789', tab: 'password-generator'},
-                { key: "setting_password_special_chars", field: "input", type: "text", title: "SPECIAL_CHARS", placeholder: "SPECIAL_CHARS", default: ',.-;:_#\'+*~!"§$%&/()=?{[]}\\', tab: 'password-generator'},
+                { key: "setting_password_special_chars", field: "input", type: "text", title: "SPECIAL_CHARS", placeholder: "SPECIAL_CHARS", default: ',.-;:_#\'+*~!"§$%&/@()=?{[]}\\', tab: 'password-generator'},
                 // Language
                 { key: "language_language", field: "select", type: "select", title: "LANGUAGE", get_options: "get_language_options", get_default: "get_default_language", tab: 'language', save: '', onChange: 'on_change_language'},
                 // GPG
