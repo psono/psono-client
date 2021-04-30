@@ -22,11 +22,11 @@
     angular.module('psonocli').controller('OtherImportCtrl', ['$scope', 'managerImport', 'importPsonoPwJson',
         'import1PasswordCsv', 'importChromeCsv',
         'importLastPassComCsv', 'importKeePassCsv', 'importKeePassXml', 'importKeePassXCsv', 'importPasswordSafeCsv',
-        'importEnpassJson',
+        'importEnpassJson', 'importTeampassNetCsv',
         function ($scope, managerImport, importPsonoPwJson,
                   import1PasswordCsv, importChromeCsv,
                   importLastPassComCsv, importKeePassCsv, importKeePassXml, importKeePassXCsv, importPasswordSafeCsv,
-                  importEnpassJson) {
+                  importEnpassJson, importTeampassNetCsv) {
 
             $scope.import_options = {
                 options: managerImport.get_importer(),
