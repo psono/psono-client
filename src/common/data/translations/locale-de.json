@@ -204,7 +204,7 @@
   "API_KEY_DETAIL_EXPLANATION": "Hier finden sie alle Parameter des API Schlüssels.",
   "DELETE_ENTRY_WARNING": "Sie sind dabei diesen Eintrag zu löschen. Wenn es sich bei diesem Eintrag um einen Share handelt und sie ihn auch für andere löschen möchten, entfernen sie die Share Berechtigungen zuerst bevor sie diesen Eintrag löschen.",
   "DELETE_ENTRY_PERMANENT_WARNING": "Sie sind dabei diesen Eintrag permanent zu löschen. Diese Aktion kann nicht umgekehrt werden. Sind sie sich sicher?",
-  "DELETE_FOLDER_WARNING": "Sie sind dabei einen Ordner mit all seinem Inhalt zu läschen. Wenn es sich bei diesem Ordner um einen Share handelt oder Shares beinhaltet und sie diese auch für andere löschen möchten, enfernen sie die Share Berechtigungen zuerst bevor sie diesen Ordner löschen.",
+  "DELETE_FOLDER_WARNING": "Sie sind dabei einen Ordner mit all seinem Inhalt zu löschen. Wenn es sich bei diesem Ordner um einen Share handelt oder Shares beinhaltet und sie diese auch für andere löschen möchten, enfernen sie die Share Berechtigungen zuerst bevor sie diesen Ordner löschen.",
   "DELETE_FOLDER_PERMANENT_WARNING": "Sie sind dabei einen Ordner mit all seinem Inhalt permanent zu löschen. Diese Aktion kann nicht umgekehrt werden. Sind sie sich sicher?",
   "CHOOSE_SECRET": "Secret auswählen",
   "ADD_SECRET_TO_API_KEY": "Secret einem API Schlüssel hinzufügen",
