@@ -78,7 +78,7 @@
                     <th>{{'AGE' | translate}}</th>
                     <th ng-if="check_haveibeenpwned">{{'BREACHED' | translate}}</th>
                     <th>{{'DUPLICATE' | translate}}</th>
-                    <th>{{'ADVISE' | translate}}</th>
+                    <th>{{'ADVICE' | translate}}</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -108,8 +108,8 @@
                         <span style="display: none" ng-if="!pw.duplicate">0</span>
                         <span style="display: none" ng-if="pw.duplicate">1</span>
                     </td>
-                    <!--<td>{{ pw.advise | translate:pw }}</td>-->
-                    <td translate="{{ pw.advise }}" translate-values='pw'></td>
+                    <!--<td>{{ pw.advice | translate:pw }}</td>-->
+                    <td translate="{{ pw.advice }}" translate-values='pw'></td>
                 </tr>
                 </tbody>
             </table>
