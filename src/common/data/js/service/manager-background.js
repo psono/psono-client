@@ -439,8 +439,11 @@
                 }
 
                 if (leaf.urlfilter) {
-                    var urlfilters = leaf.urlfilter.split(/\s+/);
+                    var urlfilters = leaf.urlfilter.split(/\s+|,|;/);
                     for (var i = 0; i < urlfilters.length; i++) {
+                        if (!urlfilters[i]) {
+                            continue;
+                        }
                         if (!helper.endsWith(parsed_url.authority, urlfilters[i])) {
                             continue;
                         }
