@@ -71,11 +71,11 @@
             if (typeof(splitted_domain) !== 'undefined' && is_ipv4_address(full_domain)) {
                 top_domain = full_domain
             } else if(typeof(splitted_domain) !== 'undefined') {
-                top_domain = splitted_domain[splitted_domain.length - 2] + '.' + splitted_domain[splitted_domain.length - 1];
-            }
-
-            if (typeof(authority) !== 'undefined' && authority.indexOf('.') === -1) {
-                authority = undefined;
+                if (splitted_domain.length > 1) {
+                    top_domain = splitted_domain[splitted_domain.length - 2] + '.' + splitted_domain[splitted_domain.length - 1];
+                } else {
+                    top_domain = splitted_domain[splitted_domain.length - 1];
+                }
             }
 
             return {
@@ -103,11 +103,11 @@
          * @returns {boolean}
          */
         function is_valid_url(url) {
-            var parsed_url = parse_url(url);
-            if (typeof(parsed_url['authority']) === 'undefined') {
+            try {
+                new URL(url);
+            } catch (_) {
                 return false;
             }
-
             return true;
         }
 
