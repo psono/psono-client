@@ -73,7 +73,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * @param form
      */
     function form_submit_catcher(form) {
-        var password_fields = form.querySelectorAll("input[type='password']:not(:disabled):not([readonly]):not([type=hidden])");
+        var password_fields = form.querySelectorAll("input[type='password']");
         if (password_fields.length !== 1) {
             return;
         }
@@ -100,7 +100,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * @returns {{username: string, password: string}}
      */
     function get_username_and_password(form) {
-        var fields = form.querySelectorAll("input[type='text']:not(:disabled):not([readonly]):not([type=hidden]), input[type='email']:not(:disabled):not([readonly]):not([type=hidden]), input[type='password']:not(:disabled):not([readonly]):not([type=hidden])");
+        var fields = form.querySelectorAll("input[type='text'], input[type='email'], input[type='password']");
 
         var username = '';
         var password = '';
@@ -140,7 +140,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
         // Lets start with searching all input fields and forms
         // if we find a password field, we remember that and take the field before as username field
 
-        var inputs = document.querySelectorAll("input[type='text']:not(:disabled):not([readonly]):not([type=hidden]), input:not([type]):not(:disabled):not([readonly]):not([type=hidden]), input[type='email']:not(:disabled):not([readonly]):not([type=hidden]), input[type='password']:not(:disabled):not([readonly]):not([type=hidden])");
+        var inputs = document.querySelectorAll("input[type='text'], input:not([type]), input[type='email'], input[type='password']");
 
         for (var i = 0; i < inputs.length; ++i) {
 
@@ -149,10 +149,6 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
             }
 
             if (inputs[i].classList.contains('psono-add_form_buttons-covered')) {
-                continue;
-            }
-            
-            if (inputs[i].offsetWidth < 90) {
                 continue;
             }
             
@@ -172,6 +168,9 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
                 if (inputs[r].style.display === 'none')
                     continue;
 
+                if (inputs[r].offsetWidth < 90)
+                    continue; // we don't modify input fields that are too small
+
                 // username field is inputs[r]
                 padding_right = jQuery(inputs[r]).css('padding-right');
                 base.modify_input_field(inputs[r], background_image, 'center right ' + padding_right, document, click, mouseOver, mouseOut, mouseMove);
@@ -180,11 +179,14 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
                 break;
             }
 
-            // Password field is inputs[i]
-            padding_right = jQuery(inputs[i]).css('padding-right');
-            base.modify_input_field(inputs[i], background_image, 'center right ' + padding_right, document, click, mouseOver, mouseOut, mouseMove);
+            if (inputs[i].offsetWidth >= 90) { // we don't modify input fields that are too small
+                // Password field is inputs[i]
+                padding_right = jQuery(inputs[i]).css('padding-right');
+                base.modify_input_field(inputs[i], background_image, 'center right ' + padding_right, document, click, mouseOver, mouseOut, mouseMove);
 
-            newForm.password = inputs[i];
+                newForm.password = inputs[i];
+            }
+
 
             var parent = inputs[i].parentElement;
 

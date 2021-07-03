@@ -336,6 +336,7 @@ self.addEventListener('install', function(event) {
                 './js/service/import-psono-pw-json.js',
                 './js/service/import-lastpass-com-csv.js',
                 './js/service/import-pwsafe-org-csv.js',
+                './js/service/import-teampass-net-csv.js',
                 './js/service/import-keepassx-org-csv.js',
                 './js/service/import-keepass-info-csv.js',
                 './js/service/import-keepass-info-xml.js',
