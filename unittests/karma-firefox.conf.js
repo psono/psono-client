@@ -140,6 +140,7 @@
                 "../src/common/data/js/service/api-do.js",
                 "../src/common/data/js/service/api-backblaze.js",
                 "../src/common/data/js/service/api-aws.js",
+                "../src/common/data/js/service/api-azure-blob.js",
                 "../src/common/data/js/service/api-other-s3.js",
                 "../src/common/data/js/service/api-fileserver.js",
                 "../src/common/data/js/service/api-pwnedpasswords.js",

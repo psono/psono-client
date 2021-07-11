@@ -1,4 +1,10 @@
 {
+  "ACCOUNT_NAME": "Account name",
+  "PRIMARY_KEY": "Primary key",
+  "CONTAINER_NAME": "Container name",
+  "ACCOUNT_NAME_IS_REQUIRED": "Account name ist erforderlich",
+  "PRIMARY_KEY_IS_REQUIRED": "Primary key ist erforderlich",
+  "CONTAINER_NAME_IS_REQUIRED": "Container name ist erforderlich",
   "JSON_IMPORT_COMPATIBLE": "JSON (Import kompatibel)",
   "ENCODING": "Encodierung",
   "ADD_ENTRY": "Eintrag hinzufügen",

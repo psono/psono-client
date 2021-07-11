@@ -45,6 +45,18 @@
             </div>
         </div>
 
+        <div ng-if="selected_type === 'azure_blob'">
+            <div class="form-group">
+                <input type="text" name="azure_blob_storage_account_name" class="form-control" id="azure_blob_storage_account_name" placeholder="{{'ACCOUNT_NAME' | translate}}" ng-model="storage_config.azure_blob_storage_account_name">
+            </div>
+            <div class="form-group">
+                <input type="text" name="azure_blob_storage_account_primary_key" class="form-control" id="azure_blob_storage_account_primary_key" placeholder="{{'PRIMARY_KEY' | translate}}" ng-model="storage_config.azure_blob_storage_account_primary_key">
+            </div>
+            <div class="form-group">
+                <input type="text" name="azure_blob_storage_account_container_name" class="form-control" id="azure_blob_storage_account_container_name" placeholder="{{'CONTAINER_NAME' | translate}}" ng-model="storage_config.azure_blob_storage_account_container_name">
+            </div>
+        </div>
+
 
         <div ng-if="selected_type === 'backblaze'">
             <div class="form-group">

@@ -298,6 +298,7 @@ self.addEventListener('install', function(event) {
                 './js/service/api-do.js',
                 './js/service/api-backblaze.js',
                 './js/service/api-aws.js',
+                './js/service/api-azure-blob.js',
                 './js/service/api-other-s3.js',
                 './js/service/api-fileserver.js',
                 './js/service/api-pwnedpasswords.js',

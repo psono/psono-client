@@ -121,6 +121,21 @@
                     return;
                 }
 
+                if ($scope.selected_type === 'azure_blob' && !$scope.storage_config['azure_blob_storage_account_name']) {
+                    $scope.errors.push('ACCOUNT_NAME_IS_REQUIRED');
+                    return;
+                }
+
+                if ($scope.selected_type === 'azure_blob' && !$scope.storage_config['azure_blob_storage_account_primary_key']) {
+                    $scope.errors.push('PRIMARY_KEY_IS_REQUIRED');
+                    return;
+                }
+
+                if ($scope.selected_type === 'azure_blob' && !$scope.storage_config['azure_blob_storage_account_container_name']) {
+                    $scope.errors.push('CONTAINER_NAME_IS_REQUIRED');
+                    return;
+                }
+
                 if ($scope.selected_type === 'backblaze' && !$scope.storage_config['backblaze_bucket']) {
                     $scope.errors.push('BUCKET_IS_REQUIRED');
                     return;
@@ -222,6 +237,9 @@
                     $scope.storage_config['aws_s3_region'],
                     $scope.storage_config['aws_s3_access_key_id'],
                     $scope.storage_config['aws_s3_secret_access_key'],
+                    $scope.storage_config['azure_blob_storage_account_name'],
+                    $scope.storage_config['azure_blob_storage_account_primary_key'],
+                    $scope.storage_config['azure_blob_storage_account_container_name'],
                     $scope.storage_config['backblaze_bucket'],
                     $scope.storage_config['backblaze_region'],
                     $scope.storage_config['backblaze_access_key_id'],
