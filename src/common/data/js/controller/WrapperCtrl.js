@@ -69,6 +69,9 @@
                 }
 
                 browserClient.on("login", function () {
+                    if (!managerDatastoreUser.is_logged_in()) {
+                        return;
+                    }
                     $timeout(function () {
                         $scope.view = "logged_in";
                         initialize_snapper();

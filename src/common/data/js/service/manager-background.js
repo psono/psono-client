@@ -883,10 +883,10 @@
             }, function(response_url) {
                 if (response_url.indexOf(browserClient.get_oidc_return_to_url()) !== -1) {
                     var oidc_token_id = response_url.replace(browserClient.get_oidc_return_to_url(), '');
-                    browserClient.open_tab_bg('/data/index.html#!/oidc/token/' + oidc_token_id);
+                    browserClient.replace_tab_url('/data/index.html#!/oidc/token/' + oidc_token_id);
                 } else {
                     var saml_token_id = response_url.replace(browserClient.get_saml_return_to_url(), '');
-                    browserClient.open_tab_bg('/data/index.html#!/saml/token/' + saml_token_id);
+                    browserClient.replace_tab_url('/data/index.html#!/saml/token/' + saml_token_id);
                 }
             })
         }
