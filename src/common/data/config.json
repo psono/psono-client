@@ -5,7 +5,12 @@
   "allow_custom_server": true,
   "allow_registration": true,
   "allow_lost_password": true,
-  "authentication_methods": ["AUTHKEY", "LDAP"],
+  "authentication_methods": ["AUTHKEY", "LDAP", "OIDC"],
+  "oidc_provider": [{
+    "title": "OIDC Login",
+    "provider_id": 3,
+    "button_name": "Login "
+  }],
   "more_links": [{
     "href": "https://doc.psono.com/",
     "title": "DOCUMENTATION",

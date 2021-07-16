@@ -127,7 +127,7 @@
                 <strong>{{'INFO' | translate}}!</strong> {{'SECURITY_REPORT_GOAL' | translate}}
             </div>
             <form class="form-horizontal" autocomplete="off">
-                <div class="form-group">
+                <div class="form-group" ng-if="state.require_master_password">
                     <label class="control-label col-sm-2" for="password">
                         {{'YOUR_PASSWORD' | translate}}
                     </label>
