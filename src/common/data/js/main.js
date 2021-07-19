@@ -72,7 +72,7 @@
                 'da': {'code': 'da', 'lng_code': 'LANG_DA', 'lng_title_native': ''}, // lng_title_native incorrect
                 'sv': {'code': 'sv', 'lng_code': 'LANG_SV', 'lng_title_native': 'Svenska', 'active': true},
                 'sk': {'code': 'sk', 'lng_code': 'LANG_SK', 'lng_title_native': 'Slovák', 'active': true},
-                'uk': {'code': 'uk', 'lng_code': 'LANG_UK', 'lng_title_native': 'Український'},
+                'uk': {'code': 'uk', 'lng_code': 'LANG_UK', 'lng_title_native': 'Український', 'active': true},
                 'no': {'code': 'no', 'lng_code': 'LANG_NO', 'lng_title_native': 'Norsk', 'active': true},
                 'he': {'code': 'he', 'lng_code': 'LANG_HE', 'lng_title_native': ''}, // lng_title_native incorrect
                 'ar': {'code': 'ar', 'lng_code': 'LANG_AR', 'lng_title_native': ''}, // lng_title_native incorrect
