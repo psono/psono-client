@@ -45,12 +45,19 @@
 
     <form name="searchForm" ng-if="!show_2fa_button" autocomplete="off">
         <div class="form-group">
-            <input id="datastoresearch" name="datastoresearch" class="form-control" ng-model="datastore.search"
-                   placeholder="{{'SEARCH_DATSTORE' | translate}}" auto-focus>
+            <div class="input-group">
+                <input id="datastoresearch" name="datastoresearch" class="form-control" ng-model="datastore.search"
+                       ng-change="datastore_search_changed(datastore.search)"
+                       placeholder="{{'SEARCH_DATSTORE' | translate}}" auto-focus>
+                <span class="input-group-btn">
+                        <button class="btn btn-default" ng-disabled="!datastore.search"
+                                ng-click="clear_datastore_search()" type="button"><i class="fa fa-ban"></i></button>
+                    </span>
+            </div>
         </div>
         <hr>
         <ul class="navigations">
-            <li ng-repeat="searchEntry in datastore.filteredSearcArray = (searchArray | filter:filterBySearch)">
+            <li ng-repeat="searchEntry in datastore.filteredSearcArray = (searchArray | filter:filter_by_search)">
                 <a href="#" class="navigationitem" ng-click="edit_item(searchEntry)"><i class="fa-fw" ng-class="::item_icon(searchEntry)"></i> {{ ::searchEntry.name }}</a>
                 <span class="node-open-link"
                       ng-if="['bookmark', 'website_password'].indexOf(searchEntry.type) !== -1"
