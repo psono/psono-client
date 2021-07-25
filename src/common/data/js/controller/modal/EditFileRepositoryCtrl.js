@@ -113,6 +113,21 @@
                     return;
                 }
 
+                if ($scope.file_repository.type === 'azure_blob' && !$scope.file_repository['azure_blob_storage_account_name']) {
+                    $scope.errors.push('ACCOUNT_NAME_IS_REQUIRED');
+                    return;
+                }
+
+                if ($scope.file_repository.type === 'azure_blob' && !$scope.file_repository['azure_blob_storage_account_primary_key']) {
+                    $scope.errors.push('PRIMARY_KEY_IS_REQUIRED');
+                    return;
+                }
+
+                if ($scope.file_repository.type === 'azure_blob' && !$scope.file_repository['azure_blob_storage_account_container_name']) {
+                    $scope.errors.push('CONTAINER_NAME_IS_REQUIRED');
+                    return;
+                }
+
                 if ($scope.file_repository.type === 'backblaze' && !$scope.file_repository['backblaze_bucket']) {
                     $scope.errors.push('BUCKET_IS_REQUIRED');
                     return;
@@ -201,6 +216,9 @@
                     $scope.file_repository['aws_s3_region'],
                     $scope.file_repository['aws_s3_access_key_id'],
                     $scope.file_repository['aws_s3_secret_access_key'],
+                    $scope.file_repository['azure_blob_storage_account_name'],
+                    $scope.file_repository['azure_blob_storage_account_primary_key'],
+                    $scope.file_repository['azure_blob_storage_account_container_name'],
                     $scope.file_repository['backblaze_bucket'],
                     $scope.file_repository['backblaze_region'],
                     $scope.file_repository['backblaze_access_key_id'],

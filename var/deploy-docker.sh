@@ -7,8 +7,9 @@ docker pull psono-docker.jfrog.io/psono/psono-client:latest
 docker tag psono-docker.jfrog.io/psono/psono-client:latest psono/psono-client:latest
 docker push psono/psono-client:latest
 
-# Inform production stage about new image
-curl -X POST https://hooks.microbadger.com/images/psono/psono-client/jMnJgDVZTpT4TUX-RlxTKa38Nc4=
+export docker_version_tag=$(echo $CI_COMMIT_TAG | awk  '{ string=substr($0, 2, 100); print string; }' )
+docker tag psono-docker.jfrog.io/psono/psono-client:latest psono/psono-client:$docker_version_tag
+docker push psono/psono-client:$docker_version_tag
 
 
 echo "Trigger psono combo rebuild"

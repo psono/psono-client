@@ -2403,6 +2403,9 @@
          * @param {string} [aws_s3_region] (optional) The s3 region
          * @param {string} [aws_s3_access_key_id] (optional) The s3 access key
          * @param {string} [aws_s3_secret_access_key] (optional) The s3 secret key
+         * @param {string} [azure_blob_storage_account_name] (optional) The azure blob storage account name
+         * @param {string} [azure_blob_storage_account_primary_key] (optional) The azure blob storage account primary key
+         * @param {string} [azure_blob_storage_account_container_name] (optional) The azure blob storage account container name
          * @param {string} [backblaze_bucket] (optional) The backblaze bucket
          * @param {string} [backblaze_region] (optional) The backblaze region
          * @param {string} [backblaze_access_key_id] (optional) The backblaze access key
@@ -2422,6 +2425,7 @@
         var create_file_repository = function (token, session_secret_key, title, type,
                                                gcp_cloud_storage_bucket, gcp_cloud_storage_json_key,
                                                aws_s3_bucket, aws_s3_region, aws_s3_access_key_id, aws_s3_secret_access_key,
+                                               azure_blob_storage_account_name, azure_blob_storage_account_primary_key, azure_blob_storage_account_container_name,
                                                backblaze_bucket, backblaze_region, backblaze_access_key_id, backblaze_secret_access_key,
                                                other_s3_bucket, other_s3_region, other_s3_endpoint_url, other_s3_access_key_id, other_s3_secret_access_key,
                                                do_space, do_region, do_key, do_secret) {
@@ -2437,6 +2441,9 @@
                 aws_s3_region: aws_s3_region,
                 aws_s3_access_key_id: aws_s3_access_key_id,
                 aws_s3_secret_access_key: aws_s3_secret_access_key,
+                azure_blob_storage_account_name: azure_blob_storage_account_name,
+                azure_blob_storage_account_primary_key: azure_blob_storage_account_primary_key,
+                azure_blob_storage_account_container_name: azure_blob_storage_account_container_name,
                 backblaze_bucket: backblaze_bucket,
                 backblaze_region: backblaze_region,
                 backblaze_access_key_id: backblaze_access_key_id,
@@ -2478,6 +2485,9 @@
          * @param {string} [aws_s3_region] (optional) The s3 region
          * @param {string} [aws_s3_access_key_id] (optional) The s3 access key
          * @param {string} [aws_s3_secret_access_key] (optional) The s3 secret key
+         * @param {string} [azure_blob_storage_account_name] (optional) The azure blob storage account name
+         * @param {string} [azure_blob_storage_account_primary_key] (optional) The azure blob storage account primary key
+         * @param {string} [azure_blob_storage_account_container_name] (optional) The azure blob storage account container name
          * @param {string} [backblaze_bucket] (optional) The backblaze bucket
          * @param {string} [backblaze_region] (optional) The backblaze region
          * @param {string} [backblaze_access_key_id] (optional) The backblaze access key
@@ -2498,6 +2508,7 @@
         var update_file_repository = function (token, session_secret_key, file_repository_id, title, type,
                                                gcp_cloud_storage_bucket, gcp_cloud_storage_json_key, active,
                                                aws_s3_bucket, aws_s3_region, aws_s3_access_key_id, aws_s3_secret_access_key,
+                                               azure_blob_storage_account_name, azure_blob_storage_account_primary_key, azure_blob_storage_account_container_name,
                                                backblaze_bucket, backblaze_region, backblaze_access_key_id, backblaze_secret_access_key,
                                                other_s3_bucket, other_s3_region, other_s3_endpoint_url, other_s3_access_key_id, other_s3_secret_access_key,
                                                do_space, do_region, do_key, do_secret) {
@@ -2514,6 +2525,9 @@
                 aws_s3_region: aws_s3_region,
                 aws_s3_access_key_id: aws_s3_access_key_id,
                 aws_s3_secret_access_key: aws_s3_secret_access_key,
+                azure_blob_storage_account_name: azure_blob_storage_account_name,
+                azure_blob_storage_account_primary_key: azure_blob_storage_account_primary_key,
+                azure_blob_storage_account_container_name: azure_blob_storage_account_container_name,
                 backblaze_bucket: backblaze_bucket,
                 backblaze_region: backblaze_region,
                 backblaze_access_key_id: backblaze_access_key_id,

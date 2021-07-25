@@ -149,10 +149,8 @@ def main():
             print("Error: main")
             print("Invalid Language Code " + language_code)
             exit(1)
-        if language_code not in WEBHOOKS:
-            print("Skipping " + language_code + ': No webhook configured')
-            continue
-        upload_language(language_code)
+        if language_code in WEBHOOKS:
+            upload_language(language_code)
         file = download_language(language_code)
         deploy_to_artifactory(ARTIFACTORY_USER, ARTIFACTORY_PASS, ARTIFACTORY_URL, ARTIFACTORY_PATH, language_code, file)
 

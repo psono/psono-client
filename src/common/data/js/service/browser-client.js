@@ -131,6 +131,21 @@
 
         /**
          * @ngdoc
+         * @name psonocli.browserClient#replace_tab_url
+         * @methodOf psonocli.browserClient
+         *
+         * @description
+         * Replaces the URL of the current browser tab (from the background page)
+         *
+         * @param url
+         * @param callback_function
+         */
+        function replace_tab_url(url, callback_function) {
+            // pass, websites have no background page
+        }
+
+        /**
+         * @ngdoc
          * @name psonocli.browserClient#open_popup
          * @methodOf psonocli.browserClient
          *
@@ -553,6 +568,7 @@
             get_oidc_return_to_url: get_oidc_return_to_url,
             launch_web_auth_flow: launch_web_auth_flow,
             open_tab_bg: open_tab_bg,
+            replace_tab_url: replace_tab_url,
             open_popup: open_popup,
             close_opened_popup: close_opened_popup,
             clear_config_cache: clear_config_cache,

@@ -67,6 +67,20 @@
             });
         }));
 
+        it('parse_url sub domain with port', inject(function (helper) {
+            expect(helper.parse_url('http://localhost:6000/url-part/#is-not-part')).toEqual({
+                scheme: 'http',
+                base_url: 'http://localhost:6000',
+                authority: 'localhost:6000',
+                full_domain: 'localhost',
+                top_domain: 'localhost',
+                port: '6000',
+                path: '/url-part/',
+                query: undefined,
+                fragment: 'is-not-part'
+            });
+        }));
+
         it('get_domain sub domain', inject(function (helper) {
             expect(helper.get_domain('http://test.example.com/url-part/#is-not-part')).toEqual('test.example.com');
         }));

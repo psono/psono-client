@@ -9,6 +9,7 @@
      * @requires $uibModal
      * @requires $location
      * @requires $window
+     * @requires $timeout
      * @requires psonocli.apiClient
      * @requires psonocli.browserClient
      * @requires psonocli.storage
@@ -24,7 +25,7 @@
      * Service to manage the user datastore and user related functions
      */
 
-    var managerDatastoreUser = function($q, $rootScope, $uibModal, $location, $window, apiClient,
+    var managerDatastoreUser = function($q, $rootScope, $uibModal, $location, $window, $timeout, apiClient,
                                         browserClient, storage, helper, device, managerBase, managerDatastore, managerHost,
                                         shareBlueprint, itemBlueprint, cryptoLibrary) {
 
@@ -294,6 +295,7 @@
                 storage.insert('config', {key: 'user_sauce', value: user_sauce});
 
                 storage.save();
+                emit("storage-reload", null);
 
                 // no need anymore for the public / private session keys
                 session_keys = null;
@@ -305,7 +307,11 @@
                 session_password = null;
                 verification = null;
 
-                browserClient.emit("login", null);
+
+                $timeout(function() {
+                    // make sure that the storage has been saved and synced with other tabs
+                    browserClient.emit("login", null);
+                }, 1000);
 
                 return {
                     response:"success"
@@ -2137,7 +2143,7 @@
     };
 
     var app = angular.module('psonocli');
-    app.factory("managerDatastoreUser", ['$q', '$rootScope', '$uibModal', '$location', '$window', 'apiClient',
+    app.factory("managerDatastoreUser", ['$q', '$rootScope', '$uibModal', '$location', '$window', '$timeout', 'apiClient',
         'browserClient', 'storage', 'helper', 'device', 'managerBase', 'managerDatastore', 'managerHost',
         'shareBlueprint', 'itemBlueprint', 'cryptoLibrary', managerDatastoreUser]);
 

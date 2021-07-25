@@ -15,6 +15,7 @@
      * @requires psonocli.managerSecret
      * @requires psonocli.managerWidget
      * @requires psonocli.browserClient
+     * @requires psonocli.storage
      * @requires psonocli.offlineCache
      * @requires psonocli.helper
      * @requires $window
@@ -28,20 +29,22 @@
      */
     angular.module('psonocli').controller('PanelCtrl', ['$scope', '$rootScope', '$filter', '$timeout', 'manager',
         'managerDatastorePassword', 'managerDatastoreSetting', 'managerDatastoreUser', 'managerSecret', 'managerWidget', 'browserClient',
-        'offlineCache', 'helper', '$window', '$uibModal', '$route', '$routeParams', '$location',
+        'storage', 'offlineCache', 'helper', '$window', '$uibModal', '$route', '$routeParams', '$location',
         function ($scope, $rootScope, $filter, $timeout, manager,
                   managerDatastorePassword, managerDatastoreSetting, managerDatastoreUser, managerSecret, managerWidget, browserClient,
-                  offlineCache, helper, $window, $uibModal, $route, $routeParams, $location) {
+                  storage, offlineCache, helper, $window, $uibModal, $route, $routeParams, $location) {
 
             var password_filter;
 
             $scope.open_tab = browserClient.open_tab;
             $scope.logout = managerDatastoreUser.logout;
-            $scope.filterBySearch = filterBySearch;
+            $scope.filter_by_search = filter_by_search;
+            $scope.datastore_search_changed = datastore_search_changed;
             $scope.on_item_click = on_item_click;
             $scope.edit_item = edit_item;
             $scope.generate_password = generate_password;
             $scope.bookmark = bookmark;
+            $scope.clear_datastore_search = clear_datastore_search;
             $scope.copy_username = managerSecret.copy_username;
             $scope.copy_password = managerSecret.copy_password;
             $scope.copy_totp_token = managerSecret.copy_totp_token;
@@ -141,6 +144,24 @@
                     // required, otherwise password generate always generates the default values
                     managerDatastoreSetting.get_settings_datastore()
                 }
+
+                var last_panel_search = storage.find_key('config', 'panel_search');
+                if (last_panel_search !== null) {
+                    $scope.datastore.search = last_panel_search.value;
+                }
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:PanelCtrl#clear_datastore_search
+             * @methodOf psonocli.controller:PanelCtrl
+             *
+             * @description
+             * Clears the datastore search input field
+             */
+            function clear_datastore_search() {
+                $scope.datastore.search = '';
+                datastore_search_changed($scope.datastore.search);
             }
 
             /**
@@ -203,7 +224,7 @@
 
             /**
              * @ngdoc
-             * @name psonocli.controller:PanelCtrl#filterBySearch
+             * @name psonocli.controller:PanelCtrl#filter_by_search
              * @methodOf psonocli.controller:PanelCtrl
              *
              * @description
@@ -213,7 +234,7 @@
              *
              * @returns {boolean} Whether the urlfilter or name match
              */
-            function filterBySearch(datastore_entry) {
+            function filter_by_search(datastore_entry) {
                 if (!$scope.datastore.search) {
                     // Hide all entries if we have not typed anything into the "search datastore..." field
                     return false;
@@ -221,6 +242,21 @@
                 // check if either the name or the urlfilter of our entry match our search input of the
                 // "search datastore..." field
                 return password_filter(datastore_entry);
+            }
+
+            /**
+             * @ngdoc
+             * @name psonocli.controller:PanelCtrl#datastore_search_changed
+             * @methodOf psonocli.controller:PanelCtrl
+             *
+             * @description
+             * Function called whenever the datastore search changes.
+             *
+             * @param {object} panel_search the value entered into the search
+             */
+            function datastore_search_changed(panel_search) {
+                storage.upsert('config', {key: 'panel_search', value: panel_search});
+                storage.save();
             }
 
             /**

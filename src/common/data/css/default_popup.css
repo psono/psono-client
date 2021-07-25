@@ -1,2 +1,13 @@
 body {
   min-width: 520px; }
+
+.dark .box-footer {
+  bottom: 0;
+  position: relative;
+  text-align: right; }
+  .dark .box-footer a {
+    color: #666666; }
+
+.dark .input-group {
+  background-color: #f5f5f5;
+  border-radius: 4px; }

@@ -6,14 +6,16 @@
      * @name psonocli.controller:SecurityReportCtrl
      * @requires $scope
      * @requires $routeParams
+     * @requires psonocli.storage
      * @requires psonocli.managerSecurityReport
+     * @requires psonocli.managerDatastoreUser
      *
      * @description
      * Controller for the Generate Security Report view
      */
-    angular.module('psonocli').controller('SecurityReportCtrl', ['$scope', '$routeParams', 'managerSecurityReport',
-        'DTOptionsBuilder', 'DTColumnDefBuilder', 'languagePicker',
-        function ($scope, $routeParams, managerSecurityReport,
+    angular.module('psonocli').controller('SecurityReportCtrl', ['$scope', '$routeParams', 'storage', 'managerSecurityReport',
+        'managerDatastoreUser', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'languagePicker',
+        function ($scope, $routeParams, storage, managerSecurityReport, managerDatastoreUser,
                   DTOptionsBuilder, DTColumnDefBuilder, languagePicker) {
 
             $scope.dtOptions = DTOptionsBuilder
@@ -46,8 +48,10 @@
                 open_haveibeenpwned_requests: 0,
                 closed_haveibeenpwned_requests: 0,
                 haveibeenpwned_ongoing: false,
-                haveibeenpwned_complete: false
+                haveibeenpwned_complete: false,
+                require_master_password: ['LDAP', 'AUTHKEY'].indexOf(managerDatastoreUser.get_authentication()) !== -1
             };
+            
             $scope.generate_security_report = generate_security_report;
             $scope.toggle_input_type = toggle_input_type;
 
@@ -107,7 +111,8 @@
                     open_haveibeenpwned_requests: 0,
                     closed_haveibeenpwned_requests: 0,
                     haveibeenpwned_ongoing: false,
-                    haveibeenpwned_complete: false
+                    haveibeenpwned_complete: false,
+                    require_master_password: ['LDAP', 'AUTHKEY'].indexOf(managerDatastoreUser.get_authentication()) !== -1
                 };
                 $scope.msgs = [];
                 $scope.errors = [];
@@ -120,11 +125,15 @@
             function generate_security_report(password, password_repeat, check_haveibeenpwned, send_to_server) {
 
                 $scope.errors = [];
-                if (!password) {
+                if (!$scope.state['require_master_password']) {
+                    password = '';
+                    password_repeat = '';
+                }
+                if ($scope.state['require_master_password'] && !password) {
                     $scope.errors.push('PASSWORD_REQUIRED');
                     return;
                 }
-                if (password !== password_repeat) {
+                if ($scope.state['require_master_password'] && password !== password_repeat) {
                     $scope.errors.push('PASSWORDS_DONT_MATCH');
                     return;
                 }

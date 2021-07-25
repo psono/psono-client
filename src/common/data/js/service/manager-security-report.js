@@ -99,7 +99,7 @@
          *
          * @param {*} secret The secret to rate
          *
-         * @returns {object} Returns the rating with a score [0-100] and the advise what to improve
+         * @returns {object} Returns the rating with a score [0-100] and the advice regarding what to improve
          */
         var rate_secret = function (secret) {
 
@@ -127,7 +127,7 @@
                 // empty password
                 return {
                     score: _MAX_SCORE,
-                    advise: '',
+                    advice: '',
                     password_length: 0,
                     variation_count: 0
                 };
@@ -136,7 +136,7 @@
             if (secret.password.length <= _MIN_PASSWORD_LENGTH) {
                 return {
                     score: _MIN_SCORE,
-                    advise: 'SET_LONGER_PASSWORD',
+                    advice: 'SET_LONGER_PASSWORD',
                     password_length: secret.password.length,
                     variation_count: variation_count,
                     min_password_length: _MIN_PASSWORD_LENGTH
@@ -146,7 +146,7 @@
             if (secret.username && secret.username !== '' && secret.password.toLowerCase().indexOf(secret.username.toLowerCase()) !== -1) {
                 return {
                     score:0,
-                    advise: 'REMOVE_USERNAME_FROM_PASSWORD',
+                    advice: 'REMOVE_USERNAME_FROM_PASSWORD',
                     password_length: secret.password.length,
                     variation_count: variation_count
                 };
@@ -155,7 +155,7 @@
             if (secret.password.length >= _MAX_PASSWORD_LENGTH) {
                 return {
                     score: _MAX_SCORE,
-                    advise: '',
+                    advice: '',
                     password_length: secret.password.length,
                     variation_count: variation_count,
                     max_password_length: _MAX_PASSWORD_LENGTH
@@ -167,7 +167,7 @@
             if (secret.password.length <= _MIN_VARIATION_ENFORCE_PASSWORD_LENGTH && variation_count < _MIN_VARIATION_LENGTH) {
                 return {
                     score: Math.round(Math.max(Math.min(score * (1 - (_MIN_VARIATION_LENGTH - variation_count)*_VARIATION_PENALTY), _MAX_SCORE), _MIN_SCORE) * 10) / 10,
-                    advise: 'SET_LONGER_OR_MORE_COMPLEX_PASSWORD',
+                    advice: 'SET_LONGER_OR_MORE_COMPLEX_PASSWORD',
                     password_length: secret.password.length,
                     variation_count: variation_count
                 };
@@ -175,7 +175,7 @@
 
             return {
                 score: Math.round(Math.max(Math.min(score, _MAX_SCORE), _MIN_SCORE) * 10) / 10,
-                advise: 'SET_LONGER_PASSWORD_10',
+                advice: 'SET_LONGER_PASSWORD_10',
                 password_length: secret.password.length,
                 variation_count: variation_count
             };
@@ -324,7 +324,7 @@
                     breached: rating['breached'],
                     type: 'website_password',
                     input_type: 'password',
-                    advise: rating['advise'],
+                    advice: rating['advice'],
                     create_age: get_age_in_days(secrets[i]['create_date']),
                     write_age: get_age_in_days(secrets[i]['write_date']),
                     duplicate: false
@@ -358,7 +358,7 @@
                 if (lookup_dict.hasOwnProperty(analysis.passwords[i].password)) {
                     analysis.passwords[i].duplicate = true;
                     lookup_dict[analysis.passwords[i].password].duplicate = true;
-                    lookup_dict[analysis.passwords[i].password].advise = 'DO_NOT_USE_PASSWORDS_TWICE';
+                    lookup_dict[analysis.passwords[i].password].advice = 'DO_NOT_USE_PASSWORDS_TWICE';
                 } else {
                     lookup_dict[analysis.passwords[i].password] = analysis.passwords[i];
                 }
@@ -397,9 +397,9 @@
                     }
                     entry.breached = suffix[1];
                     if (entry.breached > 1) {
-                        entry.advise = _translations.PASSWORD_HAS_BEEN_COMPROMISED_MULTIPLE_TIMES.replace('{{ pwned }}', parseInt(entry.breached));
+                        entry.advice = _translations.PASSWORD_HAS_BEEN_COMPROMISED_MULTIPLE_TIMES.replace('{{ pwned }}', parseInt(entry.breached));
                     } else {
-                        entry.advise = 'PASSWORD_HAS_BEEN_COMPROMISED';
+                        entry.advice = 'PASSWORD_HAS_BEEN_COMPROMISED';
                     }
 
                     entry.rating = 0;
@@ -509,7 +509,7 @@
                     continue;
                 }
                 if (analysis.passwords[i].write_age > 180) {
-                    analysis.passwords[i].advise = 'ADVISE_PASSWORD_TOO_OLD';
+                    analysis.passwords[i].advice = 'ADVICE_PASSWORD_TOO_OLD';
                 }
             }
 

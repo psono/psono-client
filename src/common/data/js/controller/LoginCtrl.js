@@ -470,6 +470,7 @@
 
                 if (required_multifactors.length === 0 || (solved_two_fa && $scope.login_data['multifactor_enabled'] === false)) {
                     var onError = function(data) {
+                        console.log(data);
                         if (data.error_data === null) {
                             $scope.errors = ['SERVER_OFFLINE']
                         } else if (data.error_data.hasOwnProperty('non_field_errors')) {
