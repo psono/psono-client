@@ -65,14 +65,26 @@
                 }
                 if ($scope.node.type === 'totp') {
                     var totp_code = ''
+                    var totp_period;
+                    var totp_algorithm;
+                    var totp_digits;
                     for (i = $scope.bp.selected.fields.length - 1; i >= 0; i--) {
-                        if ($scope.bp.selected.fields[i].hasOwnProperty('type') && $scope.bp.selected.fields[i].hasOwnProperty('value') && $scope.bp.selected.fields[i]['type'] === 'totp_code') {
+                        if ($scope.bp.selected.fields[i].hasOwnProperty('name') && $scope.bp.selected.fields[i].hasOwnProperty('value') && $scope.bp.selected.fields[i]['name'] === 'totp_code') {
                             totp_code = $scope.bp.selected.fields[i]['value'];
+                        }
+                        if ($scope.bp.selected.fields[i].hasOwnProperty('name') && $scope.bp.selected.fields[i].hasOwnProperty('value') && $scope.bp.selected.fields[i]['name'] === 'totp_period') {
+                            totp_period = parseInt($scope.bp.selected.fields[i]['value']);
+                        }
+                        if ($scope.bp.selected.fields[i].hasOwnProperty('name') && $scope.bp.selected.fields[i].hasOwnProperty('value') && $scope.bp.selected.fields[i]['name'] === 'totp_algorithm') {
+                            totp_algorithm = $scope.bp.selected.fields[i]['value'];
+                        }
+                        if ($scope.bp.selected.fields[i].hasOwnProperty('name') && $scope.bp.selected.fields[i].hasOwnProperty('value') && $scope.bp.selected.fields[i]['name'] === 'totp_digits') {
+                            totp_digits = parseInt($scope.bp.selected.fields[i]['value']);
                         }
                     }
                     timer = $interval(function() {
-                        $scope.otherData['totp_token'] = cryptoLibrary.get_totp_token(totp_code);
-                        var percentage = 100 - (30 - (Math.round(new Date().getTime() / 1000.0) % 30)) / 0.3
+                        $scope.otherData['totp_token'] = cryptoLibrary.get_totp_token(totp_code, totp_period, totp_algorithm, totp_digits);
+                        var percentage = 100 - ((totp_period || 30) - (Math.round(new Date().getTime() / 1000.0) % (totp_period || 30))) / (totp_period || 30) * 100
                         $scope.otherData['totp_percentage'] = [percentage, 100-percentage];
                     }, 500);
                 }

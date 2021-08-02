@@ -150,6 +150,7 @@ var build = function(build_path, type) {
             "src/common/data/js/lib/angular-ui-select.js",
             "src/common/data/js/lib/ng-context-menu.js",
             "src/common/data/js/lib/angular-datatables.js",
+            "src/common/data/js/lib/otpauth.umd.min.js",
 
             "src/common/data/js/module/ng-tree.js",
 

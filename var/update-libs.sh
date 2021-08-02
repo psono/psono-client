@@ -60,6 +60,9 @@ wget https://raw.githubusercontent.com/Eonasdan/bootstrap-datetimepicker/v4.17.4
 wget https://raw.githubusercontent.com/Eonasdan/bootstrap-datetimepicker/v4.17.45/build/css/bootstrap-datetimepicker.min.css -O src/common/data/css/lib/bootstrap-datetimepicker.min.css
 wget https://raw.githubusercontent.com/atais/angular-eonasdan-datetimepicker/0.3.9/dist/angular-eonasdan-datetimepicker.min.js -O src/common/data/js/lib/angular-eonasdan-datetimepicker.min.js
 
+wget https://raw.githubusercontent.com/hectorm/otpauth/v7.0.4/dist/otpauth.umd.min.js -O src/common/data/js/lib/otpauth.umd.min.js
+wget https://raw.githubusercontent.com/hectorm/otpauth/v7.0.4/dist/otpauth.umd.min.js.map -O src/common/data/js/lib/otpauth.umd.min.js.map
+
 wget https://raw.githubusercontent.com/Kraku/angular-complexify/master/build/angular-complexify.min.js -O src/common/data/js/lib/angular-complexify.min.js
 wget https://raw.githubusercontent.com/grevory/angular-local-storage/master/dist/angular-local-storage.min.js -O src/common/data/js/lib/angular-local-storage.min.js
 wget https://raw.githubusercontent.com/techfort/LokiJS/v1.5.8/build/lokijs.min.js -O src/common/data/js/lib/lokijs.min.js

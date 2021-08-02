@@ -212,6 +212,18 @@
             search: ['totp_title'], // are searched when the user search his entries
             fields: [ // All fields for this object with unique names
                 { name: "totp_title", field: "input", type: "text", title: "TITLE", placeholder: "TITLE", required: true, error_message_required: 'TITLE_IS_REQUIRED' },
+                { name: "totp_period", field: "input", type: "number", title: "PERIOD_EG_30", placeholder: "PERIOD_EG_30", required: false, hidden: true, min: 0 },
+                { name: "totp_algorithm", field: "select", type: "text", title: "ALGORITHM_EG_SHA1", placeholder: "ALGORITHM_EG_SHA1", required: false, hidden: true, values: [
+                    {'name': 'SHA1', value: 'SHA1'},
+                    //{'name': 'SHA224', value: 'SHA224'}, // not supproted by the app
+                    {'name': 'SHA256', value: 'SHA256'},
+                    //{'name': 'SHA384', value: 'SHA384'}, // not supproted by the app
+                    {'name': 'SHA512', value: 'SHA512'},
+                    //{'name': 'SHA3-256', value: 'SHA3-256'}, // not supproted by the app
+                    //{'name': 'SHA3-384', value: 'SHA3-384'}, // not supproted by the app
+                    //{'name': 'SHA3-512', value: 'SHA3-512'}, // not supproted by the app
+                ]},
+                { name: "totp_digits", field: "input", type: "number", title: "DIGITS_EG_6", placeholder: "DIGITS_EG_6", required: false, hidden: true, min: 0 },
                 { name: "totp_code", field: "input", type: "totp_code", validationType: "totp_code", title: "SECRET", placeholder: "SECRET", autocomplete: "new-totp",
                     dropmenuItems:[
                         {
@@ -228,6 +240,47 @@
                     ]},
                 { name: "totp_notes", field: "textarea", title: "NOTES", placeholder: "NOTES"},
             ],
+            onNewModalOpen: function(node) {
+                var showInNewOnly = ["totp_title", "totp_period", "totp_algorithm", "totp_digits", "totp_code"];
+                for (var i = 0; i < node.fields.length; i++) {
+                    node.fields[i].hidden = !(showInNewOnly.indexOf(node.fields[i].name) > -1);
+                }
+            },
+
+
+            /**
+             * triggered before storing it.
+             *
+             * @param selected
+             * @param parent
+             * @param path
+             */
+            preCreate: function(selected, parent, path){
+                for (var i = 0; i < selected.fields.length; i++) {
+                    if (selected.fields[i].name === "totp_algorithm") {
+                        if (selected.fields[i].value){
+                            selected.fields[i].value = selected.fields[i].value['value'];
+                        } else {
+                            selected.fields[i].value = 'SHA1'
+                        }
+                    }
+                    if (selected.fields[i].name === "totp_period") {
+                        if (selected.fields[i].value){
+                            selected.fields[i].value = parseInt(selected.fields[i].value);
+                        } else {
+                            selected.fields[i].value = 30
+                        }
+                    }
+                    if (selected.fields[i].name === "totp_digits") {
+                        if (selected.fields[i].value){
+                            selected.fields[i].value = parseInt(selected.fields[i].value);
+                        } else {
+                            selected.fields[i].value = 6
+                        }
+                    }
+                }
+                return $q.resolve()
+            },
             /**
              * will open a new tab
              *

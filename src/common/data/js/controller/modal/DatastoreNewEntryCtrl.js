@@ -169,6 +169,7 @@
                 }
 
                 $scope.bp.selected['link_id'] = cryptoLibrary.generate_uuid();
+                $scope.bp.selected['callback_data'] = $scope.data;
 
                 if ($scope.bp.selected.hasOwnProperty('preCreate')) {
                     var onSuccess = function(){
@@ -186,7 +187,6 @@
                     $scope.bp.selected.preCreate($scope.bp.selected, parent, path)
                         .then(onSuccess, onError);
                 } else {
-                    $scope.bp.selected['callback_data'] = $scope.data;
                     $uibModalInstance.close($scope.bp.selected);
                 }
             }

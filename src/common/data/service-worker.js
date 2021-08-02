@@ -197,6 +197,7 @@ self.addEventListener('install', function(event) {
                 './js/lib/angular-translate-loader-static-files.min.js',
                 './js/lib/ui-bootstrap-tpls.min.js',
                 './js/lib/angular-datatables.js',
+                './js/lib/otpauth.umd.min.js',
                 './js/lib/angular-ui-select.js',
                 './js/lib/ng-context-menu.js',
 
