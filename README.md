@@ -28,3 +28,4 @@ Browserstack provides us the ability to test our client on various devices.
 ## LICENSE
 
 Visit the [License.md](/LICENSE.md) for more details
+
