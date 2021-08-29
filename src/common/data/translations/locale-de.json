@@ -1,4 +1,7 @@
 {
+  "DIGITS_EG_6": "Ziffern z.B. 6",
+  "PERIOD_EG_30": "Zeitinterval z.B. 30",
+  "ALGORITHM_EG_SHA1": "Algorithmus z.B. SHA1",
   "ACCOUNT_NAME": "Account name",
   "PRIMARY_KEY": "Primary key",
   "CONTAINER_NAME": "Container name",

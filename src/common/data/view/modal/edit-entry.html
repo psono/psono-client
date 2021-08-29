@@ -58,7 +58,7 @@
             </div>
 
             <input ng-if="n.field == 'input' && !n.dropmenuItems && n.type !== 'totp_code'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
-                   id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder| translate}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
+                   id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder| translate}}" min="{{n.min}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
                    ng-model="n.value" ng-hide="n.hidden || n.hidden_edit" ng-readonly="n.readonly" ng-attr-autocomplete="{{n.autocomplete}}"
                    ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems" ng-hide="n.hidden || n.hidden_edit">{{n.title | translate }}</span>
 
@@ -66,7 +66,7 @@
 
             <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems && n.type !== 'totp_code'">
                 <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
-                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder| translate}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
+                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder| translate}}" min="{{n.min}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
                        ng-model="n.value" ng-hide="n.hidden || n.hidden_edit" ng-readonly="n.readonly" ng-attr-autocomplete="{{n.autocomplete}}"
                        ng-change="bp.selected[n.onChange](bp.selected.fields)">
                 <div class="input-group-btn" uib-dropdown is-open="status.isopen">
@@ -129,7 +129,7 @@
                     </div>
 
                     <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
-                           id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder| translate}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
+                           id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder| translate}}" min="{{n.min}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
                            ng-model="n.value" ng-hide="n.hidden || n.hidden_edit" ng-readonly="n.readonly" ng-attr-autocomplete="{{n.autocomplete}}"
                            ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems" ng-hide="n.hidden || n.hidden_edit">{{n.title| translate}}</span>
 
@@ -137,7 +137,7 @@
 
                     <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
                         <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
-                               id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder| translate}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
+                               id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder| translate}}" min="{{n.min}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
                                ng-model="n.value" ng-hide="n.hidden || n.hidden_edit" ng-readonly="n.readonly" ng-attr-autocomplete="{{n.autocomplete}}"
                                ng-change="bp.selected[n.onChange](bp.selected.fields)">
                         <div class="input-group-btn" uib-dropdown is-open="status.isopen">
@@ -172,7 +172,7 @@
              ng-if="!n.tab && n.position == 'after'">
 
             <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
-                   id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder| translate}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
+                   id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder| translate}}" min="{{n.min}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
                    ng-model="n.value" ng-hide="n.hidden || n.hidden_edit" ng-readonly="n.readonly" ng-attr-autocomplete="{{n.autocomplete}}"
                    ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems" ng-hide="n.hidden || n.hidden_edit">{{n.title| translate}}</span>
 
@@ -180,7 +180,7 @@
 
             <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
                 <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
-                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder| translate}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
+                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder| translate}}" min="{{n.min}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
                        ng-model="n.value" ng-hide="n.hidden || n.hidden_edit" ng-readonly="n.readonly" ng-attr-autocomplete="{{n.autocomplete}}"
                        ng-change="bp.selected[n.onChange](bp.selected.fields)">
                 <div class="input-group-btn" uib-dropdown is-open="status.isopen">
@@ -220,7 +220,7 @@
                  ng-if="!n.tab && n.position == 'advanced'">
 
                 <input ng-if="n.field == 'input' && !n.dropmenuItems" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
-                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder| translate}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
+                       id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder| translate}}" min="{{n.min}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
                        ng-model="n.value" ng-hide="n.hidden || n.hidden_edit" ng-readonly="n.readonly" ng-attr-autocomplete="{{n.autocomplete}}"
                        ng-change="bp.selected[n.onChange](bp.selected.fields)"> <span ng-if="n.type == 'checkbox' && !n.dropmenuItems" ng-hide="n.hidden || n.hidden_edit">{{n.title| translate}}</span>
 
@@ -228,7 +228,7 @@
 
                 <div class="input-group" ng-if="n.field == 'input' && n.type !== 'checkbox' && n.dropmenuItems">
                     <input ng-if="n.field == 'input'" type="{{n.type}}" name="{{n.name}}" ng-class="{'form-control': n.type !== 'checkbox', 'monospace': n.type === 'password'}"
-                           id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder| translate}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
+                           id="editEntryForm-{{n.name}}" placeholder="{{n.placeholder| translate}}" min="{{n.min}}" ng-required="n.required && !n.hidden && !n.hidden_edit"
                            ng-model="n.value" ng-hide="n.hidden || n.hidden_edit"
                            ng-change="bp.selected[n.onChange](bp.selected.fields)">
                     <div class="input-group-btn" uib-dropdown is-open="status.isopen">

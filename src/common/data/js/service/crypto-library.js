@@ -1,4 +1,4 @@
-(function(angular, require, sha512, sha256, jsSHA, uuid) {
+(function(angular, require, sha512, sha256, jsSHA, uuid, OTPAuth) {
     'use strict';
 
     /**
@@ -709,59 +709,28 @@
          * From bellstrand/totp-generator licensed under MIT
          *
          * @param {string} key The key in base32
-         * @param {object} options The options, by default sha1 (only supported at the moment), 30 sec period and 6 digits
+         * @param {int} period The period e.g. 30 for 30 second intervals
+         * @param {string} algorithm The algorithm SHA1, SHA224, SHA256, SHA384, SHA512, SHA3-224, SHA3-256, SHA3-384 and SHA3-512
+         * @param {int} digits The amount of digits for the totp code, e.g. 6
          *
          * @returns {string} Returns the TOTP token
          */
-        var get_totp_token = function (key, options) {
+        var get_totp_token = function (key, period, algorithm, digits) {
             
-            function hex2dec(s) {
-                return parseInt(s, 16);
-            }
-
-            function dec2hex(s) {
-                return (s < 15.5 ? '0' : '') + Math.round(s).toString(16);
-            }
-            function base32tohex(base32) {
-                var base32chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567',
-                    bits = '',
-                    hex = '';
-
-                for(var i = 0; i < base32.length; i++) {
-                    var val = base32chars.indexOf(base32.charAt(i).toUpperCase());
-                    bits += leftpad(val.toString(2), 5, '0');
-                }
-
-                for(var i = 0; i + 4 <= bits.length; i += 4) {
-                    var chunk = bits.substr(i, 4);
-                    hex = hex + parseInt(chunk, 2).toString(16);
-                }
-                return hex;
-            }
-            function leftpad(str, len, pad) {
-                if(len + 1 >= str.length) {
-                    str = Array(len + 1 - str.length).join(pad) + str;
-                }
-                return str;
-            }
+            var options = {};
+            options.issuer = '';
+            options.label = '';
+            options.period = period || 30;
+            options.algorithm = algorithm || 'SHA1';
+            options.digits = digits || 6;
+            options.secret = key; // or "OTPAuth.Secret.fromBase32('NB2W45DFOIZA')"
             
-            options = options || {};
-            var epoch, time, shaObj, hmac, offset, otp;
-            options.period = options.period || 30;
-            options.algorithm = options.algorithm || 'SHA-1';
-            options.digits = options.digits || 6;
-            key = base32tohex(key);
-            epoch = Math.round(Date.now() / 1000.0);
-            time = leftpad(dec2hex(Math.floor(epoch / options.period)), 16, '0');
-            shaObj = new jsSHA(options.algorithm, 'HEX');
-            shaObj.setHMACKey(key, 'HEX');
-            shaObj.update(time);
-            hmac = shaObj.getHMAC('HEX');
-            offset = hex2dec(hmac.substring(hmac.length - 1));
-            otp = (hex2dec(hmac.substr(offset * 2, 8)) & hex2dec('7fffffff')) + '';
-            otp = otp.substr(otp.length - options.digits, options.digits);
+            // Create a new TOTP object.
+            var totp = new OTPAuth.TOTP(options);
+
+            // Generate a token.
+            return totp.generate();
             
-            return otp;
         }
         
 
@@ -797,5 +766,5 @@
     var app = angular.module('psonocli');
     app.factory("cryptoLibrary", ['$q', '$window', '$timeout', 'converter', 'helper', cryptoLibrary]);
 
-}(angular, require, sha512, sha256, jsSHA, uuid));
+}(angular, require, sha512, sha256, jsSHA, uuid, OTPAuth));
 

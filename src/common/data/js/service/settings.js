@@ -82,7 +82,7 @@
                         }
                         lang_options.push({
                             id: langs[i]['code'],
-                            label: langs[i]['lng_code']
+                            label: langs[i]['lng_title_native']
                         })
                     }
                     resolve(lang_options);
@@ -92,7 +92,7 @@
                 var lang = languagePicker.get_active_language();
                 return {
                     id: lang['code'],
-                    label: lang['lng_code']
+                    label: lang['lng_title_native']
                 };
             },
             on_change_language: function (fields) {
