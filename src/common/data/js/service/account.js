@@ -22,10 +22,6 @@
         var _tabs_already_loaded = false;
 
         var _tabs = [
-            { key: 'overview', title: 'OVERVIEW', description: 'OVERVIEW_DESCRIPTION' },
-            { key: 'change-email', title: 'CHANGE_E_MAIL', description: 'CHANGE_E_MAIL_DESCRIPTION' },
-            { key: 'change-password', title: 'CHANGE_PASSWORD', description: 'CHANGE_PASSWORD_DESCRIPTION' },
-            { key: 'multifactor-authentication', title: 'MULTIFACTOR_AUTHENTICATION', description: 'MULTIFACTOR_AUTHENTICATION_DESCRIPTION' }
         ];
 
         var _account = {
@@ -229,6 +225,14 @@
             }
 
             if (_tabs_already_loaded === false) {
+                
+                _tabs.push({ key: 'overview', title: 'OVERVIEW', description: 'OVERVIEW_DESCRIPTION' })
+                if (managerDatastoreUser.get_authentication() === 'AUTHKEY') {
+                    // hide change email / password for SAML, OIDC and LDAP
+                    _tabs.push({ key: 'change-email', title: 'CHANGE_E_MAIL', description: 'CHANGE_E_MAIL_DESCRIPTION' })
+                    _tabs.push({ key: 'change-password', title: 'CHANGE_PASSWORD', description: 'CHANGE_PASSWORD_DESCRIPTION' })
+                }
+                _tabs.push({ key: 'multifactor-authentication', title: 'MULTIFACTOR_AUTHENTICATION', description: 'MULTIFACTOR_AUTHENTICATION_DESCRIPTION' })
 
                 if (!server_info.value.hasOwnProperty('compliance_disable_emergency_codes') || server_info.value['compliance_disable_emergency_codes'] === false) {
                     _tabs.push({ key: 'emergency-codes', title: 'EMERGENCY_CODES', description: 'EMERGENCY_CODES_DESCRIPTION' })
