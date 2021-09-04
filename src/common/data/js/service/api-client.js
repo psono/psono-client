@@ -3188,15 +3188,17 @@
          *
          * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
          * @param {string} session_secret_key The session secret key
-         * @param {uuid} authkey The authkey of the user
+         * @param {string} authkey The authkey of the user
+         * @param {string} password The password of the user
          *
          * @returns {promise} promise
          */
-        var delete_account = function (token, session_secret_key, authkey) {
+        var delete_account = function (token, session_secret_key, authkey, password) {
             var endpoint = '/user/delete/';
             var connection_type = "DELETE";
             var data = {
-                authkey: authkey
+                authkey: authkey,
+                password: password
             };
             var headers = {
                 "Content-Type": "application/json",

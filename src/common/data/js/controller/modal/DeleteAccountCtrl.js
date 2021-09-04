@@ -16,6 +16,7 @@
 
             $scope.errors = [];
             $scope.form = {
+                show_password: ['LDAP', 'AUTHKEY'].indexOf(managerDatastoreUser.get_authentication()) !== -1,
                 password: ''
             };
 
@@ -33,8 +34,8 @@
             function delete_account() {
 
                 $scope.errors = [];
-
-                if ($scope.form.password === null || $scope.form.password.length === 0) {
+                
+                if ($scope.form.show_password && ($scope.form.password === null || $scope.form.password.length === 0)) {
                     $scope.errors = ['Old password empty'];
                     return;
                 }
