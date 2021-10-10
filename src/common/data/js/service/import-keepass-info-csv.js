@@ -41,6 +41,7 @@
          *
          * @description
          * Takes a line and transforms it into a password entry
+         * Honors Keepass escaping of \ and " with backslashes
          *
          * @param {[]} line One line of the CSV
          *
@@ -56,11 +57,11 @@
                 name : line[INDEX_ACCOUNT],
                 "urlfilter" : parsed_url.authority,
                 "website_password_url_filter" : parsed_url.authority,
-                "website_password_password" : line[INDEX_PASSWORD],
-                "website_password_username" : line[INDEX_LOGIN_NAME],
-                "website_password_notes" : line[INDEX_COMMENTS],
+                "website_password_password" : line[INDEX_PASSWORD].replace(/(?:\\(.))/g, '$1'),
+                "website_password_username" : line[INDEX_LOGIN_NAME].replace(/(?:\\(.))/g, '$1'),
+                "website_password_notes" : line[INDEX_COMMENTS].replace(/(?:\\(.))/g, '$1'),
                 "website_password_url" : line[INDEX_WEB_SITE],
-                "website_password_title" : line[INDEX_ACCOUNT]
+                "website_password_title" : line[INDEX_ACCOUNT].replace(/(?:\\(.))/g, '$1')
             }
         };
 
