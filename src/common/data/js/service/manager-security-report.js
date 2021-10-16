@@ -195,6 +195,10 @@
          */
         var filter_passwords_helper = function(folder, passwords) {
             var i;
+            if (folder.hasOwnProperty('deleted') && folder['deleted']) {
+                // skip all deleted folders
+                return
+            }
 
             for (i = 0; folder.hasOwnProperty('items') && i < folder['items'].length; i++) {
                 if (folder['items'][i]['type'] !== 'website_password' && folder['items'][i]['type'] !== 'application_password') {
@@ -205,7 +209,7 @@
                     continue
                 }
                 if (folder['items'][i].hasOwnProperty('deleted') && folder['items'][i]['deleted']) {
-                    // skip all deleted 
+                    // skip all deleted items
                     continue
                 }
                 
