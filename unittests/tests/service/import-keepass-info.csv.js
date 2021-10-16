@@ -75,7 +75,7 @@
                         "urlfilter": "website.com",
                         "website_password_url_filter": "website.com",
                         "website_password_password": "öäüÖÄÜß€@<>µ©®",
-                        "website_password_username": "!\\\"§$%&/()=?´`_#²³{[]}\\\\",
+                        "website_password_username": "!\"§$%&/()=?´`_#²³{[]}\\",
                         "website_password_notes": "The user name and password fields contain special characters.",
                         "website_password_url": "http://www.website.com",
                         "website_password_title": "Entry To Test Special Characters"
@@ -121,7 +121,7 @@
                     "urlfilter": "website.com",
                     "website_password_url_filter": "website.com",
                     "website_password_password": "öäüÖÄÜß€@<>µ©®",
-                    "website_password_username": "!\\\"§$%&/()=?´`_#²³{[]}\\\\",
+                    "website_password_username": "!\"§$%&/()=?´`_#²³{[]}\\",
                     "website_password_notes": "The user name and password fields contain special characters.",
                     "website_password_url": "http://www.website.com",
                     "website_password_title": "Entry To Test Special Characters"

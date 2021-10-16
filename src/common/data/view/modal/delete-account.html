@@ -9,7 +9,7 @@
             <strong>{{'DANGER' | translate}}!</strong> {{'YOU_ARE_ABOUT_TO_DELETE_YOUR_ACCOUNT' | translate}}
         </div>
 
-        <div>
+        <div ng-if="form.show_password">
             <label for="password">{{'YOUR_PASSWORD_AS_CONFIRMATION' | translate}}:</label>
             <input type="password" class="form-control" id="password" ng-model="form.password">
         </div>

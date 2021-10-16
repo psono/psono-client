@@ -66,7 +66,7 @@
                     $scope.filtered_servers = $scope.servers;
                     $scope.allow_custom_server = !config.hasOwnProperty('allow_custom_server') || (config.hasOwnProperty('allow_custom_server') && config['allow_custom_server']);
                     $scope.allow_registration = !config.hasOwnProperty('allow_registration') || (config.hasOwnProperty('allow_registration') && config['allow_registration']);
-                    $scope.allow_lost_password = !config.hasOwnProperty('allow_lost_password') || (config.hasOwnProperty('allow_lost_password') && config['allow_lost_password']);
+                    $scope.allow_lost_password = (!config.hasOwnProperty('allow_lost_password') || (config.hasOwnProperty('allow_lost_password') && config['allow_lost_password'])) && config['authentication_methods'].indexOf('AUTHKEY') !== -1;
                     $scope.authkey_enabled = config['authentication_methods'].indexOf('AUTHKEY') !== -1;
                     $scope.ldap_enabled = config['authentication_methods'].indexOf('LDAP') !== -1;
                     $scope.saml_enabled = config['authentication_methods'].indexOf('SAML') !== -1;

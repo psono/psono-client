@@ -1178,6 +1178,173 @@
 
         /**
          * @ngdoc
+         * @name psonocli.managerWidget#clone_item
+         * @methodOf psonocli.managerWidget
+         *
+         * @description
+         * Clones an item
+         * Takes care that the link structure on the server is updated
+         *
+         * @param {TreeObject} datastore The datastore
+         * @param {object} item The item to clone
+         * @param {Array} path The path to the item
+         */
+        var clone_item = function(datastore, item, path) {
+            
+            var onError = function(result) {
+                console.log(result);
+                // pass
+            };
+
+            var onSuccess = function(secret_object) {
+
+
+                var closest_share_info = managerShare.get_closest_parent_share(path.slice(), datastore,
+                    datastore, 0);
+
+                var closest_share = closest_share_info['closest_share'];
+                
+                var parent_share_id, parent_datastore_id;
+                if (closest_share.hasOwnProperty('share_id')) {
+                    parent_share_id = closest_share['share_id'];
+                } else {
+                    parent_datastore_id = closest_share['datastore_id'];
+                }
+
+                var callback_url = secret_object['callback_url'];
+                var callback_user = secret_object['callback_user'];
+                var callback_pass = secret_object['callback_pass'];
+                
+                delete secret_object['callback_url'];
+                delete secret_object['callback_user'];
+                delete secret_object['callback_pass'];
+                
+                var link_id = cryptoLibrary.generate_uuid();
+                
+                var onSuccess = function(e) {
+                    
+                    secret_object['secret_id'] = e.secret_id;
+                    secret_object['secret_key'] = e.secret_key;
+                    if (closest_share.hasOwnProperty('share_id')) {
+                        // refresh share content before updating the share
+                        onSuccess = function(content) {
+                            var parent;
+                            var relative_path_to_parent = closest_share_info['relative_path'].slice()
+                            relative_path_to_parent.pop();
+
+                            // search the original item and prepare it
+                            var search = managerDatastorePassword.find_in_datastore(closest_share_info['relative_path'], content.data);
+                            var element_copy = angular.copy(search[0][search[1]]);
+                            element_copy['id'] = cryptoLibrary.generate_uuid();
+                            element_copy['secret_id'] = e.secret_id;
+                            element_copy['secret_key'] = e.secret_key;
+                            element_copy['name'] = 'Copy ' + element_copy['name'];
+                            if (element_copy.hasOwnProperty('share_id')) {
+                                delete element_copy['share_id'];
+                            }
+                            if (element_copy.hasOwnProperty('share_secret_key')) {
+                                delete element_copy['share_secret_key'];
+                            }
+                            
+                            
+                            if (relative_path_to_parent.length === 0) {
+                                parent = content.data
+                            } else {
+                                search = managerDatastorePassword.find_in_datastore(relative_path_to_parent, content.data);
+                                parent = search[0][search[1]];
+                            }
+
+                            if (typeof parent.items === 'undefined') {
+                                parent.items = [];
+                            }
+                            parent.items.push(element_copy);
+                            
+                            if (relative_path_to_parent.length === 0) {
+                                parent = closest_share
+                            } else {
+                                search = managerDatastorePassword.find_in_datastore(relative_path_to_parent, closest_share);
+                                parent = search[0][search[1]];
+                            }
+
+                            if (typeof parent.items === 'undefined') {
+                                parent.items = [];
+                            }
+                            parent.items.push(element_copy);
+
+                            managerShare.write_share(closest_share['share_id'], content.data, closest_share['share_secret_key']);
+                            managerDatastorePassword.handle_datastore_content_changed(datastore);
+                        };
+
+                        onError = function(e) {
+                            // pass
+
+                        };
+                        managerShare.read_share(closest_share['share_id'], closest_share['share_secret_key'])
+                            .then(onSuccess, onError);
+                    } else {
+                        // refresh datastore content before updating it
+                        onError = function(result) {
+                            // pass
+                        };
+
+                        onSuccess = function (datastore) {
+                            var parent;
+                            var relative_path_to_parent = closest_share_info['relative_path'].slice()
+                            relative_path_to_parent.pop();
+
+                            // search the original item and prepare it
+                            var search = managerDatastorePassword.find_in_datastore(closest_share_info['relative_path'], datastore);
+                            var element_copy = angular.copy(search[0][search[1]]);
+                            element_copy['id'] = cryptoLibrary.generate_uuid();
+                            element_copy['secret_id'] = e.secret_id;
+                            element_copy['secret_key'] = e.secret_key;
+                            element_copy['name'] = 'Copy ' + element_copy['name'];
+                            if (element_copy.hasOwnProperty('share_id')) {
+                                delete element_copy['share_id'];
+                            }
+                            if (element_copy.hasOwnProperty('share_secret_key')) {
+                                delete element_copy['share_secret_key'];
+                            }
+                            
+                            if (relative_path_to_parent.length === 0) {
+                                parent = datastore
+                            } else {
+                                search = managerDatastorePassword.find_in_datastore(relative_path_to_parent, datastore);
+                                parent = search[0][search[1]];
+                            }
+
+                            if (typeof parent.items === 'undefined') {
+                                parent.items = [];
+                            }
+                            parent.items.push(element_copy);
+                            managerDatastorePassword.save_datastore_content(datastore, [path]);
+                            managerDatastorePassword.handle_datastore_content_changed(datastore);
+                        };
+
+                        return managerDatastorePassword.get_datastore_with_id(closest_share['datastore_id'])
+                            .then(onSuccess, onError);
+                    }
+                };
+                
+                managerSecret.create_secret(
+                    secret_object,
+                    link_id,
+                    parent_datastore_id,
+                    parent_share_id,
+                    callback_url,
+                    callback_user,
+                    callback_pass
+                )
+                    .then(onSuccess, onError);
+            };
+
+            managerSecret.read_secret(item.secret_id, item.secret_key)
+                .then(onSuccess, onError);
+            
+        }
+
+        /**
+         * @ngdoc
          * @name psonocli.managerWidget#delete_item_permanent
          * @methodOf psonocli.managerWidget
          *
@@ -1532,6 +1699,7 @@
             open_edit_item: open_edit_item,
             move_item: move_item,
             delete_item: delete_item,
+            clone_item: clone_item,
             reverse_mark_item_as_deleted: reverse_mark_item_as_deleted,
             item_icon: item_icon
         };

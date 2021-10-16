@@ -240,6 +240,7 @@
   "MOVE_FOLDER": "Ordner verschieben",
   "DELETE_FOLDER": "Ordner löschen",
   "MOVE": "Verschieben",
+  "CLONE": "Klonen",
   "API_KEYS_HAVE_BEEN_DISABLED": "Der Server Administrator hat API Keys deaktiviert. Bitte wenden sie sich an den Administrator.",
   "EXPORT_HAS_BEEN_DISABLED": "Der Server Administrator hat das Export Feature deaktiviert. Bitte wenden sie sich an den Administrator.",
   "SECONDS": "Sekunden",

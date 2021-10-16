@@ -30,17 +30,17 @@
                 DTColumnDefBuilder.newColumnDef(4),
                 DTColumnDefBuilder.newColumnDef(5)
             ];
-
+            
             $scope.name = "SecurityReportCtrl";
             $scope.check_haveibeenpwned = false;
-            $scope.disable_send_to_sever_choice = managerSecurityReport.central_security_reports_disable();
+            $scope.send_to_server = managerSecurityReport.central_security_reports_enforced() && !managerSecurityReport.central_security_reports_disable();
+            $scope.disable_send_to_sever_choice = managerSecurityReport.central_security_reports_disable() || managerSecurityReport.central_security_reports_enforced();
             $scope.hide_send_to_server = managerSecurityReport.central_security_reports_disable();
             $scope.params = $routeParams;
             $scope.routeParams = $routeParams;
             $scope.state = {
                 password: '',
                 password_repeat: '',
-                send_to_server: managerSecurityReport.central_security_reports_enforced() && !managerSecurityReport.central_security_reports_disable(),
                 open_secret_requests: 0,
                 closed_secret_request: 0,
                 download_ongoing: false,

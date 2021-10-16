@@ -2025,9 +2025,14 @@
             var onError = function(data){
                 return $q.reject(data.data);
             };
+            
+            var pass;
+            if (get_authentication() === 'LDAP') {
+                pass = password
+            }
 
 
-            return apiClient.delete_account(managerBase.get_token(), managerBase.get_session_secret_key(), authkey).then(onSuccess, onError);
+            return apiClient.delete_account(managerBase.get_token(), managerBase.get_session_secret_key(), authkey, pass).then(onSuccess, onError);
         };
 
         /**

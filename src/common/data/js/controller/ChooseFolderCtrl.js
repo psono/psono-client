@@ -77,6 +77,16 @@
                 },
 
                 /**
+                 * Triggered once someone wants to clone a node entry
+                 *
+                 * @param item The item in question
+                 * @param path The path to the item
+                 */
+                onCloneItem: function (item, path) {
+                    managerWidget.clone_item($scope.structure.data, item, path);
+                },
+
+                /**
                  * Triggered once someone wants to delete a node entry
                  *
                  * @param item The item in question

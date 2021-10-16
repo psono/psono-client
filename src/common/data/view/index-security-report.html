@@ -153,13 +153,13 @@
                 </div>
                 <div class="form-group" ng-if="!hide_send_to_server">
                     <div class="col-sm-offset-2 col-sm-10">
-                        <input type="checkbox" ng-model="state.send_to_server" ng-disabled="disable_send_to_sever_choice">
+                        <input type="checkbox" ng-model="send_to_server" ng-disabled="disable_send_to_sever_choice">
                         {{'SEND_SECURITY_REPORT_TO_SERVER' | translate}}
                     </div>
                 </div>
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
-                        <button type="submit" class="btn btn-primary btn-primary" ng-click="generate_security_report(state.password, state.password_repeat, check_haveibeenpwned, state.send_to_server)">{{'START_ANALYSIS' | translate}}</button>
+                        <button type="submit" class="btn btn-primary btn-primary" ng-click="generate_security_report(state.password, state.password_repeat, check_haveibeenpwned, send_to_server)">{{'START_ANALYSIS' | translate}}</button>
                     </div>
                 </div>
 

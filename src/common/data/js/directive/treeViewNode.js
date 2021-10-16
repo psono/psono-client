@@ -380,6 +380,20 @@
                  * @param item
                  * @param event
                  */
+                scope.cloneItem  = function (item, event) {
+                    var item_path = item.path;
+                    if (typeof options.onCloneItem === "function") {
+                        options.onCloneItem(item, item_path);
+                    }
+                };
+
+
+                /**
+                 * fired if someone clicks "move item" and triggers the function defined in the properties
+                 *
+                 * @param item
+                 * @param event
+                 */
                 scope.moveItem  = function (item, event) {
                     var item_path = item.path;
                     if (typeof options.onMoveItem === "function") {
@@ -596,9 +610,15 @@
                         '       <a href="#"><i class="fa fa-eye"></i>{{ ::\'SHOW\' | translate }}</a>' +
                         '    </li>' +
                         '    <li role="menuitem" ng-if="!offline"' +
+                        '       ng-class="::{hidden: item.share_rights.write === false || item.share_rights.read === false || item.type === \'file\' || item.type === \'user\'}"' +
+                        '       ng-click="cloneItem(item, $event)">' +
+                        '       <a href="#"><i class="fa fa-clone"></i>{{ ::\'CLONE\' | translate }}</a>' +
+                        '    </li>' +
+                        '    <li role="menuitem" ng-if="!offline"' +
                         '       ng-class="::{hidden: item.share_rights.delete === false}"' +
                         '       ng-click="moveItem(item, $event)">' +
                         '       <a href="#"><i class="fa fa-arrows"></i>{{ ::\'MOVE\' | translate }}</a>' +
+                        '    </li>' +
                         '    <li class="divider" ng-if="!offline"' +
                         '       ng-class="::{hidden: item.share_rights.delete === false || item.share_rights.read === false}"></li>' +
                         '    <li role="menuitem" ng-if="!offline"' +
@@ -631,9 +651,15 @@
                         '       <a href="#"><i class="fa fa-eye"></i>{{::\'SHOW\' | translate}}</a>' +
                         '    </li>' +
                         '    <li role="menuitem" ng-if="!offline"' +
+                        '       ng-class="::{hidden: item.share_rights.write === false || item.share_rights.read === false || item.type === \'file\' || item.type === \'user\'}"' +
+                        '       ng-click="cloneItem(item, $event)">' +
+                        '       <a href="#"><i class="fa fa-clone"></i>{{::\'CLONE\' | translate}}</a>' +
+                        '    </li>' +
+                        '    <li role="menuitem" ng-if="!offline"' +
                         '       ng-class="::{hidden: item.share_rights.delete === false}"' +
                         '       ng-click="moveItem(item, $event)">' +
                         '       <a href="#"><i class="fa fa-arrows"></i>{{::\'MOVE\' | translate}}</a>' +
+                        '    </li>' +
                         '    <li class="divider"' +
                         '       ng-class="::{hidden: item.share_rights.delete === false || item.share_rights.read === false}"></li>' +
                         '    <li role="menuitem" ng-if="!offline"' +
