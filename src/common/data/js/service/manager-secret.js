@@ -301,8 +301,19 @@
             var secret_key = managerBase.find_key_nolimit('datastore-password-leafs', item.secret_id);
 
             var decrypted_secret = read_secret(item.secret_id, secret_key, true);
-
-            browserClient.copy_to_clipboard(cryptoLibrary.get_totp_token(decrypted_secret['totp_code']));
+            
+            var totp_code = decrypted_secret['totp_code'];
+            var totp_period, totp_algorithm, totp_digits;
+            if (decrypted_secret.hasOwnProperty('totp_period')) {
+                totp_period = decrypted_secret['totp_period'];
+            }
+            if (decrypted_secret.hasOwnProperty('totp_algorithm')) {
+                totp_algorithm = decrypted_secret['totp_algorithm'];
+            }
+            if (decrypted_secret.hasOwnProperty('totp_digits')) {
+                totp_digits = decrypted_secret['totp_digits'];
+            }
+            browserClient.copy_to_clipboard(cryptoLibrary.get_totp_token(totp_code, totp_period, totp_algorithm, totp_digits));
 
             if (_translations && _translations.TOTP_TOKEN_COPY_NOTIFICATION) {
                 notification.push('totp_token_copy', _translations.TOTP_TOKEN_COPY_NOTIFICATION)
