@@ -23,8 +23,14 @@ The documentation for the psono server can be found here:
 Browserstack provides us the ability to test our client on various devices.
 
 
-
 ## LICENSE
 
 Visit the [License.md](/LICENSE.md) for more details
 
+## Other
+
+- Websocket behind reverse proxy with SSL
+
+    npx webpack serve --client-web-socket-url wss://psonoclient.chickahoona.com/ws --config webpack.environment.dev.js
+    
+    
