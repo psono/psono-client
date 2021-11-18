@@ -16,7 +16,7 @@
         </div>
         <div class="panel-body">
 
-            <div class="panel-buttons">
+            <div class="panel-buttons" ng-if="allow_create_groups">
                 <button type="submit" class="btn btn-primary btn-primary" ng-click="create_group()">
                     <i class="fa fa-plus"></i> {{'CREATE_GROUP' | translate}}
                 </button>
