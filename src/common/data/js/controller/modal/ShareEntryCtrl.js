@@ -29,6 +29,7 @@
             $scope.toggle_select = toggle_select;
             $scope.save = save;
             $scope.cancel = cancel;
+            $scope.allow_create_groups = managerGroups.allow_create_groups();
 
             $scope.dtOptions = DTOptionsBuilder
                 .newOptions()

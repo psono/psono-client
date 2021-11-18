@@ -42,6 +42,7 @@
             $scope.accept_group = accept_group;
             $scope.accept_new_group_shares = accept_new_group_shares;
             $scope.decline_group = decline_group;
+            $scope.allow_create_groups = managerGroups.allow_create_groups();
 
             activate();
 
