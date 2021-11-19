@@ -38,8 +38,8 @@
                 <tr ng-repeat="group in groups">
                     <td>{{ group.name }}</td>
                     <td>
-                        <button type="button" class="btn btn-default btn-sm" ng-click="edit_group(group.group_id, 'lg')"
-                                ng-disabled="!group.group_admin || (group.accepted !== false && group.accepted !== true)" >
+                        <button type="button" class="btn btn-default btn-sm" ng-click="edit_group(group.group_id, !group.group_admin, 'lg')"
+                                ng-disabled="group.accepted !== false && group.accepted !== true" >
                             <i class="fa fa-wrench" aria-hidden="true"><span style="display: none">0</span></i>
                         </button>
                     </td>

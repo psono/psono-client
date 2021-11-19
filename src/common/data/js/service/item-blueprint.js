@@ -1459,18 +1459,18 @@
                 icon: 'fa fa-list',
                 hide_offline: true,
                 ngClass: function(item) {
-                    if (item.hasOwnProperty('share_rights') && item.share_rights.grant === false) {
-                        return 'hidden';
-                    }
+                    // if (item.hasOwnProperty('share_rights') && item.share_rights.grant === false) {
+                    //     return 'hidden';
+                    // }
                 },
                 condition: function(item) {
                     return item.hasOwnProperty('share_id') && typeof(item.share_id) !== 'undefined';
                 },
                 onClick: function(item, path) {
 
-                    if (item.hasOwnProperty('share_rights') && item.share_rights.grant === false) {
-                        return;
-                    }
+                    // if (item.hasOwnProperty('share_rights') && item.share_rights.grant === false) {
+                    //     return;
+                    // }
 
                     registrations['read_share_rights'](item.share_id).then(function (share_details) {
 
