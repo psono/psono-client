@@ -103,9 +103,10 @@
              * Opens the modal for editing a group
              *
              * @param {uuid} group_id The id of the group to edit
+             * @param {boolean} read_only Whether to show the group details in a read only way
              * @param {string} size The size of the modal to open
              */
-            function edit_group(group_id, size) {
+            function edit_group(group_id, read_only, size) {
 
                 var modalInstance = $uibModal.open({
                     templateUrl: 'view/modal/edit-group.html',
@@ -114,6 +115,9 @@
                     resolve: {
                         group_id: function () {
                             return group_id;
+                        },
+                        read_only: function () {
+                            return read_only;
                         }
                     }
                 });
