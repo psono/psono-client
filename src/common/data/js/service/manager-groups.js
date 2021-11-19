@@ -29,6 +29,31 @@
         var group_secret_key_cache = {};
         var group_private_key_cache = {};
 
+
+
+        /**
+         * @ngdoc
+         * @name psonocli.managerGroups#allow_create_groups
+         * @methodOf psonocli.managerGroups
+         *
+         * @description
+         * Returns weather the server allows to create groups or not
+         * By default it will return true (indicating group can be created)
+         */
+        var allow_create_groups = function () {
+
+            var server_info =  storage.find_key('config', 'server_info');
+
+            if (server_info === null) {
+                return true
+            }
+            if (!server_info.value.hasOwnProperty('compliance_disable_unmanaged_groups')) {
+                return true
+            }
+
+            return !server_info.value['compliance_disable_unmanaged_groups'];
+        };
+
         /**
          * @ngdoc
          * @name psonocli.managerGroups#get_group_secret_key
@@ -603,6 +628,7 @@
         itemBlueprint.register('get_group_secret_key', get_group_secret_key);
 
         return {
+            allow_create_groups: allow_create_groups,
             get_group_secret_key: get_group_secret_key,
             get_group_private_key: get_group_private_key,
             decrypt_secret_key: decrypt_secret_key,

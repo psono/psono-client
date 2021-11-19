@@ -21,10 +21,10 @@
      */
     angular.module('psonocli').controller('ModalEditGroupCtrl', ['$scope', '$uibModal', '$uibModalInstance',
         'managerGroups', 'managerDatastoreUser', 'managerShare', 'shareBlueprint', 'cryptoLibrary', 'helper', 'storage',
-        'languagePicker', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'account', 'group_id',
+        'languagePicker', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'account', 'group_id', 'read_only',
         function ($scope, $uibModal, $uibModalInstance,
                   managerGroups, managerDatastoreUser, managerShare, shareBlueprint, cryptoLibrary, helper, storage,
-                  languagePicker, DTOptionsBuilder, DTColumnDefBuilder, account, group_id) {
+                  languagePicker, DTOptionsBuilder, DTColumnDefBuilder, account, group_id, read_only) {
 
             $scope.dtOptions = DTOptionsBuilder
                 .newOptions()
@@ -55,6 +55,7 @@
 
 
             $scope.users = [];
+            $scope.read_only = read_only;
 
             activate();
 
@@ -70,37 +71,38 @@
                     group = group_details;
                     $scope.group = group_details;
                     $scope.group_name = group_details.name;
+                    $scope.shares = group_details.group_share_rights;
                     original_group_name = group_details.name;
+                    $scope.users = [];
 
-                    managerDatastoreUser.get_user_datastore().then(function (user_datastore) {
-                        var users = [];
-                        var trusted_users = [];
-                        helper.create_list(user_datastore, trusted_users);
-
-                        for (i = 0; i < group_details.members.length; i++) {
-                            _group_member_index[group_details.members[i].id] = group_details.members[i];
-                            group_details.members[i]['is_current_user'] = group_details.members[i].id === user_id;
-                            users.push(group_details.members[i]);
-                        }
-
-                        for (i = 0; i < trusted_users.length; i++) {
-                            if (_group_member_index.hasOwnProperty(trusted_users[i].data.user_id)) {
-                                continue;
+                    if (!read_only) {
+                        managerDatastoreUser.get_user_datastore().then(function (user_datastore) {
+                            var trusted_users = [];
+                            helper.create_list(user_datastore, trusted_users);
+    
+                            for (i = 0; i < trusted_users.length; i++) {
+                                if (_group_member_index.hasOwnProperty(trusted_users[i].data.user_id)) {
+                                    continue;
+                                }
+                                $scope.users.push({
+                                    'id': trusted_users[i].data.user_id,
+                                    'name': trusted_users[i].data.user_username,
+                                    'public_key': trusted_users[i].data.user_public_key,
+                                    'is_current_user': trusted_users[i].data.user_id === user_id
+                                });
                             }
-                            users.push({
-                                'id': trusted_users[i].data.user_id,
-                                'name': trusted_users[i].data.user_username,
-                                'public_key': trusted_users[i].data.user_public_key,
-                                'is_current_user': trusted_users[i].data.user_id === user_id
-                            });
-                        }
-                        $scope.users = users;
-                        $scope.shares = group_details.group_share_rights;
-                        for (var i = 0; i < $scope.shares.length; i++) {
-                            $scope.shares[i].title = managerGroups.decrypt_secret_key(group_id, $scope.shares[i].title, $scope.shares[i].title_nonce);
-                        }
+    
+                        });
+                    }
 
-                    });
+                    for (i = 0; i < group_details.members.length; i++) {
+                        _group_member_index[group_details.members[i].id] = group_details.members[i];
+                        group_details.members[i]['is_current_user'] = group_details.members[i].id === user_id;
+                        $scope.users.push(group_details.members[i]);
+                    }
+                    for (var i = 0; i < $scope.shares.length; i++) {
+                        $scope.shares[i].title = managerGroups.decrypt_secret_key(group_id, $scope.shares[i].title, $scope.shares[i].title_nonce);
+                    }
                 };
 
                 managerGroups.read_group(group_id).then(onSuccess, onError);

@@ -76,7 +76,7 @@
                     </table>
                 </div>
 
-                <div class="row">
+                <div class="row" ng-if="allow_create_groups">
                     <button type="button" ng-click="create_group()" class="btn btn-link"><i class="fa fa-user-plus"></i> {{'CREATE_GROUP' | translate}}</button>
                 </div>
 
