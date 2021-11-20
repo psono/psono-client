@@ -9,8 +9,9 @@ import sha1 from "js-sha1";
 import sha512 from "js-sha512";
 import sha256 from "js-sha256";
 
-import helper from "./helper";
-import converter from "./converter";
+import helperService from "./helper";
+import converterService from "./converter";
+import store from "./store";
 
 function InvalidRecoveryCodeException(message) {
     this.message = message;
@@ -103,7 +104,7 @@ function passwordScrypt(password, salt) {
     if (scrypt_lookup_table.hasOwnProperty(lookup_hash)) {
         k = scrypt_lookup_table[lookup_hash];
     } else {
-        k = converter.toHex(nacl.scrypt(converter.encodeUtf8(password), converter.encodeUtf8(salt), u, r, p, l, function (pDone) {}));
+        k = converterService.toHex(nacl.scrypt(converterService.encodeUtf8(password), converterService.encodeUtf8(salt), u, r, p, l, function (pDone) {}));
         scrypt_lookup_table[lookup_hash] = k;
         clearScryptLookupTable();
     }
@@ -139,7 +140,7 @@ var generateAuthkey = function (username, password) {
  * @returns {string} Returns secret key (hex encoded, 32 byte long)
  */
 var generateSecretKey = function () {
-    return converter.toHex(randomBytes(32)); // 32 Bytes = 256 Bits
+    return converterService.toHex(randomBytes(32)); // 32 Bytes = 256 Bits
 };
 
 /**
@@ -153,8 +154,8 @@ var generatePublicPrivateKeypair = function () {
     const pk = nacl.box.generate_pubkey(sk);
 
     return {
-        public_key: converter.toHex(pk), // 32 Bytes = 256 Bits
-        private_key: converter.toHex(sk), // 32 Bytes = 256 Bits
+        public_key: converterService.toHex(pk), // 32 Bytes = 256 Bits
+        private_key: converterService.toHex(sk), // 32 Bytes = 256 Bits
     };
 };
 
@@ -171,16 +172,16 @@ var generatePublicPrivateKeypair = function () {
  */
 var encryptSecret = function (secret, password, user_sauce) {
     const salt = sha512(user_sauce);
-    const k = converter.fromHex(sha256(passwordScrypt(password, salt))); // key
+    const k = converterService.fromHex(sha256(passwordScrypt(password, salt))); // key
 
     // and now lets encrypt
-    const m = converter.encodeUtf8(secret); // message
+    const m = converterService.encodeUtf8(secret); // message
     const n = randomBytes(24); // nonce
     const c = nacl.secret_box.pack(m, n, k); //encrypted message
 
     return {
-        nonce: converter.toHex(n),
-        text: converter.toHex(c),
+        nonce: converterService.toHex(n),
+        text: converterService.toHex(c),
     };
 };
 
@@ -197,14 +198,14 @@ var encryptSecret = function (secret, password, user_sauce) {
  */
 function decryptSecret(text, nonce, password, user_sauce) {
     const salt = sha512(user_sauce);
-    const k = converter.fromHex(sha256(passwordScrypt(password, salt)));
+    const k = converterService.fromHex(sha256(passwordScrypt(password, salt)));
 
     // and now lets decrypt
-    const n = converter.fromHex(nonce);
-    const c = converter.fromHex(text);
+    const n = converterService.fromHex(nonce);
+    const c = converterService.fromHex(text);
     const m1 = nacl.secret_box.open(c, n, k);
 
-    return converter.decodeUtf8(m1);
+    return converterService.decodeUtf8(m1);
 }
 
 /**
@@ -245,7 +246,7 @@ var runCryptoWorkAsync = function (job, kwargs, transfers) {
  * @returns {Promise} A promise that will return the encrypted file with the nonce as Uint8Array
  */
 var encryptFile = function (data, secret_key) {
-    const k = converter.fromHex(secret_key).buffer;
+    const k = converterService.fromHex(secret_key).buffer;
     const n = randomBytes(24).buffer;
     const arrayBuffer = data.buffer;
 
@@ -271,7 +272,7 @@ var encryptFile = function (data, secret_key) {
  * @returns {Promise} A promise that will return the decrypted data as Uint8Array
  */
 var decryptFile = function (text, secret_key) {
-    const k = converter.fromHex(secret_key).buffer;
+    const k = converterService.fromHex(secret_key).buffer;
     const arrayBuffer = text.buffer;
 
     return runCryptoWorkAsync(
@@ -296,14 +297,14 @@ var decryptFile = function (text, secret_key) {
  * @returns {EncryptedValue} The encrypted text and the nonce
  */
 var encryptData = function (data, secret_key) {
-    const k = converter.fromHex(secret_key);
-    const m = converter.encodeUtf8(data);
+    const k = converterService.fromHex(secret_key);
+    const m = converterService.encodeUtf8(data);
     const n = randomBytes(24);
     const c = nacl.secret_box.pack(m, n, k);
 
     return {
-        nonce: converter.toHex(n),
-        text: converter.toHex(c),
+        nonce: converterService.toHex(n),
+        text: converterService.toHex(c),
     };
 };
 
@@ -318,12 +319,12 @@ var encryptData = function (data, secret_key) {
  * @returns {string} The decrypted data
  */
 var decryptData = function (text, nonce, secret_key) {
-    const k = converter.fromHex(secret_key);
-    const n = converter.fromHex(nonce);
-    const c = converter.fromHex(text);
+    const k = converterService.fromHex(secret_key);
+    const n = converterService.fromHex(nonce);
+    const c = converterService.fromHex(text);
     const m1 = nacl.secret_box.open(c, n, k);
 
-    return converter.decodeUtf8(m1);
+    return converterService.decodeUtf8(m1);
 };
 
 /**
@@ -337,15 +338,15 @@ var decryptData = function (text, nonce, secret_key) {
  * @returns {EncryptedValue} The encrypted text and the nonce
  */
 var encryptDataPublicKey = function (data, public_key, private_key) {
-    const p = converter.fromHex(public_key);
-    const s = converter.fromHex(private_key);
-    const m = converter.encodeUtf8(data);
+    const p = converterService.fromHex(public_key);
+    const s = converterService.fromHex(private_key);
+    const m = converterService.encodeUtf8(data);
     const n = randomBytes(24);
     const c = nacl.box.pack(m, n, p, s);
 
     return {
-        nonce: converter.toHex(n),
-        text: converter.toHex(c),
+        nonce: converterService.toHex(n),
+        text: converterService.toHex(c),
     };
 };
 
@@ -361,13 +362,13 @@ var encryptDataPublicKey = function (data, public_key, private_key) {
  * @returns {string} The decrypted data
  */
 var decryptDataPublicKey = function (text, nonce, public_key, private_key) {
-    const p = converter.fromHex(public_key);
-    const s = converter.fromHex(private_key);
-    const n = converter.fromHex(nonce);
-    const c = converter.fromHex(text);
+    const p = converterService.fromHex(public_key);
+    const s = converterService.fromHex(private_key);
+    const n = converterService.fromHex(nonce);
+    const c = converterService.fromHex(text);
     const m1 = nacl.box.open(c, n, p, s);
 
-    return converter.decodeUtf8(m1);
+    return converterService.decodeUtf8(m1);
 };
 
 /**
@@ -376,7 +377,7 @@ var decryptDataPublicKey = function (text, nonce, public_key, private_key) {
  * @returns {string} Returns a random user sauce (32 bytes, hex encoded)
  */
 var generateUserSauce = function () {
-    return converter.toHex(randomBytes(32)); // 32 Bytes = 256 Bits
+    return converterService.toHex(randomBytes(32)); // 32 Bytes = 256 Bits
 };
 
 /**
@@ -388,7 +389,7 @@ var generateUserSauce = function () {
  * @returns {string} Returns n base58 encoded chars as checksum
  */
 var getChecksum = function (str, n) {
-    return converter.hexToBase58(sha512(str)).substring(0, n);
+    return converterService.hexToBase58(sha512(str)).substring(0, n);
 };
 
 /**
@@ -398,12 +399,12 @@ var getChecksum = function (str, n) {
  */
 var generateRecoveryCode = function () {
     const password_bytes = randomBytes(16); // 16 Bytes = 128 Bits
-    const password_hex = converter.toHex(password_bytes);
-    const password_words = converter.hexToWords(password_hex);
-    const password_base58 = converter.toBase58(password_bytes);
+    const password_hex = converterService.toHex(password_bytes);
+    const password_words = converterService.hexToWords(password_hex);
+    const password_base58 = converterService.toBase58(password_bytes);
 
     // Then we split up everything in 11 digits long chunks
-    const recovery_code_chunks = helper.splitStringInChunks(password_base58, 11);
+    const recovery_code_chunks = helperService.splitStringInChunks(password_base58, 11);
     // Then we loop over our chunks and use the base58 representation of the sha512 checksum to get 2 checksum
     // digits, and append them to the original chunk
     for (let i = 0; i < recovery_code_chunks.length; i++) {
@@ -428,7 +429,7 @@ var generateRecoveryCode = function () {
  * @returns {string} Returns recovery code without checksums
  */
 var recoveryCodeStripChecksums = function (recovery_code_with_checksums) {
-    const recovery_code_chunks = helper.splitStringInChunks(recovery_code_with_checksums, 13);
+    const recovery_code_chunks = helperService.splitStringInChunks(recovery_code_with_checksums, 13);
 
     for (let i = 0; i < recovery_code_chunks.length; i++) {
         if (recovery_code_chunks[i].length < 2) {
@@ -472,7 +473,7 @@ var generateUuid = function () {
  * @returns {boolean} Returns whether the signature is correct or not
  */
 var validateSignature = function (message, signature, verify_key) {
-    return nacl.signing.verify(converter.fromHex(signature), converter.encodeUtf8(message), converter.fromHex(verify_key));
+    return nacl.signing.verify(converterService.fromHex(signature), converterService.encodeUtf8(message), converterService.fromHex(verify_key));
 };
 
 /**
@@ -483,9 +484,9 @@ var validateSignature = function (message, signature, verify_key) {
  * @returns {string} Returns the verify key for a given seed
  */
 var getVerifyKey = function (seed) {
-    const pair = nacl.signing.generate_keypair(converter.fromHex(seed));
+    const pair = nacl.signing.generate_keypair(converterService.fromHex(seed));
 
-    return converter.toHex(pair.pkey);
+    return converterService.toHex(pair.pkey);
 };
 
 /**
@@ -516,6 +517,54 @@ var getTotpToken = function (key, period, algorithm, digits) {
     return totp.generate();
 };
 
+/**
+ * encrypts some data with user's public-private-key-crypto
+ *
+ * @param {string} data The data you want to encrypt
+ * @param {string} publicKey The public key you want to use for the encryption
+ *
+ * @returns {EncryptedValue} The encrypted text and the nonce
+ */
+var encryptPrivateKey = function (data, publicKey) {
+    return encryptDataPublicKey(data, publicKey, store.getState().user.userPrivateKey);
+};
+
+/**
+ * decrypts some data with user's public-private-key-crypto
+ *
+ * @param {string} text The encrypted text
+ * @param {string} nonce The nonce that belongs to the encrypted text
+ * @param {string} publicKey The pulic key you want to use to decrypt the text
+ *
+ * @returns {string} The decrypted data
+ */
+var decryptPrivateKey = function (text, nonce, publicKey) {
+    return decryptDataPublicKey(text, nonce, publicKey, store.getState().user.userPrivateKey);
+};
+
+/**
+ * encrypts some data with user's secret-key-crypto
+ *
+ * @param {string} data The data you want to encrypt
+ *
+ * @returns {EncryptedValue} The encrypted text and the nonce
+ */
+var encryptSecretKey = function (data) {
+    return encryptData(data, store.getState().user.userSecretKey);
+};
+
+/**
+ * decrypts some data with user's secret-key-crypto
+ *
+ * @param {string} text The encrypted text
+ * @param {string} nonce The nonce of the encrypted text
+ *
+ * @returns {string} The decrypted data
+ */
+var decryptSecretKey = function (text, nonce) {
+    return decryptData(text, nonce, store.getState().user.userSecretKey);
+};
+
 const service = {
     random: random,
     randomBytes: randomBytes,
@@ -542,6 +591,10 @@ const service = {
     validateSignature: validateSignature,
     getVerifyKey: getVerifyKey,
     getTotpToken: getTotpToken,
+    encryptPrivateKey: encryptPrivateKey,
+    decryptPrivateKey: decryptPrivateKey,
+    encryptSecretKey: encryptSecretKey,
+    decryptSecretKey: decryptSecretKey,
 };
 
 export default service;

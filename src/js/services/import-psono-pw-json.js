@@ -3,8 +3,8 @@
  */
 import cryptoLibrary from './crypto-library';
 
-var importer_code = 'psono_pw_json';
-var importer = {
+const importer_code = 'psono_pw_json';
+const importer = {
     name: 'Psono.pw (JSON)',
     value: importer_code,
     parser: parser

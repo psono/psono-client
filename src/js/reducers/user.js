@@ -1,4 +1,4 @@
-import { SET_USER_USERNAME, SET_USER_INFO_1, SET_USER_INFO_2, SET_USER_INFO_3, SET_HAS_TWO_FACTOR, LOGOUT } from "../actions/action-types";
+import { SET_USER_USERNAME, SET_USER_INFO_1, SET_USER_INFO_2, SET_USER_INFO_3, SET_HAS_TWO_FACTOR, SET_EMAIL, LOGOUT } from "../actions/action-types";
 
 const defaultUsername = "";
 const defaultRememberMe = false;
@@ -52,6 +52,10 @@ function user(
         case SET_HAS_TWO_FACTOR:
             return Object.assign({}, state, {
                 hasTwoFactor: action.hasTwoFactor,
+            });
+        case SET_EMAIL:
+            return Object.assign({}, state, {
+                userEmail: action.userEmail,
             });
         case LOGOUT:
             return Object.assign({}, state, {

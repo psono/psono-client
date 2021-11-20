@@ -3,22 +3,22 @@
  */
 
 const Papa = require('papaparse');
-import helper from './helper';
+import helperService from './helper';
 import cryptoLibrary from './crypto-library';
 
-var importer_code = '1password_csv';
-var importer = {
+const importer_code = '1password_csv';
+const importer = {
     name: '1Password (CSV)',
     value: importer_code,
     parser: parser
 };
 
-var INDEX_URL = 0;
-var INDEX_USERNAME = 1;
-var INDEX_PASSWORD = 2;
-var INDEX_NOTES = 3;
-var INDEX_NAME = 4;
-var INDEX_TYPE = 5;
+let INDEX_URL = 0;
+let INDEX_USERNAME = 1;
+let INDEX_PASSWORD = 2;
+let INDEX_NOTES = 3;
+let INDEX_NAME = 4;
+let INDEX_TYPE = 5;
 
 
 // activate();
@@ -34,8 +34,8 @@ var INDEX_TYPE = 5;
  *
  * @returns {*} The secrets object
  */
-var identify_rows = function(line) {
-    for (var i = 0; i < line.length; i++) {
+function identifyRows(line) {
+    for (let i = 0; i < line.length; i++) {
         var column_description = line[i].toLowerCase();
         if (column_description === "notes") {
             INDEX_NOTES = i;
@@ -51,7 +51,7 @@ var identify_rows = function(line) {
             INDEX_USERNAME = i;
         }
     }
-};
+}
 
 /**
  * Returns the type of a line.
@@ -68,7 +68,7 @@ var identify_rows = function(line) {
  *
  * @returns {string} Returns the appropriate type (note or website_password)
  */
-var get_type = function(line) {
+function getType(line) {
     var type = line[INDEX_TYPE].toLowerCase();
     if (type === 'secure note') {
         return 'note'
@@ -92,7 +92,7 @@ var get_type = function(line) {
     }
 
     return 'note';
-};
+}
 
 /**
  * Takes a line that should represent a note and transforms it into a proper secret object
@@ -101,7 +101,7 @@ var get_type = function(line) {
  *
  * @returns {*} The note secret object
  */
-var transfer_into_note = function(line) {
+function transferIntoNote(line) {
 
     var note_notes = '';
     if (line[INDEX_USERNAME]) {
@@ -128,7 +128,7 @@ var transfer_into_note = function(line) {
         note_title: line[INDEX_NAME],
         note_notes: note_notes
     }
-};
+}
 
 /**
  * Takes a line that should represent a website passwords and transforms it into a proper secret object
@@ -137,9 +137,9 @@ var transfer_into_note = function(line) {
  *
  * @returns {*} The website_password secret object
  */
-var transfer_into_website_password = function(line) {
+function transferIntoWebsitePassword(line) {
 
-    var parsed_url = helper.parseUrl(line[INDEX_URL]);
+    var parsed_url = helperService.parseUrl(line[INDEX_URL]);
 
     return {
         id : cryptoLibrary.generateUuid(),
@@ -153,7 +153,7 @@ var transfer_into_website_password = function(line) {
         "website_password_url" : line[INDEX_URL],
         "website_password_title" : line[INDEX_NAME]
     }
-};
+}
 
 /**
  * Takes a line that should represent an application passwords and transforms it into a proper secret object
@@ -162,7 +162,7 @@ var transfer_into_website_password = function(line) {
  *
  * @returns {*} The application_password secret object
  */
-var transfer_into_application_password = function(line) {
+function transferIntoApplicationPassword(line) {
 
     return {
         id : cryptoLibrary.generateUuid(),
@@ -173,7 +173,7 @@ var transfer_into_application_password = function(line) {
         "application_password_notes" : line[INDEX_NOTES],
         "application_password_title" : line[INDEX_NAME]
     }
-};
+}
 
 /**
  * Takes a line, checks its type and transforms it into a proper secret object
@@ -182,16 +182,16 @@ var transfer_into_application_password = function(line) {
  *
  * @returns {*} The secrets object
  */
-var transform_to_secret = function(line) {
-    var type = get_type(line);
+function transformToSecret(line) {
+    var type = getType(line);
     if (type === 'note') {
-        return transfer_into_note(line);
+        return transferIntoNote(line);
     } else if (type === 'website_password') {
-        return transfer_into_website_password(line);
+        return transferIntoWebsitePassword(line);
     } else if (type === 'application_password') {
-        return transfer_into_application_password(line);
+        return transferIntoApplicationPassword(line);
     }
-};
+}
 
 
 /**
@@ -205,11 +205,11 @@ function gather_secrets(datastore, secrets, csv) {
 
     var line;
 
-    for (var i = 0; i < csv.length; i++) {
+    for (let i = 0; i < csv.length; i++) {
         line = csv[i];
 
         if (i === 0) {
-            identify_rows(line);
+            identifyRows(line);
             continue;
         }
 
@@ -217,7 +217,7 @@ function gather_secrets(datastore, secrets, csv) {
             continue
         }
 
-        var secret = transform_to_secret(line);
+        var secret = transformToSecret(line);
 
         if (secret === null) {
             //empty line

@@ -3,22 +3,22 @@
  */
 const Papa = require('papaparse');
 import cryptoLibrary from './crypto-library';
-import helper from './helper';
+import helperService from './helper';
 
-var importer_code = 'lastpass_com_csv';
-var importer = {
+const importer_code = 'lastpass_com_csv';
+const importer = {
     name: 'LastPass.com (CSV)',
     value: importer_code,
     parser: parser
 };
 
-var INDEX_URL = 0;
-var INDEX_USERNAME = 1;
-var INDEX_PASSWORD = 2;
-var INDEX_EXTRA = 3;
-var INDEX_NAME = 4;
-var INDEX_GROUPING = 5;
-var INDEX_FAV = 6; // not used yet ...
+const INDEX_URL = 0;
+const INDEX_USERNAME = 1;
+const INDEX_PASSWORD = 2;
+const INDEX_EXTRA = 3;
+const INDEX_NAME = 4;
+const INDEX_GROUPING = 5;
+const INDEX_FAV = 6; // not used yet ...
 
 
 // activate();
@@ -110,7 +110,7 @@ var transfor_into_note = function(line) {
  */
 var transfor_into_website_password = function(line) {
 
-    var parsed_url = helper.parseUrl(line[INDEX_URL]);
+    var parsed_url = helperService.parseUrl(line[INDEX_URL]);
 
     return {
         id : cryptoLibrary.generateUuid(),
@@ -155,7 +155,7 @@ function gather_secrets(datastore, secrets, csv) {
     var folder_name;
     var folder_index = {};
 
-    for (var i = 0; i < csv.length; i++) {
+    for (let i = 0; i < csv.length; i++) {
         line = csv[i];
         if (i === 0) {
             continue;
@@ -175,7 +175,7 @@ function gather_secrets(datastore, secrets, csv) {
         secrets.push(secret);
     }
 
-    for (var name in folder_index) {
+    for (let name in folder_index) {
         datastore['folders'].push({
             id: cryptoLibrary.generateUuid(),
             name: name,

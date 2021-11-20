@@ -3,24 +3,24 @@
 */
 const Papa = require('papaparse');
 import cryptoLibrary from './crypto-library';
-import helper from './helper';
+import helperService from './helper';
 
-var importer_code = 'teampass_net_csv';
-var importer = {
+const importer_code = 'teampass_net_csv';
+const importer = {
     name: 'Teampass (CSV)',
     value: importer_code,
     parser: parser
 };
 
-var INDEX_PROJECT_NAME = 0;
-var INDEX_DESCRIPTION = 1;
-var INDEX_URL = 2;
-var INDEX_USERNAME = 3;
-var INDEX_EMAIL = 4;
-var INDEX_PASSWORD = 5;
-var INDEX_NOTES = 6;
-var INDEX_TAGS = 7;
-var INDEX_CUSTOM_FIELDS = 8;
+const INDEX_PROJECT_NAME = 0;
+const INDEX_DESCRIPTION = 1;
+const INDEX_URL = 2;
+const INDEX_USERNAME = 3;
+const INDEX_EMAIL = 4;
+const INDEX_PASSWORD = 5;
+const INDEX_NOTES = 6;
+const INDEX_TAGS = 7;
+const INDEX_CUSTOM_FIELDS = 8;
 var CUSTOM_FIELD_OFFSET = 9;
 
 
@@ -64,7 +64,7 @@ var get_notes = function(line) {
     
     if (line[INDEX_CUSTOM_FIELDS]) {
         var custom_fields = line[INDEX_CUSTOM_FIELDS].split(",");
-        for (var i = 0; i < custom_fields.length; i++) {
+        for (let i = 0; i < custom_fields.length; i++) {
             //checks if the corresponding value is not empty
             if (!line[CUSTOM_FIELD_OFFSET + i]) {
                 continue;
@@ -85,7 +85,7 @@ var get_notes = function(line) {
  */
 var transform_to_website_password = function(line) {
     
-    var parsed_url = helper.parseUrl(line[INDEX_URL]);
+    var parsed_url = helperService.parseUrl(line[INDEX_URL]);
     
     var description = get_description(line);
     var notes = get_notes(line);
@@ -136,7 +136,7 @@ var transform_to_application_password = function(line) {
  */
 var transform_to_bookmark = function(line) {
     
-    var parsed_url = helper.parseUrl(line[INDEX_URL]);
+    var parsed_url = helperService.parseUrl(line[INDEX_URL]);
     
     var description = get_description(line);
     var notes = get_notes(line);
@@ -213,7 +213,7 @@ function get_folder(line, datastore) {
 
     next_folder_name = line[INDEX_PROJECT_NAME];
 
-    for (var i = 0; i < datastore['folders'].length; i++) {
+    for (let i = 0; i < datastore['folders'].length; i++) {
         if (datastore['folders'][i].name === next_folder_name) {
             next_folder = datastore['folders'][i];
             break;
@@ -245,7 +245,7 @@ function gather_secrets(datastore, secrets, csv) {
     var line;
     var folder;
 
-    for (var i = 0; i < csv.length; i++) {
+    for (let i = 0; i < csv.length; i++) {
         line = csv[i];
         if (i === 0) {
             continue;

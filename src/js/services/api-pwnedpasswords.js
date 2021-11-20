@@ -2,11 +2,11 @@
  * Service to talk to the psono REST api
  */
 
-var call = function(connection_type, endpoint, data, headers) {
+function call(connection_type, endpoint, data, headers) {
 
     var backend = 'https://api.pwnedpasswords.com';
 
-    var req = {
+    const req = {
         method: connection_type,
         url: backend + endpoint,
         data: data
@@ -16,11 +16,11 @@ var call = function(connection_type, endpoint, data, headers) {
 
     return $q(function(resolve, reject) {
 
-        var onSuccess = function(data) {
+        const onSuccess = function(data) {
             return resolve(data);
         };
 
-        var onError = function(data) {
+        const onError = function(data) {
             return reject(data);
         };
 

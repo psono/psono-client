@@ -3,22 +3,22 @@
  */
 
 import cryptoLibrary from './crypto-library';
-import helper from './helper';
+import helperService from './helper';
 const Papa = require('papaparse');
 
-var importer_code = 'keepassx_org_csv';
-var importer = {
+const importer_code = 'keepassx_org_csv';
+const importer = {
     name: 'KeePassX.org (CSV)',
     value: importer_code,
     parser: parser
 };
 
-var INDEX_GROUP = 0;
-var INDEX_TITLE = 1;
-var INDEX_USERNAME = 2;
-var INDEX_PASSWORD = 3;
-var INDEX_URL = 4;
-var INDEX_NOTES = 5;
+const INDEX_GROUP = 0;
+const INDEX_TITLE = 1;
+const INDEX_USERNAME = 2;
+const INDEX_PASSWORD = 3;
+const INDEX_URL = 4;
+const INDEX_NOTES = 5;
 
 
 // activate();
@@ -46,7 +46,7 @@ function get_folder_helper(path, folder) {
     }
     next_folder_name = path.shift();
 
-    for (var i = 0; i < folder['folders'].length; i++) {
+    for (let i = 0; i < folder['folders'].length; i++) {
         if (folder['folders'][i].name === next_folder_name) {
             next_folder = folder['folders'][i];
             break;
@@ -91,7 +91,7 @@ function get_folder(line, datastore) {
  */
 var transform_to_secret = function(line) {
 
-    var parsed_url = helper.parseUrl(line[INDEX_URL]);
+    var parsed_url = helperService.parseUrl(line[INDEX_URL]);
 
     return {
         id : cryptoLibrary.generateUuid(),
@@ -119,7 +119,7 @@ function gather_secrets(datastore, secrets, csv) {
     var line;
     var folder;
 
-    for (var i = 0; i < csv.length; i++) {
+    for (let i = 0; i < csv.length; i++) {
         line = csv[i];
         if (i === 0) {
             continue;

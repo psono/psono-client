@@ -13,7 +13,7 @@ module.exports = merge(common, {
   },
   plugins: [
     new webpack.DefinePlugin({
-      'TARGET': JSON.stringify('FIREFOX'),
+      'TARGET': JSON.stringify('firefox'),
     }),
     new CopyPlugin({
       patterns: [

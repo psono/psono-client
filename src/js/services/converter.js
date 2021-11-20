@@ -4,7 +4,7 @@
 
 import uuid from "uuid-js";
 
-var BASE58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+const BASE58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
 /**
  * encodes utf8 from nacl_factory.js
@@ -14,9 +14,9 @@ var BASE58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
  *
  * @returns {Uint8Array} Encoded string
  */
-var encodeUtf8 = function (toEncode) {
+function encodeUtf8(toEncode) {
     return encodeLatin1(unescape(encodeURIComponent(toEncode)));
-};
+}
 
 /**
  * encodes latin1 from nacl_factory.js
@@ -26,15 +26,15 @@ var encodeUtf8 = function (toEncode) {
  *
  * @returns {Uint8Array} Encoded string
  */
-var encodeLatin1 = function (toEncode) {
-    var result = new Uint8Array(toEncode.length);
-    for (var i = 0; i < toEncode.length; i++) {
-        var c = toEncode.charCodeAt(i);
+function encodeLatin1(toEncode) {
+    const result = new Uint8Array(toEncode.length);
+    for (let i = 0; i < toEncode.length; i++) {
+        let c = toEncode.charCodeAt(i);
         if ((c & 0xff) !== c) throw new Error("Cannot encode string in Latin1:" + toEncode);
         result[i] = c & 0xff;
     }
     return result;
-};
+}
 
 /**
  * decodes utf8 from nacl_factory.js
@@ -44,9 +44,9 @@ var encodeLatin1 = function (toEncode) {
  *
  * @returns {string} Decoded string
  */
-var decodeUtf8 = function (toDecode) {
+function decodeUtf8(toDecode) {
     return decodeURIComponent(escape(decodeLatin1(toDecode)));
-};
+}
 
 /**
  * decodes latin1 from nacl_factory.js
@@ -56,13 +56,13 @@ var decodeUtf8 = function (toDecode) {
  *
  * @returns {string} Decoded string
  */
-var decodeLatin1 = function (toDecode) {
-    var encoded = [];
-    for (var i = 0; i < toDecode.length; i++) {
+function decodeLatin1(toDecode) {
+    const encoded = [];
+    for (let i = 0; i < toDecode.length; i++) {
         encoded.push(String.fromCharCode(toDecode[i]));
     }
     return encoded.join("");
-};
+}
 
 /**
  * Uint8Array to hex converter from nacl_factory.js
@@ -72,14 +72,14 @@ var decodeLatin1 = function (toDecode) {
  *
  * @returns {string} Returns hex representation
  */
-var toHex = function (val) {
-    var encoded = [];
-    for (var i = 0; i < val.length; i++) {
+function toHex(val) {
+    const encoded = [];
+    for (let i = 0; i < val.length; i++) {
         encoded.push("0123456789abcdef"[(val[i] >> 4) & 15]);
         encoded.push("0123456789abcdef"[val[i] & 15]);
     }
     return encoded.join("");
-};
+}
 
 /**
  * hex to Uint8Array converter from nacl_factory.js
@@ -89,13 +89,13 @@ var toHex = function (val) {
  *
  * @returns {Uint8Array} Returns Uint8Array representation
  */
-var fromHex = function (val) {
-    var result = new Uint8Array(val.length / 2);
-    for (var i = 0; i < val.length / 2; i++) {
+function fromHex(val) {
+    const result = new Uint8Array(val.length / 2);
+    for (let i = 0; i < val.length / 2; i++) {
         result[i] = parseInt(val.substr(2 * i, 2), 16);
     }
     return result;
-};
+}
 
 /**
  * Helper function to create a lookup map of a given alphabet
@@ -105,11 +105,11 @@ var fromHex = function (val) {
  *
  * @returns {object} Returns the lookup map
  */
-var base_x_lookup_table = function (alphabet) {
-    var alphabet_map = {};
+function baseXLookupTable(alphabet) {
+    const alphabet_map = {};
     // pre-compute lookup table
-    for (var z = 0; z < alphabet.length; z++) {
-        var x = alphabet.charAt(z);
+    for (let z = 0; z < alphabet.length; z++) {
+        let x = alphabet.charAt(z);
 
         if (alphabet_map[x] !== undefined) {
             throw new TypeError(x + " is ambiguous");
@@ -117,7 +117,7 @@ var base_x_lookup_table = function (alphabet) {
         alphabet_map[x] = z;
     }
     return alphabet_map;
-};
+}
 
 /**
  * Uint8Array to base X converter
@@ -128,14 +128,15 @@ var base_x_lookup_table = function (alphabet) {
  *
  * @returns {string} Returns base X representation
  */
-var toBaseX = function (val, alphabet) {
-    var base = alphabet.length;
+function toBaseX(val, alphabet) {
+    const base = alphabet.length;
 
     if (val.length === 0) return "";
 
-    var digits = [0];
-    for (var i = 0; i < val.length; ++i) {
-        for (var j = 0, carry = val[i]; j < digits.length; ++j) {
+    const digits = [0];
+    for (let i = 0; i < val.length; ++i) {
+        let carry = val[i];
+        for (let j = 0; j < digits.length; ++j) {
             carry += digits[j] << 8;
             digits[j] = carry % base;
             carry = (carry / base) | 0;
@@ -147,20 +148,20 @@ var toBaseX = function (val, alphabet) {
         }
     }
 
-    var string = "";
+    let string = "";
 
     // deal with leading zeros
-    for (var k = 0; val[k] === 0 && k < val.length - 1; ++k) {
+    for (let k = 0; val[k] === 0 && k < val.length - 1; ++k) {
         string += alphabet[0];
     }
 
     // convert digits to a string
-    for (var q = digits.length - 1; q >= 0; --q) {
+    for (let q = digits.length - 1; q >= 0; --q) {
         string += alphabet[digits[q]];
     }
 
     return string;
-};
+}
 
 /**
  * base X to Uint8Array converter
@@ -171,23 +172,23 @@ var toBaseX = function (val, alphabet) {
  *
  * @returns {Uint8Array} Returns Uint8Array representation
  */
-var fromBaseX = function (val, alphabet) {
-    var base = alphabet.length;
-    var leader = alphabet.charAt(0);
-    var alphabet_map = base_x_lookup_table(alphabet);
+function fromBaseX(val, alphabet) {
+    const base = alphabet.length;
+    const leader = alphabet.charAt(0);
+    const alphabetMap = baseXLookupTable(alphabet);
 
     if (val.length === 0) {
         return new Uint8Array(0);
     }
 
-    var bytes = [0];
-    for (var i = 0; i < val.length; i++) {
-        var value = alphabet_map[val[i]];
+    const bytes = [0];
+    for (let i = 0; i < val.length; i++) {
+        let value = alphabetMap[val[i]];
         if (value === undefined) {
             throw new Error("Non-base" + base + " character");
         }
-
-        for (var j = 0, carry = value; j < bytes.length; ++j) {
+        let carry = value;
+        for (let j = 0; j < bytes.length; ++j) {
             carry += bytes[j] * base;
             bytes[j] = carry & 0xff;
             carry >>= 8;
@@ -200,18 +201,18 @@ var fromBaseX = function (val, alphabet) {
     }
 
     // deal with leading zeros
-    for (var k = 0; val[k] === leader && k < val.length - 1; ++k) {
+    for (let k = 0; val[k] === leader && k < val.length - 1; ++k) {
         bytes.push(0);
     }
 
-    var representation = new Uint8Array(bytes.length);
+    const representation = new Uint8Array(bytes.length);
 
-    for (var l = 0; l < bytes.length; l++) {
+    for (let l = 0; l < bytes.length; l++) {
         representation[l] = bytes[bytes.length - l - 1];
     }
 
     return representation;
-};
+}
 
 /**
  * Uint8Array to base58 converter
@@ -221,9 +222,9 @@ var fromBaseX = function (val, alphabet) {
  *
  * @returns {string} Returns base58 representation
  */
-var toBase58 = function (val) {
+function toBase58(val) {
     return toBaseX(val, BASE58);
-};
+}
 
 /**
  * base58 to Uint8Array converter
@@ -233,9 +234,9 @@ var toBase58 = function (val) {
  *
  * @returns {Uint8Array} Returns Uint8Array representation
  */
-var fromBase58 = function (val) {
+function fromBase58(val) {
     return fromBaseX(val, BASE58);
-};
+}
 
 /**
  * hex to uuid converter
@@ -244,9 +245,9 @@ var fromBase58 = function (val) {
  *
  * @returns {string} Returns base58 representation
  */
-var hexToBase58 = function (val) {
+function hexToBase58(val) {
     return toBase58(fromHex(val));
-};
+}
 
 /**
  * Base58 to hex converter
@@ -255,9 +256,9 @@ var hexToBase58 = function (val) {
  *
  * @returns {string} Returns hex representation
  */
-var base58ToHex = function (val) {
+function base58ToHex(val) {
     return toHex(fromBase58(val));
-};
+}
 
 /**
  * uuid to hex converter
@@ -266,9 +267,9 @@ var base58ToHex = function (val) {
  *
  * @returns {string} Returns hex representation
  */
-var uuidToHex = function (val) {
+function uuidToHex(val) {
     return val.replace(/-/g, "");
-};
+}
 
 /**
  * hex to uuid converter
@@ -277,11 +278,11 @@ var uuidToHex = function (val) {
  *
  * @returns {uuid} Returns uuid
  */
-var hexToUuid = function (val) {
+function hexToUuid(val) {
     return uuid.fromBytes(fromHex(val)).toString();
-};
+}
 
-var Mnemonic = (function () {
+const Mnemonic = (function () {
     // Mnemonic.js v. 1.1.0
 
     // (c) 2012-2015 Yiorgis Gozadinos, Crypho AS.
@@ -290,13 +291,13 @@ var Mnemonic = (function () {
 
     // AMD/global registrations
 
-    var Mnemonic = function (args) {
+    const Mnemonic = function (args) {
         this.seed = args;
         return this;
     };
 
     Mnemonic.prototype.toHex = function () {
-        var l = this.seed.length,
+        let l = this.seed.length,
             res = "",
             i = 0;
         for (; i < l; i++) {
@@ -306,7 +307,7 @@ var Mnemonic = (function () {
     };
 
     Mnemonic.prototype.toWords = function () {
-        var i = 0,
+        let i = 0,
             l = this.seed.length,
             n = Mnemonic.wc,
             words = [],
@@ -327,7 +328,7 @@ var Mnemonic = (function () {
     };
 
     Mnemonic.fromWords = function (words) {
-        var i = 0,
+        let i = 0,
             n = Mnemonic.wc,
             l = words.length / 3,
             seed = new Uint32Array(l),
@@ -346,7 +347,7 @@ var Mnemonic = (function () {
     };
 
     Mnemonic.fromHex = function (hex) {
-        var hexParts = hex.match(/.{1,8}/g),
+        let hexParts = hex.match(/.{1,8}/g),
             i = 0,
             l = hex.length / 8,
             seed = new Uint32Array(l),
@@ -405,7 +406,7 @@ function hexToWords(val) {
  * @returns {*}
  */
 function bytesToString(srcBytes, encoding) {
-    var tmp_encoding = encoding;
+    let tmp_encoding = encoding;
     if (typeof tmp_encoding === "undefined") {
         tmp_encoding = "utf-8";
     }

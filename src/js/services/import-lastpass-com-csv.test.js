@@ -14,7 +14,7 @@ describe('Service: importLastPassComCsv test suite', function () {
         cryptoLibrary.generateUuid = jest.fn();
         cryptoLibrary.generateUuid.mockImplementation(() => generic_uuid);
 
-        var input = "url,username,password,extra,name,grouping,fav\n" +
+        const input = "url,username,password,extra,name,grouping,fav\n" +
             "https://www.magentocommerce.com/products/customer/account/login/,username@gmail.net,2r4f4%$23,,magentocommerce.com,Passwords,0\n" +
             "https://www.spotify.com/de/login/,username,4ggga4aga4,,spotify,Passwords,0\n" +
             "http://www.hardwareluxx.com/community/,username,g4hw809hgßw4GH,,Password für hardwareluxx.com,Passwords,0\n" +
@@ -39,9 +39,9 @@ describe('Service: importLastPassComCsv test suite', function () {
             "Notes:Installed on notebook\n" +
             "\",Microsoft ,Licenses,0";
 
-        var output = importLastPassComCsv.parser(input);
+        const output = importLastPassComCsv.parser(input);
 
-        var expected_output = {
+        const expected_output = {
             "datastore": {
                 "id": generic_uuid,
                 "name": output.datastore.name,

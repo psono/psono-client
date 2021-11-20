@@ -2,15 +2,15 @@
  * Service to talk to the Digital Ocean and upload or download files
  */
 
-import converter from './converter';
+import converterService from './converter';
 
-var call = function(signed_url, method, endpoint, data, headers, transformRequest, responseType) {
+function call(signed_url, method, endpoint, data, headers, transformRequest, responseType) {
 
     if (!transformRequest) {
         transformRequest = $http.defaults.transformRequest;
     }
 
-    var req = {
+    const req = {
         method: method,
         url: signed_url + endpoint,
         data: data,
@@ -22,11 +22,11 @@ var call = function(signed_url, method, endpoint, data, headers, transformReques
 
     return $q(function(resolve, reject) {
 
-        var onSuccess = function(data) {
+        const onSuccess = function(data) {
             return resolve(data);
         };
 
-        var onError = function(data) {
+        const onError = function(data) {
             return reject(data);
         };
 
@@ -50,12 +50,12 @@ var call = function(signed_url, method, endpoint, data, headers, transformReques
  *
  * @returns {Promise} promise
  */
-var upload = function (signed_url, fields, chunk) {
+function upload(signed_url, fields, chunk) {
 
     var endpoint = ''; // the signed url already has everything
     var method = "POST";
     var data = new FormData();
-    for (var field_name in fields) {
+    for (let field_name in fields) {
         if (!fields.hasOwnProperty(field_name)) {
             continue;
         }
@@ -81,7 +81,7 @@ var upload = function (signed_url, fields, chunk) {
  *
  * @returns {Promise} promise with the data
  */
-var download = function (signed_url) {
+function download(signed_url) {
 
     var endpoint = ''; // the signed url already has everything
     var method = "GET";
@@ -94,7 +94,7 @@ var download = function (signed_url) {
         return data
     },function(data) {
         if (data.status === 400) {
-            data.data = JSON.parse(converter.bytesToString(data.data));
+            data.data = JSON.parse(converterService.bytesToString(data.data));
         }
         return $q.reject(data)
     });

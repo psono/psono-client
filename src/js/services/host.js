@@ -5,6 +5,7 @@
 import axios from "axios";
 import store from "./store";
 import cryptoLibrary from "./crypto-library";
+import helperService from "./helper";
 import apiClient from "./api-client";
 import browserClient from "./browser-client";
 import action from "../actions/bound-action-creators";
@@ -52,10 +53,10 @@ function updateKnownHosts(newKnownHosts) {
  * @returns {*} The result of the search / comparison
  */
 function checkKnownHosts(serverUrl, verifyKey) {
-    var known_hosts = getKnownHosts();
+    const known_hosts = getKnownHosts();
     serverUrl = serverUrl.toLowerCase();
 
-    for (var i = 0; i < known_hosts.length; i++) {
+    for (let i = 0; i < known_hosts.length; i++) {
         if (known_hosts[i]["url"] !== serverUrl) {
             continue;
         }
@@ -81,7 +82,7 @@ function checkKnownHosts(serverUrl, verifyKey) {
  * @returns {Promise} Server info
  */
 function info() {
-    var onSuccess = function (response) {
+    const onSuccess = function (response) {
         response.data["decoded_info"] = JSON.parse(response.data["info"]);
 
         return response;
@@ -155,12 +156,12 @@ function checkHost(server) {
  * @returns {Promise} Result of the check
  */
 function loadRemoteConfig(web_client_url, server_url) {
-    var req = {
+    const req = {
         method: "GET",
         url: web_client_url + "/config.json",
     };
 
-    var onSuccess = function (config) {
+    const onSuccess = function (config) {
         // we need to preserve the base_url and the backend server as they are optional and the original web
         // client would create them dynamically
         if (!config.data.hasOwnProperty("base_url")) {
@@ -168,7 +169,7 @@ function loadRemoteConfig(web_client_url, server_url) {
         }
 
         if (config.data.hasOwnProperty("backend_servers")) {
-            for (var i = 0; i < config.data["backend_servers"].length; i++) {
+            for (let i = 0; i < config.data["backend_servers"].length; i++) {
                 if (config.data["backend_servers"][i].hasOwnProperty("url")) {
                     continue;
                 }
@@ -183,7 +184,7 @@ function loadRemoteConfig(web_client_url, server_url) {
         browserClient.clearConfigCache();
     };
 
-    var onError = function (data) {
+    const onError = function (data) {
         console.log(data);
         return Promise.reject(data);
     };
@@ -200,9 +201,9 @@ function loadRemoteConfig(web_client_url, server_url) {
 function approveHost(serverUrl, verifyKey) {
     serverUrl = serverUrl.toLowerCase();
 
-    var known_hosts = getKnownHosts();
+    const known_hosts = getKnownHosts();
 
-    for (var i = 0; i < known_hosts.length; i++) {
+    for (let i = 0; i < known_hosts.length; i++) {
         if (known_hosts[i]["url"] !== serverUrl) {
             continue;
         }
@@ -226,9 +227,9 @@ function approveHost(serverUrl, verifyKey) {
  * @param {string} fingerprint The fingerprint of the host
  */
 function deleteKnownHost(fingerprint) {
-    var known_hosts = getKnownHosts();
+    const known_hosts = getKnownHosts();
 
-    helper.remove_from_array(known_hosts, fingerprint, function (known_host, fingerprint) {
+    helperService.removeFromArray(known_hosts, fingerprint, function (known_host, fingerprint) {
         return known_host["verify_key"] === fingerprint;
     });
 

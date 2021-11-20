@@ -4,8 +4,7 @@ import AppBar from "@material-ui/core/AppBar";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { Link, useLocation } from "react-router-dom";
-import { compose } from "redux";
-import { withTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -23,6 +22,8 @@ import MultifactorAuthenticationView from "./multifactor-authentication";
 import AccountEmergencyCodesView from "./emergency-codes";
 import AccountPasswordRecoveryCodesView from "./password-recovery-codes";
 import AccountDeleteAccountView from "./delete-account";
+import AccountChangeEmailView from "./change-email";
+import AccountChangePasswordView from "./change-password";
 
 const useStyles = makeStyles((theme) => ({}));
 
@@ -43,7 +44,7 @@ TabPanel.propTypes = {
 };
 
 const AccountView = (props) => {
-    const { t } = props;
+    const { t } = useTranslation();
     const classes = useStyles();
     let location = useLocation();
     const [value, setValue] = React.useState(location.pathname);
@@ -122,10 +123,10 @@ const AccountView = (props) => {
                         <AccountOverviewView {...props} />
                     </TabPanel>
                     <TabPanel value={value} index={"/account/change-email"}>
-                        Item Two
+                        <AccountChangeEmailView {...props} />
                     </TabPanel>
                     <TabPanel value={value} index={"/account/change-password"}>
-                        Item Three
+                        <AccountChangePasswordView {...props} />
                     </TabPanel>
                     <TabPanel value={value} index={"/account/multifactor-authentication"}>
                         <MultifactorAuthenticationView {...props} />
@@ -151,4 +152,4 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
     return { actions: bindActionCreators(actionCreators, dispatch) };
 }
-export default compose(withTranslation(), connect(mapStateToProps, mapDispatchToProps))(AccountView);
+export default connect(mapStateToProps, mapDispatchToProps)(AccountView);

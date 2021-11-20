@@ -1,0 +1,42 @@
+import * as React from "react";
+import PropTypes from "prop-types";
+import { Grid } from "@material-ui/core";
+import MuiAlert from "@material-ui/lab/Alert";
+import { useTranslation } from "react-i18next";
+
+const GridContainerErrors = (props) => {
+    const { errors, setErrors, ...rest } = props;
+    const { t } = useTranslation();
+
+    return (
+        <Grid container {...rest}>
+            {errors && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <>
+                        {errors.map((prop, index) => {
+                            return (
+                                <MuiAlert
+                                    onClose={() => {
+                                        setErrors([]);
+                                    }}
+                                    key={index}
+                                    severity="error"
+                                    style={{ marginBottom: "5px" }}
+                                >
+                                    {t(prop)}
+                                </MuiAlert>
+                            );
+                        })}
+                    </>
+                </Grid>
+            )}
+        </Grid>
+    );
+};
+
+GridContainerErrors.propTypes = {
+    errors: PropTypes.array.isRequired,
+    setErrors: PropTypes.func.isRequired,
+};
+
+export default GridContainerErrors;

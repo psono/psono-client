@@ -4,8 +4,8 @@
 
 import cryptoLibrary from './crypto-library';
 
-var importer_code = 'enpass_json';
-var importer = {
+const importer_code = 'enpass_json';
+const importer = {
     name: 'Enpass (JSON)',
     value: importer_code,
     parser: parser
@@ -26,12 +26,12 @@ var importer = {
  */
 function detect_type(item) {
     
-    var contains_url = false;
-    var contains_username = false;
-    var contains_password = false;
+    let contains_url = false;
+    let contains_username = false;
+    let contains_password = false;
     
     if (item.hasOwnProperty('fields')) {
-        for (var i = 0; i < item['fields'].length; i++ ) {
+        for (let i = 0; i < item['fields'].length; i++ ) {
             if (item['fields'][i]['type'] === 'password' && item['fields'][i]['value'] !== ''){
                 contains_password = true;
             }
@@ -65,7 +65,7 @@ function detect_type(item) {
 function contains_totp(item) {
     var contains_totp_field = false;
     if (item.hasOwnProperty('fields')) {
-        for (var i = 0; i < item['fields'].length; i++ ) {
+        for (let i = 0; i < item['fields'].length; i++ ) {
             if (item['fields'][i]['type'] === 'totp' && item['fields'][i]['value'] !== ''){
                 contains_totp_field = true;
             }
@@ -104,7 +104,7 @@ var transform_to_website_password = function(item) {
     }
     
     if (item.hasOwnProperty('fields')) {
-        for (var i = 0; i < item['fields'].length; i++){
+        for (let i = 0; i < item['fields'].length; i++){
             
             if (item['fields'][i]['type'] === 'username' && website_password_username === '') {
                 website_password_username = item['fields'][i]['value']
@@ -162,7 +162,7 @@ var transform_to_application_password = function(item) {
     }
     
     if (item.hasOwnProperty('fields')) {
-        for (var i = 0; i < item['fields'].length; i++){
+        for (let i = 0; i < item['fields'].length; i++){
             
             if (item['fields'][i]['type'] === 'username' && application_password_username === '') {
                 application_password_username = item['fields'][i]['value']
@@ -216,7 +216,7 @@ var transform_to_bookmark = function(item) {
     }
 
     if (item.hasOwnProperty('fields')) {
-        for (var i = 0; i < item['fields'].length; i++){
+        for (let i = 0; i < item['fields'].length; i++){
             if (item['fields'][i]['type'] === 'url' && bookmark_url === '') {
                 bookmark_url = item['fields'][i]['value']
             } else if (item['fields'][i]['type'] === 'totp') {
@@ -265,7 +265,7 @@ var transform_to_note = function(item) {
     }
 
     if (item.hasOwnProperty('fields')) {
-        for (var i = 0; i < item['fields'].length; i++){
+        for (let i = 0; i < item['fields'].length; i++){
             if (item['fields'][i]['type'] === 'totp') {
                 // don't do anything if we find a totp field as those are handled separately
             } else if (item['fields'][i]['value'] !== '') {
@@ -310,7 +310,7 @@ var transform_to_totp_code = function(item) {
     }
 
     if (item.hasOwnProperty('fields')) {
-        for (var i = 0; i < item['fields'].length; i++){
+        for (let i = 0; i < item['fields'].length; i++){
             if (item['fields'][i]['type'] === 'totp' && totp_code === '') {
                 totp_code = item['fields'][i]['value']
             } else if (item['fields'][i]['value'] !== '') {
@@ -375,14 +375,14 @@ function gather_secrets(datastore, secrets, parsedData) {
             
             var parent_folder = null;
             if (parsedData['items'][i].hasOwnProperty('folders')) {
-                for (var ii= 0; ii < parsedData['items'][i]['folders'].length; ii++) {
+                for (let ii= 0; ii < parsedData['items'][i]['folders'].length; ii++) {
                     if (folder_index.hasOwnProperty(parsedData['items'][i]['folders'][ii])) {
                         parent_folder = folder_index[parsedData['items'][i]['folders'][ii]];
                     }
                 }
             }
             
-            for (var iii = 0; iii< crafted_secrets.length; iii++) {
+            for (let iii = 0; iii< crafted_secrets.length; iii++) {
                 if (parent_folder === null) {
                     datastore['items'].push(crafted_secrets[iii]);
                 } else {
@@ -393,7 +393,7 @@ function gather_secrets(datastore, secrets, parsedData) {
         }
     }
     
-    for (var uuid in folder_index) {
+    for (let uuid in folder_index) {
         datastore['folders'].push(folder_index[uuid])
     }
 }

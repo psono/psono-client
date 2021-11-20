@@ -1,8 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import { compose } from "redux";
-import { withTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import Button from "@material-ui/core/Button";
 import { Grid } from "@material-ui/core";
 import Divider from "@material-ui/core/Divider";
@@ -11,7 +10,7 @@ import actionCreators from "../../actions/action-creators";
 import DeleteAccountDialog from "./delete-account-dialog";
 
 const AccountDeleteAccountView = (props) => {
-    const { t } = props;
+    const { t } = useTranslation();
     const [open, setOpen] = React.useState(false);
 
     const closeModal = () => {
@@ -52,4 +51,4 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
     return { actions: bindActionCreators(actionCreators, dispatch) };
 }
-export default compose(withTranslation(), connect(mapStateToProps, mapDispatchToProps))(AccountDeleteAccountView);
+export default connect(mapStateToProps, mapDispatchToProps)(AccountDeleteAccountView);

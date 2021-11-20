@@ -3,11 +3,11 @@
  */
 
 const Papa = require('papaparse');
-import helper from './helper';
+import helperService from './helper';
 import cryptoLibrary from './crypto-library';
 
-var importer_code = 'chrome_csv';
-var importer = {
+const importer_code = 'chrome_csv';
+const importer = {
     name: 'Chrome (CSV)',
     help: 'Open the following in your address bar and activate the export function:' +
     '<pre>chrome://flags/#password-import-export</pre>' +
@@ -18,10 +18,10 @@ var importer = {
     parser: parser
 };
 
-var INDEX_NAME = 0;
-var INDEX_URL = 1;
-var INDEX_USERNAME = 2;
-var INDEX_PASSWORD = 3;
+const INDEX_NAME = 0;
+const INDEX_URL = 1;
+const INDEX_USERNAME = 2;
+const INDEX_PASSWORD = 3;
 
 
 // activate();
@@ -39,7 +39,7 @@ var INDEX_PASSWORD = 3;
  * @returns {*} The secrets object
  */
 var transform_to_secret = function(line) {
-    var parsed_url = helper.parseUrl(line[INDEX_URL]);
+    var parsed_url = helperService.parseUrl(line[INDEX_URL]);
 
     return {
         id : cryptoLibrary.generateUuid(),
@@ -65,7 +65,7 @@ var transform_to_secret = function(line) {
  */
 function gather_secrets(datastore, secrets, csv) {
     var line;
-    for (var i = 0; i < csv.length; i++) {
+    for (let i = 0; i < csv.length; i++) {
         line = csv[i];
         if (i === 0) {
             continue;

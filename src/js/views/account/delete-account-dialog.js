@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { bindActionCreators } from "redux";
 import { compose } from "redux";
-import { withTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
 import Box from "@material-ui/core/Box";
 import Dialog from "@material-ui/core/Dialog";
@@ -19,6 +19,7 @@ import store from "../../services/store";
 import user from "../../services/user";
 import MuiAlert from "@material-ui/lab/Alert";
 import ButtonDanger from "../../components/button-danger";
+import GridContainerErrors from "../../components/grid-container-errors";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -26,24 +27,9 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-function TabPanel(props) {
-    const { children, value, index, ...other } = props;
-
-    return (
-        <div role="tabpanel" hidden={value !== index} id={`simple-tabpanel-${index}`} aria-labelledby={`simple-tab-${index}`} {...other}>
-            {value === index && <Box p={3}>{children}</Box>}
-        </div>
-    );
-}
-
-TabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.any.isRequired,
-    value: PropTypes.any.isRequired,
-};
-
 const DeleteAccountDialog = (props) => {
-    const { t, open, onClose } = props;
+    const { open, onClose } = props;
+    const { t } = useTranslation();
     const classes = useStyles();
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState([]);
@@ -105,28 +91,7 @@ const DeleteAccountDialog = (props) => {
                         </Grid>
                     </Grid>
                 )}
-                <Grid container>
-                    {errors && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <>
-                                {errors.map((prop, index) => {
-                                    return (
-                                        <MuiAlert
-                                            onClose={() => {
-                                                setErrors([]);
-                                            }}
-                                            key={index}
-                                            severity="error"
-                                            style={{ marginBottom: "5px" }}
-                                        >
-                                            {t(prop)}
-                                        </MuiAlert>
-                                    );
-                                })}
-                            </>
-                        </Grid>
-                    )}
-                </Grid>
+                <GridContainerErrors errors={errors} setErrors={setErrors} />
 
                 <MuiAlert
                     onClose={() => {
@@ -171,4 +136,4 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
     return { actions: bindActionCreators(actionCreators, dispatch) };
 }
-export default compose(withTranslation(), connect(mapStateToProps, mapDispatchToProps))(DeleteAccountDialog);
+export default connect(mapStateToProps, mapDispatchToProps)(DeleteAccountDialog);

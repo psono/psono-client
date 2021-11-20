@@ -17,18 +17,18 @@ function is_ipv4_address(address) {
  * @returns {SplittedUrl} Returns the split up url
  */
 function parseUrl(url) {
-    var authority;
-    var splitted_authority;
-    var splitted_domain;
-    var full_domain;
-    var top_domain;
-    var base_url;
-    var schema;
-    var port = null;
+    let authority;
+    let splitted_authority;
+    let splitted_domain;
+    let full_domain;
+    let top_domain;
+    let base_url;
+    let schema;
+    let port = null;
 
     // According to RFC http://www.ietf.org/rfc/rfc3986.txt Appendix B
-    var pattern = new RegExp("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
-    var matches = url.match(pattern);
+    const pattern = new RegExp("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
+    const matches = url.match(pattern);
 
     schema = matches[2];
     base_url = matches[2] + "://";
@@ -107,7 +107,7 @@ function isValidJson(str) {
  * @returns {boolean}
  */
 function isValidEmail(email) {
-    var splitted = email.split("@");
+    const splitted = email.split("@");
     if (splitted.length !== 2 || splitted[0].length === 0 || splitted[1].length === 0) {
         return false;
     }
@@ -123,7 +123,7 @@ function isValidEmail(email) {
  */
 function isValidTotpCode(b32str) {
     return true;
-    var pattern = new RegExp("^[A-Z2-7=]+$");
+    const pattern = new RegExp("^[A-Z2-7=]+$");
     if (b32str.length % 2 !== 0 || !pattern.test(b32str)) {
         return false;
     }
@@ -138,7 +138,7 @@ function isValidTotpCode(b32str) {
  * @returns {string} The full domain of the url
  */
 function getDomain(url) {
-    var parsed_url = parseUrl(url);
+    const parsed_url = parseUrl(url);
     return parsed_url.full_domain;
 }
 
@@ -161,7 +161,7 @@ function arrayStartsWith(array1, array2) {
         return false;
     }
 
-    for (var i = 0; i < array1.length; i++) {
+    for (let i = 0; i < array1.length; i++) {
         if (i === array2.length) {
             return true;
         }
@@ -183,7 +183,7 @@ function arrayStartsWith(array1, array2) {
  * @param {array} list The list object we want to fill
  */
 function createList(obj, list) {
-    var i;
+    let i;
     for (i = 0; obj.items && i < obj.items.length; i++) {
         list.push(obj.items[i]);
     }
@@ -211,7 +211,7 @@ function duplicateObject(obj) {
  * @returns {string} The error message, if it matches
  */
 function validateUsernameStart(username, forbidden_chars) {
-    for (var i = 0; i < forbidden_chars.length; i++) {
+    for (let i = 0; i < forbidden_chars.length; i++) {
         if (username.substring(0, forbidden_chars[i].length) === forbidden_chars[i]) {
             return 'Usernames may not start with "' + forbidden_chars[i] + '"';
         }
@@ -226,7 +226,7 @@ function validateUsernameStart(username, forbidden_chars) {
  * @returns {string} The error message, if it matches
  */
 function validateUsernameEnd(username, forbidden_chars) {
-    for (var i = 0; i < forbidden_chars.length; i++) {
+    for (let i = 0; i < forbidden_chars.length; i++) {
         if (username.substring(username.length - forbidden_chars[i].length) === forbidden_chars[i]) {
             return 'Usernames may not end with "' + forbidden_chars[i] + '"';
         }
@@ -241,7 +241,7 @@ function validateUsernameEnd(username, forbidden_chars) {
  * @returns {string} The error message, if it matches
  */
 function validateUsernameContain(username, forbidden_chars) {
-    for (var i = 0; i < forbidden_chars.length; i++) {
+    for (let i = 0; i < forbidden_chars.length; i++) {
         if (username.indexOf(forbidden_chars[i]) !== -1) {
             return 'Usernames may not contain "' + forbidden_chars[i] + '"';
         }
@@ -256,7 +256,7 @@ function validateUsernameContain(username, forbidden_chars) {
  * @returns {string} The error message, if it matches
  */
 function validateGroupNameContain(group_name, forbidden_chars) {
-    for (var i = 0; i < forbidden_chars.length; i++) {
+    for (let i = 0; i < forbidden_chars.length; i++) {
         if (group_name.indexOf(forbidden_chars[i]) !== -1) {
             return 'Group name may not contain "' + forbidden_chars[i] + '"';
         }
@@ -287,11 +287,11 @@ function formFullUsername(username, domain) {
  * @returns {null|string} Returns true or a string with the error
  */
 function isValidUsername(username) {
-    var res = username.split("@");
+    const res = username.split("@");
     username = res[0];
 
-    var USERNAME_REGEXP = /^[a-z0-9.\-]*$/i;
-    var error;
+    const USERNAME_REGEXP = /^[a-z0-9.\-]*$/i;
+    let error;
     if (!USERNAME_REGEXP.test(username)) {
         return "USERNAME_VALIDATION_NAME_CONTAINS_INVALID_CHARS";
     }
@@ -326,7 +326,7 @@ function isValidUsername(username) {
  * @returns {boolean|string} Returns true or a string with the error
  */
 function isValidGroupName(group_name) {
-    var error;
+    let error;
 
     if (group_name.length < 3) {
         return "Group name may not be shorter than 3 chars";
@@ -404,7 +404,7 @@ function isValidPassword(password, password2, min_length, min_complexity) {
     }
 
     if (min_complexity > 0) {
-        var complexity = 0;
+        let complexity = 0;
 
         if (hasNumber(password)) {
             complexity = complexity + 1;
@@ -436,11 +436,11 @@ function isValidPassword(password, password2, min_length, min_complexity) {
  * @returns {Array} Returns the chunks with length "len" as array
  */
 function splitStringInChunks(str, len) {
-    var size = Math.ceil(str.length / len);
-    var chunks = new Array(size);
-    var offset = 0;
+    const size = Math.ceil(str.length / len);
+    const chunks = new Array(size);
+    let offset = 0;
 
-    for (var i = 0; i < size; ++i, offset += len) {
+    for (let i = 0; i < size; ++i, offset += len) {
         chunks[i] = str.substring(offset, offset + len);
     }
 
@@ -463,7 +463,7 @@ function removeFromArray(array, search, cmp_fct) {
             return a === b;
         };
     }
-    for (var i = array.length - 1; i >= 0; i--) {
+    for (let i = array.length - 1; i >= 0; i--) {
         if (cmp_fct(array[i], search)) {
             array.splice(i, 1);
         }
@@ -488,11 +488,11 @@ function endsWith(to_test, suffix) {
  * @param {string} test Testable string
  */
 function getPasswordFilter(test) {
-    var searchStrings = test.toLowerCase().split(" ");
+    const searchStrings = test.toLowerCase().split(" ");
 
     function filter(datastore_entry) {
-        var containCounter = 0;
-        for (var ii = searchStrings.length - 1; ii >= 0; ii--) {
+        let containCounter = 0;
+        for (let ii = searchStrings.length - 1; ii >= 0; ii--) {
             if (typeof datastore_entry.name === "undefined") {
                 continue;
             }

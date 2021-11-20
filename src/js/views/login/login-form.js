@@ -5,17 +5,17 @@ import TextField from "@material-ui/core/TextField";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import { Check } from "@material-ui/icons";
 import MuiAlert from "@material-ui/lab/Alert";
-import { compose } from "redux";
-import { withTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import Button from "@material-ui/core/Button";
 import { BarLoader } from "react-spinners";
 import { useHistory } from "react-router-dom";
 import browserClient from "../../services/browser-client";
-import helper from "../../services/helper";
+import helperService from "../../services/helper";
 import user from "../../services/user";
 import host from "../../services/host";
 import store from "../../services/store";
 import action from "../../actions/bound-action-creators";
+import GridContainerErrors from "../../components/grid-container-errors";
 
 const styles = (theme) => ({
     textField: {
@@ -63,7 +63,8 @@ const styles = (theme) => ({
 });
 
 const LoginViewForm = (props) => {
-    const { t, classes } = props;
+    const { classes } = props;
+    const { t } = useTranslation();
     const history = useHistory();
 
     const [view, setView] = useState("default");
@@ -141,7 +142,7 @@ const LoginViewForm = (props) => {
             () => {
                 let requiredMultifactors = multifactors;
                 if (store.getState().server.multifactorEnabled) {
-                    helper.removeFromArray(requiredMultifactors, "duo_2fa");
+                    helperService.removeFromArray(requiredMultifactors, "duo_2fa");
                 } else {
                     requiredMultifactors = [];
                 }
@@ -223,12 +224,12 @@ const LoginViewForm = (props) => {
         } else if (loginType === "OIDC") {
             initiateOidcLogin(providerId);
         } else if (loginType === "LOAD_REMOTE_CONFIG") {
-            var onError = function (data) {
+            const onError = function (data) {
                 console.log(data);
             };
 
-            var onSuccess = function () {
-                var onError = function (data) {
+            const onSuccess = function () {
+                const onError = function (data) {
                     console.log(data);
                 };
 
@@ -267,7 +268,7 @@ const LoginViewForm = (props) => {
         const onSuccess = function () {
             let requiredMultifactors = multifactors;
             if (store.getState().server.multifactorEnabled) {
-                helper.removeFromArray(requiredMultifactors, "google_authenticator_2fa");
+                helperService.removeFromArray(requiredMultifactors, "google_authenticator_2fa");
             } else {
                 requiredMultifactors = [];
             }
@@ -285,7 +286,7 @@ const LoginViewForm = (props) => {
         const onSuccess = function () {
             let requiredMultifactors = multifactors;
             if (store.getState().server.multifactorEnabled) {
-                helper.removeFromArray(requiredMultifactors, "yubikey_otp_2fa");
+                helperService.removeFromArray(requiredMultifactors, "yubikey_otp_2fa");
             } else {
                 requiredMultifactors = [];
             }
@@ -307,7 +308,7 @@ const LoginViewForm = (props) => {
         const onSuccess = function () {
             let requiredMultifactors = multifactors;
             if (store.getState().server.multifactorEnabled) {
-                helper.removeFromArray(requiredMultifactors, "duo_2fa");
+                helperService.removeFromArray(requiredMultifactors, "duo_2fa");
             } else {
                 requiredMultifactors = [];
             }
@@ -374,7 +375,7 @@ const LoginViewForm = (props) => {
         setAllowLostPassword(allowLostPassword);
         setAllowRegistration(allowRegistration);
         setServer(serverUrl);
-        setDomain(helper.getDomain(serverUrl));
+        setDomain(helperService.getDomain(serverUrl));
         setSamlProvider(samlProvider);
         setOidcProvider(oidcProvider);
         setAuthenticationMethods(authenticationMethods);
@@ -400,18 +401,17 @@ const LoginViewForm = (props) => {
             action.setServerInfo(serverCheck.info, serverCheck.verify_key);
 
             if (serverCheck.status !== "matched") {
-                console.log(serverCheck.status);
                 setView(serverCheck.status);
                 setLoginType("LOAD_REMOTE_CONFIG");
                 return;
             }
 
-            var onError = function (data) {
+            const onError = function (data) {
                 console.log(data);
             };
 
-            var onSuccess = function () {
-                var onError = function (data) {
+            const onSuccess = function () {
+                const onError = function (data) {
                     console.log(data);
                 };
 
@@ -513,10 +513,10 @@ const LoginViewForm = (props) => {
                     };
                     return (
                         <Grid container key={i}>
-                            <Grid item xs={12} sm={12} md={12} style={{ marginTop: "20px" }}>
+                            <Grid item xs={12} sm={12} md={12} style={{ marginTop: "10px" }}>
                                 {provider.title}
                             </Grid>
-                            <Grid item xs={12} sm={12} md={12} style={{ marginTop: "20px" }}>
+                            <Grid item xs={12} sm={12} md={12} style={{ marginTop: "10px" }}>
                                 <Button variant="contained" color="primary" onClick={initiateOidcLoginHelper} type="submit" id="sad">
                                     <span
                                         style={
@@ -546,10 +546,10 @@ const LoginViewForm = (props) => {
                     };
                     return (
                         <Grid container key={i}>
-                            <Grid item xs={12} sm={12} md={12} style={{ marginTop: "20px" }}>
+                            <Grid item xs={12} sm={12} md={12} style={{ marginTop: "10px" }}>
                                 {provider.title}
                             </Grid>
-                            <Grid item xs={12} sm={12} md={12} style={{ marginTop: "20px" }}>
+                            <Grid item xs={12} sm={12} md={12} style={{ marginTop: "10px" }}>
                                 <Button variant="contained" color="primary" onClick={initiateSamlLoginHelper} type="submit" id="sad">
                                     <span
                                         style={
@@ -676,28 +676,7 @@ const LoginViewForm = (props) => {
                         </Grid>
                     </Grid>
                 )}
-                <Grid container>
-                    {errors && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <>
-                                {errors.map((prop, index) => {
-                                    return (
-                                        <MuiAlert
-                                            onClose={() => {
-                                                setErrors([]);
-                                            }}
-                                            key={index}
-                                            severity="error"
-                                            style={{ marginBottom: "5px" }}
-                                        >
-                                            {t(prop)}
-                                        </MuiAlert>
-                                    );
-                                })}
-                            </>
-                        </Grid>
-                    )}
-                </Grid>
+                <GridContainerErrors errors={errors} setErrors={setErrors} />
                 {allowCustomServer && (
                     <Grid container>
                         <Grid item xs={12} sm={12} md={12}>
@@ -712,7 +691,7 @@ const LoginViewForm = (props) => {
                                 value={server}
                                 onChange={(event) => {
                                     setServer(event.target.value);
-                                    setDomain(helper.getDomain(event.target.value));
+                                    setDomain(helperService.getDomain(event.target.value));
                                 }}
                             />
                         </Grid>
@@ -770,28 +749,7 @@ const LoginViewForm = (props) => {
                         </Button>
                     </Grid>
                 </Grid>
-                <Grid container>
-                    {errors && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <>
-                                {errors.map((prop, index) => {
-                                    return (
-                                        <MuiAlert
-                                            onClose={() => {
-                                                setErrors([]);
-                                            }}
-                                            key={index}
-                                            severity="error"
-                                            style={{ marginBottom: "5px" }}
-                                        >
-                                            {t(prop)}
-                                        </MuiAlert>
-                                    );
-                                })}
-                            </>
-                        </Grid>
-                    )}
-                </Grid>
+                <GridContainerErrors errors={errors} setErrors={setErrors} />
             </>
         );
     }
@@ -864,28 +822,7 @@ const LoginViewForm = (props) => {
                         </Button>
                     </Grid>
                 </Grid>
-                <Grid container>
-                    {errors && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <>
-                                {errors.map((prop, index) => {
-                                    return (
-                                        <MuiAlert
-                                            onClose={() => {
-                                                setErrors([]);
-                                            }}
-                                            key={index}
-                                            severity="error"
-                                            style={{ marginBottom: "5px" }}
-                                        >
-                                            {t(prop)}
-                                        </MuiAlert>
-                                    );
-                                })}
-                            </>
-                        </Grid>
-                    )}
-                </Grid>
+                <GridContainerErrors errors={errors} setErrors={setErrors} />
             </>
         );
     }
@@ -921,28 +858,7 @@ const LoginViewForm = (props) => {
                         </Button>
                     </Grid>
                 </Grid>
-                <Grid container>
-                    {errors && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <>
-                                {errors.map((prop, index) => {
-                                    return (
-                                        <MuiAlert
-                                            onClose={() => {
-                                                setErrors([]);
-                                            }}
-                                            key={index}
-                                            severity="error"
-                                            style={{ marginBottom: "5px" }}
-                                        >
-                                            {t(prop)}
-                                        </MuiAlert>
-                                    );
-                                })}
-                            </>
-                        </Grid>
-                    )}
-                </Grid>
+                <GridContainerErrors errors={errors} setErrors={setErrors} />
             </>
         );
     }
@@ -991,28 +907,7 @@ const LoginViewForm = (props) => {
                         </Button>
                     </Grid>
                 </Grid>
-                <Grid container>
-                    {errors && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <>
-                                {errors.map((prop, index) => {
-                                    return (
-                                        <MuiAlert
-                                            onClose={() => {
-                                                setErrors([]);
-                                            }}
-                                            key={index}
-                                            severity="error"
-                                            style={{ marginBottom: "5px" }}
-                                        >
-                                            {t(prop)}
-                                        </MuiAlert>
-                                    );
-                                })}
-                            </>
-                        </Grid>
-                    )}
-                </Grid>
+                <GridContainerErrors errors={errors} setErrors={setErrors} />
             </>
         );
     }
@@ -1061,28 +956,7 @@ const LoginViewForm = (props) => {
                         </Button>
                     </Grid>
                 </Grid>
-                <Grid container>
-                    {errors && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <>
-                                {errors.map((prop, index) => {
-                                    return (
-                                        <MuiAlert
-                                            onClose={() => {
-                                                setErrors([]);
-                                            }}
-                                            key={index}
-                                            severity="error"
-                                            style={{ marginBottom: "5px" }}
-                                        >
-                                            {t(prop)}
-                                        </MuiAlert>
-                                    );
-                                })}
-                            </>
-                        </Grid>
-                    )}
-                </Grid>
+                <GridContainerErrors errors={errors} setErrors={setErrors} />
             </>
         );
     }
@@ -1131,28 +1005,7 @@ const LoginViewForm = (props) => {
                         </Button>
                     </Grid>
                 </Grid>
-                <Grid container>
-                    {errors && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <>
-                                {errors.map((prop, index) => {
-                                    return (
-                                        <MuiAlert
-                                            onClose={() => {
-                                                setErrors([]);
-                                            }}
-                                            key={index}
-                                            severity="error"
-                                            style={{ marginBottom: "5px" }}
-                                        >
-                                            {t(prop)}
-                                        </MuiAlert>
-                                    );
-                                })}
-                            </>
-                        </Grid>
-                    )}
-                </Grid>
+                <GridContainerErrors errors={errors} setErrors={setErrors} />
             </>
         );
     }
@@ -1224,4 +1077,4 @@ const LoginViewForm = (props) => {
     );
 };
 
-export default compose(withTranslation(), withStyles(styles))(LoginViewForm);
+export default withStyles(styles)(LoginViewForm);

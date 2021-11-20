@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { compose } from "redux";
-import { withTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import { Grid } from "@material-ui/core";
@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const AccountEmergencyCodesView = (props) => {
-    const { t } = props;
+    const { t } = useTranslation();
     const classes = useStyles();
     const [open, setOpen] = React.useState(false);
 
@@ -63,4 +63,4 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
     return { actions: bindActionCreators(actionCreators, dispatch) };
 }
-export default compose(withTranslation(), connect(mapStateToProps, mapDispatchToProps))(AccountEmergencyCodesView);
+export default connect(mapStateToProps, mapDispatchToProps)(AccountEmergencyCodesView);

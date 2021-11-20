@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { bindActionCreators } from "redux";
 import { compose } from "redux";
-import { withTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -15,7 +15,6 @@ import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 import DeleteIcon from "@material-ui/icons/Delete";
-import CheckIcon from "@material-ui/icons/Check";
 import { Grid } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 
@@ -32,24 +31,9 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-function TabPanel(props) {
-    const { children, value, index, ...other } = props;
-
-    return (
-        <div role="tabpanel" hidden={value !== index} id={`simple-tabpanel-${index}`} aria-labelledby={`simple-tab-${index}`} {...other}>
-            {value === index && <Box p={3}>{children}</Box>}
-        </div>
-    );
-}
-
-TabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.any.isRequired,
-    value: PropTypes.any.isRequired,
-};
-
 const EmergencyCodesDialog = (props) => {
-    const { t, open, onClose } = props;
+    const { open, onClose } = props;
+    const { t } = useTranslation();
     const classes = useStyles();
     const [value, setValue] = React.useState(0);
     const [person, setPerson] = React.useState("");
@@ -68,7 +52,7 @@ const EmergencyCodesDialog = (props) => {
             function (codes) {
                 setEmergencyCodes(
                     codes.map((code, index) => {
-                        return [code.id, code.description, code.activation_delay, code.activation_date === null ? t("NO") : code.activation_date];
+                        return [code.id, code.description, code.activation_delay / 3600, code.activation_date === null ? t("NO") : code.activation_date];
                     })
                 );
             },
@@ -82,7 +66,7 @@ const EmergencyCodesDialog = (props) => {
         setValue(newValue);
     };
     const generate = () => {
-        emergencyCode.createEmergencyCode(person, leadTime).then(
+        emergencyCode.createEmergencyCode(person, leadTime * 3600).then(
             function (createdEmergencyCode) {
                 createdEmergencyCode["url"] = store.getState().server.webClient + "/emergency-code.html";
                 setNewEmergencyCode(createdEmergencyCode);
@@ -99,15 +83,18 @@ const EmergencyCodesDialog = (props) => {
     const onDelete = (rowData) => {
         setErrors([]);
 
-        var onSuccess = function (successful) {
+        const onSuccess = function (successful) {
             loadEmergencyCodes();
         };
 
-        var onError = function (error) {
+        const onError = function (error) {
             console.log(error);
         };
 
         return emergencyCode.deleteEmergencyCode(rowData[0]).then(onSuccess, onError);
+    };
+    const onCreate = () => {
+        setView("create_step0");
     };
 
     const columns = [
@@ -155,62 +142,58 @@ const EmergencyCodesDialog = (props) => {
             <DialogTitle id="alert-dialog-title">{t("EMERGENCY_CODES")}</DialogTitle>
             {view === "default" && (
                 <DialogContent>
-                    <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
-                        <Tab label={t("EXISTING_EMERGENCY_CODES")} id="simple-tab-0" aria-controls="simple-tabpanel-0" />
-                        <Tab label={t("NEW_EMERGENCY_CODES")} id="simple-tab-1" aria-controls="simple-tabpanel-1" />
-                    </Tabs>
-                    <TabPanel value={value} index={0}>
-                        <Table data={emergencyCodes} columns={columns} options={options} />;
-                    </TabPanel>
-                    <TabPanel value={value} index={1}>
-                        <Grid container>
-                            <Grid item xs={12} sm={12} md={12}>
-                                <TextField
-                                    className={classes.textField}
-                                    variant="outlined"
-                                    margin="dense"
-                                    id="person"
-                                    label={t("PERSON")}
-                                    name="person"
-                                    autoComplete="person"
-                                    required
-                                    value={person}
-                                    onChange={(event) => {
-                                        setPerson(event.target.value);
-                                    }}
-                                />
-                            </Grid>
-                            <Grid item xs={12} sm={12} md={12}>
-                                <TextField
-                                    className={classes.textField}
-                                    variant="outlined"
-                                    margin="dense"
-                                    id="leadTime"
-                                    label={t("LEAD_TIME_IN_HOURS")}
-                                    helperText={t("LEAD_TIME_IN_HOURS_PLACEHOLDER")}
-                                    name="leadTime"
-                                    autoComplete="leadTime"
-                                    required
-                                    value={leadTime}
-                                    InputProps={{
-                                        inputProps: {
-                                            min: 0,
-                                            step: 12,
-                                        },
-                                    }}
-                                    type="number"
-                                    onChange={(event) => {
-                                        setLeadTime(event.target.value);
-                                    }}
-                                />
-                            </Grid>
-                            <Grid item xs={12} sm={12} md={12}>
-                                <Button variant="contained" color="primary" onClick={generate} disabled={!person}>
-                                    {t("CREATE")}
-                                </Button>
-                            </Grid>
+                    <Table data={emergencyCodes} columns={columns} options={options} onCreate={onCreate} />
+                </DialogContent>
+            )}
+            {view === "create_step0" && (
+                <DialogContent>
+                    <Grid container>
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="person"
+                                label={t("PERSON")}
+                                name="person"
+                                autoComplete="person"
+                                required
+                                value={person}
+                                onChange={(event) => {
+                                    setPerson(event.target.value);
+                                }}
+                            />
                         </Grid>
-                    </TabPanel>
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="leadTime"
+                                label={t("LEAD_TIME_IN_HOURS")}
+                                helperText={t("LEAD_TIME_IN_HOURS_PLACEHOLDER")}
+                                name="leadTime"
+                                autoComplete="leadTime"
+                                required
+                                value={leadTime}
+                                InputProps={{
+                                    inputProps: {
+                                        min: 0,
+                                        step: 12,
+                                    },
+                                }}
+                                type="number"
+                                onChange={(event) => {
+                                    setLeadTime(event.target.value);
+                                }}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={12}>
+                            <Button variant="contained" color="primary" onClick={generate} disabled={!person}>
+                                {t("CREATE")}
+                            </Button>
+                        </Grid>
+                    </Grid>
                 </DialogContent>
             )}
             {view === "step2" && (
@@ -290,4 +273,4 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
     return { actions: bindActionCreators(actionCreators, dispatch) };
 }
-export default compose(withTranslation(), connect(mapStateToProps, mapDispatchToProps))(EmergencyCodesDialog);
+export default connect(mapStateToProps, mapDispatchToProps)(EmergencyCodesDialog);

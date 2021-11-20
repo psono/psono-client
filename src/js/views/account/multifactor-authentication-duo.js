@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { bindActionCreators } from "redux";
 import { compose } from "redux";
-import { withTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -12,7 +12,6 @@ import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogActions from "@material-ui/core/DialogActions";
-import MuiAlert from "@material-ui/lab/Alert";
 import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -24,6 +23,7 @@ import actionCreators from "../../actions/action-creators";
 import Table from "../../components/table";
 import duo from "../../services/duo";
 import store from "../../services/store";
+import GridContainerErrors from "../../components/grid-container-errors";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -31,24 +31,9 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-function TabPanel(props) {
-    const { children, value, index, ...other } = props;
-
-    return (
-        <div role="tabpanel" hidden={value !== index} id={`simple-tabpanel-${index}`} aria-labelledby={`simple-tab-${index}`} {...other}>
-            {value === index && <Box p={3}>{children}</Box>}
-        </div>
-    );
-}
-
-TabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.any.isRequired,
-    value: PropTypes.any.isRequired,
-};
-
 const MultifactorAuthenticatorDuo = (props) => {
-    const { t, open, onClose } = props;
+    const { open, onClose } = props;
+    const { t } = useTranslation();
     const classes = useStyles();
     const [value, setValue] = React.useState(0);
     const [title, setTitle] = React.useState("");
@@ -157,15 +142,18 @@ const MultifactorAuthenticatorDuo = (props) => {
     const onDelete = (rowData) => {
         setErrors([]);
 
-        var onSuccess = function (successful) {
+        const onSuccess = function (successful) {
             loadDuos();
         };
 
-        var onError = function (error) {
+        const onError = function (error) {
             console.log(error);
         };
 
         return duo.deleteDuo(rowData[0]).then(onSuccess, onError);
+    };
+    const onCreate = () => {
+        setView("create_step0");
     };
 
     const columns = [
@@ -222,124 +210,101 @@ const MultifactorAuthenticatorDuo = (props) => {
             <DialogTitle id="alert-dialog-title">{t("DUO")}</DialogTitle>
             {view === "default" && (
                 <DialogContent>
-                    <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
-                        <Tab label={t("EXISTING_DUOS")} id="simple-tab-0" aria-controls="simple-tabpanel-0" />
-                        <Tab label={t("NEW_DUO")} id="simple-tab-1" aria-controls="simple-tabpanel-1" />
-                    </Tabs>
-                    <TabPanel value={value} index={0}>
-                        <Table data={duos} columns={columns} options={options} />;
-                    </TabPanel>
-                    <TabPanel value={value} index={1}>
-                        <Grid container>
-                            {!store.getState().server.systemWideDuoExists && (
-                                <Grid item xs={12} sm={12} md={12}>
-                                    <TextField
-                                        className={classes.textField}
-                                        variant="outlined"
-                                        margin="dense"
-                                        id="title"
-                                        label={t("TITLE")}
-                                        helperText={t("TITLE_OF_YOUR_DUO")}
-                                        name="title"
-                                        autoComplete="title"
-                                        required
-                                        value={title}
-                                        onChange={(event) => {
-                                            setTitle(event.target.value);
-                                        }}
-                                    />
-                                </Grid>
-                            )}
-                            {!store.getState().server.systemWideDuoExists && (
-                                <Grid item xs={12} sm={12} md={12}>
-                                    <TextField
-                                        className={classes.textField}
-                                        variant="outlined"
-                                        margin="dense"
-                                        id="integrationKey"
-                                        label={t("INTEGRATION_KEY")}
-                                        name="integrationKey"
-                                        autoComplete="integrationKey"
-                                        required
-                                        value={integrationKey}
-                                        onChange={(event) => {
-                                            setIntegrationKey(event.target.value);
-                                        }}
-                                    />
-                                </Grid>
-                            )}
-                            {!store.getState().server.systemWideDuoExists && (
-                                <Grid item xs={12} sm={12} md={12}>
-                                    <TextField
-                                        className={classes.textField}
-                                        variant="outlined"
-                                        margin="dense"
-                                        id="secretKey"
-                                        label={t("SECRET_KEY")}
-                                        name="secretKey"
-                                        autoComplete="secretKey"
-                                        required
-                                        value={secretKey}
-                                        onChange={(event) => {
-                                            setSecretKey(event.target.value);
-                                        }}
-                                    />
-                                </Grid>
-                            )}
-                            {!store.getState().server.systemWideDuoExists && (
-                                <Grid item xs={12} sm={12} md={12}>
-                                    <TextField
-                                        className={classes.textField}
-                                        variant="outlined"
-                                        margin="dense"
-                                        id="host"
-                                        label={t("HOST")}
-                                        name="host"
-                                        autoComplete="host"
-                                        required
-                                        value={host}
-                                        onChange={(event) => {
-                                            setHost(event.target.value);
-                                        }}
-                                    />
-                                </Grid>
-                            )}
-                            <Grid container>
-                                {errors && (
-                                    <Grid item xs={12} sm={12} md={12}>
-                                        <>
-                                            {errors.map((prop, index) => {
-                                                return (
-                                                    <MuiAlert
-                                                        onClose={() => {
-                                                            setErrors([]);
-                                                        }}
-                                                        key={index}
-                                                        severity="error"
-                                                        style={{ marginBottom: "5px" }}
-                                                    >
-                                                        {t(prop)}
-                                                    </MuiAlert>
-                                                );
-                                            })}
-                                        </>
-                                    </Grid>
-                                )}
-                            </Grid>
-                            <Grid item xs={12} sm={12} md={12}>
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={create}
-                                    disabled={!store.getState().server.systemWideDuoExists && (!title || !integrationKey || !secretKey || !host)}
-                                >
-                                    {t("SETUP")}
-                                </Button>
-                            </Grid>
-                        </Grid>
-                    </TabPanel>
+                    <Table data={duos} columns={columns} options={options} onCreate={onCreate} />
                 </DialogContent>
             )}
+
+            {view === "create_step0" && (
+                <DialogContent>
+                    <Grid container>
+                        {!store.getState().server.systemWideDuoExists && (
+                            <Grid item xs={12} sm={12} md={12}>
+                                <TextField
+                                    className={classes.textField}
+                                    variant="outlined"
+                                    margin="dense"
+                                    id="title"
+                                    label={t("TITLE")}
+                                    helperText={t("TITLE_OF_YOUR_DUO")}
+                                    name="title"
+                                    autoComplete="title"
+                                    required
+                                    value={title}
+                                    onChange={(event) => {
+                                        setTitle(event.target.value);
+                                    }}
+                                />
+                            </Grid>
+                        )}
+                        {!store.getState().server.systemWideDuoExists && (
+                            <Grid item xs={12} sm={12} md={12}>
+                                <TextField
+                                    className={classes.textField}
+                                    variant="outlined"
+                                    margin="dense"
+                                    id="integrationKey"
+                                    label={t("INTEGRATION_KEY")}
+                                    name="integrationKey"
+                                    autoComplete="integrationKey"
+                                    required
+                                    value={integrationKey}
+                                    onChange={(event) => {
+                                        setIntegrationKey(event.target.value);
+                                    }}
+                                />
+                            </Grid>
+                        )}
+                        {!store.getState().server.systemWideDuoExists && (
+                            <Grid item xs={12} sm={12} md={12}>
+                                <TextField
+                                    className={classes.textField}
+                                    variant="outlined"
+                                    margin="dense"
+                                    id="secretKey"
+                                    label={t("SECRET_KEY")}
+                                    name="secretKey"
+                                    autoComplete="secretKey"
+                                    required
+                                    value={secretKey}
+                                    onChange={(event) => {
+                                        setSecretKey(event.target.value);
+                                    }}
+                                />
+                            </Grid>
+                        )}
+                        {!store.getState().server.systemWideDuoExists && (
+                            <Grid item xs={12} sm={12} md={12}>
+                                <TextField
+                                    className={classes.textField}
+                                    variant="outlined"
+                                    margin="dense"
+                                    id="host"
+                                    label={t("HOST")}
+                                    name="host"
+                                    autoComplete="host"
+                                    required
+                                    value={host}
+                                    onChange={(event) => {
+                                        setHost(event.target.value);
+                                    }}
+                                />
+                            </Grid>
+                        )}
+                        <GridContainerErrors errors={errors} setErrors={setErrors} />
+                        <Grid item xs={12} sm={12} md={12}>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={create}
+                                disabled={!store.getState().server.systemWideDuoExists && (!title || !integrationKey || !secretKey || !host)}
+                            >
+                                {t("SETUP")}
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </DialogContent>
+            )}
+
             {view === "step2" && (
                 <DialogContent>
                     <Grid container>
@@ -354,6 +319,7 @@ const MultifactorAuthenticatorDuo = (props) => {
                     </Grid>
                 </DialogContent>
             )}
+
             {view === "step3" && (
                 <DialogContent>
                     <Grid container>
@@ -407,4 +373,4 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
     return { actions: bindActionCreators(actionCreators, dispatch) };
 }
-export default compose(withTranslation(), connect(mapStateToProps, mapDispatchToProps))(MultifactorAuthenticatorDuo);
+export default connect(mapStateToProps, mapDispatchToProps)(MultifactorAuthenticatorDuo);

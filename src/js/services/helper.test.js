@@ -1,14 +1,14 @@
 import React from 'react';
-import helper from './helper';
+import helperService from './helper';
 
 describe('Service: helper test suite', function() {
     it('helper exists', function() {
-        expect(helper).toBeDefined();
+        expect(helperService).toBeDefined();
     });
 
     it('parse_url www domain', function() {
         expect(
-            helper.parseUrl('https://www.example.com/url-part/#is-not-part')
+            helperService.parseUrl('https://www.example.com/url-part/#is-not-part')
         ).toEqual({
             scheme: 'https',
             authority: 'example.com',
@@ -24,7 +24,7 @@ describe('Service: helper test suite', function() {
 
     it('parse_url top lvl domain', function() {
         expect(
-            helper.parseUrl('https://example.com/url-part/#is-not-part')
+            helperService.parseUrl('https://example.com/url-part/#is-not-part')
         ).toEqual({
             scheme: 'https',
             authority: 'example.com',
@@ -40,7 +40,7 @@ describe('Service: helper test suite', function() {
 
     it('parse_url sub domain', function() {
         expect(
-            helper.parseUrl('http://test.example.com/url-part/#is-not-part')
+            helperService.parseUrl('http://test.example.com/url-part/#is-not-part')
         ).toEqual({
             scheme: 'http',
             authority: 'test.example.com',
@@ -56,7 +56,7 @@ describe('Service: helper test suite', function() {
 
     it('parse_url sub domain with port', function() {
         expect(
-            helper.parseUrl(
+            helperService.parseUrl(
                 'http://test.example.com:6000/url-part/#is-not-part'
             )
         ).toEqual({
@@ -74,52 +74,52 @@ describe('Service: helper test suite', function() {
 
     it('getDomain sub domain', function() {
         expect(
-            helper.getDomain('http://test.example.com/url-part/#is-not-part')
+            helperService.getDomain('http://test.example.com/url-part/#is-not-part')
         ).toEqual('test.example.com');
     });
 
     it('getDomain www domain', function() {
         expect(
-            helper.getDomain('http://www.example.com/url-part/#is-not-part')
+            helperService.getDomain('http://www.example.com/url-part/#is-not-part')
         ).toEqual('example.com');
     });
 
     it('getDomain top level domain', function() {
         expect(
-            helper.getDomain('http://example.com/url-part/#is-not-part')
+            helperService.getDomain('http://example.com/url-part/#is-not-part')
         ).toEqual('example.com');
     });
 
     it('arrayStartsWith a no array', function() {
-        expect(helper.arrayStartsWith('a', ['a'])).toBeFalsy();
+        expect(helperService.arrayStartsWith('a', ['a'])).toBeFalsy();
     });
 
     it('arrayStartsWith b no array', function() {
-        expect(helper.arrayStartsWith(['a'], 'a')).toBeFalsy();
+        expect(helperService.arrayStartsWith(['a'], 'a')).toBeFalsy();
     });
 
     it('arrayStartsWith a.length < b.lenght', function() {
-        expect(helper.arrayStartsWith(['a'], ['a', 'b'])).toBeFalsy();
+        expect(helperService.arrayStartsWith(['a'], ['a', 'b'])).toBeFalsy();
     });
 
     it('arrayStartsWith a = b', function() {
-        expect(helper.arrayStartsWith(['a', 'b'], ['a', 'b'])).toBeTruthy();
+        expect(helperService.arrayStartsWith(['a', 'b'], ['a', 'b'])).toBeTruthy();
     });
 
     it('arrayStartsWith a != b', function() {
-        expect(helper.arrayStartsWith(['a', 'b'], ['a', 'c'])).toBeFalsy();
+        expect(helperService.arrayStartsWith(['a', 'b'], ['a', 'c'])).toBeFalsy();
     });
 
     it('arrayStartsWith a starts with b', function() {
         expect(
-            helper.arrayStartsWith(['a', 'b', 'c'], ['a', 'b'])
+            helperService.arrayStartsWith(['a', 'b', 'c'], ['a', 'b'])
         ).toBeTruthy();
     });
 
     it('createList', function() {
         const list = [];
 
-        helper.createList(
+        helperService.createList(
             {
                 items: ['a', 'b'],
                 folders: [
@@ -154,7 +154,7 @@ describe('Service: helper test suite', function() {
             c: true
         };
 
-        const dubl_obj = helper.duplicateObject(orig_obj);
+        const dubl_obj = helperService.duplicateObject(orig_obj);
 
         expect(orig_obj).toEqual(dubl_obj);
         dubl_obj.c = false;
@@ -162,47 +162,47 @@ describe('Service: helper test suite', function() {
     });
 
     it('isValidUsername not allowed chars', function() {
-        expect(helper.isValidUsername('ab@cd') === true).toBeFalsy();
+        expect(helperService.isValidUsername('ab@cd') === true).toBeFalsy();
     });
 
     it('isValidUsername too small', function() {
-        expect(helper.isValidUsername('ab') === true).toBeFalsy();
+        expect(helperService.isValidUsername('ab') === true).toBeFalsy();
     });
 
     it('isValidUsername start with .', function() {
-        expect(helper.isValidUsername('.abcd') === true).toBeFalsy();
+        expect(helperService.isValidUsername('.abcd') === true).toBeFalsy();
     });
 
     it('isValidUsername start with -', function() {
-        expect(helper.isValidUsername('-abcd') === true).toBeFalsy();
+        expect(helperService.isValidUsername('-abcd') === true).toBeFalsy();
     });
 
     it('isValidUsername end with .', function() {
-        expect(helper.isValidUsername('abcd.') === true).toBeFalsy();
+        expect(helperService.isValidUsername('abcd.') === true).toBeFalsy();
     });
 
     it('isValidUsername end with -', function() {
-        expect(helper.isValidUsername('abcd-') === true).toBeFalsy();
+        expect(helperService.isValidUsername('abcd-') === true).toBeFalsy();
     });
 
     it('isValidUsername double occurrence of .', function() {
-        expect(helper.isValidUsername('abc..def') === true).toBeFalsy();
+        expect(helperService.isValidUsername('abc..def') === true).toBeFalsy();
     });
 
     it('isValidUsername double occurrence of -', function() {
-        expect(helper.isValidUsername('abc--def') === true).toBeFalsy();
+        expect(helperService.isValidUsername('abc--def') === true).toBeFalsy();
     });
 
     it('isValidUsername occurrence of .-', function() {
-        expect(helper.isValidUsername('abc.-def') === true).toBeFalsy();
+        expect(helperService.isValidUsername('abc.-def') === true).toBeFalsy();
     });
 
     it('isValidUsername occurrence of -.', function() {
-        expect(helper.isValidUsername('abc-.def') === true).toBeFalsy();
+        expect(helperService.isValidUsername('abc-.def') === true).toBeFalsy();
     });
 
     it('isValidUsername valid', function() {
-        expect(helper.isValidUsername('abc') === null).toBeTruthy();
+        expect(helperService.isValidUsername('abc') === null).toBeTruthy();
     });
 
     it('removeFromArray', function() {
@@ -210,7 +210,7 @@ describe('Service: helper test suite', function() {
         const search = 5;
         const target = [1, 2, 7];
 
-        helper.removeFromArray(array, search);
+        helperService.removeFromArray(array, search);
 
         expect(array).toEqual(target);
     });
@@ -224,7 +224,7 @@ describe('Service: helper test suite', function() {
             return a !== b;
         };
 
-        helper.removeFromArray(array, search, cmp_fct);
+        helperService.removeFromArray(array, search, cmp_fct);
 
         expect(array).toEqual(target);
     });
@@ -233,7 +233,7 @@ describe('Service: helper test suite', function() {
         const username = 'test';
         const domain = 'example.com';
 
-        const full_username = helper.formFullUsername(username, domain);
+        const full_username = helperService.formFullUsername(username, domain);
 
         expect(full_username).toEqual(username + '@' + domain);
     });
@@ -242,7 +242,7 @@ describe('Service: helper test suite', function() {
         const username = 'test@example1.com';
         const domain = 'example.com';
 
-        const full_username = helper.formFullUsername(username, domain);
+        const full_username = helperService.formFullUsername(username, domain);
 
         expect(full_username).toEqual(username);
     });
@@ -250,7 +250,7 @@ describe('Service: helper test suite', function() {
     it('isValidPassword_too_short', function() {
         const password1 = '12345678901';
 
-        const is_valid = helper.isValidPassword(password1, password1);
+        const is_valid = helperService.isValidPassword(password1, password1);
 
         expect(is_valid).toEqual("PASSWORD_TOO_SHORT");
     });
@@ -259,7 +259,7 @@ describe('Service: helper test suite', function() {
         const password1 = '123456789012';
         const password2 = '123456789013';
 
-        const is_valid = helper.isValidPassword(password1, password2);
+        const is_valid = helperService.isValidPassword(password1, password2);
 
         expect(is_valid).toEqual("PASSWORDS_DONT_MATCH");
     });

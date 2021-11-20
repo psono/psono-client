@@ -11,11 +11,13 @@ import {
     SET_CLIENT_URL,
     ENABLE_OFFLINE_MODE,
     DISABLE_OFFLINE_MODE,
+    SET_NOTIFICATION_ON_COPY,
     SET_ADMIN_CLIENT_CONFIG,
     NOTIFICATION_SEND,
     NOTIFICATION_SET,
     SET_REMOTE_CONFIG_JSON,
     SET_FINGERPRINT,
+    SET_EMAIL,
 } from "./action-types";
 
 function setUserUsername(username) {
@@ -68,6 +70,15 @@ function setHasTwoFactor(hasTwoFactor) {
     };
 }
 
+function setEmail(userEmail) {
+    return (dispatch) => {
+        dispatch({
+            type: SET_EMAIL,
+            userEmail,
+        });
+    };
+}
+
 function logout(rememberMe) {
     return (dispatch) => {
         dispatch({
@@ -104,17 +115,25 @@ function setClientUrl(url) {
         });
     };
 }
-function enableOfflineMode(url) {
+function enableOfflineMode() {
     return (dispatch) => {
         dispatch({
             type: ENABLE_OFFLINE_MODE,
         });
     };
 }
-function disableOfflineMode(url) {
+function disableOfflineMode() {
     return (dispatch) => {
         dispatch({
             type: DISABLE_OFFLINE_MODE,
+        });
+    };
+}
+function setNotificationOnCopy(notificationOnCopy) {
+    return (dispatch) => {
+        dispatch({
+            type: SET_NOTIFICATION_ON_COPY,
+            notificationOnCopy,
         });
     };
 }
@@ -180,12 +199,14 @@ const actionCreators = {
     setUserInfo2,
     setUserInfo3,
     setHasTwoFactor,
+    setEmail,
     logout,
     setServerInfo,
     setServerUrl,
     setClientUrl,
     disableOfflineMode,
     enableOfflineMode,
+    setNotificationOnCopy,
     setAdminClientConfig,
     setKnownHosts,
     setFingerprint,

@@ -15,13 +15,13 @@ describe('Service: importChromeCsv test suite', function () {
         cryptoLibrary.generateUuid = jest.fn();
         cryptoLibrary.generateUuid.mockImplementation(() => generic_uuid);
 
-        var input = "name,url,username,password\n" +
+        const input = "name,url,username,password\n" +
             "www.amazon.com,https://www.amazon.com/ap/signin,narf.narf@gmail.com,asdfasdf\n" +
             "";
 
-        var output = importChromeCsv.parser(input);
+        const output = importChromeCsv.parser(input);
 
-        var expected_output = {
+        const expected_output = {
             "datastore": {
                 "id": generic_uuid,
                 "name": output.datastore.name,

@@ -3,7 +3,7 @@
  */
 
 import axios from "axios";
-import helper from "./helper";
+import helperService from "./helper";
 import store from "./store";
 
 var registrations = {};
@@ -12,7 +12,7 @@ var events = ["login", "logout"];
 
 if (TARGET === "chrome") {
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-        for (var i = 0; registrations.hasOwnProperty(request.event) && i < registrations[request.event].length; i++) {
+        for (let i = 0; registrations.hasOwnProperty(request.event) && i < registrations[request.event].length; i++) {
             registrations[request.event][i](request.data);
         }
     });
@@ -69,8 +69,8 @@ function getClientType(url) {
  * @param {string} url The url to open
  */
 function openTab(url) {
-    return $q(function (resolve) {
-        var new_window = window.open(url, "_blank");
+    return new Promise(function (resolve) {
+        const new_window = window.open(url, "_blank");
         resolve(new_window);
     });
 }
@@ -113,9 +113,9 @@ function getOidcReturnToUrl() {
 function launchWebAuthFlow(url) {
     if (TARGET === "firefox") {
         emit_sec("launch-web-auth-flow-in-background", { url: url });
-        return $q.resolve();
+        return Promise.resolve();
     } else if (TARGET === "chrome") {
-        return $q(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
             chrome.identity.launchWebAuthFlow(
                 {
                     url: url,
@@ -134,7 +134,7 @@ function launchWebAuthFlow(url) {
         });
     } else {
         window.location.href = url;
-        return $q.resolve();
+        return Promise.resolve();
     }
 }
 
@@ -285,18 +285,18 @@ function closeOpenedPopup(window_id) {
  */
 function getBaseUrl() {
     if (TARGET === "firefox") {
-        return $q(function (resolve) {
+        return new Promise(function (resolve) {
             resolve("chrome-extension://" + chrome.runtime.id + "/data/");
         });
     } else if (TARGET === "chrome") {
-        return $q(function (resolve) {
+        return new Promise(function (resolve) {
             resolve("chrome-extension://" + chrome.runtime.id + "/data/");
         });
     } else {
-        var onSuccess = function (base_url) {
+        const onSuccess = function (base_url) {
             return base_url;
         };
-        var onError = function () {};
+        const onError = function () {};
 
         return getConfig("base_url").then(onSuccess, onError);
     }
@@ -318,35 +318,35 @@ function loadVersion() {
  */
 function loadConfig() {
     return new Promise((resolve, reject) => {
-        var remote_config_json = getRemoteConfigJson();
+        var remoteConfigJson = getRemoteConfigJson();
 
-        var standardizeConfig = function (new_config, url) {
-            var parsed_url = helper.parseUrl(url);
+        var standardizeConfig = function (newConfig, url) {
+            var parsed_url = helperService.parseUrl(url);
 
-            if (!new_config.hasOwnProperty("base_url")) {
-                new_config["base_url"] = parsed_url["base_url"] + "/";
+            if (!newConfig.hasOwnProperty("base_url")) {
+                newConfig["base_url"] = parsed_url["base_url"] + "/";
             }
 
-            if (new_config.hasOwnProperty("backend_servers")) {
-                for (var i = 0; i < new_config["backend_servers"].length; i++) {
-                    if (new_config["backend_servers"][i].hasOwnProperty("url")) {
+            if (newConfig.hasOwnProperty("backend_servers")) {
+                for (let i = 0; i < newConfig["backend_servers"].length; i++) {
+                    if (newConfig["backend_servers"][i].hasOwnProperty("url")) {
                         continue;
                     }
-                    new_config["backend_servers"][i]["url"] = parsed_url["base_url"] + "/server";
+                    newConfig["backend_servers"][i]["url"] = parsed_url["base_url"] + "/server";
                 }
             }
 
-            if (!new_config.hasOwnProperty("authentication_methods")) {
-                new_config["authentication_methods"] = ["AUTHKEY", "LDAP", "SAML", "OIDC"];
+            if (!newConfig.hasOwnProperty("authentication_methods")) {
+                newConfig["authentication_methods"] = ["AUTHKEY", "LDAP", "SAML", "OIDC"];
             }
-            if (!new_config.hasOwnProperty("saml_provider")) {
-                new_config["saml_provider"] = [];
+            if (!newConfig.hasOwnProperty("saml_provider")) {
+                newConfig["saml_provider"] = [];
             }
-            if (!new_config.hasOwnProperty("disable_download_bar")) {
-                new_config["disable_download_bar"] = false;
+            if (!newConfig.hasOwnProperty("disable_download_bar")) {
+                newConfig["disable_download_bar"] = false;
             }
-            if (!new_config.hasOwnProperty("more_links")) {
-                new_config["more_links"] = [
+            if (!newConfig.hasOwnProperty("more_links")) {
+                newConfig["more_links"] = [
                     {
                         href: "https://doc.psono.com/",
                         title: "DOCUMENTATION",
@@ -364,21 +364,21 @@ function loadConfig() {
                     },
                 ];
             }
-            return new_config;
+            return newConfig;
         };
 
         let onSuccess;
         if (TARGET === "firefox" || TARGET === "chrome") {
-            onSuccess = function (orig_json_config) {
-                var new_config = orig_json_config.data;
+            onSuccess = function (origJsonConfig) {
+                let newConfig = origJsonConfig.data;
 
-                var onStorageRetrieve = function (storage_item) {
+                const onStorageRetrieve = function (storage_item) {
                     try {
-                        new_config = JSON.parse(storage_item.ConfigJson);
+                        newConfig = JSON.parse(storage_item.ConfigJson);
                     } catch (e) {
                         // pass
                     }
-                    return resolve(standardizeConfig(new_config, "https://www.psono.pw/"));
+                    return resolve(standardizeConfig(newConfig, "https://www.psono.pw/"));
                 };
 
                 if (TARGET === "firefox") {
@@ -392,18 +392,18 @@ function loadConfig() {
                 }
             };
         } else {
-            onSuccess = function (orig_json_config) {
-                var new_config = orig_json_config.data;
-                return resolve(standardizeConfig(new_config, window.location.href));
+            onSuccess = function (origJsonConfig) {
+                const newConfig = origJsonConfig.data;
+                return resolve(standardizeConfig(newConfig, window.location.href));
             };
         }
 
-        if (remote_config_json === null) {
+        if (remoteConfigJson === null) {
             return axios.get("config.json").then((response) => {
                 onSuccess(response);
             });
         } else {
-            return onSuccess({ data: remote_config_json });
+            return onSuccess({ data: remoteConfigJson });
         }
     });
 }
@@ -465,14 +465,14 @@ function emit(event, data) {
         browser.runtime.sendMessage({ event: event, data: data }, function (response) {
             //console.log(response);
         });
-        $rootScope.$broadcast(event, "");
+        //$rootScope.$broadcast(event, "");
     } else if (TARGET === "chrome") {
         chrome.runtime.sendMessage({ event: event, data: data }, function (response) {
             //console.log(response);
         });
-        $rootScope.$broadcast(event, "");
+        //$rootScope.$broadcast(event, "");
     } else {
-        $rootScope.$broadcast(event, "");
+        //$rootScope.$broadcast(event, "");
     }
 }
 
@@ -504,14 +504,14 @@ function emitSec(event, data, fnc) {
  */
 function on(event, myFunction) {
     if (TARGET === "firefox") {
-        $rootScope.$on(event, myFunction);
+        //$rootScope.$on(event, myFunction);
 
         if (!registrations.hasOwnProperty(event)) {
             registrations[event] = [];
         }
         registrations[event].push(myFunction);
     } else if (TARGET === "chrome") {
-        $rootScope.$on(event, myFunction);
+        //$rootScope.$on(event, myFunction);
 
         if (!registrations.hasOwnProperty(event)) {
             registrations[event] = [];
@@ -520,7 +520,7 @@ function on(event, myFunction) {
     } else {
         if (events.indexOf(event) === -1) return false;
 
-        $rootScope.$on(event, myFunction);
+        //$rootScope.$on(event, myFunction);
         return true;
     }
 }
@@ -553,12 +553,12 @@ function _getConfig(key) {
 function getConfig(key) {
     return new Promise((resolve, reject) => {
         if (Object.keys(config).length === 0) {
-            var onSuccess = function (new_config) {
+            const onSuccess = function (new_config) {
                 config = new_config;
                 return resolve(_getConfig(key));
             };
 
-            var onError = function (data) {
+            const onError = function (data) {
                 reject(data);
             };
 
@@ -604,7 +604,7 @@ function disableBrowserPasswordSaving(value) {
             oldPMValue = oldPMValue.value;
         }
         value = value !== undefined ? value : oldPMValue;
-        return $q(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
             function onSet(result) {
                 if (result) {
                     resolve("Hooray, it worked!");
@@ -633,7 +633,7 @@ function disableBrowserPasswordSaving(value) {
             oldPMValue = oldPMValue.value;
         }
         value = value !== undefined ? value : oldPMValue;
-        return $q(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
             chrome.privacy.services.passwordSavingEnabled.get({}, function (details) {
                 if (details.levelOfControl === "controlled_by_this_extension" || details.levelOfControl === "controllable_by_this_extension") {
                     chrome.privacy.services.passwordSavingEnabled.set({ value: !value }, function () {
@@ -648,7 +648,7 @@ function disableBrowserPasswordSaving(value) {
             });
         });
     } else {
-        return $q.resolve("nothing done");
+        return new Promise.resolve("nothing done");
     }
 }
 

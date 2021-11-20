@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { bindActionCreators } from "redux";
 import { compose } from "redux";
-import { withTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -18,11 +18,11 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import CheckIcon from "@material-ui/icons/Check";
 import { Grid } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
-import MuiAlert from "@material-ui/lab/Alert";
 
 import actionCreators from "../../actions/action-creators";
 import Table from "../../components/table";
 import yubikeyOtp from "../../services/yubikey-otp";
+import GridContainerErrors from "../../components/grid-container-errors";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -30,27 +30,12 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-function TabPanel(props) {
-    const { children, value, index, ...other } = props;
-
-    return (
-        <div role="tabpanel" hidden={value !== index} id={`simple-tabpanel-${index}`} aria-labelledby={`simple-tab-${index}`} {...other}>
-            {value === index && <Box p={3}>{children}</Box>}
-        </div>
-    );
-}
-
-TabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.any.isRequired,
-    value: PropTypes.any.isRequired,
-};
-
 const MultifactorAuthenticatorYubikeyOtp = (props) => {
-    const { t, open, onClose } = props;
+    const { open, onClose } = props;
+    const { t } = useTranslation();
     const classes = useStyles();
-    const [value, setValue] = React.useState(0);
     const [title, setTitle] = React.useState("");
+    const [view, setView] = React.useState("default");
     const [yubikeyOtpCode, setYubikeyOtpCode] = React.useState("");
     const [yubikeyOtps, setYubikeyOtps] = React.useState([]);
     const [errors, setErrors] = useState([]);
@@ -73,15 +58,11 @@ const MultifactorAuthenticatorYubikeyOtp = (props) => {
             }
         );
     };
-
-    const handleChange = (event, newValue) => {
-        setValue(newValue);
-    };
     const create = () => {
         yubikeyOtp.createYubikeyOtp(title, yubikeyOtpCode).then(
             function (ga) {
                 loadYubikeyOtps();
-                setValue(0);
+                setView("default");
                 setTitle("");
                 setYubikeyOtpCode("");
             },
@@ -98,15 +79,18 @@ const MultifactorAuthenticatorYubikeyOtp = (props) => {
     const onDelete = (rowData) => {
         setErrors([]);
 
-        var onSuccess = function (successful) {
+        const onSuccess = function (successful) {
             loadYubikeyOtps();
         };
 
-        var onError = function (error) {
+        const onError = function (error) {
             console.log(error);
         };
 
         return yubikeyOtp.deleteYubikeyOtp(rowData[0]).then(onSuccess, onError);
+    };
+    const onCreate = () => {
+        setView("create_step0");
     };
 
     const columns = [
@@ -160,15 +144,13 @@ const MultifactorAuthenticatorYubikeyOtp = (props) => {
             aria-describedby="alert-dialog-description"
         >
             <DialogTitle id="alert-dialog-title">{t("YUBIKEY_OTP")}</DialogTitle>
-            <DialogContent>
-                <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
-                    <Tab label={t("EXISTING_YUBIKEYS")} id="simple-tab-0" aria-controls="simple-tabpanel-0" />
-                    <Tab label={t("NEW_YUBIKEYS")} id="simple-tab-1" aria-controls="simple-tabpanel-1" />
-                </Tabs>
-                <TabPanel value={value} index={0}>
-                    <Table data={yubikeyOtps} columns={columns} options={options} />;
-                </TabPanel>
-                <TabPanel value={value} index={1}>
+            {view === "default" && (
+                <DialogContent>
+                    <Table data={yubikeyOtps} columns={columns} options={options} onCreate={onCreate} />
+                </DialogContent>
+            )}
+            {view === "create_step0" && (
+                <DialogContent>
                     <Grid container>
                         <Grid item xs={12} sm={12} md={12}>
                             <TextField
@@ -203,36 +185,15 @@ const MultifactorAuthenticatorYubikeyOtp = (props) => {
                                 }}
                             />
                         </Grid>
-                        <Grid container>
-                            {errors && (
-                                <Grid item xs={12} sm={12} md={12}>
-                                    <>
-                                        {errors.map((prop, index) => {
-                                            return (
-                                                <MuiAlert
-                                                    onClose={() => {
-                                                        setErrors([]);
-                                                    }}
-                                                    key={index}
-                                                    severity="error"
-                                                    style={{ marginBottom: "5px" }}
-                                                >
-                                                    {t(prop)}
-                                                </MuiAlert>
-                                            );
-                                        })}
-                                    </>
-                                </Grid>
-                            )}
-                        </Grid>
+                        <GridContainerErrors errors={errors} setErrors={setErrors} />
                         <Grid item xs={12} sm={12} md={12}>
                             <Button variant="contained" color="primary" onClick={create} disabled={!title || !yubikeyOtpCode}>
                                 {t("CREATE")}
                             </Button>
                         </Grid>
                     </Grid>
-                </TabPanel>
-            </DialogContent>
+                </DialogContent>
+            )}
             <DialogActions>
                 <Button
                     onClick={() => {
@@ -259,4 +220,4 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
     return { actions: bindActionCreators(actionCreators, dispatch) };
 }
-export default compose(withTranslation(), connect(mapStateToProps, mapDispatchToProps))(MultifactorAuthenticatorYubikeyOtp);
+export default connect(mapStateToProps, mapDispatchToProps)(MultifactorAuthenticatorYubikeyOtp);

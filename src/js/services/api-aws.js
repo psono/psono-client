@@ -2,10 +2,10 @@
  * Service to talk to the AWS S3 and upload or download files
  */
 
-import converter from './converter';
+import converterService from './converter';
 
 
-const call = function(fileserver_url, method, endpoint, data, headers, transformRequest, responseType) {
+const call = function(fileserverUrl, method, endpoint, data, headers, transformRequest, responseType) {
 
     if (!transformRequest) {
         transformRequest = $http.defaults.transformRequest;
@@ -13,7 +13,7 @@ const call = function(fileserver_url, method, endpoint, data, headers, transform
 
     const req = {
         method: method,
-        url: fileserver_url + endpoint,
+        url: fileserverUrl + endpoint,
         data: data,
         transformRequest: transformRequest,
         responseType: responseType
@@ -40,13 +40,13 @@ const call = function(fileserver_url, method, endpoint, data, headers, transform
 /**
  * Ajax PUT request to upload a file chunk to AWS S3
  *
- * @param {string} signed_url The signed ulr
+ * @param {string} signedUrl The signed ulr
  * @param {object} fields Array of fields that need to be part of the request
  * @param {Blob} chunk The content of the chunk to upload
  *
  * @returns {Promise} promise
  */
-const upload = function (signed_url, fields, chunk) {
+const upload = function (signedUrl, fields, chunk) {
 
     const endpoint = ''; // the signed url already has everything
     const method = "POST";
@@ -62,17 +62,17 @@ const upload = function (signed_url, fields, chunk) {
         'Content-Type': undefined
     };
 
-    return call(signed_url, method, endpoint, data, headers, angular.identity);
+    return call(signedUrl, method, endpoint, data, headers, angular.identity);
 };
 
 /**
  * Ajax GET request to download a file chunk from AWS S3
  *
- * @param {string} signed_url The signed ulr
+ * @param {string} signedUrl The signed ulr
  *
  * @returns {Promise} promise with the data
  */
-const download = function (signed_url) {
+const download = function (signedUrl) {
 
     const endpoint = ''; // the signed url already has everything
     const method = "GET";
@@ -81,11 +81,11 @@ const download = function (signed_url) {
     const headers = {
     };
 
-    return call(signed_url, method, endpoint, data, headers,  undefined, 'arraybuffer').then(function(data) {
+    return call(signedUrl, method, endpoint, data, headers,  undefined, 'arraybuffer').then(function(data) {
         return data
     },function(data) {
         if (data.status === 400) {
-            data.data = JSON.parse(converter.bytesToString(data.data));
+            data.data = JSON.parse(converterService.bytesToString(data.data));
         }
         return $q.reject(data)
     });

@@ -6,7 +6,7 @@ import action from "../actions/bound-action-creators";
 import apiClient from "./api-client";
 import browserClient from "./browser-client";
 import cryptoLibrary from "./crypto-library";
-import helper from "./helper";
+import helperService from "./helper";
 import host from "./host";
 import notification from "./notification";
 import store from "./store";
@@ -24,16 +24,16 @@ let redirectOnTwoFaMissing;
  * @param server
  * @param remember_me
  * @param trust_device
- * @param {boolean} two_fa_redirect Redirect user to enforce-two-fa.html or let another controller handle it
+ * @param {boolean} twoFaRedirect Redirect user to enforce-two-fa.html or let another controller handle it
  *
  * @returns {Promise}
  */
-function initiateLogin(username, server, remember_me, trust_device, two_fa_redirect) {
-    redirectOnTwoFaMissing = two_fa_redirect;
+function initiateLogin(username, server, remember_me, trust_device, twoFaRedirect) {
+    redirectOnTwoFaMissing = twoFaRedirect;
     action.setServerUrl(server);
-    let parsed_url = helper.parseUrl(server);
+    let parsedUrl = helperService.parseUrl(server);
 
-    username = helper.formFullUsername(username, parsed_url["full_domain"]);
+    username = helperService.formFullUsername(username, parsedUrl["full_domain"]);
     action.setUserUsername(username);
     action.setUserInfo1(remember_me, trust_device, "AUTHKEY");
 
@@ -49,7 +49,7 @@ function onPotentialSamlAutologin() {
     if (typeof $routeParams.saml_autologin_provider_id === "undefined") {
         return;
     }
-    for (var i = 0; i < $scope.saml_provider.length; i++) {
+    for (let i = 0; i < $scope.saml_provider.length; i++) {
         if ($scope.saml_provider[i].provider_id.toString() !== $routeParams.saml_autologin_provider_id) {
             continue;
         }
@@ -71,7 +71,7 @@ function onPotentialOidcAutologin() {
     if (typeof $routeParams.oidc_autologin_provider_id === "undefined") {
         return;
     }
-    for (var i = 0; i < $scope.oidc_provider.length; i++) {
+    for (let i = 0; i < $scope.oidc_provider.length; i++) {
         if ($scope.oidc_provider[i].provider_id.toString() !== $routeParams.oidc_autologin_provider_id) {
             continue;
         }
@@ -491,7 +491,6 @@ function login(password, server_info, send_plain) {
     const server_public_key = server_info.info.public_key;
 
     const authkey = cryptoLibrary.generateAuthkey(username, password);
-
     const session_keys = cryptoLibrary.generatePublicPrivateKeypair();
 
     const onSuccess = function (response) {
@@ -585,6 +584,278 @@ function deleteAccount(password) {
     return apiClient.deleteAccount(token, sessionSecretKey, authkey, pass).then(onSuccess, onError);
 }
 
+/**
+ * Update user base settings
+ *
+ * @param {string|null} email The email of the user
+ * @param {string|null} authkey The new authkey of the user
+ * @param {string} authkeyOld The old authkey of the user
+ * @param {string|null} privateKey The encrypted private key of the user (hex format)
+ * @param {string|null} privateKeyNonce The nonce of the private key (hex format)
+ * @param {string|null} secretKey The encrypted secret key of the user (hex format)
+ * @param {string|null} secretKeyNonce The nonce of the secret key (hex format)
+ *
+ * @returns {Promise} Returns a promise with the update status
+ */
+function updateUser(email, authkey, authkeyOld, privateKey, privateKeyNonce, secretKey, secretKeyNonce) {
+    const token = store.getState().user.token;
+    const sessionSecretKey = store.getState().user.sessionSecretKey;
+    return apiClient.updateUser(token, sessionSecretKey, email, authkey, authkeyOld, privateKey, privateKeyNonce, secretKey, secretKeyNonce);
+}
+
+/**
+ * Saves a new password
+ *
+ * @param {string} newPassword The new password
+ * @param {string} newPasswordRepeat The new password (repeated)
+ * @param {string} oldPassword The old password
+ *
+ * @returns {Promise} Returns a promise with the result
+ */
+function saveNewPassword(newPassword, newPasswordRepeat, oldPassword) {
+    return host.info().then(
+        function (info) {
+            var authkeyOld, newAuthkey, userPrivateKey, userSecretKey, userSauce, privKeyEnc, secretKeyEnc, onSuccess, onError;
+            var test_error = helperService.isValidPassword(
+                newPassword,
+                newPasswordRepeat,
+                info.data["decoded_info"]["compliance_min_master_password_length"],
+                info.data["decoded_info"]["compliance_min_master_password_complexity"]
+            );
+            if (test_error) {
+                return Promise.reject({ errors: [test_error] });
+            }
+
+            if (oldPassword === null || oldPassword.length === 0) {
+                return Promise.reject({ errors: ["OLD_PASSWORD_REQUIRED"] });
+            }
+
+            authkeyOld = cryptoLibrary.generateAuthkey(store.getState().user.username, oldPassword);
+            newAuthkey = cryptoLibrary.generateAuthkey(store.getState().user.username, newPassword);
+            userPrivateKey = store.getState().user.userPrivateKey;
+            userSecretKey = store.getState().user.userSecretKey;
+            userSauce = store.getState().user.userSauce;
+
+            privKeyEnc = cryptoLibrary.encryptSecret(userPrivateKey, newPassword, userSauce);
+            secretKeyEnc = cryptoLibrary.encryptSecret(userSecretKey, newPassword, userSauce);
+
+            onSuccess = function (data) {
+                return { msgs: ["SAVE_SUCCESS"] };
+            };
+            onError = function () {
+                return Promise.reject({ errors: ["OLD_PASSWORD_INCORRECT"] });
+            };
+
+            return updateUser(null, newAuthkey, authkeyOld, privKeyEnc.text, privKeyEnc.nonce, secretKeyEnc.text, secretKeyEnc.nonce).then(onSuccess, onError);
+        },
+        function (data) {
+            console.log(data);
+            // handle server is offline
+            return Promise.reject({ errors: ["SERVER_OFFLINE"] });
+        }
+    );
+}
+
+/**
+ * Saves a new email
+ *
+ * @param {string} newEmail The new email
+ * @param {string|null} verificationPassword The password for verification
+ *
+ * @returns {Promise} Returns a promise with the result
+ */
+function saveNewEmail(newEmail, verificationPassword) {
+    if (verificationPassword === null || verificationPassword.length === 0) {
+        return Promise.reject({ errors: ["OLD_PASSWORD_REQUIRED"] });
+    }
+
+    const authkeyOld = cryptoLibrary.generateAuthkey(store.getState().user.username, verificationPassword);
+
+    const onSuccess = function (data) {
+        action.setEmail(newEmail);
+        return { msgs: ["SAVE_SUCCESS"] };
+    };
+    const onError = function () {
+        return Promise.reject({ errors: ["OLD_PASSWORD_INCORRECT"] });
+    };
+    return updateUser(newEmail, null, authkeyOld, undefined, undefined, undefined, undefined).then(onSuccess, onError);
+}
+
+/**
+ * Ajax POST request to destroy the token and recovery_enable the user
+ *
+ * @param {string} username The username of the user
+ * @param {string} recoveryCode The recovery code in base58 format
+ * @param {string} server The server to send the recovery code to
+ *
+ * @returns {Promise} Returns a promise with the recovery_enable status
+ */
+function recoveryEnable(username, recoveryCode, server) {
+    action.setUserUsername(username);
+    action.setServerUrl(server);
+
+    const onSuccess = function (data) {
+        var recovery_data = JSON.parse(
+            cryptoLibrary.decryptSecret(data.data.recovery_data, data.data.recovery_data_nonce, recoveryCode, data.data.recovery_sauce)
+        );
+
+        return {
+            user_private_key: recovery_data.user_private_key,
+            user_secret_key: recovery_data.user_secret_key,
+            user_sauce: data.data.user_sauce,
+            verifier_public_key: data.data.verifier_public_key,
+            verifier_time_valid: data.data.verifier_time_valid,
+        };
+    };
+    const recoveryAuthkey = cryptoLibrary.generateAuthkey(username, recoveryCode);
+
+    return apiClient.enableRecoverycode(username, recoveryAuthkey).then(onSuccess);
+}
+
+/**
+ * Encrypts the recovered data with the new password and initiates the save of this data
+ *
+ * @param {string} username the account's username e.g dummy@example.com
+ * @param {string} recoveryCode The recovery code in base58 format
+ * @param {string} password The new password
+ * @param {string} userPrivateKey The user's private key
+ * @param {string} userSecretKey The user's secret key
+ * @param {string} userSauce The user's userSauce
+ * @param {string} verifierPublicKey The "verifier" one needs, that the server accepts this new password
+ *
+ * @returns {Promise} Returns a promise with the set_password status
+ */
+function setPassword(username, recoveryCode, password, userPrivateKey, userSecretKey, userSauce, verifierPublicKey) {
+    const privKeyEnc = cryptoLibrary.encryptSecret(userPrivateKey, password, userSauce);
+    const secretKeyEnc = cryptoLibrary.encryptSecret(userSecretKey, password, userSauce);
+
+    const updateRequest = JSON.stringify({
+        authkey: cryptoLibrary.generateAuthkey(username, password),
+        private_key: privKeyEnc.text,
+        private_key_nonce: privKeyEnc.nonce,
+        secret_key: secretKeyEnc.text,
+        secret_key_nonce: secretKeyEnc.nonce,
+    });
+
+    const updateRequestEnc = cryptoLibrary.encryptDataPublicKey(updateRequest, verifierPublicKey, userPrivateKey);
+
+    const onSuccess = function (data) {
+        return data;
+    };
+
+    const onError = function (data) {
+        return data;
+    };
+
+    var recovery_authkey = cryptoLibrary.generateAuthkey(username, recoveryCode);
+
+    return apiClient.setPassword(username, recovery_authkey, updateRequestEnc.text, updateRequestEnc.nonce).then(onSuccess, onError);
+}
+
+/**
+ * Ajax POST request to activate the emergency code
+ *
+ * @param {string} username The username of the user
+ * @param {string} emergencyCode The emergency code in base58 format
+ * @param {string} server The server to send the recovery code to
+ * @param {object} serverInfo Some info about the server including its public key
+ * @param {object} verifyKey The signature of the server
+ *
+ * @returns {Promise} Returns a promise with the emergency code activation status
+ */
+function armEmergencyCode(username, emergencyCode, server, serverInfo, verifyKey) {
+    action.setUserUsername(username);
+    action.setServerUrl(server);
+
+    let userSauce;
+    let userSecretKey;
+
+    const emergencyAuthkey = cryptoLibrary.generateAuthkey(username, emergencyCode);
+
+    const onSuccess = function (data) {
+        if (data.data.status === "started" || data.data.status === "waiting") {
+            return data.data;
+        }
+
+        const emergency_data = JSON.parse(
+            cryptoLibrary.decryptSecret(data.data.emergency_data, data.data.emergency_data_nonce, emergencyCode, data.data.emergency_sauce)
+        );
+
+        userSauce = data.data.user_sauce;
+        userSecretKey = emergency_data.user_secret_key;
+
+        const sessionKey = cryptoLibrary.generatePublicPrivateKeypair();
+
+        const loginInfo = JSON.stringify({
+            device_time: new Date().toISOString(),
+            device_fingerprint: device.getDeviceFingerprint(),
+            device_description: device.getDeviceDescription(),
+            session_public_key: sessionKey.public_key,
+        });
+
+        const update_request_enc = cryptoLibrary.encryptDataPublicKey(loginInfo, data.data.verifier_public_key, emergency_data.user_private_key);
+
+        const onSuccess = function (data) {
+            var loginInfo = JSON.parse(
+                cryptoLibrary.decryptDataPublicKey(data.data.login_info, data.data.login_info_nonce, serverInfo["public_key"], sessionKey.private_key)
+            );
+
+            action.setUserInfo2(emergency_data.user_private_key, loginInfo.user_public_key, loginInfo.session_secret_key, loginInfo.token, userSauce);
+            action.setUserInfo3(loginInfo.user_id, loginInfo.user_email, userSecretKey);
+
+            return {
+                status: "active",
+            };
+        };
+
+        const onError = function (data) {
+            return new Promise.reject(data);
+        };
+
+        return apiClient.activateEmergencyCode(username, emergencyAuthkey, update_request_enc.text, update_request_enc.nonce).then(onSuccess, onError);
+    };
+
+    return apiClient.armEmergencyCode(username, emergencyAuthkey).then(onSuccess);
+}
+
+/**
+ * loads the sessions
+ *
+ * @returns {Promise} Returns a promise with the sessions
+ */
+function getSessions() {
+    const token = store.getState().user.token;
+    const sessionSecretKey = store.getState().user.sessionSecretKey;
+
+    const onSuccess = function (request) {
+        return request.data["sessions"];
+    };
+    const onError = function () {
+        // pass
+    };
+    return apiClient.getSessions(token, sessionSecretKey).then(onSuccess, onError);
+}
+
+/**
+ * Deletes an sessions
+ *
+ * @param {string} sessionId The id of the session to delete
+ *
+ * @returns {Promise} Returns a promise with true or false
+ */
+function deleteSession(sessionId) {
+    const token = store.getState().user.token;
+    const sessionSecretKey = store.getState().user.sessionSecretKey;
+
+    const onSuccess = function (request) {
+        // pass
+    };
+    const onError = function () {
+        // pass
+    };
+    return apiClient.logout(token, sessionSecretKey, sessionId).then(onSuccess, onError);
+}
+
 const service = {
     initiateLogin,
     samlLogin,
@@ -605,6 +876,13 @@ const service = {
     initiateOidcLoginNewTab,
     isLoggedIn,
     deleteAccount,
+    saveNewPassword,
+    saveNewEmail,
+    recoveryEnable,
+    setPassword,
+    armEmergencyCode,
+    getSessions,
+    deleteSession,
 };
 
 export default service;

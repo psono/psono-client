@@ -3,20 +3,20 @@
  */
 const Papa = require('papaparse');
 import cryptoLibrary from './crypto-library';
-import helper from './helper';
+import helperService from './helper';
 
-var importer_code = 'keepass_info_csv';
-var importer = {
+const importer_code = 'keepass_info_csv';
+const importer = {
     name: 'KeePass.info (CSV)',
     value: importer_code,
     parser: parser
 };
 
-var INDEX_ACCOUNT = 0;
-var INDEX_LOGIN_NAME = 1;
-var INDEX_PASSWORD = 2;
-var INDEX_WEB_SITE = 3;
-var INDEX_COMMENTS = 4;
+const INDEX_ACCOUNT = 0;
+const INDEX_LOGIN_NAME = 1;
+const INDEX_PASSWORD = 2;
+const INDEX_WEB_SITE = 3;
+const INDEX_COMMENTS = 4;
 
 
 // activate();
@@ -36,7 +36,7 @@ var INDEX_COMMENTS = 4;
  */
 var transform_to_secret = function(line) {
 
-    var parsed_url = helper.parseUrl(line[INDEX_WEB_SITE]);
+    var parsed_url = helperService.parseUrl(line[INDEX_WEB_SITE]);
 
     return {
         id : cryptoLibrary.generateUuid(),
@@ -63,7 +63,7 @@ var transform_to_secret = function(line) {
 function gather_secrets(datastore, secrets, csv) {
     var line;
 
-    for (var i = 0; i < csv.length; i++) {
+    for (let i = 0; i < csv.length; i++) {
         line = csv[i];
         if (i === 0) {
             continue;

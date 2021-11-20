@@ -116,7 +116,10 @@ const call = function (method, endpoint, data, headers, sessionSecretKey, synchr
                         user.logout(error.response.statusText);
                     }
                     if (error.response.status >= 500) {
-                        return reject(decryptData(sessionSecretKey, error.response.statusText, req));
+                        if (error.response.statusText) {
+                            return reject(decryptData(sessionSecretKey, error.response.statusText, req));
+                        }
+                        return reject({ errors: ["SERVER_OFFLINE"] });
                     }
                     return reject(decryptData(sessionSecretKey, error.response, req));
                 } else if (error.request) {
@@ -1831,7 +1834,7 @@ const readApiKey = function (token, sessionSecretKey, api_key_id) {
  *
  * @returns {Promise} promise
  */
-const readApiKey_secrets = function (token, sessionSecretKey, api_key_id) {
+const readApiKeySecrets = function (token, sessionSecretKey, api_key_id) {
     const endpoint = "/api-key/secret/" + api_key_id + "/";
     const method = "GET";
     const data = null;
@@ -3037,7 +3040,7 @@ const service = {
     moveShareLink: moveShareLink,
     deleteShareLink: deleteShareLink,
     readApiKey: readApiKey,
-    readApiKey_secrets: readApiKey_secrets,
+    readApiKeySecrets: readApiKeySecrets,
     createApiKey: createApiKey,
     addSecretToApiKey: addSecretToApiKey,
     updateApiKey: updateApiKey,

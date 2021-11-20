@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { bindActionCreators } from "redux";
 import { compose } from "redux";
-import { withTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -18,36 +18,20 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import CheckIcon from "@material-ui/icons/Check";
 import { Grid } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
-import MuiAlert from "@material-ui/lab/Alert";
 
 import actionCreators from "../../actions/action-creators";
 import Table from "../../components/table";
 import googleAuthenticator from "../../services/google-authenticator";
+import GridContainerErrors from "../../components/grid-container-errors";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
         width: "100%",
     },
 }));
-
-function TabPanel(props) {
-    const { children, value, index, ...other } = props;
-
-    return (
-        <div role="tabpanel" hidden={value !== index} id={`simple-tabpanel-${index}`} aria-labelledby={`simple-tab-${index}`} {...other}>
-            {value === index && <Box p={3}>{children}</Box>}
-        </div>
-    );
-}
-
-TabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.any.isRequired,
-    value: PropTypes.any.isRequired,
-};
-
 const MultifactorAuthenticatorGoogleAuthenticator = (props) => {
-    const { t, open, onClose } = props;
+    const { open, onClose } = props;
+    const { t } = useTranslation();
     const classes = useStyles();
     const [value, setValue] = React.useState(0);
     const [title, setTitle] = React.useState("");
@@ -106,7 +90,7 @@ const MultifactorAuthenticatorGoogleAuthenticator = (props) => {
     const validate = () => {
         setErrors([]);
 
-        var onSuccess = function (successful) {
+        const onSuccess = function (successful) {
             if (successful) {
                 setNewGa({});
                 setView("default");
@@ -117,7 +101,7 @@ const MultifactorAuthenticatorGoogleAuthenticator = (props) => {
             }
         };
 
-        var onError = function (error) {
+        const onError = function (error) {
             console.log(error);
         };
 
@@ -126,15 +110,18 @@ const MultifactorAuthenticatorGoogleAuthenticator = (props) => {
     const onDelete = (rowData) => {
         setErrors([]);
 
-        var onSuccess = function (successful) {
+        const onSuccess = function (successful) {
             loadGoogleAuthenticators();
         };
 
-        var onError = function (error) {
+        const onError = function (error) {
             console.log(error);
         };
 
         return googleAuthenticator.deleteGa(rowData[0]).then(onSuccess, onError);
+    };
+    const onCreate = () => {
+        setView("create_step0");
     };
 
     const columns = [
@@ -191,38 +178,34 @@ const MultifactorAuthenticatorGoogleAuthenticator = (props) => {
             <DialogTitle id="alert-dialog-title">{t("GOOGLE_AUTHENTICATOR")}</DialogTitle>
             {view === "default" && (
                 <DialogContent>
-                    <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
-                        <Tab label={t("EXISTING_GAS")} id="simple-tab-0" aria-controls="simple-tabpanel-0" />
-                        <Tab label={t("NEW_GA")} id="simple-tab-1" aria-controls="simple-tabpanel-1" />
-                    </Tabs>
-                    <TabPanel value={value} index={0}>
-                        <Table data={googleAuthenticators} columns={columns} options={options} />;
-                    </TabPanel>
-                    <TabPanel value={value} index={1}>
-                        <Grid container>
-                            <Grid item xs={12} sm={12} md={12}>
-                                <TextField
-                                    className={classes.textField}
-                                    variant="outlined"
-                                    margin="dense"
-                                    id="title"
-                                    label={t("TITLE")}
-                                    name="title"
-                                    autoComplete="title"
-                                    required
-                                    value={title}
-                                    onChange={(event) => {
-                                        setTitle(event.target.value);
-                                    }}
-                                />
-                            </Grid>
-                            <Grid item xs={12} sm={12} md={12}>
-                                <Button variant="contained" color="primary" onClick={generate} disabled={!title}>
-                                    {t("GENERATE")}
-                                </Button>
-                            </Grid>
+                    <Table data={googleAuthenticators} columns={columns} options={options} onCreate={onCreate} />;
+                </DialogContent>
+            )}
+            {view === "create_step0" && (
+                <DialogContent>
+                    <Grid container>
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="title"
+                                label={t("TITLE")}
+                                name="title"
+                                autoComplete="title"
+                                required
+                                value={title}
+                                onChange={(event) => {
+                                    setTitle(event.target.value);
+                                }}
+                            />
                         </Grid>
-                    </TabPanel>
+                        <Grid item xs={12} sm={12} md={12}>
+                            <Button variant="contained" color="primary" onClick={generate} disabled={!title}>
+                                {t("GENERATE")}
+                            </Button>
+                        </Grid>
+                    </Grid>
                 </DialogContent>
             )}
             {view === "create_step1" && (
@@ -259,28 +242,7 @@ const MultifactorAuthenticatorGoogleAuthenticator = (props) => {
                                 }}
                             />
                         </Grid>
-                        <Grid container>
-                            {errors && (
-                                <Grid item xs={12} sm={12} md={12}>
-                                    <>
-                                        {errors.map((prop, index) => {
-                                            return (
-                                                <MuiAlert
-                                                    onClose={() => {
-                                                        setErrors([]);
-                                                    }}
-                                                    key={index}
-                                                    severity="error"
-                                                    style={{ marginBottom: "5px" }}
-                                                >
-                                                    {t(prop)}
-                                                </MuiAlert>
-                                            );
-                                        })}
-                                    </>
-                                </Grid>
-                            )}
-                        </Grid>
+                        <GridContainerErrors errors={errors} setErrors={setErrors} />
                         <Grid item xs={12} sm={12} md={12}>
                             <Button variant="contained" color="primary" onClick={validate} disabled={!code || code.length < 6}>
                                 {t("VALIDATE")}
@@ -316,4 +278,4 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
     return { actions: bindActionCreators(actionCreators, dispatch) };
 }
-export default compose(withTranslation(), connect(mapStateToProps, mapDispatchToProps))(MultifactorAuthenticatorGoogleAuthenticator);
+export default connect(mapStateToProps, mapDispatchToProps)(MultifactorAuthenticatorGoogleAuthenticator);

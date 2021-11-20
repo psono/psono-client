@@ -13,7 +13,7 @@ module.exports = merge(common, {
   },
   plugins: [
     new webpack.DefinePlugin({
-      'TARGET': JSON.stringify('EXTENSION'),
+      'TARGET': JSON.stringify('chrome'),
     }),
     new CopyPlugin({
       patterns: [

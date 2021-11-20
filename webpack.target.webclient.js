@@ -31,7 +31,7 @@ module.exports = merge(common, {
   },
   plugins: [
     new webpack.DefinePlugin({
-      'TARGET': JSON.stringify('WEBCLIENT'),
+      'TARGET': JSON.stringify('webclient'),
     }),
     new CopyPlugin({
       patterns: [

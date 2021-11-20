@@ -2,15 +2,15 @@
  * Service to talk to the psono REST api
  */
 
-import converter from './converter';
+import converterService from './converter';
 
-var call = function(fileserver_url, method, endpoint, data, headers, transformRequest, responseType) {
+function call(fileserver_url, method, endpoint, data, headers, transformRequest, responseType) {
 
     if (!transformRequest) {
         transformRequest = $http.defaults.transformRequest;
     }
 
-    var req = {
+    const req = {
         method: method,
         url: fileserver_url + endpoint,
         data: data,
@@ -22,11 +22,11 @@ var call = function(fileserver_url, method, endpoint, data, headers, transformRe
 
     return $q(function(resolve, reject) {
 
-        var onSuccess = function(data) {
+        const onSuccess = function(data) {
             return resolve(data);
         };
 
-        var onError = function(data) {
+        const onError = function(data) {
             return reject(data);
         };
 
@@ -47,7 +47,7 @@ var call = function(fileserver_url, method, endpoint, data, headers, transformRe
  *
  * @returns {Promise} promise
  */
-var upload = function (fileserver_url, file_transfer_id, chunk, ticket, ticket_nonce) {
+function upload(fileserver_url, file_transfer_id, chunk, ticket, ticket_nonce) {
 
     var endpoint = '/upload/';
     var method = "POST";
@@ -73,7 +73,7 @@ var upload = function (fileserver_url, file_transfer_id, chunk, ticket, ticket_n
  *
  * @returns {Promise} promise
  */
-var download = function (fileserver_url, file_transfer_id, ticket, ticket_nonce) {
+function download(fileserver_url, file_transfer_id, ticket, ticket_nonce) {
 
     var endpoint = '/download/';
     var method = "POST";
@@ -90,7 +90,7 @@ var download = function (fileserver_url, file_transfer_id, ticket, ticket_nonce)
         return data
     },function(data) {
         if (data.status === 400) {
-            data.data = JSON.parse(converter.bytesToString(data.data));
+            data.data = JSON.parse(converterService.bytesToString(data.data));
         }
         return $q.reject(data)
     });

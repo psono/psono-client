@@ -7,8 +7,8 @@ import browserClient from "./browser-client";
 import action from "../actions/bound-action-creators";
 import store from "./store";
 
-var encryption_key = "";
-var onSetEncryptionKeyRegistrations = [];
+let encryption_key = "";
+const onSetEncryptionKeyRegistrations = [];
 
 activate();
 
@@ -27,7 +27,7 @@ function activate() {
  * @returns {boolean} promise
  */
 function isActive() {
-    var offline_mode = store.getState().client.offlineMode;
+    const offline_mode = store.getState().client.offlineMode;
 
     if (offline_mode === null) {
         return false;
@@ -72,13 +72,14 @@ function unlock(password) {
     if (typeof password === "undefined") {
         password = "";
     }
-    var encryption_key_encrypted = storage.find_key("config", "offline-cache-encryption-key");
-    var encryption_key_salt = storage.find_key("config", "offline-cache-encryption-salt");
+    const encryption_key_encrypted = storage.find_key("config", "offline-cache-encryption-key");
+    const encryption_key_salt = storage.find_key("config", "offline-cache-encryption-salt");
     if (encryption_key_encrypted === null || encryption_key_salt === null) {
         return true;
     }
+    let newEncryptionKey;
     try {
-        var new_encryption_key = cryptoLibrary.decryptSecret(
+        newEncryptionKey = cryptoLibrary.decryptSecret(
             encryption_key_encrypted.value.text,
             encryption_key_encrypted.value.nonce,
             password,
@@ -87,8 +88,8 @@ function unlock(password) {
     } catch (e) {
         return false;
     }
-    setEncryptionKey(new_encryption_key);
-    browserClient.emitSec("set-offline-cache-encryption-key", { encryption_key: new_encryption_key });
+    setEncryptionKey(newEncryptionKey);
+    browserClient.emitSec("set-offline-cache-encryption-key", { encryption_key: newEncryptionKey });
 
     return true;
 }
@@ -104,7 +105,7 @@ function setEncryptionKey(new_encryption_key) {
     }
     encryption_key = new_encryption_key;
     window.psono_offline_cache_encryption_key = new_encryption_key;
-    for (var i = 0; i < onSetEncryptionKeyRegistrations.length; i++) {
+    for (let i = 0; i < onSetEncryptionKeyRegistrations.length; i++) {
         onSetEncryptionKeyRegistrations[i]();
     }
 }
@@ -115,10 +116,10 @@ function setEncryptionKey(new_encryption_key) {
  * @param {string} password The password
  */
 function setEncryptionPassword(password) {
-    var new_encryption_key = cryptoLibrary.generateSecretKey();
+    const new_encryption_key = cryptoLibrary.generateSecretKey();
     setEncryptionKey(new_encryption_key);
-    var new_encryption_key_salt = cryptoLibrary.generateSecretKey();
-    var new_encryption_key_encrypted = cryptoLibrary.encryptSecret(new_encryption_key, password, new_encryption_key_salt);
+    const new_encryption_key_salt = cryptoLibrary.generateSecretKey();
+    const new_encryption_key_encrypted = cryptoLibrary.encryptSecret(new_encryption_key, password, new_encryption_key_salt);
     storage.upsert("config", { key: "offline-cache-encryption-key", value: new_encryption_key_encrypted });
     storage.upsert("config", { key: "offline-cache-encryption-salt", value: new_encryption_key_salt });
     storage.save();
@@ -138,7 +139,7 @@ function set(request, data) {
         return;
     }
 
-    var value = JSON.stringify(data);
+    let value = JSON.stringify(data);
 
     if (encryption_key) {
         value = cryptoLibrary.encryptData(value, encryption_key);
@@ -166,13 +167,13 @@ function get(request) {
         };
     }
 
-    var storage_entry = storage.find_key("offline-cache", request.url.toLowerCase());
+    const storage_entry = storage.find_key("offline-cache", request.url.toLowerCase());
 
     if (storage_entry === null) {
         return null;
     }
 
-    var value = storage_entry.value;
+    let value = storage_entry.value;
 
     if (encryption_key) {
         value = cryptoLibrary.decryptData(value.text, value.nonce, encryption_key);

@@ -2,11 +2,11 @@
  * Service which handles the parsing of the KeePass.info XML exports
  */
 import cryptoLibrary from './crypto-library';
-import helper from './helper';
+import helperService from './helper';
 const fastXmlParser = require('fast-xml-parser');
 
-var importer_code = 'keepass_info_xml';
-var importer = {
+const importer_code = 'keepass_info_xml';
+const importer = {
     name: 'KeePass.info (XML)',
     value: importer_code,
     parser: parser
@@ -54,7 +54,7 @@ var transform_to_secret = function(line) {
     };
 
 
-    for (var i = 0; i < line.String.length; i++) {
+    for (let i = 0; i < line.String.length; i++) {
         var value = line.String[i];
         if (!value.hasOwnProperty('Key')) {
             continue;
@@ -79,7 +79,7 @@ var transform_to_secret = function(line) {
         }
 
         if (key === 'URL') {
-            var parsed_url = helper.parseUrl(val);
+            var parsed_url = helperService.parseUrl(val);
             secret['urlfilter'] = parsed_url.authority || '';
             secret['website_password_url_filter'] = parsed_url.authority || '';
             secret['website_password_url'] = val;

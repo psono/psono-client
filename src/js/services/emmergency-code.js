@@ -3,7 +3,7 @@
  */
 
 import store from "./store";
-import helper from "./helper";
+import helperService from "./helper";
 import apiClient from "./api-client";
 import cryptoLibrary from "./crypto-library";
 
@@ -51,7 +51,7 @@ function createEmergencyCode(title, leadTime) {
     const onSuccess = function () {
         return {
             username: store.getState().user.username,
-            emergency_password: helper.splitStringInChunks(emergencyPassword["base58_checksums"], 13).join("-"),
+            emergency_password: helperService.splitStringInChunks(emergencyPassword["base58_checksums"], 13).join("-"),
             emergency_words: emergencyPassword["words"].join(" "),
         };
     };

@@ -1,8 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
-import { compose } from "redux";
-import { withTranslation } from "react-i18next";
 import actionCreators from "../../actions/action-creators";
 import LoginViewForm from "./login-form";
 import { useParams } from "react-router-dom";
@@ -26,4 +24,4 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
     return { actions: bindActionCreators(actionCreators, dispatch) };
 }
-export default compose(withTranslation(), connect(mapStateToProps, mapDispatchToProps))(LoginView);
+export default connect(mapStateToProps, mapDispatchToProps)(LoginView);

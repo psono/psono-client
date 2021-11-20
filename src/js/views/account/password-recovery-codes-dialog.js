@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { bindActionCreators } from "redux";
 import { compose } from "redux";
-import { withTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import Box from "@material-ui/core/Box";
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
@@ -16,24 +16,9 @@ import actionCreators from "../../actions/action-creators";
 import passwordRecoveryCode from "../../services/password-recovery-code";
 import MuiAlert from "@material-ui/lab/Alert";
 
-function TabPanel(props) {
-    const { children, value, index, ...other } = props;
-
-    return (
-        <div role="tabpanel" hidden={value !== index} id={`simple-tabpanel-${index}`} aria-labelledby={`simple-tab-${index}`} {...other}>
-            {value === index && <Box p={3}>{children}</Box>}
-        </div>
-    );
-}
-
-TabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.any.isRequired,
-    value: PropTypes.any.isRequired,
-};
-
 const PasswordRecoveryCodesDialog = (props) => {
-    const { t, open, onClose } = props;
+    const { open, onClose } = props;
+    const { t } = useTranslation();
     const [newPasswordRecoveryCode, setNewPasswordRecoveryCode] = React.useState({});
 
     React.useEffect(() => {
@@ -106,4 +91,4 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
     return { actions: bindActionCreators(actionCreators, dispatch) };
 }
-export default compose(withTranslation(), connect(mapStateToProps, mapDispatchToProps))(PasswordRecoveryCodesDialog);
+export default connect(mapStateToProps, mapDispatchToProps)(PasswordRecoveryCodesDialog);

@@ -4,18 +4,18 @@
 const Papa = require('papaparse');
 import cryptoLibrary from './crypto-library';
 
-var importer_code = 'pwsafe_org_csv';
-var importer = {
+const importer_code = 'pwsafe_org_csv';
+const importer = {
     name: 'Password Safe (CSV)',
     value: importer_code,
     parser: parser
 };
 
-var INDEX_ORGANISATION_UNIT = 0;
-var INDEX_DESCRIPTION = 1;
-var INDEX_USERNAME = 2;
-var INDEX_PASSWORD = 3;
-var INDEX_INFORMATIONS = 4;
+const INDEX_ORGANISATION_UNIT = 0;
+const INDEX_DESCRIPTION = 1;
+const INDEX_USERNAME = 2;
+const INDEX_PASSWORD = 3;
+const INDEX_INFORMATIONS = 4;
 
 
 // activate();
@@ -63,7 +63,7 @@ function get_folder(line, datastore) {
 
     next_folder_name = line[INDEX_ORGANISATION_UNIT];
 
-    for (var i = 0; i < datastore['folders'].length; i++) {
+    for (let i = 0; i < datastore['folders'].length; i++) {
         if (datastore['folders'][i].name === next_folder_name) {
             next_folder = datastore['folders'][i];
             break;
@@ -95,7 +95,7 @@ function gather_secrets(datastore, secrets, csv) {
     var line;
     var folder;
 
-    for (var i = 0; i < csv.length; i++) {
+    for (let i = 0; i < csv.length; i++) {
         line = csv[i];
         if (i === 0) {
             continue;

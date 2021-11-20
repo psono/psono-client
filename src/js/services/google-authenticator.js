@@ -3,7 +3,7 @@
  */
 
 import apiClient from "./api-client";
-import helper from "./helper";
+import helperService from "./helper";
 import store from "./store";
 import action from "../actions/bound-action-creators";
 
@@ -20,7 +20,7 @@ function createGa(title) {
 
     const onSuccess = function (request) {
         const backend = store.getState().server.url;
-        const parsedUrl = helper.parseUrl(backend);
+        const parsedUrl = helperService.parseUrl(backend);
 
         return {
             id: request.data["id"],

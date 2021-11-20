@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
         boxShadow: "none",
     },
     topLogo: {
-        padding: "15px",
+        padding: "10px",
         height: "100%",
     },
     menuButton: {

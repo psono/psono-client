@@ -3,7 +3,7 @@
  */
 
 import store from "./store";
-import helper from "./helper";
+import helperService from "./helper";
 import apiClient from "./api-client";
 import cryptoLibrary from "./crypto-library";
 
@@ -30,7 +30,7 @@ function recoveryGenerateInformation() {
     const onSuccess = function () {
         return {
             username: store.getState().user.username,
-            recovery_password: helper.splitStringInChunks(recoveryPassword["base58_checksums"], 13).join("-"),
+            recovery_password: helperService.splitStringInChunks(recoveryPassword["base58_checksums"], 13).join("-"),
             recovery_words: recoveryPassword["words"].join(" "),
         };
     };

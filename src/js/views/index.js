@@ -8,19 +8,44 @@ import LoginView from "./login";
 import DatastoreView from "./datastore";
 import AccountView from "./account/index";
 import PendingsharesView from "./pendingshares";
+import PopupView from "./popup";
 import PrivacyPolicyView from "./privacy-policy";
+import OtherView from "./other";
+import SettingsView from "./settings";
+import LostPasswordView from "./lost-password";
+import EmergencyCodeView from "./emergency-code";
 
 const IndexView = (props) => {
     const pathname = window.location.pathname;
 
     if (pathname.endsWith("/activate.html")) {
     } else if (pathname.endsWith("/background.html")) {
+        return "BACKGROUND";
     } else if (pathname.endsWith("/default_popup.html")) {
+        if (!props.state.user.isLoggedIn) {
+            return (
+                <Switch>
+                    <Route path="/">
+                        <LoginView {...props} />
+                    </Route>
+                </Switch>
+            );
+        } else {
+            return (
+                <Switch>
+                    <Route path="/">
+                        <PopupView {...props} />
+                    </Route>
+                </Switch>
+            );
+        }
     } else if (pathname.endsWith("/download-file.html")) {
     } else if (pathname.endsWith("/emergency-code.html")) {
+        return <EmergencyCodeView {...props} />;
     } else if (pathname.endsWith("/enforce-two-fa.html")) {
     } else if (pathname.endsWith("/link-share.html")) {
     } else if (pathname.endsWith("/lost-password.html")) {
+        return <LostPasswordView {...props} />;
     } else if (pathname.endsWith("/open-secret.html")) {
     } else if (pathname.endsWith("/popup_pgp.html")) {
     } else if (pathname.endsWith("/privacy-policy.html")) {
@@ -46,8 +71,14 @@ const IndexView = (props) => {
         } else {
             return (
                 <Switch>
+                    <Route path="/settings">
+                        <SettingsView {...props} />
+                    </Route>
                     <Route path="/account">
                         <AccountView {...props} />
+                    </Route>
+                    <Route path="/other">
+                        <OtherView {...props} />
                     </Route>
                     <Route path="/share/pendingshares">
                         <PendingsharesView {...props} />

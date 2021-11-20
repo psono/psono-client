@@ -3,11 +3,10 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import actionCreators from "../../actions/action-creators";
 import { compose } from "redux";
-import { withTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import Base from "../../containers/base";
-import browserClient from "../../services/browser-client";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -17,6 +16,7 @@ const useStyles = makeStyles((theme) => ({
 
 const PendingsharesView = (props) => {
     const classes = useStyles();
+    const { t } = useTranslation();
 
     return (
         <Base {...props}>
@@ -39,4 +39,4 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
     return { actions: bindActionCreators(actionCreators, dispatch) };
 }
-export default compose(withTranslation(), connect(mapStateToProps, mapDispatchToProps))(PendingsharesView);
+export default connect(mapStateToProps, mapDispatchToProps)(PendingsharesView);
