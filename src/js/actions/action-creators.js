@@ -12,6 +12,8 @@ import {
     ENABLE_OFFLINE_MODE,
     DISABLE_OFFLINE_MODE,
     SET_NOTIFICATION_ON_COPY,
+    SETTINGS_DATASTORE_LOADED,
+    SET_PASSWORD_CONFIG,
     SET_ADMIN_CLIENT_CONFIG,
     NOTIFICATION_SEND,
     NOTIFICATION_SET,
@@ -137,6 +139,26 @@ function setNotificationOnCopy(notificationOnCopy) {
         });
     };
 }
+function settingsDatastoreLoaded(data) {
+    return (dispatch) => {
+        dispatch({
+            type: SETTINGS_DATASTORE_LOADED,
+            data,
+        });
+    };
+}
+function setPasswordConfig(passwordLength, passwordLettersUppercase, passwordLettersLowercase, passwordNumbers, passwordSpecialChars) {
+    return (dispatch) => {
+        dispatch({
+            type: SET_PASSWORD_CONFIG,
+            passwordLength,
+            passwordLettersUppercase,
+            passwordLettersLowercase,
+            passwordNumbers,
+            passwordSpecialChars,
+        });
+    };
+}
 
 function setAdminClientConfig(config) {
     return (dispatch) => {
@@ -207,6 +229,8 @@ const actionCreators = {
     disableOfflineMode,
     enableOfflineMode,
     setNotificationOnCopy,
+    setPasswordConfig,
+    settingsDatastoreLoaded,
     setAdminClientConfig,
     setKnownHosts,
     setFingerprint,

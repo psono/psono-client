@@ -49,6 +49,25 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
             },
         },
         {
+            name: "outlookoffice365com",
+            domain_filter: function () {
+                return window.location.href.toLowerCase().indexOf("outlook.office365.com") !== -1;
+            },
+            get_pgp_content: function (node) {
+                var direct_parent = jQuery(node).parent();
+                return direct_parent.text();
+            },
+            get_sender: function (node) {
+                return [];
+            },
+            get_receiver: function (node) {
+                return [];
+            },
+            get_content_editable_fields: function (node) {
+                return jQuery('textarea, [contenteditable="true"]').filter(":visible");
+            },
+        },
+        {
             name: "yahoo",
             domain_filter: function () {
                 return window.location.href.toLowerCase().indexOf("mail.yahoo.com") !== -1;

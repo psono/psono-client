@@ -1,8 +1,8 @@
-import { LOGOUT, SET_CLIENT_URL, ENABLE_OFFLINE_MODE, DISABLE_OFFLINE_MODE, SET_NOTIFICATION_ON_COPY } from "../actions/action-types";
+import { LOGOUT, SET_CLIENT_URL, ENABLE_OFFLINE_MODE, DISABLE_OFFLINE_MODE, SET_NOTIFICATION_ON_COPY, SET_PASSWORD_CONFIG } from "../actions/action-types";
 
 const default_url = "";
 
-function server(
+function client(
     state = {
         url: default_url,
         offlineMode: false,
@@ -36,4 +36,4 @@ function server(
     }
 }
 
-export default server;
+export default client;

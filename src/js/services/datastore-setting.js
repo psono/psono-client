@@ -3,6 +3,7 @@
  */
 
 import datastore from "./datastore";
+import action from "../actions/bound-action-creators";
 
 /**
  * Returns the settings datastore.
@@ -14,18 +15,7 @@ function getSettingsDatastore() {
     const description = "key-value-settings";
 
     const onSuccess = function (results) {
-        console.log(results);
-
-        // for (let i = results.length - 1; i >= 0; i--) {
-        //     var s = storage.find_key('settings', results[i].key);
-        //     if (s !== null) {
-        //         s.value = results[i].value;
-        //         storage.update('settings', s);
-        //     } else {
-        //         storage.insert('settings', {key: results[i].key, value: results[i].value});
-        //     }
-        // }
-        // storage.save();
+        action.settingsDatastoreLoaded(results);
 
         return results;
     };

@@ -1,8 +1,6 @@
 import React from "react";
-import { connect } from "react-redux";
+import { useSelector } from "react-redux";
 import { Switch, Route } from "react-router-dom";
-import { bindActionCreators } from "redux";
-import actionCreators from "../actions/action-creators";
 
 import LoginView from "./login";
 import DatastoreView from "./datastore";
@@ -16,13 +14,15 @@ import LostPasswordView from "./lost-password";
 import EmergencyCodeView from "./emergency-code";
 
 const IndexView = (props) => {
+    const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
+
     const pathname = window.location.pathname;
 
     if (pathname.endsWith("/activate.html")) {
     } else if (pathname.endsWith("/background.html")) {
         return "BACKGROUND";
     } else if (pathname.endsWith("/default_popup.html")) {
-        if (!props.state.user.isLoggedIn) {
+        if (!isLoggedIn) {
             return (
                 <Switch>
                     <Route path="/">
@@ -54,7 +54,7 @@ const IndexView = (props) => {
         return <h1>Register here!</h1>;
     } else {
         // pathname.endsWith('/index.html')
-        if (!props.state.user.isLoggedIn) {
+        if (!isLoggedIn) {
             return (
                 <Switch>
                     <Route path="/saml/token/:samlTokenId">
@@ -92,10 +92,4 @@ const IndexView = (props) => {
     }
 };
 
-function mapStateToProps(state) {
-    return { state: state };
-}
-function mapDispatchToProps(dispatch) {
-    return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-export default connect(mapStateToProps, mapDispatchToProps)(IndexView);
+export default IndexView;

@@ -433,7 +433,7 @@
                 var search = managerDatastorePassword.find_in_datastore(paths[0], $scope.structure.data);
                 var node = search[0][search[1]];
 
-                managerWidget.open_edit_item($scope.structure.data, node, paths[0], managerDatastorePassword);
+                managerWidget.open_edit_item($scope.structure.data, node, paths[0], undefined, managerDatastorePassword);
             }
 
 
