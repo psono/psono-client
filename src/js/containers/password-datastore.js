@@ -3,11 +3,9 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/core/styles";
 import datastorePassword from "../services/datastore-password";
 import { ClipLoader } from "react-spinners";
+import DatastoreTree from "../components/datastore-tree";
 
 const useStyles = makeStyles((theme) => ({
-    root: {
-        display: "flex",
-    },
     loader: {
         marginTop: "30px",
         marginBottom: "30px",
@@ -17,24 +15,33 @@ const useStyles = makeStyles((theme) => ({
 
 const PasswordDatastore = (props) => {
     const classes = useStyles();
-    const [loading, setLoading] = useState(true);
+    const { search } = props;
+    let isSubscribed = true;
+    const [datastore, setDatastore] = useState(null);
 
     React.useEffect(() => {
         datastorePassword.getPasswordDatastore().then(onNewDatastoreLoaded);
+        return () => (isSubscribed = false);
     }, []);
 
     const onNewDatastoreLoaded = (data) => {
-        console.log(data);
+        if (!isSubscribed) {
+            return;
+        }
+        setDatastore(data);
     };
 
+    datastorePassword.modifyTreeForSearch(search, datastore);
+
     return (
-        <div className={classes.root}>
-            {loading && (
+        <>
+            {!datastore && (
                 <div className={classes.loader}>
                     <ClipLoader />
                 </div>
             )}
-        </div>
+            {datastore && <DatastoreTree datastore={datastore} search={search} />}
+        </>
     );
 };
 

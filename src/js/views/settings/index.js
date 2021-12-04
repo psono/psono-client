@@ -1,26 +1,21 @@
 import React from "react";
 import PropTypes from "prop-types";
 import AppBar from "@material-ui/core/AppBar";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
 import { Link, useLocation } from "react-router-dom";
-import { compose } from "redux";
 import { useTranslation } from "react-i18next";
 
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Box from "@material-ui/core/Box";
 
-import store from "../../services/store";
 import Base from "../../containers/base";
 import BaseTitle from "../../containers/base-title";
 import BaseContent from "../../containers/base-content";
-import actionCreators from "../../actions/action-creators";
 import SettingsPasswordGeneratorView from "./password-generator";
 import SettingsNotificationView from "./notification";
-const useStyles = makeStyles((theme) => ({}));
+import SettingsGpgView from "./gpg";
+import SettingsGeneralView from "./general";
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -40,7 +35,6 @@ TabPanel.propTypes = {
 
 const SettingsView = (props) => {
     const { t } = useTranslation();
-    const classes = useStyles();
     let location = useLocation();
     const [value, setValue] = React.useState(location.pathname);
 
@@ -57,13 +51,6 @@ const SettingsView = (props) => {
                                 component={Link}
                                 to={"/settings/password-generator"}
                                 onClick={() => setValue("/settings/password-generator")}
-                            />
-                            <Tab
-                                label={t("LANGUAGE")}
-                                value="/settings/language"
-                                component={Link}
-                                to={"/settings/language"}
-                                onClick={() => setValue("/settings/language")}
                             />
                             <Tab
                                 label={t("NOTIFICATIONS")}
@@ -85,17 +72,14 @@ const SettingsView = (props) => {
                     <TabPanel value={value} index={"/settings/password-generator"}>
                         <SettingsPasswordGeneratorView {...props} />
                     </TabPanel>
-                    <TabPanel value={value} index={"/settings/language"}>
-                        Test
-                    </TabPanel>
                     <TabPanel value={value} index={"/settings/notification"}>
                         <SettingsNotificationView {...props} />
                     </TabPanel>
                     <TabPanel value={value} index={"/settings/gpg"}>
-                        Test
+                        <SettingsGpgView {...props} />
                     </TabPanel>
                     <TabPanel value={value} index={"/settings/general"}>
-                        Test
+                        <SettingsGeneralView {...props} />
                     </TabPanel>
                 </Paper>
             </BaseContent>
@@ -103,10 +87,4 @@ const SettingsView = (props) => {
     );
 };
 
-function mapStateToProps(state) {
-    return { state: state };
-}
-function mapDispatchToProps(dispatch) {
-    return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-export default connect(mapStateToProps, mapDispatchToProps)(SettingsView);
+export default SettingsView;

@@ -329,7 +329,7 @@ function isValidGroupName(group_name) {
     let error;
 
     if (group_name.length < 3) {
-        return "Group name may not be shorter than 3 chars";
+        return "GROUP_NAME_TOO_SHORT";
     }
 
     error = validateGroupNameContain(group_name, ["@"]);

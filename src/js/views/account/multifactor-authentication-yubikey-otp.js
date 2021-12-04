@@ -199,7 +199,6 @@ const MultifactorAuthenticatorYubikeyOtp = (props) => {
                     onClick={() => {
                         onClose();
                     }}
-                    color="primary"
                     autoFocus
                 >
                     {t("CLOSE")}

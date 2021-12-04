@@ -7,6 +7,10 @@ const defaultAllowUserSearchByUsernamePartial = false;
 const defaultAllowedSecondFactors = [];
 const defaultAuthenticationMethods = [];
 const defaultBuild = "";
+const defaultCreditBuyAddress = "";
+const defaultCreditCostsUpload = "";
+const defaultCreditCostsDownload = "";
+const defaultCreditCostsStorage = "";
 const defaultComplianceCentralSecurityReportsRecurrenceInterval = 0;
 const defaultComplianceDisableApiKeys = false;
 const defaultComplianceDisableDeleteAccount = false;
@@ -47,6 +51,10 @@ function server(
         api: defaultApi,
         authenticationMethods: defaultAuthenticationMethods,
         build: defaultBuild,
+        creditBuyAddress: defaultCreditBuyAddress,
+        creditCostsUpload: defaultCreditCostsUpload,
+        creditCostsDownload: defaultCreditCostsDownload,
+        creditCostsStorage: defaultCreditCostsStorage,
         complianceCentralSecurityReportsRecurrenceInterval: defaultComplianceCentralSecurityReportsRecurrenceInterval,
         complianceDisableApiKeys: defaultComplianceDisableApiKeys,
         complianceDisableDeleteAccount: defaultComplianceDisableDeleteAccount,
@@ -90,6 +98,10 @@ function server(
                 api: defaultApi,
                 authenticationMethods: defaultAuthenticationMethods,
                 build: defaultBuild,
+                creditBuyAddress: defaultCreditBuyAddress,
+                creditCostsUpload: defaultCreditCostsUpload,
+                creditCostsDownload: defaultCreditCostsDownload,
+                creditCostsStorage: defaultCreditCostsStorage,
                 complianceCentralSecurityReportsRecurrenceInterval: defaultComplianceCentralSecurityReportsRecurrenceInterval,
                 complianceDisableApiKeys: defaultComplianceDisableApiKeys,
                 complianceDisableDeleteAccount: defaultComplianceDisableDeleteAccount,
@@ -129,6 +141,10 @@ function server(
                 api: action.info.api,
                 authenticationMethods: action.info.authentication_methods,
                 build: action.info.build,
+                creditBuyAddress: action.info.credit_buy_address,
+                creditCostsUpload: action.info.credit_costs_upload,
+                creditCostsDownload: action.info.credit_costs_download,
+                creditCostsStorage: action.info.credit_costs_storage,
                 complianceCentralSecurityReportsRecurrenceInterval: action.info.compliance_central_security_reports_recurrence_interval,
                 complianceDisableApiKeys: action.info.compliance_disable_api_keys,
                 complianceDisableDeleteAccount: action.info.compliance_disable_delete_account,

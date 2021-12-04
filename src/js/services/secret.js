@@ -8,6 +8,8 @@ import apiClient from "../services/api-client";
 import browserClient from "../services/browser-client";
 import offlineCache from "../services/offline-cache";
 import store from "./store";
+import storage from "./storage";
+import notification from "./notification";
 
 /**
  * Encrypts the content and creates a new secret out of it.
@@ -58,7 +60,7 @@ function readSecret(secretId, secretKey, synchronous) {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
     const onError = function (result) {
-        return new Promise.reject(result);
+        return Promise.reject(result);
     };
 
     const onSuccess = function (content) {
@@ -118,26 +120,33 @@ function writeSecret(secretId, secretKey, content, callbackUrl, callbackUser, ca
  */
 function redirectSecret(type, secretId) {
     function redirect() {
-        const secretKey = managerBase.find_key_nolimit("datastore-password-leafs", secretId);
+        return storage.findKey("datastore-password-leafs", secretId).then(function (leaf) {
+            const onError = function (result) {
+                // pass
+            };
 
-        const onError = function (result) {
-            // pass
-        };
+            const onSuccess = function (content) {
+                if (type === "website_password") {
+                    browserClient.emitSec("fillpassword", {
+                        username: content.website_password_username,
+                        password: content.website_password_password,
+                        authority: content.website_password_url_filter,
+                        auto_submit: content.website_password_auto_submit,
+                    });
+                    window.location.href = content.website_password_url;
+                } else if (type === "bookmark") {
+                    window.location.href = content.bookmark_url;
+                } else {
+                    window.location.href = "index.html#!/datastore/search/" + secretId;
+                }
+            };
 
-        const onSuccess = function (decryptedSecret) {
-            const msg = itemBlueprint.blueprint_msg_before_open_secret(type, decryptedSecret);
-            if (typeof msg !== "undefined") {
-                browserClient.emitSec(msg.key, msg.content);
-            }
-
-            itemBlueprint.blueprint_on_open_secret(type, secretId, decryptedSecret);
-        };
-
-        readSecret(secretId, secretKey).then(onSuccess, onError);
+            return readSecret(secretId, leaf.secret_key).then(onSuccess, onError);
+        });
     }
 
     if (!offlineCache.isActive() || !offlineCache.isLocked()) {
-        redirect();
+        return redirect();
     } else {
         const modalInstance = $uibModal.open({
             templateUrl: "view/modal/unlock-offline-cache.html",
@@ -168,7 +177,8 @@ function redirectSecret(type, secretId) {
  * @param {object} item The item one has clicked on
  */
 function onItemClick(item) {
-    if (item.hasOwnProperty("urlfilter") && item["urlfilter"] !== "" && itemBlueprint.blueprint_has_on_click_new_tab(item.type)) {
+    console.log(item);
+    if (item.hasOwnProperty("urlfilter") && item["urlfilter"] !== "" && ["website_password", "bookmark"].indexOf(item.type) !== -1) {
         browserClient.openTab("open-secret.html#!/secret/" + item.type + "/" + item.secret_id).then(function (window) {
             window.psono_offline_cache_encryption_key = offlineCache.getEncryptionKey();
         });
@@ -181,9 +191,7 @@ function onItemClick(item) {
  * @param {object} item The item of which we want to load the username into our clipboard
  */
 function copyUsername(item) {
-    const secretKey = managerBase.find_key_nolimit("datastore-password-leafs", item.secret_id);
-
-    const decryptedSecret = readSecret(item.secret_id, secretKey, true);
+    const decryptedSecret = readSecret(item.secret_id, item.secret_key, true);
 
     if (item["type"] === "application_password") {
         browserClient.copyToClipboard(decryptedSecret["application_password_username"]);
@@ -200,9 +208,7 @@ function copyUsername(item) {
  * @param {object} item The item of which we want to load the password into our clipboard
  */
 function copyPassword(item) {
-    const secretKey = managerBase.find_key_nolimit("datastore-password-leafs", item.secret_id);
-
-    const decryptedSecret = readSecret(item.secret_id, secretKey, true);
+    const decryptedSecret = readSecret(item.secret_id, item.secret_key, true);
 
     if (item["type"] === "application_password") {
         browserClient.copyToClipboard(decryptedSecret["application_password_password"]);
@@ -219,9 +225,7 @@ function copyPassword(item) {
  * @param {object} item The item of which we want to load the TOTP token into our clipboard
  */
 function copyTotpToken(item) {
-    const secretKey = managerBase.find_key_nolimit("datastore-password-leafs", item.secret_id);
-
-    const decryptedSecret = readSecret(item.secret_id, secretKey, true);
+    const decryptedSecret = readSecret(item.secret_id, item.secret_key, true);
 
     const totpCode = decryptedSecret["totp_code"];
     let totpPeriod, totpAlgorithm, totpDigits;

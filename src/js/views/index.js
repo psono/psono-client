@@ -12,6 +12,11 @@ import OtherView from "./other";
 import SettingsView from "./settings";
 import LostPasswordView from "./lost-password";
 import EmergencyCodeView from "./emergency-code";
+import OpenSecretView from "./open-secret";
+import DownloadFileView from "./download-file";
+import TrustedUsersView from "./trusted-users";
+import GroupsView from "./groups";
+import ActiveLinkShareView from "./active-link-shares";
 
 const IndexView = (props) => {
     const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
@@ -40,6 +45,13 @@ const IndexView = (props) => {
             );
         }
     } else if (pathname.endsWith("/download-file.html")) {
+        return (
+            <Switch>
+                <Route path="/file/download/:id">
+                    <DownloadFileView {...props} />
+                </Route>
+            </Switch>
+        );
     } else if (pathname.endsWith("/emergency-code.html")) {
         return <EmergencyCodeView {...props} />;
     } else if (pathname.endsWith("/enforce-two-fa.html")) {
@@ -47,6 +59,13 @@ const IndexView = (props) => {
     } else if (pathname.endsWith("/lost-password.html")) {
         return <LostPasswordView {...props} />;
     } else if (pathname.endsWith("/open-secret.html")) {
+        return (
+            <Switch>
+                <Route path="/secret/:type/:secretId">
+                    <OpenSecretView {...props} />
+                </Route>
+            </Switch>
+        );
     } else if (pathname.endsWith("/popup_pgp.html")) {
     } else if (pathname.endsWith("/privacy-policy.html")) {
         return <PrivacyPolicyView {...props} />;
@@ -82,6 +101,15 @@ const IndexView = (props) => {
                     </Route>
                     <Route path="/share/pendingshares">
                         <PendingsharesView {...props} />
+                    </Route>
+                    <Route path="/share/users">
+                        <TrustedUsersView {...props} />
+                    </Route>
+                    <Route path="/groups">
+                        <GroupsView {...props} />
+                    </Route>
+                    <Route path="/active-link-shares">
+                        <ActiveLinkShareView {...props} />
                     </Route>
                     <Route path="/">
                         <DatastoreView {...props} />

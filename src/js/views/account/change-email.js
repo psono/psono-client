@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import { compose } from "redux";
 import { useTranslation } from "react-i18next";
 import Button from "@material-ui/core/Button";
 import { Grid } from "@material-ui/core";

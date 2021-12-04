@@ -3,7 +3,7 @@
  */
 
 import action from "../actions/bound-action-creators";
-import apiClient from "./api-client";
+import apiClientService from "./api-client";
 import browserClient from "./browser-client";
 import cryptoLibrary from "./crypto-library";
 import helperService from "./helper";
@@ -195,7 +195,7 @@ function samlLogin(samlTokenId) {
 
     let sessionDuration = 24 * 60 * 60;
 
-    return apiClient.samlLogin(loginInfoEnc["text"], loginInfoEnc["nonce"], session_keys.public_key, sessionDuration).then(onSuccess, onError);
+    return apiClientService.samlLogin(loginInfoEnc["text"], loginInfoEnc["nonce"], session_keys.public_key, sessionDuration).then(onSuccess, onError);
 }
 
 /**
@@ -229,7 +229,7 @@ function initiateSamlLogin(server, rememberMe, trustDevice, twoFaRedirect) {
 function getSamlRedirectUrl(providerId) {
     const returnToUrl = browserClient.getSamlReturnToUrl();
 
-    return apiClient.samlInitiateLogin(providerId, returnToUrl).then((result) => {
+    return apiClientService.samlInitiateLogin(providerId, returnToUrl).then((result) => {
         return result.data;
     });
 }
@@ -306,7 +306,7 @@ function oidcLogin(oidcTokenId) {
 
     let sessionDuration = 24 * 60 * 60;
 
-    return apiClient.oidcLogin(loginInfoEnc["text"], loginInfoEnc["nonce"], session_keys.public_key, sessionDuration).then(onSuccess, onError);
+    return apiClientService.oidcLogin(loginInfoEnc["text"], loginInfoEnc["nonce"], session_keys.public_key, sessionDuration).then(onSuccess, onError);
 }
 
 /**
@@ -340,7 +340,7 @@ function initiateOidcLogin(server, rememberMe, trustDevice, twoFaRedirect) {
 function getOidcRedirectUrl(providerId) {
     const returnToUrl = browserClient.getOidcReturnToUrl();
 
-    return apiClient.oidcInitiateLogin(providerId, returnToUrl).then((result) => {
+    return apiClientService.oidcInitiateLogin(providerId, returnToUrl).then((result) => {
         return result.data;
     });
 }
@@ -356,7 +356,7 @@ function gaVerify(gaToken) {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
 
-    return apiClient.gaVerify(token, gaToken, sessionSecretKey).catch((response) => {
+    return apiClientService.gaVerify(token, gaToken, sessionSecretKey).catch((response) => {
         if (response.hasOwnProperty("data") && response.data.hasOwnProperty("non_field_errors")) {
             return Promise.reject(response.data.non_field_errors);
         } else {
@@ -376,7 +376,7 @@ function duoVerify(duoToken) {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
 
-    return apiClient.duoVerify(token, duoToken, sessionSecretKey).catch((response) => {
+    return apiClientService.duoVerify(token, duoToken, sessionSecretKey).catch((response) => {
         if (response.hasOwnProperty("data") && response.data.hasOwnProperty("non_field_errors")) {
             return Promise.reject(response.data.non_field_errors);
         } else {
@@ -396,7 +396,7 @@ function yubikeyOtpVerify(yubikey_otp) {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
 
-    return apiClient.yubikeyOtpVerify(token, yubikey_otp, sessionSecretKey).catch((response) => {
+    return apiClientService.yubikeyOtpVerify(token, yubikey_otp, sessionSecretKey).catch((response) => {
         if (response.hasOwnProperty("data") && response.data.hasOwnProperty("non_field_errors")) {
             return Promise.reject(response.data.non_field_errors);
         } else {
@@ -435,7 +435,7 @@ function activateToken() {
         };
     };
 
-    return apiClient.activateToken(token, verification.text, verification.nonce, sessionSecretKey).then(onSuccess);
+    return apiClientService.activateToken(token, verification.text, verification.nonce, sessionSecretKey).then(onSuccess);
 }
 
 /**
@@ -527,7 +527,7 @@ function login(password, server_info, send_plain) {
         session_duration = 24 * 60 * 60 * 30;
     }
 
-    return apiClient.login(login_info_enc["text"], login_info_enc["nonce"], session_keys.public_key, session_duration).then(onSuccess, onError);
+    return apiClientService.login(login_info_enc["text"], login_info_enc["nonce"], session_keys.public_key, session_duration).then(onSuccess, onError);
 }
 
 /**
@@ -539,7 +539,7 @@ function logout(msg = "") {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
 
-    apiClient.logout(token, sessionSecretKey);
+    apiClientService.logout(token, sessionSecretKey);
     action.logout(store.getState().user.rememberMe);
     if (msg) {
         notification.infoSend(msg);
@@ -581,7 +581,7 @@ function deleteAccount(password) {
         pass = password;
     }
 
-    return apiClient.deleteAccount(token, sessionSecretKey, authkey, pass).then(onSuccess, onError);
+    return apiClientService.deleteAccount(token, sessionSecretKey, authkey, pass).then(onSuccess, onError);
 }
 
 /**
@@ -600,7 +600,7 @@ function deleteAccount(password) {
 function updateUser(email, authkey, authkeyOld, privateKey, privateKeyNonce, secretKey, secretKeyNonce) {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
-    return apiClient.updateUser(token, sessionSecretKey, email, authkey, authkeyOld, privateKey, privateKeyNonce, secretKey, secretKeyNonce);
+    return apiClientService.updateUser(token, sessionSecretKey, email, authkey, authkeyOld, privateKey, privateKeyNonce, secretKey, secretKeyNonce);
 }
 
 /**
@@ -709,7 +709,7 @@ function recoveryEnable(username, recoveryCode, server) {
     };
     const recoveryAuthkey = cryptoLibrary.generateAuthkey(username, recoveryCode);
 
-    return apiClient.enableRecoverycode(username, recoveryAuthkey).then(onSuccess);
+    return apiClientService.enableRecoverycode(username, recoveryAuthkey).then(onSuccess);
 }
 
 /**
@@ -749,7 +749,7 @@ function setPassword(username, recoveryCode, password, userPrivateKey, userSecre
 
     var recovery_authkey = cryptoLibrary.generateAuthkey(username, recoveryCode);
 
-    return apiClient.setPassword(username, recovery_authkey, updateRequestEnc.text, updateRequestEnc.nonce).then(onSuccess, onError);
+    return apiClientService.setPassword(username, recovery_authkey, updateRequestEnc.text, updateRequestEnc.nonce).then(onSuccess, onError);
 }
 
 /**
@@ -809,13 +809,13 @@ function armEmergencyCode(username, emergencyCode, server, serverInfo, verifyKey
         };
 
         const onError = function (data) {
-            return new Promise.reject(data);
+            return Promise.reject(data);
         };
 
-        return apiClient.activateEmergencyCode(username, emergencyAuthkey, update_request_enc.text, update_request_enc.nonce).then(onSuccess, onError);
+        return apiClientService.activateEmergencyCode(username, emergencyAuthkey, update_request_enc.text, update_request_enc.nonce).then(onSuccess, onError);
     };
 
-    return apiClient.armEmergencyCode(username, emergencyAuthkey).then(onSuccess);
+    return apiClientService.armEmergencyCode(username, emergencyAuthkey).then(onSuccess);
 }
 
 /**
@@ -833,7 +833,7 @@ function getSessions() {
     const onError = function () {
         // pass
     };
-    return apiClient.getSessions(token, sessionSecretKey).then(onSuccess, onError);
+    return apiClientService.getSessions(token, sessionSecretKey).then(onSuccess, onError);
 }
 
 /**
@@ -853,7 +853,7 @@ function deleteSession(sessionId) {
     const onError = function () {
         // pass
     };
-    return apiClient.logout(token, sessionSecretKey, sessionId).then(onSuccess, onError);
+    return apiClientService.logout(token, sessionSecretKey, sessionId).then(onSuccess, onError);
 }
 
 const service = {

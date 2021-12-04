@@ -1,6 +1,4 @@
 import React from "react";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
 import { useTranslation } from "react-i18next";
 import Divider from "@material-ui/core/Divider";
 import { Grid } from "@material-ui/core";
@@ -8,7 +6,6 @@ import CheckIcon from "@material-ui/icons/Check";
 import IconButton from "@material-ui/core/IconButton";
 import DeleteIcon from "@material-ui/icons/Delete";
 
-import actionCreators from "../../actions/action-creators";
 import Table from "../../components/table";
 import user from "../../services/user";
 import format from "../../services/date";
@@ -90,25 +87,17 @@ const OtherSessionsView = (props) => {
     };
 
     return (
-        <>
-            <Grid container>
-                <Grid item xs={12} sm={12} md={12}>
-                    <h2>{t("SESSIONS")}</h2>
-                    <p>{t("SESSIONS_DESCRIPTION")}</p>
-                    <Divider style={{ marginBottom: "20px" }} />
-                </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                    <Table data={sessions} columns={columns} options={options} />
-                </Grid>
+        <Grid container>
+            <Grid item xs={12} sm={12} md={12}>
+                <h2>{t("SESSIONS")}</h2>
+                <p>{t("SESSIONS_DESCRIPTION")}</p>
+                <Divider style={{ marginBottom: "20px" }} />
             </Grid>
-        </>
+            <Grid item xs={12} sm={12} md={12}>
+                <Table data={sessions} columns={columns} options={options} />
+            </Grid>
+        </Grid>
     );
 };
 
-function mapStateToProps(state) {
-    return { state: state };
-}
-function mapDispatchToProps(dispatch) {
-    return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-export default connect(mapStateToProps, mapDispatchToProps)(OtherSessionsView);
+export default OtherSessionsView;

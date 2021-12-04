@@ -10,6 +10,7 @@ module.exports = merge(common, {
   devtool: 'inline-source-map',
   entry: {
     'webclient/js/bundle.min.js': './src/js/index.js',
+    'webclient/js/crypto-worker.js': './src/js/crypto-worker.js',
   },
   devServer: {
     static: {

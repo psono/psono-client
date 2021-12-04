@@ -1,7 +1,7 @@
 /**
  * Service to talk to the psono REST api
  */
-
+import $ from "jquery";
 import axios from "axios";
 import cryptoLibrary from "./crypto-library";
 import offlineCache from "./offline-cache";
@@ -21,7 +21,7 @@ const decryptData = function (sessionSecretKey, data, req) {
     return data;
 };
 
-const call = function (method, endpoint, data, headers, sessionSecretKey, synchronous) {
+function call(method, endpoint, data, headers, sessionSecretKey, synchronous) {
     const url = store.getState().server.url + endpoint;
 
     if (sessionSecretKey && data !== null) {
@@ -71,7 +71,7 @@ const call = function (method, endpoint, data, headers, sessionSecretKey, synchr
          * which means that we need a user event for it, which means that we have to block the thread with a
          * synchronous wait... If someone has a better idea let me know!
          */
-        data = jQuery.ajax({
+        data = $.ajax({
             type: method,
             url: url,
             async: false,
@@ -138,21 +138,21 @@ const call = function (method, endpoint, data, headers, sessionSecretKey, synchr
             axios(req).then(onSuccess, onError);
         });
     }
-};
+}
 
 /**
  * Ajax GET request to get the server info
  *
  * @returns {Promise} Returns a promise with server's public information
  */
-const info = function () {
+function info() {
     const endpoint = "/info/";
     const method = "GET";
     const data = null;
     const headers = null;
 
     return call(method, endpoint, data, headers);
-};
+}
 
 /**
  * Ajax POST request to the backend with email and authkey for login, saves a token together with user_id
@@ -188,7 +188,7 @@ const login = function (login_info, login_info_nonce, public_key, session_durati
  *
  * @returns {Promise} Returns a promise with the login status
  */
-const samlInitiateLogin = function (saml_provider_id, return_to_url) {
+function samlInitiateLogin(saml_provider_id, return_to_url) {
     const endpoint = "/saml/" + saml_provider_id + "/initiate-login/";
     const method = "POST";
     const data = {
@@ -197,7 +197,7 @@ const samlInitiateLogin = function (saml_provider_id, return_to_url) {
     const headers = null;
 
     return call(method, endpoint, data, headers);
-};
+}
 
 /**
  * Ajax POST request to the backend with oidc_provider_id and return_to_url. Will return an url where we have
@@ -208,7 +208,7 @@ const samlInitiateLogin = function (saml_provider_id, return_to_url) {
  *
  * @returns {Promise} Returns a promise with the login status
  */
-const oidcInitiateLogin = function (oidc_provider_id, return_to_url) {
+function oidcInitiateLogin(oidc_provider_id, return_to_url) {
     const endpoint = "/oidc/" + oidc_provider_id + "/initiate-login/";
     const method = "POST";
     const data = {
@@ -217,7 +217,7 @@ const oidcInitiateLogin = function (oidc_provider_id, return_to_url) {
     const headers = null;
 
     return call(method, endpoint, data, headers);
-};
+}
 
 /**
  * Ajax POST request to the backend with email and authkey for login, saves a token together with user_id
@@ -230,7 +230,7 @@ const oidcInitiateLogin = function (oidc_provider_id, return_to_url) {
  *
  * @returns {Promise} Returns a promise with the login status
  */
-const samlLogin = function (login_info, login_info_nonce, public_key, session_duration) {
+function samlLogin(login_info, login_info_nonce, public_key, session_duration) {
     const endpoint = "/saml/login/";
     const method = "POST";
     const data = {
@@ -242,7 +242,7 @@ const samlLogin = function (login_info, login_info_nonce, public_key, session_du
     const headers = null;
 
     return call(method, endpoint, data, headers);
-};
+}
 
 /**
  * Ajax POST request to the backend with email and authkey for login, saves a token together with user_id
@@ -255,7 +255,7 @@ const samlLogin = function (login_info, login_info_nonce, public_key, session_du
  *
  * @returns {Promise} Returns a promise with the login status
  */
-const oidcLogin = function (login_info, login_info_nonce, public_key, session_duration) {
+function oidcLogin(login_info, login_info_nonce, public_key, session_duration) {
     const endpoint = "/oidc/login/";
     const method = "POST";
     const data = {
@@ -267,7 +267,7 @@ const oidcLogin = function (login_info, login_info_nonce, public_key, session_du
     const headers = null;
 
     return call(method, endpoint, data, headers);
-};
+}
 
 /**
  * Ajax POST request to the backend with the OATH-TOTP Token
@@ -278,7 +278,7 @@ const oidcLogin = function (login_info, login_info_nonce, public_key, session_du
  *
  * @returns {Promise} Returns a promise with the verification status
  */
-const gaVerify = function (token, ga_token, sessionSecretKey) {
+function gaVerify(token, ga_token, sessionSecretKey) {
     const endpoint = "/authentication/ga-verify/";
     const method = "POST";
     const data = {
@@ -289,7 +289,7 @@ const gaVerify = function (token, ga_token, sessionSecretKey) {
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax POST request to the backend with the Duo Token
@@ -300,7 +300,7 @@ const gaVerify = function (token, ga_token, sessionSecretKey) {
  *
  * @returns {Promise} Returns a promise with the verification status
  */
-const duoVerify = function (token, duoToken, sessionSecretKey) {
+function duoVerify(token, duoToken, sessionSecretKey) {
     const endpoint = "/authentication/duo-verify/";
     const method = "POST";
     const data = {
@@ -311,7 +311,7 @@ const duoVerify = function (token, duoToken, sessionSecretKey) {
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax POST request to the backend with the YubiKey OTP Token
@@ -322,7 +322,7 @@ const duoVerify = function (token, duoToken, sessionSecretKey) {
  *
  * @returns {Promise} Returns a promise with the verification status
  */
-const yubikeyOtpVerify = function (token, yubikey_otp, sessionSecretKey) {
+function yubikeyOtpVerify(token, yubikey_otp, sessionSecretKey) {
     const endpoint = "/authentication/yubikey-otp-verify/";
     const method = "POST";
     const data = {
@@ -333,7 +333,7 @@ const yubikeyOtpVerify = function (token, yubikey_otp, sessionSecretKey) {
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax POST request to activate the token
@@ -345,7 +345,7 @@ const yubikeyOtpVerify = function (token, yubikey_otp, sessionSecretKey) {
  *
  * @returns {Promise} promise
  */
-const activateToken = function (token, verification, verification_nonce, sessionSecretKey) {
+function activateToken(token, verification, verification_nonce, sessionSecretKey) {
     const endpoint = "/authentication/activate-token/";
     const method = "POST";
     const data = {
@@ -357,7 +357,7 @@ const activateToken = function (token, verification, verification_nonce, session
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax GET request get all sessions
@@ -367,7 +367,7 @@ const activateToken = function (token, verification, verification_nonce, session
  *
  * @returns {Promise} promise
  */
-const getSessions = function (token, sessionSecretKey) {
+function getSessions(token, sessionSecretKey) {
     const endpoint = "/authentication/sessions/";
     const method = "GET";
     const data = null;
@@ -377,7 +377,7 @@ const getSessions = function (token, sessionSecretKey) {
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax GET request get all emergency codes
@@ -387,7 +387,7 @@ const getSessions = function (token, sessionSecretKey) {
  *
  * @returns {Promise} promise
  */
-const readEmergencyCodes = function (token, sessionSecretKey) {
+function readEmergencyCodes(token, sessionSecretKey) {
     const endpoint = "/emergencycode/";
     const method = "GET";
     const data = null;
@@ -397,7 +397,7 @@ const readEmergencyCodes = function (token, sessionSecretKey) {
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax PUT request to create a datatore with the token as authentication and optional already some data,
@@ -415,16 +415,7 @@ const readEmergencyCodes = function (token, sessionSecretKey) {
  *
  * @returns {Promise} promise
  */
-const createEmergencyCode = function (
-    token,
-    sessionSecretKey,
-    description,
-    activation_delay,
-    emergency_authkey,
-    emergency_data,
-    emergency_data_nonce,
-    emergency_sauce
-) {
+function createEmergencyCode(token, sessionSecretKey, description, activation_delay, emergency_authkey, emergency_data, emergency_data_nonce, emergency_sauce) {
     const endpoint = "/emergencycode/";
     const method = "POST";
     const data = {
@@ -440,7 +431,7 @@ const createEmergencyCode = function (
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax DELETE request to delete a given emergency code
@@ -451,7 +442,7 @@ const createEmergencyCode = function (
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const deleteEmergencyCode = function (token, sessionSecretKey, emergency_code_id) {
+function deleteEmergencyCode(token, sessionSecretKey, emergency_code_id) {
     const endpoint = "/emergencycode/";
     const method = "DELETE";
     const data = {
@@ -464,7 +455,7 @@ const deleteEmergencyCode = function (token, sessionSecretKey, emergency_code_id
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax POST request to destroy the token and logout the user
@@ -475,7 +466,7 @@ const deleteEmergencyCode = function (token, sessionSecretKey, emergency_code_id
  *
  * @returns {Promise} Returns a promise with the logout status
  */
-const logout = function (token, sessionSecretKey, session_id) {
+function logout(token, sessionSecretKey, session_id) {
     const endpoint = "/authentication/logout/";
     const method = "POST";
     const data = {
@@ -486,7 +477,7 @@ const logout = function (token, sessionSecretKey, session_id) {
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax POST request to the backend with the email and authkey, returns nothing but an email is sent to the user
@@ -505,7 +496,7 @@ const logout = function (token, sessionSecretKey, session_id) {
  *
  * @returns {Promise} promise
  */
-const register = function (email, username, authkey, public_key, private_key, private_key_nonce, secret_key, secret_key_nonce, user_sauce, base_url) {
+function register(email, username, authkey, public_key, private_key, private_key_nonce, secret_key, secret_key_nonce, user_sauce, base_url) {
     const endpoint = "/authentication/register/";
     const method = "POST";
     const data = {
@@ -523,7 +514,7 @@ const register = function (email, username, authkey, public_key, private_key, pr
     const headers = null;
 
     return call(method, endpoint, data, headers);
-};
+}
 
 /**
  * Ajax POST request to the backend with the activation_code for the email, returns nothing. If successful the user
@@ -533,7 +524,7 @@ const register = function (email, username, authkey, public_key, private_key, pr
  *
  * @returns {Promise} Returns a promise with the activation status
  */
-const verifyEmail = function (activation_code) {
+function verifyEmail(activation_code) {
     const endpoint = "/authentication/verify-email/";
     const method = "POST";
     const data = {
@@ -542,7 +533,7 @@ const verifyEmail = function (activation_code) {
     const headers = null;
 
     return call(method, endpoint, data, headers);
-};
+}
 
 /**
  * AJAX PUT request to the backend with new user informations like for example a new password (means new
@@ -560,7 +551,7 @@ const verifyEmail = function (activation_code) {
  *
  * @returns {Promise} Returns a promise with the update status
  */
-const updateUser = function (token, sessionSecretKey, email, authkey, authkey_old, private_key, private_key_nonce, secret_key, secret_key_nonce) {
+function updateUser(token, sessionSecretKey, email, authkey, authkey_old, private_key, private_key_nonce, secret_key, secret_key_nonce) {
     const endpoint = "/user/update/";
     const method = "PUT";
     const data = {
@@ -577,7 +568,7 @@ const updateUser = function (token, sessionSecretKey, email, authkey, authkey_ol
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * AJAX PUT request to the backend with the encrypted data (private_key, and secret_key) for recovery purposes
@@ -591,7 +582,7 @@ const updateUser = function (token, sessionSecretKey, email, authkey, authkey_ol
  *
  * @returns {Promise} Returns a promise with the recovery_data_id
  */
-const writeRecoverycode = function (token, sessionSecretKey, recovery_authkey, recovery_data, recovery_data_nonce, recovery_sauce) {
+function writeRecoverycode(token, sessionSecretKey, recovery_authkey, recovery_data, recovery_data_nonce, recovery_sauce) {
     const endpoint = "/recoverycode/";
     const method = "POST";
     const data = {
@@ -605,7 +596,7 @@ const writeRecoverycode = function (token, sessionSecretKey, recovery_authkey, r
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * AJAX POST request to the backend with the recovery_authkey to initiate the reset of the password
@@ -615,7 +606,7 @@ const writeRecoverycode = function (token, sessionSecretKey, recovery_authkey, r
  *
  * @returns {Promise} Returns a promise with the recovery_data
  */
-const enableRecoverycode = function (username, recovery_authkey) {
+function enableRecoverycode(username, recovery_authkey) {
     const endpoint = "/password/";
     const method = "POST";
     const data = {
@@ -625,7 +616,7 @@ const enableRecoverycode = function (username, recovery_authkey) {
     const headers = null;
 
     return call(method, endpoint, data, headers);
-};
+}
 
 /**
  * AJAX POST request to the backend with the emergency_code_authkey to initiate the activation of the emergency code
@@ -635,7 +626,7 @@ const enableRecoverycode = function (username, recovery_authkey) {
  *
  * @returns {Promise} Returns a promise with the recovery_data
  */
-const armEmergencyCode = function (username, emergency_authkey) {
+function armEmergencyCode(username, emergency_authkey) {
     const endpoint = "/emergency-login/";
     const method = "POST";
     const data = {
@@ -645,7 +636,7 @@ const armEmergencyCode = function (username, emergency_authkey) {
     const headers = null;
 
     return call(method, endpoint, data, headers);
-};
+}
 
 /**
  * AJAX POST request to the backend to actually actually activate the emergency code and get an active session back
@@ -657,7 +648,7 @@ const armEmergencyCode = function (username, emergency_authkey) {
  *
  * @returns {Promise} Returns a promise with the recovery_data
  */
-const activateEmergencyCode = function (username, emergency_authkey, update_data, update_data_nonce) {
+function activateEmergencyCode(username, emergency_authkey, update_data, update_data_nonce) {
     const endpoint = "/emergency-login/";
     const method = "PUT";
     const data = {
@@ -669,7 +660,7 @@ const activateEmergencyCode = function (username, emergency_authkey, update_data
     const headers = null;
 
     return call(method, endpoint, data, headers);
-};
+}
 
 /**
  * AJAX POST request to the backend to actually set the new encrypted private and secret key
@@ -681,7 +672,7 @@ const activateEmergencyCode = function (username, emergency_authkey, update_data
  *
  * @returns {Promise} Returns a promise with the recovery_data
  */
-const setPassword = function (username, recovery_authkey, update_data, update_data_nonce) {
+function setPassword(username, recovery_authkey, update_data, update_data_nonce) {
     const endpoint = "/password/";
     const method = "PUT";
     const data = {
@@ -693,7 +684,7 @@ const setPassword = function (username, recovery_authkey, update_data, update_da
     const headers = null;
 
     return call(method, endpoint, data, headers);
-};
+}
 
 /**
  * Ajax GET request with the token as authentication to get the current user's datastore
@@ -704,7 +695,7 @@ const setPassword = function (username, recovery_authkey, update_data, update_da
  *
  * @returns {Promise} Returns a promise with the encrypted datastore
  */
-const readDatastore = function (token, sessionSecretKey, datastore_id) {
+function readDatastore(token, sessionSecretKey, datastore_id) {
     const endpoint = "/datastore/" + (!datastore_id ? "" : datastore_id + "/");
     const method = "GET";
     const data = null;
@@ -713,7 +704,7 @@ const readDatastore = function (token, sessionSecretKey, datastore_id) {
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax GET request with the token as authentication to read the history for a secret as a list
@@ -724,7 +715,7 @@ const readDatastore = function (token, sessionSecretKey, datastore_id) {
  *
  * @returns {Promise} promise
  */
-const readSecretHistory = function (token, sessionSecretKey, secret_id) {
+function readSecretHistory(token, sessionSecretKey, secret_id) {
     const endpoint = "/secret/history/" + secret_id + "/";
     const method = "GET";
     const data = null;
@@ -733,7 +724,7 @@ const readSecretHistory = function (token, sessionSecretKey, secret_id) {
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax GET request with the token as authentication to get the details of a history entry
@@ -744,7 +735,7 @@ const readSecretHistory = function (token, sessionSecretKey, secret_id) {
  *
  * @returns {Promise} promise
  */
-const readHistory = function (token, sessionSecretKey, secret_history_id) {
+function readHistory(token, sessionSecretKey, secret_history_id) {
     const endpoint = "/history/" + secret_history_id + "/";
     const method = "GET";
     const data = null;
@@ -753,7 +744,7 @@ const readHistory = function (token, sessionSecretKey, secret_history_id) {
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax PUT request to create a datatore with the token as authentication and optional already some data,
@@ -771,7 +762,7 @@ const readHistory = function (token, sessionSecretKey, secret_history_id) {
  *
  * @returns {Promise} promise
  */
-const createDatastore = function (
+function createDatastore(
     token,
     sessionSecretKey,
     type,
@@ -798,7 +789,7 @@ const createDatastore = function (
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax DELETE request with the token as authentication to delete a datastore
@@ -810,7 +801,7 @@ const createDatastore = function (
  *
  * @returns {Promise} Returns a promise with the status of the delete operation
  */
-const deleteDatastore = function (token, sessionSecretKey, datastore_id, authkey) {
+function deleteDatastore(token, sessionSecretKey, datastore_id, authkey) {
     const endpoint = "/datastore/";
     const method = "DELETE";
     const data = {
@@ -823,7 +814,7 @@ const deleteDatastore = function (token, sessionSecretKey, datastore_id, authkey
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax POST request with the token as authentication and the datastore's new content
@@ -840,7 +831,7 @@ const deleteDatastore = function (token, sessionSecretKey, datastore_id, authkey
  *
  * @returns {Promise} promise
  */
-const writeDatastore = function (
+function writeDatastore(
     token,
     sessionSecretKey,
     datastore_id,
@@ -867,7 +858,7 @@ const writeDatastore = function (
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax GET request with the token as authentication to get the current user's secret
@@ -879,7 +870,7 @@ const writeDatastore = function (
  *
  * @returns {Promise} promise
  */
-const readSecret = function (token, sessionSecretKey, secret_id, synchronous) {
+function readSecret(token, sessionSecretKey, secret_id, synchronous) {
     const endpoint = "/secret/" + secret_id + "/";
     const method = "GET";
     const data = null;
@@ -892,7 +883,7 @@ const readSecret = function (token, sessionSecretKey, secret_id, synchronous) {
     // }
 
     return call(method, endpoint, data, headers, sessionSecretKey, synchronous);
-};
+}
 
 /**
  * Ajax PUT request to create a secret with the token as authentication together with the encrypted data and nonce
@@ -910,7 +901,7 @@ const readSecret = function (token, sessionSecretKey, secret_id, synchronous) {
  *
  * @returns {Promise} Returns a promise with the new secret_id
  */
-const createSecret = function (
+function createSecret(
     token,
     sessionSecretKey,
     encrypted_data,
@@ -939,7 +930,7 @@ const createSecret = function (
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax PUT request with the token as authentication and the new secret content
@@ -955,7 +946,7 @@ const createSecret = function (
  *
  * @returns {Promise} promise
  */
-const writeSecret = function (token, sessionSecretKey, secret_id, encrypted_data, encrypted_data_nonce, callback_url, callback_user, callback_pass) {
+function writeSecret(token, sessionSecretKey, secret_id, encrypted_data, encrypted_data_nonce, callback_url, callback_user, callback_pass) {
     const endpoint = "/secret/";
     const method = "POST";
     const data = {
@@ -971,7 +962,7 @@ const writeSecret = function (token, sessionSecretKey, secret_id, encrypted_data
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax POST request with the token as authentication to move a link between a secret and a datastore or a share
@@ -984,7 +975,7 @@ const writeSecret = function (token, sessionSecretKey, secret_id, encrypted_data
  *
  * @returns {Promise} Returns promise with the status of the move
  */
-const moveSecretLink = function (token, sessionSecretKey, link_id, new_parent_share_id, new_parent_datastore_id) {
+function moveSecretLink(token, sessionSecretKey, link_id, new_parent_share_id, new_parent_datastore_id) {
     const endpoint = "/secret/link/";
     const method = "POST";
     const data = {
@@ -997,7 +988,7 @@ const moveSecretLink = function (token, sessionSecretKey, link_id, new_parent_sh
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax DELETE request with the token as authentication to delete the secret link
@@ -1008,7 +999,7 @@ const moveSecretLink = function (token, sessionSecretKey, link_id, new_parent_sh
  *
  * @returns {Promise} Returns a promise with the status of the delete operation
  */
-const deleteSecretLink = function (token, sessionSecretKey, link_id) {
+function deleteSecretLink(token, sessionSecretKey, link_id) {
     const endpoint = "/secret/link/";
     const method = "DELETE";
     const data = {
@@ -1020,7 +1011,7 @@ const deleteSecretLink = function (token, sessionSecretKey, link_id) {
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax POST request with the token as authentication to move a link between a file and a datastore or a share
@@ -1033,7 +1024,7 @@ const deleteSecretLink = function (token, sessionSecretKey, link_id) {
  *
  * @returns {Promise} Returns promise with the status of the move
  */
-const moveFileLink = function (token, sessionSecretKey, link_id, new_parent_share_id, new_parent_datastore_id) {
+function moveFileLink(token, sessionSecretKey, link_id, new_parent_share_id, new_parent_datastore_id) {
     const endpoint = "/file/link/";
     const method = "POST";
     const data = {
@@ -1046,7 +1037,7 @@ const moveFileLink = function (token, sessionSecretKey, link_id, new_parent_shar
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax DELETE request with the token as authentication to delete the file link
@@ -1057,7 +1048,7 @@ const moveFileLink = function (token, sessionSecretKey, link_id, new_parent_shar
  *
  * @returns {Promise} Returns a promise with the status of the delete operation
  */
-const deleteFileLink = function (token, sessionSecretKey, link_id) {
+function deleteFileLink(token, sessionSecretKey, link_id) {
     const endpoint = "/file/link/";
     const method = "DELETE";
     const data = {
@@ -1069,7 +1060,7 @@ const deleteFileLink = function (token, sessionSecretKey, link_id) {
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax GET request with the token as authentication to get the content for a single share
@@ -1080,7 +1071,7 @@ const deleteFileLink = function (token, sessionSecretKey, link_id) {
  *
  * @returns {Promise} promise
  */
-const readShare = function (token, sessionSecretKey, share_id) {
+function readShare(token, sessionSecretKey, share_id) {
     const endpoint = "/share/" + share_id + "/";
     const method = "GET";
     const data = null;
@@ -1089,7 +1080,7 @@ const readShare = function (token, sessionSecretKey, share_id) {
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax GET request with the token as authentication to get the current user's shares
@@ -1099,7 +1090,7 @@ const readShare = function (token, sessionSecretKey, share_id) {
  *
  * @returns {Promise} promise
  */
-const readShares = function (token, sessionSecretKey) {
+function readShares(token, sessionSecretKey) {
     const endpoint = "/share/";
     const method = "GET";
     const data = null;
@@ -1108,7 +1099,7 @@ const readShares = function (token, sessionSecretKey) {
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax PUT request to create a datastore with the token as authentication and optional already some data,
@@ -1126,7 +1117,7 @@ const readShares = function (token, sessionSecretKey) {
  *
  * @returns {Promise} Returns a promise with the status and the new share id
  */
-const createShare = function (token, sessionSecretKey, encrypted_data, encrypted_data_nonce, key, key_nonce, parent_share_id, parent_datastore_id, link_id) {
+function createShare(token, sessionSecretKey, encrypted_data, encrypted_data_nonce, key, key_nonce, parent_share_id, parent_datastore_id, link_id) {
     const endpoint = "/share/";
     const method = "POST";
     const data = {
@@ -1144,7 +1135,7 @@ const createShare = function (token, sessionSecretKey, encrypted_data, encrypted
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax PUT request with the token as authentication and the share's new content
@@ -1157,7 +1148,7 @@ const createShare = function (token, sessionSecretKey, encrypted_data, encrypted
  *
  * @returns {Promise} Returns a promise with the status of the update
  */
-const writeShare = function (token, sessionSecretKey, share_id, encrypted_data, encrypted_data_nonce) {
+function writeShare(token, sessionSecretKey, share_id, encrypted_data, encrypted_data_nonce) {
     const endpoint = "/share/";
     const method = "PUT";
     const data = {
@@ -1170,7 +1161,7 @@ const writeShare = function (token, sessionSecretKey, share_id, encrypted_data, 
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax GET request with the token as authentication to get the users and groups rights of the share
@@ -1181,7 +1172,7 @@ const writeShare = function (token, sessionSecretKey, share_id, encrypted_data, 
  *
  * @returns {Promise} promise
  */
-const readShareRights = function (token, sessionSecretKey, share_id) {
+function readShareRights(token, sessionSecretKey, share_id) {
     const endpoint = "/share/rights/" + share_id + "/";
     const method = "GET";
     const data = null;
@@ -1190,7 +1181,7 @@ const readShareRights = function (token, sessionSecretKey, share_id) {
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax GET request with the token as authentication to get all the users share rights
@@ -1200,7 +1191,7 @@ const readShareRights = function (token, sessionSecretKey, share_id) {
  *
  * @returns {Promise} promise
  */
-const readShareRightsOverview = function (token, sessionSecretKey) {
+function readShareRightsOverview(token, sessionSecretKey) {
     const endpoint = "/share/right/";
     const method = "GET";
     const data = null;
@@ -1209,7 +1200,7 @@ const readShareRightsOverview = function (token, sessionSecretKey) {
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax PUT request with the token as authentication to create share rights for a user
@@ -1231,7 +1222,7 @@ const readShareRightsOverview = function (token, sessionSecretKey) {
  *
  * @returns {Promise} promise
  */
-const createShareRight = function (
+function createShareRight(
     token,
     sessionSecretKey,
     encrypted_title,
@@ -1268,7 +1259,7 @@ const createShareRight = function (
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax POST request with the token as authentication to update the share rights for a user
@@ -1284,7 +1275,7 @@ const createShareRight = function (
  *
  * @returns {Promise} promise
  */
-const updateShareRight = function (token, sessionSecretKey, share_id, user_id, group_id, read, write, grant) {
+function updateShareRight(token, sessionSecretKey, share_id, user_id, group_id, read, write, grant) {
     const endpoint = "/share/right/";
     const method = "POST";
     const data = {
@@ -1300,7 +1291,7 @@ const updateShareRight = function (token, sessionSecretKey, share_id, user_id, g
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax DELETE request with the token as authentication to delete the user / group share right
@@ -1312,7 +1303,7 @@ const updateShareRight = function (token, sessionSecretKey, share_id, user_id, g
  *
  * @returns {Promise} promise
  */
-const deleteShareRight = function (token, sessionSecretKey, user_share_right_id, group_share_right_id) {
+function deleteShareRight(token, sessionSecretKey, user_share_right_id, group_share_right_id) {
     const endpoint = "/share/right/";
     const method = "DELETE";
     const data = {
@@ -1325,7 +1316,7 @@ const deleteShareRight = function (token, sessionSecretKey, user_share_right_id,
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax GET request with the token as authentication to get all the users inherited share rights
@@ -1335,7 +1326,7 @@ const deleteShareRight = function (token, sessionSecretKey, user_share_right_id,
  *
  * @returns {Promise} promise
  */
-const readShareRightsInheritOverview = function (token, sessionSecretKey) {
+function readShareRightsInheritOverview(token, sessionSecretKey) {
     const endpoint = "/share/right/inherit/";
     const method = "GET";
     const data = null;
@@ -1344,7 +1335,7 @@ const readShareRightsInheritOverview = function (token, sessionSecretKey) {
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax POST request with the token as authentication to accept a share right and in the same run updates it
@@ -1359,7 +1350,7 @@ const readShareRightsInheritOverview = function (token, sessionSecretKey) {
  *
  * @returns {Promise} promise
  */
-const acceptShareRight = function (token, sessionSecretKey, share_right_id, key, key_nonce, key_type) {
+function acceptShareRight(token, sessionSecretKey, share_right_id, key, key_nonce, key_type) {
     const endpoint = "/share/right/accept/";
     const method = "POST";
     const data = {
@@ -1373,7 +1364,7 @@ const acceptShareRight = function (token, sessionSecretKey, share_right_id, key,
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax POST request with the token as authentication to decline a share right
@@ -1384,7 +1375,7 @@ const acceptShareRight = function (token, sessionSecretKey, share_right_id, key,
  *
  * @returns {Promise} promise
  */
-const declineShareRight = function (token, sessionSecretKey, share_right_id) {
+function declineShareRight(token, sessionSecretKey, share_right_id) {
     const endpoint = "/share/right/decline/";
     const method = "POST";
     const data = {
@@ -1395,7 +1386,7 @@ const declineShareRight = function (token, sessionSecretKey, share_right_id) {
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax POST request with the token as authentication to get the public key of a user by user_id or user_email
@@ -1408,7 +1399,7 @@ const declineShareRight = function (token, sessionSecretKey, share_right_id) {
  *
  * @returns {Promise} Returns a promise with the user information
  */
-const searchUser = function (token, sessionSecretKey, user_id, user_username, user_email) {
+function searchUser(token, sessionSecretKey, user_id, user_username, user_email) {
     const endpoint = "/user/search/";
     const method = "POST";
     const data = {
@@ -1421,7 +1412,7 @@ const searchUser = function (token, sessionSecretKey, user_id, user_username, us
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax GET request to query the server for the status
@@ -1431,7 +1422,7 @@ const searchUser = function (token, sessionSecretKey, user_id, user_username, us
  *
  * @returns {Promise} Returns a promise with the user information
  */
-const readStatus = function (token, sessionSecretKey) {
+function readStatus(token, sessionSecretKey) {
     const endpoint = "/user/status/";
     const method = "GET";
     const data = null;
@@ -1441,7 +1432,7 @@ const readStatus = function (token, sessionSecretKey) {
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax PUT request with the token as authentication to generate a google authenticator
@@ -1452,7 +1443,7 @@ const readStatus = function (token, sessionSecretKey) {
  *
  * @returns {Promise} Returns a promise with the secret
  */
-const createGa = function (token, sessionSecretKey, title) {
+function createGa(token, sessionSecretKey, title) {
     const endpoint = "/user/ga/";
     const method = "PUT";
     const data = {
@@ -1463,7 +1454,7 @@ const createGa = function (token, sessionSecretKey, title) {
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax GET request to get a list of all registered google authenticators
@@ -1473,7 +1464,7 @@ const createGa = function (token, sessionSecretKey, title) {
  *
  * @returns {Promise} Returns a promise with a list of all google authenticators
  */
-const readGa = function (token, sessionSecretKey) {
+function readGa(token, sessionSecretKey) {
     const endpoint = "/user/ga/";
     const method = "GET";
     const data = null;
@@ -1483,7 +1474,7 @@ const readGa = function (token, sessionSecretKey) {
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax POST request to activate registered Google Authenticator
@@ -1495,7 +1486,7 @@ const readGa = function (token, sessionSecretKey) {
  *
  * @returns {Promise} Returns weather it was successful or not
  */
-const activateGa = function (token, sessionSecretKey, google_authenticator_id, google_authenticator_token) {
+function activateGa(token, sessionSecretKey, google_authenticator_id, google_authenticator_token) {
     const endpoint = "/user/ga/";
     const method = "POST";
     const data = {
@@ -1508,7 +1499,7 @@ const activateGa = function (token, sessionSecretKey, google_authenticator_id, g
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax DELETE request to delete a given Google authenticator
@@ -1519,7 +1510,7 @@ const activateGa = function (token, sessionSecretKey, google_authenticator_id, g
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const deleteGa = function (token, sessionSecretKey, google_authenticator_id) {
+function deleteGa(token, sessionSecretKey, google_authenticator_id) {
     const endpoint = "/user/ga/";
     const method = "DELETE";
     const data = {
@@ -1532,7 +1523,7 @@ const deleteGa = function (token, sessionSecretKey, google_authenticator_id) {
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax PUT request with the token as authentication to generate a duo
@@ -1547,7 +1538,7 @@ const deleteGa = function (token, sessionSecretKey, google_authenticator_id) {
  *
  * @returns {Promise} Returns a promise with the secret
  */
-const createDuo = function (token, sessionSecretKey, use_system_wide_duo, title, integration_key, secret_key, host) {
+function createDuo(token, sessionSecretKey, use_system_wide_duo, title, integration_key, secret_key, host) {
     const endpoint = "/user/duo/";
     const method = "PUT";
     const data = {
@@ -1562,7 +1553,7 @@ const createDuo = function (token, sessionSecretKey, use_system_wide_duo, title,
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax GET request to get a list of all registered duo
@@ -1572,7 +1563,7 @@ const createDuo = function (token, sessionSecretKey, use_system_wide_duo, title,
  *
  * @returns {Promise} Returns a promise with a list of all duo
  */
-const readDuo = function (token, sessionSecretKey) {
+function readDuo(token, sessionSecretKey) {
     const endpoint = "/user/duo/";
     const method = "GET";
     const data = null;
@@ -1582,7 +1573,7 @@ const readDuo = function (token, sessionSecretKey) {
     };
 
     return call(method, endpoint, data, headers, sessionSecretKey);
-};
+}
 
 /**
  * Ajax POST request to activate registered duo

@@ -1,61 +1,79 @@
 /**
  * Service that handles local storage access
  */
+
+import localforage from "localforage";
+
 const registrations = {};
 
 //const loki_storage = new loki("password_manager_local_storage");
 const dbs = [];
 
-const db_config = {
-    'config': {
-        name: 'config',
-        indices: ['key'],
-        uniques: ['key']
-    },
-    'persistent': {
-        name: 'persistent',
-        indices: ['key'],
-        uniques: ['key']
-    },
-    'settings': {
-        name: 'settings',
-        indices: ['key'],
-        uniques: ['key']
-    },
-    'offline-cache': {
-        name: 'offline-cache',
-        indices: ['key'],
-        uniques: ['key']
-    },
-    'datastore-password-leafs': {
-        name: 'datastore-password-leafs',
-        indices: ['key', 'urlfilter', 'name'],
-        uniques: ['key']
-    },
-    'datastore-file-leafs': {
-        name: 'datastore-file-leafs',
-        indices: ['key'],
-        uniques: ['key']
-    },
-    'datastore-user-leafs': {
-        name: 'datastore-user-leafs',
-        indices: ['key', 'filter', 'name'],
-        uniques: ['key'],
-        subscribers: {
-            update: {
-                current: 0,
-                max: 1
-            },
-            insert: {
-                current: 0,
-                max: 1
-            },
-            delete: {
-                current: 0,
-                max: 1
-            }
-        }
-    }
+// const db_config = {
+//     'config': {
+//         name: 'config',
+//         indices: ['key'],
+//         uniques: ['key']
+//     },
+//     'persistent': {
+//         name: 'persistent',
+//         indices: ['key'],
+//         uniques: ['key']
+//     },
+//     'settings': {
+//         name: 'settings',
+//         indices: ['key'],
+//         uniques: ['key']
+//     },
+//     'offline-cache': {
+//         name: 'offline-cache',
+//         indices: ['key'],
+//         uniques: ['key']
+//     },
+//     'datastore-password-leafs': {
+//         name: 'datastore-password-leafs',
+//         indices: ['key', 'urlfilter', 'name'],
+//         uniques: ['key']
+//     },
+//     'datastore-file-leafs': {
+//         name: 'datastore-file-leafs',
+//         indices: ['key'],
+//         uniques: ['key']
+//     },
+//     'datastore-user-leafs': {
+//         name: 'datastore-user-leafs',
+//         indices: ['key', 'filter', 'name'],
+//         uniques: ['key'],
+//         subscribers: {
+//             update: {
+//                 current: 0,
+//                 max: 1
+//             },
+//             insert: {
+//                 current: 0,
+//                 max: 1
+//             },
+//             delete: {
+//                 current: 0,
+//                 max: 1
+//             }
+//         }
+//     }
+// };
+
+const dbConfig = {
+    "file-downloads": localforage.createInstance({
+        name: "datastore-password-leafs",
+    }),
+    "datastore-password-leafs": localforage.createInstance({
+        name: "datastore-password-leafs",
+    }),
+    "datastore-file-leafs": localforage.createInstance({
+        name: "datastore-file-leafs",
+    }),
+    "datastore-user-leafs": localforage.createInstance({
+        name: "datastore-user-leafs",
+    }),
 };
 
 activate();
@@ -71,8 +89,8 @@ function activate() {
  * @param {object|Array} items One or multiple items to put into the database
  */
 function insert(db, items) {
-
     //return dbs[db].insert(items);
+    dbConfig[db].setItem(items["key"], items["value"]);
 }
 
 /**
@@ -93,30 +111,16 @@ function update(db, items) {
  * @param {object|Array} items One or multiple items to update in the database
  */
 function upsert(db, items) {
-    // let local_items, db_entry;
-    // const return_values = [];
-    //
-    // if (! (items instanceof Array)) {
-    //     local_items = [items]
-    // } else {
-    //     local_items = items
-    // }
-    // for (let i = 0; i < local_items.length; i++) {
-    //     db_entry = dbs[db].findOne({'key': local_items[i]['key']});
-    //
-    //     if (db_entry!== null) {
-    //         db_entry.value = local_items[i]['value'];
-    //         return_values.push(dbs[db].update(db_entry));
-    //     } else {
-    //         return_values.push(dbs[db].insert(local_items[i]));
-    //     }
-    // }
-    //
-    // if (items instanceof Array) {
-    //     return return_values[0];
-    // } else {
-    //     return return_values;
-    // }
+    let localItems;
+
+    if (!(items instanceof Array)) {
+        localItems = [items];
+    } else {
+        localItems = items;
+    }
+    for (let i = 0; i < localItems.length; i++) {
+        dbConfig[db].setItem(localItems[i]["key"], localItems[i]);
+    }
 }
 
 /**
@@ -129,16 +133,16 @@ function where(db, filter_function) {
     //return dbs[db].where(filter_function);
 }
 
-
 /**
  * returns the result matching the key
  *
  * @param {string} db The database
  * @param {object} key The key of the object
  *
- * @returns {object|null} Returns the data object
+ * @returns {Promise} Returns the data object
  */
 function findKey(db, key) {
+    return dbConfig[db].getItem(key);
     //return dbs[db].findOne({key: key});
 }
 
@@ -158,10 +162,10 @@ function keyExists(db, key) {
  * removes the specified object or object_id
  *
  * @param {string} db The database
- * @param {object} obj The data object
+ * @param {string} key
  */
-function remove(db, obj) {
-    //dbs[db].remove(obj);
+function remove(db, key) {
+    return dbConfig[db].removeItem(key);
 }
 
 /**
@@ -170,26 +174,16 @@ function remove(db, obj) {
  * @param {string} [db] (optional) The database
  */
 function removeAll(db) {
-    // if (typeof db !== 'undefined') {
-    //     dbs[db].removeWhere(function() {
-    //         return true;
-    //     })
-    // } else {
-    //
-    //     for (let db_name in dbs) {
-    //         if (!dbs.hasOwnProperty(db_name)) {
-    //             continue;
-    //         }
-    //         if (db_name === 'persistent') {
-    //             continue;
-    //         }
-    //         dbs[db_name].removeWhere(function() {
-    //             return true;
-    //         })
-    //
-    //     }
-    // }
-
+    if (typeof db !== "undefined") {
+        dbConfig[db].clear();
+    } else {
+        for (let dbName in dbConfig) {
+            if (!dbConfig.hasOwnProperty(dbName)) {
+                continue;
+            }
+            dbConfig[dbName].clear();
+        }
+    }
 }
 
 /**
@@ -200,7 +194,6 @@ function removeAll(db) {
  * @param {function} callback The callback function
  */
 function on(db, event, callback) {
-
     // if (!db_config.hasOwnProperty(db)) {
     //     return;
     // }
@@ -287,6 +280,6 @@ const service = {
     save: save,
     reload: reload,
     register: register,
-    emit: emit
+    emit: emit,
 };
 export default service;

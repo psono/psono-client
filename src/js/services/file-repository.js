@@ -3,7 +3,7 @@
  */
 
 import store from "./store";
-import apiClient from "./api-client";
+import apiClientService from "./api-client";
 
 /**
  * Accepts a file repository
@@ -24,7 +24,7 @@ function accept(fileRepositoryRightId) {
         // pass
     };
 
-    return apiClient.acceptFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId).then(onSuccess, onError);
+    return apiClientService.acceptFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId).then(onSuccess, onError);
 }
 
 /**
@@ -45,7 +45,7 @@ function decline(fileRepositoryRightId) {
         // pass
     };
 
-    return apiClient.declineFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId).then(onSuccess, onError);
+    return apiClientService.declineFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId).then(onSuccess, onError);
 }
 
 /**
@@ -70,7 +70,7 @@ function createFileRepositoryRight(fileRepositoryId, userId, read, write, grant)
         // pass
     };
 
-    return apiClient.createFileRepositoryRight(token, sessionSecretKey, fileRepositoryId, userId, read, write, grant).then(onSuccess, onError);
+    return apiClientService.createFileRepositoryRight(token, sessionSecretKey, fileRepositoryId, userId, read, write, grant).then(onSuccess, onError);
 }
 
 /**
@@ -94,7 +94,7 @@ function updateFileRepositoryRight(fileRepositoryRightId, read, write, grant) {
         // pass
     };
 
-    return apiClient.updateFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId, read, write, grant).then(onSuccess, onError);
+    return apiClientService.updateFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId, read, write, grant).then(onSuccess, onError);
 }
 
 /**
@@ -115,7 +115,7 @@ function deleteFileRepositoryRight(fileRepositoryRightId) {
         // pass
     };
 
-    return apiClient.deleteFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId).then(onSuccess, onError);
+    return apiClientService.deleteFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId).then(onSuccess, onError);
 }
 
 /**
@@ -157,7 +157,7 @@ function readFileRepository(fileRepositoryId) {
         // pass
     };
 
-    return apiClient.readFileRepository(token, sessionSecretKey, fileRepositoryId).then(onSuccess, onError);
+    return apiClientService.readFileRepository(token, sessionSecretKey, fileRepositoryId).then(onSuccess, onError);
 }
 
 /**
@@ -176,7 +176,7 @@ function readFileRepositories() {
         // pass
     };
 
-    return apiClient.readFileRepository(token, sessionSecretKey).then(onSuccess, onError);
+    return apiClientService.readFileRepository(token, sessionSecretKey).then(onSuccess, onError);
 }
 
 /**
@@ -248,7 +248,7 @@ function createFileRepository(
         // pass
     };
 
-    return apiClient
+    return apiClientService
         .createFileRepository(
             token,
             sessionSecretKey,
@@ -343,7 +343,7 @@ function updateFileRepository(
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
 
-    return apiClient.updateFileRepository(
+    return apiClientService.updateFileRepository(
         token,
         sessionSecretKey,
         fileRepositoryId,
@@ -393,7 +393,7 @@ function deleteFileRepository(fileRepositoryId) {
         // pass
     };
 
-    return apiClient.deleteFileRepository(token, sessionSecretKey, fileRepositoryId).then(onSuccess, onError);
+    return apiClientService.deleteFileRepository(token, sessionSecretKey, fileRepositoryId).then(onSuccess, onError);
 }
 
 /**

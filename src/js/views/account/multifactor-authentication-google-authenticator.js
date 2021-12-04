@@ -257,7 +257,6 @@ const MultifactorAuthenticatorGoogleAuthenticator = (props) => {
                         setView("default");
                         onClose();
                     }}
-                    color="primary"
                     autoFocus
                 >
                     {t("CLOSE")}

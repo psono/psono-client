@@ -2,6 +2,7 @@
  * Service to talk to the psono REST api
  */
 
+import axios from "axios";
 import converterService from './converter';
 
 function call(fileserver_url, method, endpoint, data, headers, transformRequest, responseType) {
@@ -20,7 +21,7 @@ function call(fileserver_url, method, endpoint, data, headers, transformRequest,
 
     req.headers = headers;
 
-    return $q(function(resolve, reject) {
+    return new Promise(function(resolve, reject) {
 
         const onSuccess = function(data) {
             return resolve(data);
@@ -30,11 +31,11 @@ function call(fileserver_url, method, endpoint, data, headers, transformRequest,
             return reject(data);
         };
 
-        $http(req)
+        axios(req)
             .then(onSuccess, onError);
 
     });
-};
+}
 
 /**
  * Ajax POST request to upload a file chunk

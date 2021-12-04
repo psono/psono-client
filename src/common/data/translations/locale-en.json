@@ -1,4 +1,5 @@
 {
+  "DATE_TIME_YYYY_MM_DD_HH_MM": "yyyy/MM/dd HH:mm",
   "TABLE_BODY_NO_MATCH": "Sorry, no matching records found",
   "TABLE_BODY_TOOL_TIP": "Sort",
   "TABLE_BODY_COLUMN_HEADER_TOOLTIP": "Sort for",
@@ -84,6 +85,7 @@
   "BACK": "Back",
   "RECOVERY_CODES_DISABLED": "Recovery codes have been disabled.",
   "PASSWORD_TOO_SHORT": "Password too short.",
+  "GROUP_NAME_TOO_SHORT": "The name of the group is too short.",
   "PASSWORDS_DONT_MATCH": "Passwords don't match.",
   "PASSWORD_NOT_COMPLEX_ENOUGH": "Password not complex enough.",
   "OLD_PASSWORD_REQUIRED": "Old password required",
@@ -562,6 +564,7 @@
   "PASSWORD_LENGTH": "Password Length",
   "GPG": "GPG",
   "GENERAL": "General",
+  "GENERAL_SETTINGS": "General settings",
   "GPG_DESCRIPTION": "Specify here your default GPG key.",
   "NOTIFICATIONS": "Notifications",
   "NOTIFICATIONS_DESCRIPTION": "Specify your notification preferences.",

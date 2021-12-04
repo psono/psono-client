@@ -3,6 +3,7 @@
  */
 
 import store from "./store";
+import storage from "./storage";
 import cryptoLibrary from "./crypto-library";
 import browserClient from "./browser-client";
 import apiClient from "./api-client";
@@ -172,7 +173,7 @@ function deleteDatastore(datastoreId, password) {
     const authkey = cryptoLibrary.generateAuthkey(store.getState().user.username, password);
 
     const onError = function (result) {
-        return new Promise.reject(result.data);
+        return Promise.reject(result.data);
     };
 
     const onSuccess = function (data) {
@@ -307,8 +308,9 @@ function getDatastore(type, id) {
  * @param {string} db The database to add the item to
  * @param {TreeObject} folder The Tree object
  * @param {Array} map The map with key / value
+ * @param {function} [filter] A function to filter
  */
-function addNodeToStorage(db, folder, map) {
+function addNodeToStorage(db, folder, map, filter) {
     if (typeof folder === "undefined") {
         return;
     }
@@ -319,11 +321,14 @@ function addNodeToStorage(db, folder, map) {
 
     let i;
     for (i = 0; folder.hasOwnProperty("folders") && i < folder.folders.length; i++) {
-        addNodeToStorage(db, folder.folders[i], map);
+        addNodeToStorage(db, folder.folders[i], map, filter);
     }
 
     for (i = 0; folder.hasOwnProperty("items") && i < folder.items.length; i++) {
         if (folder.items[i].hasOwnProperty("deleted") && folder.items[i]["deleted"]) {
+            continue;
+        }
+        if (filter && !filter(folder.items[i])) {
             continue;
         }
 
@@ -345,13 +350,14 @@ function addNodeToStorage(db, folder, map) {
  * @param {string} db The database to add the item to
  * @param {TreeObject} datastore The Tree object
  * @param {Array} map The map with key / value
+ * @param {function} [filter] A function to filter
  */
-function fillStorage(db, datastore, map) {
-    // storage.remove_all(db);
-    //
-    // addNodeToStorage(db, datastore, map);
-    //
-    // storage.save();
+function fillStorage(db, datastore, map, filter) {
+    storage.removeAll(db);
+
+    addNodeToStorage(db, datastore, map, filter);
+
+    storage.save();
 }
 
 /**

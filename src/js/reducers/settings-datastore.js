@@ -16,7 +16,7 @@ function settingsDatastore(
     switch (action.type) {
         case SETTINGS_DATASTORE_LOADED:
             return Object.assign({}, state, {
-                passwordLength: action.data.hasOwnProperty("setting_password_length") ? action.data.setting_password_length : 16,
+                passwordLength: action.data.hasOwnProperty("setting_password_length") ? parseInt(action.data.setting_password_length) : 16,
                 passwordLettersUppercase: action.data.hasOwnProperty("setting_password_letters_uppercase")
                     ? action.data.setting_password_letters_uppercase
                     : "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
@@ -41,6 +41,7 @@ function settingsDatastore(
             });
         case SET_GPG_CONFIG:
             return Object.assign({}, state, {
+                gpgDefaultKey: action.gpgDefaultKey,
                 gpgHkpKeyServer: action.gpgHkpKeyServer,
                 gpgHkpSearch: action.gpgHkpSearch,
             });

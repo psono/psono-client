@@ -12,8 +12,10 @@ import {
     ENABLE_OFFLINE_MODE,
     DISABLE_OFFLINE_MODE,
     SET_NOTIFICATION_ON_COPY,
+    SET_DISABLE_BROWSER_PM,
     SETTINGS_DATASTORE_LOADED,
     SET_PASSWORD_CONFIG,
+    SET_GPG_CONFIG,
     SET_ADMIN_CLIENT_CONFIG,
     NOTIFICATION_SEND,
     NOTIFICATION_SET,
@@ -21,6 +23,10 @@ import {
     SET_FINGERPRINT,
     SET_EMAIL,
 } from "./action-types";
+
+import datastoreSettingService from "../services/datastore-setting";
+import store from "../services/store";
+import settingsDatastore from "../reducers/settings-datastore";
 
 function setUserUsername(username) {
     return (dispatch) => {
@@ -139,6 +145,14 @@ function setNotificationOnCopy(notificationOnCopy) {
         });
     };
 }
+function setDisableBrowserPm(disableBrowserPm) {
+    return (dispatch) => {
+        dispatch({
+            type: SET_DISABLE_BROWSER_PM,
+            disableBrowserPm,
+        });
+    };
+}
 function settingsDatastoreLoaded(data) {
     return (dispatch) => {
         dispatch({
@@ -148,6 +162,16 @@ function settingsDatastoreLoaded(data) {
     };
 }
 function setPasswordConfig(passwordLength, passwordLettersUppercase, passwordLettersLowercase, passwordNumbers, passwordSpecialChars) {
+    datastoreSettingService.saveSettingsDatastore([
+        { key: "setting_password_length", value: passwordLength },
+        { key: "setting_password_letters_uppercase", value: passwordLettersUppercase },
+        { key: "setting_password_letters_lowercase", value: passwordLettersLowercase },
+        { key: "setting_password_numbers", value: passwordNumbers },
+        { key: "setting_password_special_chars", value: passwordSpecialChars },
+        { key: "gpg_default_key", value: store.getState().settingsDatastore.gpgDefaultKey },
+        { key: "gpg_hkp_key_server", value: store.getState().settingsDatastore.gpgHkpKeyServer },
+        { key: "gpg_hkp_search", value: store.getState().settingsDatastore.gpgHkpSearch },
+    ]);
     return (dispatch) => {
         dispatch({
             type: SET_PASSWORD_CONFIG,
@@ -156,6 +180,26 @@ function setPasswordConfig(passwordLength, passwordLettersUppercase, passwordLet
             passwordLettersLowercase,
             passwordNumbers,
             passwordSpecialChars,
+        });
+    };
+}
+function setGpgConfig(gpgDefaultKey, gpgHkpKeyServer, gpgHkpSearch) {
+    datastoreSettingService.saveSettingsDatastore([
+        { key: "setting_password_length", value: store.getState().settingsDatastore.passwordLength },
+        { key: "setting_password_letters_uppercase", value: store.getState().settingsDatastore.passwordLettersUppercase },
+        { key: "setting_password_letters_lowercase", value: store.getState().settingsDatastore.passwordLettersLowercase },
+        { key: "setting_password_numbers", value: store.getState().settingsDatastore.passwordNumbers },
+        { key: "setting_password_special_chars", value: store.getState().settingsDatastore.passwordSpecialChars },
+        { key: "gpg_default_key", value: gpgDefaultKey },
+        { key: "gpg_hkp_key_server", value: gpgHkpKeyServer },
+        { key: "gpg_hkp_search", value: gpgHkpSearch },
+    ]);
+    return (dispatch) => {
+        dispatch({
+            type: SET_GPG_CONFIG,
+            gpgDefaultKey,
+            gpgHkpKeyServer,
+            gpgHkpSearch,
         });
     };
 }
@@ -229,7 +273,9 @@ const actionCreators = {
     disableOfflineMode,
     enableOfflineMode,
     setNotificationOnCopy,
+    setDisableBrowserPm,
     setPasswordConfig,
+    setGpgConfig,
     settingsDatastoreLoaded,
     setAdminClientConfig,
     setKnownHosts,

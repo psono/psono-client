@@ -2,7 +2,7 @@
  * Google authenticator and all the functions to create / edit / delete it ...
  */
 
-import apiClient from "./api-client";
+import apiClientService from "./api-client";
 import helperService from "./helper";
 import store from "./store";
 import action from "../actions/bound-action-creators";
@@ -30,7 +30,7 @@ function createGa(title) {
     const onError = function () {
         // pass
     };
-    return apiClient.createGa(token, sessionSecretKey, title).then(onSuccess, onError);
+    return apiClientService.createGa(token, sessionSecretKey, title).then(onSuccess, onError);
 }
 
 /**
@@ -47,7 +47,7 @@ function readGa() {
     const onError = function () {
         // pass
     };
-    return apiClient.readGa(token, sessionSecretKey).then(onSuccess, onError);
+    return apiClientService.readGa(token, sessionSecretKey).then(onSuccess, onError);
 }
 
 /**
@@ -68,7 +68,7 @@ function activateGa(googleAuthenticatorId, googleAuthenticatorToken) {
     const onError = function () {
         return false;
     };
-    return apiClient.activateGa(token, sessionSecretKey, googleAuthenticatorId, googleAuthenticatorToken).then(onSuccess, onError);
+    return apiClientService.activateGa(token, sessionSecretKey, googleAuthenticatorId, googleAuthenticatorToken).then(onSuccess, onError);
 }
 
 /**
@@ -87,7 +87,7 @@ function deleteGa(googleAuthenticatorId) {
     const onError = function (data) {
         return Promise.reject(data.data);
     };
-    return apiClient.deleteGa(token, sessionSecretKey, googleAuthenticatorId).then(onSuccess, onError);
+    return apiClientService.deleteGa(token, sessionSecretKey, googleAuthenticatorId).then(onSuccess, onError);
 }
 
 const service = {

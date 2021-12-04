@@ -648,7 +648,7 @@ function disableBrowserPasswordSaving(value) {
             });
         });
     } else {
-        return new Promise.resolve("nothing done");
+        return Promise.resolve("nothing done");
     }
 }
 
@@ -658,7 +658,7 @@ function disableBrowserPasswordSaving(value) {
  * @param {string} content The content to copy
  */
 function copyToClipboard(content) {
-    var copy;
+    let copy;
     if (TARGET === "firefox") {
         copy = function (e) {
             e.preventDefault();
@@ -684,13 +684,14 @@ function copyToClipboard(content) {
         document.execCommand("copy");
         document.removeEventListener("copy", copy);
     } else {
-        var input = angular.element("<input>");
-        input.attr("type", "text");
-        input.attr("value", content);
-        angular.element(document.body).append(input);
-        input.select();
-        document.execCommand("Copy");
-        input.remove();
+        navigator.clipboard.writeText(content);
+        // let input = document.createElement("input");
+        // input.type = 'text';
+        // input.value = content;
+        // document.body.appendChild(input);
+        // input.select();
+        // document.execCommand("Copy");
+        // document.body.removeChild(input);
     }
 }
 

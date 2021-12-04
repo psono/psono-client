@@ -1,4 +1,6 @@
 import action from "../actions/bound-action-creators";
+import browserClient from "./browser-client";
+import store from "./store";
 
 /**
  * Sends an info message
@@ -27,9 +29,39 @@ function reset() {
 
 /**
  * Resets messages
+ *
+ * @param {array} messages The message to set
  */
 function set(messages) {
     action.setNotifications(messages);
+}
+
+/**
+ * Display a notification for notification type
+ *
+ * @param {string} notificationContent The content of the notification
+ * @param {string} notificationType The suffix key to manage this type of notification in settings
+ */
+function push(notificationType, notificationContent) {
+    switch (notificationType) {
+        case "password_copy":
+            if (store.getState().client.notificationOnCopy) {
+                browserClient.notify(notificationContent);
+            }
+            return;
+        case "username_copy":
+            if (store.getState().client.notificationOnCopy) {
+                browserClient.notify(notificationContent);
+            }
+            return;
+        case "totp_token_copy":
+            if (store.getState().client.notificationOnCopy) {
+                browserClient.notify(notificationContent);
+            }
+            return;
+        default:
+            console.error("This notification type: '" + notificationType + "' doesn't exist");
+    }
 }
 
 const service = {
@@ -37,6 +69,7 @@ const service = {
     errorSend,
     reset,
     set,
+    push,
 };
 
 export default service;

@@ -352,7 +352,6 @@ const MultifactorAuthenticatorDuo = (props) => {
                     onClick={() => {
                         onClose();
                     }}
-                    color="primary"
                     autoFocus
                 >
                     {t("CLOSE")}

@@ -2,11 +2,10 @@
  * Service to talk to the AWS S3 and upload or download files
  */
 
-import converterService from './converter';
+import axios from "axios";
+import converterService from "./converter";
 
-
-const call = function(fileserverUrl, method, endpoint, data, headers, transformRequest, responseType) {
-
+const call = function (fileserverUrl, method, endpoint, data, headers, transformRequest, responseType) {
     if (!transformRequest) {
         transformRequest = $http.defaults.transformRequest;
     }
@@ -16,24 +15,21 @@ const call = function(fileserverUrl, method, endpoint, data, headers, transformR
         url: fileserverUrl + endpoint,
         data: data,
         transformRequest: transformRequest,
-        responseType: responseType
+        responseType: responseType,
     };
 
     req.headers = headers;
 
-    return $q(function(resolve, reject) {
-
-        const onSuccess = function(data) {
+    return new Promise(function (resolve, reject) {
+        const onSuccess = function (data) {
             return resolve(data);
         };
 
-        const onError = function(data) {
+        const onError = function (data) {
             return reject(data);
         };
 
-        $http(req)
-            .then(onSuccess, onError);
-
+        axios(req).then(onSuccess, onError);
     });
 };
 
@@ -47,8 +43,7 @@ const call = function(fileserverUrl, method, endpoint, data, headers, transformR
  * @returns {Promise} promise
  */
 const upload = function (signedUrl, fields, chunk) {
-
-    const endpoint = ''; // the signed url already has everything
+    const endpoint = ""; // the signed url already has everything
     const method = "POST";
     const data = new FormData();
     for (let field_name in fields) {
@@ -57,9 +52,9 @@ const upload = function (signedUrl, fields, chunk) {
         }
         data.append(field_name, fields[field_name]);
     }
-    data.append('file', chunk);
+    data.append("file", chunk);
     const headers = {
-        'Content-Type': undefined
+        "Content-Type": undefined,
     };
 
     return call(signedUrl, method, endpoint, data, headers, angular.identity);
@@ -73,27 +68,28 @@ const upload = function (signedUrl, fields, chunk) {
  * @returns {Promise} promise with the data
  */
 const download = function (signedUrl) {
-
-    const endpoint = ''; // the signed url already has everything
+    const endpoint = ""; // the signed url already has everything
     const method = "GET";
     const data = null;
 
-    const headers = {
-    };
+    const headers = {};
 
-    return call(signedUrl, method, endpoint, data, headers,  undefined, 'arraybuffer').then(function(data) {
-        return data
-    },function(data) {
-        if (data.status === 400) {
-            data.data = JSON.parse(converterService.bytesToString(data.data));
+    return call(signedUrl, method, endpoint, data, headers, undefined, "arraybuffer").then(
+        function (data) {
+            return data;
+        },
+        function (data) {
+            if (data.status === 400) {
+                data.data = JSON.parse(converterService.bytesToString(data.data));
+            }
+            return $q.reject(data);
         }
-        return $q.reject(data)
-    });
+    );
 };
 
 const service = {
     upload: upload,
-    download: download
+    download: download,
 };
 
 export default service;

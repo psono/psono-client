@@ -1,4 +1,5 @@
 {
+  "DATE_TIME_YYYY_MM_DD_HH_MM": "dd.MM.yyyy HH:mm",
   "TABLE_BODY_NO_MATCH": "Entschulding, keine übereinstimmenden Einträge gefunden",
   "TABLE_BODY_TOOL_TIP": "Sortieren",
   "TABLE_BODY_COLUMN_HEADER_TOOLTIP": "Sortieren nach",
@@ -84,6 +85,7 @@
   "BACK": "Zurück",
   "RECOVERY_CODES_DISABLED": "Wiederherstellungs Codes wurden deaktiviert.",
   "PASSWORD_TOO_SHORT": "Passwort zu kurz.",
+  "GROUP_NAME_TOO_SHORT": "Der Name der Gruppe ist zu kurz.",
   "PASSWORDS_DONT_MATCH": "Passwörter nicht identisch.",
   "PASSWORD_NOT_COMPLEX_ENOUGH": "Passwort nicht komplex genug.",
   "OLD_PASSWORD_REQUIRED": "Altes Passwort erfoderlich",
@@ -562,6 +564,7 @@
   "PASSWORD_LENGTH": "Passwortlänge",
   "GPG": "GPG",
   "GENERAL": "Allgemein",
+  "GENERAL_SETTINGS": "Allgemein Einstellungen",
   "GPG_DESCRIPTION": "Stellen sie hier ihren standard GPG Key ein.",
   "NOTIFICATIONS": "Benachrichtigungen",
   "NOTIFICATIONS_DESCRIPTION": "Legen sie ihre Benachritigungseinstellungen fest.",

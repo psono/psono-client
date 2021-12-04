@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { bindActionCreators } from "redux";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
 import Dialog from "@material-ui/core/Dialog";
@@ -12,7 +10,6 @@ import Button from "@material-ui/core/Button";
 import { Checkbox, Grid } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 
-import actionCreators from "../../actions/action-creators";
 import GridContainerErrors from "../../components/grid-container-errors";
 import { Check } from "@material-ui/icons";
 import apiKey from "../../services/api-keys";
@@ -43,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const EditDatastoresDialog = (props) => {
+const EditApiKeysDialog = (props) => {
     const { open, onClose, apiKeyId } = props;
     const { t } = useTranslation();
     const classes = useStyles();
@@ -60,7 +57,7 @@ const EditDatastoresDialog = (props) => {
     }, []);
 
     const loadApiKey = () => {
-        apiKey.readApiKey(props.apiKeyId).then(
+        apiKey.readApiKey(apiKeyId).then(
             function (data) {
                 setTitle(data.title);
                 setRestrictToSecrets(data.restrict_to_secrets);
@@ -72,7 +69,7 @@ const EditDatastoresDialog = (props) => {
                 console.log(error);
             }
         );
-        apiKey.readApiKeySecrets(props.apiKeyId).then(
+        apiKey.readApiKeySecrets(apiKeyId).then(
             function (secrets) {
                 // TODO implement secrets mapping
                 console.log(secrets);
@@ -93,7 +90,7 @@ const EditDatastoresDialog = (props) => {
             onClose();
         };
 
-        return apiKey.updateApiKey(props.apiKeyId, title, restrictToSecrets, allowInsecureUsage, rightToRead, rightToWrite).then(onSuccess, onError);
+        return apiKey.updateApiKey(apiKeyId, title, restrictToSecrets, allowInsecureUsage, rightToRead, rightToWrite).then(onSuccess, onError);
     };
 
     const onAddSecret = () => {
@@ -273,16 +270,10 @@ const EditDatastoresDialog = (props) => {
     );
 };
 
-EditDatastoresDialog.propTypes = {
+EditApiKeysDialog.propTypes = {
     onClose: PropTypes.func.isRequired,
     open: PropTypes.bool.isRequired,
     apiKeyId: PropTypes.string.isRequired,
 };
 
-function mapStateToProps(state) {
-    return { state: state };
-}
-function mapDispatchToProps(dispatch) {
-    return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-export default connect(mapStateToProps, mapDispatchToProps)(EditDatastoresDialog);
+export default EditApiKeysDialog;

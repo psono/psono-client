@@ -15,7 +15,10 @@ function getSettingsDatastore() {
     const description = "key-value-settings";
 
     const onSuccess = function (results) {
-        action.settingsDatastoreLoaded(results);
+        const data = {};
+        results.forEach((result) => (data[result["key"]] = result["value"]));
+
+        action.settingsDatastoreLoaded(data);
 
         return results;
     };

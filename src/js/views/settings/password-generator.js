@@ -5,6 +5,8 @@ import { useSelector } from "react-redux";
 import Divider from "@material-ui/core/Divider";
 import TextField from "@material-ui/core/TextField";
 import { Grid } from "@material-ui/core";
+import Button from "@material-ui/core/Button";
+import action from "../../actions/bound-action-creators";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -24,6 +26,10 @@ const SettingsPasswordGeneratorView = (props) => {
     const [passwordLettersLowercase, setPasswordLettersLowercase] = useState(settingsDatastore.passwordLettersLowercase);
     const [passwordNumbers, setPasswordNumbers] = useState(settingsDatastore.passwordNumbers);
     const [passwordSpecialChars, setPasswordSpecialChars] = useState(settingsDatastore.passwordSpecialChars);
+
+    const save = (event) => {
+        action.setPasswordConfig(passwordLength, passwordLettersUppercase, passwordLettersLowercase, passwordNumbers, passwordSpecialChars);
+    };
 
     return (
         <Grid container>
@@ -106,6 +112,20 @@ const SettingsPasswordGeneratorView = (props) => {
                         setPasswordSpecialChars(event.target.value);
                     }}
                 />
+            </Grid>
+            <Grid container style={{ marginBottom: "8px" }}>
+                <Grid item xs={12} sm={12} md={12}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={save}
+                        disabled={
+                            passwordLength <= 0 || (passwordLettersUppercase + passwordLettersLowercase + passwordNumbers + passwordSpecialChars).length === 0
+                        }
+                    >
+                        {t("SAVE")}
+                    </Button>
+                </Grid>
             </Grid>
         </Grid>
     );

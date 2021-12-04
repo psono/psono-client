@@ -8,7 +8,9 @@ import secretService from "./secret";
 import shareService from "./share";
 import settingsService from "./settings";
 import shareLinkService from "./share-link";
+import cryptoLibrary from "./crypto-library";
 import i18n from "../i18n";
+import store from "./store";
 
 const registrations = {};
 let _share_index = {};
@@ -31,20 +33,20 @@ const specialMinCount = 1;
  * @returns {*}
  */
 function isStrongEnough(password) {
-    if (uppercaseMinCount + lowercaseMinCount + numberMinCount + specialMinCount > settingsService.getSetting("setting_password_length")) {
+    if (uppercaseMinCount + lowercaseMinCount + numberMinCount + specialMinCount > store.getState().settingsDatastore.passwordLength) {
         //password can never comply, so we skip check
         return true;
     }
 
-    const uc = password.match(new RegExp("([" + escapeRegExp(settingsService.getSetting("setting_password_letters_uppercase")) + "])", "g"));
-    const lc = password.match(new RegExp("([" + escapeRegExp(settingsService.getSetting("setting_password_letters_lowercase")) + "])", "g"));
-    const n = password.match(new RegExp("([" + escapeRegExp(settingsService.getSetting("setting_password_numbers")) + "])", "g"));
-    const sc = password.match(new RegExp("([" + escapeRegExp(settingsService.getSetting("setting_password_special_chars")) + "])", "g"));
+    const uc = password.match(new RegExp("([" + escapeRegExp(store.getState().settingsDatastore.passwordLettersUppercase) + "])", "g"));
+    const lc = password.match(new RegExp("([" + escapeRegExp(store.getState().settingsDatastore.passwordLettersLowercase) + "])", "g"));
+    const n = password.match(new RegExp("([" + escapeRegExp(store.getState().settingsDatastore.passwordNumbers) + "])", "g"));
+    const sc = password.match(new RegExp("([" + escapeRegExp(store.getState().settingsDatastore.passwordSpecialChars) + "])", "g"));
 
-    const uc_test_result = settingsService.getSetting("setting_password_letters_uppercase").length === 0 || (uc && uc.length >= uppercaseMinCount);
-    const lc_test_result = settingsService.getSetting("setting_password_letters_lowercase").length === 0 || (lc && lc.length >= lowercaseMinCount);
-    const n_test_result = settingsService.getSetting("setting_password_numbers").length === 0 || (n && n.length >= numberMinCount);
-    const sc_test_result = settingsService.getSetting("setting_password_special_chars").length === 0 || (sc && sc.length >= specialMinCount);
+    const uc_test_result = store.getState().settingsDatastore.passwordLettersUppercase.length === 0 || (uc && uc.length >= uppercaseMinCount);
+    const lc_test_result = store.getState().settingsDatastore.passwordLettersLowercase.length === 0 || (lc && lc.length >= lowercaseMinCount);
+    const n_test_result = store.getState().settingsDatastore.passwordNumbers.length === 0 || (n && n.length >= numberMinCount);
+    const sc_test_result = store.getState().settingsDatastore.passwordSpecialChars.length === 0 || (sc && sc.length >= specialMinCount);
 
     return uc_test_result && lc_test_result && n_test_result && sc_test_result;
 }
@@ -69,17 +71,17 @@ function escapeRegExp(str) {
  * generates a password based on the length requirement and a string with all allowed characters
  *
  * @param {int}  length The length of the password
- * @param {string}  allowed_characters A string containing all allowed characters
+ * @param {string}  allowedCharacters A string containing all allowed characters
  *
  * @returns {string} Returns the password
  */
-function generatePassword(length, allowed_characters) {
-    const allowed_characters_length = allowed_characters.length;
+function generatePassword(length, allowedCharacters) {
+    const allowed_characters_length = allowedCharacters.length;
     let password = "";
 
     for (let i = 0; i < length; i++) {
         const pos = Math.floor(cryptoLibrary.random() * allowed_characters_length);
-        password = password + allowed_characters.charAt(pos);
+        password = password + allowedCharacters.charAt(pos);
     }
 
     return password;
@@ -94,11 +96,11 @@ function generate() {
     let password = "";
     while (!isStrongEnough(password)) {
         password = generatePassword(
-            settingsService.getSetting("setting_password_length"),
-            settingsService.getSetting("setting_password_letters_uppercase") +
-                settingsService.getSetting("setting_password_letters_lowercase") +
-                settingsService.getSetting("setting_password_numbers") +
-                settingsService.getSetting("setting_password_special_chars")
+            store.getState().settingsDatastore.passwordLength,
+            store.getState().settingsDatastore.passwordLettersUppercase +
+                store.getState().settingsDatastore.passwordLettersLowercase +
+                store.getState().settingsDatastore.passwordNumbers +
+                store.getState().settingsDatastore.passwordSpecialChars
         );
     }
     return password;
@@ -109,14 +111,14 @@ function generate() {
  * Calls recursive itself for all folders and skips nested shares
  *
  * @param {TreeObject} obj The tree object to update
- * @param {uuid} parent_share_id The id of the parent share
- * @param {uuid} parent_datastore_id The id of the parent datastore
+ * @param {uuid} parentShareId The id of the parent share
+ * @param {uuid} parentDatastoreId The id of the parent datastore
  */
-function updateParents(obj, parent_share_id, parent_datastore_id) {
+function updateParents(obj, parentShareId, parentDatastoreId) {
     let n;
 
-    let new_parent_share_id = parent_share_id;
-    let new_parent_datastore_id = parent_datastore_id;
+    let new_parent_share_id = parentShareId;
+    let new_parent_datastore_id = parentDatastoreId;
 
     if (obj.hasOwnProperty("datastore_id")) {
         obj["parent_share_id"] = undefined;
@@ -124,8 +126,8 @@ function updateParents(obj, parent_share_id, parent_datastore_id) {
         new_parent_share_id = undefined;
         new_parent_datastore_id = obj.datastore_id;
     } else if (obj.hasOwnProperty("share_id")) {
-        obj["parent_share_id"] = parent_share_id;
-        obj["parent_datastore_id"] = parent_datastore_id;
+        obj["parent_share_id"] = parentShareId;
+        obj["parent_datastore_id"] = parentDatastoreId;
         new_parent_share_id = obj.share_id;
         new_parent_datastore_id = undefined;
     }
@@ -162,18 +164,18 @@ function updateParents(obj, parent_share_id, parent_datastore_id) {
  * @param {TreeObject} datastore The current datastore to update
  * @param {Array} path The location of the new subtree
  * @param {TreeObject} content The actual data for this path
- * @param {RightObject} parent_share_rights The parental rights
- * @param {uuid} parent_share_id The parent's share id
- * @param {uuid} parent_datastore_id THe parent's datastore id
+ * @param {RightObject} parentShareRights The parental rights
+ * @param {uuid} parentShareId The parent's share id
+ * @param {uuid} parentDatastoreId THe parent's datastore id
  */
-function updatePathsWithData(datastore, path, content, parent_share_rights, parent_share_id, parent_datastore_id) {
+function updatePathsWithData(datastore, path, content, parentShareRights, parentShareId, parentDatastoreId) {
     const path_copy = path.slice();
     const search = findInDatastore(path_copy, datastore);
     const obj = search[0][search[1]];
 
     // update share_rights in share object
     obj["share_rights"] = content.rights;
-    obj["share_rights"]["delete"] = parent_share_rights["write"];
+    obj["share_rights"]["delete"] = parentShareRights["write"];
 
     // update data (folder and items) in share object
     for (let prop in content.data) {
@@ -184,7 +186,7 @@ function updatePathsWithData(datastore, path, content, parent_share_rights, pare
     }
 
     // update share_rights in folders and items
-    updateParents(obj, parent_share_id, parent_datastore_id);
+    updateParents(obj, parentShareId, parentDatastoreId);
     datastoreService.updateShareRightsOfFoldersAndItems(obj, {
         read: true,
         write: true,
@@ -197,10 +199,10 @@ function updatePathsWithData(datastore, path, content, parent_share_rights, pare
  * Queries shares recursive
  *
  * @param {TreeObject} datastore The datastore tree
- * @param {object} share_rights_dict Dictionary of shares and their share rights
+ * @param {object} shareRightsDict Dictionary of shares and their share rights
  * @returns {Promise} Returns promise that resolves either when the initial datastore is loaded or when all shares with subshares are loaded
  */
-function _readShares(datastore, share_rights_dict) {
+function _readShares(datastore, shareRightsDict) {
     return new Promise(function (resolve) {
         let open_calls = 0;
         const all_calls = [];
@@ -270,8 +272,7 @@ function _readShares(datastore, share_rights_dict) {
                 }
 
                 _share_index[share_id] = share_index[share_id].secret_key;
-
-                let new_parent_share_stack = angular.copy(parent_share_stack);
+                let new_parent_share_stack = helperService.duplicateObject(parent_share_stack);
                 new_parent_share_stack.push(share_id);
 
                 for (let i = share_index[share_id].paths.length - 1; i >= 0; i--) {
@@ -342,7 +343,7 @@ function _readShares(datastore, share_rights_dict) {
         };
 
         // Read shares recursive. We start from the datastore, so delete is allowed in the datastore
-        readSharesRecursive(datastore, share_rights_dict, share_index, all_share_data, parent_share_rights, undefined, datastore.datastore_id, []);
+        readSharesRecursive(datastore, shareRightsDict, share_index, all_share_data, parent_share_rights, undefined, datastore.datastore_id, []);
         updateParents(datastore, undefined, datastore.datastore_id);
         datastoreService.updateShareRightsOfFoldersAndItems(datastore, {
             read: true,
@@ -398,17 +399,17 @@ function hideSubShareContent(share) {
  * Sets the "path" attribute for all folders and items
  *
  * @param datastore
- * @param parent_path
+ * @param parentPath
  */
-function updatePathsRecursive(datastore, parent_path) {
-    return datastoreService.updatePathsRecursive(datastore, parent_path);
+function updatePathsRecursive(datastore, parentPath) {
+    return datastoreService.updatePathsRecursive(datastore, parentPath);
 }
 
 /**
  * Returns the password datastore. In addition this function triggers the generation of the local datastore
  * storage to.
  *
- * @param {uuid} id The id of the datastore
+ * @param {uuid} [id] The id of the datastore
  *
  * @returns {Promise} Returns a promise with the datastore
  */
@@ -430,25 +431,39 @@ function getPasswordDatastore(id) {
             const onSuccess = function (datastore) {
                 updatePathsRecursive(datastore, []);
 
-                datastoreService.fillStorage("datastore-password-leafs", datastore, [
-                    ["key", "secret_id"],
-                    ["secret_id", "secret_id"],
-                    ["value", "secret_key"],
-                    ["name", "name"],
-                    ["urlfilter", "urlfilter"],
-                    ["autosubmit", "autosubmit"],
-                    ["search", "urlfilter"],
-                ]);
-                datastoreService.fillStorage("datastore-file-leafs", datastore, [
-                    ["key", "id"],
-                    ["file_id", "file_id"],
-                    ["file_shard_id", "file_shard_id"],
-                    ["file_repository_id", "file_repository_id"],
-                    ["file_size", "file_size"],
-                    ["file_secret_key", "file_secret_key"],
-                    ["file_chunks", "file_chunks"],
-                    ["file_title", "file_title"],
-                ]);
+                datastoreService.fillStorage(
+                    "datastore-password-leafs",
+                    datastore,
+                    [
+                        ["key", "secret_id"],
+                        ["secret_id", "secret_id"],
+                        ["secret_key", "secret_key"],
+                        ["name", "name"],
+                        ["urlfilter", "urlfilter"],
+                        ["autosubmit", "autosubmit"],
+                        ["search", "urlfilter"],
+                    ],
+                    function (item) {
+                        return !item.type || item.type !== "file";
+                    }
+                );
+                datastoreService.fillStorage(
+                    "datastore-file-leafs",
+                    datastore,
+                    [
+                        ["key", "id"],
+                        ["file_id", "file_id"],
+                        ["file_shard_id", "file_shard_id"],
+                        ["file_repository_id", "file_repository_id"],
+                        ["file_size", "file_size"],
+                        ["file_secret_key", "file_secret_key"],
+                        ["file_chunks", "file_chunks"],
+                        ["file_title", "file_title"],
+                    ],
+                    function (item) {
+                        return item.type && item.type === "file";
+                    }
+                );
 
                 password_datastore_read = true;
 
@@ -582,7 +597,7 @@ function saveDatastoreContent(datastore, paths) {
  * @returns {Promise} Returns a promise with the status
  */
 function saveInDatastore(secretObject, datastoreObject) {
-    const link_id = cryptoLibrary.generate_uuid();
+    const link_id = cryptoLibrary.generateUuid();
 
     const onError = function (result) {
         // pass
@@ -641,11 +656,11 @@ function savePassword(url, username, password) {
         console.log(data);
     };
 
-    const onSuccess = function (datastore_object) {
+    const onSuccess = function (datastoreObject) {
         // we return a promise. We do not yet have a proper error handling and returning
         // a promise might make it easier later to wait or fix errors
         return new Promise(function (resolve) {
-            resolve(datastore_object);
+            resolve(datastoreObject);
         });
     };
 
@@ -708,11 +723,11 @@ function bookmarkActiveTab() {
             // pass
         };
 
-        const onSuccess = function (datastore_object) {
+        const onSuccess = function (datastoreObject) {
             // we return a promise. We do not yet have a proper error handling and returning
             // a promise might make it easier later to wait or fix errors
             return new Promise(function (resolve) {
-                resolve(datastore_object);
+                resolve(datastoreObject);
             });
         };
 
@@ -723,21 +738,21 @@ function bookmarkActiveTab() {
 }
 
 /**
- * Searches a folder and expects to find an element (item or folder) with a specific search_id.
+ * Searches a folder and expects to find an element (item or folder) with a specific searchId.
  * It will return a tuple with the list of elements holding the element together with the index.
  *
  * @param {object} folder The folder to search
- * @param {uuid} search_id The id of the element one is looking for
+ * @param {uuid} searchId The id of the element one is looking for
  *
  * @returns {[]} Returns a tuple of the containing list and index or raises an error if not found
  */
-function findObject(folder, search_id) {
+function findObject(folder, searchId) {
     let n, l;
 
     if (folder.hasOwnProperty("folders")) {
         // check if the object is a folder, if yes return the folder list and the index
         for (n = 0, l = folder.folders.length; n < l; n++) {
-            if (folder.folders[n].id === search_id) {
+            if (folder.folders[n].id === searchId) {
                 return [folder.folders, n];
             }
         }
@@ -745,7 +760,7 @@ function findObject(folder, search_id) {
     if (folder.hasOwnProperty("items")) {
         // check if its a file, if yes return the file list and the index
         for (n = 0, l = folder.items.length; n < l; n++) {
-            if (folder.items[n].id === search_id) {
+            if (folder.items[n].id === searchId) {
                 return [folder.items, n];
             }
         }
@@ -783,20 +798,20 @@ function findInDatastore(path, datastore) {
 /**
  * Searches a datastore and returns the paths
  *
- * @param {*} to_search The thing to search
+ * @param {*} toSearch The thing to search
  * @param {TreeObject} datastore The datastore object tree
- * @param {TreeObject} cmp_fct The compare function
+ * @param {TreeObject} cmpFct The compare function
  *
  * @returns {Array} a list of the paths
  */
-function searchInDatastore(to_search, datastore, cmp_fct) {
+function searchInDatastore(toSearch, datastore, cmpFct) {
     let i, n, l;
     const paths = [];
     let tmp_paths;
 
     if (datastore.hasOwnProperty("items")) {
         for (n = 0, l = datastore.items.length; n < l; n++) {
-            if (!cmp_fct(to_search, datastore.items[n])) {
+            if (!cmpFct(toSearch, datastore.items[n])) {
                 continue;
             }
             paths.push([datastore.items[n].id]);
@@ -805,12 +820,12 @@ function searchInDatastore(to_search, datastore, cmp_fct) {
 
     if (datastore.hasOwnProperty("folders")) {
         for (n = 0, l = datastore.folders.length; n < l; n++) {
-            tmp_paths = searchInDatastore(to_search, datastore.folders[n], cmp_fct);
+            tmp_paths = searchInDatastore(toSearch, datastore.folders[n], cmpFct);
             for (i = 0; i < tmp_paths.length; i++) {
                 tmp_paths[i].unshift(datastore.folders[n].id);
                 paths.push(tmp_paths[i]);
             }
-            if (!cmp_fct(to_search, datastore.folders[n])) {
+            if (!cmpFct(toSearch, datastore.folders[n])) {
                 continue;
             }
             paths.push([datastore.folders[n].id]);
@@ -820,20 +835,20 @@ function searchInDatastore(to_search, datastore, cmp_fct) {
 }
 
 /**
- * fills other_children with all child shares of a given path
+ * fills otherChildren with all child shares of a given path
  *
  * @param {TreeObject|undefined} obj the object to search
- * @param {int|undefined} share_distance hare_distance the distance in shares to search (-1 = unlimited search, 0 stop search)
- * @param {Array} other_children The list of found children that will be updated with new findings
+ * @param {int|undefined} shareDistance hare_distance the distance in shares to search (-1 = unlimited search, 0 stop search)
+ * @param {Array} otherChildren The list of found children that will be updated with new findings
  * @param {Array} [path] (optional)  The path to prepend, if not provided an empty path will be assumed.
  */
-function getAllChildShares(obj, share_distance, other_children, path) {
+function getAllChildShares(obj, shareDistance, otherChildren, path) {
     if (typeof path === "undefined") {
         path = [];
     }
 
     let n, l, new_path;
-    if (share_distance === 0) {
+    if (shareDistance === 0) {
         return;
     }
     //search in folders
@@ -842,13 +857,13 @@ function getAllChildShares(obj, share_distance, other_children, path) {
             new_path = path.slice();
             new_path.push(obj.folders[n].id);
             if (typeof obj.folders[n].share_id !== "undefined") {
-                other_children.push({
+                otherChildren.push({
                     share: obj.folders[n],
                     path: new_path,
                 });
-                getAllChildShares(obj.folders[n], share_distance - 1, other_children, new_path);
+                getAllChildShares(obj.folders[n], shareDistance - 1, otherChildren, new_path);
             } else {
-                getAllChildShares(obj.folders[n], share_distance, other_children, new_path);
+                getAllChildShares(obj.folders[n], shareDistance, otherChildren, new_path);
             }
         }
     }
@@ -858,7 +873,7 @@ function getAllChildShares(obj, share_distance, other_children, path) {
             new_path = path.slice();
             new_path.push(obj.items[n].id);
             if (typeof obj.items[n].share_id !== "undefined") {
-                other_children.push({
+                otherChildren.push({
                     share: obj.items[n],
                     path: new_path,
                 });
@@ -868,24 +883,24 @@ function getAllChildShares(obj, share_distance, other_children, path) {
 }
 
 /**
- * fills other_children with all child shares of a given path
+ * fills otherChildren with all child shares of a given path
  *
  * @param {Array} path The path to search for child shares
  * @param {TreeObject|undefined} [datastore] (optional) if obj provided
- * @param {Array} other_children The list of found children that will be updated with new findings
+ * @param {Array} otherChildren The list of found children that will be updated with new findings
  * @param {TreeObject|undefined} [obj] (optional)  if not provided we will search it in the datastore according to the provided path first
  */
-function getAllChildSharesByPath(path, datastore, other_children, obj) {
+function getAllChildSharesByPath(path, datastore, otherChildren, obj) {
     if (typeof obj === "undefined") {
         const path_copy = path.slice();
         const search = findInDatastore(path_copy, datastore);
         obj = search[0][search[1]];
-        return getAllChildShares(obj, 1, other_children, path);
+        return getAllChildShares(obj, 1, otherChildren, path);
     } else if (obj === false) {
         // TODO Handle not found
         console.log("HANDLE not found!");
     } else {
-        getAllChildShares(obj, 1, other_children, path);
+        getAllChildShares(obj, 1, otherChildren, path);
     }
 }
 
@@ -979,11 +994,11 @@ function getAllFileLinks(element) {
  * Translates the absolute path to a relative path
  *
  * @param {TreeObject} share The share to search in the absolute path
- * @param {Array} absolute_path The absolute path
+ * @param {Array} absolutePath The absolute path
  * @returns {Array} Returns the relative path
  */
-function getRelativePath(share, absolute_path) {
-    const path_copy = absolute_path.slice();
+function getRelativePath(share, absolutePath) {
+    const path_copy = absolutePath.slice();
 
     // lets create the relative path in the share
     let relative_path = [];
@@ -1009,14 +1024,14 @@ function getRelativePath(share, absolute_path) {
  * triggered once a new share is added. Searches the datastore for the closest share (or the datastore if no
  * share) and adds it to the share_index
  *
- * @param {uuid} share_id The share id that was added
+ * @param {uuid} shareId The share id that was added
  * @param {Array} path The path to the new share
  * @param {TreeObject} datastore The datastore it was added to
  * @param {int} distance Some logic to get the correct parent share to update
  *
  * @returns {Array} Returns the paths to update
  */
-function onShareAdded(share_id, path, datastore, distance) {
+function onShareAdded(shareId, path, datastore, distance) {
     const changed_paths = [];
     let i, l;
 
@@ -1040,11 +1055,11 @@ function onShareAdded(share_id, path, datastore, distance) {
     }
 
     // add the the entry for the share in the share_index if not yet exists
-    if (typeof parent_share.share_index[share_id] === "undefined") {
+    if (typeof parent_share.share_index[shareId] === "undefined") {
         const search = findInDatastore(path_copy2, datastore);
         const share = search[0][search[1]];
 
-        parent_share.share_index[share_id] = {
+        parent_share.share_index[shareId] = {
             paths: [],
             secret_key: share.share_secret_key,
         };
@@ -1062,7 +1077,7 @@ function onShareAdded(share_id, path, datastore, distance) {
     // lets create the relative path in the share
     const relative_path = getRelativePath(parent_share, path_copy3);
 
-    parent_share.share_index[share_id].paths.push(relative_path);
+    parent_share.share_index[shareId].paths.push(relative_path);
 
     let share_changed = false;
 
@@ -1070,7 +1085,7 @@ function onShareAdded(share_id, path, datastore, distance) {
         if (!parent_share.share_index.hasOwnProperty(old_share_id)) {
             continue;
         }
-        if (old_share_id === share_id) {
+        if (old_share_id === shareId) {
             continue;
         }
 
@@ -1116,21 +1131,21 @@ function onShareAdded(share_id, path, datastore, distance) {
  * The function that actually adjusts the share_index object and deletes the shares
  *
  * @param share the share holding the share_index
- * @param share_id the share_id of the share, that we want to remove from the share_index
- * @param relative_path the relative path inside the share
+ * @param shareId the shareId of the share, that we want to remove from the share_index
+ * @param relativePath the relative path inside the share
  */
-function deleteFromShareIndex(share, share_id, relative_path) {
+function deleteFromShareIndex(share, shareId, relativePath) {
     let already_found = false;
 
-    for (let i = share.share_index[share_id].paths.length - 1; i >= 0; i--) {
+    for (let i = share.share_index[shareId].paths.length - 1; i >= 0; i--) {
         // delete the path from the share index entry
-        if (helperService.arrayStartsWith(share.share_index[share_id].paths[i], relative_path)) {
-            share.share_index[share_id].paths.splice(i, 1);
+        if (helperService.arrayStartsWith(share.share_index[shareId].paths[i], relativePath)) {
+            share.share_index[shareId].paths.splice(i, 1);
             already_found = true;
         }
         // if no paths are empty, we delete the whole share_index entry
-        if (share.share_index[share_id].paths.length === 0) {
-            delete share.share_index[share_id];
+        if (share.share_index[shareId].paths.length === 0) {
+            delete share.share_index[shareId];
         }
         // if the share_index holds no entries anymore, we delete the share_index
         if (Object.keys(share.share_index).length === 0) {
@@ -1147,21 +1162,21 @@ function deleteFromShareIndex(share, share_id, relative_path) {
  * triggered once a share is deleted. Searches the datastore for the closest share (or the datastore if no
  * share) and removes it from the share_index
  *
- * @param {uuid} share_id the share_id to delete
+ * @param {uuid} shareId the shareId to delete
  * @param {Array} path The path to the deleted share
  * @param {TreeObject} datastore The datastore it was deleted from
  * @param {int} distance Some logic to get the correct parent share to update
  *
  * @returns {Array} Returns the paths to update
  */
-function onShareDeleted(share_id, path, datastore, distance) {
+function onShareDeleted(shareId, path, datastore, distance) {
     const path_copy = path.slice();
     const closest_share_info = shareService.getClosestParentShare(path_copy, datastore, datastore, distance);
     const parent_share = closest_share_info["closest_share"];
     const relative_path = getRelativePath(parent_share, path.slice());
 
     // Share_id specified, so lets delete the specified one
-    deleteFromShareIndex(parent_share, share_id, relative_path);
+    deleteFromShareIndex(parent_share, shareId, relative_path);
 
     return [path];
 }
@@ -1169,17 +1184,17 @@ function onShareDeleted(share_id, path, datastore, distance) {
 /**
  * triggered once a share moved. handles the update of the share_index
  *
- * @param {uuid} share_id The id of the share that moved
- * @param {Array} old_path The old path
- * @param {Array} new_path The new path
+ * @param {uuid} shareId The id of the share that moved
+ * @param {Array} oldPath The old path
+ * @param {Array} newPath The new path
  * @param {TreeObject} datastore The affected datastore
- * @param {int} add_distance Some logic to get the correct parent share to update in on_share_added()
- * @param {int} delete_distance Some logic to get the correct parent share to update in on_share_deleted()
+ * @param {int} addDistance Some logic to get the correct parent share to update in on_share_added()
+ * @param {int} deleteDistance Some logic to get the correct parent share to update in on_share_deleted()
  * @returns {Array} Returns the paths to update
  */
-function onShareMoved(share_id, old_path, new_path, datastore, add_distance, delete_distance) {
-    const paths_updated1 = onShareAdded(share_id, new_path, datastore, add_distance);
-    const paths_updated2 = onShareDeleted(share_id, old_path, datastore, delete_distance);
+function onShareMoved(shareId, oldPath, newPath, datastore, addDistance, deleteDistance) {
+    const paths_updated1 = onShareAdded(shareId, newPath, datastore, addDistance);
+    const paths_updated2 = onShareDeleted(shareId, oldPath, datastore, deleteDistance);
 
     return paths_updated1.concat(paths_updated2);
 }
@@ -1290,25 +1305,25 @@ function analyzeBreadcrumbs(breadcrumbs, datastore) {
  * @param {object} share The share to add
  * @param {object} target The target folder to add the share to
  * @param {array} path The path of the target folder
- * @param {uuid} parent_share_id The parent Share ID (if the parent is a share)
- * @param {uuid} parent_datastore_id The parent Datastore ID (if the parent is a datastore)
+ * @param {uuid} parentShareId The parent Share ID (if the parent is a share)
+ * @param {uuid} parentDatastoreId The parent Datastore ID (if the parent is a datastore)
  * @param {TreeObject} datastore The complete password datastore
- * @param {TreeObject} parent_share The target share or datastore
+ * @param {TreeObject} parentShare The target share or datastore
  *
  * @returns {Array} The paths of changes
  */
-function createShareLinkInDatastore(share, target, path, parent_share_id, parent_datastore_id, datastore, parent_share) {
+function createShareLinkInDatastore(share, target, path, parentShareId, parentDatastoreId, datastore, parentShare) {
     if (
-        parent_share.hasOwnProperty("share_index") &&
-        parent_share["share_index"].hasOwnProperty(share.share_id) &&
-        parent_share["share_index"][share.share_id].hasOwnProperty("paths") &&
-        parent_share["share_index"][share.share_id]["paths"].length > 0
+        parentShare.hasOwnProperty("share_index") &&
+        parentShare["share_index"].hasOwnProperty(share.share_id) &&
+        parentShare["share_index"][share.share_id].hasOwnProperty("paths") &&
+        parentShare["share_index"][share.share_id]["paths"].length > 0
     ) {
         // share already exists in this parent share / datastore, so we prevent creation of duplicates
         return [];
     }
 
-    const link_id = cryptoLibrary.generate_uuid();
+    const link_id = cryptoLibrary.generateUuid();
 
     share.id = link_id;
 
@@ -1326,7 +1341,7 @@ function createShareLinkInDatastore(share, target, path, parent_share_id, parent
         target.items.push(share);
     }
 
-    shareLinkService.createShareLink(link_id, share.share_id, parent_share_id, parent_datastore_id);
+    shareLinkService.createShareLink(link_id, share.share_id, parentShareId, parentDatastoreId);
 
     path.push(share.id);
 
@@ -1338,25 +1353,25 @@ function createShareLinkInDatastore(share, target, path, parent_share_id, parent
  *
  * @param {array} shares An array of shares to add to the datastore
  * @param {object} target The target folder to add the shares to
- * @param {array} parent_path The path to the parent datastore or share
+ * @param {array} parentPath The path to the parent datastore or share
  * @param {array} path The path to the target
- * @param {uuid} parent_share_id The parent Share ID (if the parent is a share)
- * @param {uuid} parent_datastore_id The parent Datastore ID (if the parent is a datastore)
+ * @param {uuid} parentShareId The parent Share ID (if the parent is a share)
+ * @param {uuid} parentDatastoreId The parent Datastore ID (if the parent is a datastore)
  * @param {TreeObject} datastore The complete password datastore
- * @param {TreeObject} parent_share The target share or datastore
+ * @param {TreeObject} parentShare The target share or datastore
  *
  * @returns {Promise} Returns a promise with the success of the action
  */
-function createShareLinksInDatastore(shares, target, parent_path, path, parent_share_id, parent_datastore_id, datastore, parent_share) {
-    const changed_paths = [parent_path];
+function createShareLinksInDatastore(shares, target, parentPath, path, parentShareId, parentDatastoreId, datastore, parentShare) {
+    const changedPaths = [parentPath];
 
     for (let i = 0; i < shares.length; i++) {
         let share = shares[i];
 
-        changed_paths.concat(createShareLinkInDatastore(share, target, angular.copy(path), parent_share_id, parent_datastore_id, datastore, parent_share));
+        changedPaths.concat(createShareLinkInDatastore(share, target, angular.copy(path), parentShareId, parentDatastoreId, datastore, parentShare));
     }
 
-    return saveDatastoreContent(datastore, changed_paths);
+    return saveDatastoreContent(datastore, changedPaths);
 }
 
 /**
@@ -1386,7 +1401,7 @@ function showFolderContentRecursive(searchTree) {
  * @param {TreeObject} searchTree The part of the datastore to search
  */
 function modifyTreeForSearch(newValue, searchTree) {
-    if (typeof newValue === "undefined" || typeof searchTree === "undefined") {
+    if (typeof newValue === "undefined" || typeof searchTree === "undefined" || searchTree === null) {
         return;
     }
 
@@ -1434,11 +1449,11 @@ function modifyTreeForSearch(newValue, searchTree) {
  * Takes a list of shares and will check which ones are accessible or not.
  * It will return a list of shares that are not accessible.
  *
- * @param {Array} share_list The list of shares (objects with share_id attribute)
+ * @param {Array} shareList The list of shares (objects with share_id attribute)
  *
  * @returns {Array} A list of the objects that are not accessible
  */
-function getInaccessibleShares(share_list) {
+function getInaccessibleShares(shareList) {
     // returns an empty list if the password datastore hasn't been read yet
     if (!password_datastore_read) {
         return [];
@@ -1446,11 +1461,11 @@ function getInaccessibleShares(share_list) {
 
     const inaccessible_shares = [];
 
-    for (let i = 0; i < share_list.length; i++) {
-        if (_share_index.hasOwnProperty(share_list[i].share_id)) {
+    for (let i = 0; i < shareList.length; i++) {
+        if (_share_index.hasOwnProperty(shareList[i].share_id)) {
             continue;
         }
-        inaccessible_shares.push(share_list[i]);
+        inaccessible_shares.push(shareList[i]);
     }
 
     return inaccessible_shares;

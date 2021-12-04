@@ -20,7 +20,8 @@ import PasswordDatastore from "../../containers/password-datastore";
 
 const useStyles = makeStyles((theme) => ({
     root: {
-        flexGrow: 1,
+        display: "flex",
+        padding: "15px",
     },
     toolbarRoot: {
         display: "flex",
@@ -109,7 +110,9 @@ const DatastoreView = (props) => {
                             </div>
                         </Toolbar>
                     </AppBar>
-                    <PasswordDatastore search={search} />
+                    <div className={classes.root}>
+                        <PasswordDatastore search={search} />
+                    </div>
                 </Paper>
             </BaseContent>
         </Base>

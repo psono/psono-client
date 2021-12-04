@@ -273,7 +273,7 @@ const AccountOverviewView = (props) => {
                     <canvas id="canvas" />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={closeQrModal} color="primary" autoFocus>
+                    <Button onClick={closeQrModal} autoFocus>
                         {t("CLOSE")}
                     </Button>
                 </DialogActions>

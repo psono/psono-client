@@ -14,6 +14,8 @@ import { createBrowserHistory } from "history";
 import { persistStore } from "redux-persist";
 import { PersistGate } from "redux-persist/integration/react";
 import { Provider } from "react-redux";
+import { MuiPickersUtilsProvider } from "@material-ui/pickers";
+import DateFnsUtils from "@date-io/date-fns";
 
 import store from "./services/store";
 import datastoreSettingService from "./services/datastore-setting";
@@ -38,20 +40,22 @@ const customHistory = createBrowserHistory();
 
 const App = () => {
     return (
-        <Provider store={store}>
-            <Suspense fallback="loading...">
-                <PersistGate loading={<HashLoader />} persistor={persistor}>
-                    <I18nextProvider i18n={i18n}>
-                        <ThemeProvider theme={theme}>
-                            <CssBaseline />
-                            <HashRouter history={customHistory} hashType={"hashbang"}>
-                                <IndexView />
-                            </HashRouter>
-                        </ThemeProvider>
-                    </I18nextProvider>
-                </PersistGate>
-            </Suspense>
-        </Provider>
+        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <Provider store={store}>
+                <Suspense fallback="loading...">
+                    <PersistGate loading={<HashLoader />} persistor={persistor}>
+                        <I18nextProvider i18n={i18n}>
+                            <ThemeProvider theme={theme}>
+                                <CssBaseline />
+                                <HashRouter history={customHistory} hashType={"hashbang"}>
+                                    <IndexView />
+                                </HashRouter>
+                            </ThemeProvider>
+                        </I18nextProvider>
+                    </PersistGate>
+                </Suspense>
+            </Provider>
+        </MuiPickersUtilsProvider>
     );
 };
 

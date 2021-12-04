@@ -10,6 +10,7 @@ module.exports = merge(common, {
   devtool: 'inline-source-map',
   entry: {
     'chrome/data/js/bundle.min.js': './src/js/index.js',
+    'chrome/data/js/crypto-worker.js': './src/js/crypto-worker.js',
   },
   plugins: [
     new webpack.DefinePlugin({

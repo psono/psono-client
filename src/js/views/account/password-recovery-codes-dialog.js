@@ -72,7 +72,7 @@ const PasswordRecoveryCodesDialog = (props) => {
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="primary" autoFocus>
+                <Button onClick={onClose} autoFocus>
                     {t("CLOSE")}
                 </Button>
             </DialogActions>

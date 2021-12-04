@@ -1,14 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
 import AppBar from "@material-ui/core/AppBar";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Box from "@material-ui/core/Box";
 
@@ -16,7 +13,6 @@ import store from "../../services/store";
 import Base from "../../containers/base";
 import BaseTitle from "../../containers/base-title";
 import BaseContent from "../../containers/base-content";
-import actionCreators from "../../actions/action-creators";
 import AccountOverviewView from "./overview";
 import MultifactorAuthenticationView from "./multifactor-authentication";
 import AccountEmergencyCodesView from "./emergency-codes";
@@ -24,8 +20,6 @@ import AccountPasswordRecoveryCodesView from "./password-recovery-codes";
 import AccountDeleteAccountView from "./delete-account";
 import AccountChangeEmailView from "./change-email";
 import AccountChangePasswordView from "./change-password";
-
-const useStyles = makeStyles((theme) => ({}));
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -45,7 +39,6 @@ TabPanel.propTypes = {
 
 const AccountView = (props) => {
     const { t } = useTranslation();
-    const classes = useStyles();
     let location = useLocation();
     const [value, setValue] = React.useState(location.pathname);
 
@@ -146,10 +139,4 @@ const AccountView = (props) => {
     );
 };
 
-function mapStateToProps(state) {
-    return { state: state };
-}
-function mapDispatchToProps(dispatch) {
-    return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-export default connect(mapStateToProps, mapDispatchToProps)(AccountView);
+export default AccountView;

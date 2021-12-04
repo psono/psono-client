@@ -656,7 +656,7 @@ const LoginViewForm = (props) => {
                 </Grid>
                 {allowUsernamePasswordLogin && (
                     <Grid container>
-                        <Grid item xs={4} sm={4} md={4} style={{ marginTop: "5px", marginBottom: "5px" }}>
+                        <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
                             <Button
                                 variant="contained"
                                 color="primary"
@@ -679,7 +679,7 @@ const LoginViewForm = (props) => {
                 <GridContainerErrors errors={errors} setErrors={setErrors} />
                 {allowCustomServer && (
                     <Grid container>
-                        <Grid item xs={12} sm={12} md={12}>
+                        <Grid item xs={12} sm={12} md={12} style={{ marginTop: "10px" }}>
                             <TextField
                                 className={classes.textField}
                                 variant="outlined"
