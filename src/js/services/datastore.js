@@ -6,6 +6,7 @@ import store from "./store";
 import storage from "./storage";
 import cryptoLibrary from "./crypto-library";
 import browserClient from "./browser-client";
+import helperService from "./helper";
 import apiClient from "./api-client";
 
 let registrations = {};
@@ -531,7 +532,7 @@ function filter(folder, func) {
  * @returns {TreeObject} Filtered copy of the content
  */
 function filterDatastoreContent(content) {
-    const contentCopy = helperService.duplicate_object(content);
+    const contentCopy = helperService.duplicateObject(content);
 
     const filter = ["expanded", "expanded_temporary", "is_expanded", "filter", "hidden", "share_rights", "path", "parent_share_id", "parent_datastore_id"];
 

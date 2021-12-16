@@ -323,7 +323,7 @@ function _readShares(datastore, shareRightsDict) {
                     // No specific share rights for this share, lets assume inherited rights and check if we have parent read rights
                     if (!share_rights_dict.hasOwnProperty(share_id) && !parent_share_rights.read) {
                         content = {
-                            rights: angular.copy(parent_share_rights),
+                            rights: helperService.duplicateObject(parent_share_rights),
                         };
 
                         updatePathsWithData(datastore, share_index[share_id].paths[i], content, parent_share_rights, parent_share_id, undefined);
@@ -509,7 +509,7 @@ function getDatastoreWithId(id) {
  * @param {TreeObject} datastore The datastore tree
  */
 function handleDatastoreContentChanged(datastore) {
-    const datastore_copy = angular.copy(datastore);
+    const datastore_copy = helperService.duplicateObject(datastore);
 
     updatePathsRecursive(datastore_copy, []);
 
@@ -550,7 +550,7 @@ function saveDatastoreContent(datastore, paths) {
     const type = "password";
     const description = "default";
 
-    datastore = managerBase.filter_datastore_content(datastore);
+    datastore = datastoreService.filterDatastoreContent(datastore);
 
     const closest_shares = {};
 
@@ -1368,7 +1368,9 @@ function createShareLinksInDatastore(shares, target, parentPath, path, parentSha
     for (let i = 0; i < shares.length; i++) {
         let share = shares[i];
 
-        changedPaths.concat(createShareLinkInDatastore(share, target, angular.copy(path), parentShareId, parentDatastoreId, datastore, parentShare));
+        changedPaths.concat(
+            createShareLinkInDatastore(share, target, helperService.duplicateObject(path), parentShareId, parentDatastoreId, datastore, parentShare)
+        );
     }
 
     return saveDatastoreContent(datastore, changedPaths);

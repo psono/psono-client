@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import MuiAlert from "@material-ui/lab/Alert";
 import Box from "@material-ui/core/Box";
 import LinearProgress from "@material-ui/core/LinearProgress";
-import secret from "../../services/secret";
 import { useParams } from "react-router-dom";
 import store from "../../services/store";
 import fileTransferService from "../../services/file-transfer";

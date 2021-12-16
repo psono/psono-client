@@ -7,7 +7,6 @@ import TextField from "@material-ui/core/TextField";
 import { Grid } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import action from "../../actions/bound-action-creators";
-import datastoreSettingService from "../../services/datastore-setting";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -86,12 +85,10 @@ const SettingsGpgView = (props) => {
                     }}
                 />
             </Grid>
-            <Grid container style={{ marginBottom: "8px" }}>
-                <Grid item xs={12} sm={12} md={12}>
-                    <Button variant="contained" color="primary" onClick={save}>
-                        {t("SAVE")}
-                    </Button>
-                </Grid>
+            <Grid item xs={12} sm={12} md={12} style={{ marginBottom: "8px", marginTop: "8px" }}>
+                <Button variant="contained" color="primary" onClick={save}>
+                    {t("SAVE")}
+                </Button>
             </Grid>
         </Grid>
     );

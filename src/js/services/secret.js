@@ -249,7 +249,7 @@ function copyTotpToken(item) {
 // itemBlueprint.register('copy_password', copyPassword);
 // itemBlueprint.register('copy_totp_token', copyTotpToken);
 
-const service = {
+const secretService = {
     createSecret: createSecret,
     readSecret: readSecret,
     writeSecret: writeSecret,
@@ -260,4 +260,4 @@ const service = {
     copyTotpToken: copyTotpToken,
 };
 
-export default service;
+export default secretService;

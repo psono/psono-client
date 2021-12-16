@@ -1,8 +1,5 @@
 import React, { useState } from "react";
-import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { bindActionCreators } from "redux";
-import { compose } from "redux";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
 import Dialog from "@material-ui/core/Dialog";
@@ -13,7 +10,6 @@ import Button from "@material-ui/core/Button";
 import { Checkbox, Grid } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 
-import actionCreators from "../../actions/action-creators";
 import GridContainerErrors from "../../components/grid-container-errors";
 import { Check } from "@material-ui/icons";
 import apiKey from "../../services/api-keys";
@@ -44,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const CreateDatastoresDialog = (props) => {
+const CreateApiKeysDialog = (props) => {
     const { open, onClose, apiKeyId } = props;
     const { t } = useTranslation();
     const classes = useStyles();
@@ -245,15 +241,9 @@ const CreateDatastoresDialog = (props) => {
     );
 };
 
-CreateDatastoresDialog.propTypes = {
+CreateApiKeysDialog.propTypes = {
     onClose: PropTypes.func.isRequired,
     open: PropTypes.bool.isRequired,
 };
 
-function mapStateToProps(state) {
-    return { state: state };
-}
-function mapDispatchToProps(dispatch) {
-    return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-export default connect(mapStateToProps, mapDispatchToProps)(CreateDatastoresDialog);
+export default CreateApiKeysDialog;

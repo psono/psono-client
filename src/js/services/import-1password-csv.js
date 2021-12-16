@@ -6,26 +6,12 @@ const Papa = require('papaparse');
 import helperService from './helper';
 import cryptoLibrary from './crypto-library';
 
-const importer_code = '1password_csv';
-const importer = {
-    name: '1Password (CSV)',
-    value: importer_code,
-    parser: parser
-};
-
 let INDEX_URL = 0;
 let INDEX_USERNAME = 1;
 let INDEX_PASSWORD = 2;
 let INDEX_NOTES = 3;
 let INDEX_NAME = 4;
 let INDEX_TYPE = 5;
-
-
-// activate();
-//
-// function activate() {
-//     managerImport.register_importer(importer_code, importer);
-// }
 
 /**
  * Takes the first line of the csv and checks the columns and sets the indexes correctly for later field extraction.

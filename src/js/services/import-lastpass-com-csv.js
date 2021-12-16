@@ -1,16 +1,9 @@
 /**
  * Service which handles the actual parsing of the exported JSON
  */
-const Papa = require('papaparse');
-import cryptoLibrary from './crypto-library';
-import helperService from './helper';
-
-const importer_code = 'lastpass_com_csv';
-const importer = {
-    name: 'LastPass.com (CSV)',
-    value: importer_code,
-    parser: parser
-};
+const Papa = require("papaparse");
+import cryptoLibrary from "./crypto-library";
+import helperService from "./helper";
 
 const INDEX_URL = 0;
 const INDEX_USERNAME = 1;
@@ -20,14 +13,6 @@ const INDEX_NAME = 4;
 const INDEX_GROUPING = 5;
 const INDEX_FAV = 6; // not used yet ...
 
-
-// activate();
-//
-// function activate() {
-//
-//     managerImport.register_importer(importer_code, importer);
-// }
-
 /**
  * Interprets a line and returns the folder name this entry should late belong to
  *
@@ -36,11 +21,7 @@ const INDEX_FAV = 6; // not used yet ...
  * @returns {string} The name of the folder this line belongs into
  */
 function get_folder_name(line) {
-    if (line[INDEX_GROUPING] === '' ||
-        typeof line[INDEX_GROUPING] === 'undefined' ||
-        line[INDEX_GROUPING] === '(none)' ||
-        line[INDEX_GROUPING] === '(keine)') {
-
+    if (line[INDEX_GROUPING] === "" || typeof line[INDEX_GROUPING] === "undefined" || line[INDEX_GROUPING] === "(none)" || line[INDEX_GROUPING] === "(keine)") {
         return "Undefined";
     } else {
         return line[INDEX_GROUPING];
@@ -54,17 +35,17 @@ function get_folder_name(line) {
  *
  * @returns {string} Returns the appropriate type (note or website_password)
  */
-var get_type = function(line) {
-    if (line[INDEX_URL] === 'http://sn') {
+var get_type = function (line) {
+    if (line[INDEX_URL] === "http://sn") {
         // its a license, so lets return a note as we don't have this object class yet
-        return 'note'
+        return "note";
     }
-    if (line[INDEX_URL].trim() === '') {
+    if (line[INDEX_URL].trim() === "") {
         // empty url, should be a note
-        return 'note'
+        return "note";
     } else {
         // Should have an url, so should be a password
-        return 'website_password'
+        return "website_password";
     }
 };
 
@@ -75,9 +56,8 @@ var get_type = function(line) {
  *
  * @returns {*} The note secret object
  */
-var transfor_into_note = function(line) {
-
-    var note_notes = '';
+var transfor_into_note = function (line) {
+    var note_notes = "";
     if (line[INDEX_USERNAME]) {
         note_notes = note_notes + line[INDEX_USERNAME] + "\n";
     }
@@ -88,17 +68,17 @@ var transfor_into_note = function(line) {
         note_notes = note_notes + line[INDEX_EXTRA] + "\n";
     }
 
-    if (! line[INDEX_NAME] && ! note_notes) {
-        return null
+    if (!line[INDEX_NAME] && !note_notes) {
+        return null;
     }
 
     return {
-        id : cryptoLibrary.generateUuid(),
-        type : "note",
-        name : line[INDEX_NAME],
+        id: cryptoLibrary.generateUuid(),
+        type: "note",
+        name: line[INDEX_NAME],
         note_title: line[INDEX_NAME],
-        note_notes: note_notes
-    }
+        note_notes: note_notes,
+    };
 };
 
 /**
@@ -108,22 +88,21 @@ var transfor_into_note = function(line) {
  *
  * @returns {*} The website_password secret object
  */
-var transfor_into_website_password = function(line) {
-
+var transfor_into_website_password = function (line) {
     var parsed_url = helperService.parseUrl(line[INDEX_URL]);
 
     return {
-        id : cryptoLibrary.generateUuid(),
-        type : "website_password",
-        name : line[INDEX_NAME],
-        "urlfilter" : parsed_url.authority,
-        "website_password_url_filter" : parsed_url.authority,
-        "website_password_password" : line[INDEX_PASSWORD],
-        "website_password_username" : line[INDEX_USERNAME],
-        "website_password_notes" : line[INDEX_EXTRA],
-        "website_password_url" : line[INDEX_URL],
-        "website_password_title" : line[INDEX_NAME]
-    }
+        id: cryptoLibrary.generateUuid(),
+        type: "website_password",
+        name: line[INDEX_NAME],
+        urlfilter: parsed_url.authority,
+        website_password_url_filter: parsed_url.authority,
+        website_password_password: line[INDEX_PASSWORD],
+        website_password_username: line[INDEX_USERNAME],
+        website_password_notes: line[INDEX_EXTRA],
+        website_password_url: line[INDEX_URL],
+        website_password_title: line[INDEX_NAME],
+    };
 };
 
 /**
@@ -133,15 +112,14 @@ var transfor_into_website_password = function(line) {
  *
  * @returns {*} The secrets object
  */
-var transform_to_secret = function(line) {
+var transform_to_secret = function (line) {
     var type = get_type(line);
-    if (type === 'note') {
+    if (type === "note") {
         return transfor_into_note(line);
     } else {
         return transfor_into_website_password(line);
     }
 };
-
 
 /**
  * Fills the datastore with folders their content and together with the secrets object
@@ -168,19 +146,19 @@ function gather_secrets(datastore, secrets, csv) {
             continue;
         }
 
-        if (! folder_index.hasOwnProperty(folder_name)) {
-            folder_index[folder_name] = []
+        if (!folder_index.hasOwnProperty(folder_name)) {
+            folder_index[folder_name] = [];
         }
         folder_index[folder_name].push(secret);
         secrets.push(secret);
     }
 
     for (let name in folder_index) {
-        datastore['folders'].push({
+        datastore["folders"].push({
             id: cryptoLibrary.generateUuid(),
             name: name,
-            items: folder_index[name]
-        })
+            items: folder_index[name],
+        });
     }
 }
 
@@ -193,11 +171,11 @@ function gather_secrets(datastore, secrets, csv) {
 function parse_csv(data) {
     var csv = Papa.parse(data);
 
-    if (csv['errors'].length > 0) {
-        throw new Error(csv['errors'][0]['message']);
+    if (csv["errors"].length > 0) {
+        throw new Error(csv["errors"][0]["message"]);
     }
 
-    return csv['data'];
+    return csv["data"];
 }
 
 /**
@@ -215,20 +193,19 @@ function parse_csv(data) {
  * @returns {{datastore, secrets: Array} | null}
  */
 function parser(data) {
-
     var d = new Date();
     var n = d.toISOString();
 
     var secrets = [];
     var datastore = {
-        'id': cryptoLibrary.generateUuid(),
-        'name': 'Import ' + n,
-        'folders': []
+        id: cryptoLibrary.generateUuid(),
+        name: "Import " + n,
+        folders: [],
     };
 
     try {
         var csv = parse_csv(data);
-    } catch(err) {
+    } catch (err) {
         return null;
     }
 
@@ -236,10 +213,9 @@ function parser(data) {
 
     return {
         datastore: datastore,
-        secrets: secrets
-    }
+        secrets: secrets,
+    };
 }
-
 
 const service = {
     parser,

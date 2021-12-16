@@ -89,6 +89,12 @@ const useStyles = makeStyles((theme) => ({
     subHeader: {
         color: "#b1b6c1",
     },
+    version: {
+        color: "#444851",
+        margin: "10px",
+        position: "absolute",
+        bottom: "0",
+    },
 }));
 
 const Sidebar = (props) => {
@@ -96,10 +102,15 @@ const Sidebar = (props) => {
     const classes = useStyles();
     const theme = useTheme();
     const [moreLinks, setMoreLinks] = React.useState([]);
+    const [version, setVersion] = React.useState("");
     let location = useLocation();
 
     React.useEffect(() => {
         browserClient.getConfig().then(onNewConfigLoaded);
+
+        browserClient.loadVersion().then(function (version) {
+            setVersion(version);
+        });
     }, []);
 
     const onNewConfigLoaded = (configJson) => {
@@ -209,6 +220,7 @@ const Sidebar = (props) => {
                     </List>
                 </>
             )}
+            <div className={classes.version}>PSONO: {version}</div>
         </div>
     );
 

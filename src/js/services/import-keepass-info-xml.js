@@ -1,29 +1,14 @@
 /**
  * Service which handles the parsing of the KeePass.info XML exports
  */
-import cryptoLibrary from './crypto-library';
-import helperService from './helper';
-const fastXmlParser = require('fast-xml-parser');
-
-const importer_code = 'keepass_info_xml';
-const importer = {
-    name: 'KeePass.info (XML)',
-    value: importer_code,
-    parser: parser
-};
-
-
-// activate();
-//
-// function activate() {
-//
-//     managerImport.register_importer(importer_code, importer);
-// }
+import cryptoLibrary from "./crypto-library";
+import helperService from "./helper";
+const fastXmlParser = require("fast-xml-parser");
 
 function unescape_value(value) {
-    value = value.replace(/&lt;/g , "<");
-    value = value.replace(/&gt;/g , ">");
-    value = value.replace(/&amp;/g , "&");
+    value = value.replace(/&lt;/g, "<");
+    value = value.replace(/&gt;/g, ">");
+    value = value.replace(/&amp;/g, "&");
 
     return value;
 }
@@ -35,58 +20,56 @@ function unescape_value(value) {
  *
  * @returns {*} The secrets object
  */
-var transform_to_secret = function(line) {
-
-    if (!line.hasOwnProperty('String') || !line.String) {
+var transform_to_secret = function (line) {
+    if (!line.hasOwnProperty("String") || !line.String) {
         return null;
     }
     var secret = {
-        id : cryptoLibrary.generateUuid(),
-        type : "website_password",
-        "name" : '',
-        "urlfilter" : '',
-        "website_password_url_filter" : '',
-        "website_password_password" : '',
-        "website_password_username" : '',
-        "website_password_notes" : '',
-        "website_password_url" : '',
-        "website_password_title" : ''
+        id: cryptoLibrary.generateUuid(),
+        type: "website_password",
+        name: "",
+        urlfilter: "",
+        website_password_url_filter: "",
+        website_password_password: "",
+        website_password_username: "",
+        website_password_notes: "",
+        website_password_url: "",
+        website_password_title: "",
     };
-
 
     for (let i = 0; i < line.String.length; i++) {
         var value = line.String[i];
-        if (!value.hasOwnProperty('Key')) {
+        if (!value.hasOwnProperty("Key")) {
             continue;
         }
-        if (!value.hasOwnProperty('Value')) {
+        if (!value.hasOwnProperty("Value")) {
             continue;
         }
-        var key = value['Key'];
-        var val = unescape_value(value['Value']);
+        var key = value["Key"];
+        var val = unescape_value(value["Value"]);
 
-        if (key === 'Notes') {
-            secret['website_password_notes'] = val;
+        if (key === "Notes") {
+            secret["website_password_notes"] = val;
         }
 
-        if (key === 'Password') {
-            secret['website_password_password'] = val;
+        if (key === "Password") {
+            secret["website_password_password"] = val;
         }
 
-        if (key === 'Title') {
-            secret['name'] = val;
-            secret['website_password_title'] = val;
+        if (key === "Title") {
+            secret["name"] = val;
+            secret["website_password_title"] = val;
         }
 
-        if (key === 'URL') {
+        if (key === "URL") {
             var parsed_url = helperService.parseUrl(val);
-            secret['urlfilter'] = parsed_url.authority || '';
-            secret['website_password_url_filter'] = parsed_url.authority || '';
-            secret['website_password_url'] = val;
+            secret["urlfilter"] = parsed_url.authority || "";
+            secret["website_password_url_filter"] = parsed_url.authority || "";
+            secret["website_password_url"] = val;
         }
 
-        if (key === 'UserName') {
-            secret['website_password_username'] = val;
+        if (key === "UserName") {
+            secret["website_password_username"] = val;
         }
     }
 
@@ -104,11 +87,11 @@ function gather_secrets(datastore, secrets, xml) {
     var i;
     var next_folder;
     var entries;
-    if (xml.hasOwnProperty('Entry')) {
-        if (Object.prototype.toString.call( xml.Entry ) === '[object Array]') {
+    if (xml.hasOwnProperty("Entry")) {
+        if (Object.prototype.toString.call(xml.Entry) === "[object Array]") {
             entries = xml.Entry;
         } else {
-            entries = [xml.Entry]
+            entries = [xml.Entry];
         }
 
         for (i = 0; i < entries.length; i++) {
@@ -117,33 +100,32 @@ function gather_secrets(datastore, secrets, xml) {
                 //empty line
                 continue;
             }
-            datastore['items'].push(secret);
+            datastore["items"].push(secret);
             secrets.push(secret);
         }
     }
 
-    if (xml.hasOwnProperty('Group')) {
-        if (Object.prototype.toString.call( xml.Group ) === '[object Array]') {
+    if (xml.hasOwnProperty("Group")) {
+        if (Object.prototype.toString.call(xml.Group) === "[object Array]") {
             entries = xml.Group;
         } else {
-            entries = [xml.Group]
+            entries = [xml.Group];
         }
 
         for (i = 0; i < entries.length; i++) {
-            if (!entries[i].hasOwnProperty('Name')) {
-                continue
+            if (!entries[i].hasOwnProperty("Name")) {
+                continue;
             }
             next_folder = {
                 id: cryptoLibrary.generateUuid(),
-                name: entries[i]['Name'],
+                name: entries[i]["Name"],
                 folders: [],
-                items: []
+                items: [],
             };
             gather_secrets(next_folder, secrets, entries[i]);
-            datastore['folders'].push(next_folder);
+            datastore["folders"].push(next_folder);
         }
     }
-
 }
 
 /**
@@ -157,10 +139,14 @@ function gather_secrets(datastore, secrets, xml) {
 function parse_xml(xmlString) {
     fastXmlParser.validate(xmlString); // Throws sometimes an error if its no valid xml
     var parsed_xml = fastXmlParser.parse(xmlString, { parseNodeValue: false });
-    if (!parsed_xml.hasOwnProperty("KeePassFile") || !parsed_xml['KeePassFile'].hasOwnProperty("Root") || !parsed_xml['KeePassFile']['Root'].hasOwnProperty("Group")) {
-        throw new Error('Error parsing XML');
+    if (
+        !parsed_xml.hasOwnProperty("KeePassFile") ||
+        !parsed_xml["KeePassFile"].hasOwnProperty("Root") ||
+        !parsed_xml["KeePassFile"]["Root"].hasOwnProperty("Group")
+    ) {
+        throw new Error("Error parsing XML");
     }
-    return parsed_xml['KeePassFile']['Root']['Group'];
+    return parsed_xml["KeePassFile"]["Root"]["Group"];
 }
 
 /**
@@ -178,22 +164,20 @@ function parse_xml(xmlString) {
  * @returns {{datastore, secrets: Array} | null}
  */
 function parser(data) {
-
     var d = new Date();
     var n = d.toISOString();
 
     var secrets = [];
     var datastore = {
-        'id': cryptoLibrary.generateUuid(),
-        'name': 'Import ' + n,
-        'items': [],
-        'folders': []
+        id: cryptoLibrary.generateUuid(),
+        name: "Import " + n,
+        items: [],
+        folders: [],
     };
-
 
     try {
         var xml = parse_xml(data);
-    } catch(err) {
+    } catch (err) {
         return null;
     }
 
@@ -201,8 +185,8 @@ function parser(data) {
 
     return {
         datastore: datastore,
-        secrets: secrets
-    }
+        secrets: secrets,
+    };
 }
 
 const service = {

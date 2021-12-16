@@ -313,16 +313,6 @@ p.horizontalline span {
   border-top-color: #2ba880;
   border-left-color: #2ba880; }
 
-/* Fix Bootstrap disabled */
-.dropdown-menu > .disabled > a,
-.dropdown-menu > .disabled > a:hover,
-.dropdown-menu > .disabled > a:focus {
-  cursor: not-allowed;
-  color: #999; }
-
-/* CSS fix for angular-ui explained here: https://angular-ui.github.io/bootstrap/ */
-.nav, .pagination, .carousel, .panel-title a {
-  cursor: pointer; }
 
 .text-center {
   text-align: center; }
@@ -373,12 +363,3 @@ p.horizontalline span {
         margin-left: -200%;
         width: 0;
         overflow: hidden; }
-
-.bootstrap-datetimepicker-widget table td.today:before {
-  border-bottom-color: #151f2b; }
-
-.bootstrap-datetimepicker-widget table td.active, .bootstrap-datetimepicker-widget table td.active:hover {
-  background-color: #2dbb93; }
-
-.bootstrap-datetimepicker-widget table td span.active {
-  background-color: #151f2b; }

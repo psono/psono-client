@@ -1,22 +1,7 @@
 /**
  * Service which handles the actual parsing of the exported JSON
  */
-import cryptoLibrary from './crypto-library';
-
-const importer_code = 'psono_pw_json';
-const importer = {
-    name: 'Psono.pw (JSON)',
-    value: importer_code,
-    parser: parser
-};
-
-
-// activate();
-//
-// function activate() {
-//
-//     managerImport.register_importer(importer_code, importer);
-// }
+import cryptoLibrary from "./crypto-library";
 
 /**
  * Searches a given folder recursive inclusive all sub-folders and puts them all into the provided secrets array
@@ -28,18 +13,18 @@ function gather_secrets(folder, secrets) {
     var i;
     var subitem;
 
-    folder['id'] = cryptoLibrary.generateUuid();
+    folder["id"] = cryptoLibrary.generateUuid();
 
-    if (folder.hasOwnProperty('folders')) {
-        for (i = 0; i < folder['folders'].length; i++) {
-            gather_secrets(folder['folders'][i], secrets);
+    if (folder.hasOwnProperty("folders")) {
+        for (i = 0; i < folder["folders"].length; i++) {
+            gather_secrets(folder["folders"][i], secrets);
         }
     }
 
-    if (folder.hasOwnProperty('items')) {
-        for (i = 0; i < folder['items'].length; i++) {
-            subitem = folder['items'][i];
-            subitem['id'] = cryptoLibrary.generateUuid();
+    if (folder.hasOwnProperty("items")) {
+        for (i = 0; i < folder["items"].length; i++) {
+            subitem = folder["items"][i];
+            subitem["id"] = cryptoLibrary.generateUuid();
 
             secrets.push(subitem);
         }
@@ -61,24 +46,23 @@ function gather_secrets(folder, secrets) {
  * @returns {{datastore, secrets: Array} | null}
  */
 function parser(data) {
-
     try {
         var datastore = JSON.parse(data);
-    } catch(err) {
+    } catch (err) {
         return null;
     }
     var secrets = [];
 
     var d = new Date();
     var n = d.toISOString();
-    datastore['name'] = 'Import ' + n;
+    datastore["name"] = "Import " + n;
 
     gather_secrets(datastore, secrets);
 
     return {
         datastore: datastore,
-        secrets: secrets
-    }
+        secrets: secrets,
+    };
 }
 
 const service = {

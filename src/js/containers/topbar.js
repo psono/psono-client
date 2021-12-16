@@ -24,7 +24,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import TuneIcon from "@material-ui/icons/Tune";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import Typography from "@material-ui/core/Typography";
-import { makeStyles, useTheme } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import { Link } from "react-router-dom";
 
 import store from "../services/store";

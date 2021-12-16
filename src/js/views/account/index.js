@@ -115,24 +115,36 @@ const AccountView = (props) => {
                     <TabPanel value={value} index={"/account/overview"}>
                         <AccountOverviewView {...props} />
                     </TabPanel>
-                    <TabPanel value={value} index={"/account/change-email"}>
-                        <AccountChangeEmailView {...props} />
-                    </TabPanel>
-                    <TabPanel value={value} index={"/account/change-password"}>
-                        <AccountChangePasswordView {...props} />
-                    </TabPanel>
-                    <TabPanel value={value} index={"/account/multifactor-authentication"}>
-                        <MultifactorAuthenticationView {...props} />
-                    </TabPanel>
-                    <TabPanel value={value} index={"/account/emergency-codes"}>
-                        <AccountEmergencyCodesView {...props} />
-                    </TabPanel>
-                    <TabPanel value={value} index={"/account/recovery-codes"}>
-                        <AccountPasswordRecoveryCodesView {...props} />
-                    </TabPanel>
-                    <TabPanel value={value} index={"/account/delete-account"}>
-                        <AccountDeleteAccountView {...props} />
-                    </TabPanel>
+                    {store.getState().user.authentication === "AUTHKEY" && (
+                        <TabPanel value={value} index={"/account/change-email"}>
+                            <AccountChangeEmailView {...props} />
+                        </TabPanel>
+                    )}
+                    {store.getState().user.authentication === "AUTHKEY" && (
+                        <TabPanel value={value} index={"/account/change-password"}>
+                            <AccountChangePasswordView {...props} />
+                        </TabPanel>
+                    )}
+                    {store.getState().server.allowedSecondFactors.length !== 0 && (
+                        <TabPanel value={value} index={"/account/multifactor-authentication"}>
+                            <MultifactorAuthenticationView {...props} />
+                        </TabPanel>
+                    )}
+                    {!store.getState().server.complianceDisableEmergencyCodes && (
+                        <TabPanel value={value} index={"/account/emergency-codes"}>
+                            <AccountEmergencyCodesView {...props} />
+                        </TabPanel>
+                    )}
+                    {!store.getState().server.complianceDisableRecoveryCodes && (
+                        <TabPanel value={value} index={"/account/recovery-codes"}>
+                            <AccountPasswordRecoveryCodesView {...props} />
+                        </TabPanel>
+                    )}
+                    {!store.getState().server.complianceDisableDeleteAccount && (
+                        <TabPanel value={value} index={"/account/delete-account"}>
+                            <AccountDeleteAccountView {...props} />
+                        </TabPanel>
+                    )}
                 </Paper>
             </BaseContent>
         </Base>

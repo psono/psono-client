@@ -1,9 +1,5 @@
 import React, { Suspense } from "react";
 
-// initially required for stripe
-import "core-js/stable";
-import "regenerator-runtime/runtime";
-
 import { render } from "react-dom";
 import { HashLoader } from "react-spinners";
 import CssBaseline from "@material-ui/core/CssBaseline";

@@ -6,9 +6,9 @@ import axios from "axios";
 import helperService from "./helper";
 import store from "./store";
 
-var registrations = {};
-var config = {};
-var events = ["login", "logout"];
+const registrations = {};
+let config = {};
+const events = ["login", "logout"];
 
 if (TARGET === "chrome") {
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -123,10 +123,10 @@ function launchWebAuthFlow(url) {
                 },
                 function (response_url) {
                     if (response_url.indexOf(getOidcReturnToUrl()) !== -1) {
-                        var oidc_token_id = response_url.replace(getOidcReturnToUrl(), "");
+                        const oidc_token_id = response_url.replace(getOidcReturnToUrl(), "");
                         resolve(oidc_token_id);
                     } else {
-                        var saml_token_id = response_url.replace(getSamlReturnToUrl(), "");
+                        const saml_token_id = response_url.replace(getSamlReturnToUrl(), "");
                         resolve(saml_token_id);
                     }
                 }
@@ -256,7 +256,7 @@ function openPopup(url, callback_function) {
             callback_function
         );
     } else {
-        var win = window.open(url, "_blank", "width=800,height=600");
+        const win = window.open(url, "_blank", "width=800,height=600");
         win.onload = function () {
             win.RunCallbackFunction = callback_function;
         };
@@ -308,7 +308,16 @@ function getBaseUrl() {
  * @returns {Promise} promise
  */
 function loadVersion() {
-    return $templateRequest("./VERSION.txt");
+    return axios({
+        method: "get",
+        url: "VERSION.txt",
+    })
+        .then((result) => {
+            return result.data;
+        })
+        .catch((error) => {
+            console.error(error);
+        });
 }
 
 /**
@@ -318,10 +327,10 @@ function loadVersion() {
  */
 function loadConfig() {
     return new Promise((resolve, reject) => {
-        var remoteConfigJson = getRemoteConfigJson();
+        const remoteConfigJson = getRemoteConfigJson();
 
-        var standardizeConfig = function (newConfig, url) {
-            var parsed_url = helperService.parseUrl(url);
+        const standardizeConfig = function (newConfig, url) {
+            const parsed_url = helperService.parseUrl(url);
 
             if (!newConfig.hasOwnProperty("base_url")) {
                 newConfig["base_url"] = parsed_url["base_url"] + "/";
@@ -382,7 +391,7 @@ function loadConfig() {
                 };
 
                 if (TARGET === "firefox") {
-                    var storageItem = browser.storage.managed.get("ConfigJson");
+                    const storageItem = browser.storage.managed.get("ConfigJson");
 
                     storageItem.then(onStorageRetrieve, function (reason) {
                         return onStorageRetrieve();
@@ -595,7 +604,7 @@ function closePopup() {
  * @returns {Promise} A promise with the success or failure state
  */
 function disableBrowserPasswordSaving(value) {
-    var oldPMValue;
+    let oldPMValue;
     if (TARGET === "firefox") {
         oldPMValue = storage.find_key("settings", "disable_browser_pm");
         if (oldPMValue == null) {
@@ -613,10 +622,10 @@ function disableBrowserPasswordSaving(value) {
                 }
             }
 
-            var getting = browser.privacy.services.passwordSavingEnabled.get({});
+            const getting = browser.privacy.services.passwordSavingEnabled.get({});
             getting.then(function (details) {
                 if (details.levelOfControl === "controlled_by_this_extension" || details.levelOfControl === "controllable_by_this_extension") {
-                    var setting = browser.privacy.services.passwordSavingEnabled.set({
+                    const setting = browser.privacy.services.passwordSavingEnabled.set({
                         value: !value,
                     });
                     setting.then(onSet);
@@ -723,7 +732,7 @@ function notify(content) {
             });
         });
     } else {
-        var options = { silent: true };
+        const options = { silent: true };
 
         if (!("Notification" in window)) {
             console.error("This browser does not support desktop notification");

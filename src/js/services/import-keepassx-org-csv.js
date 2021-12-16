@@ -2,16 +2,9 @@
  * Service which handles the actual parsing of the exported JSON
  */
 
-import cryptoLibrary from './crypto-library';
-import helperService from './helper';
-const Papa = require('papaparse');
-
-const importer_code = 'keepassx_org_csv';
-const importer = {
-    name: 'KeePassX.org (CSV)',
-    value: importer_code,
-    parser: parser
-};
+import cryptoLibrary from "./crypto-library";
+import helperService from "./helper";
+const Papa = require("papaparse");
 
 const INDEX_GROUP = 0;
 const INDEX_TITLE = 1;
@@ -19,14 +12,6 @@ const INDEX_USERNAME = 2;
 const INDEX_PASSWORD = 3;
 const INDEX_URL = 4;
 const INDEX_NOTES = 5;
-
-
-// activate();
-//
-// function activate() {
-//
-//     managerImport.register_importer(importer_code, importer);
-// }
 
 /**
  * Little helper function that will search a folder recursive for a given path and creates the path if it doesn't
@@ -46,21 +31,21 @@ function get_folder_helper(path, folder) {
     }
     next_folder_name = path.shift();
 
-    for (let i = 0; i < folder['folders'].length; i++) {
-        if (folder['folders'][i].name === next_folder_name) {
-            next_folder = folder['folders'][i];
+    for (let i = 0; i < folder["folders"].length; i++) {
+        if (folder["folders"][i].name === next_folder_name) {
+            next_folder = folder["folders"][i];
             break;
         }
     }
 
-    if (typeof(next_folder) === 'undefined') {
+    if (typeof next_folder === "undefined") {
         next_folder = {
             id: cryptoLibrary.generateUuid(),
             name: next_folder_name,
             folders: [],
-            items: []
+            items: [],
         };
-        folder['folders'].push(next_folder);
+        folder["folders"].push(next_folder);
     }
 
     return get_folder_helper(path, next_folder);
@@ -75,7 +60,6 @@ function get_folder_helper(path, folder) {
  * @returns {object} Returns the folder
  */
 function get_folder(line, datastore) {
-
     var path = line[INDEX_GROUP].split("/");
     path.shift(); // Drop "Root" element
 
@@ -89,24 +73,22 @@ function get_folder(line, datastore) {
  *
  * @returns {*} The secrets object
  */
-var transform_to_secret = function(line) {
-
+var transform_to_secret = function (line) {
     var parsed_url = helperService.parseUrl(line[INDEX_URL]);
 
     return {
-        id : cryptoLibrary.generateUuid(),
-        type : "website_password",
-        name : line[INDEX_TITLE],
-        "urlfilter" : parsed_url.authority,
-        "website_password_url_filter" : parsed_url.authority,
-        "website_password_password" : line[INDEX_PASSWORD],
-        "website_password_username" : line[INDEX_USERNAME],
-        "website_password_notes" : line[INDEX_NOTES],
-        "website_password_url" : line[INDEX_URL],
-        "website_password_title" : line[INDEX_TITLE]
-    }
+        id: cryptoLibrary.generateUuid(),
+        type: "website_password",
+        name: line[INDEX_TITLE],
+        urlfilter: parsed_url.authority,
+        website_password_url_filter: parsed_url.authority,
+        website_password_password: line[INDEX_PASSWORD],
+        website_password_username: line[INDEX_USERNAME],
+        website_password_notes: line[INDEX_NOTES],
+        website_password_url: line[INDEX_URL],
+        website_password_title: line[INDEX_TITLE],
+    };
 };
-
 
 /**
  * Fills the datastore with folders their content and together with the secrets object
@@ -134,7 +116,7 @@ function gather_secrets(datastore, secrets, csv) {
             //empty line
             continue;
         }
-        folder['items'].push(secret);
+        folder["items"].push(secret);
         secrets.push(secret);
     }
 }
@@ -148,11 +130,11 @@ function gather_secrets(datastore, secrets, csv) {
 function parse_csv(data) {
     var csv = Papa.parse(data);
 
-    if (csv['errors'].length > 0) {
-        throw new Error(csv['errors'][0]['message']);
+    if (csv["errors"].length > 0) {
+        throw new Error(csv["errors"][0]["message"]);
     }
 
-    return csv['data'];
+    return csv["data"];
 }
 
 /**
@@ -170,21 +152,20 @@ function parse_csv(data) {
  * @returns {{datastore, secrets: Array} | null}
  */
 function parser(data) {
-
     var d = new Date();
     var n = d.toISOString();
 
     var secrets = [];
     var datastore = {
-        'id': cryptoLibrary.generateUuid(),
-        'name': 'Import ' + n,
-        'folders': [],
-        'items': []
+        id: cryptoLibrary.generateUuid(),
+        name: "Import " + n,
+        folders: [],
+        items: [],
     };
 
     try {
         var csv = parse_csv(data);
-    } catch(err) {
+    } catch (err) {
         return null;
     }
 
@@ -192,10 +173,9 @@ function parser(data) {
 
     return {
         datastore: datastore,
-        secrets: secrets
-    }
+        secrets: secrets,
+    };
 }
-
 
 const service = {
     parser,

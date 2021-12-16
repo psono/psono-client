@@ -18,6 +18,8 @@ import OtherApiKeysView from "./api-keys";
 import OtherFileRepositoriesView from "./file-repositories";
 import store from "../../services/store";
 import OtherKnownHostsView from "./known-hosts";
+import OtherExportView from "./export";
+import OtherImportView from "./import";
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -104,20 +106,26 @@ const OtherView = (props) => {
                     <TabPanel value={value} index={"/other/data-stores"}>
                         <OtherDatastoresView {...props} />
                     </TabPanel>
-                    <TabPanel value={value} index={"/other/api-keys"}>
-                        <OtherApiKeysView {...props} />
-                    </TabPanel>
-                    <TabPanel value={value} index={"/other/file-repositories"}>
-                        <OtherFileRepositoriesView {...props} />
-                    </TabPanel>
+                    {!store.getState().server.complianceDisableApiKeys && (
+                        <TabPanel value={value} index={"/other/api-keys"}>
+                            <OtherApiKeysView {...props} />
+                        </TabPanel>
+                    )}
+                    {!store.getState().server.complianceDisableFileRepositories && (
+                        <TabPanel value={value} index={"/other/file-repositories"}>
+                            <OtherFileRepositoriesView {...props} />
+                        </TabPanel>
+                    )}
                     <TabPanel value={value} index={"/other/known-hosts"}>
                         <OtherKnownHostsView {...props} />
                     </TabPanel>
-                    <TabPanel value={value} index={"/other/export"}>
-                        Test
-                    </TabPanel>
+                    {!store.getState().server.complianceDisableExport && (
+                        <TabPanel value={value} index={"/other/export"}>
+                            <OtherExportView {...props} />
+                        </TabPanel>
+                    )}
                     <TabPanel value={value} index={"/other/import"}>
-                        Test
+                        <OtherImportView {...props} />
                     </TabPanel>
                 </Paper>
             </BaseContent>
