@@ -35,6 +35,15 @@ test-linter:
     - addons-linter --help
     - addons-linter ./build/firefox
 
+test-vulnerability-scan:
+  except:
+    - schedules
+  stage: test
+  image: psono-docker.jfrog.io/node:lts-alpine
+  script:
+    - npm audit --audit-level high --json --only=prod
+  allow_failure: true
+
 
 test-upload-translations:
   stage: test
