@@ -39,8 +39,14 @@ test-vulnerability-scan:
   except:
     - schedules
   stage: test
-  image: psono-docker.jfrog.io/node:lts-alpine
+  image: psono-docker.jfrog.io/ubuntu:20.04
   script:
+    - apt-get update
+    - apt-get install -y curl
+    - curl -sL https://deb.nodesource.com/setup_16.x | bash -
+    - apt-get install -y nodejs
+    - node --version
+    - npm --version
     - npm audit --audit-level high --json --only=prod
   allow_failure: true
 

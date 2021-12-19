@@ -10,7 +10,7 @@ npm --version && \
 #npm config set @types:registry https://psono.jfrog.io/psono/api/npm/npm/ && \
 #npm config set @babel:registry https://psono.jfrog.io/psono/api/npm/npm/ && \
 #npm config set @webassemblyjs:registry https://psono.jfrog.io/psono/api/npm/npm/ && \
-npm install && \
+npm ci && \
 npm install -g node-poeditor && \
 npm install -g add gulp && \
 npm run build && \
