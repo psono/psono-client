@@ -74,6 +74,9 @@ const dbConfig = {
     "datastore-user-leafs": localforage.createInstance({
         name: "datastore-user-leafs",
     }),
+    various: localforage.createInstance({
+        name: "various",
+    }),
 };
 
 activate();

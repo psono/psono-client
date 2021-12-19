@@ -1,9 +1,7 @@
 import React from "react";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
-import actionCreators from "../actions/action-creators";
-import { compose } from "redux";
-import { withTranslation } from "react-i18next";
+import { differenceInSeconds } from "date-fns";
+import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import Drawer from "@material-ui/core/Drawer";
 import Hidden from "@material-ui/core/Hidden";
 import HomeIcon from "@material-ui/icons/Home";
@@ -17,12 +15,15 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
-import browserClient from "../services/browser-client";
-import FontAwesome from "react-fontawesome";
+import Badge from "@material-ui/core/Badge";
 import ListSubheader from "@material-ui/core/ListSubheader";
+
+import FontAwesome from "react-fontawesome";
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
+
+import browserClient from "../services/browser-client";
 
 const drawerWidth = 240;
 
@@ -74,6 +75,14 @@ const useStyles = makeStyles((theme) => ({
     },
     listItemText: {
         fontSize: "14px",
+        "& .MuiBadge-badge": {
+            fontSize: "0.50rem",
+            height: "15px",
+            minWidth: "15px",
+            color: "#fff",
+            backgroundColor: "#777",
+            right: "-8px",
+        },
     },
     listItemIcon: {
         color: "#b1b6c1",
@@ -98,7 +107,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Sidebar = (props) => {
-    const { t, mobileOpen, setMobileOpen } = props;
+    const { t } = useTranslation();
+    const { mobileOpen, setMobileOpen } = props;
+    const serverStatus = useSelector((state) => state.server.status);
+    const recurrenceInterval = useSelector((state) => state.server.complianceCentralSecurityReportsRecurrenceInterval);
     const classes = useStyles();
     const theme = useTheme();
     const [moreLinks, setMoreLinks] = React.useState([]);
@@ -124,6 +136,22 @@ const Sidebar = (props) => {
     const isSelected = (regexMatch) => {
         return regexMatch.test(location.pathname);
     };
+
+    let newSecurityReport = "NOT_REQUIRED";
+    if (recurrenceInterval > 0) {
+        if (
+            serverStatus.hasOwnProperty("data") &&
+            serverStatus.data.hasOwnProperty("last_security_report_created") &&
+            serverStatus.data.last_security_report_created !== null
+        ) {
+            const lastSecurityReportAgeSeconds = differenceInSeconds(new Date(), new Date(serverStatus.data.last_security_report_created));
+            if (lastSecurityReportAgeSeconds > recurrenceInterval) {
+                newSecurityReport = "REQUIRED";
+            }
+        } else {
+            newSecurityReport = "REQUIRED";
+        }
+    }
 
     const drawer = (
         <div>
@@ -154,7 +182,10 @@ const Sidebar = (props) => {
                     <ListItemIcon className={`${isSelected(/^\/share\/pendingshares$/) ? classes.listItemIconSelected : classes.listItemIcon}`}>
                         <ShareIcon className={classes.icon} />
                     </ListItemIcon>
-                    <ListItemText classes={{ primary: classes.listItemText }} primary={t("PENDING_REQUESTS")} />
+                    <ListItemText
+                        classes={{ primary: classes.listItemText }}
+                        primary={<Badge badgeContent={serverStatus.data ? serverStatus.data.unaccepted_shares_count : 0}>{t("PENDING_REQUESTS")}</Badge>}
+                    />
                 </ListItem>
                 <ListItem
                     button
@@ -178,7 +209,10 @@ const Sidebar = (props) => {
                     <ListItemIcon className={`${isSelected(/^\/groups$/) ? classes.listItemIconSelected : classes.listItemIcon}`}>
                         <GroupIcon className={classes.icon} />
                     </ListItemIcon>
-                    <ListItemText classes={{ primary: classes.listItemText }} primary={t("GROUPS")} />
+                    <ListItemText
+                        classes={{ primary: classes.listItemText }}
+                        primary={<Badge badgeContent={serverStatus.data ? serverStatus.data.unaccepted_groups_count : 0}>{t("GROUPS")}</Badge>}
+                    />
                 </ListItem>
                 <ListItem
                     button
@@ -190,7 +224,10 @@ const Sidebar = (props) => {
                     <ListItemIcon className={`${isSelected(/^\/security-report$/) ? classes.listItemIconSelected : classes.listItemIcon}`}>
                         <AssignmentIcon className={classes.icon} />
                     </ListItemIcon>
-                    <ListItemText classes={{ primary: classes.listItemText }} primary={t("SECURITY_REPORT")} />
+                    <ListItemText
+                        classes={{ primary: classes.listItemText }}
+                        primary={<Badge badgeContent={newSecurityReport === "REQUIRED" ? "!" : 0}>{t("SECURITY_REPORT")}</Badge>}
+                    />
                 </ListItem>
                 <ListItem
                     button
@@ -262,10 +299,4 @@ Sidebar.propTypes = {
     setMobileOpen: PropTypes.func.isRequired,
 };
 
-function mapStateToProps(state) {
-    return { state: state };
-}
-function mapDispatchToProps(dispatch) {
-    return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-export default compose(withTranslation(), connect(mapStateToProps, mapDispatchToProps))(Sidebar);
+export default Sidebar;

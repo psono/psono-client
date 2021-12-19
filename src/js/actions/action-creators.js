@@ -7,6 +7,7 @@ import {
     SET_HAS_TWO_FACTOR,
     LOGOUT,
     SET_SERVER_URL,
+    SET_SERVER_STATUS,
     SET_SERVER_INFO,
     SET_CLIENT_URL,
     ENABLE_OFFLINE_MODE,
@@ -111,6 +112,15 @@ function setServerUrl(url) {
         dispatch({
             type: SET_SERVER_URL,
             url: url,
+        });
+    };
+}
+
+function setServerStatus(status) {
+    return (dispatch) => {
+        dispatch({
+            type: SET_SERVER_STATUS,
+            status: status,
         });
     };
 }
@@ -269,6 +279,7 @@ const actionCreators = {
     logout,
     setServerInfo,
     setServerUrl,
+    setServerStatus,
     setClientUrl,
     disableOfflineMode,
     enableOfflineMode,

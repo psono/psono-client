@@ -17,9 +17,14 @@ import DownloadFileView from "./download-file";
 import TrustedUsersView from "./trusted-users";
 import GroupsView from "./groups";
 import ActiveLinkShareView from "./active-link-shares";
+import statusService from "../services/status";
 
 const IndexView = (props) => {
     const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
+
+    React.useEffect(() => {
+        statusService.getStatus();
+    }, []);
 
     const pathname = window.location.pathname;
 

@@ -1,4 +1,4 @@
-import { LOGOUT, SET_SERVER_INFO, SET_SERVER_URL } from "../actions/action-types";
+import { LOGOUT, SET_SERVER_INFO, SET_SERVER_STATUS, SET_SERVER_URL } from "../actions/action-types";
 
 const defaultUrl = "";
 const defaultApi = "";
@@ -41,6 +41,7 @@ const defaultDisableCentralSecurityReports = false;
 const defaultMultifactorEnabled = false;
 const defaultSystemWideDuoExists = false;
 const defaultVerifyKey = "";
+const defaultStatus = { data: {} };
 
 function server(
     state = {
@@ -85,6 +86,7 @@ function server(
         multifactorEnabled: defaultMultifactorEnabled,
         systemWideDuoExists: defaultSystemWideDuoExists,
         verifyKey: defaultVerifyKey,
+        status: defaultStatus,
     },
     action
 ) {
@@ -132,6 +134,7 @@ function server(
                 multifactorEnabled: defaultMultifactorEnabled,
                 systemWideDuoExists: defaultSystemWideDuoExists,
                 verifyKey: defaultVerifyKey,
+                status: defaultStatus,
             });
         case SET_SERVER_INFO:
             return Object.assign({}, state, {
@@ -176,6 +179,10 @@ function server(
                 multifactorEnabled: action.info.multifactor_enabled,
                 systemWideDuoExists: action.info.system_wide_duo_exists,
                 verifyKey: action.verifyKey,
+            });
+        case SET_SERVER_STATUS:
+            return Object.assign({}, state, {
+                status: action.status,
             });
         case SET_SERVER_URL:
             return Object.assign({}, state, {

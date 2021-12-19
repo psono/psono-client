@@ -1,12 +1,9 @@
 import React from "react";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { bindActionCreators } from "redux";
-import actionCreators from "../../actions/action-creators";
 import { useTranslation } from "react-i18next";
+import { differenceInSeconds } from "date-fns";
 import { alpha, makeStyles } from "@material-ui/core/styles";
-import Base from "../../containers/base";
-import BaseTitle from "../../containers/base-title";
-import BaseContent from "../../containers/base-content";
 import Paper from "@material-ui/core/Paper";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -16,7 +13,14 @@ import IconButton from "@material-ui/core/IconButton";
 import MenuOpenIcon from "@material-ui/icons/MenuOpen";
 import Divider from "@material-ui/core/Divider";
 import ClearIcon from "@material-ui/icons/Clear";
+import MuiAlert from "@material-ui/lab/Alert";
+
+import actionCreators from "../../actions/action-creators";
+
 import PasswordDatastore from "../../containers/password-datastore";
+import Base from "../../containers/base";
+import BaseTitle from "../../containers/base-title";
+import BaseContent from "../../containers/base-content";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -64,9 +68,14 @@ const useStyles = makeStyles((theme) => ({
         marginBottom: -10,
         display: "inline-flex",
     },
+    topMessage: {
+        marginBottom: 20,
+    },
 }));
 
 const DatastoreView = (props) => {
+    const serverStatus = useSelector((state) => state.server.status);
+    const recurrenceInterval = useSelector((state) => state.server.complianceCentralSecurityReportsRecurrenceInterval);
     const classes = useStyles();
     const { t } = useTranslation();
     const [search, setSearch] = React.useState("");
@@ -75,9 +84,47 @@ const DatastoreView = (props) => {
         setSearch("");
     };
 
+    let newSecurityReport = "NOT_REQUIRED";
+    if (recurrenceInterval > 0) {
+        if (
+            serverStatus.hasOwnProperty("data") &&
+            serverStatus.data.hasOwnProperty("last_security_report_created") &&
+            serverStatus.data.last_security_report_created !== null
+        ) {
+            const lastSecurityReportAgeSeconds = differenceInSeconds(new Date(), new Date(serverStatus.data.last_security_report_created));
+
+            if (lastSecurityReportAgeSeconds > recurrenceInterval) {
+                newSecurityReport = "REQUIRED";
+            } else {
+                var days_28 = 28 * 24 * 3600;
+                var days_14 = 14 * 24 * 3600;
+                if (recurrenceInterval >= days_28 && lastSecurityReportAgeSeconds > recurrenceInterval - days_14) {
+                    newSecurityReport = "SOON_REQUIRED";
+                } else {
+                    newSecurityReport = "NOT_REQUIRED";
+                }
+            }
+        } else {
+            newSecurityReport = "REQUIRED";
+        }
+    }
+
     return (
         <Base {...props}>
             <BaseTitle>{t("DATASTORE")}</BaseTitle>
+            {(newSecurityReport === "SOON_REQUIRED" || newSecurityReport === "REQUIRED") && (
+                <Paper square className={classes.topMessage}>
+                    <MuiAlert
+                        severity={newSecurityReport === "REQUIRED" ? "error" : "info"}
+                        style={{
+                            marginBottom: "5px",
+                            marginTop: "5px",
+                        }}
+                    >
+                        {newSecurityReport === "REQUIRED" ? t("SECURITY_REPORT_REQUIRED") : t("SECURITY_REPORT_SOON_REQUIRED")}
+                    </MuiAlert>
+                </Paper>
+            )}
             <BaseContent>
                 <Paper square>
                     <AppBar elevation={0} position="static" color="default">
