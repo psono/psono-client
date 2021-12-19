@@ -18,7 +18,7 @@ describe('Service: importKeePassInfoCsv test suite', function () {
         var input = "\"Account\",\"Login Name\",\"Password\",\"Web Site\",\"Comments\"\n" +
             "\"Sample Entry Title\",\"Greg\",\"ycXfARD2G1AOBzLlhtbn\",\"http://www.somepage.net\",\"Some notes...\"\n" +
             "\"Yet Another Sample Entry\",\"Michael\",\"qgyXFZ1iGgNqzg+eZter\",\"http://www.anotherpage.org\",\"More notes...\"\n" +
-            "\"Entry To Test Special Characters\",\"!\\\"§$%&/()=?´`_#²³{[]}\\\\\",\"öäüÖÄÜß€@<>µ©®\",\"http://www.website.com\",\"The user name and password fields contain special characters.\"\n" +
+            "\"Entry To Test Special Characters\",\"!§$%&/()=?´`_#²³{[]}\\\\\",\"öäüÖÄÜß€@<>µ©®\",\"http://www.website.com\",\"The user name and password fields contain special characters.\"\n" +
             "\"Multi-Line Test Entry\",\"User\",\"bBbescXqkgGF21PK09gV\",\"http://www.web.com\",\"This is a multi-line comment.\n" +
             "This is a multi-line comment.\n" +
             "This is a multi-line comment.\n" +
@@ -63,7 +63,7 @@ describe('Service: importKeePassInfoCsv test suite', function () {
                     "urlfilter": "website.com",
                     "website_password_url_filter": "website.com",
                     "website_password_password": "öäüÖÄÜß€@<>µ©®",
-                    "website_password_username": "!\"§$%&/()=?´`_#²³{[]}\\",
+                    "website_password_username": "!§$%&/()=?´`_#²³{[]}\\",
                     "website_password_notes": "The user name and password fields contain special characters.",
                     "website_password_url": "http://www.website.com",
                     "website_password_title": "Entry To Test Special Characters"
@@ -109,7 +109,7 @@ describe('Service: importKeePassInfoCsv test suite', function () {
                 "urlfilter": "website.com",
                 "website_password_url_filter": "website.com",
                 "website_password_password": "öäüÖÄÜß€@<>µ©®",
-                "website_password_username": "!\"§$%&/()=?´`_#²³{[]}\\",
+                "website_password_username": "!§$%&/()=?´`_#²³{[]}\\",
                 "website_password_notes": "The user name and password fields contain special characters.",
                 "website_password_url": "http://www.website.com",
                 "website_password_title": "Entry To Test Special Characters"
