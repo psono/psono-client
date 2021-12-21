@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { alpha, makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -11,6 +11,7 @@ import BaseTitle from "../../containers/base-title";
 import BaseContent from "../../containers/base-content";
 import Table from "../../components/table";
 import shareService from "../../services/share";
+import DialogAcceptShare from "../../components/dialogs/accept-share";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -29,7 +30,10 @@ const PendingSharesView = (props) => {
     const classes = useStyles();
     const { t } = useTranslation();
     let isSubscribed = true;
-    const [pendingRequests, setPendingRequests] = React.useState([]);
+    const [pendingRequests, setPendingRequests] = useState([]);
+    const [pendingRequestsDict, setPendingRequestsDict] = useState({});
+    const [acceptShareOpen, setAcceptShareOpen] = useState(false);
+    const [acceptShareId, setAcceptShareId] = useState("");
 
     React.useEffect(() => {
         loadShares();
@@ -38,14 +42,16 @@ const PendingSharesView = (props) => {
     }, []);
 
     const loadShares = function () {
-        var onSuccess = function (data) {
+        const onSuccess = function (data) {
             if (!isSubscribed) {
                 return;
             }
+            const newPendingRequestsDict = {};
             setPendingRequests(
                 data.shares
                     .filter((request) => request.share_right_accepted === null)
                     .map((request, index) => {
+                        newPendingRequestsDict[request.id] = request;
                         return [
                             request.id,
                             request.share_right_create_user_username,
@@ -57,8 +63,9 @@ const PendingSharesView = (props) => {
                         ];
                     })
             );
+            setPendingRequestsDict(newPendingRequestsDict);
         };
-        var onError = function (data) {
+        const onError = function (data) {
             //pass
             console.log(data);
         };
@@ -66,76 +73,8 @@ const PendingSharesView = (props) => {
     };
 
     const accept = (rowData) => {
-        console.log(rowData);
-        // TODO implement accept
-
-        // var modalInstance = $uibModal.open({
-        //     templateUrl: 'view/modal/accept-share.html',
-        //     controller: 'ModalAcceptShareCtrl',
-        //     resolve: {
-        //         title: function () {
-        //             return 'Accept Share';
-        //         },
-        //         item: function () {
-        //             return item;
-        //         },
-        //         user: function () {
-        //             return {
-        //                 'user_id': item.share_right_create_user_id,
-        //                 'user_username': item.share_right_create_user_username
-        //             };
-        //         },
-        //         hide_user: function () {
-        //             return false;
-        //         }
-        //     }
-        // });
-        //
-        // modalInstance.result.then(function (breadcrumbs) {
-        //     // User clicked the prime button
-        //
-        //     var onSuccess = function (datastore) {
-        //
-        //         var analyzed_breadcrumbs = managerDatastorePassword.analyze_breadcrumbs(breadcrumbs, datastore);
-        //
-        //         if (item.share_right_grant === false && typeof(analyzed_breadcrumbs['parent_share_id']) !== 'undefined') {
-        //             // No grant right, yet the parent is a a share?!?
-        //             alert("Wups, this should not happen. Error: 781f3da7-d38b-470e-a3c8-dd5787642230");
-        //         }
-        //
-        //         var onSuccess = function (share) {
-        //
-        //             if (typeof share.name === "undefined") {
-        //                 share.name = item.share_right_title;
-        //             }
-        //
-        //             var shares = [share];
-        //
-        //             managerDatastorePassword.create_share_links_in_datastore(shares, analyzed_breadcrumbs['target'],
-        //                 analyzed_breadcrumbs['parent_path'], analyzed_breadcrumbs['path'],
-        //                 analyzed_breadcrumbs['parent_share_id'], analyzed_breadcrumbs['parent_datastore_id'],
-        //                 datastore, analyzed_breadcrumbs['parent_share']);
-        //
-        //             remove_item_from_pending_list(item, pending_shares);
-        //         };
-        //
-        //         var onError = function (data) {
-        //             //pass
-        //         };
-        //
-        //         managerShare.accept_share_right(item.share_right_id, item.share_right_key,
-        //             item.share_right_key_nonce, breadcrumbs.user.data.user_public_key
-        //         ).then(onSuccess, onError);
-        //     };
-        //     var onError = function (data) {
-        //         //pass
-        //     };
-        //
-        //     managerDatastorePassword.get_password_datastore()
-        //         .then(onSuccess, onError);
-        // }, function () {
-        //     // cancel triggered
-        // });
+        setAcceptShareId(rowData[0]);
+        setAcceptShareOpen(true);
     };
 
     const decline = (rowData) => {
@@ -238,6 +177,16 @@ const PendingSharesView = (props) => {
                     <div className={classes.root}>
                         <Table data={pendingRequests} columns={columns} options={options} />
                     </div>
+                    {acceptShareOpen && (
+                        <DialogAcceptShare
+                            item={pendingRequestsDict[acceptShareId]}
+                            open={acceptShareOpen}
+                            onClose={() => {
+                                setAcceptShareOpen(false);
+                                loadShares();
+                            }}
+                        />
+                    )}
                 </Paper>
             </BaseContent>
         </Base>

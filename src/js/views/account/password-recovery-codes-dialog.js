@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { bindActionCreators } from "redux";
-import { compose } from "redux";
 import { useTranslation } from "react-i18next";
-import Box from "@material-ui/core/Box";
+import { makeStyles } from "@material-ui/core/styles";
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -16,8 +15,16 @@ import actionCreators from "../../actions/action-creators";
 import passwordRecoveryCode from "../../services/password-recovery-code";
 import MuiAlert from "@material-ui/lab/Alert";
 
+const useStyles = makeStyles((theme) => ({
+    code: {
+        fontFamily: "'Fira Code', monospace",
+        textAlign: "center",
+    },
+}));
+
 const PasswordRecoveryCodesDialog = (props) => {
     const { open, onClose } = props;
+    const classes = useStyles();
     const { t } = useTranslation();
     const [newPasswordRecoveryCode, setNewPasswordRecoveryCode] = React.useState({});
 
@@ -40,19 +47,19 @@ const PasswordRecoveryCodesDialog = (props) => {
                     <Grid item xs={12} sm={12} md={12}>
                         <strong>{t("USERNAME")}</strong>
                     </Grid>
-                    <Grid item xs={12} sm={12} md={12} className="text-center monospace">
+                    <Grid item xs={12} sm={12} md={12} className={classes.code}>
                         <p>{newPasswordRecoveryCode.username}</p>
                     </Grid>
                     <Grid item xs={12} sm={12} md={12}>
                         <strong>{t("CODE")}</strong>
                     </Grid>
-                    <Grid item xs={12} sm={12} md={12} className="text-center monospace">
+                    <Grid item xs={12} sm={12} md={12} className={classes.code}>
                         <p>{newPasswordRecoveryCode.recovery_password}</p>
                     </Grid>
                     <Grid item xs={12} sm={12} md={12}>
                         <strong>{t("OR")}</strong>
                     </Grid>
-                    <Grid item xs={12} sm={12} md={12} className="text-center monospace">
+                    <Grid item xs={12} sm={12} md={12} className={classes.code}>
                         <p>{newPasswordRecoveryCode.recovery_words}</p>
                     </Grid>
                     <Grid item xs={12} sm={12} md={12}>

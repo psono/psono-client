@@ -413,7 +413,7 @@ function bytesToString(srcBytes, encoding) {
     return new TextDecoder(tmp_encoding).decode(srcBytes);
 }
 
-const service = {
+const converterService = {
     // Conversion functions
     encodeUtf8: encodeUtf8,
     encodeLatin1: encodeLatin1,
@@ -434,4 +434,4 @@ const service = {
     bytesToString: bytesToString,
 };
 
-export default service;
+export default converterService;

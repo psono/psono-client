@@ -8,7 +8,6 @@ import HomeIcon from "@material-ui/icons/Home";
 import ShareIcon from "@material-ui/icons/Share";
 import PersonIcon from "@material-ui/icons/Person";
 import GroupIcon from "@material-ui/icons/Group";
-import AssignmentIcon from "@material-ui/icons/Assignment";
 import LinkIcon from "@material-ui/icons/Link";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
@@ -23,6 +22,7 @@ import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 
+import RuleIcon from "../components/icons/Rule";
 import browserClient from "../services/browser-client";
 
 const drawerWidth = 240;
@@ -76,7 +76,7 @@ const useStyles = makeStyles((theme) => ({
     listItemText: {
         fontSize: "14px",
         "& .MuiBadge-badge": {
-            fontSize: "0.50rem",
+            fontSize: "0.75rem",
             height: "15px",
             minWidth: "15px",
             color: "#fff",
@@ -86,11 +86,11 @@ const useStyles = makeStyles((theme) => ({
     },
     listItemIcon: {
         color: "#b1b6c1",
-        minWidth: "36px",
+        minWidth: theme.spacing(4),
     },
     listItemIconSelected: {
         color: "#fff",
-        minWidth: "36px",
+        minWidth: theme.spacing(4),
     },
     icon: {
         fontSize: "18px",
@@ -222,7 +222,7 @@ const Sidebar = (props) => {
                     selected={isSelected(/^\/security-report$/)}
                 >
                     <ListItemIcon className={`${isSelected(/^\/security-report$/) ? classes.listItemIconSelected : classes.listItemIcon}`}>
-                        <AssignmentIcon className={classes.icon} />
+                        <RuleIcon className={classes.icon} />
                     </ListItemIcon>
                     <ListItemText
                         classes={{ primary: classes.listItemText }}

@@ -16,7 +16,7 @@ import actionCreators from "../../actions/action-creators";
 import GridContainerErrors from "../../components/grid-container-errors";
 import fileRepository from "../../services/file-repository";
 import helperService from "../../services/helper";
-import FileRepositoryTypeSelectField from "../../containers/file-repository-type-select-field";
+import SelectFieldFileRepositoryType from "../../components/select-field/file-repository-type";
 import TextFieldAWSRegion from "../../components/text-field-aws-region";
 import TextFieldDoRegion from "../../components/text-field-do-region";
 
@@ -156,7 +156,7 @@ const CreateFileRepositoriesDialog = (props) => {
                         />
                     </Grid>
                     <Grid item xs={12} sm={12} md={12}>
-                        <FileRepositoryTypeSelectField
+                        <SelectFieldFileRepositoryType
                             className={classes.textField}
                             variant="outlined"
                             margin="dense"

@@ -1,7 +1,7 @@
 /*fbfbfc*/
 /* Generic styles */
 html {
-  height: 100%; }
+  height: 100%;}
 body {
   font-family: 'Open Sans', sans-serif;
   position: relative;
@@ -12,6 +12,10 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden;
+}
+
+html, body {
+  -webkit-tap-highlight-color: transparent;
 }
 
 h1, h2 {
@@ -47,9 +51,6 @@ a {
 
 .btn-link {
   color: #151f2b; }
-
-.monospace {
-  font-family: 'Fira Code', monospace; }
 
 p.horizontalline {
   width: 100%;
@@ -312,10 +313,6 @@ p.horizontalline span {
 #loading-bar-spinner .spinner-icon {
   border-top-color: #2ba880;
   border-left-color: #2ba880; }
-
-
-.text-center {
-  text-align: center; }
 
 .progress-box {
   width: 340px;

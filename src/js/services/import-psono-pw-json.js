@@ -10,8 +10,8 @@ import cryptoLibrary from "./crypto-library";
  * @param {[]} secrets The array containing all the found secrets
  */
 function gather_secrets(folder, secrets) {
-    var i;
-    var subitem;
+    let i;
+    let subitem;
 
     folder["id"] = cryptoLibrary.generateUuid();
 
@@ -46,15 +46,16 @@ function gather_secrets(folder, secrets) {
  * @returns {{datastore, secrets: Array} | null}
  */
 function parser(data) {
+    let datastore;
     try {
-        var datastore = JSON.parse(data);
+        datastore = JSON.parse(data);
     } catch (err) {
         return null;
     }
-    var secrets = [];
+    const secrets = [];
 
-    var d = new Date();
-    var n = d.toISOString();
+    const d = new Date();
+    const n = d.toISOString();
     datastore["name"] = "Import " + n;
 
     gather_secrets(datastore, secrets);
@@ -65,8 +66,8 @@ function parser(data) {
     };
 }
 
-const service = {
+const importPsonoPwJsonService = {
     parser,
 };
 
-export default service;
+export default importPsonoPwJsonService;

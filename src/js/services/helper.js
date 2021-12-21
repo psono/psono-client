@@ -523,7 +523,7 @@ function getPasswordFilter(test) {
     return filter;
 }
 
-const service = {
+const helperService = {
     parseUrl: parseUrl,
     isValidUrl: isValidUrl,
     isValidJson: isValidJson,
@@ -543,4 +543,4 @@ const service = {
     getPasswordFilter: getPasswordFilter,
 };
 
-export default service;
+export default helperService;

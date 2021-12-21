@@ -225,7 +225,7 @@ function onSetEncryptionKey(fnc) {
     onSetEncryptionKeyRegistrations.push(fnc);
 }
 
-const service = {
+const offlineCacheService = {
     isActive: isActive,
     get: get,
     set: set,
@@ -240,4 +240,4 @@ const service = {
     save: save,
     onSetEncryptionKey: onSetEncryptionKey,
 };
-export default service;
+export default offlineCacheService;

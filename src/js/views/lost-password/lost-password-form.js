@@ -124,6 +124,7 @@ const LostPasswordViewForm = (props) => {
 
     const onNewConfigLoaded = (configJson) => {
         const serverUrl = configJson["backend_servers"][0]["url"];
+        const domain = configJson["backend_servers"][0]["domain"];
         const allowLostPassword =
             (!configJson.hasOwnProperty("allow_lost_password") || (configJson.hasOwnProperty("allow_lost_password") && configJson["allow_lost_password"])) &&
             configJson["authentication_methods"].indexOf("AUTHKEY") !== -1;
@@ -131,7 +132,7 @@ const LostPasswordViewForm = (props) => {
 
         setAllowLostPassword(allowLostPassword);
         setServer(serverUrl);
-        setDomain(helperService.getDomain(serverUrl));
+        setDomain(domain);
         setAllowCustomServer(allowCustomServer);
     };
 

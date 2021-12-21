@@ -236,7 +236,7 @@ function deleteKnownHost(fingerprint) {
     updateKnownHosts(known_hosts);
 }
 
-const service = {
+const hostService = {
     getKnownHosts: getKnownHosts,
     getCurrentHost: getCurrentHost,
     getCurrentHostUrl: getCurrentHostUrl,
@@ -249,4 +249,4 @@ const service = {
     updateKnownHosts: updateKnownHosts,
 };
 
-export default service;
+export default hostService;

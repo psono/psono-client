@@ -101,6 +101,12 @@ const useStyles = makeStyles((theme) => ({
         right: "0px",
         top: "3px",
     },
+    listItemIcon: {
+        minWidth: theme.spacing(4),
+    },
+    icon: {
+        fontSize: "18px",
+    },
 }));
 
 const PopupItem = (props) => {
@@ -171,39 +177,39 @@ const PopupItem = (props) => {
             <Menu id="simple-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
                 {["application_password", "website_password"].indexOf(item.content.type) !== -1 && (
                     <MenuItem onClick={onCopyUsername}>
-                        <ListItemIcon>
-                            <ContentCopy fontSize="small" />
+                        <ListItemIcon className={classes.listItemIcon}>
+                            <ContentCopy className={classes.icon} fontSize="small" />
                         </ListItemIcon>
-                        <Typography variant="inherit" noWrap>
+                        <Typography variant="body2" noWrap>
                             {t("COPY_USERNAME")}
                         </Typography>
                     </MenuItem>
                 )}
                 {["application_password", "website_password"].indexOf(item.content.type) !== -1 && (
                     <MenuItem onClick={onCopyPassword}>
-                        <ListItemIcon>
-                            <ContentCopy fontSize="small" />
+                        <ListItemIcon className={classes.listItemIcon}>
+                            <ContentCopy className={classes.icon} fontSize="small" />
                         </ListItemIcon>
-                        <Typography variant="inherit" noWrap>
+                        <Typography variant="body2" noWrap>
                             {t("COPY_PASSWORD")}
                         </Typography>
                     </MenuItem>
                 )}
                 {["totp"].indexOf(item.content.type) !== -1 && (
                     <MenuItem onClick={onCopyTotpToken}>
-                        <ListItemIcon>
-                            <ContentCopy fontSize="small" />
+                        <ListItemIcon className={classes.listItemIcon}>
+                            <ContentCopy className={classes.icon} fontSize="small" />
                         </ListItemIcon>
-                        <Typography variant="inherit" noWrap>
+                        <Typography variant="body2" noWrap>
                             {t("COPY_TOTP_TOKEN")}
                         </Typography>
                     </MenuItem>
                 )}
                 <MenuItem onClick={onEditItem}>
-                    <ListItemIcon>
-                        <EditIcon fontSize="small" />
+                    <ListItemIcon className={classes.listItemIcon}>
+                        <EditIcon className={classes.icon} fontSize="small" />
                     </ListItemIcon>
-                    <Typography variant="inherit" noWrap>
+                    <Typography variant="body2" noWrap>
                         {t("SHOW_OR_EDIT")}
                     </Typography>
                 </MenuItem>

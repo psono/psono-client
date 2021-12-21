@@ -19,8 +19,8 @@ const INDEX_COMMENTS = 4;
  *
  * @returns {*} The secrets object
  */
-var transform_to_secret = function (line) {
-    var parsed_url = helperService.parseUrl(line[INDEX_WEB_SITE]);
+function transformToSecret(line) {
+    const parsed_url = helperService.parseUrl(line[INDEX_WEB_SITE]);
 
     return {
         id: cryptoLibrary.generateUuid(),
@@ -34,7 +34,7 @@ var transform_to_secret = function (line) {
         website_password_url: line[INDEX_WEB_SITE],
         website_password_title: line[INDEX_ACCOUNT].replace(/(?:\\(.))/g, "$1"),
     };
-};
+}
 
 /**
  * Fills the datastore with folders their content and together with the secrets object
@@ -44,7 +44,7 @@ var transform_to_secret = function (line) {
  * @param {[]} csv The array containing all the found secrets
  */
 function gather_secrets(datastore, secrets, csv) {
-    var line;
+    let line;
 
     for (let i = 0; i < csv.length; i++) {
         line = csv[i];
@@ -55,7 +55,7 @@ function gather_secrets(datastore, secrets, csv) {
             continue;
         }
 
-        var secret = transform_to_secret(line);
+        const secret = transformToSecret(line);
         if (secret === null) {
             //empty line
             continue;
@@ -72,7 +72,7 @@ function gather_secrets(datastore, secrets, csv) {
  * @returns {Array} The array of arrays representing the CSV
  */
 function parse_csv(data) {
-    var csv = Papa.parse(data);
+    const csv = Papa.parse(data);
 
     if (csv["errors"].length > 0) {
         throw new Error(csv["errors"][0]["message"]);
@@ -96,18 +96,19 @@ function parse_csv(data) {
  * @returns {{datastore, secrets: Array} | null}
  */
 function parser(data) {
-    var d = new Date();
-    var n = d.toISOString();
+    const d = new Date();
+    const n = d.toISOString();
 
-    var secrets = [];
-    var datastore = {
+    const secrets = [];
+    const datastore = {
         id: cryptoLibrary.generateUuid(),
         name: "Import " + n,
         items: [],
     };
 
+    let csv;
     try {
-        var csv = parse_csv(data);
+        csv = parse_csv(data);
     } catch (err) {
         console.log(data);
         console.log(err);
@@ -122,8 +123,8 @@ function parser(data) {
     };
 }
 
-const service = {
+const importKeepassInfoCsv = {
     parser,
 };
 
-export default service;
+export default importKeepassInfoCsv;

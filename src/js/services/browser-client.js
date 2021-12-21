@@ -338,10 +338,12 @@ function loadConfig() {
 
             if (newConfig.hasOwnProperty("backend_servers")) {
                 for (let i = 0; i < newConfig["backend_servers"].length; i++) {
-                    if (newConfig["backend_servers"][i].hasOwnProperty("url")) {
-                        continue;
+                    if (!newConfig["backend_servers"][i].hasOwnProperty("url")) {
+                        newConfig["backend_servers"][i]["url"] = parsed_url["base_url"] + "/server";
                     }
-                    newConfig["backend_servers"][i]["url"] = parsed_url["base_url"] + "/server";
+                    if (!newConfig["backend_servers"][i].hasOwnProperty("domain")) {
+                        newConfig["backend_servers"][i]["domain"] = helperService.getDomain(newConfig["backend_servers"][i]["url"]);
+                    }
                 }
             }
 
@@ -777,7 +779,7 @@ function getOfflineCacheEncryptionKey(fnc) {
     }
 }
 
-const service = {
+const browserClientService = {
     registerAuthRequiredListener: registerAuthRequiredListener,
     getClientType: getClientType,
     openTab: openTab,
@@ -806,4 +808,4 @@ const service = {
     getOfflineCacheEncryptionKey: getOfflineCacheEncryptionKey,
 };
 
-export default service;
+export default browserClientService;

@@ -5,14 +5,14 @@
 import axios from "axios";
 import converterService from "./converter";
 
-function call(signed_url, method, endpoint, data, headers, transformRequest, responseType) {
+function call(signedUrl, method, endpoint, data, headers, transformRequest, responseType) {
     if (!transformRequest) {
         transformRequest = $http.defaults.transformRequest;
     }
 
     const req = {
         method: method,
-        url: signed_url + endpoint,
+        url: signedUrl + endpoint,
         data: data,
         transformRequest: transformRequest,
         responseType: responseType,
@@ -36,38 +36,38 @@ function call(signed_url, method, endpoint, data, headers, transformRequest, res
 /**
  * Ajax PUT request to upload a file chunk to Azure Blob Storage
  *
- * @param {string} signed_url The signed ulr
+ * @param {string} signedUrl The signed ulr
  * @param {Blob} chunk The content of the chunk to upload
  *
  * @returns {Promise} promise
  */
-function upload(signed_url, chunk) {
-    var endpoint = ""; // the signed url already has everything
-    var method = "PUT";
+function upload(signedUrl, chunk) {
+    const endpoint = ""; // the signed url already has everything
+    const method = "PUT";
 
-    var headers = {
+    const headers = {
         "x-ms-blob-type": "BlockBlob",
         "Content-Type": undefined,
     };
 
-    return call(signed_url, method, endpoint, chunk, headers, angular.identity);
+    return call(signedUrl, method, endpoint, chunk, headers, angular.identity);
 }
 
 /**
  * Ajax GET request to download a file chunk from Azure Blob Storage
  *
- * @param {string} signed_url The signed ulr
+ * @param {string} signedUrl The signed ulr
  *
  * @returns {Promise} promise with the data
  */
-function download(signed_url) {
-    var endpoint = ""; // the signed url already has everything
-    var method = "GET";
-    var data = null;
+function download(signedUrl) {
+    const endpoint = ""; // the signed url already has everything
+    const method = "GET";
+    const data = null;
 
-    var headers = {};
+    const headers = {};
 
-    return call(signed_url, method, endpoint, data, headers, undefined, "arraybuffer").then(
+    return call(signedUrl, method, endpoint, data, headers, undefined, "arraybuffer").then(
         function (data) {
             return data;
         },
@@ -75,14 +75,14 @@ function download(signed_url) {
             if (data.status === 400) {
                 data.data = JSON.parse(converterService.bytesToString(data.data));
             }
-            return $q.reject(data);
+            return Promise.reject(data);
         }
     );
 }
 
-const service = {
+const apiAzureBlobService = {
     upload: upload,
     download: download,
 };
 
-export default service;
+export default apiAzureBlobService;

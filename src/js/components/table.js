@@ -22,7 +22,7 @@ class Table extends Component {
     };
     componentDidMount() {
         if (this.props.dataFunction) {
-            var rowsPerPage = 10;
+            let rowsPerPage = 10;
             if (this.props.options.hasOwnProperty("rowsPerPage")) {
                 rowsPerPage = this.props.options["rowsPerPage"];
             }
@@ -99,9 +99,9 @@ class Table extends Component {
             defaultOptions["serverSide"] = true;
             defaultOptions["count"] = this.state.count;
             defaultOptions["onTableChange"] = (action, tableState) => {
-                var ordering;
+                let ordering;
                 if (tableState.sortOrder.hasOwnProperty("name")) {
-                    for (var i = 0; i < tableState.columns.length; i++) {
+                    for (let i = 0; i < tableState.columns.length; i++) {
                         if (tableState.columns[i].name === tableState.sortOrder["name"]) {
                             if (tableState.sortOrder["direction"] === "asc") {
                                 ordering = tableState.columns[i].id;
@@ -113,7 +113,7 @@ class Table extends Component {
                     }
                 }
                 if (["changePage", "sort", "search", "changeRowsPerPage", "changePage", "filterChange"].includes(action)) {
-                    var params = {
+                    const params = {
                         page: tableState.page,
                         page_size: tableState.rowsPerPage,
                     };

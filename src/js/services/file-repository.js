@@ -472,7 +472,7 @@ function getDoSpacesRegions() {
     return doSpacesRegions;
 }
 
-const service = {
+const fileRepositoryService = {
     accept: accept,
     decline: decline,
     createFileRepositoryRight: createFileRepositoryRight,
@@ -489,4 +489,4 @@ const service = {
     getAwsRegions: getAwsRegions,
     getDoSpacesRegions: getDoSpacesRegions,
 };
-export default service;
+export default fileRepositoryService;

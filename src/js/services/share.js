@@ -322,7 +322,7 @@ function deleteShareRight(userShareRightId, groupShareRightId) {
  * @returns {object} The decrypted share
  */
 function decryptShare(encryptedShare, secretKey) {
-    const share = {};
+    let share = {};
 
     if (typeof encryptedShare.share_data !== "undefined") {
         share = JSON.parse(cryptoLibrary.decryptData(encryptedShare.share_data, encryptedShare.share_data_nonce, secretKey));
@@ -469,7 +469,7 @@ function register(key, func) {
 // itemBlueprint.register('create_share_right', create_share_right);
 // itemBlueprint.register('get_closest_parent_share', get_closest_parent_share);
 
-const service = {
+const shareService = {
     readShare: readShare,
     readShares: readShares,
     writeShare: writeShare,
@@ -485,4 +485,4 @@ const service = {
     getClosestParentShare: getClosestParentShare,
     register: register,
 };
-export default service;
+export default shareService;

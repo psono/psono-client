@@ -84,8 +84,7 @@ body {
   border-color: #151f2b; }
 
 .path_box_parent {
-  margin-bottom: 5px;
-  font-family: 'Fira Code', monospace; }
+  margin-bottom: 5px;  }
   .path_box_parent .path_box_breadcrumb {
     cursor: pointer; }
   .path_box_parent .disabled {

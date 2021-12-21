@@ -89,11 +89,11 @@ function deleteDuo(duoId) {
     return apiClient.deleteDuo(token, sessionSecretKey, duoId).then(onSuccess, onError);
 }
 
-const service = {
+const duoService = {
     createDuo,
     readDuo,
     activateDuo,
     deleteDuo,
 };
 
-export default service;
+export default duoService;

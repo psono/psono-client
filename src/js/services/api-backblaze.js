@@ -5,14 +5,14 @@
 import axios from "axios";
 import converterService from "./converter";
 
-function call(signed_url, method, endpoint, data, headers, transformRequest, responseType) {
+function call(signedUrl, method, endpoint, data, headers, transformRequest, responseType) {
     if (!transformRequest) {
         transformRequest = $http.defaults.transformRequest;
     }
 
     const req = {
         method: method,
-        url: signed_url + endpoint,
+        url: signedUrl + endpoint,
         data: data,
         transformRequest: transformRequest,
         responseType: responseType,
@@ -36,16 +36,16 @@ function call(signed_url, method, endpoint, data, headers, transformRequest, res
 /**
  * Ajax PUT request to upload a file chunk to AWS S3
  *
- * @param {string} signed_url The signed ulr
+ * @param {string} signedUrl The signed ulr
  * @param {object} fields Array of fields that need to be part of the request
  * @param {Blob} chunk The content of the chunk to upload
  *
  * @returns {Promise} promise
  */
-function upload(signed_url, fields, chunk) {
-    var endpoint = ""; // the signed url already has everything
-    var method = "POST";
-    var data = new FormData();
+function upload(signedUrl, fields, chunk) {
+    const endpoint = ""; // the signed url already has everything
+    const method = "POST";
+    const data = new FormData();
     for (let field_name in fields) {
         if (!fields.hasOwnProperty(field_name)) {
             continue;
@@ -53,28 +53,28 @@ function upload(signed_url, fields, chunk) {
         data.append(field_name, fields[field_name]);
     }
     data.append("file", chunk);
-    var headers = {
+    const headers = {
         "Content-Type": undefined,
     };
 
-    return call(signed_url, method, endpoint, data, headers, angular.identity);
+    return call(signedUrl, method, endpoint, data, headers, angular.identity);
 }
 
 /**
  * Ajax GET request to download a file chunk from AWS S3
  *
- * @param {string} signed_url The signed ulr
+ * @param {string} signedUrl The signed ulr
  *
  * @returns {Promise} promise with the data
  */
-function download(signed_url) {
-    var endpoint = ""; // the signed url already has everything
-    var method = "GET";
-    var data = null;
+function download(signedUrl) {
+    const endpoint = ""; // the signed url already has everything
+    const method = "GET";
+    const data = null;
 
-    var headers = {};
+    const headers = {};
 
-    return call(signed_url, method, endpoint, data, headers, undefined, "arraybuffer").then(
+    return call(signedUrl, method, endpoint, data, headers, undefined, "arraybuffer").then(
         function (data) {
             return data;
         },
@@ -82,14 +82,14 @@ function download(signed_url) {
             if (data.status === 400) {
                 data.data = JSON.parse(converterService.bytesToString(data.data));
             }
-            return $q.reject(data);
+            return Promise.reject(data);
         }
     );
 }
 
-const service = {
+const apiBackblazeService = {
     upload: upload,
     download: download,
 };
 
-export default service;
+export default apiBackblazeService;

@@ -3,17 +3,20 @@
  */
 
 import datastoreService from "./datastore";
+import helper from "./helper";
+import store from "./store";
+import apiClient from "./api-client";
 
-// var required_multifactors = [];
-// var session_keys;
-// var session_secret_key;
-// var token;
-// var user_sauce;
-// var user_public_key;
-// var user_private_key;
-// var session_password;
-// var verification;
-// var registrations = {};
+// let required_multifactors = [];
+// let session_keys;
+// let session_secret_key;
+// let token;
+// let user_sauce;
+// let user_public_key;
+// let user_private_key;
+// let session_password;
+// let verification;
+// const registrations = {};
 //
 //
 // /**
@@ -21,8 +24,8 @@ import datastoreService from "./datastore";
 //  *
 //  * @return {boolean} Returns either if the user is logged in
 //  */
-// var is_logged_in = function () {
-//     var token = managerBase.get_token();
+// function is_logged_in() {
+//     const token = managerBase.get_token();
 //     return token !== null && token !== "";
 // };
 //
@@ -32,9 +35,9 @@ import datastoreService from "./datastore";
 //  *
 //  * @return {boolean} Returns whether the user should be forced to setup two factor
 //  */
-// var require_two_fa_setup = function () {
-//     var user_has_two_factor = managerBase.find_key('config', 'user_has_two_factor');
-//     var server_info = managerBase.find_key('config', 'server_info');
+// function require_two_fa_setup() {
+//     const user_has_two_factor = managerBase.find_key('config', 'user_has_two_factor');
+//     const server_info = managerBase.find_key('config', 'server_info');
 //     return server_info !== null
 //         && !user_has_two_factor
 //         && server_info['compliance_enforce_2fa']
@@ -48,7 +51,7 @@ import datastoreService from "./datastore";
 //  * @param {string} event The event to subscribe to
 //  * @param {function} func The callback function to subscribe
 //  */
-// var on = function (event, func) {
+// function on(event, func) {
 //     if (!registrations.hasOwnProperty(event)){
 //         registrations[event] = [];
 //     }
@@ -62,12 +65,12 @@ import datastoreService from "./datastore";
 //  * @param {string} event The event to trigger
 //  * @param {*} data The payload data to send to the subscribed callback functions
 //  */
-// var emit = function (event, data) {
+// function emit(event, data) {
 //
 //     if (!registrations.hasOwnProperty(event)){
 //         return;
 //     }
-//     for (var i = registrations[event].length - 1; i >= 0; i--) {
+//     for (let i = registrations[event].length - 1; i >= 0; i--) {
 //         registrations[event][i](data);
 //     }
 // };
@@ -83,9 +86,9 @@ import datastoreService from "./datastore";
 //  *
 //  * @returns {Promise} promise
 //  */
-// var register = function(email, username, password, server) {
+// function register(email, username, password, server) {
 //
-//     var onSuccess = function(base_url){
+//     const onSuccess = function(base_url){
 //
 //         managerBase.delete_local_data();
 //
@@ -93,14 +96,14 @@ import datastoreService from "./datastore";
 //         storage.upsert('config', {key: 'user_username', value: username});
 //         storage.upsert('config', {key: 'server', value: server});
 //
-//         var pair = cryptoLibrary.generate_public_private_keypair();
-//         var user_sauce = cryptoLibrary.generate_user_sauce();
+//         const pair = cryptoLibrary.generate_public_private_keypair();
+//         const user_sauce = cryptoLibrary.generate_user_sauce();
 //
-//         var priv_key_enc = cryptoLibrary.encrypt_secret(pair.private_key, password, user_sauce);
-//         var secret_key_enc = cryptoLibrary
+//         const priv_key_enc = cryptoLibrary.encrypt_secret(pair.private_key, password, user_sauce);
+//         const secret_key_enc = cryptoLibrary
 //             .encrypt_secret(cryptoLibrary.generate_secret_key(), password, user_sauce);
 //
-//         var onSuccess = function () {
+//         const onSuccess = function () {
 //
 //             storage.save();
 //
@@ -109,7 +112,7 @@ import datastoreService from "./datastore";
 //             };
 //         };
 //
-//         var onError = function(response){
+//         const onError = function(response){
 //
 //             storage.remove('config', storage.find_key('config', 'user_email'));
 //             storage.remove('config', storage.find_key('config', 'server'));
@@ -128,7 +131,7 @@ import datastoreService from "./datastore";
 //
 //     };
 //
-//     var onError = function(){
+//     const onError = function(){
 //
 //     };
 //
@@ -144,11 +147,11 @@ import datastoreService from "./datastore";
 //  *
 //  * @returns {Promise} Returns a promise with the activation status
 //  */
-// var activateCode = function(activation_code, server) {
+// function activateCode(activation_code, server) {
 //
 //     storage.upsert('config', {key: 'server', value: server});
 //
-//     var onSuccess = function () {
+//     const onSuccess = function () {
 //
 //         storage.save();
 //
@@ -157,7 +160,7 @@ import datastoreService from "./datastore";
 //         };
 //     };
 //
-//     var onError = function(response){
+//     const onError = function(response){
 //
 //         storage.remove('config', storage.find_key('config', 'server'));
 //         storage.save();
@@ -177,9 +180,9 @@ import datastoreService from "./datastore";
 //  *
 //  * @returns {Promise} Returns a promise with the the final activate token was successful or not
 //  */
-// var activate_token = function() {
+// function activate_token() {
 //
-//     var onError = function(response){
+//     const onError = function(response){
 //
 //         // in case of any error we remove the items we already added to our storage
 //         // maybe we adjust this behaviour at some time
@@ -198,15 +201,15 @@ import datastoreService from "./datastore";
 //         session_password = null;
 //         verification = null;
 //
-//         return $q.reject({
+//         return Promise.reject({
 //             response:"error",
 //             error_data: response.data
 //         });
 //     };
 //
-//     var onSuccess = function (activation_data) {
+//     const onSuccess = function (activation_data) {
 //         // decrypt user secret key
-//         var user_secret_key = cryptoLibrary.decrypt_secret(
+//         const user_secret_key = cryptoLibrary.decrypt_secret(
 //             activation_data.data.user.secret_key,
 //             activation_data.data.user.secret_key_nonce,
 //             session_password,
@@ -217,7 +220,7 @@ import datastoreService from "./datastore";
 //             username: managerBase.find_key('config', 'user_username')
 //         });
 //
-//         var authentication = 'AUTHKEY'
+//         let authentication = 'AUTHKEY'
 //         if (typeof(activation_data.data.user.authentication) !== 'undefined'){
 //             // we check if authentication exists in  activation_data.data.user due to backward compatibiltiy
 //             // as the server provides this since Feb 13th 2020
@@ -270,17 +273,17 @@ import datastoreService from "./datastore";
 //  *
 //  * @returns {Promise} Returns a promise with the login status
 //  */
-// var ga_verify = function(ga_token) {
+// function ga_verify(ga_token) {
 //
 //
-//     var onError = function(response){
-//         return $q.reject({
+//     const onError = function(response){
+//         return Promise.reject({
 //             response:"error",
 //             error_data: response.data
 //         });
 //     };
 //
-//     var onSuccess = function () {
+//     const onSuccess = function () {
 //         helper.remove_from_array(required_multifactors, 'google_authenticator_2fa');
 //         return required_multifactors;
 //     };
@@ -296,17 +299,17 @@ import datastoreService from "./datastore";
 //  *
 //  * @returns {Promise} Returns a promise with the login status
 //  */
-// var duo_verify = function(duo_token) {
+// function duo_verify(duo_token) {
 //
 //
-//     var onError = function(response){
-//         return $q.reject({
+//     const onError = function(response){
+//         return Promise.reject({
 //             response:"error",
 //             error_data: response.data
 //         });
 //     };
 //
-//     var onSuccess = function () {
+//     const onSuccess = function () {
 //         helper.remove_from_array(required_multifactors, 'duo_2fa');
 //         return required_multifactors;
 //     };
@@ -322,17 +325,17 @@ import datastoreService from "./datastore";
 //  *
 //  * @returns {Promise} Returns a promise with the login status
 //  */
-// var yubikey_otp_verify = function(yubikey_otp) {
+// function yubikey_otp_verify(yubikey_otp) {
 //
 //
-//     var onError = function(response){
-//         return $q.reject({
+//     const onError = function(response){
+//         return Promise.reject({
 //             response:"error",
 //             error_data: response.data
 //         });
 //     };
 //
-//     var onSuccess = function () {
+//     const onSuccess = function () {
 //         helper.remove_from_array(required_multifactors, 'yubikey_otp_2fa');
 //         return required_multifactors;
 //     };
@@ -348,7 +351,7 @@ import datastoreService from "./datastore";
 //  *
 //  * @returns {Promise} Returns the saved default value
 //  */
-// var getDefault = function(item) {
+// function getDefault(item) {
 //     if (item === 'username') {
 //         return managerBase.find_key('persistent', 'username');
 //     } else if (item === 'server') {
@@ -368,7 +371,7 @@ import datastoreService from "./datastore";
 //  *
 //  * @returns {Array} The list of required multifactor challenges to solve
 //  */
-// var handle_login_response = function(response, password, session_keys, server_public_key) {
+// function handle_login_response(response, password, session_keys, server_public_key) {
 //
 //     response.data = JSON.parse(cryptoLibrary.decrypt_data_public_key(
 //         response.data.login_info,
@@ -403,7 +406,7 @@ import datastoreService from "./datastore";
 //     );
 //
 //     // decrypt the user_validator
-//     var user_validator = cryptoLibrary.decrypt_data_public_key(
+//     const user_validator = cryptoLibrary.decrypt_data_public_key(
 //         response.data.user_validator,
 //         response.data.user_validator_nonce,
 //         response.data.session_public_key,
@@ -438,13 +441,13 @@ import datastoreService from "./datastore";
 //  *
 //  * @returns {Promise} Returns a promise with the login status
 //  */
-// var login = function(username, domain, password, remember, trust_device, server, server_info, verify_key, send_plain) {
+// function login(username, domain, password, remember, trust_device, server, server_info, verify_key, send_plain) {
 //
 //     username = helper.form_full_username(username, domain);
 //
 //     managerBase.delete_local_data();
 //
-//     var authkey = cryptoLibrary.generate_authkey(username, password);
+//     const authkey = cryptoLibrary.generate_authkey(username, password);
 //
 //     if (remember) {
 //         storage.upsert('persistent', {key: 'username', value: username});
@@ -475,7 +478,7 @@ import datastoreService from "./datastore";
 //
 //     session_keys = cryptoLibrary.generate_public_private_keypair();
 //
-//     var onError = function(response){
+//     const onError = function(response){
 //
 //         // in case of any error we remove the items we already added to our storage
 //         // maybe we adjust this behaviour at some time
@@ -483,17 +486,17 @@ import datastoreService from "./datastore";
 //         storage.remove('config', storage.find_key('config', 'server'));
 //         storage.save();
 //
-//         return $q.reject({
+//         return Promise.reject({
 //             response:"error",
 //             error_data: response.data
 //         });
 //     };
 //
-//     var onSuccess = function (response) {
+//     const onSuccess = function (response) {
 //         return handle_login_response(response, password, session_keys, server_info['public_key']);
 //     };
 //
-//     var login_info = {
+//     const login_info = {
 //         'username': username,
 //         'authkey': authkey,
 //         'device_time': new Date().toISOString(),
@@ -508,14 +511,14 @@ import datastoreService from "./datastore";
 //     login_info = JSON.stringify(login_info);
 //
 //     // encrypt the login infos
-//     var login_info_enc = cryptoLibrary.encrypt_data_public_key(
+//     const login_info_enc = cryptoLibrary.encrypt_data_public_key(
 //         login_info,
 //         server_info['public_key'],
 //         session_keys.private_key
 //     );
 //
 //
-//     var session_duration = 24*60*60;
+//     let session_duration = 24*60*60;
 //     if (trust_device) {
 //         session_duration = 24*60*60*30;
 //     }
@@ -536,7 +539,7 @@ import datastoreService from "./datastore";
 //  *
 //  * @returns {Promise} Returns a promise with the login status
 //  */
-// var samlInitiateLogin = function(provider, remember, trust_device, server, server_info, verify_key) {
+// function samlInitiateLogin(provider, remember, trust_device, server, server_info, verify_key) {
 //
 //     managerBase.delete_local_data();
 //
@@ -568,24 +571,24 @@ import datastoreService from "./datastore";
 //     storage.upsert('config', {key: 'server', value: server});
 //     storage.save();
 //
-//     var onError = function(response){
+//     const onError = function(response){
 //
 //         // in case of any error we remove the items we already added to our storage
 //         // maybe we adjust this behaviour at some time
 //         storage.remove('config', storage.find_key('config', 'server'));
 //         storage.save();
 //
-//         return $q.reject({
+//         return Promise.reject({
 //             response:"error",
 //             error_data: response.data
 //         });
 //     };
 //
-//     var onSuccess = function (response) {
+//     const onSuccess = function (response) {
 //         return browserClient.launch_web_auth_flow(response.data.saml_redirect_url);
 //     };
 //
-//     var return_to_url = browserClient.get_saml_return_to_url();
+//     const return_to_url = browserClient.get_saml_return_to_url();
 //
 //     return apiClient.saml_initiate_login(provider['provider_id'], return_to_url)
 //         .then(onSuccess, onError);
@@ -603,7 +606,7 @@ import datastoreService from "./datastore";
 //  *
 //  * @returns {Promise} Returns a promise with the login status
 //  */
-// var oidc_initiate_login = function(provider, remember, trust_device, server, server_info, verify_key) {
+// function oidc_initiate_login(provider, remember, trust_device, server, server_info, verify_key) {
 //
 //     managerBase.delete_local_data();
 //
@@ -635,24 +638,24 @@ import datastoreService from "./datastore";
 //     storage.upsert('config', {key: 'server', value: server});
 //     storage.save();
 //
-//     var onError = function(response){
+//     const onError = function(response){
 //
 //         // in case of any error we remove the items we already added to our storage
 //         // maybe we adjust this behaviour at some time
 //         storage.remove('config', storage.find_key('config', 'server'));
 //         storage.save();
 //
-//         return $q.reject({
+//         return Promise.reject({
 //             response:"error",
 //             error_data: response.data
 //         });
 //     };
 //
-//     var onSuccess = function (response) {
+//     const onSuccess = function (response) {
 //         return browserClient.launch_web_auth_flow(response.data.oidc_redirect_url);
 //     };
 //
-//     var return_to_url = browserClient.get_oidc_return_to_url();
+//     const return_to_url = browserClient.get_oidc_return_to_url();
 //
 //     return apiClient.oidc_initiate_login(provider['provider_id'], return_to_url)
 //         .then(onSuccess, onError);
@@ -666,37 +669,37 @@ import datastoreService from "./datastore";
 //  *
 //  * @returns {Promise} Returns a promise with the login status
 //  */
-// var saml_login = function(saml_token_id) {
+// function saml_login(saml_token_id) {
 //
-//     var login_info = {
+//     const login_info_obj = {
 //         'saml_token_id': saml_token_id,
 //         'device_time': new Date().toISOString(),
 //         'device_fingerprint': device.get_device_fingerprint(),
 //         'device_description': device.get_device_description()
 //     };
 //
-//     var server_info = storage.find_key('config', 'server_info').value;
+//     const server_info = storage.find_key('config', 'server_info').value;
 //
-//     login_info = JSON.stringify(login_info);
+//     const login_info = JSON.stringify(login_info_obj);
 //
 //     session_keys = cryptoLibrary.generate_public_private_keypair();
 //
 //     // encrypt the login infos
-//     var login_info_enc = cryptoLibrary.encrypt_data_public_key(
+//     const login_info_enc = cryptoLibrary.encrypt_data_public_key(
 //         login_info,
 //         server_info['public_key'],
 //         session_keys.private_key
 //     );
 //
-//     var onError = function(response){
-//         return $q.reject(response.data);
+//     const onError = function(response){
+//         return Promise.reject(response.data);
 //     };
 //
-//     var onSuccess = function (response) {
-//         var login_info_decrypted_json = cryptoLibrary.decrypt_data_public_key(response.data['login_info'], response.data['login_info_nonce'], server_info['public_key'], session_keys.private_key);
-//         var login_info_decrypted = JSON.parse(login_info_decrypted_json);
-//         var login_data_decrypted_json = cryptoLibrary.decrypt_data_public_key(login_info_decrypted['data'], login_info_decrypted['data_nonce'], login_info_decrypted['server_session_public_key'], session_keys.private_key);
-//         var login_data_decrypted = JSON.parse(login_data_decrypted_json);
+//     const onSuccess = function (response) {
+//         const login_info_decrypted_json = cryptoLibrary.decrypt_data_public_key(response.data['login_info'], response.data['login_info_nonce'], server_info['public_key'], session_keys.private_key);
+//         const login_info_decrypted = JSON.parse(login_info_decrypted_json);
+//         const login_data_decrypted_json = cryptoLibrary.decrypt_data_public_key(login_info_decrypted['data'], login_info_decrypted['data_nonce'], login_info_decrypted['server_session_public_key'], session_keys.private_key);
+//         const login_data_decrypted = JSON.parse(login_data_decrypted_json);
 //
 //         storage.upsert('config', {key: 'user_username', value: login_data_decrypted.user.username});
 //         storage.upsert('config', {key: 'user_has_two_factor', value: login_data_decrypted['required_multifactors'].length > 0});
@@ -715,7 +718,7 @@ import datastoreService from "./datastore";
 //         );
 //
 //         // decrypt the user_validator
-//         var user_validator = cryptoLibrary.decrypt_data_public_key(
+//         const user_validator = cryptoLibrary.decrypt_data_public_key(
 //             login_data_decrypted.user_validator,
 //             login_data_decrypted.user_validator_nonce,
 //             login_info_decrypted['server_session_public_key'],
@@ -733,7 +736,7 @@ import datastoreService from "./datastore";
 //         return required_multifactors;
 //     };
 //
-//     var session_duration = 24*60*60;
+//     const session_duration = 24*60*60;
 //
 //     return apiClient.saml_login(login_info_enc['text'], login_info_enc['nonce'], session_keys.public_key, session_duration)
 //         .then(onSuccess, onError);
@@ -747,37 +750,37 @@ import datastoreService from "./datastore";
 //  *
 //  * @returns {Promise} Returns a promise with the login status
 //  */
-// var oidc_login = function(oidc_token_id) {
+// function oidc_login(oidc_token_id) {
 //
-//     var login_info = {
+//     const login_info_obj = {
 //         'oidc_token_id': oidc_token_id,
 //         'device_time': new Date().toISOString(),
 //         'device_fingerprint': device.get_device_fingerprint(),
 //         'device_description': device.get_device_description()
 //     };
 //
-//     var server_info = storage.find_key('config', 'server_info').value;
+//     const server_info = storage.find_key('config', 'server_info').value;
 //
-//     login_info = JSON.stringify(login_info);
+//     const login_info = JSON.stringify(login_info_obj);
 //
 //     session_keys = cryptoLibrary.generate_public_private_keypair();
 //
 //     // encrypt the login infos
-//     var login_info_enc = cryptoLibrary.encrypt_data_public_key(
+//     const login_info_enc = cryptoLibrary.encrypt_data_public_key(
 //         login_info,
 //         server_info['public_key'],
 //         session_keys.private_key
 //     );
 //
-//     var onError = function(response){
-//         return $q.reject(response.data);
+//     const onError = function(response){
+//         return Promise.reject(response.data);
 //     };
 //
-//     var onSuccess = function (response) {
-//         var login_info_decrypted_json = cryptoLibrary.decrypt_data_public_key(response.data['login_info'], response.data['login_info_nonce'], server_info['public_key'], session_keys.private_key);
-//         var login_info_decrypted = JSON.parse(login_info_decrypted_json);
-//         var login_data_decrypted_json = cryptoLibrary.decrypt_data_public_key(login_info_decrypted['data'], login_info_decrypted['data_nonce'], login_info_decrypted['server_session_public_key'], session_keys.private_key);
-//         var login_data_decrypted = JSON.parse(login_data_decrypted_json);
+//     const onSuccess = function (response) {
+//         const login_info_decrypted_json = cryptoLibrary.decrypt_data_public_key(response.data['login_info'], response.data['login_info_nonce'], server_info['public_key'], session_keys.private_key);
+//         const login_info_decrypted = JSON.parse(login_info_decrypted_json);
+//         const login_data_decrypted_json = cryptoLibrary.decrypt_data_public_key(login_info_decrypted['data'], login_info_decrypted['data_nonce'], login_info_decrypted['server_session_public_key'], session_keys.private_key);
+//         const login_data_decrypted = JSON.parse(login_data_decrypted_json);
 //
 //         storage.upsert('config', {key: 'user_username', value: login_data_decrypted.user.username});
 //         storage.upsert('config', {key: 'user_has_two_factor', value: login_data_decrypted['required_multifactors'].length > 0});
@@ -796,7 +799,7 @@ import datastoreService from "./datastore";
 //         );
 //
 //         // decrypt the user_validator
-//         var user_validator = cryptoLibrary.decrypt_data_public_key(
+//         const user_validator = cryptoLibrary.decrypt_data_public_key(
 //             login_data_decrypted.user_validator,
 //             login_data_decrypted.user_validator_nonce,
 //             login_info_decrypted['server_session_public_key'],
@@ -814,7 +817,7 @@ import datastoreService from "./datastore";
 //         return required_multifactors;
 //     };
 //
-//     var session_duration = 24*60*60;
+//     const session_duration = 24*60*60;
 //
 //     return apiClient.oidc_login(login_info_enc['text'], login_info_enc['nonce'], session_keys.public_key, session_duration)
 //         .then(onSuccess, onError);
@@ -825,11 +828,11 @@ import datastoreService from "./datastore";
 //  *
 //  * @returns {Promise} Returns a promise with the logout status
 //  */
-// var logout = function () {
+// function () logout{
 //
 //     Raven.setUserContext();
 //
-//     var onSuccess = function () {
+//     const onSuccess = function () {
 //
 //         managerBase.delete_local_data();
 //         browserClient.emit("logout", null);
@@ -839,7 +842,7 @@ import datastoreService from "./datastore";
 //         };
 //     };
 //
-//     var onError = function(){
+//     const onError = function(){
 //         //session expired, so lets delete the data anyway
 //
 //         managerBase.delete_local_data();
@@ -851,7 +854,7 @@ import datastoreService from "./datastore";
 //     };
 //
 //     if (managerBase.get_token() === null) {
-//         return $q(function(resolve) {
+//         return new Promise(function(resolve) {
 //             return resolve(onSuccess());
 //         });
 //     }
@@ -878,7 +881,7 @@ import datastoreService from "./datastore";
 //  *
 //  * @returns {Promise} Returns a promise with the update status
 //  */
-// var update_user = function(email, authkey, authkey_old, private_key, private_key_nonce, secret_key,
+// function update_user(email, authkey, authkey_old, private_key, private_key_nonce, secret_key,
 //                           secret_key_nonce) {
 //     return apiClient.update_user(managerBase.get_token(), managerBase.get_session_secret_key(), email, authkey,
 //         authkey_old, private_key, private_key_nonce, secret_key, secret_key_nonce);
@@ -889,22 +892,22 @@ import datastoreService from "./datastore";
 //  *
 //  * @returns {Promise} Returns a promise with the username, recovery_code_id and private_key to decrypt the saved data
 //  */
-// var recovery_generate_information = function() {
+// function recovery_generate_information() {
 //
 //
 //
-//     var recovery_password = cryptoLibrary.generate_recovery_code();
-//     var recovery_authkey = cryptoLibrary.generate_authkey(managerBase.find_key_nolimit('config', 'user_username'), recovery_password['base58']);
-//     var recovery_sauce = cryptoLibrary.generate_user_sauce();
+//     const recovery_password = cryptoLibrary.generate_recovery_code();
+//     const recovery_authkey = cryptoLibrary.generate_authkey(managerBase.find_key_nolimit('config', 'user_username'), recovery_password['base58']);
+//     const recovery_sauce = cryptoLibrary.generate_user_sauce();
 //
-//     var recovery_data_dec = {
+//     const recovery_data_dec = {
 //         'user_private_key': managerBase.find_key_nolimit('config', 'user_private_key'),
 //         'user_secret_key': managerBase.find_key_nolimit('config', 'user_secret_key')
 //     };
 //
-//     var recovery_data = cryptoLibrary.encrypt_secret(JSON.stringify(recovery_data_dec), recovery_password['base58'], recovery_sauce);
+//     const recovery_data = cryptoLibrary.encrypt_secret(JSON.stringify(recovery_data_dec), recovery_password['base58'], recovery_sauce);
 //
-//     var onSuccess = function(data) {
+//     const onSuccess = function(data) {
 //         return {
 //             'username': managerBase.find_key('config', 'user_username'),
 //             'recovery_password': helper.split_string_in_chunks(recovery_password['base58_checksums'], 13).join('-'),
@@ -926,14 +929,14 @@ import datastoreService from "./datastore";
 //  *
 //  * @returns {Promise} Returns a promise with the recovery_enable status
 //  */
-// var recovery_enable = function (username, recovery_code, server) {
+// function recovery_enable(username, recovery_code, server) {
 //
 //     storage.upsert('config', {key: 'user_username', value: username});
 //     storage.upsert('config', {key: 'server', value: server});
 //
-//     var onSuccess = function (data) {
+//     const onSuccess = function (data) {
 //
-//         var recovery_data = JSON.parse(cryptoLibrary.decrypt_secret(data.data.recovery_data, data.data.recovery_data_nonce, recovery_code, data.data.recovery_sauce));
+//         const recovery_data = JSON.parse(cryptoLibrary.decrypt_secret(data.data.recovery_data, data.data.recovery_data_nonce, recovery_code, data.data.recovery_sauce));
 //
 //         return {
 //             'user_private_key': recovery_data.user_private_key,
@@ -943,7 +946,7 @@ import datastoreService from "./datastore";
 //             'verifier_time_valid': data.data.verifier_time_valid
 //         }
 //     };
-//     var recovery_authkey = cryptoLibrary.generate_authkey(username, recovery_code);
+//     const recovery_authkey = cryptoLibrary.generate_authkey(username, recovery_code);
 //
 //     return apiClient.enable_recoverycode(username, recovery_authkey)
 //         .then(onSuccess);
@@ -960,28 +963,28 @@ import datastoreService from "./datastore";
 //  *
 //  * @returns {Promise} Returns a promise with the emergency code activation status
 //  */
-// var arm_emergency_code = function (username, emergency_code, server, server_info, verify_key) {
+// function arm_emergency_code(username, emergency_code, server, server_info, verify_key) {
 //
 //     storage.upsert('config', {key: 'user_username', value: username});
 //     storage.upsert('config', {key: 'server', value: server});
 //
-//     var emergency_authkey = cryptoLibrary.generate_authkey(username, emergency_code);
+//     const emergency_authkey = cryptoLibrary.generate_authkey(username, emergency_code);
 //
-//     var onSuccess = function (data) {
+//     const onSuccess = function (data) {
 //
 //         if (data.data.status === 'started' || data.data.status === 'waiting') {
 //             return data.data
 //         }
 //
-//         var emergency_data = JSON.parse(cryptoLibrary.decrypt_secret(data.data.emergency_data, data.data.emergency_data_nonce, emergency_code, data.data.emergency_sauce));
+//         const emergency_data = JSON.parse(cryptoLibrary.decrypt_secret(data.data.emergency_data, data.data.emergency_data_nonce, emergency_code, data.data.emergency_sauce));
 //
 //         storage.upsert('config', {key: 'user_private_key', value: emergency_data.user_private_key});
 //         storage.upsert('config', {key: 'user_secret_key', value: emergency_data.user_secret_key});
 //         storage.upsert('config', {key: 'user_sauce', value: data.data.user_sauce});
 //
-//         var session_key = cryptoLibrary.generate_public_private_keypair();
+//         const session_key = cryptoLibrary.generate_public_private_keypair();
 //
-//         var login_info = JSON.stringify({
+//         const login_info = JSON.stringify({
 //             'device_time': new Date().toISOString(),
 //             'device_fingerprint': device.get_device_fingerprint(),
 //             'device_description': device.get_device_description(),
@@ -989,11 +992,11 @@ import datastoreService from "./datastore";
 //
 //         });
 //
-//         var update_request_enc = cryptoLibrary.encrypt_data_public_key(login_info, data.data.verifier_public_key, emergency_data.user_private_key);
+//         const update_request_enc = cryptoLibrary.encrypt_data_public_key(login_info, data.data.verifier_public_key, emergency_data.user_private_key);
 //
-//         var onSuccess = function (data) {
+//         const onSuccess = function (data) {
 //
-//             var login_info = JSON.parse(cryptoLibrary.decrypt_data_public_key(data.data.login_info, data.data.login_info_nonce, server_info['public_key'], session_key.private_key));
+//             const login_info = JSON.parse(cryptoLibrary.decrypt_data_public_key(data.data.login_info, data.data.login_info_nonce, server_info['public_key'], session_key.private_key));
 //
 //             storage.upsert('config', {key: 'server_info', value: server_info});
 //             storage.upsert('config', {key: 'server_verify_key', value: verify_key});
@@ -1010,8 +1013,8 @@ import datastoreService from "./datastore";
 //             };
 //         };
 //
-//         var onError = function(data){
-//             return $q.reject(data);
+//         const onError = function(data){
+//             return Promise.reject(data);
 //         };
 //
 //         return apiClient.activate_emergency_code(username, emergency_authkey, update_request_enc.text, update_request_enc.nonce)
@@ -1035,13 +1038,13 @@ import datastoreService from "./datastore";
 //  *
 //  * @returns {Promise} Returns a promise with the set_password status
 //  */
-// var set_password = function (username, recovery_code, password, user_private_key, user_secret_key, user_sauce, verifier_public_key) {
+// function set_password(username, recovery_code, password, user_private_key, user_secret_key, user_sauce, verifier_public_key) {
 //
-//     var priv_key_enc = cryptoLibrary.encrypt_secret(user_private_key, password, user_sauce);
-//     var secret_key_enc = cryptoLibrary
+//     const priv_key_enc = cryptoLibrary.encrypt_secret(user_private_key, password, user_sauce);
+//     const secret_key_enc = cryptoLibrary
 //         .encrypt_secret(user_secret_key, password, user_sauce);
 //
-//     var update_request = JSON.stringify({
+//     const update_request = JSON.stringify({
 //         authkey: cryptoLibrary.generate_authkey(username, password),
 //         private_key: priv_key_enc.text,
 //         private_key_nonce: priv_key_enc.nonce,
@@ -1049,17 +1052,17 @@ import datastoreService from "./datastore";
 //         secret_key_nonce: secret_key_enc.nonce
 //     });
 //
-//     var update_request_enc = cryptoLibrary.encrypt_data_public_key(update_request, verifier_public_key, user_private_key);
+//     const update_request_enc = cryptoLibrary.encrypt_data_public_key(update_request, verifier_public_key, user_private_key);
 //
-//     var onSuccess = function (data) {
+//     const onSuccess = function (data) {
 //         return data;
 //     };
 //
-//     var onError = function(data){
+//     const onError = function(data){
 //         return data;
 //     };
 //
-//     var recovery_authkey = cryptoLibrary.generate_authkey(username, recovery_code);
+//     const recovery_authkey = cryptoLibrary.generate_authkey(username, recovery_code);
 //
 //     return apiClient.set_password(username, recovery_authkey, update_request_enc.text, update_request_enc.nonce)
 //         .then(onSuccess, onError);
@@ -1110,110 +1113,105 @@ function getUserDatastore() {
 
     return datastoreService.getDatastore(type).then(onSuccess, onError);
 }
-//
-// /**
-//  * Alias for get_password_datastore
-//  *
-//  * @param {uuid} id The id of the datastore
-//  *
-//  * @returns {Promise} Returns a promise with the datastore
-//  */
-// var get_datastore_with_id = function(id) {
-//
-//     return getUserDatastore();
-// };
-//
-//
-// /**
-//  * searches the user datastore for a user, based on the id or email
-//  *
-//  * @param {uuid|undefined} [user_id] (optional) user_id to search for
-//  * @param {email|undefined} [email] (optional) email to search for
-//  * @returns {Promise} Returns a promise with the user
-//  */
-// var search_user_datastore = function(user_id, email) {
-//
-//     var onSuccess = function (user_data_store) {
-//
-//         var users = [];
-//         var id_match = null;
-//         var email_match = null;
-//
-//         helper.create_list(user_data_store, users);
-//
-//         for (var i = users.length - 1; i >= 0; i--) {
-//
-//             if (users[i].data.user_id === user_id) {
-//                 id_match = users[i];
-//             }
-//             if (users[i].data.user_email === email) {
-//                 email_match = users[i];
-//             }
-//         }
-//
-//         if (id_match === null && email_match === null) {
-//             // no match found
-//             return null;
-//         } else if (id_match !== null && email_match !== null && id_match.id === email_match.id) {
-//             // id match and email match is the same user
-//             return id_match;
-//         } else if (id_match !== null) {
-//             // only id_match is set
-//             return id_match
-//         } else if (email_match !== null) {
-//             // only email_match is set
-//             return email_match;
-//         } else {
-//             // no match found, or id and email match are different
-//             return null
-//         }
-//
-//     };
-//     var onError = function () {
-//         // pass
-//     };
-//
-//     return getUserDatastore()
-//         .then(onSuccess, onError)
-// };
-//
-// /**
-//  * Updates the local storage and triggers the 'save_datastore_content' to reflect the changes
-//  *
-//  * @param {TreeObject} datastore The datastore tree
-//  */
-// var handle_datastore_content_changed = function (datastore) {
-//     // don't do anything
-// };
-//
-// /**
-//  * Saves the user datastore with given content
-//  *
-//  * @param {TreeObject} content The real object you want to encrypt in the datastore
-//  * @param {Array} paths The list of paths to the changed elements
-//  * @returns {Promise} Promise with the status of the save
-//  */
-// var save_datastore_content = function (content, paths) {
-//     var type = "user";
-//     var description = "default";
-//
-//     content = managerBase.filter_datastore_content(content);
-//
-//     return datastoreService.saveDatastoreContent(type, description, content)
-// };
-//
-// /**
-//  * searches a user in the database according to his username
-//  *
-//  * @param {string} username (optional) The username to search
-//  * @param {string} email (optional) The email to search
-//  * @returns {Promise} Returns a promise with the user information
-//  */
-// var search_user = function(username, email) {
-//
-//     return apiClient.search_user(managerBase.get_token(), managerBase.get_session_secret_key(), undefined, username, email);
-// };
-//
+
+/**
+ * Alias for get_password_datastore
+ *
+ * @param {uuid} id The id of the datastore
+ *
+ * @returns {Promise} Returns a promise with the datastore
+ */
+function getDatastoreWithId(id) {
+    return getUserDatastore();
+}
+
+/**
+ * searches the user datastore for a user, based on the id or email
+ *
+ * @param {uuid|undefined} [userId] (optional) userId to search for
+ * @param {email|undefined} [email] (optional) email to search for
+ * @returns {Promise} Returns a promise with the user
+ */
+function searchUserDatastore(userId, email) {
+    const onSuccess = function (userDataStore) {
+        const users = [];
+        let idMatch = null;
+        let emailMatch = null;
+
+        helper.createList(userDataStore, users);
+
+        for (let i = users.length - 1; i >= 0; i--) {
+            if (users[i].data.user_id === userId) {
+                idMatch = users[i];
+            }
+            if (users[i].data.user_email === email) {
+                emailMatch = users[i];
+            }
+        }
+
+        if (idMatch === null && emailMatch === null) {
+            // no match found
+            return null;
+        } else if (idMatch !== null && emailMatch !== null && idMatch.id === emailMatch.id) {
+            // id match and email match is the same user
+            return idMatch;
+        } else if (idMatch !== null) {
+            // only idMatch is set
+            return idMatch;
+        } else if (emailMatch !== null) {
+            // only emailMatch is set
+            return emailMatch;
+        } else {
+            // no match found, or id and email match are different
+            return null;
+        }
+    };
+    const onError = function () {
+        // pass
+    };
+
+    return getUserDatastore().then(onSuccess, onError);
+}
+
+/**
+ * Updates the local storage and triggers the 'saveDatastoreContent' to reflect the changes
+ *
+ * @param {TreeObject} datastore The datastore tree
+ */
+function handleDatastoreContentChanged(datastore) {
+    // don't do anything
+}
+
+/**
+ * Saves the user datastore with given content
+ *
+ * @param {TreeObject} content The real object you want to encrypt in the datastore
+ * @param {Array} paths The list of paths to the changed elements
+ * @returns {Promise} Promise with the status of the save
+ */
+function saveDatastoreContent(content, paths) {
+    const type = "user";
+    const description = "default";
+
+    content = datastoreService.filterDatastoreContent(content);
+
+    return datastoreService.saveDatastoreContent(type, description, content);
+}
+
+/**
+ * searches a user in the database according to his username
+ *
+ * @param {string} [username] (optional) The username to search
+ * @param {string} [email] (optional) The email to search
+ * @returns {Promise} Returns a promise with the user information
+ */
+function searchUser(username, email) {
+    const token = store.getState().user.token;
+    const sessionSecretKey = store.getState().user.sessionSecretKey;
+
+    return apiClient.searchUser(token, sessionSecretKey, undefined, username, email);
+}
+
 // /**
 //  * creates a google authenticator
 //  *
@@ -1221,13 +1219,13 @@ function getUserDatastore() {
 //  *
 //  * @returns {Promise} Returns a promise with the user information
 //  */
-// var create_ga = function(title) {
+// function create_ga(title) {
 //
-//     var onSuccess = function (request) {
+//     const onSuccess = function (request) {
 //
-//         var server = storage.find_key('config', 'server');
-//         var backend = server['value']['url'];
-//         var parsed_url = helper.parse_url(backend);
+//         const server = storage.find_key('config', 'server');
+//         const backend = server['value']['url'];
+//         const parsed_url = helper.parse_url(backend);
 //
 //         return {
 //             'id': request.data['id'],
@@ -1235,7 +1233,7 @@ function getUserDatastore() {
 //         };
 //
 //     };
-//     var onError = function () {
+//     const onError = function () {
 //         // pass
 //     };
 //     return apiClient.create_ga(managerBase.get_token(), managerBase.get_session_secret_key(), title)
@@ -1247,15 +1245,15 @@ function getUserDatastore() {
 //  *
 //  * @returns {Promise} Returns a promise with a list of all google authenticators
 //  */
-// var read_ga = function() {
+// function read_ga() {
 //
 //
-//     var onSuccess = function (request) {
+//     const onSuccess = function (request) {
 //
 //         return request.data['google_authenticators'];
 //
 //     };
-//     var onError = function () {
+//     const onError = function () {
 //         // pass
 //     };
 //     return apiClient.read_ga(managerBase.get_token(), managerBase.get_session_secret_key())
@@ -1270,13 +1268,13 @@ function getUserDatastore() {
 //  *
 //  * @returns {Promise} Returns a promise with true or false
 //  */
-// var activate_ga = function(google_authenticator_id, google_authenticator_token) {
-//     var onSuccess = function () {
+// function activate_ga(google_authenticator_id, google_authenticator_token) {
+//     const onSuccess = function () {
 //         storage.upsert('config', {key: 'user_has_two_factor', value: true});
 //         emit('two_fa_activate', true);
 //         return true;
 //     };
-//     var onError = function () {
+//     const onError = function () {
 //         return false;
 //     };
 //     return apiClient.activate_ga(managerBase.get_token(), managerBase.get_session_secret_key(), google_authenticator_id, google_authenticator_token)
@@ -1290,12 +1288,12 @@ function getUserDatastore() {
 //  *
 //  * @returns {Promise} Returns a promise with true or false
 //  */
-// var delete_ga = function(ga_id) {
-//     var onSuccess = function () {
+// function delete_ga(ga_id) {
+//     const onSuccess = function () {
 //         return true;
 //     };
-//     var onError = function (data) {
-//         return $q.reject(data.data)
+//     const onError = function (data) {
+//         return Promise.reject(data.data)
 //     };
 //     return apiClient.delete_ga(managerBase.get_token(), managerBase.get_session_secret_key(), ga_id)
 //         .then(onSuccess, onError)
@@ -1312,9 +1310,9 @@ function getUserDatastore() {
 //  *
 //  * @returns {Promise} Returns a promise with the user information
 //  */
-// var create_duo = function(use_system_wide_duo, title, integration_key, secret_key, host) {
+// function create_duo(use_system_wide_duo, title, integration_key, secret_key, host) {
 //
-//     var onSuccess = function (request) {
+//     const onSuccess = function (request) {
 //
 //         return {
 //             'id': request.data['id'],
@@ -1322,8 +1320,8 @@ function getUserDatastore() {
 //         };
 //
 //     };
-//     var onError = function (request) {
-//         return $q.reject(request.data);
+//     const onError = function (request) {
+//         return Promise.reject(request.data);
 //     };
 //
 //     return apiClient.create_duo(managerBase.get_token(), managerBase.get_session_secret_key(), use_system_wide_duo, title, integration_key, secret_key, host)
@@ -1335,15 +1333,15 @@ function getUserDatastore() {
 //  *
 //  * @returns {Promise} Returns a promise with a list of all duos
 //  */
-// var read_duo = function() {
+// function read_duo() {
 //
 //
-//     var onSuccess = function (request) {
+//     const onSuccess = function (request) {
 //
 //         return request.data['duos'];
 //
 //     };
-//     var onError = function () {
+//     const onError = function () {
 //         // pass
 //     };
 //     return apiClient.read_duo(managerBase.get_token(), managerBase.get_session_secret_key())
@@ -1358,13 +1356,13 @@ function getUserDatastore() {
 //  *
 //  * @returns {Promise} Returns a promise with true or false
 //  */
-// var activate_duo = function(duo_id, duo_token) {
-//     var onSuccess = function () {
+// function activate_duo(duo_id, duo_token) {
+//     const onSuccess = function () {
 //         storage.upsert('config', {key: 'user_has_two_factor', value: true});
 //         emit('two_fa_activate', true);
 //         return true;
 //     };
-//     var onError = function () {
+//     const onError = function () {
 //         return false;
 //     };
 //     return apiClient.activate_duo(managerBase.get_token(), managerBase.get_session_secret_key(), duo_id, duo_token)
@@ -1378,12 +1376,12 @@ function getUserDatastore() {
 //  *
 //  * @returns {Promise} Returns a promise with true or false
 //  */
-// var delete_duo = function(duo_id) {
-//     var onSuccess = function () {
+// function delete_duo(duo_id) {
+//     const onSuccess = function () {
 //         return true;
 //     };
-//     var onError = function (data) {
-//         return $q.reject(data.data)
+//     const onError = function (data) {
+//         return Promise.reject(data.data)
 //     };
 //     return apiClient.delete_duo(managerBase.get_token(), managerBase.get_session_secret_key(), duo_id)
 //         .then(onSuccess, onError)
@@ -1397,9 +1395,9 @@ function getUserDatastore() {
 //  *
 //  * @returns {Promise} Returns a promise with the user information
 //  */
-// var create_yubikey_otp = function(title, otp) {
+// function create_yubikey_otp(title, otp) {
 //
-//     var onSuccess = function (request) {
+//     const onSuccess = function (request) {
 //         storage.upsert('config', {key: 'user_has_two_factor', value: true});
 //         storage.save();
 //         emit('two_fa_activate', true);
@@ -1408,7 +1406,7 @@ function getUserDatastore() {
 //         };
 //
 //     };
-//     var onError = function () {
+//     const onError = function () {
 //         // pass
 //     };
 //     return apiClient.create_yubikey_otp(managerBase.get_token(), managerBase.get_session_secret_key(), title, otp)
@@ -1420,14 +1418,14 @@ function getUserDatastore() {
 //  *
 //  * @returns {Promise} Returns a promise with a list of all yubikey otps
 //  */
-// var read_yubikey_otp = function() {
+// function read_yubikey_otp() {
 //
-//     var onSuccess = function (request) {
+//     const onSuccess = function (request) {
 //
 //         return request.data['yubikey_otps'];
 //
 //     };
-//     var onError = function () {
+//     const onError = function () {
 //         // pass
 //     };
 //     return apiClient.read_yubikey_otp(managerBase.get_token(), managerBase.get_session_secret_key())
@@ -1442,13 +1440,13 @@ function getUserDatastore() {
 //  *
 //  * @returns {Promise} Returns a promise with true or false
 //  */
-// var activate_yubikey_otp = function(yubikey_id, yubikey_otp) {
-//     var onSuccess = function () {
+// function activate_yubikey_otp(yubikey_id, yubikey_otp) {
+//     const onSuccess = function () {
 //         storage.upsert('config', {key: 'user_has_two_factor', value: true});
 //         emit('two_fa_activate', true);
 //         return true;
 //     };
-//     var onError = function () {
+//     const onError = function () {
 //         return false;
 //     };
 //     return apiClient.activate_yubikey_otp(managerBase.get_token(), managerBase.get_session_secret_key(), yubikey_id, yubikey_otp)
@@ -1462,12 +1460,12 @@ function getUserDatastore() {
 //  *
 //  * @returns {Promise} Returns a promise with true or false
 //  */
-// var delete_yubikey_otp = function(yubikey_otp_id) {
-//     var onSuccess = function () {
+// function delete_yubikey_otp(yubikey_otp_id) {
+//     const onSuccess = function () {
 //         return true;
 //     };
-//     var onError = function (data) {
-//         return $q.reject(data.data)
+//     const onError = function (data) {
+//         return Promise.reject(data.data)
 //     };
 //     return apiClient.delete_yubikey_otp(managerBase.get_token(), managerBase.get_session_secret_key(), yubikey_otp_id)
 //         .then(onSuccess, onError)
@@ -1478,13 +1476,13 @@ function getUserDatastore() {
 //  *
 //  * @returns {Promise} Returns a promise with the sessions
 //  */
-// var get_sessions = function() {
+// function get_sessions() {
 //
-//     var onSuccess = function (request) {
+//     const onSuccess = function (request) {
 //         return request.data['sessions'];
 //
 //     };
-//     var onError = function () {
+//     const onError = function () {
 //         // pass
 //     };
 //     return apiClient.get_sessions(managerBase.get_token(), managerBase.get_session_secret_key())
@@ -1496,13 +1494,13 @@ function getUserDatastore() {
 //  *
 //  * @returns {Promise} Returns a promise with the emergency codes
 //  */
-// var read_emergency_codes = function() {
+// function read_emergency_codes() {
 //
-//     var onSuccess = function (request) {
+//     const onSuccess = function (request) {
 //         return request.data['emegency_codes'];
 //
 //     };
-//     var onError = function () {
+//     const onError = function () {
 //         // pass
 //     };
 //     return apiClient.read_emergency_codes(managerBase.get_token(), managerBase.get_session_secret_key())
@@ -1517,20 +1515,20 @@ function getUserDatastore() {
 //  *
 //  * @returns {Promise} Returns a promise with the emergency code
 //  */
-// var create_emergency_code = function(title, lead_time) {
+// function create_emergency_code(title, lead_time) {
 //
-//     var emergency_password = cryptoLibrary.generate_recovery_code();
-//     var emergency_authkey = cryptoLibrary.generate_authkey(managerBase.find_key_nolimit('config', 'user_username'), emergency_password['base58']);
-//     var emergency_sauce = cryptoLibrary.generate_user_sauce();
+//     const emergency_password = cryptoLibrary.generate_recovery_code();
+//     const emergency_authkey = cryptoLibrary.generate_authkey(managerBase.find_key_nolimit('config', 'user_username'), emergency_password['base58']);
+//     const emergency_sauce = cryptoLibrary.generate_user_sauce();
 //
-//     var emergency_data_dec = {
+//     const emergency_data_dec = {
 //         'user_private_key': managerBase.find_key_nolimit('config', 'user_private_key'),
 //         'user_secret_key': managerBase.find_key_nolimit('config', 'user_secret_key')
 //     };
 //
-//     var emergency_data = cryptoLibrary.encrypt_secret(JSON.stringify(emergency_data_dec), emergency_password['base58'], emergency_sauce);
+//     const emergency_data = cryptoLibrary.encrypt_secret(JSON.stringify(emergency_data_dec), emergency_password['base58'], emergency_sauce);
 //
-//     var onSuccess = function (request) {
+//     const onSuccess = function (request) {
 //         return {
 //             'username': managerBase.find_key('config', 'user_username'),
 //             'emergency_password': helper.split_string_in_chunks(emergency_password['base58_checksums'], 13).join('-'),
@@ -1538,8 +1536,8 @@ function getUserDatastore() {
 //         };
 //
 //     };
-//     var onError = function (request) {
-//         return $q.reject(request.data);
+//     const onError = function (request) {
+//         return Promise.reject(request.data);
 //     };
 //     return apiClient.create_emergency_code(managerBase.get_token(), managerBase.get_session_secret_key(), title,
 //         lead_time, emergency_authkey, emergency_data.text, emergency_data.nonce, emergency_sauce)
@@ -1553,12 +1551,12 @@ function getUserDatastore() {
 //  *
 //  * @returns {Promise} Returns a promise with true or false
 //  */
-// var delete_emergency_code = function(emergency_code_id) {
+// function delete_emergency_code(emergency_code_id) {
 //
-//     var onSuccess = function (request) {
+//     const onSuccess = function (request) {
 //         // pass
 //     };
-//     var onError = function () {
+//     const onError = function () {
 //         // pass
 //     };
 //     return apiClient.delete_emergency_code(managerBase.get_token(), managerBase.get_session_secret_key(), emergency_code_id)
@@ -1570,7 +1568,7 @@ function getUserDatastore() {
 //  *
 //  * @returns {string|null} Returns the users email address or null
 //  */
-// var get_email = function() {
+// function get_email() {
 //     return storage.find_key('config', 'user_email').value;
 // };
 //
@@ -1579,8 +1577,8 @@ function getUserDatastore() {
 //  *
 //  * @returns {string} Returns the users authentication method
 //  */
-// var get_authentication = function() {
-//     var user_authentication = storage.find_key('config', 'user_authentication');
+// function get_authentication() {
+//     const user_authentication = storage.find_key('config', 'user_authentication');
 //     if (user_authentication === null) {
 //         return 'AUTHKEY';
 //     } else {
@@ -1595,12 +1593,12 @@ function getUserDatastore() {
 //  *
 //  * @returns {Promise} Returns a promise with true or false
 //  */
-// var delete_session = function(session_id) {
+// function delete_session(session_id) {
 //
-//     var onSuccess = function (request) {
+//     const onSuccess = function (request) {
 //         // pass
 //     };
-//     var onError = function () {
+//     const onError = function () {
 //         // pass
 //     };
 //     return apiClient.logout(managerBase.get_token(), managerBase.get_session_secret_key(), session_id)
@@ -1612,14 +1610,14 @@ function getUserDatastore() {
 //  *
 //  * @returns {Promise} Returns a promise with the sessions
 //  */
-// var delete_other_sessions = function() {
+// function delete_other_sessions() {
 //
-//     var onSuccess = function (request) {
+//     const onSuccess = function (request) {
 //
-//         var sessions = request.data['sessions'];
+//         const sessions = request.data['sessions'];
 //
-//         for (var i = 0; i < sessions.length; i++) {
-//             var session = sessions[i];
+//         for (let i = 0; i < sessions.length; i++) {
+//             const session = sessions[i];
 //             if (session.current_session) {
 //                 continue;
 //             }
@@ -1627,7 +1625,7 @@ function getUserDatastore() {
 //         }
 //
 //     };
-//     var onError = function () {
+//     const onError = function () {
 //         // pass
 //     };
 //     return apiClient.get_sessions(managerBase.get_token(), managerBase.get_session_secret_key())
@@ -1643,22 +1641,22 @@ function getUserDatastore() {
 //  *
 //  * @returns {Promise} Returns a promise with the result
 //  */
-// var save_new_email = function(new_email, verification_password) {
+// xfunction save_new_email(new_email, verification_password) {
 //
 //     if (verification_password === null || verification_password.length === 0) {
-//         return $q.reject({errors: ['OLD_PASSWORD_REQUIRED']})
+//         return Promise.reject({errors: ['OLD_PASSWORD_REQUIRED']})
 //     }
 //
-//     var authkey_old = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, verification_password);
+//     const authkey_old = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, verification_password);
 //
-//     var onSuccess = function(data) {
+//     const onSuccess = function(data) {
 //
 //         storage.upsert('config', {key: 'user_email', value: new_email});
 //         storage.save();
 //         return {msgs: ['SAVE_SUCCESS']}
 //     };
-//     var onError = function() {
-//         return $q.reject({errors: ['OLD_PASSWORD_INCORRECT']})
+//     const onError = function() {
+//         return Promise.reject({errors: ['OLD_PASSWORD_INCORRECT']})
 //     };
 //     return update_user(new_email, null, authkey_old)
 //         .then(onSuccess, onError);
@@ -1674,18 +1672,18 @@ function getUserDatastore() {
 //  *
 //  * @returns {Promise} Returns a promise with the result
 //  */
-// var save_new_password = function(new_password, new_password_repeat, old_password) {
+// function save_new_password(new_password, new_password_repeat, old_password) {
 //
 //     return managerHost.info()
 //         .then(function(info) {
-//             var authkey_old, new_authkey, user_private_key, user_secret_key, user_sauce, priv_key_enc, secret_key_enc, onSuccess, onError;
-//             var test_error = helper.is_valid_password(new_password, new_password_repeat, info.data['decoded_info']['compliance_min_master_password_length'], info.data['decoded_info']['compliance_min_master_password_complexity']);
+//             const authkey_old, new_authkey, user_private_key, user_secret_key, user_sauce, priv_key_enc, secret_key_enc, onSuccess, onError;
+//             const test_error = helper.is_valid_password(new_password, new_password_repeat, info.data['decoded_info']['compliance_min_master_password_length'], info.data['decoded_info']['compliance_min_master_password_complexity']);
 //             if (test_error) {
-//                 return $q.reject({errors: [test_error]})
+//                 return Promise.reject({errors: [test_error]})
 //             }
 //
 //             if (old_password === null || old_password.length === 0) {
-//                 return $q.reject({errors: ['OLD_PASSWORD_REQUIRED']})
+//                 return Promise.reject({errors: ['OLD_PASSWORD_REQUIRED']})
 //             }
 //
 //             authkey_old = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, old_password);
@@ -1702,7 +1700,7 @@ function getUserDatastore() {
 //                 return {msgs: ['SAVE_SUCCESS']}
 //             };
 //             onError = function() {
-//                 return $q.reject({errors: ['OLD_PASSWORD_INCORRECT']})
+//                 return Promise.reject({errors: ['OLD_PASSWORD_INCORRECT']})
 //             };
 //
 //             return update_user(null, new_authkey, authkey_old, priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce)
@@ -1711,7 +1709,7 @@ function getUserDatastore() {
 //         }, function(data) {
 //             console.log(data);
 //             // handle server is offline
-//             return $q.reject({errors: ['SERVER_OFFLINE']});
+//             return Promise.reject({errors: ['SERVER_OFFLINE']});
 //         });
 //
 // };
@@ -1723,19 +1721,19 @@ function getUserDatastore() {
 //  *
 //  * @returns {Promise} Returns a promise with the result
 //  */
-// var delete_account = function(password) {
+// function delete_account(password) {
 //
-//     var authkey = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, password);
+//     const authkey = cryptoLibrary.generate_authkey(storage.find_key('config', 'user_username').value, password);
 //
-//     var onSuccess = function () {
+//     const onSuccess = function () {
 //         logout();
 //     };
 //
-//     var onError = function(data){
-//         return $q.reject(data.data);
+//     const onError = function(data){
+//         return Promise.reject(data.data);
 //     };
 //
-//     var pass;
+//     let pass;
 //     if (get_authentication() === 'LDAP') {
 //         pass = password
 //     }
@@ -1749,11 +1747,11 @@ function getUserDatastore() {
 //  *
 //  * @returns {Promise} Returns a promise with the selected user
 //  */
-// var select_users = function() {
+// xfunction select_users() {
 //
-//     var deferred = $q.defer();
+//     const deferred = $q.defer();
 //
-//     var modalInstance = $uibModal.open({
+//     const modalInstance = $uibModal.open({
 //         templateUrl: 'view/modal/select-user.html',
 //         controller: 'ModalSelectUserCtrl',
 //         size: 'lg',
@@ -1778,9 +1776,9 @@ function getUserDatastore() {
 //  *
 //  * @returns Returns weather a system wide duo exists or not
 //  */
-// var system_wide_duo_exists = function() {
+// function() system_wide_duo_exists{
 //
-//     var system_wide_duo_exists = false;
+//     let system_wide_duo_exists = false;
 //     if (storage.find_key('config', 'server_info').value.hasOwnProperty('system_wide_duo_exists')) {
 //         system_wide_duo_exists = storage.find_key('config', 'server_info').value['system_wide_duo_exists'];
 //     }
@@ -1790,7 +1788,7 @@ function getUserDatastore() {
 //
 // shareBlueprint.register('search_user', search_user);
 
-const service = {
+const datastoreUserService = {
     // on: on,
     // register: register,
     // activate_code: activateCode,
@@ -1813,11 +1811,11 @@ const service = {
     // update_user: update_user,
     // recovery_generate_information: recovery_generate_information,
     getUserDatastore: getUserDatastore,
-    // get_datastore_with_id: get_datastore_with_id,
-    // search_user_datastore: search_user_datastore,
-    // handle_datastore_content_changed: handle_datastore_content_changed,
-    // save_datastore_content: save_datastore_content,
-    // search_user: search_user,
+    getDatastoreWithId: getDatastoreWithId,
+    searchUserDatastore: searchUserDatastore,
+    handleDatastoreContentChanged: handleDatastoreContentChanged,
+    saveDatastoreContent: saveDatastoreContent,
+    searchUser: searchUser,
     // create_ga: create_ga,
     // read_ga: read_ga,
     // activate_ga: activate_ga,
@@ -1844,4 +1842,4 @@ const service = {
     // select_users: select_users,
     // system_wide_duo_exists: system_wide_duo_exists,
 };
-export default service;
+export default datastoreUserService;

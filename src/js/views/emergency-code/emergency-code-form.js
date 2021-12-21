@@ -76,10 +76,11 @@ const EmergencyCodeViewForm = (props) => {
 
     const onNewConfigLoaded = (configJson) => {
         const serverUrl = configJson["backend_servers"][0]["url"];
+        const domain = configJson["backend_servers"][0]["domain"];
         const allowCustomServer = configJson.allow_custom_server;
 
         setServer(serverUrl);
-        setDomain(helperService.getDomain(serverUrl));
+        setDomain(domain);
         setAllowCustomServer(allowCustomServer);
     };
 

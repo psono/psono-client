@@ -599,7 +599,7 @@ function onLogout() {
 
 browserClient.on("logout", onLogout);
 
-const service = {
+const datastoreService = {
     getDatastoreOverview: getDatastoreOverview,
     getDatastoreId: getDatastoreId,
     getDatastoreWithId: getDatastoreWithId,
@@ -618,4 +618,4 @@ const service = {
     filterDatastoreContent: filterDatastoreContent,
     register: register,
 };
-export default service;
+export default datastoreService;

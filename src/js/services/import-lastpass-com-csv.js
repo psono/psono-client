@@ -35,7 +35,7 @@ function get_folder_name(line) {
  *
  * @returns {string} Returns the appropriate type (note or website_password)
  */
-var get_type = function (line) {
+function getType(line) {
     if (line[INDEX_URL] === "http://sn") {
         // its a license, so lets return a note as we don't have this object class yet
         return "note";
@@ -47,7 +47,7 @@ var get_type = function (line) {
         // Should have an url, so should be a password
         return "website_password";
     }
-};
+}
 
 /**
  * Takes a line that should represent a note and transforms it into a proper secret object
@@ -56,8 +56,8 @@ var get_type = function (line) {
  *
  * @returns {*} The note secret object
  */
-var transfor_into_note = function (line) {
-    var note_notes = "";
+function transformIntoNote(line) {
+    let note_notes = "";
     if (line[INDEX_USERNAME]) {
         note_notes = note_notes + line[INDEX_USERNAME] + "\n";
     }
@@ -79,7 +79,7 @@ var transfor_into_note = function (line) {
         note_title: line[INDEX_NAME],
         note_notes: note_notes,
     };
-};
+}
 
 /**
  * Takes a line that should represent a website passwords and transforms it into a proper secret object
@@ -88,8 +88,8 @@ var transfor_into_note = function (line) {
  *
  * @returns {*} The website_password secret object
  */
-var transfor_into_website_password = function (line) {
-    var parsed_url = helperService.parseUrl(line[INDEX_URL]);
+function transformIntoWebsitePassword(line) {
+    const parsed_url = helperService.parseUrl(line[INDEX_URL]);
 
     return {
         id: cryptoLibrary.generateUuid(),
@@ -103,7 +103,7 @@ var transfor_into_website_password = function (line) {
         website_password_url: line[INDEX_URL],
         website_password_title: line[INDEX_NAME],
     };
-};
+}
 
 /**
  * Takes a line, checks its type and transforms it into a proper secret object
@@ -112,14 +112,14 @@ var transfor_into_website_password = function (line) {
  *
  * @returns {*} The secrets object
  */
-var transform_to_secret = function (line) {
-    var type = get_type(line);
+function transformToSecret(line) {
+    const type = getType(line);
     if (type === "note") {
-        return transfor_into_note(line);
+        return transformIntoNote(line);
     } else {
-        return transfor_into_website_password(line);
+        return transformIntoWebsitePassword(line);
     }
-};
+}
 
 /**
  * Fills the datastore with folders their content and together with the secrets object
@@ -128,10 +128,10 @@ var transform_to_secret = function (line) {
  * @param {[]} secrets The array containing all the found secrets
  * @param {[]} csv The array containing all the found secrets
  */
-function gather_secrets(datastore, secrets, csv) {
-    var line;
-    var folder_name;
-    var folder_index = {};
+function gatherSecrets(datastore, secrets, csv) {
+    let line;
+    let folder_name;
+    const folder_index = {};
 
     for (let i = 0; i < csv.length; i++) {
         line = csv[i];
@@ -140,7 +140,7 @@ function gather_secrets(datastore, secrets, csv) {
         }
 
         folder_name = get_folder_name(line);
-        var secret = transform_to_secret(line);
+        const secret = transformToSecret(line);
         if (secret === null) {
             //empty line
             continue;
@@ -168,8 +168,8 @@ function gather_secrets(datastore, secrets, csv) {
  * @param {string} data The raw data to parse
  * @returns {Array} The array of arrays representing the CSV
  */
-function parse_csv(data) {
-    var csv = Papa.parse(data);
+function parseCsv(data) {
+    const csv = Papa.parse(data);
 
     if (csv["errors"].length > 0) {
         throw new Error(csv["errors"][0]["message"]);
@@ -193,23 +193,24 @@ function parse_csv(data) {
  * @returns {{datastore, secrets: Array} | null}
  */
 function parser(data) {
-    var d = new Date();
-    var n = d.toISOString();
+    const d = new Date();
+    const n = d.toISOString();
 
-    var secrets = [];
-    var datastore = {
+    const secrets = [];
+    const datastore = {
         id: cryptoLibrary.generateUuid(),
         name: "Import " + n,
         folders: [],
     };
 
+    let csv;
     try {
-        var csv = parse_csv(data);
+        csv = parseCsv(data);
     } catch (err) {
         return null;
     }
 
-    gather_secrets(datastore, secrets, csv);
+    gatherSecrets(datastore, secrets, csv);
 
     return {
         datastore: datastore,
@@ -217,8 +218,8 @@ function parser(data) {
     };
 }
 
-const service = {
+const importLastpassComCsvService = {
     parser,
 };
 
-export default service;
+export default importLastpassComCsvService;

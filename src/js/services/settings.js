@@ -305,7 +305,7 @@ function register(key, func) {
     registrations[key] = func;
 }
 
-const service = {
+const settingsService = {
     getSetting: getSetting,
     getSettings: getSettings,
     setSettings: setSettings,
@@ -313,4 +313,4 @@ const service = {
     register: register,
 };
 
-export default service;
+export default settingsService;

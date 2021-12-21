@@ -22,9 +22,9 @@ const INDEX_NOTES = 5;
  *
  * @returns {*} Returns the specified folder object, containing items and folders
  */
-function get_folder_helper(path, folder) {
-    var next_folder_name;
-    var next_folder;
+function getFolderHelper(path, folder) {
+    let next_folder_name;
+    let next_folder;
 
     if (path.length === 0) {
         return folder;
@@ -48,7 +48,7 @@ function get_folder_helper(path, folder) {
         folder["folders"].push(next_folder);
     }
 
-    return get_folder_helper(path, next_folder);
+    return getFolderHelper(path, next_folder);
 }
 
 /**
@@ -59,11 +59,11 @@ function get_folder_helper(path, folder) {
  *
  * @returns {object} Returns the folder
  */
-function get_folder(line, datastore) {
-    var path = line[INDEX_GROUP].split("/");
+function getFolder(line, datastore) {
+    let path = line[INDEX_GROUP].split("/");
     path.shift(); // Drop "Root" element
 
-    return get_folder_helper(path, datastore);
+    return getFolderHelper(path, datastore);
 }
 
 /**
@@ -73,8 +73,8 @@ function get_folder(line, datastore) {
  *
  * @returns {*} The secrets object
  */
-var transform_to_secret = function (line) {
-    var parsed_url = helperService.parseUrl(line[INDEX_URL]);
+function transformToSecret(line) {
+    const parsed_url = helperService.parseUrl(line[INDEX_URL]);
 
     return {
         id: cryptoLibrary.generateUuid(),
@@ -88,7 +88,7 @@ var transform_to_secret = function (line) {
         website_password_url: line[INDEX_URL],
         website_password_title: line[INDEX_TITLE],
     };
-};
+}
 
 /**
  * Fills the datastore with folders their content and together with the secrets object
@@ -98,8 +98,8 @@ var transform_to_secret = function (line) {
  * @param {[]} csv The array containing all the found secrets
  */
 function gather_secrets(datastore, secrets, csv) {
-    var line;
-    var folder;
+    let line;
+    let folder;
 
     for (let i = 0; i < csv.length; i++) {
         line = csv[i];
@@ -110,8 +110,8 @@ function gather_secrets(datastore, secrets, csv) {
             continue;
         }
 
-        folder = get_folder(line, datastore);
-        var secret = transform_to_secret(line);
+        folder = getFolder(line, datastore);
+        const secret = transformToSecret(line);
         if (secret === null) {
             //empty line
             continue;
@@ -127,8 +127,8 @@ function gather_secrets(datastore, secrets, csv) {
  * @param {string} data The raw data to parse
  * @returns {Array} The array of arrays representing the CSV
  */
-function parse_csv(data) {
-    var csv = Papa.parse(data);
+function parseCsv(data) {
+    const csv = Papa.parse(data);
 
     if (csv["errors"].length > 0) {
         throw new Error(csv["errors"][0]["message"]);
@@ -152,19 +152,20 @@ function parse_csv(data) {
  * @returns {{datastore, secrets: Array} | null}
  */
 function parser(data) {
-    var d = new Date();
-    var n = d.toISOString();
+    const d = new Date();
+    const n = d.toISOString();
 
-    var secrets = [];
-    var datastore = {
+    const secrets = [];
+    const datastore = {
         id: cryptoLibrary.generateUuid(),
         name: "Import " + n,
         folders: [],
         items: [],
     };
 
+    let csv;
     try {
-        var csv = parse_csv(data);
+        csv = parseCsv(data);
     } catch (err) {
         return null;
     }
@@ -177,8 +178,8 @@ function parser(data) {
     };
 }
 
-const service = {
+const importKeepassxOrgCsvService = {
     parser,
 };
 
-export default service;
+export default importKeepassxOrgCsvService;

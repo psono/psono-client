@@ -511,7 +511,7 @@ function declineMembership(c) {
 
 //itemBlueprint.register('getGroupSecretKey', getGroupSecretKey);
 
-const service = {
+const groupsService = {
     getGroupSecretKey: getGroupSecretKey,
     getGroupPrivateKey: getGroupPrivateKey,
     decryptSecretKey: decryptSecretKey,
@@ -530,4 +530,4 @@ const service = {
     acceptMembership: acceptMembership,
     declineMembership: declineMembership,
 };
-export default service;
+export default groupsService;

@@ -86,11 +86,11 @@ function deleteYubikeyOtp(yubikeyOtpId) {
     return apiClient.deleteYubikeyOtp(token, sessionSecretKey, yubikeyOtpId).then(onSuccess, onError);
 }
 
-const service = {
+const yubikeyOtpService = {
     createYubikeyOtp,
     readYubikeyOtp,
     activateYubikeyOtp,
     deleteYubikeyOtp,
 };
 
-export default service;
+export default yubikeyOtpService;

@@ -13,17 +13,17 @@ describe('Service: importTeampassNetCsv test suite', function () {
         const generic_uuid = '1fce01f4-6411-47a9-885c-a80bf4c654aa'
         cryptoLibrary.generateUuid = jest.fn();
         cryptoLibrary.generateUuid.mockImplementation(() => generic_uuid);
-        
-        var input = "\"Project name\",\"Name\",\"Access information\",\"Username\",\"E-mail\",\"Password\",\"Notes\",\"Tags\",\"Custom fields\",\"Custom 1\",\"Custom 2\",\"Custom 4\",\"Custom 5\",\"Custom 6\",\"Custom 7\",\"Custom 8\",\"Custom 9\",\"Custom 10\",\"Expiry date (mm-dd-yyyy)\"\n" +
+
+        const input = "\"Project name\",\"Name\",\"Access information\",\"Username\",\"E-mail\",\"Password\",\"Notes\",\"Tags\",\"Custom fields\",\"Custom 1\",\"Custom 2\",\"Custom 4\",\"Custom 5\",\"Custom 6\",\"Custom 7\",\"Custom 8\",\"Custom 9\",\"Custom 10\",\"Expiry date (mm-dd-yyyy)\"\n" +
             "\"Software\",\"Database user\",\"http://192.168.0.34/phpma\",\"john\",\"john@company.com\",\"doe\",\"\",\"db,mydb\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"10-01-2014\"\n" +
             "\"Software\",\"Server admin\",\"192.168.0.34\",\"admin\",\"\",\"test\",\"sample notes\",\"tag1,tag2\",\"custom1,custom2\",\"custom value 1\",\"custom value 2\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n" +
             "\"Hardware\",\"Router\",\"192.168.0.1\",\"admin\",\"\",\"easypwd\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"10-30-2015\"\n" +
             "\"Hardware\",\"Server room code\",\"\",\"\",\"\",\"1234\",\"\",\"pin\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\""
-        
 
-        var output = importTeampassNetCsv.parser(input);
 
-        var expected_output = {
+        const output = importTeampassNetCsv.parser(input);
+
+        const expected_output = {
             "datastore": {
                 "id": generic_uuid,
                 "name": output.datastore.name,

@@ -56,7 +56,7 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     listItemIcon: {
-        minWidth: "36px",
+        minWidth: theme.spacing(4),
     },
     icon: {
         fontSize: "18px",

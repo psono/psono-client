@@ -565,7 +565,7 @@ function decryptSecretKey(text, nonce) {
     return decryptData(text, nonce, store.getState().user.userSecretKey);
 }
 
-const service = {
+const cryptoLibraryService = {
     random: random,
     randomBytes: randomBytes,
     sha1: sha1,
@@ -597,4 +597,4 @@ const service = {
     decryptSecretKey: decryptSecretKey,
 };
 
-export default service;
+export default cryptoLibraryService;

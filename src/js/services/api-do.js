@@ -53,9 +53,9 @@ function call(signed_url, method, endpoint, data, headers, transformRequest, res
  */
 function upload(signed_url, fields, chunk) {
 
-    var endpoint = ''; // the signed url already has everything
-    var method = "POST";
-    var data = new FormData();
+    const endpoint = ''; // the signed url already has everything
+    const method = "POST";
+    const data = new FormData();
     for (let field_name in fields) {
         if (!fields.hasOwnProperty(field_name)) {
             continue;
@@ -63,12 +63,12 @@ function upload(signed_url, fields, chunk) {
         data.append(field_name, fields[field_name]);
     }
     data.append('file', chunk);
-    var headers = {
+    const headers = {
         'Content-Type': undefined
     };
 
     return call(signed_url, method, endpoint, data, headers, angular.identity);
-};
+}
 
 /**
  * @ngdoc
@@ -84,11 +84,11 @@ function upload(signed_url, fields, chunk) {
  */
 function download(signed_url) {
 
-    var endpoint = ''; // the signed url already has everything
-    var method = "GET";
-    var data = null;
+    const endpoint = ''; // the signed url already has everything
+    const method = "GET";
+    const data = null;
 
-    var headers = {
+    const headers = {
     };
 
     return call(signed_url, method, endpoint, data, headers,  undefined, 'arraybuffer').then(function(data) {
@@ -97,14 +97,14 @@ function download(signed_url) {
         if (data.status === 400) {
             data.data = JSON.parse(converterService.bytesToString(data.data));
         }
-        return $q.reject(data)
+        return Promise.reject(data)
     });
-};
+}
 
 
-const service = {
+const apiDoService = {
     upload: upload,
     download: download
 };
 
-export default service;
+export default apiDoService;

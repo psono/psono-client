@@ -14,7 +14,7 @@ const INDEX_PASSWORD = 5;
 const INDEX_NOTES = 6;
 const INDEX_TAGS = 7;
 const INDEX_CUSTOM_FIELDS = 8;
-var CUSTOM_FIELD_OFFSET = 9;
+const CUSTOM_FIELD_OFFSET = 9;
 
 /**
  * Takes a line and returns the correct description
@@ -23,13 +23,13 @@ var CUSTOM_FIELD_OFFSET = 9;
  *
  * @returns {*} The description
  */
-var get_description = function (line) {
-    var description = line[INDEX_DESCRIPTION];
+function getDescription(line) {
+    let description = line[INDEX_DESCRIPTION];
     if (line[INDEX_TAGS]) {
         description = description + " (" + line[INDEX_TAGS] + ")";
     }
     return description;
-};
+}
 
 /**
  * Takes a line and returns the correct notes
@@ -40,15 +40,15 @@ var get_description = function (line) {
  *
  * @returns {*} The description
  */
-var get_notes = function (line) {
-    var notes = line[INDEX_NOTES] + "\n";
+function getNotes(line) {
+    let notes = line[INDEX_NOTES] + "\n";
 
     if (line[INDEX_EMAIL]) {
         notes = notes + "Email: " + line[INDEX_EMAIL] + "\n";
     }
 
     if (line[INDEX_CUSTOM_FIELDS]) {
-        var custom_fields = line[INDEX_CUSTOM_FIELDS].split(",");
+        const custom_fields = line[INDEX_CUSTOM_FIELDS].split(",");
         for (let i = 0; i < custom_fields.length; i++) {
             //checks if the corresponding value is not empty
             if (!line[CUSTOM_FIELD_OFFSET + i]) {
@@ -59,7 +59,7 @@ var get_notes = function (line) {
     }
 
     return notes;
-};
+}
 
 /**
  * Takes a line and transforms it into a website password entry
@@ -68,11 +68,11 @@ var get_notes = function (line) {
  *
  * @returns {*} The secrets object
  */
-var transform_to_website_password = function (line) {
-    var parsed_url = helperService.parseUrl(line[INDEX_URL]);
+function transformToWebsitePassword(line) {
+    const parsed_url = helperService.parseUrl(line[INDEX_URL]);
 
-    var description = get_description(line);
-    var notes = get_notes(line);
+    const description = getDescription(line);
+    const notes = getNotes(line);
 
     return {
         id: cryptoLibrary.generateUuid(),
@@ -86,7 +86,7 @@ var transform_to_website_password = function (line) {
         website_password_url: line[INDEX_URL],
         website_password_title: description,
     };
-};
+}
 
 /**
  * Takes a line and transforms it into a application password entry
@@ -95,9 +95,9 @@ var transform_to_website_password = function (line) {
  *
  * @returns {*} The secrets object
  */
-var transform_to_application_password = function (line) {
-    var description = get_description(line);
-    var notes = get_notes(line);
+function transformToApplicationPassword(line) {
+    const description = getDescription(line);
+    const notes = getNotes(line);
 
     return {
         id: cryptoLibrary.generateUuid(),
@@ -108,7 +108,7 @@ var transform_to_application_password = function (line) {
         application_password_notes: notes,
         application_password_title: description,
     };
-};
+}
 
 /**
  * Takes a line and transforms it into a bookmark entry
@@ -117,11 +117,11 @@ var transform_to_application_password = function (line) {
  *
  * @returns {*} The secrets object
  */
-var transform_to_bookmark = function (line) {
-    var parsed_url = helperService.parseUrl(line[INDEX_URL]);
+function transformToBookmark(line) {
+    const parsed_url = helperService.parseUrl(line[INDEX_URL]);
 
-    var description = get_description(line);
-    var notes = get_notes(line);
+    const description = getDescription(line);
+    const notes = getNotes(line);
 
     return {
         id: cryptoLibrary.generateUuid(),
@@ -133,7 +133,7 @@ var transform_to_bookmark = function (line) {
         bookmark_url: line[INDEX_URL],
         bookmark_title: description,
     };
-};
+}
 
 /**
  * Takes a line and transforms it into a note entry
@@ -142,9 +142,9 @@ var transform_to_bookmark = function (line) {
  *
  * @returns {*} The secrets object
  */
-var transform_to_note = function (line) {
-    var description = get_description(line);
-    var notes = get_notes(line);
+function transformToNote(line) {
+    const description = getDescription(line);
+    const notes = getNotes(line);
 
     return {
         id: cryptoLibrary.generateUuid(),
@@ -153,17 +153,17 @@ var transform_to_note = function (line) {
         note_notes: notes,
         note_title: description,
     };
-};
+}
 
 /**
  * Analyzes an item and return its types
  *
  * @param {object} line The line to analyze
  */
-function detect_type(line) {
-    var contains_url = line[INDEX_URL];
-    var contains_username = line[INDEX_USERNAME];
-    var contains_password = line[INDEX_PASSWORD];
+function detectType(line) {
+    const contains_url = line[INDEX_URL];
+    const contains_username = line[INDEX_USERNAME];
+    const contains_password = line[INDEX_PASSWORD];
 
     if (contains_url && (contains_username || contains_password)) {
         return "website_password";
@@ -186,9 +186,9 @@ function detect_type(line) {
  *
  * @returns {object} Returns the folder
  */
-function get_folder(line, datastore) {
-    var next_folder_name;
-    var next_folder;
+function getFolder(line, datastore) {
+    let next_folder_name;
+    let next_folder;
 
     next_folder_name = line[INDEX_PROJECT_NAME];
 
@@ -219,9 +219,9 @@ function get_folder(line, datastore) {
  * @param {[]} secrets The array containing all the found secrets
  * @param {[]} csv The array containing all the found secrets
  */
-function gather_secrets(datastore, secrets, csv) {
-    var line;
-    var folder;
+function gatherSecrets(datastore, secrets, csv) {
+    let line;
+    let folder;
 
     for (let i = 0; i < csv.length; i++) {
         line = csv[i];
@@ -232,19 +232,19 @@ function gather_secrets(datastore, secrets, csv) {
             continue;
         }
 
-        folder = get_folder(line, datastore);
+        folder = getFolder(line, datastore);
 
-        var detected_type = detect_type(line);
+        const detected_type = detectType(line);
 
-        var secret = null;
+        let secret = null;
         if (detected_type === "website_password") {
-            secret = transform_to_website_password(line);
+            secret = transformToWebsitePassword(line);
         } else if (detected_type === "application_password") {
-            secret = transform_to_application_password(line);
+            secret = transformToApplicationPassword(line);
         } else if (detected_type === "bookmark") {
-            secret = transform_to_bookmark(line);
+            secret = transformToBookmark(line);
         } else {
-            secret = transform_to_note(line);
+            secret = transformToNote(line);
         }
 
         if (secret === null) {
@@ -262,8 +262,8 @@ function gather_secrets(datastore, secrets, csv) {
  * @param {string} data The raw data to parse
  * @returns {Array} The array of arrays representing the CSV
  */
-function parse_csv(data) {
-    var csv = Papa.parse(data);
+function parseCsv(data) {
+    const csv = Papa.parse(data);
 
     if (csv["errors"].length > 0) {
         throw new Error(csv["errors"][0]["message"]);
@@ -287,32 +287,33 @@ function parse_csv(data) {
  * @returns {{datastore, secrets: Array} | null}
  */
 function parser(data) {
-    var d = new Date();
-    var n = d.toISOString();
+    const d = new Date();
+    const n = d.toISOString();
 
-    var secrets = [];
-    var datastore = {
+    const secrets = [];
+    const datastore = {
         id: cryptoLibrary.generateUuid(),
         name: "Import " + n,
         items: [],
         folders: [],
     };
 
+    let csv;
     try {
-        var csv = parse_csv(data);
+        csv = parseCsv(data);
     } catch (err) {
         return null;
     }
 
-    gather_secrets(datastore, secrets, csv);
+    gatherSecrets(datastore, secrets, csv);
 
     return {
         datastore: datastore,
         secrets: secrets,
     };
 }
-const service = {
+const importTeampassNetCsvService = {
     parser,
 };
 
-export default service;
+export default importTeampassNetCsvService;

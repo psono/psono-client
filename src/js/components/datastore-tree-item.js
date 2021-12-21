@@ -14,6 +14,7 @@ import ShareIcon from "@material-ui/icons/Share";
 import Typography from "@material-ui/core/Typography";
 import LinkIcon from "@material-ui/icons/Link";
 import EditIcon from "@material-ui/icons/Edit";
+import VisibilityIcon from "@material-ui/icons/Visibility";
 import OpenWithIcon from "@material-ui/icons/OpenWith";
 import DeleteIcon from "@material-ui/icons/Delete";
 import FileCopyIcon from "@material-ui/icons/FileCopy";
@@ -23,7 +24,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import ContentCopy from "./icons/ContentCopy";
 
 import secretService from "../services/secret";
-import fileTransferService from "../services/file-transfer";
 import store from "../services/store";
 import widgetService from "../services/widget";
 
@@ -35,13 +35,17 @@ const useStyles = makeStyles((theme) => ({
     icon: {
         fontSize: "18px",
     },
+    listItemIcon: {
+        minWidth: theme.spacing(4),
+    },
 }));
 
 const DatastoreTreeItem = (props) => {
     const { t } = useTranslation();
-    const { content, search, offline } = props;
+    const { content, offline } = props;
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = React.useState(null);
+    const isSelectable = props.isSelectable ? props.isSelectable(content) : true;
 
     const openMenu = (event) => {
         event.preventDefault();
@@ -66,11 +70,11 @@ const DatastoreTreeItem = (props) => {
          *
          * @param content
          */
-        var on_modal_close_success = function (content) {
+        const on_modal_close_success = function (content) {
             console.log(content);
         };
 
-        var modalInstance = $uibModal.open({
+        const modalInstance = $uibModal.open({
             templateUrl: "view/modal/create-link-share.html",
             controller: "ModalCreateLinkShareCtrl",
             backdrop: "static",
@@ -94,7 +98,7 @@ const DatastoreTreeItem = (props) => {
         }
 
         registrations["read_share_rights"](content.share_id).then(function (share_details) {
-            var modalInstance = $uibModal.open({
+            const modalInstance = $uibModal.open({
                 templateUrl: "view/modal/display-share-rights.html",
                 controller: "ModalDisplayShareRightsCtrl",
                 backdrop: "static",
@@ -131,7 +135,7 @@ const DatastoreTreeItem = (props) => {
 
     const onEdit = (event) => {
         handleClose(event);
-        // TODO editNode
+        props.onEditEntry(content, content.path, props.nodePath);
     };
 
     const onNewShare = (event) => {
@@ -143,20 +147,26 @@ const DatastoreTreeItem = (props) => {
         handleClose(event);
         // TODO moveNode
     };
-    const clickItem = function () {
-        if (content.type === "file") {
-            return fileTransferService.onItemClick(content, content.path);
-        } else {
-            return secretService.onItemClick(content);
+    const selectItem = function (event) {
+        event.stopPropagation();
+        if (props.onSelectItem && isSelectable) {
+            props.onSelectItem(content, content.path, props.nodePath);
+        }
+    };
+    const linkItem = function (event) {
+        event.stopPropagation();
+        if (props.onLinkItem) {
+            props.onLinkItem(content, content.path, props.nodePath);
         }
     };
 
-    const hideShare = offline || (content.hasOwnProperty("share_rights") && content.share_rights.grant === false);
+    const hideShare = offline || (content.hasOwnProperty("share_rights") && content.share_rights.grant === false) || content.type === "user";
     const hideLinkShare =
         offline ||
         !content.hasOwnProperty("type") ||
         (content.hasOwnProperty("share_rights") && content.share_rights.grant === false) ||
-        store.getState().server.complianceDisableLinkShares;
+        store.getState().server.complianceDisableLinkShares ||
+        content.type === "user";
     const hideRightsOverview =
         offline ||
         (content.hasOwnProperty("share_rights") && content.share_rights.grant === false) ||
@@ -174,7 +184,8 @@ const DatastoreTreeItem = (props) => {
         (content.hasOwnProperty("share_rights") && content.share_rights.read !== true) ||
         !content.hasOwnProperty("type") ||
         !["website_password", "application_password"].includes(content["type"]);
-    const hideEdit = offline || content.share_rights.write === false;
+    const hideEdit = offline || content.share_rights.write === false || !props.onEditEntry;
+    const hideShow = !hideEdit || content.share_rights.read === false || !props.onEditEntry;
     const hideClone =
         offline || content.share_rights.write === false || content.share_rights.read === false || content.type === "file" || content.type === "user";
     const hideMove = offline || content.share_rights.delete === false;
@@ -182,7 +193,7 @@ const DatastoreTreeItem = (props) => {
 
     return (
         <div className={"tree-item"}>
-            <div className={"tree-item-object"}>
+            <div className={"tree-item-object" + (isSelectable ? "" : " notSelectable")} onClick={selectItem}>
                 <span className="fa-stack">
                     <i className={widgetService.itemIcon(content)} />
                     {content.share_id && <i className="fa fa-circle fa-stack-2x text-danger is-shared" />}
@@ -190,13 +201,13 @@ const DatastoreTreeItem = (props) => {
                 </span>
                 <span className="tree-item-name">{content.name}</span>
                 <ButtonGroup variant="text" aria-label="outlined button group" className={"node-open-link"}>
-                    {["bookmark", "website_password"].indexOf(content.type) !== -1 && (
-                        <Button aria-label="open" onClick={clickItem}>
+                    {Boolean(props.onLinkItem) && ["bookmark", "website_password"].indexOf(content.type) !== -1 && (
+                        <Button aria-label="open" onClick={linkItem}>
                             <OpenInNewIcon fontSize="small" />
                         </Button>
                     )}
-                    {["file"].indexOf(content.type) !== -1 && (
-                        <Button aria-label="open" onClick={clickItem}>
+                    {Boolean(props.onLinkItem) && ["file"].indexOf(content.type) !== -1 && (
+                        <Button aria-label="open" onClick={linkItem}>
                             <GetAppIcon fontSize="small" />
                         </Button>
                     )}
@@ -207,7 +218,7 @@ const DatastoreTreeItem = (props) => {
                 <Menu id="simple-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
                     {!hideShare && (
                         <MenuItem onClick={onNewShare}>
-                            <ListItemIcon>
+                            <ListItemIcon className={classes.listItemIcon}>
                                 <ShareIcon className={classes.icon} fontSize="small" />
                             </ListItemIcon>
                             <Typography variant="body2" noWrap>
@@ -217,7 +228,7 @@ const DatastoreTreeItem = (props) => {
                     )}
                     {!hideLinkShare && (
                         <MenuItem onClick={onLinkShare}>
-                            <ListItemIcon>
+                            <ListItemIcon className={classes.listItemIcon}>
                                 <LinkIcon className={classes.icon} fontSize="small" />
                             </ListItemIcon>
                             <Typography variant="body2" noWrap>
@@ -227,7 +238,7 @@ const DatastoreTreeItem = (props) => {
                     )}
                     {!hideRightsOverview && (
                         <MenuItem onClick={onRightsOverview}>
-                            <ListItemIcon>
+                            <ListItemIcon className={classes.listItemIcon}>
                                 <ListIcon className={classes.icon} fontSize="small" />
                             </ListItemIcon>
                             <Typography variant="body2" noWrap>
@@ -237,7 +248,7 @@ const DatastoreTreeItem = (props) => {
                     )}
                     {!hideCopyTotpToken && (
                         <MenuItem onClick={onCopyTotpToken}>
-                            <ListItemIcon>
+                            <ListItemIcon className={classes.listItemIcon}>
                                 <ContentCopy className={classes.icon} fontSize="small" />
                             </ListItemIcon>
                             <Typography variant="body2" noWrap>
@@ -247,7 +258,7 @@ const DatastoreTreeItem = (props) => {
                     )}
                     {!hideCopyUsername && (
                         <MenuItem onClick={onCopyUsername}>
-                            <ListItemIcon>
+                            <ListItemIcon className={classes.listItemIcon}>
                                 <ContentCopy className={classes.icon} fontSize="small" />
                             </ListItemIcon>
                             <Typography variant="body2" noWrap>
@@ -257,7 +268,7 @@ const DatastoreTreeItem = (props) => {
                     )}
                     {!hideCopyPassword && (
                         <MenuItem onClick={onCopyPassword}>
-                            <ListItemIcon>
+                            <ListItemIcon className={classes.listItemIcon}>
                                 <ContentCopy className={classes.icon} fontSize="small" />
                             </ListItemIcon>
                             <Typography variant="body2" noWrap>
@@ -265,20 +276,32 @@ const DatastoreTreeItem = (props) => {
                             </Typography>
                         </MenuItem>
                     )}
-                    <Divider className={classes.divider} />
+                    {(!hideShare || !hideLinkShare || !hideRightsOverview || !hideCopyTotpToken || !hideCopyUsername || !hideCopyPassword) && (
+                        <Divider className={classes.divider} />
+                    )}
                     {!hideEdit && (
                         <MenuItem onClick={onEdit}>
-                            <ListItemIcon>
+                            <ListItemIcon className={classes.listItemIcon}>
                                 <EditIcon className={classes.icon} fontSize="small" />
                             </ListItemIcon>
                             <Typography variant="body2" noWrap>
-                                {content.type === "user" ? t("SHOW") : t("SHOW_OR_EDIT")}
+                                {t("SHOW_OR_EDIT")}
+                            </Typography>
+                        </MenuItem>
+                    )}
+                    {!hideShow && (
+                        <MenuItem onClick={onEdit}>
+                            <ListItemIcon className={classes.listItemIcon}>
+                                <VisibilityIcon className={classes.icon} fontSize="small" />
+                            </ListItemIcon>
+                            <Typography variant="body2" noWrap>
+                                {t("SHOW")}
                             </Typography>
                         </MenuItem>
                     )}
                     {!hideClone && (
                         <MenuItem onClick={onEdit}>
-                            <ListItemIcon>
+                            <ListItemIcon className={classes.listItemIcon}>
                                 <FileCopyIcon className={classes.icon} fontSize="small" />
                             </ListItemIcon>
                             <Typography variant="body2" noWrap>
@@ -288,7 +311,7 @@ const DatastoreTreeItem = (props) => {
                     )}
                     {!hideMove && (
                         <MenuItem onClick={onMove}>
-                            <ListItemIcon>
+                            <ListItemIcon className={classes.listItemIcon}>
                                 <OpenWithIcon className={classes.icon} fontSize="small" />
                             </ListItemIcon>
                             <Typography variant="body2" noWrap>
@@ -299,7 +322,7 @@ const DatastoreTreeItem = (props) => {
                     {!hideDelete && <Divider className={classes.divider} />}
                     {!hideDelete && (
                         <MenuItem onClick={onMove}>
-                            <ListItemIcon>
+                            <ListItemIcon className={classes.listItemIcon}>
                                 <DeleteIcon className={classes.icon} fontSize="small" />
                             </ListItemIcon>
                             <Typography variant="body2" noWrap>
@@ -314,9 +337,13 @@ const DatastoreTreeItem = (props) => {
 };
 
 DatastoreTreeItem.propTypes = {
-    search: PropTypes.string.isRequired,
+    isSelectable: PropTypes.func,
+    nodePath: PropTypes.array.isRequired,
     content: PropTypes.object,
     offline: PropTypes.bool.isRequired,
     onNewShare: PropTypes.func,
+    onEditEntry: PropTypes.func,
+    onLinkItem: PropTypes.func,
+    onSelectItem: PropTypes.func,
 };
 export default DatastoreTreeItem;

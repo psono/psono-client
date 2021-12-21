@@ -172,7 +172,7 @@ function redirectSecret(type, secretId) {
 }
 
 /**
- * Handles item clicks and triggers behaviour
+ * Handles item clicks and triggers redirects for website passwords and bookmarks
  *
  * @param {object} item The item one has clicked on
  */

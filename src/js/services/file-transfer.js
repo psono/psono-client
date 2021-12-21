@@ -718,7 +718,7 @@ function register(key, func) {
     registrations[key] = func;
 }
 
-const service = {
+const fileTransferService = {
     readFile: readFile,
     createFile: createFile,
     upload: upload,
@@ -729,4 +729,4 @@ const service = {
     downloadFile: downloadFile,
     register: register,
 };
-export default service;
+export default fileTransferService;

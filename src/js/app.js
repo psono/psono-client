@@ -12,27 +12,33 @@ import { PersistGate } from "redux-persist/integration/react";
 import { Provider } from "react-redux";
 import { MuiPickersUtilsProvider } from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
-
+import initReactFastclick from "react-fastclick";
 import store from "./services/store";
 import datastoreSettingService from "./services/datastore-setting";
 import i18n from "./i18n";
 import theme from "./theme";
 
 import IndexView from "./views/index";
+import DownloadBanner from "./containers/download-banner";
 
 /**
  * Loads the datastore
  * @param dispatch
  * @param getState
  */
-function fetchTodos(dispatch, getState) {
-    datastoreSettingService.getSettingsDatastore();
+function loadSettingsDatastore(dispatch, getState) {
+    const state = getState();
+    if (state.user.isLoggedIn) {
+        datastoreSettingService.getSettingsDatastore();
+    }
 }
 
 let persistor = persistStore(store, null, () => {
-    store.dispatch(fetchTodos);
+    store.dispatch(loadSettingsDatastore);
 });
 const customHistory = createBrowserHistory();
+
+initReactFastclick();
 
 const App = () => {
     return (
@@ -44,6 +50,7 @@ const App = () => {
                             <ThemeProvider theme={theme}>
                                 <CssBaseline />
                                 <HashRouter history={customHistory} hashType={"hashbang"}>
+                                    <DownloadBanner />
                                     <IndexView />
                                 </HashRouter>
                             </ThemeProvider>

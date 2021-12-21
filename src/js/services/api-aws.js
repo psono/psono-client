@@ -5,7 +5,7 @@
 import axios from "axios";
 import converterService from "./converter";
 
-const call = function (fileserverUrl, method, endpoint, data, headers, transformRequest, responseType) {
+function call(fileserverUrl, method, endpoint, data, headers, transformRequest, responseType) {
     if (!transformRequest) {
         transformRequest = $http.defaults.transformRequest;
     }
@@ -31,7 +31,7 @@ const call = function (fileserverUrl, method, endpoint, data, headers, transform
 
         axios(req).then(onSuccess, onError);
     });
-};
+}
 
 /**
  * Ajax PUT request to upload a file chunk to AWS S3
@@ -42,7 +42,7 @@ const call = function (fileserverUrl, method, endpoint, data, headers, transform
  *
  * @returns {Promise} promise
  */
-const upload = function (signedUrl, fields, chunk) {
+function upload(signedUrl, fields, chunk) {
     const endpoint = ""; // the signed url already has everything
     const method = "POST";
     const data = new FormData();
@@ -58,7 +58,7 @@ const upload = function (signedUrl, fields, chunk) {
     };
 
     return call(signedUrl, method, endpoint, data, headers, angular.identity);
-};
+}
 
 /**
  * Ajax GET request to download a file chunk from AWS S3
@@ -67,7 +67,7 @@ const upload = function (signedUrl, fields, chunk) {
  *
  * @returns {Promise} promise with the data
  */
-const download = function (signedUrl) {
+function download(signedUrl) {
     const endpoint = ""; // the signed url already has everything
     const method = "GET";
     const data = null;
@@ -82,14 +82,14 @@ const download = function (signedUrl) {
             if (data.status === 400) {
                 data.data = JSON.parse(converterService.bytesToString(data.data));
             }
-            return $q.reject(data);
+            return Promise.reject(data);
         }
     );
-};
+}
 
-const service = {
+const apiAwsService = {
     upload: upload,
     download: download,
 };
 
-export default service;
+export default apiAwsService;

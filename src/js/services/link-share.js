@@ -62,9 +62,9 @@ function readLinkShares() {
  */
 function readSecretWithLinkShare(encryptedSecret, shareLinkData) {
     // normal secret
-    var secret_data = JSON.parse(cryptoLibrary.decrypt_data(encryptedSecret.secret_data, encryptedSecret.secret_data_nonce, shareLinkData.secret_key));
+    const secret_data = JSON.parse(cryptoLibrary.decrypt_data(encryptedSecret.secret_data, encryptedSecret.secret_data_nonce, shareLinkData.secret_key));
 
-    var modalInstance = $uibModal.open({
+    const modalInstance = $uibModal.open({
         templateUrl: "view/modal/show-entry.html",
         controller: "ModalEditEntryCtrl",
         backdrop: "static",
@@ -114,7 +114,7 @@ function readFileWithLinkShare(encryptedFileMeta, shareLinkData) {
  */
 function linkShareAccess(linkShareId, linkShareSecret, passphrase) {
     const onSuccess = function (result) {
-        var share_link_data = JSON.parse(cryptoLibrary.decrypt_data(result.data.node, result.data.node_nonce, linkShareSecret));
+        const share_link_data = JSON.parse(cryptoLibrary.decrypt_data(result.data.node, result.data.node_nonce, linkShareSecret));
 
         if (share_link_data.type === "file") {
             return readFileWithLinkShare(result.data, share_link_data);

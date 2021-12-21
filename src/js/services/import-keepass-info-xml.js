@@ -5,7 +5,7 @@ import cryptoLibrary from "./crypto-library";
 import helperService from "./helper";
 const fastXmlParser = require("fast-xml-parser");
 
-function unescape_value(value) {
+function unescapeValue(value) {
     value = value.replace(/&lt;/g, "<");
     value = value.replace(/&gt;/g, ">");
     value = value.replace(/&amp;/g, "&");
@@ -20,11 +20,11 @@ function unescape_value(value) {
  *
  * @returns {*} The secrets object
  */
-var transform_to_secret = function (line) {
+function transformToSecret(line) {
     if (!line.hasOwnProperty("String") || !line.String) {
         return null;
     }
-    var secret = {
+    const secret = {
         id: cryptoLibrary.generateUuid(),
         type: "website_password",
         name: "",
@@ -38,15 +38,15 @@ var transform_to_secret = function (line) {
     };
 
     for (let i = 0; i < line.String.length; i++) {
-        var value = line.String[i];
+        const value = line.String[i];
         if (!value.hasOwnProperty("Key")) {
             continue;
         }
         if (!value.hasOwnProperty("Value")) {
             continue;
         }
-        var key = value["Key"];
-        var val = unescape_value(value["Value"]);
+        const key = value["Key"];
+        const val = unescapeValue(value["Value"]);
 
         if (key === "Notes") {
             secret["website_password_notes"] = val;
@@ -62,7 +62,7 @@ var transform_to_secret = function (line) {
         }
 
         if (key === "URL") {
-            var parsed_url = helperService.parseUrl(val);
+            const parsed_url = helperService.parseUrl(val);
             secret["urlfilter"] = parsed_url.authority || "";
             secret["website_password_url_filter"] = parsed_url.authority || "";
             secret["website_password_url"] = val;
@@ -74,7 +74,7 @@ var transform_to_secret = function (line) {
     }
 
     return secret;
-};
+}
 
 /**
  * Fills the datastore with folders their content and together with the secrets object
@@ -83,10 +83,10 @@ var transform_to_secret = function (line) {
  * @param {[]} secrets The array containing all the found secrets
  * @param {Document} xml The parsed XML document
  */
-function gather_secrets(datastore, secrets, xml) {
-    var i;
-    var next_folder;
-    var entries;
+function gatherSecrets(datastore, secrets, xml) {
+    let i;
+    let next_folder;
+    let entries;
     if (xml.hasOwnProperty("Entry")) {
         if (Object.prototype.toString.call(xml.Entry) === "[object Array]") {
             entries = xml.Entry;
@@ -95,7 +95,7 @@ function gather_secrets(datastore, secrets, xml) {
         }
 
         for (i = 0; i < entries.length; i++) {
-            var secret = transform_to_secret(entries[i]);
+            const secret = transformToSecret(entries[i]);
             if (secret === null) {
                 //empty line
                 continue;
@@ -122,7 +122,7 @@ function gather_secrets(datastore, secrets, xml) {
                 folders: [],
                 items: [],
             };
-            gather_secrets(next_folder, secrets, entries[i]);
+            gatherSecrets(next_folder, secrets, entries[i]);
             datastore["folders"].push(next_folder);
         }
     }
@@ -136,9 +136,9 @@ function gather_secrets(datastore, secrets, xml) {
  * @param {string} xmlString The raw data to parse
  * @returns {object} The array of arrays representing the XML
  */
-function parse_xml(xmlString) {
+function parseXml(xmlString) {
     fastXmlParser.validate(xmlString); // Throws sometimes an error if its no valid xml
-    var parsed_xml = fastXmlParser.parse(xmlString, { parseNodeValue: false });
+    const parsed_xml = fastXmlParser.parse(xmlString, { parseNodeValue: false });
     if (
         !parsed_xml.hasOwnProperty("KeePassFile") ||
         !parsed_xml["KeePassFile"].hasOwnProperty("Root") ||
@@ -164,24 +164,25 @@ function parse_xml(xmlString) {
  * @returns {{datastore, secrets: Array} | null}
  */
 function parser(data) {
-    var d = new Date();
-    var n = d.toISOString();
+    const d = new Date();
+    const n = d.toISOString();
 
-    var secrets = [];
-    var datastore = {
+    const secrets = [];
+    const datastore = {
         id: cryptoLibrary.generateUuid(),
         name: "Import " + n,
         items: [],
         folders: [],
     };
 
+    let xml;
     try {
-        var xml = parse_xml(data);
+        xml = parseXml(data);
     } catch (err) {
         return null;
     }
 
-    gather_secrets(datastore, secrets, xml);
+    gatherSecrets(datastore, secrets, xml);
 
     return {
         datastore: datastore,
@@ -189,8 +190,8 @@ function parser(data) {
     };
 }
 
-const service = {
+const importKeepassInfoXmlService = {
     parser,
 };
 
-export default service;
+export default importKeepassInfoXmlService;

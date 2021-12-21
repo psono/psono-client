@@ -16,7 +16,7 @@ import Table from "../../components/table";
 import groupsService from "../../services/groups";
 import format from "../../services/date";
 import CreateGroupDialog from "./create-group-dialog";
-import VerifyDialog from "../../containers/verify-dialog";
+import DialogVerify from "../../components/dialogs/verify";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -300,7 +300,7 @@ const GroupsView = (props) => {
                 </Paper>
                 {createOpen && <CreateGroupDialog {...props} open={createOpen} onClose={closeCreateModal} />}
                 {verifyDeleteGroupOpen && (
-                    <VerifyDialog
+                    <DialogVerify
                         title={"DELETE_GROUP"}
                         description={"DELETE_GROUP_WARNING"}
                         entries={[groupNameBeingDeleted]}

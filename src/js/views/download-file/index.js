@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { makeStyles } from "@material-ui/core/styles";
 import MuiAlert from "@material-ui/lab/Alert";
 import Box from "@material-ui/core/Box";
 import LinearProgress from "@material-ui/core/LinearProgress";
@@ -7,8 +8,15 @@ import { useParams } from "react-router-dom";
 import store from "../../services/store";
 import fileTransferService from "../../services/file-transfer";
 
+const useStyles = makeStyles((theme) => ({
+    textCenter: {
+        textAlign: "center",
+    },
+}));
+
 const DownloadFileView = (props) => {
     const { t } = useTranslation();
+    const classes = useStyles();
     const [percentageComplete, setPercentageComplete] = React.useState(0);
     const [nextStep, setNextStep] = React.useState("");
     const [processing, setProcessing] = React.useState(false);
@@ -65,7 +73,7 @@ const DownloadFileView = (props) => {
     // }, []);
 
     return (
-        <div className="progress-box text-center">
+        <div className={"progress-box " + classes.textCenter}>
             <img src="img/logo.png" alt="Psono Web Client" id="logo" />
             <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
                 <i className="fa fa-info-circle" aria-hidden="true" />

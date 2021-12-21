@@ -1,9 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { alpha, makeStyles } from "@material-ui/core/styles";
-import Base from "../../containers/base";
-import BaseTitle from "../../containers/base-title";
-import BaseContent from "../../containers/base-content";
 import Paper from "@material-ui/core/Paper";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -12,15 +9,44 @@ import IconButton from "@material-ui/core/IconButton";
 import MenuOpenIcon from "@material-ui/icons/MenuOpen";
 import Divider from "@material-ui/core/Divider";
 import ClearIcon from "@material-ui/icons/Clear";
-import UserDatastore from "../../containers/user-datastore";
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
+import PersonAddIcon from "@material-ui/icons/PersonAdd";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import Typography from "@material-ui/core/Typography";
+import CreateNewFolderIcon from "@material-ui/icons/CreateNewFolder";
+import { ClipLoader } from "react-spinners";
+import Base from "../../containers/base";
+import BaseTitle from "../../containers/base-title";
+import BaseContent from "../../containers/base-content";
+import widget from "../../services/widget";
+import datastorePassword from "../../services/datastore-password";
+import DialogNewFolder from "../../components/dialogs/new-folder";
+import DialogEditFolder from "../../components/dialogs/edit-folder";
+import DialogNewUser from "../../components/dialogs/new-user";
+import DialogEditUser from "../../components/dialogs/edit-user";
+import datastoreUser from "../../services/datastore-user";
+import DatastoreTree from "../../components/datastore-tree";
+import datastoreService from "../../services/datastore";
 
 const useStyles = makeStyles((theme) => ({
     root: {
         display: "flex",
         padding: "15px",
     },
+    loader: {
+        marginTop: "30px",
+        marginBottom: "30px",
+        margin: "auto",
+    },
     toolbarRoot: {
         display: "flex",
+    },
+    toolbarTitle: {
+        display: "none",
+        [theme.breakpoints.up("sm")]: {
+            display: "block",
+        },
     },
     search: {
         borderRadius: theme.shape.borderRadius,
@@ -60,15 +86,161 @@ const useStyles = makeStyles((theme) => ({
         marginBottom: -10,
         display: "inline-flex",
     },
+    icon: {
+        fontSize: "18px",
+    },
+    listItemIcon: {
+        minWidth: theme.spacing(4),
+    },
 }));
 
 const TrustedUsersView = (props) => {
     const classes = useStyles();
     const { t } = useTranslation();
-    const [search, setSearch] = React.useState("");
+    const [search, setSearch] = useState("");
+    const [anchorEl, setAnchorEl] = useState(null);
+
+    const [newFolderOpen, setNewFolderOpen] = useState(false);
+    const [newFolderData, setNewFolderData] = useState({});
+
+    const [newUserOpen, setNewUserOpen] = useState(false);
+    const [newUserData, setNewUserData] = useState({});
+
+    const [editFolderOpen, setEditFolderOpen] = useState(false);
+    const [editFolderData, setEditFolderData] = useState({});
+
+    const [editEntryOpen, setEditEntryOpen] = useState(false);
+    const [editEntryData, setEditEntryData] = useState({});
+
+    const [datastore, setDatastore] = useState(null);
+
+    let isSubscribed = true;
+    React.useEffect(() => {
+        datastoreUser.getUserDatastore().then(onNewDatastoreLoaded);
+        return () => (isSubscribed = false);
+    }, []);
+
+    const onNewDatastoreLoaded = (data) => {
+        if (!isSubscribed) {
+            return;
+        }
+        console.log(data);
+        setDatastore(data);
+    };
+
+    const openMenu = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setAnchorEl(null);
+    };
 
     const onClear = () => {
         setSearch("");
+    };
+
+    const onCreateFolder = (event) => {
+        handleClose(event);
+        onNewFolder(undefined, []);
+    };
+
+    const onNewFolderCreate = (name) => {
+        // called once someone clicked the CREATE button in the dialog closes with the new name
+        setNewFolderOpen(false);
+        widget.openNewFolder(newFolderData["parent"], newFolderData["path"], datastore, datastorePassword, name);
+    };
+    const onNewFolder = (parent, path) => {
+        // called whenever someone clicks on a new folder Icon
+        setNewFolderData({
+            parent: parent,
+            path: path,
+        });
+        setNewFolderOpen(true);
+    };
+
+    const onCreateUser = (event) => {
+        handleClose(event);
+        onNewUser(undefined, []);
+    };
+
+    const onNewUserCreate = (userObject) => {
+        // called once someone clicked the CREATE button in the dialog closes with the infos about the user
+        setNewUserOpen(false);
+        let parent;
+        if (newUserData["parent"]) {
+            parent = newUserData["parent"];
+        } else {
+            parent = datastore;
+        }
+        if (typeof parent.items === "undefined") {
+            parent.items = [];
+        }
+
+        // check if we do not already have the user in our trusted user datastore
+        // skip if we already have it
+        const existingLocations = datastorePassword.searchInDatastore(userObject, datastore, function (a, b) {
+            if (!a.hasOwnProperty("data")) {
+                return false;
+            }
+            if (!b.hasOwnProperty("data")) {
+                return false;
+            }
+            if (!a["data"].hasOwnProperty("user_public_key")) {
+                return false;
+            }
+            if (!b["data"].hasOwnProperty("user_public_key")) {
+                return false;
+            }
+            return a["data"]["user_public_key"] === b["data"]["user_public_key"];
+        });
+
+        if (existingLocations.length < 1) {
+            parent.items.push(userObject);
+            datastoreService.updateShareRightsOfFoldersAndItems(datastore, {
+                read: true,
+                write: true,
+                grant: true,
+                delete: true,
+            });
+            return datastoreUser.saveDatastoreContent(datastore);
+        }
+    };
+    const onNewUser = (parent, path) => {
+        // called whenever someone clicks on a new folder Icon
+        setNewUserData({
+            parent: parent,
+            path: path,
+        });
+        setNewUserOpen(true);
+    };
+
+    const onEditFolderSave = (node) => {
+        setEditFolderOpen(false);
+        widget.openEditFolder(node, editFolderData.path, datastore, datastoreUser);
+    };
+    const onEditFolder = (node, path) => {
+        setEditFolderData({
+            node: node,
+            path: path,
+        });
+        setEditFolderOpen(true);
+    };
+
+    const onEditEntrySave = (item) => {
+        setEditEntryOpen(false);
+        datastoreUser.saveDatastoreContent(datastore);
+    };
+    const onEditEntry = (item, path) => {
+        setEditEntryData({
+            item: item,
+            path: path,
+        });
+        setEditEntryOpen(true);
     };
 
     return (
@@ -78,7 +250,7 @@ const TrustedUsersView = (props) => {
                 <Paper square>
                     <AppBar elevation={0} position="static" color="default">
                         <Toolbar className={classes.toolbarRoot}>
-                            {t("TRUSTED_USERS")}
+                            <span className={classes.toolbarTitle}>{t("TRUSTED_USERS")}</span>
                             <div className={classes.search}>
                                 <InputBase
                                     placeholder={t("SEARCH")}
@@ -96,14 +268,59 @@ const TrustedUsersView = (props) => {
                                     <ClearIcon />
                                 </IconButton>
                                 <Divider className={classes.divider} orientation="vertical" />
-                                <IconButton color="primary" className={classes.iconButton} aria-label="menu">
+                                <IconButton color="primary" className={classes.iconButton} aria-label="menu" onClick={openMenu}>
                                     <MenuOpenIcon />
                                 </IconButton>
+                                <Menu id="simple-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
+                                    <MenuItem onClick={onCreateFolder}>
+                                        <ListItemIcon className={classes.listItemIcon}>
+                                            <CreateNewFolderIcon className={classes.icon} fontSize="small" />
+                                        </ListItemIcon>
+                                        <Typography variant="body2" noWrap>
+                                            {t("NEW_FOLDER")}
+                                        </Typography>
+                                    </MenuItem>
+                                    <MenuItem onClick={onCreateUser}>
+                                        <ListItemIcon className={classes.listItemIcon}>
+                                            <PersonAddIcon className={classes.icon} fontSize="small" />
+                                        </ListItemIcon>
+                                        <Typography variant="body2" noWrap>
+                                            {t("NEW_USER")}
+                                        </Typography>
+                                    </MenuItem>
+                                </Menu>
                             </div>
                         </Toolbar>
                     </AppBar>
                     <div className={classes.root}>
-                        <UserDatastore search={search} />
+                        {!datastore && (
+                            <div className={classes.loader}>
+                                <ClipLoader />
+                            </div>
+                        )}
+                        {datastore && (
+                            <DatastoreTree
+                                datastore={datastore}
+                                search={search}
+                                onNewFolder={onNewFolder}
+                                onNewUser={onNewUser}
+                                onEditEntry={onEditEntry}
+                                onEditFolder={onEditFolder}
+                            />
+                        )}
+                        {newFolderOpen && <DialogNewFolder open={newFolderOpen} onClose={() => setNewFolderOpen(false)} onCreate={onNewFolderCreate} />}
+                        {newUserOpen && <DialogNewUser open={newUserOpen} onClose={() => setNewUserOpen(false)} onCreate={onNewUserCreate} />}
+                        {editFolderOpen && (
+                            <DialogEditFolder
+                                open={editFolderOpen}
+                                onClose={() => setEditFolderOpen(false)}
+                                onSave={onEditFolderSave}
+                                node={editFolderData.node}
+                            />
+                        )}
+                        {editEntryOpen && (
+                            <DialogEditUser open={editEntryOpen} onClose={() => setEditEntryOpen(false)} onSave={onEditEntrySave} item={editEntryData.item} />
+                        )}
                     </div>
                 </Paper>
             </BaseContent>

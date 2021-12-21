@@ -105,7 +105,7 @@ function isOpera() {
  * @returns {string} Returns the device's description
  */
 function getDeviceDescription() {
-    var description = "";
+    let description = "";
     if (typeof clientJs.getDeviceVendor() !== "undefined") {
         description = description + clientJs.getDeviceVendor() + " ";
     }
@@ -127,7 +127,7 @@ function getDeviceDescription() {
     return description;
 }
 
-const service = {
+const deviceService = {
     getDeviceFingerprint: getDeviceFingerprint,
     isMobileAndroid: isMobileAndroid,
     isMobileIos: isMobileIos,
@@ -139,4 +139,4 @@ const service = {
     isOpera: isOpera,
     getDeviceDescription: getDeviceDescription,
 };
-export default service;
+export default deviceService;

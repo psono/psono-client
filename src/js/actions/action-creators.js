@@ -23,6 +23,7 @@ import {
     SET_REMOTE_CONFIG_JSON,
     SET_FINGERPRINT,
     SET_EMAIL,
+    SET_HIDE_DOWNLOAD_BANNER,
 } from "./action-types";
 
 import datastoreSettingService from "../services/datastore-setting";
@@ -163,6 +164,14 @@ function setDisableBrowserPm(disableBrowserPm) {
         });
     };
 }
+function setHideDownloadBanner(hideDownloadBanner) {
+    return (dispatch) => {
+        dispatch({
+            type: SET_HIDE_DOWNLOAD_BANNER,
+            hideDownloadBanner,
+        });
+    };
+}
 function settingsDatastoreLoaded(data) {
     return (dispatch) => {
         dispatch({
@@ -285,6 +294,7 @@ const actionCreators = {
     enableOfflineMode,
     setNotificationOnCopy,
     setDisableBrowserPm,
+    setHideDownloadBanner,
     setPasswordConfig,
     setGpgConfig,
     settingsDatastoreLoaded,

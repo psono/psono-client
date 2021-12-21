@@ -90,11 +90,11 @@ function deleteGa(googleAuthenticatorId) {
     return apiClientService.deleteGa(token, sessionSecretKey, googleAuthenticatorId).then(onSuccess, onError);
 }
 
-const service = {
+const googleAuthenticatorService = {
     createGa,
     readGa,
     activateGa,
     deleteGa,
 };
 
-export default service;
+export default googleAuthenticatorService;

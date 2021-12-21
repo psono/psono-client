@@ -615,8 +615,8 @@ function updateUser(email, authkey, authkeyOld, privateKey, privateKeyNonce, sec
 function saveNewPassword(newPassword, newPasswordRepeat, oldPassword) {
     return host.info().then(
         function (info) {
-            var authkeyOld, newAuthkey, userPrivateKey, userSecretKey, userSauce, privKeyEnc, secretKeyEnc, onSuccess, onError;
-            var test_error = helperService.isValidPassword(
+            let authkeyOld, newAuthkey, userPrivateKey, userSecretKey, userSauce, privKeyEnc, secretKeyEnc, onSuccess, onError;
+            const test_error = helperService.isValidPassword(
                 newPassword,
                 newPasswordRepeat,
                 info.data["decoded_info"]["compliance_min_master_password_length"],
@@ -695,7 +695,7 @@ function recoveryEnable(username, recoveryCode, server) {
     action.setServerUrl(server);
 
     const onSuccess = function (data) {
-        var recovery_data = JSON.parse(
+        const recovery_data = JSON.parse(
             cryptoLibrary.decryptSecret(data.data.recovery_data, data.data.recovery_data_nonce, recoveryCode, data.data.recovery_sauce)
         );
 
@@ -747,7 +747,7 @@ function setPassword(username, recoveryCode, password, userPrivateKey, userSecre
         return data;
     };
 
-    var recovery_authkey = cryptoLibrary.generateAuthkey(username, recoveryCode);
+    const recovery_authkey = cryptoLibrary.generateAuthkey(username, recoveryCode);
 
     return apiClientService.setPassword(username, recovery_authkey, updateRequestEnc.text, updateRequestEnc.nonce).then(onSuccess, onError);
 }
@@ -796,7 +796,7 @@ function armEmergencyCode(username, emergencyCode, server, serverInfo, verifyKey
         const update_request_enc = cryptoLibrary.encryptDataPublicKey(loginInfo, data.data.verifier_public_key, emergency_data.user_private_key);
 
         const onSuccess = function (data) {
-            var loginInfo = JSON.parse(
+            const loginInfo = JSON.parse(
                 cryptoLibrary.decryptDataPublicKey(data.data.login_info, data.data.login_info_nonce, serverInfo["public_key"], sessionKey.private_key)
             );
 
@@ -856,7 +856,7 @@ function deleteSession(sessionId) {
     return apiClientService.logout(token, sessionSecretKey, sessionId).then(onSuccess, onError);
 }
 
-const service = {
+const userService = {
     initiateLogin,
     samlLogin,
     initiateSamlLogin,
@@ -885,4 +885,4 @@ const service = {
     deleteSession,
 };
 
-export default service;
+export default userService;

@@ -8,7 +8,7 @@ import { Check } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/core/styles";
 import action from "../../actions/bound-action-creators";
 import browserClientService from "../../services/browser-client";
-import LanguageSelectField from "../../containers/language-select-field";
+import SelectFieldLanguage from "../../components/select-field/language";
 import { languages } from "../../i18n";
 
 const useStyles = makeStyles((theme) => ({
@@ -49,7 +49,7 @@ const SettingsGeneralView = (props) => {
                 <Divider style={{ marginBottom: "20px" }} />
             </Grid>
             <Grid item xs={12} sm={12} md={12}>
-                <LanguageSelectField
+                <SelectFieldLanguage
                     className={classes.textField}
                     variant="outlined"
                     margin="dense"

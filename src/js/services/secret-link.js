@@ -133,7 +133,7 @@ function onSecretDeleted(linkId) {
     return deleteSecretLink(linkId);
 }
 
-const service = {
+const secretLinkService = {
     moveSecretLinks: moveSecretLinks,
     resetSecretLinkTimeout: resetSecretLinkTimeout,
     moveSecretLink: moveSecretLink,
@@ -141,4 +141,4 @@ const service = {
     onSecretMoved: onSecretMoved,
     onSecretDeleted: onSecretDeleted,
 };
-export default service;
+export default secretLinkService;

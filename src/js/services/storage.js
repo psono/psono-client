@@ -270,7 +270,7 @@ function emit(key, payload) {
     }
 }
 
-const service = {
+const storageService = {
     insert: insert,
     update: update,
     upsert: upsert,
@@ -285,4 +285,4 @@ const service = {
     register: register,
     emit: emit,
 };
-export default service;
+export default storageService;

@@ -2964,7 +2964,7 @@ const sendSecurityReport = function (token, sessionSecretKey, entries, check_hav
     return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
-const service = {
+const apiClientService = {
     info: info,
     login: login,
     samlInitiateLogin: samlInitiateLogin,
@@ -3070,4 +3070,4 @@ const service = {
     sendSecurityReport: sendSecurityReport,
 };
 
-export default service;
+export default apiClientService;

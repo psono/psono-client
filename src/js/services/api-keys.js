@@ -140,19 +140,19 @@ function createApiKey(title, restrictToSecrets, allowInsecureAccess, allowReadAc
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
 
-    var apiKeySecretKey = cryptoLibrary.generateSecretKey();
-    var api_key_public_private_key_pair = cryptoLibrary.generatePublicPrivateKeypair();
+    const apiKeySecretKey = cryptoLibrary.generateSecretKey();
+    const api_key_public_private_key_pair = cryptoLibrary.generatePublicPrivateKeypair();
 
-    var api_key_private_key_enc = cryptoLibrary.encryptSecretKey(api_key_public_private_key_pair.private_key);
-    var apiKeySecretKey_enc = cryptoLibrary.encryptSecretKey(apiKeySecretKey);
+    const api_key_private_key_enc = cryptoLibrary.encryptSecretKey(api_key_public_private_key_pair.private_key);
+    const apiKeySecretKey_enc = cryptoLibrary.encryptSecretKey(apiKeySecretKey);
 
-    var user_private_key_enc = cryptoLibrary.encryptData(store.getState().user.userPrivateKey, apiKeySecretKey);
-    var user_secret_key_enc = cryptoLibrary.encryptData(store.getState().user.userSecretKey, apiKeySecretKey);
+    const user_private_key_enc = cryptoLibrary.encryptData(store.getState().user.userPrivateKey, apiKeySecretKey);
+    const user_secret_key_enc = cryptoLibrary.encryptData(store.getState().user.userSecretKey, apiKeySecretKey);
 
-    var verify_key = cryptoLibrary.getVerifyKey(api_key_public_private_key_pair.private_key);
+    const verify_key = cryptoLibrary.getVerifyKey(api_key_public_private_key_pair.private_key);
 
     const onSuccess = function (result) {
-        var apiKeyId = result.data["api_key_id"];
+        const apiKeyId = result.data["api_key_id"];
         return addSecretsToApiKey(apiKeyId, apiKeySecretKey, secrets).then(function () {
             return {
                 api_key_id: apiKeyId,
@@ -266,7 +266,7 @@ function getServerParameter() {
     };
 }
 
-const service = {
+const apiKeysService = {
     readApiKey: readApiKey,
     readApiKeys: readApiKeys,
     readApiKeySecrets: readApiKeySecrets,
@@ -279,4 +279,4 @@ const service = {
     apiKeysDisabled: apiKeysDisabled,
     getServerParameter: getServerParameter,
 };
-export default service;
+export default apiKeysService;

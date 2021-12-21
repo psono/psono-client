@@ -116,6 +116,9 @@ const IndexView = (props) => {
                     <Route path="/active-link-shares">
                         <ActiveLinkShareView {...props} />
                     </Route>
+                    <Route path="/datastore/search/:defaultSearch">
+                        <DatastoreView {...props} />
+                    </Route>
                     <Route path="/">
                         <DatastoreView {...props} />
                     </Route>

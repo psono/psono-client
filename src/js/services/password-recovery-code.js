@@ -38,8 +38,8 @@ function recoveryGenerateInformation() {
     return apiClient.writeRecoverycode(token, sessionSecretKey, recoveryAuthkey, recovery_data.text, recovery_data.nonce, recoverySauce).then(onSuccess);
 }
 
-const service = {
+const passwordRecoveryCodeService = {
     recoveryGenerateInformation,
 };
 
-export default service;
+export default passwordRecoveryCodeService;

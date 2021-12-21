@@ -18,8 +18,8 @@ const INDEX_PASSWORD = 3;
  *
  * @returns {*} The secrets object
  */
-var transform_to_secret = function (line) {
-    var parsed_url = helperService.parseUrl(line[INDEX_URL]);
+function transformToSecret(line) {
+    const parsed_url = helperService.parseUrl(line[INDEX_URL]);
 
     return {
         id: cryptoLibrary.generateUuid(),
@@ -33,7 +33,7 @@ var transform_to_secret = function (line) {
         website_password_url: line[INDEX_URL],
         website_password_title: line[INDEX_NAME],
     };
-};
+}
 
 /**
  * Fills the datastore with their content, together with the secrets object
@@ -42,8 +42,8 @@ var transform_to_secret = function (line) {
  * @param {[]} secrets The array containing all the found secrets
  * @param {[]} csv The array containing all the found secrets
  */
-function gather_secrets(datastore, secrets, csv) {
-    var line;
+function gatherSecrets(datastore, secrets, csv) {
+    let line;
     for (let i = 0; i < csv.length; i++) {
         line = csv[i];
         if (i === 0) {
@@ -53,7 +53,7 @@ function gather_secrets(datastore, secrets, csv) {
             continue;
         }
 
-        var secret = transform_to_secret(line);
+        const secret = transformToSecret(line);
         if (secret === null) {
             //empty line
             continue;
@@ -69,8 +69,8 @@ function gather_secrets(datastore, secrets, csv) {
  * @param {string} data The raw data to parse
  * @returns {Array} The array of arrays representing the CSV
  */
-function parse_csv(data) {
-    var csv = Papa.parse(data);
+function parseCsv(data) {
+    const csv = Papa.parse(data);
 
     if (csv["errors"].length > 0) {
         throw new Error(csv["errors"][0]["message"]);
@@ -94,24 +94,25 @@ function parse_csv(data) {
  * @returns {{datastore, secrets: Array} | null}
  */
 function parser(data) {
-    var d = new Date();
-    var n = d.toISOString();
+    const d = new Date();
+    const n = d.toISOString();
 
-    var secrets = [];
-    var datastore = {
+    const secrets = [];
+    const datastore = {
         id: cryptoLibrary.generateUuid(),
         name: "Import " + n,
         folders: [],
         items: [],
     };
 
+    let csv;
     try {
-        var csv = parse_csv(data);
+        csv = parseCsv(data);
     } catch (err) {
         return null;
     }
 
-    gather_secrets(datastore, secrets, csv);
+    gatherSecrets(datastore, secrets, csv);
 
     return {
         datastore: datastore,
@@ -119,8 +120,8 @@ function parser(data) {
     };
 }
 
-const service = {
+const importChromeCsvService = {
     parser,
 };
 
-export default service;
+export default importChromeCsvService;

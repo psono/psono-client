@@ -565,6 +565,7 @@ function saveDatastoreContent(datastore, paths) {
         }
     }
 
+    const promises = [];
     for (let prop in closest_shares) {
         if (!closest_shares.hasOwnProperty(prop)) {
             continue;
@@ -574,7 +575,7 @@ function saveDatastoreContent(datastore, paths) {
         hideSubShareContent(duplicate);
 
         if (prop === "datastore") {
-            datastoreService.saveDatastoreContent(type, description, duplicate);
+            promises.push(datastoreService.saveDatastoreContent(type, description, duplicate));
         } else {
             const share_id = duplicate.share_id;
             const secret_key = duplicate.share_secret_key;
@@ -583,9 +584,11 @@ function saveDatastoreContent(datastore, paths) {
             delete duplicate.secret_key;
             delete duplicate.share_rights;
 
-            shareService.writeShare(share_id, duplicate, secret_key);
+            promises.push(shareService.writeShare(share_id, duplicate, secret_key));
         }
     }
+
+    return Promise.all(promises);
 }
 
 /**
@@ -1262,7 +1265,7 @@ function analyzeBreadcrumbs(breadcrumbs, datastore) {
     let parent_share_id;
     let parent_datastore_id;
 
-    if (typeof breadcrumbs.id_breadcrumbs !== "undefined") {
+    if (typeof breadcrumbs.id_breadcrumbs !== "undefined" && breadcrumbs.id_breadcrumbs.length > 0) {
         path = breadcrumbs.id_breadcrumbs.slice();
         const path_copy = breadcrumbs.id_breadcrumbs.slice();
         parent_path = breadcrumbs.id_breadcrumbs.slice();
@@ -1509,7 +1512,7 @@ function getAllOwnPgpKeys() {
             };
 
             for (let i = 0; i < own_pgp_secrets.length; i++) {
-                secretService.read_secret(own_pgp_secrets[i].secret_id, own_pgp_secrets[i].secret_key).then(onSuccess, onError);
+                secretService.readSecret(own_pgp_secrets[i].secret_id, own_pgp_secrets[i].secret_key).then(onSuccess, onError);
             }
         });
     });
@@ -1523,7 +1526,7 @@ function getAllOwnPgpKeys() {
 shareService.register("get_all_child_shares", getAllChildShares);
 settingsService.register("get_password_datastore", getPasswordDatastore);
 
-const service = {
+const datastorePasswordService = {
     generate: generate,
     getPasswordDatastore: getPasswordDatastore,
     getDatastoreWithId: getDatastoreWithId,
@@ -1553,4 +1556,4 @@ const service = {
     updatePathsRecursive: updatePathsRecursive,
 };
 
-export default service;
+export default datastorePasswordService;

@@ -15,7 +15,7 @@ describe('Service: importKeePassInfoCsv test suite', function () {
         cryptoLibrary.generateUuid = jest.fn();
         cryptoLibrary.generateUuid.mockImplementation(() => generic_uuid);
 
-        var input = "\"Account\",\"Login Name\",\"Password\",\"Web Site\",\"Comments\"\n" +
+        const input = "\"Account\",\"Login Name\",\"Password\",\"Web Site\",\"Comments\"\n" +
             "\"Sample Entry Title\",\"Greg\",\"ycXfARD2G1AOBzLlhtbn\",\"http://www.somepage.net\",\"Some notes...\"\n" +
             "\"Yet Another Sample Entry\",\"Michael\",\"qgyXFZ1iGgNqzg+eZter\",\"http://www.anotherpage.org\",\"More notes...\"\n" +
             "\"Entry To Test Special Characters\",\"!§$%&/()=?´`_#²³{[]}\\\\\",\"öäüÖÄÜß€@<>µ©®\",\"http://www.website.com\",\"The user name and password fields contain special characters.\"\n" +
@@ -28,9 +28,9 @@ describe('Service: importKeePassInfoCsv test suite', function () {
             "This is a multi-line comment.\"\n" +
         "";
 
-        var output = importKeePassInfoCsv.parser(input);
+        const output = importKeePassInfoCsv.parser(input);
 
-        var expected_output = {
+        const expected_output = {
             "datastore": {
                 "id": generic_uuid,
                 "name": output.datastore.name,

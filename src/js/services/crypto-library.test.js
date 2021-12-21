@@ -22,10 +22,10 @@ describe('Service: cryptoLibraryService test suite #2', function() {
 
     /*
     it("randomBytes doesn't return the the same in 1000 repetitions", function () {
-        var num, numbers, random_numbers;
+        let num, numbers, random_numbers;
         numbers = 1000;
         random_numbers = (function () {
-            var i, ref, results;
+            let i, ref, results;
             results = [];
             for (num = i = 1, ref = numbers; 1 <= ref ? i <= ref : i >= ref; num = 1 <= ref ? ++i : --i) {
                 results.push(cryptoLibraryService.randomBytes(32));

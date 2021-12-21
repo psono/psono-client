@@ -9,7 +9,7 @@ import MuiAlert from "@material-ui/lab/Alert";
 import Button from "@material-ui/core/Button";
 import { Grid } from "@material-ui/core";
 
-const VerifyDialog = (props) => {
+const DialogVerify = (props) => {
     const { open, onClose, onConfirm, entries, affectedEntriesText, title, description } = props;
     const { t } = useTranslation();
 
@@ -55,7 +55,7 @@ const VerifyDialog = (props) => {
     );
 };
 
-VerifyDialog.propTypes = {
+DialogVerify.propTypes = {
     title: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,
     affectedEntriesText: PropTypes.string,
@@ -65,4 +65,4 @@ VerifyDialog.propTypes = {
     open: PropTypes.bool.isRequired,
 };
 
-export default VerifyDialog;
+export default DialogVerify;

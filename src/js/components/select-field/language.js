@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/core/styles";
 
-import { languages } from "../i18n";
+import { languages } from "../../i18n";
 
 const useStyles = makeStyles((theme) => ({
     option: {
@@ -17,11 +17,9 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const LanguageSelectField = (props) => {
+const SelectFieldLanguage = (props) => {
     const classes = useStyles();
     const { t } = useTranslation();
-
-    //const lngs = fileRepository.getPossibleTypes();
 
     const lngs = [];
 
@@ -33,9 +31,9 @@ const LanguageSelectField = (props) => {
 
     const { fullWidth, variant, margin, helperText, error, required, onChange, value, className } = props;
 
-    let defaulValue = null;
+    let defaultValue = null;
     if (value && lngs && lngs.length) {
-        defaulValue = lngs.find(function (country) {
+        defaultValue = lngs.find(function (country) {
             return country.value === value;
         });
     }
@@ -65,7 +63,7 @@ const LanguageSelectField = (props) => {
                     return "";
                 }
             }}
-            value={defaulValue}
+            value={defaultValue}
             renderInput={(params) => (
                 <TextField
                     className={className}
@@ -87,11 +85,11 @@ const LanguageSelectField = (props) => {
     );
 };
 
-LanguageSelectField.defaultProps = {
+SelectFieldLanguage.defaultProps = {
     error: false,
 };
 
-LanguageSelectField.propTypes = {
+SelectFieldLanguage.propTypes = {
     value: PropTypes.string,
     fullWidth: PropTypes.bool,
     error: PropTypes.bool,
@@ -103,4 +101,4 @@ LanguageSelectField.propTypes = {
     className: PropTypes.string,
 };
 
-export default LanguageSelectField;
+export default SelectFieldLanguage;

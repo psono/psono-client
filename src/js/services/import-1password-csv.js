@@ -22,7 +22,7 @@ let INDEX_TYPE = 5;
  */
 function identifyRows(line) {
     for (let i = 0; i < line.length; i++) {
-        var column_description = line[i].toLowerCase();
+        const column_description = line[i].toLowerCase();
         if (column_description === "notes") {
             INDEX_NOTES = i;
         } else if(column_description === "password") {
@@ -55,7 +55,7 @@ function identifyRows(line) {
  * @returns {string} Returns the appropriate type (note or website_password)
  */
 function getType(line) {
-    var type = line[INDEX_TYPE].toLowerCase();
+    const type = line[INDEX_TYPE].toLowerCase();
     if (type === 'secure note') {
         return 'note'
     }
@@ -89,7 +89,7 @@ function getType(line) {
  */
 function transferIntoNote(line) {
 
-    var note_notes = '';
+    let note_notes = '';
     if (line[INDEX_USERNAME]) {
         note_notes = note_notes + line[INDEX_USERNAME] + "\n";
     }
@@ -125,7 +125,7 @@ function transferIntoNote(line) {
  */
 function transferIntoWebsitePassword(line) {
 
-    var parsed_url = helperService.parseUrl(line[INDEX_URL]);
+    const parsed_url = helperService.parseUrl(line[INDEX_URL]);
 
     return {
         id : cryptoLibrary.generateUuid(),
@@ -169,7 +169,7 @@ function transferIntoApplicationPassword(line) {
  * @returns {*} The secrets object
  */
 function transformToSecret(line) {
-    var type = getType(line);
+    const type = getType(line);
     if (type === 'note') {
         return transferIntoNote(line);
     } else if (type === 'website_password') {
@@ -189,7 +189,7 @@ function transformToSecret(line) {
  */
 function gather_secrets(datastore, secrets, csv) {
 
-    var line;
+    let line;
 
     for (let i = 0; i < csv.length; i++) {
         line = csv[i];
@@ -203,7 +203,7 @@ function gather_secrets(datastore, secrets, csv) {
             continue
         }
 
-        var secret = transformToSecret(line);
+        const secret = transformToSecret(line);
 
         if (secret === null) {
             //empty line
@@ -221,7 +221,7 @@ function gather_secrets(datastore, secrets, csv) {
  * @returns {Array} The array of arrays representing the CSV
  */
 function parse_csv(data) {
-    var csv = Papa.parse(data);
+    const csv = Papa.parse(data);
 
     if (csv['errors'].length > 0) {
         throw new Error(csv['errors'][0]['message']);
@@ -246,18 +246,19 @@ function parse_csv(data) {
  */
 function parser(data) {
 
-    var d = new Date();
-    var n = d.toISOString();
+    const d = new Date();
+    const n = d.toISOString();
 
-    var secrets = [];
-    var datastore = {
+    const secrets = [];
+    const datastore = {
         'id': cryptoLibrary.generateUuid(),
         'name': 'Import ' + n,
         'items': []
     };
 
+    let csv;
     try {
-        var csv = parse_csv(data);
+        csv = parse_csv(data);
     } catch(err) {
         return null;
     }
@@ -270,8 +271,8 @@ function parser(data) {
     }
 }
 
-const service = {
+const import1passwordCsvService = {
     parser,
 };
 
-export default service;
+export default import1passwordCsvService;

@@ -54,8 +54,8 @@ function range(hash_chars) {
 }
 
 
-const service = {
+const apiPwnedpasswordsService = {
     range: range
 };
 
-export default service;
+export default apiPwnedpasswordsService;

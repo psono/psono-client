@@ -13,7 +13,7 @@ describe('Service: importKeePassXOrgCsv test suite', function () {
         cryptoLibrary.generateUuid = jest.fn();
         cryptoLibrary.generateUuid.mockImplementation(() => generic_uuid);
 
-        var input = "\"Group\",\"Title\",\"Username\",\"Password\",\"URL\",\"Notes\"\n" +
+        const input = "\"Group\",\"Title\",\"Username\",\"Password\",\"URL\",\"Notes\"\n" +
             "\"Root\",\"home dir \",\"meldron\",\"xxxx\",\"\",\"xxx\"\n" +
             "\"Root\",\"CA\",\"\",\"xxx\"\"xxx\",\"\",\"\"\n" +
             "\"Root/Internet\",\"tunnelbroker\",\"xxx\",\"xxx\",\"tunnelbroker.net\",\"\"\n" +
@@ -36,9 +36,9 @@ describe('Service: importKeePassXOrgCsv test suite', function () {
             "\"Root/Company/ABC API\",\"MusicService_v1\",\"abctest\",\"5/a5F3asdas\",\"https://park.company-technologies.com/AWasdasdS/asdas\",\"SOAP\"\n" +
             "";
 
-        var output = importKeePassXOrgCsv.parser(input);
+        const output = importKeePassXOrgCsv.parser(input);
 
-        var expected_output = {
+        const expected_output = {
                 "datastore": {
                     "id": generic_uuid,
                     "name": output.datastore.name,

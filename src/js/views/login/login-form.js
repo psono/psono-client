@@ -357,6 +357,7 @@ const LoginViewForm = (props) => {
 
     const onNewConfigLoaded = (configJson) => {
         const serverUrl = configJson["backend_servers"][0]["url"];
+        const domain = configJson["backend_servers"][0]["domain"];
         const allowRegistration =
             !configJson.hasOwnProperty("allow_registration") || (configJson.hasOwnProperty("allow_registration") && configJson["allow_registration"]);
         const allowLostPassword =
@@ -375,7 +376,7 @@ const LoginViewForm = (props) => {
         setAllowLostPassword(allowLostPassword);
         setAllowRegistration(allowRegistration);
         setServer(serverUrl);
-        setDomain(helperService.getDomain(serverUrl));
+        setDomain(domain);
         setSamlProvider(samlProvider);
         setOidcProvider(oidcProvider);
         setAuthenticationMethods(authenticationMethods);

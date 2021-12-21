@@ -1,4 +1,12 @@
-import { LOGOUT, SET_CLIENT_URL, ENABLE_OFFLINE_MODE, DISABLE_OFFLINE_MODE, SET_NOTIFICATION_ON_COPY, SET_DISABLE_BROWSER_PM } from "../actions/action-types";
+import {
+    LOGOUT,
+    SET_CLIENT_URL,
+    ENABLE_OFFLINE_MODE,
+    DISABLE_OFFLINE_MODE,
+    SET_NOTIFICATION_ON_COPY,
+    SET_DISABLE_BROWSER_PM,
+    SET_HIDE_DOWNLOAD_BANNER,
+} from "../actions/action-types";
 
 const default_url = "";
 
@@ -8,6 +16,7 @@ function client(
         offlineMode: false,
         notificationOnCopy: true,
         disableBrowserPm: true,
+        hideDownloadBanner: false,
     },
     action
 ) {
@@ -35,6 +44,10 @@ function client(
         case SET_DISABLE_BROWSER_PM:
             return Object.assign({}, state, {
                 disableBrowserPm: action.disableBrowserPm,
+            });
+        case SET_HIDE_DOWNLOAD_BANNER:
+            return Object.assign({}, state, {
+                hideDownloadBanner: action.hideDownloadBanner,
             });
         default:
             return state;

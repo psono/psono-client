@@ -64,7 +64,7 @@ function push(notificationType, notificationContent) {
     }
 }
 
-const service = {
+const notificationService = {
     infoSend,
     errorSend,
     reset,
@@ -72,4 +72,4 @@ const service = {
     push,
 };
 
-export default service;
+export default notificationService;

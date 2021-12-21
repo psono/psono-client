@@ -25,6 +25,10 @@ const useStyles = makeStyles((theme) => ({
     textField: {
         width: "100%",
     },
+    code: {
+        fontFamily: "'Fira Code', monospace",
+        textAlign: "center",
+    },
 }));
 
 const EmergencyCodesDialog = (props) => {
@@ -207,25 +211,25 @@ const EmergencyCodesDialog = (props) => {
                         <Grid item xs={12} sm={12} md={12}>
                             <strong>{t("URL")}</strong>
                         </Grid>
-                        <Grid item xs={12} sm={12} md={12} className="text-center monospace">
+                        <Grid item xs={12} sm={12} md={12} className={classes.code}>
                             <p>{newEmergencyCode.url}</p>
                         </Grid>
                         <Grid item xs={12} sm={12} md={12}>
                             <strong>{t("USERNAME")}</strong>
                         </Grid>
-                        <Grid item xs={12} sm={12} md={12} className="text-center monospace">
+                        <Grid item xs={12} sm={12} md={12} className={classes.code}>
                             <p>{newEmergencyCode.username}</p>
                         </Grid>
                         <Grid item xs={12} sm={12} md={12}>
                             <strong>{t("CODE")}</strong>
                         </Grid>
-                        <Grid item xs={12} sm={12} md={12} className="text-center monospace">
+                        <Grid item xs={12} sm={12} md={12} className={classes.code}>
                             <p>{newEmergencyCode.emergency_password}</p>
                         </Grid>
                         <Grid item xs={12} sm={12} md={12}>
                             <strong>{t("OR")}</strong>
                         </Grid>
-                        <Grid item xs={12} sm={12} md={12} className="text-center monospace">
+                        <Grid item xs={12} sm={12} md={12} className={classes.code}>
                             <p>{newEmergencyCode.emergency_words}</p>
                         </Grid>
                         <Grid item xs={12} sm={12} md={12}>

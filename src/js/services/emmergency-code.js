@@ -83,10 +83,10 @@ function deleteEmergencyCode(emergencyCodeId) {
     return apiClient.deleteEmergencyCode(token, sessionSecretKey, emergencyCodeId).then(onSuccess, onError);
 }
 
-const service = {
+const emergencyCodeService = {
     readEmergencyCodes,
     createEmergencyCode,
     deleteEmergencyCode,
 };
 
-export default service;
+export default emergencyCodeService;

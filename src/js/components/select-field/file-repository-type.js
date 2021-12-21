@@ -3,7 +3,7 @@ import TextField from "@material-ui/core/TextField";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import { useTranslation } from "react-i18next";
 import PropTypes from "prop-types";
-import fileRepository from "../services/file-repository";
+import fileRepository from "../../services/file-repository";
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const FileRepositoryTypeSelectField = (props) => {
+const SelectFieldFileRepositoryType = (props) => {
     const classes = useStyles();
     const { t } = useTranslation();
 
@@ -78,11 +78,11 @@ const FileRepositoryTypeSelectField = (props) => {
     );
 };
 
-FileRepositoryTypeSelectField.defaultProps = {
+SelectFieldFileRepositoryType.defaultProps = {
     error: false,
 };
 
-FileRepositoryTypeSelectField.propTypes = {
+SelectFieldFileRepositoryType.propTypes = {
     value: PropTypes.string,
     fullWidth: PropTypes.bool,
     error: PropTypes.bool,
@@ -94,4 +94,4 @@ FileRepositoryTypeSelectField.propTypes = {
     className: PropTypes.string,
 };
 
-export default FileRepositoryTypeSelectField;
+export default SelectFieldFileRepositoryType;

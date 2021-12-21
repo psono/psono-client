@@ -41,8 +41,8 @@ function saveSettingsDatastore(content) {
     return datastore.saveDatastoreContent(type, description, content);
 }
 
-const service = {
+const datastoreSettingService = {
     getSettingsDatastore: getSettingsDatastore,
     saveSettingsDatastore: saveSettingsDatastore,
 };
-export default service;
+export default datastoreSettingService;
