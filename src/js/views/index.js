@@ -18,6 +18,8 @@ import TrustedUsersView from "./trusted-users";
 import GroupsView from "./groups";
 import ActiveLinkShareView from "./active-link-shares";
 import statusService from "../services/status";
+import SecurityReportView from "./security-report";
+import LinkShareAccessView from "./link-share-access";
 
 const IndexView = (props) => {
     const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
@@ -60,7 +62,14 @@ const IndexView = (props) => {
     } else if (pathname.endsWith("/emergency-code.html")) {
         return <EmergencyCodeView {...props} />;
     } else if (pathname.endsWith("/enforce-two-fa.html")) {
-    } else if (pathname.endsWith("/link-share.html")) {
+    } else if (pathname.endsWith("/link-share-access.html")) {
+        return (
+            <Switch>
+                <Route path="/link-share-access/:linkShareId/:linkShareSecret/:backendServerUrl">
+                    <LinkShareAccessView {...props} />
+                </Route>
+            </Switch>
+        );
     } else if (pathname.endsWith("/lost-password.html")) {
         return <LostPasswordView {...props} />;
     } else if (pathname.endsWith("/open-secret.html")) {
@@ -115,6 +124,9 @@ const IndexView = (props) => {
                     </Route>
                     <Route path="/active-link-shares">
                         <ActiveLinkShareView {...props} />
+                    </Route>
+                    <Route path="/security-report">
+                        <SecurityReportView {...props} />
                     </Route>
                     <Route path="/datastore/search/:defaultSearch">
                         <DatastoreView {...props} />

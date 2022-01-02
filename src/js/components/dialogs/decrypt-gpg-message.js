@@ -140,7 +140,7 @@ const DialogDecryptGpgMessage = (props) => {
                                 autoComplete="decryptedMessage"
                                 value={decryptedMessage}
                                 multiline
-                                readonly
+                                disabled
                                 minRows={3}
                             />
                         </Grid>
@@ -149,10 +149,12 @@ const DialogDecryptGpgMessage = (props) => {
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>{t("CLOSE")}</Button>
-                <Button onClick={decrypt} variant="contained" color="primary" disabled={!encryptedMessage || decrypting}>
-                    <span style={!decrypting ? {} : { display: "none" }}>{t("DECRYPT")}</span>
-                    <BarLoader color={"#FFF"} height={17} width={37} loading={decrypting} />
-                </Button>
+                {!decryptingComplete && (
+                    <Button onClick={decrypt} variant="contained" color="primary" disabled={!encryptedMessage || decrypting}>
+                        <span style={!decrypting ? {} : { display: "none" }}>{t("DECRYPT")}</span>
+                        <BarLoader color={"#FFF"} height={17} width={37} loading={decrypting} />
+                    </Button>
+                )}
             </DialogActions>
         </Dialog>
     );

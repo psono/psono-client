@@ -1,7 +1,4 @@
 import React from "react";
-import { bindActionCreators } from "redux";
-import { connect } from "react-redux";
-import actionCreators from "../../actions/action-creators";
 import EmergencyCodeViewForm from "./emergency-code-form";
 import { useParams } from "react-router-dom";
 
@@ -18,10 +15,4 @@ const EmergencyCodeView = (props) => {
     );
 };
 
-function mapStateToProps(state) {
-    return { state: state };
-}
-function mapDispatchToProps(dispatch) {
-    return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-export default connect(mapStateToProps, mapDispatchToProps)(EmergencyCodeView);
+export default EmergencyCodeView;

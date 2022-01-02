@@ -23,6 +23,9 @@ const useStyles = makeStyles((theme) => ({
             width: "440px",
         },
     },
+    passwordField: {
+        fontFamily: "'Fira Code', monospace",
+    },
 }));
 
 const AccountOverviewView = (props) => {
@@ -74,8 +77,11 @@ const AccountOverviewView = (props) => {
                     name="userId"
                     autoComplete="userId"
                     value={store.getState().user.userId}
+                    readOnly
                     InputProps={{
-                        readOnly: true,
+                        classes: {
+                            input: classes.passwordField,
+                        },
                     }}
                 />
             </Grid>
@@ -89,8 +95,11 @@ const AccountOverviewView = (props) => {
                     name="username"
                     autoComplete="username"
                     value={store.getState().user.username}
+                    readOnly
                     InputProps={{
-                        readOnly: true,
+                        classes: {
+                            input: classes.passwordField,
+                        },
                     }}
                 />
             </Grid>
@@ -104,8 +113,11 @@ const AccountOverviewView = (props) => {
                     name="userEmail"
                     autoComplete="userEmail"
                     value={store.getState().user.userEmail}
+                    readOnly
                     InputProps={{
-                        readOnly: true,
+                        classes: {
+                            input: classes.passwordField,
+                        },
                     }}
                 />
             </Grid>
@@ -119,8 +131,11 @@ const AccountOverviewView = (props) => {
                     name="userPublicKey"
                     autoComplete="userPublicKey"
                     value={store.getState().user.userPublicKey}
+                    readOnly
                     InputProps={{
-                        readOnly: true,
+                        classes: {
+                            input: classes.passwordField,
+                        },
                     }}
                 />
             </Grid>
@@ -142,8 +157,11 @@ const AccountOverviewView = (props) => {
                     name="api"
                     autoComplete="api"
                     value={store.getState().server.api}
+                    readOnly
                     InputProps={{
-                        readOnly: true,
+                        classes: {
+                            input: classes.passwordField,
+                        },
                     }}
                 />
             </Grid>
@@ -157,8 +175,11 @@ const AccountOverviewView = (props) => {
                     name="version"
                     autoComplete="version"
                     value={store.getState().server.version}
+                    readOnly
                     InputProps={{
-                        readOnly: true,
+                        classes: {
+                            input: classes.passwordField,
+                        },
                     }}
                 />
             </Grid>
@@ -172,8 +193,11 @@ const AccountOverviewView = (props) => {
                     name="verifyKey"
                     autoComplete="verifyKey"
                     value={store.getState().server.verifyKey}
+                    readOnly
                     InputProps={{
-                        readOnly: true,
+                        classes: {
+                            input: classes.passwordField,
+                        },
                     }}
                 />
             </Grid>
@@ -187,8 +211,11 @@ const AccountOverviewView = (props) => {
                     name="logAudit"
                     autoComplete="logAudit"
                     value={store.getState().server.logAudit}
+                    readOnly
                     InputProps={{
-                        readOnly: true,
+                        classes: {
+                            input: classes.passwordField,
+                        },
                     }}
                 />
             </Grid>
@@ -202,8 +229,11 @@ const AccountOverviewView = (props) => {
                     name="publicKey"
                     autoComplete="publicKey"
                     value={store.getState().server.publicKey}
+                    readOnly
                     InputProps={{
-                        readOnly: true,
+                        classes: {
+                            input: classes.passwordField,
+                        },
                     }}
                 />
             </Grid>
@@ -217,8 +247,11 @@ const AccountOverviewView = (props) => {
                     name="type"
                     autoComplete="type"
                     value={store.getState().server.type}
+                    readOnly
                     InputProps={{
-                        readOnly: true,
+                        classes: {
+                            input: classes.passwordField,
+                        },
                     }}
                 />
             </Grid>
@@ -232,8 +265,11 @@ const AccountOverviewView = (props) => {
                     name="licenseMaxUsers"
                     autoComplete="licenseMaxUsers"
                     value={store.getState().server.licenseMaxUsers}
+                    readOnly
                     InputProps={{
-                        readOnly: true,
+                        classes: {
+                            input: classes.passwordField,
+                        },
                     }}
                 />
             </Grid>
@@ -247,8 +283,11 @@ const AccountOverviewView = (props) => {
                     name="licenseValidFrom"
                     autoComplete="licenseValidFrom"
                     value={store.getState().server.licenseValidFrom ? new Date(store.getState().server.licenseValidFrom * 1000) : "N/A"}
+                    readOnly
                     InputProps={{
-                        readOnly: true,
+                        classes: {
+                            input: classes.passwordField,
+                        },
                     }}
                 />
             </Grid>
@@ -262,8 +301,11 @@ const AccountOverviewView = (props) => {
                     name="licenseValidTill"
                     autoComplete="licenseValidTill"
                     value={store.getState().server.licenseValidTill ? new Date(store.getState().server.licenseValidTill * 1000) : "N/A"}
+                    readOnly
                     InputProps={{
-                        readOnly: true,
+                        classes: {
+                            input: classes.passwordField,
+                        },
                     }}
                 />
             </Grid>

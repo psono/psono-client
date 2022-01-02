@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Grid, Checkbox } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 import { withStyles } from "@material-ui/styles";
 import TextField from "@material-ui/core/TextField";
 import InputAdornment from "@material-ui/core/InputAdornment";
@@ -7,7 +7,6 @@ import ThumbUpIcon from "@material-ui/icons/ThumbUp";
 import MuiAlert from "@material-ui/lab/Alert";
 import { useTranslation } from "react-i18next";
 import Button from "@material-ui/core/Button";
-import { BarLoader } from "react-spinners";
 import browserClient from "../../services/browser-client";
 import helperService from "../../services/helper";
 import user from "../../services/user";

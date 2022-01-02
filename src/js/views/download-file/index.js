@@ -63,26 +63,12 @@ const DownloadFileView = (props) => {
         fileTransferService.downloadFileByStorageId(id).then(onSuccess, onError);
     }, []);
 
-    // React.useEffect(() => {
-    //     const timer = setInterval(() => {
-    //         setPercentage((prevProgress) => (prevProgress >= 100 ? 10 : prevProgress + 10));
-    //     }, 800);
-    //     return () => {
-    //         clearInterval(timer);
-    //     };
-    // }, []);
-
     return (
         <div className={"progress-box " + classes.textCenter}>
             <img src="img/logo.png" alt="Psono Web Client" id="logo" />
             <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
                 <i className="fa fa-info-circle" aria-hidden="true" />
             </a>
-
-            {/*<uib-progressbar max="state.open_requests" value="state.closed_request" style={{"marginTop": "15px"}}*/}
-            {/*                 ng-if="state.processing">*/}
-            {/*    <span style={{"color": "white", "whiteSpace": "nowrap"}}>{percent} %</span>*/}
-            {/*</uib-progressbar>*/}
 
             {processing && (
                 <Box display="flex" alignItems="center">

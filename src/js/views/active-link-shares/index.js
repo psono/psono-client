@@ -51,7 +51,6 @@ const ActiveLinkShareView = (props) => {
                     return [linkShare.id, linkShare.public_title, linkShare.valid_till ? format(new Date(linkShare.valid_till)) : "", linkShare.allowed_reads];
                 })
             );
-            console.log(newLinkShares);
             setLinkShares(newLinkShares);
         };
         const onError = function (data) {

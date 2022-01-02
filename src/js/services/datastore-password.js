@@ -516,25 +516,39 @@ function handleDatastoreContentChanged(datastore) {
     triggerRegistration("save_datastore_content", datastore_copy);
 
     // datastore has changed, so lets regenerate local lookup
-    datastoreService.fillStorage("datastore-password-leafs", datastore, [
-        ["key", "secret_id"],
-        ["secret_id", "secret_id"],
-        ["value", "secret_key"],
-        ["name", "name"],
-        ["urlfilter", "urlfilter"],
-        ["autosubmit", "autosubmit"],
-        ["search", "urlfilter"],
-    ]);
+    datastoreService.fillStorage(
+        "datastore-password-leafs",
+        datastore,
+        [
+            ["key", "secret_id"],
+            ["secret_id", "secret_id"],
+            ["value", "secret_key"],
+            ["name", "name"],
+            ["urlfilter", "urlfilter"],
+            ["autosubmit", "autosubmit"],
+            ["search", "urlfilter"],
+        ],
+        function (item) {
+            return !item.type || item.type !== "file";
+        }
+    );
 
-    datastoreService.fillStorage("datastore-file-leafs", datastore, [
-        ["key", "id"],
-        ["file_id", "file_id"],
-        ["file_shard_id", "file_shard_id"],
-        ["file_size", "file_size"],
-        ["file_secret_key", "file_secret_key"],
-        ["file_chunks", "file_chunks"],
-        ["file_title", "file_title"],
-    ]);
+    datastoreService.fillStorage(
+        "datastore-file-leafs",
+        datastore,
+        [
+            ["key", "id"],
+            ["file_id", "file_id"],
+            ["file_shard_id", "file_shard_id"],
+            ["file_size", "file_size"],
+            ["file_secret_key", "file_secret_key"],
+            ["file_chunks", "file_chunks"],
+            ["file_title", "file_title"],
+        ],
+        function (item) {
+            return item.type && item.type === "file";
+        }
+    );
 }
 
 /**

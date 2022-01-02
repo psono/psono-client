@@ -6,6 +6,7 @@ import store from "./store";
 import apiClient from "./api-client";
 import cryptoLibrary from "./crypto-library";
 import fileTransfer from "./file-transfer";
+import helper from "./helper";
 
 // /**
 //  * Returns one link share of this user
@@ -53,42 +54,53 @@ function readLinkShares() {
 }
 
 /**
- * Takes an ecrypted secret and the share link data object. Decrypt ths encrypted secret and displays the information.
+ * Takes an ecrypted secret and the share link data object. Decrypt ths encrypted secret and returns int.
  *
  * @param {object} encryptedSecret The encrypted secret
- * @param {object} shareLinkData The decrypted share link data object
+ * @param {object} item The decrypted share link data object
  *
- * @returns {Promise} Promise with the secret
+ * @returns {Object} Promise with the secret
  */
-function readSecretWithLinkShare(encryptedSecret, shareLinkData) {
+function readSecretWithLinkShare(encryptedSecret, item) {
     // normal secret
-    const secret_data = JSON.parse(cryptoLibrary.decrypt_data(encryptedSecret.secret_data, encryptedSecret.secret_data_nonce, shareLinkData.secret_key));
+    const data = JSON.parse(cryptoLibrary.decryptData(encryptedSecret.secret_data, encryptedSecret.secret_data_nonce, item.secret_key));
 
-    const modalInstance = $uibModal.open({
-        templateUrl: "view/modal/show-entry.html",
-        controller: "ModalEditEntryCtrl",
-        backdrop: "static",
-        resolve: {
-            node: function () {
-                return shareLinkData;
-            },
-            path: function () {
-                return "";
-            },
-            data: function () {
-                return secret_data;
-            },
-        },
-    });
-
-    modalInstance.result.then(
-        function () {
-            // should never happen
-        },
-        function () {
-            // cancel triggered
-        }
-    );
+    const newItem = helper.duplicateObject(item);
+    newItem["share_rights"] = {
+        read: true,
+        write: false,
+        grant: false,
+        delete: false,
+    };
+    return {
+        item: newItem,
+        data: data,
+    };
+    // const modalInstance = $uibModal.open({
+    //     templateUrl: "view/modal/show-entry.html",
+    //     controller: "ModalEditEntryCtrl",
+    //     backdrop: "static",
+    //     resolve: {
+    //         node: function () {
+    //             return item;
+    //         },
+    //         path: function () {
+    //             return "";
+    //         },
+    //         data: function () {
+    //             return secretData;
+    //         },
+    //     },
+    // });
+    //
+    // modalInstance.result.then(
+    //     function () {
+    //         // should never happen
+    //     },
+    //     function () {
+    //         // cancel triggered
+    //     }
+    // );
 }
 
 /**
@@ -114,7 +126,7 @@ function readFileWithLinkShare(encryptedFileMeta, shareLinkData) {
  */
 function linkShareAccess(linkShareId, linkShareSecret, passphrase) {
     const onSuccess = function (result) {
-        const share_link_data = JSON.parse(cryptoLibrary.decrypt_data(result.data.node, result.data.node_nonce, linkShareSecret));
+        const share_link_data = JSON.parse(cryptoLibrary.decryptData(result.data.node, result.data.node_nonce, linkShareSecret));
 
         if (share_link_data.type === "file") {
             return readFileWithLinkShare(result.data, share_link_data);

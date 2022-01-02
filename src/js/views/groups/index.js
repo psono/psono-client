@@ -54,7 +54,6 @@ const GroupsView = (props) => {
             if (!isSubscribed) {
                 return;
             }
-            console.log(newGroups);
             setGroups(
                 newGroups.map((group, index) => {
                     return [

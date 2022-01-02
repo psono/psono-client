@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import Button from "@material-ui/core/Button";
@@ -38,9 +38,17 @@ const DatastoreTreeFolder = (props) => {
     const { t } = useTranslation();
     const { content, offline, isExpandedDefault, nodePath } = props;
     const classes = useStyles();
-    const [isExpanded, setIsExpanded] = React.useState(isExpandedDefault);
-    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [isExpanded, setIsExpanded] = useState(isExpandedDefault);
+    const [contextMenuPosition, setContextMenuPosition] = useState({
+        mouseX: null,
+        mouseY: null,
+    });
+    const [anchorEl, setAnchorEl] = useState(null);
     const isSelectable = props.isSelectable ? props.isSelectable(content) : true;
+
+    React.useEffect(() => {
+        setIsExpanded(isExpandedDefault);
+    }, [isExpandedDefault]);
 
     const openMenu = (event) => {
         event.preventDefault();
@@ -52,33 +60,12 @@ const DatastoreTreeFolder = (props) => {
         event.preventDefault();
         event.stopPropagation();
         setAnchorEl(null);
+        onContextMenuClose();
     };
 
     const onRightsOverview = (event) => {
         handleClose(event);
-        if (content.hasOwnProperty("share_rights") && content.share_rights.grant === false) {
-            return;
-        }
-
-        registrations["read_share_rights"](content.share_id).then(function (share_details) {
-            const modalInstance = $uibModal.open({
-                templateUrl: "view/modal/display-share-rights.html",
-                controller: "ModalDisplayShareRightsCtrl",
-                backdrop: "static",
-                size: "lg",
-                resolve: {
-                    node: function () {
-                        return item;
-                    },
-                    path: function () {
-                        return path;
-                    },
-                    share_details: function () {
-                        return share_details;
-                    },
-                },
-            });
-        });
+        props.onRightsOverview(content, content.path, props.nodePath);
     };
 
     const onEdit = (event) => {
@@ -88,7 +75,9 @@ const DatastoreTreeFolder = (props) => {
 
     const onNewFolder = (event) => {
         handleClose(event);
-        props.onNewFolder(content, content.path);
+        if (props.onNewFolder) {
+            props.onNewFolder(content, content.path);
+        }
     };
 
     const onNewShare = (event) => {
@@ -106,9 +95,14 @@ const DatastoreTreeFolder = (props) => {
         props.onNewUser(content, content.path);
     };
 
-    const onMove = (event) => {
+    const onMoveFolder = (event) => {
         handleClose(event);
-        // TODO moveNode
+        props.onMoveFolder(content, content.path);
+    };
+
+    const onDelete = (event) => {
+        handleClose(event);
+        props.onDeleteFolder(content, content.path);
     };
 
     const selectNode = (event) => {
@@ -118,28 +112,41 @@ const DatastoreTreeFolder = (props) => {
             props.onSelectNode(content, content.path, nodePath);
         }
     };
-    React.useEffect(() => {
-        setIsExpanded(isExpandedDefault);
-    }, [isExpandedDefault]);
-
     const hideShare = offline || (content.hasOwnProperty("share_rights") && content.share_rights.grant === false) || !props.onNewShare;
     const hideRightsOverview =
         offline ||
-        (content.hasOwnProperty("share_rights") && content.share_rights.grant === false) ||
+        //(content.hasOwnProperty("share_rights") && content.share_rights.grant === false) ||
         !content.hasOwnProperty("share_id") ||
-        typeof content.share_id === "undefined";
+        typeof content.share_id === "undefined" ||
+        !props.onRightsOverview;
     const hideEdit = offline || (content.hasOwnProperty("share_rights") && content.share_rights.write === false) || !props.onEditFolder;
     const hideNewFolder = offline || (content.hasOwnProperty("share_rights") && content.share_rights.write === false) || !props.onNewFolder;
     const hideNewEntry = offline || (content.hasOwnProperty("share_rights") && content.share_rights.write === false) || !props.onNewEntry;
     const hideNewUser = offline || (content.hasOwnProperty("share_rights") && content.share_rights.write === false) || !props.onNewUser;
-    const hideMove = offline || (content.hasOwnProperty("share_rights") && content.share_rights.delete === false);
-    const hideDelete = offline || (content.hasOwnProperty("share_rights") && content.share_rights.delete === false);
+    const hideMove = offline || (content.hasOwnProperty("share_rights") && content.share_rights.delete === false) || !props.onMoveFolder;
+    const hideDelete = offline || (content.hasOwnProperty("share_rights") && content.share_rights.delete === false) || !props.onDeleteFolder;
     const disableMenu = hideShare && hideRightsOverview && hideEdit && hideNewFolder && hideNewEntry && hideNewUser && hideMove && hideDelete;
+
+    const onContextMenu = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setContextMenuPosition({
+            mouseX: event.clientX - 2,
+            mouseY: event.clientY - 4,
+        });
+    };
+
+    const onContextMenuClose = () => {
+        setContextMenuPosition({
+            mouseX: null,
+            mouseY: null,
+        });
+    };
 
     return (
         <div className={"tree-folder"}>
             <div className={"tree-folder-title"}>
-                <div className={"tree-folder-header" + (isSelectable ? "" : " notSelectable")} onClick={selectNode}>
+                <div className={"tree-folder-header" + (isSelectable ? "" : " notSelectable")} onClick={selectNode} onContextMenu={onContextMenu}>
                     <span className="fa-stack">
                         {isExpanded && <i className="fa fa-folder-open" />}
                         {!isExpanded && <i className="fa fa-folder" />}
@@ -215,7 +222,7 @@ const DatastoreTreeFolder = (props) => {
                             </MenuItem>
                         )}
                         {!hideMove && (
-                            <MenuItem onClick={onMove}>
+                            <MenuItem onClick={onMoveFolder}>
                                 <ListItemIcon className={classes.listItemIcon}>
                                     <OpenWithIcon className={classes.icon} fontSize="small" />
                                 </ListItemIcon>
@@ -226,7 +233,7 @@ const DatastoreTreeFolder = (props) => {
                         )}
                         {!hideDelete && <Divider className={classes.divider} />}
                         {!hideDelete && (
-                            <MenuItem onClick={onMove}>
+                            <MenuItem onClick={onDelete}>
                                 <ListItemIcon className={classes.listItemIcon}>
                                     <DeleteIcon className={classes.icon} fontSize="small" />
                                 </ListItemIcon>
@@ -253,11 +260,18 @@ const DatastoreTreeFolder = (props) => {
                                         onSelectNode={props.onSelectNode}
                                         onEditFolder={props.onEditFolder}
                                         onEditEntry={props.onEditEntry}
+                                        onCloneEntry={props.onCloneEntry}
+                                        onDeleteEntry={props.onDeleteEntry}
+                                        onMoveEntry={props.onMoveEntry}
+                                        onDeleteFolder={props.onDeleteFolder}
+                                        onMoveFolder={props.onMoveFolder}
                                         onLinkItem={props.onLinkItem}
                                         onNewFolder={props.onNewFolder}
                                         onNewUser={props.onNewUser}
                                         onNewEntry={props.onNewEntry}
                                         onNewShare={props.onNewShare}
+                                        onLinkShare={props.onLinkShare}
+                                        onRightsOverview={props.onRightsOverview}
                                         key={i}
                                         nodePath={nodePathClone}
                                         content={content}
@@ -277,8 +291,13 @@ const DatastoreTreeFolder = (props) => {
                                         isSelectable={props.isSelectable}
                                         onSelectItem={props.onSelectItem}
                                         onEditEntry={props.onEditEntry}
+                                        onCloneEntry={props.onCloneEntry}
+                                        onDeleteEntry={props.onDeleteEntry}
+                                        onMoveEntry={props.onMoveEntry}
                                         onLinkItem={props.onLinkItem}
                                         onNewShare={props.onNewShare}
+                                        onLinkShare={props.onLinkShare}
+                                        onRightsOverview={props.onRightsOverview}
                                         key={i}
                                         nodePath={nodePathClone}
                                         content={content}
@@ -288,6 +307,100 @@ const DatastoreTreeFolder = (props) => {
                             })}
                 </div>
             )}
+            <Menu
+                keepMounted
+                open={contextMenuPosition.mouseY !== null}
+                onClose={onContextMenuClose}
+                anchorReference="anchorPosition"
+                anchorPosition={
+                    contextMenuPosition.mouseY !== null && contextMenuPosition.mouseX !== null
+                        ? { top: contextMenuPosition.mouseY, left: contextMenuPosition.mouseX }
+                        : undefined
+                }
+            >
+                {!hideShare && onNewShare && (
+                    <MenuItem onClick={onNewShare}>
+                        <ListItemIcon className={classes.listItemIcon}>
+                            <ShareIcon className={classes.icon} fontSize="small" />
+                        </ListItemIcon>
+                        <Typography variant="body2" noWrap>
+                            {t("SHARE")}
+                        </Typography>
+                    </MenuItem>
+                )}
+                {!hideRightsOverview && (
+                    <MenuItem onClick={onRightsOverview}>
+                        <ListItemIcon className={classes.listItemIcon}>
+                            <ListIcon className={classes.icon} fontSize="small" />
+                        </ListItemIcon>
+                        <Typography variant="body2" noWrap>
+                            {t("RIGHTS_OVERVIEW")}
+                        </Typography>
+                    </MenuItem>
+                )}
+                {(!hideShare || !hideRightsOverview) && <Divider className={classes.divider} />}
+                {!hideEdit && (
+                    <MenuItem onClick={onEdit}>
+                        <ListItemIcon className={classes.listItemIcon}>
+                            <EditIcon className={classes.icon} fontSize="small" />
+                        </ListItemIcon>
+                        <Typography variant="body2" noWrap>
+                            {t("EDIT")}
+                        </Typography>
+                    </MenuItem>
+                )}
+                {!hideNewFolder && (
+                    <MenuItem onClick={onNewFolder}>
+                        <ListItemIcon className={classes.listItemIcon}>
+                            <CreateNewFolderIcon className={classes.icon} fontSize="small" />
+                        </ListItemIcon>
+                        <Typography variant="body2" noWrap>
+                            {t("NEW_FOLDER")}
+                        </Typography>
+                    </MenuItem>
+                )}
+                {!hideNewEntry && (
+                    <MenuItem onClick={onNewEntry}>
+                        <ListItemIcon className={classes.listItemIcon}>
+                            <AddIcon className={classes.icon} fontSize="small" />
+                        </ListItemIcon>
+                        <Typography variant="body2" noWrap>
+                            {t("NEW_ENTRY")}
+                        </Typography>
+                    </MenuItem>
+                )}
+                {!hideNewUser && (
+                    <MenuItem onClick={onNewUser}>
+                        <ListItemIcon className={classes.listItemIcon}>
+                            <PersonAddIcon className={classes.icon} fontSize="small" />
+                        </ListItemIcon>
+                        <Typography variant="body2" noWrap>
+                            {t("NEW_USER")}
+                        </Typography>
+                    </MenuItem>
+                )}
+                {!hideMove && (
+                    <MenuItem onClick={onMoveFolder}>
+                        <ListItemIcon className={classes.listItemIcon}>
+                            <OpenWithIcon className={classes.icon} fontSize="small" />
+                        </ListItemIcon>
+                        <Typography variant="body2" noWrap>
+                            {t("MOVE")}
+                        </Typography>
+                    </MenuItem>
+                )}
+                {!hideDelete && <Divider className={classes.divider} />}
+                {!hideDelete && (
+                    <MenuItem onClick={onDelete}>
+                        <ListItemIcon className={classes.listItemIcon}>
+                            <DeleteIcon className={classes.icon} fontSize="small" />
+                        </ListItemIcon>
+                        <Typography variant="body2" noWrap>
+                            {t("DELETE")}
+                        </Typography>
+                    </MenuItem>
+                )}
+            </Menu>
         </div>
     );
 };
@@ -298,11 +411,18 @@ DatastoreTreeFolder.propTypes = {
     content: PropTypes.object,
     nodePath: PropTypes.array.isRequired,
     offline: PropTypes.bool.isRequired,
-    onNewFolder: PropTypes.func.isRequired,
+    onNewFolder: PropTypes.func,
     onNewShare: PropTypes.func,
+    onLinkShare: PropTypes.func,
+    onRightsOverview: PropTypes.func,
     onNewUser: PropTypes.func,
     onNewEntry: PropTypes.func,
     onEditEntry: PropTypes.func,
+    onCloneEntry: PropTypes.func,
+    onDeleteEntry: PropTypes.func,
+    onMoveEntry: PropTypes.func,
+    onDeleteFolder: PropTypes.func,
+    onMoveFolder: PropTypes.func,
     onLinkItem: PropTypes.func,
     onEditFolder: PropTypes.func,
     onSelectNode: PropTypes.func,

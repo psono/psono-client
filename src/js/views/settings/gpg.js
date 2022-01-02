@@ -4,9 +4,11 @@ import { makeStyles } from "@material-ui/core/styles";
 import { useSelector } from "react-redux";
 import Divider from "@material-ui/core/Divider";
 import TextField from "@material-ui/core/TextField";
-import { Grid } from "@material-ui/core";
+import { Checkbox, Grid } from "@material-ui/core";
+import { Check } from "@material-ui/icons";
 import Button from "@material-ui/core/Button";
 import action from "../../actions/bound-action-creators";
+import SelectFieldGpgKey from "../../components/select-field/gpg-key";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -14,6 +16,22 @@ const useStyles = makeStyles((theme) => ({
         [theme.breakpoints.up("md")]: {
             width: "440px",
         },
+    },
+    checked: {
+        color: "#9c27b0",
+    },
+    checkedIcon: {
+        width: "20px",
+        height: "20px",
+        border: "1px solid #666",
+        borderRadius: "3px",
+    },
+    uncheckedIcon: {
+        width: "0px",
+        height: "0px",
+        padding: "9px",
+        border: "1px solid #666",
+        borderRadius: "3px",
     },
 }));
 
@@ -26,11 +44,14 @@ const SettingsGpgView = (props) => {
     const [gpgHkpSearch, setGpgHkpSearch] = useState(settingsDatastore.gpgHkpSearch);
 
     const save = (event) => {
-        action.setGpgConfig(
-            gpgDefaultKey, // TODO replace TextField for gpgDefaultKey with a dropdown that searches the datastore for GPG keys
-            gpgHkpKeyServer,
-            gpgHkpSearch
-        );
+        let newGpgDefaultKey = null;
+        if (gpgDefaultKey) {
+            newGpgDefaultKey = {
+                id: gpgDefaultKey.id,
+                label: gpgDefaultKey.label,
+            };
+        }
+        action.setGpgConfig(newGpgDefaultKey, gpgHkpKeyServer, gpgHkpSearch);
     };
 
     return (
@@ -41,17 +62,15 @@ const SettingsGpgView = (props) => {
                 <Divider style={{ marginBottom: "20px" }} />
             </Grid>
             <Grid item xs={12} sm={12} md={12}>
-                <TextField
+                <SelectFieldGpgKey
                     className={classes.textField}
                     variant="outlined"
                     margin="dense"
                     id="gpgDefaultKey"
                     label={t("DEFAULT_KEY")}
-                    name="gpgDefaultKey"
-                    autoComplete="gpgDefaultKey"
                     value={gpgDefaultKey}
-                    onChange={(event) => {
-                        setGpgDefaultKey(event.target.value);
+                    onChange={(value) => {
+                        setGpgDefaultKey(value);
                     }}
                 />
             </Grid>
@@ -71,19 +90,18 @@ const SettingsGpgView = (props) => {
                 />
             </Grid>
             <Grid item xs={12} sm={12} md={12}>
-                <TextField
-                    className={classes.textField}
-                    variant="outlined"
-                    margin="dense"
-                    id="gpgHkpSearch"
-                    label={t("AUTOSEARCH_HKP")}
-                    name="gpgHkpSearch"
-                    autoComplete="gpgHkpSearch"
-                    value={gpgHkpSearch}
+                <Checkbox
+                    checked={gpgHkpSearch}
                     onChange={(event) => {
                         setGpgHkpSearch(event.target.value);
                     }}
-                />
+                    checkedIcon={<Check className={classes.checkedIcon} />}
+                    icon={<Check className={classes.uncheckedIcon} />}
+                    classes={{
+                        checked: classes.checked,
+                    }}
+                />{" "}
+                {t("AUTOSEARCH_HKP")}
             </Grid>
             <Grid item xs={12} sm={12} md={12} style={{ marginBottom: "8px", marginTop: "8px" }}>
                 <Button variant="contained" color="primary" onClick={save}>

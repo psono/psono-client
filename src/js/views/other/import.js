@@ -113,7 +113,11 @@ const OtherImportView = (props) => {
                         label={t("TYPE")}
                     >
                         {importService.getImporter().map((importer, index) => {
-                            return <MenuItem value={importer["value"]}>{importer["name"]}</MenuItem>;
+                            return (
+                                <MenuItem key={index} value={importer["value"]}>
+                                    {importer["name"]}
+                                </MenuItem>
+                            );
                         })}
                     </Select>
                 </FormControl>
@@ -170,7 +174,7 @@ const OtherImportView = (props) => {
                 </Button>
             </Grid>
             <Grid item xs={12} sm={12} md={12} style={{ marginBottom: "8px", marginTop: "8px" }}>
-                <Button variant="contained" color="primary" onClick={importPasswords} disabled={processing}>
+                <Button variant="contained" color="primary" onClick={importPasswords} disabled={processing || !fileName}>
                     <span style={!processing ? {} : { display: "none" }}>{t("IMPORT")}</span>
                     <BarLoader color={"#FFF"} height={17} width={37} loading={processing} />
                 </Button>

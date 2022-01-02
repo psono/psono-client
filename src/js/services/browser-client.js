@@ -356,6 +356,9 @@ function loadConfig() {
             if (!newConfig.hasOwnProperty("disable_download_bar")) {
                 newConfig["disable_download_bar"] = false;
             }
+            if (!newConfig.hasOwnProperty("allow_custom_server")) {
+                newConfig["allow_custom_server"] = true;
+            }
             if (!newConfig.hasOwnProperty("more_links")) {
                 newConfig["more_links"] = [
                     {

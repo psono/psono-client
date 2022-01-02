@@ -1,13 +1,11 @@
 import React from "react";
-import PropTypes from "prop-types";
-import AppBar from "@material-ui/core/AppBar";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
+import AppBar from "@material-ui/core/AppBar";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import Paper from "@material-ui/core/Paper";
-import Box from "@material-ui/core/Box";
 
 import Base from "../../containers/base";
 import BaseTitle from "../../containers/base-title";
@@ -20,22 +18,7 @@ import store from "../../services/store";
 import OtherKnownHostsView from "./known-hosts";
 import OtherExportView from "./export";
 import OtherImportView from "./import";
-
-function TabPanel(props) {
-    const { children, value, index, ...other } = props;
-
-    return (
-        <div role="tabpanel" hidden={value !== index} id={`scrollable-auto-tabpanel-${index}`} aria-labelledby={`scrollable-auto-tab-${index}`} {...other}>
-            {value === index && <Box p={3}>{children}</Box>}
-        </div>
-    );
-}
-
-TabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.any.isRequired,
-    value: PropTypes.any.isRequired,
-};
+import TabPanel from "../../components/tab-panel";
 
 const OtherView = (props) => {
     const { t } = useTranslation();

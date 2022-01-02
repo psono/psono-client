@@ -15,6 +15,9 @@ const useStyles = makeStyles((theme) => ({
             width: "440px",
         },
     },
+    passwordField: {
+        fontFamily: "'Fira Code', monospace",
+    },
 }));
 
 const SettingsPasswordGeneratorView = (props) => {
@@ -51,6 +54,11 @@ const SettingsPasswordGeneratorView = (props) => {
                     onChange={(event) => {
                         setPasswordLength(event.target.value);
                     }}
+                    InputProps={{
+                        classes: {
+                            input: classes.passwordField,
+                        },
+                    }}
                 />
             </Grid>
             <Grid item xs={12} sm={12} md={12}>
@@ -65,6 +73,11 @@ const SettingsPasswordGeneratorView = (props) => {
                     value={passwordLettersUppercase}
                     onChange={(event) => {
                         setPasswordLettersUppercase(event.target.value);
+                    }}
+                    InputProps={{
+                        classes: {
+                            input: classes.passwordField,
+                        },
                     }}
                 />
             </Grid>
@@ -81,6 +94,11 @@ const SettingsPasswordGeneratorView = (props) => {
                     onChange={(event) => {
                         setPasswordLettersLowercase(event.target.value);
                     }}
+                    InputProps={{
+                        classes: {
+                            input: classes.passwordField,
+                        },
+                    }}
                 />
             </Grid>
             <Grid item xs={12} sm={12} md={12}>
@@ -96,6 +114,11 @@ const SettingsPasswordGeneratorView = (props) => {
                     onChange={(event) => {
                         setPasswordNumbers(event.target.value);
                     }}
+                    InputProps={{
+                        classes: {
+                            input: classes.passwordField,
+                        },
+                    }}
                 />
             </Grid>
             <Grid item xs={12} sm={12} md={12}>
@@ -110,6 +133,11 @@ const SettingsPasswordGeneratorView = (props) => {
                     value={passwordSpecialChars}
                     onChange={(event) => {
                         setPasswordSpecialChars(event.target.value);
+                    }}
+                    InputProps={{
+                        classes: {
+                            input: classes.passwordField,
+                        },
                     }}
                 />
             </Grid>

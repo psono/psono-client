@@ -33,6 +33,10 @@ import datastorePasswordService from "../../services/datastore-password";
 import browserClientService from "../../services/browser-client";
 import TotpCircle from "../totp-circle";
 import DialogDecryptGpgMessage from "./decrypt-gpg-message";
+import DialogEncryptGpgMessage from "./encrypt-gpg-message";
+import DialogHistory from "./history";
+import notification from "../../services/notification";
+import i18n from "../../i18n";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -87,13 +91,17 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const DialogEditEntry = (props) => {
-    const { open, onClose, item } = props;
+    const { open, onClose, item, hideLinkToEntry, hideShowHistory } = props;
     const { t } = useTranslation();
     const classes = useStyles();
     const offline = offlineCache.isActive();
 
     const [decryptMessageDialogOpen, setDecryptMessageDialogOpen] = useState(false);
+    const [encryptMessageDialogOpen, setEncryptMessageDialogOpen] = useState(false);
+    const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
+    const [encryptSecretId, setEncryptSecretId] = useState("");
 
+    const [originalFullData, setOriginalFullData] = useState({});
     const [websitePasswordTitle, setWebsitePasswordTitle] = useState("");
     const [websitePasswordUrl, setWebsitePasswordUrl] = useState("");
     const [websitePasswordUsername, setWebsitePasswordUsername] = useState("");
@@ -132,6 +140,7 @@ const DialogEditEntry = (props) => {
     const [mailGpgOwnKeyEmail, setMailGpgOwnKeyEmail] = useState("");
     const [mailGpgOwnKeyName, setMailGpgOwnKeyName] = useState("");
     const [mailGpgOwnKeyPublic, setMailGpgOwnKeyPublic] = useState("");
+    const [mailGpgOwnKeyPrivate, setMailGpgOwnKeyPrivate] = useState("");
 
     const [anchorEl, setAnchorEl] = React.useState(null);
 
@@ -146,9 +155,10 @@ const DialogEditEntry = (props) => {
     const [showAdvanced, setShowAdvanced] = useState(false);
 
     const itemBlueprint = itemBlueprintService.getEntryTypes().find((entryType) => entryType.value === item.type);
-    const hasHistory = ["file"].indexOf(item.type) === -1; // only files have no history
+    const hasHistory = !hideShowHistory && ["file"].indexOf(item.type) === -1; // only files have no history
     const hasCallback = ["file"].indexOf(item.type) === -1; // only files have no callbacks
 
+    const showGeneratePassword = item.share_rights.write;
     const isValidWebsitePassword = Boolean(websitePasswordTitle);
     const isValidApplicationPassword = Boolean(applicationPasswordTitle);
     const isValidBookmark = Boolean(bookmarkTitle);
@@ -299,120 +309,10 @@ const DialogEditEntry = (props) => {
             if (data.hasOwnProperty("mail_gpg_own_key_public")) {
                 setMailGpgOwnKeyPublic(data["mail_gpg_own_key_public"]);
             }
-
-            console.log(data);
-
-            // function onSave(new_content) {
-            //     // update visual representation
-            //     const secret_object = {};
-            //     for (let i = new_content.fields.length - 1; i >= 0; i--) {
-            //         if (!new_content.fields[i].hasOwnProperty("value")) {
-            //             continue;
-            //         }
-            //         if (new_content.title_field === new_content.fields[i].name) {
-            //             node.name = new_content.fields[i].value;
-            //         }
-            //         if (new_content.hasOwnProperty("urlfilter_field") && new_content.urlfilter_field === new_content.fields[i].name) {
-            //             node.urlfilter = new_content.fields[i].value;
-            //         }
-            //         if (new_content.hasOwnProperty("autosubmit_field") && new_content.autosubmit_field === new_content.fields[i].name) {
-            //             node.autosubmit = new_content.fields[i].value;
-            //         }
-            //         secret_object[new_content.fields[i].name] = new_content.fields[i].value;
-            //     }
-            //
-            //     const onError = function (result) {
-            //         // pass
-            //     };
-            //
-            //     const onSuccess = function (e) {
-            //         let onSuccess, onError;
-            //
-            //         const closest_share_info = shareService.getClosestParentShare(path.slice(), datastore, datastore, 0);
-            //
-            //         const closest_share = closest_share_info["closest_share"];
-            //
-            //         if (closest_share.hasOwnProperty("share_id")) {
-            //             // refresh share content before updating the share
-            //             onSuccess = function (content) {
-            //                 const search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], content.data);
-            //                 node = search[0][search[1]];
-            //
-            //                 for (let i = new_content.fields.length - 1; i >= 0; i--) {
-            //                     if (!new_content.fields[i].hasOwnProperty("value")) {
-            //                         continue;
-            //                     }
-            //                     if (new_content.title_field === new_content.fields[i].name) {
-            //                         node.name = new_content.fields[i].value;
-            //                     }
-            //                     if (new_content.hasOwnProperty("urlfilter_field") && new_content.urlfilter_field === new_content.fields[i].name) {
-            //                         node.urlfilter = new_content.fields[i].value;
-            //                     }
-            //                     if (new_content.hasOwnProperty("autosubmit_field") && new_content.autosubmit_field === new_content.fields[i].name) {
-            //                         node.autosubmit = new_content.fields[i].value;
-            //                     }
-            //                 }
-            //
-            //                 shareService.writeShare(closest_share["share_id"], content.data, closest_share["share_secret_key"]);
-            //                 manager.handleDatastoreContentChanged(datastore);
-            //             };
-            //
-            //             onError = function (e) {
-            //                 // pass
-            //             };
-            //             shareService.readShare(closest_share["share_id"], closest_share["share_secret_key"]).then(onSuccess, onError);
-            //         } else {
-            //             // refresh datastore content before updating it
-            //             onError = function (result) {
-            //                 // pass
-            //             };
-            //
-            //             onSuccess = function (datastore) {
-            //                 const search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], datastore);
-            //                 const node = search[0][search[1]];
-            //
-            //                 for (let i = new_content.fields.length - 1; i >= 0; i--) {
-            //                     if (!new_content.fields[i].hasOwnProperty("value")) {
-            //                         continue;
-            //                     }
-            //                     if (new_content.title_field === new_content.fields[i].name) {
-            //                         node.name = new_content.fields[i].value;
-            //                     }
-            //                     if (new_content.hasOwnProperty("urlfilter_field") && new_content.urlfilter_field === new_content.fields[i].name) {
-            //                         node.urlfilter = new_content.fields[i].value;
-            //                     }
-            //                     if (new_content.hasOwnProperty("autosubmit_field") && new_content.autosubmit_field === new_content.fields[i].name) {
-            //                         node.autosubmit = new_content.fields[i].value;
-            //                     }
-            //                 }
-            //
-            //                 datastorePasswordService.saveDatastoreContent(datastore, [path]);
-            //                 manager.handleDatastoreContentChanged(datastore);
-            //             };
-            //
-            //             return manager.getDatastoreWithId(closest_share["datastore_id"]).then(onSuccess, onError);
-            //         }
-            //
-            //         //datastorePasswordService.saveDatastoreContent(datastore, [path]);
-            //     };
-            //
-            //     const bp = itemBlueprint.get_blueprint(node.type);
-            //
-            //     if (bp.hasOwnProperty("preUpdate")) {
-            //         bp.preUpdate(node, secret_object).then(onSuccess, onError);
-            //     } else {
-            //         secretService
-            //             .writeSecret(
-            //                 node.secret_id,
-            //                 node.secret_key,
-            //                 secret_object,
-            //                 new_content["callback_data"]["callback_url"],
-            //                 new_content["callback_data"]["callback_user"],
-            //                 new_content["callback_data"]["callback_pass"]
-            //             )
-            //             .then(onSuccess, onError);
-            //     }
-            // }
+            if (data.hasOwnProperty("mail_gpg_own_key_private")) {
+                setMailGpgOwnKeyPrivate(data["mail_gpg_own_key_private"]);
+            }
+            setOriginalFullData(data);
 
             // if (window.innerWidth > 1199) {
             //     $rootScope.$broadcast("show-entry-big", {
@@ -457,19 +357,148 @@ const DialogEditEntry = (props) => {
                 }
             }
             onSuccess(item);
+        } else if (props.data) {
+            onSuccess(props.data);
         } else {
             secretService.readSecret(item.secret_id, item.secret_key).then(onSuccess, onError);
         }
     }, []);
 
     const onSave = (event) => {
-        console.log(event);
-        // TODO
+        const secretObject = {};
+
+        if (item.type === "website_password") {
+            item["name"] = websitePasswordTitle;
+            secretObject["website_password_title"] = websitePasswordTitle;
+            if (websitePasswordUrl) {
+                secretObject["website_password_url"] = websitePasswordUrl;
+            }
+            if (websitePasswordUsername) {
+                secretObject["website_password_username"] = websitePasswordUsername;
+            }
+            if (websitePasswordPassword) {
+                secretObject["website_password_password"] = websitePasswordPassword;
+            }
+            if (websitePasswordNotes) {
+                secretObject["website_password_notes"] = websitePasswordNotes;
+            }
+            secretObject["website_password_auto_submit"] = websitePasswordAutoSubmit;
+            item["autosubmit"] = websitePasswordAutoSubmit;
+            if (websitePasswordUrlFilter) {
+                item["urlfilter"] = websitePasswordUrlFilter;
+                secretObject["website_password_url_filter"] = websitePasswordUrlFilter;
+            } else {
+                delete item["urlfilter"];
+            }
+        }
+
+        if (item.type === "application_password") {
+            item["name"] = applicationPasswordTitle;
+            secretObject["application_password_title"] = applicationPasswordTitle;
+            if (applicationPasswordUsername) {
+                secretObject["application_password_username"] = applicationPasswordUsername;
+            }
+            if (applicationPasswordPassword) {
+                secretObject["application_password_password"] = applicationPasswordPassword;
+            }
+            if (applicationPasswordNotes) {
+                secretObject["application_password_notes"] = applicationPasswordNotes;
+            }
+        }
+
+        if (item.type === "bookmark") {
+            item["name"] = bookmarkTitle;
+            secretObject["bookmark_title"] = bookmarkTitle;
+            if (bookmarkUrl) {
+                secretObject["bookmark_url"] = bookmarkUrl;
+            }
+            if (bookmarkNotes) {
+                secretObject["bookmark_notes"] = bookmarkNotes;
+            }
+            if (bookmarkUrlFilter) {
+                item["urlfilter"] = bookmarkUrlFilter;
+                secretObject["bookmark_url_filter"] = bookmarkUrlFilter;
+            } else {
+                delete item["urlfilter"];
+            }
+        }
+
+        if (item.type === "note") {
+            item["name"] = noteTitle;
+            secretObject["note_title"] = noteTitle;
+            if (noteNotes) {
+                secretObject["note_notes"] = noteNotes;
+            }
+        }
+
+        if (item.type === "totp") {
+            item["name"] = totpTitle;
+            secretObject["totp_title"] = totpTitle;
+            if (totpPeriod) {
+                secretObject["totp_period"] = totpPeriod;
+            }
+            if (totpAlgorithm) {
+                secretObject["totp_algorithm"] = totpAlgorithm;
+            }
+            if (totpDigits) {
+                secretObject["totp_digits"] = totpDigits;
+            }
+            if (totpCode) {
+                secretObject["totp_code"] = totpCode;
+            }
+            if (totpNotes) {
+                secretObject["totp_notes"] = totpNotes;
+            }
+        }
+
+        if (item.type === "environment_variables") {
+            item["name"] = environmentVariablesTitle;
+            secretObject["environment_variables_title"] = environmentVariablesTitle;
+            if (environmentVariablesVariables) {
+                secretObject["environment_variables_variables"] = environmentVariablesVariables;
+            }
+            if (environmentVariablesNotes) {
+                secretObject["environment_variables_notes"] = environmentVariablesNotes;
+            }
+        }
+
+        if (item.type === "file") {
+            item["name"] = fileTitle;
+            item["file_title"] = fileTitle;
+            secretObject["file_title"] = fileTitle;
+        }
+
+        if (item.type === "mail_gpg_own_key") {
+            item["name"] = mailGpgOwnKeyTitle;
+            secretObject["mail_gpg_own_key_title"] = mailGpgOwnKeyTitle;
+            if (mailGpgOwnKeyEmail) {
+                secretObject["mail_gpg_own_key_email"] = mailGpgOwnKeyEmail;
+            }
+            if (mailGpgOwnKeyName) {
+                secretObject["mail_gpg_own_key_name"] = mailGpgOwnKeyName;
+            }
+            if (mailGpgOwnKeyPublic) {
+                secretObject["mail_gpg_own_key_public"] = mailGpgOwnKeyPublic;
+            }
+            secretObject["mail_gpg_own_key_private"] = mailGpgOwnKeyPrivate;
+        }
+        if (typeof item.secret_id === "undefined") {
+            // e.g. files
+            props.onSave(item);
+        } else if (props.data) {
+            const onError = function (result) {
+                // pass
+            };
+
+            const onSuccess = function (e) {
+                props.onSave(item);
+            };
+            secretService.writeSecret(item.secret_id, item.secret_key, secretObject, callbackUrl, callbackUser, callbackPass).then(onSuccess, onError);
+        }
     };
 
     const showHistory = (event) => {
-        console.log(event);
-        // TODO
+        setHistoryDialogOpen(true);
     };
 
     const onShowHidePassword = (event) => {
@@ -485,6 +514,7 @@ const DialogEditEntry = (props) => {
         if (item.type === "application_password") {
             browserClientService.copyToClipboard(applicationPasswordPassword);
         }
+        notification.push("password_copy", t("PASSWORD_COPY_NOTIFICATION"));
     };
     const onGeneratePassword = (event) => {
         handleClose();
@@ -515,7 +545,7 @@ const DialogEditEntry = (props) => {
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
         >
-            <DialogTitle id="alert-dialog-title">{t(itemBlueprint.edit_title)}</DialogTitle>
+            <DialogTitle id="alert-dialog-title">{item.share_rights.write ? t(itemBlueprint.edit_title) : t(itemBlueprint.show_title)}</DialogTitle>
             <DialogContent>
                 <Grid container>
                     {item.type === "website_password" && (
@@ -529,6 +559,7 @@ const DialogEditEntry = (props) => {
                                 name="websitePasswordTitle"
                                 autoComplete="websitePasswordTitle"
                                 value={websitePasswordTitle}
+                                InputProps={{ readOnly: !item.share_rights.write }}
                                 required
                                 onChange={(event) => {
                                     setWebsitePasswordTitle(event.target.value);
@@ -547,6 +578,7 @@ const DialogEditEntry = (props) => {
                                 name="websitePasswordUrl"
                                 autoComplete="websitePasswordUrl"
                                 value={websitePasswordUrl}
+                                InputProps={{ readOnly: !item.share_rights.write }}
                                 onChange={(event) => {
                                     // get only toplevel domain
                                     const parsedUrl = helperService.parseUrl(event.target.value);
@@ -573,6 +605,7 @@ const DialogEditEntry = (props) => {
                                 name="websitePasswordUsername"
                                 autoComplete="websitePasswordUsername"
                                 value={websitePasswordUsername}
+                                InputProps={{ readOnly: !item.share_rights.write }}
                                 onChange={(event) => {
                                     setWebsitePasswordUsername(event.target.value);
                                 }}
@@ -594,6 +627,7 @@ const DialogEditEntry = (props) => {
                                     setWebsitePasswordPassword(event.target.value);
                                 }}
                                 InputProps={{
+                                    readOnly: !item.share_rights.write,
                                     type: showPassword ? "text" : "password",
                                     classes: {
                                         input: classes.passwordField,
@@ -620,14 +654,16 @@ const DialogEditEntry = (props) => {
                                                         {t("COPY_PASSWORD")}
                                                     </Typography>
                                                 </MenuItem>
-                                                <MenuItem onClick={onGeneratePassword}>
-                                                    <ListItemIcon className={classes.listItemIcon}>
-                                                        <PhonelinkSetupIcon className={classes.icon} fontSize="small" />
-                                                    </ListItemIcon>
-                                                    <Typography variant="body2" noWrap>
-                                                        {t("GENERATE_PASSWORD")}
-                                                    </Typography>
-                                                </MenuItem>
+                                                {showGeneratePassword && (
+                                                    <MenuItem onClick={onGeneratePassword}>
+                                                        <ListItemIcon className={classes.listItemIcon}>
+                                                            <PhonelinkSetupIcon className={classes.icon} fontSize="small" />
+                                                        </ListItemIcon>
+                                                        <Typography variant="body2" noWrap>
+                                                            {t("GENERATE_PASSWORD")}
+                                                        </Typography>
+                                                    </MenuItem>
+                                                )}
                                             </Menu>
                                         </InputAdornment>
                                     ),
@@ -646,6 +682,7 @@ const DialogEditEntry = (props) => {
                                 name="websitePasswordNotes"
                                 autoComplete="websitePasswordNotes"
                                 value={websitePasswordNotes}
+                                InputProps={{ readOnly: !item.share_rights.write }}
                                 onChange={(event) => {
                                     setWebsitePasswordNotes(event.target.value);
                                 }}
@@ -666,6 +703,7 @@ const DialogEditEntry = (props) => {
                                 name="applicationPasswordTitle"
                                 autoComplete="applicationPasswordTitle"
                                 value={applicationPasswordTitle}
+                                InputProps={{ readOnly: !item.share_rights.write }}
                                 required
                                 onChange={(event) => {
                                     setApplicationPasswordTitle(event.target.value);
@@ -684,6 +722,7 @@ const DialogEditEntry = (props) => {
                                 name="applicationPasswordUsername"
                                 autoComplete="applicationPasswordUsername"
                                 value={applicationPasswordUsername}
+                                InputProps={{ readOnly: !item.share_rights.write }}
                                 onChange={(event) => {
                                     setApplicationPasswordUsername(event.target.value);
                                 }}
@@ -705,6 +744,7 @@ const DialogEditEntry = (props) => {
                                     setApplicationPasswordPassword(event.target.value);
                                 }}
                                 InputProps={{
+                                    readOnly: !item.share_rights.write,
                                     type: showPassword ? "text" : "password",
                                     classes: {
                                         input: classes.passwordField,
@@ -731,14 +771,16 @@ const DialogEditEntry = (props) => {
                                                         {t("COPY_PASSWORD")}
                                                     </Typography>
                                                 </MenuItem>
-                                                <MenuItem onClick={onGeneratePassword}>
-                                                    <ListItemIcon className={classes.listItemIcon}>
-                                                        <PhonelinkSetupIcon className={classes.icon} fontSize="small" />
-                                                    </ListItemIcon>
-                                                    <Typography variant="body2" noWrap>
-                                                        {t("GENERATE_PASSWORD")}
-                                                    </Typography>
-                                                </MenuItem>
+                                                {showGeneratePassword && (
+                                                    <MenuItem onClick={onGeneratePassword}>
+                                                        <ListItemIcon className={classes.listItemIcon}>
+                                                            <PhonelinkSetupIcon className={classes.icon} fontSize="small" />
+                                                        </ListItemIcon>
+                                                        <Typography variant="body2" noWrap>
+                                                            {t("GENERATE_PASSWORD")}
+                                                        </Typography>
+                                                    </MenuItem>
+                                                )}
                                             </Menu>
                                         </InputAdornment>
                                     ),
@@ -757,6 +799,7 @@ const DialogEditEntry = (props) => {
                                 name="applicationPasswordNotes"
                                 autoComplete="applicationPasswordNotes"
                                 value={applicationPasswordNotes}
+                                InputProps={{ readOnly: !item.share_rights.write }}
                                 onChange={(event) => {
                                     setApplicationPasswordNotes(event.target.value);
                                 }}
@@ -777,6 +820,7 @@ const DialogEditEntry = (props) => {
                                 name="bookmarkTitle"
                                 autoComplete="bookmarkTitle"
                                 value={bookmarkTitle}
+                                InputProps={{ readOnly: !item.share_rights.write }}
                                 required
                                 onChange={(event) => {
                                     setBookmarkTitle(event.target.value);
@@ -795,6 +839,7 @@ const DialogEditEntry = (props) => {
                                 name="bookmarkUrl"
                                 autoComplete="bookmarkUrl"
                                 value={bookmarkUrl}
+                                InputProps={{ readOnly: !item.share_rights.write }}
                                 onChange={(event) => {
                                     // get only toplevel domain
                                     const parsedUrl = helperService.parseUrl(event.target.value);
@@ -821,6 +866,7 @@ const DialogEditEntry = (props) => {
                                 name="bookmarkNotes"
                                 autoComplete="bookmarkNotes"
                                 value={bookmarkNotes}
+                                InputProps={{ readOnly: !item.share_rights.write }}
                                 onChange={(event) => {
                                     setBookmarkNotes(event.target.value);
                                 }}
@@ -841,6 +887,7 @@ const DialogEditEntry = (props) => {
                                 name="noteTitle"
                                 autoComplete="noteTitle"
                                 value={noteTitle}
+                                InputProps={{ readOnly: !item.share_rights.write }}
                                 required
                                 onChange={(event) => {
                                     setNoteTitle(event.target.value);
@@ -859,6 +906,7 @@ const DialogEditEntry = (props) => {
                                 name="noteNotes"
                                 autoComplete="noteNotes"
                                 value={noteNotes}
+                                InputProps={{ readOnly: !item.share_rights.write }}
                                 onChange={(event) => {
                                     setNoteNotes(event.target.value);
                                 }}
@@ -879,6 +927,7 @@ const DialogEditEntry = (props) => {
                                 name="totpTitle"
                                 autoComplete="totpTitle"
                                 value={totpTitle}
+                                InputProps={{ readOnly: !item.share_rights.write }}
                                 required
                                 onChange={(event) => {
                                     setTotpTitle(event.target.value);
@@ -903,6 +952,7 @@ const DialogEditEntry = (props) => {
                                 name="totpNotes"
                                 autoComplete="totpNotes"
                                 value={totpNotes}
+                                InputProps={{ readOnly: !item.share_rights.write }}
                                 onChange={(event) => {
                                     setTotpNotes(event.target.value);
                                 }}
@@ -923,6 +973,7 @@ const DialogEditEntry = (props) => {
                                 name="environmentVariablesTitle"
                                 autoComplete="environmentVariablesTitle"
                                 value={environmentVariablesTitle}
+                                InputProps={{ readOnly: !item.share_rights.write }}
                                 required
                                 onChange={(event) => {
                                     setEnvironmentVariablesTitle(event.target.value);
@@ -946,6 +997,7 @@ const DialogEditEntry = (props) => {
                                                 name={"environmentVariablesVariables-key-" + index}
                                                 autoComplete={"environmentVariablesVariables-key-" + index}
                                                 value={variable.key}
+                                                InputProps={{ readOnly: !item.share_rights.write }}
                                                 required
                                                 onChange={(event) => {
                                                     const newEnvs = helperService.duplicateObject(environmentVariablesVariables);
@@ -959,11 +1011,12 @@ const DialogEditEntry = (props) => {
                                                 className={classes.textField5}
                                                 variant="outlined"
                                                 margin="dense"
-                                                id={"environmentVariablesVariables-key-" + index}
+                                                id={"environmentVariablesVariables-value-" + index}
                                                 label={t("VALUE")}
-                                                name={"environmentVariablesVariables-key-" + index}
-                                                autoComplete={"environmentVariablesVariables-key-" + index}
+                                                name={"environmentVariablesVariables-value-" + index}
+                                                autoComplete={"environmentVariablesVariables-value-" + index}
                                                 value={variable.value}
+                                                InputProps={{ readOnly: !item.share_rights.write }}
                                                 required
                                                 onChange={(event) => {
                                                     const newEnvs = helperService.duplicateObject(environmentVariablesVariables);
@@ -1018,6 +1071,7 @@ const DialogEditEntry = (props) => {
                                 name="environmentVariablesNotes"
                                 autoComplete="environmentVariablesNotes"
                                 value={environmentVariablesNotes}
+                                InputProps={{ readOnly: !item.share_rights.write }}
                                 onChange={(event) => {
                                     setEnvironmentVariablesNotes(event.target.value);
                                 }}
@@ -1038,6 +1092,7 @@ const DialogEditEntry = (props) => {
                                 name="fileTitle"
                                 autoComplete="fileTitle"
                                 value={fileTitle}
+                                InputProps={{ readOnly: !item.share_rights.write }}
                                 required
                                 onChange={(event) => {
                                     setFileTitle(event.target.value);
@@ -1057,6 +1112,7 @@ const DialogEditEntry = (props) => {
                                 name="mailGpgOwnKeyTitle"
                                 autoComplete="mailGpgOwnKeyTitle"
                                 value={mailGpgOwnKeyTitle}
+                                InputProps={{ readOnly: !item.share_rights.write }}
                                 required
                                 onChange={(event) => {
                                     setMailGpgOwnKeyTitle(event.target.value);
@@ -1075,6 +1131,7 @@ const DialogEditEntry = (props) => {
                                 name="mailGpgOwnKeyEmail"
                                 autoComplete="mailGpgOwnKeyEmail"
                                 value={mailGpgOwnKeyEmail}
+                                InputProps={{ readOnly: !item.share_rights.write }}
                                 required
                                 onChange={(event) => {
                                     setMailGpgOwnKeyEmail(event.target.value);
@@ -1094,6 +1151,7 @@ const DialogEditEntry = (props) => {
                                 name="mailGpgOwnKeyName"
                                 autoComplete="mailGpgOwnKeyName"
                                 value={mailGpgOwnKeyName}
+                                InputProps={{ readOnly: !item.share_rights.write }}
                                 required
                                 onChange={(event) => {
                                     setMailGpgOwnKeyName(event.target.value);
@@ -1113,6 +1171,7 @@ const DialogEditEntry = (props) => {
                                 name="mailGpgOwnKeyPublic"
                                 autoComplete="mailGpgOwnKeyPublic"
                                 value={mailGpgOwnKeyPublic}
+                                InputProps={{ readOnly: !item.share_rights.write }}
                                 required
                                 onChange={(event) => {
                                     setMailGpgOwnKeyPublic(event.target.value);
@@ -1128,19 +1187,13 @@ const DialogEditEntry = (props) => {
                         <Grid item xs={12} sm={12} md={12}>
                             <Button
                                 onClick={() => {
-                                    // TODO
-                                    //setEncryptMessageDialogOpen(true);
+                                    setEncryptMessageDialogOpen(true);
+                                    setEncryptSecretId(item.secret_id);
                                 }}
                             >
                                 {t("ENCRYPT_MESSAGE")}
                             </Button>
-                            <Button
-                                onClick={() => {
-                                    setDecryptMessageDialogOpen(true);
-                                }}
-                            >
-                                {t("DECRYPT_MESSAGE")}
-                            </Button>
+                            <Button onClick={() => setDecryptMessageDialogOpen(true)}>{t("DECRYPT_MESSAGE")}</Button>
                         </Grid>
                     )}
 
@@ -1183,6 +1236,7 @@ const DialogEditEntry = (props) => {
                                 name="websitePasswordUrlFilter"
                                 autoComplete="websitePasswordUrlFilter"
                                 value={websitePasswordUrlFilter}
+                                InputProps={{ readOnly: !item.share_rights.write }}
                                 onChange={(event) => {
                                     setWebsitePasswordUrlFilter(event.target.value);
                                 }}
@@ -1201,6 +1255,7 @@ const DialogEditEntry = (props) => {
                                 name="bookmarkUrlFilter"
                                 autoComplete="bookmarkUrlFilter"
                                 value={bookmarkUrlFilter}
+                                InputProps={{ readOnly: !item.share_rights.write }}
                                 onChange={(event) => {
                                     setBookmarkUrlFilter(event.target.value);
                                 }}
@@ -1219,6 +1274,7 @@ const DialogEditEntry = (props) => {
                                 name="callbackUrl"
                                 autoComplete="callbackUrl"
                                 value={callbackUrl}
+                                InputProps={{ readOnly: !item.share_rights.write }}
                                 onChange={(event) => {
                                     setCallbackUrl(event.target.value);
                                 }}
@@ -1236,6 +1292,7 @@ const DialogEditEntry = (props) => {
                                 name="callbackUser"
                                 autoComplete="callbackUser"
                                 value={callbackUser}
+                                InputProps={{ readOnly: !item.share_rights.write }}
                                 onChange={(event) => {
                                     setCallbackUser(event.target.value);
                                 }}
@@ -1257,6 +1314,7 @@ const DialogEditEntry = (props) => {
                                     setCallbackPass(event.target.value);
                                 }}
                                 InputProps={{
+                                    readOnly: !item.share_rights.write,
                                     type: showPassword ? "text" : "password",
                                     classes: {
                                         input: classes.passwordField,
@@ -1273,7 +1331,7 @@ const DialogEditEntry = (props) => {
                         </Grid>
                     )}
 
-                    {showAdvanced && (
+                    {!hideLinkToEntry && showAdvanced && (
                         <Grid item xs={12} sm={12} md={12}>
                             {t("ENTRY_LINK")}: <a href={"index.html#!/datastore/search/" + item.id}>{item.id}</a>
                         </Grid>
@@ -1288,22 +1346,33 @@ const DialogEditEntry = (props) => {
                 >
                     {t("CLOSE")}
                 </Button>
-                {item.share_rights.write && !offline && (
+                {item.share_rights.write && !offline && props.onSave && (
                     <Button onClick={onSave} variant="contained" color="primary" disabled={!canSave}>
                         {t("SAVE")}
                     </Button>
                 )}
             </DialogActions>
             {decryptMessageDialogOpen && <DialogDecryptGpgMessage open={decryptMessageDialogOpen} onClose={() => setDecryptMessageDialogOpen(false)} />}
+            {encryptMessageDialogOpen && (
+                <DialogEncryptGpgMessage open={encryptMessageDialogOpen} onClose={() => setEncryptMessageDialogOpen(false)} secretId={encryptSecretId} />
+            )}
+            {historyDialogOpen && <DialogHistory open={historyDialogOpen} onClose={() => setHistoryDialogOpen(false)} item={item} />}
         </Dialog>
     );
 };
 
+DialogEditEntry.defaultProps = {
+    hideLinkToEntry: false,
+    hideShowHistory: false,
+};
+
 DialogEditEntry.propTypes = {
     onClose: PropTypes.func.isRequired,
-    onSave: PropTypes.func.isRequired,
+    onSave: PropTypes.func,
     open: PropTypes.bool.isRequired,
     item: PropTypes.object.isRequired,
+    hideLinkToEntry: PropTypes.bool,
+    hideShowHistory: PropTypes.bool,
 };
 
 export default DialogEditEntry;

@@ -195,8 +195,6 @@ const DialogAcceptShare = (props) => {
         const onSuccess = function (datastore) {
             const breadcrumbs = { id_breadcrumbs: path.map((node) => node.id) };
 
-            console.log(breadcrumbs);
-
             const analyzedBreadcrumbs = datastorePassword.analyzeBreadcrumbs(breadcrumbs, datastore);
 
             if (item.share_right_grant === false && typeof analyzedBreadcrumbs["parent_share_id"] !== "undefined") {
@@ -236,7 +234,6 @@ const DialogAcceptShare = (props) => {
                 //pass
                 console.log(data);
             };
-            console.log(item);
             return shareService
                 .acceptShareRight(item.share_right_id, item.share_right_key, item.share_right_key_nonce, user.data.user_public_key)
                 .then(onSuccess, onError);

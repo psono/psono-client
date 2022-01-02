@@ -1,5 +1,4 @@
 import React from "react";
-import PropTypes from "prop-types";
 import AppBar from "@material-ui/core/AppBar";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -7,7 +6,6 @@ import { useTranslation } from "react-i18next";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import Paper from "@material-ui/core/Paper";
-import Box from "@material-ui/core/Box";
 
 import store from "../../services/store";
 import Base from "../../containers/base";
@@ -20,22 +18,7 @@ import AccountPasswordRecoveryCodesView from "./password-recovery-codes";
 import AccountDeleteAccountView from "./delete-account";
 import AccountChangeEmailView from "./change-email";
 import AccountChangePasswordView from "./change-password";
-
-function TabPanel(props) {
-    const { children, value, index, ...other } = props;
-
-    return (
-        <div role="tabpanel" hidden={value !== index} id={`scrollable-auto-tabpanel-${index}`} aria-labelledby={`scrollable-auto-tab-${index}`} {...other}>
-            {value === index && <Box p={3}>{children}</Box>}
-        </div>
-    );
-}
-
-TabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.any.isRequired,
-    value: PropTypes.any.isRequired,
-};
+import TabPanel from "../../components/tab-panel";
 
 const AccountView = (props) => {
     const { t } = useTranslation();

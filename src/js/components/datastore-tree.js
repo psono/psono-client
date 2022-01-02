@@ -24,11 +24,18 @@ const DatastoreTree = (props) => {
                                 onSelectNode={props.onSelectNode}
                                 onEditFolder={props.onEditFolder}
                                 onEditEntry={props.onEditEntry}
+                                onCloneEntry={props.onCloneEntry}
+                                onDeleteEntry={props.onDeleteEntry}
+                                onMoveEntry={props.onMoveEntry}
+                                onDeleteFolder={props.onDeleteFolder}
+                                onMoveFolder={props.onMoveFolder}
                                 onLinkItem={props.onLinkItem}
                                 onNewFolder={props.onNewFolder}
                                 onNewUser={props.onNewUser}
                                 onNewEntry={props.onNewEntry}
                                 onNewShare={props.onNewShare}
+                                onLinkShare={props.onLinkShare}
+                                onRightsOverview={props.onRightsOverview}
                                 key={i}
                                 nodePath={[content]}
                                 content={content}
@@ -46,8 +53,13 @@ const DatastoreTree = (props) => {
                                 isSelectable={props.isSelectable}
                                 onSelectItem={props.onSelectItem}
                                 onEditEntry={props.onEditEntry}
+                                onCloneEntry={props.onCloneEntry}
+                                onDeleteEntry={props.onDeleteEntry}
+                                onMoveEntry={props.onMoveEntry}
                                 onLinkItem={props.onLinkItem}
                                 onNewShare={props.onNewShare}
+                                onLinkShare={props.onLinkShare}
+                                onRightsOverview={props.onRightsOverview}
                                 key={i}
                                 nodePath={[content]}
                                 content={content}
@@ -62,11 +74,18 @@ const DatastoreTree = (props) => {
 DatastoreTree.propTypes = {
     search: PropTypes.string,
     datastore: PropTypes.object.isRequired,
-    onNewFolder: PropTypes.func.isRequired,
+    onNewFolder: PropTypes.func,
     onNewUser: PropTypes.func,
     onNewShare: PropTypes.func,
+    onLinkShare: PropTypes.func,
+    onRightsOverview: PropTypes.func,
     onNewEntry: PropTypes.func,
     onEditEntry: PropTypes.func,
+    onCloneEntry: PropTypes.func,
+    onDeleteEntry: PropTypes.func,
+    onMoveEntry: PropTypes.func,
+    onDeleteFolder: PropTypes.func,
+    onMoveFolder: PropTypes.func,
     onLinkItem: PropTypes.func,
     onEditFolder: PropTypes.func,
     onSelectItem: PropTypes.func,

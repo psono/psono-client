@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { connect, useSelector } from "react-redux";
-import { bindActionCreators } from "redux";
+import React, { useState, useReducer } from "react";
+import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { differenceInSeconds } from "date-fns";
 import { ClipLoader } from "react-spinners";
+import { useParams } from "react-router-dom";
 import { alpha, makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import AppBar from "@material-ui/core/AppBar";
@@ -22,8 +22,6 @@ import Typography from "@material-ui/core/Typography";
 import CreateNewFolderIcon from "@material-ui/icons/CreateNewFolder";
 import AddIcon from "@material-ui/icons/Add";
 
-import actionCreators from "../../actions/action-creators";
-
 import Base from "../../containers/base";
 import BaseTitle from "../../containers/base-title";
 import BaseContent from "../../containers/base-content";
@@ -37,7 +35,10 @@ import DialogEditFolder from "../../components/dialogs/edit-folder";
 import DialogEditEntry from "../../components/dialogs/edit-entry";
 import fileTransferService from "../../services/file-transfer";
 import secretService from "../../services/secret";
-import { useParams } from "react-router-dom";
+import DialogCreateLinkShare from "../../components/dialogs/create-link-share";
+import DialogTrashBin from "../../components/dialogs/trash-bin";
+import shareService from "../../services/share";
+import DialogRightsOverview from "../../components/dialogs/rights-overview";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -115,8 +116,15 @@ const DatastoreView = (props) => {
     const recurrenceInterval = useSelector((state) => state.server.complianceCentralSecurityReportsRecurrenceInterval);
     const classes = useStyles();
     const { t } = useTranslation();
+    const [ignored, forceUpdate] = useReducer((x) => x + 1, 0);
     const [search, setSearch] = useState(defaultSearch || "");
     const [anchorEl, setAnchorEl] = useState(null);
+    const [contextMenuPosition, setContextMenuPosition] = useState({
+        mouseX: null,
+        mouseY: null,
+    });
+
+    const [trashBinOpen, setTrashBinOpen] = useState(false);
 
     const [newFolderOpen, setNewFolderOpen] = useState(false);
     const [newFolderData, setNewFolderData] = useState({});
@@ -130,8 +138,14 @@ const DatastoreView = (props) => {
     const [editEntryOpen, setEditEntryOpen] = useState(false);
     const [editEntryData, setEditEntryData] = useState({});
 
+    const [rightsOverviewOpen, setRightsOverviewOpen] = useState(false);
+    const [rightsOverviewData, setRightsOverviewData] = useState({});
+
     const [newShareOpen, setNewShareOpen] = useState(false);
     const [newShareData, setNewShareData] = useState({});
+
+    const [createLinkShareOpen, setCreateLinkShareOpen] = useState(false);
+    const [createLinkShareData, setCreateLinkShareData] = useState({});
 
     const [datastore, setDatastore] = useState(null);
 
@@ -503,6 +517,7 @@ const DatastoreView = (props) => {
         widget.openNewFolder(newFolderData["parent"], newFolderData["path"], datastore, datastorePassword, name);
     };
     const onNewFolder = (parent, path) => {
+        onContextMenuClose();
         setAnchorEl(null);
         // called whenever someone clicks on a new folder Icon
         setNewFolderOpen(true);
@@ -518,6 +533,7 @@ const DatastoreView = (props) => {
         widget.openNewEntry(newEntryData["parent"], newEntryData["path"], datastore, datastorePassword, name);
     };
     const onNewEntry = (parent, path) => {
+        onContextMenuClose();
         setAnchorEl(null);
         // called whenever someone clicks on a new folder Icon
         setNewEntryOpen(true);
@@ -541,7 +557,7 @@ const DatastoreView = (props) => {
 
     const onEditEntrySave = (node) => {
         setEditEntryOpen(false);
-        widget.openEditEntry(node, editEntryData.path, datastore, datastorePassword);
+        widget.openEditItem(datastore, node, editEntryData.path, datastorePassword);
     };
 
     const onEditEntry = (item, path) => {
@@ -552,12 +568,69 @@ const DatastoreView = (props) => {
         setEditEntryOpen(true);
     };
 
+    const onCloneEntry = (item, path) => {
+        widget.cloneItem(datastore, item, path);
+    };
+
+    const onDeleteEntry = (item, path) => {
+        widget.deleteItem(datastore, item, path, "password");
+        forceUpdate();
+    };
+
+    const onDeleteFolder = (item, path) => {
+        widget.deleteItem(datastore, item, path, "password");
+        forceUpdate();
+    };
+
     const onLinkItem = (item, path) => {
         if (item.type === "file") {
             return fileTransferService.onItemClick(item);
         } else {
             return secretService.onItemClick(item);
         }
+    };
+
+    const onMoveFolder = (item, path) => {
+        // TODO
+    };
+
+    const onRightsOverview = (item, path) => {
+        setRightsOverviewData({
+            item: item,
+            path: path,
+        });
+        setRightsOverviewOpen(true);
+    };
+
+    const onLinkShare = (item, path) => {
+        setCreateLinkShareData({
+            item: item,
+        });
+        setCreateLinkShareOpen(true);
+        // /**
+        //  * User clicked the "Create" button
+        //  *
+        //  * @param content
+        //  */
+        // const on_modal_close_success = function (content) {
+        //     console.log(content);
+        // };
+        //
+        // const modalInstance = $uibModal.open({
+        //     templateUrl: "view/modal/create-link-share.html",
+        //     controller: "ModalCreateLinkShareCtrl",
+        //     backdrop: "static",
+        //     resolve: {
+        //         node: function () {
+        //             return item;
+        //         },
+        //     },
+        // });
+        //
+        // // User clicked the final share button
+        // modalInstance.result.then(on_modal_close_success, function () {
+        //     // cancel triggered
+        // });
     };
     const openMenu = (event) => {
         event.preventDefault();
@@ -569,6 +642,25 @@ const DatastoreView = (props) => {
         event.preventDefault();
         event.stopPropagation();
         setAnchorEl(null);
+    };
+
+    const openTrashBin = (event) => {
+        setTrashBinOpen(true);
+    };
+    const onContextMenu = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setContextMenuPosition({
+            mouseX: event.clientX - 2,
+            mouseY: event.clientY - 4,
+        });
+    };
+
+    const onContextMenuClose = () => {
+        setContextMenuPosition({
+            mouseX: null,
+            mouseY: null,
+        });
     };
 
     return (
@@ -631,13 +723,13 @@ const DatastoreView = (props) => {
                                     </MenuItem>
                                 </Menu>
                                 <Divider className={classes.divider} orientation="vertical" />
-                                <IconButton className={classes.iconButton} aria-label="trash bin">
+                                <IconButton className={classes.iconButton} aria-label="trash bin" onClick={openTrashBin}>
                                     <DeleteSweepIcon />
                                 </IconButton>
                             </div>
                         </Toolbar>
                     </AppBar>
-                    <div className={classes.root}>
+                    <div className={classes.root} onContextMenu={onContextMenu}>
                         {!datastore && (
                             <div className={classes.loader}>
                                 <ClipLoader />
@@ -651,36 +743,66 @@ const DatastoreView = (props) => {
                                 onNewEntry={onNewEntry}
                                 onNewShare={onNewShare}
                                 onEditEntry={onEditEntry}
+                                onCloneEntry={onCloneEntry}
+                                onDeleteEntry={onDeleteEntry}
                                 onEditFolder={onEditFolder}
+                                onDeleteFolder={onDeleteFolder}
                                 onSelectItem={onEditEntry}
                                 onLinkItem={onLinkItem}
+                                onLinkShare={onLinkShare}
+                                onMoveFolder={onMoveFolder}
+                                onRightsOverview={onRightsOverview}
                             />
                         )}
-                        {newShareOpen && <DialogNewShare open={newShareOpen} onClose={() => setNewShareOpen(false)} onShare={onNewShareCreate} />}
-                        {newFolderOpen && <DialogNewFolder open={newFolderOpen} onClose={() => setNewFolderOpen(false)} onCreate={onNewFolderCreate} />}
-                        {editFolderOpen && (
-                            <DialogEditFolder
-                                open={editFolderOpen}
-                                onClose={() => setEditFolderOpen(false)}
-                                onSave={onEditFolderSave}
-                                node={editFolderData.node}
-                            />
-                        )}
-                        {editEntryOpen && (
-                            <DialogEditEntry open={editEntryOpen} onClose={() => setEditEntryOpen(false)} onSave={onEditEntrySave} item={editEntryData.item} />
-                        )}
-                        {newEntryOpen && <DialogNewEntry open={newEntryOpen} onClose={() => setNewEntryOpen(false)} onCreate={onNewEntryCreate} />}
                     </div>
+                    <Menu
+                        keepMounted
+                        open={contextMenuPosition.mouseY !== null}
+                        onClose={onContextMenuClose}
+                        anchorReference="anchorPosition"
+                        anchorPosition={
+                            contextMenuPosition.mouseY !== null && contextMenuPosition.mouseX !== null
+                                ? { top: contextMenuPosition.mouseY, left: contextMenuPosition.mouseX }
+                                : undefined
+                        }
+                    >
+                        <MenuItem onClick={() => onNewFolder(datastore, [])}>
+                            <ListItemIcon className={classes.listItemIcon}>
+                                <CreateNewFolderIcon className={classes.icon} fontSize="small" />
+                            </ListItemIcon>
+                            <Typography variant="body2" noWrap>
+                                {t("NEW_FOLDER")}
+                            </Typography>
+                        </MenuItem>
+                        <MenuItem onClick={() => onNewEntry(datastore, [])}>
+                            <ListItemIcon className={classes.listItemIcon}>
+                                <AddIcon className={classes.icon} fontSize="small" />
+                            </ListItemIcon>
+                            <Typography variant="body2" noWrap>
+                                {t("NEW_ENTRY")}
+                            </Typography>
+                        </MenuItem>
+                    </Menu>
+                    {newShareOpen && <DialogNewShare open={newShareOpen} onClose={() => setNewShareOpen(false)} onCreate={onNewShareCreate} />}
+                    {newFolderOpen && <DialogNewFolder open={newFolderOpen} onClose={() => setNewFolderOpen(false)} onCreate={onNewFolderCreate} />}
+                    {editFolderOpen && (
+                        <DialogEditFolder open={editFolderOpen} onClose={() => setEditFolderOpen(false)} onSave={onEditFolderSave} node={editFolderData.node} />
+                    )}
+                    {editEntryOpen && (
+                        <DialogEditEntry open={editEntryOpen} onClose={() => setEditEntryOpen(false)} onSave={onEditEntrySave} item={editEntryData.item} />
+                    )}
+                    {createLinkShareOpen && (
+                        <DialogCreateLinkShare open={createLinkShareOpen} onClose={() => setCreateLinkShareOpen(false)} item={createLinkShareData.item} />
+                    )}
+                    {newEntryOpen && <DialogNewEntry open={newEntryOpen} onClose={() => setNewEntryOpen(false)} onCreate={onNewEntryCreate} />}
+                    {trashBinOpen && <DialogTrashBin open={trashBinOpen} onClose={() => setTrashBinOpen(false)} datastore={datastore} />}
+                    {rightsOverviewOpen && (
+                        <DialogRightsOverview open={rightsOverviewOpen} onClose={() => setRightsOverviewOpen(false)} item={rightsOverviewData.item} />
+                    )}
                 </Paper>
             </BaseContent>
         </Base>
     );
 };
 
-function mapStateToProps(state) {
-    return { state: state };
-}
-function mapDispatchToProps(dispatch) {
-    return { actions: bindActionCreators(actionCreators, dispatch) };
-}
 export default DatastoreView;

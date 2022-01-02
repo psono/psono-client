@@ -4,6 +4,7 @@
 
 import apiClientService from "./api-client";
 import store from "./store";
+import secretService from "./secret";
 
 let timeout = 0;
 
@@ -22,7 +23,7 @@ function moveSecretLinks(datastore, newParentShareId, newParentDatastoreId) {
 
     function move_secret_link_timed(link_id, new_parent_share_id, new_parent_datastore_id) {
         timeout = timeout + 50;
-        $timeout(function () {
+        setTimeout(function () {
             moveSecretLink(link_id, new_parent_share_id, new_parent_datastore_id);
         }, timeout);
     }

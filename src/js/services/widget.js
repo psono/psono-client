@@ -11,6 +11,7 @@ import datastorePasswordService from "./datastore-password";
 import fileLinkService from "./file-link";
 import datastoreService from "./datastore";
 import datastoreUserService from "./datastore-user";
+import helper from "./helper";
 
 /**
  * Opens the modal to create a new folder
@@ -380,175 +381,69 @@ function openNewItem(datastore, parent, path, size, manager) {
  * Opens the modal for a the edit entry
  *
  * @param {TreeObject} datastore The Datastore object
- * @param {object} node The node to edit
+ * @param {object} newContent The new content for the node
  * @param {Array} path The path to the item
- * @param {string} size The size of the modal
  * @param {Object} manager manager responsible for
  */
-function openEditItem(datastore, node, path, size, manager) {
-    const onError = function (result) {
-        console.log(result);
-        // pass
-    };
+function openEditItem(datastore, newContent, path, manager) {
+    let onSuccess, onError;
 
-    const onSuccess = function (data) {
-        function onSave(new_content) {
-            // update visual representation
-            const secret_object = {};
-            for (let i = new_content.fields.length - 1; i >= 0; i--) {
-                if (!new_content.fields[i].hasOwnProperty("value")) {
-                    continue;
-                }
-                if (new_content.title_field === new_content.fields[i].name) {
-                    node.name = new_content.fields[i].value;
-                }
-                if (new_content.hasOwnProperty("urlfilter_field") && new_content.urlfilter_field === new_content.fields[i].name) {
-                    node.urlfilter = new_content.fields[i].value;
-                }
-                if (new_content.hasOwnProperty("autosubmit_field") && new_content.autosubmit_field === new_content.fields[i].name) {
-                    node.autosubmit = new_content.fields[i].value;
-                }
-                secret_object[new_content.fields[i].name] = new_content.fields[i].value;
+    const closest_share_info = shareService.getClosestParentShare(path.slice(), datastore, datastore, 0);
+
+    const closest_share = closest_share_info["closest_share"];
+
+    if (closest_share.hasOwnProperty("share_id")) {
+        // refresh share content before updating the share
+        onSuccess = function (content) {
+            const search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], content.data);
+            const node = search[0][search[1]];
+
+            // we delete all keys from the existing object and copy all the new ones
+            let keys = Object.keys(node);
+            for (let i = 0; i < keys.length; i++) {
+                delete node[keys[i]];
+            }
+            keys = Object.keys(newContent);
+            for (let i = 0; i < keys.length; i++) {
+                node[keys[i]] = newContent[keys[i]];
             }
 
-            const onError = function (result) {
-                // pass
-            };
+            shareService.writeShare(closest_share["share_id"], content.data, closest_share["share_secret_key"]);
+            manager.handleDatastoreContentChanged(datastore);
+        };
 
-            const onSuccess = function (e) {
-                let onSuccess, onError;
-
-                const closest_share_info = shareService.getClosestParentShare(path.slice(), datastore, datastore, 0);
-
-                const closest_share = closest_share_info["closest_share"];
-
-                if (closest_share.hasOwnProperty("share_id")) {
-                    // refresh share content before updating the share
-                    onSuccess = function (content) {
-                        const search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], content.data);
-                        node = search[0][search[1]];
-
-                        for (let i = new_content.fields.length - 1; i >= 0; i--) {
-                            if (!new_content.fields[i].hasOwnProperty("value")) {
-                                continue;
-                            }
-                            if (new_content.title_field === new_content.fields[i].name) {
-                                node.name = new_content.fields[i].value;
-                            }
-                            if (new_content.hasOwnProperty("urlfilter_field") && new_content.urlfilter_field === new_content.fields[i].name) {
-                                node.urlfilter = new_content.fields[i].value;
-                            }
-                            if (new_content.hasOwnProperty("autosubmit_field") && new_content.autosubmit_field === new_content.fields[i].name) {
-                                node.autosubmit = new_content.fields[i].value;
-                            }
-                        }
-
-                        shareService.writeShare(closest_share["share_id"], content.data, closest_share["share_secret_key"]);
-                        manager.handleDatastoreContentChanged(datastore);
-                    };
-
-                    onError = function (e) {
-                        // pass
-                    };
-                    shareService.readShare(closest_share["share_id"], closest_share["share_secret_key"]).then(onSuccess, onError);
-                } else {
-                    // refresh datastore content before updating it
-                    onError = function (result) {
-                        // pass
-                    };
-
-                    onSuccess = function (datastore) {
-                        const search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], datastore);
-                        const node = search[0][search[1]];
-
-                        for (let i = new_content.fields.length - 1; i >= 0; i--) {
-                            if (!new_content.fields[i].hasOwnProperty("value")) {
-                                continue;
-                            }
-                            if (new_content.title_field === new_content.fields[i].name) {
-                                node.name = new_content.fields[i].value;
-                            }
-                            if (new_content.hasOwnProperty("urlfilter_field") && new_content.urlfilter_field === new_content.fields[i].name) {
-                                node.urlfilter = new_content.fields[i].value;
-                            }
-                            if (new_content.hasOwnProperty("autosubmit_field") && new_content.autosubmit_field === new_content.fields[i].name) {
-                                node.autosubmit = new_content.fields[i].value;
-                            }
-                        }
-
-                        datastorePasswordService.saveDatastoreContent(datastore, [path]);
-                        manager.handleDatastoreContentChanged(datastore);
-                    };
-
-                    return manager.getDatastoreWithId(closest_share["datastore_id"]).then(onSuccess, onError);
-                }
-
-                //datastorePasswordService.saveDatastoreContent(datastore, [path]);
-            };
-
-            const bp = itemBlueprint.get_blueprint(node.type);
-
-            if (bp.hasOwnProperty("preUpdate")) {
-                bp.preUpdate(node, secret_object).then(onSuccess, onError);
-            } else {
-                secretService
-                    .writeSecret(
-                        node.secret_id,
-                        node.secret_key,
-                        secret_object,
-                        new_content["callback_data"]["callback_url"],
-                        new_content["callback_data"]["callback_user"],
-                        new_content["callback_data"]["callback_pass"]
-                    )
-                    .then(onSuccess, onError);
-            }
-        }
-
-        if (window.innerWidth > 1199) {
-            $rootScope.$broadcast("show-entry-big", {
-                node: node,
-                path: path,
-                data: data,
-                onClose: function () {},
-                onSave: onSave,
-            });
-        } else {
-            const modalInstance = $uibModal.open({
-                templateUrl: "view/modal/edit-entry.html",
-                controller: "ModalEditEntryCtrl",
-                backdrop: "static",
-                size: size,
-                resolve: {
-                    node: function () {
-                        return node;
-                    },
-                    path: function () {
-                        return path;
-                    },
-                    data: function () {
-                        return data;
-                    },
-                },
-            });
-
-            modalInstance.result.then(onSave, function () {
-                // cancel triggered
-            });
-        }
-    };
-
-    if (typeof node.secret_id === "undefined") {
-        if (node.hasOwnProperty("type")) {
-            const bp = itemBlueprint.get_blueprint(node.type);
-            if (bp.hasOwnProperty("convertToSecret")) {
-                onSuccess(bp.convertToSecret(node));
-                return;
-            }
-        }
-        onSuccess(node);
+        onError = function (e) {
+            // pass
+        };
+        shareService.readShare(closest_share["share_id"], closest_share["share_secret_key"]).then(onSuccess, onError);
     } else {
-        secretService.readSecret(node.secret_id, node.secret_key).then(onSuccess, onError);
+        // refresh datastore content before updating it
+        onError = function (result) {
+            // pass
+        };
+
+        onSuccess = function (datastore) {
+            const search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], datastore);
+            const node = search[0][search[1]];
+
+            // we delete all keys from the existing object and copy all the new ones
+            let keys = Object.keys(node);
+            for (let i = 0; i < keys.length; i++) {
+                delete node[keys[i]];
+            }
+            keys = Object.keys(newContent);
+            for (let i = 0; i < keys.length; i++) {
+                node[keys[i]] = newContent[keys[i]];
+            }
+
+            datastorePasswordService.saveDatastoreContent(datastore, [path.slice()]);
+            manager.handleDatastoreContentChanged(datastore);
+        };
+
+        return manager.getDatastoreWithId(closest_share["datastore_id"]).then(onSuccess, onError);
     }
+
+    return datastorePasswordService.saveDatastoreContent(datastore, [path.slice()]);
 }
 
 /**
@@ -811,7 +706,7 @@ function moveItem(datastore, itemPath, targetPath, type, datastoreType) {
         for (i = child_shares.length - 1; i >= 0; i--) {
             (function (child_share) {
                 timeout = timeout + 50;
-                $timeout(function () {
+                setTimeout(function () {
                     closest_share_info = shareService.getClosestParentShare(target_path_copy.concat(child_share.path), datastore, datastore, 1);
                     closest_parent = closest_share_info["closest_share"];
 
@@ -829,7 +724,7 @@ function moveItem(datastore, itemPath, targetPath, type, datastoreType) {
         for (i = secret_links.length - 1; i >= 0; i--) {
             (function (secret_link) {
                 timeout = timeout + 50;
-                $timeout(function () {
+                setTimeout(function () {
                     closest_share_info = shareService.getClosestParentShare(target_path_copy2.concat(secret_link.path), datastore, datastore, 0);
                     closest_parent = closest_share_info["closest_share"];
                     secretLinkService.onSecretMoved(secret_link.id, closest_parent);
@@ -841,7 +736,7 @@ function moveItem(datastore, itemPath, targetPath, type, datastoreType) {
         for (i = file_links.length - 1; i >= 0; i--) {
             (function (file_link) {
                 timeout = timeout + 50;
-                $timeout(function () {
+                setTimeout(function () {
                     closest_share_info = shareService.getClosestParentShare(target_path_copy2.concat(file_link.path), datastore, datastore, 0);
                     closest_parent = closest_share_info["closest_share"];
                     fileLinkService.onFileMoved(file_link.id, closest_parent);
@@ -890,9 +785,9 @@ function moveItem(datastore, itemPath, targetPath, type, datastoreType) {
  */
 function deleteItem(datastore, item, path, datastoreType) {
     if (datastoreType === "user" || (item.hasOwnProperty("deleted") && item["deleted"])) {
-        deleteItemPermanent(datastore, item, path, datastoreType);
+        return deleteItemPermanent(datastore, item, path, datastoreType);
     } else {
-        markItemAsDeleted(datastore, item, path, datastoreType);
+        return markItemAsDeleted(datastore, item, path, datastoreType);
     }
 }
 
@@ -934,7 +829,7 @@ function markItemAsDeleted(datastore, item, path, datastoreType) {
             onError = function (e) {
                 // pass
             };
-            shareService.readShare(closest_share["share_id"], closest_share["share_secret_key"]).then(onSuccess, onError);
+            return shareService.readShare(closest_share["share_id"], closest_share["share_secret_key"]).then(onSuccess, onError);
         } else {
             // refresh datastore content before updating it
             onError = function (result) {
@@ -951,10 +846,10 @@ function markItemAsDeleted(datastore, item, path, datastoreType) {
                 datastorePasswordService.handleDatastoreContentChanged(datastore);
             };
 
-            datastoreService.getDatastoreWithId(closest_share["datastore_id"]).then(onSuccess, onError);
+            return datastoreService.getDatastoreWithId(closest_share["datastore_id"]).then(onSuccess, onError);
         }
     } else if (datastoreType === "user") {
-        datastoreUserService.saveDatastoreContent(datastore, [element_path_that_changed]);
+        return datastoreUserService.saveDatastoreContent(datastore, [element_path_that_changed]);
     }
 }
 
@@ -1068,7 +963,7 @@ function cloneItem(datastore, item, path) {
 
                     // search the original item and prepare it
                     let search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], content.data);
-                    const element_copy = angular.copy(search[0][search[1]]);
+                    const element_copy = helper.duplicateObject(search[0][search[1]]);
                     element_copy["id"] = link_id;
                     element_copy["secret_id"] = e.secret_id;
                     element_copy["secret_key"] = e.secret_key;
@@ -1111,7 +1006,7 @@ function cloneItem(datastore, item, path) {
                 onError = function (e) {
                     // pass
                 };
-                shareService.readShare(closest_share["share_id"], closest_share["share_secret_key"]).then(onSuccess, onError);
+                return shareService.readShare(closest_share["share_id"], closest_share["share_secret_key"]).then(onSuccess, onError);
             } else {
                 // refresh datastore content before updating it
                 onError = function (result) {
@@ -1125,7 +1020,7 @@ function cloneItem(datastore, item, path) {
 
                     // search the original item and prepare it
                     let search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], datastore);
-                    const element_copy = angular.copy(search[0][search[1]]);
+                    const element_copy = helper.duplicateObject(search[0][search[1]]);
                     element_copy["id"] = link_id;
                     element_copy["secret_id"] = e.secret_id;
                     element_copy["secret_key"] = e.secret_key;
@@ -1156,12 +1051,12 @@ function cloneItem(datastore, item, path) {
             }
         };
 
-        secretService
+        return secretService
             .createSecret(secret_object, link_id, parent_datastore_id, parent_share_id, callback_url, callback_user, callback_pass)
             .then(onSuccess, onError);
     };
 
-    secretService.readSecret(item.secret_id, item.secret_key).then(onSuccess, onError);
+    return secretService.readSecret(item.secret_id, item.secret_key).then(onSuccess, onError);
 }
 
 /**
@@ -1239,7 +1134,7 @@ function deleteItemPermanent(datastore, item, path, datastoreType) {
                 for (i = child_shares.length - 1; i >= 0; i--) {
                     (function (child_share) {
                         timeout = timeout + 50;
-                        $timeout(function () {
+                        setTimeout(function () {
                             shareLinkService.onShareDeleted(child_share.share.id);
                         }, timeout);
                     })(child_shares[i]);
@@ -1248,7 +1143,7 @@ function deleteItemPermanent(datastore, item, path, datastoreType) {
                 for (i = secret_links.length - 1; i >= 0; i--) {
                     (function (secret_link) {
                         timeout = timeout + 50;
-                        $timeout(function () {
+                        setTimeout(function () {
                             secretLinkService.onSecretDeleted(secret_link.id);
                         }, timeout);
                     })(secret_links[i]);
@@ -1258,7 +1153,7 @@ function deleteItemPermanent(datastore, item, path, datastoreType) {
                 for (i = file_links.length - 1; i >= 0; i--) {
                     (function (file_link) {
                         timeout = timeout + 50;
-                        $timeout(function () {
+                        setTimeout(function () {
                             fileLinkService.onFileDeleted(file_link.id);
                         }, timeout);
                     })(file_links[i]);
@@ -1316,7 +1211,7 @@ function deleteItemPermanent(datastore, item, path, datastoreType) {
                 for (i = child_shares.length - 1; i >= 0; i--) {
                     (function (child_share) {
                         timeout = timeout + 50;
-                        $timeout(function () {
+                        setTimeout(function () {
                             shareLinkService.onShareDeleted(child_share.share.id);
                         }, timeout);
                     })(child_shares[i]);
@@ -1325,7 +1220,7 @@ function deleteItemPermanent(datastore, item, path, datastoreType) {
                 for (i = secret_links.length - 1; i >= 0; i--) {
                     (function (secret_link) {
                         timeout = timeout + 50;
-                        $timeout(function () {
+                        setTimeout(function () {
                             secretLinkService.onSecretDeleted(secret_link.id);
                         }, timeout);
                     })(secret_links[i]);
@@ -1335,7 +1230,7 @@ function deleteItemPermanent(datastore, item, path, datastoreType) {
                 for (i = file_links.length - 1; i >= 0; i--) {
                     (function (file_link) {
                         timeout = timeout + 50;
-                        $timeout(function () {
+                        setTimeout(function () {
                             fileLinkService.onFileDeleted(file_link.id);
                         }, timeout);
                     })(file_links[i]);

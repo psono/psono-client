@@ -14,6 +14,7 @@ import { KeyboardDateTimePicker } from "@material-ui/pickers";
 
 import GridContainerErrors from "../../components/grid-container-errors";
 import linkShareService from "../../services/link-share";
+import TextFieldPassword from "../../components/text-field-password";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -105,6 +106,7 @@ const EditActiveLinksShareDialog = (props) => {
                             helperText={t("INFO_PUBLIC_TITLE_WILL_BE_VISIBLE")}
                             name="publicTitle"
                             autoComplete="publicTitle"
+                            required
                             value={publicTitle}
                             onChange={(event) => {
                                 setPublicTitle(event.target.value);
@@ -166,7 +168,7 @@ const EditActiveLinksShareDialog = (props) => {
                     </Grid>
                     {changePassphrase && (
                         <Grid item xs={12} sm={12} md={12}>
-                            <TextField
+                            <TextFieldPassword
                                 className={classes.textField}
                                 variant="outlined"
                                 margin="dense"
@@ -175,9 +177,6 @@ const EditActiveLinksShareDialog = (props) => {
                                 helperText={t("SHARE_LINK_PASSPHRASE_INFO")}
                                 name="passphrase"
                                 autoComplete="passphrase"
-                                InputProps={{
-                                    type: "password",
-                                }}
                                 value={passphrase}
                                 onChange={(event) => {
                                     setPassphrase(event.target.value);
@@ -185,9 +184,9 @@ const EditActiveLinksShareDialog = (props) => {
                             />
                         </Grid>
                     )}
-                    {changePassphrase && (
+                    {changePassphrase && Boolean(passphrase) && (
                         <Grid item xs={12} sm={12} md={12}>
-                            <TextField
+                            <TextFieldPassword
                                 className={classes.textField}
                                 variant="outlined"
                                 margin="dense"
@@ -195,10 +194,9 @@ const EditActiveLinksShareDialog = (props) => {
                                 label={t("PASSPHRASE_REPEAT")}
                                 name="passphraseRepeat"
                                 autoComplete="passphraseRepeat"
-                                InputProps={{
-                                    type: "password",
-                                }}
+                                error={Boolean(passphrase) && Boolean(passphraseRepeat) && passphrase !== passphraseRepeat}
                                 value={passphraseRepeat}
+                                required
                                 onChange={(event) => {
                                     setPassphraseRepeat(event.target.value);
                                 }}

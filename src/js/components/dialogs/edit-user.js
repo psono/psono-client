@@ -7,19 +7,10 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
-import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
 import { Grid } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import IconButton from "@material-ui/core/IconButton";
 
 import GridContainerErrors from "../grid-container-errors";
-import Table from "../table";
-import helperService from "../../services/helper";
-import store from "../../services/store";
-import browserClient from "../../services/browser-client";
-import datastoreUserService from "../../services/datastore-user";
-import cryptoLibrary from "../../services/crypto-library";
 
 const useStyles = makeStyles((theme) => ({
     textField: {

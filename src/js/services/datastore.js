@@ -365,24 +365,24 @@ function fillStorage(db, datastore, map, filter) {
  * Encrypts the content for a datastore with given id. The function will check if the secret key of the
  * datastore is already known, otherwise it will query the server for the details.
  *
- * @param {uuid} datastore_id The datastore id
+ * @param {uuid} datastoreId The datastore id
  * @param {TreeObject} content The real object you want to encrypt in the datastore
  *
  * @returns {Promise} Promise with the status of the save
  */
-function encryptDatastore(datastore_id, content) {
-    const json_content = JSON.stringify(content);
+function encryptDatastore(datastoreId, content) {
+    const jsonContent = JSON.stringify(content);
 
-    function encrypt(datastore_id, json_content) {
-        const secret_key = tempDatastoreKeyStorage[datastore_id];
+    function encrypt(datastoreId, json_content) {
+        const secret_key = tempDatastoreKeyStorage[datastoreId];
 
         return cryptoLibrary.encryptData(json_content, secret_key);
     }
 
-    if (tempDatastoreKeyStorage.hasOwnProperty(datastore_id)) {
+    if (tempDatastoreKeyStorage.hasOwnProperty(datastoreId)) {
         // datastore secret key exists in temp datastore key storage, but we have to return a promise :/
         return new Promise(function (resolve) {
-            resolve(encrypt(datastore_id, json_content));
+            resolve(encrypt(datastoreId, jsonContent));
         });
     } else {
         const onError = function (result) {
@@ -391,10 +391,10 @@ function encryptDatastore(datastore_id, content) {
 
         const onSuccess = function (datastore_id) {
             // datastore_secret key should now exist in temp datastore key storage
-            return encrypt(datastore_id, json_content);
+            return encrypt(datastore_id, jsonContent);
         };
 
-        return getDatastoreWithId(datastore_id).then(onSuccess, onError);
+        return getDatastoreWithId(datastoreId).then(onSuccess, onError);
     }
 }
 
