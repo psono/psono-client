@@ -584,10 +584,15 @@
                 }
 
                 return $q(function(resolve, reject) {
+                    if (storage.find_key('persistent', 'autoapprove_ldap_' + server_check['server_url'])) {
+                        return resolve(true);
+                    }
 
                     if (!disable_send_plain && has_ldap_auth(server_check)) {
 
                         $scope.approve_send_plain = function () {
+                            storage.upsert('persistent', {key: 'autoapprove_ldap_' + server_check['server_url'], value: true});
+                            storage.save()
                             return resolve(true);
                         };
 
