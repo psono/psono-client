@@ -23,10 +23,11 @@
         var INDEX_URL = 0;
         var INDEX_USERNAME = 1;
         var INDEX_PASSWORD = 2;
-        var INDEX_EXTRA = 3;
-        var INDEX_NAME = 4;
-        var INDEX_GROUPING = 5;
-        var INDEX_FAV = 6; // not used yet ...
+        var INDEX_TOTP = 3;
+        var INDEX_EXTRA = 4;
+        var INDEX_NAME = 5;
+        var INDEX_GROUPING = 6;
+        var INDEX_FAV = 7; // not used yet ...
 
 
         activate();

@@ -1235,7 +1235,7 @@
                             // search the original item and prepare it
                             var search = managerDatastorePassword.find_in_datastore(closest_share_info['relative_path'], content.data);
                             var element_copy = angular.copy(search[0][search[1]]);
-                            element_copy['id'] = cryptoLibrary.generate_uuid();
+                            element_copy['id'] = link_id;
                             element_copy['secret_id'] = e.secret_id;
                             element_copy['secret_key'] = e.secret_key;
                             element_copy['name'] = 'Copy ' + element_copy['name'];
@@ -1295,7 +1295,7 @@
                             // search the original item and prepare it
                             var search = managerDatastorePassword.find_in_datastore(closest_share_info['relative_path'], datastore);
                             var element_copy = angular.copy(search[0][search[1]]);
-                            element_copy['id'] = cryptoLibrary.generate_uuid();
+                            element_copy['id'] = link_id;
                             element_copy['secret_id'] = e.secret_id;
                             element_copy['secret_key'] = e.secret_key;
                             element_copy['name'] = 'Copy ' + element_copy['name'];

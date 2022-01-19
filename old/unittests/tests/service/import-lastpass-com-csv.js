@@ -27,17 +27,17 @@
 
         it('parse', inject(function (importLastPassComCsv) {
 
-            var input = "url,username,password,extra,name,grouping,fav\n" +
-                "https://www.magentocommerce.com/products/customer/account/login/,username@gmail.net,2r4f4%$23,,magentocommerce.com,Passwords,0\n" +
-                "https://www.spotify.com/de/login/,username,4ggga4aga4,,spotify,Passwords,0\n" +
-                "http://www.hardwareluxx.com/community/,username,g4hw809hgßw4GH,,Password für hardwareluxx.com,Passwords,0\n" +
-                "https://login.live.com/,username@gmail.com,ab4zab4z5abz5,\"live.com recovery code\n" +
+            var input = "url,username,password,totp,extra,name,grouping,fav\n" +
+                "https://www.magentocommerce.com/products/customer/account/login/,username@gmail.net,2r4f4%$23,,,magentocommerce.com,Passwords,0\n" +
+                "https://www.spotify.com/de/login/,username,4ggga4aga4,,,spotify,Passwords,0\n" +
+                "http://www.hardwareluxx.com/community/,username,g4hw809hgßw4GH,,,Password für hardwareluxx.com,Passwords,0\n" +
+                "https://login.live.com/,username@gmail.com,ab4zab4z5abz5,,\"live.com recovery code\n" +
                 "Your new code is ABCDE-ABCDE-ABCDE-ABCDE-ABCDE\n" +
                 "\n" +
                 "App Password: bs4tzb4stbs4t\",login.live.com (Microsoft Windows Store),Passwords,0\n" +
-                "http://php.net/manual/de/function.explode.php,,by4eyb4yb4yb4yb46yb4,,Generated Password for php.net,Passwords,0\n" +
-                "https://login.veeam.com/,username@gmail.com,n46a6ab4a6b4,test,login.veeam.com,Passwords,0\n" +
-                "http://sn,,,\"NoteType:Software License\n" +
+                "http://php.net/manual/de/function.explode.php,,by4eyb4yb4yb4yb46yb4,,,Generated Password for php.net,Passwords,0\n" +
+                "https://login.veeam.com/,username@gmail.com,n46a6ab4a6b4,,test,login.veeam.com,Passwords,0\n" +
+                "http://sn,,,,\"NoteType:Software License\n" +
                 "License Key:ASDFG-ASDFG-ASDFG-ASDFG-ASDFG\n" +
                 "Licensee:\n" +
                 "Version:\n" +
