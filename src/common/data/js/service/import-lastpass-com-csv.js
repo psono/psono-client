@@ -74,22 +74,31 @@
          * @returns {string} Returns the appropriate type (note or website_password)
          */
         var get_type = function(line) {
+            var contains_url = line[INDEX_URL];
+            var contains_username = line[INDEX_USERNAME];
+            var contains_password = line[INDEX_PASSWORD];
+            
             if (line[INDEX_URL] === 'http://sn') {
                 // its a license, so lets return a note as we don't have this object class yet
                 return 'note'
             }
-            if (line[INDEX_URL].trim() === '') {
-                // empty url, should be a note
-                return 'note'
-            } else {
-                // Should have an url, so should be a password
-                return 'website_password'
+
+            if (contains_url && (contains_username || contains_password)) {
+                return 'website_password';
             }
+            if (contains_url) {
+                return 'bookmark';
+            }
+            if (contains_username || contains_password) {
+                return 'application_password';
+            }
+
+            return 'note';
         };
 
         /**
          * @ngdoc
-         * @name psonocli.importLastPassComCsv#transfor_into_note
+         * @name psonocli.importLastPassComCsv#transfer_into_note
          * @methodOf psonocli.importLastPassComCsv
          *
          * @description
@@ -99,7 +108,7 @@
          *
          * @returns {*} The note secret object
          */
-        var transfor_into_note = function(line) {
+        var transfer_into_note = function(line) {
 
             var note_notes = '';
             if (line[INDEX_USERNAME]) {
@@ -127,7 +136,7 @@
 
         /**
          * @ngdoc
-         * @name psonocli.importLastPassComCsv#transfor_into_website_password
+         * @name psonocli.importLastPassComCsv#transfer_into_website_password
          * @methodOf psonocli.importLastPassComCsv
          *
          * @description
@@ -137,7 +146,7 @@
          *
          * @returns {*} The website_password secret object
          */
-        var transfor_into_website_password = function(line) {
+        var transfer_into_website_password = function(line) {
 
             var parsed_url = helper.parse_url(line[INDEX_URL]);
 
@@ -157,6 +166,59 @@
 
         /**
          * @ngdoc
+         * @name psonocli.importLastPassComCsv#transfer_into_bookmark
+         * @methodOf psonocli.importLastPassComCsv
+         *
+         * @description
+         * Takes a line that should represent a bookmark and transforms it into a proper secret object
+         *
+         * @param {[]} line One line of the CSV that represents a website password
+         *
+         * @returns {*} The bookmark secret object
+         */
+        var transfer_into_bookmark = function(line) {
+
+            var parsed_url = helper.parse_url(line[INDEX_URL]);
+
+            return {
+                id : cryptoLibrary.generate_uuid(),
+                type : "bookmark",
+                name : line[INDEX_NAME],
+                "urlfilter" : parsed_url.authority,
+                "bookmark_url_filter" : parsed_url.authority,
+                "bookmark_notes" : line[INDEX_EXTRA],
+                "bookmark_url" : line[INDEX_URL],
+                "bookmark_title" : line[INDEX_NAME]
+            }
+        };
+
+        /**
+         * @ngdoc
+         * @name psonocli.importLastPassComCsv#transfer_into_application_password
+         * @methodOf psonocli.importLastPassComCsv
+         *
+         * @description
+         * Takes a line that should represent an application passwords and transforms it into a proper secret object
+         *
+         * @param {[]} line One line of the CSV that represents a website password
+         *
+         * @returns {*} The application_password secret object
+         */
+        var transfer_into_application_password = function(line) {
+
+            return {
+                id : cryptoLibrary.generate_uuid(),
+                type : "application_password",
+                name : line[INDEX_NAME],
+                "application_password_password" : line[INDEX_PASSWORD],
+                "application_password_username" : line[INDEX_USERNAME],
+                "application_password_notes" : line[INDEX_EXTRA],
+                "application_password_title" : line[INDEX_NAME]
+            }
+        };
+
+        /**
+         * @ngdoc
          * @name psonocli.importLastPassComCsv#transform_to_secret
          * @methodOf psonocli.importLastPassComCsv
          *
@@ -170,9 +232,13 @@
         var transform_to_secret = function(line) {
             var type = get_type(line);
             if (type === 'note') {
-                return transfor_into_note(line);
+                return transfer_into_note(line);
+            } else if(type === 'application_password') {
+                return transfer_into_application_password(line);
+            } else if(type === 'bookmark') {
+                return transfer_into_bookmark(line);
             } else {
-                return transfor_into_website_password(line);
+                return transfer_into_website_password(line);
             }
         };
 
