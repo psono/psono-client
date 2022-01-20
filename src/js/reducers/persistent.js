@@ -1,4 +1,4 @@
-import { SET_FINGERPRINT, SET_KNOWN_HOSTS, SET_REMOTE_CONFIG_JSON } from "../actions/action-types";
+import { SET_FINGERPRINT, SET_KNOWN_HOSTS, SET_AUTO_APPROVE_PLAINTEXT_PASSWORD, SET_REMOTE_CONFIG_JSON } from "../actions/action-types";
 
 const defaultKnownHosts = [
     {
@@ -10,6 +10,7 @@ const defaultKnownHosts = [
 function persistent(
     state = {
         knownHosts: defaultKnownHosts,
+        autoApproveLdap: {},
         remoteConfigJson: null,
         fingerprint: null,
     },
@@ -19,6 +20,10 @@ function persistent(
         case SET_KNOWN_HOSTS:
             return Object.assign({}, state, {
                 knownHosts: action.knownHosts,
+            });
+        case SET_AUTO_APPROVE_PLAINTEXT_PASSWORD:
+            return Object.assign({}, state, {
+                autoApproveLdap: action.autoApproveLdap,
             });
         case SET_REMOTE_CONFIG_JSON:
             return Object.assign({}, state, {

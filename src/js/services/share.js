@@ -5,6 +5,10 @@
 import cryptoLibrary from "../services/crypto-library";
 import apiClient from "../services/api-client";
 import store from "./store";
+import datastoreService from "./datastore";
+import secretLinkService from "./secret-link";
+import fileLinkService from "./file-link";
+import shareLinkService from "./share-link";
 
 const registrations = {};
 
@@ -104,7 +108,7 @@ function createShare(content, parentShareId, parentDatastoreId, linkId) {
     const child_shares = [];
     registrations["get_all_child_shares"](content, 1, child_shares, []);
 
-    const filtered_content = datastore.filterDatastoreContent(content);
+    const filtered_content = datastoreService.filterDatastoreContent(content);
     let old_link_id;
 
     if (filtered_content.hasOwnProperty("id")) {
@@ -125,21 +129,21 @@ function createShare(content, parentShareId, parentDatastoreId, linkId) {
 
     const onSuccess = function (content) {
         if (filtered_content.hasOwnProperty("secret_id")) {
-            managerSecretLink.move_secret_link(old_link_id, content.data.share_id);
+            secretLinkService.moveSecretLink(old_link_id, content.data.share_id);
         } else {
-            managerSecretLink.reset_secret_link_timeout();
-            managerSecretLink.move_secret_links(filtered_content, content.data.share_id);
+            secretLinkService.resetSecretLinkTimeout();
+            secretLinkService.moveSecretLinks(filtered_content, content.data.share_id);
         }
 
         if (filtered_content.hasOwnProperty("file_id")) {
-            managerFileLink.move_file_link(old_link_id, content.data.share_id);
+            fileLinkService.moveFileLink(old_link_id, content.data.share_id);
         } else {
-            managerFileLink.move_file_links(filtered_content, content.data.share_id);
+            fileLinkService.moveFileLinks(filtered_content, content.data.share_id);
         }
 
         // Update all child shares to be now a child of this share.
         for (let i = 0; i < child_shares.length; i++) {
-            managerShareLink.move_share_link(child_shares[i]["share"]["id"], content.data.share_id, undefined);
+            shareLinkService.moveShareLink(child_shares[i]["share"]["id"], content.data.share_id, undefined);
         }
 
         return { share_id: content.data.share_id, secret_key: secret_key };

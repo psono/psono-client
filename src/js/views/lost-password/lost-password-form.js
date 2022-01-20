@@ -66,8 +66,10 @@ const LostPasswordViewForm = (props) => {
     const [allowLostPassword, setAllowLostPassword] = useState(false);
     const [allowCustomServer, setAllowCustomServer] = useState(true);
 
+    let isSubscribed = true;
     React.useEffect(() => {
         browserClient.getConfig().then(onNewConfigLoaded);
+        return () => (isSubscribed = false);
     }, []);
 
     const cancel = (e) => {
@@ -122,6 +124,9 @@ const LostPasswordViewForm = (props) => {
     };
 
     const onNewConfigLoaded = (configJson) => {
+        if (!isSubscribed) {
+            return;
+        }
         const serverUrl = configJson["backend_servers"][0]["url"];
         const domain = configJson["backend_servers"][0]["domain"];
         const allowLostPassword =

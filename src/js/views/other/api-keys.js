@@ -25,13 +25,18 @@ const OtherApiKeysView = (props) => {
     const [editOpen, setEditOpen] = React.useState(false);
     const [deleteOpen, setDeleteOpen] = React.useState(false);
 
+    let isSubscribed = true;
     React.useEffect(() => {
         loadApiKeys();
+        return () => (isSubscribed = false);
     }, []);
 
     const loadApiKeys = () => {
         return apiKey.readApiKeys().then(
             function (data) {
+                if (!isSubscribed) {
+                    return false;
+                }
                 setApiKeys(
                     data.api_keys.map((apiKey, index) => {
                         return [apiKey.id, apiKey.title, apiKey.restrict_to_secrets, apiKey.allow_insecure_access, apiKey.read, apiKey.write, apiKey.active];

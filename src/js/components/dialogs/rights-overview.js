@@ -101,11 +101,10 @@ const DialogRightsOverview = (props) => {
     }
 
     function deleteRight(rightId) {
-        let right = shareDetails.user_share_rights.find((right) => (right.id = rightId));
+        let right = shareDetails.user_share_rights.find((right) => right.id === rightId);
         if (!right) {
-            right = shareDetails.group_share_rights.find((right) => (right.id = rightId));
+            right = shareDetails.group_share_rights.find((right) => right.id === rightId);
         }
-
         if (store.getState().user.username === right.username) {
             setVerifyDeleteOwnShareRightData({ right: right });
             setVerifyDeleteOwnShareRightOpen(true);
@@ -147,9 +146,9 @@ const DialogRightsOverview = (props) => {
     };
 
     const toggleRight = (type, rightId) => {
-        let right = shareDetails.user_share_rights.find((right) => (right.id = rightId));
+        let right = shareDetails.user_share_rights.find((right) => right.id === rightId);
         if (!right) {
-            right = shareDetails.group_share_rights.find((right) => (right.id = rightId));
+            right = shareDetails.group_share_rights.find((right) => right.id === rightId);
         }
 
         if (type === "grant" && store.getState().user.username === right.username) {

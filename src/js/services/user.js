@@ -17,25 +17,25 @@ let verification = {};
 let redirectOnTwoFaMissing;
 
 /**
- * Updates the global state with username, server, remember_me and trust_device
+ * Updates the global state with username, server, rememberMe and trustDevice
  * Returns the result of check_host
  *
  * @param username
  * @param server
- * @param remember_me
- * @param trust_device
+ * @param rememberMe
+ * @param trustDevice
  * @param {boolean} twoFaRedirect Redirect user to enforce-two-fa.html or let another controller handle it
  *
  * @returns {Promise}
  */
-function initiateLogin(username, server, remember_me, trust_device, twoFaRedirect) {
+function initiateLogin(username, server, rememberMe, trustDevice, twoFaRedirect) {
     redirectOnTwoFaMissing = twoFaRedirect;
     action.setServerUrl(server);
     let parsedUrl = helperService.parseUrl(server);
 
     username = helperService.formFullUsername(username, parsedUrl["full_domain"]);
     action.setUserUsername(username);
-    action.setUserInfo1(remember_me, trust_device, "AUTHKEY");
+    action.setUserInfo1(rememberMe, trustDevice, "AUTHKEY");
 
     return host.checkHost(server).then((response) => {
         return response;
@@ -93,11 +93,11 @@ function onPotentialOidcAutologin() {
  * @param {string} provider The provider config from config.json passed down
  * @param {boolean|undefined} remember Remember username and server
  * @param {boolean|undefined} trustDevice Trust the device for 30 days or logout when browser closes
- * @param {boolean} twoFaFedirect Redirect user to enforce-two-fa.html or let another controller handle it
+ * @param {boolean} twoFaRedirect Redirect user to enforce-two-fa.html or let another controller handle it
  */
-function initiateSamlLoginNewTab(provider, remember, trustDevice, twoFaFedirect) {
+function initiateSamlLoginNewTab(provider, remember, trustDevice, twoFaRedirect) {
     browserClient.openTab(
-        "index.html#!/initiate-saml-login/" + provider.provider_id + "/" + (remember === true) + "/" + (trustDevice === true) + "/" + (twoFaFedirect === true)
+        "index.html#!/initiate-saml-login/" + provider.provider_id + "/" + (remember === true) + "/" + (trustDevice === true) + "/" + (twoFaRedirect === true)
     );
 }
 
@@ -388,15 +388,15 @@ function duoVerify(duoToken) {
 /**
  * Ajax POST request to the backend with the token
  *
- * @param {string} yubikey_otp The YubiKey OTP token
+ * @param {string} yubikeyOtp The YubiKey OTP token
  *
  * @returns Promise Returns a promise with the login status
  */
-function yubikeyOtpVerify(yubikey_otp) {
+function yubikeyOtpVerify(yubikeyOtp) {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
 
-    return apiClientService.yubikeyOtpVerify(token, yubikey_otp, sessionSecretKey).catch((response) => {
+    return apiClientService.yubikeyOtpVerify(token, yubikeyOtp, sessionSecretKey).catch((response) => {
         if (response.hasOwnProperty("data") && response.data.hasOwnProperty("non_field_errors")) {
             return Promise.reject(response.data.non_field_errors);
         } else {
@@ -443,14 +443,14 @@ function activateToken() {
  *
  * @param {object} response The login response
  * @param {string} password The password
- * @param {object} session_keys The session keys
- * @param {string} server_public_key The server's public key
+ * @param {object} sessionKeys The session keys
+ * @param {string} serverPublicKey The server's public key
  *
  * @returns {Array} The list of required multifactor challenges to solve
  */
-function handleLoginResponse(response, password, session_keys, server_public_key) {
+function handleLoginResponse(response, password, sessionKeys, serverPublicKey) {
     response.data = JSON.parse(
-        cryptoLibrary.decryptDataPublicKey(response.data.login_info, response.data.login_info_nonce, server_public_key, session_keys.private_key)
+        cryptoLibrary.decryptDataPublicKey(response.data.login_info, response.data.login_info_nonce, serverPublicKey, sessionKeys.private_key)
     );
 
     const token = response.data.token;
@@ -463,7 +463,7 @@ function handleLoginResponse(response, password, session_keys, server_public_key
         response.data.session_secret_key,
         response.data.session_secret_key_nonce,
         response.data.session_public_key,
-        session_keys.private_key
+        sessionKeys.private_key
     );
 
     // decrypt user private key
@@ -485,10 +485,10 @@ function handleLoginResponse(response, password, session_keys, server_public_key
     return response.data["required_multifactors"];
 }
 
-function login(password, server_info, send_plain) {
+function login(password, serverInfo, sendPlain) {
     const username = store.getState().user.username;
     const trust_device = store.getState().user.trustDevice;
-    const server_public_key = server_info.info.public_key;
+    const server_public_key = serverInfo.info.public_key;
 
     const authkey = cryptoLibrary.generateAuthkey(username, password);
     const session_keys = cryptoLibrary.generatePublicPrivateKeypair();
@@ -513,7 +513,7 @@ function login(password, server_info, send_plain) {
         device_description: device.getDeviceDescription(),
     };
 
-    if (send_plain) {
+    if (sendPlain) {
         login_info["password"] = password;
     }
 

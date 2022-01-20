@@ -1,5 +1,6 @@
 import {
     SET_KNOWN_HOSTS,
+    SET_AUTO_APPROVE_PLAINTEXT_PASSWORD,
     SET_USER_USERNAME,
     SET_USER_INFO_1,
     SET_USER_INFO_2,
@@ -241,6 +242,15 @@ function setKnownHosts(knownHosts) {
     };
 }
 
+function setAutoApproveLdap(autoApproveLdap) {
+    return (dispatch) => {
+        dispatch({
+            type: SET_AUTO_APPROVE_PLAINTEXT_PASSWORD,
+            autoApproveLdap: autoApproveLdap,
+        });
+    };
+}
+
 function setFingerprint(fingerprint) {
     return (dispatch) => {
         dispatch({
@@ -300,6 +310,7 @@ const actionCreators = {
     settingsDatastoreLoaded,
     setAdminClientConfig,
     setKnownHosts,
+    setAutoApproveLdap,
     setFingerprint,
     setRemoteConfigJson,
     sendNotification,

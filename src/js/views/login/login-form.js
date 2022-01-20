@@ -322,9 +322,10 @@ const LoginViewForm = (props) => {
         setView("default");
         setPassword("");
         setErrors([]);
+        setLoginLoading(false);
     };
 
-    const nextLoginStep = (sendPlain) => {
+    const nextLoginStep = (sendPlain, serverCheck) => {
         let userPassword = password;
         setPassword("");
 
@@ -349,10 +350,13 @@ const LoginViewForm = (props) => {
     };
 
     const disapproveSendPlain = () => {
-        return nextLoginStep(false);
+        return nextLoginStep(false, serverCheck);
     };
     const approveSendPlain = () => {
-        return nextLoginStep(true);
+        const autoApproveLdap = helperService.duplicateObject(store.getState().persistent.autoApproveLdap);
+        autoApproveLdap[serverCheck.server_url] = true;
+        action.setAutoApproveLdap(autoApproveLdap);
+        return nextLoginStep(true, serverCheck);
     };
 
     const onNewConfigLoaded = (configJson) => {
@@ -476,10 +480,14 @@ const LoginViewForm = (props) => {
                         setView(serverCheck.status);
                     } else if (hasLdapAuth(serverCheck)) {
                         console.log("ask_send_plain");
-                        setView("ask_send_plain");
-                        setLoginLoading(false);
+                        if (store.getState().persistent.autoApproveLdap.hasOwnProperty(serverCheck.server_url)) {
+                            return nextLoginStep(true, serverCheck);
+                        } else {
+                            setView("ask_send_plain");
+                            setLoginLoading(false);
+                        }
                     } else {
-                        return nextLoginStep(false);
+                        return nextLoginStep(false, serverCheck);
                     }
                 },
                 (result) => {

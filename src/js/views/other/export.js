@@ -96,6 +96,7 @@ const OtherExportView = (props) => {
                         label={t("TYPE")}
                     >
                         <MenuItem value={"json"}>{t("JSON_IMPORT_COMPATIBLE")}</MenuItem>
+                        <MenuItem value={"csv"}>{t("CSV")}</MenuItem>
                     </Select>
                 </FormControl>
             </Grid>

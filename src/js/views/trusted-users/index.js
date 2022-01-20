@@ -28,6 +28,7 @@ import DialogEditUser from "../../components/dialogs/edit-user";
 import datastoreUser from "../../services/datastore-user";
 import DatastoreTree from "../../components/datastore-tree";
 import datastoreService from "../../services/datastore";
+import datastoreUserService from "../../services/datastore-user";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -171,44 +172,15 @@ const TrustedUsersView = (props) => {
     const onNewUserCreate = (userObject) => {
         // called once someone clicked the CREATE button in the dialog closes with the infos about the user
         setNewUserOpen(false);
+
         let parent;
         if (newUserData["parent"]) {
             parent = newUserData["parent"];
         } else {
             parent = datastore;
         }
-        if (typeof parent.items === "undefined") {
-            parent.items = [];
-        }
 
-        // check if we do not already have the user in our trusted user datastore
-        // skip if we already have it
-        const existingLocations = datastorePassword.searchInDatastore(userObject, datastore, function (a, b) {
-            if (!a.hasOwnProperty("data")) {
-                return false;
-            }
-            if (!b.hasOwnProperty("data")) {
-                return false;
-            }
-            if (!a["data"].hasOwnProperty("user_public_key")) {
-                return false;
-            }
-            if (!b["data"].hasOwnProperty("user_public_key")) {
-                return false;
-            }
-            return a["data"]["user_public_key"] === b["data"]["user_public_key"];
-        });
-
-        if (existingLocations.length < 1) {
-            parent.items.push(userObject);
-            datastoreService.updateShareRightsOfFoldersAndItems(datastore, {
-                read: true,
-                write: true,
-                grant: true,
-                delete: true,
-            });
-            return datastoreUser.saveDatastoreContent(datastore);
-        }
+        datastoreUserService.addUserToDatastore(datastore, userObject, parent);
     };
     const onNewUser = (parent, path) => {
         // called whenever someone clicks on a new folder Icon

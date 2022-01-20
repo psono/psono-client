@@ -1,4 +1,6 @@
 {
+  "FOLDER": "Ordner",
+  "SHARE_TITLE_ITEM": "{{entry_type}} it dem Titel '{{title}}'",
   "OLDER_THAN_180_DAYS": "Older than 180 days",
   "OLDER_THAN_90_DAYS": "Older than 90 days",
   "NEWER_THAN_90_DAYS": "Newer than 90 days",
@@ -53,6 +55,7 @@
   "ACCOUNT_NAME_IS_REQUIRED": "Account name ist erforderlich",
   "PRIMARY_KEY_IS_REQUIRED": "Primary key ist erforderlich",
   "CONTAINER_NAME_IS_REQUIRED": "Container name ist erforderlich",
+  "CSV": "CSV",
   "JSON_IMPORT_COMPATIBLE": "JSON (Import kompatibel)",
   "ENCODING": "Encodierung",
   "ADD_ENTRY": "Eintrag hinzufügen",
@@ -74,7 +77,7 @@
   "UNKNOWN_ERROR": "Unbekannter Fehler",
   "UNKNOWN_ERROR_CHECK_BROWSER_CONSOLE": "Unbekannter Fehler. Bitte überprüfen sie die Konsole ihres Browsers für Details.",
   "UNKNOWN_USER": "Unbekannter Nutzer",
-  "USER_DOES_NOT_EXIST_PROBABLY_DELETED": "Nutzer existiert nicht auf dem Server. Vermutlich wurde er gelöscht. Sie können ihn aus dem Datenspeicher ihrer vertrauenswürdigen Nutzer löschen und es erneut versuchen.",
+  "USER_DOES_NOT_EXIST_PROBABLY_DELETED": "Nutzer existiert nicht auf dem Server. Vermutlich wurde er gelöscht. Sie können ihn aus dem Datenspeicher ihrer vertrauenswürdigen Nutzer löschen und es erneut versuchen. Benutzername: {{name}}",
   "USERNAME_ALREADY_EXISTS": "Benutzername existiert bereits.",
   "VERIFICATION_CODE_INCORRECT": "Verifikationscode ungültig.",
   "GA_CHALLENGE_UNSOLVED": "Google Authenticator challenge ungelöst.",

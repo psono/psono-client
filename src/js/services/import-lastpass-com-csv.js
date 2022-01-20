@@ -8,10 +8,11 @@ import helperService from "./helper";
 const INDEX_URL = 0;
 const INDEX_USERNAME = 1;
 const INDEX_PASSWORD = 2;
-const INDEX_EXTRA = 3;
-const INDEX_NAME = 4;
-const INDEX_GROUPING = 5;
-const INDEX_FAV = 6; // not used yet ...
+const INDEX_TOTP = 3;
+const INDEX_EXTRA = 4;
+const INDEX_NAME = 5;
+const INDEX_GROUPING = 6;
+const INDEX_FAV = 7; // not used yet ...
 
 /**
  * Interprets a line and returns the folder name this entry should late belong to
@@ -20,7 +21,7 @@ const INDEX_FAV = 6; // not used yet ...
  *
  * @returns {string} The name of the folder this line belongs into
  */
-function get_folder_name(line) {
+function getFolderName(line) {
     if (line[INDEX_GROUPING] === "" || typeof line[INDEX_GROUPING] === "undefined" || line[INDEX_GROUPING] === "(none)" || line[INDEX_GROUPING] === "(keine)") {
         return "Undefined";
     } else {
@@ -36,17 +37,26 @@ function get_folder_name(line) {
  * @returns {string} Returns the appropriate type (note or website_password)
  */
 function getType(line) {
+    const contains_url = line[INDEX_URL];
+    const contains_username = line[INDEX_USERNAME];
+    const contains_password = line[INDEX_PASSWORD];
+
     if (line[INDEX_URL] === "http://sn") {
         // its a license, so lets return a note as we don't have this object class yet
         return "note";
     }
-    if (line[INDEX_URL].trim() === "") {
-        // empty url, should be a note
-        return "note";
-    } else {
-        // Should have an url, so should be a password
+
+    if (contains_url && (contains_username || contains_password)) {
         return "website_password";
     }
+    if (contains_url) {
+        return "bookmark";
+    }
+    if (contains_username || contains_password) {
+        return "application_password";
+    }
+
+    return "note";
 }
 
 /**
@@ -106,6 +116,47 @@ function transformIntoWebsitePassword(line) {
 }
 
 /**
+ * Takes a line that should represent a bookmark and transforms it into a proper secret object
+ *
+ * @param {[]} line One line of the CSV that represents a bookmark
+ *
+ * @returns {*} The bookmark secret object
+ */
+function transformIntoBookmark(line) {
+    const parsed_url = helperService.parseUrl(line[INDEX_URL]);
+
+    return {
+        id: cryptoLibrary.generateUuid(),
+        type: "bookmark",
+        name: line[INDEX_NAME],
+        urlfilter: parsed_url.authority,
+        bookmark_url_filter: parsed_url.authority,
+        bookmark_notes: line[INDEX_EXTRA],
+        bookmark_url: line[INDEX_URL],
+        bookmark_title: line[INDEX_NAME],
+    };
+}
+
+/**
+ * Takes a line that should represent a application passwords and transforms it into a proper secret object
+ *
+ * @param {[]} line One line of the CSV that represents a application password
+ *
+ * @returns {*} The application_password secret object
+ */
+function transformIntoApplicationPassword(line) {
+    return {
+        id: cryptoLibrary.generateUuid(),
+        type: "application_password",
+        name: line[INDEX_NAME],
+        application_password_password: line[INDEX_PASSWORD],
+        application_password_username: line[INDEX_USERNAME],
+        application_password_notes: line[INDEX_EXTRA],
+        application_password_title: line[INDEX_NAME],
+    };
+}
+
+/**
  * Takes a line, checks its type and transforms it into a proper secret object
  *
  * @param {[]} line One line of the CSV
@@ -116,6 +167,10 @@ function transformToSecret(line) {
     const type = getType(line);
     if (type === "note") {
         return transformIntoNote(line);
+    } else if (type === "application_password") {
+        return transformIntoApplicationPassword(line);
+    } else if (type === "bookmark") {
+        return transformIntoBookmark(line);
     } else {
         return transformIntoWebsitePassword(line);
     }
@@ -139,7 +194,7 @@ function gatherSecrets(datastore, secrets, csv) {
             continue;
         }
 
-        folder_name = get_folder_name(line);
+        folder_name = getFolderName(line);
         const secret = transformToSecret(line);
         if (secret === null) {
             //empty line

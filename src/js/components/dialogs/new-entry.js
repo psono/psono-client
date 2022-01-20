@@ -167,7 +167,6 @@ const DialogNewEntry = (props) => {
         (type === "environment_variables" && isValidEnvironmentVariables) ||
         (type === "file" && isValidFile);
 
-
     const onCreate = (event) => {
         // TODO implement create
         const secretObject = {};

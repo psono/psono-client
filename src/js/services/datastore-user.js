@@ -6,6 +6,8 @@ import datastoreService from "./datastore";
 import helper from "./helper";
 import store from "./store";
 import apiClient from "./api-client";
+import datastorePassword from "./datastore-password";
+import datastorePasswordService from "./datastore-password";
 
 // let required_multifactors = [];
 // let session_keys;
@@ -1212,6 +1214,55 @@ function searchUser(username, email) {
     return apiClient.searchUser(token, sessionSecretKey, undefined, username, email);
 }
 
+/**
+ * Adds a new user to the datastore
+ *
+ * @param {TreeObject} userDatastore The content of the existing user datastore
+ * @param {object} userObject The user object
+ * @param {TreeObject} [targetParent] (optional) The potential parent to add the user to
+ * @returns {Promise} Returns a promise with the user information
+ */
+function addUserToDatastore(userDatastore, userObject, targetParent) {
+    let parent;
+    if (targetParent) {
+        parent = targetParent;
+    } else {
+        parent = userDatastore;
+    }
+    if (typeof parent.items === "undefined") {
+        parent.items = [];
+    }
+
+    // check if we do not already have the user in our trusted user datastore
+    // skip if we already have it
+    const existingLocations = datastorePasswordService.searchInDatastore(userObject, userDatastore, function (a, b) {
+        if (!a.hasOwnProperty("data")) {
+            return false;
+        }
+        if (!b.hasOwnProperty("data")) {
+            return false;
+        }
+        if (!a["data"].hasOwnProperty("user_public_key")) {
+            return false;
+        }
+        if (!b["data"].hasOwnProperty("user_public_key")) {
+            return false;
+        }
+        return a["data"]["user_public_key"] === b["data"]["user_public_key"];
+    });
+
+    if (existingLocations.length < 1) {
+        parent.items.push(userObject);
+        datastoreService.updateShareRightsOfFoldersAndItems(userDatastore, {
+            read: true,
+            write: true,
+            grant: true,
+            delete: true,
+        });
+        return saveDatastoreContent(userDatastore);
+    }
+}
+
 // /**
 //  * creates a google authenticator
 //  *
@@ -1816,6 +1867,7 @@ const datastoreUserService = {
     handleDatastoreContentChanged: handleDatastoreContentChanged,
     saveDatastoreContent: saveDatastoreContent,
     searchUser: searchUser,
+    addUserToDatastore: addUserToDatastore,
     // create_ga: create_ga,
     // read_ga: read_ga,
     // activate_ga: activate_ga,
