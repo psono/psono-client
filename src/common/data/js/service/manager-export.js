@@ -1,4 +1,4 @@
-(function(angular) {
+(function(angular, Papa) {
     'use strict';
 
     /**
@@ -31,6 +31,10 @@
                 _exporter.push({
                     name: translations.JSON_IMPORT_COMPATIBLE,
                     value: 'json'
+                });
+                _exporter.push({
+                    name: "CSV",
+                    value: 'csv'
                 });
             });
         }
@@ -110,10 +114,15 @@
          *
          * @param {string} data The data to download
          */
-        var download_export = function (data) {
+        var download_export = function (data, type) {
             var file_name = 'export.json';
+            var data_type = 'data:attachment/json,';
+            if (type === "csv") {
+                file_name = 'export.csv';
+                data_type = 'data:attachment/csv,';
+            }
             var a = angular.element('<a></a>');
-            a.attr('href', 'data:attachment/json,' + encodeURI(data).replace(/#/g, '%23'));
+            a.attr('href', data_type + encodeURI(data).replace(/#/g, '%23'));
             a.attr('target', '_blank');
             a.attr('download', file_name);
             angular.element(document.body).append(a);
@@ -218,8 +227,71 @@
          * @returns {*} filtered folder
          */
         var compose_export = function(data, type) {
+                
+            function csv_helper (data, path) {
+                var i;
+                if (data.hasOwnProperty('folders')) {
+                    for (i = 0; i < data.folders.length; i++) {
+                        csv_helper(data.folders[i], path + data.folders[i].name + '\\')
+                    }
+                }
+                if (data.hasOwnProperty('items')) {
+                    for (i = 0; i < data.items.length; i++) {
+                        data.items[i]['path'] = path
+                        if (data.items[i].type === 'environment_variables' && data.items[i].hasOwnProperty("environment_variables_variables")) {
+                            data.items[i]["environment_variables_variables"] = JSON.stringify(data.items[i]["environment_variables_variables"]);
+                        }
+                        helper_data.push(data.items[i])
+                    }
+                }
+            }
+            
             if (type === 'json') {
                 return JSON.stringify(data);
+            } else if (type === 'csv') {
+                
+                var helper_data = [{
+                    'path': 'path',
+                    'type': 'type',
+                    'callback_user': 'callback_user',
+                    'callback_url': 'callback_url',
+                    'callback_pass': 'callback_pass',
+                    'urlfilter': 'urlfilter',
+                    'website_password_title': 'website_password_title',
+                    'website_password_url': 'website_password_url',
+                    'website_password_username': 'website_password_username',
+                    'website_password_password': 'website_password_password',
+                    'website_password_notes': 'website_password_notes',
+                    'website_password_auto_submit': 'website_password_auto_submit',
+                    'website_password_url_filter': 'website_password_url_filter',
+                    'application_password_title': 'application_password_title',
+                    'application_password_username': 'application_password_username',
+                    'application_password_password': 'application_password_password',
+                    'application_password_notes': 'application_password_notes',
+                    'totp_title': 'totp_title',
+                    'totp_period': 'totp_period',
+                    'totp_algorithm': 'totp_algorithm',
+                    'totp_digits': 'totp_digits',
+                    'totp_code': 'totp_code',
+                    'note_title': 'note_title',
+                    'note_notes': 'note_notes',
+                    'environment_variables_title': 'environment_variables_title',
+                    'environment_variables_variables': 'environment_variables_variables',
+                    'environment_variables_notes': 'environment_variables_notes',
+                    'mail_gpg_own_key_title': 'mail_gpg_own_key_title',
+                    'mail_gpg_own_key_email': 'mail_gpg_own_key_email',
+                    'mail_gpg_own_key_name': 'mail_gpg_own_key_name',
+                    'mail_gpg_own_key_public': 'mail_gpg_own_key_public',
+                    'mail_gpg_own_key_private': 'mail_gpg_own_key_private',
+                    'bookmark_title': 'bookmark_title',
+                    'bookmark_url': 'bookmark_url',
+                    'bookmark_notes': 'bookmark_notes',
+                    'bookmark_url_filter': 'bookmark_url_filter',
+                }];
+                csv_helper(data, '\\')
+                return Papa.unparse(helper_data, {
+                    header: false,
+                })
             } else {
                 return data;
             }
@@ -374,7 +446,9 @@
         var export_datastore = function(type) {
 
             return fetch_datastore(type)
-                .then(download_export)
+                .then(function(data){
+                    return download_export(data, type);
+                })
                 .then(function() {
                     return {msgs: ['EXPORT_SUCCESSFUL']}
                 });
@@ -395,4 +469,4 @@
     var app = angular.module('psonocli');
     app.factory("managerExport", ['$q', '$window', '$timeout', '$translate', 'managerSecret', 'managerDatastorePassword', 'storage', managerExport]);
 
-}(angular));
+}(angular, Papa));
