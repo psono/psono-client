@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import PropTypes from "prop-types";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Button from "@material-ui/core/Button";
@@ -16,12 +16,27 @@ const TotpCircle = (props) => {
     const [progress, setProgress] = React.useState(10);
     const [token, setToken] = useState("");
 
+    // setInterval is wrapped in a closure and as such it would not use the current props / state
+    // https://github.com/facebook/react/issues/14010
+    const periodRef = useRef(period);
+    periodRef.current = period;
+    const digitsRef = useRef(digits);
+    digitsRef.current = digits;
+    const algorithmRef = useRef(algorithm);
+    algorithmRef.current = algorithm;
+    const codeRef = useRef(code);
+    codeRef.current = code;
+
+    const updateToken = () => {
+        setToken(cryptoLibraryService.getTotpToken(codeRef.current, periodRef.current, algorithmRef.current, digitsRef.current));
+        const percentage =
+            100 - (((periodRef.current || 30) - (Math.round(new Date().getTime() / 1000.0) % (periodRef.current || 30))) / (periodRef.current || 30)) * 100;
+        setProgress(percentage);
+    };
+
     React.useEffect(() => {
-        const timer = setInterval(() => {
-            setToken(cryptoLibraryService.getTotpToken(code, period, algorithm, digits));
-            const percentage = 100 - (((period || 30) - (Math.round(new Date().getTime() / 1000.0) % (period || 30))) / (period || 30)) * 100;
-            setProgress(percentage);
-        }, 500);
+        updateToken();
+        const timer = setInterval(updateToken, 500);
         return () => {
             clearInterval(timer);
         };

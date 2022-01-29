@@ -34,6 +34,7 @@ import DialogDecryptGpgMessage from "./decrypt-gpg-message";
 import DialogEncryptGpgMessage from "./encrypt-gpg-message";
 import notification from "../../services/notification";
 import SelectFieldEntryType from "../select-field/entry-type";
+import SelectFieldTotpAlgorithm from "../select-field/totp-algorithm";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -727,6 +728,108 @@ const DialogNewEntry = (props) => {
                                 required
                                 onChange={(event) => {
                                     setTotpTitle(event.target.value);
+                                }}
+                            />
+                        </Grid>
+                    )}
+
+                    {type === "totp" && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="totpPeriod"
+                                label={t("PERIOD_EG_30")}
+                                name="totpPeriod"
+                                autoComplete="totpPeriod"
+                                value={totpPeriod}
+                                required
+                                InputProps={{
+                                    inputProps: {
+                                        min: 0,
+                                        step: 1,
+                                    },
+                                }}
+                                type="number"
+                                onChange={(event) => {
+                                    setTotpPeriod(parseInt(event.target.value) || 30);
+                                }}
+                            />
+                        </Grid>
+                    )}
+
+                    {type === "totp" && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <SelectFieldTotpAlgorithm
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="totpAlgorithm"
+                                name="totpAlgorithm"
+                                autoComplete="totpAlgorithm"
+                                value={totpAlgorithm}
+                                required
+                                onChange={(value) => {
+                                    setTotpAlgorithm(value);
+                                }}
+                            />
+                        </Grid>
+                    )}
+
+                    {type === "totp" && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="totpDigits"
+                                label={t("DIGITS_EG_6")}
+                                name="totpDigits"
+                                autoComplete="totpDigits"
+                                value={totpDigits}
+                                required
+                                InputProps={{
+                                    inputProps: {
+                                        min: 0,
+                                        step: 1,
+                                    },
+                                }}
+                                type="number"
+                                onChange={(event) => {
+                                    setTotpDigits(parseInt(event.target.value) || 6);
+                                }}
+                            />
+                        </Grid>
+                    )}
+
+                    {type === "totp" && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="totpCode"
+                                label={t("SECRET")}
+                                name="totpCode"
+                                autoComplete="totpCode"
+                                value={totpCode}
+                                required
+                                onChange={(event) => {
+                                    setTotpCode(event.target.value);
+                                }}
+                                InputProps={{
+                                    type: showPassword ? "text" : "password",
+                                    classes: {
+                                        input: classes.passwordField,
+                                    },
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton className={classes.iconButton} aria-label="menu" onClick={onShowHidePassword}>
+                                                <VisibilityOffIcon />
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
                                 }}
                             />
                         </Grid>

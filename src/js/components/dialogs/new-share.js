@@ -22,6 +22,7 @@ import groupsService from "../../services/groups";
 import TabPanel from "../tab-panel";
 import Table from "../table";
 import DialogNewUser from "./new-user";
+import CreateGroupDialog from "../../views/groups/create-group-dialog";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -55,6 +56,7 @@ const DialogNewShare = (props) => {
     const [grant, setGrant] = useState(false);
     const [users, setUsers] = useState([]);
     const [groups, setGroups] = useState([]);
+    const [newGroupOpen, setNewGroupOpen] = React.useState(false);
     const [userDatastore, setUserDatastore] = useState({});
     const [newUserOpen, setNewUserOpen] = useState(false);
     const [userColumnData, setUserColumnData] = useState([]);
@@ -133,8 +135,12 @@ const DialogNewShare = (props) => {
         setNewUserOpen(true);
     };
 
+    const onCloseCreateGroupModal = () => {
+        setNewGroupOpen(false);
+        loadGroups();
+    };
     const onCreateGroup = () => {
-        // TODO add logic to add a group
+        setNewGroupOpen(true);
     };
 
     const userColumns = [
@@ -317,6 +323,7 @@ const DialogNewShare = (props) => {
                     {t("CREATE")}
                 </Button>
             </DialogActions>
+            {newGroupOpen && <CreateGroupDialog {...props} open={newGroupOpen} onClose={onCloseCreateGroupModal} />}
             {newUserOpen && <DialogNewUser open={newUserOpen} onClose={() => setNewUserOpen(false)} onCreate={onNewUserCreate} />}
         </Dialog>
     );

@@ -490,6 +490,25 @@ function getVerifyKey(seed) {
 }
 
 /**
+ * Returns the supported TOTP algorithm
+ * Needs to be in sync with all other official clients, e.g. our App
+ *
+ * @returns {array} Returns an array with all the supported algorithms
+ */
+function getSupportedTotpAlgorithm() {
+    return [
+        { title: "SHA1", value: "SHA1" },
+        //{'title': 'SHA224', value: 'SHA224'}, // not supported by the app
+        { title: "SHA256", value: "SHA256" },
+        //{'title': 'SHA384', value: 'SHA384'}, // not supported by the app
+        { title: "SHA512", value: "SHA512" },
+        //{'title': 'SHA3-256', value: 'SHA3-256'}, // not supported by the app
+        //{'title': 'SHA3-384', value: 'SHA3-384'}, // not supported by the app
+        //{'title': 'SHA3-512', value: 'SHA3-512'}, // not supported by the app
+    ];
+}
+
+/**
  * Returns the TOTP code of a given token
  *
  * From bellstrand/totp-generator licensed under MIT
@@ -590,6 +609,7 @@ const cryptoLibraryService = {
     generateUuid: generateUuid,
     validateSignature: validateSignature,
     getVerifyKey: getVerifyKey,
+    getSupportedTotpAlgorithm: getSupportedTotpAlgorithm,
     getTotpToken: getTotpToken,
     encryptPrivateKey: encryptPrivateKey,
     decryptPrivateKey: decryptPrivateKey,
