@@ -99,31 +99,58 @@
             },
             onClickGenerateNewPasswordRecoveryCode: function (node) {
 
-                var onSuccess = function(recovery_information) {
 
-                    var modalInstance = $uibModal.open({
-                        templateUrl: 'view/modal/show-recoverycode.html',
-                        controller: 'ModalShowRecoverycodeCtrl',
-                        backdrop: 'static',
-                        resolve: {
-                            recovery_information: function () {
-                                return recovery_information;
-                            }
+                var modalInstance = $uibModal.open({
+                    templateUrl: 'view/modal/verify.html',
+                    controller: 'ModalVerifyCtrl',
+                    resolve: {
+                        title: function () {
+                            return 'NEW_PASSWORD_RECOVERY_CODE';
+                        },
+                        description: function () {
+                            return 'NEW_PASSWORD_RECOVERY_CODE_WARNING';
+                        },
+                        entries: function () {
+                            return [];
+                        },
+                        affected_entries_text: function () {
+                            return '';
                         }
-                    });
+                    }
+                });
 
-                    modalInstance.result.then(function () {
-                        // User clicked the prime button
-                    }, function () {
-                        // cancel triggered
-                    });
-                };
+                modalInstance.result.then(function () {
+                    // User clicked the yes button
 
-                var onError = function() {
-                    //pass
-                };
+                    var onSuccess = function(recovery_information) {
 
-                managerDatastoreUser.recovery_generate_information().then(onSuccess, onError);
+                        var modalInstance = $uibModal.open({
+                            templateUrl: 'view/modal/show-recoverycode.html',
+                            controller: 'ModalShowRecoverycodeCtrl',
+                            backdrop: 'static',
+                            resolve: {
+                                recovery_information: function () {
+                                    return recovery_information;
+                                }
+                            }
+                        });
+
+                        modalInstance.result.then(function () {
+                            // User clicked the prime button
+                        }, function () {
+                            // cancel triggered
+                        });
+                    };
+
+                    var onError = function() {
+                        //pass
+                    };
+
+                    managerDatastoreUser.recovery_generate_information().then(onSuccess, onError);
+
+                }, function () {
+                    // cancel triggered
+                });
 
             },
             onClickConfigureGoogleAuthenticator: function (node) {
