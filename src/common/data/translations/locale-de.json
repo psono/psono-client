@@ -623,6 +623,7 @@
   "NEW_PASSWORD_REPEAT": "Neues Passwort (wiederholen)",
   "PASSWORD_REPEAT": "Passwort (wiederholen)",
   "PUBLIC_KEY": "Public Key",
+  "PRIVATE_KEY": "Private Key",
   "TO_VERIFY_PUBLIC_KEY": "Um zu überprüfnen das dies wirklich der Nutzer ist mit dem sie Daten austauschen wollen, fragen sie ihn ob das wirklich sein oder ihr Public Key ist.",
   "SERVER_API_VERSION": "Server API Version",
   "SERVER_VERSION": "Server Version",

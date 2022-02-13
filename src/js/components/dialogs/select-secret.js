@@ -9,17 +9,9 @@ import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
 
 import { Grid } from "@material-ui/core";
-import TextField from "@material-ui/core/TextField";
-import MuiAlert from "@material-ui/lab/Alert";
 
-import datastoreUserService from "../../services/datastore-user";
-import cryptoLibrary from "../../services/crypto-library";
 import DatastoreTree from "../datastore-tree";
-import widget from "../../services/widget";
 import datastorePassword from "../../services/datastore-password";
-import DialogNewFolder from "./new-folder";
-import TextFieldPath from "../text-field-path";
-import shareService from "../../services/share";
 
 const useStyles = makeStyles((theme) => ({
     textField: {

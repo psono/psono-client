@@ -623,6 +623,7 @@
   "NEW_PASSWORD_REPEAT": "New Password (repeat)",
   "PASSWORD_REPEAT": "Password (repeat)",
   "PUBLIC_KEY": "Public Key",
+  "PRIVATE_KEY": "Private Key",
   "TO_VERIFY_PUBLIC_KEY": "To verify that this is the user you want to share data with, ask the user if this is really his or her public key.",
   "SERVER_API_VERSION": "Server API Version",
   "SERVER_VERSION": "Server Version",
