@@ -46,6 +46,7 @@
   "TABLE_SELECTED_ROWS_TEXT": "row(s) selected",
   "TABLE_SELECTED_ROWS_DELETE": "Delete",
   "TABLE_SELECTED_ROWS_DELETE_ARIA": "Delete Selected Rows",
+  "NEW_PASSWORD_RECOVERY_CODE_WARNING": "You are about to generate a new recovery code. The new recovery recode will replace earlier codes, so old codes won't work anymore. Are you sure?",
   "DIGITS_EG_6": "Digits e.g. 6",
   "PERIOD_EG_30": "Period e.g. 30",
   "ALGORITHM_EG_SHA1": "Algorithm e.g. SHA1",
