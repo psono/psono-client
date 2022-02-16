@@ -30,6 +30,14 @@ const SettingsPasswordGeneratorView = (props) => {
     const [passwordNumbers, setPasswordNumbers] = useState(settingsDatastore.passwordNumbers);
     const [passwordSpecialChars, setPasswordSpecialChars] = useState(settingsDatastore.passwordSpecialChars);
 
+    React.useEffect(() => {
+        setPasswordLength(settingsDatastore.passwordLength);
+        setPasswordLettersUppercase(settingsDatastore.passwordLettersUppercase);
+        setPasswordLettersLowercase(settingsDatastore.passwordLettersLowercase);
+        setPasswordNumbers(settingsDatastore.passwordNumbers);
+        setPasswordSpecialChars(settingsDatastore.passwordSpecialChars);
+    }, [settingsDatastore]);
+
     const save = (event) => {
         action.setPasswordConfig(passwordLength, passwordLettersUppercase, passwordLettersLowercase, passwordNumbers, passwordSpecialChars);
     };

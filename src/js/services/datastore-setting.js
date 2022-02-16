@@ -3,6 +3,7 @@
  */
 
 import datastore from "./datastore";
+import store from "./store";
 import action from "../actions/bound-action-creators";
 
 /**
@@ -15,7 +16,16 @@ function getSettingsDatastore() {
     const description = "key-value-settings";
 
     const onSuccess = function (results) {
-        const data = {};
+        const data = {
+            setting_password_length: store.getState().server.compliancePasswordGeneratorDefaultPasswordLength,
+            setting_password_letters_uppercase: store.getState().server.compliancePasswordGeneratorDefaultLettersUppercase,
+            setting_password_letters_lowercase: store.getState().server.compliancePasswordGeneratorDefaultLettersLowercase,
+            setting_password_numbers: store.getState().server.compliancePasswordGeneratorDefaultNumbers,
+            setting_password_special_chars: store.getState().server.compliancePasswordGeneratorDefaultSpecialChars,
+        };
+
+        action.settingsDatastoreLoaded(data);
+
         results.forEach((result) => (data[result["key"]] = result["value"]));
 
         action.settingsDatastoreLoaded(data);

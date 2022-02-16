@@ -24,6 +24,11 @@ const defaultComplianceEnforce2fa = false;
 const defaultComplianceEnforceCentralSecurityReports = false;
 const defaultComplianceMinMasterPasswordComplexity = 0;
 const defaultComplianceMinMasterPasswordLength = 12;
+const defaultCompliancePasswordGeneratorDefaultPasswordLength = 16;
+const defaultCompliancePasswordGeneratorDefaultLettersUppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const defaultCompliancePasswordGeneratorDefaultLettersLowercase = "abcdefghijklmnopqrstuvwxyz";
+const defaultCompliancePasswordGeneratorDefaultNumbers = "0123456789";
+const defaultCompliancePasswordGeneratorDefaultSpecialChars = ",.-;:_#'+*~!\"§$%&/@()=?{[]}\\";
 const defaultLicenseId = "";
 const defaultLicenseMode = "";
 const defaultLicenseType = "";
@@ -69,6 +74,11 @@ function server(
         complianceEnforceCentralSecurityReports: defaultComplianceEnforceCentralSecurityReports,
         complianceMinMasterPasswordComplexity: defaultComplianceMinMasterPasswordComplexity,
         complianceMinMasterPasswordLength: defaultComplianceMinMasterPasswordLength,
+        compliancePasswordGeneratorDefaultPasswordLength: defaultCompliancePasswordGeneratorDefaultPasswordLength,
+        compliancePasswordGeneratorDefaultLettersUppercase: defaultCompliancePasswordGeneratorDefaultLettersUppercase,
+        compliancePasswordGeneratorDefaultLettersLowercase: defaultCompliancePasswordGeneratorDefaultLettersLowercase,
+        compliancePasswordGeneratorDefaultNumbers: defaultCompliancePasswordGeneratorDefaultNumbers,
+        compliancePasswordGeneratorDefaultSpecialChars: defaultCompliancePasswordGeneratorDefaultSpecialChars,
         licenseId: defaultLicenseId,
         licenseMaxUsers: defaultLicenseMaxUsers,
         licenseMode: defaultLicenseMode,
@@ -117,6 +127,11 @@ function server(
                 complianceEnforceCentralSecurityReports: defaultComplianceEnforceCentralSecurityReports,
                 complianceMinMasterPasswordComplexity: defaultComplianceMinMasterPasswordComplexity,
                 complianceMinMasterPasswordLength: defaultComplianceMinMasterPasswordLength,
+                compliancePasswordGeneratorDefaultPasswordLength: defaultCompliancePasswordGeneratorDefaultPasswordLength,
+                compliancePasswordGeneratorDefaultLettersUppercase: defaultCompliancePasswordGeneratorDefaultLettersUppercase,
+                compliancePasswordGeneratorDefaultLettersLowercase: defaultCompliancePasswordGeneratorDefaultLettersLowercase,
+                compliancePasswordGeneratorDefaultNumbers: defaultCompliancePasswordGeneratorDefaultNumbers,
+                compliancePasswordGeneratorDefaultSpecialChars: defaultCompliancePasswordGeneratorDefaultSpecialChars,
                 licenseId: defaultLicenseId,
                 licenseMaxUsers: defaultLicenseMaxUsers,
                 licenseMode: defaultLicenseMode,
@@ -161,6 +176,11 @@ function server(
                 complianceEnforceCentralSecurityReports: action.info.compliance_enforce_central_security_reports,
                 complianceMinMasterPasswordComplexity: action.info.compliance_min_master_password_complexity,
                 complianceMinMasterPasswordLength: action.info.compliance_min_master_password_length,
+                compliancePasswordGeneratorDefaultPasswordLength: action.info.compliance_password_generator_default_password_length,
+                compliancePasswordGeneratorDefaultLettersUppercase: action.info.compliance_password_generator_default_letters_uppercase,
+                compliancePasswordGeneratorDefaultLettersLowercase: action.info.compliance_password_generator_default_letters_lowercase,
+                compliancePasswordGeneratorDefaultNumbers: action.info.compliance_password_generator_default_numbers,
+                compliancePasswordGeneratorDefaultSpecialChars: action.info.compliance_password_generator_default_special_chars,
                 licenseId: action.info.license_id,
                 licenseMaxUsers: action.info.license_max_users,
                 licenseMode: action.info.license_mode,
