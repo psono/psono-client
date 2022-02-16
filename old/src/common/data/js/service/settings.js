@@ -34,11 +34,11 @@
         var _settings = {
             fields: [
                 // Password Generator
-                { key: "setting_password_length", field: "input", type: "text", title: "PASSWORD_LENGTH", placeholder: "PASSWORD_LENGTH", required: true, default: 16, tab: 'password-generator'},
-                { key: "setting_password_letters_uppercase", field: "input", type: "text", title: "LETTERS_UPPERCASE", placeholder: "LETTERS_UPPERCASE", default: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', tab: 'password-generator'},
-                { key: "setting_password_letters_lowercase", field: "input", type: "text", title: "LETTERS_LOWERCASE", placeholder: "LETTERS_LOWERCASE", default: 'abcdefghijklmnopqrstuvwxyz', tab: 'password-generator'},
-                { key: "setting_password_numbers", field: "input", type: "text", title: "NUMBERS", placeholder: "NUMBERS", required: true, default: '0123456789', tab: 'password-generator'},
-                { key: "setting_password_special_chars", field: "input", type: "text", title: "SPECIAL_CHARS", placeholder: "SPECIAL_CHARS", default: ',.-;:_#\'+*~!"§$%&/@()=?{[]}\\', tab: 'password-generator'},
+                { key: "setting_password_length", field: "input", type: "text", title: "PASSWORD_LENGTH", placeholder: "PASSWORD_LENGTH", required: true, get_default: "get_default_password_length", tab: 'password-generator'},
+                { key: "setting_password_letters_uppercase", field: "input", type: "text", title: "LETTERS_UPPERCASE", placeholder: "LETTERS_UPPERCASE", get_default: "get_default_password_letters_uppercase", tab: 'password-generator'},
+                { key: "setting_password_letters_lowercase", field: "input", type: "text", title: "LETTERS_LOWERCASE", placeholder: "LETTERS_LOWERCASE", get_default: "get_default_password_letters_lowercase", tab: 'password-generator'},
+                { key: "setting_password_numbers", field: "input", type: "text", title: "NUMBERS", placeholder: "NUMBERS", required: true, get_default: "get_default_password_numbers", tab: 'password-generator'},
+                { key: "setting_password_special_chars", field: "input", type: "text", title: "SPECIAL_CHARS", placeholder: "SPECIAL_CHARS", get_default: "get_default_password_special_chars", tab: 'password-generator'},
                 // Language
                 { key: "language_language", field: "select", type: "select", title: "LANGUAGE", get_options: "get_language_options", get_default: "get_default_language", tab: 'language', save: '', onChange: 'on_change_language'},
                 // GPG
@@ -94,6 +94,71 @@
                     id: lang['code'],
                     label: lang['lng_title_native']
                 };
+            },
+            get_default_password_length: function () {
+                var default_value = 16;
+
+                var server_info = storage.find_key('config', 'server_info');
+                if (!server_info) {
+                    return default_value;
+                }
+
+                if (!server_info.value.hasOwnProperty('compliance_password_generator_default_password_length')) {
+                    return default_value;
+                }
+                return server_info.value['compliance_password_generator_default_password_length'];
+            },
+            get_default_password_letters_uppercase: function () {
+                var default_value = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+                var server_info = storage.find_key('config', 'server_info');
+                if (!server_info) {
+                    return default_value;
+                }
+
+                if (!server_info.value.hasOwnProperty('compliance_password_generator_default_letters_uppercase')) {
+                    return default_value;
+                }
+                return server_info.value['compliance_password_generator_default_letters_uppercase'];
+            },
+            get_default_password_letters_lowercase: function () {
+                var default_value = 'abcdefghijklmnopqrstuvwxyz';
+
+                var server_info = storage.find_key('config', 'server_info');
+                if (!server_info) {
+                    return default_value;
+                }
+
+                if (!server_info.value.hasOwnProperty('compliance_password_generator_default_letters_lowercase')) {
+                    return default_value;
+                }
+                return server_info.value['compliance_password_generator_default_letters_lowercase'];
+            },
+            get_default_password_numbers: function () {
+                var default_value = '0123456789';
+                
+                var server_info = storage.find_key('config', 'server_info');
+                if (!server_info) {
+                    return default_value;
+                }
+
+                if (!server_info.value.hasOwnProperty('compliance_password_generator_default_numbers')) {
+                    return default_value;
+                }
+                return server_info.value['compliance_password_generator_default_numbers'];
+            },
+            get_default_password_special_chars: function () {
+                var default_value = ',.-;:_#\'+*~!"§$%&/@()=?{[]}\\';
+                
+                var server_info = storage.find_key('config', 'server_info');
+                if (!server_info) {
+                    return default_value;
+                }
+
+                if (!server_info.value.hasOwnProperty('compliance_password_generator_default_special_chars')) {
+                    return default_value;
+                }
+                return server_info.value['compliance_password_generator_default_special_chars'];
             },
             on_change_language: function (fields) {
                 for(var i = 0; i < fields.length; i++) {
