@@ -1,35 +1,28 @@
-import React from "react";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import { Grid } from "@material-ui/core";
 import Divider from "@material-ui/core/Divider";
 
-import actionCreators from "../../actions/action-creators";
 import PasswordRecoveryCodesDialog from "./password-recovery-codes-dialog";
-
-const useStyles = makeStyles((theme) => ({
-    textField: {
-        width: "100%",
-        [theme.breakpoints.up("md")]: {
-            width: "440px",
-        },
-    },
-}));
+import DialogVerify from "../../components/dialogs/verify";
 
 const AccountPasswordRecoveryCodesView = (props) => {
     const { t } = useTranslation();
-    const classes = useStyles();
-    const [open, setOpen] = React.useState(false);
+    const [openPasswordRecoveryDialog, setOpenPasswordRecoveryDialog] = useState(false);
+    const [warnGenerateNewPasswordRecoveryCodesOpen, setWarnGenerateNewPasswordRecoveryCodesOpen] = useState(false);
 
     const closeModal = () => {
-        setOpen(false);
+        setOpenPasswordRecoveryDialog(false);
     };
 
     const onConfigurePasswordRecoveryCodes = (event) => {
-        setOpen(true);
+        setWarnGenerateNewPasswordRecoveryCodesOpen(true);
+    };
+
+    const generateConfirmed = () => {
+        setWarnGenerateNewPasswordRecoveryCodesOpen(false);
+        setOpenPasswordRecoveryDialog(true);
     };
 
     return (
@@ -50,16 +43,19 @@ const AccountPasswordRecoveryCodesView = (props) => {
                         {t("GENERATE")}
                     </Button>
                 </Grid>
-                {open && <PasswordRecoveryCodesDialog {...props} open={open} onClose={closeModal} />}
+                {openPasswordRecoveryDialog && <PasswordRecoveryCodesDialog {...props} open={openPasswordRecoveryDialog} onClose={closeModal} />}
+                {warnGenerateNewPasswordRecoveryCodesOpen && (
+                    <DialogVerify
+                        title={"NEW_PASSWORD_RECOVERY_CODE"}
+                        description={"NEW_PASSWORD_RECOVERY_CODE_WARNING"}
+                        open={warnGenerateNewPasswordRecoveryCodesOpen}
+                        onClose={() => setWarnGenerateNewPasswordRecoveryCodesOpen(false)}
+                        onConfirm={generateConfirmed}
+                    />
+                )}
             </Grid>
         </>
     );
 };
 
-function mapStateToProps(state) {
-    return { state: state };
-}
-function mapDispatchToProps(dispatch) {
-    return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-export default connect(mapStateToProps, mapDispatchToProps)(AccountPasswordRecoveryCodesView);
+export default AccountPasswordRecoveryCodesView;

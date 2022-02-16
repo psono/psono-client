@@ -1,6 +1,4 @@
 import React from "react";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
 import { useTranslation } from "react-i18next";
 import Divider from "@material-ui/core/Divider";
 import { Grid } from "@material-ui/core";
@@ -10,7 +8,6 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import Button from "@material-ui/core/Button";
 
-import actionCreators from "../../actions/action-creators";
 import Table from "../../components/table";
 import fileRepository from "../../services/file-repository";
 import EditFileRepositoriesDialog from "./edit-file-repositories-dialog";
@@ -192,10 +189,4 @@ const OtherFileRepositoriesView = (props) => {
     );
 };
 
-function mapStateToProps(state) {
-    return { state: state };
-}
-function mapDispatchToProps(dispatch) {
-    return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-export default connect(mapStateToProps, mapDispatchToProps)(OtherFileRepositoriesView);
+export default OtherFileRepositoriesView;

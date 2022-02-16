@@ -1,10 +1,6 @@
 import React from "react";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
-import actionCreators from "../actions/action-creators";
 import PropTypes from "prop-types";
-import { compose } from "redux";
-import { withTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import AppBar from "@material-ui/core/AppBar";
 import Container from "@material-ui/core/Container";
 import Divider from "@material-ui/core/Divider";
@@ -67,7 +63,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Topbar = (props) => {
-    const { t, mobileOpen, setMobileOpen } = props;
+    const { mobileOpen, setMobileOpen } = props;
+    const { t } = useTranslation();
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = React.useState(null);
 
@@ -201,10 +198,4 @@ Topbar.propTypes = {
     setMobileOpen: PropTypes.func.isRequired,
 };
 
-function mapStateToProps(state) {
-    return { state: state };
-}
-function mapDispatchToProps(dispatch) {
-    return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-export default compose(withTranslation(), connect(mapStateToProps, mapDispatchToProps))(Topbar);
+export default Topbar;

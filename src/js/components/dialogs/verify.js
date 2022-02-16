@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import Dialog from "@material-ui/core/Dialog";
@@ -53,6 +53,10 @@ const DialogVerify = (props) => {
             </DialogActions>
         </Dialog>
     );
+};
+
+DialogVerify.defaultProps = {
+    entries: [],
 };
 
 DialogVerify.propTypes = {
