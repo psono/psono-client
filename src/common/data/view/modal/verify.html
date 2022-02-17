@@ -4,8 +4,7 @@
         <h3 class="modal-title">{{ title | translate }}</h3>
     </div>
     <div class="modal-body">
-
-        <div class="form-group" ng-if="entries">
+        <div class="form-group" ng-if="entries.length > 0">
             <strong>{{ affected_entries_text | translate}}:</strong>
             <ul style="margin-top:10px">
                 <li ng-repeat="entry in entries">{{ entry }}</li>

@@ -1,4 +1,5 @@
 {
+  "NEW_PASSWORD_RECOVERY_CODE_WARNING": "Sie sind gerade dabei einen neuen Wiederherstellungs Code zu generieren. Der neue Code with vorherige Codes ersetzen und damit unbrauchbar machen. Are you sure?",
   "DIGITS_EG_6": "Ziffern z.B. 6",
   "PERIOD_EG_30": "Zeitinterval z.B. 30",
   "ALGORITHM_EG_SHA1": "Algorithmus z.B. SHA1",
