@@ -8,7 +8,10 @@
   "author": "Sascha Pfeiffer",
   "scripts": {
     "dev": "webpack serve --config webpack.environment.dev.js",
-    "build": "webpack --config webpack.environment.prod.js",
+    "build": "webpack --config webpack.environment.prod.all.js",
+    "buildchrome": "webpack --config webpack.environment.prod.chrome.js",
+    "buildfirefox": "webpack --config webpack.environment.prod.firefox.js",
+    "buildwebclient": "webpack --config webpack.environment.prod.webclient.js",
     "test": "jest"
   },
   "jest": {
