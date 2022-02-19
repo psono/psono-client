@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Grid, Checkbox } from "@material-ui/core";
-import { withStyles } from "@material-ui/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import { Check } from "@material-ui/icons";
@@ -17,7 +17,7 @@ import store from "../../services/store";
 import action from "../../actions/bound-action-creators";
 import GridContainerErrors from "../../components/grid-container-errors";
 
-const styles = (theme) => ({
+const useStyles = makeStyles((theme) => ({
     textField: {
         width: "100%",
         "& .MuiInputBase-root": {
@@ -60,10 +60,10 @@ const styles = (theme) => ({
         border: "1px solid #666",
         borderRadius: "3px",
     },
-});
+}));
 
 const LoginViewForm = (props) => {
-    const { classes } = props;
+    const classes = useStyles();
     const { t } = useTranslation();
     const history = useHistory();
 
@@ -628,11 +628,9 @@ const LoginViewForm = (props) => {
                         </Grid>
                     </Grid>
                 )}
-
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12}>
                         <Checkbox
-                            tabIndex={1}
                             checked={rememberMe}
                             onChange={(event) => {
                                 setRememberMe(event.target.checked);
@@ -649,7 +647,6 @@ const LoginViewForm = (props) => {
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12}>
                         <Checkbox
-                            tabIndex={1}
                             checked={trustDevice}
                             onChange={(event) => {
                                 setTrustDevice(event.target.checked);
@@ -1086,4 +1083,4 @@ const LoginViewForm = (props) => {
     );
 };
 
-export default withStyles(styles)(LoginViewForm);
+export default LoginViewForm;
