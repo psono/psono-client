@@ -10,6 +10,8 @@ import TextField from "@material-ui/core/TextField";
 import { makeStyles } from "@material-ui/core/styles";
 import { Grid } from "@material-ui/core";
 
+import * as openpgp from "openpgp";
+
 import GridContainerErrors from "../grid-container-errors";
 
 const useStyles = makeStyles((theme) => ({
@@ -20,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
 
 const DialogImportAsText = (props) => {
     const classes = useStyles();
-    const { open, onClose } = props;
+    const { open, onClose, onNewGpgKeyImported } = props;
     const { t } = useTranslation();
     const [title, setTitle] = useState("");
     const [passphrase, setPassphrase] = useState("");
@@ -29,7 +31,65 @@ const DialogImportAsText = (props) => {
     const [errors, setErrors] = useState([]);
 
     const importGpgKey = async () => {
-        // TODO
+        setErrors([]);
+
+        if (!publicKey.startsWith("-----BEGIN PGP PUBLIC KEY BLOCK-----") || !publicKey.endsWith("-----END PGP PUBLIC KEY BLOCK-----")) {
+            setErrors(["PUBLIC_KEY_MISSING_TAGS"]);
+            return;
+        }
+
+        if (!privateKey.startsWith("-----BEGIN PGP PRIVATE KEY BLOCK-----") || !privateKey.endsWith("-----END PGP PRIVATE KEY BLOCK-----")) {
+            setErrors(["PRIVATE_KEY_MISSING_TAGS"]);
+            return;
+        }
+
+        const publicKeyObj = await openpgp.readKey({ armoredKey: publicKey });
+
+        let privateKeyObj = await openpgp.readPrivateKey({ armoredKey: privateKey });
+        try {
+            privateKeyObj = await openpgp.decryptKey({
+                privateKey: privateKeyObj,
+                passphrase,
+            });
+        } catch (error) {
+            if (error.message === "Error decrypting private key: Key packet is already decrypted.") {
+                // pass
+            } else {
+                setErrors([error.message]);
+                return;
+            }
+        }
+
+        // if (privateKeyObj.keys.length > 1) {
+        //     $scope.errors.push('PRIVATE_KEY_CONTAINS_MULTIPLE_KEYS');
+        //     return;
+        // }
+        //
+        // if (publicKeyObj.keys.length > 1) {
+        //     $scope.errors.push('PUBLIC_KEY_CONTAINS_MULTIPLE_KEYS');
+        //     return;
+        // }
+        //
+        // var priv_key = privateKeyObj.keys[0];
+        // var pub_key = publicKeyObj.keys[0];
+
+        publicKeyObj.getPrimaryUser().then(function (primaryUser) {
+            var name_email_sum = primaryUser.user.userID.userID;
+            var emails = name_email_sum.match(/[^@<\s]+@[^@\s>]+/g);
+            let email = "";
+            if (emails.length > 0) {
+                email = emails[0];
+            }
+
+            var names = name_email_sum.split(/\s+/);
+            let name = "";
+            if (names.length > 1) {
+                names.pop();
+                name = names.join(" ").replace(/"/g, "");
+            }
+
+            onNewGpgKeyImported(title, name, email, privateKeyObj.armor(), publicKeyObj.armor());
+        });
     };
 
     return (
@@ -83,10 +143,11 @@ const DialogImportAsText = (props) => {
                             autoComplete="publicKey"
                             value={publicKey}
                             onChange={(event) => {
-                                setPublicKey(event.target.value);
+                                setPublicKey(event.target.value.trim());
                             }}
                             multiline
                             minRows={3}
+                            maxRows={10}
                             required
                         />
                     </Grid>
@@ -102,10 +163,11 @@ const DialogImportAsText = (props) => {
                             autoComplete="publicKey"
                             value={privateKey}
                             onChange={(event) => {
-                                setPrivateKey(event.target.value);
+                                setPrivateKey(event.target.value.trim());
                             }}
                             multiline
                             minRows={3}
+                            maxRows={10}
                             required
                         />
                     </Grid>
@@ -123,6 +185,7 @@ const DialogImportAsText = (props) => {
 
 DialogImportAsText.propTypes = {
     onClose: PropTypes.func.isRequired,
+    onNewGpgKeyImported: PropTypes.func.isRequired,
     open: PropTypes.bool.isRequired,
 };
 

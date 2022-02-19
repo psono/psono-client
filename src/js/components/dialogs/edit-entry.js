@@ -1127,7 +1127,7 @@ const DialogEditEntry = (props) => {
                                 variant="outlined"
                                 margin="dense"
                                 id="mailGpgOwnKeyEmail"
-                                label={t("TITLE")}
+                                label={t("EMAIL")}
                                 name="mailGpgOwnKeyEmail"
                                 autoComplete="mailGpgOwnKeyEmail"
                                 value={mailGpgOwnKeyEmail}
@@ -1147,7 +1147,7 @@ const DialogEditEntry = (props) => {
                                 variant="outlined"
                                 margin="dense"
                                 id="mailGpgOwnKeyName"
-                                label={t("TITLE")}
+                                label={t("NAME")}
                                 name="mailGpgOwnKeyName"
                                 autoComplete="mailGpgOwnKeyName"
                                 value={mailGpgOwnKeyName}
@@ -1167,7 +1167,7 @@ const DialogEditEntry = (props) => {
                                 variant="outlined"
                                 margin="dense"
                                 id="mailGpgOwnKeyPublic"
-                                label={t("TITLE")}
+                                label={t("PUBLIC_KEY")}
                                 name="mailGpgOwnKeyPublic"
                                 autoComplete="mailGpgOwnKeyPublic"
                                 value={mailGpgOwnKeyPublic}
@@ -1179,7 +1179,7 @@ const DialogEditEntry = (props) => {
                                 disabled
                                 multiline
                                 minRows={3}
-                                maxRows={15}
+                                maxRows={10}
                             />
                         </Grid>
                     )}

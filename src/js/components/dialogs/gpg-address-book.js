@@ -418,7 +418,7 @@ const DialogGpgAddressBook = (props) => {
                                 error={Boolean(newPublicKey) && !fingerprint}
                                 multiline
                                 minRows={3}
-                                maxRows={15}
+                                maxRows={10}
                             />
                         </Grid>
                         {!fingerprint && (
@@ -487,7 +487,7 @@ const DialogGpgAddressBook = (props) => {
                                 error={Boolean(newPublicKey) && !fingerprint}
                                 multiline
                                 minRows={3}
-                                maxRows={15}
+                                maxRows={10}
                             />
                         </Grid>
                         {!fingerprint && (

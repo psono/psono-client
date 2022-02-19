@@ -36,7 +36,7 @@ import notification from "../../services/notification";
 import SelectFieldEntryType from "../select-field/entry-type";
 import SelectFieldTotpAlgorithm from "../select-field/totp-algorithm";
 import DialogGenerateNewGpgKey from "./generate-new-gpg-key";
-import DialogImportAsText from "./import-gpg-key-as-text";
+import DialogImportGpgKeyAsText from "./import-gpg-key-as-text";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -96,7 +96,7 @@ const DialogNewEntry = (props) => {
     const classes = useStyles();
     const offline = offlineCache.isActive();
 
-    const [importAsTextDialogOpen, setImportAsTextDialogOpen] = useState(false);
+    const [importGpgKeyAsTextDialogOpen, setImportGpgKeyAsTextDialogOpen] = useState(false);
     const [generateNewGpgKeyDialogOpen, setGenerateNewGpgKeyDialogOpen] = useState(false);
 
     const [decryptMessageDialogOpen, setDecryptMessageDialogOpen] = useState(false);
@@ -159,6 +159,12 @@ const DialogNewEntry = (props) => {
 
     const isValidWebsitePassword = Boolean(websitePasswordTitle);
     const isValidApplicationPassword = Boolean(applicationPasswordTitle);
+    const isValidGpgOwnKey =
+        Boolean(mailGpgOwnKeyTitle) &&
+        Boolean(mailGpgOwnKeyEmail) &&
+        Boolean(mailGpgOwnKeyName) &&
+        Boolean(mailGpgOwnKeyPublic) &&
+        Boolean(mailGpgOwnKeyPrivate);
     const isValidBookmark = Boolean(bookmarkTitle);
     const isValidNote = Boolean(noteTitle);
     const isValidTotp = Boolean(totpTitle) && Boolean(totpCode);
@@ -167,11 +173,13 @@ const DialogNewEntry = (props) => {
     const canSave =
         (type === "website_password" && isValidWebsitePassword) ||
         (type === "application_password" && isValidApplicationPassword) ||
+        (type === "mail_gpg_own_key" && isValidGpgOwnKey) ||
         (type === "bookmark" && isValidBookmark) ||
         (type === "note" && isValidNote) ||
         (type === "totp" && isValidTotp) ||
         (type === "environment_variables" && isValidEnvironmentVariables) ||
         (type === "file" && isValidFile);
+    const hasAdvanced = type !== "file";
 
     const onCreate = (event) => {
         // TODO implement create
@@ -331,6 +339,22 @@ const DialogNewEntry = (props) => {
         if (type === "application_password") {
             setApplicationPasswordPassword(password);
         }
+    };
+    const onNewGpgKeysGenerated = (title, name, email, privateKey, publicKey) => {
+        setGenerateNewGpgKeyDialogOpen(false);
+        setMailGpgOwnKeyTitle(title);
+        setMailGpgOwnKeyName(name);
+        setMailGpgOwnKeyEmail(email);
+        setMailGpgOwnKeyPrivate(privateKey);
+        setMailGpgOwnKeyPublic(publicKey);
+    };
+    const onNewGpgKeyImported = (title, name, email, privateKey, publicKey) => {
+        setImportGpgKeyAsTextDialogOpen(false);
+        setMailGpgOwnKeyTitle(title);
+        setMailGpgOwnKeyName(name);
+        setMailGpgOwnKeyEmail(email);
+        setMailGpgOwnKeyPrivate(privateKey);
+        setMailGpgOwnKeyPublic(publicKey);
     };
     const openMenu = (event) => {
         setAnchorEl(event.currentTarget);
@@ -999,6 +1023,95 @@ const DialogNewEntry = (props) => {
                         </Grid>
                     )}
 
+                    {type === "mail_gpg_own_key" && mailGpgOwnKeyTitle && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="mailGpgOwnKeyTitle"
+                                label={t("TITLE")}
+                                name="mailGpgOwnKeyTitle"
+                                autoComplete="mailGpgOwnKeyTitle"
+                                value={mailGpgOwnKeyTitle}
+                                required
+                                onChange={(event) => {
+                                    setMailGpgOwnKeyTitle(event.target.value);
+                                }}
+                            />
+                        </Grid>
+                    )}
+                    {type === "mail_gpg_own_key" && mailGpgOwnKeyEmail && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="mailGpgOwnKeyEmail"
+                                label={t("EMAIL")}
+                                name="mailGpgOwnKeyEmail"
+                                autoComplete="mailGpgOwnKeyEmail"
+                                value={mailGpgOwnKeyEmail}
+                                required
+                                disabled
+                            />
+                        </Grid>
+                    )}
+                    {type === "mail_gpg_own_key" && mailGpgOwnKeyName && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="mailGpgOwnKeyName"
+                                label={t("NAME")}
+                                name="mailGpgOwnKeyName"
+                                autoComplete="mailGpgOwnKeyName"
+                                value={mailGpgOwnKeyName}
+                                required
+                                disabled
+                            />
+                        </Grid>
+                    )}
+                    {type === "mail_gpg_own_key" && mailGpgOwnKeyPublic && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="mailGpgOwnKeyPublic"
+                                label={t("PUBLIC_KEY")}
+                                name="mailGpgOwnKeyPublic"
+                                autoComplete="mailGpgOwnKeyPublic"
+                                value={mailGpgOwnKeyPublic}
+                                required
+                                disabled
+                                multiline
+                                minRows={3}
+                                maxRows={10}
+                            />
+                        </Grid>
+                    )}
+                    {type === "mail_gpg_own_key" && mailGpgOwnKeyPrivate && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="mailGpgOwnKeyPrivate"
+                                label={t("PRIVATE_KEY")}
+                                name="mailGpgOwnKeyPrivate"
+                                autoComplete="mailGpgOwnKeyPrivate"
+                                value={mailGpgOwnKeyPrivate}
+                                required
+                                disabled
+                                multiline
+                                minRows={3}
+                                maxRows={10}
+                            />
+                        </Grid>
+                    )}
+
                     {type === "mail_gpg_own_key" && (
                         <Grid item xs={12} sm={12} md={12}>
                             <Button
@@ -1008,88 +1121,10 @@ const DialogNewEntry = (props) => {
                             >
                                 {t("GENERATE_NEW_GPG_KEY")}
                             </Button>
-                            <Button onClick={() => setImportAsTextDialogOpen(true)}>{t("IMPORT_AS_TEXT")}</Button>
+                            <Button onClick={() => setImportGpgKeyAsTextDialogOpen(true)}>{t("IMPORT_AS_TEXT")}</Button>
                         </Grid>
                     )}
 
-                    {/*{type === "mail_gpg_own_key" && (*/}
-                    {/*    <Grid item xs={12} sm={12} md={12}>*/}
-                    {/*        <TextField*/}
-                    {/*            className={classes.textField}*/}
-                    {/*            variant="outlined"*/}
-                    {/*            margin="dense"*/}
-                    {/*            id="mailGpgOwnKeyTitle"*/}
-                    {/*            label={t("TITLE")}*/}
-                    {/*            name="mailGpgOwnKeyTitle"*/}
-                    {/*            autoComplete="mailGpgOwnKeyTitle"*/}
-                    {/*            value={mailGpgOwnKeyTitle}*/}
-                    {/*            required*/}
-                    {/*            onChange={(event) => {*/}
-                    {/*                setMailGpgOwnKeyTitle(event.target.value);*/}
-                    {/*            }}*/}
-                    {/*        />*/}
-                    {/*    </Grid>*/}
-                    {/*)}*/}
-                    {/*{type === "mail_gpg_own_key" && (*/}
-                    {/*    <Grid item xs={12} sm={12} md={12}>*/}
-                    {/*        <TextField*/}
-                    {/*            className={classes.textField}*/}
-                    {/*            variant="outlined"*/}
-                    {/*            margin="dense"*/}
-                    {/*            id="mailGpgOwnKeyEmail"*/}
-                    {/*            label={t("TITLE")}*/}
-                    {/*            name="mailGpgOwnKeyEmail"*/}
-                    {/*            autoComplete="mailGpgOwnKeyEmail"*/}
-                    {/*            value={mailGpgOwnKeyEmail}*/}
-                    {/*            required*/}
-                    {/*            onChange={(event) => {*/}
-                    {/*                setMailGpgOwnKeyEmail(event.target.value);*/}
-                    {/*            }}*/}
-                    {/*            disabled*/}
-                    {/*        />*/}
-                    {/*    </Grid>*/}
-                    {/*)}*/}
-                    {/*{type === "mail_gpg_own_key" && (*/}
-                    {/*    <Grid item xs={12} sm={12} md={12}>*/}
-                    {/*        <TextField*/}
-                    {/*            className={classes.textField}*/}
-                    {/*            variant="outlined"*/}
-                    {/*            margin="dense"*/}
-                    {/*            id="mailGpgOwnKeyName"*/}
-                    {/*            label={t("TITLE")}*/}
-                    {/*            name="mailGpgOwnKeyName"*/}
-                    {/*            autoComplete="mailGpgOwnKeyName"*/}
-                    {/*            value={mailGpgOwnKeyName}*/}
-                    {/*            required*/}
-                    {/*            onChange={(event) => {*/}
-                    {/*                setMailGpgOwnKeyName(event.target.value);*/}
-                    {/*            }}*/}
-                    {/*            disabled*/}
-                    {/*        />*/}
-                    {/*    </Grid>*/}
-                    {/*)}*/}
-                    {/*{type === "mail_gpg_own_key" && (*/}
-                    {/*    <Grid item xs={12} sm={12} md={12}>*/}
-                    {/*        <TextField*/}
-                    {/*            className={classes.textField}*/}
-                    {/*            variant="outlined"*/}
-                    {/*            margin="dense"*/}
-                    {/*            id="mailGpgOwnKeyPublic"*/}
-                    {/*            label={t("TITLE")}*/}
-                    {/*            name="mailGpgOwnKeyPublic"*/}
-                    {/*            autoComplete="mailGpgOwnKeyPublic"*/}
-                    {/*            value={mailGpgOwnKeyPublic}*/}
-                    {/*            required*/}
-                    {/*            onChange={(event) => {*/}
-                    {/*                setMailGpgOwnKeyPublic(event.target.value);*/}
-                    {/*            }}*/}
-                    {/*            disabled*/}
-                    {/*            multiline*/}
-                    {/*            minRows={3}*/}
-                    {/*            maxRows={15}*/}
-                    {/*        />*/}
-                    {/*    </Grid>*/}
-                    {/*)}*/}
                     {/*{type === "mail_gpg_own_key" && (*/}
                     {/*    <Grid item xs={12} sm={12} md={12}>*/}
                     {/*        <Button*/}
@@ -1103,11 +1138,13 @@ const DialogNewEntry = (props) => {
                     {/*    </Grid>*/}
                     {/*)}*/}
 
-                    <Grid item xs={12} sm={12} md={12} className={classes.right}>
-                        <Button aria-label="settings" onClick={() => setShowAdvanced(!showAdvanced)}>
-                            {t("ADVANCED")}
-                        </Button>
-                    </Grid>
+                    {hasAdvanced && (
+                        <Grid item xs={12} sm={12} md={12} className={classes.right}>
+                            <Button aria-label="settings" onClick={() => setShowAdvanced(!showAdvanced)}>
+                                {t("ADVANCED")}
+                            </Button>
+                        </Grid>
+                    )}
 
                     {type === "website_password" && showAdvanced && (
                         <Grid item xs={12} sm={12} md={12}>
@@ -1247,9 +1284,19 @@ const DialogNewEntry = (props) => {
             {encryptMessageDialogOpen && (
                 <DialogEncryptGpgMessage open={encryptMessageDialogOpen} onClose={() => setEncryptMessageDialogOpen(false)} secretId={encryptSecretId} />
             )}
-            {importAsTextDialogOpen && <DialogImportAsText open={importAsTextDialogOpen} onClose={() => setImportAsTextDialogOpen(false)} />}
+            {importGpgKeyAsTextDialogOpen && (
+                <DialogImportGpgKeyAsText
+                    open={importGpgKeyAsTextDialogOpen}
+                    onClose={() => setImportGpgKeyAsTextDialogOpen(false)}
+                    onNewGpgKeyImported={onNewGpgKeyImported}
+                />
+            )}
             {generateNewGpgKeyDialogOpen && (
-                <DialogGenerateNewGpgKey open={generateNewGpgKeyDialogOpen} onClose={() => setGenerateNewGpgKeyDialogOpen(false)} />
+                <DialogGenerateNewGpgKey
+                    open={generateNewGpgKeyDialogOpen}
+                    onClose={() => setGenerateNewGpgKeyDialogOpen(false)}
+                    onNewGpgKeysGenerated={onNewGpgKeysGenerated}
+                />
             )}
         </Dialog>
     );
