@@ -7,7 +7,6 @@ import { useSelector } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
 import datastorePasswordService from "../../services/datastore-password";
 import datastoreService from "../../services/datastore";
-import datastoreSettingService from "../../services/datastore-setting";
 
 const useStyles = makeStyles((theme) => ({
     option: {
