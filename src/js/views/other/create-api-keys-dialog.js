@@ -17,6 +17,7 @@ import MuiAlert from "@material-ui/lab/Alert";
 import Table from "../../components/table";
 import IconButton from "@material-ui/core/IconButton";
 import DeleteIcon from "@material-ui/icons/Delete";
+import DialogSelectSecret from "../../components/dialogs/select-secret";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -49,6 +50,7 @@ const CreateApiKeysDialog = (props) => {
     const [allowInsecureUsage, setAllowInsecureUsage] = useState(false);
     const [rightToRead, setRightToRead] = useState(true);
     const [rightToWrite, setRightToWrite] = useState(false);
+    const [addSecretOpen, setAddSecretOpen] = useState(false);
     const [secrets, setSecrets] = useState([]);
     const [errors, setErrors] = useState([]);
 
@@ -61,15 +63,39 @@ const CreateApiKeysDialog = (props) => {
             onClose();
         };
 
-        return apiKey.createApiKey(title, restrictToSecrets, allowInsecureUsage, rightToRead, rightToWrite, secrets).then(onSuccess, onError);
+        return apiKey
+            .createApiKey(
+                title,
+                restrictToSecrets,
+                allowInsecureUsage,
+                rightToRead,
+                rightToWrite,
+                secrets.map((secret) => {
+                    return {
+                        secret_id: secret[2],
+                        name: secret[1],
+                        secret_key: secret[3],
+                    };
+                })
+            )
+            .then(onSuccess, onError);
     };
 
-    const onAddSecret = () => {
-        // TODO implement add Secret
+    const onAddSecret = (item, path, nodePath) => {
+        setAddSecretOpen(false);
+        secrets.push([item.id, item.name, item.secret_id, item.secret_key]);
+        setSecrets(secrets);
+    };
+
+    const onDeleteSecret = (rowData) => {
+        const filtered = secrets.filter(function (secret, index, arr) {
+            return rowData[0] !== secret[0];
+        });
+        setSecrets(filtered);
     };
 
     const columns = [
-        //{ name: t("ID"), options: { display: false } },
+        { name: t("ID"), options: { display: false } },
         { name: t("TITLE") },
         {
             name: t("DELETE"),
@@ -81,8 +107,7 @@ const CreateApiKeysDialog = (props) => {
                     return (
                         <IconButton
                             onClick={() => {
-                                // TODO implement
-                                //onDelete(tableMeta.rowData);
+                                onDeleteSecret(tableMeta.rowData);
                             }}
                         >
                             <DeleteIcon />
@@ -95,6 +120,10 @@ const CreateApiKeysDialog = (props) => {
 
     const options = {
         filterType: "checkbox",
+    };
+
+    const isSelectable = (node) => {
+        return !(node.hasOwnProperty("type") && node.type === "file");
     };
 
     return (
@@ -213,7 +242,7 @@ const CreateApiKeysDialog = (props) => {
                         {t("RIGHT_TO_WRITE")}
                     </Grid>
                     <Grid item xs={12} sm={12} md={12}>
-                        <Table data={secrets} columns={columns} options={options} onCreate={onAddSecret} />
+                        <Table data={secrets} columns={columns} options={options} onCreate={() => setAddSecretOpen(true)} />
                     </Grid>
                 </Grid>
                 <GridContainerErrors errors={errors} setErrors={setErrors} />
@@ -237,6 +266,9 @@ const CreateApiKeysDialog = (props) => {
                     {t("CREATE")}
                 </Button>
             </DialogActions>
+            {addSecretOpen && (
+                <DialogSelectSecret open={addSecretOpen} onClose={() => setAddSecretOpen(false)} onSelectItem={onAddSecret} isSelectable={isSelectable} />
+            )}
         </Dialog>
     );
 };

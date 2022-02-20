@@ -186,10 +186,7 @@ const EditApiKeysDialog = (props) => {
     };
 
     const isSelectable = (node) => {
-        if (node.hasOwnProperty("type") && node.type === "file") {
-            return false;
-        }
-        return true;
+        return !(node.hasOwnProperty("type") && node.type === "file");
     };
 
     return (
