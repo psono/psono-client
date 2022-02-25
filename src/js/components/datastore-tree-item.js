@@ -155,17 +155,17 @@ const DatastoreTreeItem = (props) => {
         (content.hasOwnProperty("share_rights") && content.share_rights.read !== true) ||
         !content.hasOwnProperty("type") ||
         !["website_password", "application_password"].includes(content["type"]);
-    const hideEdit = offline || content.share_rights.write === false || !props.onEditEntry;
-    const hideShow = !hideEdit || content.share_rights.read === false || !props.onEditEntry;
+    const hideEdit = offline || (content.hasOwnProperty("share_rights") && content.share_rights.write === false) || !props.onEditEntry;
+    const hideShow = !hideEdit || (content.hasOwnProperty("share_rights") && content.share_rights.read === false) || !props.onEditEntry;
     const hideClone =
         offline ||
-        content.share_rights.write === false ||
-        content.share_rights.read === false ||
+        (content.hasOwnProperty("share_rights") && content.share_rights.write === false) ||
+        (content.hasOwnProperty("share_rights") && content.share_rights.read === false) ||
         content.type === "file" ||
         content.type === "user" ||
         !props.onCloneEntry;
-    const hideMove = offline || content.share_rights.delete === false || !props.onMoveEntry;
-    const hideDelete = offline || content.share_rights.delete === false || !props.onDeleteEntry;
+    const hideMove = offline || (content.hasOwnProperty("share_rights") && content.share_rights.delete === false) || !props.onMoveEntry;
+    const hideDelete = offline || (content.hasOwnProperty("share_rights") && content.share_rights.delete === false) || !props.onDeleteEntry;
 
     const onContextMenu = (event) => {
         event.preventDefault();

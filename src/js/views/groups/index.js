@@ -17,6 +17,7 @@ import groupsService from "../../services/groups";
 import format from "../../services/date";
 import CreateGroupDialog from "./create-group-dialog";
 import DialogVerify from "../../components/dialogs/verify";
+import DialogEditGroup from "../../components/dialogs/edit-group";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -35,6 +36,8 @@ const GroupsView = (props) => {
     const classes = useStyles();
     const { t } = useTranslation();
     let isSubscribed = true;
+    const [editGroup, setEditGroup] = React.useState(null);
+    const [leaveGroupData, setLeaveGroupData] = React.useState([]);
     const [groups, setGroups] = React.useState([]);
     const [createOpen, setCreateOpen] = React.useState(false);
     const [groupIdBeingDeleted, setGroupIdBeingDeleted] = React.useState("");
@@ -108,16 +111,32 @@ const GroupsView = (props) => {
         // });
     };
 
-    const onEdit = () => {
-        // TODO implement edit Group
+    const onEdit = (rowData) => {
+        setEditGroup({
+            groupId: rowData[0],
+            readOnly: !rowData[4],
+        });
     };
 
     const onCreate = () => {
         setCreateOpen(true);
     };
 
-    const leaveGroup = () => {
-        // TODO implement leave group
+    const leaveGroup = (rowData) => {
+        setLeaveGroupData(rowData);
+    };
+
+    const confirmLeaveGroup = () => {
+        setLeaveGroupData([]);
+        const onSuccess = function (data) {
+            loadGroups();
+        };
+
+        const onError = function () {
+            //pass
+        };
+
+        groupsService.deleteMembership(leaveGroupData[5]).then(onSuccess, onError);
     };
 
     const deleteGroup = (tableMeta) => {
@@ -136,6 +155,11 @@ const GroupsView = (props) => {
         };
 
         return loadGroups().then(onSuccess, onError);
+    };
+
+    const onGroupEdited = () => {
+        setEditGroup(null);
+        loadGroups();
     };
 
     const deleteGroupConfirmed = () => {
@@ -285,6 +309,11 @@ const GroupsView = (props) => {
         filterType: "checkbox",
     };
 
+    const onEditGroupClosed = () => {
+        setEditGroup(null);
+        loadGroups();
+    };
+
     return (
         <Base {...props}>
             <BaseTitle>{t("LIST_OF_GROUPS")}</BaseTitle>
@@ -298,6 +327,15 @@ const GroupsView = (props) => {
                     </div>
                 </Paper>
                 {createOpen && <CreateGroupDialog {...props} open={createOpen} onClose={closeCreateModal} />}
+                {Boolean(editGroup) && (
+                    <DialogEditGroup
+                        groupId={editGroup.groupId}
+                        readOnly={editGroup.readOnly}
+                        open={Boolean(editGroup)}
+                        onClose={onEditGroupClosed}
+                        onEdit={onGroupEdited}
+                    />
+                )}
                 {verifyDeleteGroupOpen && (
                     <DialogVerify
                         title={"DELETE_GROUP"}
@@ -307,6 +345,17 @@ const GroupsView = (props) => {
                         open={verifyDeleteGroupOpen}
                         onClose={() => setVerifyDeleteGroupOpen(false)}
                         onConfirm={deleteGroupConfirmed}
+                    />
+                )}
+                {leaveGroupData.length > 0 && (
+                    <DialogVerify
+                        title={"LEAVE_GROUP"}
+                        description={"LEAVE_GROUP_WARNING"}
+                        entries={[leaveGroupData[1]]}
+                        affectedEntriesText={"AFFECTED_GROUPS"}
+                        open={leaveGroupData.length > 0}
+                        onClose={() => setLeaveGroupData([])}
+                        onConfirm={confirmLeaveGroup}
                     />
                 )}
             </BaseContent>

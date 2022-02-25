@@ -3,6 +3,9 @@ import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
+import Tabs from "@material-ui/core/Tabs";
+import Tab from "@material-ui/core/Tab";
+import Divider from "@material-ui/core/Divider";
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -23,6 +26,7 @@ import Table from "../../components/table";
 import DialogSelectSecret from "../../components/dialogs/select-secret";
 import apiKey from "../../services/api-keys";
 import apiKeysService from "../../services/api-keys";
+import TabPanel from "../../components/tab-panel";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -47,6 +51,11 @@ const useStyles = makeStyles((theme) => ({
     passwordField: {
         fontFamily: "'Fira Code', monospace",
     },
+    tabPanel: {
+        "& .MuiBox-root": {
+            padding: "16px 0px",
+        },
+    },
 }));
 
 const EditApiKeysDialog = (props) => {
@@ -56,6 +65,7 @@ const EditApiKeysDialog = (props) => {
     const serverUrl = useSelector((state) => state.server.url);
     const serverPublicKey = useSelector((state) => state.server.publicKey);
     const serverVerifyKey = useSelector((state) => state.server.verifyKey);
+    const [value, setValue] = React.useState(0);
     const [addSecretOpen, setAddSecretOpen] = useState(false);
     const [title, setTitle] = useState("");
     const [apiKeyPrivateKey, setApiKeyPrivateKey] = useState("");
@@ -224,6 +234,10 @@ const EditApiKeysDialog = (props) => {
                             checked={restrictToSecrets}
                             onChange={(event) => {
                                 setRestrictToSecrets(event.target.checked);
+                                if (!event.target.checked && value === 1) {
+                                    // switch tabs if we have the secret tab and don't restrict to secrets
+                                    setValue(0);
+                                }
                             }}
                             checkedIcon={<Check className={classes.checkedIcon} />}
                             icon={<Check className={classes.uncheckedIcon} />}
@@ -304,171 +318,173 @@ const EditApiKeysDialog = (props) => {
                         />{" "}
                         {t("RIGHT_TO_WRITE")}
                     </Grid>
+
                     <Grid item xs={12} sm={12} md={12}>
-                        <h4>{t("DETAILS")}</h4>
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={12}>
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="apiKeyId"
-                                label={"API_KEY_ID"}
-                                name="apiKeyId"
-                                autoComplete="apiKeyId"
-                                value={apiKeyId}
-                                readOnly
-                                InputProps={{
-                                    type: showApiKeyId ? "text" : "password",
-                                    classes: {
-                                        input: classes.passwordField,
-                                    },
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <IconButton aria-label="toggle api key id visibility" onClick={() => setShowApiKeyId(!showApiKeyId)} edge="end">
-                                                {showApiKeyId ? <Visibility /> : <VisibilityOff />}
-                                            </IconButton>
-                                        </InputAdornment>
-                                    ),
-                                }}
-                            />
-                        </Grid>
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={12}>
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="apiKeyPrivateKey"
-                                label={"API_KEY_PRIVATE_KEY"}
-                                name="apiKeyPrivateKey"
-                                autoComplete="apiKeyPrivateKey"
-                                value={apiKeyPrivateKey}
-                                readOnly
-                                InputProps={{
-                                    type: showApiKeyPrivateKey ? "text" : "password",
-                                    classes: {
-                                        input: classes.passwordField,
-                                    },
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <IconButton
-                                                aria-label="toggle api key id visibility"
-                                                onClick={() => setShowApiKeyPrivateKey(!showApiKeyPrivateKey)}
-                                                edge="end"
-                                            >
-                                                {showApiKeyPrivateKey ? <Visibility /> : <VisibilityOff />}
-                                            </IconButton>
-                                        </InputAdornment>
-                                    ),
-                                }}
-                            />
-                        </Grid>
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={12}>
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="apiKeySecretKey"
-                                label={"API_KEY_SECRET_KEY"}
-                                name="apiKeySecretKey"
-                                autoComplete="apiKeySecretKey"
-                                value={apiKeySecretKey}
-                                readOnly
-                                InputProps={{
-                                    type: showApiKeySecretKey ? "text" : "password",
-                                    classes: {
-                                        input: classes.passwordField,
-                                    },
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <IconButton
-                                                aria-label="toggle api key id visibility"
-                                                onClick={() => setShowApiKeySecretKey(!showApiKeySecretKey)}
-                                                edge="end"
-                                            >
-                                                {showApiKeySecretKey ? <Visibility /> : <VisibilityOff />}
-                                            </IconButton>
-                                        </InputAdornment>
-                                    ),
-                                }}
-                            />
-                        </Grid>
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={12}>
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="serverUrl"
-                                label={"SERVER_URL"}
-                                name="serverUrl"
-                                autoComplete="serverUrl"
-                                value={serverUrl}
-                                readOnly
-                                InputProps={{
-                                    classes: {
-                                        input: classes.passwordField,
-                                    },
-                                }}
-                            />
-                        </Grid>
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={12}>
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="serverPublicKey"
-                                label={"SERVER_PUBLIC_KEY"}
-                                name="serverPublicKey"
-                                autoComplete="serverPublicKey"
-                                value={serverPublicKey}
-                                readOnly
-                                InputProps={{
-                                    classes: {
-                                        input: classes.passwordField,
-                                    },
-                                }}
-                            />
-                        </Grid>
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={12}>
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="serverVerifyKey"
-                                label={"SERVER_SIGNATURE"}
-                                name="serverVerifyKey"
-                                autoComplete="serverVerifyKey"
-                                value={serverVerifyKey}
-                                readOnly
-                                InputProps={{
-                                    classes: {
-                                        input: classes.passwordField,
-                                    },
-                                }}
-                            />
-                        </Grid>
-                    </Grid>
-                    {restrictToSecrets && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <h4>{t("SECRETS")}</h4>
-                        </Grid>
-                    )}
-                    {restrictToSecrets && (
-                        <Grid item xs={12} sm={12} md={12}>
+                        <Divider style={{ marginTop: "20px", marginBottom: "10px" }} />
+                        <Tabs
+                            value={value}
+                            indicatorColor="primary"
+                            textColor="primary"
+                            onChange={(event, newValue) => {
+                                setValue(newValue);
+                            }}
+                            aria-label="users and groups"
+                        >
+                            <Tab label={t("DETAILS")} />
+                            {restrictToSecrets && <Tab label={t("SECRETS")} />}
+                        </Tabs>
+                        <TabPanel value={value} index={0} className={classes.tabPanel}>
+                            <Grid container>
+                                <Grid item xs={12} sm={12} md={12}>
+                                    <TextField
+                                        className={classes.textField}
+                                        variant="outlined"
+                                        margin="dense"
+                                        id="apiKeyId"
+                                        label={"API_KEY_ID"}
+                                        name="apiKeyId"
+                                        autoComplete="apiKeyId"
+                                        value={apiKeyId}
+                                        readOnly
+                                        InputProps={{
+                                            type: showApiKeyId ? "text" : "password",
+                                            classes: {
+                                                input: classes.passwordField,
+                                            },
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <IconButton
+                                                        aria-label="toggle api key id visibility"
+                                                        onClick={() => setShowApiKeyId(!showApiKeyId)}
+                                                        edge="end"
+                                                    >
+                                                        {showApiKeyId ? <Visibility /> : <VisibilityOff />}
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={12} md={12}>
+                                    <TextField
+                                        className={classes.textField}
+                                        variant="outlined"
+                                        margin="dense"
+                                        id="apiKeyPrivateKey"
+                                        label={"API_KEY_PRIVATE_KEY"}
+                                        name="apiKeyPrivateKey"
+                                        autoComplete="apiKeyPrivateKey"
+                                        value={apiKeyPrivateKey}
+                                        readOnly
+                                        InputProps={{
+                                            type: showApiKeyPrivateKey ? "text" : "password",
+                                            classes: {
+                                                input: classes.passwordField,
+                                            },
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <IconButton
+                                                        aria-label="toggle api key id visibility"
+                                                        onClick={() => setShowApiKeyPrivateKey(!showApiKeyPrivateKey)}
+                                                        edge="end"
+                                                    >
+                                                        {showApiKeyPrivateKey ? <Visibility /> : <VisibilityOff />}
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={12} md={12}>
+                                    <TextField
+                                        className={classes.textField}
+                                        variant="outlined"
+                                        margin="dense"
+                                        id="apiKeySecretKey"
+                                        label={"API_KEY_SECRET_KEY"}
+                                        name="apiKeySecretKey"
+                                        autoComplete="apiKeySecretKey"
+                                        value={apiKeySecretKey}
+                                        readOnly
+                                        InputProps={{
+                                            type: showApiKeySecretKey ? "text" : "password",
+                                            classes: {
+                                                input: classes.passwordField,
+                                            },
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <IconButton
+                                                        aria-label="toggle api key id visibility"
+                                                        onClick={() => setShowApiKeySecretKey(!showApiKeySecretKey)}
+                                                        edge="end"
+                                                    >
+                                                        {showApiKeySecretKey ? <Visibility /> : <VisibilityOff />}
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={12} md={12}>
+                                    <TextField
+                                        className={classes.textField}
+                                        variant="outlined"
+                                        margin="dense"
+                                        id="serverUrl"
+                                        label={"SERVER_URL"}
+                                        name="serverUrl"
+                                        autoComplete="serverUrl"
+                                        value={serverUrl}
+                                        readOnly
+                                        InputProps={{
+                                            classes: {
+                                                input: classes.passwordField,
+                                            },
+                                        }}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={12} md={12}>
+                                    <TextField
+                                        className={classes.textField}
+                                        variant="outlined"
+                                        margin="dense"
+                                        id="serverPublicKey"
+                                        label={"SERVER_PUBLIC_KEY"}
+                                        name="serverPublicKey"
+                                        autoComplete="serverPublicKey"
+                                        value={serverPublicKey}
+                                        readOnly
+                                        InputProps={{
+                                            classes: {
+                                                input: classes.passwordField,
+                                            },
+                                        }}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={12} md={12}>
+                                    <TextField
+                                        className={classes.textField}
+                                        variant="outlined"
+                                        margin="dense"
+                                        id="serverVerifyKey"
+                                        label={"SERVER_SIGNATURE"}
+                                        name="serverVerifyKey"
+                                        autoComplete="serverVerifyKey"
+                                        value={serverVerifyKey}
+                                        readOnly
+                                        InputProps={{
+                                            classes: {
+                                                input: classes.passwordField,
+                                            },
+                                        }}
+                                    />
+                                </Grid>
+                            </Grid>
+                        </TabPanel>
+                        <TabPanel value={value} index={1} className={classes.tabPanel}>
                             <Table data={secrets} columns={columns} options={options} onCreate={() => setAddSecretOpen(true)} />
-                        </Grid>
-                    )}
+                        </TabPanel>
+                    </Grid>
                 </Grid>
                 <GridContainerErrors errors={errors} setErrors={setErrors} />
             </DialogContent>

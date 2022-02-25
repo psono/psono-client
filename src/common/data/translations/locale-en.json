@@ -1,4 +1,7 @@
 {
+  "TOGGLE_GROUP_ADMIN": "Toggle Group Admin",
+  "TOGGLE_OWN_GROUP_ADMIN_WARNING": "You are about to revoke your own group admin permission for this group. Make sure that someone else has group admin before revoking your own. Are you sure that you want to continue?",
+  "CREATE_DATE": "Create Date",
   "FOLDER": "Folder",
   "SHARE_TITLE_ITEM": "{{entry_type}} with title '{{title}}'",
   "OLDER_THAN_180_DAYS": "Älter als 180 Tage",

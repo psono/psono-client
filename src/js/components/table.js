@@ -85,6 +85,8 @@ class Table extends Component {
                 },
             },
             filter: false,
+            print: false,
+            download: false,
             selectableRows: "none",
             setTableProps: () => {
                 return {

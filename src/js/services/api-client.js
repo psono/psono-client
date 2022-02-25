@@ -2419,24 +2419,24 @@ const fileRepositoryUpload = function (file_transfer_id, file_transfer_secret_ke
 /**
  * Ajax PUT request to upload a file to an file repository with the token as authentication
  *
- * @param {uuid} file_transfer_id The id of the file transfer
- * @param {string} file_transfer_secret_key The file transfer secret key
- * @param {string} hash_checksum The sha512 hash
+ * @param {uuid} fileTransferId The id of the file transfer
+ * @param {string} fileTransferSecretKey The file transfer secret key
+ * @param {string} hashChecksum The sha512 hash
  *
  * @returns {Promise} promise
  */
-const fileRepositoryDownload = function (file_transfer_id, file_transfer_secret_key, hash_checksum) {
+const fileRepositoryDownload = function (fileTransferId, fileTransferSecretKey, hashChecksum) {
     const endpoint = "/file-repository/download/";
     const method = "PUT";
     const data = {
-        hash_checksum: hash_checksum,
+        hash_checksum: hashChecksum,
     };
 
     const headers = {
-        Authorization: "Filetransfer " + file_transfer_id,
+        Authorization: "Filetransfer " + fileTransferId,
     };
 
-    return call(method, endpoint, data, headers, file_transfer_secret_key);
+    return call(method, endpoint, data, headers, fileTransferSecretKey);
 };
 
 /**
@@ -2444,12 +2444,12 @@ const fileRepositoryDownload = function (file_transfer_id, file_transfer_secret_
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid|undefined} [group_id=null] (optional) group ID
+ * @param {uuid|undefined} [groupId=null] (optional) group ID
  *
  * @returns {Promise} promise
  */
-const readGroup = function (token, sessionSecretKey, group_id) {
-    const endpoint = "/group/" + (!group_id ? "" : group_id + "/");
+const readGroup = function (token, sessionSecretKey, groupId) {
+    const endpoint = "/group/" + (!groupId ? "" : groupId + "/");
     const method = "GET";
     const data = null;
     const headers = {
@@ -2465,24 +2465,24 @@ const readGroup = function (token, sessionSecretKey, group_id) {
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
  * @param {string} name name of the new group
- * @param {string} secret_key encrypted secret key of the group
- * @param {string} secret_key_nonce nonce for secret key
- * @param {string} private_key encrypted private key of the group
- * @param {string} private_key_nonce nonce for private key
- * @param {string} public_key the public_key of the group
+ * @param {string} secretKey encrypted secret key of the group
+ * @param {string} secretKeyNonce nonce for secret key
+ * @param {string} privateKey encrypted private key of the group
+ * @param {string} privateKeyNonce nonce for private key
+ * @param {string} publicKey the publicKey of the group
  *
  * @returns {Promise} promise
  */
-const createGroup = function (token, sessionSecretKey, name, secret_key, secret_key_nonce, private_key, private_key_nonce, public_key) {
+const createGroup = function (token, sessionSecretKey, name, secretKey, secretKeyNonce, privateKey, privateKeyNonce, publicKey) {
     const endpoint = "/group/";
     const method = "PUT";
     const data = {
         name: name,
-        secret_key: secret_key,
-        secret_key_nonce: secret_key_nonce,
-        private_key: private_key,
-        private_key_nonce: private_key_nonce,
-        public_key: public_key,
+        secret_key: secretKey,
+        secret_key_nonce: secretKeyNonce,
+        private_key: privateKey,
+        private_key_nonce: privateKeyNonce,
+        public_key: publicKey,
     };
     const headers = {
         Authorization: "Token " + token,
@@ -2496,16 +2496,16 @@ const createGroup = function (token, sessionSecretKey, name, secret_key, secret_
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} group_id The group id to update
+ * @param {uuid} groupId The group id to update
  * @param {string} name The new name of the group
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const updateGroup = function (token, sessionSecretKey, group_id, name) {
+const updateGroup = function (token, sessionSecretKey, groupId, name) {
     const endpoint = "/group/";
     const method = "POST";
     const data = {
-        group_id: group_id,
+        group_id: groupId,
         name: name,
     };
 
@@ -2521,15 +2521,15 @@ const updateGroup = function (token, sessionSecretKey, group_id, name) {
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} group_id The group id to delete
+ * @param {uuid} groupId The group id to delete
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const deleteGroup = function (token, sessionSecretKey, group_id) {
+const deleteGroup = function (token, sessionSecretKey, groupId) {
     const endpoint = "/group/";
     const method = "DELETE";
     const data = {
-        group_id: group_id,
+        group_id: groupId,
     };
 
     const headers = {
@@ -2546,12 +2546,12 @@ const deleteGroup = function (token, sessionSecretKey, group_id) {
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid|undefined} [group_id=null] (optional) group ID
+ * @param {uuid|undefined} [groupId=null] (optional) group ID
  *
  * @returns {Promise} promise
  */
-const readGroupRights = function (token, sessionSecretKey, group_id) {
-    const endpoint = "/group/rights/" + (!group_id ? "" : group_id + "/");
+const readGroupRights = function (token, sessionSecretKey, groupId) {
+    const endpoint = "/group/rights/" + (!groupId ? "" : groupId + "/");
     const method = "GET";
     const data = null;
     const headers = {
@@ -2566,46 +2566,46 @@ const readGroupRights = function (token, sessionSecretKey, group_id) {
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} group_id ID of the group
- * @param {uuid} user_id ID of the user
- * @param {string} secret_key encrypted secret key of the group
- * @param {string} secret_key_nonce nonce for secret key
- * @param {string} secret_key_type type of the secret key
- * @param {string} private_key encrypted private key of the group
- * @param {string} private_key_nonce nonce for private key
- * @param {string} private_key_type type of the private key
- * @param {boolean} group_admin Weather the users should have group admin rights or not
- * @param {boolean} share_admin Weather the users should have share admin rights or not
+ * @param {uuid} groupId ID of the group
+ * @param {uuid} userId ID of the user
+ * @param {string} secretKey encrypted secret key of the group
+ * @param {string} secretKeyNonce nonce for secret key
+ * @param {string} secretKeyType type of the secret key
+ * @param {string} privateKey encrypted private key of the group
+ * @param {string} privateKeyNonce nonce for private key
+ * @param {string} privateKeyType type of the private key
+ * @param {boolean} groupAdmin Weather the users should have group admin rights or not
+ * @param {boolean} shareAdmin Weather the users should have share admin rights or not
  *
  * @returns {Promise} promise
  */
 const createMembership = function (
     token,
     sessionSecretKey,
-    group_id,
-    user_id,
-    secret_key,
-    secret_key_nonce,
-    secret_key_type,
-    private_key,
-    private_key_nonce,
-    private_key_type,
-    group_admin,
-    share_admin
+    groupId,
+    userId,
+    secretKey,
+    secretKeyNonce,
+    secretKeyType,
+    privateKey,
+    privateKeyNonce,
+    privateKeyType,
+    groupAdmin,
+    shareAdmin
 ) {
     const endpoint = "/membership/";
     const method = "PUT";
     const data = {
-        group_id: group_id,
-        user_id: user_id,
-        secret_key: secret_key,
-        secret_key_nonce: secret_key_nonce,
-        secret_key_type: secret_key_type,
-        private_key: private_key,
-        private_key_nonce: private_key_nonce,
-        private_key_type: private_key_type,
-        group_admin: group_admin,
-        share_admin: share_admin,
+        group_id: groupId,
+        user_id: userId,
+        secret_key: secretKey,
+        secret_key_nonce: secretKeyNonce,
+        secret_key_type: secretKeyType,
+        private_key: privateKey,
+        private_key_nonce: privateKeyNonce,
+        private_key_type: privateKeyType,
+        group_admin: groupAdmin,
+        share_admin: shareAdmin,
     };
     const headers = {
         Authorization: "Token " + token,
@@ -2619,19 +2619,19 @@ const createMembership = function (
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} membership_id The membership id to update
- * @param {boolean} group_admin Weather the users should have group admin rights or not
- * @param {boolean} share_admin Weather the users should have share admin rights or not
+ * @param {uuid} membershipId The membership id to update
+ * @param {boolean} groupAdmin Weather the users should have group admin rights or not
+ * @param {boolean} shareAdmin Weather the users should have share admin rights or not
  *
  * @returns {Promise} promise
  */
-const updateMembership = function (token, sessionSecretKey, membership_id, group_admin, share_admin) {
+const updateMembership = function (token, sessionSecretKey, membershipId, groupAdmin, shareAdmin) {
     const endpoint = "/membership/";
     const method = "POST";
     const data = {
-        membership_id: membership_id,
-        group_admin: group_admin,
-        share_admin: share_admin,
+        membership_id: membershipId,
+        group_admin: groupAdmin,
+        share_admin: shareAdmin,
     };
     const headers = {
         Authorization: "Token " + token,
@@ -2645,15 +2645,15 @@ const updateMembership = function (token, sessionSecretKey, membership_id, group
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} membership_id The membership id to delete
+ * @param {uuid} membershipId The membership id to delete
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const deleteMembership = function (token, sessionSecretKey, membership_id) {
+const deleteMembership = function (token, sessionSecretKey, membershipId) {
     const endpoint = "/membership/";
     const method = "DELETE";
     const data = {
-        membership_id: membership_id,
+        membership_id: membershipId,
     };
 
     const headers = {

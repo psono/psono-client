@@ -494,7 +494,7 @@ function acceptMembership(membershipId) {
  *
  * @returns {Promise} Returns whether the declination was successful or not
  */
-function declineMembership(c) {
+function declineMembership(membershipId) {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
 

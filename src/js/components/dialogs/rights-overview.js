@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
+import { makeStyles } from "@material-ui/core/styles";
 
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
@@ -22,9 +23,18 @@ import store from "../../services/store";
 import helper from "../../services/helper";
 import DialogVerify from "./verify";
 
+const useStyles = makeStyles((theme) => ({
+    tabPanel: {
+        "& .MuiBox-root": {
+            padding: "16px 0px",
+        },
+    },
+}));
+
 const DialogRightsOverview = (props) => {
     const { open, onClose, item } = props;
     const { t } = useTranslation();
+    const classes = useStyles();
     const [value, setValue] = React.useState(0);
     const [verifyToggleOwnGrantOpen, setVerifyToggleOwnGrantOpen] = useState(false);
     const [verifyToggleOwnGrantData, setVerifyToggleOwnGrantData] = useState({});
@@ -368,10 +378,10 @@ const DialogRightsOverview = (props) => {
                     <Tab label={t("USERS")} />
                     <Tab label={t("GROUPS")} />
                 </Tabs>
-                <TabPanel value={value} index={0}>
+                <TabPanel value={value} index={0} className={classes.tabPanel}>
                     <Table data={userShareRights} columns={userColumns} options={options} />
                 </TabPanel>
-                <TabPanel value={value} index={1}>
+                <TabPanel value={value} index={1} className={classes.tabPanel}>
                     <Table data={groupShareRights} columns={groupColumns} options={options} />
                 </TabPanel>
             </DialogContent>

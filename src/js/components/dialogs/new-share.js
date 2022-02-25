@@ -44,6 +44,11 @@ const useStyles = makeStyles((theme) => ({
         border: "1px solid #666",
         borderRadius: "3px",
     },
+    tabPanel: {
+        "& .MuiBox-root": {
+            padding: "16px 0px",
+        },
+    },
 }));
 
 const DialogNewShare = (props) => {
@@ -290,10 +295,10 @@ const DialogNewShare = (props) => {
                             <Tab label={t("TRUSTED_USERS")} />
                             <Tab label={t("KNOWN_GROUPS")} />
                         </Tabs>
-                        <TabPanel value={value} index={0}>
+                        <TabPanel value={value} index={0} className={classes.tabPanel}>
                             <Table data={userColumnData} columns={userColumns} options={options} onCreate={onCreateTrustedUser} />
                         </TabPanel>
-                        <TabPanel value={value} index={1}>
+                        <TabPanel value={value} index={1} className={classes.tabPanel}>
                             <Table data={groupColumnData} columns={groupColumns} options={options} onCreate={onCreateGroup} />
                         </TabPanel>
                     </Grid>
