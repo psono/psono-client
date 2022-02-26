@@ -26,6 +26,8 @@ import { Link } from "react-router-dom";
 import store from "../services/store";
 import user from "../services/user";
 import offlineCache from "../services/offline-cache";
+import DialogGoOffline from "../components/dialogs/go-offline";
+import DialogNewUser from "../components/dialogs/new-user";
 
 const useStyles = makeStyles((theme) => ({
     appBar: {
@@ -67,6 +69,7 @@ const Topbar = (props) => {
     const { t } = useTranslation();
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = React.useState(null);
+    const [goOfflineOpen, setGoOfflineOpen] = React.useState(false);
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
@@ -79,8 +82,7 @@ const Topbar = (props) => {
         setAnchorEl(null);
     };
     const goOffline = () => {
-        // TODO implement
-        console.log("GO OFFLINE!");
+        setGoOfflineOpen(true);
     };
     const goOnline = () => {
         // TODO implement
@@ -189,6 +191,7 @@ const Topbar = (props) => {
                     </div>
                 </Toolbar>
             </Container>
+            {goOfflineOpen && <DialogGoOffline open={goOfflineOpen} onClose={() => setGoOfflineOpen(false)} />}
         </AppBar>
     );
 };
