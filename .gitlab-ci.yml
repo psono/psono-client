@@ -31,7 +31,6 @@ test-linter:
   script:
     - sh ./var/prep-build.sh
     - npm run buildfirefox
-    - gulp updateversion
     - npm install -g addons-linter@1.17.0
     - cat ./build/firefox/manifest.json
     - addons-linter --help
@@ -76,7 +75,6 @@ build-docker-image:
     - sh ./var/download_translations_from_artifactory.sh
     - sh ./var/prep-build.sh
     - npm run buildwebclient
-    - gulp updateversion
     - curl -fSL "https://download.docker.com/linux/static/stable/x86_64/docker-17.12.1-ce.tgz" -o docker.tgz && echo "1270dce1bd7e1838d62ae21d2505d87f16efc1d9074645571daaefdfd0c14054 *docker.tgz" | sha256sum -c - && tar -xzvf docker.tgz && mv docker/* /usr/local/bin/ && rm -Rf docker*
     - docker info
     - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker.jfrog.io
@@ -98,7 +96,6 @@ build-firefox-extension:
     - sh ./var/download_translations_from_artifactory.sh
     - sh ./var/prep-build.sh
     - npm run buildfirefox
-    - gulp updateversion
     - sh ./var/package-firefox-extension.sh
     - curl -fL https://getcli.jfrog.io | sh
     - ./jfrog rt c rt-server-1 --url=https://psono.jfrog.io/psono --user=gitlab --password=$artifactory_credentials
@@ -123,7 +120,6 @@ build-chrome-extension:
     - sh ./var/download_translations_from_artifactory.sh
     - sh ./var/prep-build.sh
     - npm run buildchrome
-    - gulp updateversion
     - sh ./var/package-chrome-extension.sh
     - curl -fL https://getcli.jfrog.io | sh
     - ./jfrog rt c rt-server-1 --url=https://psono.jfrog.io/psono --user=gitlab --password=$artifactory_credentials
@@ -148,7 +144,6 @@ build-webclient:
     - sh ./var/download_translations_from_artifactory.sh
     - sh ./var/prep-build.sh
     - npm run buildwebclient
-    - gulp updateversion
     - sh ./var/package-webclient.sh
     - curl -fL https://getcli.jfrog.io | sh
     - ./jfrog rt c rt-server-1 --url=https://psono.jfrog.io/psono --user=gitlab --password=$artifactory_credentials
@@ -255,7 +250,6 @@ deploy-chrome:
   script:
     - sh ./var/prep-build.sh
     - npm run buildchrome
-    - gulp updateversion
     - sh ./var/deploy-chrome-extension.sh
   environment:
     name: chrome-webstore
@@ -272,7 +266,6 @@ deploy-firefox:
   script:
     - sh ./var/prep-build.sh
     - npm run buildfirefox
-    - gulp updateversion
     - sh ./var/deploy-firefox-extension.sh
   environment:
     name: firefox-webstore

@@ -1,9 +1,22 @@
 const { merge } = require('webpack-merge');
 const common = require('./webpack.common.js');
 const webpack = require('webpack');
+const ReplaceInFileWebpackPlugin = require('replace-in-file-webpack-plugin');
+const JsonPostProcessPlugin = require('json-post-process-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin');
 const PrettierPlugin = require("prettier-webpack-plugin");
 const path = require('path');
+
+const commit_tag = process.env.CI_COMMIT_TAG;
+const commit_sha = process.env.CI_COMMIT_SHA;
+
+let version = '1.1.0';
+let hash = 'abcd1234';
+
+if (/^v\d*\.\d*\.\d*$/.test(commit_tag)) {
+  version = commit_tag.substring(1);
+  hash = commit_sha.substring(0,8);
+}
 
 module.exports = merge(common, {
   mode: 'development',
@@ -38,5 +51,24 @@ module.exports = merge(common, {
       encoding: 'utf-8',            // Which encoding scheme to use on files
       extensions: [ ".js", ".ts" ]  // Which file extensions to process
     }),
+
+    new JsonPostProcessPlugin({
+      matchers: [{
+        matcher: /^firefox\/manifest.json$/,
+        action: (currentJsonContent) => ({ ...currentJsonContent, version: version })
+      }]
+    }),
+
+    new ReplaceInFileWebpackPlugin([{
+      dir: 'build/firefox/data',
+      files: ['VERSION.txt'],
+      rules: [{
+        search: '1.1.0',
+        replace: version
+      },{
+        search: 'abcd1234',
+        replace: hash
+      }]
+    }]),
   ],
 });
