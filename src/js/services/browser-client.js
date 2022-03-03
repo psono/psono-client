@@ -611,12 +611,7 @@ function closePopup() {
 function disableBrowserPasswordSaving(value) {
     let oldPMValue;
     if (TARGET === "firefox") {
-        oldPMValue = storage.find_key("settings", "disable_browser_pm");
-        if (oldPMValue == null) {
-            oldPMValue = true;
-        } else {
-            oldPMValue = oldPMValue.value;
-        }
+        oldPMValue = store.getState().client.disableBrowserPm;
         value = value !== undefined ? value : oldPMValue;
         return new Promise(function (resolve, reject) {
             function onSet(result) {
@@ -640,12 +635,7 @@ function disableBrowserPasswordSaving(value) {
             });
         });
     } else if (TARGET === "chrome") {
-        oldPMValue = storage.find_key("settings", "disable_browser_pm");
-        if (oldPMValue == null) {
-            oldPMValue = true;
-        } else {
-            oldPMValue = oldPMValue.value;
-        }
+        oldPMValue = store.getState().client.disableBrowserPm;
         value = value !== undefined ? value : oldPMValue;
         return new Promise(function (resolve, reject) {
             chrome.privacy.services.passwordSavingEnabled.get({}, function (details) {

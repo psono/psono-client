@@ -9,6 +9,7 @@ import shareService from "./share";
 import settingsService from "./settings";
 import shareLinkService from "./share-link";
 import cryptoLibrary from "./crypto-library";
+import browserClient from "./browser-client";
 import i18n from "../i18n";
 import store from "./store";
 
@@ -621,7 +622,7 @@ function saveInDatastore(secretObject, datastoreObject) {
     };
 
     const onSuccess = function (datastore) {
-        return secretService.create_secret(secretObject, link_id, datastore.datastore_id, undefined).then(function (data) {
+        return secretService.createSecret(secretObject, link_id, datastore.datastore_id, undefined).then(function (data) {
             if (!datastore.hasOwnProperty("items")) {
                 datastore["items"] = [];
             }
@@ -707,7 +708,7 @@ function savePasswordActiveTab(password) {
         return savePassword(url, "", password).then(onSuccess, onError);
     };
 
-    return browserClient.get_active_tab_url().then(onSuccess, onError);
+    return browserClient.getActiveTabUrl().then(onSuccess, onError);
 }
 
 /**
@@ -751,7 +752,7 @@ function bookmarkActiveTab() {
         return saveInDatastore(secret_object, datastore_object).then(onSuccess, onError);
     };
 
-    return browserClient.get_active_tab().then(onSuccess, onError);
+    return browserClient.getActiveTabUrl().then(onSuccess, onError);
 }
 
 /**

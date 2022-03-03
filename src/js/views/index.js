@@ -20,18 +20,22 @@ import ActiveLinkShareView from "./active-link-shares";
 import statusService from "../services/status";
 import SecurityReportView from "./security-report";
 import LinkShareAccessView from "./link-share-access";
+import backgroundService from "../services/background";
 
 const IndexView = (props) => {
     const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
+    const pathname = window.location.pathname;
 
     React.useEffect(() => {
         statusService.getStatus();
+        if (pathname.endsWith("/background.html")) {
+            backgroundService.activate();
+        }
     }, []);
-
-    const pathname = window.location.pathname;
 
     if (pathname.endsWith("/activate.html")) {
     } else if (pathname.endsWith("/background.html")) {
+        console.log("BACKGROUND");
         return "BACKGROUND";
     } else if (pathname.endsWith("/default_popup.html")) {
         if (!isLoggedIn) {

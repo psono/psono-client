@@ -49,10 +49,10 @@ const DialogDecryptGpgMessage = (props) => {
                     privateKeysArray.push(privateKey);
                 }
 
-                //console.log(pgpSender);
                 const message = await openpgp.readMessage({
                     armoredMessage: encryptedMessage, // parse armored message
                 });
+
                 let options;
                 if (publicKey) {
                     options = {

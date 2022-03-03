@@ -198,6 +198,13 @@ const LoginViewForm = (props) => {
         if (multifactors.length === 0) {
             user.activateToken().then(() => {
                 //setLoginLoading(false);
+
+                if (props.samlTokenId) {
+                    history.push("/");
+                }
+                if (props.oidcTokenId) {
+                    history.push("/");
+                }
             });
         } else {
             setLoginLoading(false);
@@ -508,7 +515,7 @@ const LoginViewForm = (props) => {
             });
     };
     const redirectRegister = () => {
-        history.push("register.html");
+        window.location.href = "register.html";
     };
 
     let formContent;

@@ -133,10 +133,26 @@ function upsert(db, items) {
  * Searches for multiple entries and filter according to a function
  *
  * @param {string} db The database
- * @param {object|Array} filter_function The filter function
+ * @param {function} filterFunction The filter function
  */
-function where(db, filter_function) {
-    //return dbs[db].where(filter_function);
+function where(db, filterFunction) {
+    const result = [];
+    return dbConfig[db]
+        .length()
+        .then(function (numberOfKeys) {
+            return dbConfig[db].iterate(function (value, key, iterationNumber) {
+                if (filterFunction(value)) {
+                    result.push(value);
+                }
+                if (iterationNumber === numberOfKeys) {
+                    return result;
+                }
+            });
+        })
+        .catch(function (err) {
+            // This code runs if there were any errors
+            console.log(err);
+        });
 }
 
 /**

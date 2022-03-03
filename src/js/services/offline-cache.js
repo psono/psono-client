@@ -202,7 +202,7 @@ function clear() {
 }
 
 /**
- * Saves teh cache
+ * Saves the cache
  *
  * @returns {Promise} promise
  */
