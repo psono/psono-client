@@ -3,6 +3,7 @@ import {
     SET_CLIENT_URL,
     ENABLE_OFFLINE_MODE,
     DISABLE_OFFLINE_MODE,
+    SET_OFFLINE_CACHE_ENCRYPTION_INFO,
     SET_NOTIFICATION_ON_COPY,
     SET_DISABLE_BROWSER_PM,
     SET_HIDE_DOWNLOAD_BANNER,
@@ -14,6 +15,8 @@ function client(
     state = {
         url: default_url,
         offlineMode: false,
+        offlineCacheEncryptionKey: null,
+        offlineCacheEncryptionSalt: null,
         notificationOnCopy: true,
         disableBrowserPm: true,
         hideDownloadBanner: false,
@@ -36,6 +39,11 @@ function client(
         case DISABLE_OFFLINE_MODE:
             return Object.assign({}, state, {
                 offlineMode: false,
+            });
+        case SET_OFFLINE_CACHE_ENCRYPTION_INFO:
+            return Object.assign({}, state, {
+                offlineCacheEncryptionKey: action.offlineCacheEncryptionKey,
+                offlineCacheEncryptionSalt: action.offlineCacheEncryptionSalt,
             });
         case SET_NOTIFICATION_ON_COPY:
             return Object.assign({}, state, {

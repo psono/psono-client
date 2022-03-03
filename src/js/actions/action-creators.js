@@ -13,6 +13,7 @@ import {
     SET_CLIENT_URL,
     ENABLE_OFFLINE_MODE,
     DISABLE_OFFLINE_MODE,
+    SET_OFFLINE_CACHE_ENCRYPTION_INFO,
     SET_NOTIFICATION_ON_COPY,
     SET_DISABLE_BROWSER_PM,
     SETTINGS_DATASTORE_LOADED,
@@ -146,6 +147,15 @@ function disableOfflineMode() {
     return (dispatch) => {
         dispatch({
             type: DISABLE_OFFLINE_MODE,
+        });
+    };
+}
+function setOfflineCacheEncryptionInfo(offlineCacheEncryptionKey, offlineCacheEncryptionSalt) {
+    return (dispatch) => {
+        dispatch({
+            type: SET_OFFLINE_CACHE_ENCRYPTION_INFO,
+            offlineCacheEncryptionKey,
+            offlineCacheEncryptionSalt,
         });
     };
 }
@@ -302,6 +312,7 @@ const actionCreators = {
     setClientUrl,
     disableOfflineMode,
     enableOfflineMode,
+    setOfflineCacheEncryptionInfo,
     setNotificationOnCopy,
     setDisableBrowserPm,
     setHideDownloadBanner,

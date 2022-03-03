@@ -1,7 +1,6 @@
 /**
  * Service to talk to the psono REST api
  */
-import $ from "jquery";
 import axios from "axios";
 import cryptoLibrary from "./crypto-library";
 import offlineCache from "./offline-cache";
@@ -21,7 +20,7 @@ const decryptData = function (sessionSecretKey, data, req) {
     return data;
 };
 
-function call(method, endpoint, data, headers, sessionSecretKey, synchronous) {
+function call(method, endpoint, data, headers, sessionSecretKey) {
     const url = store.getState().server.url + endpoint;
 
     if (sessionSecretKey && data !== null) {
@@ -55,40 +54,11 @@ function call(method, endpoint, data, headers, sessionSecretKey, synchronous) {
         headers,
     };
 
-    const cached = offlineCache.get(req);
-
-    if (cached !== null) {
-        if (synchronous) {
+    return offlineCache.get(req).then((cached) => {
+        if (cached !== null) {
             return cached;
-        } else {
-            return Promise.resolve(cached);
         }
-    }
 
-    if (synchronous) {
-        /**
-         * Necessary evil... used to copy data to the clipboard which can only happen on user interaction,
-         * which means that we need a user event for it, which means that we have to block the thread with a
-         * synchronous wait... If someone has a better idea let me know!
-         */
-        data = $.ajax({
-            type: method,
-            url: url,
-            async: false,
-            data: data, // No data required for get
-            dataType: "text", // will be json but for the demo purposes we insist on text
-            beforeSend: function (xhr) {
-                for (let header in headers) {
-                    if (!headers.hasOwnProperty(header)) {
-                        continue;
-                    }
-                    xhr.setRequestHeader(header, headers[header]);
-                }
-            },
-        });
-
-        return decryptData(sessionSecretKey, { data: JSON.parse(data.responseText) }, req);
-    } else {
         return new Promise((resolve, reject) => {
             const onSuccess = function (data) {
                 return resolve(decryptData(sessionSecretKey, data, req));
@@ -137,7 +107,7 @@ function call(method, endpoint, data, headers, sessionSecretKey, synchronous) {
 
             axios(req).then(onSuccess, onError);
         });
-    }
+    });
 }
 
 /**
@@ -866,11 +836,10 @@ function writeDatastore(
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
  * @param {uuid} secret_id secret ID
- * @param {boolean|undefined} [synchronous] (optional) Synchronous or Asynchronous
  *
  * @returns {Promise} promise
  */
-function readSecret(token, sessionSecretKey, secret_id, synchronous) {
+function readSecret(token, sessionSecretKey, secret_id) {
     const endpoint = "/secret/" + secret_id + "/";
     const method = "GET";
     const data = null;
@@ -882,7 +851,7 @@ function readSecret(token, sessionSecretKey, secret_id, synchronous) {
     //     'test': 'something secret'
     // }
 
-    return call(method, endpoint, data, headers, sessionSecretKey, synchronous);
+    return call(method, endpoint, data, headers, sessionSecretKey);
 }
 
 /**

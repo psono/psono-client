@@ -466,7 +466,7 @@ function canMoveItem(element, target) {
         target.hasOwnProperty("share_id") &&
         target["share_id"] !== element["parent_share_id"]
     ) {
-        alert("Sorry, but you you cannot move a share without grant rights into another share.");
+        alert("Sorry, but you cannot move a share without grant rights into another share.");
         return false;
     }
 
@@ -478,7 +478,7 @@ function canMoveItem(element, target) {
         target.hasOwnProperty("parent_share_id") &&
         target["parent_share_id"] !== element["parent_share_id"]
     ) {
-        alert("Sorry, but you you cannot move a share without grant rights into another share.");
+        alert("Sorry, but you cannot move a share without grant rights into another share.");
         return false;
     }
 

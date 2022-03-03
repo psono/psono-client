@@ -486,7 +486,7 @@ function getPasswordDatastore(id) {
     };
     const onError = function (data) {
         // pass
-        console.log(datastore);
+        console.log(data);
     };
 
     return datastoreService.getDatastore(type, id).then(onSuccess, onError);

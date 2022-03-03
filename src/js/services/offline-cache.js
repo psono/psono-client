@@ -4,10 +4,11 @@
 
 import cryptoLibrary from "./crypto-library";
 import browserClient from "./browser-client";
+import storage from "./storage";
 import action from "../actions/bound-action-creators";
 import store from "./store";
 
-let encryption_key = "";
+let encryptionKey = "";
 const onSetEncryptionKeyRegistrations = [];
 
 activate();
@@ -42,7 +43,7 @@ function isActive() {
  * @returns {boolean} promise
  */
 function isEncrypted() {
-    return storage.find_key("config", "offline-cache-encryption-key") !== null;
+    return store.getState().client.offlineCacheEncryptionKey !== null;
 }
 
 /**
@@ -51,7 +52,7 @@ function isEncrypted() {
  * @returns {string} The hex representation of the encryption key
  */
 function getEncryptionKey() {
-    return encryption_key;
+    return encryptionKey;
 }
 
 /**
@@ -60,7 +61,7 @@ function getEncryptionKey() {
  * @returns {boolean} locked status
  */
 function isLocked() {
-    return isEncrypted() && !encryption_key;
+    return isEncrypted() && !encryptionKey;
 }
 
 /**
@@ -72,19 +73,14 @@ function unlock(password) {
     if (typeof password === "undefined") {
         password = "";
     }
-    const encryption_key_encrypted = storage.find_key("config", "offline-cache-encryption-key");
-    const encryption_key_salt = storage.find_key("config", "offline-cache-encryption-salt");
-    if (encryption_key_encrypted === null || encryption_key_salt === null) {
+    const encryptionKeyEncrypted = store.getState().client.offlineCacheEncryptionKey;
+    const encryptionKeySalt = store.getState().client.offlineCacheEncryptionSalt;
+    if (!encryptionKeyEncrypted || !encryptionKeySalt) {
         return true;
     }
     let newEncryptionKey;
     try {
-        newEncryptionKey = cryptoLibrary.decryptSecret(
-            encryption_key_encrypted.value.text,
-            encryption_key_encrypted.value.nonce,
-            password,
-            encryption_key_salt.value
-        );
+        newEncryptionKey = cryptoLibrary.decryptSecret(encryptionKeyEncrypted.text, encryptionKeyEncrypted.nonce, password, encryptionKeySalt);
     } catch (e) {
         return false;
     }
@@ -97,14 +93,14 @@ function unlock(password) {
 /**
  * Sets the encryption key
  *
- * @param {string} new_encryption_key The new key
+ * @param {string} newEncryptionKey The new key
  */
-function setEncryptionKey(new_encryption_key) {
-    if (typeof new_encryption_key === "undefined") {
+function setEncryptionKey(newEncryptionKey) {
+    if (typeof newEncryptionKey === "undefined") {
         return;
     }
-    encryption_key = new_encryption_key;
-    window.psono_offline_cache_encryption_key = new_encryption_key;
+    encryptionKey = newEncryptionKey;
+    window.psono_offline_cache_encryption_key = newEncryptionKey;
     for (let i = 0; i < onSetEncryptionKeyRegistrations.length; i++) {
         onSetEncryptionKeyRegistrations[i]();
     }
@@ -118,11 +114,9 @@ function setEncryptionKey(new_encryption_key) {
 function setEncryptionPassword(password) {
     const new_encryption_key = cryptoLibrary.generateSecretKey();
     setEncryptionKey(new_encryption_key);
-    const new_encryption_key_salt = cryptoLibrary.generateSecretKey();
-    const new_encryption_key_encrypted = cryptoLibrary.encryptSecret(new_encryption_key, password, new_encryption_key_salt);
-    storage.upsert("config", { key: "offline-cache-encryption-key", value: new_encryption_key_encrypted });
-    storage.upsert("config", { key: "offline-cache-encryption-salt", value: new_encryption_key_salt });
-    storage.save();
+    const offlineCacheEncryptionSalt = cryptoLibrary.generateSecretKey();
+    const offlineCacheEncryptionKey = cryptoLibrary.encryptSecret(new_encryption_key, password, offlineCacheEncryptionSalt);
+    action.setOfflineCacheEncryptionInfo(offlineCacheEncryptionKey, offlineCacheEncryptionSalt);
     browserClient.emitSec("set-offline-cache-encryption-key", { encryption_key: new_encryption_key });
 }
 
@@ -141,8 +135,8 @@ function set(request, data) {
 
     let value = JSON.stringify(data);
 
-    if (encryption_key) {
-        value = cryptoLibrary.encryptData(value, encryption_key);
+    if (encryptionKey) {
+        value = cryptoLibrary.encryptData(value, encryptionKey);
     }
 
     storage.upsert("offline-cache", { key: request.url.toLowerCase(), value: value });
@@ -153,33 +147,33 @@ function set(request, data) {
  *
  * @param {object} request the request
  *
- * @returns {object} our original request
+ * @returns {Promise} our original request
  */
 function get(request) {
     if (!isActive()) {
-        return null;
+        return Promise.resolve(null);
     }
     if (request.method !== "GET") {
-        return {
+        return Promise.resolve({
             data: {
                 error: ["Leave the offline mode before creating / modifying any content."],
             },
-        };
+        });
     }
 
-    const storage_entry = storage.find_key("offline-cache", request.url.toLowerCase());
+    return storage.findKey("offline-cache", request.url.toLowerCase()).then((storageEntry) => {
+        if (storageEntry === null) {
+            return null;
+        }
 
-    if (storage_entry === null) {
-        return null;
-    }
+        let value = storageEntry.value;
 
-    let value = storage_entry.value;
+        if (encryptionKey) {
+            value = cryptoLibrary.decryptData(value.text, value.nonce, encryptionKey);
+        }
 
-    if (encryption_key) {
-        value = cryptoLibrary.decryptData(value.text, value.nonce, encryption_key);
-    }
-
-    return JSON.parse(value);
+        return JSON.parse(value);
+    });
 }
 
 /**
@@ -188,7 +182,7 @@ function get(request) {
 function enable() {
     action.enableOfflineMode();
 
-    $rootScope.$broadcast("offline_mode_enabled", "");
+    //$rootScope.$broadcast("offline_mode_enabled", "");
 }
 
 /**
@@ -196,14 +190,14 @@ function enable() {
  */
 function disable() {
     action.disableOfflineMode();
-    $rootScope.$broadcast("offline_mode_disabled", "");
+    // $rootScope.$broadcast("offline_mode_disabled", "");
 }
 
 /**
  * Clears the cache
  */
 function clear() {
-    storage.remove_all("offline-cache");
+    storage.removeAll("offline-cache");
     storage.save();
 }
 
@@ -213,7 +207,7 @@ function clear() {
  * @returns {Promise} promise
  */
 function save() {
-    // TODO 
+    // TODO
     storage.save();
 }
 

@@ -273,6 +273,7 @@ function getDatastore(type, id) {
 
                     const onError = function (result) {
                         // pass
+                        console.log(result);
                     };
 
                     const onSuccess = function (result) {

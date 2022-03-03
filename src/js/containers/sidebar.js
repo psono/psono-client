@@ -110,6 +110,7 @@ const Sidebar = (props) => {
     const { t } = useTranslation();
     const { mobileOpen, setMobileOpen } = props;
     const serverStatus = useSelector((state) => state.server.status);
+    const offlineMode = useSelector((state) => state.client.offlineMode);
     const recurrenceInterval = useSelector((state) => state.server.complianceCentralSecurityReportsRecurrenceInterval);
     const classes = useStyles();
     const theme = useTheme();
@@ -172,75 +173,85 @@ const Sidebar = (props) => {
                     </ListItemIcon>
                     <ListItemText classes={{ primary: classes.listItemText }} primary={t("HOME")} />
                 </ListItem>
-                <ListItem
-                    button
-                    component={Link}
-                    to="/share/pendingshares"
-                    classes={{ root: isSelected(/^\/share\/pendingshares$/) ? classes.listItemRootActive : classes.listItemRoot }}
-                    selected={isSelected(/^\/share\/pendingshares$/)}
-                >
-                    <ListItemIcon className={`${isSelected(/^\/share\/pendingshares$/) ? classes.listItemIconSelected : classes.listItemIcon}`}>
-                        <ShareIcon className={classes.icon} />
-                    </ListItemIcon>
-                    <ListItemText
-                        classes={{ primary: classes.listItemText }}
-                        primary={<Badge badgeContent={serverStatus.data ? serverStatus.data.unaccepted_shares_count : 0}>{t("PENDING_REQUESTS")}</Badge>}
-                    />
-                </ListItem>
-                <ListItem
-                    button
-                    component={Link}
-                    to="/share/users"
-                    classes={{ root: isSelected(/^\/share\/users$/) ? classes.listItemRootActive : classes.listItemRoot }}
-                    selected={isSelected(/^\/share\/users$/)}
-                >
-                    <ListItemIcon className={`${isSelected(/^\/share\/users$/) ? classes.listItemIconSelected : classes.listItemIcon}`}>
-                        <PersonIcon className={classes.icon} />
-                    </ListItemIcon>
-                    <ListItemText classes={{ primary: classes.listItemText }} primary={t("TRUSTED_USERS")} />
-                </ListItem>
-                <ListItem
-                    button
-                    component={Link}
-                    to="/groups"
-                    classes={{ root: isSelected(/^\/groups$/) ? classes.listItemRootActive : classes.listItemRoot }}
-                    selected={isSelected(/^\/groups$/)}
-                >
-                    <ListItemIcon className={`${isSelected(/^\/groups$/) ? classes.listItemIconSelected : classes.listItemIcon}`}>
-                        <GroupIcon className={classes.icon} />
-                    </ListItemIcon>
-                    <ListItemText
-                        classes={{ primary: classes.listItemText }}
-                        primary={<Badge badgeContent={serverStatus.data ? serverStatus.data.unaccepted_groups_count : 0}>{t("GROUPS")}</Badge>}
-                    />
-                </ListItem>
-                <ListItem
-                    button
-                    component={Link}
-                    to="/security-report"
-                    classes={{ root: isSelected(/^\/security-report$/) ? classes.listItemRootActive : classes.listItemRoot }}
-                    selected={isSelected(/^\/security-report$/)}
-                >
-                    <ListItemIcon className={`${isSelected(/^\/security-report$/) ? classes.listItemIconSelected : classes.listItemIcon}`}>
-                        <RuleIcon className={classes.icon} />
-                    </ListItemIcon>
-                    <ListItemText
-                        classes={{ primary: classes.listItemText }}
-                        primary={<Badge badgeContent={newSecurityReport === "REQUIRED" ? "!" : 0}>{t("SECURITY_REPORT")}</Badge>}
-                    />
-                </ListItem>
-                <ListItem
-                    button
-                    component={Link}
-                    to="/active-link-shares"
-                    classes={{ root: isSelected(/^\/active-link-shares/) ? classes.listItemRootActive : classes.listItemRoot }}
-                    selected={isSelected(/^\/active-link-shares$/)}
-                >
-                    <ListItemIcon className={`${isSelected(/^\/active-link-shares$/) ? classes.listItemIconSelected : classes.listItemIcon}`}>
-                        <LinkIcon className={classes.icon} />
-                    </ListItemIcon>
-                    <ListItemText classes={{ primary: classes.listItemText }} primary={t("ACTIVE_LINK_SHARES")} />
-                </ListItem>
+                {!offlineMode && (
+                    <ListItem
+                        button
+                        component={Link}
+                        to="/share/pendingshares"
+                        classes={{ root: isSelected(/^\/share\/pendingshares$/) ? classes.listItemRootActive : classes.listItemRoot }}
+                        selected={isSelected(/^\/share\/pendingshares$/)}
+                    >
+                        <ListItemIcon className={`${isSelected(/^\/share\/pendingshares$/) ? classes.listItemIconSelected : classes.listItemIcon}`}>
+                            <ShareIcon className={classes.icon} />
+                        </ListItemIcon>
+                        <ListItemText
+                            classes={{ primary: classes.listItemText }}
+                            primary={<Badge badgeContent={serverStatus.data ? serverStatus.data.unaccepted_shares_count : 0}>{t("PENDING_REQUESTS")}</Badge>}
+                        />
+                    </ListItem>
+                )}
+                {!offlineMode && (
+                    <ListItem
+                        button
+                        component={Link}
+                        to="/share/users"
+                        classes={{ root: isSelected(/^\/share\/users$/) ? classes.listItemRootActive : classes.listItemRoot }}
+                        selected={isSelected(/^\/share\/users$/)}
+                    >
+                        <ListItemIcon className={`${isSelected(/^\/share\/users$/) ? classes.listItemIconSelected : classes.listItemIcon}`}>
+                            <PersonIcon className={classes.icon} />
+                        </ListItemIcon>
+                        <ListItemText classes={{ primary: classes.listItemText }} primary={t("TRUSTED_USERS")} />
+                    </ListItem>
+                )}
+                {!offlineMode && (
+                    <ListItem
+                        button
+                        component={Link}
+                        to="/groups"
+                        classes={{ root: isSelected(/^\/groups$/) ? classes.listItemRootActive : classes.listItemRoot }}
+                        selected={isSelected(/^\/groups$/)}
+                    >
+                        <ListItemIcon className={`${isSelected(/^\/groups$/) ? classes.listItemIconSelected : classes.listItemIcon}`}>
+                            <GroupIcon className={classes.icon} />
+                        </ListItemIcon>
+                        <ListItemText
+                            classes={{ primary: classes.listItemText }}
+                            primary={<Badge badgeContent={serverStatus.data ? serverStatus.data.unaccepted_groups_count : 0}>{t("GROUPS")}</Badge>}
+                        />
+                    </ListItem>
+                )}
+                {!offlineMode && (
+                    <ListItem
+                        button
+                        component={Link}
+                        to="/security-report"
+                        classes={{ root: isSelected(/^\/security-report$/) ? classes.listItemRootActive : classes.listItemRoot }}
+                        selected={isSelected(/^\/security-report$/)}
+                    >
+                        <ListItemIcon className={`${isSelected(/^\/security-report$/) ? classes.listItemIconSelected : classes.listItemIcon}`}>
+                            <RuleIcon className={classes.icon} />
+                        </ListItemIcon>
+                        <ListItemText
+                            classes={{ primary: classes.listItemText }}
+                            primary={<Badge badgeContent={newSecurityReport === "REQUIRED" ? "!" : 0}>{t("SECURITY_REPORT")}</Badge>}
+                        />
+                    </ListItem>
+                )}
+                {!offlineMode && (
+                    <ListItem
+                        button
+                        component={Link}
+                        to="/active-link-shares"
+                        classes={{ root: isSelected(/^\/active-link-shares/) ? classes.listItemRootActive : classes.listItemRoot }}
+                        selected={isSelected(/^\/active-link-shares$/)}
+                    >
+                        <ListItemIcon className={`${isSelected(/^\/active-link-shares$/) ? classes.listItemIconSelected : classes.listItemIcon}`}>
+                            <LinkIcon className={classes.icon} />
+                        </ListItemIcon>
+                        <ListItemText classes={{ primary: classes.listItemText }} primary={t("ACTIVE_LINK_SHARES")} />
+                    </ListItem>
+                )}
             </List>
             {moreLinks && (
                 <>

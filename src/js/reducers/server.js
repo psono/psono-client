@@ -19,6 +19,7 @@ const defaultComplianceDisableExport = false;
 const defaultComplianceDisableFileRepositories = false;
 const defaultComplianceDisableLinkShares = false;
 const defaultComplianceDisableOfflineMode = false;
+const defaultComplianceDisableShares = false;
 const defaultComplianceDisableRecoveryCodes = false;
 const defaultComplianceEnforce2fa = false;
 const defaultComplianceEnforceCentralSecurityReports = false;
@@ -69,6 +70,7 @@ function server(
         complianceDisableFileRepositories: defaultComplianceDisableFileRepositories,
         complianceDisableLinkShares: defaultComplianceDisableLinkShares,
         complianceDisableOfflineMode: defaultComplianceDisableOfflineMode,
+        complianceDisableShares: defaultComplianceDisableShares,
         complianceDisableRecoveryCodes: defaultComplianceDisableRecoveryCodes,
         complianceEnforce2fa: defaultComplianceEnforce2fa,
         complianceEnforceCentralSecurityReports: defaultComplianceEnforceCentralSecurityReports,
@@ -122,6 +124,7 @@ function server(
                 complianceDisableFileRepositories: defaultComplianceDisableFileRepositories,
                 complianceDisableLinkShares: defaultComplianceDisableLinkShares,
                 complianceDisableOfflineMode: defaultComplianceDisableOfflineMode,
+                complianceDisableShares: defaultComplianceDisableShares,
                 complianceDisableRecoveryCodes: defaultComplianceDisableRecoveryCodes,
                 complianceEnforce2fa: defaultComplianceEnforce2fa,
                 complianceEnforceCentralSecurityReports: defaultComplianceEnforceCentralSecurityReports,
@@ -171,6 +174,7 @@ function server(
                 complianceDisableFileRepositories: action.info.compliance_disable_file_repositories,
                 complianceDisableLinkShares: action.info.compliance_disable_link_shares,
                 complianceDisableOfflineMode: action.info.compliance_disable_offline_mode,
+                complianceDisableShares: action.info.compliance_disable_shares,
                 complianceDisableRecoveryCodes: action.info.compliance_disable_recovery_codes,
                 complianceEnforce2fa: action.info.compliance_enforce_2fa,
                 complianceEnforceCentralSecurityReports: action.info.compliance_enforce_central_security_reports,

@@ -85,8 +85,8 @@ const Topbar = (props) => {
         setGoOfflineOpen(true);
     };
     const goOnline = () => {
-        // TODO implement
-        console.log("GO Online!");
+        offlineCache.disable();
+        offlineCache.clear();
     };
     const logout = () => {
         user.logout();

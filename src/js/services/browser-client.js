@@ -672,41 +672,42 @@ function disableBrowserPasswordSaving(value) {
  * @param {string} content The content to copy
  */
 function copyToClipboard(content) {
-    let copy;
-    if (TARGET === "firefox") {
-        copy = function (e) {
-            e.preventDefault();
-            if (e.clipboardData) {
-                e.clipboardData.setData("text/plain", content);
-            } else if (window.clipboardData) {
-                window.clipboardData.setData("Text", content);
-            }
-        };
-        document.addEventListener("copy", copy);
-        document.execCommand("copy");
-        document.removeEventListener("copy", copy);
-    } else if (TARGET === "chrome") {
-        copy = function (e) {
-            e.preventDefault();
-            if (e.clipboardData) {
-                e.clipboardData.setData("text/plain", content);
-            } else if (window.clipboardData) {
-                window.clipboardData.setData("Text", content);
-            }
-        };
-        document.addEventListener("copy", copy);
-        document.execCommand("copy");
-        document.removeEventListener("copy", copy);
-    } else {
-        navigator.clipboard.writeText(content);
-        // let input = document.createElement("input");
-        // input.type = 'text';
-        // input.value = content;
-        // document.body.appendChild(input);
-        // input.select();
-        // document.execCommand("Copy");
-        // document.body.removeChild(input);
-    }
+    return navigator.clipboard.writeText(content);
+    // let copy;
+    // if (TARGET === "firefox") {
+    //     copy = function (e) {
+    //         e.preventDefault();
+    //         if (e.clipboardData) {
+    //             e.clipboardData.setData("text/plain", content);
+    //         } else if (window.clipboardData) {
+    //             window.clipboardData.setData("Text", content);
+    //         }
+    //     };
+    //     document.addEventListener("copy", copy);
+    //     document.execCommand("copy");
+    //     document.removeEventListener("copy", copy);
+    // } else if (TARGET === "chrome") {
+    //     copy = function (e) {
+    //         e.preventDefault();
+    //         if (e.clipboardData) {
+    //             e.clipboardData.setData("text/plain", content);
+    //         } else if (window.clipboardData) {
+    //             window.clipboardData.setData("Text", content);
+    //         }
+    //     };
+    //     document.addEventListener("copy", copy);
+    //     document.execCommand("copy");
+    //     document.removeEventListener("copy", copy);
+    // } else {
+    //     navigator.clipboard.writeText(content);
+    //     // let input = document.createElement("input");
+    //     // input.type = 'text';
+    //     // input.value = content;
+    //     // document.body.appendChild(input);
+    //     // input.select();
+    //     // document.execCommand("Copy");
+    //     // document.body.removeChild(input);
+    // }
 }
 
 /**

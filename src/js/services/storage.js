@@ -74,6 +74,9 @@ const dbConfig = {
     "datastore-user-leafs": localforage.createInstance({
         name: "datastore-user-leafs",
     }),
+    "offline-cache": localforage.createInstance({
+        name: "offline-cache",
+    }),
     various: localforage.createInstance({
         name: "various",
     }),

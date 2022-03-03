@@ -11,6 +11,7 @@ import host from "./host";
 import notification from "./notification";
 import store from "./store";
 import device from "./device";
+import storage from "./storage";
 
 let session_password = "";
 let verification = {};
@@ -539,11 +540,38 @@ function logout(msg = "") {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
 
-    apiClientService.logout(token, sessionSecretKey);
-    action.logout(store.getState().user.rememberMe);
-    if (msg) {
-        notification.infoSend(msg);
-    }
+    const onSuccess = function () {
+        action.disableOfflineMode();
+        storage.removeAll();
+        storage.save();
+        browserClient.emit("logout", null);
+        action.logout(store.getState().user.rememberMe);
+        if (msg) {
+            notification.infoSend(msg);
+        }
+
+        return {
+            response: "success",
+        };
+    };
+
+    const onError = function () {
+        //session expired, so lets delete the data anyway
+
+        storage.removeAll();
+        storage.save();
+        browserClient.emit("logout", null);
+        action.logout(store.getState().user.rememberMe);
+        if (msg) {
+            notification.infoSend(msg);
+        }
+
+        return {
+            response: "success",
+        };
+    };
+
+    return apiClientService.logout(token, sessionSecretKey).then(onSuccess, onError);
 }
 
 /**

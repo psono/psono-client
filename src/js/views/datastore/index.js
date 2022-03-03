@@ -26,7 +26,6 @@ import Base from "../../containers/base";
 import BaseTitle from "../../containers/base-title";
 import BaseContent from "../../containers/base-content";
 import widget from "../../services/widget";
-import datastorePassword from "../../services/datastore-password";
 import DialogNewFolder from "../../components/dialogs/new-folder";
 import DialogNewEntry from "../../components/dialogs/new-entry";
 import DatastoreTree from "../../components/datastore-tree";
@@ -43,6 +42,8 @@ import itemBlueprintService from "../../services/item-blueprint";
 import DialogError from "../../components/dialogs/error";
 import groupsService from "../../services/groups";
 import datastorePasswordService from "../../services/datastore-password";
+import offlineCacheService from "../../services/offline-cache";
+import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -117,6 +118,7 @@ const useStyles = makeStyles((theme) => ({
 const DatastoreView = (props) => {
     let { defaultSearch } = useParams();
     const serverStatus = useSelector((state) => state.server.status);
+    const offlineMode = useSelector((state) => state.client.offlineMode);
     const recurrenceInterval = useSelector((state) => state.server.complianceCentralSecurityReportsRecurrenceInterval);
     const classes = useStyles();
     const { t } = useTranslation();
@@ -130,6 +132,7 @@ const DatastoreView = (props) => {
     });
 
     const [trashBinOpen, setTrashBinOpen] = useState(false);
+    const [unlockOfflineCache, setUnlockOfflineCache] = useState(false);
 
     const [newFolderOpen, setNewFolderOpen] = useState(false);
     const [newFolderData, setNewFolderData] = useState({});
@@ -156,9 +159,22 @@ const DatastoreView = (props) => {
 
     let isSubscribed = true;
     React.useEffect(() => {
-        datastorePassword.getPasswordDatastore().then(onNewDatastoreLoaded);
+        loadDatastore();
         return () => (isSubscribed = false);
     }, []);
+
+    const loadDatastore = () => {
+        if (offlineCacheService.isActive() && offlineCacheService.isLocked()) {
+            setUnlockOfflineCache(true);
+        } else {
+            datastorePasswordService.getPasswordDatastore().then(onNewDatastoreLoaded);
+        }
+    };
+
+    const onUnlockOfflineCacheClosed = () => {
+        setUnlockOfflineCache(false);
+        datastorePasswordService.getPasswordDatastore().then(onNewDatastoreLoaded);
+    };
 
     const onNewDatastoreLoaded = (data) => {
         if (!isSubscribed) {
@@ -387,7 +403,7 @@ const DatastoreView = (props) => {
     const onNewFolderCreate = (name) => {
         // called once someone clicked the CREATE button in the dialog closes with the new name
         setNewFolderOpen(false);
-        widget.openNewFolder(newFolderData["parent"], newFolderData["path"], datastore, datastorePassword, name);
+        widget.openNewFolder(newFolderData["parent"], newFolderData["path"], datastore, datastorePasswordService, name);
     };
     const onNewFolder = (parent, path) => {
         onContextMenuClose();
@@ -403,7 +419,7 @@ const DatastoreView = (props) => {
     const onNewEntryCreate = (name) => {
         // called once someone clicked the CREATE button in the dialog closes with the new name
         setNewEntryOpen(false);
-        widget.openNewEntry(newEntryData["parent"], newEntryData["path"], datastore, datastorePassword, name);
+        widget.openNewEntry(newEntryData["parent"], newEntryData["path"], datastore, datastorePasswordService, name);
     };
     const onNewEntry = (parent, path) => {
         onContextMenuClose();
@@ -418,7 +434,7 @@ const DatastoreView = (props) => {
 
     const onEditFolderSave = (node) => {
         setEditFolderOpen(false);
-        widget.openEditFolder(node, editFolderData.path, datastore, datastorePassword);
+        widget.openEditFolder(node, editFolderData.path, datastore, datastorePasswordService);
     };
     const onEditFolder = (node, path) => {
         setEditFolderData({
@@ -430,7 +446,7 @@ const DatastoreView = (props) => {
 
     const onEditEntrySave = (node) => {
         setEditEntryOpen(false);
-        widget.openEditItem(datastore, node, editEntryData.path, datastorePassword);
+        widget.openEditItem(datastore, node, editEntryData.path, datastorePasswordService);
     };
 
     const onEditEntry = (item, path) => {
@@ -574,9 +590,11 @@ const DatastoreView = (props) => {
                                     <ClearIcon />
                                 </IconButton>
                                 <Divider className={classes.divider} orientation="vertical" />
-                                <IconButton color="primary" className={classes.iconButton} aria-label="menu" onClick={openMenu}>
-                                    <MenuOpenIcon />
-                                </IconButton>
+                                {!offlineMode && (
+                                    <IconButton color="primary" className={classes.iconButton} aria-label="menu" onClick={openMenu}>
+                                        <MenuOpenIcon />
+                                    </IconButton>
+                                )}
                                 <Menu id="simple-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
                                     <MenuItem onClick={() => onNewFolder(datastore, [])}>
                                         <ListItemIcon className={classes.listItemIcon}>
@@ -674,6 +692,7 @@ const DatastoreView = (props) => {
                     {rightsOverviewOpen && (
                         <DialogRightsOverview open={rightsOverviewOpen} onClose={() => setRightsOverviewOpen(false)} item={rightsOverviewData.item} />
                     )}
+                    {unlockOfflineCache && <DialogUnlockOfflineCache open={unlockOfflineCache} onClose={onUnlockOfflineCacheClosed} />}
                     {error !== null && <DialogError open={error !== null} onClose={() => setError(null)} title={error.title} description={error.description} />}
                 </Paper>
             </BaseContent>

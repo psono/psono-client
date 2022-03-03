@@ -52,11 +52,10 @@ function createSecret(content, linkId, parentDatastoreId, parentShareId, callbac
  *
  * @param {uuid} secretId The secret id one wants to fetch
  * @param {string} secretKey The secret key to decrypt the content
- * @param {boolean|undefined} [synchronous] (optional) Synchronous or Asynchronous
  *
  * @returns {Promise} Returns a promise withe decrypted content of the secret
  */
-function readSecret(secretId, secretKey, synchronous) {
+function readSecret(secretId, secretKey) {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
     const onError = function (result) {
@@ -72,12 +71,7 @@ function readSecret(secretId, secretKey, synchronous) {
         secret["callback_pass"] = content.data["callback_pass"];
         return secret;
     };
-
-    if (synchronous) {
-        return onSuccess(apiClient.readSecret(token, sessionSecretKey, secretId, synchronous));
-    } else {
-        return apiClient.readSecret(token, sessionSecretKey, secretId, synchronous).then(onSuccess, onError);
-    }
+    return apiClient.readSecret(token, sessionSecretKey, secretId).then(onSuccess, onError);
 }
 
 /**
@@ -190,8 +184,8 @@ function onItemClick(item) {
  *
  * @param {object} item The item of which we want to load the username into our clipboard
  */
-function copyUsername(item) {
-    const decryptedSecret = readSecret(item.secret_id, item.secret_key, true);
+async function copyUsername(item) {
+    const decryptedSecret = await readSecret(item.secret_id, item.secret_key);
 
     if (item["type"] === "application_password") {
         browserClient.copyToClipboard(decryptedSecret["application_password_username"]);
@@ -207,8 +201,8 @@ function copyUsername(item) {
  *
  * @param {object} item The item of which we want to load the password into our clipboard
  */
-function copyPassword(item) {
-    const decryptedSecret = readSecret(item.secret_id, item.secret_key, true);
+async function copyPassword(item) {
+    const decryptedSecret = await readSecret(item.secret_id, item.secret_key);
 
     if (item["type"] === "application_password") {
         browserClient.copyToClipboard(decryptedSecret["application_password_password"]);
@@ -224,8 +218,8 @@ function copyPassword(item) {
  *
  * @param {object} item The item of which we want to load the TOTP token into our clipboard
  */
-function copyTotpToken(item) {
-    const decryptedSecret = readSecret(item.secret_id, item.secret_key, true);
+async function copyTotpToken(item) {
+    const decryptedSecret = await readSecret(item.secret_id, item.secret_key);
 
     const totpCode = decryptedSecret["totp_code"];
     let totpPeriod, totpAlgorithm, totpDigits;
