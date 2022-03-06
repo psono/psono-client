@@ -44,6 +44,7 @@ import groupsService from "../../services/groups";
 import datastorePasswordService from "../../services/datastore-password";
 import offlineCacheService from "../../services/offline-cache";
 import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
+import DialogSelectFolder from "../../components/dialogs/select-folder";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -148,6 +149,8 @@ const DatastoreView = (props) => {
 
     const [rightsOverviewOpen, setRightsOverviewOpen] = useState(false);
     const [rightsOverviewData, setRightsOverviewData] = useState({});
+
+    const [moveEntryData, setMoveEntryData] = useState(null);
 
     const [newShareOpen, setNewShareOpen] = useState(false);
     const [newShareData, setNewShareData] = useState({});
@@ -483,6 +486,39 @@ const DatastoreView = (props) => {
         // TODO
     };
 
+    const onMoveEntry = (item, path) => {
+        console.log(item, path);
+        setMoveEntryData({
+            item: item,
+            path: path,
+        });
+    };
+
+    const onSelectNodeForMoveEntry = (node, path) => {
+        console.log(node, path);
+        // TODO add logic to move the item to the node
+    };
+
+    const isSelectableForMoveEntry = (node) => {
+        // filter out all targets that are a share if the item is not allowed to be shared
+        if (!moveEntryData.item.share_rights.grant && node.share_id) {
+            return false;
+        }
+        // filter out all targets that are inside of a share if the item is not allowed to be shared
+        if (!moveEntryData.item.share_rights.grant && node.parent_share_id) {
+            return false;
+        }
+        //
+        if (!node.hasOwnProperty("share_rights")) {
+            return true;
+        }
+        // we need both read and write permission on the target folder in order to update it with the new content
+        if (!!(node.share_rights.read && node.share_rights.write)) {
+            return true;
+        }
+        return false;
+    };
+
     const onRightsOverview = (item, path) => {
         setRightsOverviewData({
             item: item,
@@ -642,6 +678,7 @@ const DatastoreView = (props) => {
                                 onLinkItem={onLinkItem}
                                 onLinkShare={onLinkShare}
                                 onMoveFolder={onMoveFolder}
+                                onMoveEntry={onMoveEntry}
                                 onRightsOverview={onRightsOverview}
                             />
                         )}
@@ -691,6 +728,15 @@ const DatastoreView = (props) => {
                     {trashBinOpen && <DialogTrashBin open={trashBinOpen} onClose={() => setTrashBinOpen(false)} datastore={datastore} />}
                     {rightsOverviewOpen && (
                         <DialogRightsOverview open={rightsOverviewOpen} onClose={() => setRightsOverviewOpen(false)} item={rightsOverviewData.item} />
+                    )}
+                    {Boolean(moveEntryData) && (
+                        <DialogSelectFolder
+                            open={Boolean(moveEntryData)}
+                            onClose={() => setMoveEntryData(null)}
+                            title={t("MOVE_ENTRY")}
+                            onSelectNode={onSelectNodeForMoveEntry}
+                            isSelectable={isSelectableForMoveEntry}
+                        />
                     )}
                     {unlockOfflineCache && <DialogUnlockOfflineCache open={unlockOfflineCache} onClose={onUnlockOfflineCacheClosed} />}
                     {error !== null && <DialogError open={error !== null} onClose={() => setError(null)} title={error.title} description={error.description} />}

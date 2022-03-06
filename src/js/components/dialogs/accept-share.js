@@ -172,11 +172,11 @@ const DialogAcceptShare = (props) => {
 
     const isSelectable = (node) => {
         // filter out all targets that are a share if the item is not allowed to be shared
-        if (!item.share_right_grant && node.share_id) {
+        if (!item.share_rights.grant && node.share_id) {
             return false;
         }
         // filter out all targets that are inside of a share if the item is not allowed to be shared
-        if (!item.share_right_grant && node.parent_share_id) {
+        if (!item.share_rights.grant && node.parent_share_id) {
             return false;
         }
         //

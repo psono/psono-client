@@ -95,7 +95,7 @@ function writeSecret(secretId, secretKey, content, callbackUrl, callbackUser, ca
     const c = cryptoLibrary.encryptData(jsonContent, secretKey);
 
     const onError = function (result) {
-        // pass
+        console.log(result);
     };
 
     const onSuccess = function (response) {

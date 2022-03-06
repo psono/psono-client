@@ -63,6 +63,7 @@ const DatastoreTree = (props) => {
                             return (
                                 <DatastoreTreeFolder
                                     isSelectable={props.isSelectable}
+                                    hideItems={props.hideItems}
                                     onSelectItem={props.onSelectItem}
                                     onSelectNode={props.onSelectNode}
                                     onEditFolder={props.onEditFolder}
@@ -87,7 +88,8 @@ const DatastoreTree = (props) => {
                                 />
                             );
                         })}
-                {datastore.items &&
+                {!props.hideItems &&
+                    datastore.items &&
                     datastore.items
                         .filter((item) => !item["hidden"] && !item["deleted"])
                         .map(function (content, i) {
@@ -135,6 +137,7 @@ DatastoreTree.propTypes = {
     onSelectItem: PropTypes.func,
     onSelectNode: PropTypes.func,
     isSelectable: PropTypes.func,
+    hideItems: PropTypes.bool,
 };
 
 export default DatastoreTree;

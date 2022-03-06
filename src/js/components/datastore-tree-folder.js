@@ -130,6 +130,9 @@ const DatastoreTreeFolder = (props) => {
     const onContextMenu = (event) => {
         event.preventDefault();
         event.stopPropagation();
+        if (disableMenu) {
+            return;
+        }
         setContextMenuPosition({
             mouseX: event.clientX - 2,
             mouseY: event.clientY - 4,
@@ -280,7 +283,8 @@ const DatastoreTreeFolder = (props) => {
                                     />
                                 );
                             })}
-                    {content.items &&
+                    {!props.hideItems &&
+                        content.items &&
                         content.items
                             .filter((item) => !item["hidden"] && !item["deleted"])
                             .map(function (content, i) {
@@ -407,6 +411,7 @@ const DatastoreTreeFolder = (props) => {
 
 DatastoreTreeFolder.propTypes = {
     isSelectable: PropTypes.func,
+    hideItems: PropTypes.bool,
     isExpandedDefault: PropTypes.bool.isRequired,
     content: PropTypes.object,
     nodePath: PropTypes.array.isRequired,

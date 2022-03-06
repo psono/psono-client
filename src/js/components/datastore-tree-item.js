@@ -129,7 +129,8 @@ const DatastoreTreeItem = (props) => {
         }
     };
 
-    const hideShare = offline || (content.hasOwnProperty("share_rights") && content.share_rights.grant === false) || content.type === "user";
+    const hideShare =
+        offline || (content.hasOwnProperty("share_rights") && content.share_rights.grant === false) || content.type === "user" || !props.onNewShare;
     const hideLinkShare =
         offline ||
         !content.hasOwnProperty("type") ||
@@ -166,10 +167,25 @@ const DatastoreTreeItem = (props) => {
         !props.onCloneEntry;
     const hideMove = offline || (content.hasOwnProperty("share_rights") && content.share_rights.delete === false) || !props.onMoveEntry;
     const hideDelete = offline || (content.hasOwnProperty("share_rights") && content.share_rights.delete === false) || !props.onDeleteEntry;
+    const disableMenu =
+        hideShare &&
+        hideLinkShare &&
+        hideRightsOverview &&
+        hideCopyTotpToken &&
+        hideCopyUsername &&
+        hideCopyPassword &&
+        hideEdit &&
+        hideShow &&
+        hideClone &&
+        hideMove &&
+        hideDelete;
 
     const onContextMenu = (event) => {
         event.preventDefault();
         event.stopPropagation();
+        if (disableMenu) {
+            return;
+        }
         setContextMenuPosition({
             mouseX: event.clientX - 2,
             mouseY: event.clientY - 4,
@@ -203,7 +219,7 @@ const DatastoreTreeItem = (props) => {
                             <GetAppIcon fontSize="small" />
                         </Button>
                     )}
-                    <Button aria-label="settings" onClick={openMenu}>
+                    <Button aria-label="settings" onClick={openMenu} disabled={disableMenu}>
                         <SettingsIcon fontSize="small" />
                     </Button>
                 </ButtonGroup>

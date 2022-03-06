@@ -485,9 +485,9 @@ const DialogEditEntry = (props) => {
         if (typeof item.secret_id === "undefined") {
             // e.g. files
             props.onSave(item);
-        } else if (props.data) {
+        } else if (!props.data) {
             const onError = function (result) {
-                // pass
+                console.log(result);
             };
 
             const onSuccess = function (e) {
