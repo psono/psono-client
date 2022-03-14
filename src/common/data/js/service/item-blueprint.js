@@ -1133,6 +1133,11 @@
                     if (item.hasOwnProperty('share_rights') && item.share_rights.grant === false) {
                         return 'hidden';
                     }
+                    var compliance_disable_shares = storage.find_key('config', 'server_info') && storage.find_key('config', 'server_info').value && storage.find_key('config', 'server_info').value.hasOwnProperty('compliance_disable_shares') && storage.find_key('config', 'server_info').value['compliance_disable_shares']
+
+                    if (!item.hasOwnProperty('share_id') && compliance_disable_shares) {
+                        return 'hidden';
+                    }
                 },
                 onClick: function(item, path) {
 
