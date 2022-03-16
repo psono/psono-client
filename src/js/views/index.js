@@ -7,6 +7,8 @@ import DatastoreView from "./datastore";
 import AccountView from "./account/index";
 import PendingsharesView from "./pendingshares";
 import PopupView from "./popup";
+import PopupPgpWriteView from "./popup-pgp-write";
+import PopupPgpReadView from "./popup-pgp-read";
 import PrivacyPolicyView from "./privacy-policy";
 import OtherView from "./other";
 import SettingsView from "./settings";
@@ -85,6 +87,27 @@ const IndexView = (props) => {
             </Switch>
         );
     } else if (pathname.endsWith("/popup_pgp.html")) {
+        if (!isLoggedIn) {
+            return (
+                <Switch>
+                    <Route path="/">
+                        <LoginView {...props} />
+                    </Route>
+                </Switch>
+            );
+        } else {
+            return (
+                <Switch>
+                    <Route path="/gpg/read/:gpgMessageId">
+                        <PopupPgpReadView {...props} />
+                    </Route>
+                    <Route path="/gpg/write/:gpgMessageId">
+                        <PopupPgpWriteView {...props} />
+                    </Route>
+                    <Route path="/">GPG Message ID not specified</Route>
+                </Switch>
+            );
+        }
     } else if (pathname.endsWith("/privacy-policy.html")) {
         return <PrivacyPolicyView {...props} />;
     } else if (pathname.endsWith("/register.html")) {

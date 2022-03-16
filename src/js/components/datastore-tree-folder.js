@@ -119,9 +119,21 @@ const DatastoreTreeFolder = (props) => {
         !content.hasOwnProperty("share_id") ||
         typeof content.share_id === "undefined" ||
         !props.onRightsOverview;
-    const hideEdit = offline || (content.hasOwnProperty("share_rights") && content.share_rights.write === false) || !props.onEditFolder;
-    const hideNewFolder = offline || (content.hasOwnProperty("share_rights") && content.share_rights.write === false) || !props.onNewFolder;
-    const hideNewEntry = offline || (content.hasOwnProperty("share_rights") && content.share_rights.write === false) || !props.onNewEntry;
+    const hideEdit =
+        offline ||
+        (content.hasOwnProperty("share_rights") && content.share_rights.write === false) ||
+        (content.hasOwnProperty("share_rights") && content.share_rights.read === false) ||
+        !props.onEditFolder;
+    const hideNewFolder =
+        offline ||
+        (content.hasOwnProperty("share_rights") && content.share_rights.write === false) ||
+        (content.hasOwnProperty("share_rights") && content.share_rights.read === false) ||
+        !props.onNewFolder;
+    const hideNewEntry =
+        offline ||
+        (content.hasOwnProperty("share_rights") && content.share_rights.write === false) ||
+        (content.hasOwnProperty("share_rights") && content.share_rights.read === false) ||
+        !props.onNewEntry;
     const hideNewUser = offline || (content.hasOwnProperty("share_rights") && content.share_rights.write === false) || !props.onNewUser;
     const hideMove = offline || (content.hasOwnProperty("share_rights") && content.share_rights.delete === false) || !props.onMoveFolder;
     const hideDelete = offline || (content.hasOwnProperty("share_rights") && content.share_rights.delete === false) || !props.onDeleteFolder;

@@ -100,7 +100,7 @@ const SelectFieldGpgKey = (props) => {
                 <TextField
                     className={className}
                     {...params}
-                    label={label}
+                    label={t(label)}
                     required={required}
                     margin={margin}
                     variant={variant}

@@ -73,7 +73,8 @@ const DialogSelectFolder = (props) => {
         if (!isSubscribed) {
             return;
         }
-        // TODO fire props.onSelectNode
+        const breadcrumbs = { id_breadcrumbs: path.map((node) => node.id) };
+        props.onSelectNode(breadcrumbs);
     };
 
     return (

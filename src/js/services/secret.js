@@ -142,6 +142,7 @@ function redirectSecret(type, secretId) {
     if (!offlineCache.isActive() || !offlineCache.isLocked()) {
         return redirect();
     } else {
+        // TODO fix this if offline cache is active
         const modalInstance = $uibModal.open({
             templateUrl: "view/modal/unlock-offline-cache.html",
             controller: "ModalUnlockOfflineCacheCtrl",

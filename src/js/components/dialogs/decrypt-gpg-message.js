@@ -81,6 +81,7 @@ const DialogDecryptGpgMessage = (props) => {
                 );
             });
         }
+        // TODO check how this logic works in the old client. pgpSender is always an empty list
         const gpgHkpSearch = store.getState().settingsDatastore.gpgHkpSearch;
         if (gpgHkpSearch && pgpSender && pgpSender.length) {
             const hkp = new HKP(store.getState().settingsDatastore.gpgHkpKeyServer);

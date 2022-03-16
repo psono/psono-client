@@ -618,7 +618,7 @@ function moveItem(datastore, itemPath, targetPath, type, datastoreType) {
         return;
     }
 
-    const onSuccess = function (datastore) {
+    const onSuccess = async function (datastore) {
         if (targetPath === null || typeof targetPath === "undefined") {
             orig_target_path = [];
         } else {
@@ -634,8 +634,9 @@ function moveItem(datastore, itemPath, targetPath, type, datastoreType) {
 
         let element;
         // find element
+        let val2;
         try {
-            const val2 = datastorePasswordService.findInDatastore(itemPath, datastore);
+            val2 = datastorePasswordService.findInDatastore(itemPath, datastore);
             element = val2[0][val2[1]];
         } catch (e) {
             return;
@@ -695,9 +696,9 @@ function moveItem(datastore, itemPath, targetPath, type, datastoreType) {
         // and save everything (before we update the links and might lose some necessary rights)
         if (datastoreType === "password") {
             datastorePasswordService.handleDatastoreContentChanged(datastore);
-            datastorePasswordService.saveDatastoreContent(datastore, [orig_item_path, orig_target_path]);
+            await datastorePasswordService.saveDatastoreContent(datastore, [orig_item_path, orig_target_path]);
         } else {
-            datastoreUserService.saveDatastoreContent(datastore, [orig_item_path, orig_target_path]);
+            await datastoreUserService.saveDatastoreContent(datastore, [orig_item_path, orig_target_path]);
         }
 
         let timeout = 0;

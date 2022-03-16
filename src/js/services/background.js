@@ -6,9 +6,11 @@ import browser from "./browser";
 import i18n from "../i18n";
 import store from "./store";
 import datastorePasswordService from "./datastore-password";
+import offlineCache from "./offline-cache";
 import helper from "./helper";
 import user from "./user";
 import secretService from "./secret";
+import cryptoLibrary from "./crypto-library";
 import HKP from "@openpgp/hkp-client";
 import * as openpgp from "openpgp";
 import storage from "./storage";
@@ -455,7 +457,7 @@ function onOpenTab(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function decryptPgp(request, sender, sendResponse) {
-    const messageId = cryptoLibrary.generate_uuid();
+    const messageId = cryptoLibrary.generateUuid();
     gpgMessages[messageId] = {
         message: request.data.message,
         sender: request.data.sender,
@@ -477,7 +479,7 @@ function decryptPgp(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function encryptPgp(request, sender, sendResponse) {
-    const messageId = cryptoLibrary.generate_uuid();
+    const messageId = cryptoLibrary.generateUuid();
     gpgMessages[messageId] = {
         receiver: request.data.receiver,
         sendResponse: sendResponse,
@@ -503,6 +505,7 @@ function readGpg(request, sender, sendResponse) {
             error: "Message not found",
         });
     }
+
     const pgpMessage = gpgMessages[messageId]["message"];
     const pgpSender = gpgMessages[messageId]["sender"];
 
@@ -644,7 +647,7 @@ function secretChanged(request, sender, sendResponse) {
  */
 async function writeGpgComplete(request, sender, sendResponse) {
     const messageId = request.data.message_id;
-    const message = request.data.message;
+    const decryptedMessage = request.data.message;
     const receivers = request.data.receivers;
     const publicKeys = request.data.public_keys;
     const privateKey = request.data.private_key;
@@ -657,12 +660,7 @@ async function writeGpgComplete(request, sender, sendResponse) {
         });
     }
 
-    const publicKeysArray = [];
-
-    for (let i = 0; i < publicKeys.length; i++) {
-        const publicKey = await openpgp.readPrivateKey({ armoredKey: publicKeys[i] });
-        publicKeysArray.push(publicKey);
-    }
+    const publicKeysArray = await Promise.all(publicKeys.map((armoredKey) => openpgp.readKey({ armoredKey })));
 
     function finaliseEncryption(options) {
         openpgp.encrypt(options).then(function (ciphertext) {
@@ -682,7 +680,7 @@ async function writeGpgComplete(request, sender, sendResponse) {
     if (signMessage) {
         const onSuccess = async function (data) {
             options = {
-                message: await openpgp.createMessage({ text: message }),
+                message: await openpgp.createMessage({ text: decryptedMessage }),
                 encryptionKeys: publicKeysArray,
                 signingKeys: await openpgp.readPrivateKey({ armoredKey: data["mail_gpg_own_key_private"] }),
             };
@@ -696,7 +694,7 @@ async function writeGpgComplete(request, sender, sendResponse) {
     } else {
         options = {
             message: await openpgp.createMessage({ text: decryptedMessage }),
-            publicKeys: publicKeysArray,
+            encryptionKeys: publicKeysArray,
         };
         finaliseEncryption(options);
     }
@@ -711,7 +709,7 @@ async function writeGpgComplete(request, sender, sendResponse) {
  */
 function setOfflineCacheEncryptionKey(request, sender, sendResponse) {
     const encryptionKey = request.data.encryption_key;
-    offlineCache.set_encryption_key(encryptionKey);
+    offlineCache.setEncryptionKey(encryptionKey);
 }
 
 /**
@@ -761,7 +759,7 @@ function loginFormSubmit(request, sender, sendResponse) {
             return;
         }
 
-        browser.notifications.create("new-password-detected-" + cryptoLibrary.generate_uuid(), {
+        browser.notifications.create("new-password-detected-" + cryptoLibrary.generateUuid(), {
             type: "basic",
             iconUrl: "img/icon-64.png",
             title: i18n.t("NEW_PASSWORD_DETECTED"),

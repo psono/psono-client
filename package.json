@@ -38,6 +38,7 @@
     "clientjs": "^0.2.1",
     "core-js": "^3.19.1",
     "date-fns": "^2.26.0",
+    "dompurify": "^2.3.6",
     "ecma-nacl": "^2.4.2",
     "fast-xml-parser": "^3.21.1",
     "file-loader": "^6.2.0",

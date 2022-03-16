@@ -5,6 +5,12 @@
 var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
     "use strict";
 
+    function htmlToText(str) {
+        str = str.replace(/<br>/g, "\n");
+        str = str.replace(/<(.+?)>/g, "");
+        return str;
+    }
+
     // to implement gmx, web.de outlook.com, t-online, yahoo, hotmail
     var supported_hoster = [
         {
@@ -14,7 +20,8 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
             },
             get_pgp_content: function (node) {
                 var direct_parent = jQuery(node).parent();
-                return direct_parent.text();
+                var html_text = direct_parent.html();
+                return htmlToText(html_text);
             },
             get_sender: function (node) {
                 // var direct_parent = jQuery(node).parent();

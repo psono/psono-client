@@ -45,6 +45,7 @@ import datastorePasswordService from "../../services/datastore-password";
 import offlineCacheService from "../../services/offline-cache";
 import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
 import DialogSelectFolder from "../../components/dialogs/select-folder";
+import widgetService from "../../services/widget";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -151,6 +152,7 @@ const DatastoreView = (props) => {
     const [rightsOverviewData, setRightsOverviewData] = useState({});
 
     const [moveEntryData, setMoveEntryData] = useState(null);
+    const [moveFolderData, setMoveFolderData] = useState(null);
 
     const [newShareOpen, setNewShareOpen] = useState(false);
     const [newShareData, setNewShareData] = useState({});
@@ -483,20 +485,53 @@ const DatastoreView = (props) => {
     };
 
     const onMoveFolder = (item, path) => {
-        // TODO
+        setMoveFolderData({
+            item: item,
+            path: path,
+        });
+    };
+
+    const onSelectNodeForMoveFolder = async (breadcrumbs) => {
+        await widgetService.moveItem(datastore, moveFolderData.path, breadcrumbs["id_breadcrumbs"], "folders", "password");
+        setMoveFolderData(null);
+        loadDatastore();
+    };
+
+    const isSelectableForMoveFolder = (node) => {
+        // filter out targets that the folder itself or are inside of that folder
+        if (node.path.includes(moveFolderData.item.id)) {
+            return false;
+        }
+        // filter out all targets that are a share if the item is not allowed to be shared
+        if (!moveFolderData.item.share_rights.grant && node.share_id) {
+            return false;
+        }
+        // filter out all targets that are inside of a share if the item is not allowed to be shared
+        if (!moveFolderData.item.share_rights.grant && node.parent_share_id) {
+            return false;
+        }
+        //
+        if (!node.hasOwnProperty("share_rights")) {
+            return true;
+        }
+        // we need both read and write permission on the target folder in order to update it with the new content
+        if (!!(node.share_rights.read && node.share_rights.write)) {
+            return true;
+        }
+        return false;
     };
 
     const onMoveEntry = (item, path) => {
-        console.log(item, path);
         setMoveEntryData({
             item: item,
             path: path,
         });
     };
 
-    const onSelectNodeForMoveEntry = (node, path) => {
-        console.log(node, path);
-        // TODO add logic to move the item to the node
+    const onSelectNodeForMoveEntry = async (breadcrumbs) => {
+        await widgetService.moveItem(datastore, moveEntryData.path, breadcrumbs["id_breadcrumbs"], "items", "password");
+        setMoveEntryData(null);
+        loadDatastore();
     };
 
     const isSelectableForMoveEntry = (node) => {
@@ -736,6 +771,15 @@ const DatastoreView = (props) => {
                             title={t("MOVE_ENTRY")}
                             onSelectNode={onSelectNodeForMoveEntry}
                             isSelectable={isSelectableForMoveEntry}
+                        />
+                    )}
+                    {Boolean(moveFolderData) && (
+                        <DialogSelectFolder
+                            open={Boolean(moveFolderData)}
+                            onClose={() => setMoveFolderData(null)}
+                            title={t("MOVE_FOLDER")}
+                            onSelectNode={onSelectNodeForMoveFolder}
+                            isSelectable={isSelectableForMoveFolder}
                         />
                     )}
                     {unlockOfflineCache && <DialogUnlockOfflineCache open={unlockOfflineCache} onClose={onUnlockOfflineCacheClosed} />}

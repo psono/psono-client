@@ -240,7 +240,7 @@ function openPopup(url, callback_function) {
             {
                 url: browser.runtime.getURL(url),
                 type: "popup",
-                width: 800,
+                width: 1000,
                 height: 600,
             },
             callback_function
@@ -250,7 +250,7 @@ function openPopup(url, callback_function) {
             {
                 url: url,
                 type: "popup",
-                width: 800,
+                width: 1000,
                 height: 600,
             },
             callback_function
