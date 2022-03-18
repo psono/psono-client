@@ -56,7 +56,9 @@ const SettingsGeneralView = (props) => {
                     required
                     value={!i18n.language || i18n.language in languages ? i18n.language : i18n.resolvedLanguage}
                     onChange={(value) => {
-                        i18n.changeLanguage(value);
+                        i18n.changeLanguage(value).then(() => {
+                            browserClientService.emitSec("language-changed", value, function () {});
+                        });
                     }}
                 />
             </Grid>

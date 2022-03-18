@@ -14,6 +14,7 @@ import cryptoLibrary from "./crypto-library";
 import HKP from "@openpgp/hkp-client";
 import * as openpgp from "openpgp";
 import storage from "./storage";
+import browserClientService from "./browser-client";
 
 let lastLoginCredentials;
 let activeTabId;
@@ -24,6 +25,9 @@ const alreadyFilledMaxAllowed = {};
 const gpgMessages = {};
 
 let numTabs;
+let contextMenuId;
+let contextMenuChild1Id;
+let contextMenuChild2Id;
 
 function activate() {
     browserClient.disableBrowserPasswordSaving();
@@ -92,17 +96,43 @@ function activate() {
     }
 
     if (typeof chrome.contextMenus !== "undefined") {
-        const parent = chrome.contextMenus.create({ title: "Psono" });
-        const child1 = chrome.contextMenus.create({
+        contextMenuId = chrome.contextMenus.create({ title: "Psono" });
+        contextMenuChild1Id = chrome.contextMenus.create({
             title: i18n.t("OPEN_DATASTORE"),
             contexts: ["all"],
-            parentId: parent,
+            parentId: contextMenuId,
             onclick: openDatastore,
         });
-        const child2 = chrome.contextMenus.create({
+        contextMenuChild2Id = chrome.contextMenus.create({
             title: i18n.t("RECHECK_PAGE"),
             contexts: ["all"],
-            parentId: parent,
+            parentId: contextMenuId,
+            onclick: recheckPage,
+        });
+    }
+
+    i18n.on("loaded", function (loaded) {
+        updateContextMenu();
+    });
+}
+
+/**
+ * Updates the context menu, usually called when the language changes
+ */
+function updateContextMenu() {
+    if (contextMenuChild1Id) {
+        chrome.contextMenus.update(contextMenuChild1Id, {
+            title: i18n.t("OPEN_DATASTORE"),
+            contexts: ["all"],
+            parentId: contextMenuId,
+            onclick: openDatastore,
+        });
+    }
+    if (contextMenuChild2Id) {
+        chrome.contextMenus.update(contextMenuChild2Id, {
+            title: i18n.t("RECHECK_PAGE"),
+            contexts: ["all"],
+            parentId: contextMenuId,
             onclick: recheckPage,
         });
     }
@@ -161,6 +191,7 @@ function onMessage(request, sender, sendResponse) {
         "secrets-changed": secretChanged,
         "set-offline-cache-encryption-key": setOfflineCacheEncryptionKey,
         "launch-web-auth-flow-in-background": launchWebAuthFlowInBackground,
+        "language-changed": languageChanged,
     };
 
     if (eventFunctions.hasOwnProperty(request.event)) {
@@ -737,6 +768,19 @@ function launchWebAuthFlowInBackground(request, sender, sendResponse) {
             }
         }
     );
+}
+
+/**
+ * Triggers when someone changes the language
+ *
+ * @param {object} request The message sent by the calling script.
+ * @param {object} sender The sender of the message
+ * @param {function} sendResponse Function to call (at most once) when you have a response.
+ */
+function languageChanged(request, sender, sendResponse) {
+    i18n.changeLanguage(request.data).then(() => {
+        updateContextMenu();
+    });
 }
 
 /**
