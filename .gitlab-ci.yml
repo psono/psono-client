@@ -108,7 +108,7 @@ build-firefox-extension:
   artifacts:
     name: "firefox_$CI_COMMIT_REF_NAME"
     paths:
-    - ./*
+      - ./*
 
 
 build-chrome-extension:
@@ -132,7 +132,7 @@ build-chrome-extension:
   artifacts:
     name: "chrome_$CI_COMMIT_REF_NAME"
     paths:
-    - ./*
+      - ./*
 
 
 build-webclient:
@@ -156,7 +156,7 @@ build-webclient:
   artifacts:
     name: "webclient_$CI_COMMIT_REF_NAME"
     paths:
-    - ./*
+      - ./*
 
 release-artifacts:
   except:
@@ -285,4 +285,3 @@ deploy-changelog:
     url: https://static.psono.com/gitlab.com/psono/psono-client/changelog.json
   only:
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
-
