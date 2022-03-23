@@ -25,7 +25,9 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import PlaylistAddIcon from "@material-ui/icons/PlaylistAdd";
 
 import helperService from "../../services/helper";
+import cryptoLibrary from "../../services/crypto-library";
 import offlineCache from "../../services/offline-cache";
+import secretService from "../../services/secret";
 import ContentCopy from "../icons/ContentCopy";
 import datastorePasswordService from "../../services/datastore-password";
 import browserClientService from "../../services/browser-client";
@@ -91,7 +93,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const DialogNewEntry = (props) => {
-    const { open, onClose } = props;
+    const { open, onClose, parentDatastoreId, parentShareId } = props;
     const { t } = useTranslation();
     const classes = useStyles();
     const offline = offlineCache.isActive();
@@ -159,33 +161,38 @@ const DialogNewEntry = (props) => {
 
     const isValidWebsitePassword = Boolean(websitePasswordTitle);
     const isValidApplicationPassword = Boolean(applicationPasswordTitle);
-    const isValidGpgOwnKey =
+    const isValidBookmark = Boolean(bookmarkTitle) && (!bookmarkUrl || helperService.isValidUrl(bookmarkUrl));
+    const isValidNote = Boolean(noteTitle);
+    const isValidTotp = Boolean(totpTitle) && Boolean(totpCode);
+    const isValidEnvironmentVariables = Boolean(environmentVariablesTitle);
+    const isValidMailGpgOwnKey =
         Boolean(mailGpgOwnKeyTitle) &&
         Boolean(mailGpgOwnKeyEmail) &&
         Boolean(mailGpgOwnKeyName) &&
         Boolean(mailGpgOwnKeyPublic) &&
         Boolean(mailGpgOwnKeyPrivate);
-    const isValidBookmark = Boolean(bookmarkTitle);
-    const isValidNote = Boolean(noteTitle);
-    const isValidTotp = Boolean(totpTitle) && Boolean(totpCode);
-    const isValidEnvironmentVariables = Boolean(environmentVariablesTitle);
     const isValidFile = Boolean(fileTitle);
     const canSave =
         (type === "website_password" && isValidWebsitePassword) ||
         (type === "application_password" && isValidApplicationPassword) ||
-        (type === "mail_gpg_own_key" && isValidGpgOwnKey) ||
         (type === "bookmark" && isValidBookmark) ||
         (type === "note" && isValidNote) ||
         (type === "totp" && isValidTotp) ||
         (type === "environment_variables" && isValidEnvironmentVariables) ||
+        (type === "mail_gpg_own_key" && isValidMailGpgOwnKey) ||
         (type === "file" && isValidFile);
     const hasAdvanced = type !== "file";
 
     const onCreate = (event) => {
-        // TODO implement create
+        const item = {
+            id: cryptoLibrary.generateUuid(),
+            type: type,
+            parent_datastore_id: parentDatastoreId,
+            parent_share_id: parentShareId,
+        };
         const secretObject = {};
 
-        if (type === "website_password") {
+        if (item.type === "website_password") {
             item["name"] = websitePasswordTitle;
             secretObject["website_password_title"] = websitePasswordTitle;
             if (websitePasswordUrl) {
@@ -210,7 +217,7 @@ const DialogNewEntry = (props) => {
             }
         }
 
-        if (type === "application_password") {
+        if (item.type === "application_password") {
             item["name"] = applicationPasswordTitle;
             secretObject["application_password_title"] = applicationPasswordTitle;
             if (applicationPasswordUsername) {
@@ -224,7 +231,7 @@ const DialogNewEntry = (props) => {
             }
         }
 
-        if (type === "bookmark") {
+        if (item.type === "bookmark") {
             item["name"] = bookmarkTitle;
             secretObject["bookmark_title"] = bookmarkTitle;
             if (bookmarkUrl) {
@@ -241,7 +248,7 @@ const DialogNewEntry = (props) => {
             }
         }
 
-        if (type === "note") {
+        if (item.type === "note") {
             item["name"] = noteTitle;
             secretObject["note_title"] = noteTitle;
             if (noteNotes) {
@@ -249,7 +256,7 @@ const DialogNewEntry = (props) => {
             }
         }
 
-        if (type === "totp") {
+        if (item.type === "totp") {
             item["name"] = totpTitle;
             secretObject["totp_title"] = totpTitle;
             if (totpPeriod) {
@@ -280,13 +287,15 @@ const DialogNewEntry = (props) => {
             }
         }
 
-        if (type === "file") {
+        if (item.type === "file") {
             item["name"] = fileTitle;
             item["file_title"] = fileTitle;
             secretObject["file_title"] = fileTitle;
         }
+        // TODO add 'file_title', 'file_id', 'file_shard_id', 'file_repository_id', 'file_secret_key', 'file_size', 'file_chunks'
+        // after upload
 
-        if (type === "mail_gpg_own_key") {
+        if (item.type === "mail_gpg_own_key") {
             item["name"] = mailGpgOwnKeyTitle;
             secretObject["mail_gpg_own_key_title"] = mailGpgOwnKeyTitle;
             if (mailGpgOwnKeyEmail) {
@@ -300,19 +309,22 @@ const DialogNewEntry = (props) => {
             }
             secretObject["mail_gpg_own_key_private"] = mailGpgOwnKeyPrivate;
         }
-        // if (typeof item.secret_id === "undefined") {
-        //     // e.g. files
-        //     props.onCreate(item);
-        // } else if (props.data) {
-        //     const onError = function (result) {
-        //         // pass
-        //     };
-        //
-        //     const onSuccess = function (e) {
-        //         props.onCreate(item);
-        //     };
-        //     secretService.writeSecret(item.secret_id, item.secret_key, secretObject, callbackUrl, callbackUser, callbackPass).then(onSuccess, onError);
-        // }
+        if (item.type === "file") {
+            props.onCreate(item);
+        } else {
+            const onError = function (result) {
+                // pass
+            };
+
+            const onSuccess = function (data) {
+                item["secret_id"] = data.secret_id;
+                item["secret_key"] = data.secret_key;
+                props.onCreate(item);
+            };
+            secretService
+                .createSecret(secretObject, item.id, parentDatastoreId, parentShareId, callbackUrl, callbackUser, callbackPass)
+                .then(onSuccess, onError);
+        }
     };
 
     const onShowHidePassword = (event) => {
@@ -666,6 +678,7 @@ const DialogNewEntry = (props) => {
                                 variant="outlined"
                                 margin="dense"
                                 id="bookmarkUrl"
+                                error={bookmarkUrl && !helperService.isValidUrl(bookmarkUrl)}
                                 label={t("URL")}
                                 name="bookmarkUrl"
                                 autoComplete="bookmarkUrl"
@@ -1276,7 +1289,7 @@ const DialogNewEntry = (props) => {
                 </Button>
                 {!offline && props.onCreate && (
                     <Button onClick={onCreate} variant="contained" color="primary" disabled={!canSave}>
-                        {t("SAVE")}
+                        {t("CREATE")}
                     </Button>
                 )}
             </DialogActions>
@@ -1306,6 +1319,8 @@ DialogNewEntry.propTypes = {
     onClose: PropTypes.func.isRequired,
     onCreate: PropTypes.func,
     open: PropTypes.bool.isRequired,
+    parentDatastoreId: PropTypes.string,
+    parentShareId: PropTypes.string,
 };
 
 export default DialogNewEntry;

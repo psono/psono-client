@@ -60,6 +60,15 @@ const useStyles = makeStyles((theme) => ({
     },
     button: {
         color: "#b1b6c1",
+        width: "100%",
+        transition: "none",
+        "& span": {
+            justifyContent: "left",
+        },
+        "&:hover": {
+            backgroundColor: "#fff",
+            color: "#151f2b",
+        },
     },
     navigation: {
         listStyleType: "none",

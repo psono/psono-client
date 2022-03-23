@@ -180,201 +180,104 @@ function openEditFolder(node, path, dataStructure, manager) {
 }
 
 /**
- * Opens the modal for a new entry
+ * Adds a new item to the datastore
  *
+ * @param {object} datastoreObject The new entry that needs to be added to the datastore
  * @param {TreeObject} datastore The Datastore object
  * @param {TreeObject} parent The parent
  * @param {Array} path The path to the parent
- * @param {string} size The size of the modal
  * @param {Object} manager manager responsible for
  */
-function openNewItem(datastore, parent, path, size, manager) {
+function openNewItem(datastoreObject, datastore, parent, path, manager) {
     if (typeof parent === "undefined") {
         parent = datastore;
     }
 
-    const modalInstance = $uibModal.open({
-        templateUrl: "view/modal/new-entry.html",
-        controller: "ModalDatastoreNewEntryCtrl",
-        backdrop: "static",
-        size: size,
-        resolve: {
-            parent: function () {
-                return parent;
-            },
-            path: function () {
-                return path;
-            },
-        },
-    });
+    const closestShareInfo = shareService.getClosestParentShare(path.slice(), datastore, datastore, 0);
 
-    modalInstance.result.then(
-        function (content) {
-            if (typeof content === "undefined") {
-                return;
-            }
+    const closestShare = closestShareInfo["closest_share"];
 
-            const datastore_object = {
-                id: content["link_id"],
-                type: content.id,
-            };
-            const secret_object = {};
+    if (closestShare.hasOwnProperty("share_id")) {
+        datastoreObject["parent_share_id"] = closestShare["share_id"];
+    } else {
+        datastoreObject["parent_datastore_id"] = closestShare["datastore_id"];
+    }
 
-            if (itemBlueprint.get_blueprint(content.id).getName) {
-                datastore_object.name = itemBlueprint.get_blueprint(content.id).getName(content.fields);
-            }
+    if (closestShare.hasOwnProperty("datastore_id")) {
+        datastoreObject["share_rights"] = {
+            read: true,
+            write: true,
+            grant: true,
+            delete: true,
+        };
+    } else {
+        datastoreObject["share_rights"] = {
+            read: closestShare["share_rights"]["read"],
+            write: closestShare["share_rights"]["write"],
+            grant: closestShare["share_rights"]["grant"] && closestShare["share_rights"]["write"],
+            delete: closestShare["share_rights"]["write"],
+        };
+    }
 
-            for (let i = content.fields.length - 1; i >= 0; i--) {
-                if (!content.fields[i].hasOwnProperty("value")) {
-                    continue;
-                }
-                if (!datastore_object.name && content.title_field === content.fields[i].name) {
-                    datastore_object.name = content.fields[i].value;
-                }
-                if (content.hasOwnProperty("urlfilter_field") && content.urlfilter_field === content.fields[i].name) {
-                    datastore_object.urlfilter = content.fields[i].value;
-                }
-                if (content.hasOwnProperty("autosubmit_field") && content.autosubmit_field === content.fields[i].name) {
-                    datastore_object.autosubmit = content.fields[i].value;
-                }
+    let onSuccess, onError;
 
-                if (content.hasOwnProperty("non_secret_fields") && content.non_secret_fields.indexOf(content.fields[i].name) !== -1) {
-                    datastore_object[content.fields[i].name] = content.fields[i].value;
-                }
+    // update visual representation
+    if (typeof parent.items === "undefined") {
+        parent.items = [];
+    }
+    parent.items.push(datastoreObject);
+    parent["expanded"] = true;
+    datastorePasswordService.updatePathsRecursive(datastore, []);
 
-                secret_object[content.fields[i].name] = content.fields[i].value;
-            }
-
-            const onError = function (result) {
-                // pass
-            };
-
-            const closest_share_info = shareService.getClosestParentShare(path.slice(), datastore, datastore, 0);
-
-            const closest_share = closest_share_info["closest_share"];
-
-            let parent_share_id, parent_datastore_id;
-
-            if (closest_share.hasOwnProperty("share_id")) {
-                parent_share_id = closest_share["share_id"];
-                datastore_object["parent_share_id"] = closest_share["share_id"];
+    if (closestShare.hasOwnProperty("share_id")) {
+        // refresh share content before updating the share
+        onSuccess = function (content) {
+            let parent;
+            if (closestShareInfo["relative_path"].length === 0) {
+                parent = content.data;
             } else {
-                parent_datastore_id = closest_share["datastore_id"];
-                datastore_object["parent_datastore_id"] = closest_share["datastore_id"];
+                const search = datastorePasswordService.findInDatastore(closestShareInfo["relative_path"], content.data);
+                parent = search[0][search[1]];
             }
 
-            if (closest_share.hasOwnProperty("datastore_id")) {
-                datastore_object["share_rights"] = {
-                    read: true,
-                    write: true,
-                    grant: true,
-                    delete: true,
-                };
+            if (typeof parent.items === "undefined") {
+                parent.items = [];
+            }
+            parent.items.push(datastoreObject);
+
+            shareService.writeShare(closestShare["share_id"], content.data, closestShare["share_secret_key"]);
+            manager.handleDatastoreContentChanged(datastore);
+        };
+
+        onError = function (e) {
+            // pass
+        };
+        return shareService.readShare(closestShare["share_id"], closestShare["share_secret_key"]).then(onSuccess, onError);
+    } else {
+        // refresh datastore content before updating it
+        onError = function (result) {
+            // pass
+        };
+
+        onSuccess = function (datastore) {
+            let parent;
+            if (closestShareInfo["relative_path"].length === 0) {
+                parent = datastore;
             } else {
-                datastore_object["share_rights"] = {
-                    read: closest_share["share_rights"]["read"],
-                    write: closest_share["share_rights"]["write"],
-                    grant: closest_share["share_rights"]["grant"] && closest_share["share_rights"]["write"],
-                    delete: closest_share["share_rights"]["write"],
-                };
+                const search = datastorePasswordService.findInDatastore(closestShareInfo["relative_path"], datastore);
+                parent = search[0][search[1]];
             }
 
-            const save_datastore = function () {
-                let onSuccess, onError;
-
-                // update visual representation
-                if (typeof parent.items === "undefined") {
-                    parent.items = [];
-                }
-                parent.items.push(datastore_object);
-                parent["expanded"] = true;
-                datastorePasswordService.updatePathsRecursive(datastore, []);
-
-                if (closest_share.hasOwnProperty("share_id")) {
-                    // refresh share content before updating the share
-                    onSuccess = function (content) {
-                        let parent;
-                        if (closest_share_info["relative_path"].length === 0) {
-                            parent = content.data;
-                        } else {
-                            const search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], content.data);
-                            parent = search[0][search[1]];
-                        }
-
-                        if (typeof parent.items === "undefined") {
-                            parent.items = [];
-                        }
-                        parent.items.push(datastore_object);
-
-                        shareService.writeShare(closest_share["share_id"], content.data, closest_share["share_secret_key"]);
-                        manager.handleDatastoreContentChanged(datastore);
-                    };
-
-                    onError = function (e) {
-                        // pass
-                    };
-                    shareService.readShare(closest_share["share_id"], closest_share["share_secret_key"]).then(onSuccess, onError);
-                } else {
-                    // refresh datastore content before updating it
-                    onError = function (result) {
-                        // pass
-                    };
-
-                    onSuccess = function (datastore) {
-                        let parent;
-                        if (closest_share_info["relative_path"].length === 0) {
-                            parent = datastore;
-                        } else {
-                            const search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], datastore);
-                            parent = search[0][search[1]];
-                        }
-
-                        if (typeof parent.items === "undefined") {
-                            parent.items = [];
-                        }
-                        parent.items.push(datastore_object);
-                        datastorePasswordService.saveDatastoreContent(datastore, [path]);
-                        manager.handleDatastoreContentChanged(datastore);
-                    };
-
-                    return manager.getDatastoreWithId(closest_share["datastore_id"]).then(onSuccess, onError);
-                }
-
-                // reset form fields
-                for (let i = content.fields.length - 1; i >= 0; i--) {
-                    if (!content.fields[i].hasOwnProperty("value")) {
-                        continue;
-                    }
-                    content.fields[i].value = "";
-                }
-            };
-
-            const onSuccess = function (e) {
-                datastore_object["secret_id"] = e.secret_id;
-                datastore_object["secret_key"] = e.secret_key;
-                save_datastore();
-            };
-
-            if (content.skipSecretCreate) {
-                save_datastore();
-            } else {
-                secretService
-                    .createSecret(
-                        secret_object,
-                        content["link_id"],
-                        parent_datastore_id,
-                        parent_share_id,
-                        content["callback_data"]["callback_url"],
-                        content["callback_data"]["callback_user"],
-                        content["callback_data"]["callback_pass"]
-                    )
-                    .then(onSuccess, onError);
+            if (typeof parent.items === "undefined") {
+                parent.items = [];
             }
-        },
-        function () {
-            // cancel triggered
-        }
-    );
+            parent.items.push(datastoreObject);
+            datastorePasswordService.saveDatastoreContent(datastore, [path]);
+            manager.handleDatastoreContentChanged(datastore);
+        };
+
+        return manager.getDatastoreWithId(closestShare["datastore_id"]).then(onSuccess, onError);
+    }
 }
 
 /**
@@ -415,7 +318,7 @@ function openEditItem(datastore, newContent, path, manager) {
         onError = function (e) {
             // pass
         };
-        shareService.readShare(closest_share["share_id"], closest_share["share_secret_key"]).then(onSuccess, onError);
+        return shareService.readShare(closest_share["share_id"], closest_share["share_secret_key"]).then(onSuccess, onError);
     } else {
         // refresh datastore content before updating it
         onError = function (result) {

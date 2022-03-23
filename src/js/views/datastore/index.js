@@ -421,19 +421,34 @@ const DatastoreView = (props) => {
         });
     };
 
-    const onNewEntryCreate = (name) => {
+    const onNewEntryCreate = (item) => {
         // called once someone clicked the CREATE button in the dialog closes with the new name
         setNewEntryOpen(false);
-        widget.openNewEntry(newEntryData["parent"], newEntryData["path"], datastore, datastorePasswordService, name);
+        widget.openNewItem(item, datastore, newEntryData["parent"], newEntryData["path"], datastorePasswordService);
     };
     const onNewEntry = (parent, path) => {
         onContextMenuClose();
         setAnchorEl(null);
-        // called whenever someone clicks on a new folder Icon
+        // TODO remove console log
+        console.log(parent);
+        // called whenever someone clicks on a new entry Icon
         setNewEntryOpen(true);
+
+        let parentShareId = parent.parent_share_id;
+        let parentDatastoreId = parent.parent_datastore_id;
+
+        if (parent.hasOwnProperty("datastore_id")) {
+            parentShareId = undefined;
+            parentDatastoreId = parent.datastore_id;
+        } else if (parent.hasOwnProperty("share_id")) {
+            parentShareId = parent.share_id;
+            parentDatastoreId = undefined;
+        }
         setNewEntryData({
             parent: parent,
             path: path,
+            parentShareId: parentShareId,
+            parentDatastoreId: parentDatastoreId,
         });
     };
 
@@ -754,12 +769,20 @@ const DatastoreView = (props) => {
                         <DialogEditFolder open={editFolderOpen} onClose={() => setEditFolderOpen(false)} onSave={onEditFolderSave} node={editFolderData.node} />
                     )}
                     {editEntryOpen && (
-                        <DialogEditEntry open={editEntryOpen} onClose={() => setEditEntryOpen(false)} onSave={onEditEntrySave} item={editEntryData.item} />
+                        <DialogEditEntry open={editEntryOpen} onClose={() => setEditEntryOpen(false)} onEdit={onEditEntrySave} item={editEntryData.item} />
                     )}
                     {createLinkShareOpen && (
                         <DialogCreateLinkShare open={createLinkShareOpen} onClose={() => setCreateLinkShareOpen(false)} item={createLinkShareData.item} />
                     )}
-                    {newEntryOpen && <DialogNewEntry open={newEntryOpen} onClose={() => setNewEntryOpen(false)} onCreate={onNewEntryCreate} />}
+                    {newEntryOpen && (
+                        <DialogNewEntry
+                            open={newEntryOpen}
+                            onClose={() => setNewEntryOpen(false)}
+                            onCreate={onNewEntryCreate}
+                            parentDatastoreId={newEntryData.parentDatastoreId}
+                            parentShareId={newEntryData.parentShareId}
+                        />
+                    )}
                     {trashBinOpen && <DialogTrashBin open={trashBinOpen} onClose={() => setTrashBinOpen(false)} datastore={datastore} />}
                     {rightsOverviewOpen && (
                         <DialogRightsOverview open={rightsOverviewOpen} onClose={() => setRightsOverviewOpen(false)} item={rightsOverviewData.item} />

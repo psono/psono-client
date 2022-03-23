@@ -36,7 +36,6 @@ import DialogDecryptGpgMessage from "./decrypt-gpg-message";
 import DialogEncryptGpgMessage from "./encrypt-gpg-message";
 import DialogHistory from "./history";
 import notification from "../../services/notification";
-import i18n from "../../i18n";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -161,10 +160,16 @@ const DialogEditEntry = (props) => {
     const showGeneratePassword = item.share_rights.write;
     const isValidWebsitePassword = Boolean(websitePasswordTitle);
     const isValidApplicationPassword = Boolean(applicationPasswordTitle);
-    const isValidBookmark = Boolean(bookmarkTitle);
+    const isValidBookmark = Boolean(bookmarkTitle) && (!bookmarkUrl || helperService.isValidUrl(bookmarkUrl));
     const isValidNote = Boolean(noteTitle);
     const isValidTotp = Boolean(totpTitle) && Boolean(totpCode);
     const isValidEnvironmentVariables = Boolean(environmentVariablesTitle);
+    const isValidMailGpgOwnKey =
+        Boolean(mailGpgOwnKeyTitle) &&
+        Boolean(mailGpgOwnKeyEmail) &&
+        Boolean(mailGpgOwnKeyName) &&
+        Boolean(mailGpgOwnKeyPublic) &&
+        Boolean(mailGpgOwnKeyPrivate);
     const isValidFile = Boolean(fileTitle);
     const canSave =
         (item.type === "website_password" && isValidWebsitePassword) ||
@@ -173,6 +178,7 @@ const DialogEditEntry = (props) => {
         (item.type === "note" && isValidNote) ||
         (item.type === "totp" && isValidTotp) ||
         (item.type === "environment_variables" && isValidEnvironmentVariables) ||
+        (item.type === "mail_gpg_own_key" && isValidMailGpgOwnKey) ||
         (item.type === "file" && isValidFile);
 
     React.useEffect(() => {
@@ -320,7 +326,7 @@ const DialogEditEntry = (props) => {
             //         path: path,
             //         data: data,
             //         onClose: function () {},
-            //         onSave: onSave,
+            //         onEdit: onEdit,
             //     });
             // } else {
             //     const modalInstance = $uibModal.open({
@@ -341,7 +347,7 @@ const DialogEditEntry = (props) => {
             //         },
             //     });
             //
-            //     modalInstance.result.then(onSave, function () {
+            //     modalInstance.result.then(onEdit, function () {
             //         // cancel triggered
             //     });
             // }
@@ -364,7 +370,7 @@ const DialogEditEntry = (props) => {
         }
     }, []);
 
-    const onSave = (event) => {
+    const onEdit = (event) => {
         const secretObject = {};
 
         if (item.type === "website_password") {
@@ -482,16 +488,19 @@ const DialogEditEntry = (props) => {
             }
             secretObject["mail_gpg_own_key_private"] = mailGpgOwnKeyPrivate;
         }
+        // TODO remove these two console.log lines
+        console.log(item);
+        console.log(secretObject);
         if (typeof item.secret_id === "undefined") {
             // e.g. files
-            props.onSave(item);
+            props.onEdit(item);
         } else if (!props.data) {
             const onError = function (result) {
                 console.log(result);
             };
 
             const onSuccess = function (e) {
-                props.onSave(item);
+                props.onEdit(item);
             };
             secretService.writeSecret(item.secret_id, item.secret_key, secretObject, callbackUrl, callbackUser, callbackPass).then(onSuccess, onError);
         }
@@ -835,6 +844,7 @@ const DialogEditEntry = (props) => {
                                 variant="outlined"
                                 margin="dense"
                                 id="bookmarkUrl"
+                                error={bookmarkUrl && !helperService.isValidUrl(bookmarkUrl)}
                                 label={t("URL")}
                                 name="bookmarkUrl"
                                 autoComplete="bookmarkUrl"
@@ -1346,8 +1356,8 @@ const DialogEditEntry = (props) => {
                 >
                     {t("CLOSE")}
                 </Button>
-                {item.share_rights.write && !offline && props.onSave && (
-                    <Button onClick={onSave} variant="contained" color="primary" disabled={!canSave}>
+                {item.share_rights.write && !offline && props.onEdit && (
+                    <Button onClick={onEdit} variant="contained" color="primary" disabled={!canSave}>
                         {t("SAVE")}
                     </Button>
                 )}
@@ -1368,7 +1378,7 @@ DialogEditEntry.defaultProps = {
 
 DialogEditEntry.propTypes = {
     onClose: PropTypes.func.isRequired,
-    onSave: PropTypes.func,
+    onEdit: PropTypes.func,
     open: PropTypes.bool.isRequired,
     item: PropTypes.object.isRequired,
     hideLinkToEntry: PropTypes.bool,

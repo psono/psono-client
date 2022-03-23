@@ -273,6 +273,7 @@ const DialogNewUser = (props) => {
                                     className={classes.textField}
                                     variant="outlined"
                                     margin="dense"
+                                    error={Boolean(email) && !helperService.isValidEmail(email)}
                                     id="email"
                                     label={t("EMAIL")}
                                     name="email"
@@ -285,7 +286,12 @@ const DialogNewUser = (props) => {
                             </Grid>
                         )}
                         <Grid item xs={12} sm={12} md={12} style={{ marginBottom: "8px" }}>
-                            <Button onClick={onSearch} variant="contained" color="primary" disabled={!username && !email}>
+                            <Button
+                                onClick={onSearch}
+                                variant="contained"
+                                color="primary"
+                                disabled={(!username && !email) || (!!email && !helperService.isValidEmail(email))}
+                            >
                                 {t("SEARCH")}
                             </Button>
                         </Grid>
