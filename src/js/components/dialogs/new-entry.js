@@ -185,10 +185,10 @@ const DialogNewEntry = (props) => {
 
     const onCreate = (event) => {
         const item = {
-            id: cryptoLibrary.generateUuid(),
-            type: type,
-            parent_datastore_id: parentDatastoreId,
-            parent_share_id: parentShareId,
+            'id': cryptoLibrary.generateUuid(),
+            'type': type,
+            'parent_datastore_id': parentDatastoreId,
+            'parent_share_id': parentShareId,
         };
         const secretObject = {};
 
@@ -317,13 +317,11 @@ const DialogNewEntry = (props) => {
             };
 
             const onSuccess = function (data) {
-                item["secret_id"] = data.secret_id;
-                item["secret_key"] = data.secret_key;
+                item['secret_id'] = data.secret_id;
+                item['secret_key'] = data.secret_key;
                 props.onCreate(item);
             };
-            secretService
-                .createSecret(secretObject, item.id, parentDatastoreId, parentShareId, callbackUrl, callbackUser, callbackPass)
-                .then(onSuccess, onError);
+            secretService.createSecret(secretObject, item.id, parentDatastoreId, parentShareId, callbackUrl, callbackUser, callbackPass).then(onSuccess, onError);
         }
     };
 

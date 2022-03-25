@@ -429,18 +429,16 @@ const DatastoreView = (props) => {
     const onNewEntry = (parent, path) => {
         onContextMenuClose();
         setAnchorEl(null);
-        // TODO remove console log
-        console.log(parent);
         // called whenever someone clicks on a new entry Icon
         setNewEntryOpen(true);
 
         let parentShareId = parent.parent_share_id;
         let parentDatastoreId = parent.parent_datastore_id;
 
-        if (parent.hasOwnProperty("datastore_id")) {
+        if (parent.hasOwnProperty('datastore_id')) {
             parentShareId = undefined;
             parentDatastoreId = parent.datastore_id;
-        } else if (parent.hasOwnProperty("share_id")) {
+        } else if (parent.hasOwnProperty('share_id')) {
             parentShareId = parent.share_id;
             parentDatastoreId = undefined;
         }
@@ -774,15 +772,7 @@ const DatastoreView = (props) => {
                     {createLinkShareOpen && (
                         <DialogCreateLinkShare open={createLinkShareOpen} onClose={() => setCreateLinkShareOpen(false)} item={createLinkShareData.item} />
                     )}
-                    {newEntryOpen && (
-                        <DialogNewEntry
-                            open={newEntryOpen}
-                            onClose={() => setNewEntryOpen(false)}
-                            onCreate={onNewEntryCreate}
-                            parentDatastoreId={newEntryData.parentDatastoreId}
-                            parentShareId={newEntryData.parentShareId}
-                        />
-                    )}
+                    {newEntryOpen && <DialogNewEntry open={newEntryOpen} onClose={() => setNewEntryOpen(false)} onCreate={onNewEntryCreate} parentDatastoreId={newEntryData.parentDatastoreId} parentShareId={newEntryData.parentShareId} />}
                     {trashBinOpen && <DialogTrashBin open={trashBinOpen} onClose={() => setTrashBinOpen(false)} datastore={datastore} />}
                     {rightsOverviewOpen && (
                         <DialogRightsOverview open={rightsOverviewOpen} onClose={() => setRightsOverviewOpen(false)} item={rightsOverviewData.item} />
