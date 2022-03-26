@@ -177,12 +177,28 @@ const EditFileRepositoryDialog = (props) => {
     const editDisabled =
         !title ||
         !type ||
-        (type === "gcp_cloud_storage" && (!gcpCloudStorageBucket || !gcpCloudStorageJsonKey)) ||
-        !helperService.isValidJson(gcpCloudStorageJsonKey) ||
-        (type === "aws_s3" && (!awsS3Bucket || !awsS3Region || !awsRegions.includes(awsS3Region) || !awsS3AccessKeyId || !awsS3SecretAccessKey)) ||
-        (type === "azure_blob" && (!azureBlobStorageAccountName || !azureBlobStorageAccountPrimaryKey || !azureBlobStorageAccountContainerName)) ||
-        (type === "backblaze" && (!backblazeRegion || !azureBlobStorageAccountPrimaryKey || !azureBlobStorageAccountContainerName)) ||
-        (type === "other_s3" && (!otherS3Bucket || !otherS3Region || !otherS3EndpointUrl || !otherS3AccessKeyId || !otherS3SecretAccessKey)) ||
+        (type === "gcp_cloud_storage" &&
+            (!gcpCloudStorageBucket ||
+                !gcpCloudStorageJsonKey ||
+                !helperService.isValidJson(gcpCloudStorageJsonKey))) ||
+        (type === "aws_s3" &&
+            (!awsS3Bucket ||
+                !awsS3Region ||
+                !awsRegions.includes(awsS3Region) ||
+                !awsS3AccessKeyId ||
+                !awsS3SecretAccessKey)) ||
+        (type === "azure_blob" &&
+            (!azureBlobStorageAccountName ||
+                !azureBlobStorageAccountPrimaryKey ||
+                !azureBlobStorageAccountContainerName)) ||
+        (type === "backblaze" &&
+            (!backblazeRegion || !azureBlobStorageAccountPrimaryKey || !azureBlobStorageAccountContainerName)) ||
+        (type === "other_s3" &&
+            (!otherS3Bucket ||
+                !otherS3Region ||
+                !otherS3EndpointUrl ||
+                !otherS3AccessKeyId ||
+                !otherS3SecretAccessKey)) ||
         (type === "do_spaces" && (!doSpace || !doRegion || !doSpacesRegions.includes(doRegion) || !doKey || !doSecret));
 
     const toggleRead = (fileRepositoryRightId, read, write, grant) => {
@@ -254,7 +270,12 @@ const EditFileRepositoryDialog = (props) => {
                     return (
                         <IconButton
                             onClick={() => {
-                                toggleRead(tableMeta.rowData[0], tableMeta.rowData[2], tableMeta.rowData[3], tableMeta.rowData[4]);
+                                toggleRead(
+                                    tableMeta.rowData[0],
+                                    tableMeta.rowData[2],
+                                    tableMeta.rowData[3],
+                                    tableMeta.rowData[4]
+                                );
                             }}
                             disabled={!tableMeta.rowData[4] || tableMeta.rowData[6]}
                         >
@@ -274,7 +295,12 @@ const EditFileRepositoryDialog = (props) => {
                     return (
                         <IconButton
                             onClick={() => {
-                                toggleWrite(tableMeta.rowData[0], tableMeta.rowData[2], tableMeta.rowData[3], tableMeta.rowData[4]);
+                                toggleWrite(
+                                    tableMeta.rowData[0],
+                                    tableMeta.rowData[2],
+                                    tableMeta.rowData[3],
+                                    tableMeta.rowData[4]
+                                );
                             }}
                             disabled={!tableMeta.rowData[4] || tableMeta.rowData[6]}
                         >
@@ -294,7 +320,12 @@ const EditFileRepositoryDialog = (props) => {
                     return (
                         <IconButton
                             onClick={() => {
-                                toggleGrant(tableMeta.rowData[0], tableMeta.rowData[2], tableMeta.rowData[3], tableMeta.rowData[4]);
+                                toggleGrant(
+                                    tableMeta.rowData[0],
+                                    tableMeta.rowData[2],
+                                    tableMeta.rowData[3],
+                                    tableMeta.rowData[4]
+                                );
                             }}
                             disabled={!tableMeta.rowData[4] || tableMeta.rowData[6]}
                         >
@@ -807,7 +838,12 @@ const EditFileRepositoryDialog = (props) => {
                         <h2>{t("ACCESS_RIGHTS")}</h2>
                     </Grid>
                     <Grid item xs={12} sm={12} md={12}>
-                        <Table data={fileRepositoryRights} columns={columns} options={options} onCreate={onCreateFileRepositoryRight} />
+                        <Table
+                            data={fileRepositoryRights}
+                            columns={columns}
+                            options={options}
+                            onCreate={onCreateFileRepositoryRight}
+                        />
                     </Grid>
                 </Grid>
             </DialogContent>

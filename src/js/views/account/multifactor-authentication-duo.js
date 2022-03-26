@@ -292,7 +292,10 @@ const MultifactorAuthenticatorDuo = (props) => {
                                 variant="contained"
                                 color="primary"
                                 onClick={create}
-                                disabled={!store.getState().server.systemWideDuoExists && (!title || !integrationKey || !secretKey || !host)}
+                                disabled={
+                                    !store.getState().server.systemWideDuoExists &&
+                                    (!title || !integrationKey || !secretKey || !host)
+                                }
                             >
                                 {t("SETUP")}
                             </Button>

@@ -97,7 +97,8 @@ function transformToWebsitePassword(item) {
             } else if (item["fields"][i]["type"] === "totp") {
                 // don't do anything if we find a totp field as those are handled separately
             } else if (item["fields"][i]["value"] !== "") {
-                website_password_notes = website_password_notes + item["fields"][i]["label"] + ": " + item["fields"][i]["value"] + "\n";
+                website_password_notes =
+                    website_password_notes + item["fields"][i]["label"] + ": " + item["fields"][i]["value"] + "\n";
             }
         }
     }
@@ -150,7 +151,8 @@ function transformToApplicationPassword(item) {
             } else if (item["fields"][i]["type"] === "totp") {
                 // don't do anything if we find a totp field as those are handled separately
             } else if (item["fields"][i]["value"] !== "") {
-                application_password_notes = application_password_notes + item["fields"][i]["label"] + ": " + item["fields"][i]["value"] + "\n";
+                application_password_notes =
+                    application_password_notes + item["fields"][i]["label"] + ": " + item["fields"][i]["value"] + "\n";
             }
         }
     }

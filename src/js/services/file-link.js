@@ -2,6 +2,9 @@
  * Service to handle all file links related tasks
  */
 
+import apiClient from "../services/api-client";
+import store from "./store";
+
 /**
  * Searches a datastore object and moves all links to the
  *
@@ -33,6 +36,8 @@ function moveFileLinks(datastore, newParentShareId, newParentDatastoreId) {
  * @returns {Promise} Returns promise with the status of the move
  */
 function moveFileLink(linkId, newParentShareId, newParentDatastoreId) {
+    const token = store.getState().user.token;
+    const sessionSecretKey = store.getState().user.sessionSecretKey;
     const onError = function (result) {
         // pass
     };
@@ -42,7 +47,7 @@ function moveFileLink(linkId, newParentShareId, newParentDatastoreId) {
     };
 
     return apiClient
-        .move_file_link(managerBase.get_token(), managerBase.get_session_secret_key(), linkId, newParentShareId, newParentDatastoreId)
+        .moveFileLink(token, sessionSecretKey, linkId, newParentShareId, newParentDatastoreId)
         .then(onSuccess, onError);
 }
 
@@ -54,6 +59,8 @@ function moveFileLink(linkId, newParentShareId, newParentDatastoreId) {
  * @returns {Promise} Returns a promise with the status of the delete operation
  */
 function deleteFileLink(linkId) {
+    const token = store.getState().user.token;
+    const sessionSecretKey = store.getState().user.sessionSecretKey;
     const onError = function (result) {
         // pass
     };
@@ -62,7 +69,7 @@ function deleteFileLink(linkId) {
         // pass
     };
 
-    return apiClient.delete_file_link(managerBase.get_token(), managerBase.get_session_secret_key(), linkId).then(onSuccess, onError);
+    return apiClient.deleteFileLink(token, sessionSecretKey, linkId).then(onSuccess, onError);
 }
 
 /**

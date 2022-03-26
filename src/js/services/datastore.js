@@ -92,7 +92,10 @@ function getDatastoreWithId(datastoreId) {
     };
 
     const onSuccess = function (result) {
-        const datastore_secret_key = cryptoLibrary.decryptSecretKey(result.data.secret_key, result.data.secret_key_nonce);
+        const datastore_secret_key = cryptoLibrary.decryptSecretKey(
+            result.data.secret_key,
+            result.data.secret_key_nonce
+        );
 
         tempDatastoreKeyStorage[datastoreId] = datastore_secret_key;
 
@@ -156,7 +159,9 @@ function createDatastore(type, description, isDefault) {
         return result;
     };
 
-    return apiClient.createDatastore(token, sessionSecretKey, type, description, "", "", isDefault, cipher.text, cipher.nonce).then(onSuccess, onError);
+    return apiClient
+        .createDatastore(token, sessionSecretKey, type, description, "", "", isDefault, cipher.text, cipher.nonce)
+        .then(onSuccess, onError);
 }
 
 /**
@@ -422,7 +427,9 @@ function saveDatastoreContentWithId(datastoreId, content) {
             return result.data;
         };
 
-        return apiClient.writeDatastore(token, sessionSecretKey, datastoreId, data.text, data.nonce).then(onSuccess, onError);
+        return apiClient
+            .writeDatastore(token, sessionSecretKey, datastoreId, data.text, data.nonce)
+            .then(onSuccess, onError);
     };
 
     return encryptDatastore(datastoreId, content).then(onSuccess, onError);
@@ -472,7 +479,17 @@ function saveDatastoreMeta(datastoreId, description, isDefault) {
     };
 
     return apiClient
-        .writeDatastore(token, sessionSecretKey, datastoreId, undefined, undefined, undefined, undefined, description, isDefault)
+        .writeDatastore(
+            token,
+            sessionSecretKey,
+            datastoreId,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            description,
+            isDefault
+        )
         .then(onSuccess, onError);
 }
 
@@ -535,7 +552,17 @@ function filter(folder, func) {
 function filterDatastoreContent(content) {
     const contentCopy = helperService.duplicateObject(content);
 
-    const filter = ["expanded", "expanded_temporary", "is_expanded", "filter", "hidden", "share_rights", "path", "parent_share_id", "parent_datastore_id"];
+    const filter = [
+        "expanded",
+        "expanded_temporary",
+        "is_expanded",
+        "filter",
+        "hidden",
+        "share_rights",
+        "path",
+        "parent_share_id",
+        "parent_datastore_id",
+    ];
 
     const filterContent = function (content, filter) {
         let i, m;

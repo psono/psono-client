@@ -122,7 +122,9 @@ const EditApiKeysDialog = (props) => {
             onClose();
         };
 
-        return apiKey.updateApiKey(apiKeyId, title, restrictToSecrets, allowInsecureUsage, rightToRead, rightToWrite).then(onSuccess, onError);
+        return apiKey
+            .updateApiKey(apiKeyId, title, restrictToSecrets, allowInsecureUsage, rightToRead, rightToWrite)
+            .then(onSuccess, onError);
     };
 
     const onAddSecret = (item, path, nodePath) => {
@@ -482,7 +484,12 @@ const EditApiKeysDialog = (props) => {
                             </Grid>
                         </TabPanel>
                         <TabPanel value={value} index={1} className={classes.tabPanel}>
-                            <Table data={secrets} columns={columns} options={options} onCreate={() => setAddSecretOpen(true)} />
+                            <Table
+                                data={secrets}
+                                columns={columns}
+                                options={options}
+                                onCreate={() => setAddSecretOpen(true)}
+                            />
                         </TabPanel>
                     </Grid>
                 </Grid>
@@ -508,7 +515,12 @@ const EditApiKeysDialog = (props) => {
                 </Button>
             </DialogActions>
             {addSecretOpen && (
-                <DialogSelectSecret open={addSecretOpen} onClose={() => setAddSecretOpen(false)} onSelectItem={onAddSecret} isSelectable={isSelectable} />
+                <DialogSelectSecret
+                    open={addSecretOpen}
+                    onClose={() => setAddSecretOpen(false)}
+                    onSelectItem={onAddSecret}
+                    isSelectable={isSelectable}
+                />
             )}
         </Dialog>
     );

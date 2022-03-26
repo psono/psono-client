@@ -213,7 +213,7 @@
   "SELECT_EITHER_SHARD_OR_REPOSITORY": "Sie müssen entweder ein Daten Repository oder einen Shard als Ziel auswählen (nicht beides)",
   "EDIT_FILE_REPOSITORY": "Daten Repository editieren",
   "DELETE_FILE_REPOSITORY": "Daten Repository löschen",
-  "DELETE_FILE_REPOSITORY_WARNING": "Sie sind dabei diesem Daten Repository zu löschen. Alle Dateien dir dort hochgeladen worden sind gehen damit verloren. Die Aktion kann nicht Rückgängig gemacht werden. Sind sie sicher?",
+  "DELETE_FILE_REPOSITORY_WARNING": "Sie sind dabei dieses Daten Repository zu löschen. Alle Dateien die dort hochgeladen worden sind gehen damit verloren. Die Aktion kann nicht Rückgängig gemacht werden. Sind sie sicher?",
   "DELETE_FILE_REPOSITORY_RIGHT": "Daten Repository Recht löschen",
   "DELETE_FILE_REPOSITORY_RIGHT_WARNING": "Sie sind dabei ihre Rechte an diesem Daten Repository zu löschen. Die Fähigkeit Daten in diesem Daten Repositry hochzuladen geht damit verloren. Die Aktion kann nicht Rückgängig gemacht werden. Sind sie sicher?",
   "UNKNOWN_TYPE": "Unbekannter Typ",

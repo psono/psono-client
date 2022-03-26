@@ -118,7 +118,11 @@ var ClassWorkerContentScriptBase = function (browser, jQuery, setTimeout) {
             if (typeof response === "undefined" || !response.hasOwnProperty("event")) {
                 return;
             }
-            for (var i = 0; registrations.hasOwnProperty(response.event) && i < registrations[response.event].length; i++) {
+            for (
+                var i = 0;
+                registrations.hasOwnProperty(response.event) && i < registrations[response.event].length;
+                i++
+            ) {
                 registrations[response.event][i](response.data);
             }
         });

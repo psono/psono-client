@@ -158,7 +158,14 @@ const OtherDatastoresView = (props) => {
                         isDefault={editDatastoreIsDefault}
                     />
                 )}
-                {deleteOpen && <DeleteDatastoresDialog {...props} open={deleteOpen} onClose={closeModal} datastoreId={deleteDatastoreId} />}
+                {deleteOpen && (
+                    <DeleteDatastoresDialog
+                        {...props}
+                        open={deleteOpen}
+                        onClose={closeModal}
+                        datastoreId={deleteDatastoreId}
+                    />
+                )}
                 {createOpen && <CreateDatastoresDialog {...props} open={createOpen} onClose={closeModal} />}
             </Grid>
         </>

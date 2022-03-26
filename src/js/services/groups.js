@@ -44,7 +44,11 @@ function getGroupSecretKey(groupId, groupSecretKey, groupSecretKeyNonce, groupSe
     if (groupSecretKeyType === "symmetric") {
         group_secret_key_cache[groupId] = cryptoLibraryService.decryptSecretKey(groupSecretKey, groupSecretKeyNonce);
     } else {
-        group_secret_key_cache[groupId] = cryptoLibraryService.decryptPrivateKey(groupSecretKey, groupSecretKeyNonce, groupPublicKey);
+        group_secret_key_cache[groupId] = cryptoLibraryService.decryptPrivateKey(
+            groupSecretKey,
+            groupSecretKeyNonce,
+            groupPublicKey
+        );
     }
 
     return group_secret_key_cache[groupId];
@@ -68,7 +72,11 @@ function getGroupPrivateKey(groupId, groupPrivateKey, groupPrivateKeyNonce, grou
     if (groupPrivateKeyType === "symmetric") {
         group_private_key_cache[groupId] = cryptoLibraryService.decryptSecretKey(groupPrivateKey, groupPrivateKeyNonce);
     } else {
-        group_private_key_cache[groupId] = cryptoLibraryService.decryptPrivateKey(groupPrivateKey, groupPrivateKeyNonce, groupPublicKey);
+        group_private_key_cache[groupId] = cryptoLibraryService.decryptPrivateKey(
+            groupPrivateKey,
+            groupPrivateKeyNonce,
+            groupPublicKey
+        );
     }
 
     return group_private_key_cache[groupId];
@@ -288,7 +296,8 @@ function getOutstandingGroupShares() {
             if (!inaccessible_share_by_group_dict.hasOwnProperty(inaccessible_share.group_id)) {
                 inaccessible_share_by_group_dict[inaccessible_share.group_id] = {};
             }
-            inaccessible_share_by_group_dict[inaccessible_share.group_id][inaccessible_share.share_id] = inaccessible_share;
+            inaccessible_share_by_group_dict[inaccessible_share.group_id][inaccessible_share.share_id] =
+                inaccessible_share;
         }
 
         return inaccessible_share_by_group_dict;
@@ -324,12 +333,32 @@ function createMembership(user, group, groupAdmin, shareAdmin) {
         //pass
     };
 
-    const group_secret_key = getGroupSecretKey(group.group_id, group.secret_key, group.secret_key_nonce, group.secret_key_type, group.public_key);
+    const group_secret_key = getGroupSecretKey(
+        group.group_id,
+        group.secret_key,
+        group.secret_key_nonce,
+        group.secret_key_type,
+        group.public_key
+    );
 
-    const group_private_key = getGroupPrivateKey(group.group_id, group.private_key, group.private_key_nonce, group.private_key_type, group.public_key);
+    const group_private_key = getGroupPrivateKey(
+        group.group_id,
+        group.private_key,
+        group.private_key_nonce,
+        group.private_key_type,
+        group.public_key
+    );
 
-    const group_secret_key_enc = cryptoLibraryService.encryptDataPublicKey(group_secret_key, user.public_key, group_private_key);
-    const group_private_key_enc = cryptoLibraryService.encryptDataPublicKey(group_private_key, user.public_key, group_private_key);
+    const group_secret_key_enc = cryptoLibraryService.encryptDataPublicKey(
+        group_secret_key,
+        user.public_key,
+        group_private_key
+    );
+    const group_private_key_enc = cryptoLibraryService.encryptDataPublicKey(
+        group_private_key,
+        user.public_key,
+        group_private_key
+    );
 
     return apiClient
         .createMembership(
@@ -370,7 +399,9 @@ function updateMembership(membershipId, groupAdmin, shareAdmin) {
         //pass
     };
 
-    return apiClient.updateMembership(token, sessionSecretKey, membershipId, groupAdmin, shareAdmin).then(onSuccess, onError);
+    return apiClient
+        .updateMembership(token, sessionSecretKey, membershipId, groupAdmin, shareAdmin)
+        .then(onSuccess, onError);
 }
 
 /**

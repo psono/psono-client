@@ -256,7 +256,9 @@ const DialogEditGroup = (props) => {
             setUsers(_users);
         };
 
-        return groupsService.updateMembership(user["membership_id"], !user["group_admin"], user["share_admin"]).then(onSuccess, onError);
+        return groupsService
+            .updateMembership(user["membership_id"], !user["group_admin"], user["share_admin"])
+            .then(onSuccess, onError);
     };
 
     const toggleOwnGroupAdminConfirmed = () => {
@@ -289,7 +291,9 @@ const DialogEditGroup = (props) => {
             setUsers(_users);
         };
 
-        groupsService.updateMembership(user["membership_id"], user["group_admin"], !user["share_admin"]).then(onSuccess, onError);
+        groupsService
+            .updateMembership(user["membership_id"], user["group_admin"], !user["share_admin"])
+            .then(onSuccess, onError);
     };
 
     function toggleRightWithoutFurtherWarning(type, right) {
@@ -306,7 +310,16 @@ const DialogEditGroup = (props) => {
         const newRight = helper.duplicateObject(right);
         newRight[type] = !newRight[type];
 
-        shareService.updateShareRight(newRight.share_id, newRight.user_id, groupId, newRight.read, newRight.write, newRight.grant).then(onSuccess, onError);
+        shareService
+            .updateShareRight(
+                newRight.share_id,
+                newRight.user_id,
+                groupId,
+                newRight.read,
+                newRight.write,
+                newRight.grant
+            )
+            .then(onSuccess, onError);
     }
 
     const toggleGrantRightConfirmed = () => {
@@ -357,7 +370,9 @@ const DialogEditGroup = (props) => {
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <React.Fragment>
-                            {tableMeta.rowData[1].length > 58 ? tableMeta.rowData[1].substring(0, 58) + "...)" : tableMeta.rowData[1]}
+                            {tableMeta.rowData[1].length > 58
+                                ? tableMeta.rowData[1].substring(0, 58) + "...)"
+                                : tableMeta.rowData[1]}
                         </React.Fragment>
                     );
                 },
@@ -371,7 +386,10 @@ const DialogEditGroup = (props) => {
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
-                        <IconButton onClick={() => toggleUser(tableMeta.rowData[0])} disabled={readOnly || tableMeta.rowData[7]}>
+                        <IconButton
+                            onClick={() => toggleUser(tableMeta.rowData[0])}
+                            disabled={readOnly || tableMeta.rowData[7]}
+                        >
                             {tableMeta.rowData[2] ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />}
                         </IconButton>
                     );
@@ -389,7 +407,10 @@ const DialogEditGroup = (props) => {
                         return;
                     }
                     return (
-                        <IconButton onClick={() => toggleGroupAdmin(tableMeta.rowData[0])} disabled={readOnly || tableMeta.rowData[7]}>
+                        <IconButton
+                            onClick={() => toggleGroupAdmin(tableMeta.rowData[0])}
+                            disabled={readOnly || tableMeta.rowData[7]}
+                        >
                             {tableMeta.rowData[3] ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />}
                         </IconButton>
                     );
@@ -407,7 +428,10 @@ const DialogEditGroup = (props) => {
                         return;
                     }
                     return (
-                        <IconButton onClick={() => toggleShareAdmin(tableMeta.rowData[0])} disabled={readOnly || tableMeta.rowData[7]}>
+                        <IconButton
+                            onClick={() => toggleShareAdmin(tableMeta.rowData[0])}
+                            disabled={readOnly || tableMeta.rowData[7]}
+                        >
                             {tableMeta.rowData[4] ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />}
                         </IconButton>
                     );
@@ -456,7 +480,9 @@ const DialogEditGroup = (props) => {
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <React.Fragment>
-                            {tableMeta.rowData[1].length > 58 ? tableMeta.rowData[1].substring(0, 58) + "...)" : tableMeta.rowData[1]}
+                            {tableMeta.rowData[1].length > 58
+                                ? tableMeta.rowData[1].substring(0, 58) + "...)"
+                                : tableMeta.rowData[1]}
                         </React.Fragment>
                     );
                 },
@@ -521,7 +547,10 @@ const DialogEditGroup = (props) => {
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
-                        <IconButton onClick={() => deleteShareRight(tableMeta.rowData[0])} disabled={readOnly || !shareAdmin}>
+                        <IconButton
+                            onClick={() => deleteShareRight(tableMeta.rowData[0])}
+                            disabled={readOnly || !shareAdmin}
+                        >
                             <DeleteIcon />
                         </IconButton>
                     );
@@ -595,7 +624,12 @@ const DialogEditGroup = (props) => {
                             <Tab label={t("SHARE_RIGHTS")} />
                         </Tabs>
                         <TabPanel value={value} index={0} className={classes.tabPanel}>
-                            <Table data={userColumnData} columns={userColumns} options={options} onCreate={readOnly ? null : onSearchUser} />
+                            <Table
+                                data={userColumnData}
+                                columns={userColumns}
+                                options={options}
+                                onCreate={readOnly ? null : onSearchUser}
+                            />
                         </TabPanel>
                         <TabPanel value={value} index={1} className={classes.tabPanel}>
                             <Table data={shareRightColumnData} columns={shareRightColumns} options={options} />
@@ -603,7 +637,13 @@ const DialogEditGroup = (props) => {
                     </Grid>
                     <GridContainerErrors errors={errors} setErrors={setErrors} />
                 </Grid>
-                {newUserOpen && <DialogNewUser open={newUserOpen} onClose={() => setNewUserOpen(false)} onCreate={onNewUserCreate} />}
+                {newUserOpen && (
+                    <DialogNewUser
+                        open={newUserOpen}
+                        onClose={() => setNewUserOpen(false)}
+                        onCreate={onNewUserCreate}
+                    />
+                )}
                 {Boolean(toggleOwnGroupAdminId) && (
                     <DialogVerify
                         title={"TOGGLE_GROUP_ADMIN"}

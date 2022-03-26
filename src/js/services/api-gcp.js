@@ -49,7 +49,7 @@ function upload(signedUrl, chunk) {
         "Content-Type": "application/octet-stream",
     };
 
-    return call(signedUrl, method, endpoint, chunk, headers, angular.identity);
+    return call(signedUrl, method, endpoint, chunk, headers);
 }
 
 /**

@@ -1,4 +1,9 @@
-import { SET_FINGERPRINT, SET_KNOWN_HOSTS, SET_AUTO_APPROVE_PLAINTEXT_PASSWORD, SET_REMOTE_CONFIG_JSON } from "../actions/action-types";
+import {
+    SET_FINGERPRINT,
+    SET_KNOWN_HOSTS,
+    SET_AUTO_APPROVE_PLAINTEXT_PASSWORD,
+    SET_REMOTE_CONFIG_JSON,
+} from "../actions/action-types";
 
 const defaultKnownHosts = [
     {

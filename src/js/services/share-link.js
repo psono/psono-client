@@ -26,7 +26,9 @@ function createShareLink(linkId, shareId, parentShareId, parentDatastoreId) {
         return result;
     };
 
-    return apiClient.createShareLink(token, sessionSecretKey, linkId, shareId, parentShareId, parentDatastoreId).then(onSuccess, onError);
+    return apiClient
+        .createShareLink(token, sessionSecretKey, linkId, shareId, parentShareId, parentDatastoreId)
+        .then(onSuccess, onError);
 }
 
 /**
@@ -49,7 +51,9 @@ function moveShareLink(linkId, newParentShareId, newParentDatastoreId) {
         return result;
     };
 
-    return apiClient.moveShareLink(token, sessionSecretKey, linkId, newParentShareId, newParentDatastoreId).then(onSuccess, onError);
+    return apiClient
+        .moveShareLink(token, sessionSecretKey, linkId, newParentShareId, newParentDatastoreId)
+        .then(onSuccess, onError);
 }
 
 /**

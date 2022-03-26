@@ -25,7 +25,11 @@ function recoveryGenerateInformation() {
         user_secret_key: store.getState().user.userSecretKey,
     };
 
-    const recovery_data = cryptoLibrary.encryptSecret(JSON.stringify(recovery_data_dec), recoveryPassword["base58"], recoverySauce);
+    const recovery_data = cryptoLibrary.encryptSecret(
+        JSON.stringify(recovery_data_dec),
+        recoveryPassword["base58"],
+        recoverySauce
+    );
 
     const onSuccess = function () {
         return {
@@ -35,7 +39,16 @@ function recoveryGenerateInformation() {
         };
     };
 
-    return apiClient.writeRecoverycode(token, sessionSecretKey, recoveryAuthkey, recovery_data.text, recovery_data.nonce, recoverySauce).then(onSuccess);
+    return apiClient
+        .writeRecoverycode(
+            token,
+            sessionSecretKey,
+            recoveryAuthkey,
+            recovery_data.text,
+            recovery_data.nonce,
+            recoverySauce
+        )
+        .then(onSuccess);
 }
 
 const passwordRecoveryCodeService = {

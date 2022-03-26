@@ -240,10 +240,21 @@ const TrustedUsersView = (props) => {
                                     <ClearIcon />
                                 </IconButton>
                                 <Divider className={classes.divider} orientation="vertical" />
-                                <IconButton color="primary" className={classes.iconButton} aria-label="menu" onClick={openMenu}>
+                                <IconButton
+                                    color="primary"
+                                    className={classes.iconButton}
+                                    aria-label="menu"
+                                    onClick={openMenu}
+                                >
                                     <MenuOpenIcon />
                                 </IconButton>
-                                <Menu id="simple-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
+                                <Menu
+                                    id="simple-menu"
+                                    anchorEl={anchorEl}
+                                    keepMounted
+                                    open={Boolean(anchorEl)}
+                                    onClose={handleClose}
+                                >
                                     <MenuItem onClick={onCreateFolder}>
                                         <ListItemIcon className={classes.listItemIcon}>
                                             <CreateNewFolderIcon className={classes.icon} fontSize="small" />
@@ -280,8 +291,20 @@ const TrustedUsersView = (props) => {
                                 onEditFolder={onEditFolder}
                             />
                         )}
-                        {newFolderOpen && <DialogNewFolder open={newFolderOpen} onClose={() => setNewFolderOpen(false)} onCreate={onNewFolderCreate} />}
-                        {newUserOpen && <DialogNewUser open={newUserOpen} onClose={() => setNewUserOpen(false)} onCreate={onNewUserCreate} />}
+                        {newFolderOpen && (
+                            <DialogNewFolder
+                                open={newFolderOpen}
+                                onClose={() => setNewFolderOpen(false)}
+                                onCreate={onNewFolderCreate}
+                            />
+                        )}
+                        {newUserOpen && (
+                            <DialogNewUser
+                                open={newUserOpen}
+                                onClose={() => setNewUserOpen(false)}
+                                onCreate={onNewUserCreate}
+                            />
+                        )}
                         {editFolderOpen && (
                             <DialogEditFolder
                                 open={editFolderOpen}
@@ -291,7 +314,12 @@ const TrustedUsersView = (props) => {
                             />
                         )}
                         {editEntryOpen && (
-                            <DialogEditUser open={editEntryOpen} onClose={() => setEditEntryOpen(false)} onSave={onEditEntrySave} item={editEntryData.item} />
+                            <DialogEditUser
+                                open={editEntryOpen}
+                                onClose={() => setEditEntryOpen(false)}
+                                onSave={onEditEntrySave}
+                                item={editEntryData.item}
+                            />
                         )}
                     </div>
                 </Paper>

@@ -108,7 +108,16 @@ const DialogCreateLinkShare = (props) => {
         };
 
         linkShareService
-            .createLinkShare(secretId, fileId, itemEncrypted.text, itemEncrypted.nonce, publicTitle, allowedReadsValidated, passphrase, validTillStr)
+            .createLinkShare(
+                secretId,
+                fileId,
+                itemEncrypted.text,
+                itemEncrypted.nonce,
+                publicTitle,
+                allowedReadsValidated,
+                passphrase,
+                validTillStr
+            )
             .then(onSuccess, onError);
     };
 
@@ -141,7 +150,11 @@ const DialogCreateLinkShare = (props) => {
                                 InputProps={{
                                     endAdornment: (
                                         <InputAdornment position="end">
-                                            <IconButton aria-label="copy to clipboard" onClick={copyToClipbard} edge="end">
+                                            <IconButton
+                                                aria-label="copy to clipboard"
+                                                onClick={copyToClipbard}
+                                                edge="end"
+                                            >
                                                 <ContentCopy />
                                             </IconButton>
                                         </InputAdornment>
@@ -236,7 +249,11 @@ const DialogCreateLinkShare = (props) => {
                                     label={t("PASSPHRASE_REPEAT")}
                                     name="passphraseRepeat"
                                     autoComplete="passphraseRepeat"
-                                    error={Boolean(passphrase) && Boolean(passphraseRepeat) && passphrase !== passphraseRepeat}
+                                    error={
+                                        Boolean(passphrase) &&
+                                        Boolean(passphraseRepeat) &&
+                                        passphrase !== passphraseRepeat
+                                    }
                                     value={passphraseRepeat}
                                     required
                                     onChange={(event) => {

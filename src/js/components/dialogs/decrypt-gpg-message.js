@@ -104,7 +104,14 @@ const DialogDecryptGpgMessage = (props) => {
     };
 
     return (
-        <Dialog fullWidth maxWidth={"sm"} open={open} onClose={onClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+        <Dialog
+            fullWidth
+            maxWidth={"sm"}
+            open={open}
+            onClose={onClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+        >
             <DialogTitle id="alert-dialog-title">{t("DECRYPT_MESSAGE")}</DialogTitle>
             <DialogContent>
                 <Grid container>
@@ -151,7 +158,12 @@ const DialogDecryptGpgMessage = (props) => {
             <DialogActions>
                 <Button onClick={onClose}>{t("CLOSE")}</Button>
                 {!decryptingComplete && (
-                    <Button onClick={decrypt} variant="contained" color="primary" disabled={!encryptedMessage || decrypting}>
+                    <Button
+                        onClick={decrypt}
+                        variant="contained"
+                        color="primary"
+                        disabled={!encryptedMessage || decrypting}
+                    >
                         <span style={!decrypting ? {} : { display: "none" }}>{t("DECRYPT")}</span>
                         <BarLoader color={"#FFF"} height={17} width={37} loading={decrypting} />
                     </Button>

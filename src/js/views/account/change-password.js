@@ -113,7 +113,12 @@ const AccountChangePasswordView = (props) => {
             <GridContainerErrors errors={errors} setErrors={setErrors} />
             <Grid container style={{ marginBottom: "8px" }}>
                 <Grid item xs={12} sm={12} md={12}>
-                    <Button variant="contained" color="primary" onClick={save} disabled={!passwordRepeat || !password || !oldPassword}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={save}
+                        disabled={!passwordRepeat || !password || !oldPassword}
+                    >
                         {t("SAVE")}
                     </Button>
                 </Grid>

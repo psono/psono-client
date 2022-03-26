@@ -151,7 +151,14 @@ const DialogRightsOverview = (props) => {
         newRight[type] = !newRight[type];
 
         shareService
-            .updateShareRight(newRight.share_id, newRight.user_id, newRight.group_id, newRight.read, newRight.write, newRight.grant)
+            .updateShareRight(
+                newRight.share_id,
+                newRight.user_id,
+                newRight.group_id,
+                newRight.read,
+                newRight.write,
+                newRight.grant
+            )
             .then(onSuccess, onError);
     };
 
@@ -184,7 +191,10 @@ const DialogRightsOverview = (props) => {
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
-                        <IconButton onClick={() => toggleRight("read", tableMeta.rowData[0])} disabled={!shareDetails.own_share_rights.grant}>
+                        <IconButton
+                            onClick={() => toggleRight("read", tableMeta.rowData[0])}
+                            disabled={!shareDetails.own_share_rights.grant}
+                        >
                             {tableMeta.rowData[2] ? <CheckIcon /> : <BlockIcon />}
                         </IconButton>
                     );
@@ -199,7 +209,10 @@ const DialogRightsOverview = (props) => {
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
-                        <IconButton onClick={() => toggleRight("write", tableMeta.rowData[0])} disabled={!shareDetails.own_share_rights.grant}>
+                        <IconButton
+                            onClick={() => toggleRight("write", tableMeta.rowData[0])}
+                            disabled={!shareDetails.own_share_rights.grant}
+                        >
                             {tableMeta.rowData[3] ? <CheckIcon /> : <BlockIcon />}
                         </IconButton>
                     );
@@ -214,7 +227,10 @@ const DialogRightsOverview = (props) => {
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
-                        <IconButton onClick={() => toggleRight("grant", tableMeta.rowData[0])} disabled={!shareDetails.own_share_rights.grant}>
+                        <IconButton
+                            onClick={() => toggleRight("grant", tableMeta.rowData[0])}
+                            disabled={!shareDetails.own_share_rights.grant}
+                        >
                             {tableMeta.rowData[4] ? <CheckIcon /> : <BlockIcon />}
                         </IconButton>
                     );
@@ -251,7 +267,10 @@ const DialogRightsOverview = (props) => {
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
-                        <IconButton onClick={() => deleteRight(tableMeta.rowData[0])} disabled={!shareDetails.own_share_rights.grant}>
+                        <IconButton
+                            onClick={() => deleteRight(tableMeta.rowData[0])}
+                            disabled={!shareDetails.own_share_rights.grant}
+                        >
                             <DeleteIcon />
                         </IconButton>
                     );
@@ -271,7 +290,10 @@ const DialogRightsOverview = (props) => {
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
-                        <IconButton onClick={() => toggleRight("read", tableMeta.rowData[0])} disabled={!shareDetails.own_share_rights.grant}>
+                        <IconButton
+                            onClick={() => toggleRight("read", tableMeta.rowData[0])}
+                            disabled={!shareDetails.own_share_rights.grant}
+                        >
                             {tableMeta.rowData[2] ? <CheckIcon /> : <BlockIcon />}
                         </IconButton>
                     );
@@ -286,7 +308,10 @@ const DialogRightsOverview = (props) => {
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
-                        <IconButton onClick={() => toggleRight("write", tableMeta.rowData[0])} disabled={!shareDetails.own_share_rights.grant}>
+                        <IconButton
+                            onClick={() => toggleRight("write", tableMeta.rowData[0])}
+                            disabled={!shareDetails.own_share_rights.grant}
+                        >
                             {tableMeta.rowData[3] ? <CheckIcon /> : <BlockIcon />}
                         </IconButton>
                     );
@@ -301,7 +326,10 @@ const DialogRightsOverview = (props) => {
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
-                        <IconButton onClick={() => toggleRight("grant", tableMeta.rowData[0])} disabled={!shareDetails.own_share_rights.grant}>
+                        <IconButton
+                            onClick={() => toggleRight("grant", tableMeta.rowData[0])}
+                            disabled={!shareDetails.own_share_rights.grant}
+                        >
                             {tableMeta.rowData[4] ? <CheckIcon /> : <BlockIcon />}
                         </IconButton>
                     );
@@ -338,7 +366,10 @@ const DialogRightsOverview = (props) => {
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
-                        <IconButton onClick={() => deleteRight(tableMeta.rowData[0])} disabled={!shareDetails.own_share_rights.grant}>
+                        <IconButton
+                            onClick={() => deleteRight(tableMeta.rowData[0])}
+                            disabled={!shareDetails.own_share_rights.grant}
+                        >
                             <DeleteIcon />
                         </IconButton>
                     );

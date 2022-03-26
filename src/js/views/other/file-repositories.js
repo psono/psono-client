@@ -32,7 +32,13 @@ const OtherFileRepositoriesView = (props) => {
             function (fileRepositories) {
                 setFileRepositories(
                     fileRepositories.map((fileRepository, index) => {
-                        return [fileRepository.id, fileRepository.title, fileRepository.type, fileRepository.active, fileRepository.accepted];
+                        return [
+                            fileRepository.id,
+                            fileRepository.title,
+                            fileRepository.type,
+                            fileRepository.active,
+                            fileRepository.accepted,
+                        ];
                     })
                 );
             },
@@ -181,8 +187,22 @@ const OtherFileRepositoriesView = (props) => {
                 <Grid item xs={12} sm={12} md={12}>
                     <Table data={fileRepositories} columns={columns} options={options} onCreate={onCreate} />
                 </Grid>
-                {editOpen && <EditFileRepositoriesDialog {...props} open={editOpen} onClose={closeModal} fileRepositoryId={editFileRepositoryId} />}
-                {deleteOpen && <DeleteFileRepositoriesDialog {...props} open={deleteOpen} onClose={closeModal} fileRepositoryId={deleteFileRepositoryId} />}
+                {editOpen && (
+                    <EditFileRepositoriesDialog
+                        {...props}
+                        open={editOpen}
+                        onClose={closeModal}
+                        fileRepositoryId={editFileRepositoryId}
+                    />
+                )}
+                {deleteOpen && (
+                    <DeleteFileRepositoriesDialog
+                        {...props}
+                        open={deleteOpen}
+                        onClose={closeModal}
+                        fileRepositoryId={deleteFileRepositoryId}
+                    />
+                )}
                 {createOpen && <CreateFileRepositoriesDialog {...props} open={createOpen} onClose={closeModal} />}
             </Grid>
         </>

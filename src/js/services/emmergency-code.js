@@ -46,7 +46,11 @@ function createEmergencyCode(title, leadTime) {
         user_secret_key: store.getState().user.userSecretKey,
     };
 
-    const emergency_data = cryptoLibrary.encryptSecret(JSON.stringify(emergencyDataDec), emergencyPassword["base58"], emergencySauce);
+    const emergency_data = cryptoLibrary.encryptSecret(
+        JSON.stringify(emergencyDataDec),
+        emergencyPassword["base58"],
+        emergencySauce
+    );
 
     const onSuccess = function () {
         return {
@@ -59,7 +63,16 @@ function createEmergencyCode(title, leadTime) {
         return Promise.reject(request.data);
     };
     return apiClient
-        .createEmergencyCode(token, sessionSecretKey, title, leadTime, emergencyAuthkey, emergency_data.text, emergency_data.nonce, emergencySauce)
+        .createEmergencyCode(
+            token,
+            sessionSecretKey,
+            title,
+            leadTime,
+            emergencyAuthkey,
+            emergency_data.text,
+            emergency_data.nonce,
+            emergencySauce
+        )
         .then(onSuccess, onError);
 }
 

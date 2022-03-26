@@ -39,7 +39,15 @@ const OtherApiKeysView = (props) => {
                 }
                 setApiKeys(
                     data.api_keys.map((apiKey, index) => {
-                        return [apiKey.id, apiKey.title, apiKey.restrict_to_secrets, apiKey.allow_insecure_access, apiKey.read, apiKey.write, apiKey.active];
+                        return [
+                            apiKey.id,
+                            apiKey.title,
+                            apiKey.restrict_to_secrets,
+                            apiKey.allow_insecure_access,
+                            apiKey.read,
+                            apiKey.write,
+                            apiKey.active,
+                        ];
                     })
                 );
             },
@@ -190,8 +198,12 @@ const OtherApiKeysView = (props) => {
                 <Grid item xs={12} sm={12} md={12}>
                     <Table data={apiKeys} columns={columns} options={options} onCreate={onCreate} />
                 </Grid>
-                {editOpen && <EditApiKeysDialog {...props} open={editOpen} onClose={closeModal} apiKeyId={editApiKeyId} />}
-                {deleteOpen && <DeleteApiKeysDialog {...props} open={deleteOpen} onClose={closeModal} apiKeyId={deleteApiKeyId} />}
+                {editOpen && (
+                    <EditApiKeysDialog {...props} open={editOpen} onClose={closeModal} apiKeyId={editApiKeyId} />
+                )}
+                {deleteOpen && (
+                    <DeleteApiKeysDialog {...props} open={deleteOpen} onClose={closeModal} apiKeyId={deleteApiKeyId} />
+                )}
                 {createOpen && <CreateApiKeysDialog {...props} open={createOpen} onClose={closeModal} />}
             </Grid>
         </>

@@ -132,7 +132,12 @@ const PopupPgpReadView = (props) => {
             <AppBar position="fixed" className={classes.appBar}>
                 <Container maxWidth="lg">
                     <Toolbar>
-                        <IconButton color="inherit" aria-label="open drawer" edge="start" className={classes.menuButton}>
+                        <IconButton
+                            color="inherit"
+                            aria-label="open drawer"
+                            edge="start"
+                            className={classes.menuButton}
+                        >
                             <MenuIcon />
                         </IconButton>
                         <a className={classes.topLogo} href="#">
@@ -171,7 +176,9 @@ const PopupPgpReadView = (props) => {
                                     xs={12}
                                     sm={12}
                                     md={12}
-                                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(decryptedMessage, { USE_PROFILES: { html: true } }) }}
+                                    dangerouslySetInnerHTML={{
+                                        __html: DOMPurify.sanitize(decryptedMessage, { USE_PROFILES: { html: true } }),
+                                    }}
                                 />
                             </Grid>
                         </div>

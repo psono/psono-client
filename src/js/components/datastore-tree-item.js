@@ -130,7 +130,10 @@ const DatastoreTreeItem = (props) => {
     };
 
     const hideShare =
-        offline || (content.hasOwnProperty("share_rights") && content.share_rights.grant === false) || content.type === "user" || !props.onNewShare;
+        offline ||
+        (content.hasOwnProperty("share_rights") && content.share_rights.grant === false) ||
+        content.type === "user" ||
+        !props.onNewShare;
     const hideLinkShare =
         offline ||
         !content.hasOwnProperty("type") ||
@@ -156,8 +159,14 @@ const DatastoreTreeItem = (props) => {
         (content.hasOwnProperty("share_rights") && content.share_rights.read !== true) ||
         !content.hasOwnProperty("type") ||
         !["website_password", "application_password"].includes(content["type"]);
-    const hideEdit = offline || (content.hasOwnProperty("share_rights") && content.share_rights.write === false) || !props.onEditEntry;
-    const hideShow = !hideEdit || (content.hasOwnProperty("share_rights") && content.share_rights.read === false) || !props.onEditEntry;
+    const hideEdit =
+        offline ||
+        (content.hasOwnProperty("share_rights") && content.share_rights.write === false) ||
+        !props.onEditEntry;
+    const hideShow =
+        !hideEdit ||
+        (content.hasOwnProperty("share_rights") && content.share_rights.read === false) ||
+        !props.onEditEntry;
     const hideClone =
         offline ||
         (content.hasOwnProperty("share_rights") && content.share_rights.write === false) ||
@@ -165,8 +174,14 @@ const DatastoreTreeItem = (props) => {
         content.type === "file" ||
         content.type === "user" ||
         !props.onCloneEntry;
-    const hideMove = offline || (content.hasOwnProperty("share_rights") && content.share_rights.delete === false) || !props.onMoveEntry;
-    const hideDelete = offline || (content.hasOwnProperty("share_rights") && content.share_rights.delete === false) || !props.onDeleteEntry;
+    const hideMove =
+        offline ||
+        (content.hasOwnProperty("share_rights") && content.share_rights.delete === false) ||
+        !props.onMoveEntry;
+    const hideDelete =
+        offline ||
+        (content.hasOwnProperty("share_rights") && content.share_rights.delete === false) ||
+        !props.onDeleteEntry;
     const disableMenu =
         hideShare &&
         hideLinkShare &&
@@ -201,7 +216,11 @@ const DatastoreTreeItem = (props) => {
 
     return (
         <div className={"tree-item"}>
-            <div className={"tree-item-object" + (isSelectable ? "" : " notSelectable")} onClick={selectItem} onContextMenu={onContextMenu}>
+            <div
+                className={"tree-item-object" + (isSelectable ? "" : " notSelectable")}
+                onClick={selectItem}
+                onContextMenu={onContextMenu}
+            >
                 <span className="fa-stack">
                     <i className={widgetService.itemIcon(content)} />
                     {content.share_id && <i className="fa fa-circle fa-stack-2x text-danger is-shared" />}
@@ -284,9 +303,12 @@ const DatastoreTreeItem = (props) => {
                             </Typography>
                         </MenuItem>
                     )}
-                    {(!hideShare || !hideLinkShare || !hideRightsOverview || !hideCopyTotpToken || !hideCopyUsername || !hideCopyPassword) && (
-                        <Divider className={classes.divider} />
-                    )}
+                    {(!hideShare ||
+                        !hideLinkShare ||
+                        !hideRightsOverview ||
+                        !hideCopyTotpToken ||
+                        !hideCopyUsername ||
+                        !hideCopyPassword) && <Divider className={classes.divider} />}
                     {!hideEdit && (
                         <MenuItem onClick={onEdit}>
                             <ListItemIcon className={classes.listItemIcon}>
@@ -411,9 +433,12 @@ const DatastoreTreeItem = (props) => {
                         </Typography>
                     </MenuItem>
                 )}
-                {(!hideShare || !hideLinkShare || !hideRightsOverview || !hideCopyTotpToken || !hideCopyUsername || !hideCopyPassword) && (
-                    <Divider className={classes.divider} />
-                )}
+                {(!hideShare ||
+                    !hideLinkShare ||
+                    !hideRightsOverview ||
+                    !hideCopyTotpToken ||
+                    !hideCopyUsername ||
+                    !hideCopyPassword) && <Divider className={classes.divider} />}
                 {!hideEdit && (
                     <MenuItem onClick={onEdit}>
                         <ListItemIcon className={classes.listItemIcon}>

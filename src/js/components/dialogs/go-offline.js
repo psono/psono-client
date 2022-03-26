@@ -59,20 +59,24 @@ const DialogGoOffline = (props) => {
         for (var i = 0; i < datastoreOverview.data.datastores.length; i++) {
             openRequests = openRequests + 1;
             if (datastoreOverview.data.datastores[i]["type"] === "password") {
-                datastorePasswordService.getPasswordDatastore(datastoreOverview.data.datastores[i]["id"]).then(function (datastore) {
-                    closedRequest = closedRequest + 1;
-                    openRequests = openRequests + 1;
-                    exportService.getAllSecrets(datastore).then(function () {
+                datastorePasswordService
+                    .getPasswordDatastore(datastoreOverview.data.datastores[i]["id"])
+                    .then(function (datastore) {
                         closedRequest = closedRequest + 1;
+                        openRequests = openRequests + 1;
+                        exportService.getAllSecrets(datastore).then(function () {
+                            closedRequest = closedRequest + 1;
+                            potentiallyCloseDialog();
+                        });
+                    });
+            } else {
+                datastoreService
+                    .getDatastoreWithId(datastoreOverview.data.datastores[i]["id"])
+                    .then(function (datastore) {
+                        closedRequest = closedRequest + 1;
+                        setPercentageComplete(Math.round((closedRequest / openRequests) * 1000) / 10);
                         potentiallyCloseDialog();
                     });
-                });
-            } else {
-                datastoreService.getDatastoreWithId(datastoreOverview.data.datastores[i]["id"]).then(function (datastore) {
-                    closedRequest = closedRequest + 1;
-                    setPercentageComplete(Math.round((closedRequest / openRequests) * 1000) / 10);
-                    potentiallyCloseDialog();
-                });
             }
         }
         potentiallyCloseDialog();
@@ -139,7 +143,14 @@ const DialogGoOffline = (props) => {
     };
 
     return (
-        <Dialog fullWidth maxWidth={"sm"} open={open} onClose={onClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+        <Dialog
+            fullWidth
+            maxWidth={"sm"}
+            open={open}
+            onClose={onClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+        >
             <DialogTitle id="alert-dialog-title">{t("CACHING")}</DialogTitle>
             <DialogContent>
                 {processing && (
@@ -189,7 +200,11 @@ const DialogGoOffline = (props) => {
                                     },
                                     endAdornment: (
                                         <InputAdornment position="end">
-                                            <IconButton aria-label="toggle password visibility" onClick={() => setShowPassword(!showPassword)} edge="end">
+                                            <IconButton
+                                                aria-label="toggle password visibility"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                edge="end"
+                                            >
                                                 {showPassword ? <Visibility /> : <VisibilityOff />}
                                             </IconButton>
                                         </InputAdornment>
@@ -218,7 +233,11 @@ const DialogGoOffline = (props) => {
                                         },
                                         endAdornment: (
                                             <InputAdornment position="end">
-                                                <IconButton aria-label="toggle password visibility" onClick={() => setShowPassword(!showPassword)} edge="end">
+                                                <IconButton
+                                                    aria-label="toggle password visibility"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    edge="end"
+                                                >
                                                     {showPassword ? <Visibility /> : <VisibilityOff />}
                                                 </IconButton>
                                             </InputAdornment>
@@ -244,7 +263,12 @@ const DialogGoOffline = (props) => {
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>{t("CLOSE")}</Button>
-                <Button onClick={approve} variant="contained" color="primary" disabled={!passphrase || passphrase !== passphraseRepeat}>
+                <Button
+                    onClick={approve}
+                    variant="contained"
+                    color="primary"
+                    disabled={!passphrase || passphrase !== passphraseRepeat}
+                >
                     <span>{t("APPROVE")}</span>
                 </Button>
             </DialogActions>

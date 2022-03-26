@@ -43,7 +43,18 @@ function createSecret(content, linkId, parentDatastoreId, parentShareId, callbac
     };
 
     return apiClient
-        .createSecret(token, sessionSecretKey, c.text, c.nonce, linkId, parentDatastoreId, parentShareId, callbackUrl, callbackUser, callbackPass)
+        .createSecret(
+            token,
+            sessionSecretKey,
+            c.text,
+            c.nonce,
+            linkId,
+            parentDatastoreId,
+            parentShareId,
+            callbackUrl,
+            callbackUser,
+            callbackPass
+        )
         .then(onSuccess, onError);
 }
 
@@ -103,7 +114,9 @@ function writeSecret(secretId, secretKey, content, callbackUrl, callbackUser, ca
         return { secret_id: response.data.secret_id };
     };
 
-    return apiClient.writeSecret(token, sessionSecretKey, secretId, c.text, c.nonce, callbackUrl, callbackUser, callbackPass).then(onSuccess, onError);
+    return apiClient
+        .writeSecret(token, sessionSecretKey, secretId, c.text, c.nonce, callbackUrl, callbackUser, callbackPass)
+        .then(onSuccess, onError);
 }
 
 /**
@@ -173,7 +186,11 @@ function redirectSecret(type, secretId) {
  */
 function onItemClick(item) {
     console.log(item);
-    if (item.hasOwnProperty("urlfilter") && item["urlfilter"] !== "" && ["website_password", "bookmark"].indexOf(item.type) !== -1) {
+    if (
+        item.hasOwnProperty("urlfilter") &&
+        item["urlfilter"] !== "" &&
+        ["website_password", "bookmark"].indexOf(item.type) !== -1
+    ) {
         browserClient.openTab("open-secret.html#!/secret/" + item.type + "/" + item.secret_id).then(function (window) {
             window.psono_offline_cache_encryption_key = offlineCache.getEncryptionKey();
         });

@@ -67,7 +67,13 @@ const MultifactorAuthenticationView = (props) => {
                             {t("CONFIGURE")}
                         </Button>
                     </Grid>
-                    {googleAuthenticatorOpen && <MultifactorAuthenticatorGoogleAuthenticator {...props} open={googleAuthenticatorOpen} onClose={closeModal} />}
+                    {googleAuthenticatorOpen && (
+                        <MultifactorAuthenticatorGoogleAuthenticator
+                            {...props}
+                            open={googleAuthenticatorOpen}
+                            onClose={closeModal}
+                        />
+                    )}
                 </Grid>
             )}
 
@@ -81,7 +87,9 @@ const MultifactorAuthenticationView = (props) => {
                             {t("CONFIGURE")}
                         </Button>
                     </Grid>
-                    {yubikeyOtpOpen && <MultifactorAuthenticatorYubikeyOtp {...props} open={yubikeyOtpOpen} onClose={closeModal} />}
+                    {yubikeyOtpOpen && (
+                        <MultifactorAuthenticatorYubikeyOtp {...props} open={yubikeyOtpOpen} onClose={closeModal} />
+                    )}
                 </Grid>
             )}
 

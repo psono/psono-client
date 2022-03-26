@@ -1,4 +1,9 @@
-import { SETTINGS_DATASTORE_LOADED, SET_PASSWORD_CONFIG, SET_GPG_CONFIG, SET_GPG_DEFAULT_KEY } from "../actions/action-types";
+import {
+    SETTINGS_DATASTORE_LOADED,
+    SET_PASSWORD_CONFIG,
+    SET_GPG_CONFIG,
+    SET_GPG_DEFAULT_KEY,
+} from "../actions/action-types";
 
 function settingsDatastore(
     state = {
@@ -16,19 +21,25 @@ function settingsDatastore(
     switch (action.type) {
         case SETTINGS_DATASTORE_LOADED:
             return Object.assign({}, state, {
-                passwordLength: action.data.hasOwnProperty("setting_password_length") ? parseInt(action.data.setting_password_length) : 16,
+                passwordLength: action.data.hasOwnProperty("setting_password_length")
+                    ? parseInt(action.data.setting_password_length)
+                    : 16,
                 passwordLettersUppercase: action.data.hasOwnProperty("setting_password_letters_uppercase")
                     ? action.data.setting_password_letters_uppercase
                     : "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
                 passwordLettersLowercase: action.data.hasOwnProperty("setting_password_letters_lowercase")
                     ? action.data.setting_password_letters_lowercase
                     : "abcdefghijklmnopqrstuvwxyz",
-                passwordNumbers: action.data.hasOwnProperty("setting_password_numbers") ? action.data.setting_password_numbers : "0123456789",
+                passwordNumbers: action.data.hasOwnProperty("setting_password_numbers")
+                    ? action.data.setting_password_numbers
+                    : "0123456789",
                 passwordSpecialChars: action.data.hasOwnProperty("setting_password_special_chars")
                     ? action.data.setting_password_special_chars
                     : ",.-;:_#'+*~!\"§$%&/@()=?{[]}\\",
                 gpgDefaultKey: action.data.hasOwnProperty("gpg_default_key") ? action.data.gpg_default_key : "",
-                gpgHkpKeyServer: action.data.hasOwnProperty("gpg_hkp_key_server") ? action.data.gpg_hkp_key_server : "https://keyserver.ubuntu.com",
+                gpgHkpKeyServer: action.data.hasOwnProperty("gpg_hkp_key_server")
+                    ? action.data.gpg_hkp_key_server
+                    : "https://keyserver.ubuntu.com",
                 gpgHkpSearch: action.data.hasOwnProperty("gpg_hkp_search") ? action.data.gpg_hkp_search : true,
             });
         case SET_PASSWORD_CONFIG:

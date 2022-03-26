@@ -104,7 +104,17 @@ function passwordScrypt(password, salt) {
     if (scrypt_lookup_table.hasOwnProperty(lookup_hash)) {
         k = scrypt_lookup_table[lookup_hash];
     } else {
-        k = converterService.toHex(nacl.scrypt(converterService.encodeUtf8(password), converterService.encodeUtf8(salt), u, r, p, l, function (pDone) {}));
+        k = converterService.toHex(
+            nacl.scrypt(
+                converterService.encodeUtf8(password),
+                converterService.encodeUtf8(salt),
+                u,
+                r,
+                p,
+                l,
+                function (pDone) {}
+            )
+        );
         scrypt_lookup_table[lookup_hash] = k;
         clearScryptLookupTable();
     }
@@ -473,7 +483,11 @@ function generateUuid() {
  * @returns {boolean} Returns whether the signature is correct or not
  */
 function validateSignature(message, signature, verifyKey) {
-    return nacl.signing.verify(converterService.fromHex(signature), converterService.encodeUtf8(message), converterService.fromHex(verifyKey));
+    return nacl.signing.verify(
+        converterService.fromHex(signature),
+        converterService.encodeUtf8(message),
+        converterService.fromHex(verifyKey)
+    );
 }
 
 /**

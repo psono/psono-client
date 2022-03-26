@@ -6,12 +6,14 @@ import { saveAs } from "file-saver";
 import apiClientService from "./api-client";
 import browserClient from "./browser-client";
 import cryptoLibrary from "./crypto-library";
+import helper from "./helper";
 import apiAWS from "./api-aws";
 import apiAzureBlob from "./api-azure-blob";
 import apiBackblaze from "./api-backblaze";
 import apiOtherS3 from "./api-other-s3";
 import apiGCP from "./api-gcp";
 import apiDO from "./api-aws";
+import apiFileserver from "./api-fileserver";
 import store from "./store";
 import storage from "./storage";
 
@@ -20,11 +22,11 @@ const registrations = {};
 /**
  * Triggered once someone wants to read a file
  *
- * @param file_id The id of the file to read
+ * @param fileId The id of the file to read
  *
  * @returns {Promise} promise
  */
-function readFile(file_id) {
+function readFile(fileId) {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
     const onError = function (result) {
@@ -35,23 +37,23 @@ function readFile(file_id) {
         return result.data;
     };
 
-    return apiClientService.readFile(token, sessionSecretKey, file_id).then(onSuccess, onError);
+    return apiClientService.readFile(token, sessionSecretKey, fileId).then(onSuccess, onError);
 }
 
 /**
  * Triggered once someone wants to create a file object
  *
- * @param shard_id (optional) The id of the shard this upload goes to
- * @param file_repository_id (optional) The id of the file repository this upload goes to
+ * @param shardId (optional) The id of the shard this upload goes to
+ * @param fileRepositoryId (optional) The id of the file repository this upload goes to
  * @param size The file size in bytes
- * @param chunk_count The amount of chunks to upload
- * @param link_id The id of the link
- * @param parent_datastore_id The id of the parent datastore (can be undefined if the parent is a share)
- * @param parent_share_id The id of the parent share (can be undefined if the parent is a datastore)
+ * @param chunkCount The amount of chunks to upload
+ * @param linkId The id of the link
+ * @param parentDatastoreId The id of the parent datastore (can be undefined if the parent is a share)
+ * @param parentShareId The id of the parent share (can be undefined if the parent is a datastore)
  *
  * @returns {Promise} promise
  */
-function createFile(shard_id, file_repository_id, size, chunk_count, link_id, parent_datastore_id, parent_share_id) {
+function createFile(shardId, fileRepositoryId, size, chunkCount, linkId, parentDatastoreId, parentShareId) {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
     const onError = function (result) {
@@ -63,7 +65,17 @@ function createFile(shard_id, file_repository_id, size, chunk_count, link_id, pa
     };
 
     return apiClientService
-        .createFile(token, sessionSecretKey, shard_id, file_repository_id, size, chunk_count, link_id, parent_datastore_id, parent_share_id)
+        .createFile(
+            token,
+            sessionSecretKey,
+            shardId,
+            fileRepositoryId,
+            size,
+            chunkCount,
+            linkId,
+            parentDatastoreId,
+            parentShareId
+        )
         .then(onSuccess, onError);
 }
 
@@ -71,21 +83,21 @@ function createFile(shard_id, file_repository_id, size, chunk_count, link_id, pa
  * Triggered once someone wants to actually upload the file
  *
  * @param {Blob} chunk The content of the chunk to upload
- * @param {uuid} file_transfer_id The id of the file transfer
- * @param {string} file_transfer_secret_key The hex encoded secret key for the file transfer
- * @param {int} chunk_position The sequence number of the chunk to determine the order
+ * @param {uuid} fileTransferId The id of the file transfer
+ * @param {string} fileTransferSecretKey The hex encoded secret key for the file transfer
+ * @param {int} chunkPosition The sequence number of the chunk to determine the order
  * @param {object} shard The target shard
- * @param {string} hash_checksum The sha512 hash
+ * @param {string} hashChecksum The sha512 hash
  *
  * @returns {Promise} promise
  */
-function uploadShard(chunk, file_transfer_id, file_transfer_secret_key, chunk_position, shard, hash_checksum) {
+function uploadShard(chunk, fileTransferId, fileTransferSecretKey, chunkPosition, shard, hashChecksum) {
     const ticket = {
-        chunk_position: chunk_position,
-        hash_checksum: hash_checksum,
+        chunk_position: chunkPosition,
+        hash_checksum: hashChecksum,
     };
 
-    const ticket_enc = cryptoLibrary.encryptData(JSON.stringify(ticket), file_transfer_secret_key);
+    const ticketEncrypted = cryptoLibrary.encryptData(JSON.stringify(ticket), fileTransferSecretKey);
 
     let fileserver;
     if (shard["fileserver"].length > 1) {
@@ -104,22 +116,31 @@ function uploadShard(chunk, file_transfer_id, file_transfer_secret_key, chunk_po
         return result.data;
     };
 
-    return apiFileserver.upload(fileserver["fileserver_url"], file_transfer_id, chunk, ticket_enc.text, ticket_enc.nonce).then(onSuccess, onError);
+    return apiFileserver
+        .upload(fileserver["fileserver_url"], fileTransferId, chunk, ticketEncrypted.text, ticketEncrypted.nonce)
+        .then(onSuccess, onError);
 }
 
 /**
  * Triggered once someone wants to actually upload the file to GCP Cloud Storage
  *
  * @param {Blob} chunk The content of the chunk to upload
- * @param {uuid} file_transfer_id The id of the file transfer
- * @param {string} file_transfer_secret_key The file transfer secret key
- * @param {int} chunk_size The size of the complete chunk in bytes
- * @param {int} chunk_position The sequence number of the chunk to determine the order
- * @param {string} hash_checksum The sha512 hash
+ * @param {uuid} fileTransferId The id of the file transfer
+ * @param {string} fileTransferSecretKey The file transfer secret key
+ * @param {int} chunkSize The size of the complete chunk in bytes
+ * @param {int} chunkPosition The sequence number of the chunk to determine the order
+ * @param {string} hashChecksum The sha512 hash
  *
  * @returns {Promise} promise
  */
-function uploadFileRepositoryGcpCloudStorage(chunk, file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum) {
+function uploadFileRepositoryGcpCloudStorage(
+    chunk,
+    fileTransferId,
+    fileTransferSecretKey,
+    chunkSize,
+    chunkPosition,
+    hashChecksum
+) {
     const onError = function (result) {
         return Promise.reject(result.data);
     };
@@ -137,7 +158,7 @@ function uploadFileRepositoryGcpCloudStorage(chunk, file_transfer_id, file_trans
     };
 
     return apiClientService
-        .fileRepositoryUpload(file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum)
+        .fileRepositoryUpload(fileTransferId, fileTransferSecretKey, chunkSize, chunkPosition, hashChecksum)
         .then(onSuccess, onError);
 }
 
@@ -145,15 +166,22 @@ function uploadFileRepositoryGcpCloudStorage(chunk, file_transfer_id, file_trans
  * Triggered once someone wants to actually upload the file to AWS S3
  *
  * @param {Blob} chunk The content of the chunk to upload
- * @param {uuid} file_transfer_id The id of the file transfer
- * @param {string} file_transfer_secret_key The file transfer secret key
- * @param {int} chunk_size The size of the complete chunk in bytes
- * @param {int} chunk_position The sequence number of the chunk to determine the order
- * @param {string} hash_checksum The sha512 hash
+ * @param {uuid} fileTransferId The id of the file transfer
+ * @param {string} fileTransferSecretKey The file transfer secret key
+ * @param {int} chunkSize The size of the complete chunk in bytes
+ * @param {int} chunkPosition The sequence number of the chunk to determine the order
+ * @param {string} hashChecksum The sha512 hash
  *
  * @returns {Promise} promise
  */
-function uploadFileRepositoryAwsS3(chunk, file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum) {
+function uploadFileRepositoryAwsS3(
+    chunk,
+    fileTransferId,
+    fileTransferSecretKey,
+    chunkSize,
+    chunkPosition,
+    hashChecksum
+) {
     const onError = function (result) {
         return Promise.reject(result.data);
     };
@@ -171,7 +199,7 @@ function uploadFileRepositoryAwsS3(chunk, file_transfer_id, file_transfer_secret
     };
 
     return apiClientService
-        .fileRepositoryUpload(file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum)
+        .fileRepositoryUpload(fileTransferId, fileTransferSecretKey, chunkSize, chunkPosition, hashChecksum)
         .then(onSuccess, onError);
 }
 
@@ -179,15 +207,22 @@ function uploadFileRepositoryAwsS3(chunk, file_transfer_id, file_transfer_secret
  * Triggered once someone wants to actually upload the file to Azure Blob Storage
  *
  * @param {Blob} chunk The content of the chunk to upload
- * @param {uuid} file_transfer_id The id of the file transfer
- * @param {string} file_transfer_secret_key The file transfer secret key
- * @param {int} chunk_size The size of the complete chunk in bytes
- * @param {int} chunk_position The sequence number of the chunk to determine the order
- * @param {string} hash_checksum The sha512 hash
+ * @param {uuid} fileTransferId The id of the file transfer
+ * @param {string} fileTransferSecretKey The file transfer secret key
+ * @param {int} chunkSize The size of the complete chunk in bytes
+ * @param {int} chunkPosition The sequence number of the chunk to determine the order
+ * @param {string} hashChecksum The sha512 hash
  *
  * @returns {Promise} promise
  */
-function uploadFileRepositoryAzureBlob(chunk, file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum) {
+function uploadFileRepositoryAzureBlob(
+    chunk,
+    fileTransferId,
+    fileTransferSecretKey,
+    chunkSize,
+    chunkPosition,
+    hashChecksum
+) {
     const onError = function (result) {
         return Promise.reject(result.data);
     };
@@ -205,7 +240,7 @@ function uploadFileRepositoryAzureBlob(chunk, file_transfer_id, file_transfer_se
     };
 
     return apiClientService
-        .fileRepositoryUpload(file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum)
+        .fileRepositoryUpload(fileTransferId, fileTransferSecretKey, chunkSize, chunkPosition, hashChecksum)
         .then(onSuccess, onError);
 }
 
@@ -213,15 +248,22 @@ function uploadFileRepositoryAzureBlob(chunk, file_transfer_id, file_transfer_se
  * Triggered once someone wants to actually upload the file to Backblaze
  *
  * @param {Blob} chunk The content of the chunk to upload
- * @param {uuid} file_transfer_id The id of the file transfer
- * @param {string} file_transfer_secret_key The file transfer secret key
- * @param {int} chunk_size The size of the complete chunk in bytes
- * @param {int} chunk_position The sequence number of the chunk to determine the order
- * @param {string} hash_checksum The sha512 hash
+ * @param {uuid} fileTransferId The id of the file transfer
+ * @param {string} fileTransferSecretKey The file transfer secret key
+ * @param {int} chunkSize The size of the complete chunk in bytes
+ * @param {int} chunkPosition The sequence number of the chunk to determine the order
+ * @param {string} hashChecksum The sha512 hash
  *
  * @returns {Promise} promise
  */
-function uploadFileRepositoryBackblaze(chunk, file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum) {
+function uploadFileRepositoryBackblaze(
+    chunk,
+    fileTransferId,
+    fileTransferSecretKey,
+    chunkSize,
+    chunkPosition,
+    hashChecksum
+) {
     const onError = function (result) {
         return Promise.reject(result.data);
     };
@@ -239,7 +281,7 @@ function uploadFileRepositoryBackblaze(chunk, file_transfer_id, file_transfer_se
     };
 
     return apiClientService
-        .fileRepositoryUpload(file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum)
+        .fileRepositoryUpload(fileTransferId, fileTransferSecretKey, chunkSize, chunkPosition, hashChecksum)
         .then(onSuccess, onError);
 }
 
@@ -247,15 +289,22 @@ function uploadFileRepositoryBackblaze(chunk, file_transfer_id, file_transfer_se
  * Triggered once someone wants to actually upload the file to another S3 compatible storage
  *
  * @param {Blob} chunk The content of the chunk to upload
- * @param {uuid} file_transfer_id The id of the file transfer
- * @param {string} file_transfer_secret_key The file transfer secret key
- * @param {int} chunk_size The size of the complete chunk in bytes
- * @param {int} chunk_position The sequence number of the chunk to determine the order
- * @param {string} hash_checksum The sha512 hash
+ * @param {uuid} fileTransferId The id of the file transfer
+ * @param {string} fileTransferSecretKey The file transfer secret key
+ * @param {int} chunkSize The size of the complete chunk in bytes
+ * @param {int} chunkPosition The sequence number of the chunk to determine the order
+ * @param {string} hashChecksum The sha512 hash
  *
  * @returns {Promise} promise
  */
-function uploadFileRepositoryOtherS3(chunk, file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum) {
+function uploadFileRepositoryOtherS3(
+    chunk,
+    fileTransferId,
+    fileTransferSecretKey,
+    chunkSize,
+    chunkPosition,
+    hashChecksum
+) {
     const onError = function (result) {
         return Promise.reject(result.data);
     };
@@ -273,7 +322,7 @@ function uploadFileRepositoryOtherS3(chunk, file_transfer_id, file_transfer_secr
     };
 
     return apiClientService
-        .fileRepositoryUpload(file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum)
+        .fileRepositoryUpload(fileTransferId, fileTransferSecretKey, chunkSize, chunkPosition, hashChecksum)
         .then(onSuccess, onError);
 }
 
@@ -281,15 +330,22 @@ function uploadFileRepositoryOtherS3(chunk, file_transfer_id, file_transfer_secr
  * Triggered once someone wants to actually upload the file to Digital ocean spaces
  *
  * @param {Blob} chunk The content of the chunk to upload
- * @param {uuid} file_transfer_id The id of the file transfer
- * @param {string} file_transfer_secret_key The file transfer secret key
- * @param {int} chunk_size The size of the complete chunk in bytes
- * @param {int} chunk_position The sequence number of the chunk to determine the order
- * @param {string} hash_checksum The sha512 hash
+ * @param {uuid} fileTransferId The id of the file transfer
+ * @param {string} fileTransferSecretKey The file transfer secret key
+ * @param {int} chunkSize The size of the complete chunk in bytes
+ * @param {int} chunkPosition The sequence number of the chunk to determine the order
+ * @param {string} hashChecksum The sha512 hash
  *
  * @returns {Promise} promise
  */
-function uploadFileRepositoryDoSpaces(chunk, file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum) {
+function uploadFileRepositoryDoSpaces(
+    chunk,
+    fileTransferId,
+    fileTransferSecretKey,
+    chunkSize,
+    chunkPosition,
+    hashChecksum
+) {
     const onError = function (result) {
         return Promise.reject(result.data);
     };
@@ -307,7 +363,7 @@ function uploadFileRepositoryDoSpaces(chunk, file_transfer_id, file_transfer_sec
     };
 
     return apiClientService
-        .fileRepositoryUpload(file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum)
+        .fileRepositoryUpload(fileTransferId, fileTransferSecretKey, chunkSize, chunkPosition, hashChecksum)
         .then(onSuccess, onError);
 }
 
@@ -315,31 +371,82 @@ function uploadFileRepositoryDoSpaces(chunk, file_transfer_id, file_transfer_sec
  * Triggered once someone wants to actually upload the file
  *
  * @param {Blob} chunk The content of the chunk to upload
- * @param {uuid} file_transfer_id The id of the file transfer
- * @param {string} file_transfer_secret_key The hex encoded secret key for the file transfer
- * @param {int} chunk_size The size of the complete chunk in bytes
- * @param {int} chunk_position The sequence number of the chunk to determine the order
+ * @param {uuid} fileTransferId The id of the file transfer
+ * @param {string} fileTransferSecretKey The hex encoded secret key for the file transfer
+ * @param {int} chunkSize The size of the complete chunk in bytes
+ * @param {int} chunkPosition The sequence number of the chunk to determine the order
  * @param {object|undefined} shard (optional) The target shard
- * @param {object|undefined} file_repository (optional) The target file repository
- * @param {string} hash_checksum The sha512 hash
+ * @param {object|undefined} fileRepository (optional) The target file repository
+ * @param {string} hashChecksum The sha512 hash
  *
  * @returns {Promise} promise
  */
-function upload(chunk, file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, shard, file_repository, hash_checksum) {
+function upload(
+    chunk,
+    fileTransferId,
+    fileTransferSecretKey,
+    chunkSize,
+    chunkPosition,
+    shard,
+    fileRepository,
+    hashChecksum
+) {
     if (typeof shard !== "undefined") {
-        return uploadShard(chunk, file_transfer_id, file_transfer_secret_key, chunk_position, shard, hash_checksum);
-    } else if (typeof file_repository !== "undefined" && file_repository["type"] === "gcp_cloud_storage") {
-        return uploadFileRepositoryGcpCloudStorage(chunk, file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum);
-    } else if (typeof file_repository !== "undefined" && file_repository["type"] === "do_spaces") {
-        return uploadFileRepositoryDoSpaces(chunk, file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum);
-    } else if (typeof file_repository !== "undefined" && file_repository["type"] === "aws_s3") {
-        return uploadFileRepositoryAwsS3(chunk, file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum);
-    } else if (typeof file_repository !== "undefined" && file_repository["type"] === "azure_blob") {
-        return uploadFileRepositoryAzureBlob(chunk, file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum);
-    } else if (typeof file_repository !== "undefined" && file_repository["type"] === "backblaze") {
-        return uploadFileRepositoryBackblaze(chunk, file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum);
-    } else if (typeof file_repository !== "undefined" && file_repository["type"] === "other_s3") {
-        return uploadFileRepositoryOtherS3(chunk, file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum);
+        return uploadShard(chunk, fileTransferId, fileTransferSecretKey, chunkPosition, shard, hashChecksum);
+    } else if (typeof fileRepository !== "undefined" && fileRepository["type"] === "gcp_cloud_storage") {
+        return uploadFileRepositoryGcpCloudStorage(
+            chunk,
+            fileTransferId,
+            fileTransferSecretKey,
+            chunkSize,
+            chunkPosition,
+            hashChecksum
+        );
+    } else if (typeof fileRepository !== "undefined" && fileRepository["type"] === "do_spaces") {
+        return uploadFileRepositoryDoSpaces(
+            chunk,
+            fileTransferId,
+            fileTransferSecretKey,
+            chunkSize,
+            chunkPosition,
+            hashChecksum
+        );
+    } else if (typeof fileRepository !== "undefined" && fileRepository["type"] === "aws_s3") {
+        return uploadFileRepositoryAwsS3(
+            chunk,
+            fileTransferId,
+            fileTransferSecretKey,
+            chunkSize,
+            chunkPosition,
+            hashChecksum
+        );
+    } else if (typeof fileRepository !== "undefined" && fileRepository["type"] === "azure_blob") {
+        return uploadFileRepositoryAzureBlob(
+            chunk,
+            fileTransferId,
+            fileTransferSecretKey,
+            chunkSize,
+            chunkPosition,
+            hashChecksum
+        );
+    } else if (typeof fileRepository !== "undefined" && fileRepository["type"] === "backblaze") {
+        return uploadFileRepositoryBackblaze(
+            chunk,
+            fileTransferId,
+            fileTransferSecretKey,
+            chunkSize,
+            chunkPosition,
+            hashChecksum
+        );
+    } else if (typeof fileRepository !== "undefined" && fileRepository["type"] === "other_s3") {
+        return uploadFileRepositoryOtherS3(
+            chunk,
+            fileTransferId,
+            fileTransferSecretKey,
+            chunkSize,
+            chunkPosition,
+            hashChecksum
+        );
     }
 }
 
@@ -366,30 +473,30 @@ function readShards() {
  * Filters an array of shards and fileservers
  *
  * @param {array} shards Array of shards
- * @param {bool} require_read Determines whether read is required or not
- * @param {bool} require_write Determines whether write is required or not
+ * @param {bool} requireRead Determines whether read is required or not
+ * @param {bool} requireWrite Determines whether write is required or not
  *
  * @returns {array} list of shards with fileservers that fulfill the filter criteria
  */
-function filterShards(shards, require_read, require_write) {
-    const filtered_shards = [];
+function filterShards(shards, requireRead, requireWrite) {
+    const filteredShards = [];
 
     for (let i = 0; i < shards.length; i++) {
-        if (require_read && !shards[i]["read"]) {
+        if (requireRead && !shards[i]["read"]) {
             continue;
         }
-        if (require_write && !shards[i]["write"]) {
+        if (requireWrite && !shards[i]["write"]) {
             continue;
         }
-        const filtered_shard = angular.copy(shards[i]);
-        filtered_shards.push(filtered_shard);
+        const filtered_shard = helper.duplicateObject(shards[i]);
+        filteredShards.push(filtered_shard);
 
-        helper.remove_from_array(filtered_shard["fileserver"], undefined, function (fileserver, nothing) {
-            return (require_read && !fileserver["read"]) || (require_write && !fileserver["write"]);
+        helper.removeFromArray(filtered_shard["fileserver"], undefined, function (fileserver, nothing) {
+            return (requireRead && !fileserver["read"]) || (requireWrite && !fileserver["write"]);
         });
     }
 
-    return filtered_shards;
+    return filteredShards;
 }
 
 /**
@@ -434,12 +541,12 @@ function createShardReadDict(shards) {
         }
     }
 
-    for (let shard_id in shards_dict) {
-        if (!shards_dict.hasOwnProperty(shard_id)) {
+    for (let shardId in shards_dict) {
+        if (!shards_dict.hasOwnProperty(shardId)) {
             continue;
         }
-        if (shards_dict[shard_id]["fileserver"].length === 0) {
-            delete shards_dict[shard_id];
+        if (shards_dict[shardId]["fileserver"].length === 0) {
+            delete shards_dict[shardId];
         }
     }
 
@@ -449,21 +556,21 @@ function createShardReadDict(shards) {
 /**
  * Downloads a file from a shard
  *
- * @param {uuid} file_transfer_id The file transfer id
- * @param {string} file_transfer_secret_key The hex encoded secret key for the file transfer
+ * @param {uuid} fileTransferId The file transfer id
+ * @param {string} fileTransferSecretKey The hex encoded secret key for the file transfer
  * @param shard
- * @param hash_checksum
+ * @param hashChecksum
  *
  * @returns {PromiseLike<T | void> | Promise<T | void> | *}
  */
-function shardDownload(file_transfer_id, file_transfer_secret_key, shard, hash_checksum) {
+function shardDownload(fileTransferId, fileTransferSecretKey, shard, hashChecksum) {
     registrations["download_step_complete"]("DOWNLOADING_FILE_CHUNK");
 
     const ticket = {
-        hash_checksum: hash_checksum,
+        hash_checksum: hashChecksum,
     };
 
-    const ticket_enc = cryptoLibrary.encryptData(JSON.stringify(ticket), file_transfer_secret_key);
+    const ticketEncrypted = cryptoLibrary.encryptData(JSON.stringify(ticket), fileTransferSecretKey);
     let fileserver;
     if (shard["fileserver"].length > 1) {
         // math random should be good enough here, don't use for crypto!
@@ -482,19 +589,21 @@ function shardDownload(file_transfer_id, file_transfer_secret_key, shard, hash_c
         return result.data;
     };
 
-    return apiFileserver.download(fileserver["fileserver_url"], file_transfer_id, ticket_enc.text, ticket_enc.nonce).then(onSuccess, onError);
+    return apiFileserver
+        .download(fileserver["fileserver_url"], fileTransferId, ticketEncrypted.text, ticketEncrypted.nonce)
+        .then(onSuccess, onError);
 }
 
 /**
  * Downloads a file from a file repository
  *
- * @param {uuid} file_transfer_id The file transfer id
- * @param {string} file_transfer_secret_key The hex encoded secret key for the file transfer
- * @param {string} hash_checksum The hash checksum of the file to download
+ * @param {uuid} fileTransferId The file transfer id
+ * @param {string} fileTransferSecretKey The hex encoded secret key for the file transfer
+ * @param {string} hashChecksum The hash checksum of the file to download
  *
  * @returns {PromiseLike<T | void> | Promise<T | void> | *}
  */
-function fileRepositoryDownload(file_transfer_id, file_transfer_secret_key, hash_checksum) {
+function fileRepositoryDownload(fileTransferId, fileTransferSecretKey, hashChecksum) {
     registrations["download_step_complete"]("DOWNLOADING_FILE_CHUNK");
 
     const onError = function (result) {
@@ -529,7 +638,9 @@ function fileRepositoryDownload(file_transfer_id, file_transfer_secret_key, hash
         }
     };
 
-    return apiClientService.fileRepositoryDownload(file_transfer_id, file_transfer_secret_key, hash_checksum).then(onSuccess, onError);
+    return apiClientService
+        .fileRepositoryDownload(fileTransferId, fileTransferSecretKey, hashChecksum)
+        .then(onSuccess, onError);
 }
 
 /**
@@ -537,30 +648,30 @@ function fileRepositoryDownload(file_transfer_id, file_transfer_secret_key, hash
  *
  * @param {object} file The file config object
  * @param {array|undefined} shards List of shards
- * @param {object|undefined} file_transfer (optional) Already a filetransfer
+ * @param {object|undefined} fileTransfer (optional) Already a filetransfer
  *
  * @returns {Promise}
  */
-function downloadFileFromShard(file, shards, file_transfer) {
+function downloadFileFromShard(file, shards, fileTransfer) {
     function downloadFileFromShardHelper(shards) {
         const shards_dict = createShardReadDict(shards);
-        const shard_id = file["file_shard_id"];
+        const shardId = file["file_shard_id"];
 
-        if (!shards_dict.hasOwnProperty(shard_id)) {
+        if (!shards_dict.hasOwnProperty(shardId)) {
             return Promise.reject({
                 non_field_errors: ["NO_FILESERVER_AVAILABLE"],
             });
         }
 
         function onSuccess(data) {
-            const file_transfer_id = data.file_transfer_id;
-            const file_transfer_secret_key = data.file_transfer_secret_key;
+            const fileTransferId = data.file_transfer_id;
+            const fileTransferSecretKey = data.file_transfer_secret_key;
 
-            const shard = shards_dict[shard_id];
+            const shard = shards_dict[shardId];
             let next_chunk_id = 1;
             const allblobs = [];
-            const chunk_count = Object.keys(file.file_chunks).length;
-            registrations["download_started"](chunk_count * 2);
+            const chunkCount = Object.keys(file.file_chunks).length;
+            registrations["download_started"](chunkCount * 2);
 
             function onError(data) {
                 return Promise.reject(data);
@@ -572,27 +683,35 @@ function downloadFileFromShard(file, shards, file_transfer) {
                 next_chunk_id = next_chunk_id + 1;
                 return cryptoLibrary.decryptFile(new Uint8Array(data), file["file_secret_key"]).then(function (data) {
                     allblobs.push(data);
-                    if (next_chunk_id > chunk_count) {
+                    if (next_chunk_id > chunkCount) {
                         const concat = new Blob(allblobs, { type: "application/octet-string" });
                         registrations["download_complete"]();
                         saveAs(concat, file["file_title"]);
                     } else {
-                        return shardDownload(file_transfer_id, file_transfer_secret_key, shard, file.file_chunks[next_chunk_id]).then(onChunkDownload, onError);
+                        return shardDownload(
+                            fileTransferId,
+                            fileTransferSecretKey,
+                            shard,
+                            file.file_chunks[next_chunk_id]
+                        ).then(onChunkDownload, onError);
                     }
                 });
             }
 
-            return shardDownload(file_transfer_id, file_transfer_secret_key, shard, file.file_chunks[next_chunk_id]).then(onChunkDownload, onError);
+            return shardDownload(fileTransferId, fileTransferSecretKey, shard, file.file_chunks[next_chunk_id]).then(
+                onChunkDownload,
+                onError
+            );
         }
 
         function onError(data) {
             return Promise.reject(data);
         }
 
-        if (!file_transfer) {
+        if (!fileTransfer) {
             return readFile(file["file_id"]).then(onSuccess, onError);
         } else {
-            return Promise.resolve(onSuccess(file_transfer));
+            return Promise.resolve(onSuccess(fileTransfer));
         }
     }
 
@@ -618,20 +737,20 @@ function downloadFileFromShard(file, shards, file_transfer) {
  * Downloads a file from a file repository
  *
  * @param {object} file The file config object
- * @param {object|undefined} file_transfer (optional) Already a file transfer
+ * @param {object|undefined} fileTransfer (optional) Already a file transfer
  *
  * @returns {Promise}
  */
-function downloadFileFromFileRepository(file, file_transfer) {
+function downloadFileFromFileRepository(file, fileTransfer) {
     function onSuccess(data) {
-        const file_transfer_id = data.file_transfer_id;
-        const file_transfer_secret_key = data.file_transfer_secret_key;
+        const fileTransferId = data.file_transfer_id;
+        const fileTransferSecretKey = data.file_transfer_secret_key;
 
         let next_chunk_id = 1;
         const allblobs = [];
-        const chunk_count = Object.keys(file.file_chunks).length;
+        const chunkCount = Object.keys(file.file_chunks).length;
 
-        registrations["download_started"](chunk_count * 2);
+        registrations["download_started"](chunkCount * 2);
 
         function onError(data) {
             return Promise.reject(data);
@@ -643,27 +762,34 @@ function downloadFileFromFileRepository(file, file_transfer) {
             next_chunk_id = next_chunk_id + 1;
             return cryptoLibrary.decryptFile(new Uint8Array(data), file["file_secret_key"]).then(function (data) {
                 allblobs.push(data);
-                if (next_chunk_id > chunk_count) {
+                if (next_chunk_id > chunkCount) {
                     const concat = new Blob(allblobs, { type: "application/octet-string" });
                     registrations["download_complete"]();
                     saveAs(concat, file["file_title"]);
                 } else {
-                    return fileRepositoryDownload(file_transfer_id, file_transfer_secret_key, file.file_chunks[next_chunk_id]).then(on_chunk_download, onError);
+                    return fileRepositoryDownload(
+                        fileTransferId,
+                        fileTransferSecretKey,
+                        file.file_chunks[next_chunk_id]
+                    ).then(on_chunk_download, onError);
                 }
             });
         }
 
-        return fileRepositoryDownload(file_transfer_id, file_transfer_secret_key, file.file_chunks[next_chunk_id]).then(on_chunk_download, onError);
+        return fileRepositoryDownload(fileTransferId, fileTransferSecretKey, file.file_chunks[next_chunk_id]).then(
+            on_chunk_download,
+            onError
+        );
     }
     function onError(data) {
         console.log(data);
         return Promise.reject(data);
     }
 
-    if (!file_transfer) {
+    if (!fileTransfer) {
         return readFile(file["file_id"]).then(onSuccess, onError);
     } else {
-        return Promise.resolve(onSuccess(file_transfer));
+        return Promise.resolve(onSuccess(fileTransfer));
     }
 }
 
@@ -672,21 +798,26 @@ function downloadFileFromFileRepository(file, file_transfer) {
  *
  * @param {object} file The file config object
  * @param {array} shards An array of shards
- * @param {object|undefined} file_transfer (optional) Already a filetransfer
+ * @param {object|undefined} fileTransfer (optional) Already a filetransfer
  *
  * @returns {Promise}
  */
-function downloadFile(file, shards, file_transfer) {
-    if (!file.hasOwnProperty("file_id") || !file.hasOwnProperty("file_chunks") || !file["file_id"] || Object.keys(file.file_chunks).length === 0) {
+function downloadFile(file, shards, fileTransfer) {
+    if (
+        !file.hasOwnProperty("file_id") ||
+        !file.hasOwnProperty("file_chunks") ||
+        !file["file_id"] ||
+        Object.keys(file.file_chunks).length === 0
+    ) {
         registrations["download_complete"]();
         saveAs(new Blob([""], { type: "text/plain;charset=utf-8" }), file["file_title"]);
         return Promise.resolve();
     }
 
     if (file.hasOwnProperty("file_shard_id") && file["file_shard_id"]) {
-        return downloadFileFromShard(file, shards, file_transfer);
+        return downloadFileFromShard(file, shards, fileTransfer);
     } else {
-        return downloadFileFromFileRepository(file, file_transfer);
+        return downloadFileFromFileRepository(file, fileTransfer);
     }
 }
 

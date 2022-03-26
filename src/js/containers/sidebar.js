@@ -145,7 +145,10 @@ const Sidebar = (props) => {
             serverStatus.data.hasOwnProperty("last_security_report_created") &&
             serverStatus.data.last_security_report_created !== null
         ) {
-            const lastSecurityReportAgeSeconds = differenceInSeconds(new Date(), new Date(serverStatus.data.last_security_report_created));
+            const lastSecurityReportAgeSeconds = differenceInSeconds(
+                new Date(),
+                new Date(serverStatus.data.last_security_report_created)
+            );
             if (lastSecurityReportAgeSeconds > recurrenceInterval) {
                 newSecurityReport = "REQUIRED";
             }
@@ -168,7 +171,9 @@ const Sidebar = (props) => {
                     classes={{ root: isSelected(/^\/$/) ? classes.listItemRootActive : classes.listItemRoot }}
                     selected={isSelected(/^\/$/)}
                 >
-                    <ListItemIcon className={`${isSelected(/^\/$/) ? classes.listItemIconSelected : classes.listItemIcon}`}>
+                    <ListItemIcon
+                        className={`${isSelected(/^\/$/) ? classes.listItemIconSelected : classes.listItemIcon}`}
+                    >
                         <HomeIcon className={classes.icon} />
                     </ListItemIcon>
                     <ListItemText classes={{ primary: classes.listItemText }} primary={t("HOME")} />
@@ -178,15 +183,29 @@ const Sidebar = (props) => {
                         button
                         component={Link}
                         to="/share/pendingshares"
-                        classes={{ root: isSelected(/^\/share\/pendingshares$/) ? classes.listItemRootActive : classes.listItemRoot }}
+                        classes={{
+                            root: isSelected(/^\/share\/pendingshares$/)
+                                ? classes.listItemRootActive
+                                : classes.listItemRoot,
+                        }}
                         selected={isSelected(/^\/share\/pendingshares$/)}
                     >
-                        <ListItemIcon className={`${isSelected(/^\/share\/pendingshares$/) ? classes.listItemIconSelected : classes.listItemIcon}`}>
+                        <ListItemIcon
+                            className={`${
+                                isSelected(/^\/share\/pendingshares$/)
+                                    ? classes.listItemIconSelected
+                                    : classes.listItemIcon
+                            }`}
+                        >
                             <ShareIcon className={classes.icon} />
                         </ListItemIcon>
                         <ListItemText
                             classes={{ primary: classes.listItemText }}
-                            primary={<Badge badgeContent={serverStatus.data ? serverStatus.data.unaccepted_shares_count : 0}>{t("PENDING_REQUESTS")}</Badge>}
+                            primary={
+                                <Badge badgeContent={serverStatus.data ? serverStatus.data.unaccepted_shares_count : 0}>
+                                    {t("PENDING_REQUESTS")}
+                                </Badge>
+                            }
                         />
                     </ListItem>
                 )}
@@ -195,10 +214,16 @@ const Sidebar = (props) => {
                         button
                         component={Link}
                         to="/share/users"
-                        classes={{ root: isSelected(/^\/share\/users$/) ? classes.listItemRootActive : classes.listItemRoot }}
+                        classes={{
+                            root: isSelected(/^\/share\/users$/) ? classes.listItemRootActive : classes.listItemRoot,
+                        }}
                         selected={isSelected(/^\/share\/users$/)}
                     >
-                        <ListItemIcon className={`${isSelected(/^\/share\/users$/) ? classes.listItemIconSelected : classes.listItemIcon}`}>
+                        <ListItemIcon
+                            className={`${
+                                isSelected(/^\/share\/users$/) ? classes.listItemIconSelected : classes.listItemIcon
+                            }`}
+                        >
                             <PersonIcon className={classes.icon} />
                         </ListItemIcon>
                         <ListItemText classes={{ primary: classes.listItemText }} primary={t("TRUSTED_USERS")} />
@@ -212,12 +237,20 @@ const Sidebar = (props) => {
                         classes={{ root: isSelected(/^\/groups$/) ? classes.listItemRootActive : classes.listItemRoot }}
                         selected={isSelected(/^\/groups$/)}
                     >
-                        <ListItemIcon className={`${isSelected(/^\/groups$/) ? classes.listItemIconSelected : classes.listItemIcon}`}>
+                        <ListItemIcon
+                            className={`${
+                                isSelected(/^\/groups$/) ? classes.listItemIconSelected : classes.listItemIcon
+                            }`}
+                        >
                             <GroupIcon className={classes.icon} />
                         </ListItemIcon>
                         <ListItemText
                             classes={{ primary: classes.listItemText }}
-                            primary={<Badge badgeContent={serverStatus.data ? serverStatus.data.unaccepted_groups_count : 0}>{t("GROUPS")}</Badge>}
+                            primary={
+                                <Badge badgeContent={serverStatus.data ? serverStatus.data.unaccepted_groups_count : 0}>
+                                    {t("GROUPS")}
+                                </Badge>
+                            }
                         />
                     </ListItem>
                 )}
@@ -226,15 +259,25 @@ const Sidebar = (props) => {
                         button
                         component={Link}
                         to="/security-report"
-                        classes={{ root: isSelected(/^\/security-report$/) ? classes.listItemRootActive : classes.listItemRoot }}
+                        classes={{
+                            root: isSelected(/^\/security-report$/) ? classes.listItemRootActive : classes.listItemRoot,
+                        }}
                         selected={isSelected(/^\/security-report$/)}
                     >
-                        <ListItemIcon className={`${isSelected(/^\/security-report$/) ? classes.listItemIconSelected : classes.listItemIcon}`}>
+                        <ListItemIcon
+                            className={`${
+                                isSelected(/^\/security-report$/) ? classes.listItemIconSelected : classes.listItemIcon
+                            }`}
+                        >
                             <RuleIcon className={classes.icon} />
                         </ListItemIcon>
                         <ListItemText
                             classes={{ primary: classes.listItemText }}
-                            primary={<Badge badgeContent={newSecurityReport === "REQUIRED" ? "!" : 0}>{t("SECURITY_REPORT")}</Badge>}
+                            primary={
+                                <Badge badgeContent={newSecurityReport === "REQUIRED" ? "!" : 0}>
+                                    {t("SECURITY_REPORT")}
+                                </Badge>
+                            }
                         />
                     </ListItem>
                 )}
@@ -243,10 +286,20 @@ const Sidebar = (props) => {
                         button
                         component={Link}
                         to="/active-link-shares"
-                        classes={{ root: isSelected(/^\/active-link-shares/) ? classes.listItemRootActive : classes.listItemRoot }}
+                        classes={{
+                            root: isSelected(/^\/active-link-shares/)
+                                ? classes.listItemRootActive
+                                : classes.listItemRoot,
+                        }}
                         selected={isSelected(/^\/active-link-shares$/)}
                     >
-                        <ListItemIcon className={`${isSelected(/^\/active-link-shares$/) ? classes.listItemIconSelected : classes.listItemIcon}`}>
+                        <ListItemIcon
+                            className={`${
+                                isSelected(/^\/active-link-shares$/)
+                                    ? classes.listItemIconSelected
+                                    : classes.listItemIcon
+                            }`}
+                        >
                             <LinkIcon className={classes.icon} />
                         </ListItemIcon>
                         <ListItemText classes={{ primary: classes.listItemText }} primary={t("ACTIVE_LINK_SHARES")} />
@@ -258,7 +311,13 @@ const Sidebar = (props) => {
                     <ListSubheader className={classes.subHeader}>{t("MORE")}</ListSubheader>
                     <List>
                         {moreLinks.map((link, index) => (
-                            <ListItem button key={index} component="a" href={link.href} classes={{ root: classes.listItemRoot }}>
+                            <ListItem
+                                button
+                                key={index}
+                                component="a"
+                                href={link.href}
+                                classes={{ root: classes.listItemRoot }}
+                            >
                                 <ListItemIcon className={classes.listItemIcon}>
                                     <FontAwesome name={link.class.slice(3)} />
                                 </ListItemIcon>

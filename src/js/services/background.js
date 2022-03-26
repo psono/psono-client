@@ -280,7 +280,9 @@ function savePasswordActiveTab(request, sender, sendResponse) {
                 // don't do anything
             });
         }, 500); // delay 500 ms to give the storage a chance to be stored
-        browserClient.openTab("index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id);
+        browserClient.openTab(
+            "index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id
+        );
     };
 
     datastorePasswordService.savePasswordActiveTab(request.data.password).then(onSuccess, onError);
@@ -310,7 +312,9 @@ function bookmarkActiveTab(request, sender, sendResponse) {
             });
         }, 500); // delay 500 ms to give the storage a chance to be stored
 
-        browserClient.openTab("index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id);
+        browserClient.openTab(
+            "index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id
+        );
     };
     datastorePasswordService.bookmarkActiveTab().then(onSuccess, onError);
 }
@@ -972,7 +976,10 @@ function onAuthRequired(details, callbackFn) {
             return;
         }
 
-        if (alreadyFilledMaxAllowed.hasOwnProperty(details.requestId) && alreadyFilledMaxAllowed[details.requestId] < 1) {
+        if (
+            alreadyFilledMaxAllowed.hasOwnProperty(details.requestId) &&
+            alreadyFilledMaxAllowed[details.requestId] < 1
+        ) {
             callbackFn(returnValue);
             return;
         }
@@ -1007,7 +1014,11 @@ function onAuthRequired(details, callbackFn) {
  * @returns {promise} Returns a promise with the password
  */
 function saveLastLoginCredentials() {
-    return datastorePasswordService.savePassword(lastLoginCredentials["url"], lastLoginCredentials["username"], lastLoginCredentials["password"]);
+    return datastorePasswordService.savePassword(
+        lastLoginCredentials["url"],
+        lastLoginCredentials["username"],
+        lastLoginCredentials["password"]
+    );
 }
 
 const backgroundService = {

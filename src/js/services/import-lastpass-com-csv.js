@@ -22,7 +22,12 @@ const INDEX_FAV = 7; // not used yet ...
  * @returns {string} The name of the folder this line belongs into
  */
 function getFolderName(line) {
-    if (line[INDEX_GROUPING] === "" || typeof line[INDEX_GROUPING] === "undefined" || line[INDEX_GROUPING] === "(none)" || line[INDEX_GROUPING] === "(keine)") {
+    if (
+        line[INDEX_GROUPING] === "" ||
+        typeof line[INDEX_GROUPING] === "undefined" ||
+        line[INDEX_GROUPING] === "(none)" ||
+        line[INDEX_GROUPING] === "(keine)"
+    ) {
         return "Undefined";
     } else {
         return line[INDEX_GROUPING];

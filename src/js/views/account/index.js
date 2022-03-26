@@ -31,7 +31,12 @@ const AccountView = (props) => {
             <BaseContent>
                 <Paper square>
                     <AppBar elevation={0} position="static" color="default">
-                        <Tabs variant="scrollable" scrollButtons="auto" value={value} aria-label="scrollable auto tabs example">
+                        <Tabs
+                            variant="scrollable"
+                            scrollButtons="auto"
+                            value={value}
+                            aria-label="scrollable auto tabs example"
+                        >
                             <Tab
                                 label={t("OVERVIEW")}
                                 value="/account/overview"

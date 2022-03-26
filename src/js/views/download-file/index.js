@@ -97,7 +97,9 @@ const DownloadFileView = (props) => {
                                 style={{ marginBottom: "5px" }}
                             >
                                 {(prop !== "INSUFFICIENT_FUNDS" || !creditBuyAddress) && <span>{t(prop)}</span>}
-                                {prop === "INSUFFICIENT_FUNDS" && creditBuyAddress && <span>{t("INSUFFICIENT_FUNDS_WITH_CREDIT_BUY_ADDRESS")}</span>}
+                                {prop === "INSUFFICIENT_FUNDS" && creditBuyAddress && (
+                                    <span>{t("INSUFFICIENT_FUNDS_WITH_CREDIT_BUY_ADDRESS")}</span>
+                                )}
                                 {prop === "INSUFFICIENT_FUNDS" && creditBuyAddress && (
                                     <a href={creditBuyAddress} rel="nofollow noopener" target="_blank">
                                         <span>{t("BUY")}</span>

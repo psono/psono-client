@@ -92,10 +92,23 @@ const DialogSelectFolder = (props) => {
             <DialogContent>
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12}>
-                        <TextFieldPath className={classes.textField} variant="outlined" margin="dense" value={path} setPath={setPath} />
+                        <TextFieldPath
+                            className={classes.textField}
+                            variant="outlined"
+                            margin="dense"
+                            value={path}
+                            setPath={setPath}
+                        />
                     </Grid>
                     <Grid item xs={12} sm={12} md={12} className={classes.tree}>
-                        {datastore && <DatastoreTree datastore={datastore} onSelectNode={onSelectNode} isSelectable={isSelectable} hideItems={true} />}
+                        {datastore && (
+                            <DatastoreTree
+                                datastore={datastore}
+                                onSelectNode={onSelectNode}
+                                isSelectable={isSelectable}
+                                hideItems={true}
+                            />
+                        )}
                     </Grid>
                 </Grid>
             </DialogContent>

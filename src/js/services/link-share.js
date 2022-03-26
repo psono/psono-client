@@ -63,7 +63,9 @@ function readLinkShares() {
  */
 function readSecretWithLinkShare(encryptedSecret, item) {
     // normal secret
-    const data = JSON.parse(cryptoLibrary.decryptData(encryptedSecret.secret_data, encryptedSecret.secret_data_nonce, item.secret_key));
+    const data = JSON.parse(
+        cryptoLibrary.decryptData(encryptedSecret.secret_data, encryptedSecret.secret_data_nonce, item.secret_key)
+    );
 
     const newItem = helper.duplicateObject(item);
     newItem["share_rights"] = {
@@ -126,7 +128,9 @@ function readFileWithLinkShare(encryptedFileMeta, shareLinkData) {
  */
 function linkShareAccess(linkShareId, linkShareSecret, passphrase) {
     const onSuccess = function (result) {
-        const share_link_data = JSON.parse(cryptoLibrary.decryptData(result.data.node, result.data.node_nonce, linkShareSecret));
+        const share_link_data = JSON.parse(
+            cryptoLibrary.decryptData(result.data.node, result.data.node_nonce, linkShareSecret)
+        );
 
         if (share_link_data.type === "file") {
             return readFileWithLinkShare(result.data, share_link_data);
@@ -169,7 +173,18 @@ function createLinkShare(secretId, fileId, node, nodeNonce, publicTitle, allowed
     };
 
     return apiClient
-        .createLinkShare(token, sessionSecretKey, secretId, fileId, node, nodeNonce, publicTitle, allowedReads, passphrase, validTill)
+        .createLinkShare(
+            token,
+            sessionSecretKey,
+            secretId,
+            fileId,
+            node,
+            nodeNonce,
+            publicTitle,
+            allowedReads,
+            passphrase,
+            validTill
+        )
         .then(onSuccess, onError);
 }
 
@@ -195,7 +210,9 @@ function updateLinkShare(linkShareId, publicTitle, allowedReads, passphrase, val
         return Promise.reject(result.data);
     };
 
-    return apiClient.updateLinkShare(token, sessionSecretKey, linkShareId, publicTitle, allowedReads, passphrase, validTill).then(onSuccess, onError);
+    return apiClient
+        .updateLinkShare(token, sessionSecretKey, linkShareId, publicTitle, allowedReads, passphrase, validTill)
+        .then(onSuccess, onError);
 }
 
 /**

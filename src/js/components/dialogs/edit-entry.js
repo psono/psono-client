@@ -488,9 +488,7 @@ const DialogEditEntry = (props) => {
             }
             secretObject["mail_gpg_own_key_private"] = mailGpgOwnKeyPrivate;
         }
-        // TODO remove these two console.log lines
-        console.log(item);
-        console.log(secretObject);
+
         if (typeof item.secret_id === "undefined") {
             // e.g. files
             props.onEdit(item);
@@ -502,7 +500,9 @@ const DialogEditEntry = (props) => {
             const onSuccess = function (e) {
                 props.onEdit(item);
             };
-            secretService.writeSecret(item.secret_id, item.secret_key, secretObject, callbackUrl, callbackUser, callbackPass).then(onSuccess, onError);
+            secretService
+                .writeSecret(item.secret_id, item.secret_key, secretObject, callbackUrl, callbackUser, callbackPass)
+                .then(onSuccess, onError);
         }
     };
 
@@ -554,7 +554,9 @@ const DialogEditEntry = (props) => {
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
         >
-            <DialogTitle id="alert-dialog-title">{item.share_rights.write ? t(itemBlueprint.edit_title) : t(itemBlueprint.show_title)}</DialogTitle>
+            <DialogTitle id="alert-dialog-title">
+                {item.share_rights.write ? t(itemBlueprint.edit_title) : t(itemBlueprint.show_title)}
+            </DialogTitle>
             <DialogContent>
                 <Grid container>
                     {item.type === "website_password" && (
@@ -643,10 +645,20 @@ const DialogEditEntry = (props) => {
                                     },
                                     endAdornment: (
                                         <InputAdornment position="end">
-                                            <IconButton className={classes.iconButton} aria-label="menu" onClick={openMenu}>
+                                            <IconButton
+                                                className={classes.iconButton}
+                                                aria-label="menu"
+                                                onClick={openMenu}
+                                            >
                                                 <MenuOpenIcon />
                                             </IconButton>
-                                            <Menu id="simple-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
+                                            <Menu
+                                                id="simple-menu"
+                                                anchorEl={anchorEl}
+                                                keepMounted
+                                                open={Boolean(anchorEl)}
+                                                onClose={handleClose}
+                                            >
                                                 <MenuItem onClick={onShowHidePassword}>
                                                     <ListItemIcon className={classes.listItemIcon}>
                                                         <VisibilityOffIcon className={classes.icon} fontSize="small" />
@@ -666,7 +678,10 @@ const DialogEditEntry = (props) => {
                                                 {showGeneratePassword && (
                                                     <MenuItem onClick={onGeneratePassword}>
                                                         <ListItemIcon className={classes.listItemIcon}>
-                                                            <PhonelinkSetupIcon className={classes.icon} fontSize="small" />
+                                                            <PhonelinkSetupIcon
+                                                                className={classes.icon}
+                                                                fontSize="small"
+                                                            />
                                                         </ListItemIcon>
                                                         <Typography variant="body2" noWrap>
                                                             {t("GENERATE_PASSWORD")}
@@ -760,10 +775,20 @@ const DialogEditEntry = (props) => {
                                     },
                                     endAdornment: (
                                         <InputAdornment position="end">
-                                            <IconButton className={classes.iconButton} aria-label="menu" onClick={openMenu}>
+                                            <IconButton
+                                                className={classes.iconButton}
+                                                aria-label="menu"
+                                                onClick={openMenu}
+                                            >
                                                 <MenuOpenIcon />
                                             </IconButton>
-                                            <Menu id="simple-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
+                                            <Menu
+                                                id="simple-menu"
+                                                anchorEl={anchorEl}
+                                                keepMounted
+                                                open={Boolean(anchorEl)}
+                                                onClose={handleClose}
+                                            >
                                                 <MenuItem onClick={onShowHidePassword}>
                                                     <ListItemIcon className={classes.listItemIcon}>
                                                         <VisibilityOffIcon className={classes.icon} fontSize="small" />
@@ -783,7 +808,10 @@ const DialogEditEntry = (props) => {
                                                 {showGeneratePassword && (
                                                     <MenuItem onClick={onGeneratePassword}>
                                                         <ListItemIcon className={classes.listItemIcon}>
-                                                            <PhonelinkSetupIcon className={classes.icon} fontSize="small" />
+                                                            <PhonelinkSetupIcon
+                                                                className={classes.icon}
+                                                                fontSize="small"
+                                                            />
                                                         </ListItemIcon>
                                                         <Typography variant="body2" noWrap>
                                                             {t("GENERATE_PASSWORD")}
@@ -948,7 +976,13 @@ const DialogEditEntry = (props) => {
 
                     {item.type === "totp" && (
                         <Grid item xs={12} sm={12} md={12} className={classes.totpCircleGridItem}>
-                            <TotpCircle period={totpPeriod} algorithm={totpAlgorithm} digits={totpDigits} code={totpCode} className={classes.totpCircle} />
+                            <TotpCircle
+                                period={totpPeriod}
+                                algorithm={totpAlgorithm}
+                                digits={totpDigits}
+                                code={totpCode}
+                                className={classes.totpCircle}
+                            />
                         </Grid>
                     )}
                     {item.type === "totp" && (
@@ -1010,7 +1044,8 @@ const DialogEditEntry = (props) => {
                                                 InputProps={{ readOnly: !item.share_rights.write }}
                                                 required
                                                 onChange={(event) => {
-                                                    const newEnvs = helperService.duplicateObject(environmentVariablesVariables);
+                                                    const newEnvs =
+                                                        helperService.duplicateObject(environmentVariablesVariables);
                                                     newEnvs[index]["key"] = event.target.value;
                                                     setEnvironmentVariablesVariables(newEnvs);
                                                 }}
@@ -1029,7 +1064,8 @@ const DialogEditEntry = (props) => {
                                                 InputProps={{ readOnly: !item.share_rights.write }}
                                                 required
                                                 onChange={(event) => {
-                                                    const newEnvs = helperService.duplicateObject(environmentVariablesVariables);
+                                                    const newEnvs =
+                                                        helperService.duplicateObject(environmentVariablesVariables);
                                                     newEnvs[index]["value"] = event.target.value;
                                                     setEnvironmentVariablesVariables(newEnvs);
                                                 }}
@@ -1040,7 +1076,8 @@ const DialogEditEntry = (props) => {
                                                 className={classes.iconButton2}
                                                 aria-label="menu"
                                                 onClick={() => {
-                                                    const newEnvs = helperService.duplicateObject(environmentVariablesVariables);
+                                                    const newEnvs =
+                                                        helperService.duplicateObject(environmentVariablesVariables);
                                                     newEnvs.splice(index, 1);
                                                     setEnvironmentVariablesVariables(newEnvs);
                                                 }}
@@ -1331,7 +1368,11 @@ const DialogEditEntry = (props) => {
                                     },
                                     endAdornment: (
                                         <InputAdornment position="end">
-                                            <IconButton aria-label="toggle password visibility" onClick={() => setShowPassword(!showPassword)} edge="end">
+                                            <IconButton
+                                                aria-label="toggle password visibility"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                edge="end"
+                                            >
                                                 {showPassword ? <Visibility /> : <VisibilityOff />}
                                             </IconButton>
                                         </InputAdornment>
@@ -1362,11 +1403,22 @@ const DialogEditEntry = (props) => {
                     </Button>
                 )}
             </DialogActions>
-            {decryptMessageDialogOpen && <DialogDecryptGpgMessage open={decryptMessageDialogOpen} onClose={() => setDecryptMessageDialogOpen(false)} />}
-            {encryptMessageDialogOpen && (
-                <DialogEncryptGpgMessage open={encryptMessageDialogOpen} onClose={() => setEncryptMessageDialogOpen(false)} secretId={encryptSecretId} />
+            {decryptMessageDialogOpen && (
+                <DialogDecryptGpgMessage
+                    open={decryptMessageDialogOpen}
+                    onClose={() => setDecryptMessageDialogOpen(false)}
+                />
             )}
-            {historyDialogOpen && <DialogHistory open={historyDialogOpen} onClose={() => setHistoryDialogOpen(false)} item={item} />}
+            {encryptMessageDialogOpen && (
+                <DialogEncryptGpgMessage
+                    open={encryptMessageDialogOpen}
+                    onClose={() => setEncryptMessageDialogOpen(false)}
+                    secretId={encryptSecretId}
+                />
+            )}
+            {historyDialogOpen && (
+                <DialogHistory open={historyDialogOpen} onClose={() => setHistoryDialogOpen(false)} item={item} />
+            )}
         </Dialog>
     );
 };

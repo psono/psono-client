@@ -116,7 +116,8 @@ function server(
                 creditCostsUpload: defaultCreditCostsUpload,
                 creditCostsDownload: defaultCreditCostsDownload,
                 creditCostsStorage: defaultCreditCostsStorage,
-                complianceCentralSecurityReportsRecurrenceInterval: defaultComplianceCentralSecurityReportsRecurrenceInterval,
+                complianceCentralSecurityReportsRecurrenceInterval:
+                    defaultComplianceCentralSecurityReportsRecurrenceInterval,
                 complianceDisableApiKeys: defaultComplianceDisableApiKeys,
                 complianceDisableDeleteAccount: defaultComplianceDisableDeleteAccount,
                 complianceDisableEmergencyCodes: defaultComplianceDisableEmergencyCodes,
@@ -130,9 +131,12 @@ function server(
                 complianceEnforceCentralSecurityReports: defaultComplianceEnforceCentralSecurityReports,
                 complianceMinMasterPasswordComplexity: defaultComplianceMinMasterPasswordComplexity,
                 complianceMinMasterPasswordLength: defaultComplianceMinMasterPasswordLength,
-                compliancePasswordGeneratorDefaultPasswordLength: defaultCompliancePasswordGeneratorDefaultPasswordLength,
-                compliancePasswordGeneratorDefaultLettersUppercase: defaultCompliancePasswordGeneratorDefaultLettersUppercase,
-                compliancePasswordGeneratorDefaultLettersLowercase: defaultCompliancePasswordGeneratorDefaultLettersLowercase,
+                compliancePasswordGeneratorDefaultPasswordLength:
+                    defaultCompliancePasswordGeneratorDefaultPasswordLength,
+                compliancePasswordGeneratorDefaultLettersUppercase:
+                    defaultCompliancePasswordGeneratorDefaultLettersUppercase,
+                compliancePasswordGeneratorDefaultLettersLowercase:
+                    defaultCompliancePasswordGeneratorDefaultLettersLowercase,
                 compliancePasswordGeneratorDefaultNumbers: defaultCompliancePasswordGeneratorDefaultNumbers,
                 compliancePasswordGeneratorDefaultSpecialChars: defaultCompliancePasswordGeneratorDefaultSpecialChars,
                 licenseId: defaultLicenseId,
@@ -166,7 +170,8 @@ function server(
                 creditCostsUpload: action.info.credit_costs_upload,
                 creditCostsDownload: action.info.credit_costs_download,
                 creditCostsStorage: action.info.credit_costs_storage,
-                complianceCentralSecurityReportsRecurrenceInterval: action.info.compliance_central_security_reports_recurrence_interval,
+                complianceCentralSecurityReportsRecurrenceInterval:
+                    action.info.compliance_central_security_reports_recurrence_interval,
                 complianceDisableApiKeys: action.info.compliance_disable_api_keys,
                 complianceDisableDeleteAccount: action.info.compliance_disable_delete_account,
                 complianceDisableEmergencyCodes: action.info.compliance_disable_emergency_codes,
@@ -180,11 +185,15 @@ function server(
                 complianceEnforceCentralSecurityReports: action.info.compliance_enforce_central_security_reports,
                 complianceMinMasterPasswordComplexity: action.info.compliance_min_master_password_complexity,
                 complianceMinMasterPasswordLength: action.info.compliance_min_master_password_length,
-                compliancePasswordGeneratorDefaultPasswordLength: action.info.compliance_password_generator_default_password_length,
-                compliancePasswordGeneratorDefaultLettersUppercase: action.info.compliance_password_generator_default_letters_uppercase,
-                compliancePasswordGeneratorDefaultLettersLowercase: action.info.compliance_password_generator_default_letters_lowercase,
+                compliancePasswordGeneratorDefaultPasswordLength:
+                    action.info.compliance_password_generator_default_password_length,
+                compliancePasswordGeneratorDefaultLettersUppercase:
+                    action.info.compliance_password_generator_default_letters_uppercase,
+                compliancePasswordGeneratorDefaultLettersLowercase:
+                    action.info.compliance_password_generator_default_letters_lowercase,
                 compliancePasswordGeneratorDefaultNumbers: action.info.compliance_password_generator_default_numbers,
-                compliancePasswordGeneratorDefaultSpecialChars: action.info.compliance_password_generator_default_special_chars,
+                compliancePasswordGeneratorDefaultSpecialChars:
+                    action.info.compliance_password_generator_default_special_chars,
                 licenseId: action.info.license_id,
                 licenseMaxUsers: action.info.license_max_users,
                 licenseMode: action.info.license_mode,

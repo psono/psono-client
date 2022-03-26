@@ -282,7 +282,11 @@ const AccountOverviewView = (props) => {
                     label={t("SERVER_LICENSE_VALID_FROM")}
                     name="licenseValidFrom"
                     autoComplete="licenseValidFrom"
-                    value={store.getState().server.licenseValidFrom ? new Date(store.getState().server.licenseValidFrom * 1000) : "N/A"}
+                    value={
+                        store.getState().server.licenseValidFrom
+                            ? new Date(store.getState().server.licenseValidFrom * 1000)
+                            : "N/A"
+                    }
                     readOnly
                     InputProps={{
                         classes: {
@@ -300,7 +304,11 @@ const AccountOverviewView = (props) => {
                     label={t("SERVER_LICENSE_VALID_TILL")}
                     name="licenseValidTill"
                     autoComplete="licenseValidTill"
-                    value={store.getState().server.licenseValidTill ? new Date(store.getState().server.licenseValidTill * 1000) : "N/A"}
+                    value={
+                        store.getState().server.licenseValidTill
+                            ? new Date(store.getState().server.licenseValidTill * 1000)
+                            : "N/A"
+                    }
                     readOnly
                     InputProps={{
                         classes: {
@@ -309,7 +317,12 @@ const AccountOverviewView = (props) => {
                     }}
                 />
             </Grid>
-            <Dialog open={qrModalOpen} onClose={closeQrModal} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+            <Dialog
+                open={qrModalOpen}
+                onClose={closeQrModal}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
                 <DialogTitle id="alert-dialog-title">{t("QR_CLIENT_CONFIG")}</DialogTitle>
                 <DialogContent>
                     <canvas id="canvas" />

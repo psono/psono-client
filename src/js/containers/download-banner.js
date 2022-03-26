@@ -59,8 +59,10 @@ const DownloadBanner = (props) => {
     const isDownloadBannerHidden = useSelector((state) => state.client.hideDownloadBanner);
     const showAndroidDownload = deviceService.isMobileAndroid();
     const showIosDownload = deviceService.isMobileIos();
-    const showChromeDownload = !deviceService.isMobile() && deviceService.isChrome() && browserClient.getClientType() === "webclient";
-    const showFirefoxDownload = !deviceService.isMobile() && deviceService.isFirefox() && browserClient.getClientType() === "webclient";
+    const showChromeDownload =
+        !deviceService.isMobile() && deviceService.isChrome() && browserClient.getClientType() === "webclient";
+    const showFirefoxDownload =
+        !deviceService.isMobile() && deviceService.isFirefox() && browserClient.getClientType() === "webclient";
 
     React.useEffect(() => {
         browserClient.getConfig().then(onNewConfigLoaded);
@@ -88,7 +90,11 @@ const DownloadBanner = (props) => {
                         <i className="fa fa-times" aria-hidden="true" />
                     </a>
                     <div className={classes.overlayContent}>
-                        <a href="https://play.google.com/store/apps/details?id=com.psono.psono" target="_blank" rel="noopener">
+                        <a
+                            href="https://play.google.com/store/apps/details?id=com.psono.psono"
+                            target="_blank"
+                            rel="noopener"
+                        >
                             {t("DOWNLOAD_PSONO")}
                             <i className="fa fa-download" aria-hidden="true" />
                         </a>
@@ -101,7 +107,11 @@ const DownloadBanner = (props) => {
                         <i className="fa fa-times" aria-hidden="true" />
                     </a>
                     <div className={classes.overlayContent}>
-                        <a href="https://apps.apple.com/us/app/psono-password-manager/id1545581224" target="_blank" rel="noopener">
+                        <a
+                            href="https://apps.apple.com/us/app/psono-password-manager/id1545581224"
+                            target="_blank"
+                            rel="noopener"
+                        >
                             {t("DOWNLOAD_PSONO")}
                             <i className="fa fa-download" aria-hidden="true" />
                         </a>
@@ -132,7 +142,11 @@ const DownloadBanner = (props) => {
                         <i className="fa fa-times" aria-hidden="true" />
                     </a>
                     <div className={classes.overlayContent}>
-                        <a href="https://addons.mozilla.org/de/firefox/addon/psono-pw-password-manager/" target="_blank" rel="noopener">
+                        <a
+                            href="https://addons.mozilla.org/de/firefox/addon/psono-pw-password-manager/"
+                            target="_blank"
+                            rel="noopener"
+                        >
                             {t("DOWNLOAD_PSONO")}
                             <i className="fa fa-download" aria-hidden="true" />
                         </a>

@@ -13,7 +13,13 @@ import i18n from "../i18n";
 //let AUDIT_LOG_HEADER = 'Audit-Log';
 
 const decryptData = function (sessionSecretKey, data, req) {
-    if (sessionSecretKey && data !== null && data.hasOwnProperty("data") && data.data.hasOwnProperty("text") && data.data.hasOwnProperty("nonce")) {
+    if (
+        sessionSecretKey &&
+        data !== null &&
+        data.hasOwnProperty("data") &&
+        data.data.hasOwnProperty("text") &&
+        data.data.hasOwnProperty("nonce")
+    ) {
         data.data = JSON.parse(cryptoLibrary.decryptData(data.data.text, data.data.nonce, sessionSecretKey));
     }
     offlineCache.set(req, data);
@@ -32,7 +38,9 @@ function call(method, endpoint, data, headers, sessionSecretKey) {
             request_time: new Date().toISOString(),
             request_device_fingerprint: device.getDeviceFingerprint(),
         };
-        headers["Authorization-Validator"] = JSON.stringify(cryptoLibrary.encryptData(JSON.stringify(validator), sessionSecretKey));
+        headers["Authorization-Validator"] = JSON.stringify(
+            cryptoLibrary.encryptData(JSON.stringify(validator), sessionSecretKey)
+        );
     }
 
     // TODO add later for audit log again
@@ -385,7 +393,16 @@ function readEmergencyCodes(token, sessionSecretKey) {
  *
  * @returns {Promise} promise
  */
-function createEmergencyCode(token, sessionSecretKey, description, activation_delay, emergency_authkey, emergency_data, emergency_data_nonce, emergency_sauce) {
+function createEmergencyCode(
+    token,
+    sessionSecretKey,
+    description,
+    activation_delay,
+    emergency_authkey,
+    emergency_data,
+    emergency_data_nonce,
+    emergency_sauce
+) {
     const endpoint = "/emergencycode/";
     const method = "POST";
     const data = {
@@ -466,7 +483,18 @@ function logout(token, sessionSecretKey, session_id) {
  *
  * @returns {Promise} promise
  */
-function register(email, username, authkey, public_key, private_key, private_key_nonce, secret_key, secret_key_nonce, user_sauce, base_url) {
+function register(
+    email,
+    username,
+    authkey,
+    public_key,
+    private_key,
+    private_key_nonce,
+    secret_key,
+    secret_key_nonce,
+    user_sauce,
+    base_url
+) {
     const endpoint = "/authentication/register/";
     const method = "POST";
     const data = {
@@ -521,7 +549,17 @@ function verifyEmail(activation_code) {
  *
  * @returns {Promise} Returns a promise with the update status
  */
-function updateUser(token, sessionSecretKey, email, authkey, authkey_old, private_key, private_key_nonce, secret_key, secret_key_nonce) {
+function updateUser(
+    token,
+    sessionSecretKey,
+    email,
+    authkey,
+    authkey_old,
+    private_key,
+    private_key_nonce,
+    secret_key,
+    secret_key_nonce
+) {
     const endpoint = "/user/update/";
     const method = "PUT";
     const data = {
@@ -552,7 +590,14 @@ function updateUser(token, sessionSecretKey, email, authkey, authkey_old, privat
  *
  * @returns {Promise} Returns a promise with the recovery_data_id
  */
-function writeRecoverycode(token, sessionSecretKey, recovery_authkey, recovery_data, recovery_data_nonce, recovery_sauce) {
+function writeRecoverycode(
+    token,
+    sessionSecretKey,
+    recovery_authkey,
+    recovery_data,
+    recovery_data_nonce,
+    recovery_sauce
+) {
     const endpoint = "/recoverycode/";
     const method = "POST";
     const data = {
@@ -915,7 +960,16 @@ function createSecret(
  *
  * @returns {Promise} promise
  */
-function writeSecret(token, sessionSecretKey, secret_id, encrypted_data, encrypted_data_nonce, callback_url, callback_user, callback_pass) {
+function writeSecret(
+    token,
+    sessionSecretKey,
+    secret_id,
+    encrypted_data,
+    encrypted_data_nonce,
+    callback_url,
+    callback_user,
+    callback_pass
+) {
     const endpoint = "/secret/";
     const method = "POST";
     const data = {
@@ -1086,7 +1140,17 @@ function readShares(token, sessionSecretKey) {
  *
  * @returns {Promise} Returns a promise with the status and the new share id
  */
-function createShare(token, sessionSecretKey, encrypted_data, encrypted_data_nonce, key, key_nonce, parent_share_id, parent_datastore_id, link_id) {
+function createShare(
+    token,
+    sessionSecretKey,
+    encrypted_data,
+    encrypted_data_nonce,
+    key,
+    key_nonce,
+    parent_share_id,
+    parent_datastore_id,
+    link_id
+) {
     const endpoint = "/share/";
     const method = "POST";
     const data = {
@@ -1888,7 +1952,16 @@ const createApiKey = function (
  *
  * @returns {Promise} promise
  */
-const addSecretToApiKey = function (token, sessionSecretKey, api_key_id, secret_id, title, title_nonce, secret_key, secret_key_nonce) {
+const addSecretToApiKey = function (
+    token,
+    sessionSecretKey,
+    api_key_id,
+    secret_id,
+    title,
+    title_nonce,
+    secret_key,
+    secret_key_nonce
+) {
     const endpoint = "/api-key/secret/";
     const method = "PUT";
     const data = {
@@ -1921,7 +1994,16 @@ const addSecretToApiKey = function (token, sessionSecretKey, api_key_id, secret_
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const updateApiKey = function (token, sessionSecretKey, api_key_id, title, restrict_to_secrets, allow_insecure_access, read, write) {
+const updateApiKey = function (
+    token,
+    sessionSecretKey,
+    api_key_id,
+    title,
+    restrict_to_secrets,
+    allow_insecure_access,
+    read,
+    write
+) {
     const endpoint = "/api-key/";
     const method = "POST";
     const data = {
@@ -2369,7 +2451,13 @@ const declineFileRepositoryRight = function (token, sessionSecretKey, file_repos
  *
  * @returns {Promise} promise
  */
-const fileRepositoryUpload = function (file_transfer_id, file_transfer_secret_key, chunk_size, chunk_position, hash_checksum) {
+const fileRepositoryUpload = function (
+    file_transfer_id,
+    file_transfer_secret_key,
+    chunk_size,
+    chunk_position,
+    hash_checksum
+) {
     const endpoint = "/file-repository/upload/";
     const method = "PUT";
     const data = {
@@ -2442,7 +2530,16 @@ const readGroup = function (token, sessionSecretKey, groupId) {
  *
  * @returns {Promise} promise
  */
-const createGroup = function (token, sessionSecretKey, name, secretKey, secretKeyNonce, privateKey, privateKeyNonce, publicKey) {
+const createGroup = function (
+    token,
+    sessionSecretKey,
+    name,
+    secretKey,
+    secretKeyNonce,
+    privateKey,
+    privateKeyNonce,
+    publicKey
+) {
     const endpoint = "/group/";
     const method = "PUT";
     const data = {
@@ -2713,7 +2810,17 @@ const readFile = function (token, sessionSecretKey, file_id) {
  *
  * @returns {Promise} Returns a promise with the new file_id and file_transfer_id
  */
-const createFile = function (token, sessionSecretKey, shard_id, file_repository_id, size, chunk_count, link_id, parent_datastore_id, parent_share_id) {
+const createFile = function (
+    token,
+    sessionSecretKey,
+    shard_id,
+    file_repository_id,
+    size,
+    chunk_count,
+    link_id,
+    parent_datastore_id,
+    parent_share_id
+) {
     const endpoint = "/file/";
     const method = "PUT";
     const data = {
@@ -2792,7 +2899,18 @@ const readShards = function (token, sessionSecretKey) {
  *
  * @returns {Promise} Promise with the new link_secret_id
  */
-const createLinkShare = function (token, sessionSecretKey, secret_id, file_id, node, node_nonce, public_title, allowed_reads, passphrase, valid_till) {
+const createLinkShare = function (
+    token,
+    sessionSecretKey,
+    secret_id,
+    file_id,
+    node,
+    node_nonce,
+    public_title,
+    allowed_reads,
+    passphrase,
+    valid_till
+) {
     const endpoint = "/link-share/";
     const method = "PUT";
     const data = {
@@ -2845,7 +2963,15 @@ const readLinkShare = function (token, sessionSecretKey) {
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const updateLinkShare = function (token, sessionSecretKey, link_share_id, public_title, allowed_reads, passphrase, valid_till) {
+const updateLinkShare = function (
+    token,
+    sessionSecretKey,
+    link_share_id,
+    public_title,
+    allowed_reads,
+    passphrase,
+    valid_till
+) {
     const endpoint = "/link-share/";
     const method = "POST";
     const data = {

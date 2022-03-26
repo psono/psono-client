@@ -70,7 +70,15 @@ const _settings = {
             onChange: "on_change_language",
         },
         // GPG
-        { key: "gpg_default_key", field: "select", type: "select", title: "DEFAULT_KEY", default: "", get_options: "get_gpg_default_key_options", tab: "gpg" },
+        {
+            key: "gpg_default_key",
+            field: "select",
+            type: "select",
+            title: "DEFAULT_KEY",
+            default: "",
+            get_options: "get_gpg_default_key_options",
+            tab: "gpg",
+        },
         {
             key: "gpg_hkp_key_server",
             field: "input",
@@ -82,7 +90,14 @@ const _settings = {
         },
         { key: "gpg_hkp_search", field: "input", type: "checkbox", title: "AUTOSEARCH_HKP", default: true, tab: "gpg" },
         // Notification
-        { key: "enable_notification_copy", field: "input", type: "checkbox", title: "ENABLE_NOTIFICATION_COPY", default: true, tab: "notification" },
+        {
+            key: "enable_notification_copy",
+            field: "input",
+            type: "checkbox",
+            title: "ENABLE_NOTIFICATION_COPY",
+            default: true,
+            tab: "notification",
+        },
         // General
         {
             key: "disable_browser_pm",

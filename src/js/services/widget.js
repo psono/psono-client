@@ -77,7 +77,10 @@ function openNewFolder(parent, path, dataStructure, manager, name) {
             if (closest_share_info["relative_path"].length === 0) {
                 parent = content.data;
             } else {
-                const search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], content.data);
+                const search = datastorePasswordService.findInDatastore(
+                    closest_share_info["relative_path"],
+                    content.data
+                );
                 parent = search[0][search[1]];
             }
 
@@ -93,7 +96,9 @@ function openNewFolder(parent, path, dataStructure, manager, name) {
         onError = function (e) {
             // pass
         };
-        return shareService.readShare(closest_share["share_id"], closest_share["share_secret_key"]).then(onSuccess, onError);
+        return shareService
+            .readShare(closest_share["share_id"], closest_share["share_secret_key"])
+            .then(onSuccess, onError);
     } else {
         // refresh datastore content before updating it
         onError = function (result) {
@@ -143,7 +148,10 @@ function openEditFolder(node, path, dataStructure, manager) {
             if (closest_share_info["relative_path"].length === 0) {
                 folder = content.data;
             } else {
-                const search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], content.data);
+                const search = datastorePasswordService.findInDatastore(
+                    closest_share_info["relative_path"],
+                    content.data
+                );
                 folder = search[0][search[1]];
             }
             folder.name = node.name;
@@ -236,7 +244,10 @@ function openNewItem(datastoreObject, datastore, parent, path, manager) {
             if (closestShareInfo["relative_path"].length === 0) {
                 parent = content.data;
             } else {
-                const search = datastorePasswordService.findInDatastore(closestShareInfo["relative_path"], content.data);
+                const search = datastorePasswordService.findInDatastore(
+                    closestShareInfo["relative_path"],
+                    content.data
+                );
                 parent = search[0][search[1]];
             }
 
@@ -252,7 +263,9 @@ function openNewItem(datastoreObject, datastore, parent, path, manager) {
         onError = function (e) {
             // pass
         };
-        return shareService.readShare(closestShare["share_id"], closestShare["share_secret_key"]).then(onSuccess, onError);
+        return shareService
+            .readShare(closestShare["share_id"], closestShare["share_secret_key"])
+            .then(onSuccess, onError);
     } else {
         // refresh datastore content before updating it
         onError = function (result) {
@@ -318,7 +331,9 @@ function openEditItem(datastore, newContent, path, manager) {
         onError = function (e) {
             // pass
         };
-        return shareService.readShare(closest_share["share_id"], closest_share["share_secret_key"]).then(onSuccess, onError);
+        return shareService
+            .readShare(closest_share["share_id"], closest_share["share_secret_key"])
+            .then(onSuccess, onError);
     } else {
         // refresh datastore content before updating it
         onError = function (result) {
@@ -611,7 +626,12 @@ function moveItem(datastore, itemPath, targetPath, type, datastoreType) {
             (function (child_share) {
                 timeout = timeout + 50;
                 setTimeout(function () {
-                    closest_share_info = shareService.getClosestParentShare(target_path_copy.concat(child_share.path), datastore, datastore, 1);
+                    closest_share_info = shareService.getClosestParentShare(
+                        target_path_copy.concat(child_share.path),
+                        datastore,
+                        datastore,
+                        1
+                    );
                     closest_parent = closest_share_info["closest_share"];
 
                     shareLinkService.onShareMoved(child_share.share.id, closest_parent);
@@ -629,7 +649,12 @@ function moveItem(datastore, itemPath, targetPath, type, datastoreType) {
             (function (secret_link) {
                 timeout = timeout + 50;
                 setTimeout(function () {
-                    closest_share_info = shareService.getClosestParentShare(target_path_copy2.concat(secret_link.path), datastore, datastore, 0);
+                    closest_share_info = shareService.getClosestParentShare(
+                        target_path_copy2.concat(secret_link.path),
+                        datastore,
+                        datastore,
+                        0
+                    );
                     closest_parent = closest_share_info["closest_share"];
                     secretLinkService.onSecretMoved(secret_link.id, closest_parent);
                 }, timeout);
@@ -641,7 +666,12 @@ function moveItem(datastore, itemPath, targetPath, type, datastoreType) {
             (function (file_link) {
                 timeout = timeout + 50;
                 setTimeout(function () {
-                    closest_share_info = shareService.getClosestParentShare(target_path_copy2.concat(file_link.path), datastore, datastore, 0);
+                    closest_share_info = shareService.getClosestParentShare(
+                        target_path_copy2.concat(file_link.path),
+                        datastore,
+                        datastore,
+                        0
+                    );
                     closest_parent = closest_share_info["closest_share"];
                     fileLinkService.onFileMoved(file_link.id, closest_parent);
                 }, timeout);
@@ -721,7 +751,10 @@ function markItemAsDeleted(datastore, item, path, datastoreType) {
         if (closest_share.hasOwnProperty("share_id")) {
             // refresh share content before updating the share
             onSuccess = function (content) {
-                const search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], content.data);
+                const search = datastorePasswordService.findInDatastore(
+                    closest_share_info["relative_path"],
+                    content.data
+                );
                 element = search[0][search[1]];
 
                 element["deleted"] = true;
@@ -733,7 +766,9 @@ function markItemAsDeleted(datastore, item, path, datastoreType) {
             onError = function (e) {
                 // pass
             };
-            return shareService.readShare(closest_share["share_id"], closest_share["share_secret_key"]).then(onSuccess, onError);
+            return shareService
+                .readShare(closest_share["share_id"], closest_share["share_secret_key"])
+                .then(onSuccess, onError);
         } else {
             // refresh datastore content before updating it
             onError = function (result) {
@@ -783,7 +818,10 @@ function reverseMarkItemAsDeleted(datastore, item, path, datastoreType) {
         if (closest_share.hasOwnProperty("share_id")) {
             // refresh share content before updating the share
             onSuccess = function (content) {
-                const search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], content.data);
+                const search = datastorePasswordService.findInDatastore(
+                    closest_share_info["relative_path"],
+                    content.data
+                );
                 element = search[0][search[1]];
 
                 delete element["deleted"];
@@ -795,7 +833,9 @@ function reverseMarkItemAsDeleted(datastore, item, path, datastoreType) {
             onError = function (e) {
                 // pass
             };
-            shareService.readShare(closest_share["share_id"], closest_share["share_secret_key"]).then(onSuccess, onError);
+            shareService
+                .readShare(closest_share["share_id"], closest_share["share_secret_key"])
+                .then(onSuccess, onError);
         } else {
             // refresh datastore content before updating it
             onError = function (result) {
@@ -866,7 +906,10 @@ function cloneItem(datastore, item, path) {
                     relative_path_to_parent.pop();
 
                     // search the original item and prepare it
-                    let search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], content.data);
+                    let search = datastorePasswordService.findInDatastore(
+                        closest_share_info["relative_path"],
+                        content.data
+                    );
                     const element_copy = helper.duplicateObject(search[0][search[1]]);
                     element_copy["id"] = link_id;
                     element_copy["secret_id"] = e.secret_id;
@@ -910,7 +953,9 @@ function cloneItem(datastore, item, path) {
                 onError = function (e) {
                     // pass
                 };
-                return shareService.readShare(closest_share["share_id"], closest_share["share_secret_key"]).then(onSuccess, onError);
+                return shareService
+                    .readShare(closest_share["share_id"], closest_share["share_secret_key"])
+                    .then(onSuccess, onError);
             } else {
                 // refresh datastore content before updating it
                 onError = function (result) {
@@ -923,7 +968,10 @@ function cloneItem(datastore, item, path) {
                     relative_path_to_parent.pop();
 
                     // search the original item and prepare it
-                    let search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], datastore);
+                    let search = datastorePasswordService.findInDatastore(
+                        closest_share_info["relative_path"],
+                        datastore
+                    );
                     const element_copy = helper.duplicateObject(search[0][search[1]]);
                     element_copy["id"] = link_id;
                     element_copy["secret_id"] = e.secret_id;
@@ -951,12 +999,22 @@ function cloneItem(datastore, item, path) {
                     datastorePasswordService.handleDatastoreContentChanged(datastore);
                 };
 
-                return datastorePasswordService.getDatastoreWithId(closest_share["datastore_id"]).then(onSuccess, onError);
+                return datastorePasswordService
+                    .getDatastoreWithId(closest_share["datastore_id"])
+                    .then(onSuccess, onError);
             }
         };
 
         return secretService
-            .createSecret(secret_object, link_id, parent_datastore_id, parent_share_id, callback_url, callback_user, callback_pass)
+            .createSecret(
+                secret_object,
+                link_id,
+                parent_datastore_id,
+                parent_share_id,
+                callback_url,
+                callback_user,
+                callback_pass
+            )
             .then(onSuccess, onError);
     };
 
@@ -999,7 +1057,10 @@ function deleteItemPermanent(datastore, item, path, datastoreType) {
         if (closest_share.hasOwnProperty("share_id")) {
             // refresh share content before updating the share
             onSuccess = function (content) {
-                const search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], content.data);
+                const search = datastorePasswordService.findInDatastore(
+                    closest_share_info["relative_path"],
+                    content.data
+                );
                 const element = search[0][search[1]];
 
                 if (element.hasOwnProperty("share_id")) {
@@ -1068,7 +1129,9 @@ function deleteItemPermanent(datastore, item, path, datastoreType) {
             onError = function (e) {
                 // pass
             };
-            return shareService.readShare(closest_share["share_id"], closest_share["share_secret_key"]).then(onSuccess, onError);
+            return shareService
+                .readShare(closest_share["share_id"], closest_share["share_secret_key"])
+                .then(onSuccess, onError);
         } else {
             // refresh datastore content before updating it
             onError = function (result) {

@@ -179,7 +179,14 @@ const DialogEncryptGpgMessage = (props) => {
     };
 
     return (
-        <Dialog fullWidth maxWidth={"sm"} open={open} onClose={onClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+        <Dialog
+            fullWidth
+            maxWidth={"sm"}
+            open={open}
+            onClose={onClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+        >
             <DialogTitle id="alert-dialog-title">{t("ENCRYPT_MESSAGE")}</DialogTitle>
             <DialogContent>
                 <Grid container>
@@ -271,7 +278,9 @@ const DialogEncryptGpgMessage = (props) => {
                         onClick={encrypt}
                         variant="contained"
                         color="primary"
-                        disabled={!decryptedMessage || encrypting || (signMessage && !gpgKey) || recipients.length === 0}
+                        disabled={
+                            !decryptedMessage || encrypting || (signMessage && !gpgKey) || recipients.length === 0
+                        }
                     >
                         <span style={!encrypting ? {} : { display: "none" }}>{t("ENCRYPT")}</span>
                         <BarLoader color={"#FFF"} height={17} width={37} loading={encrypting} />
@@ -279,7 +288,11 @@ const DialogEncryptGpgMessage = (props) => {
                 )}
             </DialogActions>
             {addNewGpgRecipientDialogOpen && (
-                <DialogGpgAddressBook open={addNewGpgRecipientDialogOpen} onSelect={onAddRecipient} onClose={() => setAddNewGpgRecipientDialogOpen(false)} />
+                <DialogGpgAddressBook
+                    open={addNewGpgRecipientDialogOpen}
+                    onSelect={onAddRecipient}
+                    onClose={() => setAddNewGpgRecipientDialogOpen(false)}
+                />
             )}
         </Dialog>
     );

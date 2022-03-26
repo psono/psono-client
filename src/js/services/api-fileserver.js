@@ -3,12 +3,11 @@
  */
 
 import axios from "axios";
-import converterService from './converter';
+import converterService from "./converter";
 
 function call(fileserverUrl, method, endpoint, data, headers, transformRequest, responseType) {
-
     if (!transformRequest) {
-        transformRequest = $http.defaults.transformRequest;
+        transformRequest = axios.defaults.transformRequest;
     }
 
     const req = {
@@ -16,24 +15,21 @@ function call(fileserverUrl, method, endpoint, data, headers, transformRequest, 
         url: fileserverUrl + endpoint,
         data: data,
         transformRequest: transformRequest,
-        responseType: responseType
+        responseType: responseType,
     };
 
     req.headers = headers;
 
-    return new Promise(function(resolve, reject) {
-
-        const onSuccess = function(data) {
+    return new Promise(function (resolve, reject) {
+        const onSuccess = function (data) {
             return resolve(data);
         };
 
-        const onError = function(data) {
+        const onError = function (data) {
             return reject(data);
         };
 
-        axios(req)
-            .then(onSuccess, onError);
-
+        axios(req).then(onSuccess, onError);
     });
 }
 
@@ -49,19 +45,18 @@ function call(fileserverUrl, method, endpoint, data, headers, transformRequest, 
  * @returns {Promise} promise
  */
 function upload(fileserverUrl, fileTransferId, chunk, ticket, ticketNonce) {
-
-    const endpoint = '/upload/';
+    const endpoint = "/upload/";
     const method = "POST";
     const data = new FormData();
-    data.append('file_transfer_id', fileTransferId);
-    data.append('chunk', chunk);
-    data.append('ticket', ticket);
-    data.append('ticket_nonce', ticketNonce);
+    data.append("file_transfer_id", fileTransferId);
+    data.append("chunk", chunk);
+    data.append("ticket", ticket);
+    data.append("ticket_nonce", ticketNonce);
     const headers = {
-        'Content-Type': undefined
+        "Content-Type": undefined,
     };
 
-    return call(fileserverUrl, method, endpoint, data, headers, angular.identity);
+    return call(fileserverUrl, method, endpoint, data, headers);
 }
 
 /**
@@ -75,26 +70,27 @@ function upload(fileserverUrl, fileTransferId, chunk, ticket, ticketNonce) {
  * @returns {Promise} promise
  */
 function download(fileserverUrl, fileTransferId, ticket, ticketNonce) {
-
-    const endpoint = '/download/';
+    const endpoint = "/download/";
     const method = "POST";
     const data = {
         file_transfer_id: fileTransferId,
         ticket: ticket,
-        ticket_nonce: ticketNonce
+        ticket_nonce: ticketNonce,
     };
 
-    const headers = {
-    };
+    const headers = {};
 
-    return call(fileserverUrl, method, endpoint, data, headers,  undefined, 'arraybuffer').then(function(data) {
-        return data
-    },function(data) {
-        if (data.status === 400) {
-            data.data = JSON.parse(converterService.bytesToString(data.data));
+    return call(fileserverUrl, method, endpoint, data, headers, undefined, "arraybuffer").then(
+        function (data) {
+            return data;
+        },
+        function (data) {
+            if (data.status === 400) {
+                data.data = JSON.parse(converterService.bytesToString(data.data));
+            }
+            return Promise.reject(data);
         }
-        return Promise.reject(data)
-    });
+    );
 }
 
 /**
@@ -105,8 +101,7 @@ function download(fileserverUrl, fileTransferId, ticket, ticketNonce) {
  * @returns {Promise} promise
  */
 function info(fileserverUrl) {
-
-    const endpoint = '/info/';
+    const endpoint = "/info/";
     const method = "GET";
     const data = null;
     const headers = null;
@@ -117,7 +112,7 @@ function info(fileserverUrl) {
 const apiFileserverService = {
     info: info,
     upload: upload,
-    download: download
+    download: download,
 };
 
 export default apiFileserverService;

@@ -199,7 +199,10 @@ const DatastoreView = (props) => {
             serverStatus.data.hasOwnProperty("last_security_report_created") &&
             serverStatus.data.last_security_report_created !== null
         ) {
-            const lastSecurityReportAgeSeconds = differenceInSeconds(new Date(), new Date(serverStatus.data.last_security_report_created));
+            const lastSecurityReportAgeSeconds = differenceInSeconds(
+                new Date(),
+                new Date(serverStatus.data.last_security_report_created)
+            );
 
             if (lastSecurityReportAgeSeconds > recurrenceInterval) {
                 newSecurityReport = "REQUIRED";
@@ -320,7 +323,19 @@ const DatastoreView = (props) => {
                 group.public_key
             );
             return shareService
-                .createShareRight(title, type, share_id, undefined, group.group_id, undefined, groupSecretKey, share_secret_key, read, write, grant)
+                .createShareRight(
+                    title,
+                    type,
+                    share_id,
+                    undefined,
+                    group.group_id,
+                    undefined,
+                    groupSecretKey,
+                    share_secret_key,
+                    read,
+                    write,
+                    grant
+                )
                 .then(onSuccess, onError);
         }
 
@@ -342,7 +357,16 @@ const DatastoreView = (props) => {
 
         if (newShareData.node.hasOwnProperty("share_id")) {
             // its already a share, so generate only the share_rights
-            createShareRights(newShareData.node.share_id, newShareData.node.share_secret_key, newShareData.node, users, groups, read, write, grant);
+            createShareRights(
+                newShareData.node.share_id,
+                newShareData.node.share_secret_key,
+                newShareData.node,
+                users,
+                groups,
+                read,
+                write,
+                grant
+            );
         } else {
             // its not yet a share, so generate the share, generate the share_rights and update
             // the datastore
@@ -361,38 +385,54 @@ const DatastoreView = (props) => {
                 }
 
                 // create the share
-                shareService.createShare(newShareData.node, parent_share_id, parent_datastore_id, newShareData.node.id).then(function (share_details) {
-                    const item_path = newShareData.path.slice();
-                    const item_path_copy = newShareData.path.slice();
-                    const item_path_copy2 = newShareData.path.slice();
+                shareService
+                    .createShare(newShareData.node, parent_share_id, parent_datastore_id, newShareData.node.id)
+                    .then(function (share_details) {
+                        const item_path = newShareData.path.slice();
+                        const item_path_copy = newShareData.path.slice();
+                        const item_path_copy2 = newShareData.path.slice();
 
-                    // create the share right
-                    createShareRights(share_details.share_id, share_details.secret_key, newShareData.node, users, groups, read, write, grant);
+                        // create the share right
+                        createShareRights(
+                            share_details.share_id,
+                            share_details.secret_key,
+                            newShareData.node,
+                            users,
+                            groups,
+                            read,
+                            write,
+                            grant
+                        );
 
-                    // update datastore and / or possible parent shares
-                    const search = datastorePasswordService.findInDatastore(item_path, datastore);
+                        // update datastore and / or possible parent shares
+                        const search = datastorePasswordService.findInDatastore(item_path, datastore);
 
-                    if (typeof newShareData.node.type === "undefined") {
-                        // we have an item
-                        delete search[0][search[1]].secret_id;
-                        delete search[0][search[1]].secret_key;
-                    }
-                    search[0][search[1]].share_id = share_details.share_id;
-                    search[0][search[1]].share_secret_key = share_details.secret_key;
+                        if (typeof newShareData.node.type === "undefined") {
+                            // we have an item
+                            delete search[0][search[1]].secret_id;
+                            delete search[0][search[1]].secret_key;
+                        }
+                        search[0][search[1]].share_id = share_details.share_id;
+                        search[0][search[1]].share_secret_key = share_details.secret_key;
 
-                    // update node in our displayed datastore
-                    newShareData.node.share_id = share_details.share_id;
-                    newShareData.node.share_secret_key = share_details.secret_key;
+                        // update node in our displayed datastore
+                        newShareData.node.share_id = share_details.share_id;
+                        newShareData.node.share_secret_key = share_details.secret_key;
 
-                    const changed_paths = datastorePasswordService.onShareAdded(share_details.share_id, item_path_copy, datastore, 1);
+                        const changed_paths = datastorePasswordService.onShareAdded(
+                            share_details.share_id,
+                            item_path_copy,
+                            datastore,
+                            1
+                        );
 
-                    const parent_path = item_path_copy2.slice();
-                    parent_path.pop();
+                        const parent_path = item_path_copy2.slice();
+                        parent_path.pop();
 
-                    changed_paths.push(parent_path);
+                        changed_paths.push(parent_path);
 
-                    datastorePasswordService.saveDatastoreContent(datastore, changed_paths);
-                });
+                        datastorePasswordService.saveDatastoreContent(datastore, changed_paths);
+                    });
             });
         }
     };
@@ -435,10 +475,10 @@ const DatastoreView = (props) => {
         let parentShareId = parent.parent_share_id;
         let parentDatastoreId = parent.parent_datastore_id;
 
-        if (parent.hasOwnProperty('datastore_id')) {
+        if (parent.hasOwnProperty("datastore_id")) {
             parentShareId = undefined;
             parentDatastoreId = parent.datastore_id;
-        } else if (parent.hasOwnProperty('share_id')) {
+        } else if (parent.hasOwnProperty("share_id")) {
             parentShareId = parent.share_id;
             parentDatastoreId = undefined;
         }
@@ -505,7 +545,13 @@ const DatastoreView = (props) => {
     };
 
     const onSelectNodeForMoveFolder = async (breadcrumbs) => {
-        await widgetService.moveItem(datastore, moveFolderData.path, breadcrumbs["id_breadcrumbs"], "folders", "password");
+        await widgetService.moveItem(
+            datastore,
+            moveFolderData.path,
+            breadcrumbs["id_breadcrumbs"],
+            "folders",
+            "password"
+        );
         setMoveFolderData(null);
         loadDatastore();
     };
@@ -648,7 +694,9 @@ const DatastoreView = (props) => {
                             marginTop: "5px",
                         }}
                     >
-                        {newSecurityReport === "REQUIRED" ? t("SECURITY_REPORT_REQUIRED") : t("SECURITY_REPORT_SOON_REQUIRED")}
+                        {newSecurityReport === "REQUIRED"
+                            ? t("SECURITY_REPORT_REQUIRED")
+                            : t("SECURITY_REPORT_SOON_REQUIRED")}
                     </MuiAlert>
                 </Paper>
             )}
@@ -675,11 +723,22 @@ const DatastoreView = (props) => {
                                 </IconButton>
                                 <Divider className={classes.divider} orientation="vertical" />
                                 {!offlineMode && (
-                                    <IconButton color="primary" className={classes.iconButton} aria-label="menu" onClick={openMenu}>
+                                    <IconButton
+                                        color="primary"
+                                        className={classes.iconButton}
+                                        aria-label="menu"
+                                        onClick={openMenu}
+                                    >
                                         <MenuOpenIcon />
                                     </IconButton>
                                 )}
-                                <Menu id="simple-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
+                                <Menu
+                                    id="simple-menu"
+                                    anchorEl={anchorEl}
+                                    keepMounted
+                                    open={Boolean(anchorEl)}
+                                    onClose={handleClose}
+                                >
                                     <MenuItem onClick={() => onNewFolder(datastore, [])}>
                                         <ListItemIcon className={classes.listItemIcon}>
                                             <CreateNewFolderIcon className={classes.icon} fontSize="small" />
@@ -698,7 +757,11 @@ const DatastoreView = (props) => {
                                     </MenuItem>
                                 </Menu>
                                 <Divider className={classes.divider} orientation="vertical" />
-                                <IconButton className={classes.iconButton} aria-label="trash bin" onClick={openTrashBin}>
+                                <IconButton
+                                    className={classes.iconButton}
+                                    aria-label="trash bin"
+                                    onClick={openTrashBin}
+                                >
                                     <DeleteSweepIcon />
                                 </IconButton>
                             </div>
@@ -760,22 +823,65 @@ const DatastoreView = (props) => {
                         </MenuItem>
                     </Menu>
                     {newShareOpen && (
-                        <DialogNewShare open={newShareOpen} onClose={() => setNewShareOpen(false)} onCreate={onNewShareCreate} node={newShareData.node} />
+                        <DialogNewShare
+                            open={newShareOpen}
+                            onClose={() => setNewShareOpen(false)}
+                            onCreate={onNewShareCreate}
+                            node={newShareData.node}
+                        />
                     )}
-                    {newFolderOpen && <DialogNewFolder open={newFolderOpen} onClose={() => setNewFolderOpen(false)} onCreate={onNewFolderCreate} />}
+                    {newFolderOpen && (
+                        <DialogNewFolder
+                            open={newFolderOpen}
+                            onClose={() => setNewFolderOpen(false)}
+                            onCreate={onNewFolderCreate}
+                        />
+                    )}
                     {editFolderOpen && (
-                        <DialogEditFolder open={editFolderOpen} onClose={() => setEditFolderOpen(false)} onSave={onEditFolderSave} node={editFolderData.node} />
+                        <DialogEditFolder
+                            open={editFolderOpen}
+                            onClose={() => setEditFolderOpen(false)}
+                            onSave={onEditFolderSave}
+                            node={editFolderData.node}
+                        />
                     )}
                     {editEntryOpen && (
-                        <DialogEditEntry open={editEntryOpen} onClose={() => setEditEntryOpen(false)} onEdit={onEditEntrySave} item={editEntryData.item} />
+                        <DialogEditEntry
+                            open={editEntryOpen}
+                            onClose={() => setEditEntryOpen(false)}
+                            onEdit={onEditEntrySave}
+                            item={editEntryData.item}
+                        />
                     )}
                     {createLinkShareOpen && (
-                        <DialogCreateLinkShare open={createLinkShareOpen} onClose={() => setCreateLinkShareOpen(false)} item={createLinkShareData.item} />
+                        <DialogCreateLinkShare
+                            open={createLinkShareOpen}
+                            onClose={() => setCreateLinkShareOpen(false)}
+                            item={createLinkShareData.item}
+                        />
                     )}
-                    {newEntryOpen && <DialogNewEntry open={newEntryOpen} onClose={() => setNewEntryOpen(false)} onCreate={onNewEntryCreate} parentDatastoreId={newEntryData.parentDatastoreId} parentShareId={newEntryData.parentShareId} />}
-                    {trashBinOpen && <DialogTrashBin open={trashBinOpen} onClose={() => setTrashBinOpen(false)} datastore={datastore} />}
+                    {newEntryOpen && (
+                        <DialogNewEntry
+                            open={newEntryOpen}
+                            onClose={() => setNewEntryOpen(false)}
+                            onCreate={onNewEntryCreate}
+                            parentDatastoreId={newEntryData.parentDatastoreId}
+                            parentShareId={newEntryData.parentShareId}
+                        />
+                    )}
+                    {trashBinOpen && (
+                        <DialogTrashBin
+                            open={trashBinOpen}
+                            onClose={() => setTrashBinOpen(false)}
+                            datastore={datastore}
+                        />
+                    )}
                     {rightsOverviewOpen && (
-                        <DialogRightsOverview open={rightsOverviewOpen} onClose={() => setRightsOverviewOpen(false)} item={rightsOverviewData.item} />
+                        <DialogRightsOverview
+                            open={rightsOverviewOpen}
+                            onClose={() => setRightsOverviewOpen(false)}
+                            item={rightsOverviewData.item}
+                        />
                     )}
                     {Boolean(moveEntryData) && (
                         <DialogSelectFolder
@@ -795,8 +901,17 @@ const DatastoreView = (props) => {
                             isSelectable={isSelectableForMoveFolder}
                         />
                     )}
-                    {unlockOfflineCache && <DialogUnlockOfflineCache open={unlockOfflineCache} onClose={onUnlockOfflineCacheClosed} />}
-                    {error !== null && <DialogError open={error !== null} onClose={() => setError(null)} title={error.title} description={error.description} />}
+                    {unlockOfflineCache && (
+                        <DialogUnlockOfflineCache open={unlockOfflineCache} onClose={onUnlockOfflineCacheClosed} />
+                    )}
+                    {error !== null && (
+                        <DialogError
+                            open={error !== null}
+                            onClose={() => setError(null)}
+                            title={error.title}
+                            description={error.description}
+                        />
+                    )}
                 </Paper>
             </BaseContent>
         </Base>

@@ -23,22 +23,26 @@ import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 import PhonelinkSetupIcon from "@material-ui/icons/PhonelinkSetup";
 import DeleteIcon from "@material-ui/icons/Delete";
 import PlaylistAddIcon from "@material-ui/icons/PlaylistAdd";
+import Box from "@material-ui/core/Box";
+import LinearProgress from "@material-ui/core/LinearProgress";
 
 import helperService from "../../services/helper";
 import cryptoLibrary from "../../services/crypto-library";
 import offlineCache from "../../services/offline-cache";
 import secretService from "../../services/secret";
-import ContentCopy from "../icons/ContentCopy";
 import datastorePasswordService from "../../services/datastore-password";
 import browserClientService from "../../services/browser-client";
+import notification from "../../services/notification";
+import fileTransferService from "../../services/file-transfer";
+import ContentCopy from "../icons/ContentCopy";
 import TotpCircle from "../totp-circle";
 import DialogDecryptGpgMessage from "./decrypt-gpg-message";
 import DialogEncryptGpgMessage from "./encrypt-gpg-message";
-import notification from "../../services/notification";
 import SelectFieldEntryType from "../select-field/entry-type";
 import SelectFieldTotpAlgorithm from "../select-field/totp-algorithm";
 import DialogGenerateNewGpgKey from "./generate-new-gpg-key";
 import DialogImportGpgKeyAsText from "./import-gpg-key-as-text";
+import SelectFieldFileDestination from "../select-field/file-destination";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -139,6 +143,10 @@ const DialogNewEntry = (props) => {
     const [environmentVariablesNotes, setEnvironmentVariablesNotes] = useState("");
 
     const [fileTitle, setFileTitle] = useState("");
+    const [fileName, setFileName] = useState("");
+    const [file, setFile] = useState(null);
+    const [fileDestination, setFileDestination] = useState(null);
+    const [uploadStepComplete, setUploadStepComplete] = useState("");
 
     const [mailGpgOwnKeyTitle, setMailGpgOwnKeyTitle] = useState("");
     const [mailGpgOwnKeyEmail, setMailGpgOwnKeyEmail] = useState("");
@@ -154,6 +162,11 @@ const DialogNewEntry = (props) => {
 
     const [showPassword, setShowPassword] = useState(false);
     const [showAdvanced, setShowAdvanced] = useState(false);
+
+    const [processing, setProcessing] = React.useState(false);
+    const [percentageComplete, setPercentageComplete] = React.useState(0);
+    let openRequests = 0;
+    let closedRequests = 0;
 
     const [type, setType] = useState("website_password");
 
@@ -171,7 +184,7 @@ const DialogNewEntry = (props) => {
         Boolean(mailGpgOwnKeyName) &&
         Boolean(mailGpgOwnKeyPublic) &&
         Boolean(mailGpgOwnKeyPrivate);
-    const isValidFile = Boolean(fileTitle);
+    const isValidFile = Boolean(fileTitle) && Boolean(file);
     const canSave =
         (type === "website_password" && isValidWebsitePassword) ||
         (type === "application_password" && isValidApplicationPassword) ||
@@ -183,12 +196,228 @@ const DialogNewEntry = (props) => {
         (type === "file" && isValidFile);
     const hasAdvanced = type !== "file";
 
+    const onFileChange = (event) => {
+        event.preventDefault();
+
+        if (!fileTitle && event.target.files[0].name) {
+            setFileTitle(event.target.files[0].name);
+        }
+        setFileName(event.target.files[0].name);
+        setFile(event.target.files[0]);
+    };
+
+    /**
+     * Uploads a file and returns a promise with all the file upload details like chunks, file id and so on
+     *
+     * @param linkId
+     *
+     * @returns {Promise<{file_secret_key: string, file_id, file_chunks: unknown}>|Promise<void>}
+     */
+    const fileUpload = (linkId) => {
+        setProcessing(true);
+        openRequests = 0;
+        closedRequests = 0;
+        setPercentageComplete(0);
+        const fileSecretKey = cryptoLibrary.generateSecretKey();
+        //const fileChunkSize = 8*1024*1024; // in bytes. e.g.   8*1024*1024 Bytes =   8 MB
+        const fileChunkSize = 128 * 1024 * 1024; // in bytes. e.g. 128*1024*1024 Bytes = 128 MB
+
+        let fileRepositoryId = undefined;
+        let shardId = undefined;
+        let fileRepository = undefined;
+        let shard = undefined;
+
+        if (fileDestination["destination_type"] === "file_repository") {
+            fileRepositoryId = fileDestination["id"];
+            fileRepository = fileDestination;
+        }
+        if (fileDestination["destination_type"] === "shard") {
+            shardId = fileDestination["id"];
+            shard = fileDestination;
+        }
+
+        /**
+         * Uploads a file in chunks and returns the array of hashs
+         *
+         * @param shard
+         * @param fileRepository
+         * @param file
+         * @param fileTransferId
+         * @param {string} fileTransferSecretKey The hex encoded secret key for the file transfer
+         * @param fileSecretKey
+         * @param fileChunkSize
+         *
+         * @returns {Promise} Promise with the chunks uploaded
+         */
+        function multiChunkUpload(
+            shard,
+            fileRepository,
+            file,
+            fileTransferId,
+            fileTransferSecretKey,
+            fileSecretKey,
+            fileChunkSize
+        ) {
+            const onLoadEnd = function (bytes, chunkSize, fileSecretKey, chunkPosition, resolve) {
+                cryptoLibrary.encryptFile(bytes, fileSecretKey).then(function (encryptedBytes) {
+                    setUploadStepComplete("HASHING_FILE_CHUNK");
+                    closedRequests = closedRequests + 1;
+                    setPercentageComplete(Math.round((closedRequests / openRequests) * 1000) / 10);
+
+                    const hashChecksum = cryptoLibrary.sha512(encryptedBytes);
+
+                    setUploadStepComplete("UPLOADING_FILE_CHUNK");
+                    closedRequests = closedRequests + 1;
+                    setPercentageComplete(Math.round((closedRequests / openRequests) * 1000) / 10);
+
+                    fileTransferService
+                        .upload(
+                            new Blob([encryptedBytes], { type: "application/octet-stream" }),
+                            fileTransferId,
+                            fileTransferSecretKey,
+                            chunkSize,
+                            chunkPosition,
+                            shard,
+                            fileRepository,
+                            hashChecksum
+                        )
+                        .then(function () {
+                            return resolve({
+                                chunk_position: chunkPosition,
+                                hash_checksum: hashChecksum,
+                            });
+                        });
+                });
+            };
+
+            const readFileChunk = function (
+                file,
+                fileSliceStart,
+                chunkSize,
+                onLoadEnd,
+                fileSecretKey,
+                chunkPosition,
+                resolve
+            ) {
+                const fileReader = new FileReader();
+
+                fileReader.onloadend = function (event) {
+                    const bytes = new Uint8Array(event.target.result);
+                    onLoadEnd(bytes, chunkSize, fileSecretKey, chunkPosition, resolve);
+                };
+
+                const file_slice = file.slice(fileSliceStart, fileSliceStart + chunkSize);
+
+                fileReader.readAsArrayBuffer(file_slice);
+            };
+
+            let chunkPosition = 1;
+            let fileSliceStart = 0;
+            const chunks = {};
+            const maxChunks = Math.ceil(file.size / fileChunkSize);
+
+            openRequests = maxChunks * 3;
+
+            return new Promise(function (resolve, reject) {
+                // new sequential approach
+                function readNextChunk() {
+                    const chunkSize = Math.min(fileChunkSize, file.size - fileSliceStart);
+                    if (chunkSize === 0) {
+                        return resolve(chunks);
+                    }
+
+                    setUploadStepComplete("ENCRYPTING_FILE_CHUNK");
+                    closedRequests = closedRequests + 1;
+                    setPercentageComplete(Math.round((closedRequests / openRequests) * 1000) / 10);
+
+                    function onReadFileChunkComplete(chunk) {
+                        fileSliceStart = fileSliceStart + chunkSize;
+                        chunkPosition = chunkPosition + 1;
+                        chunks[chunk["chunk_position"]] = chunk["hash_checksum"];
+                        readNextChunk();
+                    }
+
+                    readFileChunk(
+                        file,
+                        fileSliceStart,
+                        chunkSize,
+                        onLoadEnd,
+                        fileSecretKey,
+                        chunkPosition,
+                        onReadFileChunkComplete
+                    );
+                }
+
+                readNextChunk();
+            });
+        }
+
+        const onSuccess = function (data) {
+            return multiChunkUpload(
+                shard,
+                fileRepository,
+                file,
+                data["file_transfer_id"],
+                data["file_transfer_secret_key"],
+                fileSecretKey,
+                fileChunkSize
+            ).then(function (chunks) {
+                const uploadResult = {
+                    file_chunks: chunks,
+                    file_id: data["file_id"],
+                    file_secret_key: fileSecretKey,
+                    file_size: file.size,
+                };
+                if (shard && shard.hasOwnProperty("id")) {
+                    uploadResult["file_shard_id"] = shard["id"];
+                }
+                if (fileRepository && fileRepository.hasOwnProperty("id")) {
+                    uploadResult["file_repository_id"] = fileRepository["id"];
+                }
+
+                setProcessing(false);
+                openRequests = 0;
+                closedRequests = 0;
+                setPercentageComplete(0);
+
+                return uploadResult;
+            });
+        };
+
+        const onError = function (data) {
+            if (data.hasOwnProperty("non_field_errors") && data.non_field_errors.length > 0) {
+                return Promise.reject(data.non_field_errors);
+            } else {
+                console.log(data);
+                alert("Error, should not happen.");
+            }
+        };
+
+        const chunkCount = Math.ceil(file.size / fileChunkSize);
+
+        if (file.size === 0) {
+            return Promise.resolve();
+        }
+
+        return fileTransferService
+            .createFile(
+                shardId,
+                fileRepositoryId,
+                file.size + chunkCount * 40,
+                chunkCount,
+                linkId,
+                parentDatastoreId,
+                parentShareId
+            )
+            .then(onSuccess, onError);
+    };
+
     const onCreate = (event) => {
         const item = {
-            'id': cryptoLibrary.generateUuid(),
-            'type': type,
-            'parent_datastore_id': parentDatastoreId,
-            'parent_share_id': parentShareId,
+            id: cryptoLibrary.generateUuid(),
+            type: type,
+            parent_datastore_id: parentDatastoreId,
+            parent_share_id: parentShareId,
         };
         const secretObject = {};
 
@@ -290,10 +519,7 @@ const DialogNewEntry = (props) => {
         if (item.type === "file") {
             item["name"] = fileTitle;
             item["file_title"] = fileTitle;
-            secretObject["file_title"] = fileTitle;
         }
-        // TODO add 'file_title', 'file_id', 'file_shard_id', 'file_repository_id', 'file_secret_key', 'file_size', 'file_chunks'
-        // after upload
 
         if (item.type === "mail_gpg_own_key") {
             item["name"] = mailGpgOwnKeyTitle;
@@ -310,18 +536,41 @@ const DialogNewEntry = (props) => {
             secretObject["mail_gpg_own_key_private"] = mailGpgOwnKeyPrivate;
         }
         if (item.type === "file") {
-            props.onCreate(item);
+            fileUpload(item["id"]).then((data) => {
+                item["file_chunks"] = data.file_chunks;
+                item["file_id"] = data.file_id;
+                item["file_secret_key"] = data.file_secret_key;
+                item["file_size"] = data.file_size;
+                if (data.hasOwnProperty("file_shard_id")) {
+                    item["file_shard_id"] = data.file_shard_id;
+                }
+                if (data.hasOwnProperty("file_repository_id")) {
+                    item["file_repository_id"] = data.file_repository_id;
+                }
+                item["file_size"] = data.file_size;
+                props.onCreate(item);
+            });
         } else {
             const onError = function (result) {
                 // pass
             };
 
             const onSuccess = function (data) {
-                item['secret_id'] = data.secret_id;
-                item['secret_key'] = data.secret_key;
+                item["secret_id"] = data.secret_id;
+                item["secret_key"] = data.secret_key;
                 props.onCreate(item);
             };
-            secretService.createSecret(secretObject, item.id, parentDatastoreId, parentShareId, callbackUrl, callbackUser, callbackPass).then(onSuccess, onError);
+            secretService
+                .createSecret(
+                    secretObject,
+                    item.id,
+                    parentDatastoreId,
+                    parentShareId,
+                    callbackUrl,
+                    callbackUser,
+                    callbackPass
+                )
+                .then(onSuccess, onError);
         }
     };
 
@@ -485,10 +734,20 @@ const DialogNewEntry = (props) => {
                                     },
                                     endAdornment: (
                                         <InputAdornment position="end">
-                                            <IconButton className={classes.iconButton} aria-label="menu" onClick={openMenu}>
+                                            <IconButton
+                                                className={classes.iconButton}
+                                                aria-label="menu"
+                                                onClick={openMenu}
+                                            >
                                                 <MenuOpenIcon />
                                             </IconButton>
-                                            <Menu id="simple-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
+                                            <Menu
+                                                id="simple-menu"
+                                                anchorEl={anchorEl}
+                                                keepMounted
+                                                open={Boolean(anchorEl)}
+                                                onClose={handleClose}
+                                            >
                                                 <MenuItem onClick={onShowHidePassword}>
                                                     <ListItemIcon className={classes.listItemIcon}>
                                                         <VisibilityOffIcon className={classes.icon} fontSize="small" />
@@ -596,10 +855,20 @@ const DialogNewEntry = (props) => {
                                     },
                                     endAdornment: (
                                         <InputAdornment position="end">
-                                            <IconButton className={classes.iconButton} aria-label="menu" onClick={openMenu}>
+                                            <IconButton
+                                                className={classes.iconButton}
+                                                aria-label="menu"
+                                                onClick={openMenu}
+                                            >
                                                 <MenuOpenIcon />
                                             </IconButton>
-                                            <Menu id="simple-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
+                                            <Menu
+                                                id="simple-menu"
+                                                anchorEl={anchorEl}
+                                                keepMounted
+                                                open={Boolean(anchorEl)}
+                                                onClose={handleClose}
+                                            >
                                                 <MenuItem onClick={onShowHidePassword}>
                                                     <ListItemIcon className={classes.listItemIcon}>
                                                         <VisibilityOffIcon className={classes.icon} fontSize="small" />
@@ -865,7 +1134,11 @@ const DialogNewEntry = (props) => {
                                     },
                                     endAdornment: (
                                         <InputAdornment position="end">
-                                            <IconButton className={classes.iconButton} aria-label="menu" onClick={onShowHidePassword}>
+                                            <IconButton
+                                                className={classes.iconButton}
+                                                aria-label="menu"
+                                                onClick={onShowHidePassword}
+                                            >
                                                 <VisibilityOffIcon />
                                             </IconButton>
                                         </InputAdornment>
@@ -877,7 +1150,13 @@ const DialogNewEntry = (props) => {
 
                     {type === "totp" && (
                         <Grid item xs={12} sm={12} md={12} className={classes.totpCircleGridItem}>
-                            <TotpCircle period={totpPeriod} algorithm={totpAlgorithm} digits={totpDigits} code={totpCode} className={classes.totpCircle} />
+                            <TotpCircle
+                                period={totpPeriod}
+                                algorithm={totpAlgorithm}
+                                digits={totpDigits}
+                                code={totpCode}
+                                className={classes.totpCircle}
+                            />
                         </Grid>
                     )}
                     {type === "totp" && (
@@ -936,7 +1215,8 @@ const DialogNewEntry = (props) => {
                                                 value={variable.key}
                                                 required
                                                 onChange={(event) => {
-                                                    const newEnvs = helperService.duplicateObject(environmentVariablesVariables);
+                                                    const newEnvs =
+                                                        helperService.duplicateObject(environmentVariablesVariables);
                                                     newEnvs[index]["key"] = event.target.value;
                                                     setEnvironmentVariablesVariables(newEnvs);
                                                 }}
@@ -954,7 +1234,8 @@ const DialogNewEntry = (props) => {
                                                 value={variable.value}
                                                 required
                                                 onChange={(event) => {
-                                                    const newEnvs = helperService.duplicateObject(environmentVariablesVariables);
+                                                    const newEnvs =
+                                                        helperService.duplicateObject(environmentVariablesVariables);
                                                     newEnvs[index]["value"] = event.target.value;
                                                     setEnvironmentVariablesVariables(newEnvs);
                                                 }}
@@ -965,7 +1246,8 @@ const DialogNewEntry = (props) => {
                                                 className={classes.iconButton2}
                                                 aria-label="menu"
                                                 onClick={() => {
-                                                    const newEnvs = helperService.duplicateObject(environmentVariablesVariables);
+                                                    const newEnvs =
+                                                        helperService.duplicateObject(environmentVariablesVariables);
                                                     newEnvs.splice(index, 1);
                                                     setEnvironmentVariablesVariables(newEnvs);
                                                 }}
@@ -1031,6 +1313,49 @@ const DialogNewEntry = (props) => {
                                     setFileTitle(event.target.value);
                                 }}
                             />
+                        </Grid>
+                    )}
+
+                    {type === "file" && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <Grid item xs={12} sm={12} md={12}>
+                                <SelectFieldFileDestination
+                                    className={classes.textField}
+                                    variant="outlined"
+                                    margin="dense"
+                                    id="fileDestination"
+                                    label={t("TARGET_STORAGE")}
+                                    error={!Boolean(fileDestination)}
+                                    value={fileDestination}
+                                    required
+                                    onChange={(value) => {
+                                        setFileDestination(value);
+                                    }}
+                                />
+                            </Grid>
+                        </Grid>
+                    )}
+
+                    {type === "file" && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <Grid item xs={12} sm={12} md={12} style={{ marginBottom: "8px", marginTop: "8px" }}>
+                                <Button variant="contained" disabled={processing} component="label">
+                                    {fileName ? fileName : t("FILE")}
+                                    <input type="file" hidden onChange={onFileChange} required />
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    )}
+                    {processing && (
+                        <Grid item xs={12} sm={12} md={12} style={{ marginBottom: "8px", marginTop: "8px" }}>
+                            <Box display="flex" alignItems="center">
+                                <Box width="100%" mr={1}>
+                                    <LinearProgress variant="determinate" value={percentageComplete} />
+                                </Box>
+                                <Box minWidth={35}>
+                                    <span style={{ whiteSpace: "nowrap" }}>{percentageComplete} %</span>
+                                </Box>
+                            </Box>
                         </Grid>
                     )}
 
@@ -1266,7 +1591,11 @@ const DialogNewEntry = (props) => {
                                     },
                                     endAdornment: (
                                         <InputAdornment position="end">
-                                            <IconButton aria-label="toggle password visibility" onClick={() => setShowPassword(!showPassword)} edge="end">
+                                            <IconButton
+                                                aria-label="toggle password visibility"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                edge="end"
+                                            >
                                                 {showPassword ? <Visibility /> : <VisibilityOff />}
                                             </IconButton>
                                         </InputAdornment>
@@ -1279,6 +1608,7 @@ const DialogNewEntry = (props) => {
             </DialogContent>
             <DialogActions>
                 <Button
+                    disabled={processing}
                     onClick={() => {
                         onClose();
                     }}
@@ -1286,14 +1616,23 @@ const DialogNewEntry = (props) => {
                     {t("CLOSE")}
                 </Button>
                 {!offline && props.onCreate && (
-                    <Button onClick={onCreate} variant="contained" color="primary" disabled={!canSave}>
+                    <Button onClick={onCreate} variant="contained" color="primary" disabled={!canSave || processing}>
                         {t("CREATE")}
                     </Button>
                 )}
             </DialogActions>
-            {decryptMessageDialogOpen && <DialogDecryptGpgMessage open={decryptMessageDialogOpen} onClose={() => setDecryptMessageDialogOpen(false)} />}
+            {decryptMessageDialogOpen && (
+                <DialogDecryptGpgMessage
+                    open={decryptMessageDialogOpen}
+                    onClose={() => setDecryptMessageDialogOpen(false)}
+                />
+            )}
             {encryptMessageDialogOpen && (
-                <DialogEncryptGpgMessage open={encryptMessageDialogOpen} onClose={() => setEncryptMessageDialogOpen(false)} secretId={encryptSecretId} />
+                <DialogEncryptGpgMessage
+                    open={encryptMessageDialogOpen}
+                    onClose={() => setEncryptMessageDialogOpen(false)}
+                    secretId={encryptSecretId}
+                />
             )}
             {importGpgKeyAsTextDialogOpen && (
                 <DialogImportGpgKeyAsText

@@ -86,7 +86,14 @@ const DialogGenerateNewGpgKey = (props) => {
     };
 
     return (
-        <Dialog fullWidth maxWidth={"sm"} open={open} onClose={onClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+        <Dialog
+            fullWidth
+            maxWidth={"sm"}
+            open={open}
+            onClose={onClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+        >
             <DialogTitle id="alert-dialog-title">{t("GENERATE_NEW_GPG_KEY")}</DialogTitle>
             <DialogContent>
                 {generating && (
@@ -189,7 +196,12 @@ const DialogGenerateNewGpgKey = (props) => {
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>{t("CLOSE")}</Button>
-                <Button onClick={generateGpgKey} variant="contained" color="primary" disabled={!title || !name || !email || generating}>
+                <Button
+                    onClick={generateGpgKey}
+                    variant="contained"
+                    color="primary"
+                    disabled={!title || !name || !email || generating}
+                >
                     <span>{t("GENERATE")}</span>
                 </Button>
             </DialogActions>

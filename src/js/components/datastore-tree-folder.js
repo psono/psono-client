@@ -112,7 +112,10 @@ const DatastoreTreeFolder = (props) => {
             props.onSelectNode(content, content.path, nodePath);
         }
     };
-    const hideShare = offline || (content.hasOwnProperty("share_rights") && content.share_rights.grant === false) || !props.onNewShare;
+    const hideShare =
+        offline ||
+        (content.hasOwnProperty("share_rights") && content.share_rights.grant === false) ||
+        !props.onNewShare;
     const hideRightsOverview =
         offline ||
         //(content.hasOwnProperty("share_rights") && content.share_rights.grant === false) ||
@@ -134,10 +137,25 @@ const DatastoreTreeFolder = (props) => {
         (content.hasOwnProperty("share_rights") && content.share_rights.write === false) ||
         (content.hasOwnProperty("share_rights") && content.share_rights.read === false) ||
         !props.onNewEntry;
-    const hideNewUser = offline || (content.hasOwnProperty("share_rights") && content.share_rights.write === false) || !props.onNewUser;
-    const hideMove = offline || (content.hasOwnProperty("share_rights") && content.share_rights.delete === false) || !props.onMoveFolder;
-    const hideDelete = offline || (content.hasOwnProperty("share_rights") && content.share_rights.delete === false) || !props.onDeleteFolder;
-    const disableMenu = hideShare && hideRightsOverview && hideEdit && hideNewFolder && hideNewEntry && hideNewUser && hideMove && hideDelete;
+    const hideNewUser =
+        offline || (content.hasOwnProperty("share_rights") && content.share_rights.write === false) || !props.onNewUser;
+    const hideMove =
+        offline ||
+        (content.hasOwnProperty("share_rights") && content.share_rights.delete === false) ||
+        !props.onMoveFolder;
+    const hideDelete =
+        offline ||
+        (content.hasOwnProperty("share_rights") && content.share_rights.delete === false) ||
+        !props.onDeleteFolder;
+    const disableMenu =
+        hideShare &&
+        hideRightsOverview &&
+        hideEdit &&
+        hideNewFolder &&
+        hideNewEntry &&
+        hideNewUser &&
+        hideMove &&
+        hideDelete;
 
     const onContextMenu = (event) => {
         event.preventDefault();
@@ -161,7 +179,11 @@ const DatastoreTreeFolder = (props) => {
     return (
         <div className={"tree-folder"}>
             <div className={"tree-folder-title"}>
-                <div className={"tree-folder-header" + (isSelectable ? "" : " notSelectable")} onClick={selectNode} onContextMenu={onContextMenu}>
+                <div
+                    className={"tree-folder-header" + (isSelectable ? "" : " notSelectable")}
+                    onClick={selectNode}
+                    onContextMenu={onContextMenu}
+                >
                     <span className="fa-stack">
                         {isExpanded && <i className="fa fa-folder-open" />}
                         {!isExpanded && <i className="fa fa-folder" />}
@@ -174,7 +196,13 @@ const DatastoreTreeFolder = (props) => {
                             <SettingsIcon fontSize="small" />
                         </Button>
                     </ButtonGroup>
-                    <Menu id="simple-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
+                    <Menu
+                        id="simple-menu"
+                        anchorEl={anchorEl}
+                        keepMounted
+                        open={Boolean(anchorEl)}
+                        onClose={handleClose}
+                    >
                         {!hideShare && onNewShare && (
                             <MenuItem onClick={onNewShare}>
                                 <ListItemIcon className={classes.listItemIcon}>

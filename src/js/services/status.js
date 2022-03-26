@@ -51,7 +51,8 @@ function getStatus(forceFresh) {
             oldServerStatus.value.valid_till < timestamp;
         const serverStatusInStateOutdated =
             !serverStatusOutdated &&
-            (!store.getState().server.status.valid_till || store.getState().server.status.valid_till !== oldServerStatus.value.valid_till);
+            (!store.getState().server.status.valid_till ||
+                store.getState().server.status.valid_till !== oldServerStatus.value.valid_till);
 
         if (!serverStatusOutdated) {
             if (serverStatusInStateOutdated) {

@@ -24,7 +24,13 @@ function createGa(title) {
 
         return {
             id: request.data["id"],
-            uri: "otpauth://totp/" + parsedUrl["top_domain"] + ":" + store.getState().user.username + "?secret=" + request.data["secret"],
+            uri:
+                "otpauth://totp/" +
+                parsedUrl["top_domain"] +
+                ":" +
+                store.getState().user.username +
+                "?secret=" +
+                request.data["secret"],
         };
     };
     const onError = function () {
@@ -68,7 +74,9 @@ function activateGa(googleAuthenticatorId, googleAuthenticatorToken) {
     const onError = function () {
         return false;
     };
-    return apiClientService.activateGa(token, sessionSecretKey, googleAuthenticatorId, googleAuthenticatorToken).then(onSuccess, onError);
+    return apiClientService
+        .activateGa(token, sessionSecretKey, googleAuthenticatorId, googleAuthenticatorToken)
+        .then(onSuccess, onError);
 }
 
 /**

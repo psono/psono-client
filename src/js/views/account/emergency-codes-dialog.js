@@ -52,7 +52,12 @@ const EmergencyCodesDialog = (props) => {
             function (codes) {
                 setEmergencyCodes(
                     codes.map((code, index) => {
-                        return [code.id, code.description, code.activation_delay / 3600, code.activation_date === null ? t("NO") : code.activation_date];
+                        return [
+                            code.id,
+                            code.description,
+                            code.activation_delay / 3600,
+                            code.activation_date === null ? t("NO") : code.activation_date,
+                        ];
                     })
                 );
             },

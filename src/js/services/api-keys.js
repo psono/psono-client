@@ -16,7 +16,10 @@ function readApiKey(apiKeyId) {
     const sessionSecretKey = store.getState().user.sessionSecretKey;
 
     const onSuccess = function (result) {
-        result.data.private_key = cryptoLibrary.decryptSecretKey(result.data.private_key, result.data.private_key_nonce);
+        result.data.private_key = cryptoLibrary.decryptSecretKey(
+            result.data.private_key,
+            result.data.private_key_nonce
+        );
         delete result.data.private_key_nonce;
         result.data.secret_key = cryptoLibrary.decryptSecretKey(result.data.secret_key, result.data.secret_key_nonce);
         delete result.data.secret_key_nonce;
@@ -202,7 +205,16 @@ function updateApiKey(apiKeyId, title, restrictToSecrets, allowInsecureAccess, a
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
 
-    return apiClient.updateApiKey(token, sessionSecretKey, apiKeyId, title, restrictToSecrets, allowInsecureAccess, allowReadAccess, allowWriteAccess);
+    return apiClient.updateApiKey(
+        token,
+        sessionSecretKey,
+        apiKeyId,
+        title,
+        restrictToSecrets,
+        allowInsecureAccess,
+        allowReadAccess,
+        allowWriteAccess
+    );
 }
 
 /**

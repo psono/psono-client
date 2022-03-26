@@ -29,7 +29,9 @@ function createDuo(useSystemWideDuo, title, integration_key, secret_key, host) {
     const onError = function (request) {
         return Promise.reject(request.data);
     };
-    return apiClient.createDuo(token, sessionSecretKey, useSystemWideDuo, title, integration_key, secret_key, host).then(onSuccess, onError);
+    return apiClient
+        .createDuo(token, sessionSecretKey, useSystemWideDuo, title, integration_key, secret_key, host)
+        .then(onSuccess, onError);
 }
 
 /**

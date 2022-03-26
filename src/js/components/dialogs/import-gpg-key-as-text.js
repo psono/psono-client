@@ -33,12 +33,18 @@ const DialogImportAsText = (props) => {
     const importGpgKey = async () => {
         setErrors([]);
 
-        if (!publicKey.startsWith("-----BEGIN PGP PUBLIC KEY BLOCK-----") || !publicKey.endsWith("-----END PGP PUBLIC KEY BLOCK-----")) {
+        if (
+            !publicKey.startsWith("-----BEGIN PGP PUBLIC KEY BLOCK-----") ||
+            !publicKey.endsWith("-----END PGP PUBLIC KEY BLOCK-----")
+        ) {
             setErrors(["PUBLIC_KEY_MISSING_TAGS"]);
             return;
         }
 
-        if (!privateKey.startsWith("-----BEGIN PGP PRIVATE KEY BLOCK-----") || !privateKey.endsWith("-----END PGP PRIVATE KEY BLOCK-----")) {
+        if (
+            !privateKey.startsWith("-----BEGIN PGP PRIVATE KEY BLOCK-----") ||
+            !privateKey.endsWith("-----END PGP PRIVATE KEY BLOCK-----")
+        ) {
             setErrors(["PRIVATE_KEY_MISSING_TAGS"]);
             return;
         }
@@ -93,7 +99,14 @@ const DialogImportAsText = (props) => {
     };
 
     return (
-        <Dialog fullWidth maxWidth={"sm"} open={open} onClose={onClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+        <Dialog
+            fullWidth
+            maxWidth={"sm"}
+            open={open}
+            onClose={onClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+        >
             <DialogTitle id="alert-dialog-title">{t("IMPORT_GPG_KEY")}</DialogTitle>
             <DialogContent>
                 <Grid container>
@@ -138,7 +151,10 @@ const DialogImportAsText = (props) => {
                             margin="dense"
                             id="publicKey"
                             label={t("PUBLIC_KEY")}
-                            helperText={t("YOUR_PUBLIC_GPG_KEY") + " -----BEGIN PGP PUBLIC KEY BLOCK----- and -----END PGP PUBLIC KEY BLOCK-----"}
+                            helperText={
+                                t("YOUR_PUBLIC_GPG_KEY") +
+                                " -----BEGIN PGP PUBLIC KEY BLOCK----- and -----END PGP PUBLIC KEY BLOCK-----"
+                            }
                             name="publicKey"
                             autoComplete="publicKey"
                             value={publicKey}
@@ -158,7 +174,10 @@ const DialogImportAsText = (props) => {
                             margin="dense"
                             id="privateKey"
                             label={t("PRIVATE_KEY")}
-                            helperText={t("YOUR_PRIVATE_GPG_KEY") + " -----BEGIN PGP PRIVATE KEY BLOCK----- and -----END PGP PRIVATE KEY BLOCK-----"}
+                            helperText={
+                                t("YOUR_PRIVATE_GPG_KEY") +
+                                " -----BEGIN PGP PRIVATE KEY BLOCK----- and -----END PGP PRIVATE KEY BLOCK-----"
+                            }
                             name="privateKey"
                             autoComplete="publicKey"
                             value={privateKey}
@@ -175,7 +194,12 @@ const DialogImportAsText = (props) => {
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>{t("CLOSE")}</Button>
-                <Button onClick={importGpgKey} variant="contained" color="primary" disabled={!title || !publicKey || !privateKey}>
+                <Button
+                    onClick={importGpgKey}
+                    variant="contained"
+                    color="primary"
+                    disabled={!title || !publicKey || !privateKey}
+                >
                     <span>{t("IMPORT")}</span>
                 </Button>
             </DialogActions>

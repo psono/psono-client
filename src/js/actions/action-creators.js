@@ -191,7 +191,13 @@ function settingsDatastoreLoaded(data) {
         });
     };
 }
-function setPasswordConfig(passwordLength, passwordLettersUppercase, passwordLettersLowercase, passwordNumbers, passwordSpecialChars) {
+function setPasswordConfig(
+    passwordLength,
+    passwordLettersUppercase,
+    passwordLettersLowercase,
+    passwordNumbers,
+    passwordSpecialChars
+) {
     datastoreSettingService.saveSettingsDatastore([
         { key: "setting_password_length", value: passwordLength },
         { key: "setting_password_letters_uppercase", value: passwordLettersUppercase },
@@ -216,8 +222,14 @@ function setPasswordConfig(passwordLength, passwordLettersUppercase, passwordLet
 function setGpgConfig(gpgDefaultKey, gpgHkpKeyServer, gpgHkpSearch) {
     datastoreSettingService.saveSettingsDatastore([
         { key: "setting_password_length", value: store.getState().settingsDatastore.passwordLength },
-        { key: "setting_password_letters_uppercase", value: store.getState().settingsDatastore.passwordLettersUppercase },
-        { key: "setting_password_letters_lowercase", value: store.getState().settingsDatastore.passwordLettersLowercase },
+        {
+            key: "setting_password_letters_uppercase",
+            value: store.getState().settingsDatastore.passwordLettersUppercase,
+        },
+        {
+            key: "setting_password_letters_lowercase",
+            value: store.getState().settingsDatastore.passwordLettersLowercase,
+        },
         { key: "setting_password_numbers", value: store.getState().settingsDatastore.passwordNumbers },
         { key: "setting_password_special_chars", value: store.getState().settingsDatastore.passwordSpecialChars },
         { key: "gpg_default_key", value: gpgDefaultKey },

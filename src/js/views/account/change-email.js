@@ -91,7 +91,12 @@ const AccountChangeEmailView = (props) => {
             <GridContainerErrors errors={errors} setErrors={setErrors} />
             <Grid container style={{ marginBottom: "8px" }}>
                 <Grid item xs={12} sm={12} md={12}>
-                    <Button variant="contained" color="primary" onClick={save} disabled={!email || !password || !helperService.isValidEmail(email)}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={save}
+                        disabled={!email || !password || !helperService.isValidEmail(email)}
+                    >
                         {t("SAVE")}
                     </Button>
                 </Grid>

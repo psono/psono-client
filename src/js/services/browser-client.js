@@ -342,7 +342,9 @@ function loadConfig() {
                         newConfig["backend_servers"][i]["url"] = parsed_url["base_url"] + "/server";
                     }
                     if (!newConfig["backend_servers"][i].hasOwnProperty("domain")) {
-                        newConfig["backend_servers"][i]["domain"] = helperService.getDomain(newConfig["backend_servers"][i]["url"]);
+                        newConfig["backend_servers"][i]["domain"] = helperService.getDomain(
+                            newConfig["backend_servers"][i]["url"]
+                        );
                     }
                 }
             }
@@ -624,7 +626,10 @@ function disableBrowserPasswordSaving(value) {
 
             const getting = browser.privacy.services.passwordSavingEnabled.get({});
             getting.then(function (details) {
-                if (details.levelOfControl === "controlled_by_this_extension" || details.levelOfControl === "controllable_by_this_extension") {
+                if (
+                    details.levelOfControl === "controlled_by_this_extension" ||
+                    details.levelOfControl === "controllable_by_this_extension"
+                ) {
                     const setting = browser.privacy.services.passwordSavingEnabled.set({
                         value: !value,
                     });
@@ -639,7 +644,10 @@ function disableBrowserPasswordSaving(value) {
         value = value !== undefined ? value : oldPMValue;
         return new Promise(function (resolve, reject) {
             chrome.privacy.services.passwordSavingEnabled.get({}, function (details) {
-                if (details.levelOfControl === "controlled_by_this_extension" || details.levelOfControl === "controllable_by_this_extension") {
+                if (
+                    details.levelOfControl === "controlled_by_this_extension" ||
+                    details.levelOfControl === "controllable_by_this_extension"
+                ) {
                     chrome.privacy.services.passwordSavingEnabled.set({ value: !value }, function () {
                         if (chrome.runtime.lastError === undefined) {
                             resolve("Hooray, it worked!");

@@ -25,8 +25,12 @@ const SettingsPasswordGeneratorView = (props) => {
     const classes = useStyles();
     const settingsDatastore = useSelector((state) => state.settingsDatastore);
     const [passwordLength, setPasswordLength] = useState(settingsDatastore.passwordLength);
-    const [passwordLettersUppercase, setPasswordLettersUppercase] = useState(settingsDatastore.passwordLettersUppercase);
-    const [passwordLettersLowercase, setPasswordLettersLowercase] = useState(settingsDatastore.passwordLettersLowercase);
+    const [passwordLettersUppercase, setPasswordLettersUppercase] = useState(
+        settingsDatastore.passwordLettersUppercase
+    );
+    const [passwordLettersLowercase, setPasswordLettersLowercase] = useState(
+        settingsDatastore.passwordLettersLowercase
+    );
     const [passwordNumbers, setPasswordNumbers] = useState(settingsDatastore.passwordNumbers);
     const [passwordSpecialChars, setPasswordSpecialChars] = useState(settingsDatastore.passwordSpecialChars);
 
@@ -39,7 +43,13 @@ const SettingsPasswordGeneratorView = (props) => {
     }, [settingsDatastore]);
 
     const save = (event) => {
-        action.setPasswordConfig(passwordLength, passwordLettersUppercase, passwordLettersLowercase, passwordNumbers, passwordSpecialChars);
+        action.setPasswordConfig(
+            passwordLength,
+            passwordLettersUppercase,
+            passwordLettersLowercase,
+            passwordNumbers,
+            passwordSpecialChars
+        );
     };
 
     return (
@@ -156,7 +166,13 @@ const SettingsPasswordGeneratorView = (props) => {
                         color="primary"
                         onClick={save}
                         disabled={
-                            passwordLength <= 0 || (passwordLettersUppercase + passwordLettersLowercase + passwordNumbers + passwordSpecialChars).length === 0
+                            passwordLength <= 0 ||
+                            (
+                                passwordLettersUppercase +
+                                passwordLettersLowercase +
+                                passwordNumbers +
+                                passwordSpecialChars
+                            ).length === 0
                         }
                     >
                         {t("SAVE")}

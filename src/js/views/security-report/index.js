@@ -86,7 +86,9 @@ const SecurityReportView = (props) => {
     const [passwordRepeat, setPasswordRepeat] = useState("");
     const userAuthentication = store.getState().user.authentication;
     const hideSendToServer = store.getState().server.disableCentralSecurityReports;
-    const disableSendToSeverChoice = store.getState().server.disableCentralSecurityReports || store.getState().server.complianceEnforceCentralSecurityReports;
+    const disableSendToSeverChoice =
+        store.getState().server.disableCentralSecurityReports ||
+        store.getState().server.complianceEnforceCentralSecurityReports;
     const requireMasterPassword = ["LDAP", "AUTHKEY"].indexOf(userAuthentication) !== -1;
     const [passwordStrengthData, setPasswordStrengthData] = React.useState({});
     const [passwordDuplicateData, setPasswordDuplicateData] = React.useState({});
@@ -107,7 +109,8 @@ const SecurityReportView = (props) => {
     const [closedHaveibeenpwnedRequests, setClosedHaveibeenpwnedRequests] = React.useState(0);
 
     const [sendToServer, setSendToServer] = useState(
-        store.getState().server.complianceEnforceCentralSecurityReports && !store.getState().server.disableCentralSecurityReports
+        store.getState().server.complianceEnforceCentralSecurityReports &&
+            !store.getState().server.disableCentralSecurityReports
     );
 
     let isSubscribed = true;
@@ -205,7 +208,16 @@ const SecurityReportView = (props) => {
             setErrors([]);
             setMsgs(data.msgs);
             data.analysis.passwords = data.analysis.passwords.map((pw, index) => {
-                return [index, pw.name, pw.password, pw.rating, pw.write_age, pw.breached > 0, pw.duplicate, t(pw.advice, pw)];
+                return [
+                    index,
+                    pw.name,
+                    pw.password,
+                    pw.rating,
+                    pw.write_age,
+                    pw.breached > 0,
+                    pw.duplicate,
+                    t(pw.advice, pw),
+                ];
             });
             setAnalysis(data.analysis);
             setPasswordStrengthData({
@@ -227,7 +239,10 @@ const SecurityReportView = (props) => {
                 datasets: [
                     {
                         label: t("DUPLICATES"),
-                        data: [data.analysis["password_summary"]["duplicate"], data.analysis["password_summary"]["no_duplicate"]],
+                        data: [
+                            data.analysis["password_summary"]["duplicate"],
+                            data.analysis["password_summary"]["no_duplicate"],
+                        ],
                         backgroundColor: ["#ff7a55", "#00aaaa"],
                     },
                 ],
@@ -237,7 +252,10 @@ const SecurityReportView = (props) => {
                 datasets: [
                     {
                         label: t("PASSWORD_STRENGTH"),
-                        data: [data.analysis["password_summary"]["average_rating"], 100 - data.analysis["password_summary"]["average_rating"]],
+                        data: [
+                            data.analysis["password_summary"]["average_rating"],
+                            100 - data.analysis["password_summary"]["average_rating"],
+                        ],
                         backgroundColor: ["#00aaaa", "#FFFFFF"],
                     },
                 ],
@@ -278,7 +296,9 @@ const SecurityReportView = (props) => {
             };
 
             if (sendToServer) {
-                return securityReportService.sendToServer(data.analysis, checkHaveibeenpwned, masterPassword).then(onSuccess, onError);
+                return securityReportService
+                    .sendToServer(data.analysis, checkHaveibeenpwned, masterPassword)
+                    .then(onSuccess, onError);
             }
         };
 
@@ -363,8 +383,11 @@ const SecurityReportView = (props) => {
         filterType: "checkbox",
     };
 
-    const percentageComplete = Math.round((closedSecretRequests / openSecretRequests) * 1000) / 10;
-    const haveibeenpwnedPercentageComplete = Math.round((closedHaveibeenpwnedRequests / openHaveibeenpwnedRequests) * 1000) / 10;
+    const percentageComplete = openSecretRequests
+        ? Math.round((closedSecretRequests / openSecretRequests) * 1000) / 10
+        : 0;
+    const haveibeenpwnedPercentageComplete =
+        Math.round((closedHaveibeenpwnedRequests / openHaveibeenpwnedRequests) * 1000) / 10;
 
     return (
         <Base {...props}>
@@ -379,7 +402,9 @@ const SecurityReportView = (props) => {
                             <Grid container>
                                 {!analysis.user_summary.multifactor_auth_enabled && (
                                     <Grid item xs={12} sm={12} md={12} className={classes.muiInfo}>
-                                        <MuiAlert severity="warning">{t("CONSIDER_ENABLING_MULTIFACTOR_AUTHENTICATION")}</MuiAlert>
+                                        <MuiAlert severity="warning">
+                                            {t("CONSIDER_ENABLING_MULTIFACTOR_AUTHENTICATION")}
+                                        </MuiAlert>
                                     </Grid>
                                 )}
                                 {!analysis.user_summary.recovery_code_enabled && (
@@ -509,7 +534,11 @@ const SecurityReportView = (props) => {
                                         haveibeenpwned.com
                                     </a>{" "}
                                     (
-                                    <a href="https://haveibeenpwned.com/API/v2#SearchingPwnedPasswordsByRange" target="_blank" rel="noopener">
+                                    <a
+                                        href="https://haveibeenpwned.com/API/v2#SearchingPwnedPasswordsByRange"
+                                        target="_blank"
+                                        rel="noopener"
+                                    >
                                         /range API
                                     </a>
                                     )?
@@ -576,7 +605,10 @@ const SecurityReportView = (props) => {
                                         </Typography>
                                         <Box display="flex" alignItems="center">
                                             <Box width="100%" mr={1}>
-                                                <LinearProgress variant="determinate" value={haveibeenpwnedPercentageComplete} />
+                                                <LinearProgress
+                                                    variant="determinate"
+                                                    value={haveibeenpwnedPercentageComplete}
+                                                />
                                             </Box>
                                             <Box minWidth={35}>
                                                 <span

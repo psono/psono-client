@@ -209,7 +209,12 @@ const PopupPgpWriteView = (props) => {
             <AppBar position="fixed" className={classes.appBar}>
                 <Container maxWidth="lg">
                     <Toolbar>
-                        <IconButton color="inherit" aria-label="open drawer" edge="start" className={classes.menuButton}>
+                        <IconButton
+                            color="inherit"
+                            aria-label="open drawer"
+                            edge="start"
+                            className={classes.menuButton}
+                        >
                             <MenuIcon />
                         </IconButton>
                         <a className={classes.topLogo} href="#">
@@ -286,7 +291,12 @@ const PopupPgpWriteView = (props) => {
                                 )}
                                 {!encryptionComplete && (
                                     <Grid item xs={12} sm={12} md={12}>
-                                        <Table data={recipients} columns={columns} options={options} onCreate={addRecipient} />
+                                        <Table
+                                            data={recipients}
+                                            columns={columns}
+                                            options={options}
+                                            onCreate={addRecipient}
+                                        />
                                     </Grid>
                                 )}
                                 {!encryptionComplete && (
@@ -326,7 +336,12 @@ const PopupPgpWriteView = (props) => {
                                             onClick={encrypt}
                                             variant="contained"
                                             color="primary"
-                                            disabled={!decryptedMessage || encrypting || (signMessage && !gpgKey) || recipients.length === 0}
+                                            disabled={
+                                                !decryptedMessage ||
+                                                encrypting ||
+                                                (signMessage && !gpgKey) ||
+                                                recipients.length === 0
+                                            }
                                         >
                                             <span style={!encrypting ? {} : { display: "none" }}>{t("ENCRYPT")}</span>
                                             <BarLoader color={"#FFF"} height={17} width={37} loading={encrypting} />
@@ -339,7 +354,11 @@ const PopupPgpWriteView = (props) => {
                 </div>
             </div>
             {addNewGpgRecipientDialogOpen && (
-                <DialogGpgAddressBook open={addNewGpgRecipientDialogOpen} onSelect={onAddRecipient} onClose={() => setAddNewGpgRecipientDialogOpen(false)} />
+                <DialogGpgAddressBook
+                    open={addNewGpgRecipientDialogOpen}
+                    onSelect={onAddRecipient}
+                    onClose={() => setAddNewGpgRecipientDialogOpen(false)}
+                />
             )}
         </div>
     );

@@ -28,9 +28,19 @@ const TotpCircle = (props) => {
     codeRef.current = code;
 
     const updateToken = () => {
-        setToken(cryptoLibraryService.getTotpToken(codeRef.current, periodRef.current, algorithmRef.current, digitsRef.current));
+        setToken(
+            cryptoLibraryService.getTotpToken(
+                codeRef.current,
+                periodRef.current,
+                algorithmRef.current,
+                digitsRef.current
+            )
+        );
         const percentage =
-            100 - (((periodRef.current || 30) - (Math.round(new Date().getTime() / 1000.0) % (periodRef.current || 30))) / (periodRef.current || 30)) * 100;
+            100 -
+            (((periodRef.current || 30) - (Math.round(new Date().getTime() / 1000.0) % (periodRef.current || 30))) /
+                (periodRef.current || 30)) *
+                100;
         setProgress(percentage);
     };
 
@@ -44,7 +54,16 @@ const TotpCircle = (props) => {
     return (
         <Box position="relative" display="inline-flex" {...rest}>
             <CircularProgress variant="determinate" value={progress} size={"100%"} />
-            <Box top={0} left={0} bottom={0} right={0} position="absolute" display="flex" alignItems="center" justifyContent="center">
+            <Box
+                top={0}
+                left={0}
+                bottom={0}
+                right={0}
+                position="absolute"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+            >
                 <Button
                     endIcon={<ContentCopy>copy</ContentCopy>}
                     onClick={() => {

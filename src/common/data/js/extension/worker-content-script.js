@@ -133,7 +133,9 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
         // Lets start with searching all input fields and forms
         // if we find a password field, we remember that and take the field before as username field
 
-        var inputs = document.querySelectorAll("input[type='text'], input:not([type]), input[type='email'], input[type='password']");
+        var inputs = document.querySelectorAll(
+            "input[type='text'], input:not([type]), input[type='email'], input[type='password']"
+        );
 
         for (var i = 0; i < inputs.length; ++i) {
             if (inputs[i].type !== "password") {
@@ -162,7 +164,16 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
 
                 // username field is inputs[r]
                 padding_right = jQuery(inputs[r]).css("padding-right");
-                base.modify_input_field(inputs[r], background_image, "center right " + padding_right, document, click, mouseOver, mouseOut, mouseMove);
+                base.modify_input_field(
+                    inputs[r],
+                    background_image,
+                    "center right " + padding_right,
+                    document,
+                    click,
+                    mouseOver,
+                    mouseOut,
+                    mouseMove
+                );
 
                 newForm.username = inputs[r];
                 break;
@@ -172,7 +183,16 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
                 // we don't modify input fields that are too small
                 // Password field is inputs[i]
                 padding_right = jQuery(inputs[i]).css("padding-right");
-                base.modify_input_field(inputs[i], background_image, "center right " + padding_right, document, click, mouseOver, mouseOut, mouseMove);
+                base.modify_input_field(
+                    inputs[i],
+                    background_image,
+                    "center right " + padding_right,
+                    document,
+                    click,
+                    mouseOver,
+                    mouseOut,
+                    mouseMove
+                );
 
                 newForm.password = inputs[i];
             }

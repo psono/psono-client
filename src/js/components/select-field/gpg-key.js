@@ -25,7 +25,8 @@ const SelectFieldGpgKey = (props) => {
     const [options, setOptions] = useState([]);
     let isSubscribed = true;
 
-    const { fullWidth, variant, margin, helperText, error, required, onChange, value, className, secretId, label } = props;
+    const { fullWidth, variant, margin, helperText, error, required, onChange, value, className, secretId, label } =
+        props;
     React.useEffect(() => {
         loadGpgKeys();
         // cancel subscription to useEffect
@@ -57,7 +58,12 @@ const SelectFieldGpgKey = (props) => {
                 if (secretId && item.secret_id === secretId) {
                     default_secret = ownPgpSecret;
                 }
-                if (!default_secret && gpgDefaultKey && gpgDefaultKey.hasOwnProperty("id") && gpgDefaultKey.id === item.id) {
+                if (
+                    !default_secret &&
+                    gpgDefaultKey &&
+                    gpgDefaultKey.hasOwnProperty("id") &&
+                    gpgDefaultKey.id === item.id
+                ) {
                     default_secret = ownPgpSecret;
                 }
                 ownPgpSecrets.push(ownPgpSecret);

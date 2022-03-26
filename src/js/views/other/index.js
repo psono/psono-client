@@ -31,7 +31,12 @@ const OtherView = (props) => {
             <BaseContent>
                 <Paper square>
                     <AppBar elevation={0} position="static" color="default">
-                        <Tabs variant="scrollable" scrollButtons="auto" value={value} aria-label="scrollable auto tabs example">
+                        <Tabs
+                            variant="scrollable"
+                            scrollButtons="auto"
+                            value={value}
+                            aria-label="scrollable auto tabs example"
+                        >
                             <Tab
                                 label={t("SESSIONS")}
                                 value="/other/sessions"
@@ -80,7 +85,13 @@ const OtherView = (props) => {
                                     onClick={() => setValue("/other/export")}
                                 />
                             )}
-                            <Tab label={t("IMPORT")} value="/other/import" component={Link} to={"/other/import"} onClick={() => setValue("/other/import")} />
+                            <Tab
+                                label={t("IMPORT")}
+                                value="/other/import"
+                                component={Link}
+                                to={"/other/import"}
+                                onClick={() => setValue("/other/import")}
+                            />
                         </Tabs>
                     </AppBar>
                     <TabPanel value={value} index={"/other/sessions"}>

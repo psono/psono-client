@@ -24,7 +24,9 @@ function accept(fileRepositoryRightId) {
         // pass
     };
 
-    return apiClientService.acceptFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId).then(onSuccess, onError);
+    return apiClientService
+        .acceptFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId)
+        .then(onSuccess, onError);
 }
 
 /**
@@ -45,7 +47,9 @@ function decline(fileRepositoryRightId) {
         // pass
     };
 
-    return apiClientService.declineFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId).then(onSuccess, onError);
+    return apiClientService
+        .declineFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId)
+        .then(onSuccess, onError);
 }
 
 /**
@@ -70,7 +74,9 @@ function createFileRepositoryRight(fileRepositoryId, userId, read, write, grant)
         // pass
     };
 
-    return apiClientService.createFileRepositoryRight(token, sessionSecretKey, fileRepositoryId, userId, read, write, grant).then(onSuccess, onError);
+    return apiClientService
+        .createFileRepositoryRight(token, sessionSecretKey, fileRepositoryId, userId, read, write, grant)
+        .then(onSuccess, onError);
 }
 
 /**
@@ -94,7 +100,9 @@ function updateFileRepositoryRight(fileRepositoryRightId, read, write, grant) {
         // pass
     };
 
-    return apiClientService.updateFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId, read, write, grant).then(onSuccess, onError);
+    return apiClientService
+        .updateFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId, read, write, grant)
+        .then(onSuccess, onError);
 }
 
 /**
@@ -115,7 +123,9 @@ function deleteFileRepositoryRight(fileRepositoryRightId) {
         // pass
     };
 
-    return apiClientService.deleteFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId).then(onSuccess, onError);
+    return apiClientService
+        .deleteFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId)
+        .then(onSuccess, onError);
 }
 
 /**
@@ -148,7 +158,8 @@ function readFileRepository(fileRepositoryId) {
     const onSuccess = function (result) {
         if (result.data.hasOwnProperty("file_repository_rights")) {
             for (let i = 0; i < result.data["file_repository_rights"].length; i++) {
-                result.data["file_repository_rights"][i]["own_user"] = result.data["file_repository_rights"][i]["user_id"] === store.getState().user.userId;
+                result.data["file_repository_rights"][i]["own_user"] =
+                    result.data["file_repository_rights"][i]["user_id"] === store.getState().user.userId;
             }
         }
         return result.data;

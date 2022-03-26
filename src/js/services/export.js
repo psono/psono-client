@@ -199,8 +199,13 @@ function composeExport(data, type) {
             if (data.hasOwnProperty("items")) {
                 for (i = 0; i < data.items.length; i++) {
                     data.items[i]["path"] = path;
-                    if (data.items[i].type === "environment_variables" && data.items[i].hasOwnProperty("environment_variables_variables")) {
-                        data.items[i]["environment_variables_variables"] = JSON.stringify(data.items[i]["environment_variables_variables"]);
+                    if (
+                        data.items[i].type === "environment_variables" &&
+                        data.items[i].hasOwnProperty("environment_variables_variables")
+                    ) {
+                        data.items[i]["environment_variables_variables"] = JSON.stringify(
+                            data.items[i]["environment_variables_variables"]
+                        );
                     }
                     helper_data.push(data.items[i]);
                 }

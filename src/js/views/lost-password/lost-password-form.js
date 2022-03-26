@@ -130,7 +130,8 @@ const LostPasswordViewForm = (props) => {
         const serverUrl = configJson["backend_servers"][0]["url"];
         const domain = configJson["backend_servers"][0]["domain"];
         const allowLostPassword =
-            (!configJson.hasOwnProperty("allow_lost_password") || (configJson.hasOwnProperty("allow_lost_password") && configJson["allow_lost_password"])) &&
+            (!configJson.hasOwnProperty("allow_lost_password") ||
+                (configJson.hasOwnProperty("allow_lost_password") && configJson["allow_lost_password"])) &&
             configJson["authentication_methods"].indexOf("AUTHKEY") !== -1;
         const allowCustomServer = configJson.allow_custom_server;
 
@@ -157,7 +158,10 @@ const LostPasswordViewForm = (props) => {
         if (typeof words !== "undefined" && words !== "") {
             recoveryCode = converterService.hexToBase58(converterService.wordsToHex(words.split(" ")));
         } else if (typeof code1 !== "undefined" && code1 !== "" && typeof code2 !== "undefined" && code2 !== "") {
-            if (!cryptoLibrary.recoveryPasswordChunkPassChecksum(code1) || !cryptoLibrary.recoveryPasswordChunkPassChecksum(code2)) {
+            if (
+                !cryptoLibrary.recoveryPasswordChunkPassChecksum(code1) ||
+                !cryptoLibrary.recoveryPasswordChunkPassChecksum(code2)
+            ) {
                 setErrors(["AT_LEAST_ONE_CODE_INCORRECT"]);
                 return;
             }
@@ -212,7 +216,13 @@ const LostPasswordViewForm = (props) => {
                             </MuiAlert>
                         </Grid>
                         <Grid item xs={4} sm={4} md={4} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                            <Button variant="contained" color="primary" type="submit" href={"index.html"} className={classes.button}>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                type="submit"
+                                href={"index.html"}
+                                className={classes.button}
+                            >
                                 {t("BACK_TO_HOME")}
                             </Button>
                         </Grid>
@@ -228,7 +238,10 @@ const LostPasswordViewForm = (props) => {
                                 id="username"
                                 label={t("USERNAME")}
                                 InputProps={{
-                                    endAdornment: domain && !username.includes("@") ? <InputAdornment position="end">{"@" + domain}</InputAdornment> : null,
+                                    endAdornment:
+                                        domain && !username.includes("@") ? (
+                                            <InputAdornment position="end">{"@" + domain}</InputAdornment>
+                                        ) : null,
                                 }}
                                 name="username"
                                 autoComplete="username"
@@ -335,7 +348,13 @@ const LostPasswordViewForm = (props) => {
                         <ThumbUpIcon style={{ fontSize: 160 }} />
                     </Grid>
                     <Grid item xs={4} sm={4} md={4} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                        <Button variant="contained" color="primary" type="submit" href={"index.html"} className={classes.button}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            type="submit"
+                            href={"index.html"}
+                            className={classes.button}
+                        >
                             {t("BACK_TO_HOME")}
                         </Button>
                     </Grid>
@@ -385,7 +404,13 @@ const LostPasswordViewForm = (props) => {
                 </Grid>
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                        <Button variant="contained" color="primary" onClick={setNewPassword} type="submit" style={{ marginRight: "10px" }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={setNewPassword}
+                            type="submit"
+                            style={{ marginRight: "10px" }}
+                        >
                             {t("SET_NEW_PASSWORD")}
                         </Button>
                         <Button variant="contained" onClick={cancel}>

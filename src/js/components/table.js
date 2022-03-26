@@ -47,7 +47,21 @@ class Table extends Component {
     }
 
     render() {
-        const { classes, title, data, columns, onCreate, onDelete, onRowClick, onEdit, onSelect, onUsers, options, dataFunction, t } = this.props;
+        const {
+            classes,
+            title,
+            data,
+            columns,
+            onCreate,
+            onDelete,
+            onRowClick,
+            onEdit,
+            onSelect,
+            onUsers,
+            options,
+            dataFunction,
+            t,
+        } = this.props;
 
         let defaultOptions = {
             textLabels: {
@@ -114,7 +128,9 @@ class Table extends Component {
                         }
                     }
                 }
-                if (["changePage", "sort", "search", "changeRowsPerPage", "changePage", "filterChange"].includes(action)) {
+                if (
+                    ["changePage", "sort", "search", "changeRowsPerPage", "changePage", "filterChange"].includes(action)
+                ) {
                     const params = {
                         page: tableState.page,
                         page_size: tableState.rowsPerPage,
@@ -245,7 +261,14 @@ class Table extends Component {
             });
         }
 
-        return <MUIDataTable title={title} data={data || this.state.data} columns={modifiedColumns} options={Object.assign({}, defaultOptions, options)} />;
+        return (
+            <MUIDataTable
+                title={title}
+                data={data || this.state.data}
+                columns={modifiedColumns}
+                options={Object.assign({}, defaultOptions, options)}
+            />
+        );
     }
 }
 

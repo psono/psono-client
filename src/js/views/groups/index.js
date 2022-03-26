@@ -198,7 +198,10 @@ const GroupsView = (props) => {
                             onClick={() => {
                                 onEdit(tableMeta.rowData);
                             }}
-                            disabled={!tableMeta.rowData[4] || (tableMeta.rowData[3] !== false && tableMeta.rowData[3] !== true)}
+                            disabled={
+                                !tableMeta.rowData[4] ||
+                                (tableMeta.rowData[3] !== false && tableMeta.rowData[3] !== true)
+                            }
                         >
                             <EditIcon />
                         </IconButton>
@@ -295,7 +298,10 @@ const GroupsView = (props) => {
                             onClick={() => {
                                 deleteGroup(tableMeta);
                             }}
-                            disabled={!tableMeta.rowData[4] || (tableMeta.rowData[3] !== false && tableMeta.rowData[3] !== true)}
+                            disabled={
+                                !tableMeta.rowData[4] ||
+                                (tableMeta.rowData[3] !== false && tableMeta.rowData[3] !== true)
+                            }
                         >
                             <DeleteIcon />
                         </IconButton>

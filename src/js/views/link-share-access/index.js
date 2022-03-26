@@ -290,7 +290,13 @@ const LinkShareAccessView = (props) => {
                     </Grid>
                     <Grid container>
                         <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                            <Button variant="contained" color="primary" onClick={approveHost} type="submit" style={{ marginRight: "10px" }}>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={approveHost}
+                                type="submit"
+                                style={{ marginRight: "10px" }}
+                            >
                                 {t("APPROVE")}
                             </Button>
                             <Button variant="contained" onClick={cancel}>
@@ -360,7 +366,13 @@ const LinkShareAccessView = (props) => {
                     </Grid>
                     <Grid container>
                         <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                            <Button variant="contained" color="primary" onClick={cancel} type="submit" style={{ marginRight: "10px" }}>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={cancel}
+                                type="submit"
+                                style={{ marginRight: "10px" }}
+                            >
                                 {t("CANCEL")}
                             </Button>
                             <Button variant="contained" onClick={approveHost}>
@@ -387,7 +399,9 @@ const LinkShareAccessView = (props) => {
                                 style={{ marginBottom: "5px" }}
                             >
                                 {(prop !== "INSUFFICIENT_FUNDS" || !creditBuyAddress) && <span>{t(prop)}</span>}
-                                {prop === "INSUFFICIENT_FUNDS" && creditBuyAddress && <span>{t("INSUFFICIENT_FUNDS_WITH_CREDIT_BUY_ADDRESS")}</span>}
+                                {prop === "INSUFFICIENT_FUNDS" && creditBuyAddress && (
+                                    <span>{t("INSUFFICIENT_FUNDS_WITH_CREDIT_BUY_ADDRESS")}</span>
+                                )}
                                 {prop === "INSUFFICIENT_FUNDS" && creditBuyAddress && (
                                     <a href={creditBuyAddress} rel="nofollow noopener" target="_blank">
                                         <span>{t("BUY")}</span>

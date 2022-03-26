@@ -183,7 +183,12 @@ const MultifactorAuthenticatorYubikeyOtp = (props) => {
                         </Grid>
                         <GridContainerErrors errors={errors} setErrors={setErrors} />
                         <Grid item xs={12} sm={12} md={12}>
-                            <Button variant="contained" color="primary" onClick={create} disabled={!title || !yubikeyOtpCode}>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={create}
+                                disabled={!title || !yubikeyOtpCode}
+                            >
                                 {t("CREATE")}
                             </Button>
                         </Grid>

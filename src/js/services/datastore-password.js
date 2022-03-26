@@ -34,20 +34,37 @@ const specialMinCount = 1;
  * @returns {*}
  */
 function isStrongEnough(password) {
-    if (uppercaseMinCount + lowercaseMinCount + numberMinCount + specialMinCount > store.getState().settingsDatastore.passwordLength) {
+    if (
+        uppercaseMinCount + lowercaseMinCount + numberMinCount + specialMinCount >
+        store.getState().settingsDatastore.passwordLength
+    ) {
         //password can never comply, so we skip check
         return true;
     }
 
-    const uc = password.match(new RegExp("([" + escapeRegExp(store.getState().settingsDatastore.passwordLettersUppercase) + "])", "g"));
-    const lc = password.match(new RegExp("([" + escapeRegExp(store.getState().settingsDatastore.passwordLettersLowercase) + "])", "g"));
-    const n = password.match(new RegExp("([" + escapeRegExp(store.getState().settingsDatastore.passwordNumbers) + "])", "g"));
-    const sc = password.match(new RegExp("([" + escapeRegExp(store.getState().settingsDatastore.passwordSpecialChars) + "])", "g"));
+    const uc = password.match(
+        new RegExp("([" + escapeRegExp(store.getState().settingsDatastore.passwordLettersUppercase) + "])", "g")
+    );
+    const lc = password.match(
+        new RegExp("([" + escapeRegExp(store.getState().settingsDatastore.passwordLettersLowercase) + "])", "g")
+    );
+    const n = password.match(
+        new RegExp("([" + escapeRegExp(store.getState().settingsDatastore.passwordNumbers) + "])", "g")
+    );
+    const sc = password.match(
+        new RegExp("([" + escapeRegExp(store.getState().settingsDatastore.passwordSpecialChars) + "])", "g")
+    );
 
-    const uc_test_result = store.getState().settingsDatastore.passwordLettersUppercase.length === 0 || (uc && uc.length >= uppercaseMinCount);
-    const lc_test_result = store.getState().settingsDatastore.passwordLettersLowercase.length === 0 || (lc && lc.length >= lowercaseMinCount);
-    const n_test_result = store.getState().settingsDatastore.passwordNumbers.length === 0 || (n && n.length >= numberMinCount);
-    const sc_test_result = store.getState().settingsDatastore.passwordSpecialChars.length === 0 || (sc && sc.length >= specialMinCount);
+    const uc_test_result =
+        store.getState().settingsDatastore.passwordLettersUppercase.length === 0 ||
+        (uc && uc.length >= uppercaseMinCount);
+    const lc_test_result =
+        store.getState().settingsDatastore.passwordLettersLowercase.length === 0 ||
+        (lc && lc.length >= lowercaseMinCount);
+    const n_test_result =
+        store.getState().settingsDatastore.passwordNumbers.length === 0 || (n && n.length >= numberMinCount);
+    const sc_test_result =
+        store.getState().settingsDatastore.passwordSpecialChars.length === 0 || (sc && sc.length >= specialMinCount);
 
     return uc_test_result && lc_test_result && n_test_result && sc_test_result;
 }
@@ -234,7 +251,14 @@ function _readShares(datastore, shareRightsDict) {
                 return datastore;
             }
 
-            const readShareHelper = function (share_id, sub_datastore, path, parent_share_id, parent_datastore_id, parent_share_stack) {
+            const readShareHelper = function (
+                share_id,
+                sub_datastore,
+                path,
+                parent_share_id,
+                parent_datastore_id,
+                parent_share_stack
+            ) {
                 const onSuccess = function (content) {
                     if (typeof content === "undefined") {
                         open_calls--;
@@ -243,7 +267,14 @@ function _readShares(datastore, shareRightsDict) {
                     }
                     all_share_data[share_id] = content;
 
-                    updatePathsWithData(datastore, path, content, parent_share_rights, parent_share_id, parent_datastore_id);
+                    updatePathsWithData(
+                        datastore,
+                        path,
+                        content,
+                        parent_share_rights,
+                        parent_share_id,
+                        parent_datastore_id
+                    );
 
                     readSharesRecursive(
                         sub_datastore,
@@ -290,7 +321,14 @@ function _readShares(datastore, shareRightsDict) {
                                 grant: false,
                             },
                         };
-                        updatePathsWithData(datastore, share_index[share_id].paths[i], content, parent_share_rights, parent_share_id, undefined);
+                        updatePathsWithData(
+                            datastore,
+                            share_index[share_id].paths[i],
+                            content,
+                            parent_share_rights,
+                            parent_share_id,
+                            undefined
+                        );
                         continue;
                     }
 
@@ -317,7 +355,14 @@ function _readShares(datastore, shareRightsDict) {
                             },
                         };
 
-                        updatePathsWithData(datastore, share_index[share_id].paths[i], content, parent_share_rights, parent_share_id, undefined);
+                        updatePathsWithData(
+                            datastore,
+                            share_index[share_id].paths[i],
+                            content,
+                            parent_share_rights,
+                            parent_share_id,
+                            undefined
+                        );
                         continue;
                     }
 
@@ -327,7 +372,14 @@ function _readShares(datastore, shareRightsDict) {
                             rights: helperService.duplicateObject(parent_share_rights),
                         };
 
-                        updatePathsWithData(datastore, share_index[share_id].paths[i], content, parent_share_rights, parent_share_id, undefined);
+                        updatePathsWithData(
+                            datastore,
+                            share_index[share_id].paths[i],
+                            content,
+                            parent_share_rights,
+                            parent_share_id,
+                            undefined
+                        );
                         continue;
                     }
 
@@ -337,14 +389,30 @@ function _readShares(datastore, shareRightsDict) {
                     }
 
                     all_calls.push(
-                        readShareHelper(share_id, sub_datastore, share_index[share_id].paths[i], parent_share_id, parent_datastore_id, new_parent_share_stack)
+                        readShareHelper(
+                            share_id,
+                            sub_datastore,
+                            share_index[share_id].paths[i],
+                            parent_share_id,
+                            parent_datastore_id,
+                            new_parent_share_stack
+                        )
                     );
                 }
             }
         };
 
         // Read shares recursive. We start from the datastore, so delete is allowed in the datastore
-        readSharesRecursive(datastore, shareRightsDict, share_index, all_share_data, parent_share_rights, undefined, datastore.datastore_id, []);
+        readSharesRecursive(
+            datastore,
+            shareRightsDict,
+            share_index,
+            all_share_data,
+            parent_share_rights,
+            undefined,
+            datastore.datastore_id,
+            []
+        );
         updateParents(datastore, undefined, datastore.datastore_id);
         datastoreService.updateShareRightsOfFoldersAndItems(datastore, {
             read: true,
@@ -622,21 +690,23 @@ function saveInDatastore(secretObject, datastoreObject) {
     };
 
     const onSuccess = function (datastore) {
-        return secretService.createSecret(secretObject, link_id, datastore.datastore_id, undefined).then(function (data) {
-            if (!datastore.hasOwnProperty("items")) {
-                datastore["items"] = [];
-            }
+        return secretService
+            .createSecret(secretObject, link_id, datastore.datastore_id, undefined)
+            .then(function (data) {
+                if (!datastore.hasOwnProperty("items")) {
+                    datastore["items"] = [];
+                }
 
-            datastoreObject["id"] = link_id;
-            datastoreObject["secret_id"] = data.secret_id;
-            datastoreObject["secret_key"] = data.secret_key;
-            datastore.items.push(datastoreObject);
+                datastoreObject["id"] = link_id;
+                datastoreObject["secret_id"] = data.secret_id;
+                datastoreObject["secret_key"] = data.secret_key;
+                datastore.items.push(datastoreObject);
 
-            saveDatastoreContent(datastore, [[]]);
-            handleDatastoreContentChanged(datastore);
+                saveDatastoreContent(datastore, [[]]);
+                handleDatastoreContentChanged(datastore);
 
-            return datastoreObject;
-        }, onError);
+                return datastoreObject;
+            }, onError);
     };
 
     return getPasswordDatastore().then(onSuccess, onError);
@@ -1380,14 +1450,31 @@ function createShareLinkInDatastore(share, target, path, parentShareId, parentDa
  *
  * @returns {Promise} Returns a promise with the success of the action
  */
-function createShareLinksInDatastore(shares, target, parentPath, path, parentShareId, parentDatastoreId, datastore, parentShare) {
+function createShareLinksInDatastore(
+    shares,
+    target,
+    parentPath,
+    path,
+    parentShareId,
+    parentDatastoreId,
+    datastore,
+    parentShare
+) {
     const changedPaths = [parentPath];
 
     for (let i = 0; i < shares.length; i++) {
         let share = shares[i];
 
         changedPaths.concat(
-            createShareLinkInDatastore(share, target, helperService.duplicateObject(path), parentShareId, parentDatastoreId, datastore, parentShare)
+            createShareLinkInDatastore(
+                share,
+                target,
+                helperService.duplicateObject(path),
+                parentShareId,
+                parentDatastoreId,
+                datastore,
+                parentShare
+            )
         );
     }
 
@@ -1527,7 +1614,9 @@ function getAllOwnPgpKeys() {
             };
 
             for (let i = 0; i < own_pgp_secrets.length; i++) {
-                secretService.readSecret(own_pgp_secrets[i].secret_id, own_pgp_secrets[i].secret_key).then(onSuccess, onError);
+                secretService
+                    .readSecret(own_pgp_secrets[i].secret_id, own_pgp_secrets[i].secret_key)
+                    .then(onSuccess, onError);
             }
         });
     });

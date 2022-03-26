@@ -1,42 +1,23 @@
 import React, { useState } from "react";
-import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { bindActionCreators } from "redux";
 import { useTranslation } from "react-i18next";
-import { makeStyles } from "@material-ui/core/styles";
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
-import { Grid } from "@material-ui/core";
-import TextField from "@material-ui/core/TextField";
-
-import actionCreators from "../../actions/action-creators";
-import store from "../../services/store";
 import MuiAlert from "@material-ui/lab/Alert";
 import ButtonDanger from "../../components/button-danger";
 import GridContainerErrors from "../../components/grid-container-errors";
-import datastore from "../../services/datastore";
+import fileRepositoryService from "../../services/file-repository";
 
-const useStyles = makeStyles((theme) => ({
-    textField: {
-        width: "100%",
-    },
-}));
-
-const DeleteDatastoresDialog = (props) => {
+const DeleteFileRepositoriesDialog = (props) => {
     const { open, onClose } = props;
     const { t } = useTranslation();
-    const classes = useStyles();
-    const [password, setPassword] = useState("");
     const [errors, setErrors] = useState([]);
 
-    const showPassword = ["LDAP", "AUTHKEY"].indexOf(store.getState().user.authentication) !== -1;
-
-    const deleteDatastore = () => {
+    const deleteFileRepository = () => {
         setErrors([]);
-        setPassword("");
 
         const onError = function (data) {
             console.log(data);
@@ -51,7 +32,7 @@ const DeleteDatastoresDialog = (props) => {
         const onSuccess = function () {
             onClose();
         };
-        datastore.deleteDatastore(props.datastoreId, password).then(onSuccess, onError);
+        fileRepositoryService.deleteFileRepository(props.fileRepositoryId).then(onSuccess, onError);
     };
 
     return (
@@ -65,31 +46,8 @@ const DeleteDatastoresDialog = (props) => {
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
         >
-            <DialogTitle id="alert-dialog-title">{t("DELETE_DATASTORE")}</DialogTitle>
+            <DialogTitle id="alert-dialog-title">{t("DELETE_FILE_REPOSITORY")}</DialogTitle>
             <DialogContent>
-                {showPassword && (
-                    <Grid container>
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="password"
-                                label={t("PASSWORD")}
-                                helperText={t("YOUR_PASSWORD_AS_CONFIRMATION")}
-                                InputProps={{
-                                    type: "password",
-                                }}
-                                name="password"
-                                autoComplete="password"
-                                value={password}
-                                onChange={(event) => {
-                                    setPassword(event.target.value);
-                                }}
-                            />
-                        </Grid>
-                    </Grid>
-                )}
                 <GridContainerErrors errors={errors} setErrors={setErrors} />
                 <MuiAlert
                     onClose={() => {
@@ -98,15 +56,14 @@ const DeleteDatastoresDialog = (props) => {
                     severity="error"
                     style={{ marginBottom: "5px" }}
                 >
-                    {t("IT_IS_IMPOSSIBLE_TO_REVERT_DELETE_DATASTORE")}
+                    {t("DELETE_FILE_REPOSITORY_WARNING")}
                 </MuiAlert>
             </DialogContent>
             <DialogActions>
                 <ButtonDanger
                     onClick={() => {
-                        deleteDatastore();
+                        deleteFileRepository();
                     }}
-                    disabled={showPassword && !password}
                     autoFocus
                 >
                     {t("DELETE")}
@@ -123,16 +80,10 @@ const DeleteDatastoresDialog = (props) => {
     );
 };
 
-DeleteDatastoresDialog.propTypes = {
+DeleteFileRepositoriesDialog.propTypes = {
     onClose: PropTypes.func.isRequired,
     open: PropTypes.bool.isRequired,
-    datastoreId: PropTypes.string.isRequired,
+    fileRepositoryId: PropTypes.string.isRequired,
 };
 
-function mapStateToProps(state) {
-    return { state: state };
-}
-function mapDispatchToProps(dispatch) {
-    return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-export default connect(mapStateToProps, mapDispatchToProps)(DeleteDatastoresDialog);
+export default DeleteFileRepositoriesDialog;

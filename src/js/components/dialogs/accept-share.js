@@ -68,47 +68,49 @@ const DialogAcceptShare = (props) => {
     let isSubscribed = true;
     React.useEffect(() => {
         datastorePassword.getPasswordDatastore().then(onNewDatastoreLoaded);
-        datastoreUserService.searchUserDatastore(item.share_right_create_user_id, item.share_right_create_user_username).then(function (user) {
-            if (!isSubscribed) {
-                return;
-            }
-            if (user !== null) {
-                setUserIsTrusted(true);
-                setUser(user);
-                return;
-            }
-
-            const onSuccess = function (data) {
-                const users = data.data;
-                if (Object.prototype.toString.call(users) === "[object Array]") {
-                    users.map((user) => {
-                        if (user.username === item.share_right_create_user_username) {
-                            setUser({
-                                data: {
-                                    user_id: user.id,
-                                    user_username: user.username,
-                                    user_public_key: user.public_key,
-                                },
-                                name: user.username,
-                            });
-                        }
-                    });
-                } else {
-                    setUser({
-                        data: {
-                            user_id: users.id,
-                            user_username: users.username,
-                            user_public_key: users.public_key,
-                        },
-                        name: users.username,
-                    });
+        datastoreUserService
+            .searchUserDatastore(item.share_right_create_user_id, item.share_right_create_user_username)
+            .then(function (user) {
+                if (!isSubscribed) {
+                    return;
                 }
-            };
-            const onError = function (data) {
-                //pass
-            };
-            return datastoreUserService.searchUser(item.share_right_create_user_username).then(onSuccess, onError);
-        });
+                if (user !== null) {
+                    setUserIsTrusted(true);
+                    setUser(user);
+                    return;
+                }
+
+                const onSuccess = function (data) {
+                    const users = data.data;
+                    if (Object.prototype.toString.call(users) === "[object Array]") {
+                        users.map((user) => {
+                            if (user.username === item.share_right_create_user_username) {
+                                setUser({
+                                    data: {
+                                        user_id: user.id,
+                                        user_username: user.username,
+                                        user_public_key: user.public_key,
+                                    },
+                                    name: user.username,
+                                });
+                            }
+                        });
+                    } else {
+                        setUser({
+                            data: {
+                                user_id: users.id,
+                                user_username: users.username,
+                                user_public_key: users.public_key,
+                            },
+                            name: users.username,
+                        });
+                    }
+                };
+                const onError = function (data) {
+                    //pass
+                };
+                return datastoreUserService.searchUser(item.share_right_create_user_username).then(onSuccess, onError);
+            });
         // cancel subscription to useEffect
         return () => (isSubscribed = false);
     }, []);
@@ -235,7 +237,12 @@ const DialogAcceptShare = (props) => {
                 console.log(data);
             };
             return shareService
-                .acceptShareRight(item.share_right_id, item.share_right_key, item.share_right_key_nonce, user.data.user_public_key)
+                .acceptShareRight(
+                    item.share_right_id,
+                    item.share_right_key,
+                    item.share_right_key_nonce,
+                    user.data.user_public_key
+                )
                 .then(onSuccess, onError);
         };
         const onError = function (data) {
@@ -261,11 +268,30 @@ const DialogAcceptShare = (props) => {
             <DialogContent>
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12}>
-                        <TextFieldPath className={classes.textField} variant="outlined" margin="dense" value={path} setPath={setPath} />
+                        <TextFieldPath
+                            className={classes.textField}
+                            variant="outlined"
+                            margin="dense"
+                            value={path}
+                            setPath={setPath}
+                        />
                     </Grid>
                     <Grid item xs={12} sm={12} md={12} className={classes.tree}>
-                        {datastore && <DatastoreTree datastore={datastore} onNewFolder={onNewFolder} onSelectNode={onSelectNode} isSelectable={isSelectable} />}
-                        {newFolderOpen && <DialogNewFolder open={newFolderOpen} onClose={() => setNewFolderOpen(false)} onCreate={onNewFolderCreate} />}
+                        {datastore && (
+                            <DatastoreTree
+                                datastore={datastore}
+                                onNewFolder={onNewFolder}
+                                onSelectNode={onSelectNode}
+                                isSelectable={isSelectable}
+                            />
+                        )}
+                        {newFolderOpen && (
+                            <DialogNewFolder
+                                open={newFolderOpen}
+                                onClose={() => setNewFolderOpen(false)}
+                                onCreate={onNewFolderCreate}
+                            />
+                        )}
                     </Grid>
                     {!hideUser && (
                         <Grid item xs={12} sm={12} md={12}>

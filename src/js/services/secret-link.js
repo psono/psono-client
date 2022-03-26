@@ -73,7 +73,9 @@ function moveSecretLink(linkId, newParentShareId, newParentDatastoreId) {
         // pass
     };
 
-    return apiClientService.moveSecretLink(token, sessionSecretKey, linkId, newParentShareId, newParentDatastoreId).then(onSuccess, onError);
+    return apiClientService
+        .moveSecretLink(token, sessionSecretKey, linkId, newParentShareId, newParentDatastoreId)
+        .then(onSuccess, onError);
 }
 
 /**

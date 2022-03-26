@@ -40,7 +40,14 @@ const PasswordRecoveryCodesDialog = (props) => {
     }, []);
 
     return (
-        <Dialog fullWidth maxWidth={"sm"} open={open} onClose={onClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+        <Dialog
+            fullWidth
+            maxWidth={"sm"}
+            open={open}
+            onClose={onClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+        >
             <DialogTitle id="alert-dialog-title">{t("RECOVERY_INFORMATION")}</DialogTitle>
             <DialogContent>
                 <Grid container>

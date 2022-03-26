@@ -240,7 +240,12 @@ const MultifactorAuthenticatorGoogleAuthenticator = (props) => {
                         </Grid>
                         <GridContainerErrors errors={errors} setErrors={setErrors} />
                         <Grid item xs={12} sm={12} md={12}>
-                            <Button variant="contained" color="primary" onClick={validate} disabled={!code || code.length < 6}>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={validate}
+                                disabled={!code || code.length < 6}
+                            >
                                 {t("VALIDATE")}
                             </Button>
                         </Grid>

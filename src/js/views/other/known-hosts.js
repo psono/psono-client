@@ -25,7 +25,9 @@ const OtherKnownHostsView = (props) => {
                 return [
                     knownHost.verify_key,
                     knownHost.url,
-                    knownHost.verify_key.length <= 15 ? knownHost.verify_key : knownHost.verify_key.substring(0, 20) + "...",
+                    knownHost.verify_key.length <= 15
+                        ? knownHost.verify_key
+                        : knownHost.verify_key.substring(0, 20) + "...",
                     currentHostUrl === knownHost.url,
                 ];
             })

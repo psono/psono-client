@@ -51,7 +51,8 @@ function parseUrl(url) {
         top_domain = full_domain;
     } else if (typeof splitted_domain !== "undefined") {
         if (splitted_domain.length > 1) {
-            top_domain = splitted_domain[splitted_domain.length - 2] + "." + splitted_domain[splitted_domain.length - 1];
+            top_domain =
+                splitted_domain[splitted_domain.length - 2] + "." + splitted_domain[splitted_domain.length - 1];
         } else {
             top_domain = splitted_domain[splitted_domain.length - 1];
         }
@@ -479,7 +480,12 @@ function removeFromArray(array, search, cmp_fct) {
  * @returns {boolean} Whether the string ends with the suffix or not
  */
 function endsWith(to_test, suffix) {
-    return typeof to_test !== "undefined" && typeof suffix !== "undefined" && suffix !== "" && to_test.indexOf(suffix, to_test.length - suffix.length) !== -1;
+    return (
+        typeof to_test !== "undefined" &&
+        typeof suffix !== "undefined" &&
+        suffix !== "" &&
+        to_test.indexOf(suffix, to_test.length - suffix.length) !== -1
+    );
 }
 
 /**
@@ -499,7 +505,11 @@ function getPasswordFilter(test) {
             if (datastore_entry.hasOwnProperty("deleted") && datastore_entry["deleted"]) {
                 continue;
             }
-            if (datastore_entry.hasOwnProperty("name") && datastore_entry["name"] && datastore_entry["name"].toLowerCase().indexOf(searchStrings[ii]) > -1) {
+            if (
+                datastore_entry.hasOwnProperty("name") &&
+                datastore_entry["name"] &&
+                datastore_entry["name"].toLowerCase().indexOf(searchStrings[ii]) > -1
+            ) {
                 containCounter++;
             } else if (
                 datastore_entry.hasOwnProperty("urlfilter") &&
@@ -509,11 +519,17 @@ function getPasswordFilter(test) {
                 containCounter++;
             } else if (datastore_entry.hasOwnProperty("id") && datastore_entry["id"] === searchStrings[ii]) {
                 containCounter++;
-            } else if (datastore_entry.hasOwnProperty("secret_id") && datastore_entry["secret_id"] === searchStrings[ii]) {
+            } else if (
+                datastore_entry.hasOwnProperty("secret_id") &&
+                datastore_entry["secret_id"] === searchStrings[ii]
+            ) {
                 containCounter++;
             } else if (datastore_entry.hasOwnProperty("file_id") && datastore_entry["file_id"] === searchStrings[ii]) {
                 containCounter++;
-            } else if (datastore_entry.hasOwnProperty("share_id") && datastore_entry["share_id"] === searchStrings[ii]) {
+            } else if (
+                datastore_entry.hasOwnProperty("share_id") &&
+                datastore_entry["share_id"] === searchStrings[ii]
+            ) {
                 containCounter++;
             }
         }

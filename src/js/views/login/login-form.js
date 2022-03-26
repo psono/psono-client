@@ -243,7 +243,10 @@ const LoginViewForm = (props) => {
                 browserClient.getConfig().then(onNewConfigLoaded, onError);
             };
             setView("default");
-            host.loadRemoteConfig(serverCheck["info"]["web_client"], serverCheck["server_url"]).then(onSuccess, onError);
+            host.loadRemoteConfig(serverCheck["info"]["web_client"], serverCheck["server_url"]).then(
+                onSuccess,
+                onError
+            );
         } else {
             const userPassword = password;
             setPassword("");
@@ -370,15 +373,18 @@ const LoginViewForm = (props) => {
         const serverUrl = configJson["backend_servers"][0]["url"];
         const domain = configJson["backend_servers"][0]["domain"];
         const allowRegistration =
-            !configJson.hasOwnProperty("allow_registration") || (configJson.hasOwnProperty("allow_registration") && configJson["allow_registration"]);
+            !configJson.hasOwnProperty("allow_registration") ||
+            (configJson.hasOwnProperty("allow_registration") && configJson["allow_registration"]);
         const allowLostPassword =
-            (!configJson.hasOwnProperty("allow_lost_password") || (configJson.hasOwnProperty("allow_lost_password") && configJson["allow_lost_password"])) &&
+            (!configJson.hasOwnProperty("allow_lost_password") ||
+                (configJson.hasOwnProperty("allow_lost_password") && configJson["allow_lost_password"])) &&
             configJson["authentication_methods"].indexOf("AUTHKEY") !== -1;
         const samlProvider = configJson.saml_provider || [];
         const oidcProvider = configJson.oidc_provider || [];
         const authenticationMethods = configJson.authentication_methods || [];
         const allowCustomServer = configJson.allow_custom_server;
-        const allowUsernamePasswordLogin = authenticationMethods.includes("AUTHKEY") || authenticationMethods.includes("LDAP");
+        const allowUsernamePasswordLogin =
+            authenticationMethods.includes("AUTHKEY") || authenticationMethods.includes("LDAP");
         const authkeyEnabled = configJson["authentication_methods"].indexOf("AUTHKEY") !== -1;
         const ldapEnabled = configJson["authentication_methods"].indexOf("LDAP") !== -1;
         const samlEnabled = configJson["authentication_methods"].indexOf("SAML") !== -1;
@@ -430,7 +436,10 @@ const LoginViewForm = (props) => {
                 browserClient.getConfig().then(onNewConfigLoaded, onError);
             };
             setView("default");
-            host.loadRemoteConfig(serverCheck["info"]["web_client"], serverCheck["server_url"]).then(onSuccess, onError);
+            host.loadRemoteConfig(serverCheck["info"]["web_client"], serverCheck["server_url"]).then(
+                onSuccess,
+                onError
+            );
         };
         host.checkHost(server).then(onSuccess, onError);
     };
@@ -533,7 +542,13 @@ const LoginViewForm = (props) => {
                                 {provider.title}
                             </Grid>
                             <Grid item xs={12} sm={12} md={12} style={{ marginTop: "10px" }}>
-                                <Button variant="contained" color="primary" onClick={initiateOidcLoginHelper} type="submit" id="sad">
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={initiateOidcLoginHelper}
+                                    type="submit"
+                                    id="sad"
+                                >
                                     <span
                                         style={
                                             !loginLoading
@@ -566,7 +581,13 @@ const LoginViewForm = (props) => {
                                 {provider.title}
                             </Grid>
                             <Grid item xs={12} sm={12} md={12} style={{ marginTop: "10px" }}>
-                                <Button variant="contained" color="primary" onClick={initiateSamlLoginHelper} type="submit" id="sad">
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={initiateSamlLoginHelper}
+                                    type="submit"
+                                    id="sad"
+                                >
                                     <span
                                         style={
                                             !loginLoading
@@ -599,7 +620,10 @@ const LoginViewForm = (props) => {
                                 id="username"
                                 label={t("USERNAME")}
                                 InputProps={{
-                                    endAdornment: domain && !username.includes("@") ? <InputAdornment position="end">{"@" + domain}</InputAdornment> : null,
+                                    endAdornment:
+                                        domain && !username.includes("@") ? (
+                                            <InputAdornment position="end">{"@" + domain}</InputAdornment>
+                                        ) : null,
                                 }}
                                 name="username"
                                 autoComplete="username"
@@ -754,7 +778,13 @@ const LoginViewForm = (props) => {
                 </Grid>
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                        <Button variant="contained" color="primary" onClick={approveHost} type="submit" style={{ marginRight: "10px" }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={approveHost}
+                            type="submit"
+                            style={{ marginRight: "10px" }}
+                        >
                             {t("APPROVE")}
                         </Button>
                         <Button variant="contained" onClick={cancel}>
@@ -827,7 +857,13 @@ const LoginViewForm = (props) => {
                 </Grid>
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                        <Button variant="contained" color="primary" onClick={disapproveNewServer} type="submit" style={{ marginRight: "10px" }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={disapproveNewServer}
+                            type="submit"
+                            style={{ marginRight: "10px" }}
+                        >
                             {t("CANCEL")}
                         </Button>
                         <Button variant="contained" onClick={approveNewServer}>
@@ -863,7 +899,13 @@ const LoginViewForm = (props) => {
                 </Grid>
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                        <Button variant="contained" color="primary" onClick={approveSendPlain} type="submit" style={{ marginRight: "10px" }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={approveSendPlain}
+                            type="submit"
+                            style={{ marginRight: "10px" }}
+                        >
                             {t("APPROVE_UNSAFE")}
                         </Button>
                         <Button variant="contained" onClick={disapproveSendPlain}>

@@ -27,7 +27,12 @@ const SettingsView = (props) => {
             <BaseContent>
                 <Paper square>
                     <AppBar elevation={0} position="static" color="default">
-                        <Tabs variant="scrollable" scrollButtons="auto" value={value} aria-label="scrollable auto tabs example">
+                        <Tabs
+                            variant="scrollable"
+                            scrollButtons="auto"
+                            value={value}
+                            aria-label="scrollable auto tabs example"
+                        >
                             <Tab
                                 label={t("PASSWORD_GENERATOR")}
                                 value="/settings/password-generator"
@@ -42,7 +47,13 @@ const SettingsView = (props) => {
                                 to={"/settings/notification"}
                                 onClick={() => setValue("/settings/notification")}
                             />
-                            <Tab label={t("GPG")} value="/settings/gpg" component={Link} to={"/settings/gpg"} onClick={() => setValue("/settings/gpg")} />
+                            <Tab
+                                label={t("GPG")}
+                                value="/settings/gpg"
+                                component={Link}
+                                to={"/settings/gpg"}
+                                onClick={() => setValue("/settings/gpg")}
+                            />
                             <Tab
                                 label={t("GENERAL")}
                                 value="/settings/general"

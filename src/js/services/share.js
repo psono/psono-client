@@ -53,7 +53,10 @@ function readShares() {
 
     const onSuccess = function (content) {
         for (let i = content.data.shares.length - 1; i >= 0; i--) {
-            if (content.data.shares[i].share_right_title !== "" && content.data.shares[i].share_right_create_user_public_key) {
+            if (
+                content.data.shares[i].share_right_title !== "" &&
+                content.data.shares[i].share_right_create_user_public_key
+            ) {
                 content.data.shares[i].share_right_title = cryptoLibrary.decryptPrivateKey(
                     content.data.shares[i].share_right_title,
                     content.data.shares[i].share_right_title_nonce,
@@ -291,7 +294,9 @@ function updateShareRight(shareId, userId, groupId, read, write, grant) {
         return { share_right_id: content.data.share_right_id };
     };
 
-    return apiClient.updateShareRight(token, sessionSecretKey, shareId, userId, groupId, read, write, grant).then(onSuccess, onError);
+    return apiClient
+        .updateShareRight(token, sessionSecretKey, shareId, userId, groupId, read, write, grant)
+        .then(onSuccess, onError);
 }
 
 /**
@@ -314,7 +319,9 @@ function deleteShareRight(userShareRightId, groupShareRightId) {
         return { share_right_id: content.data.share_right_id };
     };
 
-    return apiClient.deleteShareRight(token, sessionSecretKey, userShareRightId, groupShareRightId).then(onSuccess, onError);
+    return apiClient
+        .deleteShareRight(token, sessionSecretKey, userShareRightId, groupShareRightId)
+        .then(onSuccess, onError);
 }
 
 /**
@@ -329,7 +336,9 @@ function decryptShare(encryptedShare, secretKey) {
     let share = {};
 
     if (typeof encryptedShare.share_data !== "undefined") {
-        share = JSON.parse(cryptoLibrary.decryptData(encryptedShare.share_data, encryptedShare.share_data_nonce, secretKey));
+        share = JSON.parse(
+            cryptoLibrary.decryptData(encryptedShare.share_data, encryptedShare.share_data_nonce, secretKey)
+        );
     }
 
     share.share_id = encryptedShare.share_id;
@@ -362,7 +371,11 @@ function acceptShareRight(shareRightId, text, nonce, publicKey) {
         const decrypted_share = decryptShare(content.data, secret_key);
 
         if (typeof decrypted_share.type === "undefined" && typeof content.data.share_type !== "undefined") {
-            const type = cryptoLibrary.decryptPrivateKey(content.data.share_type, content.data.share_type_nonce, publicKey);
+            const type = cryptoLibrary.decryptPrivateKey(
+                content.data.share_type,
+                content.data.share_type_nonce,
+                publicKey
+            );
 
             if (type !== "folder") {
                 decrypted_share.type = type;
@@ -374,7 +387,9 @@ function acceptShareRight(shareRightId, text, nonce, publicKey) {
 
     const encrypted_key = cryptoLibrary.encryptSecretKey(secret_key);
 
-    return apiClient.acceptShareRight(token, sessionSecretKey, shareRightId, encrypted_key.text, encrypted_key.nonce).then(onSuccess, onError);
+    return apiClient
+        .acceptShareRight(token, sessionSecretKey, shareRightId, encrypted_key.text, encrypted_key.nonce)
+        .then(onSuccess, onError);
 }
 
 /**
@@ -430,9 +445,21 @@ function getClosestParentShare(path, datastore, closestShare, distance) {
             for (n = 0, l = datastore.folders.length; n < l; n++) {
                 if (datastore.folders[n].id === to_search) {
                     if (typeof datastore.folders[n].share_id !== "undefined") {
-                        return get_closest_parent_share_helper(path.slice(), datastore.folders[n], datastore.folders[n], path.slice(), distance);
+                        return get_closest_parent_share_helper(
+                            path.slice(),
+                            datastore.folders[n],
+                            datastore.folders[n],
+                            path.slice(),
+                            distance
+                        );
                     } else {
-                        return get_closest_parent_share_helper(path.slice(), datastore.folders[n], closest_share, relative_path, distance);
+                        return get_closest_parent_share_helper(
+                            path.slice(),
+                            datastore.folders[n],
+                            closest_share,
+                            relative_path,
+                            distance
+                        );
                     }
                 }
             }

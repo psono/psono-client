@@ -43,7 +43,9 @@ const AccountPasswordRecoveryCodesView = (props) => {
                         {t("GENERATE")}
                     </Button>
                 </Grid>
-                {openPasswordRecoveryDialog && <PasswordRecoveryCodesDialog {...props} open={openPasswordRecoveryDialog} onClose={closeModal} />}
+                {openPasswordRecoveryDialog && (
+                    <PasswordRecoveryCodesDialog {...props} open={openPasswordRecoveryDialog} onClose={closeModal} />
+                )}
                 {warnGenerateNewPasswordRecoveryCodesOpen && (
                     <DialogVerify
                         title={"NEW_PASSWORD_RECOVERY_CODE"}

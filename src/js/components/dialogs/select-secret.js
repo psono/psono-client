@@ -75,7 +75,13 @@ const DialogSelectSecret = (props) => {
             <DialogContent>
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12} className={classes.tree}>
-                        {datastore && <DatastoreTree datastore={datastore} onSelectItem={onSelectItem} isSelectable={isSelectable} />}
+                        {datastore && (
+                            <DatastoreTree
+                                datastore={datastore}
+                                onSelectItem={onSelectItem}
+                                isSelectable={isSelectable}
+                            />
+                        )}
                     </Grid>
                 </Grid>
             </DialogContent>

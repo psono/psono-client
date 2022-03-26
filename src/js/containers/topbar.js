@@ -96,7 +96,13 @@ const Topbar = (props) => {
         <AppBar position="fixed" className={classes.appBar}>
             <Container maxWidth="lg">
                 <Toolbar>
-                    <IconButton color="inherit" aria-label="open drawer" edge="start" onClick={handleDrawerToggle} className={classes.menuButton}>
+                    <IconButton
+                        color="inherit"
+                        aria-label="open drawer"
+                        edge="start"
+                        onClick={handleDrawerToggle}
+                        className={classes.menuButton}
+                    >
                         <MenuIcon />
                     </IconButton>
                     <a className={classes.topLogo} href="#">
@@ -105,7 +111,12 @@ const Topbar = (props) => {
                     <div style={{ width: "100%" }}>
                         <div style={{ float: "right" }}>
                             <Hidden smUp>
-                                <IconButton variant="contained" onClick={openTopMenu} color="primary" className={classes.topMenuButton}>
+                                <IconButton
+                                    variant="contained"
+                                    onClick={openTopMenu}
+                                    color="primary"
+                                    className={classes.topMenuButton}
+                                >
                                     <AccountCircleIcon />
                                 </IconButton>
                             </Hidden>

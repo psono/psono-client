@@ -186,9 +186,15 @@ const DialogTrashBin = (props) => {
             {verifyDeletePermanentOpen && (
                 <DialogVerify
                     title={entriesFull[entryIndexBeingDeleted].type === "item" ? "DELETE_ENTRY" : "DELETE_FOLDER"}
-                    description={entriesFull[entryIndexBeingDeleted].type === "item" ? "DELETE_ENTRY_PERMANENT_WARNING" : "DELETE_FOLDER_PERMANENT_WARNING"}
+                    description={
+                        entriesFull[entryIndexBeingDeleted].type === "item"
+                            ? "DELETE_ENTRY_PERMANENT_WARNING"
+                            : "DELETE_FOLDER_PERMANENT_WARNING"
+                    }
                     entries={[entriesFull[entryIndexBeingDeleted].item.name]}
-                    affectedEntriesText={entriesFull[entryIndexBeingDeleted].type === "item" ? "AFFECTED_ENTRIES" : "AFFECTED_FOLDERS"}
+                    affectedEntriesText={
+                        entriesFull[entryIndexBeingDeleted].type === "item" ? "AFFECTED_ENTRIES" : "AFFECTED_FOLDERS"
+                    }
                     open={verifyDeletePermanentOpen}
                     onClose={() => setVerifyDeletePermanentOpen(false)}
                     onConfirm={deletePermanentConfirmed}

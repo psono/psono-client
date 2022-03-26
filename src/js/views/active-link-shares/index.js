@@ -48,7 +48,12 @@ const ActiveLinkShareView = (props) => {
             setActiveLinkShares(
                 newActiveLinkShares.link_shares.map((linkShare, index) => {
                     newLinkShares[linkShare.id] = linkShare;
-                    return [linkShare.id, linkShare.public_title, linkShare.valid_till ? format(new Date(linkShare.valid_till)) : "", linkShare.allowed_reads];
+                    return [
+                        linkShare.id,
+                        linkShare.public_title,
+                        linkShare.valid_till ? format(new Date(linkShare.valid_till)) : "",
+                        linkShare.allowed_reads,
+                    ];
                 })
             );
             setLinkShares(newLinkShares);
@@ -149,7 +154,14 @@ const ActiveLinkShareView = (props) => {
                         <Table data={activeLinkShares} columns={columns} options={options} />
                     </div>
                 </Paper>
-                {editOpen && <EditActiveLinksShareDialog {...props} open={editOpen} onClose={onCloseEditModal} linkShare={editLinkShare} />}
+                {editOpen && (
+                    <EditActiveLinksShareDialog
+                        {...props}
+                        open={editOpen}
+                        onClose={onCloseEditModal}
+                        linkShare={editLinkShare}
+                    />
+                )}
             </BaseContent>
         </Base>
     );

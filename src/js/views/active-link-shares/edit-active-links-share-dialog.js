@@ -79,7 +79,9 @@ const EditActiveLinksShareDialog = (props) => {
         const onSuccess = function (result) {
             onClose();
         };
-        linkShareService.updateLinkShare(linkShare.id, publicTitle, allowedReads, newPassphrase, newValidTill).then(onSuccess, onError);
+        linkShareService
+            .updateLinkShare(linkShare.id, publicTitle, allowedReads, newPassphrase, newValidTill)
+            .then(onSuccess, onError);
     };
 
     return (
@@ -194,7 +196,9 @@ const EditActiveLinksShareDialog = (props) => {
                                 label={t("PASSPHRASE_REPEAT")}
                                 name="passphraseRepeat"
                                 autoComplete="passphraseRepeat"
-                                error={Boolean(passphrase) && Boolean(passphraseRepeat) && passphrase !== passphraseRepeat}
+                                error={
+                                    Boolean(passphrase) && Boolean(passphraseRepeat) && passphrase !== passphraseRepeat
+                                }
                                 value={passphraseRepeat}
                                 required
                                 onChange={(event) => {

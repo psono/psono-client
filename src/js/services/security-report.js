@@ -97,7 +97,11 @@ function rateSecret(secret) {
         };
     }
 
-    if (secret.username && secret.username !== "" && secret.password.toLowerCase().indexOf(secret.username.toLowerCase()) !== -1) {
+    if (
+        secret.username &&
+        secret.username !== "" &&
+        secret.password.toLowerCase().indexOf(secret.username.toLowerCase()) !== -1
+    ) {
         return {
             score: 0,
             advice: "REMOVE_USERNAME_FROM_PASSWORD",
@@ -116,12 +120,21 @@ function rateSecret(secret) {
         };
     }
 
-    const score = ((secret.password.length - _MIN_PASSWORD_LENGTH) * _MAX_SCORE) / (_MAX_PASSWORD_LENGTH - _MIN_PASSWORD_LENGTH);
+    const score =
+        ((secret.password.length - _MIN_PASSWORD_LENGTH) * _MAX_SCORE) / (_MAX_PASSWORD_LENGTH - _MIN_PASSWORD_LENGTH);
 
     if (secret.password.length <= _MIN_VARIATION_ENFORCE_PASSWORD_LENGTH && variation_count < _MIN_VARIATION_LENGTH) {
         return {
             score:
-                Math.round(Math.max(Math.min(score * (1 - (_MIN_VARIATION_LENGTH - variation_count) * _VARIATION_PENALTY), _MAX_SCORE), _MIN_SCORE) * 10) / 10,
+                Math.round(
+                    Math.max(
+                        Math.min(
+                            score * (1 - (_MIN_VARIATION_LENGTH - variation_count) * _VARIATION_PENALTY),
+                            _MAX_SCORE
+                        ),
+                        _MIN_SCORE
+                    ) * 10
+                ) / 10,
             advice: "SET_LONGER_OR_MORE_COMPLEX_PASSWORD",
             password_length: secret.password.length,
             variation_count: variation_count,
@@ -151,7 +164,10 @@ function filterPasswordsHelper(folder, passwords) {
     }
 
     for (i = 0; folder.hasOwnProperty("items") && i < folder["items"].length; i++) {
-        if (folder["items"][i]["type"] !== "website_password" && folder["items"][i]["type"] !== "application_password") {
+        if (
+            folder["items"][i]["type"] !== "website_password" &&
+            folder["items"][i]["type"] !== "application_password"
+        ) {
             continue;
         }
         if (!folder["items"][i].hasOwnProperty("create_date")) {
@@ -479,7 +495,8 @@ function summarizePassword(analysis) {
     //calculate average rating
     if (analysis["password_summary"]["total"]) {
         analysis["password_summary"]["average_rating"] =
-            Math.round((analysis["password_summary"]["average_rating"] / analysis["password_summary"]["total"]) * 10) / 10;
+            Math.round((analysis["password_summary"]["average_rating"] / analysis["password_summary"]["total"]) * 10) /
+            10;
         analysis["password_summary"]["average_update_age"] = Math.round(
             analysis["password_summary"]["average_update_age"] / analysis["password_summary"]["total"]
         );
@@ -614,7 +631,9 @@ function sendToServer(analysis, checkHaveibeenpwned, masterPassword) {
         return result.data;
     };
 
-    return apiClient.sendSecurityReport(token, sessionSecretKey, entries, checkHaveibeenpwned, authkey).then(onSuccess, onError);
+    return apiClient
+        .sendSecurityReport(token, sessionSecretKey, entries, checkHaveibeenpwned, authkey)
+        .then(onSuccess, onError);
 }
 
 const securityReportService = {

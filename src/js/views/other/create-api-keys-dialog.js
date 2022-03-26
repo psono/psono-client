@@ -242,7 +242,12 @@ const CreateApiKeysDialog = (props) => {
                         {t("RIGHT_TO_WRITE")}
                     </Grid>
                     <Grid item xs={12} sm={12} md={12}>
-                        <Table data={secrets} columns={columns} options={options} onCreate={() => setAddSecretOpen(true)} />
+                        <Table
+                            data={secrets}
+                            columns={columns}
+                            options={options}
+                            onCreate={() => setAddSecretOpen(true)}
+                        />
                     </Grid>
                 </Grid>
                 <GridContainerErrors errors={errors} setErrors={setErrors} />
@@ -267,7 +272,12 @@ const CreateApiKeysDialog = (props) => {
                 </Button>
             </DialogActions>
             {addSecretOpen && (
-                <DialogSelectSecret open={addSecretOpen} onClose={() => setAddSecretOpen(false)} onSelectItem={onAddSecret} isSelectable={isSelectable} />
+                <DialogSelectSecret
+                    open={addSecretOpen}
+                    onClose={() => setAddSecretOpen(false)}
+                    onSelectItem={onAddSecret}
+                    isSelectable={isSelectable}
+                />
             )}
         </Dialog>
     );

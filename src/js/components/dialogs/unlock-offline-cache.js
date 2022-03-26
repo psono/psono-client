@@ -49,7 +49,13 @@ const DialogUnlockOfflineCache = (props) => {
     };
 
     return (
-        <Dialog fullWidth maxWidth={"sm"} open={open} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+        <Dialog
+            fullWidth
+            maxWidth={"sm"}
+            open={open}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+        >
             <DialogTitle id="alert-dialog-title">{t("UNLOCK_OFFLINE_CACHE")}</DialogTitle>
             <DialogContent>
                 <Grid container>
@@ -73,7 +79,11 @@ const DialogUnlockOfflineCache = (props) => {
                                 },
                                 endAdornment: (
                                     <InputAdornment position="end">
-                                        <IconButton aria-label="toggle password visibility" onClick={() => setShowPassword(!showPassword)} edge="end">
+                                        <IconButton
+                                            aria-label="toggle password visibility"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            edge="end"
+                                        >
                                             {showPassword ? <Visibility /> : <VisibilityOff />}
                                         </IconButton>
                                     </InputAdornment>

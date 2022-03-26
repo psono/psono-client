@@ -168,7 +168,11 @@ const PopupItem = (props) => {
                     </FormHelperText>
                 </Tooltip>
             </a>
-            <ButtonGroup variant="text" aria-label="outlined button group" className={classes.navigationItemButtonGroup}>
+            <ButtonGroup
+                variant="text"
+                aria-label="outlined button group"
+                className={classes.navigationItemButtonGroup}
+            >
                 {["bookmark", "website_password"].indexOf(item.content.type) !== -1 && (
                     <Button
                         aria-label="open"

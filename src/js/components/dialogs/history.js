@@ -42,7 +42,13 @@ const DialogHistory = (props) => {
             if (!isSubscribed) {
                 return;
             }
-            setHistoryItems(history.map((historyItem) => [historyItem.id, format(new Date(historyItem.create_date)), historyItem.username]));
+            setHistoryItems(
+                history.map((historyItem) => [
+                    historyItem.id,
+                    format(new Date(historyItem.create_date)),
+                    historyItem.username,
+                ])
+            );
         });
     };
 

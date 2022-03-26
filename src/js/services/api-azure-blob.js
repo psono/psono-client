@@ -7,7 +7,7 @@ import converterService from "./converter";
 
 function call(signedUrl, method, endpoint, data, headers, transformRequest, responseType) {
     if (!transformRequest) {
-        transformRequest = $http.defaults.transformRequest;
+        transformRequest = axios.defaults.transformRequest;
     }
 
     const req = {
@@ -50,7 +50,7 @@ function upload(signedUrl, chunk) {
         "Content-Type": undefined,
     };
 
-    return call(signedUrl, method, endpoint, chunk, headers, angular.identity);
+    return call(signedUrl, method, endpoint, chunk, headers);
 }
 
 /**

@@ -80,7 +80,12 @@ function unlock(password) {
     }
     let newEncryptionKey;
     try {
-        newEncryptionKey = cryptoLibrary.decryptSecret(encryptionKeyEncrypted.text, encryptionKeyEncrypted.nonce, password, encryptionKeySalt);
+        newEncryptionKey = cryptoLibrary.decryptSecret(
+            encryptionKeyEncrypted.text,
+            encryptionKeyEncrypted.nonce,
+            password,
+            encryptionKeySalt
+        );
     } catch (e) {
         return false;
     }
@@ -115,7 +120,11 @@ function setEncryptionPassword(password) {
     const new_encryption_key = cryptoLibrary.generateSecretKey();
     setEncryptionKey(new_encryption_key);
     const offlineCacheEncryptionSalt = cryptoLibrary.generateSecretKey();
-    const offlineCacheEncryptionKey = cryptoLibrary.encryptSecret(new_encryption_key, password, offlineCacheEncryptionSalt);
+    const offlineCacheEncryptionKey = cryptoLibrary.encryptSecret(
+        new_encryption_key,
+        password,
+        offlineCacheEncryptionSalt
+    );
     action.setOfflineCacheEncryptionInfo(offlineCacheEncryptionKey, offlineCacheEncryptionSalt);
     browserClient.emitSec("set-offline-cache-encryption-key", { encryption_key: new_encryption_key });
 }

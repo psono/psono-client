@@ -112,7 +112,13 @@ const EmergencyCodeViewForm = (props) => {
                 setRemainingWaitingTime(data.remaining_wait_time);
             }
         }
-        user.armEmergencyCode(fullUsername, localEmergencyCode, server, serverCheck["info"], serverCheck["verify_key"]).then(onSuccess, onError);
+        user.armEmergencyCode(
+            fullUsername,
+            localEmergencyCode,
+            server,
+            serverCheck["info"],
+            serverCheck["verify_key"]
+        ).then(onSuccess, onError);
     };
 
     const approveHost = () => {
@@ -146,7 +152,10 @@ const EmergencyCodeViewForm = (props) => {
         if (typeof words !== "undefined" && words !== "") {
             localEmergencyCode = converterService.hexToBase58(converterService.wordsToHex(words.split(" ")));
         } else if (typeof code1 !== "undefined" && code1 !== "" && typeof code2 !== "undefined" && code2 !== "") {
-            if (!cryptoLibrary.recoveryPasswordChunkPassChecksum(code1) || !cryptoLibrary.recoveryPasswordChunkPassChecksum(code2)) {
+            if (
+                !cryptoLibrary.recoveryPasswordChunkPassChecksum(code1) ||
+                !cryptoLibrary.recoveryPasswordChunkPassChecksum(code2)
+            ) {
                 setErrors(["AT_LEAST_ONE_CODE_INCORRECT"]);
                 return;
             }
@@ -190,7 +199,10 @@ const EmergencyCodeViewForm = (props) => {
                             id="username"
                             label={t("USERNAME")}
                             InputProps={{
-                                endAdornment: domain && !username.includes("@") ? <InputAdornment position="end">{"@" + domain}</InputAdornment> : null,
+                                endAdornment:
+                                    domain && !username.includes("@") ? (
+                                        <InputAdornment position="end">{"@" + domain}</InputAdornment>
+                                    ) : null,
                             }}
                             name="username"
                             autoComplete="username"
@@ -301,7 +313,13 @@ const EmergencyCodeViewForm = (props) => {
                         </MuiAlert>
                     </Grid>
                     <Grid item xs={4} sm={4} md={4} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                        <Button variant="contained" color="primary" type="submit" href={"index.html"} className={classes.button}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            type="submit"
+                            href={"index.html"}
+                            className={classes.button}
+                        >
                             {t("BACK_TO_HOME")}
                         </Button>
                     </Grid>
@@ -326,7 +344,13 @@ const EmergencyCodeViewForm = (props) => {
                         </MuiAlert>
                     </Grid>
                     <Grid item xs={4} sm={4} md={4} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                        <Button variant="contained" color="primary" type="submit" href={"index.html"} className={classes.button}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            type="submit"
+                            href={"index.html"}
+                            className={classes.button}
+                        >
                             {t("BACK_TO_HOME")}
                         </Button>
                     </Grid>
@@ -375,7 +399,13 @@ const EmergencyCodeViewForm = (props) => {
                 </Grid>
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                        <Button variant="contained" color="primary" onClick={approveHost} type="submit" style={{ marginRight: "10px" }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={approveHost}
+                            type="submit"
+                            style={{ marginRight: "10px" }}
+                        >
                             {t("APPROVE")}
                         </Button>
                         <Button variant="contained" onClick={cancel}>
@@ -448,7 +478,13 @@ const EmergencyCodeViewForm = (props) => {
                 </Grid>
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                        <Button variant="contained" color="primary" onClick={disapproveNewServer} type="submit" style={{ marginRight: "10px" }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={disapproveNewServer}
+                            type="submit"
+                            style={{ marginRight: "10px" }}
+                        >
                             {t("CANCEL")}
                         </Button>
                         <Button variant="contained" onClick={approveNewServer}>
@@ -469,7 +505,13 @@ const EmergencyCodeViewForm = (props) => {
                         <ThumbUpIcon style={{ fontSize: 160 }} />
                     </Grid>
                     <Grid item xs={4} sm={4} md={4} style={{ marginTop: "5px", marginBottom: "5px" }}>
-                        <Button variant="contained" color="primary" type="submit" href={"index.html"} className={classes.button}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            type="submit"
+                            href={"index.html"}
+                            className={classes.button}
+                        >
                             {t("BACK_TO_HOME")}
                         </Button>
                     </Grid>

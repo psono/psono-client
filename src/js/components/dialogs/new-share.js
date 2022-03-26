@@ -159,7 +159,9 @@ const DialogNewShare = (props) => {
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <React.Fragment>
-                            {tableMeta.rowData[1].length > 58 ? tableMeta.rowData[1].substring(0, 58) + "...)" : tableMeta.rowData[1]}
+                            {tableMeta.rowData[1].length > 58
+                                ? tableMeta.rowData[1].substring(0, 58) + "...)"
+                                : tableMeta.rowData[1]}
                         </React.Fragment>
                     );
                 },
@@ -174,7 +176,11 @@ const DialogNewShare = (props) => {
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <IconButton onClick={() => toggleSelect(tableMeta.rowData[0], "user")}>
-                            {selectedUsers.indexOf(tableMeta.rowData[0]) > -1 ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />}
+                            {selectedUsers.indexOf(tableMeta.rowData[0]) > -1 ? (
+                                <CheckBoxIcon />
+                            ) : (
+                                <CheckBoxOutlineBlankIcon />
+                            )}
                         </IconButton>
                     );
                 },
@@ -193,7 +199,9 @@ const DialogNewShare = (props) => {
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <React.Fragment>
-                            {tableMeta.rowData[1].length > 58 ? tableMeta.rowData[1].substring(0, 58) + "...)" : tableMeta.rowData[1]}
+                            {tableMeta.rowData[1].length > 58
+                                ? tableMeta.rowData[1].substring(0, 58) + "...)"
+                                : tableMeta.rowData[1]}
                         </React.Fragment>
                     );
                 },
@@ -208,7 +216,11 @@ const DialogNewShare = (props) => {
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <IconButton onClick={() => toggleSelect(tableMeta.rowData[0], "group")}>
-                            {selectedGroups.indexOf(tableMeta.rowData[0]) > -1 ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />}
+                            {selectedGroups.indexOf(tableMeta.rowData[0]) > -1 ? (
+                                <CheckBoxIcon />
+                            ) : (
+                                <CheckBoxOutlineBlankIcon />
+                            )}
                         </IconButton>
                     );
                 },
@@ -296,10 +308,20 @@ const DialogNewShare = (props) => {
                             <Tab label={t("KNOWN_GROUPS")} />
                         </Tabs>
                         <TabPanel value={value} index={0} className={classes.tabPanel}>
-                            <Table data={userColumnData} columns={userColumns} options={options} onCreate={onCreateTrustedUser} />
+                            <Table
+                                data={userColumnData}
+                                columns={userColumns}
+                                options={options}
+                                onCreate={onCreateTrustedUser}
+                            />
                         </TabPanel>
                         <TabPanel value={value} index={1} className={classes.tabPanel}>
-                            <Table data={groupColumnData} columns={groupColumns} options={options} onCreate={onCreateGroup} />
+                            <Table
+                                data={groupColumnData}
+                                columns={groupColumns}
+                                options={options}
+                                onCreate={onCreateGroup}
+                            />
                         </TabPanel>
                     </Grid>
                 </Grid>
@@ -329,7 +351,9 @@ const DialogNewShare = (props) => {
                 </Button>
             </DialogActions>
             {newGroupOpen && <CreateGroupDialog {...props} open={newGroupOpen} onClose={onCloseCreateGroupModal} />}
-            {newUserOpen && <DialogNewUser open={newUserOpen} onClose={() => setNewUserOpen(false)} onCreate={onNewUserCreate} />}
+            {newUserOpen && (
+                <DialogNewUser open={newUserOpen} onClose={() => setNewUserOpen(false)} onCreate={onNewUserCreate} />
+            )}
         </Dialog>
     );
 };

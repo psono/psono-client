@@ -228,7 +228,9 @@ const DialogGpgAddressBook = (props) => {
             const newEditingUser = helper.duplicateObject(editingUser);
             newEditingUser.public_keys.splice(keyId, 1);
             setEditingUser(newEditingUser);
-            setEditingUserPublicKeyFingerprints(editingUserPublicKeyFingerprints.filter((value, index) => index !== keyId));
+            setEditingUserPublicKeyFingerprints(
+                editingUserPublicKeyFingerprints.filter((value, index) => index !== keyId)
+            );
         };
 
         const onError = function (data) {
@@ -336,13 +338,26 @@ const DialogGpgAddressBook = (props) => {
     };
 
     return (
-        <Dialog fullWidth maxWidth={"sm"} open={open} onClose={onClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+        <Dialog
+            fullWidth
+            maxWidth={"sm"}
+            open={open}
+            onClose={onClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+        >
             <DialogTitle id="alert-dialog-title">{t("ADDRESS_BOOK")}</DialogTitle>
             {view === "default" && (
                 <DialogContent>
                     <Grid container>
                         <Grid item xs={12} sm={12} md={12}>
-                            <Table data={addresses} columns={columns} options={options} onCreate={() => setView("adding_address")} onSelect={selectRecipient} />
+                            <Table
+                                data={addresses}
+                                columns={columns}
+                                options={options}
+                                onCreate={() => setView("adding_address")}
+                                onSelect={selectRecipient}
+                            />
                         </Grid>
                     </Grid>
                 </DialogContent>
@@ -526,7 +541,12 @@ const DialogGpgAddressBook = (props) => {
             )}
             {view === "adding_address" && (
                 <DialogActions>
-                    <Button onClick={addNewRecipient} disabled={!fingerprint || !email || !helper.isValidEmail(email)} variant="contained" color="primary">
+                    <Button
+                        onClick={addNewRecipient}
+                        disabled={!fingerprint || !email || !helper.isValidEmail(email)}
+                        variant="contained"
+                        color="primary"
+                    >
                         {t("ADD")}
                     </Button>
                     <Button onClick={back}>{t("BACK")}</Button>
