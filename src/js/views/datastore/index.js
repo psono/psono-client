@@ -447,8 +447,8 @@ const DatastoreView = (props) => {
 
     const onNewFolderCreate = (name) => {
         // called once someone clicked the CREATE button in the dialog closes with the new name
-        setNewFolderOpen(false);
         widget.openNewFolder(newFolderData["parent"], newFolderData["path"], datastore, datastorePasswordService, name);
+        setNewFolderOpen(false);
     };
     const onNewFolder = (parent, path) => {
         onContextMenuClose();
@@ -463,8 +463,8 @@ const DatastoreView = (props) => {
 
     const onNewEntryCreate = (item) => {
         // called once someone clicked the CREATE button in the dialog closes with the new name
-        setNewEntryOpen(false);
         widget.openNewItem(item, datastore, newEntryData["parent"], newEntryData["path"], datastorePasswordService);
+        setNewEntryOpen(false);
     };
     const onNewEntry = (parent, path) => {
         onContextMenuClose();
@@ -626,30 +626,6 @@ const DatastoreView = (props) => {
             item: item,
         });
         setCreateLinkShareOpen(true);
-        // /**
-        //  * User clicked the "Create" button
-        //  *
-        //  * @param content
-        //  */
-        // const on_modal_close_success = function (content) {
-        //     console.log(content);
-        // };
-        //
-        // const modalInstance = $uibModal.open({
-        //     templateUrl: "view/modal/create-link-share.html",
-        //     controller: "ModalCreateLinkShareCtrl",
-        //     backdrop: "static",
-        //     resolve: {
-        //         node: function () {
-        //             return item;
-        //         },
-        //     },
-        // });
-        //
-        // // User clicked the final share button
-        // modalInstance.result.then(on_modal_close_success, function () {
-        //     // cancel triggered
-        // });
     };
     const openMenu = (event) => {
         event.preventDefault();
@@ -837,6 +813,15 @@ const DatastoreView = (props) => {
                             onCreate={onNewFolderCreate}
                         />
                     )}
+                    {newEntryOpen && (
+                        <DialogNewEntry
+                            open={newEntryOpen}
+                            onClose={() => setNewEntryOpen(false)}
+                            onCreate={onNewEntryCreate}
+                            parentDatastoreId={newEntryData.parentDatastoreId}
+                            parentShareId={newEntryData.parentShareId}
+                        />
+                    )}
                     {editFolderOpen && (
                         <DialogEditFolder
                             open={editFolderOpen}
@@ -858,15 +843,6 @@ const DatastoreView = (props) => {
                             open={createLinkShareOpen}
                             onClose={() => setCreateLinkShareOpen(false)}
                             item={createLinkShareData.item}
-                        />
-                    )}
-                    {newEntryOpen && (
-                        <DialogNewEntry
-                            open={newEntryOpen}
-                            onClose={() => setNewEntryOpen(false)}
-                            onCreate={onNewEntryCreate}
-                            parentDatastoreId={newEntryData.parentDatastoreId}
-                            parentShareId={newEntryData.parentShareId}
                         />
                     )}
                     {trashBinOpen && (
