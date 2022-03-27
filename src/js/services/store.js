@@ -7,10 +7,15 @@ import thunkMiddleware from "redux-thunk";
 import { createLogger } from "redux-logger";
 import { persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
+import { createStateSyncMiddleware, initMessageListener } from "redux-state-sync";
 
 import rootReducer from "../reducers";
 
-const middlewares = [thunkMiddleware];
+const config = {
+    blacklist: ["persist/PERSIST", "persist/REHYDRATE"],
+};
+
+const middlewares = [thunkMiddleware, createStateSyncMiddleware(config)];
 
 if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
     const loggerMiddleware = createLogger();
@@ -25,5 +30,7 @@ const persistConfig = {
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 let service = createStore(persistedReducer, applyMiddleware(...middlewares));
+
+initMessageListener(service);
 
 export default service;
