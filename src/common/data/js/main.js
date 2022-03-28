@@ -52,6 +52,7 @@
             'angular-complexify', 'datatables', 'chart.js', 'pascalprecht.translate', 'ngCookies'])
         .provider('languages', function(){
             var languages = {
+                'ca': {'code': 'ca', 'lng_code': 'LANG_CA', 'lng_title_native': 'Català', 'active': true},
                 'cs': {'code': 'cs', 'lng_code': 'LANG_CS', 'lng_title_native': 'Česky','active': true},
                 'de': {'code': 'de', 'lng_code': 'LANG_DE', 'lng_title_native': 'Deutsch', 'active': true},
                 'en': {'code': 'en', 'lng_code': 'LANG_EN', 'lng_title_native': 'English', 'active': true, 'default': true},
