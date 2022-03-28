@@ -15,7 +15,7 @@ wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Arabic.json -O src/common/
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Ukrainian.json -O src/common/data/translations/datatables.uk.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Hindi.json -O src/common/data/translations/datatables.hi.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/English.json -O src/common/data/translations/datatables.bn.json
-
+wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Catalan.json -O src/common/data/translations/datatables.ca.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/Czech.json -O src/common/data/translations/datatables.cs.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/German.json -O src/common/data/translations/datatables.de.json
 wget https://cdn.datatables.net/plug-ins/1.10.11/i18n/English.json -O src/common/data/translations/datatables.en.json
