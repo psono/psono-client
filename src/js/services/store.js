@@ -12,6 +12,7 @@ import { createStateSyncMiddleware, initMessageListener } from "redux-state-sync
 import rootReducer from "../reducers";
 
 const config = {
+    channel: 'redux_state_sync',
     blacklist: ["persist/PERSIST", "persist/REHYDRATE"],
 };
 
