@@ -26,7 +26,7 @@ LANGUAGE_CODES = [
 ]
 
 WEBHOOKS = {
-    'ca': 'https://api.poeditor.com/webhooks/60e08a38a1',
+    'ca': 'https://api.poeditor.com/webhooks/2ec680a3b9',
     'da': 'https://api.poeditor.com/webhooks/60e08a38a1',
     'sv': 'https://api.poeditor.com/webhooks/e04cf1e71b',
     'no': 'https://api.poeditor.com/webhooks/f958402063',
