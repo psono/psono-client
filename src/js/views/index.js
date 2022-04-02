@@ -155,6 +155,9 @@ const IndexView = (props) => {
                     <Route path="/security-report">
                         <SecurityReportView {...props} />
                     </Route>
+                    <Route path="/datastore/edit/:secretType/:secretId">
+                        <DatastoreView {...props} />
+                    </Route>
                     <Route path="/datastore/search/:defaultSearch">
                         <DatastoreView {...props} />
                     </Route>

@@ -118,7 +118,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const DatastoreView = (props) => {
-    let { defaultSearch } = useParams();
+    let { defaultSearch, secretType, secretId } = useParams();
     const serverStatus = useSelector((state) => state.server.status);
     const offlineMode = useSelector((state) => state.client.offlineMode);
     const recurrenceInterval = useSelector((state) => state.server.complianceCentralSecurityReportsRecurrenceInterval);
@@ -186,6 +186,21 @@ const DatastoreView = (props) => {
             return;
         }
         setDatastore(data);
+
+
+        if (typeof(secretType) === 'undefined') {
+            return;
+        }
+        const paths = datastorePasswordService.searchInDatastore(secretId, data, function(secretId, item) {
+            return item.hasOwnProperty('secret_id') && item.secret_id === secretId;
+        });
+        if (paths.length === 0) {
+            return
+        }
+        const search = datastorePasswordService.findInDatastore(paths[0], data);
+        const node = search[0][search[1]];
+
+        onEditEntry(node, paths[0])
     };
 
     const onClear = () => {
