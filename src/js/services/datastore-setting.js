@@ -17,15 +17,30 @@ function getSettingsDatastore() {
 
     const onSuccess = function (results) {
         const data = {
-            setting_password_length: store.getState().server.compliancePasswordGeneratorDefaultPasswordLength,
-            setting_password_letters_uppercase:
-                store.getState().server.compliancePasswordGeneratorDefaultLettersUppercase,
-            setting_password_letters_lowercase:
-                store.getState().server.compliancePasswordGeneratorDefaultLettersLowercase,
-            setting_password_numbers: store.getState().server.compliancePasswordGeneratorDefaultNumbers,
-            setting_password_special_chars: store.getState().server.compliancePasswordGeneratorDefaultSpecialChars,
+            setting_password_length: 16,
+            setting_password_letters_uppercase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+            setting_password_letters_lowercase: "abcdefghijklmnopqrstuvwxyz",
+            setting_password_numbers: "0123456789",
+            setting_password_special_chars: ",.-;:_#'+*~!\"§$%&/@()=?{[]}\\",
         };
-
+        if (typeof store.getState().server.compliancePasswordGeneratorDefaultPasswordLength !== "undefined") {
+            data["setting_password_length"] = store.getState().server.compliancePasswordGeneratorDefaultPasswordLength;
+        }
+        if (typeof store.getState().server.compliancePasswordGeneratorDefaultLettersUppercase !== "undefined") {
+            data["setting_password_letters_uppercase"] =
+                store.getState().server.compliancePasswordGeneratorDefaultLettersUppercase;
+        }
+        if (typeof store.getState().server.compliancePasswordGeneratorDefaultLettersLowercase !== "undefined") {
+            data["setting_password_letters_lowercase"] =
+                store.getState().server.compliancePasswordGeneratorDefaultLettersLowercase;
+        }
+        if (typeof store.getState().server.compliancePasswordGeneratorDefaultNumbers !== "undefined") {
+            data["setting_password_numbers"] = store.getState().server.compliancePasswordGeneratorDefaultNumbers;
+        }
+        if (typeof store.getState().server.compliancePasswordGeneratorDefaultSpecialChars !== "undefined") {
+            data["setting_password_special_chars"] =
+                store.getState().server.compliancePasswordGeneratorDefaultSpecialChars;
+        }
         action.settingsDatastoreLoaded(data);
 
         results.forEach((result) => (data[result["key"]] = result["value"]));
