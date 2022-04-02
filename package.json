@@ -13,7 +13,7 @@
     "buildfirefox": "webpack --config webpack.environment.prod.firefox.js",
     "buildwebclient": "webpack --config webpack.environment.prod.webclient.js",
     "buildsw": "node ./src/build-service-worker.js",
-    "test": "jest"
+    "test": "jest --detectOpenHandles"
   },
   "jest": {
     "setupFilesAfterEnv": [
