@@ -43,9 +43,11 @@ function getSettingsDatastore() {
         }
         action.settingsDatastoreLoaded(data);
 
-        results.forEach((result) => (data[result["key"]] = result["value"]));
-
-        action.settingsDatastoreLoaded(data);
+        if (Array.isArray(results)) {
+            // if the user has no settings datastore then this function will return an dict, e.g. {'datastore_id': '...'}
+            results.forEach((result) => (data[result["key"]] = result["value"]));
+            action.settingsDatastoreLoaded(data);
+        }
 
         return results;
     };
