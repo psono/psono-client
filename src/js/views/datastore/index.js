@@ -187,20 +187,19 @@ const DatastoreView = (props) => {
         }
         setDatastore(data);
 
-
-        if (typeof(secretType) === 'undefined') {
+        if (typeof secretType === "undefined") {
             return;
         }
-        const paths = datastorePasswordService.searchInDatastore(secretId, data, function(secretId, item) {
-            return item.hasOwnProperty('secret_id') && item.secret_id === secretId;
+        const paths = datastorePasswordService.searchInDatastore(secretId, data, function (secretId, item) {
+            return item.hasOwnProperty("secret_id") && item.secret_id === secretId;
         });
         if (paths.length === 0) {
-            return
+            return;
         }
         const search = datastorePasswordService.findInDatastore(paths[0], data);
         const node = search[0][search[1]];
 
-        onEditEntry(node, paths[0])
+        onEditEntry(node, paths[0]);
     };
 
     const onClear = () => {
