@@ -7,6 +7,9 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
+import Paper from "@material-ui/core/Paper";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
 import { Checkbox, Grid } from "@material-ui/core";
 import { Check } from "@material-ui/icons";
 import TextField from "@material-ui/core/TextField";
@@ -38,6 +41,13 @@ import DialogHistory from "./history";
 import notification from "../../services/notification";
 
 const useStyles = makeStyles((theme) => ({
+    root: {
+        display: "flex",
+        padding: "15px",
+    },
+    toolbarRoot: {
+        display: "flex",
+    },
     textField: {
         width: "100%",
     },
@@ -90,7 +100,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const DialogEditEntry = (props) => {
-    const { open, onClose, item, hideLinkToEntry, hideShowHistory } = props;
+    const { open, onClose, item, hideLinkToEntry, hideShowHistory, inline } = props;
     const { t } = useTranslation();
     const classes = useStyles();
     const offline = offlineCache.isActive();
@@ -543,866 +553,22 @@ const DialogEditEntry = (props) => {
         setAnchorEl(null);
     };
 
-    return (
-        <Dialog
-            fullWidth
-            maxWidth={"sm"}
-            open={open}
-            onClose={() => {
-                onClose();
-            }}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-        >
-            <DialogTitle id="alert-dialog-title">
-                {item.share_rights.write ? t(itemBlueprint.edit_title) : t(itemBlueprint.show_title)}
-            </DialogTitle>
-            <DialogContent>
-                <Grid container>
-                    {item.type === "website_password" && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="websitePasswordTitle"
-                                label={t("TITLE")}
-                                name="websitePasswordTitle"
-                                autoComplete="websitePasswordTitle"
-                                value={websitePasswordTitle}
-                                InputProps={{ readOnly: !item.share_rights.write }}
-                                required
-                                onChange={(event) => {
-                                    setWebsitePasswordTitle(event.target.value);
-                                }}
-                            />
-                        </Grid>
-                    )}
-                    {item.type === "website_password" && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="websitePasswordUrl"
-                                label={t("URL")}
-                                name="websitePasswordUrl"
-                                autoComplete="websitePasswordUrl"
-                                value={websitePasswordUrl}
-                                InputProps={{ readOnly: !item.share_rights.write }}
-                                onChange={(event) => {
-                                    // get only toplevel domain
-                                    const parsedUrl = helperService.parseUrl(event.target.value);
-                                    if (!event.target.value) {
-                                        setWebsitePasswordUrlFilter("");
-                                    } else if (typeof parsedUrl.authority === "undefined") {
-                                        setWebsitePasswordUrlFilter("");
-                                    } else {
-                                        setWebsitePasswordUrlFilter(parsedUrl.authority);
-                                    }
-                                    setWebsitePasswordUrl(event.target.value);
-                                }}
-                            />
-                        </Grid>
-                    )}
-                    {item.type === "website_password" && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="websitePasswordUsername"
-                                label={t("USERNAME")}
-                                name="websitePasswordUsername"
-                                autoComplete="websitePasswordUsername"
-                                value={websitePasswordUsername}
-                                InputProps={{ readOnly: !item.share_rights.write }}
-                                onChange={(event) => {
-                                    setWebsitePasswordUsername(event.target.value);
-                                }}
-                            />
-                        </Grid>
-                    )}
-                    {item.type === "website_password" && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="websitePasswordPassword"
-                                label={t("PASSWORD")}
-                                name="websitePasswordPassword"
-                                autoComplete="websitePasswordPassword"
-                                value={websitePasswordPassword}
-                                onChange={(event) => {
-                                    setWebsitePasswordPassword(event.target.value);
-                                }}
-                                InputProps={{
-                                    readOnly: !item.share_rights.write,
-                                    type: showPassword ? "text" : "password",
-                                    classes: {
-                                        input: classes.passwordField,
-                                    },
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <IconButton
-                                                className={classes.iconButton}
-                                                aria-label="menu"
-                                                onClick={openMenu}
-                                            >
-                                                <MenuOpenIcon />
-                                            </IconButton>
-                                            <Menu
-                                                id="simple-menu"
-                                                anchorEl={anchorEl}
-                                                keepMounted
-                                                open={Boolean(anchorEl)}
-                                                onClose={handleClose}
-                                            >
-                                                <MenuItem onClick={onShowHidePassword}>
-                                                    <ListItemIcon className={classes.listItemIcon}>
-                                                        <VisibilityOffIcon className={classes.icon} fontSize="small" />
-                                                    </ListItemIcon>
-                                                    <Typography variant="body2" noWrap>
-                                                        {t("SHOW_OR_HIDE_PASSWORD")}
-                                                    </Typography>
-                                                </MenuItem>
-                                                <MenuItem onClick={onCopyPassword}>
-                                                    <ListItemIcon className={classes.listItemIcon}>
-                                                        <ContentCopy className={classes.icon} fontSize="small" />
-                                                    </ListItemIcon>
-                                                    <Typography variant="body2" noWrap>
-                                                        {t("COPY_PASSWORD")}
-                                                    </Typography>
-                                                </MenuItem>
-                                                {showGeneratePassword && (
-                                                    <MenuItem onClick={onGeneratePassword}>
-                                                        <ListItemIcon className={classes.listItemIcon}>
-                                                            <PhonelinkSetupIcon
-                                                                className={classes.icon}
-                                                                fontSize="small"
-                                                            />
-                                                        </ListItemIcon>
-                                                        <Typography variant="body2" noWrap>
-                                                            {t("GENERATE_PASSWORD")}
-                                                        </Typography>
-                                                    </MenuItem>
-                                                )}
-                                            </Menu>
-                                        </InputAdornment>
-                                    ),
-                                }}
-                            />
-                        </Grid>
-                    )}
-                    {item.type === "website_password" && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="websitePasswordNotes"
-                                label={t("NOTES")}
-                                name="websitePasswordNotes"
-                                autoComplete="websitePasswordNotes"
-                                value={websitePasswordNotes}
-                                InputProps={{ readOnly: !item.share_rights.write }}
-                                onChange={(event) => {
-                                    setWebsitePasswordNotes(event.target.value);
-                                }}
-                                multiline
-                                minRows={3}
-                            />
-                        </Grid>
-                    )}
+    let title = item.share_rights.write ? t(itemBlueprint.edit_title) : t(itemBlueprint.show_title);
 
-                    {item.type === "application_password" && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="applicationPasswordTitle"
-                                label={t("TITLE")}
-                                name="applicationPasswordTitle"
-                                autoComplete="applicationPasswordTitle"
-                                value={applicationPasswordTitle}
-                                InputProps={{ readOnly: !item.share_rights.write }}
-                                required
-                                onChange={(event) => {
-                                    setApplicationPasswordTitle(event.target.value);
-                                }}
-                            />
-                        </Grid>
-                    )}
-                    {item.type === "application_password" && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="applicationPasswordUsername"
-                                label={t("USERNAME")}
-                                name="applicationPasswordUsername"
-                                autoComplete="applicationPasswordUsername"
-                                value={applicationPasswordUsername}
-                                InputProps={{ readOnly: !item.share_rights.write }}
-                                onChange={(event) => {
-                                    setApplicationPasswordUsername(event.target.value);
-                                }}
-                            />
-                        </Grid>
-                    )}
-                    {item.type === "application_password" && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="applicationPasswordPassword"
-                                label={t("PASSWORD")}
-                                name="applicationPasswordPassword"
-                                autoComplete="applicationPasswordPassword"
-                                value={applicationPasswordPassword}
-                                onChange={(event) => {
-                                    setApplicationPasswordPassword(event.target.value);
-                                }}
-                                InputProps={{
-                                    readOnly: !item.share_rights.write,
-                                    type: showPassword ? "text" : "password",
-                                    classes: {
-                                        input: classes.passwordField,
-                                    },
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <IconButton
-                                                className={classes.iconButton}
-                                                aria-label="menu"
-                                                onClick={openMenu}
-                                            >
-                                                <MenuOpenIcon />
-                                            </IconButton>
-                                            <Menu
-                                                id="simple-menu"
-                                                anchorEl={anchorEl}
-                                                keepMounted
-                                                open={Boolean(anchorEl)}
-                                                onClose={handleClose}
-                                            >
-                                                <MenuItem onClick={onShowHidePassword}>
-                                                    <ListItemIcon className={classes.listItemIcon}>
-                                                        <VisibilityOffIcon className={classes.icon} fontSize="small" />
-                                                    </ListItemIcon>
-                                                    <Typography variant="body2" noWrap>
-                                                        {t("SHOW_OR_HIDE_PASSWORD")}
-                                                    </Typography>
-                                                </MenuItem>
-                                                <MenuItem onClick={onCopyPassword}>
-                                                    <ListItemIcon className={classes.listItemIcon}>
-                                                        <ContentCopy className={classes.icon} fontSize="small" />
-                                                    </ListItemIcon>
-                                                    <Typography variant="body2" noWrap>
-                                                        {t("COPY_PASSWORD")}
-                                                    </Typography>
-                                                </MenuItem>
-                                                {showGeneratePassword && (
-                                                    <MenuItem onClick={onGeneratePassword}>
-                                                        <ListItemIcon className={classes.listItemIcon}>
-                                                            <PhonelinkSetupIcon
-                                                                className={classes.icon}
-                                                                fontSize="small"
-                                                            />
-                                                        </ListItemIcon>
-                                                        <Typography variant="body2" noWrap>
-                                                            {t("GENERATE_PASSWORD")}
-                                                        </Typography>
-                                                    </MenuItem>
-                                                )}
-                                            </Menu>
-                                        </InputAdornment>
-                                    ),
-                                }}
-                            />
-                        </Grid>
-                    )}
-                    {item.type === "application_password" && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="applicationPasswordNotes"
-                                label={t("NOTES")}
-                                name="applicationPasswordNotes"
-                                autoComplete="applicationPasswordNotes"
-                                value={applicationPasswordNotes}
-                                InputProps={{ readOnly: !item.share_rights.write }}
-                                onChange={(event) => {
-                                    setApplicationPasswordNotes(event.target.value);
-                                }}
-                                multiline
-                                minRows={3}
-                            />
-                        </Grid>
-                    )}
-
-                    {item.type === "bookmark" && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="bookmarkTitle"
-                                label={t("TITLE")}
-                                name="bookmarkTitle"
-                                autoComplete="bookmarkTitle"
-                                value={bookmarkTitle}
-                                InputProps={{ readOnly: !item.share_rights.write }}
-                                required
-                                onChange={(event) => {
-                                    setBookmarkTitle(event.target.value);
-                                }}
-                            />
-                        </Grid>
-                    )}
-                    {item.type === "bookmark" && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="bookmarkUrl"
-                                error={bookmarkUrl && !helperService.isValidUrl(bookmarkUrl)}
-                                label={t("URL")}
-                                name="bookmarkUrl"
-                                autoComplete="bookmarkUrl"
-                                value={bookmarkUrl}
-                                InputProps={{ readOnly: !item.share_rights.write }}
-                                onChange={(event) => {
-                                    // get only toplevel domain
-                                    const parsedUrl = helperService.parseUrl(event.target.value);
-                                    if (!event.target.value) {
-                                        setBookmarkUrlFilter("");
-                                    } else if (typeof parsedUrl.authority === "undefined") {
-                                        setBookmarkUrlFilter("");
-                                    } else {
-                                        setBookmarkUrlFilter(parsedUrl.authority);
-                                    }
-                                    setBookmarkUrl(event.target.value);
-                                }}
-                            />
-                        </Grid>
-                    )}
-                    {item.type === "bookmark" && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="bookmarkNotes"
-                                label={t("NOTES")}
-                                name="bookmarkNotes"
-                                autoComplete="bookmarkNotes"
-                                value={bookmarkNotes}
-                                InputProps={{ readOnly: !item.share_rights.write }}
-                                onChange={(event) => {
-                                    setBookmarkNotes(event.target.value);
-                                }}
-                                multiline
-                                minRows={3}
-                            />
-                        </Grid>
-                    )}
-
-                    {item.type === "note" && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="noteTitle"
-                                label={t("TITLE")}
-                                name="noteTitle"
-                                autoComplete="noteTitle"
-                                value={noteTitle}
-                                InputProps={{ readOnly: !item.share_rights.write }}
-                                required
-                                onChange={(event) => {
-                                    setNoteTitle(event.target.value);
-                                }}
-                            />
-                        </Grid>
-                    )}
-                    {item.type === "note" && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="noteNotes"
-                                label={t("NOTES")}
-                                name="noteNotes"
-                                autoComplete="noteNotes"
-                                value={noteNotes}
-                                InputProps={{ readOnly: !item.share_rights.write }}
-                                onChange={(event) => {
-                                    setNoteNotes(event.target.value);
-                                }}
-                                multiline
-                                minRows={3}
-                            />
-                        </Grid>
-                    )}
-
-                    {item.type === "totp" && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="totpTitle"
-                                label={t("TITLE")}
-                                name="totpTitle"
-                                autoComplete="totpTitle"
-                                value={totpTitle}
-                                InputProps={{ readOnly: !item.share_rights.write }}
-                                required
-                                onChange={(event) => {
-                                    setTotpTitle(event.target.value);
-                                }}
-                            />
-                        </Grid>
-                    )}
-
-                    {item.type === "totp" && (
-                        <Grid item xs={12} sm={12} md={12} className={classes.totpCircleGridItem}>
-                            <TotpCircle
-                                period={totpPeriod}
-                                algorithm={totpAlgorithm}
-                                digits={totpDigits}
-                                code={totpCode}
-                                className={classes.totpCircle}
-                            />
-                        </Grid>
-                    )}
-                    {item.type === "totp" && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="totpNotes"
-                                label={t("NOTES")}
-                                name="totpNotes"
-                                autoComplete="totpNotes"
-                                value={totpNotes}
-                                InputProps={{ readOnly: !item.share_rights.write }}
-                                onChange={(event) => {
-                                    setTotpNotes(event.target.value);
-                                }}
-                                multiline
-                                minRows={3}
-                            />
-                        </Grid>
-                    )}
-
-                    {item.type === "environment_variables" && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="environmentVariablesTitle"
-                                label={t("TITLE")}
-                                name="environmentVariablesTitle"
-                                autoComplete="environmentVariablesTitle"
-                                value={environmentVariablesTitle}
-                                InputProps={{ readOnly: !item.share_rights.write }}
-                                required
-                                onChange={(event) => {
-                                    setEnvironmentVariablesTitle(event.target.value);
-                                }}
-                            />
-                        </Grid>
-                    )}
-
-                    {item.type === "environment_variables" && (
-                        <React.Fragment>
-                            {environmentVariablesVariables.map((variable, index) => {
-                                return (
-                                    <React.Fragment key={index}>
-                                        <Grid item xs={5} sm={5} md={5}>
-                                            <TextField
-                                                className={classes.textField5}
-                                                variant="outlined"
-                                                margin="dense"
-                                                id={"environmentVariablesVariables-key-" + index}
-                                                label={t("KEY")}
-                                                name={"environmentVariablesVariables-key-" + index}
-                                                autoComplete={"environmentVariablesVariables-key-" + index}
-                                                value={variable.key}
-                                                InputProps={{ readOnly: !item.share_rights.write }}
-                                                required
-                                                onChange={(event) => {
-                                                    const newEnvs =
-                                                        helperService.duplicateObject(environmentVariablesVariables);
-                                                    newEnvs[index]["key"] = event.target.value;
-                                                    setEnvironmentVariablesVariables(newEnvs);
-                                                }}
-                                            />
-                                        </Grid>
-                                        <Grid item xs={5} sm={5} md={5}>
-                                            <TextField
-                                                className={classes.textField5}
-                                                variant="outlined"
-                                                margin="dense"
-                                                id={"environmentVariablesVariables-value-" + index}
-                                                label={t("VALUE")}
-                                                name={"environmentVariablesVariables-value-" + index}
-                                                autoComplete={"environmentVariablesVariables-value-" + index}
-                                                value={variable.value}
-                                                InputProps={{ readOnly: !item.share_rights.write }}
-                                                required
-                                                onChange={(event) => {
-                                                    const newEnvs =
-                                                        helperService.duplicateObject(environmentVariablesVariables);
-                                                    newEnvs[index]["value"] = event.target.value;
-                                                    setEnvironmentVariablesVariables(newEnvs);
-                                                }}
-                                            />
-                                        </Grid>
-                                        <Grid item xs={1} sm={1} md={1}>
-                                            <IconButton
-                                                className={classes.iconButton2}
-                                                aria-label="menu"
-                                                onClick={() => {
-                                                    const newEnvs =
-                                                        helperService.duplicateObject(environmentVariablesVariables);
-                                                    newEnvs.splice(index, 1);
-                                                    setEnvironmentVariablesVariables(newEnvs);
-                                                }}
-                                            >
-                                                <DeleteIcon />
-                                            </IconButton>
-                                        </Grid>
-                                    </React.Fragment>
-                                );
-                            })}
-                        </React.Fragment>
-                    )}
-                    {item.type === "environment_variables" && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <Button
-                                startIcon={<PlaylistAddIcon />}
-                                onClick={() => {
-                                    const newEnvs = helperService.duplicateObject(environmentVariablesVariables);
-                                    newEnvs.push({
-                                        key: "",
-                                        value: "",
-                                    });
-                                    setEnvironmentVariablesVariables(newEnvs);
-                                }}
-                            >
-                                {t("ADD_ENTRY")}
-                            </Button>
-                        </Grid>
-                    )}
-                    {item.type === "environment_variables" && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="environmentVariablesNotes"
-                                label={t("NOTES")}
-                                name="environmentVariablesNotes"
-                                autoComplete="environmentVariablesNotes"
-                                value={environmentVariablesNotes}
-                                InputProps={{ readOnly: !item.share_rights.write }}
-                                onChange={(event) => {
-                                    setEnvironmentVariablesNotes(event.target.value);
-                                }}
-                                multiline
-                                minRows={3}
-                            />
-                        </Grid>
-                    )}
-
-                    {item.type === "file" && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="fileTitle"
-                                label={t("TITLE")}
-                                name="fileTitle"
-                                autoComplete="fileTitle"
-                                value={fileTitle}
-                                InputProps={{ readOnly: !item.share_rights.write }}
-                                required
-                                onChange={(event) => {
-                                    setFileTitle(event.target.value);
-                                }}
-                            />
-                        </Grid>
-                    )}
-
-                    {item.type === "mail_gpg_own_key" && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="mailGpgOwnKeyTitle"
-                                label={t("TITLE")}
-                                name="mailGpgOwnKeyTitle"
-                                autoComplete="mailGpgOwnKeyTitle"
-                                value={mailGpgOwnKeyTitle}
-                                InputProps={{ readOnly: !item.share_rights.write }}
-                                required
-                                onChange={(event) => {
-                                    setMailGpgOwnKeyTitle(event.target.value);
-                                }}
-                            />
-                        </Grid>
-                    )}
-                    {item.type === "mail_gpg_own_key" && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="mailGpgOwnKeyEmail"
-                                label={t("EMAIL")}
-                                name="mailGpgOwnKeyEmail"
-                                autoComplete="mailGpgOwnKeyEmail"
-                                value={mailGpgOwnKeyEmail}
-                                InputProps={{ readOnly: !item.share_rights.write }}
-                                required
-                                onChange={(event) => {
-                                    setMailGpgOwnKeyEmail(event.target.value);
-                                }}
-                                disabled
-                            />
-                        </Grid>
-                    )}
-                    {item.type === "mail_gpg_own_key" && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="mailGpgOwnKeyName"
-                                label={t("NAME")}
-                                name="mailGpgOwnKeyName"
-                                autoComplete="mailGpgOwnKeyName"
-                                value={mailGpgOwnKeyName}
-                                InputProps={{ readOnly: !item.share_rights.write }}
-                                required
-                                onChange={(event) => {
-                                    setMailGpgOwnKeyName(event.target.value);
-                                }}
-                                disabled
-                            />
-                        </Grid>
-                    )}
-                    {item.type === "mail_gpg_own_key" && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="mailGpgOwnKeyPublic"
-                                label={t("PUBLIC_KEY")}
-                                name="mailGpgOwnKeyPublic"
-                                autoComplete="mailGpgOwnKeyPublic"
-                                value={mailGpgOwnKeyPublic}
-                                InputProps={{ readOnly: !item.share_rights.write }}
-                                required
-                                onChange={(event) => {
-                                    setMailGpgOwnKeyPublic(event.target.value);
-                                }}
-                                disabled
-                                multiline
-                                minRows={3}
-                                maxRows={10}
-                            />
-                        </Grid>
-                    )}
-                    {item.type === "mail_gpg_own_key" && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <Button
-                                onClick={() => {
-                                    setEncryptMessageDialogOpen(true);
-                                    setEncryptSecretId(item.secret_id);
-                                }}
-                            >
-                                {t("ENCRYPT_MESSAGE")}
-                            </Button>
-                            <Button onClick={() => setDecryptMessageDialogOpen(true)}>{t("DECRYPT_MESSAGE")}</Button>
-                        </Grid>
-                    )}
-
-                    <Grid item xs={12} sm={12} md={12} className={classes.right}>
-                        <Button aria-label="settings" onClick={() => setShowAdvanced(!showAdvanced)}>
-                            {t("ADVANCED")}
-                        </Button>
-                        {hasHistory && !offline && (
-                            <Button aria-label="settings" onClick={showHistory}>
-                                {t("SHOW_HISTORY")}
-                            </Button>
-                        )}
-                    </Grid>
-
-                    {item.type === "website_password" && showAdvanced && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <Checkbox
-                                checked={websitePasswordAutoSubmit}
-                                onChange={(event) => {
-                                    setWebsitePasswordAutoSubmit(event.target.checked);
-                                }}
-                                checkedIcon={<Check className={classes.checkedIcon} />}
-                                icon={<Check className={classes.uncheckedIcon} />}
-                                classes={{
-                                    checked: classes.checked,
-                                }}
-                            />{" "}
-                            {t("AUTOMATIC_SUBMIT")}
-                        </Grid>
-                    )}
-                    {item.type === "website_password" && showAdvanced && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="websitePasswordUrlFilter"
-                                label={t("DOMAIN_FILTER")}
-                                helperText={t("URL_FILTER_EG")}
-                                name="websitePasswordUrlFilter"
-                                autoComplete="websitePasswordUrlFilter"
-                                value={websitePasswordUrlFilter}
-                                InputProps={{ readOnly: !item.share_rights.write }}
-                                onChange={(event) => {
-                                    setWebsitePasswordUrlFilter(event.target.value);
-                                }}
-                            />
-                        </Grid>
-                    )}
-                    {item.type === "bookmark" && showAdvanced && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="bookmarkUrlFilter"
-                                label={t("DOMAIN_FILTER")}
-                                helperText={t("URL_FILTER_EG")}
-                                name="bookmarkUrlFilter"
-                                autoComplete="bookmarkUrlFilter"
-                                value={bookmarkUrlFilter}
-                                InputProps={{ readOnly: !item.share_rights.write }}
-                                onChange={(event) => {
-                                    setBookmarkUrlFilter(event.target.value);
-                                }}
-                            />
-                        </Grid>
-                    )}
-                    {hasCallback && showAdvanced && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="callbackUrl"
-                                label={t("CALLBACK_URL")}
-                                helperText={t("CALLBACK_URL_PLACEHOLDER")}
-                                name="callbackUrl"
-                                autoComplete="callbackUrl"
-                                value={callbackUrl}
-                                InputProps={{ readOnly: !item.share_rights.write }}
-                                onChange={(event) => {
-                                    setCallbackUrl(event.target.value);
-                                }}
-                            />
-                        </Grid>
-                    )}
-                    {hasCallback && showAdvanced && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="callbackUser"
-                                label={t("CALLBACK_USER")}
-                                name="callbackUser"
-                                autoComplete="callbackUser"
-                                value={callbackUser}
-                                InputProps={{ readOnly: !item.share_rights.write }}
-                                onChange={(event) => {
-                                    setCallbackUser(event.target.value);
-                                }}
-                            />
-                        </Grid>
-                    )}
-                    {hasCallback && showAdvanced && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            <TextField
-                                className={classes.textField}
-                                variant="outlined"
-                                margin="dense"
-                                id="callbackPass"
-                                label={t("CALLBACK_PASS")}
-                                name="callbackPass"
-                                autoComplete="callbackPass"
-                                value={callbackPass}
-                                onChange={(event) => {
-                                    setCallbackPass(event.target.value);
-                                }}
-                                InputProps={{
-                                    readOnly: !item.share_rights.write,
-                                    type: showPassword ? "text" : "password",
-                                    classes: {
-                                        input: classes.passwordField,
-                                    },
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <IconButton
-                                                aria-label="toggle password visibility"
-                                                onClick={() => setShowPassword(!showPassword)}
-                                                edge="end"
-                                            >
-                                                {showPassword ? <Visibility /> : <VisibilityOff />}
-                                            </IconButton>
-                                        </InputAdornment>
-                                    ),
-                                }}
-                            />
-                        </Grid>
-                    )}
-
-                    {!hideLinkToEntry && showAdvanced && (
-                        <Grid item xs={12} sm={12} md={12}>
-                            {t("ENTRY_LINK")}: <a href={"index.html#!/datastore/search/" + item.id}>{item.id}</a>
-                        </Grid>
-                    )}
-                </Grid>
-            </DialogContent>
-            <DialogActions>
-                <Button
-                    onClick={() => {
-                        onClose();
-                    }}
-                >
-                    {t("CLOSE")}
+    let actions = (
+        <React.Fragment>
+            <Button
+                onClick={() => {
+                    onClose();
+                }}
+            >
+                {t("CLOSE")}
+            </Button>
+            {item.share_rights.write && !offline && props.onEdit && (
+                <Button onClick={onEdit} variant="contained" color="primary" disabled={!canSave}>
+                    {t("SAVE")}
                 </Button>
-                {item.share_rights.write && !offline && props.onEdit && (
-                    <Button onClick={onEdit} variant="contained" color="primary" disabled={!canSave}>
-                        {t("SAVE")}
-                    </Button>
-                )}
-            </DialogActions>
+            )}
             {decryptMessageDialogOpen && (
                 <DialogDecryptGpgMessage
                     open={decryptMessageDialogOpen}
@@ -1419,13 +585,862 @@ const DialogEditEntry = (props) => {
             {historyDialogOpen && (
                 <DialogHistory open={historyDialogOpen} onClose={() => setHistoryDialogOpen(false)} item={item} />
             )}
-        </Dialog>
+        </React.Fragment>
     );
+
+    const content = (
+        <Grid container>
+            {item.type === "website_password" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="websitePasswordTitle"
+                        label={t("TITLE")}
+                        name="websitePasswordTitle"
+                        autoComplete="websitePasswordTitle"
+                        value={websitePasswordTitle}
+                        InputProps={{ readOnly: !item.share_rights.write }}
+                        required
+                        onChange={(event) => {
+                            setWebsitePasswordTitle(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+            {item.type === "website_password" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="websitePasswordUrl"
+                        label={t("URL")}
+                        name="websitePasswordUrl"
+                        autoComplete="websitePasswordUrl"
+                        value={websitePasswordUrl}
+                        InputProps={{ readOnly: !item.share_rights.write }}
+                        onChange={(event) => {
+                            // get only toplevel domain
+                            const parsedUrl = helperService.parseUrl(event.target.value);
+                            if (!event.target.value) {
+                                setWebsitePasswordUrlFilter("");
+                            } else if (typeof parsedUrl.authority === "undefined") {
+                                setWebsitePasswordUrlFilter("");
+                            } else {
+                                setWebsitePasswordUrlFilter(parsedUrl.authority);
+                            }
+                            setWebsitePasswordUrl(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+            {item.type === "website_password" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="websitePasswordUsername"
+                        label={t("USERNAME")}
+                        name="websitePasswordUsername"
+                        autoComplete="websitePasswordUsername"
+                        value={websitePasswordUsername}
+                        InputProps={{ readOnly: !item.share_rights.write }}
+                        onChange={(event) => {
+                            setWebsitePasswordUsername(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+            {item.type === "website_password" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="websitePasswordPassword"
+                        label={t("PASSWORD")}
+                        name="websitePasswordPassword"
+                        autoComplete="websitePasswordPassword"
+                        value={websitePasswordPassword}
+                        onChange={(event) => {
+                            setWebsitePasswordPassword(event.target.value);
+                        }}
+                        InputProps={{
+                            readOnly: !item.share_rights.write,
+                            type: showPassword ? "text" : "password",
+                            classes: {
+                                input: classes.passwordField,
+                            },
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton className={classes.iconButton} aria-label="menu" onClick={openMenu}>
+                                        <MenuOpenIcon />
+                                    </IconButton>
+                                    <Menu
+                                        id="simple-menu"
+                                        anchorEl={anchorEl}
+                                        keepMounted
+                                        open={Boolean(anchorEl)}
+                                        onClose={handleClose}
+                                    >
+                                        <MenuItem onClick={onShowHidePassword}>
+                                            <ListItemIcon className={classes.listItemIcon}>
+                                                <VisibilityOffIcon className={classes.icon} fontSize="small" />
+                                            </ListItemIcon>
+                                            <Typography variant="body2" noWrap>
+                                                {t("SHOW_OR_HIDE_PASSWORD")}
+                                            </Typography>
+                                        </MenuItem>
+                                        <MenuItem onClick={onCopyPassword}>
+                                            <ListItemIcon className={classes.listItemIcon}>
+                                                <ContentCopy className={classes.icon} fontSize="small" />
+                                            </ListItemIcon>
+                                            <Typography variant="body2" noWrap>
+                                                {t("COPY_PASSWORD")}
+                                            </Typography>
+                                        </MenuItem>
+                                        {showGeneratePassword && (
+                                            <MenuItem onClick={onGeneratePassword}>
+                                                <ListItemIcon className={classes.listItemIcon}>
+                                                    <PhonelinkSetupIcon className={classes.icon} fontSize="small" />
+                                                </ListItemIcon>
+                                                <Typography variant="body2" noWrap>
+                                                    {t("GENERATE_PASSWORD")}
+                                                </Typography>
+                                            </MenuItem>
+                                        )}
+                                    </Menu>
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                </Grid>
+            )}
+            {item.type === "website_password" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="websitePasswordNotes"
+                        label={t("NOTES")}
+                        name="websitePasswordNotes"
+                        autoComplete="websitePasswordNotes"
+                        value={websitePasswordNotes}
+                        InputProps={{ readOnly: !item.share_rights.write }}
+                        onChange={(event) => {
+                            setWebsitePasswordNotes(event.target.value);
+                        }}
+                        multiline
+                        minRows={3}
+                    />
+                </Grid>
+            )}
+
+            {item.type === "application_password" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="applicationPasswordTitle"
+                        label={t("TITLE")}
+                        name="applicationPasswordTitle"
+                        autoComplete="applicationPasswordTitle"
+                        value={applicationPasswordTitle}
+                        InputProps={{ readOnly: !item.share_rights.write }}
+                        required
+                        onChange={(event) => {
+                            setApplicationPasswordTitle(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+            {item.type === "application_password" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="applicationPasswordUsername"
+                        label={t("USERNAME")}
+                        name="applicationPasswordUsername"
+                        autoComplete="applicationPasswordUsername"
+                        value={applicationPasswordUsername}
+                        InputProps={{ readOnly: !item.share_rights.write }}
+                        onChange={(event) => {
+                            setApplicationPasswordUsername(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+            {item.type === "application_password" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="applicationPasswordPassword"
+                        label={t("PASSWORD")}
+                        name="applicationPasswordPassword"
+                        autoComplete="applicationPasswordPassword"
+                        value={applicationPasswordPassword}
+                        onChange={(event) => {
+                            setApplicationPasswordPassword(event.target.value);
+                        }}
+                        InputProps={{
+                            readOnly: !item.share_rights.write,
+                            type: showPassword ? "text" : "password",
+                            classes: {
+                                input: classes.passwordField,
+                            },
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton className={classes.iconButton} aria-label="menu" onClick={openMenu}>
+                                        <MenuOpenIcon />
+                                    </IconButton>
+                                    <Menu
+                                        id="simple-menu"
+                                        anchorEl={anchorEl}
+                                        keepMounted
+                                        open={Boolean(anchorEl)}
+                                        onClose={handleClose}
+                                    >
+                                        <MenuItem onClick={onShowHidePassword}>
+                                            <ListItemIcon className={classes.listItemIcon}>
+                                                <VisibilityOffIcon className={classes.icon} fontSize="small" />
+                                            </ListItemIcon>
+                                            <Typography variant="body2" noWrap>
+                                                {t("SHOW_OR_HIDE_PASSWORD")}
+                                            </Typography>
+                                        </MenuItem>
+                                        <MenuItem onClick={onCopyPassword}>
+                                            <ListItemIcon className={classes.listItemIcon}>
+                                                <ContentCopy className={classes.icon} fontSize="small" />
+                                            </ListItemIcon>
+                                            <Typography variant="body2" noWrap>
+                                                {t("COPY_PASSWORD")}
+                                            </Typography>
+                                        </MenuItem>
+                                        {showGeneratePassword && (
+                                            <MenuItem onClick={onGeneratePassword}>
+                                                <ListItemIcon className={classes.listItemIcon}>
+                                                    <PhonelinkSetupIcon className={classes.icon} fontSize="small" />
+                                                </ListItemIcon>
+                                                <Typography variant="body2" noWrap>
+                                                    {t("GENERATE_PASSWORD")}
+                                                </Typography>
+                                            </MenuItem>
+                                        )}
+                                    </Menu>
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                </Grid>
+            )}
+            {item.type === "application_password" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="applicationPasswordNotes"
+                        label={t("NOTES")}
+                        name="applicationPasswordNotes"
+                        autoComplete="applicationPasswordNotes"
+                        value={applicationPasswordNotes}
+                        InputProps={{ readOnly: !item.share_rights.write }}
+                        onChange={(event) => {
+                            setApplicationPasswordNotes(event.target.value);
+                        }}
+                        multiline
+                        minRows={3}
+                    />
+                </Grid>
+            )}
+
+            {item.type === "bookmark" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="bookmarkTitle"
+                        label={t("TITLE")}
+                        name="bookmarkTitle"
+                        autoComplete="bookmarkTitle"
+                        value={bookmarkTitle}
+                        InputProps={{ readOnly: !item.share_rights.write }}
+                        required
+                        onChange={(event) => {
+                            setBookmarkTitle(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+            {item.type === "bookmark" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="bookmarkUrl"
+                        error={bookmarkUrl && !helperService.isValidUrl(bookmarkUrl)}
+                        label={t("URL")}
+                        name="bookmarkUrl"
+                        autoComplete="bookmarkUrl"
+                        value={bookmarkUrl}
+                        InputProps={{ readOnly: !item.share_rights.write }}
+                        onChange={(event) => {
+                            // get only toplevel domain
+                            const parsedUrl = helperService.parseUrl(event.target.value);
+                            if (!event.target.value) {
+                                setBookmarkUrlFilter("");
+                            } else if (typeof parsedUrl.authority === "undefined") {
+                                setBookmarkUrlFilter("");
+                            } else {
+                                setBookmarkUrlFilter(parsedUrl.authority);
+                            }
+                            setBookmarkUrl(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+            {item.type === "bookmark" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="bookmarkNotes"
+                        label={t("NOTES")}
+                        name="bookmarkNotes"
+                        autoComplete="bookmarkNotes"
+                        value={bookmarkNotes}
+                        InputProps={{ readOnly: !item.share_rights.write }}
+                        onChange={(event) => {
+                            setBookmarkNotes(event.target.value);
+                        }}
+                        multiline
+                        minRows={3}
+                    />
+                </Grid>
+            )}
+
+            {item.type === "note" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="noteTitle"
+                        label={t("TITLE")}
+                        name="noteTitle"
+                        autoComplete="noteTitle"
+                        value={noteTitle}
+                        InputProps={{ readOnly: !item.share_rights.write }}
+                        required
+                        onChange={(event) => {
+                            setNoteTitle(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+            {item.type === "note" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="noteNotes"
+                        label={t("NOTES")}
+                        name="noteNotes"
+                        autoComplete="noteNotes"
+                        value={noteNotes}
+                        InputProps={{ readOnly: !item.share_rights.write }}
+                        onChange={(event) => {
+                            setNoteNotes(event.target.value);
+                        }}
+                        multiline
+                        minRows={3}
+                    />
+                </Grid>
+            )}
+
+            {item.type === "totp" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="totpTitle"
+                        label={t("TITLE")}
+                        name="totpTitle"
+                        autoComplete="totpTitle"
+                        value={totpTitle}
+                        InputProps={{ readOnly: !item.share_rights.write }}
+                        required
+                        onChange={(event) => {
+                            setTotpTitle(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+
+            {item.type === "totp" && (
+                <Grid item xs={12} sm={12} md={12} className={classes.totpCircleGridItem}>
+                    <TotpCircle
+                        period={totpPeriod}
+                        algorithm={totpAlgorithm}
+                        digits={totpDigits}
+                        code={totpCode}
+                        className={classes.totpCircle}
+                    />
+                </Grid>
+            )}
+            {item.type === "totp" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="totpNotes"
+                        label={t("NOTES")}
+                        name="totpNotes"
+                        autoComplete="totpNotes"
+                        value={totpNotes}
+                        InputProps={{ readOnly: !item.share_rights.write }}
+                        onChange={(event) => {
+                            setTotpNotes(event.target.value);
+                        }}
+                        multiline
+                        minRows={3}
+                    />
+                </Grid>
+            )}
+
+            {item.type === "environment_variables" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="environmentVariablesTitle"
+                        label={t("TITLE")}
+                        name="environmentVariablesTitle"
+                        autoComplete="environmentVariablesTitle"
+                        value={environmentVariablesTitle}
+                        InputProps={{ readOnly: !item.share_rights.write }}
+                        required
+                        onChange={(event) => {
+                            setEnvironmentVariablesTitle(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+
+            {item.type === "environment_variables" && (
+                <React.Fragment>
+                    {environmentVariablesVariables.map((variable, index) => {
+                        return (
+                            <React.Fragment key={index}>
+                                <Grid item xs={5} sm={5} md={5}>
+                                    <TextField
+                                        className={classes.textField5}
+                                        variant="outlined"
+                                        margin="dense"
+                                        id={"environmentVariablesVariables-key-" + index}
+                                        label={t("KEY")}
+                                        name={"environmentVariablesVariables-key-" + index}
+                                        autoComplete={"environmentVariablesVariables-key-" + index}
+                                        value={variable.key}
+                                        InputProps={{ readOnly: !item.share_rights.write }}
+                                        required
+                                        onChange={(event) => {
+                                            const newEnvs =
+                                                helperService.duplicateObject(environmentVariablesVariables);
+                                            newEnvs[index]["key"] = event.target.value;
+                                            setEnvironmentVariablesVariables(newEnvs);
+                                        }}
+                                    />
+                                </Grid>
+                                <Grid item xs={5} sm={5} md={5}>
+                                    <TextField
+                                        className={classes.textField5}
+                                        variant="outlined"
+                                        margin="dense"
+                                        id={"environmentVariablesVariables-value-" + index}
+                                        label={t("VALUE")}
+                                        name={"environmentVariablesVariables-value-" + index}
+                                        autoComplete={"environmentVariablesVariables-value-" + index}
+                                        value={variable.value}
+                                        InputProps={{ readOnly: !item.share_rights.write }}
+                                        required
+                                        onChange={(event) => {
+                                            const newEnvs =
+                                                helperService.duplicateObject(environmentVariablesVariables);
+                                            newEnvs[index]["value"] = event.target.value;
+                                            setEnvironmentVariablesVariables(newEnvs);
+                                        }}
+                                    />
+                                </Grid>
+                                <Grid item xs={1} sm={1} md={1}>
+                                    <IconButton
+                                        className={classes.iconButton2}
+                                        aria-label="menu"
+                                        onClick={() => {
+                                            const newEnvs =
+                                                helperService.duplicateObject(environmentVariablesVariables);
+                                            newEnvs.splice(index, 1);
+                                            setEnvironmentVariablesVariables(newEnvs);
+                                        }}
+                                    >
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </Grid>
+                            </React.Fragment>
+                        );
+                    })}
+                </React.Fragment>
+            )}
+            {item.type === "environment_variables" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <Button
+                        startIcon={<PlaylistAddIcon />}
+                        onClick={() => {
+                            const newEnvs = helperService.duplicateObject(environmentVariablesVariables);
+                            newEnvs.push({
+                                key: "",
+                                value: "",
+                            });
+                            setEnvironmentVariablesVariables(newEnvs);
+                        }}
+                    >
+                        {t("ADD_ENTRY")}
+                    </Button>
+                </Grid>
+            )}
+            {item.type === "environment_variables" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="environmentVariablesNotes"
+                        label={t("NOTES")}
+                        name="environmentVariablesNotes"
+                        autoComplete="environmentVariablesNotes"
+                        value={environmentVariablesNotes}
+                        InputProps={{ readOnly: !item.share_rights.write }}
+                        onChange={(event) => {
+                            setEnvironmentVariablesNotes(event.target.value);
+                        }}
+                        multiline
+                        minRows={3}
+                    />
+                </Grid>
+            )}
+
+            {item.type === "file" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="fileTitle"
+                        label={t("TITLE")}
+                        name="fileTitle"
+                        autoComplete="fileTitle"
+                        value={fileTitle}
+                        InputProps={{ readOnly: !item.share_rights.write }}
+                        required
+                        onChange={(event) => {
+                            setFileTitle(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+
+            {item.type === "mail_gpg_own_key" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="mailGpgOwnKeyTitle"
+                        label={t("TITLE")}
+                        name="mailGpgOwnKeyTitle"
+                        autoComplete="mailGpgOwnKeyTitle"
+                        value={mailGpgOwnKeyTitle}
+                        InputProps={{ readOnly: !item.share_rights.write }}
+                        required
+                        onChange={(event) => {
+                            setMailGpgOwnKeyTitle(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+            {item.type === "mail_gpg_own_key" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="mailGpgOwnKeyEmail"
+                        label={t("EMAIL")}
+                        name="mailGpgOwnKeyEmail"
+                        autoComplete="mailGpgOwnKeyEmail"
+                        value={mailGpgOwnKeyEmail}
+                        InputProps={{ readOnly: !item.share_rights.write }}
+                        required
+                        onChange={(event) => {
+                            setMailGpgOwnKeyEmail(event.target.value);
+                        }}
+                        disabled
+                    />
+                </Grid>
+            )}
+            {item.type === "mail_gpg_own_key" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="mailGpgOwnKeyName"
+                        label={t("NAME")}
+                        name="mailGpgOwnKeyName"
+                        autoComplete="mailGpgOwnKeyName"
+                        value={mailGpgOwnKeyName}
+                        InputProps={{ readOnly: !item.share_rights.write }}
+                        required
+                        onChange={(event) => {
+                            setMailGpgOwnKeyName(event.target.value);
+                        }}
+                        disabled
+                    />
+                </Grid>
+            )}
+            {item.type === "mail_gpg_own_key" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="mailGpgOwnKeyPublic"
+                        label={t("PUBLIC_KEY")}
+                        name="mailGpgOwnKeyPublic"
+                        autoComplete="mailGpgOwnKeyPublic"
+                        value={mailGpgOwnKeyPublic}
+                        InputProps={{ readOnly: !item.share_rights.write }}
+                        required
+                        onChange={(event) => {
+                            setMailGpgOwnKeyPublic(event.target.value);
+                        }}
+                        disabled
+                        multiline
+                        minRows={3}
+                        maxRows={10}
+                    />
+                </Grid>
+            )}
+            {item.type === "mail_gpg_own_key" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <Button
+                        onClick={() => {
+                            setEncryptMessageDialogOpen(true);
+                            setEncryptSecretId(item.secret_id);
+                        }}
+                    >
+                        {t("ENCRYPT_MESSAGE")}
+                    </Button>
+                    <Button onClick={() => setDecryptMessageDialogOpen(true)}>{t("DECRYPT_MESSAGE")}</Button>
+                </Grid>
+            )}
+
+            <Grid item xs={12} sm={12} md={12} className={classes.right}>
+                <Button aria-label="settings" onClick={() => setShowAdvanced(!showAdvanced)}>
+                    {t("ADVANCED")}
+                </Button>
+                {hasHistory && !offline && (
+                    <Button aria-label="settings" onClick={showHistory}>
+                        {t("SHOW_HISTORY")}
+                    </Button>
+                )}
+            </Grid>
+
+            {item.type === "website_password" && showAdvanced && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <Checkbox
+                        checked={websitePasswordAutoSubmit}
+                        onChange={(event) => {
+                            setWebsitePasswordAutoSubmit(event.target.checked);
+                        }}
+                        checkedIcon={<Check className={classes.checkedIcon} />}
+                        icon={<Check className={classes.uncheckedIcon} />}
+                        classes={{
+                            checked: classes.checked,
+                        }}
+                    />{" "}
+                    {t("AUTOMATIC_SUBMIT")}
+                </Grid>
+            )}
+            {item.type === "website_password" && showAdvanced && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="websitePasswordUrlFilter"
+                        label={t("DOMAIN_FILTER")}
+                        helperText={t("URL_FILTER_EG")}
+                        name="websitePasswordUrlFilter"
+                        autoComplete="websitePasswordUrlFilter"
+                        value={websitePasswordUrlFilter}
+                        InputProps={{ readOnly: !item.share_rights.write }}
+                        onChange={(event) => {
+                            setWebsitePasswordUrlFilter(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+            {item.type === "bookmark" && showAdvanced && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="bookmarkUrlFilter"
+                        label={t("DOMAIN_FILTER")}
+                        helperText={t("URL_FILTER_EG")}
+                        name="bookmarkUrlFilter"
+                        autoComplete="bookmarkUrlFilter"
+                        value={bookmarkUrlFilter}
+                        InputProps={{ readOnly: !item.share_rights.write }}
+                        onChange={(event) => {
+                            setBookmarkUrlFilter(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+            {hasCallback && showAdvanced && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="callbackUrl"
+                        label={t("CALLBACK_URL")}
+                        helperText={t("CALLBACK_URL_PLACEHOLDER")}
+                        name="callbackUrl"
+                        autoComplete="callbackUrl"
+                        value={callbackUrl}
+                        InputProps={{ readOnly: !item.share_rights.write }}
+                        onChange={(event) => {
+                            setCallbackUrl(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+            {hasCallback && showAdvanced && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="callbackUser"
+                        label={t("CALLBACK_USER")}
+                        name="callbackUser"
+                        autoComplete="callbackUser"
+                        value={callbackUser}
+                        InputProps={{ readOnly: !item.share_rights.write }}
+                        onChange={(event) => {
+                            setCallbackUser(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+            {hasCallback && showAdvanced && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="callbackPass"
+                        label={t("CALLBACK_PASS")}
+                        name="callbackPass"
+                        autoComplete="callbackPass"
+                        value={callbackPass}
+                        onChange={(event) => {
+                            setCallbackPass(event.target.value);
+                        }}
+                        InputProps={{
+                            readOnly: !item.share_rights.write,
+                            type: showPassword ? "text" : "password",
+                            classes: {
+                                input: classes.passwordField,
+                            },
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        aria-label="toggle password visibility"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        edge="end"
+                                    >
+                                        {showPassword ? <Visibility /> : <VisibilityOff />}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                </Grid>
+            )}
+
+            {!hideLinkToEntry && showAdvanced && (
+                <Grid item xs={12} sm={12} md={12}>
+                    {t("ENTRY_LINK")}: <a href={"index.html#!/datastore/search/" + item.id}>{item.id}</a>
+                </Grid>
+            )}
+        </Grid>
+    );
+
+    if (inline) {
+        return (
+            <Paper square>
+                <AppBar elevation={0} position="static" color="default">
+                    <Toolbar className={classes.toolbarRoot}>{title}</Toolbar>
+                </AppBar>
+                <div className={classes.root}>{content}</div>
+                <DialogActions>{actions}</DialogActions>
+            </Paper>
+        );
+    } else {
+        return (
+            <Dialog
+                fullWidth
+                maxWidth={"sm"}
+                open={open}
+                onClose={() => {
+                    onClose();
+                }}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
+                <DialogContent>{content}</DialogContent>
+                <DialogActions>{actions}</DialogActions>
+            </Dialog>
+        );
+    }
 };
 
 DialogEditEntry.defaultProps = {
     hideLinkToEntry: false,
     hideShowHistory: false,
+    inline: false,
 };
 
 DialogEditEntry.propTypes = {
@@ -1435,6 +1450,7 @@ DialogEditEntry.propTypes = {
     item: PropTypes.object.isRequired,
     hideLinkToEntry: PropTypes.bool,
     hideShowHistory: PropTypes.bool,
+    inline: PropTypes.bool,
 };
 
 export default DialogEditEntry;

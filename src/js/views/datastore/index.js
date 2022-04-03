@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { differenceInSeconds } from "date-fns";
 import { ClipLoader } from "react-spinners";
 import { useParams } from "react-router-dom";
+import PropTypes from "prop-types";
 import { alpha, makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import AppBar from "@material-ui/core/AppBar";
@@ -17,10 +18,12 @@ import ClearIcon from "@material-ui/icons/Clear";
 import MuiAlert from "@material-ui/lab/Alert";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
+import Grid from "@material-ui/core/Grid";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import Typography from "@material-ui/core/Typography";
 import CreateNewFolderIcon from "@material-ui/icons/CreateNewFolder";
 import AddIcon from "@material-ui/icons/Add";
+import withWidth from "@material-ui/core/withWidth";
 
 import Base from "../../containers/base";
 import BaseTitle from "../../containers/base-title";
@@ -118,6 +121,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const DatastoreView = (props) => {
+    const { width } = props;
     let { defaultSearch, secretType, secretId } = useParams();
     const serverStatus = useSelector((state) => state.server.status);
     const offlineMode = useSelector((state) => state.client.offlineMode);
@@ -161,6 +165,8 @@ const DatastoreView = (props) => {
     const [createLinkShareData, setCreateLinkShareData] = useState({});
 
     const [datastore, setDatastore] = useState(null);
+
+    const bigScreen = ["lg", "md"].includes(width);
 
     let isSubscribed = true;
     React.useEffect(() => {
@@ -691,221 +697,245 @@ const DatastoreView = (props) => {
                 </Paper>
             )}
             <BaseContent>
-                <Paper square>
-                    <AppBar elevation={0} position="static" color="default">
-                        <Toolbar className={classes.toolbarRoot}>
-                            <span className={classes.toolbarTitle}>{t("DATASTORE")}</span>
-                            <div className={classes.search}>
-                                <InputBase
-                                    placeholder={t("SEARCH")}
-                                    classes={{
-                                        root: classes.inputRoot,
-                                        input: classes.inputInput,
-                                    }}
-                                    value={search}
-                                    onChange={(event) => {
-                                        setSearch(event.target.value);
-                                    }}
-                                    inputProps={{ "aria-label": t("SEARCH") }}
-                                />
-                                <IconButton className={classes.iconButton} aria-label="clear" onClick={onClear}>
-                                    <ClearIcon />
-                                </IconButton>
-                                <Divider className={classes.divider} orientation="vertical" />
-                                {!offlineMode && (
-                                    <IconButton
-                                        color="primary"
-                                        className={classes.iconButton}
-                                        aria-label="menu"
-                                        onClick={openMenu}
-                                    >
-                                        <MenuOpenIcon />
-                                    </IconButton>
+                <Grid container spacing={1}>
+                    <Grid item xs={bigScreen && editEntryOpen ? 6 : 12}>
+                        <Paper square>
+                            <AppBar elevation={0} position="static" color="default">
+                                <Toolbar className={classes.toolbarRoot}>
+                                    <span className={classes.toolbarTitle}>{t("DATASTORE")}</span>
+                                    <div className={classes.search}>
+                                        <InputBase
+                                            placeholder={t("SEARCH")}
+                                            classes={{
+                                                root: classes.inputRoot,
+                                                input: classes.inputInput,
+                                            }}
+                                            value={search}
+                                            onChange={(event) => {
+                                                setSearch(event.target.value);
+                                            }}
+                                            inputProps={{ "aria-label": t("SEARCH") }}
+                                        />
+                                        <IconButton className={classes.iconButton} aria-label="clear" onClick={onClear}>
+                                            <ClearIcon />
+                                        </IconButton>
+                                        <Divider className={classes.divider} orientation="vertical" />
+                                        {!offlineMode && (
+                                            <IconButton
+                                                color="primary"
+                                                className={classes.iconButton}
+                                                aria-label="menu"
+                                                onClick={openMenu}
+                                            >
+                                                <MenuOpenIcon />
+                                            </IconButton>
+                                        )}
+                                        <Menu
+                                            id="simple-menu"
+                                            anchorEl={anchorEl}
+                                            keepMounted
+                                            open={Boolean(anchorEl)}
+                                            onClose={handleClose}
+                                        >
+                                            <MenuItem onClick={() => onNewFolder(datastore, [])}>
+                                                <ListItemIcon className={classes.listItemIcon}>
+                                                    <CreateNewFolderIcon className={classes.icon} fontSize="small" />
+                                                </ListItemIcon>
+                                                <Typography variant="body2" noWrap>
+                                                    {t("NEW_FOLDER")}
+                                                </Typography>
+                                            </MenuItem>
+                                            <MenuItem onClick={() => onNewEntry(datastore, [])}>
+                                                <ListItemIcon className={classes.listItemIcon}>
+                                                    <AddIcon className={classes.icon} fontSize="small" />
+                                                </ListItemIcon>
+                                                <Typography variant="body2" noWrap>
+                                                    {t("NEW_ENTRY")}
+                                                </Typography>
+                                            </MenuItem>
+                                        </Menu>
+                                        <Divider className={classes.divider} orientation="vertical" />
+                                        <IconButton
+                                            className={classes.iconButton}
+                                            aria-label="trash bin"
+                                            onClick={openTrashBin}
+                                        >
+                                            <DeleteSweepIcon />
+                                        </IconButton>
+                                    </div>
+                                </Toolbar>
+                            </AppBar>
+                            <div className={classes.root} onContextMenu={onContextMenu}>
+                                {!datastore && (
+                                    <div className={classes.loader}>
+                                        <ClipLoader />
+                                    </div>
                                 )}
-                                <Menu
-                                    id="simple-menu"
-                                    anchorEl={anchorEl}
-                                    keepMounted
-                                    open={Boolean(anchorEl)}
-                                    onClose={handleClose}
-                                >
-                                    <MenuItem onClick={() => onNewFolder(datastore, [])}>
-                                        <ListItemIcon className={classes.listItemIcon}>
-                                            <CreateNewFolderIcon className={classes.icon} fontSize="small" />
-                                        </ListItemIcon>
-                                        <Typography variant="body2" noWrap>
-                                            {t("NEW_FOLDER")}
-                                        </Typography>
-                                    </MenuItem>
-                                    <MenuItem onClick={() => onNewEntry(datastore, [])}>
-                                        <ListItemIcon className={classes.listItemIcon}>
-                                            <AddIcon className={classes.icon} fontSize="small" />
-                                        </ListItemIcon>
-                                        <Typography variant="body2" noWrap>
-                                            {t("NEW_ENTRY")}
-                                        </Typography>
-                                    </MenuItem>
-                                </Menu>
-                                <Divider className={classes.divider} orientation="vertical" />
-                                <IconButton
-                                    className={classes.iconButton}
-                                    aria-label="trash bin"
-                                    onClick={openTrashBin}
-                                >
-                                    <DeleteSweepIcon />
-                                </IconButton>
+                                {datastore && (
+                                    <DatastoreTree
+                                        datastore={datastore}
+                                        search={search}
+                                        onNewFolder={onNewFolder}
+                                        onNewEntry={onNewEntry}
+                                        onNewShare={onNewShare}
+                                        onEditEntry={onEditEntry}
+                                        onCloneEntry={onCloneEntry}
+                                        onDeleteEntry={onDeleteEntry}
+                                        onEditFolder={onEditFolder}
+                                        onDeleteFolder={onDeleteFolder}
+                                        onSelectItem={onEditEntry}
+                                        onLinkItem={onLinkItem}
+                                        onLinkShare={onLinkShare}
+                                        onMoveFolder={onMoveFolder}
+                                        onMoveEntry={onMoveEntry}
+                                        onRightsOverview={onRightsOverview}
+                                    />
+                                )}
                             </div>
-                        </Toolbar>
-                    </AppBar>
-                    <div className={classes.root} onContextMenu={onContextMenu}>
-                        {!datastore && (
-                            <div className={classes.loader}>
-                                <ClipLoader />
-                            </div>
-                        )}
-                        {datastore && (
-                            <DatastoreTree
-                                datastore={datastore}
-                                search={search}
-                                onNewFolder={onNewFolder}
-                                onNewEntry={onNewEntry}
-                                onNewShare={onNewShare}
-                                onEditEntry={onEditEntry}
-                                onCloneEntry={onCloneEntry}
-                                onDeleteEntry={onDeleteEntry}
-                                onEditFolder={onEditFolder}
-                                onDeleteFolder={onDeleteFolder}
-                                onSelectItem={onEditEntry}
-                                onLinkItem={onLinkItem}
-                                onLinkShare={onLinkShare}
-                                onMoveFolder={onMoveFolder}
-                                onMoveEntry={onMoveEntry}
-                                onRightsOverview={onRightsOverview}
-                            />
-                        )}
-                    </div>
-                    <Menu
-                        keepMounted
-                        open={contextMenuPosition.mouseY !== null}
-                        onClose={onContextMenuClose}
-                        anchorReference="anchorPosition"
-                        anchorPosition={
-                            contextMenuPosition.mouseY !== null && contextMenuPosition.mouseX !== null
-                                ? { top: contextMenuPosition.mouseY, left: contextMenuPosition.mouseX }
-                                : undefined
-                        }
-                    >
-                        <MenuItem onClick={() => onNewFolder(datastore, [])}>
-                            <ListItemIcon className={classes.listItemIcon}>
-                                <CreateNewFolderIcon className={classes.icon} fontSize="small" />
-                            </ListItemIcon>
-                            <Typography variant="body2" noWrap>
-                                {t("NEW_FOLDER")}
-                            </Typography>
-                        </MenuItem>
-                        <MenuItem onClick={() => onNewEntry(datastore, [])}>
-                            <ListItemIcon className={classes.listItemIcon}>
-                                <AddIcon className={classes.icon} fontSize="small" />
-                            </ListItemIcon>
-                            <Typography variant="body2" noWrap>
-                                {t("NEW_ENTRY")}
-                            </Typography>
-                        </MenuItem>
-                    </Menu>
-                    {newShareOpen && (
-                        <DialogNewShare
-                            open={newShareOpen}
-                            onClose={() => setNewShareOpen(false)}
-                            onCreate={onNewShareCreate}
-                            node={newShareData.node}
-                        />
+                            <Menu
+                                keepMounted
+                                open={contextMenuPosition.mouseY !== null}
+                                onClose={onContextMenuClose}
+                                anchorReference="anchorPosition"
+                                anchorPosition={
+                                    contextMenuPosition.mouseY !== null && contextMenuPosition.mouseX !== null
+                                        ? { top: contextMenuPosition.mouseY, left: contextMenuPosition.mouseX }
+                                        : undefined
+                                }
+                            >
+                                <MenuItem onClick={() => onNewFolder(datastore, [])}>
+                                    <ListItemIcon className={classes.listItemIcon}>
+                                        <CreateNewFolderIcon className={classes.icon} fontSize="small" />
+                                    </ListItemIcon>
+                                    <Typography variant="body2" noWrap>
+                                        {t("NEW_FOLDER")}
+                                    </Typography>
+                                </MenuItem>
+                                <MenuItem onClick={() => onNewEntry(datastore, [])}>
+                                    <ListItemIcon className={classes.listItemIcon}>
+                                        <AddIcon className={classes.icon} fontSize="small" />
+                                    </ListItemIcon>
+                                    <Typography variant="body2" noWrap>
+                                        {t("NEW_ENTRY")}
+                                    </Typography>
+                                </MenuItem>
+                            </Menu>
+                            {newShareOpen && (
+                                <DialogNewShare
+                                    open={newShareOpen}
+                                    onClose={() => setNewShareOpen(false)}
+                                    onCreate={onNewShareCreate}
+                                    node={newShareData.node}
+                                />
+                            )}
+                            {newFolderOpen && (
+                                <DialogNewFolder
+                                    open={newFolderOpen}
+                                    onClose={() => setNewFolderOpen(false)}
+                                    onCreate={onNewFolderCreate}
+                                />
+                            )}
+                            {newEntryOpen && (
+                                <DialogNewEntry
+                                    open={newEntryOpen}
+                                    onClose={() => setNewEntryOpen(false)}
+                                    onCreate={onNewEntryCreate}
+                                    parentDatastoreId={newEntryData.parentDatastoreId}
+                                    parentShareId={newEntryData.parentShareId}
+                                />
+                            )}
+                            {editFolderOpen && (
+                                <DialogEditFolder
+                                    open={editFolderOpen}
+                                    onClose={() => setEditFolderOpen(false)}
+                                    onSave={onEditFolderSave}
+                                    node={editFolderData.node}
+                                />
+                            )}
+                            {editEntryOpen && !bigScreen && (
+                                <DialogEditEntry
+                                    open={editEntryOpen}
+                                    onClose={() => setEditEntryOpen(false)}
+                                    onEdit={onEditEntrySave}
+                                    item={editEntryData.item}
+                                />
+                            )}
+                            {createLinkShareOpen && (
+                                <DialogCreateLinkShare
+                                    open={createLinkShareOpen}
+                                    onClose={() => setCreateLinkShareOpen(false)}
+                                    item={createLinkShareData.item}
+                                />
+                            )}
+                            {trashBinOpen && (
+                                <DialogTrashBin
+                                    open={trashBinOpen}
+                                    onClose={() => setTrashBinOpen(false)}
+                                    datastore={datastore}
+                                />
+                            )}
+                            {rightsOverviewOpen && (
+                                <DialogRightsOverview
+                                    open={rightsOverviewOpen}
+                                    onClose={() => setRightsOverviewOpen(false)}
+                                    item={rightsOverviewData.item}
+                                />
+                            )}
+                            {Boolean(moveEntryData) && (
+                                <DialogSelectFolder
+                                    open={Boolean(moveEntryData)}
+                                    onClose={() => setMoveEntryData(null)}
+                                    title={t("MOVE_ENTRY")}
+                                    onSelectNode={onSelectNodeForMoveEntry}
+                                    isSelectable={isSelectableForMoveEntry}
+                                />
+                            )}
+                            {Boolean(moveFolderData) && (
+                                <DialogSelectFolder
+                                    open={Boolean(moveFolderData)}
+                                    onClose={() => setMoveFolderData(null)}
+                                    title={t("MOVE_FOLDER")}
+                                    onSelectNode={onSelectNodeForMoveFolder}
+                                    isSelectable={isSelectableForMoveFolder}
+                                />
+                            )}
+                            {unlockOfflineCache && (
+                                <DialogUnlockOfflineCache
+                                    open={unlockOfflineCache}
+                                    onClose={onUnlockOfflineCacheClosed}
+                                />
+                            )}
+                            {error !== null && (
+                                <DialogError
+                                    open={error !== null}
+                                    onClose={() => setError(null)}
+                                    title={error.title}
+                                    description={error.description}
+                                />
+                            )}
+                        </Paper>
+                    </Grid>
+                    {bigScreen && editEntryOpen && (
+                        <Grid item xs={6}>
+                            {editEntryOpen && (
+                                <DialogEditEntry
+                                    open={editEntryOpen}
+                                    onClose={() => setEditEntryOpen(false)}
+                                    onEdit={onEditEntrySave}
+                                    item={editEntryData.item}
+                                    inline={true}
+                                />
+                            )}
+                        </Grid>
                     )}
-                    {newFolderOpen && (
-                        <DialogNewFolder
-                            open={newFolderOpen}
-                            onClose={() => setNewFolderOpen(false)}
-                            onCreate={onNewFolderCreate}
-                        />
-                    )}
-                    {newEntryOpen && (
-                        <DialogNewEntry
-                            open={newEntryOpen}
-                            onClose={() => setNewEntryOpen(false)}
-                            onCreate={onNewEntryCreate}
-                            parentDatastoreId={newEntryData.parentDatastoreId}
-                            parentShareId={newEntryData.parentShareId}
-                        />
-                    )}
-                    {editFolderOpen && (
-                        <DialogEditFolder
-                            open={editFolderOpen}
-                            onClose={() => setEditFolderOpen(false)}
-                            onSave={onEditFolderSave}
-                            node={editFolderData.node}
-                        />
-                    )}
-                    {editEntryOpen && (
-                        <DialogEditEntry
-                            open={editEntryOpen}
-                            onClose={() => setEditEntryOpen(false)}
-                            onEdit={onEditEntrySave}
-                            item={editEntryData.item}
-                        />
-                    )}
-                    {createLinkShareOpen && (
-                        <DialogCreateLinkShare
-                            open={createLinkShareOpen}
-                            onClose={() => setCreateLinkShareOpen(false)}
-                            item={createLinkShareData.item}
-                        />
-                    )}
-                    {trashBinOpen && (
-                        <DialogTrashBin
-                            open={trashBinOpen}
-                            onClose={() => setTrashBinOpen(false)}
-                            datastore={datastore}
-                        />
-                    )}
-                    {rightsOverviewOpen && (
-                        <DialogRightsOverview
-                            open={rightsOverviewOpen}
-                            onClose={() => setRightsOverviewOpen(false)}
-                            item={rightsOverviewData.item}
-                        />
-                    )}
-                    {Boolean(moveEntryData) && (
-                        <DialogSelectFolder
-                            open={Boolean(moveEntryData)}
-                            onClose={() => setMoveEntryData(null)}
-                            title={t("MOVE_ENTRY")}
-                            onSelectNode={onSelectNodeForMoveEntry}
-                            isSelectable={isSelectableForMoveEntry}
-                        />
-                    )}
-                    {Boolean(moveFolderData) && (
-                        <DialogSelectFolder
-                            open={Boolean(moveFolderData)}
-                            onClose={() => setMoveFolderData(null)}
-                            title={t("MOVE_FOLDER")}
-                            onSelectNode={onSelectNodeForMoveFolder}
-                            isSelectable={isSelectableForMoveFolder}
-                        />
-                    )}
-                    {unlockOfflineCache && (
-                        <DialogUnlockOfflineCache open={unlockOfflineCache} onClose={onUnlockOfflineCacheClosed} />
-                    )}
-                    {error !== null && (
-                        <DialogError
-                            open={error !== null}
-                            onClose={() => setError(null)}
-                            title={error.title}
-                            description={error.description}
-                        />
-                    )}
-                </Paper>
+                </Grid>
             </BaseContent>
         </Base>
     );
 };
 
-export default DatastoreView;
+DatastoreView.propTypes = {
+    width: PropTypes.oneOf(["lg", "md", "sm", "xl", "xs"]).isRequired,
+};
+
+export default withWidth()(DatastoreView);
