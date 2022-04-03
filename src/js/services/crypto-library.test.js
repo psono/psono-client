@@ -36,27 +36,25 @@ describe('Service: cryptoLibraryService test suite #2', function() {
     });
     */
 
-    it('generateAuthkey works', function() {
-        expect(
-            cryptoLibraryService.generateAuthkey('test@example.com', '123456')
-        ).toBe(
-            '1ad635d464917db74a127b3de19c5bec9df932472c3e31ca8b18e872c641e8c828e9da35543ef36c0b013ab6c549a7ddbfe7b52b08e9e8704aca69f4c2fd68ea'
-        );
-        return expect(
-            cryptoLibraryService.generateAuthkey('test2@example.com', '1234567')
-        ).toBe(
-            '3d97a9354e99760d543761c168b655ccc7e565ddd6ef1d6b83df66d8b50bc62708dfe2c2dc56a628fa24b71bf75fc49db85ce11fd64fadb0e458f3780dde1899'
-        );
-    });
+    it('generateAuthkey works', async function () {
 
-    it('generateAuthkey works', function() {
+        jest.useFakeTimers();
+        jest.spyOn(global, 'setTimeout');
+
+        let result = await cryptoLibraryService.generateAuthkey('test@example.com', '123456');
+
         expect(
-            cryptoLibraryService.generateAuthkey('test@example.com', '123456')
+            result
         ).toBe(
             '1ad635d464917db74a127b3de19c5bec9df932472c3e31ca8b18e872c641e8c828e9da35543ef36c0b013ab6c549a7ddbfe7b52b08e9e8704aca69f4c2fd68ea'
         );
+
+        result = await cryptoLibraryService.generateAuthkey('test2@example.com', '1234567')
+
+        expect(setTimeout).toHaveBeenLastCalledWith(expect.any(Function), 60000);
+
         return expect(
-            cryptoLibraryService.generateAuthkey('test2@example.com', '1234567')
+            result
         ).toBe(
             '3d97a9354e99760d543761c168b655ccc7e565ddd6ef1d6b83df66d8b50bc62708dfe2c2dc56a628fa24b71bf75fc49db85ce11fd64fadb0e458f3780dde1899'
         );
@@ -191,7 +189,10 @@ describe('Service: cryptoLibraryService test suite #2', function() {
         ).toBeFalsy();
     });
 
-    it('decryptSecret', function() {
+    it('decryptSecret', async function () {
+        jest.useFakeTimers();
+        jest.spyOn(global, 'setTimeout');
+
         let data, nonce, password, text, user_sauce;
         data = '12345';
         password = 'myPassword';
@@ -199,8 +200,13 @@ describe('Service: cryptoLibraryService test suite #2', function() {
             '6168de45af90c335967a8f9eae76f8f19bcb42fb8c3f602fee35f7617acdc489';
         nonce = 'ff786149d8242bb7802379bc5fd2f9ccc744a2e1f18bb0a8';
         text = 'a92528f78ca1f0812a4fb2ee5de4d16eb75d434318';
+
+        const result = await cryptoLibraryService.decryptSecret(text, nonce, password, user_sauce);
+
+        expect(setTimeout).toHaveBeenLastCalledWith(expect.any(Function), 60000);
+
         return expect(
-            cryptoLibraryService.decryptSecret(text, nonce, password, user_sauce)
+            result
         ).toBe(data);
     });
 
