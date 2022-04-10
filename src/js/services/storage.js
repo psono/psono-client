@@ -169,18 +169,6 @@ function findKey(db, key) {
 }
 
 /**
- * returns if a specified item exists
- *
- * @param {string} db The database
- * @param {object} key The key of the object
- *
- * @returns {boolean} Returns whether the specified key already exists.
- */
-function keyExists(db, key) {
-    //return dbs[db].findOne({'key': key}) !== null;
-}
-
-/**
  * removes the specified object or object_id
  *
  * @param {string} db The database
@@ -295,7 +283,6 @@ const storageService = {
     upsert: upsert,
     where: where,
     findKey: findKey,
-    keyExists: keyExists,
     remove: remove,
     removeAll: removeAll,
     on: on,

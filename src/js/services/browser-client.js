@@ -281,7 +281,7 @@ function closeOpenedPopup(window_id) {
 /**
  * returns the base url which can be used to generate activation links
  *
- * @returns {string} The base url
+ * @returns {Promise} The base url as string
  */
 function getBaseUrl() {
     if (TARGET === "firefox") {

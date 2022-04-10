@@ -66,19 +66,6 @@ const DialogImportAsText = (props) => {
             }
         }
 
-        // if (privateKeyObj.keys.length > 1) {
-        //     $scope.errors.push('PRIVATE_KEY_CONTAINS_MULTIPLE_KEYS');
-        //     return;
-        // }
-        //
-        // if (publicKeyObj.keys.length > 1) {
-        //     $scope.errors.push('PUBLIC_KEY_CONTAINS_MULTIPLE_KEYS');
-        //     return;
-        // }
-        //
-        // var priv_key = privateKeyObj.keys[0];
-        // var pub_key = publicKeyObj.keys[0];
-
         publicKeyObj.getPrimaryUser().then(function (primaryUser) {
             var name_email_sum = primaryUser.user.userID.userID;
             var emails = name_email_sum.match(/[^@<\s]+@[^@\s>]+/g);

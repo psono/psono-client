@@ -3,7 +3,6 @@
  */
 
 import action from "../actions/bound-action-creators";
-import apiClientService from "./api-client";
 import browserClient from "./browser-client";
 import cryptoLibrary from "./crypto-library";
 import helperService from "./helper";
@@ -12,6 +11,7 @@ import notification from "./notification";
 import store from "./store";
 import device from "./device";
 import storage from "./storage";
+import apiClient from "./api-client";
 
 let session_password = "";
 let verification = {};
@@ -213,7 +213,7 @@ function samlLogin(samlTokenId) {
 
     let sessionDuration = 24 * 60 * 60;
 
-    return apiClientService
+    return apiClient
         .samlLogin(loginInfoEnc["text"], loginInfoEnc["nonce"], session_keys.public_key, sessionDuration)
         .then(onSuccess, onError);
 }
@@ -249,7 +249,7 @@ function initiateSamlLogin(server, rememberMe, trustDevice, twoFaRedirect) {
 function getSamlRedirectUrl(providerId) {
     const returnToUrl = browserClient.getSamlReturnToUrl();
 
-    return apiClientService.samlInitiateLogin(providerId, returnToUrl).then((result) => {
+    return apiClient.samlInitiateLogin(providerId, returnToUrl).then((result) => {
         return result.data;
     });
 }
@@ -336,7 +336,7 @@ function oidcLogin(oidcTokenId) {
 
     let sessionDuration = 24 * 60 * 60;
 
-    return apiClientService
+    return apiClient
         .oidcLogin(loginInfoEnc["text"], loginInfoEnc["nonce"], session_keys.public_key, sessionDuration)
         .then(onSuccess, onError);
 }
@@ -372,7 +372,7 @@ function initiateOidcLogin(server, rememberMe, trustDevice, twoFaRedirect) {
 function getOidcRedirectUrl(providerId) {
     const returnToUrl = browserClient.getOidcReturnToUrl();
 
-    return apiClientService.oidcInitiateLogin(providerId, returnToUrl).then((result) => {
+    return apiClient.oidcInitiateLogin(providerId, returnToUrl).then((result) => {
         return result.data;
     });
 }
@@ -388,7 +388,7 @@ function gaVerify(gaToken) {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
 
-    return apiClientService.gaVerify(token, gaToken, sessionSecretKey).catch((response) => {
+    return apiClient.gaVerify(token, gaToken, sessionSecretKey).catch((response) => {
         if (response.hasOwnProperty("data") && response.data.hasOwnProperty("non_field_errors")) {
             return Promise.reject(response.data.non_field_errors);
         } else {
@@ -408,7 +408,7 @@ function duoVerify(duoToken) {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
 
-    return apiClientService.duoVerify(token, duoToken, sessionSecretKey).catch((response) => {
+    return apiClient.duoVerify(token, duoToken, sessionSecretKey).catch((response) => {
         if (response.hasOwnProperty("data") && response.data.hasOwnProperty("non_field_errors")) {
             return Promise.reject(response.data.non_field_errors);
         } else {
@@ -428,7 +428,7 @@ function yubikeyOtpVerify(yubikeyOtp) {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
 
-    return apiClientService.yubikeyOtpVerify(token, yubikeyOtp, sessionSecretKey).catch((response) => {
+    return apiClient.yubikeyOtpVerify(token, yubikeyOtp, sessionSecretKey).catch((response) => {
         if (response.hasOwnProperty("data") && response.data.hasOwnProperty("non_field_errors")) {
             return Promise.reject(response.data.non_field_errors);
         } else {
@@ -467,9 +467,7 @@ function activateToken() {
         };
     };
 
-    return apiClientService
-        .activateToken(token, verification.text, verification.nonce, sessionSecretKey)
-        .then(onSuccess);
+    return apiClient.activateToken(token, verification.text, verification.nonce, sessionSecretKey).then(onSuccess);
 }
 
 /**
@@ -571,7 +569,7 @@ function login(password, serverInfo, sendPlain) {
         session_duration = 24 * 60 * 60 * 30;
     }
 
-    return apiClientService
+    return apiClient
         .login(login_info_enc["text"], login_info_enc["nonce"], session_keys.public_key, session_duration)
         .then(onSuccess, onError);
 }
@@ -616,7 +614,7 @@ function logout(msg = "") {
         };
     };
 
-    return apiClientService.logout(token, sessionSecretKey).then(onSuccess, onError);
+    return apiClient.logout(token, sessionSecretKey).then(onSuccess, onError);
 }
 
 /**
@@ -654,7 +652,7 @@ function deleteAccount(password) {
         pass = password;
     }
 
-    return apiClientService.deleteAccount(token, sessionSecretKey, authkey, pass).then(onSuccess, onError);
+    return apiClient.deleteAccount(token, sessionSecretKey, authkey, pass).then(onSuccess, onError);
 }
 
 /**
@@ -673,7 +671,7 @@ function deleteAccount(password) {
 function updateUser(email, authkey, authkeyOld, privateKey, privateKeyNonce, secretKey, secretKeyNonce) {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
-    return apiClientService.updateUser(
+    return apiClient.updateUser(
         token,
         sessionSecretKey,
         email,
@@ -813,7 +811,7 @@ function recoveryEnable(username, recoveryCode, server) {
     };
     const recoveryAuthkey = cryptoLibrary.generateAuthkey(username, recoveryCode);
 
-    return apiClientService.enableRecoverycode(username, recoveryAuthkey).then(onSuccess);
+    return apiClient.enableRecoverycode(username, recoveryAuthkey).then(onSuccess);
 }
 
 /**
@@ -853,7 +851,7 @@ function setPassword(username, recoveryCode, password, userPrivateKey, userSecre
 
     const recovery_authkey = cryptoLibrary.generateAuthkey(username, recoveryCode);
 
-    return apiClientService
+    return apiClient
         .setPassword(username, recovery_authkey, updateRequestEnc.text, updateRequestEnc.nonce)
         .then(onSuccess, onError);
 }
@@ -938,12 +936,12 @@ function armEmergencyCode(username, emergencyCode, server, serverInfo, verifyKey
             return Promise.reject(data);
         };
 
-        return apiClientService
+        return apiClient
             .activateEmergencyCode(username, emergencyAuthkey, update_request_enc.text, update_request_enc.nonce)
             .then(onSuccess, onError);
     };
 
-    return apiClientService.armEmergencyCode(username, emergencyAuthkey).then(onSuccess);
+    return apiClient.armEmergencyCode(username, emergencyAuthkey).then(onSuccess);
 }
 
 /**
@@ -961,7 +959,7 @@ function getSessions() {
     const onError = function () {
         // pass
     };
-    return apiClientService.getSessions(token, sessionSecretKey).then(onSuccess, onError);
+    return apiClient.getSessions(token, sessionSecretKey).then(onSuccess, onError);
 }
 
 /**
@@ -981,7 +979,72 @@ function deleteSession(sessionId) {
     const onError = function () {
         // pass
     };
-    return apiClientService.logout(token, sessionSecretKey, sessionId).then(onSuccess, onError);
+    return apiClient.logout(token, sessionSecretKey, sessionId).then(onSuccess, onError);
+}
+
+/**
+ * Responsible for the registration. Generates the users public-private-key-pair together with the secret
+ * key and the user sauce. Encrypts the sensible data before initiating the register call with the api client.
+ *
+ * @param {email} email The email to register with
+ * @param {string} username The username to register with
+ * @param {string} password The password to register with
+ * @param {string} server The server to send the registration to
+ *
+ * @returns {Promise} promise
+ */
+function register(email, username, password, server) {
+    const onSuccess = function (base_url) {
+        //managerBase.delete_local_data();
+
+        // storage.upsert('config', {key: 'user_email', value: email});
+        // storage.upsert('config', {key: 'user_username', value: username});
+        // storage.upsert('config', {key: 'server', value: server});
+
+        const pair = cryptoLibrary.generatePublicPrivateKeypair();
+        const userSauce = cryptoLibrary.generateUserSauce();
+
+        const privateKeyEncrypted = cryptoLibrary.encryptSecret(pair.private_key, password, userSauce);
+        const secretKeyEncrypted = cryptoLibrary.encryptSecret(cryptoLibrary.generateSecretKey(), password, userSauce);
+
+        const onSuccess = function () {
+            storage.save();
+
+            return {
+                response: "success",
+            };
+        };
+
+        const onError = function (response) {
+            // storage.remove('config', storage.find_key('config', 'user_email'));
+            // storage.remove('config', storage.find_key('config', 'server'));
+            storage.save();
+
+            return {
+                response: "error",
+                error_data: response.data,
+            };
+        };
+
+        return apiClient
+            .register(
+                email,
+                username,
+                cryptoLibrary.generateAuthkey(username, password),
+                pair.public_key,
+                privateKeyEncrypted.text,
+                privateKeyEncrypted.nonce,
+                secretKeyEncrypted.text,
+                secretKeyEncrypted.nonce,
+                userSauce,
+                base_url
+            )
+            .then(onSuccess, onError);
+    };
+
+    const onError = function () {};
+
+    return browserClient.getBaseUrl().then(onSuccess, onError);
 }
 
 const userService = {
@@ -1011,6 +1074,7 @@ const userService = {
     armEmergencyCode,
     getSessions,
     deleteSession,
+    register,
 };
 
 export default userService;

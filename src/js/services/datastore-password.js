@@ -6,7 +6,6 @@ import helperService from "./helper";
 import datastoreService from "./datastore";
 import secretService from "./secret";
 import shareService from "./share";
-import settingsService from "./settings";
 import shareLinkService from "./share-link";
 import cryptoLibrary from "./crypto-library";
 import browserClient from "./browser-client";
@@ -1628,7 +1627,6 @@ function getAllOwnPgpKeys() {
 // itemBlueprint.register('find_in_datastore', findInDatastore);
 // itemBlueprint.register('on_share_added', onShareAdded);
 shareService.register("get_all_child_shares", getAllChildShares);
-settingsService.register("get_password_datastore", getPasswordDatastore);
 
 const datastorePasswordService = {
     generate: generate,

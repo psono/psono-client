@@ -5,7 +5,7 @@ import MuiAlert from "@material-ui/lab/Alert";
 import { useTranslation } from "react-i18next";
 
 const GridContainerErrors = (props) => {
-    const { errors, setErrors, ...rest } = props;
+    const { errors, setErrors, severity, ...rest } = props;
     const { t } = useTranslation();
 
     return (
@@ -20,7 +20,7 @@ const GridContainerErrors = (props) => {
                                         setErrors([]);
                                     }}
                                     key={index}
-                                    severity="error"
+                                    severity={severity}
                                     style={{ marginBottom: "5px" }}
                                 >
                                     {t(prop)}
@@ -34,9 +34,14 @@ const GridContainerErrors = (props) => {
     );
 };
 
+GridContainerErrors.defaultProps = {
+    severity: "error",
+};
+
 GridContainerErrors.propTypes = {
     errors: PropTypes.array.isRequired,
     setErrors: PropTypes.func.isRequired,
+    severity: PropTypes.string,
 };
 
 export default GridContainerErrors;

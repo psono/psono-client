@@ -77,69 +77,6 @@ import datastorePasswordService from "./datastore-password";
 //     }
 // };
 //
-// /**
-//  * Responsible for the registration. Generates the users public-private-key-pair together with the secret
-//  * key and the user sauce. Encrypts the sensible data before initiating the register call with the api client.
-//  *
-//  * @param {email} email The email to register with
-//  * @param {string} username The username to register with
-//  * @param {string} password The password to register with
-//  * @param {string} server The server to send the registration to
-//  *
-//  * @returns {Promise} promise
-//  */
-// function register(email, username, password, server) {
-//
-//     const onSuccess = function(base_url){
-//
-//         managerBase.delete_local_data();
-//
-//         storage.upsert('config', {key: 'user_email', value: email});
-//         storage.upsert('config', {key: 'user_username', value: username});
-//         storage.upsert('config', {key: 'server', value: server});
-//
-//         const pair = cryptoLibrary.generate_public_private_keypair();
-//         const user_sauce = cryptoLibrary.generate_user_sauce();
-//
-//         const priv_key_enc = cryptoLibrary.encrypt_secret(pair.private_key, password, user_sauce);
-//         const secret_key_enc = cryptoLibrary
-//             .encrypt_secret(cryptoLibrary.generate_secret_key(), password, user_sauce);
-//
-//         const onSuccess = function () {
-//
-//             storage.save();
-//
-//             return {
-//                 response:"success"
-//             };
-//         };
-//
-//         const onError = function(response){
-//
-//             storage.remove('config', storage.find_key('config', 'user_email'));
-//             storage.remove('config', storage.find_key('config', 'server'));
-//             storage.save();
-//
-//             return {
-//                 response:"error",
-//                 error_data: response.data
-//             };
-//         };
-//
-//         return apiClient.register(email, username, cryptoLibrary.generate_authkey(username, password), pair.public_key,
-//             priv_key_enc.text, priv_key_enc.nonce, secret_key_enc.text, secret_key_enc.nonce, user_sauce,
-//             base_url)
-//             .then(onSuccess, onError);
-//
-//     };
-//
-//     const onError = function(){
-//
-//     };
-//
-//     return browserClient.get_base_url().then(onSuccess, onError)
-//
-// };
 //
 // /**
 //  * Activates a user account with the provided activation code after registration

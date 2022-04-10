@@ -86,7 +86,7 @@ const EmergencyCodeViewForm = (props) => {
 
     const arm = (localEmergencyCode) => {
         let parsedUrl = helperService.parseUrl(server);
-        let fullUsername = helperService.formFullUsername(username, parsedUrl["full_domain"]);
+        let fullUsername = helperService.formFullUsername(username, domain || parsedUrl["full_domain"]);
 
         function onError(data) {
             setView("default");
@@ -140,7 +140,7 @@ const EmergencyCodeViewForm = (props) => {
         action.setServerUrl(server);
 
         let parsedUrl = helperService.parseUrl(server);
-        let fullUsername = helperService.formFullUsername(username, parsedUrl["full_domain"]);
+        let fullUsername = helperService.formFullUsername(username, domain || parsedUrl["full_domain"]);
         const test_result = helperService.isValidUsername(fullUsername);
         if (test_result) {
             setErrors([test_result]);
@@ -312,7 +312,7 @@ const EmergencyCodeViewForm = (props) => {
                             {t("EMERGENCY_CODE_ACTIVATED")} {remainingWaitingTime} {t("SECONDS")}
                         </MuiAlert>
                     </Grid>
-                    <Grid item xs={4} sm={4} md={4} style={{ marginTop: "5px", marginBottom: "5px" }}>
+                    <Grid item xs={6} sm={6} md={6} style={{ marginTop: "5px", marginBottom: "5px" }}>
                         <Button
                             variant="contained"
                             color="primary"
@@ -343,7 +343,7 @@ const EmergencyCodeViewForm = (props) => {
                             {t("EMERGENCY_CODE_WAITING")} {remainingWaitingTime} {t("SECONDS")}
                         </MuiAlert>
                     </Grid>
-                    <Grid item xs={4} sm={4} md={4} style={{ marginTop: "5px", marginBottom: "5px" }}>
+                    <Grid item xs={6} sm={6} md={6} style={{ marginTop: "5px", marginBottom: "5px" }}>
                         <Button
                             variant="contained"
                             color="primary"
@@ -504,7 +504,7 @@ const EmergencyCodeViewForm = (props) => {
                     <Grid item xs={12} sm={12} md={12} style={{ textAlign: "center" }}>
                         <ThumbUpIcon style={{ fontSize: 160 }} />
                     </Grid>
-                    <Grid item xs={4} sm={4} md={4} style={{ marginTop: "5px", marginBottom: "5px" }}>
+                    <Grid item xs={6} sm={6} md={6} style={{ marginTop: "5px", marginBottom: "5px" }}>
                         <Button
                             variant="contained"
                             color="primary"
@@ -530,7 +530,15 @@ const EmergencyCodeViewForm = (props) => {
         >
             {formContent}
             <div className="box-footer">
-                <a href="privacy-policy.html">{t("PRIVACY_POLICY")}</a>
+                <a
+                    href="#"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        browserClient.openTab("privacy-policy.html");
+                    }}
+                >
+                    {t("PRIVACY_POLICY")}
+                </a>
             </div>
         </form>
     );

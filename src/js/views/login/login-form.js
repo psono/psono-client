@@ -100,7 +100,6 @@ const LoginViewForm = (props) => {
         if (props.samlTokenId) {
             user.samlLogin(props.samlTokenId).then(
                 (requiredMultifactors) => {
-                    console.log(requiredMultifactors);
                     setMultifactors(requiredMultifactors);
                     requirementCheckMfa(requiredMultifactors);
                 },
@@ -112,7 +111,6 @@ const LoginViewForm = (props) => {
         if (props.oidcTokenId) {
             user.oidcLogin(props.oidcTokenId).then(
                 (requiredMultifactors) => {
-                    console.log(requiredMultifactors);
                     setMultifactors(requiredMultifactors);
                     requirementCheckMfa(requiredMultifactors);
                 },
@@ -157,19 +155,16 @@ const LoginViewForm = (props) => {
     };
 
     const showGa2faForm = () => {
-        console.log("google_authenticator");
         setView("google_authenticator");
         setLoginLoading(false);
     };
 
     const showYubikeyOtp2faForm = () => {
-        console.log("yubikey_otp");
         setView("yubikey_otp");
         setLoginLoading(false);
     };
 
     const showDuo2faForm = () => {
-        console.log("duo");
         setView("duo");
         setLoginLoading(false);
         verifyDuo();
@@ -495,7 +490,6 @@ const LoginViewForm = (props) => {
                     if (serverCheck.status !== "matched") {
                         setView(serverCheck.status);
                     } else if (hasLdapAuth(serverCheck)) {
-                        console.log("ask_send_plain");
                         if (store.getState().persistent.autoApproveLdap.hasOwnProperty(serverCheck.server_url)) {
                             return nextLoginStep(true, serverCheck);
                         } else {
@@ -706,7 +700,15 @@ const LoginViewForm = (props) => {
                                 <BarLoader color={"#FFF"} height={17} width={37} loading={loginLoading} />
                             </Button>
                             {allowRegistration && (
-                                <Button onClick={redirectRegister}>
+                                <Button
+                                    onClick={(e) => {
+                                        if (window.location.pathname.endsWith("/default_popup.html")) {
+                                            browserClient.openTab("register.html");
+                                        } else {
+                                            redirectRegister(e);
+                                        }
+                                    }}
+                                >
                                     <span style={{ color: "#b1b6c1" }}>{t("REGISTER")}</span>
                                 </Button>
                             )}
@@ -1125,8 +1127,36 @@ const LoginViewForm = (props) => {
                     {t("REMOTE_CONFIG")}
                 </a>
                 &nbsp;&nbsp;
-                {allowLostPassword && <a href="lost-password.html">{t("LOST_PASSWORD")}</a>}&nbsp;&nbsp;
-                <a href="privacy-policy.html">{t("PRIVACY_POLICY")}</a>
+                {allowLostPassword && !window.location.pathname.endsWith("/default_popup.html") && (
+                    <a href="lost-password.html">{t("LOST_PASSWORD")}</a>
+                )}
+                &nbsp;&nbsp;
+                {allowLostPassword && window.location.pathname.endsWith("/default_popup.html") && (
+                    <a
+                        href="#"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            browserClient.openTab("lost-password.html");
+                        }}
+                    >
+                        {t("LOST_PASSWORD")}
+                    </a>
+                )}
+                &nbsp;&nbsp;
+                {!window.location.pathname.endsWith("/default_popup.html") && (
+                    <a href="privacy-policy.html">{t("PRIVACY_POLICY")}</a>
+                )}
+                {window.location.pathname.endsWith("/default_popup.html") && (
+                    <a
+                        href="#"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            browserClient.openTab("privacy-policy.html");
+                        }}
+                    >
+                        {t("PRIVACY_POLICY")}
+                    </a>
+                )}
             </div>
         </form>
     );

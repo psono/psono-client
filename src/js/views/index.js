@@ -23,6 +23,7 @@ import statusService from "../services/status";
 import SecurityReportView from "./security-report";
 import LinkShareAccessView from "./link-share-access";
 import backgroundService from "../services/background";
+import RegisterView from "./register";
 
 const IndexView = (props) => {
     const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
@@ -111,7 +112,7 @@ const IndexView = (props) => {
     } else if (pathname.endsWith("/privacy-policy.html")) {
         return <PrivacyPolicyView {...props} />;
     } else if (pathname.endsWith("/register.html")) {
-        return <h1>Register here!</h1>;
+        return <RegisterView {...props} />;
     } else {
         // pathname.endsWith('/index.html')
         if (!isLoggedIn) {
