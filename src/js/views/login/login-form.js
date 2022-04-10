@@ -439,7 +439,9 @@ const LoginViewForm = (props) => {
         host.checkHost(server).then(onSuccess, onError);
     };
 
-    const initiateOidcLogin = (providerId) => {};
+    const initiateOidcLogin = (providerId) => {
+        // TODO add logic for OIDC login
+    };
 
     const initiateSamlLogin = (providerId) => {
         setLoginLoading(true);
@@ -456,7 +458,20 @@ const LoginViewForm = (props) => {
                         setView(serverCheck.status);
                     } else {
                         user.getSamlRedirectUrl(providerId).then((result) => {
-                            window.location = result.saml_redirect_url;
+                            browserClient.launchWebAuthFlow(result.saml_redirect_url).then((samlTokenid) => {
+                                // comes only here in extensions
+                                if (samlTokenid) {
+                                    user.samlLogin(samlTokenid).then(
+                                        (requiredMultifactors) => {
+                                            setMultifactors(requiredMultifactors);
+                                            requirementCheckMfa(requiredMultifactors);
+                                        },
+                                        (errors) => {
+                                            setErrors(errors);
+                                        }
+                                    );
+                                }
+                            });
                         });
                     }
                 },

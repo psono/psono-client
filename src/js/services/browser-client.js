@@ -112,7 +112,7 @@ function getOidcReturnToUrl() {
  */
 function launchWebAuthFlow(url) {
     if (TARGET === "firefox") {
-        emit_sec("launch-web-auth-flow-in-background", { url: url });
+        emitSec("launch-web-auth-flow-in-background", { url: url });
         return Promise.resolve();
     } else if (TARGET === "chrome") {
         return new Promise(function (resolve, reject) {
