@@ -215,10 +215,11 @@ function onReady(request, sender, sendResponse) {
     if (sender.tab) {
         const url = sender.tab.url;
         const parsedUrl = helper.parseUrl(url);
-
+        let sentResponse = false;
         for (let i = fillpassword.length - 1; i >= 0; i--) {
             if (helper.endsWith(parsedUrl.authority, fillpassword[i].authority)) {
                 fillpassword[i].submit = parsedUrl.scheme === "https";
+                sentResponse = true;
                 sendResponse({ event: "fillpassword", data: fillpassword[i] });
                 break;
             }
@@ -226,6 +227,10 @@ function onReady(request, sender, sendResponse) {
         setTimeout(function () {
             fillpassword = [];
         }, 3000);
+
+        if (!sentResponse) {
+            sendResponse({ event: "status", data: "ok" });
+        }
     }
 }
 
@@ -412,6 +417,7 @@ function searchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit) {
  */
 function onWebsitePasswordRefresh(request, sender, sendResponse) {
     if (!sender.tab) {
+        sendResponse({ event: "status", data: "ok" });
         return;
     }
     searchWebsitePasswordsByUrlfilter(sender.tab.url, false).then(function (leafs) {

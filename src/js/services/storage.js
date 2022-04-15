@@ -140,6 +140,9 @@ function where(db, filterFunction) {
     return dbConfig[db]
         .length()
         .then(function (numberOfKeys) {
+            if (numberOfKeys === 0) {
+                return result;
+            }
             return dbConfig[db].iterate(function (value, key, iterationNumber) {
                 if (filterFunction(value)) {
                     result.push(value);

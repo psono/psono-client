@@ -440,7 +440,52 @@ const LoginViewForm = (props) => {
     };
 
     const initiateOidcLogin = (providerId) => {
-        // TODO add logic for OIDC login
+        setLoginLoading(true);
+        setLoginType("OIDC");
+        setErrors([]);
+        setProviderId(providerId);
+        return user
+            .initiateOidcLogin(server, rememberMe, trustDevice, true)
+            .then(
+                (serverCheck) => {
+                    setServerCheck(serverCheck);
+                    action.setServerInfo(serverCheck.info, serverCheck.verify_key);
+                    if (serverCheck.status !== "matched") {
+                        setView(serverCheck.status);
+                    } else {
+                        user.getOidcRedirectUrl(providerId).then((result) => {
+                            browserClient.launchWebAuthFlow(result.oidc_redirect_url).then((oidcTokenid) => {
+                                // comes only here in extensions
+                                if (oidcTokenid) {
+                                    user.oidcLogin(oidcTokenid).then(
+                                        (requiredMultifactors) => {
+                                            setMultifactors(requiredMultifactors);
+                                            requirementCheckMfa(requiredMultifactors);
+                                        },
+                                        (errors) => {
+                                            setErrors(errors);
+                                        }
+                                    );
+                                }
+                            });
+                        });
+                    }
+                },
+                (result) => {
+                    if (result.hasOwnProperty("errors")) {
+                        let errors = result.errors;
+                        setLoginLoading(false);
+                        setErrors(errors);
+                    } else {
+                        setLoginLoading(false);
+                        setErrors([result]);
+                    }
+                }
+            )
+            .catch((result) => {
+                setLoginLoading(false);
+                return Promise.reject(result);
+            });
     };
 
     const initiateSamlLogin = (providerId) => {
