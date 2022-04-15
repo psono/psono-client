@@ -81,7 +81,7 @@ function escapeRegExp(str) {
         throw new TypeError("Expected a string");
     }
 
-    return str.replace(new RegExp("[|\\\\{}()[\\]^$+*?.]", "g"), "\\$&");
+    return str.replace(new RegExp("[|\\\\{}()[\\]^$+*?.-]", "g"), "\\$&");
 }
 
 /**
@@ -1630,6 +1630,7 @@ shareService.register("get_all_child_shares", getAllChildShares);
 
 const datastorePasswordService = {
     generate: generate,
+    escapeRegExp: escapeRegExp,
     getPasswordDatastore: getPasswordDatastore,
     getDatastoreWithId: getDatastoreWithId,
     saveDatastoreContent: saveDatastoreContent,

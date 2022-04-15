@@ -31,7 +31,12 @@ function randomBytes(count) {
     if (typeof module !== "undefined" && module.exports) {
         // add node.js implementations
         const crypto = require("crypto");
-        return crypto.randomBytes(count);
+        const buf = crypto.randomBytes(count);
+        const bs = new Uint8Array(count);
+        for (let i = 0; i < buf.length; ++i) {
+            bs[i] = buf[i];
+        }
+        return bs;
     } else if (window && window.crypto && window.crypto.getRandomValues) {
         // add in-browser implementation
         bs = new Uint8Array(count);
