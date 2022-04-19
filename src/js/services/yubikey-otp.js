@@ -18,6 +18,8 @@ function createYubikeyOtp(title, otp) {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
     const onSuccess = function (request) {
+        createYubikeyOtp;
+        action.setHasTwoFactor(true);
         return {
             id: request.data["id"],
         };

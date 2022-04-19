@@ -1,6 +1,4 @@
 import React from "react";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
 import { useTranslation } from "react-i18next";
 import Divider from "@material-ui/core/Divider";
 import { Grid } from "@material-ui/core";
@@ -8,7 +6,6 @@ import CheckIcon from "@material-ui/icons/Check";
 import IconButton from "@material-ui/core/IconButton";
 import DeleteIcon from "@material-ui/icons/Delete";
 
-import actionCreators from "../../actions/action-creators";
 import Table from "../../components/table";
 import apiKey from "../../services/api-keys";
 import EditIcon from "@material-ui/icons/Edit";
@@ -210,10 +207,4 @@ const OtherApiKeysView = (props) => {
     );
 };
 
-function mapStateToProps(state) {
-    return { state: state };
-}
-function mapDispatchToProps(dispatch) {
-    return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-export default connect(mapStateToProps, mapDispatchToProps)(OtherApiKeysView);
+export default OtherApiKeysView;

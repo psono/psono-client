@@ -192,6 +192,8 @@ function samlLogin(samlTokenId) {
             response.data.user.user_sauce
         );
 
+        action.setHasTwoFactor(response.data.required_multifactors > 0);
+
         return response.data.required_multifactors;
     };
 
@@ -314,6 +316,8 @@ function oidcLogin(oidcTokenId) {
             response.data.token,
             response.data.user.user_sauce
         );
+
+        action.setHasTwoFactor(response.data.required_multifactors > 0);
 
         return response.data.required_multifactors;
     };
@@ -523,6 +527,8 @@ function handleLoginResponse(response, password, sessionKeys, serverPublicKey) {
     verification = cryptoLibrary.encryptData(user_validator, sessionSecretKey);
 
     action.setUserInfo2(user_private_key, user_public_key, sessionSecretKey, token, user_sauce);
+
+    action.setHasTwoFactor(response.data["required_multifactors"] > 0);
 
     return response.data["required_multifactors"];
 }
@@ -945,6 +951,19 @@ function armEmergencyCode(username, emergencyCode, server, serverInfo, verifyKey
 }
 
 /**
+ * Checks if the user needs to setup a second factor
+ *
+ * @return {boolean} Returns whether the user should be forced to setup two factor
+ */
+function requireTwoFaSetup() {
+    return (
+        !store.getState().user.hasTwoFactor &&
+        store.getState().server.complianceEnforce2fa &&
+        store.getState().server.allowedSecondFactors.length > 0
+    );
+}
+
+/**
  * loads the sessions
  *
  * @returns {Promise} Returns a promise with the sessions
@@ -1072,6 +1091,7 @@ const userService = {
     recoveryEnable,
     setPassword,
     armEmergencyCode,
+    requireTwoFaSetup,
     getSessions,
     deleteSession,
     register,

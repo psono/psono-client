@@ -1,11 +1,8 @@
 import React, { useState } from "react";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
 import { useTranslation } from "react-i18next";
 import Divider from "@material-ui/core/Divider";
 import { Checkbox, Grid } from "@material-ui/core";
 
-import actionCreators from "../../actions/action-creators";
 import { Check } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/core/styles";
 import store from "../../services/store";
@@ -62,10 +59,4 @@ const SettingsNotificationView = (props) => {
     );
 };
 
-function mapStateToProps(state) {
-    return { state: state };
-}
-function mapDispatchToProps(dispatch) {
-    return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-export default connect(mapStateToProps, mapDispatchToProps)(SettingsNotificationView);
+export default SettingsNotificationView;

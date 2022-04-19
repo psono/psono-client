@@ -13,6 +13,7 @@ import host from "../../services/host";
 import GridContainerErrors from "../../components/grid-container-errors";
 import action from "../../actions/bound-action-creators";
 import userService from "../../services/user";
+import store from "../../services/store";
 
 const styles = (theme) => ({
     textField: {
@@ -51,9 +52,9 @@ const RegisterForm = (props) => {
     const { t } = useTranslation();
 
     const [view, setView] = useState("default");
-    const [username, setUsername] = useState(props.state.user.username);
-    const [email, setEmail] = useState(props.state.user.username);
-    const [server, setServer] = useState(props.state.server.url);
+    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
+    const [server, setServer] = useState(store.getState().server.url);
     const [password, setPassword] = useState("");
     const [passwordRepeat, setPasswordRepeat] = useState("");
     const [domain, setDomain] = useState("");

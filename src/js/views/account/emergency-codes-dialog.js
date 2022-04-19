@@ -271,10 +271,4 @@ EmergencyCodesDialog.propTypes = {
     open: PropTypes.bool.isRequired,
 };
 
-function mapStateToProps(state) {
-    return { state: state };
-}
-function mapDispatchToProps(dispatch) {
-    return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-export default connect(mapStateToProps, mapDispatchToProps)(EmergencyCodesDialog);
+export default EmergencyCodesDialog;

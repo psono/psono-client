@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { bindActionCreators } from "redux";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
 import Dialog from "@material-ui/core/Dialog";
@@ -9,10 +7,9 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
-import { Checkbox, Grid } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 
-import actionCreators from "../../actions/action-creators";
 import GridContainerErrors from "../../components/grid-container-errors";
 import fileRepository from "../../services/file-repository";
 import helperService from "../../services/helper";
@@ -616,10 +613,4 @@ CreateFileRepositoriesDialog.propTypes = {
     open: PropTypes.bool.isRequired,
 };
 
-function mapStateToProps(state) {
-    return { state: state };
-}
-function mapDispatchToProps(dispatch) {
-    return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-export default connect(mapStateToProps, mapDispatchToProps)(CreateFileRepositoriesDialog);
+export default CreateFileRepositoriesDialog;

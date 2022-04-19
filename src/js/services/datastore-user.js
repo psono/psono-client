@@ -32,20 +32,7 @@ import datastorePasswordService from "./datastore-password";
 // };
 //
 //
-// /**
-//  * Checks if the user needs to setup a second factor
-//  *
-//  * @return {boolean} Returns whether the user should be forced to setup two factor
-//  */
-// function require_two_fa_setup() {
-//     const user_has_two_factor = managerBase.find_key('config', 'user_has_two_factor');
-//     const server_info = managerBase.find_key('config', 'server_info');
-//     return server_info !== null
-//         && !user_has_two_factor
-//         && server_info['compliance_enforce_2fa']
-//         && server_info['allowed_second_factors']
-//         && server_info['allowed_second_factors'].length > 0;
-// };
+
 //
 // /**
 //  * used to register functions for specific events

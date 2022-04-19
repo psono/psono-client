@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { bindActionCreators } from "redux";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
 import Dialog from "@material-ui/core/Dialog";
@@ -12,7 +10,6 @@ import Button from "@material-ui/core/Button";
 import { Checkbox, Grid } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 
-import actionCreators from "../../actions/action-creators";
 import GridContainerErrors from "../../components/grid-container-errors";
 import { Check } from "@material-ui/icons";
 import datastore from "../../services/datastore";
@@ -135,10 +132,4 @@ CreateDatastoresDialog.propTypes = {
     open: PropTypes.bool.isRequired,
 };
 
-function mapStateToProps(state) {
-    return { state: state };
-}
-function mapDispatchToProps(dispatch) {
-    return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-export default connect(mapStateToProps, mapDispatchToProps)(CreateDatastoresDialog);
+export default CreateDatastoresDialog;

@@ -1,7 +1,5 @@
 import React from "react";
-import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { bindActionCreators } from "redux";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
 import Dialog from "@material-ui/core/Dialog";
@@ -11,7 +9,6 @@ import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
 import { Grid } from "@material-ui/core";
 
-import actionCreators from "../../actions/action-creators";
 import passwordRecoveryCode from "../../services/password-recovery-code";
 import MuiAlert from "@material-ui/lab/Alert";
 
@@ -99,10 +96,4 @@ PasswordRecoveryCodesDialog.propTypes = {
     open: PropTypes.bool.isRequired,
 };
 
-function mapStateToProps(state) {
-    return { state: state };
-}
-function mapDispatchToProps(dispatch) {
-    return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-export default connect(mapStateToProps, mapDispatchToProps)(PasswordRecoveryCodesDialog);
+export default PasswordRecoveryCodesDialog;

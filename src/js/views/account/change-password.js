@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
 import { useTranslation } from "react-i18next";
 import Button from "@material-ui/core/Button";
 import { Grid } from "@material-ui/core";
@@ -8,9 +6,7 @@ import Divider from "@material-ui/core/Divider";
 import TextField from "@material-ui/core/TextField";
 import { makeStyles } from "@material-ui/core/styles";
 
-import actionCreators from "../../actions/action-creators";
 import user from "../../services/user";
-import helper from "../../services/helper";
 import GridContainerErrors from "../../components/grid-container-errors";
 
 const useStyles = makeStyles((theme) => ({
@@ -127,10 +123,4 @@ const AccountChangePasswordView = (props) => {
     );
 };
 
-function mapStateToProps(state) {
-    return { state: state };
-}
-function mapDispatchToProps(dispatch) {
-    return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-export default connect(mapStateToProps, mapDispatchToProps)(AccountChangePasswordView);
+export default AccountChangePasswordView;

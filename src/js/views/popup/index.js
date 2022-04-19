@@ -1,4 +1,5 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
@@ -18,6 +19,7 @@ import Typography from "@material-ui/core/Typography";
 import EditIcon from "@material-ui/icons/Edit";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import Tooltip from "@material-ui/core/Tooltip";
+import MuiAlert from "@material-ui/lab/Alert";
 import ContentCopy from "../../components/icons/ContentCopy";
 import user from "../../services/user";
 import browserClient from "../../services/browser-client";
@@ -240,6 +242,8 @@ PopupItem.propTypes = {
 const PopupView = (props) => {
     const classes = useStyles();
     const { t } = useTranslation();
+    const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
+    const hasTwoFactor = useSelector((state) => state.user.hasTwoFactor);
     const [search, setSearch] = React.useState("");
     const [items, setItems] = React.useState([]);
     let isSubscribed = true;
@@ -326,76 +330,108 @@ const PopupView = (props) => {
         itemsToDisplay = itemsToDisplay.slice(0, 50);
     }
 
-    return (
-        <Grid container className={"dark"}>
-            <Grid item xs={12} sm={12} md={12}>
-                <TextField
-                    className={classes.textField}
-                    variant="outlined"
-                    margin="dense"
-                    id="search"
-                    label={t("SEARCH_DATSTORE")}
-                    name="search"
-                    autoComplete="search"
-                    value={search}
-                    onChange={(event) => {
-                        setSearch(event.target.value);
-                    }}
-                    InputProps={{
-                        endAdornment: search && (
-                            <InputAdornment position="end">
-                                <IconButton aria-label="clear search" onClick={clear} edge="end">
-                                    <ClearIcon />
-                                </IconButton>
-                            </InputAdornment>
-                        ),
-                    }}
-                />
-                <Divider classes={{ root: classes.divider }} />
+    if (isLoggedIn && !hasTwoFactor && user.requireTwoFaSetup()) {
+        return (
+            <Grid container className={"dark"}>
+                <Grid item xs={12} sm={12} md={12}>
+                    <MuiAlert
+                        severity="info"
+                        style={{
+                            marginBottom: "5px",
+                            marginTop: "5px",
+                        }}
+                    >
+                        {t("ADMINISTRATOR_REQUIRES_SECOND_FACTOR")}
+                    </MuiAlert>
+                </Grid>
+                <Grid item xs={12} sm={12} md={12}>
+                    <Button
+                        onClick={() => {
+                            browserClient.openTab("enforce-two-fa.html");
+                        }}
+                        variant="contained"
+                        color="primary"
+                    >
+                        {t("SETUP_SECOND_FACTOR")}
+                    </Button>
+                    <Button onClick={logout} variant="contained">
+                        {t("LOGOUT")}
+                    </Button>
+                </Grid>
             </Grid>
-            {search && itemsToDisplay.length > 0 && (
+        );
+    } else {
+        return (
+            <Grid container className={"dark"}>
                 <Grid item xs={12} sm={12} md={12}>
-                    <ul className={classes.navigation}>
-                        {itemsToDisplay.map((item, i) => (
-                            <PopupItem key={i} editItem={editItem} onItemClick={onItemClick} item={item} />
-                        ))}
-                    </ul>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="search"
+                        label={t("SEARCH_DATSTORE")}
+                        name="search"
+                        autoComplete="search"
+                        value={search}
+                        onChange={(event) => {
+                            setSearch(event.target.value);
+                        }}
+                        InputProps={{
+                            endAdornment: search && (
+                                <InputAdornment position="end">
+                                    <IconButton aria-label="clear search" onClick={clear} edge="end">
+                                        <ClearIcon />
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                    <Divider classes={{ root: classes.divider }} />
                 </Grid>
-            )}
-            {search && itemsToDisplay.length === 0 && (
-                <Grid item xs={12} sm={12} md={12} style={{ color: "#b1b6c1" }}>
-                    {t("NO_ENTRY_FOUND")}
-                </Grid>
-            )}
-            {!search && (
+                {search && itemsToDisplay.length > 0 && (
+                    <Grid item xs={12} sm={12} md={12}>
+                        <ul className={classes.navigation}>
+                            {itemsToDisplay.map((item, i) => (
+                                <PopupItem key={i} editItem={editItem} onItemClick={onItemClick} item={item} />
+                            ))}
+                        </ul>
+                    </Grid>
+                )}
+                {search && itemsToDisplay.length === 0 && (
+                    <Grid item xs={12} sm={12} md={12} style={{ color: "#b1b6c1" }}>
+                        {t("NO_ENTRY_FOUND")}
+                    </Grid>
+                )}
+                {!search && (
+                    <Grid item xs={12} sm={12} md={12}>
+                        <Button onClick={openDatastore} className={classes.button}>
+                            {t("OPEN_DATASTORE")}
+                        </Button>
+                    </Grid>
+                )}
+                {!search && (
+                    <Grid item xs={12} sm={12} md={12}>
+                        <Button onClick={generatePassword} className={classes.button}>
+                            {t("GENERATE_PASSWORD")}
+                        </Button>
+                    </Grid>
+                )}
+                {!search && (
+                    <Grid item xs={12} sm={12} md={12}>
+                        <Button onClick={bookmark} className={classes.button}>
+                            {t("BOOKMARK")}
+                        </Button>
+                    </Grid>
+                )}
                 <Grid item xs={12} sm={12} md={12}>
-                    <Button onClick={openDatastore} className={classes.button}>
-                        {t("OPEN_DATASTORE")}
+                    <Divider classes={{ root: classes.divider }} />
+                    <Button variant="contained" color="primary" onClick={logout}>
+                        {t("LOGOUT")}
                     </Button>
                 </Grid>
-            )}
-            {!search && (
-                <Grid item xs={12} sm={12} md={12}>
-                    <Button onClick={generatePassword} className={classes.button}>
-                        {t("GENERATE_PASSWORD")}
-                    </Button>
-                </Grid>
-            )}
-            {!search && (
-                <Grid item xs={12} sm={12} md={12}>
-                    <Button onClick={bookmark} className={classes.button}>
-                        {t("BOOKMARK")}
-                    </Button>
-                </Grid>
-            )}
-            <Grid item xs={12} sm={12} md={12}>
-                <Divider classes={{ root: classes.divider }} />
-                <Button variant="contained" color="primary" onClick={logout}>
-                    {t("LOGOUT")}
-                </Button>
             </Grid>
-        </Grid>
-    );
+        );
+    }
 };
 
 export default PopupView;

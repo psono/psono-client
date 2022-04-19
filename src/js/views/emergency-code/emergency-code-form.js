@@ -15,6 +15,7 @@ import cryptoLibrary from "../../services/crypto-library";
 import GridContainerErrors from "../../components/grid-container-errors";
 import MuiAlert from "@material-ui/lab/Alert";
 import action from "../../actions/bound-action-creators";
+import store from "../../services/store";
 
 const styles = (theme) => ({
     textField: {
@@ -54,12 +55,12 @@ const EmergencyCodeViewForm = (props) => {
 
     const [view, setView] = useState("default");
     const [remainingWaitingTime, setRemainingWaitingTime] = useState(-1);
-    const [username, setUsername] = useState(props.state.user.username);
+    const [username, setUsername] = useState("");
     const [emergencyCode, setEmergencyCode] = useState("");
     const [code1, setCode1] = useState("");
     const [code2, setCode2] = useState("");
     const [words, setWords] = useState("");
-    const [server, setServer] = useState(props.state.server.url);
+    const [server, setServer] = useState(store.getState().server.url);
     const [serverCheck, setServerCheck] = useState({});
     const [domain, setDomain] = useState("");
     const [errors, setErrors] = useState([]);

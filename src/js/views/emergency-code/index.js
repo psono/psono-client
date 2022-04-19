@@ -10,7 +10,7 @@ const EmergencyCodeView = (props) => {
             <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
                 <i className="fa fa-info-circle" aria-hidden="true" />
             </a>
-            <EmergencyCodeViewForm state={props.state} samlTokenId={samlTokenId} oidcTokenId={oidcTokenId} />
+            <EmergencyCodeViewForm samlTokenId={samlTokenId} oidcTokenId={oidcTokenId} />
         </div>
     );
 };

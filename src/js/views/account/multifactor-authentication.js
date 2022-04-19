@@ -1,13 +1,10 @@
 import React from "react";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import { Grid } from "@material-ui/core";
 import Divider from "@material-ui/core/Divider";
 
-import actionCreators from "../../actions/action-creators";
 import store from "../../services/store";
 import MultifactorAuthenticatorGoogleAuthenticator from "./multifactor-authentication-google-authenticator";
 import MultifactorAuthenticatorYubikeyOtp from "./multifactor-authentication-yubikey-otp";
@@ -110,10 +107,4 @@ const MultifactorAuthenticationView = (props) => {
     );
 };
 
-function mapStateToProps(state) {
-    return { state: state };
-}
-function mapDispatchToProps(dispatch) {
-    return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-export default connect(mapStateToProps, mapDispatchToProps)(MultifactorAuthenticationView);
+export default MultifactorAuthenticationView;

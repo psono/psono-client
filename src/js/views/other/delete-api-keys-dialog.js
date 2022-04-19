@@ -1,31 +1,20 @@
 import React, { useState } from "react";
-import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { bindActionCreators } from "redux";
 import { useTranslation } from "react-i18next";
-import { makeStyles } from "@material-ui/core/styles";
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
 
-import actionCreators from "../../actions/action-creators";
 import MuiAlert from "@material-ui/lab/Alert";
 import ButtonDanger from "../../components/button-danger";
 import GridContainerErrors from "../../components/grid-container-errors";
 import apiKeys from "../../services/api-keys";
 
-const useStyles = makeStyles((theme) => ({
-    textField: {
-        width: "100%",
-    },
-}));
-
 const DeleteApiKeysDialog = (props) => {
     const { open, onClose } = props;
     const { t } = useTranslation();
-    const classes = useStyles();
     const [errors, setErrors] = useState([]);
 
     const deleteApiKey = () => {
@@ -92,10 +81,4 @@ DeleteApiKeysDialog.propTypes = {
     apiKeyId: PropTypes.string.isRequired,
 };
 
-function mapStateToProps(state) {
-    return { state: state };
-}
-function mapDispatchToProps(dispatch) {
-    return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-export default connect(mapStateToProps, mapDispatchToProps)(DeleteApiKeysDialog);
+export default DeleteApiKeysDialog;

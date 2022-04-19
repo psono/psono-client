@@ -14,6 +14,7 @@ import OtherView from "./other";
 import SettingsView from "./settings";
 import LostPasswordView from "./lost-password";
 import EmergencyCodeView from "./emergency-code";
+import EnforceTwoFaView from "./enforce-two-fa";
 import OpenSecretView from "./open-secret";
 import DownloadFileView from "./download-file";
 import TrustedUsersView from "./trusted-users";
@@ -24,9 +25,11 @@ import SecurityReportView from "./security-report";
 import LinkShareAccessView from "./link-share-access";
 import backgroundService from "../services/background";
 import RegisterView from "./register";
+import user from "../services/user";
 
 const IndexView = (props) => {
     const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
+    const hasTwoFactor = useSelector((state) => state.user.hasTwoFactor);
     const pathname = window.location.pathname;
 
     React.useEffect(() => {
@@ -69,6 +72,7 @@ const IndexView = (props) => {
     } else if (pathname.endsWith("/emergency-code.html")) {
         return <EmergencyCodeView {...props} />;
     } else if (pathname.endsWith("/enforce-two-fa.html")) {
+        return <EnforceTwoFaView {...props} />;
     } else if (pathname.endsWith("/link-share-access.html")) {
         return (
             <Switch>
@@ -115,6 +119,9 @@ const IndexView = (props) => {
         return <RegisterView {...props} />;
     } else {
         // pathname.endsWith('/index.html')
+        if (isLoggedIn && !hasTwoFactor && user.requireTwoFaSetup()) {
+            window.location.href = "enforce-two-fa.html";
+        }
         if (!isLoggedIn) {
             return (
                 <Switch>

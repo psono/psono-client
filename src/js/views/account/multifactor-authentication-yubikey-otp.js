@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { bindActionCreators } from "redux";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
 import Dialog from "@material-ui/core/Dialog";
@@ -15,7 +13,6 @@ import CheckIcon from "@material-ui/icons/Check";
 import { Grid } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 
-import actionCreators from "../../actions/action-creators";
 import Table from "../../components/table";
 import yubikeyOtp from "../../services/yubikey-otp";
 import GridContainerErrors from "../../components/grid-container-errors";
@@ -214,10 +211,4 @@ MultifactorAuthenticatorYubikeyOtp.propTypes = {
     open: PropTypes.bool.isRequired,
 };
 
-function mapStateToProps(state) {
-    return { state: state };
-}
-function mapDispatchToProps(dispatch) {
-    return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-export default connect(mapStateToProps, mapDispatchToProps)(MultifactorAuthenticatorYubikeyOtp);
+export default MultifactorAuthenticatorYubikeyOtp;

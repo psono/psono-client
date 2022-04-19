@@ -1,6 +1,4 @@
 import React from "react";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
@@ -12,7 +10,6 @@ import Divider from "@material-ui/core/Divider";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { Grid } from "@material-ui/core";
 
-import actionCreators from "../../actions/action-creators";
 import store from "../../services/store";
 import browserClient from "../../services/browser-client";
 
@@ -337,10 +334,4 @@ const AccountOverviewView = (props) => {
     );
 };
 
-function mapStateToProps(state) {
-    return { state: state };
-}
-function mapDispatchToProps(dispatch) {
-    return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-export default connect(mapStateToProps, mapDispatchToProps)(AccountOverviewView);
+export default AccountOverviewView;

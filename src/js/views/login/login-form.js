@@ -68,9 +68,9 @@ const LoginViewForm = (props) => {
     const history = useHistory();
 
     const [view, setView] = useState("default");
-    const [username, setUsername] = useState(props.state.user.username);
+    const [username, setUsername] = useState(store.getState().user.username);
     const [password, setPassword] = useState("");
-    const [server, setServer] = useState(props.state.server.url);
+    const [server, setServer] = useState(store.getState().server.url);
     const [rememberMe, setRememberMe] = useState(false);
     const [providerId, setProviderId] = useState(0);
     const [trustDevice, setTrustDevice] = useState(false);
@@ -149,6 +149,7 @@ const LoginViewForm = (props) => {
                 requirementCheckMfa(requiredMultifactors);
             },
             (errors) => {
+                console.log(errors);
                 setErrors(errors);
             }
         );
