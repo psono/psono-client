@@ -286,21 +286,20 @@ function readGroupRights(groupId) {
  * @returns {Promise} Returns a dict with the inaccessible group shares, grouped by group_id
  */
 function getOutstandingGroupShares() {
-    const onSuccess = function (data) {
-        const inaccessible_share_list = datastorePasswordService.getInaccessibleShares(data.group_rights);
-        const inaccessible_share_by_group_dict = {};
+    const onSuccess = async function (data) {
+        const inaccessibleShareList = await datastorePasswordService.getInaccessibleShares(data.group_rights);
+        const inaccessibleShareByGroupDict = {};
 
-        for (let i = 0; i < inaccessible_share_list.length; i++) {
-            const inaccessible_share = inaccessible_share_list[i];
+        for (let i = 0; i < inaccessibleShareList.length; i++) {
+            const inaccessibleShare = inaccessibleShareList[i];
 
-            if (!inaccessible_share_by_group_dict.hasOwnProperty(inaccessible_share.group_id)) {
-                inaccessible_share_by_group_dict[inaccessible_share.group_id] = {};
+            if (!inaccessibleShareByGroupDict.hasOwnProperty(inaccessibleShare.group_id)) {
+                inaccessibleShareByGroupDict[inaccessibleShare.group_id] = {};
             }
-            inaccessible_share_by_group_dict[inaccessible_share.group_id][inaccessible_share.share_id] =
-                inaccessible_share;
+            inaccessibleShareByGroupDict[inaccessibleShare.group_id][inaccessibleShare.share_id] = inaccessibleShare;
         }
 
-        return inaccessible_share_by_group_dict;
+        return inaccessibleShareByGroupDict;
     };
 
     const onError = function () {
@@ -333,7 +332,7 @@ function createMembership(user, group, groupAdmin, shareAdmin) {
         //pass
     };
 
-    const group_secret_key = getGroupSecretKey(
+    const groupSecretKey = getGroupSecretKey(
         group.group_id,
         group.secret_key,
         group.secret_key_nonce,
@@ -341,7 +340,7 @@ function createMembership(user, group, groupAdmin, shareAdmin) {
         group.public_key
     );
 
-    const group_private_key = getGroupPrivateKey(
+    const groupPrivateKey = getGroupPrivateKey(
         group.group_id,
         group.private_key,
         group.private_key_nonce,
@@ -349,15 +348,15 @@ function createMembership(user, group, groupAdmin, shareAdmin) {
         group.public_key
     );
 
-    const group_secret_key_enc = cryptoLibraryService.encryptDataPublicKey(
-        group_secret_key,
+    const groupSecretKeyEncrypted = cryptoLibraryService.encryptDataPublicKey(
+        groupSecretKey,
         user.public_key,
-        group_private_key
+        groupPrivateKey
     );
-    const group_private_key_enc = cryptoLibraryService.encryptDataPublicKey(
-        group_private_key,
+    const groupPrivateKeyEncrypted = cryptoLibraryService.encryptDataPublicKey(
+        groupPrivateKey,
         user.public_key,
-        group_private_key
+        groupPrivateKey
     );
 
     return apiClient
@@ -366,11 +365,11 @@ function createMembership(user, group, groupAdmin, shareAdmin) {
             sessionSecretKey,
             group.group_id,
             user.id,
-            group_secret_key_enc.text,
-            group_secret_key_enc.nonce,
+            groupSecretKeyEncrypted.text,
+            groupSecretKeyEncrypted.nonce,
             "asymmetric",
-            group_private_key_enc.text,
-            group_private_key_enc.nonce,
+            groupPrivateKeyEncrypted.text,
+            groupPrivateKeyEncrypted.nonce,
             "asymmetric",
             groupAdmin,
             shareAdmin
@@ -508,7 +507,7 @@ function acceptMembership(membershipId) {
             break;
         }
 
-        return decrypt_group_shares(group_id, data.data.shares);
+        return decryptGroupShares(group_id, data.data.shares);
     };
 
     const onError = function () {

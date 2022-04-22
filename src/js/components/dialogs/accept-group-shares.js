@@ -9,17 +9,12 @@ import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
 
 import { Grid } from "@material-ui/core";
-import TextField from "@material-ui/core/TextField";
-import MuiAlert from "@material-ui/lab/Alert";
-
-import datastoreUserService from "../../services/datastore-user";
-import cryptoLibrary from "../../services/crypto-library";
 import DatastoreTree from "../datastore-tree";
 import widget from "../../services/widget";
 import datastorePassword from "../../services/datastore-password";
 import DialogNewFolder from "./new-folder";
 import TextFieldPath from "../text-field-path";
-import shareService from "../../services/share";
+import groupsService from "../../services/groups";
 import TrustedUser from "../trusted-user";
 
 const useStyles = makeStyles((theme) => ({
@@ -48,8 +43,8 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const DialogAcceptShare = (props) => {
-    const { open, onClose, item, hideUser, title } = props;
+const DialogAcceptGroupShares = (props) => {
+    const { open, onClose, group, outstandingShareIndex, hideUser, title } = props;
     const { t } = useTranslation();
     const classes = useStyles();
     const [path, setPath] = useState([]);
@@ -57,14 +52,6 @@ const DialogAcceptShare = (props) => {
     const [newFolderData, setNewFolderData] = useState({});
 
     const [datastore, setDatastore] = useState(null);
-    const [user, setUser] = useState({
-        data: {
-            user_id: "",
-            user_username: "",
-            user_public_key: "",
-        },
-        name: "",
-    });
 
     let isSubscribed = true;
     React.useEffect(() => {
@@ -100,11 +87,11 @@ const DialogAcceptShare = (props) => {
 
     const isSelectable = (node) => {
         // filter out all targets that are a share if the item is not allowed to be shared
-        if (!item.share_rights.grant && node.share_id) {
+        if (node.share_id) {
             return false;
         }
         // filter out all targets that are inside of a share if the item is not allowed to be shared
-        if (!item.share_rights.grant && node.parent_share_id) {
+        if (node.parent_share_id) {
             return false;
         }
         //
@@ -122,27 +109,31 @@ const DialogAcceptShare = (props) => {
     const onConfirm = () => {
         const onSuccess = function (datastore) {
             const breadcrumbs = { id_breadcrumbs: path.map((node) => node.id) };
-
             const analyzedBreadcrumbs = datastorePassword.analyzeBreadcrumbs(breadcrumbs, datastore);
 
-            if (item.share_right_grant === false && typeof analyzedBreadcrumbs["parent_share_id"] !== "undefined") {
+            if (typeof analyzedBreadcrumbs["parent_share_id"] !== "undefined") {
                 // No grant right, yet the parent is a a share?!?
-                alert("Wups, this should not happen. Error: 781f3da7-d38b-470e-a3c8-dd5787642230");
+                alert("Wups, this should not happen. Error: 405989c9-44c7-4fe7-b443-4ee7c8e07ed1");
+                return;
             }
 
-            const onSuccess = function (share) {
-                if (typeof share.name === "undefined") {
-                    share.name = item.share_right_title;
+            const onSuccess = function (group_details) {
+                const encryptedShares = [];
+                for (let i = 0; i < group_details.group_share_rights.length; i++) {
+                    const share = group_details.group_share_rights[i];
+                    if (!outstandingShareIndex.hasOwnProperty(share.share_id)) {
+                        continue;
+                    }
+                    share.share_key = share.key;
+                    share.share_key_nonce = share.key_nonce;
+                    share.share_title = share.title;
+                    share.share_title_nonce = share.title_nonce;
+                    share.share_type = share.type;
+                    share.share_type_nonce = share.type_nonce;
+                    encryptedShares.push(share);
                 }
 
-                const shares = [share];
-
-                const onSuccess = function () {
-                    onClose();
-                };
-                const onError = function (data) {
-                    console.log(data);
-                };
+                const shares = groupsService.decryptGroupShares(group.group_id, encryptedShares);
 
                 return datastorePassword
                     .createShareLinksInDatastore(
@@ -152,28 +143,28 @@ const DialogAcceptShare = (props) => {
                         analyzedBreadcrumbs["path"],
                         analyzedBreadcrumbs["parent_share_id"],
                         analyzedBreadcrumbs["parent_datastore_id"],
-                        datastore,
-                        analyzedBreadcrumbs["parent_share"]
+                        analyzedBreadcrumbs["parent_share"],
+                        datastore
                     )
-                    .then(onSuccess, onError);
+                    .then(
+                        () => {
+                            onClose();
+                        },
+                        (data) => {
+                            //pass
+                            console.log(data);
+                        }
+                    );
             };
 
             const onError = function (data) {
                 //pass
-                console.log(data);
             };
-            return shareService
-                .acceptShareRight(
-                    item.share_right_id,
-                    item.share_right_key,
-                    item.share_right_key_nonce,
-                    user.data.user_public_key
-                )
-                .then(onSuccess, onError);
+
+            return groupsService.readGroup(group.group_id).then(onSuccess, onError);
         };
         const onError = function (data) {
             //pass
-            console.log(data);
         };
 
         return datastorePassword.getPasswordDatastore().then(onSuccess, onError);
@@ -229,16 +220,10 @@ const DialogAcceptShare = (props) => {
                                 marginBottom: "8px",
                             }}
                         >
-                            {t("SHARED_BY")}:
+                            {t("INVITED_BY")}:
                         </Grid>
                     )}
-                    {!hideUser && (
-                        <TrustedUser
-                            user_id={item.share_right_create_user_id}
-                            user_username={item.share_right_create_user_username}
-                            onSetUser={setUser}
-                        />
-                    )}
+                    {!hideUser && <TrustedUser user_id={group.user_id} user_username={group.user_username} />}
                 </Grid>
             </DialogContent>
             <DialogActions>
@@ -257,17 +242,18 @@ const DialogAcceptShare = (props) => {
     );
 };
 
-DialogAcceptShare.defaultProps = {
+DialogAcceptGroupShares.defaultProps = {
     hideUser: false,
-    title: "ACCEPT_SHARE",
+    title: "ACCEPT_NEW_SHARES",
 };
 
-DialogAcceptShare.propTypes = {
+DialogAcceptGroupShares.propTypes = {
     onClose: PropTypes.func.isRequired,
     open: PropTypes.bool.isRequired,
-    item: PropTypes.object.isRequired,
+    group: PropTypes.object.isRequired,
+    outstandingShareIndex: PropTypes.object.isRequired,
     hideUser: PropTypes.bool.isRequired,
     title: PropTypes.string,
 };
 
-export default DialogAcceptShare;
+export default DialogAcceptGroupShares;

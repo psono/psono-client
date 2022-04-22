@@ -13,8 +13,7 @@ import i18n from "../i18n";
 import store from "./store";
 
 const registrations = {};
-let _share_index = {};
-let password_datastore_read = false;
+let _shareIndex = {};
 
 const uppercaseMinCount = 1;
 const lowercaseMinCount = 1;
@@ -22,8 +21,7 @@ const numberMinCount = 1;
 const specialMinCount = 1;
 
 // $rootScope.$on('force_logout', function() {
-//     _share_index = {};
-//     password_datastore_read = false;
+//     _shareIndex = {};
 // });
 
 /**
@@ -294,15 +292,14 @@ function _readShares(datastore, shareRightsDict) {
                     localResolve();
                 };
                 open_calls++;
-                return shareService.readShare(share_id, _share_index[share_id]).then(onSuccess, onError);
+                return shareService.readShare(share_id, _shareIndex[share_id]).then(onSuccess, onError);
             };
 
             for (let share_id in share_index) {
                 if (!share_index.hasOwnProperty(share_id)) {
                     continue;
                 }
-
-                _share_index[share_id] = share_index[share_id].secret_key;
+                _shareIndex[share_id] = share_index[share_id].secret_key;
                 let new_parent_share_stack = helperService.duplicateObject(parent_share_stack);
                 new_parent_share_stack.push(share_id);
 
@@ -532,8 +529,6 @@ function getPasswordDatastore(id) {
                         return item.type && item.type === "file";
                     }
                 );
-
-                password_datastore_read = true;
 
                 return datastore;
             };
@@ -1559,22 +1554,20 @@ function modifyTreeForSearch(newValue, searchTree) {
  *
  * @returns {Array} A list of the objects that are not accessible
  */
-function getInaccessibleShares(shareList) {
+async function getInaccessibleShares(shareList) {
     // returns an empty list if the password datastore hasn't been read yet
-    if (!password_datastore_read) {
-        return [];
-    }
+    await getPasswordDatastore();
 
-    const inaccessible_shares = [];
+    const inaccessibleShares = [];
 
     for (let i = 0; i < shareList.length; i++) {
-        if (_share_index.hasOwnProperty(shareList[i].share_id)) {
+        if (_shareIndex.hasOwnProperty(shareList[i].share_id)) {
             continue;
         }
-        inaccessible_shares.push(shareList[i]);
+        inaccessibleShares.push(shareList[i]);
     }
 
-    return inaccessible_shares;
+    return inaccessibleShares;
 }
 
 /**

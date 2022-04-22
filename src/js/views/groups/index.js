@@ -18,6 +18,8 @@ import format from "../../services/date";
 import CreateGroupDialog from "./create-group-dialog";
 import DialogVerify from "../../components/dialogs/verify";
 import DialogEditGroup from "../../components/dialogs/edit-group";
+import DialogAcceptGroup from "../../components/dialogs/accept-group";
+import DialogAcceptGroupShares from "../../components/dialogs/accept-group-shares";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -44,6 +46,9 @@ const GroupsView = (props) => {
     const [groupNameBeingDeleted, setGroupNameBeingDeleted] = React.useState("");
     const [verifyDeleteGroupOpen, setVerifyDeleteGroupOpen] = React.useState(false);
     const [outstandingShareIndex, setOutstandingShareIndex] = React.useState({});
+    const [acceptGroupId, setAcceptGroupId] = React.useState("");
+    const [acceptGroupSharesGroupId, setAcceptGroupSharesGroupId] = React.useState("");
+    const [groupIndex, setGroupIndex] = React.useState({});
 
     React.useEffect(() => {
         loadGroups();
@@ -57,8 +62,10 @@ const GroupsView = (props) => {
             if (!isSubscribed) {
                 return;
             }
+            const _groupIndex = {};
             setGroups(
                 newGroups.map((group, index) => {
+                    _groupIndex[group.group_id] = group;
                     return [
                         group.group_id,
                         group.name,
@@ -77,6 +84,7 @@ const GroupsView = (props) => {
                     ];
                 })
             );
+            setGroupIndex(_groupIndex);
         };
         const onError = function (data) {
             //pass
@@ -95,20 +103,23 @@ const GroupsView = (props) => {
     };
 
     const acceptGroup = (rowData) => {
-        console.log(rowData);
-        // TODO implement accept new group
+        setAcceptGroupId(rowData[0]);
     };
 
     const acceptNewShares = (rowData) => {
-        console.log(rowData);
-        // TODO implement accept new shares
+        setAcceptGroupSharesGroupId(rowData[0]);
     };
 
     const declineGroup = (rowData) => {
-        // TODO implement decline group
-        // shareService.declineShareRight(rowData[6]).then(() => {
-        //     loadGroups();
-        // });
+        const onSuccess = function (data) {
+            loadGroups();
+        };
+
+        const onError = function () {
+            //pass
+        };
+
+        groupsService.declineMembership(rowData[5]).then(onSuccess, onError);
     };
 
     const onEdit = (rowData) => {
@@ -185,7 +196,7 @@ const GroupsView = (props) => {
     const columns = [
         { name: t("ID"), options: { display: false } },
         { name: t("NAME") },
-        { name: t("CREATED"), options: { display: false } },
+        { name: t("CREATED_ON"), options: { display: false } },
         {
             name: t("EDIT"),
             options: {
@@ -362,6 +373,30 @@ const GroupsView = (props) => {
                         open={leaveGroupData.length > 0}
                         onClose={() => setLeaveGroupData([])}
                         onConfirm={confirmLeaveGroup}
+                    />
+                )}
+                {Boolean(acceptGroupId) && (
+                    <DialogAcceptGroup
+                        group={groupIndex[acceptGroupId]}
+                        open={Boolean(acceptGroupId)}
+                        hideUser={!groupIndex[acceptGroupId].user_id}
+                        onClose={() => {
+                            setAcceptGroupId("");
+                            loadGroups();
+                        }}
+                    />
+                )}
+                {Boolean(acceptGroupSharesGroupId) && (
+                    <DialogAcceptGroupShares
+                        group={groupIndex[acceptGroupSharesGroupId]}
+                        outstandingShareIndex={outstandingShareIndex[acceptGroupSharesGroupId]}
+                        open={Boolean(acceptGroupSharesGroupId)}
+                        hideUser={!groupIndex[acceptGroupSharesGroupId].user_id}
+                        onClose={() => {
+                            setAcceptGroupSharesGroupId("");
+                            loadGroups();
+                            loadOutstandingGroupShares();
+                        }}
                     />
                 )}
             </BaseContent>
