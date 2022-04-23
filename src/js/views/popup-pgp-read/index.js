@@ -12,9 +12,7 @@ import user from "../../services/user";
 import Paper from "@material-ui/core/Paper";
 import GridContainerErrors from "../../components/grid-container-errors";
 import { Grid } from "@material-ui/core";
-import TextField from "@material-ui/core/TextField";
 import browserClient from "../../services/browser-client";
-import { BarLoader } from "react-spinners";
 import { useParams } from "react-router-dom";
 import DOMPurify from "dompurify";
 
@@ -65,25 +63,6 @@ const useStyles = makeStyles((theme) => ({
     },
     topMenuButton: {
         textTransform: "none",
-    },
-    textField: {
-        width: "100%",
-    },
-    checked: {
-        color: "#9c27b0",
-    },
-    checkedIcon: {
-        width: "20px",
-        height: "20px",
-        border: "1px solid #666",
-        borderRadius: "3px",
-    },
-    uncheckedIcon: {
-        width: "0px",
-        height: "0px",
-        padding: "9px",
-        border: "1px solid #666",
-        borderRadius: "3px",
     },
 }));
 
