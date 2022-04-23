@@ -1578,20 +1578,24 @@ async function getInaccessibleShares(shareList) {
 function getAllOwnPgpKeys() {
     return new Promise(function (resolve) {
         getPasswordDatastore().then(function (datastore) {
-            const own_pgp_secrets = [];
-            const own_pgp_keys = [];
+            const ownPgpSecrets = [];
+            const ownPgpKeys = [];
             let failed = 0;
 
             datastoreService.filter(datastore, function (item) {
                 if (!item.hasOwnProperty("type") || item["type"] !== "mail_gpg_own_key") {
                     return;
                 }
-                own_pgp_secrets.push(item);
+                ownPgpSecrets.push(item);
             });
 
+            if (ownPgpSecrets.length === 0) {
+                resolve(ownPgpKeys);
+            }
+
             const trigger_potential_return = function () {
-                if (own_pgp_keys.length + failed === own_pgp_secrets.length) {
-                    resolve(own_pgp_keys);
+                if (ownPgpKeys.length + failed === ownPgpSecrets.length) {
+                    resolve(ownPgpKeys);
                 }
             };
 
@@ -1601,13 +1605,13 @@ function getAllOwnPgpKeys() {
             };
 
             const onSuccess = function (secret) {
-                own_pgp_keys.push(secret["mail_gpg_own_key_private"]);
+                ownPgpKeys.push(secret["mail_gpg_own_key_private"]);
                 trigger_potential_return();
             };
 
-            for (let i = 0; i < own_pgp_secrets.length; i++) {
+            for (let i = 0; i < ownPgpSecrets.length; i++) {
                 secretService
-                    .readSecret(own_pgp_secrets[i].secret_id, own_pgp_secrets[i].secret_key)
+                    .readSecret(ownPgpSecrets[i].secret_id, ownPgpSecrets[i].secret_key)
                     .then(onSuccess, onError);
             }
         });
