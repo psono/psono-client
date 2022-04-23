@@ -27,6 +27,8 @@ import secretService from "../../services/secret";
 import datastorePassword from "../../services/datastore-password";
 import helper from "../../services/helper";
 import widgetService from "../../services/widget";
+import offlineCacheService from "../../services/offline-cache";
+import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -244,15 +246,29 @@ const PopupView = (props) => {
     const { t } = useTranslation();
     const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
     const hasTwoFactor = useSelector((state) => state.user.hasTwoFactor);
+    const [unlockOfflineCache, setUnlockOfflineCache] = React.useState(false);
     const [search, setSearch] = React.useState("");
     const [items, setItems] = React.useState([]);
     let isSubscribed = true;
     const passwordFilter = helper.getPasswordFilter(search);
 
     React.useEffect(() => {
-        datastorePassword.getPasswordDatastore().then(onNewDatastoreLoaded);
+        if (offlineCacheService.isActive() && offlineCacheService.isLocked()) {
+            setUnlockOfflineCache(true);
+        } else {
+            datastorePassword.getPasswordDatastore().then(onNewDatastoreLoaded);
+        }
         return () => (isSubscribed = false);
     }, []);
+
+    const onUnlockOfflineCacheClosed = () => {
+        setUnlockOfflineCache(false);
+        if (offlineCacheService.isActive() && offlineCacheService.isLocked()) {
+            setUnlockOfflineCache(true);
+        } else {
+            datastorePassword.getPasswordDatastore().then(onNewDatastoreLoaded);
+        }
+    };
 
     const onNewDatastoreLoaded = (data) => {
         if (!isSubscribed) {
@@ -429,6 +445,9 @@ const PopupView = (props) => {
                         {t("LOGOUT")}
                     </Button>
                 </Grid>
+                {unlockOfflineCache && (
+                    <DialogUnlockOfflineCache open={unlockOfflineCache} onClose={onUnlockOfflineCacheClosed} />
+                )}
             </Grid>
         );
     }
