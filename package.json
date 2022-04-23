@@ -8,7 +8,6 @@
   "author": "Sascha Pfeiffer",
   "scripts": {
     "dev": "webpack serve --config webpack.environment.dev.js",
-    "build": "webpack --config webpack.environment.prod.all.js",
     "buildchrome": "webpack --config webpack.environment.prod.chrome.js",
     "buildfirefox": "webpack --config webpack.environment.prod.firefox.js",
     "buildwebclient": "webpack --config webpack.environment.prod.webclient.js",
@@ -34,6 +33,8 @@
     "@material-ui/lab": "^4.0.0-alpha.60",
     "@material-ui/pickers": "^3.3.10",
     "@openpgp/hkp-client": "^0.0.2",
+    "@sentry/react": "^6.19.6",
+    "@sentry/tracing": "^6.19.6",
     "axios": "^0.24.0",
     "chart.js": "^3.7.0",
     "clientjs": "^0.2.1",

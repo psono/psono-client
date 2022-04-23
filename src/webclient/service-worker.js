@@ -3,8 +3,8 @@ self.addEventListener("install", function (event) {
         caches.open(CACHE_VERSION).then(function (cache) {
             const requests = self.__WB_MANIFEST;
             requests.push({
-                'url': '',
-            })
+                url: "",
+            });
             return cache.addAll(
                 requests.map((request) => {
                     return "./" + request["url"];
