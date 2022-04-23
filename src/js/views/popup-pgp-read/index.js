@@ -15,6 +15,10 @@ import { Grid } from "@material-ui/core";
 import browserClient from "../../services/browser-client";
 import { useParams } from "react-router-dom";
 import DOMPurify from "dompurify";
+import offlineCacheService from "../../services/offline-cache";
+import datastorePasswordService from "../../services/datastore-password";
+import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
+import secret from "../../services/secret";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -71,14 +75,18 @@ const PopupPgpReadView = (props) => {
     const classes = useStyles();
     const { t } = useTranslation();
     const [decryptedMessage, setDecryptedMessage] = useState("");
+    const [unlockOfflineCache, setUnlockOfflineCache] = useState(false);
     const [decrypting, setDecrypting] = useState(true);
     const [sender, setSender] = useState(null);
     const [errors, setErrors] = useState([]);
 
     let isSubscribed = true;
     React.useEffect(() => {
-        // TODO fix this if offline cache enabled
-        readGpg();
+        if (offlineCacheService.isActive() && offlineCacheService.isLocked()) {
+            setUnlockOfflineCache(true);
+        } else {
+            readGpg();
+        }
         // cancel subscription to useEffect
         return () => (isSubscribed = false);
     }, []);
@@ -99,6 +107,15 @@ const PopupPgpReadView = (props) => {
                 setSender(data.sender);
             }
         });
+    };
+
+    const onUnlockOfflineCacheClosed = () => {
+        setUnlockOfflineCache(false);
+        if (offlineCacheService.isActive() && offlineCacheService.isLocked()) {
+            setUnlockOfflineCache(true);
+        } else {
+            readGpg();
+        }
     };
 
     const logout = () => {
@@ -164,6 +181,9 @@ const PopupPgpReadView = (props) => {
                     </Paper>
                 </div>
             </div>
+            {unlockOfflineCache && (
+                <DialogUnlockOfflineCache open={unlockOfflineCache} onClose={onUnlockOfflineCacheClosed} />
+            )}
         </div>
     );
 };
