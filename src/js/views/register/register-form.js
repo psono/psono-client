@@ -14,6 +14,7 @@ import GridContainerErrors from "../../components/grid-container-errors";
 import action from "../../actions/bound-action-creators";
 import userService from "../../services/user";
 import store from "../../services/store";
+import FooterLinks from "../../components/footer-links";
 
 const styles = (theme) => ({
     textField: {
@@ -355,15 +356,7 @@ const RegisterForm = (props) => {
         >
             {formContent}
             <div className="box-footer">
-                <a
-                    href="#"
-                    onClick={(e) => {
-                        e.preventDefault();
-                        browserClient.openTab("privacy-policy.html");
-                    }}
-                >
-                    {t("PRIVACY_POLICY")}
-                </a>
+                <FooterLinks />
             </div>
         </form>
     );

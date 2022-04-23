@@ -16,6 +16,7 @@ import host from "../../services/host";
 import store from "../../services/store";
 import action from "../../actions/bound-action-creators";
 import GridContainerErrors from "../../components/grid-container-errors";
+import FooterLinks from "../../components/footer-links";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -1191,7 +1192,6 @@ const LoginViewForm = (props) => {
                 {allowLostPassword && !window.location.pathname.endsWith("/default_popup.html") && (
                     <a href="lost-password.html">{t("LOST_PASSWORD")}</a>
                 )}
-                &nbsp;&nbsp;
                 {allowLostPassword && window.location.pathname.endsWith("/default_popup.html") && (
                     <a
                         href="#"
@@ -1204,20 +1204,7 @@ const LoginViewForm = (props) => {
                     </a>
                 )}
                 &nbsp;&nbsp;
-                {!window.location.pathname.endsWith("/default_popup.html") && (
-                    <a href="privacy-policy.html">{t("PRIVACY_POLICY")}</a>
-                )}
-                {window.location.pathname.endsWith("/default_popup.html") && (
-                    <a
-                        href="#"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            browserClient.openTab("privacy-policy.html");
-                        }}
-                    >
-                        {t("PRIVACY_POLICY")}
-                    </a>
-                )}
+                <FooterLinks />
             </div>
         </form>
     );

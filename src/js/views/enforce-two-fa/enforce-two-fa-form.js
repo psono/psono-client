@@ -12,6 +12,7 @@ import store from "../../services/store";
 import MultifactorAuthenticatorGoogleAuthenticator from "../account/multifactor-authentication-google-authenticator";
 import MultifactorAuthenticatorYubikeyOtp from "../account/multifactor-authentication-yubikey-otp";
 import MultifactorAuthenticatorDuo from "../account/multifactor-authentication-duo";
+import FooterLinks from "../../components/footer-links";
 
 const styles = (theme) => ({
     textField: {
@@ -167,15 +168,7 @@ const EnforceTwoFaViewForm = (props) => {
             </Grid>
             <GridContainerErrors errors={errors} setErrors={setErrors} />
             <div className="box-footer">
-                <a
-                    href="#"
-                    onClick={(e) => {
-                        e.preventDefault();
-                        browserClient.openTab("privacy-policy.html");
-                    }}
-                >
-                    {t("PRIVACY_POLICY")}
-                </a>
+                <FooterLinks />
             </div>
         </form>
     );

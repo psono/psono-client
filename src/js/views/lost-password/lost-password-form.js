@@ -15,6 +15,7 @@ import host from "../../services/host";
 import cryptoLibrary from "../../services/crypto-library";
 import GridContainerErrors from "../../components/grid-container-errors";
 import store from "../../services/store";
+import FooterLinks from "../../components/footer-links";
 
 const styles = (theme) => ({
     textField: {
@@ -437,15 +438,7 @@ const LostPasswordViewForm = (props) => {
         >
             {formContent}
             <div className="box-footer">
-                <a
-                    href="#"
-                    onClick={(e) => {
-                        e.preventDefault();
-                        browserClient.openTab("privacy-policy.html");
-                    }}
-                >
-                    {t("PRIVACY_POLICY")}
-                </a>
+                <FooterLinks />
             </div>
         </form>
     );

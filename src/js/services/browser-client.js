@@ -380,6 +380,18 @@ function loadConfig() {
                     },
                 ];
             }
+            if (!newConfig.hasOwnProperty("footer_links")) {
+                newConfig["footer_links"] = [
+                    // {
+                    //     href: "privacy-policy.html",
+                    //     title: "PRIVACY_POLICY",
+                    // },
+                    // {
+                    //     href: "https://psono.com/legal-notice",
+                    //     title: "LEGAL_NOTICE",
+                    // },
+                ];
+            }
             return newConfig;
         };
 

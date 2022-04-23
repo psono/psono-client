@@ -16,6 +16,7 @@ import GridContainerErrors from "../../components/grid-container-errors";
 import MuiAlert from "@material-ui/lab/Alert";
 import action from "../../actions/bound-action-creators";
 import store from "../../services/store";
+import FooterLinks from "../../components/footer-links";
 
 const styles = (theme) => ({
     textField: {
@@ -531,15 +532,7 @@ const EmergencyCodeViewForm = (props) => {
         >
             {formContent}
             <div className="box-footer">
-                <a
-                    href="#"
-                    onClick={(e) => {
-                        e.preventDefault();
-                        browserClient.openTab("privacy-policy.html");
-                    }}
-                >
-                    {t("PRIVACY_POLICY")}
-                </a>
+                <FooterLinks />
             </div>
         </form>
     );
