@@ -6,6 +6,7 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
     "use strict";
 
     function htmlToText(str) {
+        str = str.replace(/<\/(div|p)>/g, "\n");
         str = str.replace(/<br>/g, "\n");
         str = str.replace(/<(.+?)>/g, "");
         return str;
@@ -20,6 +21,9 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
             },
             get_pgp_content: function (node) {
                 var direct_parent = jQuery(node).parent();
+                if (!direct_parent.text().includes("-----END PGP MESSAGE-----")) {
+                    direct_parent = jQuery(direct_parent).parent();
+                }
                 var html_text = direct_parent.html();
                 return htmlToText(html_text);
             },
