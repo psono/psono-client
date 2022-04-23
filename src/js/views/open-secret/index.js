@@ -2,17 +2,35 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import secret from "../../services/secret";
 import { useParams } from "react-router-dom";
+import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
+import offlineCacheService from "../../services/offline-cache";
 
 const OpenSecretView = (props) => {
     const { t } = useTranslation();
     const [percent, setPercentage] = React.useState(0);
+    const [unlockOfflineCache, setUnlockOfflineCache] = React.useState(false);
     let { type, secretId } = useParams();
 
     React.useEffect(() => {
-        secret.redirectSecret(type, secretId).then((response) => {
-            setPercentage(100);
-        });
+        if (offlineCacheService.isActive() && offlineCacheService.isLocked()) {
+            setUnlockOfflineCache(true);
+        } else {
+            secret.redirectSecret(type, secretId).then((response) => {
+                setPercentage(100);
+            });
+        }
     }, []);
+
+    const onUnlockOfflineCacheClosed = () => {
+        setUnlockOfflineCache(false);
+        if (offlineCacheService.isActive() && offlineCacheService.isLocked()) {
+            setUnlockOfflineCache(true);
+        } else {
+            secret.redirectSecret(type, secretId).then((response) => {
+                setPercentage(100);
+            });
+        }
+    };
 
     // $rootScope.$on("cfpLoadingBar:loading", function () {
     //     setPercentage(20);
@@ -44,6 +62,9 @@ const OpenSecretView = (props) => {
                 </div>
             </div>
             <div className="loading-lock-text">{t("DECRYPTING_SECRET")}</div>
+            {unlockOfflineCache && (
+                <DialogUnlockOfflineCache open={unlockOfflineCache} onClose={onUnlockOfflineCacheClosed} />
+            )}
         </div>
     );
 };

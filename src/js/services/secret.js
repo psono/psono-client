@@ -126,57 +126,29 @@ function writeSecret(secretId, secretKey, content, callbackUrl, callbackUser, ca
  * @param {uuid} secretId The id of the secret to read
  */
 function redirectSecret(type, secretId) {
-    function redirect() {
-        return storage.findKey("datastore-password-leafs", secretId).then(function (leaf) {
-            const onError = function (result) {
-                // pass
-            };
+    return storage.findKey("datastore-password-leafs", secretId).then(function (leaf) {
+        const onError = function (result) {
+            // pass
+        };
 
-            const onSuccess = function (content) {
-                if (type === "website_password") {
-                    browserClient.emitSec("fillpassword", {
-                        username: content.website_password_username,
-                        password: content.website_password_password,
-                        authority: content.website_password_url_filter,
-                        auto_submit: content.website_password_auto_submit,
-                    });
-                    window.location.href = content.website_password_url;
-                } else if (type === "bookmark") {
-                    window.location.href = content.bookmark_url;
-                } else {
-                    window.location.href = "index.html#!/datastore/search/" + secretId;
-                }
-            };
-
-            return readSecret(secretId, leaf.secret_key).then(onSuccess, onError);
-        });
-    }
-
-    if (!offlineCache.isActive() || !offlineCache.isLocked()) {
-        return redirect();
-    } else {
-        // TODO fix this if offline cache is active
-        const modalInstance = $uibModal.open({
-            templateUrl: "view/modal/unlock-offline-cache.html",
-            controller: "ModalUnlockOfflineCacheCtrl",
-            backdrop: "static",
-            resolve: {},
-        });
-
-        modalInstance.result.then(
-            function () {
-                // pass, will be catched later with the on_set_encryption_key event
-            },
-            function () {
-                $rootScope.$broadcast("force_logout", "");
+        const onSuccess = function (content) {
+            if (type === "website_password") {
+                browserClient.emitSec("fillpassword", {
+                    username: content.website_password_username,
+                    password: content.website_password_password,
+                    authority: content.website_password_url_filter,
+                    auto_submit: content.website_password_auto_submit,
+                });
+                window.location.href = content.website_password_url;
+            } else if (type === "bookmark") {
+                window.location.href = content.bookmark_url;
+            } else {
+                window.location.href = "index.html#!/datastore/search/" + secretId;
             }
-        );
+        };
 
-        offlineCache.onSetEncryptionKey(function () {
-            modalInstance.close();
-            redirect();
-        });
-    }
+        return readSecret(secretId, leaf.secret_key).then(onSuccess, onError);
+    });
 }
 
 /**
@@ -185,7 +157,6 @@ function redirectSecret(type, secretId) {
  * @param {object} item The item one has clicked on
  */
 function onItemClick(item) {
-    console.log(item);
     if (
         item.hasOwnProperty("urlfilter") &&
         item["urlfilter"] !== "" &&
