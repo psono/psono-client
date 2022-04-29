@@ -496,39 +496,7 @@ function getPasswordDatastore(id) {
             const onSuccess = function (datastore) {
                 updatePathsRecursive(datastore, []);
 
-                datastoreService.fillStorage(
-                    "datastore-password-leafs",
-                    datastore,
-                    [
-                        ["key", "secret_id"],
-                        ["secret_id", "secret_id"],
-                        ["secret_key", "secret_key"],
-                        ["name", "name"],
-                        ["urlfilter", "urlfilter"],
-                        ["autosubmit", "autosubmit"],
-                        ["search", "urlfilter"],
-                    ],
-                    function (item) {
-                        return !item.type || item.type !== "file";
-                    }
-                );
-                datastoreService.fillStorage(
-                    "datastore-file-leafs",
-                    datastore,
-                    [
-                        ["key", "id"],
-                        ["file_id", "file_id"],
-                        ["file_shard_id", "file_shard_id"],
-                        ["file_repository_id", "file_repository_id"],
-                        ["file_size", "file_size"],
-                        ["file_secret_key", "file_secret_key"],
-                        ["file_chunks", "file_chunks"],
-                        ["file_title", "file_title"],
-                    ],
-                    function (item) {
-                        return item.type && item.type === "file";
-                    }
-                );
+                fillStorage(datastore);
 
                 return datastore;
             };
@@ -567,17 +535,11 @@ function getDatastoreWithId(id) {
 }
 
 /**
- * Updates the local storage and triggers the 'saveDatastoreContent' to reflect the changes
+ * Fills the datastore-password-leafs and datastore-file-leafs storage
  *
  * @param {TreeObject} datastore The datastore tree
  */
-function handleDatastoreContentChanged(datastore) {
-    const datastore_copy = helperService.duplicateObject(datastore);
-
-    updatePathsRecursive(datastore_copy, []);
-
-    triggerRegistration("save_datastore_content", datastore_copy);
-
+function fillStorage(datastore) {
     // datastore has changed, so lets regenerate local lookup
     datastoreService.fillStorage(
         "datastore-password-leafs",
@@ -585,7 +547,7 @@ function handleDatastoreContentChanged(datastore) {
         [
             ["key", "secret_id"],
             ["secret_id", "secret_id"],
-            ["value", "secret_key"],
+            ["secret_key", "secret_key"],
             ["name", "name"],
             ["urlfilter", "urlfilter"],
             ["autosubmit", "autosubmit"],
@@ -603,6 +565,7 @@ function handleDatastoreContentChanged(datastore) {
             ["key", "id"],
             ["file_id", "file_id"],
             ["file_shard_id", "file_shard_id"],
+            ["file_repository_id", "file_repository_id"],
             ["file_size", "file_size"],
             ["file_secret_key", "file_secret_key"],
             ["file_chunks", "file_chunks"],
@@ -612,6 +575,22 @@ function handleDatastoreContentChanged(datastore) {
             return item.type && item.type === "file";
         }
     );
+}
+
+/**
+ * Updates the local storage and triggers the 'saveDatastoreContent' to reflect the changes
+ *
+ * @param {TreeObject} datastore The datastore tree
+ */
+function handleDatastoreContentChanged(datastore) {
+    const datastore_copy = helperService.duplicateObject(datastore);
+
+    updatePathsRecursive(datastore_copy, []);
+
+    triggerRegistration("save_datastore_content", datastore_copy);
+
+    // datastore has changed, so lets regenerate local lookup
+    fillStorage(datastore);
 }
 
 /**
