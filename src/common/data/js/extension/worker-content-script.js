@@ -341,16 +341,17 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
             var dropcontent = "";
             dropcontent += '<div class="psono-pw-drop-content-inner">';
             dropcontent += '<ul class="navigations">';
-            dropcontent += '<li><a class="' + open_datastore_class + '" href="#">Open Datastore</a></li>';
+            dropcontent +=
+                '<li><div class="' + open_datastore_class + '" style="cursor: pointer;">Open Datastore</div></li>';
             for (var i = 0; i < website_passwords.length; i++) {
                 dropcontent +=
-                    '<li><a class="' +
+                    '<li><div class="' +
                     request_secret_class +
-                    '" href="#" data-secret-id="' +
+                    '" style="cursor: pointer;" data-secret-id="' +
                     website_passwords[i].secret_id +
-                    '" onclick="return false;">' +
+                    '">' +
                     website_passwords[i].name +
-                    "</a></li>";
+                    "</div></li>";
             }
             dropcontent += "</ul>";
             dropcontent += "</div>";

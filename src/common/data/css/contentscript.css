@@ -61,7 +61,7 @@
       list-style-type: none;
       margin-top: 1px;
       border-radius: 4px; }
-    .psono-pw-drop .navigations li a {
+    .psono-pw-drop .navigations li div {
       text-decoration: none;
       display: inline-block;
       padding: 10px;
@@ -69,9 +69,9 @@
     .psono-pw-drop .navigations li:hover {
       background-color: #fff;
       color: #151f2b; }
-    .psono-pw-drop .navigations li:hover a {
+    .psono-pw-drop .navigations li:hover div {
       color: #151f2b; }
     .psono-pw-drop .navigations li.active {
       background-color: #2dbb93; }
-    .psono-pw-drop .navigations li.active a {
+    .psono-pw-drop .navigations li.active div {
       color: #fff; }
