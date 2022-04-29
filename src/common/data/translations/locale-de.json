@@ -3,7 +3,7 @@
   "TOGGLE_OWN_GROUP_ADMIN_WARNING": "Sie sind dabei ihre eigenen Gruppen Admin Berechtigungen für diese Gruppe zu ändern. Stellen sie sicher dass jemand anderes Gruppen Admin Privilegien hat bevor sie ihre eigenen entfernen. Sind sie sicher dass sie fortfahren möchten?",
   "CREATE_DATE": "Erstellungsdatum",
   "FOLDER": "Ordner",
-  "SHARE_TITLE_ITEM": "{{entry_type}} it dem Titel '{{title}}'",
+  "SHARE_TITLE_ITEM": "{{entry_type}} mit dem Titel '{{title}}'",
   "OLDER_THAN_180_DAYS": "Older than 180 days",
   "OLDER_THAN_90_DAYS": "Older than 90 days",
   "NEWER_THAN_90_DAYS": "Newer than 90 days",
