@@ -4,7 +4,6 @@ const webpack = require('webpack');
 const ReplaceInFileWebpackPlugin = require('replace-in-file-webpack-plugin');
 const JsonPostProcessPlugin = require('json-post-process-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin');
-const PrettierPlugin = require("prettier-webpack-plugin");
 const path = require('path');
 
 const commit_tag = process.env.CI_COMMIT_TAG;
@@ -42,14 +41,6 @@ module.exports = merge(common, {
           priority: 10,
         },
       ],
-    }),
-    new PrettierPlugin({
-      printWidth: 120,               // Specify the length of line that the printer will wrap on.
-      tabWidth: 4,                  // Specify the number of spaces per indentation-level.
-      useTabs: false,               // Indent lines with tabs instead of spaces.
-      semi: true,                   // Print semicolons at the ends of statements.
-      encoding: 'utf-8',            // Which encoding scheme to use on files
-      extensions: [ ".js", ".ts" ]  // Which file extensions to process
     }),
 
     new JsonPostProcessPlugin({
