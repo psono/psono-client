@@ -19,7 +19,7 @@ import theme from "./theme";
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
 
-var report_url = "https://d9647cf54f0a46d68289c85b77fbca11@sentry.io/1265628";
+var report_url = "";
 
 if (window.location.href.indexOf("https://www.psono.pw") !== -1) {
     report_url = "https://d9647cf54f0a46d68289c85b77fbca11@sentry.io/1265628";
