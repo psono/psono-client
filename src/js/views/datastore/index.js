@@ -25,9 +25,9 @@ import CreateNewFolderIcon from "@material-ui/icons/CreateNewFolder";
 import AddIcon from "@material-ui/icons/Add";
 import withWidth from "@material-ui/core/withWidth";
 
-import Base from "../../containers/base";
-import BaseTitle from "../../containers/base-title";
-import BaseContent from "../../containers/base-content";
+import Base from "../../components/base";
+import BaseTitle from "../../components/base-title";
+import BaseContent from "../../components/base-content";
 import widget from "../../services/widget";
 import DialogNewFolder from "../../components/dialogs/new-folder";
 import DialogNewEntry from "../../components/dialogs/new-entry";

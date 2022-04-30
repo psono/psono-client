@@ -43,7 +43,7 @@ if (report_url) {
 }
 
 import IndexView from "./views/index";
-import DownloadBanner from "./containers/download-banner";
+import DownloadBanner from "./components/download-banner";
 
 /**
  * Loads the datastore

@@ -18,9 +18,9 @@ import { Chart, ArcElement, Tooltip } from "chart.js";
 
 import { Doughnut } from "react-chartjs-2";
 
-import Base from "../../containers/base";
-import BaseTitle from "../../containers/base-title";
-import BaseContent from "../../containers/base-content";
+import Base from "../../components/base";
+import BaseTitle from "../../components/base-title";
+import BaseContent from "../../components/base-content";
 import store from "../../services/store";
 import GridContainerErrors from "../../components/grid-container-errors";
 import securityReportService from "../../services/security-report";

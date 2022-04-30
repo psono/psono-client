@@ -7,9 +7,9 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import Paper from "@material-ui/core/Paper";
 
-import Base from "../../containers/base";
-import BaseTitle from "../../containers/base-title";
-import BaseContent from "../../containers/base-content";
+import Base from "../../components/base";
+import BaseTitle from "../../components/base-title";
+import BaseContent from "../../components/base-content";
 import OtherSessionsView from "./sessions";
 import OtherDatastoresView from "./datastores";
 import OtherApiKeysView from "./api-keys";

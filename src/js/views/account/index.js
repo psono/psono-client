@@ -8,9 +8,9 @@ import Tab from "@material-ui/core/Tab";
 import Paper from "@material-ui/core/Paper";
 
 import store from "../../services/store";
-import Base from "../../containers/base";
-import BaseTitle from "../../containers/base-title";
-import BaseContent from "../../containers/base-content";
+import Base from "../../components/base";
+import BaseTitle from "../../components/base-title";
+import BaseContent from "../../components/base-content";
 import AccountOverviewView from "./overview";
 import MultifactorAuthenticationView from "./multifactor-authentication";
 import AccountEmergencyCodesView from "./emergency-codes";

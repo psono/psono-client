@@ -26,8 +26,7 @@ import { Link } from "react-router-dom";
 import store from "../services/store";
 import user from "../services/user";
 import offlineCache from "../services/offline-cache";
-import DialogGoOffline from "../components/dialogs/go-offline";
-import DialogNewUser from "../components/dialogs/new-user";
+import DialogGoOffline from "./dialogs/go-offline";
 
 const useStyles = makeStyles((theme) => ({
     appBar: {

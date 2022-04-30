@@ -22,7 +22,7 @@ import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 
-import RuleIcon from "../components/icons/Rule";
+import RuleIcon from "./icons/Rule";
 import browserClient from "../services/browser-client";
 
 const drawerWidth = 240;
