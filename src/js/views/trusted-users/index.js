@@ -125,7 +125,6 @@ const TrustedUsersView = (props) => {
         if (!isSubscribed) {
             return;
         }
-        console.log(data);
         setDatastore(data);
     };
 
