@@ -13,7 +13,7 @@ import browserClient from "../../services/browser-client";
 import converter from "../../services/converter";
 import hostService from "../../services/host";
 import linkShareService from "../../services/link-share";
-import TextFieldPassword from "../../components/text-field-password";
+import TextFieldPassword from "../../components/text-field/password";
 import fileTransferService from "../../services/file-transfer";
 import action from "../../actions/bound-action-creators";
 import GridContainerErrors from "../../components/grid-container-errors";

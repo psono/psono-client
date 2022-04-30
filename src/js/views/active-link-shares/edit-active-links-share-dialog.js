@@ -14,7 +14,7 @@ import { KeyboardDateTimePicker } from "@material-ui/pickers";
 
 import GridContainerErrors from "../../components/grid-container-errors";
 import linkShareService from "../../services/link-share";
-import TextFieldPassword from "../../components/text-field-password";
+import TextFieldPassword from "../../components/text-field/password";
 
 const useStyles = makeStyles((theme) => ({
     textField: {

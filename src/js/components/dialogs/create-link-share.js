@@ -13,7 +13,7 @@ import { KeyboardDateTimePicker } from "@material-ui/pickers";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import IconButton from "@material-ui/core/IconButton";
 import add from "date-fns/add";
-import TextFieldPassword from "../text-field-password";
+import TextFieldPassword from "../text-field/password";
 import cryptoLibraryService from "../../services/crypto-library";
 import linkShareService from "../../services/link-share";
 import store from "../../services/store";

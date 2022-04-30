@@ -14,8 +14,8 @@ import GridContainerErrors from "../../components/grid-container-errors";
 import fileRepository from "../../services/file-repository";
 import helperService from "../../services/helper";
 import SelectFieldFileRepositoryType from "../../components/select-field/file-repository-type";
-import TextFieldAWSRegion from "../../components/text-field-aws-region";
-import TextFieldDoRegion from "../../components/text-field-do-region";
+import TextFieldAWSRegion from "../../components/text-field/aws-region";
+import TextFieldDoRegion from "../../components/text-field/do-region";
 
 const useStyles = makeStyles((theme) => ({
     textField: {

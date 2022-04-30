@@ -12,7 +12,7 @@ import { Grid } from "@material-ui/core";
 
 import DatastoreTree from "../datastore-tree";
 import datastorePassword from "../../services/datastore-password";
-import TextFieldPath from "../text-field-path";
+import TextFieldPath from "../text-field/path";
 
 const useStyles = makeStyles((theme) => ({
     textField: {

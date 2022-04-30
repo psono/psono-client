@@ -25,7 +25,7 @@ import store from "../../services/store";
 import GridContainerErrors from "../../components/grid-container-errors";
 import securityReportService from "../../services/security-report";
 import Table from "../../components/table";
-import TextFieldPassword from "../../components/text-field-password";
+import TextFieldPassword from "../../components/text-field/password";
 
 Chart.register(ArcElement, Tooltip);
 

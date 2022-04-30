@@ -13,7 +13,7 @@ import DatastoreTree from "../datastore-tree";
 import widget from "../../services/widget";
 import datastorePassword from "../../services/datastore-password";
 import DialogNewFolder from "./new-folder";
-import TextFieldPath from "../text-field-path";
+import TextFieldPath from "../text-field/path";
 import groupsService from "../../services/groups";
 import TrustedUser from "../trusted-user";
 
