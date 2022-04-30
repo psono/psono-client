@@ -19,7 +19,7 @@ import theme from "./theme";
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
 
-var report_url = "";
+let report_url = "";
 
 if (window.location.href.indexOf("https://www.psono.pw") !== -1) {
     report_url = "https://d9647cf54f0a46d68289c85b77fbca11@sentry.io/1265628";
@@ -88,3 +88,9 @@ export default App;
 
 const container = document.getElementById("app");
 render(<App />, container);
+
+console.log("%cDanger:", "color:red;font-size:40px;");
+console.log(
+    "%cDo not type or paste anything here. This feature is for developers and typing or pasting something here can compromise your account.",
+    "font-size:20px;"
+);
