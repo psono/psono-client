@@ -298,4 +298,4 @@ deploy-artifacts:
     name: static.psono.com
     url: https://static.psono.com/gitlab.com/psono/psono-client/nightly/chrome-extension.zip
   only:
-    - react
+    - develop
