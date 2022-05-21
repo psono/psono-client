@@ -13,7 +13,7 @@ const languages = {
     es: { code: "es", lng_code: "LANG_ES", lng_title_native: "Español", active: true },
     fi: { code: "fi", lng_code: "LANG_FI", lng_title_native: "Suomi", active: true },
     fr: { code: "fr", lng_code: "LANG_FR", lng_title_native: "Français", active: true },
-    hr: { code: "hr", lng_code: "LANG_HR", lng_title_native: "Hrvatski", active: true },
+    hr: { code: "hr", lng_code: "LANG_HR", lng_title_native: "Hrvatski" },
     hu: { code: "hu", lng_code: "LANG_HU", lng_title_native: "Magyar", active: true },
     it: { code: "it", lng_code: "LANG_IT", lng_title_native: "Italiano", active: true },
     ja: { code: "ja", lng_code: "LANG_JA", lng_title_native: "日本語" },
