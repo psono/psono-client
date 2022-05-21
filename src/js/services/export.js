@@ -44,6 +44,7 @@ function emit(event, data) {
  * Handles the download of the actual export.json
  *
  * @param {string} data The data to download
+ * @param {string} type The selected type of the export
  */
 function downloadExport(data, type) {
     let file_name = "export.json";
@@ -63,10 +64,11 @@ function downloadExport(data, type) {
  * Filters the datastore export to reduce the size and remove unnecessary elements
  *
  * @param {object} folder The folder to filter
+ * @param {boolean} includeTrashBinItems Should the items of the trash bin be included in the export
  *
  * @returns {*} filtered folder
  */
-function filterDatastoreExport(folder) {
+function filterDatastoreExport(folder, includeTrashBinItems) {
     let i;
     let p;
 
@@ -102,6 +104,17 @@ function filterDatastoreExport(folder) {
         }
     }
 
+    // Delete items that have been marked as deleted if includeTrashBinItems is not set
+    if (folder.hasOwnProperty("items")) {
+        if (!includeTrashBinItems) {
+            for (i = folder["items"].length - 1; i >= 0; i--) {
+                if (folder["items"][i].hasOwnProperty("deleted") && folder["items"][i]["deleted"]) {
+                    folder["items"].splice(i, 1);
+                }
+            }
+        }
+    }
+
     // Delete folder attribute if its empty
     if (folder.hasOwnProperty("items")) {
         if (folder["items"].length === 0) {
@@ -126,7 +139,18 @@ function filterDatastoreExport(folder) {
             delete folder["folders"];
         }
     }
-    // folder foders recursive
+
+    // Delete folders that have been marked as deleted if includeTrashBinItems is not set
+    if (folder.hasOwnProperty("folders")) {
+        if (!includeTrashBinItems) {
+            for (i = folder["folders"].length - 1; i >= 0; i--) {
+                if (folder["folders"][i].hasOwnProperty("deleted") && folder["folders"][i]["deleted"]) {
+                    folder["folders"].splice(i, 1);
+                }
+            }
+        }
+    }
+    // folder folders recursive
     if (folder.hasOwnProperty("folders")) {
         for (i = folder["folders"].length - 1; i >= 0; i--) {
             folder["folders"][i] = filterDatastoreExport(folder["folders"][i]);
@@ -224,10 +248,11 @@ function composeExport(data, type) {
  * Requests all secrets in our datastore and fills the datastore with the content
  *
  * @param {object} datastore The datastore structure with secrets
+ * @param {boolean} includeTrashBinItems Should the items of the trash bin be included in the export
  *
  * @returns {*} The datastore structure where all secrets have been filled
  */
-function getAllSecrets(datastore) {
+function getAllSecrets(datastore, includeTrashBinItems) {
     let open_secret_requests = 0;
 
     let resolver;
@@ -263,6 +288,9 @@ function getAllSecrets(datastore) {
         };
         for (let i = 0; i < items.length; i++) {
             if (items[i].hasOwnProperty("secret_id") && items[i].hasOwnProperty("secret_key")) {
+                if (!includeTrashBinItems && items[i].hasOwnProperty('deleted') && items[i]['deleted']) {
+                    continue
+                }
                 fill_secret(items[i], items[i]["secret_id"], items[i]["secret_key"]);
             }
         }
@@ -312,16 +340,21 @@ function getExporter() {
  *
  * @param {string} type The selected type of the export
  * @param {uuid} id The id of the datastore one wants to download
+ * @param {boolean} includeTrashBinItems Should the items of the trash bin be included in the export
  *
  * @returns {Promise} Returns a promise with the exportable datastore content
  */
-function fetchDatastore(type, id) {
+function fetchDatastore(type, id, includeTrashBinItems) {
     emit("export-started", {});
 
     return datastorePasswordService
         .getPasswordDatastore(id)
-        .then(getAllSecrets)
-        .then(filterDatastoreExport)
+        .then(function (datastore) {
+            return getAllSecrets(datastore, includeTrashBinItems);
+        })
+        .then(function (folder) {
+            return filterDatastoreExport(folder, includeTrashBinItems);
+        })
         .then(function (data) {
             emit("export-complete", {});
             return composeExport(data, type);
@@ -332,11 +365,12 @@ function fetchDatastore(type, id) {
  * Returns a copy of the datastore
  *
  * @param {string} type The selected type of the export
+ * @param {boolean} includeTrashBinItems Should the items of the trash bin be included in the export
  *
  * @returns {Promise} Returns a promise once the export is successful
  */
-function exportDatastore(type) {
-    return fetchDatastore(type)
+function exportDatastore(type, includeTrashBinItems) {
+    return fetchDatastore(type, undefined, includeTrashBinItems)
         .then(function (data) {
             return downloadExport(data, type);
         })

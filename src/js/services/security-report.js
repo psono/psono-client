@@ -553,7 +553,7 @@ function fetchAllPasswordDatastores() {
             if (result.data.datastores[i].type !== "password") {
                 continue;
             }
-            all_calls.push(exportService.fetchDatastore(undefined, result.data.datastores[i].id));
+            all_calls.push(exportService.fetchDatastore(undefined, result.data.datastores[i].id, false));
         }
         return Promise.all(all_calls);
     };

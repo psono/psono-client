@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import Divider from "@material-ui/core/Divider";
-import { Grid } from "@material-ui/core";
+import { Grid, Checkbox } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import { makeStyles } from "@material-ui/core/styles";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -11,6 +11,7 @@ import Box from "@material-ui/core/Box";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import Select from "@material-ui/core/Select";
 import MuiAlert from "@material-ui/lab/Alert";
+import { Check } from "@material-ui/icons";
 import { BarLoader } from "react-spinners";
 
 import exportService from "../../services/export";
@@ -23,6 +24,22 @@ const useStyles = makeStyles((theme) => ({
             width: "440px",
         },
     },
+    checked: {
+        color: "#9c27b0",
+    },
+    checkedIcon: {
+        width: "20px",
+        height: "20px",
+        border: "1px solid #666",
+        borderRadius: "3px",
+    },
+    uncheckedIcon: {
+        width: "0px",
+        height: "0px",
+        padding: "9px",
+        border: "1px solid #666",
+        borderRadius: "3px",
+    },
 }));
 
 const OtherExportView = (props) => {
@@ -31,6 +48,7 @@ const OtherExportView = (props) => {
     const [exportFormat, setExportFormat] = React.useState("json");
     const [percentageComplete, setPercentageComplete] = React.useState(0);
     const [processing, setProcessing] = React.useState(false);
+    const [includeTrashBinItems, setIncludeTrashBinItems] = React.useState(false);
     const [errors, setErrors] = React.useState([]);
     const [messages, setMessages] = React.useState([]);
 
@@ -73,7 +91,7 @@ const OtherExportView = (props) => {
             setErrors(data.errors);
         };
 
-        exportService.exportDatastore(exportFormat).then(onSuccess, onError);
+        exportService.exportDatastore(exportFormat, includeTrashBinItems).then(onSuccess, onError);
     };
 
     return (
@@ -99,6 +117,21 @@ const OtherExportView = (props) => {
                         <MenuItem value={"csv"}>{t("CSV")}</MenuItem>
                     </Select>
                 </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={12} md={12}>
+                <Checkbox
+                    tabIndex={1}
+                    checked={includeTrashBinItems}
+                    onChange={(event) => {
+                        setIncludeTrashBinItems(event.target.checked);
+                    }}
+                    checkedIcon={<Check className={classes.checkedIcon} />}
+                    icon={<Check className={classes.uncheckedIcon} />}
+                    classes={{
+                        checked: classes.checked,
+                    }}
+                />{" "}
+                {t("INCLUDE_TRASH_BIN_ENTRIES")}
             </Grid>
             <Grid item xs={12} sm={12} md={12} style={{ marginBottom: "8px", marginTop: "8px" }}>
                 <Button variant="contained" color="primary" onClick={exportPasswords} disabled={processing}>
