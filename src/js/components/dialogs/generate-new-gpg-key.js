@@ -48,7 +48,7 @@ const DialogGenerateNewGpgKey = (props) => {
     const [title, setTitle] = useState("");
     const [name, setName] = useState("");
     const [email, setEmail] = useState(store.getState().user.userEmail);
-    const [publishPublicKey, setPublishPublicKey] = useState(true);
+    const [publishPublicKey, setPublishPublicKey] = useState(false);
     const [errors, setErrors] = useState([]);
 
     const generateGpgKey = async () => {
