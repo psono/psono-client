@@ -3,7 +3,7 @@
 //     Copyright (c) 2010-2012 Robert Kieffer
 //     MIT License - http://opensource.org/licenses/mit-license.php
 
-(function() {
+(function () {
     var _global = this;
 
     // Unique ID creation requires a high quality random # generator.  We feature
@@ -17,11 +17,15 @@
     // Node.js crypto-based RNG - http://nodejs.org/docs/v0.6.2/api/crypto.html
     //
     // Moderately fast, high quality
-    if (typeof(_global.require) == 'function') {
+    if (typeof _global.require == "function") {
         try {
-            var _rb = _global.require('crypto').randomBytes;
-            _rng = _rb && function() {return _rb(16);};
-        } catch(e) {}
+            var _rb = _global.require("crypto").randomBytes;
+            _rng =
+                _rb &&
+                function () {
+                    return _rb(16);
+                };
+        } catch (e) {}
     }
 
     if (!_rng && _crypto && _crypto.getRandomValues) {
@@ -40,11 +44,11 @@
         //
         // If all else fails, use Math.random().  It's fast, but is of unspecified
         // quality.
-        var  _rnds = new Array(16);
-        _rng = function() {
+        var _rnds = new Array(16);
+        _rng = function () {
             for (var i = 0, r; i < 16; i++) {
                 if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
-                _rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
+                _rnds[i] = (r >>> ((i & 0x03) << 3)) & 0xff;
             }
 
             return _rnds;
@@ -52,7 +56,7 @@
     }
 
     // Buffer class to use
-    var BufferClass = typeof(_global.Buffer) == 'function' ? _global.Buffer : Array;
+    var BufferClass = typeof _global.Buffer == "function" ? _global.Buffer : Array;
 
     // Maps for number <-> hex string conversion
     var _byteToHex = [];
@@ -64,11 +68,13 @@
 
     // **`parse()` - Parse a UUID into it's component bytes**
     function parse(s, buf, offset) {
-        var i = (buf && offset) || 0, ii = 0;
+        var i = (buf && offset) || 0,
+            ii = 0;
 
         buf = buf || [];
-        s.toLowerCase().replace(/[0-9a-f]{2}/g, function(oct) {
-            if (ii < 16) { // Don't overflow!
+        s.toLowerCase().replace(/[0-9a-f]{2}/g, function (oct) {
+            if (ii < 16) {
+                // Don't overflow!
                 buf[i + ii++] = _hexToByte[oct];
             }
         });
@@ -83,15 +89,30 @@
 
     // **`unparse()` - Convert UUID byte array (ala parse()) into a string**
     function unparse(buf, offset) {
-        var i = offset || 0, bth = _byteToHex;
-        return  bth[buf[i++]] + bth[buf[i++]] +
-            bth[buf[i++]] + bth[buf[i++]] + '-' +
-            bth[buf[i++]] + bth[buf[i++]] + '-' +
-            bth[buf[i++]] + bth[buf[i++]] + '-' +
-            bth[buf[i++]] + bth[buf[i++]] + '-' +
-            bth[buf[i++]] + bth[buf[i++]] +
-            bth[buf[i++]] + bth[buf[i++]] +
-            bth[buf[i++]] + bth[buf[i++]];
+        var i = offset || 0,
+            bth = _byteToHex;
+        return (
+            bth[buf[i++]] +
+            bth[buf[i++]] +
+            bth[buf[i++]] +
+            bth[buf[i++]] +
+            "-" +
+            bth[buf[i++]] +
+            bth[buf[i++]] +
+            "-" +
+            bth[buf[i++]] +
+            bth[buf[i++]] +
+            "-" +
+            bth[buf[i++]] +
+            bth[buf[i++]] +
+            "-" +
+            bth[buf[i++]] +
+            bth[buf[i++]] +
+            bth[buf[i++]] +
+            bth[buf[i++]] +
+            bth[buf[i++]] +
+            bth[buf[i++]]
+        );
     }
 
     // **`v1()` - Generate time-based UUID**
@@ -103,20 +124,18 @@
     var _seedBytes = _rng();
 
     // Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
-    var _nodeId = [
-        _seedBytes[0] | 0x01,
-        _seedBytes[1], _seedBytes[2], _seedBytes[3], _seedBytes[4], _seedBytes[5]
-    ];
+    var _nodeId = [_seedBytes[0] | 0x01, _seedBytes[1], _seedBytes[2], _seedBytes[3], _seedBytes[4], _seedBytes[5]];
 
     // Per 4.2.2, randomize (14 bit) clockseq
-    var _clockseq = (_seedBytes[6] << 8 | _seedBytes[7]) & 0x3fff;
+    var _clockseq = ((_seedBytes[6] << 8) | _seedBytes[7]) & 0x3fff;
 
     // Previous uuid creation time
-    var _lastMSecs = 0, _lastNSecs = 0;
+    var _lastMSecs = 0,
+        _lastNSecs = 0;
 
     // See https://github.com/broofa/node-uuid for API details
     function v1(options, buf, offset) {
-        var i = buf && offset || 0;
+        var i = (buf && offset) || 0;
         var b = buf || [];
 
         options = options || {};
@@ -134,11 +153,11 @@
         var nsecs = options.nsecs != null ? options.nsecs : _lastNSecs + 1;
 
         // Time since last uuid creation (in msecs)
-        var dt = (msecs - _lastMSecs) + (nsecs - _lastNSecs)/10000;
+        var dt = msecs - _lastMSecs + (nsecs - _lastNSecs) / 10000;
 
         // Per 4.2.1.2, Bump clockseq on clock regression
         if (dt < 0 && options.clockseq == null) {
-            clockseq = clockseq + 1 & 0x3fff;
+            clockseq = (clockseq + 1) & 0x3fff;
         }
 
         // Reset nsecs if clock regresses (new clockseq) or we've moved onto a new
@@ -149,7 +168,7 @@
 
         // Per 4.2.1.2 Throw error if too many uuids are requested
         if (nsecs >= 10000) {
-            throw new Error('uuid.v1(): Can\'t create more than 10M uuids/sec');
+            throw new Error("uuid.v1(): Can't create more than 10M uuids/sec");
         }
 
         _lastMSecs = msecs;
@@ -161,22 +180,22 @@
 
         // `time_low`
         var tl = ((msecs & 0xfffffff) * 10000 + nsecs) % 0x100000000;
-        b[i++] = tl >>> 24 & 0xff;
-        b[i++] = tl >>> 16 & 0xff;
-        b[i++] = tl >>> 8 & 0xff;
+        b[i++] = (tl >>> 24) & 0xff;
+        b[i++] = (tl >>> 16) & 0xff;
+        b[i++] = (tl >>> 8) & 0xff;
         b[i++] = tl & 0xff;
 
         // `time_mid`
-        var tmh = (msecs / 0x100000000 * 10000) & 0xfffffff;
-        b[i++] = tmh >>> 8 & 0xff;
+        var tmh = ((msecs / 0x100000000) * 10000) & 0xfffffff;
+        b[i++] = (tmh >>> 8) & 0xff;
         b[i++] = tmh & 0xff;
 
         // `time_high_and_version`
-        b[i++] = tmh >>> 24 & 0xf | 0x10; // include version
-        b[i++] = tmh >>> 16 & 0xff;
+        b[i++] = ((tmh >>> 24) & 0xf) | 0x10; // include version
+        b[i++] = (tmh >>> 16) & 0xff;
 
         // `clock_seq_hi_and_reserved` (Per 4.2.2 - include variant)
-        b[i++] = clockseq >>> 8 | 0x80;
+        b[i++] = (clockseq >>> 8) | 0x80;
 
         // `clock_seq_low`
         b[i++] = clockseq & 0xff;
@@ -195,10 +214,10 @@
     // See https://github.com/broofa/node-uuid for API details
     function v4(options, buf, offset) {
         // Deprecated - 'format' argument, as supported in v1.2
-        var i = buf && offset || 0;
+        var i = (buf && offset) || 0;
 
-        if (typeof(options) == 'string') {
-            buf = options == 'binary' ? new BufferClass(16) : null;
+        if (typeof options == "string") {
+            buf = options == "binary" ? new BufferClass(16) : null;
             options = null;
         }
         options = options || {};
@@ -227,24 +246,24 @@
     uuid.unparse = unparse;
     uuid.BufferClass = BufferClass;
 
-    if (typeof(module) != 'undefined' && module.exports) {
+    if (typeof module != "undefined" && module.exports) {
         // Publish as node.js module
         module.exports = uuid;
-    } else  if (typeof define === 'function' && define.amd) {
+    } else if (typeof define === "function" && define.amd) {
         // Publish as AMD module
-        define(function() {return uuid;});
-
-
+        define(function () {
+            return uuid;
+        });
     } else {
         // Publish as global (in browsers)
         var _previousRoot = _global.uuid;
 
         // **`noConflict()` - (browser only) to reset global 'uuid' var**
-        uuid.noConflict = function() {
+        uuid.noConflict = function () {
             _global.uuid = _previousRoot;
             return uuid;
         };
 
         _global.uuid = uuid;
     }
-}).call(this);
+}.call(this));

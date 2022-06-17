@@ -3,6 +3,7 @@
 apt-get update && \
 apt-get install -y curl && \
 curl -o src/common/data/translations/locale-da.json https://psono.jfrog.io/psono/psono/client/languages/locale-da.json && \
+curl -o src/common/data/translations/locale-ca.json https://psono.jfrog.io/psono/psono/client/languages/locale-ca.json && \
 curl -o src/common/data/translations/locale-sv.json https://psono.jfrog.io/psono/psono/client/languages/locale-sv.json && \
 curl -o src/common/data/translations/locale-no.json https://psono.jfrog.io/psono/psono/client/languages/locale-no.json && \
 curl -o src/common/data/translations/locale-he.json https://psono.jfrog.io/psono/psono/client/languages/locale-he.json && \

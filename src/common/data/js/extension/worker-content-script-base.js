@@ -11,8 +11,7 @@ var ClassWorkerContentScriptBase = function (browser, jQuery, setTimeout) {
 
     activate();
     function activate() {
-
-        jQuery(function() {
+        jQuery(function () {
             var i;
             get_all_documents(window, documents, windows);
             for (i = 0; i < windows.length; i++) {
@@ -23,7 +22,7 @@ var ClassWorkerContentScriptBase = function (browser, jQuery, setTimeout) {
     }
 
     function get_all_documents(window, documents, windows) {
-        var frames = window.document.querySelectorAll('iframe');
+        var frames = window.document.querySelectorAll("iframe");
         windows.push(window);
         documents.push(window.document);
 
@@ -39,24 +38,23 @@ var ClassWorkerContentScriptBase = function (browser, jQuery, setTimeout) {
     function observe(window) {
         var doc = window.document;
         var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
-        var observer = new MutationObserver(function(mutations) {
+        var observer = new MutationObserver(function (mutations) {
             // watch for changes, but block multiple executions for potentially the same event
             // by delaying the actual execution for 300ms and blocking all events within this timeslot to fire again
             if (doc.analyze_waiting) {
                 return;
             }
             doc.analyze_waiting = true;
-            setTimeout(function(){
+            setTimeout(function () {
                 for (var i = 0; i < observer_executables.length; i++) {
-                    observer_executables[i](doc)
+                    observer_executables[i](doc);
                 }
                 doc.analyze_waiting = false;
             }, 300);
         });
         //var config = { attributes: true, childList: true, characterData: true, subtree:true };
-        var config = { childList: true, characterData: true, subtree:true };
-        observer.observe(doc.body, config)
-
+        var config = { childList: true, characterData: true, subtree: true };
+        observer.observe(doc.body, config);
     }
     function register_observer(fnc) {
         observer_executables.push(fnc);
@@ -64,7 +62,6 @@ var ClassWorkerContentScriptBase = function (browser, jQuery, setTimeout) {
             fnc(documents[i]);
         }
     }
-
 
     /**
      * modifies an input field and adds the image button to click together with the appropriate event handlers
@@ -79,34 +76,32 @@ var ClassWorkerContentScriptBase = function (browser, jQuery, setTimeout) {
      * @param mouseMove
      */
     function modify_input_field(input, background_image, position, document, click, mouseOver, mouseOut, mouseMove) {
-        input.style.setProperty('background-image', 'url("'+background_image+'")', 'important');
-        input.style.setProperty('background-position', position, 'important');
-        input.style.setProperty('background-repeat', 'no-repeat', 'important');
-        input.style.setProperty('background-size', 'auto', 'important');
+        input.style.setProperty("background-image", 'url("' + background_image + '")', "important");
+        input.style.setProperty("background-position", position, "important");
+        input.style.setProperty("background-repeat", "no-repeat", "important");
+        input.style.setProperty("background-size", "auto", "important");
 
         if (mouseOver) {
-            input.addEventListener('mouseover', function(evt) {
-                mouseOver(evt, this)
+            input.addEventListener("mouseover", function (evt) {
+                mouseOver(evt, this);
             });
         }
         if (mouseOut) {
-            input.addEventListener('mouseout', function(evt) {
-                mouseOut(evt, this)
+            input.addEventListener("mouseout", function (evt) {
+                mouseOut(evt, this);
             });
         }
         if (mouseMove) {
-            input.addEventListener('mousemove', function(evt) {
-                mouseMove(evt, this)
+            input.addEventListener("mousemove", function (evt) {
+                mouseMove(evt, this);
             });
         }
         if (click) {
-            input.addEventListener('click', function(evt) {
-                click(evt, this, document)
+            input.addEventListener("click", function (evt) {
+                click(evt, this, document);
             });
         }
     }
-
-
 
     /**
      * sends an event message to browser
@@ -116,14 +111,18 @@ var ClassWorkerContentScriptBase = function (browser, jQuery, setTimeout) {
      * @param func
      */
     function emit(event, data, func) {
-        browser.runtime.sendMessage({event: event, data: data}, function(response) {
+        browser.runtime.sendMessage({ event: event, data: data }, function (response) {
             if (func) {
                 func(response);
             }
-            if (typeof(response) === 'undefined' || !response.hasOwnProperty('event')) {
+            if (typeof response === "undefined" || !response.hasOwnProperty("event")) {
                 return;
             }
-            for (var i = 0; registrations.hasOwnProperty(response.event) && i < registrations[response.event].length; i++) {
+            for (
+                var i = 0;
+                registrations.hasOwnProperty(response.event) && i < registrations[response.event].length;
+                i++
+            ) {
                 registrations[response.event][i](response.data);
             }
         });
@@ -151,7 +150,7 @@ var ClassWorkerContentScriptBase = function (browser, jQuery, setTimeout) {
      * @param sender
      * @param sendResponse
      */
-    function onMessage(request, sender, sendResponse){
+    function onMessage(request, sender, sendResponse) {
         for (var i = 0; registrations.hasOwnProperty(request.event) && i < registrations[request.event].length; i++) {
             registrations[request.event][i](request.data);
         }
@@ -163,8 +162,6 @@ var ClassWorkerContentScriptBase = function (browser, jQuery, setTimeout) {
         modify_input_field: modify_input_field,
         emit: emit,
         on: on,
-        onMessage: onMessage
-    }
-
-
+        onMessage: onMessage,
+    };
 };

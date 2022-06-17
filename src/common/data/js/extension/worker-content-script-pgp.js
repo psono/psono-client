@@ -5,87 +5,98 @@
 var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
     "use strict";
 
+    function htmlToText(str) {
+        str = str.replace(/<\/(div|p)>/g, "\n");
+        str = str.replace(/<br>/g, "\n");
+        str = str.replace(/<(.+?)>/g, "");
+        return str;
+    }
+
     // to implement gmx, web.de outlook.com, t-online, yahoo, hotmail
     var supported_hoster = [
         {
-            'name': 'gmail',
-            'domain_filter': function() {
-                return window.location.href.toLowerCase().indexOf('mail.google.com') !== -1;
+            name: "gmail",
+            domain_filter: function () {
+                return window.location.href.toLowerCase().indexOf("mail.google.com") !== -1;
             },
-            'get_pgp_content': function (node) {
+            get_pgp_content: function (node) {
                 var direct_parent = jQuery(node).parent();
-                return direct_parent.text();
+                if (!direct_parent.text().includes("-----END PGP MESSAGE-----")) {
+                    direct_parent = jQuery(direct_parent).parent();
+                }
+                var html_text = direct_parent.html();
+                return htmlToText(html_text);
             },
-            'get_sender': function (node) {
+            get_sender: function (node) {
                 // var direct_parent = jQuery(node).parent();
                 // var top_parent = direct_parent.parents('.gs').first();
                 // return top_parent.find("span.gD").data('hovercardId');
                 return [];
             },
-            'get_receiver': function (node) {
+            get_receiver: function (node) {
                 return [];
             },
-            'get_content_editable_fields': function (node) {
-                return jQuery('textarea, [contenteditable="true"]').filter(':visible')
-            }
+            get_content_editable_fields: function (node) {
+                return jQuery('textarea, [contenteditable="true"]').filter(":visible");
+            },
         },
         {
-            'name': 'livecom',
-            'domain_filter': function() {
-                return window.location.href.toLowerCase().indexOf('outlook.live.com') !== -1;
+            name: "livecom",
+            domain_filter: function () {
+                return window.location.href.toLowerCase().indexOf("outlook.live.com") !== -1;
             },
-            'get_pgp_content': function (node) {
+            get_pgp_content: function (node) {
                 var direct_parent = jQuery(node).parent();
                 return direct_parent.text();
             },
-            'get_sender': function (node) {
+            get_sender: function (node) {
                 return [];
             },
-            'get_receiver': function (node) {
+            get_receiver: function (node) {
                 return [];
             },
-            'get_content_editable_fields': function (node) {
-                return jQuery('textarea, [contenteditable="true"]').filter(':visible')
-            }
+            get_content_editable_fields: function (node) {
+                return jQuery('textarea, [contenteditable="true"]').filter(":visible");
+            },
         },
         {
-            'name': 'outlookoffice365com',
-            'domain_filter': function() {
-                return window.location.href.toLowerCase().indexOf('outlook.office365.com') !== -1;
+            name: "outlookoffice365com",
+            domain_filter: function () {
+                return window.location.href.toLowerCase().indexOf("outlook.office365.com") !== -1;
             },
-            'get_pgp_content': function (node) {
+            get_pgp_content: function (node) {
                 var direct_parent = jQuery(node).parent();
                 return direct_parent.text();
             },
-            'get_sender': function (node) {
+            get_sender: function (node) {
                 return [];
             },
-            'get_receiver': function (node) {
+            get_receiver: function (node) {
                 return [];
             },
-            'get_content_editable_fields': function (node) {
-                return jQuery('textarea, [contenteditable="true"]').filter(':visible')
-            }
+            get_content_editable_fields: function (node) {
+                return jQuery('textarea, [contenteditable="true"]').filter(":visible");
+            },
         },
         {
-            'name': 'yahoo',
-            'domain_filter': function() {
-                return window.location.href.toLowerCase().indexOf('mail.yahoo.com') !== -1;
+            name: "yahoo",
+            domain_filter: function () {
+                return window.location.href.toLowerCase().indexOf("mail.yahoo.com") !== -1;
             },
-            'get_pgp_content': function (node) {
+            get_pgp_content: function (node) {
                 var direct_parent = jQuery(node).parent();
                 return direct_parent.text();
             },
-            'get_sender': function (node) {
+            get_sender: function (node) {
                 return [];
             },
-            'get_receiver': function (node) {
+            get_receiver: function (node) {
                 return [];
             },
-            'get_content_editable_fields': function (node) {
-                return jQuery('textarea, [contenteditable="true"]').filter(':visible')
-            }
-        }
+            get_content_editable_fields: function (node) {
+                return jQuery('textarea, [contenteditable="true"]').filter(":visible");
+            },
+        },
     ];
     // var default_hoster = {
     //     'name': 'default',
@@ -106,8 +117,7 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
     //     }
     // };
 
-
-    jQuery(function() {
+    jQuery(function () {
         activate();
     });
 
@@ -125,7 +135,6 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
         add_pgp_message_writers(document);
     }
 
-
     /**
      * Returns null or a supported hoster that can filter the pgp content (and detect the senders)#
      *
@@ -133,7 +142,7 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
      */
     function get_supported_hoster(type) {
         for (var i = 0; i < supported_hoster.length; i++) {
-            if (supported_hoster[i].hasOwnProperty('domain_filter') && supported_hoster[i].domain_filter()) {
+            if (supported_hoster[i].hasOwnProperty("domain_filter") && supported_hoster[i].domain_filter()) {
                 return supported_hoster[i];
             }
         }
@@ -148,7 +157,6 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
         return null;
     }
 
-
     /**
      * Searches a document if it has a pgp message to decode and if yes add the necessary dom elements
      * RFC to filter messages https://tools.ietf.org/html/rfc4880
@@ -158,53 +166,60 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
      * @param document
      */
     function add_pgp_message_readers(document) {
-
-        var hoster = get_supported_hoster('PGP MESSAGE');
+        var hoster = get_supported_hoster("PGP MESSAGE");
         if (hoster === null) {
             return;
         }
 
         var tree_walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
-            acceptNode: function(node) {
-                if (node.textContent.includes('-----BEGIN PGP MESSAGE')
-                    && !node.parentNode.classList.contains('psono-add_pgp_message_readers-covered')
-                    && jQuery(node.parentNode).is(':visible')
-                    && jQuery(node).parents('[contenteditable]').length === 0
-                    && jQuery(node).parents('textarea').length === 0
+            acceptNode: function (node) {
+                if (
+                    node.textContent.includes("-----BEGIN PGP MESSAGE") &&
+                    !node.parentNode.classList.contains("psono-add_pgp_message_readers-covered") &&
+                    jQuery(node.parentNode).is(":visible") &&
+                    jQuery(node).parents("[contenteditable]").length === 0 &&
+                    jQuery(node).parents("textarea").length === 0
                 ) {
-
                     node.parentNode.classList.add("psono-add_pgp_message_readers-covered");
                     return NodeFilter.FILTER_ACCEPT;
                 } else {
                     return NodeFilter.FILTER_REJECT;
                 }
-            }});
+            },
+        });
 
-        while(tree_walker.nextNode()) {
-
+        while (tree_walker.nextNode()) {
             var node = tree_walker.currentNode;
 
             var pgp_content = hoster.get_pgp_content(node);
             var pgp_sender = hoster.get_sender(node);
 
             // Attach our element with the parsed information
-            var element_id = 'psono_pgp_reader-' + uuid.v4();
-            var element = jQuery('' +
-                '<div class="psono-pw-pgp-link yui3-cssreset">' +
-                '    <div style="max-width: 150px">' +
-                '        <img class="'+element_id+'" width="100%" data-pgp-content="'+pgp_content+'" data-pgp-sender="'+pgp_sender+'" src="' + browser.runtime.getURL("data/img/psono-decrypt.png") + '">' +
-                '    </div>' +
-                '</div>');
+            var element_id = "psono_pgp_reader-" + uuid.v4();
+            var element = jQuery(
+                "" +
+                    '<div class="psono-pw-pgp-link yui3-cssreset">' +
+                    '    <div style="max-width: 150px">' +
+                    '        <img class="' +
+                    element_id +
+                    '" width="100%" data-pgp-content="' +
+                    pgp_content +
+                    '" data-pgp-sender="' +
+                    pgp_sender +
+                    '" src="' +
+                    browser.runtime.getURL("data/img/psono-decrypt.png") +
+                    '">' +
+                    "    </div>" +
+                    "</div>"
+            );
 
-            var parent = node.parentElement.closest('div');
+            var parent = node.parentElement.closest("div");
             element.prependTo(parent);
-            jQuery( parent.getElementsByClassName(element_id) ).on( "click", function() {
-                decryptGPG(jQuery(this).attr('data-pgp-content'), jQuery(this).attr('data-pgp-sender'));
+            jQuery(parent.getElementsByClassName(element_id)).on("click", function () {
+                decryptGPG(jQuery(this).attr("data-pgp-content"), jQuery(this).attr("data-pgp-sender"));
             });
         }
-
     }
-
 
     /**
      * Searches a document for the edit / write box and adds the small pen logo
@@ -212,12 +227,11 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
      * @param document
      */
     function add_pgp_message_writers(document) {
-
-        var hoster = get_supported_hoster('');
+        var hoster = get_supported_hoster("");
         if (hoster === null) {
             return;
         }
-        var fields = hoster.get_content_editable_fields().not('.psono-add_pgp_message_writers-covered');
+        var fields = hoster.get_content_editable_fields().not(".psono-add_pgp_message_writers-covered");
         for (var i = 0; i < fields.length; ++i) {
             add_pgp_message_writer(hoster, fields[i]);
         }
@@ -232,7 +246,16 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
     function add_pgp_message_writer(hoster, node) {
         var field = jQuery(node);
         field.addClass("psono-add_pgp_message_writers-covered");
-        base.modify_input_field(node, browser.runtime.getURL("data/img/psono-encrypt.png"), 'top right', {node: node, get_receiver: hoster.get_receiver}, onClick, mouseOver, mouseOut, mouseMove);
+        base.modify_input_field(
+            node,
+            browser.runtime.getURL("data/img/psono-encrypt.png"),
+            "top right",
+            { node: node, get_receiver: hoster.get_receiver },
+            onClick,
+            mouseOver,
+            mouseOut,
+            mouseMove
+        );
     }
 
     /**
@@ -245,9 +268,9 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
      */
     function onClick(evt, target, click_data) {
         if (getDistance(evt, target) < 30 && getDistance(evt, target) > 0) {
-            var field = jQuery(click_data['node']);
-            var receiver = click_data['get_receiver'](click_data['node']);
-            encryptGPG (field, receiver)
+            var field = jQuery(click_data["node"]);
+            var receiver = click_data["get_receiver"](click_data["node"]);
+            encryptGPG(field, receiver);
         }
     }
 
@@ -260,23 +283,22 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
      * @returns {number} Distance
      */
     function getDistance(evt, target) {
-
         var left_border = target.getBoundingClientRect().left;
         var top_border = target.getBoundingClientRect().top;
 
-        var distance_x = jQuery(target).width()
-            - evt.pageX
-            + left_border
-            + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
+        var distance_x =
+            jQuery(target).width() -
+            evt.pageX +
+            left_border +
+            (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
 
         var distance_y = top_border - evt.pageY;
 
         if (distance_y > -27 && distance_x < 51) {
-            return 1
+            return 1;
         }
 
         return 0;
-
     }
 
     /**
@@ -306,11 +328,11 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
      * @param evt Mouse move event
      * @param target The original element that this event was bound to
      */
-    function mouseMove (evt, target) {
+    function mouseMove(evt, target) {
         if (getDistance(evt, target) < 30 && getDistance(evt, target) > 0) {
-            evt.target.style.cursor = 'pointer';
+            evt.target.style.cursor = "pointer";
         } else {
-            evt.target.style.cursor = 'auto';
+            evt.target.style.cursor = "auto";
         }
     }
 
@@ -320,10 +342,10 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
      * @param message
      * @param sender
      */
-    function decryptGPG (message, sender) {
-        base.emit('decrypt-gpg', {
+    function decryptGPG(message, sender) {
+        base.emit("decrypt-gpg", {
             message: message,
-            sender: sender
+            sender: sender,
         });
     }
 
@@ -333,17 +355,19 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
      * @param text_element
      * @param receiver
      */
-    function encryptGPG (text_element, receiver) {
-        base.emit('encrypt-gpg', {
-            receiver: receiver
-        }, function(data) {
-            if (text_element.is('[contenteditable="true"]')) {
-                text_element.append('<pre>' + data.message + '<pre/>');
-            } else {
-                text_element.val(data.message + "\n" + text_element.val())
+    function encryptGPG(text_element, receiver) {
+        base.emit(
+            "encrypt-gpg",
+            {
+                receiver: receiver,
+            },
+            function (data) {
+                if (text_element.is('[contenteditable="true"]')) {
+                    text_element.append("<pre>" + data.message + "<pre/>");
+                } else {
+                    text_element.val(data.message + "\n" + text_element.val());
+                }
             }
-        });
+        );
     }
-
-
 };

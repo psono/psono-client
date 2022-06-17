@@ -1,6 +1,8 @@
 import requests
 import shutil
 import os
+import json
+import time
 
 POEDITOR_API_KEY = os.environ['POEDITOR_API_KEY']
 POEDITOR_PROJECT_ID = os.environ['POEDITOR_PROJECT_ID']
@@ -25,46 +27,25 @@ LANGUAGE_CODES = [
     "ji", "zu", "ar", "bn", "zh-hant"
 ]
 
-WEBHOOKS = {
-    'da': 'https://api.poeditor.com/webhooks/60e08a38a1',
-    'sv': 'https://api.poeditor.com/webhooks/e04cf1e71b',
-    'no': 'https://api.poeditor.com/webhooks/f958402063',
-    'he': 'https://api.poeditor.com/webhooks/11fd52a022',
-    'hu': 'https://api.poeditor.com/webhooks/55ee16816c',
-    'ar': 'https://api.poeditor.com/webhooks/b547e9ea05',
-    'hi': 'https://api.poeditor.com/webhooks/2216d07c14',
-    'bn': 'https://api.poeditor.com/webhooks/6aa3031574',
-    'cs': 'https://api.poeditor.com/webhooks/6f9ccaf590',
-    'de': 'https://api.poeditor.com/webhooks/cc03403af4',
-    'en': 'https://api.poeditor.com/webhooks/0f5aeab8bc',
-    'es': 'https://api.poeditor.com/webhooks/ab77f8945a',
-    'fi': 'https://api.poeditor.com/webhooks/b8096339f3',
-    'fr': 'https://api.poeditor.com/webhooks/54848feabf',
-    'hr': 'https://api.poeditor.com/webhooks/08749311d2',
-    'it': 'https://api.poeditor.com/webhooks/c935515d00',
-    'ja': 'https://api.poeditor.com/webhooks/333879768e',
-    'ko': 'https://api.poeditor.com/webhooks/f9b7e46774',
-    'nl': 'https://api.poeditor.com/webhooks/e9759d447d',
-    'pl': 'https://api.poeditor.com/webhooks/c509027422',
-    'pt': 'https://api.poeditor.com/webhooks/58636c2128',
-    'pt-br': 'https://api.poeditor.com/webhooks/e90bc82d16',
-    'ru': 'https://api.poeditor.com/webhooks/9230be9768',
-    'sk': 'https://api.poeditor.com/webhooks/789892212b',
-    'vi': 'https://api.poeditor.com/webhooks/ae0b49bd93',
-    'zh-cn': 'https://api.poeditor.com/webhooks/22ed2bb261',
-    'zh-hant': 'https://api.poeditor.com/webhooks/92a59a18dc',
+FILE_PATHS = {
+    'de': 'src/common/data/translations/locale-de.json',
+    'en': 'src/common/data/translations/locale-en.json',
 }
 
 
 def upload_language(lang):
 
-    if lang in WEBHOOKS:
-        params = (
-            ('api_token', POEDITOR_API_KEY),
-            ('id_project', POEDITOR_PROJECT_ID),
-        )
+    if lang in FILE_PATHS:
+        data = {
+            'id': POEDITOR_PROJECT_ID,
+            'api_token': POEDITOR_API_KEY,
+            'updating': 'terms_translations',
+            'language': lang,
+            'overwrite': 1,
+        }
+        with open(FILE_PATHS[lang], 'rb') as file:
+            r = requests.post('https://api.poeditor.com/v2/projects/upload', data=data, files={'file': file})
 
-        r = requests.post(WEBHOOKS[lang], params=params)
     else:
         print("Error: upload_language " + lang + " No webhook configured for this language")
     #     params = (
@@ -75,7 +56,12 @@ def upload_language(lang):
     #     )
     #
     #     r = requests.post('https://poeditor.com/api/webhooks/gitlab', params=params)
-    if not r.ok or r.text != 'Request received':
+    if not r.ok:
+        print("Error: upload_language " + lang)
+        print(r.text)
+        exit(1)
+    content = json.loads(r.content)
+    if "response" not in content or "status" not in content["response"] or content["response"]["status"] != 'success':
         print("Error: upload_language " + lang)
         print(r.text)
         exit(1)
@@ -142,6 +128,12 @@ def get_languages():
 
 
 def main():
+    # Upload
+    for lang in FILE_PATHS:
+        upload_language(lang)
+        time.sleep(20)
+
+    # Download
     languages = get_languages()
     for lang in languages:
         language_code = lang['code'].lower()
@@ -149,10 +141,8 @@ def main():
             print("Error: main")
             print("Invalid Language Code " + language_code)
             exit(1)
-        if language_code in WEBHOOKS:
-            upload_language(language_code)
         file = download_language(language_code)
-        deploy_to_artifactory(ARTIFACTORY_USER, ARTIFACTORY_PASS, ARTIFACTORY_URL, ARTIFACTORY_PATH, language_code, file)
+        # deploy_to_artifactory(ARTIFACTORY_USER, ARTIFACTORY_PASS, ARTIFACTORY_URL, ARTIFACTORY_PATH, language_code, file)
 
     print("Success")
 

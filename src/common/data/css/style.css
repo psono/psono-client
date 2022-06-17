@@ -1,16 +1,50 @@
 /*fbfbfc*/
 /* Generic styles */
+html {
+  height: 100%;}
 body {
   font-family: 'Open Sans', sans-serif;
   position: relative;
   background-color: #0f1118;
   margin: 0;
   padding: 0;
-  min-width: 320px; }
+  min-width: 320px;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+html, body {
+  -webkit-tap-highlight-color: transparent;
+}
 
 h1, h2 {
   font-size: 20px;
   margin: 0; }
+
+h3 {
+  font-size: 24px;
+  margin: 0;
+}
+
+h4 {
+  font-size: 18px;
+  margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 500;
+}
+
+h4, h5, h6 {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+h1, h2, h3 {
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
 
 a {
   color: #151f2b; }
@@ -18,15 +52,12 @@ a {
 .btn-link {
   color: #151f2b; }
 
-.monospace {
-  font-family: 'Fira Code', monospace; }
-
 p.horizontalline {
   width: 100%;
   text-align: center;
   border-bottom: 1px solid #0f1118;
   line-height: 0.1em;
-  margin: 10px 0 20px; }
+  margin: 20px 0 20px; }
 
 p.horizontalline span {
   background: #151f2b;
@@ -283,20 +314,6 @@ p.horizontalline span {
   border-top-color: #2ba880;
   border-left-color: #2ba880; }
 
-/* Fix Bootstrap disabled */
-.dropdown-menu > .disabled > a,
-.dropdown-menu > .disabled > a:hover,
-.dropdown-menu > .disabled > a:focus {
-  cursor: not-allowed;
-  color: #999; }
-
-/* CSS fix for angular-ui explained here: https://angular-ui.github.io/bootstrap/ */
-.nav, .pagination, .carousel, .panel-title a {
-  cursor: pointer; }
-
-.text-center {
-  text-align: center; }
-
 .progress-box {
   width: 340px;
   padding: 20px;
@@ -343,12 +360,3 @@ p.horizontalline span {
         margin-left: -200%;
         width: 0;
         overflow: hidden; }
-
-.bootstrap-datetimepicker-widget table td.today:before {
-  border-bottom-color: #151f2b; }
-
-.bootstrap-datetimepicker-widget table td.active, .bootstrap-datetimepicker-widget table td.active:hover {
-  background-color: #2dbb93; }
-
-.bootstrap-datetimepicker-widget table td span.active {
-  background-color: #151f2b; }

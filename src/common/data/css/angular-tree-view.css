@@ -14,6 +14,7 @@
     overflow-x: hidden;
     overflow-y: auto;
     position: relative;
+    width: 100%;
 }
 .tree:before {
     display: inline-block;

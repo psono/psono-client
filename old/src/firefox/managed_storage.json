@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-03/schema#",
+  "type": "object",
+  "properties": {
+    "ConfigJson": {
+      "type": "string",
+      "title": "Config Json",
+      "description": "The config.json that you want to preconfigure"
+    }
+  }
+}

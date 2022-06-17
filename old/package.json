@@ -1,0 +1,31 @@
+{
+  "name": "psono-client-old",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {},
+  "devDependencies": {
+    "gulp": "*",
+    "gulp-angular-templatecache": "^1.9.1",
+    "gulp-clean-css": "~2.3.2",
+    "gulp-concat": "^2.6.1",
+    "gulp-html-replace": "^1.6.2",
+    "gulp-htmlmin": "^3.0.0",
+    "gulp-json-editor": "^2.2.1",
+    "gulp-ngdocs": "^0.3.0",
+    "gulp-remove-files": "0.0.3",
+    "gulp-replace": "^0.6.1",
+    "gulp-run": "^1.7.1",
+    "gulp-sass": "*",
+    "gulp-sourcemaps": "^2.6.4",
+    "gulp-uglify": "^3.0.0",
+    "jasmine-core": "~2.8.0",
+    "jsonwebtoken": "^8.2.0",
+    "karma": "~1.7.1",
+    "karma-chrome-launcher": "~2.2.0",
+    "karma-coverage": "~2.0.1",
+    "karma-firefox-launcher": "~1.0.0",
+    "karma-jasmine": "~1.1.0",
+    "uglify-save-license": "^0.4.1",
+    "webstore-upload": "0.0.7"
+  }
+}

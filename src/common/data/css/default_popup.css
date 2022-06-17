@@ -1,5 +1,6 @@
 body {
-  min-width: 520px; }
+  min-width: 520px;
+  background-color: #151f2b !important; }
 
 .dark .box-footer {
   bottom: 0;
