@@ -142,7 +142,7 @@ def main():
             print("Invalid Language Code " + language_code)
             exit(1)
         file = download_language(language_code)
-        # deploy_to_artifactory(ARTIFACTORY_USER, ARTIFACTORY_PASS, ARTIFACTORY_URL, ARTIFACTORY_PATH, language_code, file)
+        deploy_to_artifactory(ARTIFACTORY_USER, ARTIFACTORY_PASS, ARTIFACTORY_URL, ARTIFACTORY_PATH, language_code, file)
 
     print("Success")
 
