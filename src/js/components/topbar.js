@@ -9,6 +9,7 @@ import IconButton from "@material-ui/core/IconButton";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import MenuIcon from "@material-ui/icons/Menu";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
+import StorageIcon from '@material-ui/icons/Storage';
 import Toolbar from "@material-ui/core/Toolbar";
 import Button from "@material-ui/core/Button";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
@@ -19,6 +20,9 @@ import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import TuneIcon from "@material-ui/icons/Tune";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
+import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@material-ui/icons/CheckBox';
+import AddIcon from '@material-ui/icons/Add';
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import { Link } from "react-router-dom";
@@ -26,7 +30,9 @@ import { Link } from "react-router-dom";
 import store from "../services/store";
 import user from "../services/user";
 import offlineCache from "../services/offline-cache";
+import datastoreService from "../services/datastore";
 import DialogGoOffline from "./dialogs/go-offline";
+import CreateDatastoresDialog from "../views/other/create-datastores-dialog";
 
 const useStyles = makeStyles((theme) => ({
     appBar: {
@@ -60,6 +66,7 @@ const useStyles = makeStyles((theme) => ({
     },
     topMenuButton: {
         textTransform: "none",
+        padding: "8px",
     },
 }));
 
@@ -67,19 +74,66 @@ const Topbar = (props) => {
     const { mobileOpen, setMobileOpen } = props;
     const { t } = useTranslation();
     const classes = useStyles();
-    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [anchorTopMenuEl, setAnchorTopMenuEl] = React.useState(null);
+    const [anchorDatastoreMenuEl, setAnchorDatastoreMenuEl] = React.useState(null);
     const [goOfflineOpen, setGoOfflineOpen] = React.useState(false);
+    const [createDatastoreOpen, setCreateDatastoreOpen] = React.useState(false);
+    const [datastores, setDatastores] = React.useState([]);
+
+
+    let isSubscribed = true;
+    React.useEffect(() => {
+        reloadDatastoreOverview();
+        return () => (isSubscribed = false);
+    }, []);
+
+    const reloadDatastoreOverview = () => {
+
+        datastoreService.getDatastoreOverview().then(function (overview) {
+            if (!isSubscribed) {
+                return
+            }
+            const newDatastores=[];
+            for (let i = 0; i < overview.data.datastores.length; i++) {
+                if (overview.data.datastores[i]['type'] === 'password') {
+                    newDatastores.push(overview.data.datastores[i]);
+                }
+            }
+            setDatastores(newDatastores);
+
+        });
+    };
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
     };
 
     const openTopMenu = (event) => {
-        setAnchorEl(event.currentTarget);
+        setAnchorTopMenuEl(event.currentTarget);
     };
     const closeTopMenu = () => {
-        setAnchorEl(null);
+        setAnchorTopMenuEl(null);
     };
+
+    const openDatastoreMenu = (event) => {
+        setAnchorDatastoreMenuEl(event.currentTarget);
+    };
+    const closeDatastoreMenu = () => {
+        setAnchorDatastoreMenuEl(null);
+    };
+
+    const onCreateDatastore = (rowData) => {
+        setCreateDatastoreOpen(true);
+        closeDatastoreMenu();
+    };
+
+    const onDatastoreSwitchClick = (datastore) => {
+        closeDatastoreMenu();
+        datastoreService.saveDatastoreMeta(datastore.id, datastore.description, true).then(function (result) {
+            reloadDatastoreOverview();
+        })
+    };
+
     const goOffline = () => {
         setGoOfflineOpen(true);
     };
@@ -108,8 +162,72 @@ const Topbar = (props) => {
                         <img alt="Psono" src="img/logo-inverse.png" height="100%" />
                     </a>
                     <div style={{ width: "100%" }}>
-                        <div style={{ float: "right" }}>
+                        {datastores && datastores.length > 1 && (<div style={{float: "left"}}>
                             <Hidden smUp>
+                                <IconButton
+                                    variant="contained"
+                                    onClick={openDatastoreMenu}
+                                    color="primary"
+                                    className={classes.topMenuButton}
+                                >
+                                    <StorageIcon/>
+                                </IconButton>
+                            </Hidden>
+                            <Hidden xsDown>
+                                <Button
+                                    variant="contained"
+                                    aria-controls="datastore-menu"
+                                    aria-haspopup="true"
+                                    onClick={openDatastoreMenu}
+                                    color="primary"
+                                    disableElevation
+                                    className={classes.topMenuButton}
+                                    endIcon={<ExpandMoreIcon/>}
+                                >
+                                    {t("DATASTORE")}
+                                </Button>
+                            </Hidden>
+                            <Menu
+                                id="datastore-menu"
+                                anchorEl={anchorDatastoreMenuEl}
+                                keepMounted
+                                open={Boolean(anchorDatastoreMenuEl)}
+                                onClose={closeDatastoreMenu}
+                                anchorOrigin={{
+                                    vertical: "top",
+                                    horizontal: "right",
+                                }}
+                                transformOrigin={{
+                                    vertical: "bottom",
+                                    horizontal: "right",
+                                }}
+                            >
+                                {datastores.map((datastore, index) => {
+                                    return (
+                                        <MenuItem onClick={() => {onDatastoreSwitchClick(datastore)}} key={index}>
+                                            <ListItemIcon className={classes.listItemIcon}>
+                                                {datastore.is_default ? (<CheckBoxIcon className={classes.icon}/>) : (
+                                                    <CheckBoxOutlineBlankIcon className={classes.icon}/>)}
+
+                                            </ListItemIcon>
+                                            <Typography variant="body2">{datastore.description}</Typography>
+                                        </MenuItem>
+                                    );
+                                })}
+                                {!offlineCache.isActive() && (
+                                    [
+                                        <Divider key={'divider'}/>,
+                                        <MenuItem onClick={onCreateDatastore} key={'create-datastore'}>
+                                            <ListItemIcon className={classes.listItemIcon}>
+                                                <AddIcon className={classes.icon}/>
+                                            </ListItemIcon>
+                                            <Typography variant="body2">{t("CREATE_NEW_DATASTORE")}</Typography>
+                                        </MenuItem>]
+                                )}
+                            </Menu>
+                        </div>)}
+                        <div style={{ float: "right" }}>
+                            <Hidden mdUp>
                                 <IconButton
                                     variant="contained"
                                     onClick={openTopMenu}
@@ -119,11 +237,11 @@ const Topbar = (props) => {
                                     <AccountCircleIcon />
                                 </IconButton>
                             </Hidden>
-                            <Hidden xsDown>
+                            <Hidden smDown>
                                 <div className={"signintext"}>{t("SIGNED_IN_AS")}</div>
                                 <Button
                                     variant="contained"
-                                    aria-controls="simple-menu"
+                                    aria-controls="top-menu"
                                     aria-haspopup="true"
                                     onClick={openTopMenu}
                                     color="primary"
@@ -135,10 +253,10 @@ const Topbar = (props) => {
                                 </Button>
                             </Hidden>
                             <Menu
-                                id="simple-menu"
-                                anchorEl={anchorEl}
+                                id="top-menu"
+                                anchorEl={anchorTopMenuEl}
                                 keepMounted
-                                open={Boolean(anchorEl)}
+                                open={Boolean(anchorTopMenuEl)}
                                 onClose={closeTopMenu}
                                 anchorOrigin={{
                                     vertical: "top",
@@ -202,6 +320,10 @@ const Topbar = (props) => {
                 </Toolbar>
             </Container>
             {goOfflineOpen && <DialogGoOffline open={goOfflineOpen} onClose={() => setGoOfflineOpen(false)} />}
+            {createDatastoreOpen && <CreateDatastoresDialog {...props} open={createDatastoreOpen} onClose={() => {
+                setCreateDatastoreOpen(false);
+                reloadDatastoreOverview();
+            }} />}
         </AppBar>
     );
 };
