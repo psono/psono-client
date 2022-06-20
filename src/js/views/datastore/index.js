@@ -49,6 +49,7 @@ import offlineCacheService from "../../services/offline-cache";
 import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
 import DialogSelectFolder from "../../components/dialogs/select-folder";
 import widgetService from "../../services/widget";
+import datastoreService from "../../services/datastore";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -170,6 +171,7 @@ const DatastoreView = (props) => {
 
     let isSubscribed = true;
     React.useEffect(() => {
+        datastoreService.register('on_datastore_overview_update', loadDatastore);
         loadDatastore();
         return () => (isSubscribed = false);
     }, []);
