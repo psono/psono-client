@@ -17,6 +17,7 @@ import EmergencyCodeView from "./emergency-code";
 import EnforceTwoFaView from "./enforce-two-fa";
 import OpenSecretView from "./open-secret";
 import DownloadFileView from "./download-file";
+import ActivateView from "./activate";
 import TrustedUsersView from "./trusted-users";
 import GroupsView from "./groups";
 import ActiveLinkShareView from "./active-link-shares";
@@ -40,6 +41,13 @@ const IndexView = (props) => {
     }, []);
 
     if (pathname.endsWith("/activate.html")) {
+        return (
+            <Switch>
+                <Route path="/activation-code/:activationCode">
+                    <ActivateView {...props} />
+                </Route>
+            </Switch>
+        )
     } else if (pathname.endsWith("/background.html")) {
         console.log("BACKGROUND");
         return "BACKGROUND";

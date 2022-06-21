@@ -18,6 +18,36 @@ let verification = {};
 let redirectOnTwoFaMissing;
 
 /**
+ * Activates a user account with the provided activation code after registration
+ *
+ * @param {string} activationCode The activation code sent via mail
+ * @param {string} server The server to send the activation code to
+ *
+ * @returns {Promise} Returns a promise with the activation status
+ */
+function activateCode(activationCode, server) {
+
+    action.setServerUrl(server);
+
+    const onSuccess = function () {
+        return {
+            response:"success"
+        };
+    };
+
+    const onError = function(response){
+
+        return {
+            response:"error",
+            error_data: response.data
+        };
+    };
+
+    return apiClient.verifyEmail(activationCode)
+        .then(onSuccess, onError);
+}
+
+/**
  * Updates the global state with username, server, rememberMe and trustDevice
  * Returns the result of check_host
  *
@@ -471,7 +501,9 @@ function activateToken() {
         };
     };
 
-    return apiClient.activateToken(token, verification.text, verification.nonce, sessionSecretKey).then(onSuccess);
+    return apiClient
+        .activateToken(token, verification.text, verification.nonce, sessionSecretKey)
+        .then(onSuccess);
 }
 
 /**
@@ -956,11 +988,9 @@ function armEmergencyCode(username, emergencyCode, server, serverInfo, verifyKey
  * @return {boolean} Returns whether the user should be forced to setup two factor
  */
 function requireTwoFaSetup() {
-    return (
-        !store.getState().user.hasTwoFactor &&
-        store.getState().server.complianceEnforce2fa &&
-        store.getState().server.allowedSecondFactors.length > 0
-    );
+    return !store.getState().user.hasTwoFactor
+        && store.getState().server.complianceEnforce2fa
+        && store.getState().server.allowedSecondFactors.length > 0;
 }
 
 /**
@@ -1013,7 +1043,9 @@ function deleteSession(sessionId) {
  * @returns {Promise} promise
  */
 function register(email, username, password, server) {
-    const onSuccess = function (base_url) {
+
+    const onSuccess = function(base_url){
+
         //managerBase.delete_local_data();
 
         // storage.upsert('config', {key: 'user_email', value: email});
@@ -1024,49 +1056,47 @@ function register(email, username, password, server) {
         const userSauce = cryptoLibrary.generateUserSauce();
 
         const privateKeyEncrypted = cryptoLibrary.encryptSecret(pair.private_key, password, userSauce);
-        const secretKeyEncrypted = cryptoLibrary.encryptSecret(cryptoLibrary.generateSecretKey(), password, userSauce);
+        const secretKeyEncrypted = cryptoLibrary
+            .encryptSecret(cryptoLibrary.generateSecretKey(), password, userSauce);
 
         const onSuccess = function () {
+
             storage.save();
 
             return {
-                response: "success",
+                response:"success"
             };
         };
 
-        const onError = function (response) {
+        const onError = function(response){
+
             // storage.remove('config', storage.find_key('config', 'user_email'));
             // storage.remove('config', storage.find_key('config', 'server'));
             storage.save();
 
             return {
-                response: "error",
-                error_data: response.data,
+                response:"error",
+                error_data: response.data
             };
         };
 
-        return apiClient
-            .register(
-                email,
-                username,
-                cryptoLibrary.generateAuthkey(username, password),
-                pair.public_key,
-                privateKeyEncrypted.text,
-                privateKeyEncrypted.nonce,
-                secretKeyEncrypted.text,
-                secretKeyEncrypted.nonce,
-                userSauce,
-                base_url
-            )
+        return apiClient.register(email, username, cryptoLibrary.generateAuthkey(username, password), pair.public_key,
+            privateKeyEncrypted.text, privateKeyEncrypted.nonce, secretKeyEncrypted.text, secretKeyEncrypted.nonce, userSauce,
+            base_url)
             .then(onSuccess, onError);
+
     };
 
-    const onError = function () {};
+    const onError = function(){
 
-    return browserClient.getBaseUrl().then(onSuccess, onError);
+    };
+
+    return browserClient.getBaseUrl().then(onSuccess, onError)
+
 }
 
 const userService = {
+    activateCode,
     initiateLogin,
     samlLogin,
     initiateSamlLogin,
