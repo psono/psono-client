@@ -537,14 +537,14 @@ function moveItem(datastore, itemPath, targetPath, type, datastoreType) {
     }
 
     const onSuccess = async function (datastore) {
-        if (targetPath === null || typeof targetPath === "undefined") {
+        if (targetPath === null || typeof targetPath === "undefined" || targetPath.length === 0) {
             orig_target_path = [];
         } else {
             orig_target_path = targetPath.slice();
         }
 
         let target = datastore;
-        if (targetPath !== null && typeof targetPath !== "undefined") {
+        if (targetPath !== null && typeof targetPath !== "undefined" && targetPath.length !== 0) {
             // find drop zone
             const val1 = datastorePasswordService.findInDatastore(targetPath, datastore);
             target = val1[0][val1[1]];
