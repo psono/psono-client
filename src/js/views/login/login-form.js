@@ -543,8 +543,13 @@ const LoginViewForm = (props) => {
         setLoginLoading(true);
         setLoginType("");
         setErrors([]);
+
+        let parsedUrl = helperService.parseUrl(server);
+
+        let fullUsername = helperService.formFullUsername(username, domain || parsedUrl["full_domain"]);
+
         return user
-            .initiateLogin(username, server, rememberMe, trustDevice, true)
+            .initiateLogin(fullUsername, server, rememberMe, trustDevice, true)
             .then(
                 (serverCheck) => {
                     setServerCheck(serverCheck);

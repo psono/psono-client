@@ -51,7 +51,7 @@ const ActivationForm = (props) => {
     const [view, setView] = useState("default");
     const [server, setServer] = useState(store.getState().server.url);
     const [activateInProgress, setActivateInProgress] = useState(false);
-    const [activationCode, setActivationCode] = useState(props.activationCode);
+    const [activationCode, setActivationCode] = useState(props.activationCode || "");
     const [errors, setErrors] = useState([]);
     const [msgs, setMsgs] = useState([]);
     const [allowCustomServer, setAllowCustomServer] = useState(true);

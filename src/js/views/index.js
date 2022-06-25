@@ -46,6 +46,9 @@ const IndexView = (props) => {
                 <Route path="/activation-code/:activationCode">
                     <ActivateView {...props} />
                 </Route>
+                <Route path="/">
+                    <ActivateView {...props} />
+                </Route>
             </Switch>
         )
     } else if (pathname.endsWith("/background.html")) {
