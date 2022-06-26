@@ -55,15 +55,6 @@ function isMobile() {
 }
 
 /**
- * Returns weather we have an IE or not
- *
- * @returns {boolean} Is this an IE user
- */
-function isIe() {
-    return clientJs.isIE();
-}
-
-/**
  * Returns weather we have a Chrome or not
  *
  * @returns {boolean} Is this an Chrome user
@@ -79,24 +70,6 @@ function isChrome() {
  */
 function isFirefox() {
     return clientJs.isFirefox();
-}
-
-/**
- * Returns weather we have a Safari or not
- *
- * @returns {boolean} Is this an Safari user
- */
-function isSafari() {
-    return clientJs.isSafari();
-}
-
-/**
- * Returns weather we have a Opera or not
- *
- * @returns {boolean} Is this an Opera user
- */
-function isOpera() {
-    return clientJs.isOpera();
 }
 
 /**
@@ -132,11 +105,8 @@ const deviceService = {
     isMobileAndroid: isMobileAndroid,
     isMobileIos: isMobileIos,
     isMobile: isMobile,
-    isIe: isIe,
     isChrome: isChrome,
     isFirefox: isFirefox,
-    isSafari: isSafari,
-    isOpera: isOpera,
     getDeviceDescription: getDeviceDescription,
 };
 export default deviceService;
