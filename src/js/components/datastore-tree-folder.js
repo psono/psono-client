@@ -326,6 +326,13 @@ const DatastoreTreeFolder = (props) => {
                     {!props.hideItems &&
                         content.items &&
                         content.items
+                            .sort(function(a, b){
+                                if (a.name < b.name)
+                                    return -1;
+                                if (a.name > b.name)
+                                    return 1;
+                                return 0;
+                            })
                             .filter((item) => !item["hidden"] && !item["deleted"])
                             .map(function (content, i) {
                                 const nodePathClone = Array.from(nodePath);

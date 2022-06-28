@@ -58,6 +58,13 @@ const DatastoreTree = (props) => {
             <div className={"tree"}>
                 {datastore.folders &&
                     datastore.folders
+                        .sort(function(a, b){
+                            if (a.name < b.name)
+                                return -1;
+                            if (a.name > b.name)
+                                return 1;
+                            return 0;
+                        })
                         .filter((folder) => !folder["hidden"] && !folder["deleted"])
                         .map(function (content, i) {
                             return (
@@ -91,6 +98,13 @@ const DatastoreTree = (props) => {
                 {!props.hideItems &&
                     datastore.items &&
                     datastore.items
+                        .sort(function(a, b){
+                            if (a.name < b.name)
+                                return -1;
+                            if (a.name > b.name)
+                                return 1;
+                            return 0;
+                        })
                         .filter((item) => !item["hidden"] && !item["deleted"])
                         .map(function (content, i) {
                             return (
