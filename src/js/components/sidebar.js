@@ -306,7 +306,7 @@ const Sidebar = (props) => {
                     </ListItem>
                 )}
             </List>
-            {moreLinks && (
+            {moreLinks && moreLinks.length > 0 && (
                 <>
                     <ListSubheader className={classes.subHeader}>{t("MORE")}</ListSubheader>
                     <List>
