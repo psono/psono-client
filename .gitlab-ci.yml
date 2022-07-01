@@ -277,7 +277,7 @@ deploy-changelog:
   except:
     - schedules
   stage: deploy
-  image: psono-docker.jfrog.io/ubuntu:20.04
+  image: psono-docker.jfrog.io/ubuntu:22.04
   script:
     - sh ./var/deploy_changelog.sh
   environment:
