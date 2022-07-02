@@ -777,6 +777,7 @@ const DialogNewEntry = (props) => {
                                     ),
                                 }}
                             />
+                            {!!websitePasswordPassword && (<LinearProgress variant="determinate" value={cryptoLibrary.calculatePasswordStrengthInPercent(websitePasswordPassword)} />)}
                         </Grid>
                     )}
                     {type === "website_password" && (
@@ -898,6 +899,7 @@ const DialogNewEntry = (props) => {
                                     ),
                                 }}
                             />
+                            {!!applicationPasswordPassword && (<LinearProgress variant="determinate" value={cryptoLibrary.calculatePasswordStrengthInPercent(applicationPasswordPassword)} />)}
                         </Grid>
                     )}
                     {type === "application_password" && (
@@ -1602,6 +1604,7 @@ const DialogNewEntry = (props) => {
                                     ),
                                 }}
                             />
+                            {!!callbackPass && (<LinearProgress variant="determinate" value={cryptoLibrary.calculatePasswordStrengthInPercent(callbackPass)} />)}
                         </Grid>
                     )}
                 </Grid>

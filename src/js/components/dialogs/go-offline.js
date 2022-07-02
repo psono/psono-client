@@ -24,6 +24,7 @@ import offlineCacheService from "../../services/offline-cache";
 import datastoreService from "../../services/datastore";
 import exportService from "../../services/export";
 import datastorePasswordService from "../../services/datastore-password";
+import cryptoLibrary from "../../services/crypto-library";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -211,6 +212,7 @@ const DialogGoOffline = (props) => {
                                     ),
                                 }}
                             />
+                            {!!passphrase && (<LinearProgress variant="determinate" value={cryptoLibrary.calculatePasswordStrengthInPercent(passphrase)} />)}
                         </Grid>
                         {Boolean(passphrase) && (
                             <Grid item xs={12} sm={12} md={12}>

@@ -603,6 +603,111 @@ function decryptSecretKey(text, nonce) {
     return decryptData(text, nonce, store.getState().user.userSecretKey);
 }
 
+
+/**
+ * Calculates the password strength in bits
+ *
+ * @param {string} password The password to test
+ *
+ * @returns {int} The strength of the provided password in bits
+ */
+function calculatePasswordStrengthInBits(password) {
+    var specials = '-_#+*!§$%&=?@,.;:\'~"/(){}[]\\';
+    var numbers = '0123456789';
+    var uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    var lowercaseChars = 'abcdefghijklmnopqrstuvwxyz';
+
+    function hasNumber(myString) {
+        return /\d/.test(myString);
+    }
+
+    function hasUppercase(myString) {
+        return /[A-Z]/.test(myString);
+    }
+
+    function hasLowercase(myString) {
+        return /[a-z]/.test(myString);
+    }
+
+    function hasSpecial(myString) {
+        return /[ !@#$%^&*§()_+\-=[\]{};':"\\|,.<>/?]/.test(myString);
+    }
+
+    const calculateShannonEntropy = (password) => {
+        // Source: https://gist.github.com/jabney/5018b4adc9b2bf488696
+        const len = password.length;
+
+        const frequencies = Array.from(password).reduce(
+            (freq, c) => (freq[c] = (freq[c] || 0) + 1) && freq,
+            {}
+        );
+
+        return Object.values(frequencies).reduce(
+            (sum, frequency) => sum - (frequency / len) * Math.log2(frequency / len),
+            0
+        );
+    };
+
+    if (!password) {
+        return 0;
+    }
+
+    const passwordLength = password.length;
+    const containsNumbers = hasNumber(password);
+    const containsUppercase = hasUppercase(password);
+    const containsLowercase = hasLowercase(password);
+    const containsSpecial = hasSpecial(password);
+
+    let characters = '';
+    if (containsNumbers) {
+        characters = characters + numbers;
+    }
+    if (containsUppercase) {
+        characters = characters + uppercaseChars;
+    }
+    if (containsLowercase) {
+        characters = characters + lowercaseChars;
+    }
+    if (containsSpecial) {
+        characters = characters + specials;
+    }
+    const entropy = calculateShannonEntropy(characters);
+
+    return entropy * passwordLength
+}
+
+
+/**
+ * Calculates the password strength in percent.
+ * 128+ bits very strong (=100%)
+ * 75+ bits strong
+ * 56+ bits medium
+ * 37 and below weak (=0%)
+ *
+ * @param {string} password The password to test
+ *
+ * @returns {int} The strength of the provided password in percent from 0 to 100
+ */
+function calculatePasswordStrengthInPercent(password) {
+    const minimum = 37; // 0%
+    const maximum = 128; // 100%
+    const bits = calculatePasswordStrengthInBits(password);
+
+    if (bits <= minimum) {
+        return 0;
+    }
+    if (bits >= maximum) {
+        return 100;
+    }
+
+    // exponential scale...
+    // return Math.pow(2, bits-maximum) * 100
+
+    // linear scale....
+    return (bits - minimum) / (maximum - minimum) * 100
+
+}
+
 const cryptoLibraryService = {
     random: random,
     randomBytes: randomBytes,
@@ -634,6 +739,7 @@ const cryptoLibraryService = {
     decryptPrivateKey: decryptPrivateKey,
     encryptSecretKey: encryptSecretKey,
     decryptSecretKey: decryptSecretKey,
+    calculatePasswordStrengthInPercent: calculatePasswordStrengthInPercent,
 };
 
 export default cryptoLibraryService;
