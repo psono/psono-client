@@ -252,6 +252,26 @@ const GroupsView = (props) => {
                         </>
                     );
                 },
+                sortCompare: (order) => {
+                    return (obj1, obj2) => {
+                        let val1 = ''
+                        if (obj1.rowData[3] !== false && obj1.rowData[3] !== true) {
+                            val1 = t("ACCEPT")
+                        }
+                        if (obj1.rowData[3] === true && outstandingShareIndex[obj1.rowData[0]]) {
+                            val1 = t("ACCEPT_NEW_SHARES")
+                        }
+                        let val2 = ''
+                        if (obj2.rowData[3] !== false && obj2.rowData[3] !== true) {
+                            val2 = t("ACCEPT")
+                        }
+                        if (obj2.rowData[3] === true && outstandingShareIndex[obj2.rowData[0]]) {
+                            val2 = t("ACCEPT_NEW_SHARES")
+                        }
+
+                        return val1.localeCompare(val2) * (order === 'asc' ? 1 : -1);
+                    };
+                }
             },
         },
         {
@@ -275,6 +295,22 @@ const GroupsView = (props) => {
                         )
                     );
                 },
+                sortCompare: (order) => {
+                    return (obj1, obj2) => {
+                        let val1 = ''
+                        if (obj1.rowData[3] !== false &&
+                            obj1.rowData[3] !== true) {
+                            val1 = t("DECLINE")
+                        }
+                        let val2 = ''
+                        if (obj2.rowData[3] !== false &&
+                            obj2.rowData[3] !== true) {
+                            val2 = t("DECLINE")
+                        }
+
+                        return val1.localeCompare(val2) * (order === 'asc' ? 1 : -1);
+                    };
+                }
             },
         },
         {
