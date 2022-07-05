@@ -7,6 +7,7 @@ import ThumbUpIcon from "@material-ui/icons/ThumbUp";
 import MuiAlert from "@material-ui/lab/Alert";
 import { useTranslation } from "react-i18next";
 import Button from "@material-ui/core/Button";
+import LinearProgress from "@material-ui/core/LinearProgress";
 import browserClient from "../../services/browser-client";
 import helperService from "../../services/helper";
 import host from "../../services/host";
@@ -15,6 +16,7 @@ import action from "../../actions/bound-action-creators";
 import userService from "../../services/user";
 import store from "../../services/store";
 import FooterLinks from "../../components/footer-links";
+import cryptoLibrary from "../../services/crypto-library";
 
 const styles = (theme) => ({
     textField: {
@@ -38,6 +40,11 @@ const styles = (theme) => ({
             "& fieldset": {
                 borderColor: "#666",
             },
+        },
+    },
+    passwordComplexityWrapper: {
+        "& .MuiLinearProgress-colorPrimary": {
+            backgroundColor: "#151f2b",
         },
     },
     disabledButton: {
@@ -254,6 +261,7 @@ const RegisterForm = (props) => {
                                     setPassword(event.target.value);
                                 }}
                             />
+                            <div className={classes.passwordComplexityWrapper}><LinearProgress variant="determinate" value={cryptoLibrary.calculatePasswordStrengthInPercent(password)} classes={{colorPrimary: classes.colorPrimary, barColorPrimary: classes.barColorPrimary}} /></div>
                         </Grid>
                         <Grid item xs={12} sm={12} md={12}>
                             <TextField
@@ -291,7 +299,9 @@ const RegisterForm = (props) => {
                             >
                                 {t("REGISTER")}
                             </Button>
-                            <Button href={"index.html"}>
+                            <Button
+                                href={"index.html"}
+                            >
                                 <span style={{ color: "#b1b6c1" }}>{t("ABORT")}</span>
                             </Button>
                         </Grid>

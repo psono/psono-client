@@ -101,17 +101,18 @@ const SecurityReportView = (props) => {
     const [reportComplete, setReportComplete] = useState(false);
     const [checkHaveibeenpwned, setCheckHaveibeenpwned] = useState(false);
     const [analysis, setAnalysis] = useState({});
-
-    const [openSecretRequests, setOpenSecretRequests] = React.useState(0);
-    const [closedSecretRequests, setClosedSecretRequests] = React.useState(0);
-
-    const [openHaveibeenpwnedRequests, setOpenHaveibeenpwnedRequests] = React.useState(0);
-    const [closedHaveibeenpwnedRequests, setClosedHaveibeenpwnedRequests] = React.useState(0);
+    const [percentageComplete, setPercentageComplete] = React.useState(0);
+    const [haveibeenpwnedPercentageComplete, setHaveibeenpwnedPercentageComplete] = React.useState(0);
 
     const [sendToServer, setSendToServer] = useState(
         store.getState().server.complianceEnforceCentralSecurityReports &&
             !store.getState().server.disableCentralSecurityReports
     );
+
+    let openSecretRequests = 0;
+    let closedSecretRequests = 0;
+    let openHaveibeenpwnedRequests = 0;
+    let closedHaveibeenpwnedRequests = 0;
 
     let isSubscribed = true;
 
@@ -129,23 +130,32 @@ const SecurityReportView = (props) => {
             if (!isSubscribed) {
                 return;
             }
-            setOpenSecretRequests(openSecretRequests + 1);
+            openSecretRequests = openSecretRequests + 1;
+            setPercentageComplete(openSecretRequests
+                ? Math.round((closedSecretRequests / openSecretRequests) * 1000) / 10
+                : 0)
         });
 
         securityReportService.on("get-secret-complete", function () {
             if (!isSubscribed) {
                 return;
             }
-            setClosedSecretRequests(closedSecretRequests + 1);
+            closedSecretRequests = closedSecretRequests + 1;
+            setPercentageComplete(openSecretRequests
+                ? Math.round((closedSecretRequests / openSecretRequests) * 1000) / 10
+                : 0)
         });
 
         securityReportService.on("generation-complete", function () {
             if (!isSubscribed) {
                 return;
             }
-            setOpenSecretRequests(0);
-            setClosedSecretRequests(0);
+            openSecretRequests = 0;
+            closedSecretRequests = 0;
             setProcessing(false);
+            setPercentageComplete(openSecretRequests
+                ? Math.round((closedSecretRequests / openSecretRequests) * 1000) / 10
+                : 0)
         });
 
         securityReportService.on("check-haveibeenpwned-started", function () {
@@ -159,23 +169,32 @@ const SecurityReportView = (props) => {
             if (!isSubscribed) {
                 return;
             }
-            setOpenHaveibeenpwnedRequests(openHaveibeenpwnedRequests + 1);
+            openHaveibeenpwnedRequests = openHaveibeenpwnedRequests + 1
+            setHaveibeenpwnedPercentageComplete(openHaveibeenpwnedRequests
+                ? Math.round((closedHaveibeenpwnedRequests / openHaveibeenpwnedRequests) * 1000) / 10
+                : 0)
         });
 
         securityReportService.on("get-haveibeenpwned-complete", function () {
             if (!isSubscribed) {
                 return;
             }
-            setClosedHaveibeenpwnedRequests(closedHaveibeenpwnedRequests + 1);
+            closedHaveibeenpwnedRequests = closedHaveibeenpwnedRequests + 1
+            setHaveibeenpwnedPercentageComplete(openHaveibeenpwnedRequests
+                ? Math.round((closedHaveibeenpwnedRequests / openHaveibeenpwnedRequests) * 1000) / 10
+                : 0)
         });
 
         securityReportService.on("check-haveibeenpwned-complete", function () {
             if (!isSubscribed) {
                 return;
             }
-            setOpenHaveibeenpwnedRequests(0);
-            setClosedHaveibeenpwnedRequests(0);
+            openHaveibeenpwnedRequests = 0
+            closedHaveibeenpwnedRequests = 0
             setHaveibeenpwnedProcessing(false);
+            setHaveibeenpwnedPercentageComplete(openHaveibeenpwnedRequests
+                ? Math.round((closedHaveibeenpwnedRequests / openHaveibeenpwnedRequests) * 1000) / 10
+                : 0)
         });
 
         return () => (isSubscribed = false);
@@ -188,10 +207,10 @@ const SecurityReportView = (props) => {
         setReportComplete(false);
         setProcessing(false);
         setHaveibeenpwnedProcessing(false);
-        setOpenHaveibeenpwnedRequests(0);
-        setClosedHaveibeenpwnedRequests(0);
-        setOpenSecretRequests(0);
-        setClosedSecretRequests(0);
+        openHaveibeenpwnedRequests = 0
+        closedHaveibeenpwnedRequests = 0
+        openSecretRequests = 0;
+        closedSecretRequests = 0;
         setErrors([]);
         setMsgs([]);
     }
@@ -382,12 +401,6 @@ const SecurityReportView = (props) => {
     const options = {
         filterType: "checkbox",
     };
-
-    const percentageComplete = openSecretRequests
-        ? Math.round((closedSecretRequests / openSecretRequests) * 1000) / 10
-        : 0;
-    const haveibeenpwnedPercentageComplete =
-        Math.round((closedHaveibeenpwnedRequests / openHaveibeenpwnedRequests) * 1000) / 10;
 
     return (
         <Base {...props}>

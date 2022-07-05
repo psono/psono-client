@@ -207,6 +207,7 @@ const CreateFileRepositoriesDialog = (props) => {
                                 required
                                 id="gcpCloudStorageJsonKey"
                                 multiline
+                                maxRows={10}
                                 label={t("JSON_KEY")}
                                 name="gcpCloudStorageJsonKey"
                                 autoComplete="gcpCloudStorageJsonKey"

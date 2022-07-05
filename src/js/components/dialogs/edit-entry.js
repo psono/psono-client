@@ -26,6 +26,7 @@ import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 import PhonelinkSetupIcon from "@material-ui/icons/PhonelinkSetup";
 import DeleteIcon from "@material-ui/icons/Delete";
 import PlaylistAddIcon from "@material-ui/icons/PlaylistAdd";
+import LinearProgress from "@material-ui/core/LinearProgress";
 
 import itemBlueprintService from "../../services/item-blueprint";
 import secretService from "../../services/secret";
@@ -39,6 +40,7 @@ import DialogDecryptGpgMessage from "./decrypt-gpg-message";
 import DialogEncryptGpgMessage from "./encrypt-gpg-message";
 import DialogHistory from "./history";
 import notification from "../../services/notification";
+import cryptoLibrary from "../../services/crypto-library";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -586,7 +588,7 @@ const DialogEditEntry = (props) => {
                 <DialogHistory open={historyDialogOpen} onClose={() => setHistoryDialogOpen(false)} item={item} />
             )}
         </React.Fragment>
-    );
+    )
 
     const content = (
         <Grid container>
@@ -676,7 +678,11 @@ const DialogEditEntry = (props) => {
                             },
                             endAdornment: (
                                 <InputAdornment position="end">
-                                    <IconButton className={classes.iconButton} aria-label="menu" onClick={openMenu}>
+                                    <IconButton
+                                        className={classes.iconButton}
+                                        aria-label="menu"
+                                        onClick={openMenu}
+                                    >
                                         <MenuOpenIcon />
                                     </IconButton>
                                     <Menu
@@ -705,7 +711,10 @@ const DialogEditEntry = (props) => {
                                         {showGeneratePassword && (
                                             <MenuItem onClick={onGeneratePassword}>
                                                 <ListItemIcon className={classes.listItemIcon}>
-                                                    <PhonelinkSetupIcon className={classes.icon} fontSize="small" />
+                                                    <PhonelinkSetupIcon
+                                                        className={classes.icon}
+                                                        fontSize="small"
+                                                    />
                                                 </ListItemIcon>
                                                 <Typography variant="body2" noWrap>
                                                     {t("GENERATE_PASSWORD")}
@@ -717,6 +726,7 @@ const DialogEditEntry = (props) => {
                             ),
                         }}
                     />
+                    {!!websitePasswordPassword && (<LinearProgress variant="determinate" value={cryptoLibrary.calculatePasswordStrengthInPercent(websitePasswordPassword)} />)}
                 </Grid>
             )}
             {item.type === "website_password" && (
@@ -799,7 +809,11 @@ const DialogEditEntry = (props) => {
                             },
                             endAdornment: (
                                 <InputAdornment position="end">
-                                    <IconButton className={classes.iconButton} aria-label="menu" onClick={openMenu}>
+                                    <IconButton
+                                        className={classes.iconButton}
+                                        aria-label="menu"
+                                        onClick={openMenu}
+                                    >
                                         <MenuOpenIcon />
                                     </IconButton>
                                     <Menu
@@ -828,7 +842,10 @@ const DialogEditEntry = (props) => {
                                         {showGeneratePassword && (
                                             <MenuItem onClick={onGeneratePassword}>
                                                 <ListItemIcon className={classes.listItemIcon}>
-                                                    <PhonelinkSetupIcon className={classes.icon} fontSize="small" />
+                                                    <PhonelinkSetupIcon
+                                                        className={classes.icon}
+                                                        fontSize="small"
+                                                    />
                                                 </ListItemIcon>
                                                 <Typography variant="body2" noWrap>
                                                     {t("GENERATE_PASSWORD")}
@@ -840,6 +857,7 @@ const DialogEditEntry = (props) => {
                             ),
                         }}
                     />
+                    {!!applicationPasswordPassword && (<LinearProgress variant="determinate" value={cryptoLibrary.calculatePasswordStrengthInPercent(applicationPasswordPassword)} />)}
                 </Grid>
             )}
             {item.type === "application_password" && (
@@ -1396,6 +1414,7 @@ const DialogEditEntry = (props) => {
                             ),
                         }}
                     />
+                    {!!callbackPass && (<LinearProgress variant="determinate" value={cryptoLibrary.calculatePasswordStrengthInPercent(callbackPass)} />)}
                 </Grid>
             )}
 
@@ -1405,7 +1424,7 @@ const DialogEditEntry = (props) => {
                 </Grid>
             )}
         </Grid>
-    );
+    )
 
     if (inline) {
         return (
@@ -1413,10 +1432,14 @@ const DialogEditEntry = (props) => {
                 <AppBar elevation={0} position="static" color="default">
                     <Toolbar className={classes.toolbarRoot}>{title}</Toolbar>
                 </AppBar>
-                <div className={classes.root}>{content}</div>
-                <DialogActions>{actions}</DialogActions>
+                <div className={classes.root}>
+                    {content}
+                </div>
+                <DialogActions>
+                    {actions}
+                </DialogActions>
             </Paper>
-        );
+        )
     } else {
         return (
             <Dialog
@@ -1429,11 +1452,17 @@ const DialogEditEntry = (props) => {
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
             >
-                <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
-                <DialogContent>{content}</DialogContent>
-                <DialogActions>{actions}</DialogActions>
+                <DialogTitle id="alert-dialog-title">
+                    {title}
+                </DialogTitle>
+                <DialogContent>
+                    {content}
+                </DialogContent>
+                <DialogActions>
+                    {actions}
+                </DialogActions>
             </Dialog>
-        );
+        )
     }
 };
 
