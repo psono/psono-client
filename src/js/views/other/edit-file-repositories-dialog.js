@@ -9,19 +9,21 @@ import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
 import { Checkbox, Grid } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
+import CheckIcon from "@material-ui/icons/Check";
+import IconButton from "@material-ui/core/IconButton";
+import BlockIcon from "@material-ui/icons/Block";
+import DeleteIcon from "@material-ui/icons/Delete";
+import { Check } from "@material-ui/icons";
 
 import GridContainerErrors from "../../components/grid-container-errors";
-import { Check } from "@material-ui/icons";
 import fileRepository from "../../services/file-repository";
 import SelectFieldFileRepositoryType from "../../components/select-field/file-repository-type";
 import helperService from "../../services/helper";
 import TextFieldAWSRegion from "../../components/text-field/aws-region";
 import TextFieldDoRegion from "../../components/text-field/do-region";
 import Table from "../../components/table";
-import CheckIcon from "@material-ui/icons/Check";
-import IconButton from "@material-ui/core/IconButton";
-import BlockIcon from "@material-ui/icons/Block";
-import DeleteIcon from "@material-ui/icons/Delete";
+import DialogSelectUser from "../../components/dialogs/select-user";
+import fileRepositoryService from "../../services/file-repository";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -76,6 +78,7 @@ const EditFileRepositoryDialog = (props) => {
     const [doSecret, setDoSecret] = useState("");
     const [errors, setErrors] = useState([]);
     const [fileRepositoryRights, setFileRepositoryRights] = useState([]);
+    const [selectUserDialogOpen, setSelectUserDialogOpen] = useState(false);
 
     React.useEffect(() => {
         return loadFileRepository();
@@ -254,7 +257,19 @@ const EditFileRepositoryDialog = (props) => {
     };
 
     const onCreateFileRepositoryRight = () => {
-        // TODO create
+        setSelectUserDialogOpen(true)
+    };
+
+    const onSelectUserDialogClose = async (selectedUserIds) => {
+        setSelectUserDialogOpen(false);
+        if (selectedUserIds.length === 0) {
+            return
+        }
+
+        for (let i = 0; i < selectedUserIds.length; i++) {
+            await fileRepositoryService.createFileRepositoryRight(fileRepositoryId, selectedUserIds[i], false, false, false)
+        }
+        await loadFileRepository()
     };
 
     const columns = [
@@ -277,7 +292,7 @@ const EditFileRepositoryDialog = (props) => {
                                     tableMeta.rowData[4]
                                 );
                             }}
-                            disabled={!tableMeta.rowData[4] || tableMeta.rowData[6]}
+                            disabled={tableMeta.rowData[6]}
                         >
                             {tableMeta.rowData[2] ? <CheckIcon /> : <BlockIcon />}
                         </IconButton>
@@ -302,7 +317,7 @@ const EditFileRepositoryDialog = (props) => {
                                     tableMeta.rowData[4]
                                 );
                             }}
-                            disabled={!tableMeta.rowData[4] || tableMeta.rowData[6]}
+                            disabled={tableMeta.rowData[6]}
                         >
                             {tableMeta.rowData[3] ? <CheckIcon /> : <BlockIcon />}
                         </IconButton>
@@ -327,7 +342,7 @@ const EditFileRepositoryDialog = (props) => {
                                     tableMeta.rowData[4]
                                 );
                             }}
-                            disabled={!tableMeta.rowData[4] || tableMeta.rowData[6]}
+                            disabled={tableMeta.rowData[6]}
                         >
                             {tableMeta.rowData[4] ? <CheckIcon /> : <BlockIcon />}
                         </IconButton>
@@ -440,6 +455,7 @@ const EditFileRepositoryDialog = (props) => {
                                 required
                                 id="gcpCloudStorageJsonKey"
                                 multiline
+                                maxRows={10}
                                 label={t("JSON_KEY")}
                                 name="gcpCloudStorageJsonKey"
                                 autoComplete="gcpCloudStorageJsonKey"
@@ -866,6 +882,12 @@ const EditFileRepositoryDialog = (props) => {
                     {t("EDIT")}
                 </Button>
             </DialogActions>
+            {selectUserDialogOpen && (
+                <DialogSelectUser
+                    open={selectUserDialogOpen}
+                    onClose={onSelectUserDialogClose}
+                />
+            )}
         </Dialog>
     );
 };
