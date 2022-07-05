@@ -45,8 +45,8 @@ const AccountChangePasswordView = (props) => {
         <>
             <Grid container>
                 <Grid item xs={12} sm={12} md={12}>
-                    <h2>{t("CHANGE_E_MAIL")}</h2>
-                    <p>{t("CHANGE_E_MAIL_DESCRIPTION")}</p>
+                    <h2>{t("CHANGE_PASSWORD")}</h2>
+                    <p>{t("CHANGE_PASSWORD_DESCRIPTION")}</p>
                     <Divider style={{ marginBottom: "20px" }} />
                 </Grid>
             </Grid>
