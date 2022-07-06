@@ -100,10 +100,7 @@ const LoginViewForm = (props) => {
     React.useEffect(() => {
         if (props.samlTokenId) {
             user.samlLogin(props.samlTokenId).then(
-                (requiredMultifactors) => {
-                    setMultifactors(requiredMultifactors);
-                    requirementCheckMfa(requiredMultifactors);
-                },
+                handleLogin,
                 (errors) => {
                     setErrors(errors);
                 }
@@ -111,10 +108,7 @@ const LoginViewForm = (props) => {
         }
         if (props.oidcTokenId) {
             user.oidcLogin(props.oidcTokenId).then(
-                (requiredMultifactors) => {
-                    setMultifactors(requiredMultifactors);
-                    requirementCheckMfa(requiredMultifactors);
-                },
+                handleLogin,
                 (errors) => {
                     setErrors(errors);
                 }
@@ -122,6 +116,12 @@ const LoginViewForm = (props) => {
         }
         browserClient.getConfig().then(onNewConfigLoaded);
     }, []);
+
+    const handleLogin = (requiredMultifactors) => {
+        action.setHasTwoFactor(requiredMultifactors.length > 0);
+        setMultifactors(requiredMultifactors);
+        requirementCheckMfa(requiredMultifactors);
+    }
 
     const hasLdapAuth = (serverCheck) => {
         return (
@@ -249,10 +249,7 @@ const LoginViewForm = (props) => {
             setPassword("");
 
             user.login(userPassword, serverCheck).then(
-                (requiredMultifactors) => {
-                    setMultifactors(requiredMultifactors);
-                    requirementCheckMfa(requiredMultifactors);
-                },
+                handleLogin,
                 (result) => {
                     setLoginLoading(false);
                     if (result.hasOwnProperty("non_field_errors")) {
@@ -337,10 +334,7 @@ const LoginViewForm = (props) => {
         setPassword("");
 
         return user.login(userPassword, serverCheck, sendPlain).then(
-            (requiredMultifactors) => {
-                setMultifactors(requiredMultifactors);
-                requirementCheckMfa(requiredMultifactors);
-            },
+            handleLogin,
             (result) => {
                 setLoginLoading(false);
                 if (result.hasOwnProperty("non_field_errors")) {
@@ -460,10 +454,7 @@ const LoginViewForm = (props) => {
                                 // comes only here in extensions
                                 if (oidcTokenid) {
                                     user.oidcLogin(oidcTokenid).then(
-                                        (requiredMultifactors) => {
-                                            setMultifactors(requiredMultifactors);
-                                            requirementCheckMfa(requiredMultifactors);
-                                        },
+                                        handleLogin,
                                         (errors) => {
                                             setErrors(errors);
                                         }
@@ -509,10 +500,7 @@ const LoginViewForm = (props) => {
                                 // comes only here in extensions
                                 if (samlTokenid) {
                                     user.samlLogin(samlTokenid).then(
-                                        (requiredMultifactors) => {
-                                            setMultifactors(requiredMultifactors);
-                                            requirementCheckMfa(requiredMultifactors);
-                                        },
+                                        handleLogin,
                                         (errors) => {
                                             setErrors(errors);
                                         }
