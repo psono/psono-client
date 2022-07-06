@@ -209,10 +209,6 @@ const LoginViewForm = (props) => {
         }
     };
 
-    const approveNewServer = () => {
-        return approveHost();
-    };
-
     const disapproveNewServer = () => {
         setView("default");
         setLoginLoading(false);
@@ -244,6 +240,28 @@ const LoginViewForm = (props) => {
                 onSuccess,
                 onError
             );
+        } else if (hasLdapAuth(serverCheck)) {
+            if (store.getState().persistent.autoApproveLdap.hasOwnProperty(serverCheck.server_url)) {
+                const userPassword = password;
+                setPassword("");
+
+                user.login(userPassword, serverCheck, true).then(
+                    handleLogin,
+                    (result) => {
+                        setLoginLoading(false);
+                        if (result.hasOwnProperty("non_field_errors")) {
+                            const errors = result.non_field_errors;
+                            setErrors(errors);
+                        } else {
+                            console.log(result);
+                            setErrors([result]);
+                        }
+                    }
+                );
+            } else {
+                setView("ask_send_plain");
+                setLoginLoading(false);
+            }
         } else {
             const userPassword = password;
             setPassword("");
@@ -253,7 +271,7 @@ const LoginViewForm = (props) => {
                 (result) => {
                     setLoginLoading(false);
                     if (result.hasOwnProperty("non_field_errors")) {
-                        let errors = result.non_field_errors;
+                        const errors = result.non_field_errors;
                         setErrors(errors);
                     } else {
                         console.log(result);
@@ -330,7 +348,7 @@ const LoginViewForm = (props) => {
     };
 
     const nextLoginStep = (sendPlain, serverCheck) => {
-        let userPassword = password;
+        const userPassword = password;
         setPassword("");
 
         return user.login(userPassword, serverCheck, sendPlain).then(
@@ -923,7 +941,7 @@ const LoginViewForm = (props) => {
                         >
                             {t("CANCEL")}
                         </Button>
-                        <Button variant="contained" onClick={approveNewServer}>
+                        <Button variant="contained" onClick={approveHost}>
                             {t("IGNORE_AND_CONTINUE")}
                         </Button>
                     </Grid>
