@@ -53,7 +53,6 @@ const SettingsGpgView = (props) => {
         }
         action.setGpgConfig(newGpgDefaultKey, gpgHkpKeyServer, gpgHkpSearch);
     };
-
     return (
         <Grid container>
             <Grid item xs={12} sm={12} md={12}>
