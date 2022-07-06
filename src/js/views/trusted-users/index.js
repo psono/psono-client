@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useReducer } from "react";
 import { useTranslation } from "react-i18next";
 import { alpha, makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
@@ -100,6 +100,10 @@ const TrustedUsersView = (props) => {
     const { t } = useTranslation();
     const [search, setSearch] = useState("");
     const [anchorEl, setAnchorEl] = useState(null);
+    const [contextMenuPosition, setContextMenuPosition] = useState({
+        mouseX: null,
+        mouseY: null,
+    });
 
     const [newFolderOpen, setNewFolderOpen] = useState(false);
     const [newFolderData, setNewFolderData] = useState({});
@@ -112,6 +116,7 @@ const TrustedUsersView = (props) => {
 
     const [editEntryOpen, setEditEntryOpen] = useState(false);
     const [editEntryData, setEditEntryData] = useState({});
+    const [ignored, forceUpdate] = useReducer((x) => x + 1, 0);
 
     const [datastore, setDatastore] = useState(null);
 
@@ -155,6 +160,8 @@ const TrustedUsersView = (props) => {
         widget.openNewFolder(newFolderData["parent"], newFolderData["path"], datastore, datastorePassword, name);
     };
     const onNewFolder = (parent, path) => {
+        onContextMenuClose();
+        setAnchorEl(null);
         // called whenever someone clicks on a new folder Icon
         setNewFolderData({
             parent: parent,
@@ -182,6 +189,8 @@ const TrustedUsersView = (props) => {
         datastoreUserService.addUserToDatastore(datastore, userObject, parent);
     };
     const onNewUser = (parent, path) => {
+        onContextMenuClose();
+        setAnchorEl(null);
         // called whenever someone clicks on a new folder Icon
         setNewUserData({
             parent: parent,
@@ -212,6 +221,31 @@ const TrustedUsersView = (props) => {
             path: path,
         });
         setEditEntryOpen(true);
+    };
+
+    const onDeleteEntry = (item, path) => {
+        widget.deleteItem(datastore, item, path, "user");
+        forceUpdate();
+    };
+
+    const onDeleteFolder = (item, path) => {
+        widget.deleteItem(datastore, item, path, "user");
+        forceUpdate();
+    };
+    const onContextMenu = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setContextMenuPosition({
+            mouseX: event.clientX - 2,
+            mouseY: event.clientY - 4,
+        });
+    };
+
+    const onContextMenuClose = () => {
+        setContextMenuPosition({
+            mouseX: null,
+            mouseY: null,
+        });
     };
 
     return (
@@ -274,7 +308,7 @@ const TrustedUsersView = (props) => {
                             </div>
                         </Toolbar>
                     </AppBar>
-                    <div className={classes.root}>
+                    <div className={classes.root} onContextMenu={onContextMenu}>
                         {!datastore && (
                             <div className={classes.loader}>
                                 <ClipLoader />
@@ -288,39 +322,69 @@ const TrustedUsersView = (props) => {
                                 onNewUser={onNewUser}
                                 onEditEntry={onEditEntry}
                                 onEditFolder={onEditFolder}
-                            />
-                        )}
-                        {newFolderOpen && (
-                            <DialogNewFolder
-                                open={newFolderOpen}
-                                onClose={() => setNewFolderOpen(false)}
-                                onCreate={onNewFolderCreate}
-                            />
-                        )}
-                        {newUserOpen && (
-                            <DialogNewUser
-                                open={newUserOpen}
-                                onClose={() => setNewUserOpen(false)}
-                                onCreate={onNewUserCreate}
-                            />
-                        )}
-                        {editFolderOpen && (
-                            <DialogEditFolder
-                                open={editFolderOpen}
-                                onClose={() => setEditFolderOpen(false)}
-                                onSave={onEditFolderSave}
-                                node={editFolderData.node}
-                            />
-                        )}
-                        {editEntryOpen && (
-                            <DialogEditUser
-                                open={editEntryOpen}
-                                onClose={() => setEditEntryOpen(false)}
-                                onSave={onEditEntrySave}
-                                item={editEntryData.item}
+                                onDeleteEntry={onDeleteEntry}
+                                onDeleteFolder={onDeleteFolder}
                             />
                         )}
                     </div>
+                    <Menu
+                        keepMounted
+                        open={contextMenuPosition.mouseY !== null}
+                        onClose={onContextMenuClose}
+                        anchorReference="anchorPosition"
+                        anchorPosition={
+                            contextMenuPosition.mouseY !== null && contextMenuPosition.mouseX !== null
+                                ? { top: contextMenuPosition.mouseY, left: contextMenuPosition.mouseX }
+                                : undefined
+                        }
+                    >
+                        <MenuItem onClick={onCreateFolder}>
+                            <ListItemIcon className={classes.listItemIcon}>
+                                <CreateNewFolderIcon className={classes.icon} fontSize="small" />
+                            </ListItemIcon>
+                            <Typography variant="body2" noWrap>
+                                {t("NEW_FOLDER")}
+                            </Typography>
+                        </MenuItem>
+                        <MenuItem onClick={onCreateUser}>
+                            <ListItemIcon className={classes.listItemIcon}>
+                                <PersonAddIcon className={classes.icon} fontSize="small" />
+                            </ListItemIcon>
+                            <Typography variant="body2" noWrap>
+                                {t("NEW_USER")}
+                            </Typography>
+                        </MenuItem>
+                    </Menu>
+                    {newFolderOpen && (
+                        <DialogNewFolder
+                            open={newFolderOpen}
+                            onClose={() => setNewFolderOpen(false)}
+                            onCreate={onNewFolderCreate}
+                        />
+                    )}
+                    {newUserOpen && (
+                        <DialogNewUser
+                            open={newUserOpen}
+                            onClose={() => setNewUserOpen(false)}
+                            onCreate={onNewUserCreate}
+                        />
+                    )}
+                    {editFolderOpen && (
+                        <DialogEditFolder
+                            open={editFolderOpen}
+                            onClose={() => setEditFolderOpen(false)}
+                            onSave={onEditFolderSave}
+                            node={editFolderData.node}
+                        />
+                    )}
+                    {editEntryOpen && (
+                        <DialogEditUser
+                            open={editEntryOpen}
+                            onClose={() => setEditEntryOpen(false)}
+                            onSave={onEditEntrySave}
+                            item={editEntryData.item}
+                        />
+                    )}
                 </Paper>
             </BaseContent>
         </Base>
