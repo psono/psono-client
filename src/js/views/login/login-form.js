@@ -100,10 +100,7 @@ const LoginViewForm = (props) => {
     React.useEffect(() => {
         if (props.samlTokenId) {
             user.samlLogin(props.samlTokenId).then(
-                (requiredMultifactors) => {
-                    setMultifactors(requiredMultifactors);
-                    requirementCheckMfa(requiredMultifactors);
-                },
+                handleLogin,
                 (errors) => {
                     setErrors(errors);
                 }
@@ -111,10 +108,7 @@ const LoginViewForm = (props) => {
         }
         if (props.oidcTokenId) {
             user.oidcLogin(props.oidcTokenId).then(
-                (requiredMultifactors) => {
-                    setMultifactors(requiredMultifactors);
-                    requirementCheckMfa(requiredMultifactors);
-                },
+                handleLogin,
                 (errors) => {
                     setErrors(errors);
                 }
@@ -122,6 +116,12 @@ const LoginViewForm = (props) => {
         }
         browserClient.getConfig().then(onNewConfigLoaded);
     }, []);
+
+    const handleLogin = (requiredMultifactors) => {
+        action.setHasTwoFactor(requiredMultifactors.length > 0);
+        setMultifactors(requiredMultifactors);
+        requirementCheckMfa(requiredMultifactors);
+    }
 
     const hasLdapAuth = (serverCheck) => {
         return (
@@ -209,10 +209,6 @@ const LoginViewForm = (props) => {
         }
     };
 
-    const approveNewServer = () => {
-        return approveHost();
-    };
-
     const disapproveNewServer = () => {
         setView("default");
         setLoginLoading(false);
@@ -244,19 +240,38 @@ const LoginViewForm = (props) => {
                 onSuccess,
                 onError
             );
+        } else if (hasLdapAuth(serverCheck)) {
+            if (store.getState().persistent.autoApproveLdap.hasOwnProperty(serverCheck.server_url)) {
+                const userPassword = password;
+                setPassword("");
+
+                user.login(userPassword, serverCheck, true).then(
+                    handleLogin,
+                    (result) => {
+                        setLoginLoading(false);
+                        if (result.hasOwnProperty("non_field_errors")) {
+                            const errors = result.non_field_errors;
+                            setErrors(errors);
+                        } else {
+                            console.log(result);
+                            setErrors([result]);
+                        }
+                    }
+                );
+            } else {
+                setView("ask_send_plain");
+                setLoginLoading(false);
+            }
         } else {
             const userPassword = password;
             setPassword("");
 
             user.login(userPassword, serverCheck).then(
-                (requiredMultifactors) => {
-                    setMultifactors(requiredMultifactors);
-                    requirementCheckMfa(requiredMultifactors);
-                },
+                handleLogin,
                 (result) => {
                     setLoginLoading(false);
                     if (result.hasOwnProperty("non_field_errors")) {
-                        let errors = result.non_field_errors;
+                        const errors = result.non_field_errors;
                         setErrors(errors);
                     } else {
                         console.log(result);
@@ -333,14 +348,11 @@ const LoginViewForm = (props) => {
     };
 
     const nextLoginStep = (sendPlain, serverCheck) => {
-        let userPassword = password;
+        const userPassword = password;
         setPassword("");
 
         return user.login(userPassword, serverCheck, sendPlain).then(
-            (requiredMultifactors) => {
-                setMultifactors(requiredMultifactors);
-                requirementCheckMfa(requiredMultifactors);
-            },
+            handleLogin,
             (result) => {
                 setLoginLoading(false);
                 if (result.hasOwnProperty("non_field_errors")) {
@@ -460,10 +472,7 @@ const LoginViewForm = (props) => {
                                 // comes only here in extensions
                                 if (oidcTokenid) {
                                     user.oidcLogin(oidcTokenid).then(
-                                        (requiredMultifactors) => {
-                                            setMultifactors(requiredMultifactors);
-                                            requirementCheckMfa(requiredMultifactors);
-                                        },
+                                        handleLogin,
                                         (errors) => {
                                             setErrors(errors);
                                         }
@@ -509,10 +518,7 @@ const LoginViewForm = (props) => {
                                 // comes only here in extensions
                                 if (samlTokenid) {
                                     user.samlLogin(samlTokenid).then(
-                                        (requiredMultifactors) => {
-                                            setMultifactors(requiredMultifactors);
-                                            requirementCheckMfa(requiredMultifactors);
-                                        },
+                                        handleLogin,
                                         (errors) => {
                                             setErrors(errors);
                                         }
@@ -935,7 +941,7 @@ const LoginViewForm = (props) => {
                         >
                             {t("CANCEL")}
                         </Button>
-                        <Button variant="contained" onClick={approveNewServer}>
+                        <Button variant="contained" onClick={approveHost}>
                             {t("IGNORE_AND_CONTINUE")}
                         </Button>
                     </Grid>

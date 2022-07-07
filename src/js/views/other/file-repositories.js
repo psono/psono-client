@@ -9,10 +9,11 @@ import EditIcon from "@material-ui/icons/Edit";
 import Button from "@material-ui/core/Button";
 
 import Table from "../../components/table";
-import fileRepository from "../../services/file-repository";
+import fileRepositoryService from "../../services/file-repository";
 import EditFileRepositoriesDialog from "./edit-file-repositories-dialog";
 import DeleteFileRepositoriesDialog from "./delete-file-repositories-dialog";
 import CreateFileRepositoriesDialog from "./create-file-repositories-dialog";
+import DialogVerify from "../../components/dialogs/verify";
 
 const OtherFileRepositoriesView = (props) => {
     const { t } = useTranslation();
@@ -22,26 +23,15 @@ const OtherFileRepositoriesView = (props) => {
     const [createOpen, setCreateOpen] = React.useState(false);
     const [editOpen, setEditOpen] = React.useState(false);
     const [deleteOpen, setDeleteOpen] = React.useState(false);
+    const [declineFileRepository, setDeclineFileRepository] = React.useState(null);
 
     React.useEffect(() => {
         loadFileRepositories();
     }, []);
 
     const loadFileRepositories = () => {
-        return fileRepository.readFileRepositories().then(
-            function (fileRepositories) {
-                setFileRepositories(
-                    fileRepositories.map((fileRepository, index) => {
-                        return [
-                            fileRepository.id,
-                            fileRepository.title,
-                            fileRepository.type,
-                            fileRepository.active,
-                            fileRepository.accepted,
-                        ];
-                    })
-                );
-            },
+        return fileRepositoryService.readFileRepositories().then(
+            setFileRepositories,
             function (error) {
                 console.log(error);
             }
@@ -77,11 +67,34 @@ const OtherFileRepositoriesView = (props) => {
     };
 
     const accept = (rowData) => {
-        console.log(rowData);
+        const fileRepository = fileRepositories.find((fileRepository) => fileRepository.id === rowData[0]);
+
+        const onSuccess = function(){
+            loadFileRepositories();
+        };
+
+        const onError = function() {
+            //pass
+        };
+
+        fileRepositoryService.accept(fileRepository.file_repository_right_id)
+            .then(onSuccess, onError);
     };
 
-    const decline = (rowData) => {
-        console.log(rowData);
+    const decline = () => {
+        const localDeclineFileRepository = declineFileRepository
+        setDeclineFileRepository(null)
+
+        const onSuccess = function(){
+            loadFileRepositories();
+        };
+
+        const onError = function() {
+            //pass
+        };
+
+        fileRepositoryService.decline(localDeclineFileRepository.file_repository_right_id)
+            .then(onSuccess, onError);
     };
 
     const columns = [
@@ -111,6 +124,7 @@ const OtherFileRepositoriesView = (props) => {
                             onClick={() => {
                                 onEdit(tableMeta.rowData);
                             }}
+                            disabled={!tableMeta.rowData[4]}
                         >
                             <EditIcon />
                         </IconButton>
@@ -130,6 +144,7 @@ const OtherFileRepositoriesView = (props) => {
                             onClick={() => {
                                 onDelete(tableMeta.rowData);
                             }}
+                            disabled={!tableMeta.rowData[4]}
                         >
                             <DeleteIcon />
                         </IconButton>
@@ -149,7 +164,7 @@ const OtherFileRepositoriesView = (props) => {
                             <Button
                                 variant="outlined"
                                 onClick={() => {
-                                    decline(tableMeta.rowData);
+                                    setDeclineFileRepository(fileRepositories.find((fileRepository) => fileRepository.id === tableMeta.rowData[0]));
                                 }}
                             >
                                 {t("DECLINE")}
@@ -176,6 +191,16 @@ const OtherFileRepositoriesView = (props) => {
         filterType: "checkbox",
     };
 
+    const data = fileRepositories.map((fileRepository, index) => {
+            return [
+                fileRepository.id,
+                fileRepository.title,
+                fileRepository.type,
+                fileRepository.active,
+                fileRepository.accepted,
+            ];
+        })
+
     return (
         <>
             <Grid container>
@@ -185,7 +210,7 @@ const OtherFileRepositoriesView = (props) => {
                     <Divider style={{ marginBottom: "20px" }} />
                 </Grid>
                 <Grid item xs={12} sm={12} md={12}>
-                    <Table data={fileRepositories} columns={columns} options={options} onCreate={onCreate} />
+                    <Table data={data} columns={columns} options={options} onCreate={onCreate} />
                 </Grid>
                 {editOpen && (
                     <EditFileRepositoriesDialog
@@ -204,6 +229,17 @@ const OtherFileRepositoriesView = (props) => {
                     />
                 )}
                 {createOpen && <CreateFileRepositoriesDialog {...props} open={createOpen} onClose={closeModal} />}
+                {Boolean(declineFileRepository) && (
+                    <DialogVerify
+                        title={"DELETE_FILE_REPOSITORY_RIGHT"}
+                        description={"DELETE_FILE_REPOSITORY_RIGHT_WARNING"}
+                        open={Boolean(declineFileRepository)}
+                        entries={[declineFileRepository.title]}
+                        affectedEntriesText={"AFFECTED_FILE_REPOSITORIES"}
+                        onClose={() => setDeclineFileRepository(null)}
+                        onConfirm={decline}
+                    />
+                )}
             </Grid>
         </>
     );

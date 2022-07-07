@@ -95,7 +95,7 @@ const SelectFieldGpgKey = (props) => {
                 }
             }}
             getOptionSelected={(option, value) => {
-                if (option) {
+                if (value !== null && option) {
                     return option.id === value.id;
                 } else {
                     return "";
