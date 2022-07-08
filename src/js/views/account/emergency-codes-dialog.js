@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { bindActionCreators } from "redux";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
+import InputAdornment from '@material-ui/core/InputAdornment';
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -14,12 +13,12 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import { Grid } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 
-import actionCreators from "../../actions/action-creators";
 import Table from "../../components/table";
 import emergencyCode from "../../services/emmergency-code";
 import store from "../../services/store";
 import MuiAlert from "@material-ui/lab/Alert";
 import Divider from "@material-ui/core/Divider";
+import ContentCopy from "../../components/icons/ContentCopy";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -30,6 +29,9 @@ const useStyles = makeStyles((theme) => ({
         textAlign: "center",
     },
 }));
+
+const LEAD_TIME_MIN = 0;
+const LEAD_TIME_MAX = Math.floor(2147483647/3600);
 
 const EmergencyCodesDialog = (props) => {
     const { open, onClose } = props;
@@ -183,13 +185,20 @@ const EmergencyCodesDialog = (props) => {
                                 value={leadTime}
                                 InputProps={{
                                     inputProps: {
-                                        min: 0,
+                                        min: LEAD_TIME_MIN,
+                                        max: LEAD_TIME_MAX,
                                         step: 12,
                                     },
+                                    endAdornment: (
+                                        <InputAdornment position="end">{t('hours')}</InputAdornment>
+                                    ),
                                 }}
                                 type="number"
                                 onChange={(event) => {
-                                    setLeadTime(event.target.value);
+                                    let value = event.target.value;
+                                    if (value > LEAD_TIME_MAX) value = LEAD_TIME_MAX;
+                                    if (value < LEAD_TIME_MIN) value = LEAD_TIME_MIN;
+                                    setLeadTime(value);
                                 }}
                             />
                         </Grid>

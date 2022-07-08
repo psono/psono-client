@@ -79,6 +79,7 @@ const CreateGroupDialog = (props) => {
                             label={t("GROUP_NAME")}
                             name="name"
                             autoComplete="name"
+                            required
                             value={name}
                             onChange={(event) => {
                                 const test_result = helperService.isValidGroupName(event.target.value);
