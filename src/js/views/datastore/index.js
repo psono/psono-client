@@ -738,6 +738,10 @@ const DatastoreView = (props) => {
                                             keepMounted
                                             open={Boolean(anchorEl)}
                                             onClose={handleClose}
+                                            onContextMenu={(event) => {
+                                                event.preventDefault();
+                                                event.stopPropagation();
+                                            }}
                                         >
                                             <MenuItem onClick={() => onNewFolder(datastore, [])}>
                                                 <ListItemIcon className={classes.listItemIcon}>
@@ -804,6 +808,10 @@ const DatastoreView = (props) => {
                                         ? { top: contextMenuPosition.mouseY, left: contextMenuPosition.mouseX }
                                         : undefined
                                 }
+                                onContextMenu={(event) => {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                }}
                             >
                                 <MenuItem onClick={() => onNewFolder(datastore, [])}>
                                     <ListItemIcon className={classes.listItemIcon}>

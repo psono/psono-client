@@ -287,6 +287,10 @@ const TrustedUsersView = (props) => {
                                     keepMounted
                                     open={Boolean(anchorEl)}
                                     onClose={handleClose}
+                                    onContextMenu={(event) => {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                    }}
                                 >
                                     <MenuItem onClick={onCreateFolder}>
                                         <ListItemIcon className={classes.listItemIcon}>
@@ -337,6 +341,10 @@ const TrustedUsersView = (props) => {
                                 ? { top: contextMenuPosition.mouseY, left: contextMenuPosition.mouseX }
                                 : undefined
                         }
+                        onContextMenu={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }}
                     >
                         <MenuItem onClick={onCreateFolder}>
                             <ListItemIcon className={classes.listItemIcon}>
