@@ -193,9 +193,8 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
                     mouseOut,
                     mouseMove
                 );
-
-                newForm.password = inputs[i];
             }
+            newForm.password = inputs[i];
 
             var parent = inputs[i].parentElement;
 
