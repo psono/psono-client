@@ -109,6 +109,42 @@ const OtherFileRepositoriesView = (props) => {
             },
         },
         {
+            name: t("READ"),
+            options: {
+                filter: true,
+                sort: false,
+                empty: false,
+                display: false,
+                customBodyRender: (value, tableMeta, updateValue) => {
+                    return <span>{tableMeta.rowData[5] && <CheckIcon />}</span>;
+                },
+            },
+        },
+        {
+            name: t("WRITE"),
+            options: {
+                filter: true,
+                sort: false,
+                empty: false,
+                display: false,
+                customBodyRender: (value, tableMeta, updateValue) => {
+                    return <span>{tableMeta.rowData[5] && <CheckIcon />}</span>;
+                },
+            },
+        },
+        {
+            name: t("GRANT"),
+            options: {
+                filter: true,
+                sort: false,
+                empty: false,
+                display: false,
+                customBodyRender: (value, tableMeta, updateValue) => {
+                    return <span>{tableMeta.rowData[6] && <CheckIcon />}</span>;
+                },
+            },
+        },
+        {
             name: t("EDIT"),
             options: {
                 filter: true,
@@ -183,42 +219,6 @@ const OtherFileRepositoriesView = (props) => {
                 },
             },
         },
-        // {
-        //     name: t("READ"),
-        //     options: {
-        //         filter: true,
-        //         sort: false,
-        //         empty: false,
-        //         display: false
-        //         customBodyRender: (value, tableMeta, updateValue) => {
-        //             return <span>{tableMeta.rowData[5] && <CheckIcon />}</span>;
-        //         },
-        //     },
-        // },
-        // {
-        //     name: t("WRITE"),
-        //     options: {
-        //         filter: true,
-        //         sort: false,
-        //         empty: false,
-        //         display: false
-        //         customBodyRender: (value, tableMeta, updateValue) => {
-        //             return <span>{tableMeta.rowData[5] && <CheckIcon />}</span>;
-        //         },
-        //     },
-        // },
-        // {
-        //     name: t("GRANT"),
-        //     options: {
-        //         filter: true,
-        //         sort: false,
-        //         empty: false,
-        //         display: false
-        //         customBodyRender: (value, tableMeta, updateValue) => {
-        //             return <span>{tableMeta.rowData[6] && <CheckIcon />}</span>;
-        //         },
-        //     },
-        // },
     ];
 
     const options = {
