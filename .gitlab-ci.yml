@@ -12,7 +12,7 @@ test-unittests:
   except:
     - schedules
   stage: test
-  image: psono-docker.jfrog.io/ubuntu:20.04
+  image: psono-docker.jfrog.io/ubuntu:22.04
   script:
     - sh ./var/prep-build.sh
     - npm run test
@@ -27,7 +27,7 @@ test-linter:
   except:
     - schedules
   stage: test
-  image: psono-docker.jfrog.io/ubuntu:20.04
+  image: psono-docker.jfrog.io/ubuntu:22.04
   script:
     - sh ./var/prep-build.sh
     - npm run buildfirefox
@@ -40,7 +40,7 @@ test-vulnerability-scan:
   except:
     - schedules
   stage: test
-  image: psono-docker.jfrog.io/ubuntu:20.04
+  image: psono-docker.jfrog.io/ubuntu:22.04
   script:
     - apt-get update
     - apt-get install -y curl
@@ -66,16 +66,20 @@ build-docker-image:
   except:
     - schedules
   stage: build
-  image: psono-docker.jfrog.io/ubuntu:20.04
+  image: psono-docker.jfrog.io/ubuntu:22.04
   services:
-    - docker:18-dind
+    - name: docker:20-dind
+      alias: docker
+      command: ["--tls=false"]
   variables:
-    DOCKER_HOST: 'tcp://docker:2375'
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""
   script:
     - sh ./var/download_translations_from_artifactory.sh
     - sh ./var/prep-build.sh
     - npm run buildwebclient
-    - curl -fSL "https://download.docker.com/linux/static/stable/x86_64/docker-17.12.1-ce.tgz" -o docker.tgz && echo "1270dce1bd7e1838d62ae21d2505d87f16efc1d9074645571daaefdfd0c14054 *docker.tgz" | sha256sum -c - && tar -xzvf docker.tgz && mv docker/* /usr/local/bin/ && rm -Rf docker*
+    - curl -fSL "https://download.docker.com/linux/static/stable/x86_64/docker-20.10.17.tgz" -o docker.tgz && echo "969210917b5548621a2b541caf00f86cc6963c6cf0fb13265b9731c3b98974d9 *docker.tgz" | sha256sum -c - && tar -xzvf docker.tgz && mv docker/* /usr/local/bin/ && rm -Rf docker && rm docker.tgz
     - docker info
     - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker.jfrog.io
     - docker build -t $CONTAINER_TEST_IMAGE --pull .
@@ -91,7 +95,7 @@ build-firefox-extension:
   except:
     - schedules
   stage: build
-  image: psono-docker.jfrog.io/ubuntu:20.04
+  image: psono-docker.jfrog.io/ubuntu:22.04
   script:
     - sh ./var/download_translations_from_artifactory.sh
     - sh ./var/prep-build.sh
@@ -115,7 +119,7 @@ build-chrome-extension:
   except:
     - schedules
   stage: build
-  image: psono-docker.jfrog.io/ubuntu:20.04
+  image: psono-docker.jfrog.io/ubuntu:22.04
   script:
     - sh ./var/download_translations_from_artifactory.sh
     - sh ./var/prep-build.sh
@@ -139,7 +143,7 @@ build-webclient:
   except:
     - schedules
   stage: build
-  image: psono-docker.jfrog.io/ubuntu:20.04
+  image: psono-docker.jfrog.io/ubuntu:22.04
   script:
     - sh ./var/download_translations_from_artifactory.sh
     - sh ./var/prep-build.sh
@@ -162,7 +166,7 @@ release-artifacts:
   except:
     - schedules
   stage: release
-  image: psono-docker.jfrog.io/ubuntu:20.04
+  image: psono-docker.jfrog.io/ubuntu:22.04
   script:
     - apt-get update
     - apt-get install -y curl
@@ -179,9 +183,15 @@ release-docker:
   except:
     - schedules
   stage: release
-  image: psono-docker.jfrog.io/docker:19.03.8-git
+  image: psono-docker.jfrog.io/docker:20.10.17-git
   services:
-    - docker:18-dind
+    - name: docker:20-dind
+      alias: docker
+      command: ["--tls=false"]
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""
   script:
     - docker info
     - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker.jfrog.io
@@ -191,30 +201,19 @@ release-docker:
   only:
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
-
-#deploy-security-scan-image:
-#  except:
-#    - schedules
-#  stage: deploy
-#  image: psono-docker.jfrog.io/docker:19.03.8-git
-#  services:
-#    - docker:18-dind
-#  script:
-#    - docker info
-#    - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker.jfrog.io
-#    - echo $docker_hub_credentials | docker login --username=psonogitlab --password-stdin
-#    - docker pull $CONTAINER_TEST_IMAGE
-#    - docker tag $CONTAINER_TEST_IMAGE psono/security-scans:psono-client-ce-$CI_COMMIT_REF_NAME
-#    - docker push psono/security-scans:psono-client-ce-$CI_COMMIT_REF_NAME
-
-
 deploy-docker:
   except:
     - schedules
   stage: deploy
-  image: psono-docker.jfrog.io/docker:19.03.8-git
+  image: psono-docker.jfrog.io/docker:20.10.17-git
   services:
-    - docker:18-dind
+    - name: docker:20-dind
+      alias: docker
+      command: ["--tls=false"]
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""
   script:
     - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker.jfrog.io
     - echo $docker_hub_credentials | docker login --username=psonogitlab --password-stdin
@@ -230,9 +229,15 @@ deploy-github:
   except:
     - schedules
   stage: deploy
-  image: psono-docker.jfrog.io/docker:19.03.8-git
+  image: psono-docker.jfrog.io/docker:20.10.17-git
   services:
-    - docker:18-dind
+    - name: docker:20-dind
+      alias: docker
+      command: ["--tls=false"]
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""
   script:
     - sh ./var/deploy-github.sh
   environment:
@@ -246,7 +251,7 @@ deploy-github:
 #  except:
 #    - schedules
 #  stage: deploy
-#  image: psono-docker.jfrog.io/ubuntu:20.04
+#  image: psono-docker.jfrog.io/ubuntu:22.04
 #  script:
 #    - sh ./var/prep-build.sh
 #    - npm run buildchrome
@@ -262,7 +267,7 @@ deploy-github:
 #  except:
 #    - schedules
 #  stage: deploy
-#  image: psono-docker.jfrog.io/ubuntu:20.04
+#  image: psono-docker.jfrog.io/ubuntu:22.04
 #  script:
 #    - sh ./var/prep-build.sh
 #    - npm run buildfirefox
@@ -291,7 +296,7 @@ deploy-artifacts:
   except:
     - schedules
   stage: release
-  image: psono-docker.jfrog.io/ubuntu:20.04
+  image: psono-docker.jfrog.io/ubuntu:22.04
   script:
     - sh ./var/deploy_nightlyartifacts.sh
   environment:
