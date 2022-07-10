@@ -17,6 +17,7 @@ import Table from "../../components/table";
 import duo from "../../services/duo";
 import store from "../../services/store";
 import GridContainerErrors from "../../components/grid-container-errors";
+import TextFieldQrCode from "../../components/text-field/qr";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -28,11 +29,11 @@ const MultifactorAuthenticatorDuo = (props) => {
     const { open, onClose } = props;
     const { t } = useTranslation();
     const classes = useStyles();
-    const [value, setValue] = React.useState(0);
     const [title, setTitle] = React.useState("");
     const [integrationKey, setIntegrationKey] = React.useState("");
     const [secretKey, setSecretKey] = React.useState("");
     const [host, setHost] = React.useState("");
+    const [uri, setUri] = React.useState("");
     const [code, setCode] = React.useState("");
     const [newDuo, setNewDuo] = React.useState({});
     const [view, setView] = React.useState("default");
@@ -58,13 +59,8 @@ const MultifactorAuthenticatorDuo = (props) => {
         );
     };
 
-    const handleChange = (event, newValue) => {
-        setValue(newValue);
-    };
-
     const onDuoActivationSuccessful = (successful) => {
         if (successful) {
-            setValue(0);
             setCode("");
             setNewDuo({});
             setView("default");
@@ -109,22 +105,15 @@ const MultifactorAuthenticatorDuo = (props) => {
                     return;
                 }
                 setView("step2");
-                const QRCode = require("qrcode");
-                const canvas = document.getElementById("canvas");
+                setUri(createdDuo.uri)
                 setTitle("");
                 setIntegrationKey("");
                 setSecretKey("");
                 setHost("");
-
-                QRCode.toCanvas(canvas, createdDuo.uri, function (error) {
-                    if (error) {
-                        console.error(error);
-                    }
-                });
             },
             function (error) {
-                if (error.hasOwnProperty("yubikey_otp")) {
-                    setErrors(error.yubikey_otp);
+                if (error.hasOwnProperty("non_field_errors")) {
+                    setErrors(error.non_field_errors);
                 } else {
                     console.log(error);
                 }
@@ -305,7 +294,12 @@ const MultifactorAuthenticatorDuo = (props) => {
                 <DialogContent>
                     <Grid container>
                         <Grid item xs={12} sm={12} md={12}>
-                            <canvas id="canvas" />
+                            <TextFieldQrCode
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                value={uri}
+                            />
                         </Grid>
                         <Grid item xs={12} sm={12} md={12}>
                             <Button variant="contained" color="primary" onClick={gotoStep3}>
