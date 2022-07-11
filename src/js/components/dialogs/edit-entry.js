@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
@@ -331,38 +331,6 @@ const DialogEditEntry = (props) => {
                 setMailGpgOwnKeyPrivate(data["mail_gpg_own_key_private"]);
             }
             setOriginalFullData(data);
-
-            // if (window.innerWidth > 1199) {
-            //     $rootScope.$broadcast("show-entry-big", {
-            //         node: node,
-            //         path: path,
-            //         data: data,
-            //         onClose: function () {},
-            //         onEdit: onEdit,
-            //     });
-            // } else {
-            //     const modalInstance = $uibModal.open({
-            //         templateUrl: "view/modal/edit-entry.html",
-            //         controller: "ModalEditEntryCtrl",
-            //         backdrop: "static",
-            //         size: size,
-            //         resolve: {
-            //             node: function () {
-            //                 return node;
-            //             },
-            //             path: function () {
-            //                 return path;
-            //             },
-            //             data: function () {
-            //                 return data;
-            //             },
-            //         },
-            //     });
-            //
-            //     modalInstance.result.then(onEdit, function () {
-            //         // cancel triggered
-            //     });
-            // }
         };
 
         if (typeof item.secret_id === "undefined") {
@@ -380,7 +348,7 @@ const DialogEditEntry = (props) => {
         } else {
             secretService.readSecret(item.secret_id, item.secret_key).then(onSuccess, onError);
         }
-    }, []);
+    }, [item]);
 
     const onEdit = (event) => {
         const secretObject = {};

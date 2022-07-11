@@ -167,7 +167,7 @@ const DatastoreView = (props) => {
 
     const [datastore, setDatastore] = useState(null);
 
-    const bigScreen = ["lg", "md"].includes(width);
+    const bigScreen = ["lg", "md", "xl"].includes(width);
 
     let isSubscribed = true;
     React.useEffect(() => {
