@@ -1,4 +1,4 @@
-import React, { useState, useReducer } from "react";
+import React, { useState, useReducer, useRef } from "react";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { differenceInSeconds } from "date-fns";
@@ -124,6 +124,7 @@ const useStyles = makeStyles((theme) => ({
 const DatastoreView = (props) => {
     const { width } = props;
     let { defaultSearch, secretType, secretId } = useParams();
+    const searchTimer = useRef(null);
     const serverStatus = useSelector((state) => state.server.status);
     const offlineMode = useSelector((state) => state.client.offlineMode);
     const recurrenceInterval = useSelector((state) => state.server.complianceCentralSecurityReportsRecurrenceInterval);
@@ -131,6 +132,7 @@ const DatastoreView = (props) => {
     const { t } = useTranslation();
     const [ignored, forceUpdate] = useReducer((x) => x + 1, 0);
     const [search, setSearch] = useState(defaultSearch || "");
+    const [actualSearch, setActualSearch] = useState(search);
     const [error, setError] = useState(null);
     const [anchorEl, setAnchorEl] = useState(null);
     const [contextMenuPosition, setContextMenuPosition] = useState({
@@ -715,6 +717,12 @@ const DatastoreView = (props) => {
                                             value={search}
                                             onChange={(event) => {
                                                 setSearch(event.target.value);
+                                                if (searchTimer.current) {
+                                                    clearTimeout(searchTimer.current);
+                                                }
+                                                searchTimer.current = setTimeout(() => {
+                                                    setActualSearch(event.target.value);
+                                                }, 350); // delay search by 350ms
                                             }}
                                             inputProps={{ "aria-label": t("SEARCH") }}
                                         />
@@ -780,7 +788,7 @@ const DatastoreView = (props) => {
                                 {datastore && (
                                     <DatastoreTree
                                         datastore={datastore}
-                                        search={search}
+                                        search={actualSearch}
                                         onNewFolder={onNewFolder}
                                         onNewEntry={onNewEntry}
                                         onNewShare={onNewShare}
