@@ -11,6 +11,9 @@ const theme = createTheme({
         secondary: {
             main: "#0b4a23",
         },
+        action: {
+            disabledBackground: '#2dbb9380',
+        },
     },
     typography: {
         fontFamily: ['"Open Sans"', "sans-serif"].join(","),

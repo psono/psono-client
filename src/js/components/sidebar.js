@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
             color: "#151f2b",
         },
         "&.Mui-selected": {
-            backgroundColor: "#2dbb93",
+            backgroundColor: theme.palette.primary.main,
             color: "#fff",
             "& .MuiListItemIcon-root": {
                 color: "#fff",
@@ -66,7 +66,7 @@ const useStyles = makeStyles((theme) => ({
             },
         },
         "&.Mui-selected": {
-            backgroundColor: "#2dbb93",
+            backgroundColor: theme.palette.primary.main,
             color: "#fff",
             "& .MuiListItemIcon-root": {
                 color: "#fff",

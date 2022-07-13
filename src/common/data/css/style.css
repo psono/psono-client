@@ -240,7 +240,7 @@ p.horizontalline span {
     top: 5px; }
   .tree .node-open-link {
     position: absolute;
-    right: 50px;
+    right: 0;
     top: 5px; }
   .tree .dropdown-button-menu {
     right: 0;
