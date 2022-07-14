@@ -67,7 +67,7 @@ const TotpCircle = (props) => {
                 <Button
                     endIcon={<ContentCopy>copy</ContentCopy>}
                     onClick={() => {
-                        browserClientService.copyToClipboard(token);
+                        browserClientService.copyToClipboard(() => Promise.resolve(token));
                         notification.push("totp_token_copy", t("TOTP_TOKEN_COPY_NOTIFICATION"));
                     }}
                 >

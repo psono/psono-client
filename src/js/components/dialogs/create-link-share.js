@@ -40,7 +40,7 @@ const DialogCreateLinkShare = (props) => {
     const [linkShareAccessUrl, setLinkShareAccessUrl] = useState("");
 
     const copyToClipbard = (event) => {
-        browserClient.copyToClipboard(linkShareAccessUrl);
+        browserClient.copyToClipboard(() => Promise.resolve(linkShareAccessUrl));
     };
     const onCreate = (event) => {
         const linkShareSecret = cryptoLibraryService.generateSecretKey();

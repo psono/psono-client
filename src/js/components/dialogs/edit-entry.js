@@ -498,10 +498,10 @@ const DialogEditEntry = (props) => {
     const onCopyPassword = (event) => {
         handleClose();
         if (item.type === "website_password") {
-            browserClientService.copyToClipboard(websitePasswordPassword);
+            browserClientService.copyToClipboard(() => Promise.resolve(websitePasswordPassword));
         }
         if (item.type === "application_password") {
-            browserClientService.copyToClipboard(applicationPasswordPassword);
+            browserClientService.copyToClipboard(() => Promise.resolve(applicationPasswordPassword));
         }
         notification.push("password_copy", t("PASSWORD_COPY_NOTIFICATION"));
     };

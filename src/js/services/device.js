@@ -64,6 +64,15 @@ function isChrome() {
 }
 
 /**
+ * Returns weather we have a Chrome or not
+ *
+ * @returns {boolean} Is this an Chrome user
+ */
+function isSafari() {
+    return clientJs.isSafari();
+}
+
+/**
  * Returns weather we have a Firefox or not
  *
  * @returns {boolean} Is this an Firefox user
@@ -106,6 +115,7 @@ const deviceService = {
     isMobileIos: isMobileIos,
     isMobile: isMobile,
     isChrome: isChrome,
+    isSafari: isSafari,
     isFirefox: isFirefox,
     getDeviceDescription: getDeviceDescription,
 };

@@ -173,13 +173,11 @@ function onItemClick(item) {
  *
  * @param {object} item The item of which we want to load the username into our clipboard
  */
-async function copyUsername(item) {
-    const decryptedSecret = await readSecret(item.secret_id, item.secret_key);
-
+function copyUsername(item) {
     if (item["type"] === "application_password") {
-        browserClient.copyToClipboard(decryptedSecret["application_password_username"]);
+        browserClient.copyToClipboard(() => readSecret(item.secret_id, item.secret_key).then((decryptedSecret) => decryptedSecret["application_password_username"]));
     } else if (item["type"] === "website_password") {
-        browserClient.copyToClipboard(decryptedSecret["website_password_username"]);
+        browserClient.copyToClipboard(() => readSecret(item.secret_id, item.secret_key).then((decryptedSecret) => decryptedSecret["website_password_username"]));
     }
 
     notification.push("username_copy", i18n.t("USERNAME_COPY_NOTIFICATION"));
@@ -190,13 +188,11 @@ async function copyUsername(item) {
  *
  * @param {object} item The item of which we want to load the password into our clipboard
  */
-async function copyPassword(item) {
-    const decryptedSecret = await readSecret(item.secret_id, item.secret_key);
-
+function copyPassword(item) {
     if (item["type"] === "application_password") {
-        browserClient.copyToClipboard(decryptedSecret["application_password_password"]);
+        browserClient.copyToClipboard(() => readSecret(item.secret_id, item.secret_key).then((decryptedSecret) => decryptedSecret["application_password_password"]));
     } else if (item["type"] === "website_password") {
-        browserClient.copyToClipboard(decryptedSecret["website_password_password"]);
+        browserClient.copyToClipboard(() => readSecret(item.secret_id, item.secret_key).then((decryptedSecret) => decryptedSecret["website_password_password"]));
     }
 
     notification.push("password_copy", i18n.t("PASSWORD_COPY_NOTIFICATION"));
@@ -207,22 +203,21 @@ async function copyPassword(item) {
  *
  * @param {object} item The item of which we want to load the TOTP token into our clipboard
  */
-async function copyTotpToken(item) {
-    const decryptedSecret = await readSecret(item.secret_id, item.secret_key);
-
-    const totpCode = decryptedSecret["totp_code"];
-    let totpPeriod, totpAlgorithm, totpDigits;
-    if (decryptedSecret.hasOwnProperty("totp_period")) {
-        totpPeriod = decryptedSecret["totp_period"];
-    }
-    if (decryptedSecret.hasOwnProperty("totp_algorithm")) {
-        totpAlgorithm = decryptedSecret["totp_algorithm"];
-    }
-    if (decryptedSecret.hasOwnProperty("totp_digits")) {
-        totpDigits = decryptedSecret["totp_digits"];
-    }
-    browserClient.copyToClipboard(cryptoLibrary.getTotpToken(totpCode, totpPeriod, totpAlgorithm, totpDigits));
-
+function copyTotpToken(item) {
+    browserClient.copyToClipboard(() => readSecret(item.secret_id, item.secret_key).then((decryptedSecret) => {
+        const totpCode = decryptedSecret["totp_code"];
+        let totpPeriod, totpAlgorithm, totpDigits;
+        if (decryptedSecret.hasOwnProperty("totp_period")) {
+            totpPeriod = decryptedSecret["totp_period"];
+        }
+        if (decryptedSecret.hasOwnProperty("totp_algorithm")) {
+            totpAlgorithm = decryptedSecret["totp_algorithm"];
+        }
+        if (decryptedSecret.hasOwnProperty("totp_digits")) {
+            totpDigits = decryptedSecret["totp_digits"];
+        }
+        return cryptoLibrary.getTotpToken(totpCode, totpPeriod, totpAlgorithm, totpDigits)
+    }));
     notification.push("totp_token_copy", i18n.t("TOTP_TOKEN_COPY_NOTIFICATION"));
 }
 
