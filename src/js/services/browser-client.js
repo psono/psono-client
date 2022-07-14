@@ -5,6 +5,7 @@
 import axios from "axios";
 import helperService from "./helper";
 import store from "./store";
+import deviceService from "./device";
 
 const registrations = {};
 let config = {};
@@ -679,10 +680,21 @@ function disableBrowserPasswordSaving(value) {
 /**
  * Copies some content to the clipboard
  *
- * @param {string} content The content to copy
+ * @param {function} fetchContent The content to copy
  */
-function copyToClipboard(content) {
-    return navigator.clipboard.writeText(content);
+function copyToClipboard(fetchContent) {
+
+    if (deviceService.isSafari()) {
+        // Safari
+        return navigator.clipboard.write([
+            new ClipboardItem({
+                "text/plain": fetchContent(),
+            }),
+        ]);
+    } else {
+        // Firefox & Chrome and everything else
+        return fetchContent().then((content) => navigator.clipboard.writeText(content))
+    }
     // let copy;
     // if (TARGET === "firefox") {
     //     copy = function (e) {
@@ -749,6 +761,9 @@ function notify(content) {
         });
     } else {
         const options = { silent: true };
+        function sendNotification() {
+            return new Notification(content, options);
+        }
 
         if (!("Notification" in window)) {
             console.error("This browser does not support desktop notification");
@@ -765,11 +780,24 @@ function notify(content) {
         }
 
         if (Notification.permission !== "denied") {
-            Notification.requestPermission().then(function (permission) {
-                if (permission === "granted") {
-                    return new Notification(content, options);
+            try {
+                Notification.requestPermission().then(function (permission) {
+                    if (permission === "granted") {
+                        return sendNotification();
+                    }
+                });
+            } catch (error) {
+                // Safari doesn't return a promise for requestPermissions and it
+                // throws a TypeError. It takes a callback as the first argument
+                // instead.
+                if (error instanceof TypeError) {
+                    Notification.requestPermission(() => {
+                        sendNotification();
+                    });
+                } else {
+                    throw error;
                 }
-            });
+            }
         }
     }
 }

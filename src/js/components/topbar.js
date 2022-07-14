@@ -68,6 +68,10 @@ const useStyles = makeStyles((theme) => ({
         textTransform: "none",
         padding: "8px",
     },
+    signInText: {
+        marginRight: "10px",
+        display: "inline",
+    },
 }));
 
 const Topbar = (props) => {
@@ -238,7 +242,7 @@ const Topbar = (props) => {
                                 </IconButton>
                             </Hidden>
                             <Hidden smDown>
-                                <div className={"signintext"}>{t("SIGNED_IN_AS")}</div>
+                                <div className={classes.signInText}>{t("SIGNED_IN_AS")}</div>
                                 <Button
                                     variant="contained"
                                     aria-controls="top-menu"

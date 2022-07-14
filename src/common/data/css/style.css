@@ -240,7 +240,7 @@ p.horizontalline span {
     top: 5px; }
   .tree .node-open-link {
     position: absolute;
-    right: 50px;
+    right: 0;
     top: 5px; }
   .tree .dropdown-button-menu {
     right: 0;
@@ -292,10 +292,6 @@ p.horizontalline span {
     padding: 20px 20px 5px 20px;
     border-bottom: 1px solid #ddd;
     margin-bottom: 15px; }
-
-.signintext {
-  margin-right: 10px;
-  display: inline; }
 
 .progress {
   background-color: #223144; }

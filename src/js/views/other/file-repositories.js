@@ -19,10 +19,8 @@ const OtherFileRepositoriesView = (props) => {
     const { t } = useTranslation();
     const [fileRepositories, setFileRepositories] = React.useState([]);
     const [editFileRepositoryId, setEditFileRepositoryId] = React.useState("");
-    const [deleteFileRepositoryId, setDeleteFileRepositoryId] = React.useState("");
+    const [deleteFileRepositoryId, setDeleteFileRepositoryId] = React.useState(null);
     const [createOpen, setCreateOpen] = React.useState(false);
-    const [editOpen, setEditOpen] = React.useState(false);
-    const [deleteOpen, setDeleteOpen] = React.useState(false);
     const [declineFileRepository, setDeclineFileRepository] = React.useState(null);
 
     React.useEffect(() => {
@@ -40,9 +38,9 @@ const OtherFileRepositoriesView = (props) => {
 
     const closeModal = () => {
         const onSuccess = function () {
-            setEditOpen(false);
-            setDeleteOpen(false);
             setCreateOpen(false);
+            setEditFileRepositoryId(null);
+            setDeleteFileRepositoryId(null);
         };
 
         const onError = function (error) {
@@ -54,7 +52,6 @@ const OtherFileRepositoriesView = (props) => {
 
     const onDelete = (rowData) => {
         setDeleteFileRepositoryId(rowData[0]);
-        setDeleteOpen(true);
     };
 
     const onCreate = (rowData) => {
@@ -63,7 +60,6 @@ const OtherFileRepositoriesView = (props) => {
 
     const onEdit = (rowData) => {
         setEditFileRepositoryId(rowData[0]);
-        setEditOpen(true);
     };
 
     const accept = (rowData) => {
@@ -108,7 +104,43 @@ const OtherFileRepositoriesView = (props) => {
                 sort: true,
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
-                    return <span>{tableMeta.rowData[2] && <CheckIcon />}</span>;
+                    return <span>{tableMeta.rowData[3] && <CheckIcon />}</span>;
+                },
+            },
+        },
+        {
+            name: t("READ"),
+            options: {
+                filter: true,
+                sort: false,
+                empty: false,
+                display: false,
+                customBodyRender: (value, tableMeta, updateValue) => {
+                    return <span>{tableMeta.rowData[5] && <CheckIcon />}</span>;
+                },
+            },
+        },
+        {
+            name: t("WRITE"),
+            options: {
+                filter: true,
+                sort: false,
+                empty: false,
+                display: false,
+                customBodyRender: (value, tableMeta, updateValue) => {
+                    return <span>{tableMeta.rowData[5] && <CheckIcon />}</span>;
+                },
+            },
+        },
+        {
+            name: t("GRANT"),
+            options: {
+                filter: true,
+                sort: false,
+                empty: false,
+                display: false,
+                customBodyRender: (value, tableMeta, updateValue) => {
+                    return <span>{tableMeta.rowData[6] && <CheckIcon />}</span>;
                 },
             },
         },
@@ -119,12 +151,14 @@ const OtherFileRepositoriesView = (props) => {
                 sort: false,
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
+                    console.log(tableMeta.rowData);
                     return (
                         <IconButton
                             onClick={() => {
                                 onEdit(tableMeta.rowData);
                             }}
-                            disabled={!tableMeta.rowData[4]}
+                            // prevent edit for not accepted (4) and not readable (5) file repositories
+                            disabled={!tableMeta.rowData[4] || !tableMeta.rowData[5]}
                         >
                             <EditIcon />
                         </IconButton>
@@ -144,7 +178,7 @@ const OtherFileRepositoriesView = (props) => {
                             onClick={() => {
                                 onDelete(tableMeta.rowData);
                             }}
-                            disabled={!tableMeta.rowData[4]}
+                            disabled={!tableMeta.rowData[4] || !tableMeta.rowData[6] || !tableMeta.rowData[7]}
                         >
                             <DeleteIcon />
                         </IconButton>
@@ -190,7 +224,6 @@ const OtherFileRepositoriesView = (props) => {
     const options = {
         filterType: "checkbox",
     };
-
     const data = fileRepositories.map((fileRepository, index) => {
             return [
                 fileRepository.id,
@@ -198,6 +231,9 @@ const OtherFileRepositoriesView = (props) => {
                 fileRepository.type,
                 fileRepository.active,
                 fileRepository.accepted,
+                fileRepository.read,
+                fileRepository.write,
+                fileRepository.grant,
             ];
         })
 
@@ -212,18 +248,18 @@ const OtherFileRepositoriesView = (props) => {
                 <Grid item xs={12} sm={12} md={12}>
                     <Table data={data} columns={columns} options={options} onCreate={onCreate} />
                 </Grid>
-                {editOpen && (
+                {Boolean(editFileRepositoryId) && (
                     <EditFileRepositoriesDialog
                         {...props}
-                        open={editOpen}
+                        open={Boolean(editFileRepositoryId)}
                         onClose={closeModal}
                         fileRepositoryId={editFileRepositoryId}
                     />
                 )}
-                {deleteOpen && (
+                {Boolean(deleteFileRepositoryId) && (
                     <DeleteFileRepositoriesDialog
                         {...props}
-                        open={deleteOpen}
+                        open={Boolean(deleteFileRepositoryId)}
                         onClose={closeModal}
                         fileRepositoryId={deleteFileRepositoryId}
                     />

@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
         zIndex: 1400,
         top: 0,
         left: 0,
-        backgroundColor: "#2dbb93",
+        backgroundColor: theme.palette.primary.main,
         overflowY: "hidden",
         transition: "0.5s",
         "& a": {

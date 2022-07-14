@@ -12,6 +12,7 @@ import { Grid } from "@material-ui/core";
 
 import store from "../../services/store";
 import browserClient from "../../services/browser-client";
+import TextFieldQrCode from "../../components/text-field/qr";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -29,6 +30,7 @@ const AccountOverviewView = (props) => {
     const { t } = useTranslation();
     const classes = useStyles();
     const [qrModalOpen, setQrModalOpen] = React.useState(false);
+    const [qrContent, setQrContent] = React.useState('');
 
     const closeQrModal = () => {
         setQrModalOpen(false);
@@ -37,20 +39,9 @@ const AccountOverviewView = (props) => {
     const onClickShowQRClientConfig = (event) => {
         setQrModalOpen(true);
         browserClient.loadConfig().then(function (config) {
-            const QRCode = require("qrcode");
-            const canvas = document.getElementById("canvas");
-
-            QRCode.toCanvas(
-                canvas,
-                JSON.stringify({
-                    ConfigJson: config,
-                }),
-                function (error) {
-                    if (error) {
-                        console.error(error);
-                    }
-                }
-            );
+            setQrContent(JSON.stringify({
+                ConfigJson: config,
+            }))
         });
     };
 
@@ -322,7 +313,12 @@ const AccountOverviewView = (props) => {
             >
                 <DialogTitle id="alert-dialog-title">{t("QR_CLIENT_CONFIG")}</DialogTitle>
                 <DialogContent>
-                    <canvas id="canvas" />
+                    <TextFieldQrCode
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        value={qrContent}
+                    />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={closeQrModal} autoFocus>

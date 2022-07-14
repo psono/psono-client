@@ -202,6 +202,10 @@ const DatastoreTreeFolder = (props) => {
                         keepMounted
                         open={Boolean(anchorEl)}
                         onClose={handleClose}
+                        onContextMenu={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }}
                     >
                         {!hideShare && onNewShare && (
                             <MenuItem onClick={onNewShare}>
@@ -362,6 +366,10 @@ const DatastoreTreeFolder = (props) => {
                 keepMounted
                 open={contextMenuPosition.mouseY !== null}
                 onClose={onContextMenuClose}
+                onContextMenu={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }}
                 anchorReference="anchorPosition"
                 anchorPosition={
                     contextMenuPosition.mouseY !== null && contextMenuPosition.mouseX !== null

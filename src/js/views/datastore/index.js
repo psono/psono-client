@@ -1,4 +1,4 @@
-import React, { useState, useReducer } from "react";
+import React, { useState, useReducer, useRef } from "react";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { differenceInSeconds } from "date-fns";
@@ -124,6 +124,7 @@ const useStyles = makeStyles((theme) => ({
 const DatastoreView = (props) => {
     const { width } = props;
     let { defaultSearch, secretType, secretId } = useParams();
+    const searchTimer = useRef(null);
     const serverStatus = useSelector((state) => state.server.status);
     const offlineMode = useSelector((state) => state.client.offlineMode);
     const recurrenceInterval = useSelector((state) => state.server.complianceCentralSecurityReportsRecurrenceInterval);
@@ -131,6 +132,7 @@ const DatastoreView = (props) => {
     const { t } = useTranslation();
     const [ignored, forceUpdate] = useReducer((x) => x + 1, 0);
     const [search, setSearch] = useState(defaultSearch || "");
+    const [actualSearch, setActualSearch] = useState(search);
     const [error, setError] = useState(null);
     const [anchorEl, setAnchorEl] = useState(null);
     const [contextMenuPosition, setContextMenuPosition] = useState({
@@ -167,7 +169,7 @@ const DatastoreView = (props) => {
 
     const [datastore, setDatastore] = useState(null);
 
-    const bigScreen = ["lg", "md"].includes(width);
+    const bigScreen = ["lg", "md", "xl"].includes(width);
 
     let isSubscribed = true;
     React.useEffect(() => {
@@ -212,6 +214,7 @@ const DatastoreView = (props) => {
 
     const onClear = () => {
         setSearch("");
+        setActualSearch("");
     };
 
     let newSecurityReport = "NOT_REQUIRED";
@@ -715,6 +718,12 @@ const DatastoreView = (props) => {
                                             value={search}
                                             onChange={(event) => {
                                                 setSearch(event.target.value);
+                                                if (searchTimer.current) {
+                                                    clearTimeout(searchTimer.current);
+                                                }
+                                                searchTimer.current = setTimeout(() => {
+                                                    setActualSearch(event.target.value);
+                                                }, 500); // delay search by 500ms
                                             }}
                                             inputProps={{ "aria-label": t("SEARCH") }}
                                         />
@@ -738,6 +747,10 @@ const DatastoreView = (props) => {
                                             keepMounted
                                             open={Boolean(anchorEl)}
                                             onClose={handleClose}
+                                            onContextMenu={(event) => {
+                                                event.preventDefault();
+                                                event.stopPropagation();
+                                            }}
                                         >
                                             <MenuItem onClick={() => onNewFolder(datastore, [])}>
                                                 <ListItemIcon className={classes.listItemIcon}>
@@ -776,7 +789,7 @@ const DatastoreView = (props) => {
                                 {datastore && (
                                     <DatastoreTree
                                         datastore={datastore}
-                                        search={search}
+                                        search={actualSearch}
                                         onNewFolder={onNewFolder}
                                         onNewEntry={onNewEntry}
                                         onNewShare={onNewShare}
@@ -804,6 +817,10 @@ const DatastoreView = (props) => {
                                         ? { top: contextMenuPosition.mouseY, left: contextMenuPosition.mouseX }
                                         : undefined
                                 }
+                                onContextMenu={(event) => {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                }}
                             >
                                 <MenuItem onClick={() => onNewFolder(datastore, [])}>
                                     <ListItemIcon className={classes.listItemIcon}>

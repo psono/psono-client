@@ -242,7 +242,17 @@ const DatastoreTreeItem = (props) => {
                         <SettingsIcon fontSize="small" />
                     </Button>
                 </ButtonGroup>
-                <Menu id="simple-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
+                <Menu
+                    id="simple-menu"
+                    onContextMenu={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }}
+                    anchorEl={anchorEl}
+                    keepMounted
+                    open={Boolean(anchorEl)}
+                    onClose={handleClose}
+                >
                     {!hideShare && (
                         <MenuItem onClick={onNewShare}>
                             <ListItemIcon className={classes.listItemIcon}>
@@ -364,6 +374,10 @@ const DatastoreTreeItem = (props) => {
             </div>
             <Menu
                 keepMounted
+                onContextMenu={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }}
                 open={contextMenuPosition.mouseY !== null}
                 onClose={onContextMenuClose}
                 anchorReference="anchorPosition"

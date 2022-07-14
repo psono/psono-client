@@ -310,7 +310,7 @@ const PopupView = (props) => {
     };
     const generatePassword = (event) => {
         let password = datastorePassword.generate();
-        browserClient.copyToClipboard(password);
+        browserClient.copyToClipboard(() => Promise.resolve(password));
 
         browserClient.emitSec("save-password-active-tab", { password: password });
         browserClient.emitSec("fillpassword-active-tab", { password: password });

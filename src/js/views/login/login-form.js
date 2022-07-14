@@ -42,9 +42,6 @@ const useStyles = makeStyles((theme) => ({
             },
         },
     },
-    disabledButton: {
-        backgroundColor: "rgba(45, 187, 147, 0.50) !important",
-    },
     checked: {
         color: "#9c27b0",
     },

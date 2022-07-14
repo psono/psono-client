@@ -16,6 +16,8 @@ import TextField from "@material-ui/core/TextField";
 import Table from "../../components/table";
 import googleAuthenticator from "../../services/google-authenticator";
 import GridContainerErrors from "../../components/grid-container-errors";
+import TextFieldPassword from "../../components/text-field/password";
+import TextFieldQrCode from "../../components/text-field/qr";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -26,9 +28,9 @@ const MultifactorAuthenticatorGoogleAuthenticator = (props) => {
     const { open, onClose } = props;
     const { t } = useTranslation();
     const classes = useStyles();
-    const [value, setValue] = React.useState(0);
     const [title, setTitle] = React.useState("");
     const [code, setCode] = React.useState("");
+    const [uri, setUri] = React.useState("");
     const [newGa, setNewGa] = React.useState({});
     const [view, setView] = React.useState("default");
     const [googleAuthenticators, setGoogleAuthenticators] = React.useState([]);
@@ -52,25 +54,14 @@ const MultifactorAuthenticatorGoogleAuthenticator = (props) => {
             }
         );
     };
-
-    const handleChange = (event, newValue) => {
-        setValue(newValue);
-    };
     const generate = () => {
         setView("create_step1");
 
         googleAuthenticator.createGa(title).then(
             function (ga) {
                 setNewGa(ga);
-                const QRCode = require("qrcode");
-                const canvas = document.getElementById("canvas");
                 setTitle("");
-
-                QRCode.toCanvas(canvas, ga.uri, function (error) {
-                    if (error) {
-                        console.error(error);
-                    }
-                });
+                setUri(ga.uri);
             },
             function (error) {
                 console.log(error);
@@ -87,7 +78,6 @@ const MultifactorAuthenticatorGoogleAuthenticator = (props) => {
             if (successful) {
                 setNewGa({});
                 setView("default");
-                setValue(0);
                 loadGoogleAuthenticators();
             } else {
                 setErrors(["CODE_INCORRECT"]);
@@ -205,7 +195,26 @@ const MultifactorAuthenticatorGoogleAuthenticator = (props) => {
                 <DialogContent>
                     <Grid container>
                         <Grid item xs={12} sm={12} md={12}>
-                            <canvas id="canvas" />
+                            <TextFieldQrCode
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                value={uri}
+                            />
+
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextFieldPassword
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="uri"
+                                label={"URI"}
+                                name="uri"
+                                autoComplete="uri"
+                                value={uri}
+
+                            />
                         </Grid>
                         <Grid item xs={12} sm={12} md={12}>
                             <Button variant="contained" color="primary" onClick={showStep2}>
