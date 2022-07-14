@@ -214,6 +214,7 @@ const DatastoreView = (props) => {
 
     const onClear = () => {
         setSearch("");
+        setActualSearch("");
     };
 
     let newSecurityReport = "NOT_REQUIRED";
@@ -722,7 +723,7 @@ const DatastoreView = (props) => {
                                                 }
                                                 searchTimer.current = setTimeout(() => {
                                                     setActualSearch(event.target.value);
-                                                }, 350); // delay search by 350ms
+                                                }, 500); // delay search by 500ms
                                             }}
                                             inputProps={{ "aria-label": t("SEARCH") }}
                                         />
