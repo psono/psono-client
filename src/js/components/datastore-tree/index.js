@@ -5,10 +5,11 @@ import { useTranslation } from "react-i18next";
 import Hidden from "@material-ui/core/Hidden";
 import { makeStyles } from "@material-ui/core/styles";
 
-import offlineCache from "../services/offline-cache";
-import DatastoreTreeItem from "./datastore-tree-item";
-import DatastoreTreeFolder from "./datastore-tree-folder";
-import datastorePassword from "../services/datastore-password";
+
+import offlineCache from "../../services/offline-cache";
+import DatastoreTreeItem from "./datastore-tree-item.js";
+import DatastoreTreeFolder from "./datastore-tree-folder.js";
+import datastorePassword from "../../services/datastore-password";
 
 const useStyles = makeStyles((theme) => ({
     fullWidth: {

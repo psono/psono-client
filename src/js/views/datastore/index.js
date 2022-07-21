@@ -50,6 +50,7 @@ import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-ca
 import DialogSelectFolder from "../../components/dialogs/select-folder";
 import widgetService from "../../services/widget";
 import datastoreService from "../../services/datastore";
+import browserClientService from "../../services/browser-client";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -541,17 +542,21 @@ const DatastoreView = (props) => {
     };
 
     const onCloneEntry = (item, path) => {
-        widget.cloneItem(datastore, item, path);
+        widget.cloneItem(datastore, item, path).then(() => {
+            loadDatastore();
+        });
     };
 
     const onDeleteEntry = (item, path) => {
-        widget.deleteItem(datastore, item, path, "password");
-        forceUpdate();
+        widget.deleteItem(datastore, item, path, "password").then(() => {
+            forceUpdate();
+        });
     };
 
     const onDeleteFolder = (item, path) => {
-        widget.deleteItem(datastore, item, path, "password");
-        forceUpdate();
+        widget.deleteItem(datastore, item, path, "password").then(() => {
+            forceUpdate();
+        });
     };
 
     const onLinkItem = (item, path) => {

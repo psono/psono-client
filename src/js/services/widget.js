@@ -900,7 +900,7 @@ function cloneItem(datastore, item, path) {
             secret_object["secret_key"] = e.secret_key;
             if (closest_share.hasOwnProperty("share_id")) {
                 // refresh share content before updating the share
-                onSuccess = function (content) {
+                onSuccess = async function (content) {
                     let parent;
                     const relative_path_to_parent = closest_share_info["relative_path"].slice();
                     relative_path_to_parent.pop();
@@ -946,8 +946,8 @@ function cloneItem(datastore, item, path) {
                     }
                     parent.items.push(element_copy);
 
-                    shareService.writeShare(closest_share["share_id"], content.data, closest_share["share_secret_key"]);
-                    datastorePasswordService.handleDatastoreContentChanged(datastore);
+                    await shareService.writeShare(closest_share["share_id"], content.data, closest_share["share_secret_key"]);
+                    return datastorePasswordService.handleDatastoreContentChanged(datastore);
                 };
 
                 onError = function (e) {
@@ -962,7 +962,7 @@ function cloneItem(datastore, item, path) {
                     // pass
                 };
 
-                onSuccess = function (datastore) {
+                onSuccess = async function (datastore) {
                     let parent;
                     const relative_path_to_parent = closest_share_info["relative_path"].slice();
                     relative_path_to_parent.pop();
@@ -995,8 +995,8 @@ function cloneItem(datastore, item, path) {
                         parent.items = [];
                     }
                     parent.items.push(element_copy);
-                    datastorePasswordService.saveDatastoreContent(datastore, [path]);
-                    datastorePasswordService.handleDatastoreContentChanged(datastore);
+                    await datastorePasswordService.saveDatastoreContent(datastore, [path]);
+                    return datastorePasswordService.handleDatastoreContentChanged(datastore);
                 };
 
                 return datastorePasswordService
