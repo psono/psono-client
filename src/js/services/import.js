@@ -6,6 +6,7 @@ import datastorePasswordService from "./datastore-password";
 import secretService from "./secret";
 import importPsonoPwJson from "./import-psono-pw-json";
 import importChromeCsv from "./import-chrome-csv";
+import importFirefoxCsvService from "./import-firefox-csv";
 import importEnpassJson from "./import-enpass-json";
 import importKeepassInfoCsv from "./import-keepass-info-csv";
 import importKeepassInfoXml from "./import-keepass-info-xml";
@@ -30,6 +31,11 @@ const _importer = {
             "As a last step upload the file here.",
         value: "chrome_csv",
         parser: importChromeCsv.parser,
+    },
+    firefox_csv: {
+        name: "Firefox (CSV)",
+        value: "firefox_csv",
+        parser: importFirefoxCsvService.parser,
     },
     enpass_json: {
         name: "Enpass (JSON)",
