@@ -123,7 +123,7 @@ const TrustedUser = (props) => {
 
     return (
         <>
-            {Boolean(user.data.user_name) && (
+            {Boolean(user && user.data.user_name) && (
                 <Grid item xs={12} sm={12} md={12}>
                     <TextField
                         className={classes.textField}
@@ -138,7 +138,7 @@ const TrustedUser = (props) => {
                     />
                 </Grid>
             )}
-            {!Boolean(user.data.user_name) && (
+            {!Boolean(user && user.data.user_name) && (
                 <Grid item xs={12} sm={12} md={12}>
                     <TextField
                         className={classes.textField}
