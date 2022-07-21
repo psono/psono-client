@@ -131,6 +131,7 @@ const DatastoreTreeItem = (props) => {
     };
 
     const hideShare =
+        (store.getState().server.complianceDisableShares && !content.hasOwnProperty("share_id")) ||
         offline ||
         (content.hasOwnProperty("share_rights") && content.share_rights.grant === false) ||
         content.type === "user" ||
