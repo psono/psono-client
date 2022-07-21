@@ -198,7 +198,7 @@ const LinkShareAccessView = (props) => {
                                         id="passphrase"
                                         label={t("PASSPHRASE")}
                                         name="passphrase"
-                                        autoComplete="passphrase"
+                                        autoComplete="off"
                                         value={passphrase}
                                         onChange={(event) => {
                                             setPassphrase(event.target.value);
@@ -225,7 +225,7 @@ const LinkShareAccessView = (props) => {
                                             id="server"
                                             label={t("SERVER")}
                                             name="server"
-                                            autoComplete="server"
+                                            autoComplete="off"
                                             value={server}
                                             onChange={(event) => {
                                                 setServer(event.target.value);
@@ -270,7 +270,7 @@ const LinkShareAccessView = (props) => {
                                     multiline: true,
                                 }}
                                 name="server_fingerprint"
-                                autoComplete="server_fingerprint"
+                                autoComplete="off"
                                 value={serverCheck.verify_key}
                             />
                         </Grid>
@@ -326,7 +326,7 @@ const LinkShareAccessView = (props) => {
                                     multiline: true,
                                 }}
                                 name="server_fingerprint"
-                                autoComplete="server_fingerprint"
+                                autoComplete="off"
                                 value={serverCheck.verify_key}
                             />
                         </Grid>
@@ -343,7 +343,7 @@ const LinkShareAccessView = (props) => {
                                     multiline: true,
                                 }}
                                 name="oldserver_fingerprint"
-                                autoComplete="oldserver_fingerprint"
+                                autoComplete="off"
                                 value={serverCheck.verify_key_old}
                             />
                         </Grid>

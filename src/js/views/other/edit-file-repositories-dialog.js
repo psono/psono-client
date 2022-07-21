@@ -409,7 +409,7 @@ const EditFileRepositoryDialog = (props) => {
                             id="title"
                             label={t("TITLE")}
                             name="title"
-                            autoComplete="title"
+                            autoComplete="off"
                             value={title}
                             onChange={(event) => {
                                 setTitle(event.target.value);
@@ -438,7 +438,7 @@ const EditFileRepositoryDialog = (props) => {
                                 id="gcpCloudStorageBucket"
                                 label={t("BUCKET")}
                                 name="gcpCloudStorageBucket"
-                                autoComplete="gcpCloudStorageBucket"
+                                autoComplete="off"
                                 value={gcpCloudStorageBucket}
                                 onChange={(event) => {
                                     setGcpCloudStorageBucket(event.target.value);
@@ -458,7 +458,7 @@ const EditFileRepositoryDialog = (props) => {
                                 maxRows={10}
                                 label={t("JSON_KEY")}
                                 name="gcpCloudStorageJsonKey"
-                                autoComplete="gcpCloudStorageJsonKey"
+                                autoComplete="off"
                                 value={gcpCloudStorageJsonKey}
                                 onChange={(event) => {
                                     setGcpCloudStorageJsonKey(event.target.value);
@@ -477,7 +477,7 @@ const EditFileRepositoryDialog = (props) => {
                                 id="awsS3Bucket"
                                 label={t("BUCKET")}
                                 name="awsS3Bucket"
-                                autoComplete="awsS3Bucket"
+                                autoComplete="off"
                                 value={awsS3Bucket}
                                 onChange={(event) => {
                                     setAwsS3Bucket(event.target.value);
@@ -495,7 +495,7 @@ const EditFileRepositoryDialog = (props) => {
                                 id="awsS3Region"
                                 label={t("REGION")}
                                 name="awsS3Region"
-                                autoComplete="awsS3Region"
+                                autoComplete="off"
                                 value={awsS3Region}
                                 onChange={(event) => {
                                     setAwsS3Region(event.target.value);
@@ -513,7 +513,7 @@ const EditFileRepositoryDialog = (props) => {
                                 id="awsS3AccessKeyId"
                                 label={t("ACCESS_KEY_ID")}
                                 name="awsS3AccessKeyId"
-                                autoComplete="awsS3AccessKeyId"
+                                autoComplete="off"
                                 value={awsS3AccessKeyId}
                                 onChange={(event) => {
                                     setAwsS3AccessKeyId(event.target.value);
@@ -531,7 +531,7 @@ const EditFileRepositoryDialog = (props) => {
                                 id="awsS3SecretAccessKey"
                                 label={t("SECRET_ACCESS_KEY")}
                                 name="awsS3SecretAccessKey"
-                                autoComplete="awsS3SecretAccessKey"
+                                autoComplete="off"
                                 value={awsS3SecretAccessKey}
                                 onChange={(event) => {
                                     setAwsS3SecretAccessKey(event.target.value);
@@ -550,7 +550,7 @@ const EditFileRepositoryDialog = (props) => {
                                 id="azureBlobStorageAccountName"
                                 label={t("ACCOUNT_NAME")}
                                 name="azureBlobStorageAccountName"
-                                autoComplete="azureBlobStorageAccountName"
+                                autoComplete="off"
                                 value={azureBlobStorageAccountName}
                                 onChange={(event) => {
                                     setAzureBlobStorageAccountName(event.target.value);
@@ -568,7 +568,7 @@ const EditFileRepositoryDialog = (props) => {
                                 id="azureBlobStorageAccountPrimaryKey"
                                 label={t("PRIMARY_KEY")}
                                 name="azureBlobStorageAccountPrimaryKey"
-                                autoComplete="azureBlobStorageAccountPrimaryKey"
+                                autoComplete="off"
                                 value={azureBlobStorageAccountPrimaryKey}
                                 onChange={(event) => {
                                     setAzureBlobStorageAccountPrimaryKey(event.target.value);
@@ -586,7 +586,7 @@ const EditFileRepositoryDialog = (props) => {
                                 id="azureBlobStorageAccountContainerName"
                                 label={t("CONTAINER_NAME")}
                                 name="azureBlobStorageAccountContainerName"
-                                autoComplete="azureBlobStorageAccountContainerName"
+                                autoComplete="off"
                                 value={azureBlobStorageAccountContainerName}
                                 onChange={(event) => {
                                     setAzureBlobStorageAccountContainerName(event.target.value);
@@ -605,7 +605,7 @@ const EditFileRepositoryDialog = (props) => {
                                 id="backblazeBucket"
                                 label={t("BUCKET")}
                                 name="backblazeBucket"
-                                autoComplete="backblazeBucket"
+                                autoComplete="off"
                                 value={backblazeBucket}
                                 onChange={(event) => {
                                     setBackblazeBucket(event.target.value);
@@ -623,7 +623,7 @@ const EditFileRepositoryDialog = (props) => {
                                 id="backblazeRegion"
                                 label={t("REGION")}
                                 name="backblazeRegion"
-                                autoComplete="backblazeRegion"
+                                autoComplete="off"
                                 value={backblazeRegion}
                                 onChange={(event) => {
                                     setBackblazeRegion(event.target.value);
@@ -641,7 +641,7 @@ const EditFileRepositoryDialog = (props) => {
                                 id="backblazeAccessKeyId"
                                 label={t("ACCESS_KEY_ID")}
                                 name="backblazeAccessKeyId"
-                                autoComplete="backblazeAccessKeyId"
+                                autoComplete="off"
                                 value={backblazeAccessKeyId}
                                 onChange={(event) => {
                                     setBackblazeAccessKeyId(event.target.value);
@@ -659,7 +659,7 @@ const EditFileRepositoryDialog = (props) => {
                                 id="backblazeSecretAccessKey"
                                 label={t("SECRET_ACCESS_KEY")}
                                 name="backblazeSecretAccessKey"
-                                autoComplete="backblazeSecretAccessKey"
+                                autoComplete="off"
                                 value={backblazeSecretAccessKey}
                                 onChange={(event) => {
                                     setBackblazeSecretAccessKey(event.target.value);
@@ -678,7 +678,7 @@ const EditFileRepositoryDialog = (props) => {
                                 id="otherS3Bucket"
                                 label={t("BUCKET")}
                                 name="otherS3Bucket"
-                                autoComplete="otherS3Bucket"
+                                autoComplete="off"
                                 value={otherS3Bucket}
                                 onChange={(event) => {
                                     setOtherS3Bucket(event.target.value);
@@ -696,7 +696,7 @@ const EditFileRepositoryDialog = (props) => {
                                 id="otherS3Region"
                                 label={t("REGION")}
                                 name="otherS3Region"
-                                autoComplete="otherS3Region"
+                                autoComplete="off"
                                 value={otherS3Region}
                                 onChange={(event) => {
                                     setOtherS3Region(event.target.value);
@@ -714,7 +714,7 @@ const EditFileRepositoryDialog = (props) => {
                                 id="otherS3EndpointUrl"
                                 label={t("URL")}
                                 name="otherS3EndpointUrl"
-                                autoComplete="otherS3EndpointUrl"
+                                autoComplete="off"
                                 value={otherS3EndpointUrl}
                                 onChange={(event) => {
                                     setOtherS3EndpointUrl(event.target.value);
@@ -732,7 +732,7 @@ const EditFileRepositoryDialog = (props) => {
                                 id="otherS3AccessKeyId"
                                 label={t("ACCESS_KEY_ID")}
                                 name="otherS3AccessKeyId"
-                                autoComplete="otherS3AccessKeyId"
+                                autoComplete="off"
                                 value={otherS3AccessKeyId}
                                 onChange={(event) => {
                                     setOtherS3AccessKeyId(event.target.value);
@@ -750,7 +750,7 @@ const EditFileRepositoryDialog = (props) => {
                                 id="otherS3SecretAccessKey"
                                 label={t("SECRET_ACCESS_KEY")}
                                 name="otherS3SecretAccessKey"
-                                autoComplete="otherS3SecretAccessKey"
+                                autoComplete="off"
                                 value={otherS3SecretAccessKey}
                                 onChange={(event) => {
                                     setOtherS3SecretAccessKey(event.target.value);
@@ -769,7 +769,7 @@ const EditFileRepositoryDialog = (props) => {
                                 id="doSpace"
                                 label={t("SPACE")}
                                 name="doSpace"
-                                autoComplete="doSpace"
+                                autoComplete="off"
                                 value={doSpace}
                                 onChange={(event) => {
                                     setDoSpace(event.target.value);
@@ -787,7 +787,7 @@ const EditFileRepositoryDialog = (props) => {
                                 id="doRegion"
                                 label={t("REGION")}
                                 name="doRegion"
-                                autoComplete="doRegion"
+                                autoComplete="off"
                                 value={doRegion}
                                 onChange={(event) => {
                                     setDoRegion(event.target.value);
@@ -805,7 +805,7 @@ const EditFileRepositoryDialog = (props) => {
                                 id="doKey"
                                 label={t("KEY")}
                                 name="doKey"
-                                autoComplete="doKey"
+                                autoComplete="off"
                                 value={doKey}
                                 onChange={(event) => {
                                     setDoKey(event.target.value);
@@ -823,7 +823,7 @@ const EditFileRepositoryDialog = (props) => {
                                 id="doSecret"
                                 label={t("SECRET")}
                                 name="doSecret"
-                                autoComplete="doSecret"
+                                autoComplete="off"
                                 value={doSecret}
                                 onChange={(event) => {
                                     setDoSecret(event.target.value);

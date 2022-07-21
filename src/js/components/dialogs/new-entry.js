@@ -644,7 +644,7 @@ const DialogNewEntry = (props) => {
                             margin="dense"
                             id="itemBlueprint"
                             name="itemBlueprint"
-                            autoComplete="itemBlueprint"
+                            autoComplete="off"
                             value={type}
                             required
                             onChange={(newType) => {
@@ -661,7 +661,7 @@ const DialogNewEntry = (props) => {
                                 id="websitePasswordTitle"
                                 label={t("TITLE")}
                                 name="websitePasswordTitle"
-                                autoComplete="websitePasswordTitle"
+                                autoComplete="off"
                                 value={websitePasswordTitle}
                                 required
                                 onChange={(event) => {
@@ -679,7 +679,7 @@ const DialogNewEntry = (props) => {
                                 id="websitePasswordUrl"
                                 label={t("URL")}
                                 name="websitePasswordUrl"
-                                autoComplete="websitePasswordUrl"
+                                autoComplete="off"
                                 value={websitePasswordUrl}
                                 onChange={(event) => {
                                     // get only toplevel domain
@@ -705,7 +705,7 @@ const DialogNewEntry = (props) => {
                                 id="websitePasswordUsername"
                                 label={t("USERNAME")}
                                 name="websitePasswordUsername"
-                                autoComplete="websitePasswordUsername"
+                                autoComplete="off"
                                 value={websitePasswordUsername}
                                 onChange={(event) => {
                                     setWebsitePasswordUsername(event.target.value);
@@ -722,7 +722,7 @@ const DialogNewEntry = (props) => {
                                 id="websitePasswordPassword"
                                 label={t("PASSWORD")}
                                 name="websitePasswordPassword"
-                                autoComplete="websitePasswordPassword"
+                                autoComplete="off"
                                 value={websitePasswordPassword}
                                 onChange={(event) => {
                                     setWebsitePasswordPassword(event.target.value);
@@ -789,7 +789,7 @@ const DialogNewEntry = (props) => {
                                 id="websitePasswordNotes"
                                 label={t("NOTES")}
                                 name="websitePasswordNotes"
-                                autoComplete="websitePasswordNotes"
+                                autoComplete="off"
                                 value={websitePasswordNotes}
                                 onChange={(event) => {
                                     setWebsitePasswordNotes(event.target.value);
@@ -809,7 +809,7 @@ const DialogNewEntry = (props) => {
                                 id="applicationPasswordTitle"
                                 label={t("TITLE")}
                                 name="applicationPasswordTitle"
-                                autoComplete="applicationPasswordTitle"
+                                autoComplete="off"
                                 value={applicationPasswordTitle}
                                 required
                                 onChange={(event) => {
@@ -827,7 +827,7 @@ const DialogNewEntry = (props) => {
                                 id="applicationPasswordUsername"
                                 label={t("USERNAME")}
                                 name="applicationPasswordUsername"
-                                autoComplete="applicationPasswordUsername"
+                                autoComplete="off"
                                 value={applicationPasswordUsername}
                                 onChange={(event) => {
                                     setApplicationPasswordUsername(event.target.value);
@@ -844,7 +844,7 @@ const DialogNewEntry = (props) => {
                                 id="applicationPasswordPassword"
                                 label={t("PASSWORD")}
                                 name="applicationPasswordPassword"
-                                autoComplete="applicationPasswordPassword"
+                                autoComplete="off"
                                 value={applicationPasswordPassword}
                                 onChange={(event) => {
                                     setApplicationPasswordPassword(event.target.value);
@@ -911,7 +911,7 @@ const DialogNewEntry = (props) => {
                                 id="applicationPasswordNotes"
                                 label={t("NOTES")}
                                 name="applicationPasswordNotes"
-                                autoComplete="applicationPasswordNotes"
+                                autoComplete="off"
                                 value={applicationPasswordNotes}
                                 onChange={(event) => {
                                     setApplicationPasswordNotes(event.target.value);
@@ -931,7 +931,7 @@ const DialogNewEntry = (props) => {
                                 id="bookmarkTitle"
                                 label={t("TITLE")}
                                 name="bookmarkTitle"
-                                autoComplete="bookmarkTitle"
+                                autoComplete="off"
                                 value={bookmarkTitle}
                                 required
                                 onChange={(event) => {
@@ -950,7 +950,7 @@ const DialogNewEntry = (props) => {
                                 error={bookmarkUrl && !helperService.isValidUrl(bookmarkUrl)}
                                 label={t("URL")}
                                 name="bookmarkUrl"
-                                autoComplete="bookmarkUrl"
+                                autoComplete="off"
                                 value={bookmarkUrl}
                                 onChange={(event) => {
                                     // get only toplevel domain
@@ -976,7 +976,7 @@ const DialogNewEntry = (props) => {
                                 id="bookmarkNotes"
                                 label={t("NOTES")}
                                 name="bookmarkNotes"
-                                autoComplete="bookmarkNotes"
+                                autoComplete="off"
                                 value={bookmarkNotes}
                                 onChange={(event) => {
                                     setBookmarkNotes(event.target.value);
@@ -996,7 +996,7 @@ const DialogNewEntry = (props) => {
                                 id="noteTitle"
                                 label={t("TITLE")}
                                 name="noteTitle"
-                                autoComplete="noteTitle"
+                                autoComplete="off"
                                 value={noteTitle}
                                 required
                                 onChange={(event) => {
@@ -1014,7 +1014,7 @@ const DialogNewEntry = (props) => {
                                 id="noteNotes"
                                 label={t("NOTES")}
                                 name="noteNotes"
-                                autoComplete="noteNotes"
+                                autoComplete="off"
                                 value={noteNotes}
                                 onChange={(event) => {
                                     setNoteNotes(event.target.value);
@@ -1034,7 +1034,7 @@ const DialogNewEntry = (props) => {
                                 id="totpTitle"
                                 label={t("TITLE")}
                                 name="totpTitle"
-                                autoComplete="totpTitle"
+                                autoComplete="off"
                                 value={totpTitle}
                                 required
                                 onChange={(event) => {
@@ -1053,7 +1053,7 @@ const DialogNewEntry = (props) => {
                                 id="totpPeriod"
                                 label={t("PERIOD_EG_30")}
                                 name="totpPeriod"
-                                autoComplete="totpPeriod"
+                                autoComplete="off"
                                 value={totpPeriod}
                                 required
                                 InputProps={{
@@ -1078,7 +1078,7 @@ const DialogNewEntry = (props) => {
                                 margin="dense"
                                 id="totpAlgorithm"
                                 name="totpAlgorithm"
-                                autoComplete="totpAlgorithm"
+                                autoComplete="off"
                                 value={totpAlgorithm}
                                 required
                                 onChange={(value) => {
@@ -1097,7 +1097,7 @@ const DialogNewEntry = (props) => {
                                 id="totpDigits"
                                 label={t("DIGITS_EG_6")}
                                 name="totpDigits"
-                                autoComplete="totpDigits"
+                                autoComplete="off"
                                 value={totpDigits}
                                 required
                                 InputProps={{
@@ -1123,7 +1123,7 @@ const DialogNewEntry = (props) => {
                                 id="totpCode"
                                 label={t("SECRET")}
                                 name="totpCode"
-                                autoComplete="totpCode"
+                                autoComplete="off"
                                 value={totpCode}
                                 required
                                 onChange={(event) => {
@@ -1170,7 +1170,7 @@ const DialogNewEntry = (props) => {
                                 id="totpNotes"
                                 label={t("NOTES")}
                                 name="totpNotes"
-                                autoComplete="totpNotes"
+                                autoComplete="off"
                                 value={totpNotes}
                                 onChange={(event) => {
                                     setTotpNotes(event.target.value);
@@ -1190,7 +1190,7 @@ const DialogNewEntry = (props) => {
                                 id="environmentVariablesTitle"
                                 label={t("TITLE")}
                                 name="environmentVariablesTitle"
-                                autoComplete="environmentVariablesTitle"
+                                autoComplete="off"
                                 value={environmentVariablesTitle}
                                 required
                                 onChange={(event) => {
@@ -1288,7 +1288,7 @@ const DialogNewEntry = (props) => {
                                 id="environmentVariablesNotes"
                                 label={t("NOTES")}
                                 name="environmentVariablesNotes"
-                                autoComplete="environmentVariablesNotes"
+                                autoComplete="off"
                                 value={environmentVariablesNotes}
                                 onChange={(event) => {
                                     setEnvironmentVariablesNotes(event.target.value);
@@ -1308,7 +1308,7 @@ const DialogNewEntry = (props) => {
                                 id="fileTitle"
                                 label={t("TITLE")}
                                 name="fileTitle"
-                                autoComplete="fileTitle"
+                                autoComplete="off"
                                 value={fileTitle}
                                 required
                                 onChange={(event) => {
@@ -1370,7 +1370,7 @@ const DialogNewEntry = (props) => {
                                 id="mailGpgOwnKeyTitle"
                                 label={t("TITLE")}
                                 name="mailGpgOwnKeyTitle"
-                                autoComplete="mailGpgOwnKeyTitle"
+                                autoComplete="off"
                                 value={mailGpgOwnKeyTitle}
                                 required
                                 onChange={(event) => {
@@ -1388,7 +1388,7 @@ const DialogNewEntry = (props) => {
                                 id="mailGpgOwnKeyEmail"
                                 label={t("EMAIL")}
                                 name="mailGpgOwnKeyEmail"
-                                autoComplete="mailGpgOwnKeyEmail"
+                                autoComplete="off"
                                 value={mailGpgOwnKeyEmail}
                                 required
                                 disabled
@@ -1404,7 +1404,7 @@ const DialogNewEntry = (props) => {
                                 id="mailGpgOwnKeyName"
                                 label={t("NAME")}
                                 name="mailGpgOwnKeyName"
-                                autoComplete="mailGpgOwnKeyName"
+                                autoComplete="off"
                                 value={mailGpgOwnKeyName}
                                 required
                                 disabled
@@ -1420,7 +1420,7 @@ const DialogNewEntry = (props) => {
                                 id="mailGpgOwnKeyPublic"
                                 label={t("PUBLIC_KEY")}
                                 name="mailGpgOwnKeyPublic"
-                                autoComplete="mailGpgOwnKeyPublic"
+                                autoComplete="off"
                                 value={mailGpgOwnKeyPublic}
                                 required
                                 disabled
@@ -1439,7 +1439,7 @@ const DialogNewEntry = (props) => {
                                 id="mailGpgOwnKeyPrivate"
                                 label={t("PRIVATE_KEY")}
                                 name="mailGpgOwnKeyPrivate"
-                                autoComplete="mailGpgOwnKeyPrivate"
+                                autoComplete="off"
                                 value={mailGpgOwnKeyPrivate}
                                 required
                                 disabled
@@ -1510,7 +1510,7 @@ const DialogNewEntry = (props) => {
                                 label={t("DOMAIN_FILTER")}
                                 helperText={t("URL_FILTER_EG")}
                                 name="websitePasswordUrlFilter"
-                                autoComplete="websitePasswordUrlFilter"
+                                autoComplete="off"
                                 value={websitePasswordUrlFilter}
                                 onChange={(event) => {
                                     setWebsitePasswordUrlFilter(event.target.value);
@@ -1529,7 +1529,7 @@ const DialogNewEntry = (props) => {
                                 label={t("DOMAIN_FILTER")}
                                 helperText={t("URL_FILTER_EG")}
                                 name="bookmarkUrlFilter"
-                                autoComplete="bookmarkUrlFilter"
+                                autoComplete="off"
                                 value={bookmarkUrlFilter}
                                 onChange={(event) => {
                                     setBookmarkUrlFilter(event.target.value);
@@ -1547,7 +1547,7 @@ const DialogNewEntry = (props) => {
                                 label={t("CALLBACK_URL")}
                                 helperText={t("CALLBACK_URL_PLACEHOLDER")}
                                 name="callbackUrl"
-                                autoComplete="callbackUrl"
+                                autoComplete="off"
                                 value={callbackUrl}
                                 onChange={(event) => {
                                     setCallbackUrl(event.target.value);
@@ -1564,7 +1564,7 @@ const DialogNewEntry = (props) => {
                                 id="callbackUser"
                                 label={t("CALLBACK_USER")}
                                 name="callbackUser"
-                                autoComplete="callbackUser"
+                                autoComplete="off"
                                 value={callbackUser}
                                 onChange={(event) => {
                                     setCallbackUser(event.target.value);
@@ -1581,7 +1581,7 @@ const DialogNewEntry = (props) => {
                                 id="callbackPass"
                                 label={t("CALLBACK_PASS")}
                                 name="callbackPass"
-                                autoComplete="callbackPass"
+                                autoComplete="off"
                                 value={callbackPass}
                                 onChange={(event) => {
                                     setCallbackPass(event.target.value);

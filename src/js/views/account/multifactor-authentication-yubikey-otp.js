@@ -153,7 +153,7 @@ const MultifactorAuthenticatorYubikeyOtp = (props) => {
                                 id="title"
                                 label={t("TITLE")}
                                 name="title"
-                                autoComplete="title"
+                                autoComplete="off"
                                 required
                                 value={title}
                                 onChange={(event) => {
@@ -169,7 +169,7 @@ const MultifactorAuthenticatorYubikeyOtp = (props) => {
                                 id="yubikeyOtpCode"
                                 label={t("YUBIKEY_OTP")}
                                 name="yubikeyOtpCode"
-                                autoComplete="yubikeyOtpCode"
+                                autoComplete="off"
                                 helperText={t("ONE_OF_YOUR_YUBIKEY_OTPS")}
                                 required
                                 value={yubikeyOtpCode}

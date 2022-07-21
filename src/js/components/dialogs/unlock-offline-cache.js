@@ -67,7 +67,7 @@ const DialogUnlockOfflineCache = (props) => {
                             id="passphrase"
                             label={t("PASSPHRASE")}
                             name="passphrase"
-                            autoComplete="passphrase"
+                            autoComplete="off"
                             value={passphrase}
                             onChange={(event) => {
                                 setPassphrase(event.target.value);

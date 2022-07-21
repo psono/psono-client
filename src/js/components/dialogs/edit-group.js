@@ -601,7 +601,7 @@ const DialogEditGroup = (props) => {
                             id="groupName"
                             label={t("GROUP_NAME")}
                             name="groupName"
-                            autoComplete="groupName"
+                            autoComplete="off"
                             value={groupName}
                             required
                             onChange={(event) => {

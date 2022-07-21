@@ -189,7 +189,7 @@ const DialogGoOffline = (props) => {
                                 id="passphrase"
                                 label={t("PASSPHRASE")}
                                 name="passphrase"
-                                autoComplete="passphrase"
+                                autoComplete="off"
                                 value={passphrase}
                                 onChange={(event) => {
                                     setPassphrase(event.target.value);
@@ -223,7 +223,7 @@ const DialogGoOffline = (props) => {
                                     id="passphraseRepeat"
                                     label={t("PASSPHRASE_REPEAT")}
                                     name="passphraseRepeat"
-                                    autoComplete="passphraseRepeat"
+                                    autoComplete="off"
                                     value={passphraseRepeat}
                                     onChange={(event) => {
                                         setPassphraseRepeat(event.target.value);

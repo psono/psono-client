@@ -63,7 +63,7 @@ const AccountOverviewView = (props) => {
                     id="userId"
                     label={t("USER_ID")}
                     name="userId"
-                    autoComplete="userId"
+                    autoComplete="off"
                     value={store.getState().user.userId}
                     readOnly
                     InputProps={{
@@ -81,7 +81,7 @@ const AccountOverviewView = (props) => {
                     id="username"
                     label={t("USERNAME")}
                     name="username"
-                    autoComplete="username"
+                    autoComplete="off"
                     value={store.getState().user.username}
                     readOnly
                     InputProps={{
@@ -99,7 +99,7 @@ const AccountOverviewView = (props) => {
                     id="userEmail"
                     label={t("E_MAIL")}
                     name="userEmail"
-                    autoComplete="userEmail"
+                    autoComplete="off"
                     value={store.getState().user.userEmail}
                     readOnly
                     InputProps={{
@@ -117,7 +117,7 @@ const AccountOverviewView = (props) => {
                     id="userPublicKey"
                     label={t("PUBLIC_KEY")}
                     name="userPublicKey"
-                    autoComplete="userPublicKey"
+                    autoComplete="off"
                     value={store.getState().user.userPublicKey}
                     readOnly
                     InputProps={{
@@ -143,7 +143,7 @@ const AccountOverviewView = (props) => {
                     id="api"
                     label={t("SERVER_API_VERSION")}
                     name="api"
-                    autoComplete="api"
+                    autoComplete="off"
                     value={store.getState().server.api}
                     readOnly
                     InputProps={{
@@ -161,7 +161,7 @@ const AccountOverviewView = (props) => {
                     id="version"
                     label={t("SERVER_VERSION")}
                     name="version"
-                    autoComplete="version"
+                    autoComplete="off"
                     value={store.getState().server.version}
                     readOnly
                     InputProps={{
@@ -179,7 +179,7 @@ const AccountOverviewView = (props) => {
                     id="verifyKey"
                     label={t("SERVER_SIGNATURE")}
                     name="verifyKey"
-                    autoComplete="verifyKey"
+                    autoComplete="off"
                     value={store.getState().server.verifyKey}
                     readOnly
                     InputProps={{
@@ -197,7 +197,7 @@ const AccountOverviewView = (props) => {
                     id="logAudit"
                     label={t("SERVER_AUDIT_LOGGING")}
                     name="logAudit"
-                    autoComplete="logAudit"
+                    autoComplete="off"
                     value={store.getState().server.logAudit}
                     readOnly
                     InputProps={{
@@ -215,7 +215,7 @@ const AccountOverviewView = (props) => {
                     id="publicKey"
                     label={t("SERVER_PUBLIC_KEY")}
                     name="publicKey"
-                    autoComplete="publicKey"
+                    autoComplete="off"
                     value={store.getState().server.publicKey}
                     readOnly
                     InputProps={{
@@ -233,7 +233,7 @@ const AccountOverviewView = (props) => {
                     id="type"
                     label={t("SERVER_LICENSE_TYPE")}
                     name="type"
-                    autoComplete="type"
+                    autoComplete="off"
                     value={store.getState().server.type}
                     readOnly
                     InputProps={{
@@ -251,7 +251,7 @@ const AccountOverviewView = (props) => {
                     id="licenseMaxUsers"
                     label={t("SERVER_MAX_USERS")}
                     name="licenseMaxUsers"
-                    autoComplete="licenseMaxUsers"
+                    autoComplete="off"
                     value={store.getState().server.licenseMaxUsers}
                     readOnly
                     InputProps={{
@@ -269,7 +269,7 @@ const AccountOverviewView = (props) => {
                     id="licenseValidFrom"
                     label={t("SERVER_LICENSE_VALID_FROM")}
                     name="licenseValidFrom"
-                    autoComplete="licenseValidFrom"
+                    autoComplete="off"
                     value={
                         store.getState().server.licenseValidFrom
                             ? new Date(store.getState().server.licenseValidFrom * 1000)
@@ -291,7 +291,7 @@ const AccountOverviewView = (props) => {
                     id="licenseValidTill"
                     label={t("SERVER_LICENSE_VALID_TILL")}
                     name="licenseValidTill"
-                    autoComplete="licenseValidTill"
+                    autoComplete="off"
                     value={
                         store.getState().server.licenseValidTill
                             ? new Date(store.getState().server.licenseValidTill * 1000)

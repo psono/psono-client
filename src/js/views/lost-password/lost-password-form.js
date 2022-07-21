@@ -246,7 +246,7 @@ const LostPasswordViewForm = (props) => {
                                         ) : null,
                                 }}
                                 name="username"
-                                autoComplete="username"
+                                autoComplete="off"
                                 value={username}
                                 onChange={(event) => {
                                     setUsername(event.target.value);
@@ -261,7 +261,7 @@ const LostPasswordViewForm = (props) => {
                                 id="code1"
                                 placeholder="DdSLuiDcPuY2F"
                                 name="code1"
-                                autoComplete="code1"
+                                autoComplete="off"
                                 value={code1}
                                 onChange={(event) => {
                                     setCode1(event.target.value);
@@ -276,7 +276,7 @@ const LostPasswordViewForm = (props) => {
                                 id="code2"
                                 placeholder="Dsxf82sKQdqPs"
                                 name="code2"
-                                autoComplete="code2"
+                                autoComplete="off"
                                 value={code2}
                                 onChange={(event) => {
                                     setCode2(event.target.value);
@@ -291,7 +291,7 @@ const LostPasswordViewForm = (props) => {
                                 id="words"
                                 placeholder={t("OR_WORDLIST")}
                                 name="words"
-                                autoComplete="words"
+                                autoComplete="off"
                                 value={words}
                                 onChange={(event) => {
                                     setWords(event.target.value);
@@ -331,7 +331,7 @@ const LostPasswordViewForm = (props) => {
                                 id="server"
                                 label={t("SERVER")}
                                 name="server"
-                                autoComplete="server"
+                                autoComplete="off"
                                 value={server}
                                 onChange={(event) => {
                                     setServer(event.target.value);
@@ -382,7 +382,7 @@ const LostPasswordViewForm = (props) => {
                             type: "password",
                         }}
                         name="password"
-                        autoComplete="password"
+                        autoComplete="off"
                         value={password}
                         onChange={(event) => {
                             setPassword(event.target.value);
@@ -400,7 +400,7 @@ const LostPasswordViewForm = (props) => {
                             type: "password",
                         }}
                         name="passwordRepeat"
-                        autoComplete="passwordRepeat"
+                        autoComplete="off"
                         value={passwordRepeat}
                         onChange={(event) => {
                             setPasswordRepeat(event.target.value);

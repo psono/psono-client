@@ -690,7 +690,7 @@ const LoginViewForm = (props) => {
                                         ) : null,
                                 }}
                                 name="username"
-                                autoComplete="username"
+                                autoComplete="off"
                                 value={username}
                                 onChange={(event) => {
                                     setUsername(event.target.value);
@@ -713,7 +713,7 @@ const LoginViewForm = (props) => {
                                     type: "password",
                                 }}
                                 name="password"
-                                autoComplete="password"
+                                autoComplete="off"
                                 value={password}
                                 onChange={(event) => {
                                     setPassword(event.target.value);
@@ -796,7 +796,7 @@ const LoginViewForm = (props) => {
                                 id="server"
                                 label={t("SERVER")}
                                 name="server"
-                                autoComplete="server"
+                                autoComplete="off"
                                 value={server}
                                 onChange={(event) => {
                                     setServer(event.target.value);
@@ -830,7 +830,7 @@ const LoginViewForm = (props) => {
                                 multiline: true,
                             }}
                             name="server_fingerprint"
-                            autoComplete="server_fingerprint"
+                            autoComplete="off"
                             value={serverCheck.verify_key}
                         />
                     </Grid>
@@ -889,7 +889,7 @@ const LoginViewForm = (props) => {
                                 multiline: true,
                             }}
                             name="server_fingerprint"
-                            autoComplete="server_fingerprint"
+                            autoComplete="off"
                             value={serverCheck.verify_key}
                         />
                     </Grid>
@@ -906,7 +906,7 @@ const LoginViewForm = (props) => {
                                 multiline: true,
                             }}
                             name="oldserver_fingerprint"
-                            autoComplete="oldserver_fingerprint"
+                            autoComplete="off"
                             value={serverCheck.verify_key_old}
                         />
                     </Grid>
@@ -1007,7 +1007,7 @@ const LoginViewForm = (props) => {
                             id="gaToken"
                             label={t("GOOGLE_AUTHENTICATOR_CODE")}
                             name="gaToken"
-                            autoComplete="gaToken"
+                            autoComplete="off"
                             required
                             value={gaToken}
                             onChange={(event) => {
@@ -1056,7 +1056,7 @@ const LoginViewForm = (props) => {
                             id="yubikeyOtpToken"
                             label={t("YUBIKEY_TOKEN")}
                             name="yubikeyOtpToken"
-                            autoComplete="yubikeyOtpToken"
+                            autoComplete="off"
                             required
                             value={yubikeyOtpToken}
                             onChange={(event) => {
@@ -1105,7 +1105,7 @@ const LoginViewForm = (props) => {
                             id="duoToken"
                             label={t("DUO_CODE")}
                             name="duoToken"
-                            autoComplete="duoToken"
+                            autoComplete="off"
                             required
                             value={duoToken}
                             onChange={(event) => {

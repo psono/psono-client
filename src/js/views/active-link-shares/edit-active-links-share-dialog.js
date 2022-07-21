@@ -107,7 +107,7 @@ const EditActiveLinksShareDialog = (props) => {
                             label={t("PUBLIC_TITLE")}
                             helperText={t("INFO_PUBLIC_TITLE_WILL_BE_VISIBLE")}
                             name="publicTitle"
-                            autoComplete="publicTitle"
+                            autoComplete="off"
                             required
                             value={publicTitle}
                             onChange={(event) => {
@@ -124,7 +124,7 @@ const EditActiveLinksShareDialog = (props) => {
                             label={t("ALLOWED_USAGE")}
                             helperText={t("INFO_HOW_OFTEN_CAN_LINK_SHARE_BE_USED")}
                             name="allowedReads"
-                            autoComplete="allowedReads"
+                            autoComplete="off"
                             InputProps={{
                                 inputProps: {
                                     min: 0,
@@ -178,7 +178,7 @@ const EditActiveLinksShareDialog = (props) => {
                                 label={t("PASSPHRASE")}
                                 helperText={t("SHARE_LINK_PASSPHRASE_INFO")}
                                 name="passphrase"
-                                autoComplete="passphrase"
+                                autoComplete="off"
                                 value={passphrase}
                                 onChange={(event) => {
                                     setPassphrase(event.target.value);
@@ -195,7 +195,7 @@ const EditActiveLinksShareDialog = (props) => {
                                 id="passphraseRepeat"
                                 label={t("PASSPHRASE_REPEAT")}
                                 name="passphraseRepeat"
-                                autoComplete="passphraseRepeat"
+                                autoComplete="off"
                                 error={
                                     Boolean(passphrase) && Boolean(passphraseRepeat) && passphrase !== passphraseRepeat
                                 }

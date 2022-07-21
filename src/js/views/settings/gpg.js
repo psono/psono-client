@@ -81,7 +81,7 @@ const SettingsGpgView = (props) => {
                     id="gpgHkpKeyServer"
                     label={t("HKP_SERVER")}
                     name="gpgHkpKeyServer"
-                    autoComplete="gpgHkpKeyServer"
+                    autoComplete="off"
                     value={gpgHkpKeyServer}
                     onChange={(event) => {
                         setGpgHkpKeyServer(event.target.value);

@@ -85,7 +85,7 @@ const DialogEditUser = (props) => {
                             id="visualUsername"
                             label={t("NAME_OPTIONAL")}
                             name="visualUsername"
-                            autoComplete="visualUsername"
+                            autoComplete="off"
                             value={visualUsername}
                             onChange={(event) => {
                                 setVisualUsername(event.target.value);
@@ -100,7 +100,7 @@ const DialogEditUser = (props) => {
                             id="username"
                             label={t("USERNAME")}
                             name="username"
-                            autoComplete="username"
+                            autoComplete="off"
                             value={username}
                             disabled
                         />
@@ -113,7 +113,7 @@ const DialogEditUser = (props) => {
                             id="publicKey"
                             label={t("PUBLIC_KEY")}
                             name="publicKey"
-                            autoComplete="publicKey"
+                            autoComplete="off"
                             helperText={t("TO_VERIFY_PUBLIC_KEY")}
                             value={publicKey}
                             disabled

@@ -59,7 +59,7 @@ const AccountChangeEmailView = (props) => {
                         type="email"
                         label={t("NEW_E_MAIL")}
                         name="email"
-                        autoComplete="email"
+                        autoComplete="off"
                         value={email}
                         onChange={(event) => {
                             setEmail(event.target.value);
@@ -77,7 +77,7 @@ const AccountChangeEmailView = (props) => {
                             type: "password",
                         }}
                         name="password"
-                        autoComplete="password"
+                        autoComplete="off"
                         value={password}
                         onChange={(event) => {
                             setPassword(event.target.value);

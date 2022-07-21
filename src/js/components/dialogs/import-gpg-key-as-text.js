@@ -107,7 +107,7 @@ const DialogImportAsText = (props) => {
                             label={t("TITLE")}
                             helperText={t("TITLE_TO_IDENTIFY_THIS_KEY")}
                             name="title"
-                            autoComplete="title"
+                            autoComplete="off"
                             value={title}
                             onChange={(event) => {
                                 setTitle(event.target.value);
@@ -124,7 +124,7 @@ const DialogImportAsText = (props) => {
                             label={t("PASSPHRASE")}
                             helperText={t("YOUR_KEYS_PASSPHRASE")}
                             name="passphrase"
-                            autoComplete="passphrase"
+                            autoComplete="off"
                             value={passphrase}
                             onChange={(event) => {
                                 setPassphrase(event.target.value);
@@ -143,7 +143,7 @@ const DialogImportAsText = (props) => {
                                 " -----BEGIN PGP PUBLIC KEY BLOCK----- and -----END PGP PUBLIC KEY BLOCK-----"
                             }
                             name="publicKey"
-                            autoComplete="publicKey"
+                            autoComplete="off"
                             value={publicKey}
                             onChange={(event) => {
                                 setPublicKey(event.target.value.trim());
@@ -166,7 +166,7 @@ const DialogImportAsText = (props) => {
                                 " -----BEGIN PGP PRIVATE KEY BLOCK----- and -----END PGP PRIVATE KEY BLOCK-----"
                             }
                             name="privateKey"
-                            autoComplete="publicKey"
+                            autoComplete="off"
                             value={privateKey}
                             onChange={(event) => {
                                 setPrivateKey(event.target.value.trim());

@@ -207,7 +207,7 @@ const EmergencyCodeViewForm = (props) => {
                                     ) : null,
                             }}
                             name="username"
-                            autoComplete="username"
+                            autoComplete="off"
                             value={username}
                             onChange={(event) => {
                                 setUsername(event.target.value);
@@ -222,7 +222,7 @@ const EmergencyCodeViewForm = (props) => {
                             id="code1"
                             placeholder="DdSLuiDcPuY2F"
                             name="code1"
-                            autoComplete="code1"
+                            autoComplete="off"
                             value={code1}
                             onChange={(event) => {
                                 setCode1(event.target.value);
@@ -237,7 +237,7 @@ const EmergencyCodeViewForm = (props) => {
                             id="code2"
                             placeholder="Dsxf82sKQdqPs"
                             name="code2"
-                            autoComplete="code2"
+                            autoComplete="off"
                             value={code2}
                             onChange={(event) => {
                                 setCode2(event.target.value);
@@ -252,7 +252,7 @@ const EmergencyCodeViewForm = (props) => {
                             id="words"
                             placeholder={t("OR_WORDLIST")}
                             name="words"
-                            autoComplete="words"
+                            autoComplete="off"
                             value={words}
                             onChange={(event) => {
                                 setWords(event.target.value);
@@ -285,7 +285,7 @@ const EmergencyCodeViewForm = (props) => {
                                 id="server"
                                 label={t("SERVER")}
                                 name="server"
-                                autoComplete="server"
+                                autoComplete="off"
                                 value={server}
                                 onChange={(event) => {
                                     setServer(event.target.value);
@@ -381,7 +381,7 @@ const EmergencyCodeViewForm = (props) => {
                                 multiline: true,
                             }}
                             name="server_fingerprint"
-                            autoComplete="server_fingerprint"
+                            autoComplete="off"
                             value={serverCheck.verify_key}
                         />
                     </Grid>
@@ -440,7 +440,7 @@ const EmergencyCodeViewForm = (props) => {
                                 multiline: true,
                             }}
                             name="server_fingerprint"
-                            autoComplete="server_fingerprint"
+                            autoComplete="off"
                             value={serverCheck.verify_key}
                         />
                     </Grid>
@@ -457,7 +457,7 @@ const EmergencyCodeViewForm = (props) => {
                                 multiline: true,
                             }}
                             name="oldserver_fingerprint"
-                            autoComplete="oldserver_fingerprint"
+                            autoComplete="off"
                             value={serverCheck.verify_key_old}
                         />
                     </Grid>
