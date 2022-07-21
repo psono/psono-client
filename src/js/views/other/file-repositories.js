@@ -187,11 +187,12 @@ const OtherFileRepositoriesView = (props) => {
             },
         },
         {
-            name: "",
+            name: t("ACTION"),
             options: {
                 filter: true,
                 sort: false,
                 empty: false,
+                customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     if (tableMeta.rowData[4]) {
                         return (

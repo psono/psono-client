@@ -540,11 +540,12 @@ const DialogEditGroup = (props) => {
             },
         },
         {
-            name: "",
+            name: t("DELETE"),
             options: {
                 filter: false,
                 sort: false,
                 empty: false,
+                customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <IconButton

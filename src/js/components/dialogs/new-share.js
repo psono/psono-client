@@ -15,6 +15,8 @@ import IconButton from "@material-ui/core/IconButton";
 import Divider from "@material-ui/core/Divider";
 import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@material-ui/icons/CheckBox";
+import TableSortLabel from '@material-ui/core/TableSortLabel';
+import TableCell from '@material-ui/core/TableCell';
 
 import helper from "../../services/helper";
 import datastoreUserService from "../../services/datastore-user";
@@ -168,11 +170,12 @@ const DialogNewShare = (props) => {
             },
         },
         {
-            name: "",
+            name: t("INVITE"),
             options: {
                 filter: true,
                 sort: true,
                 empty: false,
+                customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <IconButton onClick={() => toggleSelect(tableMeta.rowData[0], "user")}>
@@ -208,11 +211,12 @@ const DialogNewShare = (props) => {
             },
         },
         {
-            name: "",
+            name: t("INVITE"),
             options: {
                 filter: true,
                 sort: true,
                 empty: false,
+                customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <IconButton onClick={() => toggleSelect(tableMeta.rowData[0], "group")}>

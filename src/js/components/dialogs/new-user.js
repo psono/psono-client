@@ -151,11 +151,12 @@ const DialogNewUser = (props) => {
         const columns = [
             { name: t("ID"), options: { display: false } },
             {
-                name: "",
+                name: t("SELECTED"),
                 options: {
                     filter: false,
                     sort: false,
                     empty: false,
+                    customHeadLabelRender: () => null,
                     customBodyRender: (value, tableMeta, updateValue) => {
                         return (
                             <IconButton
