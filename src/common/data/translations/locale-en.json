@@ -1,4 +1,7 @@
 {
+  "SELECTED": "Selected",
+  "ACTION": "Action",
+  "INVITE": "Einladen",
   "QR_CODE": "QR Code",
   "INCLUDE_TRASH_BIN_ENTRIES": "Include entries of the trash bin",
   "TOGGLE_GROUP_ADMIN": "Toggle Group Admin",
@@ -495,6 +498,7 @@
   "CLICK_ON_THE": "Click on the",
   "SYMBOL_IN_THE_TOP_RIGHT": "symbol in the top right corner to start.",
   "RIGHT_CLICK_HERE_TO_CREATE_ONE": "Right click here to create one.",
+  "CLICK_ON_THE_SYMBOL_IN_THE_TOP_RIGHT_CORNER_TO_START": "Click on the<br/><2></2><br/>symbol in the top right corner to start.",
   "NEW_FOLDER": "New Folder",
   "NEW_ENTRY": "New Entry",
   "EDIT_FOLDER": "Edit Folder",

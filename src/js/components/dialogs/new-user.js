@@ -151,11 +151,12 @@ const DialogNewUser = (props) => {
         const columns = [
             { name: t("ID"), options: { display: false } },
             {
-                name: "",
+                name: t("SELECTED"),
                 options: {
                     filter: false,
                     sort: false,
                     empty: false,
+                    customHeadLabelRender: () => null,
                     customBodyRender: (value, tableMeta, updateValue) => {
                         return (
                             <IconButton
@@ -260,7 +261,7 @@ const DialogNewUser = (props) => {
                                         ) : null,
                                 }}
                                 name="username"
-                                autoComplete="username"
+                                autoComplete="off"
                                 value={username}
                                 onChange={(event) => {
                                     setUsername(event.target.value);
@@ -277,7 +278,7 @@ const DialogNewUser = (props) => {
                                     id="email"
                                     label={t("EMAIL")}
                                     name="email"
-                                    autoComplete="email"
+                                    autoComplete="off"
                                     value={email}
                                     onChange={(event) => {
                                         setEmail(event.target.value);
@@ -306,7 +307,7 @@ const DialogNewUser = (props) => {
                                     id="visualUsername"
                                     label={t("NAME_OPTIONAL")}
                                     name="visualUsername"
-                                    autoComplete="visualUsername"
+                                    autoComplete="off"
                                     value={visualUsername}
                                     onChange={(event) => {
                                         setVisualUsername(event.target.value);
@@ -323,7 +324,7 @@ const DialogNewUser = (props) => {
                                     id="foundUsername"
                                     label={t("USERNAME")}
                                     name="foundUsername"
-                                    autoComplete="foundUsername"
+                                    autoComplete="off"
                                     value={foundUsername}
                                     disabled
                                 />
@@ -338,7 +339,7 @@ const DialogNewUser = (props) => {
                                     id="foundPublicKey"
                                     label={t("PUBLIC_KEY")}
                                     name="foundPublicKey"
-                                    autoComplete="foundPublicKey"
+                                    autoComplete="off"
                                     helperText={t("TO_VERIFY_PUBLIC_KEY")}
                                     value={foundPublicKey}
                                     disabled

@@ -125,7 +125,7 @@ const DialogDecryptGpgMessage = (props) => {
                                 id="encryptedMessage"
                                 label={t("ENCRYPTED_MESSAGE")}
                                 name="encryptedMessage"
-                                autoComplete="encryptedMessage"
+                                autoComplete="off"
                                 value={encryptedMessage}
                                 onChange={(event) => {
                                     setEncryptedMessage(event.target.value);
@@ -145,7 +145,7 @@ const DialogDecryptGpgMessage = (props) => {
                                 id="decryptedMessage"
                                 label={t("DECRYPTED_MESSAGE")}
                                 name="decryptedMessage"
-                                autoComplete="decryptedMessage"
+                                autoComplete="off"
                                 value={decryptedMessage}
                                 multiline
                                 disabled

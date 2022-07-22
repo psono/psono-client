@@ -221,7 +221,7 @@ const RegisterForm = (props) => {
                                         ) : null,
                                 }}
                                 name="username"
-                                autoComplete="username"
+                                autoComplete="off"
                                 value={username}
                                 onChange={(event) => {
                                     setUsername(event.target.value);
@@ -237,7 +237,7 @@ const RegisterForm = (props) => {
                                 type="email"
                                 label={t("EMAIL")}
                                 name="email"
-                                autoComplete="email"
+                                autoComplete="off"
                                 value={email}
                                 onChange={(event) => {
                                     setEmail(event.target.value);
@@ -255,7 +255,7 @@ const RegisterForm = (props) => {
                                     type: "password",
                                 }}
                                 name="password"
-                                autoComplete="password"
+                                autoComplete="off"
                                 value={password}
                                 onChange={(event) => {
                                     setPassword(event.target.value);
@@ -274,7 +274,7 @@ const RegisterForm = (props) => {
                                     type: "password",
                                 }}
                                 name="passwordRepeat"
-                                autoComplete="passwordRepeat"
+                                autoComplete="off"
                                 value={passwordRepeat}
                                 onChange={(event) => {
                                     setPasswordRepeat(event.target.value);
@@ -318,7 +318,7 @@ const RegisterForm = (props) => {
                                 id="server"
                                 label={t("SERVER")}
                                 name="server"
-                                autoComplete="server"
+                                autoComplete="off"
                                 value={server}
                                 onChange={(event) => {
                                     setServer(event.target.value);

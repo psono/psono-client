@@ -21,11 +21,11 @@ import FileCopyIcon from "@material-ui/icons/FileCopy";
 import Divider from "@material-ui/core/Divider";
 import { makeStyles } from "@material-ui/core/styles";
 
-import ContentCopy from "./icons/ContentCopy";
+import ContentCopy from "../icons/ContentCopy";
 
-import secretService from "../services/secret";
-import store from "../services/store";
-import widgetService from "../services/widget";
+import secretService from "../../services/secret";
+import store from "../../services/store";
+import widgetService from "../../services/widget";
 
 const useStyles = makeStyles((theme) => ({
     divider: {
@@ -100,6 +100,7 @@ const DatastoreTreeItem = (props) => {
     const onClone = (event) => {
         handleClose(event);
         props.onCloneEntry(content, content.path, props.nodePath);
+
     };
 
     const onNewShare = (event) => {
@@ -130,6 +131,7 @@ const DatastoreTreeItem = (props) => {
     };
 
     const hideShare =
+        (store.getState().server.complianceDisableShares && !content.hasOwnProperty("share_id")) ||
         offline ||
         (content.hasOwnProperty("share_rights") && content.share_rights.grant === false) ||
         content.type === "user" ||

@@ -123,7 +123,7 @@ const DialogGenerateNewGpgKey = (props) => {
                                 label={t("TITLE")}
                                 helperText={t("TITLE_TO_IDENTIFY_THIS_KEY")}
                                 name="title"
-                                autoComplete="title"
+                                autoComplete="off"
                                 value={title}
                                 onChange={(event) => {
                                     setTitle(event.target.value);
@@ -140,7 +140,7 @@ const DialogGenerateNewGpgKey = (props) => {
                                 label={t("NAME")}
                                 helperText={t("YOUR_REQUIRED_NAME")}
                                 name="name"
-                                autoComplete="name"
+                                autoComplete="off"
                                 value={name}
                                 onChange={(event) => {
                                     setName(event.target.value);
@@ -157,7 +157,7 @@ const DialogGenerateNewGpgKey = (props) => {
                                 label={t("EMAIL")}
                                 helperText={t("YOUR_REQUIRED_EMAIL")}
                                 name="email"
-                                autoComplete="email"
+                                autoComplete="off"
                                 type="email"
                                 value={email}
                                 onChange={(event) => {

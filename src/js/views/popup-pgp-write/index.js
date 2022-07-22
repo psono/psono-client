@@ -257,7 +257,7 @@ const PopupPgpWriteView = (props) => {
                                             id="decryptedMessage"
                                             label={t("MESSAGE")}
                                             name="decryptedMessage"
-                                            autoComplete="decryptedMessage"
+                                            autoComplete="off"
                                             value={decryptedMessage}
                                             onChange={(event) => {
                                                 setDecryptedMessage(event.target.value);
@@ -322,7 +322,7 @@ const PopupPgpWriteView = (props) => {
                                             id="encryptedMessage"
                                             label={t("ENCRYPTED_MESSAGE")}
                                             name="encryptedMessage"
-                                            autoComplete="encryptedMessage"
+                                            autoComplete="off"
                                             value={encryptedMessage}
                                             multiline
                                             disabled

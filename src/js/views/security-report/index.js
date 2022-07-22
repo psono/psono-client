@@ -349,7 +349,7 @@ const SecurityReportView = (props) => {
                             margin="dense"
                             label={t("PASSWORD")}
                             name="websitePasswordPassword"
-                            autoComplete="websitePasswordPassword"
+                            autoComplete="off"
                             value={tableMeta.rowData[2]}
                         />
                     );
@@ -498,7 +498,7 @@ const SecurityReportView = (props) => {
                                             id="password"
                                             label={t("YOUR_PASSWORD")}
                                             name="password"
-                                            autoComplete="password"
+                                            autoComplete="off"
                                             value={password}
                                             onChange={(event) => {
                                                 setPassword(event.target.value);
@@ -518,7 +518,7 @@ const SecurityReportView = (props) => {
                                             id="passwordRepeat"
                                             label={t("PASSWORD_REPEAT")}
                                             name="passwordRepeat"
-                                            autoComplete="passwordRepeat"
+                                            autoComplete="off"
                                             value={passwordRepeat}
                                             onChange={(event) => {
                                                 setPasswordRepeat(event.target.value);

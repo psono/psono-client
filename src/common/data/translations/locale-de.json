@@ -1,4 +1,7 @@
 {
+  "SELECTED": "Ausgewählt",
+  "ACTION": "Aktion",
+  "INVITE": "Invite",
   "QR_CODE": "QR Code",
   "INCLUDE_TRASH_BIN_ENTRIES": "Einträge des Parpierkorbs einschließen",
   "TOGGLE_GROUP_ADMIN": "Gruppen Admin Änderung",
@@ -495,6 +498,7 @@
   "CLICK_ON_THE": "Klicke auf das",
   "SYMBOL_IN_THE_TOP_RIGHT": "Symbol in der oberen rechten Ecke um loszulegen.",
   "RIGHT_CLICK_HERE_TO_CREATE_ONE": "Hier rechtsklicken um einen zu erstellen.",
+  "CLICK_ON_THE_SYMBOL_IN_THE_TOP_RIGHT_CORNER_TO_START": "Klicke auf das<br/><2></2><br/>Symbol oben rechts in der Ecke um zu starten.",
   "NEW_FOLDER": "Neuer Ordner",
   "NEW_ENTRY": "Neuer Eintrag",
   "EDIT_FOLDER": "Ordner Bearbeiten",

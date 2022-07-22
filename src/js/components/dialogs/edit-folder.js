@@ -65,7 +65,7 @@ const DialogEditFolder = (props) => {
                             id="folderName"
                             label={t("FOLDER_NAME")}
                             name="folderName"
-                            autoComplete="folderName"
+                            autoComplete="off"
                             value={folderName}
                             required
                             onChange={(event) => {

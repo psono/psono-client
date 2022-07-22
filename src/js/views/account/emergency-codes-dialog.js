@@ -163,7 +163,7 @@ const EmergencyCodesDialog = (props) => {
                                 id="person"
                                 label={t("PERSON")}
                                 name="person"
-                                autoComplete="person"
+                                autoComplete="off"
                                 required
                                 value={person}
                                 onChange={(event) => {
@@ -180,7 +180,7 @@ const EmergencyCodesDialog = (props) => {
                                 label={t("LEAD_TIME_IN_HOURS")}
                                 helperText={t("LEAD_TIME_IN_HOURS_PLACEHOLDER")}
                                 name="leadTime"
-                                autoComplete="leadTime"
+                                autoComplete="off"
                                 required
                                 value={leadTime}
                                 InputProps={{

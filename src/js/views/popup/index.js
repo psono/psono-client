@@ -387,7 +387,7 @@ const PopupView = (props) => {
                         id="search"
                         label={t("SEARCH_DATSTORE")}
                         name="search"
-                        autoComplete="search"
+                        autoComplete="off"
                         value={search}
                         onChange={(event) => {
                             setSearch(event.target.value);

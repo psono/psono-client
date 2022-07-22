@@ -78,7 +78,7 @@ const CreateGroupDialog = (props) => {
                             id="name"
                             label={t("GROUP_NAME")}
                             name="name"
-                            autoComplete="name"
+                            autoComplete="off"
                             required
                             value={name}
                             onChange={(event) => {

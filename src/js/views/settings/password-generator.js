@@ -67,7 +67,7 @@ const SettingsPasswordGeneratorView = (props) => {
                     id="passwordLength"
                     label={t("PASSWORD_LENGTH")}
                     name="passwordLength"
-                    autoComplete="passwordLength"
+                    autoComplete="off"
                     value={passwordLength}
                     onChange={(event) => {
                         setPasswordLength(event.target.value);
@@ -87,7 +87,7 @@ const SettingsPasswordGeneratorView = (props) => {
                     id="passwordLettersUppercase"
                     label={t("LETTERS_UPPERCASE")}
                     name="passwordLettersUppercase"
-                    autoComplete="passwordLettersUppercase"
+                    autoComplete="off"
                     value={passwordLettersUppercase}
                     onChange={(event) => {
                         setPasswordLettersUppercase(event.target.value);
@@ -107,7 +107,7 @@ const SettingsPasswordGeneratorView = (props) => {
                     id="passwordLettersLowercase"
                     label={t("LETTERS_LOWERCASE")}
                     name="passwordLettersLowercase"
-                    autoComplete="passwordLettersLowercase"
+                    autoComplete="off"
                     value={passwordLettersLowercase}
                     onChange={(event) => {
                         setPasswordLettersLowercase(event.target.value);
@@ -127,7 +127,7 @@ const SettingsPasswordGeneratorView = (props) => {
                     id="passwordNumbers"
                     label={t("NUMBERS")}
                     name="passwordNumbers"
-                    autoComplete="passwordNumbers"
+                    autoComplete="off"
                     value={passwordNumbers}
                     onChange={(event) => {
                         setPasswordNumbers(event.target.value);
@@ -147,7 +147,7 @@ const SettingsPasswordGeneratorView = (props) => {
                     id="passwordSpecialChars"
                     label={t("SPECIAL_CHARS")}
                     name="passwordSpecialChars"
-                    autoComplete="passwordSpecialChars"
+                    autoComplete="off"
                     value={passwordSpecialChars}
                     onChange={(event) => {
                         setPasswordSpecialChars(event.target.value);

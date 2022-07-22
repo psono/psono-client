@@ -105,11 +105,12 @@ const DialogSelectUser = (props) => {
         { name: t("ID"), options: { display: false } },
         { name: t("USER") },
         {
-            name: "",
+            name: t("SELECTED"),
             options: {
                 filter: false,
                 sort: true,
                 empty: false,
+                customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <IconButton

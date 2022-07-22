@@ -373,7 +373,7 @@ const DialogGpgAddressBook = (props) => {
                                 id="email"
                                 label={t("EMAIL")}
                                 name="email"
-                                autoComplete="email"
+                                autoComplete="off"
                                 value={editingUser.email}
                                 required
                                 disabled
@@ -405,7 +405,7 @@ const DialogGpgAddressBook = (props) => {
                                 id="email"
                                 label={t("EMAIL")}
                                 name="email"
-                                autoComplete="email"
+                                autoComplete="off"
                                 value={email}
                                 required
                                 error={Boolean(email) && !helper.isValidEmail(email)}
@@ -422,7 +422,7 @@ const DialogGpgAddressBook = (props) => {
                                 id="newPublicKey"
                                 label={t("PUBLIC_KEY")}
                                 name="newPublicKey"
-                                autoComplete="newPublicKey"
+                                autoComplete="off"
                                 value={newPublicKey}
                                 required
                                 onChange={async (event) => {
@@ -458,7 +458,7 @@ const DialogGpgAddressBook = (props) => {
                                     id="fingerprint"
                                     label={t("FINGERPRINT")}
                                     name="fingerprint"
-                                    autoComplete="fingerprint"
+                                    autoComplete="off"
                                     value={fingerprint}
                                 />
                             </Grid>
@@ -477,7 +477,7 @@ const DialogGpgAddressBook = (props) => {
                                 id="email"
                                 label={t("EMAIL")}
                                 name="email"
-                                autoComplete="email"
+                                autoComplete="off"
                                 value={editingUser.email}
                                 required
                                 disabled
@@ -491,7 +491,7 @@ const DialogGpgAddressBook = (props) => {
                                 id="newPublicKey"
                                 label={t("PUBLIC_KEY")}
                                 name="newPublicKey"
-                                autoComplete="newPublicKey"
+                                autoComplete="off"
                                 value={newPublicKey}
                                 required
                                 onChange={async (event) => {
@@ -526,7 +526,7 @@ const DialogGpgAddressBook = (props) => {
                                     id="fingerprint"
                                     label={t("FINGERPRINT")}
                                     name="fingerprint"
-                                    autoComplete="fingerprint"
+                                    autoComplete="off"
                                     value={fingerprint}
                                 />
                             </Grid>

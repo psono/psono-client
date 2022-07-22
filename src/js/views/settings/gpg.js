@@ -56,8 +56,8 @@ const SettingsGpgView = (props) => {
     return (
         <Grid container>
             <Grid item xs={12} sm={12} md={12}>
-                <h2>{t("PASSWORD_GENERATOR")}</h2>
-                <p>{t("PASSWORD_GENERATOR_DESCRIPTION")}</p>
+                <h2>{t("GPG")}</h2>
+                <p>{t("GPG_DESCRIPTION")}</p>
                 <Divider style={{ marginBottom: "20px" }} />
             </Grid>
             <Grid item xs={12} sm={12} md={12}>
@@ -81,7 +81,7 @@ const SettingsGpgView = (props) => {
                     id="gpgHkpKeyServer"
                     label={t("HKP_SERVER")}
                     name="gpgHkpKeyServer"
-                    autoComplete="gpgHkpKeyServer"
+                    autoComplete="off"
                     value={gpgHkpKeyServer}
                     onChange={(event) => {
                         setGpgHkpKeyServer(event.target.value);

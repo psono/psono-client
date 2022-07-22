@@ -209,7 +209,7 @@ const MultifactorAuthenticatorDuo = (props) => {
                                     label={t("TITLE")}
                                     helperText={t("TITLE_OF_YOUR_DUO")}
                                     name="title"
-                                    autoComplete="title"
+                                    autoComplete="off"
                                     required
                                     value={title}
                                     onChange={(event) => {
@@ -227,7 +227,7 @@ const MultifactorAuthenticatorDuo = (props) => {
                                     id="integrationKey"
                                     label={t("INTEGRATION_KEY")}
                                     name="integrationKey"
-                                    autoComplete="integrationKey"
+                                    autoComplete="off"
                                     required
                                     value={integrationKey}
                                     onChange={(event) => {
@@ -245,7 +245,7 @@ const MultifactorAuthenticatorDuo = (props) => {
                                     id="secretKey"
                                     label={t("SECRET_KEY")}
                                     name="secretKey"
-                                    autoComplete="secretKey"
+                                    autoComplete="off"
                                     required
                                     value={secretKey}
                                     onChange={(event) => {
@@ -263,7 +263,7 @@ const MultifactorAuthenticatorDuo = (props) => {
                                     id="host"
                                     label={t("HOST")}
                                     name="host"
-                                    autoComplete="host"
+                                    autoComplete="off"
                                     required
                                     value={host}
                                     onChange={(event) => {
@@ -322,7 +322,7 @@ const MultifactorAuthenticatorDuo = (props) => {
                                 label={t("CODE")}
                                 helperText={t("ONE_CODE_FOR_VALIDATION")}
                                 name="code"
-                                autoComplete="code"
+                                autoComplete="off"
                                 value={code}
                                 onChange={(event) => {
                                     setCode(event.target.value);

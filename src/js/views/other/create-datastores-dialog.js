@@ -78,7 +78,7 @@ const CreateDatastoresDialog = (props) => {
                             id="description"
                             label={t("DATASTORE_DESCRIPTION")}
                             name="description"
-                            autoComplete="description"
+                            autoComplete="off"
                             value={description}
                             onChange={(event) => {
                                 setDescription(event.target.value);

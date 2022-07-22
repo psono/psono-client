@@ -78,7 +78,7 @@ const DeleteDatastoresDialog = (props) => {
                                     type: "password",
                                 }}
                                 name="password"
-                                autoComplete="password"
+                                autoComplete="off"
                                 value={password}
                                 onChange={(event) => {
                                     setPassword(event.target.value);

@@ -151,7 +151,7 @@ const ActivationForm = (props) => {
                             multiline
                             label={t("KEY")}
                             name="activationCode"
-                            autoComplete="activationCode"
+                            autoComplete="off"
                             value={activationCode}
                             onChange={(event) => {
                                 setActivationCode(event.target.value);
@@ -191,7 +191,7 @@ const ActivationForm = (props) => {
                                 id="server"
                                 label={t("SERVER")}
                                 name="server"
-                                autoComplete="server"
+                                autoComplete="off"
                                 value={server}
                                 onChange={(event) => {
                                     setServer(event.target.value);

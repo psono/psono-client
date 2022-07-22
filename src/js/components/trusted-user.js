@@ -123,7 +123,7 @@ const TrustedUser = (props) => {
 
     return (
         <>
-            {Boolean(user.data.user_name) && (
+            {Boolean(user && user.data.user_name) && (
                 <Grid item xs={12} sm={12} md={12}>
                     <TextField
                         className={classes.textField}
@@ -132,13 +132,13 @@ const TrustedUser = (props) => {
                         id="username"
                         label={t("USERNAME") + " " + (userIsTrusted ? "" : t("NOT_TRUSTED_BRACKETS"))}
                         name="username"
-                        autoComplete="username"
+                        autoComplete="off"
                         value={user.data.user_name}
                         disabled
                     />
                 </Grid>
             )}
-            {!Boolean(user.data.user_name) && (
+            {!Boolean(user && user.data.user_name) && (
                 <Grid item xs={12} sm={12} md={12}>
                     <TextField
                         className={classes.textField}
@@ -147,7 +147,7 @@ const TrustedUser = (props) => {
                         id="username"
                         label={t("USERNAME") + " " + (userIsTrusted ? "" : t("NOT_TRUSTED_BRACKETS"))}
                         name="username"
-                        autoComplete="username"
+                        autoComplete="off"
                         value={user.data.user_username}
                         disabled
                     />
@@ -161,7 +161,7 @@ const TrustedUser = (props) => {
                     id="publicKey"
                     label={t("PUBLIC_KEY") + " " + (userIsTrusted ? "" : t("NOT_TRUSTED_BRACKETS"))}
                     name="publicKey"
-                    autoComplete="publicKey"
+                    autoComplete="off"
                     value={user.data.user_public_key}
                     disabled
                 />

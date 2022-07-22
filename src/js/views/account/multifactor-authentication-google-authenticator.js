@@ -175,7 +175,7 @@ const MultifactorAuthenticatorGoogleAuthenticator = (props) => {
                                 id="title"
                                 label={t("TITLE")}
                                 name="title"
-                                autoComplete="title"
+                                autoComplete="off"
                                 required
                                 value={title}
                                 onChange={(event) => {
@@ -211,7 +211,7 @@ const MultifactorAuthenticatorGoogleAuthenticator = (props) => {
                                 id="uri"
                                 label={"URI"}
                                 name="uri"
-                                autoComplete="uri"
+                                autoComplete="off"
                                 value={uri}
 
                             />
@@ -235,7 +235,7 @@ const MultifactorAuthenticatorGoogleAuthenticator = (props) => {
                                 id="code"
                                 label={t("CODE")}
                                 name="code"
-                                autoComplete="code"
+                                autoComplete="off"
                                 helperText={t("ONE_CODE_FOR_VALIDATION")}
                                 required
                                 value={code}

@@ -569,7 +569,7 @@ const DialogEditEntry = (props) => {
                         id="websitePasswordTitle"
                         label={t("TITLE")}
                         name="websitePasswordTitle"
-                        autoComplete="websitePasswordTitle"
+                        autoComplete="off"
                         value={websitePasswordTitle}
                         InputProps={{ readOnly: !item.share_rights.write }}
                         required
@@ -588,7 +588,7 @@ const DialogEditEntry = (props) => {
                         id="websitePasswordUrl"
                         label={t("URL")}
                         name="websitePasswordUrl"
-                        autoComplete="websitePasswordUrl"
+                        autoComplete="off"
                         value={websitePasswordUrl}
                         InputProps={{ readOnly: !item.share_rights.write }}
                         onChange={(event) => {
@@ -615,7 +615,7 @@ const DialogEditEntry = (props) => {
                         id="websitePasswordUsername"
                         label={t("USERNAME")}
                         name="websitePasswordUsername"
-                        autoComplete="websitePasswordUsername"
+                        autoComplete="off"
                         value={websitePasswordUsername}
                         InputProps={{ readOnly: !item.share_rights.write }}
                         onChange={(event) => {
@@ -633,7 +633,7 @@ const DialogEditEntry = (props) => {
                         id="websitePasswordPassword"
                         label={t("PASSWORD")}
                         name="websitePasswordPassword"
-                        autoComplete="websitePasswordPassword"
+                        autoComplete="off"
                         value={websitePasswordPassword}
                         onChange={(event) => {
                             setWebsitePasswordPassword(event.target.value);
@@ -706,7 +706,7 @@ const DialogEditEntry = (props) => {
                         id="websitePasswordNotes"
                         label={t("NOTES")}
                         name="websitePasswordNotes"
-                        autoComplete="websitePasswordNotes"
+                        autoComplete="off"
                         value={websitePasswordNotes}
                         InputProps={{ readOnly: !item.share_rights.write }}
                         onChange={(event) => {
@@ -727,7 +727,7 @@ const DialogEditEntry = (props) => {
                         id="applicationPasswordTitle"
                         label={t("TITLE")}
                         name="applicationPasswordTitle"
-                        autoComplete="applicationPasswordTitle"
+                        autoComplete="off"
                         value={applicationPasswordTitle}
                         InputProps={{ readOnly: !item.share_rights.write }}
                         required
@@ -746,7 +746,7 @@ const DialogEditEntry = (props) => {
                         id="applicationPasswordUsername"
                         label={t("USERNAME")}
                         name="applicationPasswordUsername"
-                        autoComplete="applicationPasswordUsername"
+                        autoComplete="off"
                         value={applicationPasswordUsername}
                         InputProps={{ readOnly: !item.share_rights.write }}
                         onChange={(event) => {
@@ -764,7 +764,7 @@ const DialogEditEntry = (props) => {
                         id="applicationPasswordPassword"
                         label={t("PASSWORD")}
                         name="applicationPasswordPassword"
-                        autoComplete="applicationPasswordPassword"
+                        autoComplete="off"
                         value={applicationPasswordPassword}
                         onChange={(event) => {
                             setApplicationPasswordPassword(event.target.value);
@@ -837,7 +837,7 @@ const DialogEditEntry = (props) => {
                         id="applicationPasswordNotes"
                         label={t("NOTES")}
                         name="applicationPasswordNotes"
-                        autoComplete="applicationPasswordNotes"
+                        autoComplete="off"
                         value={applicationPasswordNotes}
                         InputProps={{ readOnly: !item.share_rights.write }}
                         onChange={(event) => {
@@ -858,7 +858,7 @@ const DialogEditEntry = (props) => {
                         id="bookmarkTitle"
                         label={t("TITLE")}
                         name="bookmarkTitle"
-                        autoComplete="bookmarkTitle"
+                        autoComplete="off"
                         value={bookmarkTitle}
                         InputProps={{ readOnly: !item.share_rights.write }}
                         required
@@ -878,7 +878,7 @@ const DialogEditEntry = (props) => {
                         error={bookmarkUrl && !helperService.isValidUrl(bookmarkUrl)}
                         label={t("URL")}
                         name="bookmarkUrl"
-                        autoComplete="bookmarkUrl"
+                        autoComplete="off"
                         value={bookmarkUrl}
                         InputProps={{ readOnly: !item.share_rights.write }}
                         onChange={(event) => {
@@ -905,7 +905,7 @@ const DialogEditEntry = (props) => {
                         id="bookmarkNotes"
                         label={t("NOTES")}
                         name="bookmarkNotes"
-                        autoComplete="bookmarkNotes"
+                        autoComplete="off"
                         value={bookmarkNotes}
                         InputProps={{ readOnly: !item.share_rights.write }}
                         onChange={(event) => {
@@ -926,7 +926,7 @@ const DialogEditEntry = (props) => {
                         id="noteTitle"
                         label={t("TITLE")}
                         name="noteTitle"
-                        autoComplete="noteTitle"
+                        autoComplete="off"
                         value={noteTitle}
                         InputProps={{ readOnly: !item.share_rights.write }}
                         required
@@ -945,7 +945,7 @@ const DialogEditEntry = (props) => {
                         id="noteNotes"
                         label={t("NOTES")}
                         name="noteNotes"
-                        autoComplete="noteNotes"
+                        autoComplete="off"
                         value={noteNotes}
                         InputProps={{ readOnly: !item.share_rights.write }}
                         onChange={(event) => {
@@ -966,7 +966,7 @@ const DialogEditEntry = (props) => {
                         id="totpTitle"
                         label={t("TITLE")}
                         name="totpTitle"
-                        autoComplete="totpTitle"
+                        autoComplete="off"
                         value={totpTitle}
                         InputProps={{ readOnly: !item.share_rights.write }}
                         required
@@ -997,7 +997,7 @@ const DialogEditEntry = (props) => {
                         id="totpNotes"
                         label={t("NOTES")}
                         name="totpNotes"
-                        autoComplete="totpNotes"
+                        autoComplete="off"
                         value={totpNotes}
                         InputProps={{ readOnly: !item.share_rights.write }}
                         onChange={(event) => {
@@ -1018,7 +1018,7 @@ const DialogEditEntry = (props) => {
                         id="environmentVariablesTitle"
                         label={t("TITLE")}
                         name="environmentVariablesTitle"
-                        autoComplete="environmentVariablesTitle"
+                        autoComplete="off"
                         value={environmentVariablesTitle}
                         InputProps={{ readOnly: !item.share_rights.write }}
                         required
@@ -1119,7 +1119,7 @@ const DialogEditEntry = (props) => {
                         id="environmentVariablesNotes"
                         label={t("NOTES")}
                         name="environmentVariablesNotes"
-                        autoComplete="environmentVariablesNotes"
+                        autoComplete="off"
                         value={environmentVariablesNotes}
                         InputProps={{ readOnly: !item.share_rights.write }}
                         onChange={(event) => {
@@ -1140,7 +1140,7 @@ const DialogEditEntry = (props) => {
                         id="fileTitle"
                         label={t("TITLE")}
                         name="fileTitle"
-                        autoComplete="fileTitle"
+                        autoComplete="off"
                         value={fileTitle}
                         InputProps={{ readOnly: !item.share_rights.write }}
                         required
@@ -1160,7 +1160,7 @@ const DialogEditEntry = (props) => {
                         id="mailGpgOwnKeyTitle"
                         label={t("TITLE")}
                         name="mailGpgOwnKeyTitle"
-                        autoComplete="mailGpgOwnKeyTitle"
+                        autoComplete="off"
                         value={mailGpgOwnKeyTitle}
                         InputProps={{ readOnly: !item.share_rights.write }}
                         required
@@ -1179,7 +1179,7 @@ const DialogEditEntry = (props) => {
                         id="mailGpgOwnKeyEmail"
                         label={t("EMAIL")}
                         name="mailGpgOwnKeyEmail"
-                        autoComplete="mailGpgOwnKeyEmail"
+                        autoComplete="off"
                         value={mailGpgOwnKeyEmail}
                         InputProps={{ readOnly: !item.share_rights.write }}
                         required
@@ -1199,7 +1199,7 @@ const DialogEditEntry = (props) => {
                         id="mailGpgOwnKeyName"
                         label={t("NAME")}
                         name="mailGpgOwnKeyName"
-                        autoComplete="mailGpgOwnKeyName"
+                        autoComplete="off"
                         value={mailGpgOwnKeyName}
                         InputProps={{ readOnly: !item.share_rights.write }}
                         required
@@ -1219,7 +1219,7 @@ const DialogEditEntry = (props) => {
                         id="mailGpgOwnKeyPublic"
                         label={t("PUBLIC_KEY")}
                         name="mailGpgOwnKeyPublic"
-                        autoComplete="mailGpgOwnKeyPublic"
+                        autoComplete="off"
                         value={mailGpgOwnKeyPublic}
                         InputProps={{ readOnly: !item.share_rights.write }}
                         required
@@ -1284,7 +1284,7 @@ const DialogEditEntry = (props) => {
                         label={t("DOMAIN_FILTER")}
                         helperText={t("URL_FILTER_EG")}
                         name="websitePasswordUrlFilter"
-                        autoComplete="websitePasswordUrlFilter"
+                        autoComplete="off"
                         value={websitePasswordUrlFilter}
                         InputProps={{ readOnly: !item.share_rights.write }}
                         onChange={(event) => {
@@ -1303,7 +1303,7 @@ const DialogEditEntry = (props) => {
                         label={t("DOMAIN_FILTER")}
                         helperText={t("URL_FILTER_EG")}
                         name="bookmarkUrlFilter"
-                        autoComplete="bookmarkUrlFilter"
+                        autoComplete="off"
                         value={bookmarkUrlFilter}
                         InputProps={{ readOnly: !item.share_rights.write }}
                         onChange={(event) => {
@@ -1322,7 +1322,7 @@ const DialogEditEntry = (props) => {
                         label={t("CALLBACK_URL")}
                         helperText={t("CALLBACK_URL_PLACEHOLDER")}
                         name="callbackUrl"
-                        autoComplete="callbackUrl"
+                        autoComplete="off"
                         value={callbackUrl}
                         InputProps={{ readOnly: !item.share_rights.write }}
                         onChange={(event) => {
@@ -1340,7 +1340,7 @@ const DialogEditEntry = (props) => {
                         id="callbackUser"
                         label={t("CALLBACK_USER")}
                         name="callbackUser"
-                        autoComplete="callbackUser"
+                        autoComplete="off"
                         value={callbackUser}
                         InputProps={{ readOnly: !item.share_rights.write }}
                         onChange={(event) => {
@@ -1358,7 +1358,7 @@ const DialogEditEntry = (props) => {
                         id="callbackPass"
                         label={t("CALLBACK_PASS")}
                         name="callbackPass"
-                        autoComplete="callbackPass"
+                        autoComplete="off"
                         value={callbackPass}
                         onChange={(event) => {
                             setCallbackPass(event.target.value);

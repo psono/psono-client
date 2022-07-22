@@ -163,7 +163,7 @@ const EditApiKeysDialog = (props) => {
                             margin="dense"
                             label={"SECRET_ID"}
                             name="secretId"
-                            autoComplete="secretId"
+                            autoComplete="off"
                             value={tableMeta.rowData[2]}
                             readOnly
                             InputProps={{
@@ -223,7 +223,7 @@ const EditApiKeysDialog = (props) => {
                             id="title"
                             label={t("TITLE")}
                             name="title"
-                            autoComplete="title"
+                            autoComplete="off"
                             value={title}
                             onChange={(event) => {
                                 setTitle(event.target.value);
@@ -345,7 +345,7 @@ const EditApiKeysDialog = (props) => {
                                         id="apiKeyId"
                                         label={"API_KEY_ID"}
                                         name="apiKeyId"
-                                        autoComplete="apiKeyId"
+                                        autoComplete="off"
                                         value={apiKeyId}
                                         readOnly
                                         InputProps={{
@@ -375,7 +375,7 @@ const EditApiKeysDialog = (props) => {
                                         id="apiKeyPrivateKey"
                                         label={"API_KEY_PRIVATE_KEY"}
                                         name="apiKeyPrivateKey"
-                                        autoComplete="apiKeyPrivateKey"
+                                        autoComplete="off"
                                         value={apiKeyPrivateKey}
                                         readOnly
                                         InputProps={{
@@ -405,7 +405,7 @@ const EditApiKeysDialog = (props) => {
                                         id="apiKeySecretKey"
                                         label={"API_KEY_SECRET_KEY"}
                                         name="apiKeySecretKey"
-                                        autoComplete="apiKeySecretKey"
+                                        autoComplete="off"
                                         value={apiKeySecretKey}
                                         readOnly
                                         InputProps={{
@@ -435,7 +435,7 @@ const EditApiKeysDialog = (props) => {
                                         id="serverUrl"
                                         label={"SERVER_URL"}
                                         name="serverUrl"
-                                        autoComplete="serverUrl"
+                                        autoComplete="off"
                                         value={serverUrl}
                                         readOnly
                                         InputProps={{
@@ -453,7 +453,7 @@ const EditApiKeysDialog = (props) => {
                                         id="serverPublicKey"
                                         label={"SERVER_PUBLIC_KEY"}
                                         name="serverPublicKey"
-                                        autoComplete="serverPublicKey"
+                                        autoComplete="off"
                                         value={serverPublicKey}
                                         readOnly
                                         InputProps={{
@@ -471,7 +471,7 @@ const EditApiKeysDialog = (props) => {
                                         id="serverVerifyKey"
                                         label={"SERVER_SIGNATURE"}
                                         name="serverVerifyKey"
-                                        autoComplete="serverVerifyKey"
+                                        autoComplete="off"
                                         value={serverVerifyKey}
                                         readOnly
                                         InputProps={{

@@ -1,13 +1,15 @@
 import React from "react";
+import { Trans } from 'react-i18next';
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import Hidden from "@material-ui/core/Hidden";
 import { makeStyles } from "@material-ui/core/styles";
 
-import offlineCache from "../services/offline-cache";
-import DatastoreTreeItem from "./datastore-tree-item";
-import DatastoreTreeFolder from "./datastore-tree-folder";
-import datastorePassword from "../services/datastore-password";
+
+import offlineCache from "../../services/offline-cache";
+import DatastoreTreeItem from "./datastore-tree-item.js";
+import DatastoreTreeFolder from "./datastore-tree-folder.js";
+import datastorePassword from "../../services/datastore-password";
 
 const useStyles = makeStyles((theme) => ({
     fullWidth: {
@@ -43,11 +45,9 @@ const DatastoreTree = (props) => {
                     <div>
                         {t("NO_ITEMS")} <Hidden xsDown>{t("RIGHT_CLICK_HERE_TO_CREATE_ONE")}</Hidden>
                         <Hidden smUp>
-                            Click on the
-                            <br />
-                            <i className={classes.bigIcon + " fa fa-cogs"} />
-                            <br />
-                            symbol in the top right corner to start.
+                            <Trans i18nKey="CLICK_ON_THE_SYMBOL_IN_THE_TOP_RIGHT_CORNER_TO_START">
+                                Click on the<br /><i className={classes.bigIcon + " fa fa-cogs"} /><br />symbol in the top right corner to start.
+                            </Trans>
                         </Hidden>
                     </div>
                 </div>
