@@ -5,7 +5,7 @@
 import { createStore, applyMiddleware } from "redux";
 import thunkMiddleware from "redux-thunk";
 import { createLogger } from "redux-logger";
-import { persistReducer } from "redux-persist";
+import { persistReducer, createMigrate } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import { createStateSyncMiddleware, initMessageListener } from "redux-state-sync";
 
@@ -23,9 +23,24 @@ if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
     middlewares.push(loggerMiddleware);
 }
 
+const migrations = {
+    0: (state) => {
+        return {
+            ...state,
+            server: {
+                ...state.server,
+                complianceDisableUnmanagedGroups: false
+            },
+        }
+    },
+}
+
 const persistConfig = {
     key: "client",
+    version: 0,
     storage,
+    debug: false,
+    migrate: createMigrate(migrations, { debug: false }),
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

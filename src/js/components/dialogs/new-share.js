@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
@@ -15,8 +16,6 @@ import IconButton from "@material-ui/core/IconButton";
 import Divider from "@material-ui/core/Divider";
 import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@material-ui/icons/CheckBox";
-import TableSortLabel from '@material-ui/core/TableSortLabel';
-import TableCell from '@material-ui/core/TableCell';
 
 import helper from "../../services/helper";
 import datastoreUserService from "../../services/datastore-user";
@@ -56,14 +55,15 @@ const useStyles = makeStyles((theme) => ({
 const DialogNewShare = (props) => {
     const { open, onClose, onCreate, node } = props;
     const { t } = useTranslation();
-    const [value, setValue] = React.useState(0);
+    const disableUnmanagedGroups = useSelector((state) => state.server.complianceDisableUnmanagedGroups);
     const classes = useStyles();
+    const [value, setValue] = useState(0);
     const [read, setRead] = useState(true);
     const [write, setWrite] = useState(false);
     const [grant, setGrant] = useState(false);
     const [users, setUsers] = useState([]);
     const [groups, setGroups] = useState([]);
-    const [newGroupOpen, setNewGroupOpen] = React.useState(false);
+    const [newGroupOpen, setNewGroupOpen] = useState(false);
     const [userDatastore, setUserDatastore] = useState({});
     const [newUserOpen, setNewUserOpen] = useState(false);
     const [userColumnData, setUserColumnData] = useState([]);
@@ -324,7 +324,7 @@ const DialogNewShare = (props) => {
                                 data={groupColumnData}
                                 columns={groupColumns}
                                 options={options}
-                                onCreate={onCreateGroup}
+                                onCreate={disableUnmanagedGroups ? undefined : onCreateGroup}
                             />
                         </TabPanel>
                     </Grid>
