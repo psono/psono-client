@@ -1,20 +1,33 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 
 const useStyles = makeStyles((theme) => ({
-    root: {
+    title: {
         backgroundColor: "#f2f5f7",
         textAlign: "right",
-        fontSize: "20px",
-        paddingTop: "10px",
-        paddingBottom: "10px",
+        fontSize: "16px",
+        paddingTop: theme.spacing(1),
+        paddingBottom: theme.spacing(1),
         paddingLeft: "15px",
         paddingRight: "15px",
         marginBottom: "15px",
         color: "#0f1118",
-        maxWidth: `calc(100% - 0px)`,
+        [theme.breakpoints.up("sm")]: {
+            maxWidth: `calc(100% - 240px)`,
+            fontSize: "20px",
+        },
+    },
+    sessionExpirationTimer: {
+        backgroundColor: "#f2f5f7",
+        textAlign: "right",
+        fontSize: "10px",
+        paddingTop: "5px",
+        paddingLeft: "15px",
+        paddingRight: "15px",
+        color: "rgba(15,17,24,0.33)",
         [theme.breakpoints.up("sm")]: {
             maxWidth: `calc(100% - 240px)`,
         },
@@ -24,11 +37,17 @@ const useStyles = makeStyles((theme) => ({
 const BaseTitle = (props) => {
     const classes = useStyles();
     const { children } = props;
+    const { t } = useTranslation();
 
     return (
-        <Paper elevation={0} className={classes.root} square>
-            {children}
-        </Paper>
+        <>
+            {/*<Paper elevation={0} className={classes.sessionExpirationTimer} square>*/}
+            {/*    {t("AUTOMATIC_SIGN_OFF_IN", {time: '00:00:00'})}*/}
+            {/*</Paper>*/}
+            <Paper elevation={0} className={classes.title} square>
+                {children}
+            </Paper>
+        </>
     );
 };
 
