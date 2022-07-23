@@ -76,7 +76,7 @@
   "INVALID_TOTP_SECRET": "Ungültiger TOTP Secret",
   "INVALID_URL": "Ungültige URL",
   "TOTP_AUTHENTICATOR": "TOTP Authenticator",
-  "RECYCLING_BIN": "Mülleimer",
+  "TRASH_BIN": "Papierkorb",
   "TOGGLE_GRANT_RIGHT": "Ändern von Rechtemanagement",
   "TOGGLE_OWN_GRANT_RIGHT_WARNING": "Sie sind dabei sich selbst das Recht für diesen Share zu entziehene Berechtigungen von Nutzern zu ändern. Stellen sie sicher das ein anderer Nutzer entsprechende Berechtigungen hat, bevor sie ihre eigenen entfernen. Sind sie sich sicher das sie weitermachen möchten?",
   "DELETE_SHARE_RIGHT": "Share Recht löschen",

@@ -76,7 +76,7 @@
   "INVALID_TOTP_SECRET": "Invalid TOTP secret",
   "INVALID_URL": "Invalid URL",
   "TOTP_AUTHENTICATOR": "TOTP Authenticator",
-  "RECYCLING_BIN": "Recycling Bin",
+  "TRASH_BIN": "Trash Bin",
   "TOGGLE_GRANT_RIGHT": "Toggle Grant Right",
   "TOGGLE_OWN_GRANT_RIGHT_WARNING": "You are about to revoke your own permission to change the permissions of users for this share. Make sure that someone else has grant rights before revoking your own. Are you sure that you want to continue?",
   "DELETE_SHARE_RIGHT": "Delete Share Right",

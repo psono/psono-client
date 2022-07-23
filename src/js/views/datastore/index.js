@@ -539,13 +539,13 @@ const DatastoreView = (props) => {
     };
 
     const onDeleteEntry = (item, path) => {
-        widget.deleteItem(datastore, item, path, "password").then(() => {
+        widget.markItemAsDeleted(datastore, path, "password").then(() => {
             forceUpdate();
         });
     };
 
     const onDeleteFolder = (item, path) => {
-        widget.deleteItem(datastore, item, path, "password").then(() => {
+        widget.markItemAsDeleted(datastore, path, "password").then(() => {
             forceUpdate();
         });
     };

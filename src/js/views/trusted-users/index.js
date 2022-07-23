@@ -218,12 +218,12 @@ const TrustedUsersView = (props) => {
     };
 
     const onDeleteEntry = (item, path) => {
-        widget.deleteItem(datastore, item, path, "user");
+        widget.deleteItemPermanent(datastore, path, "user");
         forceUpdate();
     };
 
     const onDeleteFolder = (item, path) => {
-        widget.deleteItem(datastore, item, path, "user");
+        widget.deleteItemPermanent(datastore, path, "user");
         forceUpdate();
     };
     const onContextMenu = (event) => {

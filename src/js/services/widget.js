@@ -704,36 +704,13 @@ function moveItem(datastore, itemPath, targetPath, type, datastoreType) {
 }
 
 /**
- * Called when an item is supposed to be deleted
- *
- * For Password Datastore:
- * It will be marked as deleted or really deleted if it is already marked as deleted.
- *
- * For User Datastore:
- * It will always permanently trigger the deletion
- *
- * @param {TreeObject} datastore The datastore
- * @param {object} item The item to delete
- * @param {Array} path The path to the item
- * @param {string} datastoreType The type of the datastore (e.g. 'password' or 'user')
- */
-function deleteItem(datastore, item, path, datastoreType) {
-    if (datastoreType === "user" || (item.hasOwnProperty("deleted") && item["deleted"])) {
-        return deleteItemPermanent(datastore, item, path, datastoreType);
-    } else {
-        return markItemAsDeleted(datastore, item, path, datastoreType);
-    }
-}
-
-/**
  * Marks an item as deleted
  *
  * @param {TreeObject} datastore The datastore
- * @param {object} item The item to delete
  * @param {Array} path The path to the item
  * @param {string} datastoreType The type of the datastore (e.g. 'password' or 'user')
  */
-function markItemAsDeleted(datastore, item, path, datastoreType) {
+function markItemAsDeleted(datastore, path, datastoreType) {
     let onSuccess, onError;
     const element_path_that_changed = path.slice();
     element_path_that_changed.pop();
@@ -1026,11 +1003,10 @@ function cloneItem(datastore, item, path) {
  * Takes care that the link structure on the server is updated
  *
  * @param {TreeObject} datastore The datastore
- * @param {object} item The item to delete
  * @param {Array} path The path to the item
  * @param {string} datastoreType The type of the datastore (e.g. 'password' or 'user')
  */
-function deleteItemPermanent(datastore, item, path, datastoreType) {
+function deleteItemPermanent(datastore, path, datastoreType) {
     let i;
     let onSuccess, onError;
 
@@ -1357,7 +1333,8 @@ const widgetService = {
     openNewItem: openNewItem,
     openEditItem: openEditItem,
     moveItem: moveItem,
-    deleteItem: deleteItem,
+    deleteItemPermanent: deleteItemPermanent,
+    markItemAsDeleted: markItemAsDeleted,
     cloneItem: cloneItem,
     reverseMarkItemAsDeleted: reverseMarkItemAsDeleted,
     itemIcon: itemIcon,
