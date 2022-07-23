@@ -16,6 +16,7 @@ import DialogNewFolder from "./new-folder";
 import TextFieldPath from "../text-field/path";
 import groupsService from "../../services/groups";
 import TrustedUser from "../trusted-user";
+import Search from "../search";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -41,6 +42,12 @@ const useStyles = makeStyles((theme) => ({
         marginTop: "8px",
         marginBottom: "8px",
     },
+    search: {
+        backgroundColor: theme.palette.common.white,
+        position: "absolute",
+        right: "28px",
+        top: theme.spacing(2),
+    },
 }));
 
 const DialogAcceptGroupShares = (props) => {
@@ -50,6 +57,7 @@ const DialogAcceptGroupShares = (props) => {
     const [path, setPath] = useState([]);
     const [newFolderOpen, setNewFolderOpen] = useState(false);
     const [newFolderData, setNewFolderData] = useState({});
+    const [search, setSearch] = useState("");
 
     const [datastore, setDatastore] = useState(null);
 
@@ -181,7 +189,17 @@ const DialogAcceptGroupShares = (props) => {
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
         >
-            <DialogTitle id="alert-dialog-title">{t(title)}</DialogTitle>
+            <DialogTitle id="alert-dialog-title">
+                {t(title)}
+                <div className={classes.search}>
+                    <Search
+                        value={search}
+                        onChange={(newValue) => {
+                            setSearch(newValue)
+                        }}
+                    />
+                </div>
+            </DialogTitle>
             <DialogContent>
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12}>
@@ -200,6 +218,7 @@ const DialogAcceptGroupShares = (props) => {
                                 onNewFolder={onNewFolder}
                                 onSelectNode={onSelectNode}
                                 isSelectable={isSelectable}
+                                search={search}
                             />
                         )}
                         {newFolderOpen && (

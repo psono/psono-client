@@ -9,11 +9,6 @@ import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
 
 import { Grid } from "@material-ui/core";
-import TextField from "@material-ui/core/TextField";
-import MuiAlert from "@material-ui/lab/Alert";
-
-import datastoreUserService from "../../services/datastore-user";
-import cryptoLibrary from "../../services/crypto-library";
 import DatastoreTree from "../datastore-tree";
 import widget from "../../services/widget";
 import datastorePassword from "../../services/datastore-password";
@@ -21,6 +16,7 @@ import DialogNewFolder from "./new-folder";
 import TextFieldPath from "../text-field/path";
 import shareService from "../../services/share";
 import TrustedUser from "../trusted-user";
+import Search from "../search";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -46,6 +42,12 @@ const useStyles = makeStyles((theme) => ({
         marginTop: "8px",
         marginBottom: "8px",
     },
+    search: {
+        backgroundColor: theme.palette.common.white,
+        position: "absolute",
+        right: "28px",
+        top: theme.spacing(2),
+    },
 }));
 
 const DialogAcceptShare = (props) => {
@@ -55,6 +57,7 @@ const DialogAcceptShare = (props) => {
     const [path, setPath] = useState([]);
     const [newFolderOpen, setNewFolderOpen] = useState(false);
     const [newFolderData, setNewFolderData] = useState({});
+    const [search, setSearch] = useState("");
 
     const [datastore, setDatastore] = useState(null);
     const [user, setUser] = useState({
@@ -190,7 +193,16 @@ const DialogAcceptShare = (props) => {
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
         >
-            <DialogTitle id="alert-dialog-title">{t(title)}</DialogTitle>
+            <DialogTitle id="alert-dialog-title">
+                {t(title)}
+                <div className={classes.search}>
+                    <Search
+                        value={search}
+                        onChange={(newValue) => {
+                            setSearch(newValue)
+                        }}
+                    />
+                </div></DialogTitle>
             <DialogContent>
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12}>
@@ -209,6 +221,7 @@ const DialogAcceptShare = (props) => {
                                 onNewFolder={onNewFolder}
                                 onSelectNode={onSelectNode}
                                 isSelectable={isSelectable}
+                                search={search}
                             />
                         )}
                         {newFolderOpen && (

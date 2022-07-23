@@ -10,11 +10,9 @@ import Paper from "@material-ui/core/Paper";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import DeleteSweepIcon from "@material-ui/icons/DeleteSweep";
-import InputBase from "@material-ui/core/InputBase";
 import IconButton from "@material-ui/core/IconButton";
 import MenuOpenIcon from "@material-ui/icons/MenuOpen";
 import Divider from "@material-ui/core/Divider";
-import ClearIcon from "@material-ui/icons/Clear";
 import MuiAlert from "@material-ui/lab/Alert";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -50,7 +48,7 @@ import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-ca
 import DialogSelectFolder from "../../components/dialogs/select-folder";
 import widgetService from "../../services/widget";
 import datastoreService from "../../services/datastore";
-import browserClientService from "../../services/browser-client";
+import Search from "../../components/search";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -125,7 +123,6 @@ const useStyles = makeStyles((theme) => ({
 const DatastoreView = (props) => {
     const { width } = props;
     let { defaultSearch, secretType, secretId } = useParams();
-    const searchTimer = useRef(null);
     const serverStatus = useSelector((state) => state.server.status);
     const offlineMode = useSelector((state) => state.client.offlineMode);
     const recurrenceInterval = useSelector((state) => state.server.complianceCentralSecurityReportsRecurrenceInterval);
@@ -133,7 +130,6 @@ const DatastoreView = (props) => {
     const { t } = useTranslation();
     const [ignored, forceUpdate] = useReducer((x) => x + 1, 0);
     const [search, setSearch] = useState(defaultSearch || "");
-    const [actualSearch, setActualSearch] = useState(search);
     const [error, setError] = useState(null);
     const [anchorEl, setAnchorEl] = useState(null);
     const [contextMenuPosition, setContextMenuPosition] = useState({
@@ -211,11 +207,6 @@ const DatastoreView = (props) => {
         const node = search[0][search[1]];
 
         onEditEntry(node, paths[0]);
-    };
-
-    const onClear = () => {
-        setSearch("");
-        setActualSearch("");
     };
 
     let newSecurityReport = "NOT_REQUIRED";
@@ -714,27 +705,12 @@ const DatastoreView = (props) => {
                                 <Toolbar className={classes.toolbarRoot}>
                                     <span className={classes.toolbarTitle}>{t("DATASTORE")}</span>
                                     <div className={classes.search}>
-                                        <InputBase
-                                            placeholder={t("SEARCH")}
-                                            classes={{
-                                                root: classes.inputRoot,
-                                                input: classes.inputInput,
-                                            }}
+                                        <Search
                                             value={search}
-                                            onChange={(event) => {
-                                                setSearch(event.target.value);
-                                                if (searchTimer.current) {
-                                                    clearTimeout(searchTimer.current);
-                                                }
-                                                searchTimer.current = setTimeout(() => {
-                                                    setActualSearch(event.target.value);
-                                                }, 500); // delay search by 500ms
+                                            onChange={(newValue) => {
+                                                setSearch(newValue)
                                             }}
-                                            inputProps={{ "aria-label": t("SEARCH") }}
                                         />
-                                        <IconButton className={classes.iconButton} aria-label="clear" onClick={onClear}>
-                                            <ClearIcon />
-                                        </IconButton>
                                         <Divider className={classes.divider} orientation="vertical" />
                                         {!offlineMode && (
                                             <IconButton
@@ -794,7 +770,7 @@ const DatastoreView = (props) => {
                                 {datastore && (
                                     <DatastoreTree
                                         datastore={datastore}
-                                        search={actualSearch}
+                                        search={search}
                                         onNewFolder={onNewFolder}
                                         onNewEntry={onNewEntry}
                                         onNewShare={onNewShare}

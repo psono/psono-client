@@ -4,11 +4,9 @@ import { alpha, makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
-import InputBase from "@material-ui/core/InputBase";
 import IconButton from "@material-ui/core/IconButton";
 import MenuOpenIcon from "@material-ui/icons/MenuOpen";
 import Divider from "@material-ui/core/Divider";
-import ClearIcon from "@material-ui/icons/Clear";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import PersonAddIcon from "@material-ui/icons/PersonAdd";
@@ -27,8 +25,8 @@ import DialogNewUser from "../../components/dialogs/new-user";
 import DialogEditUser from "../../components/dialogs/edit-user";
 import datastoreUser from "../../services/datastore-user";
 import DatastoreTree from "../../components/datastore-tree";
-import datastoreService from "../../services/datastore";
 import datastoreUserService from "../../services/datastore-user";
+import Search from "../../components/search";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -145,10 +143,6 @@ const TrustedUsersView = (props) => {
         setAnchorEl(null);
     };
 
-    const onClear = () => {
-        setSearch("");
-    };
-
     const onCreateFolder = (event) => {
         handleClose(event);
         onNewFolder(undefined, []);
@@ -257,21 +251,12 @@ const TrustedUsersView = (props) => {
                         <Toolbar className={classes.toolbarRoot}>
                             <span className={classes.toolbarTitle}>{t("TRUSTED_USERS")}</span>
                             <div className={classes.search}>
-                                <InputBase
-                                    placeholder={t("SEARCH")}
-                                    classes={{
-                                        root: classes.inputRoot,
-                                        input: classes.inputInput,
-                                    }}
+                                <Search
                                     value={search}
-                                    onChange={(event) => {
-                                        setSearch(event.target.value);
+                                    onChange={(newValue) => {
+                                        setSearch(newValue)
                                     }}
-                                    inputProps={{ "aria-label": t("SEARCH") }}
                                 />
-                                <IconButton className={classes.iconButton} aria-label="clear" onClick={onClear}>
-                                    <ClearIcon />
-                                </IconButton>
                                 <Divider className={classes.divider} orientation="vertical" />
                                 <IconButton
                                     color="primary"

@@ -12,6 +12,7 @@ import { Grid } from "@material-ui/core";
 
 import DatastoreTree from "../datastore-tree";
 import datastorePassword from "../../services/datastore-password";
+import Search from "../search";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -37,6 +38,12 @@ const useStyles = makeStyles((theme) => ({
         marginTop: "8px",
         marginBottom: "8px",
     },
+    search: {
+        backgroundColor: theme.palette.common.white,
+        position: "absolute",
+        right: "28px",
+        top: theme.spacing(2),
+    },
 }));
 
 const DialogSelectSecret = (props) => {
@@ -44,6 +51,7 @@ const DialogSelectSecret = (props) => {
     const { t } = useTranslation();
     const classes = useStyles();
 
+    const [search, setSearch] = useState("");
     const [datastore, setDatastore] = useState(null);
 
     let isSubscribed = true;
@@ -71,7 +79,17 @@ const DialogSelectSecret = (props) => {
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
         >
-            <DialogTitle id="alert-dialog-title">{t("ADD_SECRET_TO_API_KEY")}</DialogTitle>
+            <DialogTitle id="alert-dialog-title">
+                {t("ADD_SECRET_TO_API_KEY")}
+                <div className={classes.search}>
+                    <Search
+                        value={search}
+                        onChange={(newValue) => {
+                            setSearch(newValue)
+                        }}
+                    />
+                </div>
+            </DialogTitle>
             <DialogContent>
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12} className={classes.tree}>
@@ -80,6 +98,7 @@ const DialogSelectSecret = (props) => {
                                 datastore={datastore}
                                 onSelectItem={onSelectItem}
                                 isSelectable={isSelectable}
+                                search={search}
                             />
                         )}
                     </Grid>
