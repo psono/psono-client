@@ -95,6 +95,7 @@ const OtherDatastoresView = (props) => {
                 filter: true,
                 sort: false,
                 empty: false,
+                customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <IconButton
@@ -114,6 +115,7 @@ const OtherDatastoresView = (props) => {
                 filter: true,
                 sort: false,
                 empty: false,
+                customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <IconButton

@@ -248,7 +248,8 @@ const TrustedUsersView = (props) => {
             <BaseContent>
                 <Paper square>
                     <AppBar elevation={0} position="static" color="default">
-                        <Toolbar className={classes.toolbarRoot}>
+                        <Toolbar
+                            className={classes.toolbarRoot}>
                             <span className={classes.toolbarTitle}>{t("TRUSTED_USERS")}</span>
                             <div className={classes.search}>
                                 <Search

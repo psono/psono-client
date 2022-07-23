@@ -172,7 +172,8 @@ const PendingSharesView = (props) => {
             <BaseContent>
                 <Paper square>
                     <AppBar elevation={0} position="static" color="default">
-                        <Toolbar className={classes.toolbarRoot}>{t("PENDING_REQUESTS")}</Toolbar>
+                        <Toolbar
+                            className={classes.toolbarRoot}>{t("PENDING_REQUESTS")}</Toolbar>
                     </AppBar>
                     <div className={classes.root}>
                         <Table data={pendingRequests} columns={columns} options={options} />

@@ -702,7 +702,8 @@ const DatastoreView = (props) => {
                     <Grid item xs={bigScreen && editEntryOpen ? 6 : 12}>
                         <Paper square>
                             <AppBar elevation={0} position="static" color="default">
-                                <Toolbar className={classes.toolbarRoot}>
+                                <Toolbar
+                                    className={classes.toolbarRoot}>
                                     <span className={classes.toolbarTitle}>{t("DATASTORE")}</span>
                                     <div className={classes.search}>
                                         <Search

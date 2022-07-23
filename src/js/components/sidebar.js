@@ -74,7 +74,7 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     listItemText: {
-        fontSize: "14px",
+        fontSize: "0.875rem",
         "& .MuiBadge-badge": {
             fontSize: "0.75rem",
             height: "15px",

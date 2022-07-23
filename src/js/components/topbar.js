@@ -152,7 +152,9 @@ const Topbar = (props) => {
     return (
         <AppBar position="fixed" className={classes.appBar}>
             <Container maxWidth="lg">
-                <Toolbar>
+                <Toolbar
+                    disableGutters={true}
+                >
                     <IconButton
                         color="inherit"
                         aria-label="open drawer"

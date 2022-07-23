@@ -265,6 +265,7 @@ const DialogRightsOverview = (props) => {
                 filter: true,
                 sort: true,
                 empty: false,
+                customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <IconButton
@@ -364,6 +365,7 @@ const DialogRightsOverview = (props) => {
                 filter: true,
                 sort: true,
                 empty: false,
+                customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <IconButton

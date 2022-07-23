@@ -1403,7 +1403,8 @@ const DialogEditEntry = (props) => {
         return (
             <Paper square  className={classes.inlineEditPaper}>
                 <AppBar elevation={0} position="static" color="default">
-                    <Toolbar className={classes.toolbarRoot}>{title}</Toolbar>
+                    <Toolbar
+                        className={classes.toolbarRoot}>{title}</Toolbar>
                 </AppBar>
                 <div className={classes.root}>
                     {content}

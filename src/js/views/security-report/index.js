@@ -408,7 +408,8 @@ const SecurityReportView = (props) => {
             <BaseContent>
                 <Paper square>
                     <AppBar elevation={0} position="static" color="default">
-                        <Toolbar className={classes.toolbarRoot}>{t("GENERATE_SECURITY_REPORT")}</Toolbar>
+                        <Toolbar
+                            className={classes.toolbarRoot}>{t("GENERATE_SECURITY_REPORT")}</Toolbar>
                     </AppBar>
                     {reportComplete && (
                         <div className={classes.root}>

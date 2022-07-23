@@ -184,6 +184,7 @@ const PopupPgpWriteView = (props) => {
                 filter: false,
                 sort: false,
                 empty: false,
+                customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <IconButton
@@ -208,7 +209,8 @@ const PopupPgpWriteView = (props) => {
             <CssBaseline />
             <AppBar position="fixed" className={classes.appBar}>
                 <Container maxWidth="lg">
-                    <Toolbar>
+                    <Toolbar
+                    >
                         <IconButton
                             color="inherit"
                             aria-label="open drawer"
@@ -243,7 +245,8 @@ const PopupPgpWriteView = (props) => {
                 <div className={classes.content}>
                     <Paper square>
                         <AppBar elevation={0} position="static" color="default">
-                            <Toolbar>{t("ENCRYPT_MESSAGE")}</Toolbar>
+                            <Toolbar
+                            >{t("ENCRYPT_MESSAGE")}</Toolbar>
                         </AppBar>
                         <div className={classes.contentRoot}>
                             <Grid container>

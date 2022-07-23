@@ -60,6 +60,7 @@ const OtherKnownHostsView = (props) => {
                 filter: true,
                 sort: false,
                 empty: false,
+                customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <IconButton

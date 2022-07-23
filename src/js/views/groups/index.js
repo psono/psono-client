@@ -205,6 +205,7 @@ const GroupsView = (props) => {
                 filter: true,
                 sort: true,
                 empty: false,
+                customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <IconButton
@@ -341,6 +342,7 @@ const GroupsView = (props) => {
                 filter: true,
                 sort: false,
                 empty: false,
+                customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <IconButton
@@ -375,7 +377,8 @@ const GroupsView = (props) => {
             <BaseContent>
                 <Paper square>
                     <AppBar elevation={0} position="static" color="default">
-                        <Toolbar className={classes.toolbarRoot}>{t("GROUPS")}</Toolbar>
+                        <Toolbar
+                            className={classes.toolbarRoot}>{t("GROUPS")}</Toolbar>
                     </AppBar>
                     <div className={classes.root}>
                         <Table data={groups} columns={columns} options={options} onCreate={disableUnmanagedGroups ? undefined : onCreate} />
