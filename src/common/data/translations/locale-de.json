@@ -1,4 +1,9 @@
 {
+  "PARSER_NOT_FOUND": "Parser nicht gefunden.",
+  "FILE_FORMAT_WRONG": "Dateiformat falsch.",
+  "DECRYPTION_OF_EXPORT_FAILED_WRONG_PASSWORD": "Die Entschlüsselung des Exports ist fehlgeschlagen. Sie haben wahrscheinlich ein falsches Passwort angegeben.",
+  "ENTER_PASSWORD_IF_YOUR_EXPORT_IS_ENCRYPTED": "Gib das Passwort ein mit dem dein Export verschlüsselt wurde. Lasse das Eingabefeld leer, wenn dein Export nicht verschlüsselt ist.",
+  "ENTER_PASSWORD_TO_ENCRYPT_YOUR_EXPORT": "Gib ein Passwort ein um deinen Export zu verschlüsseln. Wenn sie kein Passwort eingeben wird der Export nicht verschlüsselt.",
   "AUTOMATIC_SIGN_OFF_IN": "Automatische Abmeldung in {{time}}",
   "SELECTED": "Ausgewählt",
   "ACTION": "Aktion",

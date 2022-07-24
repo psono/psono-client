@@ -14,6 +14,7 @@ import importKeepassxOrgCsv from "./import-keepassx-org-csv";
 import importLastpassComCsv from "./import-lastpass-com-csv";
 import importPwsafeOrgCsv from "./import-pwsafe-org-csv";
 import importTeampassNetCsv from "./import-teampass-net-csv";
+import cryptoLibraryService from "./crypto-library";
 
 const _importer = {
     psono_pw_json: {
@@ -129,12 +130,12 @@ function getParser(type) {
 function parseExport(data) {
     const parse = getParser(data["type"]);
     if (parse === null) {
-        return Promise.reject({ errors: ["Parser not found."] });
+        return Promise.reject({ errors: ["PARSER_NOT_FOUND"] });
     }
 
     const parsed_data = parse(data["data"]);
     if (parsed_data === null) {
-        return Promise.reject({ errors: ["File format wrong."] });
+        return Promise.reject({ errors: ["FILE_FORMAT_WRONG"] });
     }
 
     data["data"] = parsed_data;
@@ -243,11 +244,28 @@ function getImporter() {
  *
  * @param {string} type The type of the import
  * @param {string} data The data of the import
+ * @param {string} [password] The password to decrypt the datastore
  *
  * @returns {Promise} Returns a promise with the result of the import
  */
-function importDatastore(type, data) {
+function importDatastore(type, data, password) {
     emit("import-started", {});
+
+    if (password) {
+        let decryptedJson = ''
+        try {
+            decryptedJson = JSON.parse(data)
+        } catch (e) {
+            // datastore was not json encoded and as such cannot be an encrypted Export
+        }
+        if (decryptedJson && decryptedJson.hasOwnProperty("text") && decryptedJson.hasOwnProperty("nonce")) {
+            try{
+                data = cryptoLibraryService.decryptSecret(decryptedJson['text'], decryptedJson['nonce'], password, "")
+            } catch(e) {
+                return Promise.reject({ errors: ["DECRYPTION_OF_EXPORT_FAILED_WRONG_PASSWORD"] })
+            }
+        }
+    }
 
     return Promise.resolve({ type: type, data: data })
         .then(parseExport)
