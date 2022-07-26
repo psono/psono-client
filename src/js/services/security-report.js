@@ -622,8 +622,6 @@ function sendToServer(analysis, checkHaveibeenpwned, masterPassword) {
         });
     }
 
-    console.log(entries);
-
     const onError = function (result) {
         return Promise.reject(result.data);
     };
