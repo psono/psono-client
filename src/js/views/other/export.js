@@ -16,6 +16,7 @@ import { BarLoader } from "react-spinners";
 
 import exportService from "../../services/export";
 import GridContainerErrors from "../../components/grid-container-errors";
+import TextFieldPassword from "../../components/text-field/password";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -51,6 +52,8 @@ const OtherExportView = (props) => {
     const [includeTrashBinItems, setIncludeTrashBinItems] = React.useState(false);
     const [errors, setErrors] = React.useState([]);
     const [messages, setMessages] = React.useState([]);
+    const [password, setPassword] = React.useState("");
+    const [passwordRepeat, setPasswordRepeat] = React.useState("");
 
     let openRequests = 0;
     let closedRequest = 0;
@@ -91,8 +94,10 @@ const OtherExportView = (props) => {
             setErrors(data.errors);
         };
 
-        exportService.exportDatastore(exportFormat, includeTrashBinItems).then(onSuccess, onError);
+        exportService.exportDatastore(exportFormat, includeTrashBinItems, exportFormat === 'json' ? password : '').then(onSuccess, onError);
     };
+
+    const formHasError = exportFormat === 'json' && Boolean(password) && password !== passwordRepeat;
 
     return (
         <Grid container>
@@ -118,6 +123,45 @@ const OtherExportView = (props) => {
                     </Select>
                 </FormControl>
             </Grid>
+            {exportFormat === 'json' && (<Grid item xs={12} sm={12} md={12}>
+                <TextFieldPassword
+                    className={classes.textField}
+                    variant="outlined"
+                    margin="dense"
+                    id="password"
+                    label={t("PASSWORD")}
+                    helperText={t("ENTER_PASSWORD_TO_ENCRYPT_YOUR_EXPORT")}
+                    name="password"
+                    autoComplete="off"
+                    value={password}
+                    onChange={(event) => {
+                        setPassword(event.target.value);
+                    }}
+                />
+            </Grid>)}
+            {exportFormat === 'json' && Boolean(password) && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextFieldPassword
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="passwordRepeat"
+                        label={t("PASSWORD_REPEAT")}
+                        name="passwordRepeat"
+                        autoComplete="off"
+                        error={
+                            Boolean(password) &&
+                            Boolean(passwordRepeat) &&
+                            password !== passwordRepeat
+                        }
+                        value={passwordRepeat}
+                        required
+                        onChange={(event) => {
+                            setPasswordRepeat(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
             <Grid item xs={12} sm={12} md={12}>
                 <Checkbox
                     tabIndex={1}
@@ -134,7 +178,7 @@ const OtherExportView = (props) => {
                 {t("INCLUDE_TRASH_BIN_ENTRIES")}
             </Grid>
             <Grid item xs={12} sm={12} md={12} style={{ marginBottom: "8px", marginTop: "8px" }}>
-                <Button variant="contained" color="primary" onClick={exportPasswords} disabled={processing}>
+                <Button variant="contained" color="primary" onClick={exportPasswords} disabled={processing || formHasError}>
                     <span style={!processing ? {} : { display: "none" }}>{t("EXPORT")}</span>
                     <BarLoader color={"#FFF"} height={17} width={37} loading={processing} />
                 </Button>

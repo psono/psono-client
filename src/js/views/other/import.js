@@ -15,6 +15,7 @@ import { BarLoader } from "react-spinners";
 
 import importService from "../../services/import";
 import GridContainerErrors from "../../components/grid-container-errors";
+import TextFieldPassword from "../../components/text-field/password";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -36,6 +37,7 @@ const OtherImportView = (props) => {
     const [processing, setProcessing] = React.useState(false);
     const [errors, setErrors] = React.useState([]);
     const [messages, setMessages] = React.useState([]);
+    const [password, setPassword] = React.useState("");
 
     let openRequests = 0;
     let closedRequest = 0;
@@ -79,7 +81,7 @@ const OtherImportView = (props) => {
             setProcessing(false);
         };
 
-        importService.importDatastore(exportFormat, fileContent).then(onSuccess, onError);
+        importService.importDatastore(exportFormat, fileContent, password).then(onSuccess, onError);
     };
 
     const onFileChange = (event) => {
@@ -121,6 +123,22 @@ const OtherImportView = (props) => {
                         })}
                     </Select>
                 </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={12} md={12}>
+                <TextFieldPassword
+                    className={classes.textField}
+                    variant="outlined"
+                    margin="dense"
+                    id="password"
+                    label={t("PASSWORD")}
+                    helperText={t("ENTER_PASSWORD_IF_YOUR_EXPORT_IS_ENCRYPTED")}
+                    name="password"
+                    autoComplete="off"
+                    value={password}
+                    onChange={(event) => {
+                        setPassword(event.target.value);
+                    }}
+                />
             </Grid>
             <Grid item xs={12} sm={12} md={12}>
                 <FormControl variant="outlined" margin="dense" className={classes.textField} required>

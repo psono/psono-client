@@ -15,7 +15,7 @@ import helper from "../../services/helper";
 import DialogVerify from "./verify";
 
 const DialogTrashBin = (props) => {
-    const { open, onClose, datastore, datastoreType } = props;
+    const { open, onClose, datastore } = props;
     const { t } = useTranslation();
     const [entries, setEntries] = useState([]);
     const [entriesFull, setEntriesFull] = useState([]);
@@ -96,7 +96,7 @@ const DialogTrashBin = (props) => {
 
     const restore = (index) => {
         const entry = entriesFull[index];
-        widgetService.reverseMarkItemAsDeleted(datastore, entry["item"], entry["path"], datastoreType);
+        widgetService.reverseMarkItemAsDeleted(datastore, entry["item"], entry["path"], "password");
         removeEntry(index);
     };
 
@@ -108,7 +108,7 @@ const DialogTrashBin = (props) => {
     const deletePermanentConfirmed = () => {
         setVerifyDeletePermanentOpen(false);
         const entry = entriesFull[entryIndexBeingDeleted];
-        widgetService.deleteItem(datastore, entry["item"], entry["path"], datastoreType);
+        widgetService.deleteItemPermanent(datastore, entry["path"], "password");
         removeEntry(entryIndexBeingDeleted);
     };
 
@@ -140,6 +140,7 @@ const DialogTrashBin = (props) => {
                 filter: false,
                 sort: false,
                 empty: false,
+                customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <IconButton
@@ -170,7 +171,9 @@ const DialogTrashBin = (props) => {
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
         >
-            <DialogTitle id="alert-dialog-title">{t("RECYCLING_BIN")}</DialogTitle>
+            <DialogTitle id="alert-dialog-title">
+                {t("TRASH_BIN")}
+            </DialogTitle>
             <DialogContent>
                 <Table data={entries} columns={columns} options={options} />
             </DialogContent>
@@ -204,15 +207,10 @@ const DialogTrashBin = (props) => {
     );
 };
 
-DialogTrashBin.defaultProps = {
-    datastoreType: "password",
-};
-
 DialogTrashBin.propTypes = {
     onClose: PropTypes.func.isRequired,
     open: PropTypes.bool.isRequired,
     datastore: PropTypes.object.isRequired,
-    datastoreType: PropTypes.string,
 };
 
 export default DialogTrashBin;

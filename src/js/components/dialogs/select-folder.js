@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import { makeStyles } from "@material-ui/core/styles";
+import { alpha, makeStyles } from "@material-ui/core/styles";
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -13,6 +13,7 @@ import { Grid } from "@material-ui/core";
 import DatastoreTree from "../datastore-tree";
 import datastorePassword from "../../services/datastore-password";
 import TextFieldPath from "../text-field/path";
+import Search from "../search";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -38,6 +39,12 @@ const useStyles = makeStyles((theme) => ({
         marginTop: "8px",
         marginBottom: "8px",
     },
+    search: {
+        backgroundColor: theme.palette.common.white,
+        position: "absolute",
+        right: "28px",
+        top: theme.spacing(2),
+    },
 }));
 
 const DialogSelectFolder = (props) => {
@@ -47,6 +54,7 @@ const DialogSelectFolder = (props) => {
 
     const [path, setPath] = useState([]);
     const [datastore, setDatastore] = useState(null);
+    const [search, setSearch] = useState("");
 
     let isSubscribed = true;
     React.useEffect(() => {
@@ -88,7 +96,17 @@ const DialogSelectFolder = (props) => {
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
         >
-            <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
+            <DialogTitle id="alert-dialog-title">
+                {title}
+                <div className={classes.search}>
+                    <Search
+                        value={search}
+                        onChange={(newValue) => {
+                            setSearch(newValue)
+                        }}
+                    />
+                </div>
+            </DialogTitle>
             <DialogContent>
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12}>
@@ -107,6 +125,7 @@ const DialogSelectFolder = (props) => {
                                 onSelectNode={onSelectNode}
                                 isSelectable={isSelectable}
                                 hideItems={true}
+                                search={search}
                             />
                         )}
                     </Grid>

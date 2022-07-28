@@ -43,6 +43,7 @@ import SelectFieldTotpAlgorithm from "../select-field/totp-algorithm";
 import DialogGenerateNewGpgKey from "./generate-new-gpg-key";
 import DialogImportGpgKeyAsText from "./import-gpg-key-as-text";
 import SelectFieldFileDestination from "../select-field/file-destination";
+import GridContainerErrors from "../grid-container-errors";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -162,6 +163,7 @@ const DialogNewEntry = (props) => {
 
     const [showPassword, setShowPassword] = useState(false);
     const [showAdvanced, setShowAdvanced] = useState(false);
+    const [errors, setErrors] = useState([]);
 
     const [processing, setProcessing] = React.useState(false);
     const [percentageComplete, setPercentageComplete] = React.useState(0);
@@ -286,6 +288,8 @@ const DialogNewEntry = (props) => {
                                 chunk_position: chunkPosition,
                                 hash_checksum: hashChecksum,
                             });
+                        }, function () {
+                            setErrors(["UPLOAD_FAILED"])
                         });
                 });
             };
@@ -1607,6 +1611,7 @@ const DialogNewEntry = (props) => {
                             {!!callbackPass && (<LinearProgress variant="determinate" value={cryptoLibrary.calculatePasswordStrengthInPercent(callbackPass)} />)}
                         </Grid>
                     )}
+                    <GridContainerErrors errors={errors} setErrors={setErrors} />
                 </Grid>
             </DialogContent>
             <DialogActions>

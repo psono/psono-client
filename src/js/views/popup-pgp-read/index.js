@@ -127,7 +127,8 @@ const PopupPgpReadView = (props) => {
             <CssBaseline />
             <AppBar position="fixed" className={classes.appBar}>
                 <Container maxWidth="lg">
-                    <Toolbar>
+                    <Toolbar
+                    >
                         <IconButton
                             color="inherit"
                             aria-label="open drawer"
@@ -162,7 +163,8 @@ const PopupPgpReadView = (props) => {
                 <div className={classes.content}>
                     <Paper square>
                         <AppBar elevation={0} position="static" color="default">
-                            <Toolbar>{t("DECRYPTED_MESSAGE")}</Toolbar>
+                            <Toolbar
+                            >{t("DECRYPTED_MESSAGE")}</Toolbar>
                         </AppBar>
                         <div className={classes.contentRoot}>
                             <Grid container>

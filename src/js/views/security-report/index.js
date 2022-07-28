@@ -100,7 +100,9 @@ const SecurityReportView = (props) => {
     const [msgs, setMsgs] = useState([]);
     const [reportComplete, setReportComplete] = useState(false);
     const [checkHaveibeenpwned, setCheckHaveibeenpwned] = useState(false);
-    const [analysis, setAnalysis] = useState({});
+    const [analysis, setAnalysis] = useState({
+        'passwords': []
+    });
     const [percentageComplete, setPercentageComplete] = React.useState(0);
     const [haveibeenpwnedPercentageComplete, setHaveibeenpwnedPercentageComplete] = React.useState(0);
 
@@ -226,18 +228,6 @@ const SecurityReportView = (props) => {
         const onSuccess = function (data) {
             setErrors([]);
             setMsgs(data.msgs);
-            data.analysis.passwords = data.analysis.passwords.map((pw, index) => {
-                return [
-                    index,
-                    pw.name,
-                    pw.password,
-                    pw.rating,
-                    pw.write_age,
-                    pw.breached > 0,
-                    pw.duplicate,
-                    t(pw.advice, pw),
-                ];
-            });
             setAnalysis(data.analysis);
             setPasswordStrengthData({
                 labels: [t("WEAK"), t("GOOD"), t("STRONG")],
@@ -402,13 +392,27 @@ const SecurityReportView = (props) => {
         filterType: "checkbox",
     };
 
+    const data = analysis.passwords.map((pw, index) => {
+        return [
+            index,
+            pw.name,
+            pw.password,
+            pw.rating,
+            pw.write_age,
+            pw.breached > 0,
+            pw.duplicate,
+            t(pw.advice, pw),
+        ];
+    });
+
     return (
         <Base {...props}>
             <BaseTitle>{t("SECURITY_REPORT")}</BaseTitle>
             <BaseContent>
                 <Paper square>
                     <AppBar elevation={0} position="static" color="default">
-                        <Toolbar className={classes.toolbarRoot}>{t("GENERATE_SECURITY_REPORT")}</Toolbar>
+                        <Toolbar
+                            className={classes.toolbarRoot}>{t("GENERATE_SECURITY_REPORT")}</Toolbar>
                     </AppBar>
                     {reportComplete && (
                         <div className={classes.root}>
@@ -478,7 +482,7 @@ const SecurityReportView = (props) => {
                                     </Typography>
                                 </Grid>
                                 <Grid item xs={12} sm={12} md={12}>
-                                    <Table data={analysis.passwords} columns={columns} options={options} />
+                                    <Table data={data} columns={columns} options={options} />
                                 </Grid>
                             </Grid>
                         </div>

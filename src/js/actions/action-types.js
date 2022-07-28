@@ -8,6 +8,7 @@ export const SET_USER_INFO_2 = "SET_USER_INFO_2";
 export const SET_USER_INFO_3 = "SET_USER_INFO_3";
 export const SET_HAS_TWO_FACTOR = "SET_HAS_TWO_FACTOR";
 export const SET_EMAIL = "SET_EMAIL";
+export const SET_USER_DATASTORE_OVERVIEW = "SET_USER_DATASTORE_OVERVIEW";
 export const LOGOUT = "LOGOUT";
 export const SET_SERVER_STATUS = "SET_SERVER_STATUS";
 export const SET_SERVER_URL = "SET_SERVER_URL";

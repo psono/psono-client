@@ -150,6 +150,7 @@ const OtherFileRepositoriesView = (props) => {
                 filter: true,
                 sort: false,
                 empty: false,
+                customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     console.log(tableMeta.rowData);
                     return (
@@ -172,6 +173,7 @@ const OtherFileRepositoriesView = (props) => {
                 filter: true,
                 sort: false,
                 empty: false,
+                customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <IconButton

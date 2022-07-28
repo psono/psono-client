@@ -50,6 +50,11 @@ const useStyles = makeStyles((theme) => ({
     toolbarRoot: {
         display: "flex",
     },
+    inlineEditPaper: {
+        position: 'sticky',
+        top: '8px',
+        marginBottom: '30px',
+    },
     textField: {
         width: "100%",
     },
@@ -1396,9 +1401,10 @@ const DialogEditEntry = (props) => {
 
     if (inline) {
         return (
-            <Paper square>
+            <Paper square  className={classes.inlineEditPaper}>
                 <AppBar elevation={0} position="static" color="default">
-                    <Toolbar className={classes.toolbarRoot}>{title}</Toolbar>
+                    <Toolbar
+                        className={classes.toolbarRoot}>{title}</Toolbar>
                 </AppBar>
                 <div className={classes.root}>
                     {content}

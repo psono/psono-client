@@ -159,6 +159,7 @@ const DialogEncryptGpgMessage = (props) => {
                 filter: false,
                 sort: false,
                 empty: false,
+                customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <IconButton

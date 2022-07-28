@@ -13,7 +13,17 @@ import RadioButtonUnchecked from "@material-ui/icons/RadioButtonUnchecked";
 import PeopleIcon from "@material-ui/icons/People";
 import DeleteIcon from "@material-ui/icons/Delete";
 
-const styles = (theme) => ({});
+const styles = (theme) => ({
+    muiDataTable: {
+        "& .MuiToolbar-gutters": {
+            padding: 0,
+        },
+        "& .MuiTableCell-footer": {
+            padding: 0,
+        },
+    }
+
+});
 
 class Table extends Component {
     state = {
@@ -202,6 +212,7 @@ class Table extends Component {
                     filter: true,
                     sort: false,
                     empty: true,
+                    customHeadLabelRender: () => null,
                     customBodyRender: (value, tableMeta, updateValue) => {
                         return (
                             <IconButton
@@ -246,6 +257,7 @@ class Table extends Component {
                     filter: true,
                     sort: false,
                     empty: true,
+                    customHeadLabelRender: () => null,
                     customBodyRender: (value, tableMeta, updateValue) => {
                         return (
                             <IconButton
@@ -263,6 +275,7 @@ class Table extends Component {
 
         return (
             <MUIDataTable
+                className={classes.muiDataTable}
                 title={title}
                 data={data || this.state.data}
                 columns={modifiedColumns}

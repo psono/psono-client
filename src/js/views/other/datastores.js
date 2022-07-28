@@ -32,7 +32,7 @@ const OtherDatastoresView = (props) => {
         return datastore.getDatastoreOverview(true).then(
             function (overview) {
                 setDatastores(
-                    overview.data.datastores
+                    overview.datastores
                         .filter((datastore) => datastore["type"] === "password")
                         .map((datastore, index) => {
                             return [datastore.id, datastore.description, datastore.is_default];
@@ -95,6 +95,7 @@ const OtherDatastoresView = (props) => {
                 filter: true,
                 sort: false,
                 empty: false,
+                customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <IconButton
@@ -114,6 +115,7 @@ const OtherDatastoresView = (props) => {
                 filter: true,
                 sort: false,
                 empty: false,
+                customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <IconButton

@@ -104,6 +104,7 @@ const ActiveLinkShareView = (props) => {
                 filter: true,
                 sort: true,
                 empty: false,
+                customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <IconButton
@@ -123,6 +124,7 @@ const ActiveLinkShareView = (props) => {
                 filter: true,
                 sort: false,
                 empty: false,
+                customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <IconButton
@@ -148,7 +150,8 @@ const ActiveLinkShareView = (props) => {
             <BaseContent>
                 <Paper square>
                     <AppBar elevation={0} position="static" color="default">
-                        <Toolbar className={classes.toolbarRoot}>{t("ACTIVE_LINK_SHARES")}</Toolbar>
+                        <Toolbar
+                            className={classes.toolbarRoot}>{t("ACTIVE_LINK_SHARES")}</Toolbar>
                     </AppBar>
                     <div className={classes.root}>
                         <Table data={activeLinkShares} columns={columns} options={options} />

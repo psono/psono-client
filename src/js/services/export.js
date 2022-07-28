@@ -3,6 +3,7 @@
  */
 import datastorePasswordService from "./datastore-password";
 import secretService from "./secret";
+import cryptoLibraryService from "./crypto-library";
 const Papa = require("papaparse");
 
 let timeout = 0;
@@ -45,13 +46,17 @@ function emit(event, data) {
  *
  * @param {string} data The data to download
  * @param {string} type The selected type of the export
+ * @param {string} isEncrypted Whether the datastore is encrypted or not
  */
-function downloadExport(data, type) {
+function downloadExport(data, type, isEncrypted) {
     let file_name = "export.json";
     let data_type = "data:attachment/json,";
     if (type === "csv") {
         file_name = "export.csv";
         data_type = "data:attachment/csv,";
+    }
+    if (isEncrypted) {
+        file_name = file_name + '.encrypted'
     }
     const a = document.createElement("a");
     a.href = data_type + encodeURI(data).replace(/#/g, "%23");
@@ -366,13 +371,17 @@ function fetchDatastore(type, id, includeTrashBinItems) {
  *
  * @param {string} type The selected type of the export
  * @param {boolean} includeTrashBinItems Should the items of the trash bin be included in the export
+ * @param {string} [password] A password which if provided will be used to encrypt the datastore
  *
  * @returns {Promise} Returns a promise once the export is successful
  */
-function exportDatastore(type, includeTrashBinItems) {
+function exportDatastore(type, includeTrashBinItems, password) {
     return fetchDatastore(type, undefined, includeTrashBinItems)
         .then(function (data) {
-            return downloadExport(data, type);
+            if (password) {
+                data = JSON.stringify(cryptoLibraryService.encryptSecret(data, password, ""))
+            }
+            return downloadExport(data, type, !!password);
         })
         .then(function () {
             return { msgs: ["EXPORT_SUCCESSFUL"] };

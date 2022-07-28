@@ -182,6 +182,7 @@ const EditApiKeysDialog = (props) => {
                 filter: true,
                 sort: false,
                 empty: false,
+                customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <IconButton onClick={() => deleteSecret(tableMeta.rowData[0])}>
