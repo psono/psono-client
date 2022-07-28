@@ -549,11 +549,11 @@ function fetchAllPasswordDatastores() {
     const onSuccess = function (result) {
         const all_calls = [];
 
-        for (let i = 0; i < result.data.datastores.length; i++) {
-            if (result.data.datastores[i].type !== "password") {
+        for (let i = 0; i < result.datastores.length; i++) {
+            if (result.datastores[i].type !== "password") {
                 continue;
             }
-            all_calls.push(exportService.fetchDatastore(undefined, result.data.datastores[i].id, false));
+            all_calls.push(exportService.fetchDatastore(undefined, result.datastores[i].id, false));
         }
         return Promise.all(all_calls);
     };

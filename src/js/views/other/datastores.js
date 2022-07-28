@@ -32,7 +32,7 @@ const OtherDatastoresView = (props) => {
         return datastore.getDatastoreOverview(true).then(
             function (overview) {
                 setDatastores(
-                    overview.data.datastores
+                    overview.datastores
                         .filter((datastore) => datastore["type"] === "password")
                         .map((datastore, index) => {
                             return [datastore.id, datastore.description, datastore.is_default];

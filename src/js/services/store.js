@@ -31,6 +31,12 @@ const migrations = {
                 ...state.server,
                 complianceDisableUnmanagedGroups: false
             },
+            user: {
+                ...state.user,
+                userDatastoreOverview: {
+                    'datastores': []
+                }
+            },
         }
     },
 }

@@ -98,9 +98,9 @@ const Topbar = (props) => {
                 return
             }
             const newDatastores=[];
-            for (let i = 0; i < overview.data.datastores.length; i++) {
-                if (overview.data.datastores[i]['type'] === 'password') {
-                    newDatastores.push(overview.data.datastores[i]);
+            for (let i = 0; i < overview.datastores.length; i++) {
+                if (overview.datastores[i]['type'] === 'password') {
+                    newDatastores.push(overview.datastores[i]);
                 }
             }
             setDatastores(newDatastores);

@@ -57,11 +57,11 @@ const DialogGoOffline = (props) => {
     };
 
     const loadAllDatastores = (datastoreOverview) => {
-        for (var i = 0; i < datastoreOverview.data.datastores.length; i++) {
+        for (var i = 0; i < datastoreOverview.datastores.length; i++) {
             openRequests = openRequests + 1;
-            if (datastoreOverview.data.datastores[i]["type"] === "password") {
+            if (datastoreOverview.datastores[i]["type"] === "password") {
                 datastorePasswordService
-                    .getPasswordDatastore(datastoreOverview.data.datastores[i]["id"])
+                    .getPasswordDatastore(datastoreOverview.datastores[i]["id"])
                     .then(function (datastore) {
                         closedRequest = closedRequest + 1;
                         openRequests = openRequests + 1;
@@ -72,7 +72,7 @@ const DialogGoOffline = (props) => {
                     });
             } else {
                 datastoreService
-                    .getDatastoreWithId(datastoreOverview.data.datastores[i]["id"])
+                    .getDatastoreWithId(datastoreOverview.datastores[i]["id"])
                     .then(function (datastore) {
                         closedRequest = closedRequest + 1;
                         setPercentageComplete(Math.round((closedRequest / openRequests) * 1000) / 10);

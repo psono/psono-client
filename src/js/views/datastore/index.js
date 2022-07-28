@@ -125,6 +125,7 @@ const DatastoreView = (props) => {
     let { defaultSearch, secretType, secretId } = useParams();
     const serverStatus = useSelector((state) => state.server.status);
     const offlineMode = useSelector((state) => state.client.offlineMode);
+    const passwordDatastore = useSelector((state) => state.user.userDatastoreOverview.datastores.find(datastore => datastore.type === 'password' && datastore.is_default));
     const recurrenceInterval = useSelector((state) => state.server.complianceCentralSecurityReportsRecurrenceInterval);
     const classes = useStyles();
     const { t } = useTranslation();
@@ -170,10 +171,11 @@ const DatastoreView = (props) => {
 
     let isSubscribed = true;
     React.useEffect(() => {
-        datastoreService.register('on_datastore_overview_update', loadDatastore);
-        loadDatastore();
         return () => (isSubscribed = false);
     }, []);
+    React.useEffect(() => {
+        loadDatastore();
+    }, [passwordDatastore]);
 
     const loadDatastore = () => {
         if (offlineCacheService.isActive() && offlineCacheService.isLocked()) {

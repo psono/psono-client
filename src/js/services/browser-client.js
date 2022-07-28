@@ -549,7 +549,10 @@ function on(event, myFunction) {
     } else {
         if (events.indexOf(event) === -1) return false;
 
-        //$rootScope.$on(event, myFunction);
+        if (!registrations.hasOwnProperty(event)) {
+            registrations[event] = [];
+        }
+        registrations[event].push(myFunction);
         return true;
     }
 }

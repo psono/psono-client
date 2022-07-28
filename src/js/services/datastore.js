@@ -3,15 +3,13 @@
  */
 
 import store from "./store";
+import action from "../actions/bound-action-creators";
 import storage from "./storage";
 import cryptoLibrary from "./crypto-library";
-import browserClient from "./browser-client";
 import helperService from "./helper";
 import apiClient from "./api-client";
 
-let registrations = {};
 let tempDatastoreKeyStorage = {};
-let tempDatastoreOverview = false;
 
 /**
  * Returns the overview of all datastores that belong to this user
@@ -23,18 +21,18 @@ let tempDatastoreOverview = false;
 function getDatastoreOverview(forceFresh) {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
+    const userDatastoreOverview = store.getState().user.userDatastoreOverview;
 
-    if ((typeof forceFresh === "undefined" || forceFresh === false) && tempDatastoreOverview) {
+    if ((typeof forceFresh === "undefined" || forceFresh === false) && userDatastoreOverview.datastores.length > 0) {
         // we have them in cache, so lets save the query
         return new Promise(function (resolve) {
-            resolve(tempDatastoreOverview);
+            resolve(userDatastoreOverview);
         });
     } else {
         // we dont have them in cache, so lets query and save them in cache for next time
         const onSuccess = function (result) {
-            tempDatastoreOverview = result;
-            emit("on_datastore_overview_update", undefined);
-            return result;
+            action.setUserDatastoreOverview(result.data);
+            return result.data;
         };
         const onError = function () {
             // pass
@@ -54,11 +52,8 @@ function getDatastoreOverview(forceFresh) {
  */
 function getDatastoreId(type, forceFresh) {
     const onSuccess = function (result) {
-        if (typeof result === "undefined") {
-            return;
-        }
 
-        const stores = result.data["datastores"];
+        const stores = result.datastores;
 
         const datastoreId = "";
         for (let i = 0; i < stores.length; i++) {
@@ -137,24 +132,28 @@ function createDatastore(type, description, isDefault) {
     };
 
     const onSuccess = function (result) {
-        if (tempDatastoreOverview) {
+        const userDatastoreOverview = store.getState().user.userDatastoreOverview;
+        if (userDatastoreOverview) {
             if (isDefault) {
                 // New datastore is the new default, so update the existing list
-                for (let i = 0; i < tempDatastoreOverview.data.datastores.length; i++) {
-                    if (tempDatastoreOverview.data.datastores[i].type !== type) {
+                for (let i = 0; i < userDatastoreOverview.datastores.length; i++) {
+                    if (userDatastoreOverview.datastores[i].type !== type) {
                         continue;
                     }
-                    tempDatastoreOverview.data.datastores[i].is_default = false;
+                    userDatastoreOverview.datastores[i].is_default = false;
                 }
             }
 
-            tempDatastoreOverview.data.datastores.push({
+            userDatastoreOverview.datastores.push({
                 id: result.data.datastore_id,
                 description: description,
                 type: type,
                 is_default: isDefault,
             });
-            emit("on_datastore_overview_update", undefined);
+
+            action.setUserDatastoreOverview({
+                ...userDatastoreOverview,
+            })
         }
         return result;
     };
@@ -454,27 +453,29 @@ function saveDatastoreMeta(datastoreId, description, isDefault) {
     const onSuccess = function (result) {
         // update our datastore overview cache
         let update_happened = false;
-        for (let i = 0; i < tempDatastoreOverview.data.datastores.length; i++) {
+        const userDatastoreOverview = store.getState().user.userDatastoreOverview;
+        for (let i = 0; i < userDatastoreOverview.datastores.length; i++) {
             if (
-                tempDatastoreOverview.data.datastores[i].id === datastoreId &&
-                tempDatastoreOverview.data.datastores[i].description === description &&
-                tempDatastoreOverview.data.datastores[i].is_default === isDefault
+                userDatastoreOverview.datastores[i].id === datastoreId &&
+                userDatastoreOverview.datastores[i].description === description &&
+                userDatastoreOverview.datastores[i].is_default === isDefault
             ) {
                 break;
             }
 
-            if (tempDatastoreOverview.data.datastores[i].id === datastoreId) {
-                tempDatastoreOverview.data.datastores[i].description = description;
-                tempDatastoreOverview.data.datastores[i].is_default = isDefault;
+            if (userDatastoreOverview.datastores[i].id === datastoreId) {
+                userDatastoreOverview.datastores[i].description = description;
+                userDatastoreOverview.datastores[i].is_default = isDefault;
                 update_happened = true;
             }
-            if (tempDatastoreOverview.data.datastores[i].id !== datastoreId && isDefault) {
-                tempDatastoreOverview.data.datastores[i].is_default = false;
+            if (userDatastoreOverview.datastores[i].id !== datastoreId && isDefault) {
+                userDatastoreOverview.datastores[i].is_default = false;
             }
         }
-        if (update_happened) {
-            emit("on_datastore_overview_update", undefined);
-        }
+
+        action.setUserDatastoreOverview({
+            ...userDatastoreOverview,
+        })
         return result.data;
     };
 
@@ -593,40 +594,6 @@ function filterDatastoreContent(content) {
     return contentCopy;
 }
 
-/**
- * used to register functions to bypass circular dependencies
- *
- * @param {string} key The key of the function
- * @param {function} func The call back function
- */
-function register(key, func) {
-    if (!registrations.hasOwnProperty(key)) {
-        registrations[key] = [];
-    }
-    registrations[key].push(func);
-}
-
-/**
- * Small wrapper to execute all functions that have been registered for an event once the event is triggered
- *
- * @param {string} key The key of the event
- * @param {*} payload The payload of the event
- */
-function emit(key, payload) {
-    if (registrations.hasOwnProperty(key)) {
-        for (let i = 0; i < registrations[key].length; i++) {
-            registrations[key][i](payload);
-        }
-    }
-}
-
-function onLogout() {
-    tempDatastoreKeyStorage = {};
-    tempDatastoreOverview = false;
-}
-
-browserClient.on("logout", onLogout);
-
 const datastoreService = {
     getDatastoreOverview: getDatastoreOverview,
     getDatastoreId: getDatastoreId,
@@ -644,6 +611,5 @@ const datastoreService = {
     encryptDatastore: encryptDatastore,
     filter: filter,
     filterDatastoreContent: filterDatastoreContent,
-    register: register,
 };
 export default datastoreService;

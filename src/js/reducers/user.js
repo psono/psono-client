@@ -5,12 +5,16 @@ import {
     SET_USER_INFO_3,
     SET_HAS_TWO_FACTOR,
     SET_EMAIL,
+    SET_USER_DATASTORE_OVERVIEW,
     LOGOUT,
 } from "../actions/action-types";
 
 const defaultUsername = "";
 const defaultRememberMe = false;
 const defaultTrustDevice = false;
+const defaultUserDatastoreOverview = {
+    'datastores': []
+};
 
 function user(
     state = {
@@ -28,6 +32,7 @@ function user(
         userSauce: "",
         userEmail: "",
         userId: "",
+        userDatastoreOverview: null,
     },
     action
 ) {
@@ -65,6 +70,10 @@ function user(
             return Object.assign({}, state, {
                 userEmail: action.userEmail,
             });
+        case SET_USER_DATASTORE_OVERVIEW:
+            return Object.assign({}, state, {
+                userDatastoreOverview: action.userDatastoreOverview,
+            });
         case LOGOUT:
             return Object.assign({}, state, {
                 isLoggedIn: false,
@@ -81,6 +90,7 @@ function user(
                 sessionSecretKey: "",
                 token: "",
                 userSauce: "",
+                userDatastoreOverview: defaultUserDatastoreOverview,
             });
         default:
             return state;

@@ -25,6 +25,7 @@ import {
     SET_REMOTE_CONFIG_JSON,
     SET_FINGERPRINT,
     SET_EMAIL,
+    SET_USER_DATASTORE_OVERVIEW,
     SET_HIDE_DOWNLOAD_BANNER,
 } from "./action-types";
 
@@ -87,6 +88,15 @@ function setEmail(userEmail) {
         dispatch({
             type: SET_EMAIL,
             userEmail,
+        });
+    };
+}
+
+function setUserDatastoreOverview(userDatastoreOverview) {
+    return (dispatch) => {
+        dispatch({
+            type: SET_USER_DATASTORE_OVERVIEW,
+            userDatastoreOverview,
         });
     };
 }
@@ -317,6 +327,7 @@ const actionCreators = {
     setUserInfo3,
     setHasTwoFactor,
     setEmail,
+    setUserDatastoreOverview,
     logout,
     setServerInfo,
     setServerUrl,
