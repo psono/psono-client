@@ -39,29 +39,37 @@ function isStrongEnough(password) {
         return true;
     }
 
+    const {
+        passwordLettersUppercase = '',
+        passwordLettersLowercase = '',
+        passwordNumbers = '',
+        passwordSpecialChars = '',
+        sexy = '',
+    } = store.getState().settingsDatastore;
+
     const uc = password.match(
-        new RegExp("([" + escapeRegExp(store.getState().settingsDatastore.passwordLettersUppercase) + "])", "g")
+        new RegExp("([" + escapeRegExp(passwordLettersUppercase) + "])", "g")
     );
     const lc = password.match(
-        new RegExp("([" + escapeRegExp(store.getState().settingsDatastore.passwordLettersLowercase) + "])", "g")
+        new RegExp("([" + escapeRegExp(passwordLettersLowercase) + "])", "g")
     );
     const n = password.match(
-        new RegExp("([" + escapeRegExp(store.getState().settingsDatastore.passwordNumbers) + "])", "g")
+        new RegExp("([" + escapeRegExp(passwordNumbers) + "])", "g")
     );
     const sc = password.match(
-        new RegExp("([" + escapeRegExp(store.getState().settingsDatastore.passwordSpecialChars) + "])", "g")
+        new RegExp("([" + escapeRegExp(passwordSpecialChars) + "])", "g")
     );
 
     const uc_test_result =
-        store.getState().settingsDatastore.passwordLettersUppercase.length === 0 ||
+        passwordLettersUppercase.length === 0 ||
         (uc && uc.length >= uppercaseMinCount);
     const lc_test_result =
-        store.getState().settingsDatastore.passwordLettersLowercase.length === 0 ||
+        passwordLettersLowercase.length === 0 ||
         (lc && lc.length >= lowercaseMinCount);
     const n_test_result =
-        store.getState().settingsDatastore.passwordNumbers.length === 0 || (n && n.length >= numberMinCount);
+        passwordNumbers.length === 0 || (n && n.length >= numberMinCount);
     const sc_test_result =
-        store.getState().settingsDatastore.passwordSpecialChars.length === 0 || (sc && sc.length >= specialMinCount);
+        passwordSpecialChars.length === 0 || (sc && sc.length >= specialMinCount);
 
     return uc_test_result && lc_test_result && n_test_result && sc_test_result;
 }
