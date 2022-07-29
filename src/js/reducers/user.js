@@ -32,7 +32,7 @@ function user(
         userSauce: "",
         userEmail: "",
         userId: "",
-        userDatastoreOverview: null,
+        userDatastoreOverview: defaultUserDatastoreOverview,
     },
     action
 ) {

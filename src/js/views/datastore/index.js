@@ -125,7 +125,7 @@ const DatastoreView = (props) => {
     let { defaultSearch, secretType, secretId } = useParams();
     const serverStatus = useSelector((state) => state.server.status);
     const offlineMode = useSelector((state) => state.client.offlineMode);
-    const passwordDatastore = useSelector((state) => state.user.userDatastoreOverview.datastores.find(datastore => datastore.type === 'password' && datastore.is_default));
+    const passwordDatastore = useSelector((state) => state.user.userDatastoreOverview?.datastores?.find(datastore => datastore.type === 'password' && datastore.is_default));
     const recurrenceInterval = useSelector((state) => state.server.complianceCentralSecurityReportsRecurrenceInterval);
     const classes = useStyles();
     const { t } = useTranslation();
