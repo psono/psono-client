@@ -152,7 +152,6 @@ const OtherFileRepositoriesView = (props) => {
                 empty: false,
                 customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
-                    console.log(tableMeta.rowData);
                     return (
                         <IconButton
                             onClick={() => {
