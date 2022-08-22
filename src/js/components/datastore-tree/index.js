@@ -59,9 +59,9 @@ const DatastoreTree = (props) => {
                 {datastore.folders &&
                     datastore.folders
                         .sort(function(a, b){
-                            if (a.name < b.name)
+                            if (a.name.toLowerCase() < b.name.toLowerCase())
                                 return -1;
-                            if (a.name > b.name)
+                            if (a.name.toLowerCase() > b.name.toLowerCase())
                                 return 1;
                             return 0;
                         })
@@ -99,9 +99,9 @@ const DatastoreTree = (props) => {
                     datastore.items &&
                     datastore.items
                         .sort(function(a, b){
-                            if (a.name < b.name)
+                            if (a.name.toLowerCase() < b.name.toLowerCase())
                                 return -1;
-                            if (a.name > b.name)
+                            if (a.name.toLowerCase() > b.name.toLowerCase())
                                 return 1;
                             return 0;
                         })
