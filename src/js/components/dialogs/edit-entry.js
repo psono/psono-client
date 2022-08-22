@@ -216,124 +216,194 @@ const DialogEditEntry = (props) => {
             // callback infos
             if (data.hasOwnProperty("callback_pass")) {
                 setCallbackPass(data["callback_pass"]);
+            } else {
+                setCallbackPass("");
             }
             if (data.hasOwnProperty("callback_url")) {
                 setCallbackUrl(data["callback_url"]);
+            } else {
+                setCallbackUrl("");
             }
             if (data.hasOwnProperty("callback_user")) {
                 setCallbackUser(data["callback_user"]);
+            } else {
+                setCallbackUser("");
             }
 
             // website passwords
             if (data.hasOwnProperty("website_password_title")) {
                 setWebsitePasswordTitle(data["website_password_title"]);
+            } else {
+                setWebsitePasswordTitle("");
             }
             if (data.hasOwnProperty("website_password_url")) {
                 setWebsitePasswordUrl(data["website_password_url"]);
+            } else {
+                setWebsitePasswordUrl("");
             }
             if (data.hasOwnProperty("website_password_username")) {
                 setWebsitePasswordUsername(data["website_password_username"]);
+            } else {
+                setWebsitePasswordUsername("");
             }
             if (data.hasOwnProperty("website_password_password")) {
                 setWebsitePasswordPassword(data["website_password_password"]);
+            } else {
+                setWebsitePasswordPassword("");
             }
             if (data.hasOwnProperty("website_password_notes")) {
                 setWebsitePasswordNotes(data["website_password_notes"]);
+            } else {
+                setWebsitePasswordNotes("");
             }
             if (data.hasOwnProperty("website_password_auto_submit")) {
                 setWebsitePasswordAutoSubmit(data["website_password_auto_submit"]);
+            } else {
+                setWebsitePasswordAutoSubmit(false);
             }
             if (data.hasOwnProperty("website_password_url_filter")) {
                 setWebsitePasswordUrlFilter(data["website_password_url_filter"]);
+            } else {
+                setWebsitePasswordUrlFilter("");
             }
 
             // application passwords
             if (data.hasOwnProperty("application_password_title")) {
                 setApplicationPasswordTitle(data["application_password_title"]);
+            } else {
+                setApplicationPasswordTitle("");
             }
             if (data.hasOwnProperty("application_password_username")) {
                 setApplicationPasswordUsername(data["application_password_username"]);
+            } else {
+                setApplicationPasswordUsername("");
             }
             if (data.hasOwnProperty("application_password_password")) {
                 setApplicationPasswordPassword(data["application_password_password"]);
+            } else {
+                setApplicationPasswordPassword("");
             }
             if (data.hasOwnProperty("application_password_notes")) {
                 setApplicationPasswordNotes(data["application_password_notes"]);
+            } else {
+                setApplicationPasswordNotes("");
             }
 
             // bookmarks
             if (data.hasOwnProperty("bookmark_title")) {
                 setBookmarkTitle(data["bookmark_title"]);
+            } else {
+                setBookmarkTitle("");
             }
             if (data.hasOwnProperty("bookmark_url")) {
                 setBookmarkUrl(data["bookmark_url"]);
+            } else {
+                setBookmarkUrl("");
             }
             if (data.hasOwnProperty("bookmark_notes")) {
                 setBookmarkNotes(data["bookmark_notes"]);
+            } else {
+                setBookmarkNotes("");
             }
             if (data.hasOwnProperty("bookmark_url_filter")) {
                 setBookmarkUrlFilter(data["bookmark_url_filter"]);
+            } else {
+                setBookmarkUrlFilter("");
             }
 
             // notes
             if (data.hasOwnProperty("note_title")) {
                 setNoteTitle(data["note_title"]);
+            } else {
+                setNoteTitle("");
             }
             if (data.hasOwnProperty("note_notes")) {
                 setNoteNotes(data["note_notes"]);
+            } else {
+                setNoteNotes("");
             }
 
             // totp
             if (data.hasOwnProperty("totp_title")) {
                 setTotpTitle(data["totp_title"]);
+            } else {
+                setTotpTitle("");
             }
             if (data.hasOwnProperty("totp_period")) {
                 setTotpPeriod(data["totp_period"]);
+            } else {
+                setTotpPeriod(30);
             }
             if (data.hasOwnProperty("totp_algorithm")) {
                 setTotpAlgorithm(data["totp_algorithm"]);
+            } else {
+                setTotpAlgorithm("SHA1");
             }
             if (data.hasOwnProperty("totp_digits")) {
                 setTotpDigits(data["totp_digits"]);
+            } else {
+                setTotpDigits(6);
             }
             if (data.hasOwnProperty("totp_code")) {
                 setTotpCode(data["totp_code"]);
+            } else {
+                setTotpCode("");
             }
             if (data.hasOwnProperty("totp_notes")) {
                 setTotpNotes(data["totp_notes"]);
+            } else {
+                setTotpNotes("");
             }
 
             // environment variables
             if (data.hasOwnProperty("environment_variables_title")) {
                 setEnvironmentVariablesTitle(data["environment_variables_title"]);
+            } else {
+                setEnvironmentVariablesTitle("");
             }
             if (data.hasOwnProperty("environment_variables_variables")) {
                 setEnvironmentVariablesVariables(data["environment_variables_variables"]);
+            } else {
+                setEnvironmentVariablesVariables([]);
             }
             if (data.hasOwnProperty("environment_variables_notes")) {
                 setEnvironmentVariablesNotes(data["environment_variables_notes"]);
+            } else {
+                setEnvironmentVariablesNotes("");
             }
 
             // file
             if (data.hasOwnProperty("file_title")) {
                 setFileTitle(data["file_title"]);
+            } else {
+                setFileTitle("");
             }
 
             // mail_gpg_own_key
             if (data.hasOwnProperty("mail_gpg_own_key_title")) {
                 setMailGpgOwnKeyTitle(data["mail_gpg_own_key_title"]);
+            } else {
+                setMailGpgOwnKeyTitle("");
             }
             if (data.hasOwnProperty("mail_gpg_own_key_email")) {
                 setMailGpgOwnKeyEmail(data["mail_gpg_own_key_email"]);
+            } else {
+                setMailGpgOwnKeyEmail("");
             }
             if (data.hasOwnProperty("mail_gpg_own_key_name")) {
                 setMailGpgOwnKeyName(data["mail_gpg_own_key_name"]);
+            } else {
+                setMailGpgOwnKeyName("");
             }
             if (data.hasOwnProperty("mail_gpg_own_key_public")) {
                 setMailGpgOwnKeyPublic(data["mail_gpg_own_key_public"]);
+            } else {
+                setMailGpgOwnKeyPublic("");
             }
             if (data.hasOwnProperty("mail_gpg_own_key_private")) {
                 setMailGpgOwnKeyPrivate(data["mail_gpg_own_key_private"]);
+            } else {
+                setMailGpgOwnKeyPrivate("");
             }
             setOriginalFullData(data);
         };
