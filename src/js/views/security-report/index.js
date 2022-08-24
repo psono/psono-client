@@ -86,6 +86,7 @@ const SecurityReportView = (props) => {
     const [passwordRepeat, setPasswordRepeat] = useState("");
     const userAuthentication = store.getState().user.authentication;
     const hideSendToServer = store.getState().server.disableCentralSecurityReports;
+    const showRecoveryCodeAdvise = !store.getState().server.complianceDisableRecoveryCodes;
     const disableSendToSeverChoice =
         store.getState().server.disableCentralSecurityReports ||
         store.getState().server.complianceEnforceCentralSecurityReports;
@@ -424,7 +425,7 @@ const SecurityReportView = (props) => {
                                         </MuiAlert>
                                     </Grid>
                                 )}
-                                {!analysis.user_summary.recovery_code_enabled && (
+                                {showRecoveryCodeAdvise && !analysis.user_summary.recovery_code_enabled && (
                                     <Grid item xs={12} sm={12} md={12} className={classes.muiInfo}>
                                         <MuiAlert severity="warning">{t("CONSIDER_ENABLING_RECOVERY_CODES")}</MuiAlert>
                                     </Grid>
