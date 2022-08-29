@@ -26,6 +26,7 @@ import GridContainerErrors from "../../components/grid-container-errors";
 import securityReportService from "../../services/security-report";
 import Table from "../../components/table";
 import TextFieldPassword from "../../components/text-field/password";
+import AlertSecurityReport from "../../components/alert/security-report";
 
 Chart.register(ArcElement, Tooltip);
 
@@ -63,6 +64,9 @@ const useStyles = makeStyles((theme) => ({
         marginTop: theme.spacing(2),
     },
     muiInfo: {
+        marginBottom: theme.spacing(1),
+    },
+    securityReportAlert: {
         marginBottom: theme.spacing(1),
     },
     doughnutContainer: {
@@ -492,6 +496,7 @@ const SecurityReportView = (props) => {
                         <div className={classes.root}>
                             <Grid container>
                                 <Grid item xs={12} sm={12} md={12} className={classes.muiInfo}>
+                                    <AlertSecurityReport className={classes.securityReportAlert} />
                                     <MuiAlert severity="info">{t("SECURITY_REPORT_GOAL")}</MuiAlert>
                                 </Grid>
                                 {requireMasterPassword && (
