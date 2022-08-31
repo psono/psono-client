@@ -26,6 +26,7 @@ import GridContainerErrors from "../../components/grid-container-errors";
 import securityReportService from "../../services/security-report";
 import Table from "../../components/table";
 import TextFieldPassword from "../../components/text-field/password";
+import AlertSecurityReport from "../../components/alert/security-report";
 
 Chart.register(ArcElement, Tooltip);
 
@@ -65,6 +66,9 @@ const useStyles = makeStyles((theme) => ({
     muiInfo: {
         marginBottom: theme.spacing(1),
     },
+    securityReportAlert: {
+        marginBottom: theme.spacing(1),
+    },
     doughnutContainer: {
         padding: theme.spacing(2),
     },
@@ -86,6 +90,7 @@ const SecurityReportView = (props) => {
     const [passwordRepeat, setPasswordRepeat] = useState("");
     const userAuthentication = store.getState().user.authentication;
     const hideSendToServer = store.getState().server.disableCentralSecurityReports;
+    const showRecoveryCodeAdvise = !store.getState().server.complianceDisableRecoveryCodes;
     const disableSendToSeverChoice =
         store.getState().server.disableCentralSecurityReports ||
         store.getState().server.complianceEnforceCentralSecurityReports;
@@ -424,7 +429,7 @@ const SecurityReportView = (props) => {
                                         </MuiAlert>
                                     </Grid>
                                 )}
-                                {!analysis.user_summary.recovery_code_enabled && (
+                                {showRecoveryCodeAdvise && !analysis.user_summary.recovery_code_enabled && (
                                     <Grid item xs={12} sm={12} md={12} className={classes.muiInfo}>
                                         <MuiAlert severity="warning">{t("CONSIDER_ENABLING_RECOVERY_CODES")}</MuiAlert>
                                     </Grid>
@@ -491,6 +496,7 @@ const SecurityReportView = (props) => {
                         <div className={classes.root}>
                             <Grid container>
                                 <Grid item xs={12} sm={12} md={12} className={classes.muiInfo}>
+                                    <AlertSecurityReport className={classes.securityReportAlert} />
                                     <MuiAlert severity="info">{t("SECURITY_REPORT_GOAL")}</MuiAlert>
                                 </Grid>
                                 {requireMasterPassword && (

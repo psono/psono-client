@@ -438,7 +438,7 @@ const CreateFileRepositoriesDialog = (props) => {
                             />
                         </Grid>
                     )}
-                    {type === "otherS3" && (
+                    {type === "other_s3" && (
                         <Grid item xs={12} sm={12} md={12}>
                             <TextField
                                 className={classes.textField}
@@ -456,7 +456,7 @@ const CreateFileRepositoriesDialog = (props) => {
                             />
                         </Grid>
                     )}
-                    {type === "otherS3" && (
+                    {type === "other_s3" && (
                         <Grid item xs={12} sm={12} md={12}>
                             <TextField
                                 className={classes.textField}
@@ -474,7 +474,7 @@ const CreateFileRepositoriesDialog = (props) => {
                             />
                         </Grid>
                     )}
-                    {type === "otherS3" && (
+                    {type === "other_s3" && (
                         <Grid item xs={12} sm={12} md={12}>
                             <TextField
                                 className={classes.textField}
@@ -492,7 +492,7 @@ const CreateFileRepositoriesDialog = (props) => {
                             />
                         </Grid>
                     )}
-                    {type === "otherS3" && (
+                    {type === "other_s3" && (
                         <Grid item xs={12} sm={12} md={12}>
                             <TextField
                                 className={classes.textField}

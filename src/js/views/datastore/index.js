@@ -1,4 +1,4 @@
-import React, { useState, useReducer, useRef } from "react";
+import React, { useState, useReducer } from "react";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { differenceInSeconds } from "date-fns";
@@ -46,8 +46,8 @@ import datastorePasswordService from "../../services/datastore-password";
 import offlineCacheService from "../../services/offline-cache";
 import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
 import DialogSelectFolder from "../../components/dialogs/select-folder";
+import AlertSecurityReport from "../../components/alert/security-report";
 import widgetService from "../../services/widget";
-import datastoreService from "../../services/datastore";
 import Search from "../../components/search";
 
 const useStyles = makeStyles((theme) => ({
@@ -59,6 +59,9 @@ const useStyles = makeStyles((theme) => ({
         marginTop: "30px",
         marginBottom: "30px",
         margin: "auto",
+    },
+    securityReportAlert: {
+        marginBottom: theme.spacing(1),
     },
     toolbarRoot: {
         display: "flex",
@@ -684,21 +687,6 @@ const DatastoreView = (props) => {
     return (
         <Base {...props}>
             <BaseTitle>{t("DATASTORE")}</BaseTitle>
-            {(newSecurityReport === "SOON_REQUIRED" || newSecurityReport === "REQUIRED") && (
-                <Paper square className={classes.topMessage}>
-                    <MuiAlert
-                        severity={newSecurityReport === "REQUIRED" ? "error" : "info"}
-                        style={{
-                            marginBottom: "5px",
-                            marginTop: "5px",
-                        }}
-                    >
-                        {newSecurityReport === "REQUIRED"
-                            ? t("SECURITY_REPORT_REQUIRED")
-                            : t("SECURITY_REPORT_SOON_REQUIRED")}
-                    </MuiAlert>
-                </Paper>
-            )}
             <BaseContent>
                 <Grid container spacing={1}>
                     <Grid item xs={bigScreen && editEntryOpen ? 6 : 12}>
@@ -707,14 +695,14 @@ const DatastoreView = (props) => {
                                 <Toolbar
                                     className={classes.toolbarRoot}>
                                     <span className={classes.toolbarTitle}>{t("DATASTORE")}</span>
-                                    <div className={classes.search}>
+                                    {newSecurityReport !== 'REQUIRED' && (<div className={classes.search}>
                                         <Search
                                             value={search}
                                             onChange={(newValue) => {
                                                 setSearch(newValue)
                                             }}
                                         />
-                                        <Divider className={classes.divider} orientation="vertical" />
+                                        <Divider className={classes.divider} orientation="vertical"/>
                                         {!offlineMode && (
                                             <IconButton
                                                 color="primary"
@@ -722,7 +710,7 @@ const DatastoreView = (props) => {
                                                 aria-label="menu"
                                                 onClick={openMenu}
                                             >
-                                                <MenuOpenIcon />
+                                                <MenuOpenIcon/>
                                             </IconButton>
                                         )}
                                         <Menu
@@ -738,7 +726,7 @@ const DatastoreView = (props) => {
                                         >
                                             <MenuItem onClick={() => onNewFolder(datastore, [])}>
                                                 <ListItemIcon className={classes.listItemIcon}>
-                                                    <CreateNewFolderIcon className={classes.icon} fontSize="small" />
+                                                    <CreateNewFolderIcon className={classes.icon} fontSize="small"/>
                                                 </ListItemIcon>
                                                 <Typography variant="body2" noWrap>
                                                     {t("NEW_FOLDER")}
@@ -746,50 +734,57 @@ const DatastoreView = (props) => {
                                             </MenuItem>
                                             <MenuItem onClick={() => onNewEntry(datastore, [])}>
                                                 <ListItemIcon className={classes.listItemIcon}>
-                                                    <AddIcon className={classes.icon} fontSize="small" />
+                                                    <AddIcon className={classes.icon} fontSize="small"/>
                                                 </ListItemIcon>
                                                 <Typography variant="body2" noWrap>
                                                     {t("NEW_ENTRY")}
                                                 </Typography>
                                             </MenuItem>
                                         </Menu>
-                                        <Divider className={classes.divider} orientation="vertical" />
+                                        <Divider className={classes.divider} orientation="vertical"/>
                                         <IconButton
                                             className={classes.iconButton}
                                             aria-label="trash bin"
                                             onClick={openTrashBin}
                                         >
-                                            <DeleteSweepIcon />
+                                            <DeleteSweepIcon/>
                                         </IconButton>
-                                    </div>
+                                    </div>)}
                                 </Toolbar>
                             </AppBar>
-                            <div className={classes.root} onContextMenu={onContextMenu}>
-                                {!datastore && (
-                                    <div className={classes.loader}>
-                                        <ClipLoader />
-                                    </div>
-                                )}
-                                {datastore && (
-                                    <DatastoreTree
-                                        datastore={datastore}
-                                        search={search}
-                                        onNewFolder={onNewFolder}
-                                        onNewEntry={onNewEntry}
-                                        onNewShare={onNewShare}
-                                        onEditEntry={onEditEntry}
-                                        onCloneEntry={onCloneEntry}
-                                        onDeleteEntry={onDeleteEntry}
-                                        onEditFolder={onEditFolder}
-                                        onDeleteFolder={onDeleteFolder}
-                                        onSelectItem={onEditEntry}
-                                        onLinkItem={onLinkItem}
-                                        onLinkShare={onLinkShare}
-                                        onMoveFolder={onMoveFolder}
-                                        onMoveEntry={onMoveEntry}
-                                        onRightsOverview={onRightsOverview}
-                                    />
-                                )}
+                            <div className={classes.root} onContextMenu={newSecurityReport === 'REQUIRED' ? null : onContextMenu}>
+                                <Grid container>
+                                    <Grid item xs={12} sm={12} md={12}>
+                                        <AlertSecurityReport className={classes.securityReportAlert} />
+                                    </Grid>
+                                    <Grid item xs={12} sm={12} md={12}>
+                                        {!datastore && newSecurityReport !== 'REQUIRED' && (
+                                            <div className={classes.loader}>
+                                                <ClipLoader />
+                                            </div>
+                                        )}
+                                        {datastore && newSecurityReport !== 'REQUIRED' && (
+                                            <DatastoreTree
+                                                datastore={datastore}
+                                                search={search}
+                                                onNewFolder={onNewFolder}
+                                                onNewEntry={onNewEntry}
+                                                onNewShare={onNewShare}
+                                                onEditEntry={onEditEntry}
+                                                onCloneEntry={onCloneEntry}
+                                                onDeleteEntry={onDeleteEntry}
+                                                onEditFolder={onEditFolder}
+                                                onDeleteFolder={onDeleteFolder}
+                                                onSelectItem={onEditEntry}
+                                                onLinkItem={onLinkItem}
+                                                onLinkShare={onLinkShare}
+                                                onMoveFolder={onMoveFolder}
+                                                onMoveEntry={onMoveEntry}
+                                                onRightsOverview={onRightsOverview}
+                                            />
+                                        )}
+                                    </Grid>
+                                </Grid>
                             </div>
                             <Menu
                                 keepMounted

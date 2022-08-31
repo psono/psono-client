@@ -298,6 +298,13 @@ const DatastoreTreeFolder = (props) => {
                 <div className={"tree-folder-content"}>
                     {content.folders &&
                         content.folders
+                            .sort(function(a, b){
+                                if (a.name.toLowerCase() < b.name.toLowerCase())
+                                    return -1;
+                                if (a.name.toLowerCase() > b.name.toLowerCase())
+                                    return 1;
+                                return 0;
+                            })
                             .filter((folder) => !folder["hidden"] && !folder["deleted"])
                             .map(function (content, i) {
                                 const nodePathClone = Array.from(nodePath);
@@ -333,9 +340,9 @@ const DatastoreTreeFolder = (props) => {
                         content.items &&
                         content.items
                             .sort(function(a, b){
-                                if (a.name < b.name)
+                                if (a.name.toLowerCase() < b.name.toLowerCase())
                                     return -1;
-                                if (a.name > b.name)
+                                if (a.name.toLowerCase() > b.name.toLowerCase())
                                     return 1;
                                 return 0;
                             })

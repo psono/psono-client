@@ -87,7 +87,7 @@
   "TOGGLE_GRANT_RIGHT": "Ändern von Rechtemanagement",
   "TOGGLE_OWN_GRANT_RIGHT_WARNING": "Sie sind dabei sich selbst das Recht für diesen Share zu entziehene Berechtigungen von Nutzern zu ändern. Stellen sie sicher das ein anderer Nutzer entsprechende Berechtigungen hat, bevor sie ihre eigenen entfernen. Sind sie sich sicher das sie weitermachen möchten?",
   "DELETE_SHARE_RIGHT": "Share Recht löschen",
-  "DELETE_OWN_SHARE_RIGHT_WARNING": "Sie sind dabei ihre eigenen Share Rechte an diesem Share zu löschen. Sie werden damit alle Berechtigungen auf diesen Share verlieren. Sin sie sich sicher?",
+  "DELETE_OWN_SHARE_RIGHT_WARNING": "Sie sind dabei ihre eigenen Share Rechte an diesem Share zu löschen. Sie werden damit alle Berechtigungen auf diesen Share verlieren. Sind sie sich sicher?",
   "AFFECTED_SHARE_RIGHTS": "Betroffene Share Rechte",
   "MAINTENANCE_MODE_ACTIVE": "Server aufgrund von Wartungsarbeiten momentan nicht verfügbar.",
   "SERVER_DISABLED": "Server deaktiviert",
