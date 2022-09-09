@@ -421,7 +421,7 @@ const SecurityReportView = (props) => {
                     </AppBar>
                     {reportComplete && (
                         <div className={classes.root}>
-                            <Grid container>
+                            <Grid container justifyContent="center">
                                 {!analysis.user_summary.multifactor_auth_enabled && (
                                     <Grid item xs={12} sm={12} md={12} className={classes.muiInfo}>
                                         <MuiAlert severity="warning">
@@ -435,8 +435,12 @@ const SecurityReportView = (props) => {
                                     </Grid>
                                 )}
                                 <GridContainerErrors errors={errors} setErrors={setErrors} />
-                                <GridContainerErrors errors={msgs} setErrors={setMsgs} />
-                                <Grid item xs={6} sm={3} md={3} className={classes.doughnutContainer}>
+                                <GridContainerErrors
+                                    errors={msgs}
+                                    setErrors={setMsgs}
+                                    severity="info"
+                                />
+                                <Grid item xs={6} sm={3} md={3} lg={2} className={classes.doughnutContainer}>
                                     <Typography variant="body2" noWrap className={classes.doughnutHeader}>
                                         {t("PASSWORD_STRENGTH")}
                                     </Typography>
@@ -452,7 +456,7 @@ const SecurityReportView = (props) => {
                                         </Typography>
                                     )}
                                 </Grid>
-                                <Grid item xs={6} sm={3} md={3} className={classes.doughnutContainer}>
+                                <Grid item xs={6} sm={3} md={3} lg={2} className={classes.doughnutContainer}>
                                     <Typography variant="body2" noWrap className={classes.doughnutHeader}>
                                         {t("DUPLICATES")}
                                     </Typography>
@@ -468,7 +472,7 @@ const SecurityReportView = (props) => {
                                         </Typography>
                                     )}
                                 </Grid>
-                                <Grid item xs={6} sm={3} md={3} className={classes.doughnutContainer}>
+                                <Grid item xs={6} sm={3} md={3} lg={2} className={classes.doughnutContainer}>
                                     <Typography variant="body2" noWrap className={classes.doughnutHeader}>
                                         {t("AVERAGE_SCORE")}
                                     </Typography>
@@ -477,7 +481,7 @@ const SecurityReportView = (props) => {
                                         {analysis.password_summary.average_rating}% {t("SCORE")}
                                     </Typography>
                                 </Grid>
-                                <Grid item xs={6} sm={3} md={3} className={classes.doughnutContainer}>
+                                <Grid item xs={6} sm={3} md={3} lg={2} className={classes.doughnutContainer}>
                                     <Typography variant="body2" noWrap className={classes.doughnutHeader}>
                                         {t("PASSWORD_AGE")}
                                     </Typography>
