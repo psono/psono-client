@@ -56,6 +56,7 @@ const useStyles = makeStyles((theme) => ({
         padding: "15px",
     },
     loader: {
+        textAlign: "center",
         marginTop: "30px",
         marginBottom: "30px",
         margin: "auto",
