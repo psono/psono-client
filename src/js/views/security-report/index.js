@@ -597,7 +597,11 @@ const SecurityReportView = (props) => {
                                 </Grid>
 
                                 <GridContainerErrors errors={errors} setErrors={setErrors} />
-                                <GridContainerErrors errors={msgs} setErrors={setMsgs} />
+                                <GridContainerErrors
+                                    errors={msgs}
+                                    setErrors={setMsgs}
+                                    severity="info"
+                                />
 
                                 {processing && (
                                     <Grid item xs={12} sm={12} md={12}>
