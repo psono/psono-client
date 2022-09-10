@@ -470,7 +470,7 @@ const DatastoreView = (props) => {
 
     const onNewFolderCreate = (name) => {
         // called once someone clicked the CREATE button in the dialog closes with the new name
-        widget.openNewFolder(newFolderData["parent"], newFolderData["path"], datastore, datastorePasswordService, name);
+        widget.newFolderSave(newFolderData["parent"], newFolderData["path"], datastore, datastorePasswordService, name);
         setNewFolderOpen(false);
     };
     const onNewFolder = (parent, path) => {
@@ -486,7 +486,7 @@ const DatastoreView = (props) => {
 
     const onNewEntryCreate = (item) => {
         // called once someone clicked the CREATE button in the dialog closes with the new name
-        widget.openNewItem(item, datastore, newEntryData["parent"], newEntryData["path"], datastorePasswordService);
+        widget.newItemSave(item, datastore, newEntryData["parent"], newEntryData["path"], datastorePasswordService);
         setNewEntryOpen(false);
     };
     const onNewEntry = (parent, path) => {
@@ -515,7 +515,7 @@ const DatastoreView = (props) => {
 
     const onEditFolderSave = (node) => {
         setEditFolderOpen(false);
-        widget.openEditFolder(node, editFolderData.path, datastore, datastorePasswordService);
+        widget.editFolderSave(node, editFolderData.path, datastore, datastorePasswordService);
     };
     const onEditFolder = (node, path) => {
         setEditFolderData({
@@ -527,7 +527,7 @@ const DatastoreView = (props) => {
 
     const onEditEntrySave = (node) => {
         setEditEntryOpen(false);
-        widget.openEditItem(datastore, node, editEntryData.path, datastorePasswordService);
+        widget.editItemSave(datastore, node, editEntryData.path, datastorePasswordService);
     };
 
     const onEditEntry = (item, path) => {
