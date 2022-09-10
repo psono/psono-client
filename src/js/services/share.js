@@ -468,11 +468,19 @@ function getClosestParentShare(path, datastore, closestShare, distance) {
         if (datastore.hasOwnProperty("items")) {
             for (n = 0, l = datastore.items.length; n < l; n++) {
                 if (datastore.items[n].id === to_search) {
-                    return {
-                        closest_share: closest_share,
-                        relative_path: relative_path,
-                        path_to_share: original_path.slice(0, original_path.length - relative_path.length),
-                    };
+                    if (typeof datastore.items[n].share_id !== "undefined") {
+                        return {
+                            closest_share: datastore.items[n],
+                            relative_path: [],
+                            path_to_share: original_path,
+                        };
+                    } else {
+                        return {
+                            closest_share: closest_share,
+                            relative_path: relative_path,
+                            path_to_share: original_path.slice(0, original_path.length - relative_path.length),
+                        };
+                    }
                 }
             }
         }

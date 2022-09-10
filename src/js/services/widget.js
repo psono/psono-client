@@ -311,8 +311,14 @@ function editItemSave(datastore, newContent, path, manager) {
     if (closest_share.hasOwnProperty("share_id")) {
         // refresh share content before updating the share
         onSuccess = function (content) {
-            const search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], content.data);
-            const node = search[0][search[1]];
+            let node;
+            if (closest_share_info["relative_path"].length === 0) {
+                // handle special case that we have an entry that is also a share
+                node = content.data
+            } else {
+                const search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], content.data);
+                node = search[0][search[1]];
+            }
 
             // we delete all keys from the existing object and copy all the new ones
             let keys = Object.keys(node);
