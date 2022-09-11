@@ -306,6 +306,34 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
         });
     }
 
+    /**
+     * Searches the fields for a username field that is not empty and will return its value. Otherwise it returns an
+     * empty string
+     *
+     * @returns {string}
+     */
+    function find_username() {
+        var username = '';
+        for (var i = 0; i < myForms.length; i++) {
+            if (!myForms[i].username.value) {
+                continue
+            }
+            username = myForms[i].username.value;
+            break
+        }
+        return username;
+    }
+
+    /**
+     * Generates a password for the current page. Will try to find the username too.
+     */
+    function generate_password() {
+        base.emit("generate-password", {
+            url: document.location.toString(),
+            username: find_username(),
+        });
+    }
+
     // /**
     //  * closes dropinstances if a click outside of a dropinstance happens.
     //  *
@@ -335,6 +363,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
     function click(evt, target, document) {
         if (getDistance(evt, target) < 30) {
             var open_datastore_class = "psono_open-datastore-" + uuid.v4();
+            var generate_password_class = "psono_generate-password-" + uuid.v4();
             var request_secret_class = "psono_request-secret-" + uuid.v4();
 
             var dropcontent = "";
@@ -342,6 +371,10 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
             dropcontent += '<ul class="navigations">';
             dropcontent +=
                 '<li><div class="' + open_datastore_class + '" style="cursor: pointer;">Open Datastore</div></li>';
+            if (website_passwords.length < 1) {
+                dropcontent +=
+                    '<li><div class="' + generate_password_class + '" style="cursor: pointer;">Generate Password</div></li>';
+            }
             for (var i = 0; i < website_passwords.length; i++) {
                 dropcontent +=
                     '<li><div class="' +
@@ -367,6 +400,10 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
 
                 jQuery(element.getElementsByClassName(open_datastore_class)).on("click", function () {
                     open_datastore();
+                });
+
+                jQuery(element.getElementsByClassName(generate_password_class)).on("click", function () {
+                    generate_password();
                 });
 
                 jQuery(element.getElementsByClassName(request_secret_class)).on("click", function () {
