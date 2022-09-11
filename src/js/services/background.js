@@ -276,22 +276,24 @@ function savePasswordActiveTab(request, sender, sendResponse) {
     if (typeof activeTabId === "undefined") {
         return;
     }
-    const onError = function (data) {
-        console.log(data);
-    };
+    chrome.tabs.sendMessage(activeTabId, { event: "get-username", data: {} }, function (response) {
+        const onError = function (data) {
+            console.log(data);
+        };
 
-    const onSuccess = function (datastore_object) {
-        setTimeout(function () {
-            chrome.tabs.sendMessage(activeTabId, { event: "secrets-changed", data: {} }, function (response) {
-                // don't do anything
-            });
-        }, 500); // delay 500 ms to give the storage a chance to be stored
-        browserClient.openTab(
-            "index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id
-        );
-    };
+        const onSuccess = function (datastore_object) {
+            setTimeout(function () {
+                chrome.tabs.sendMessage(activeTabId, { event: "secrets-changed", data: {} }, function (response) {
+                    // don't do anything
+                });
+            }, 500); // delay 500 ms to give the storage a chance to be stored
+            browserClient.openTab(
+                "index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id
+            );
+        };
 
-    datastorePasswordService.savePasswordActiveTab(request.data.password).then(onSuccess, onError);
+        datastorePasswordService.savePasswordActiveTab(response.username, request.data.password).then(onSuccess, onError);
+    });
 }
 
 /**

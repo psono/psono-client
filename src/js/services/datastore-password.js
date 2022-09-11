@@ -743,7 +743,7 @@ function savePassword(url, username, password) {
  *
  * @returns {Promise} Returns a promise with the datastore object
  */
-function savePasswordActiveTab(password) {
+function savePasswordActiveTab(username, password) {
     const onError = function () {
         console.log("could not find out the url of the active tab");
     };
@@ -756,7 +756,7 @@ function savePasswordActiveTab(password) {
             return datastore_object;
         };
 
-        return savePassword(url, "", password).then(onSuccess, onError);
+        return savePassword(url, username, password).then(onSuccess, onError);
     };
 
     return browserClient.getActiveTabUrl().then(onSuccess, onError);

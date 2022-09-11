@@ -23,6 +23,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
         base.on("website-password-update", on_website_password_update);
         base.on("return-secret", on_return_secret);
         base.on("secrets-changed", on_secrets_changed);
+        base.on("get-username", on_get_username);
 
         jQuery(function () {
             var i;
@@ -477,8 +478,10 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * Handler for a fillpassword event
      *
      * @param data
+     * @param sender
+     * @param sendResponse
      */
-    function on_fillpassword(data) {
+    function on_fillpassword(data, sender, sendResponse) {
         var fill_field_helper = function (field, value) {
             jQuery(field).focus();
             field.value = value;
@@ -512,8 +515,10 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * handles password update events
      *
      * @param data
+     * @param sender
+     * @param sendResponse
      */
-    function on_website_password_update(data) {
+    function on_website_password_update(data, sender, sendResponse) {
         website_passwords = data;
     }
 
@@ -521,8 +526,10 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * handles password request answer
      *
      * @param data
+     * @param sender
+     * @param sendResponse
      */
-    function on_return_secret(data) {
+    function on_return_secret(data, sender, sendResponse) {
         var fill_field_helper = function (field, value) {
             if (field === null) {
                 return;
@@ -577,8 +584,23 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * handles secret changed requests
      *
      * @param data
+     * @param sender
+     * @param sendResponse
      */
-    function on_secrets_changed(data) {
+    function on_secrets_changed(data, sender, sendResponse) {
         base.emit("website-password-refresh", document.location.toString());
+    }
+
+    /**
+     * handles the request from the background script, when it asks for the username
+     *
+     * @param data
+     * @param sender
+     * @param sendResponse
+     */
+    function on_get_username(data, sender, sendResponse) {
+        sendResponse({
+            'username': find_username(),
+        });
     }
 };
