@@ -247,36 +247,36 @@ deploy-github:
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
 
-#deploy-chrome:
-#  except:
-#    - schedules
-#  stage: deploy
-#  image: psono-docker.jfrog.io/ubuntu:22.04
-#  script:
-#    - sh ./var/prep-build.sh
-#    - npm run buildchrome
-#    - sh ./var/deploy-chrome-extension.sh
-#  environment:
-#    name: chrome-webstore
-#    url: https://chrome.google.com/webstore/detail/psonopw/eljmjmgjkbmpmfljlmklcfineebidmlo
-#  only:
-#    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
-#
-#
-#deploy-firefox:
-#  except:
-#    - schedules
-#  stage: deploy
-#  image: psono-docker.jfrog.io/ubuntu:22.04
-#  script:
-#    - sh ./var/prep-build.sh
-#    - npm run buildfirefox
-#    - sh ./var/deploy-firefox-extension.sh
-#  environment:
-#    name: firefox-webstore
-#    url: https://addons.mozilla.org/de/firefox/addon/psono-pw-password-manager/
-#  only:
-#    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
+deploy-chrome:
+  except:
+    - schedules
+  stage: deploy
+  image: psono-docker.jfrog.io/ubuntu:22.04
+  script:
+    - sh ./var/prep-build.sh
+    - npm run buildchrome
+    - sh ./var/deploy-chrome-extension.sh
+  environment:
+    name: chrome-webstore
+    url: https://chrome.google.com/webstore/detail/psonopw/eljmjmgjkbmpmfljlmklcfineebidmlo
+  only:
+    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
+
+
+deploy-firefox:
+  except:
+    - schedules
+  stage: deploy
+  image: psono-docker.jfrog.io/ubuntu:22.04
+  script:
+    - sh ./var/prep-build.sh
+    - npm run buildfirefox
+    - sh ./var/deploy-firefox-extension.sh
+  environment:
+    name: firefox-webstore
+    url: https://addons.mozilla.org/de/firefox/addon/psono-pw-password-manager/
+  only:
+    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
 deploy-changelog:
   except:
