@@ -14,7 +14,7 @@ import cryptoLibrary from "./crypto-library";
 import HKP from "@openpgp/hkp-client";
 import * as openpgp from "openpgp";
 import storage from "./storage";
-import browserClientService from "./browser-client";
+import datastorePassword from "./datastore-password";
 
 let lastLoginCredentials;
 let activeTabId;
@@ -182,6 +182,7 @@ function onMessage(request, sender, sendResponse) {
         "website-password-refresh": onWebsitePasswordRefresh,
         "request-secret": onRequestSecret,
         "open-tab": onOpenTab,
+        "generate-password": onGeneratePassword,
         "login-form-submit": loginFormSubmit,
         "decrypt-gpg": decryptPgp,
         "encrypt-gpg": encryptPgp,
@@ -275,22 +276,24 @@ function savePasswordActiveTab(request, sender, sendResponse) {
     if (typeof activeTabId === "undefined") {
         return;
     }
-    const onError = function (data) {
-        console.log(data);
-    };
+    chrome.tabs.sendMessage(activeTabId, { event: "get-username", data: {} }, function (response) {
+        const onError = function (data) {
+            console.log(data);
+        };
 
-    const onSuccess = function (datastore_object) {
-        setTimeout(function () {
-            chrome.tabs.sendMessage(activeTabId, { event: "secrets-changed", data: {} }, function (response) {
-                // don't do anything
-            });
-        }, 500); // delay 500 ms to give the storage a chance to be stored
-        browserClient.openTab(
-            "index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id
-        );
-    };
+        const onSuccess = function (datastore_object) {
+            setTimeout(function () {
+                chrome.tabs.sendMessage(activeTabId, { event: "secrets-changed", data: {} }, function (response) {
+                    // don't do anything
+                });
+            }, 500); // delay 500 ms to give the storage a chance to be stored
+            browserClient.openTab(
+                "index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id
+            );
+        };
 
-    datastorePasswordService.savePasswordActiveTab(request.data.password).then(onSuccess, onError);
+        datastorePasswordService.savePasswordActiveTab(response.username, request.data.password).then(onSuccess, onError);
+    });
 }
 
 /**
@@ -488,6 +491,38 @@ function onOpenTab(request, sender, sendResponse) {
     browser.tabs.create({
         url: request.data.url,
     });
+}
+
+/**
+ * Generates a password
+ *
+ * @param {object} request The message sent by the calling script.
+ * @param {object} sender The sender of the message
+ * @param {function} sendResponse Function to call (at most once) when you have a response.
+ */
+function onGeneratePassword(request, sender, sendResponse) {
+    let password = datastorePasswordService.generate();
+
+    const onError = function (data) {
+        console.log(data);
+    };
+
+    const onSuccess = function (datastore_object) {
+        setTimeout(function () {
+            chrome.tabs.sendMessage(activeTabId, { event: "secrets-changed", data: {} }, function (response) {
+                // don't do anything
+            });
+        }, 500); // delay 500 ms to give the storage a chance to be stored
+        browserClient.openTab(
+            "index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id
+        );
+    };
+
+    datastorePasswordService.savePassword(request.data.url, request.data.username, password).then(onSuccess, onError);
+
+    sendResponse({ event: "return-secret", data: {
+            website_password_password: password
+    }});
 }
 
 /**

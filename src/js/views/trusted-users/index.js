@@ -34,6 +34,7 @@ const useStyles = makeStyles((theme) => ({
         padding: "15px",
     },
     loader: {
+        textAlign: "center",
         marginTop: "30px",
         marginBottom: "30px",
         margin: "auto",
@@ -151,7 +152,7 @@ const TrustedUsersView = (props) => {
     const onNewFolderCreate = (name) => {
         // called once someone clicked the CREATE button in the dialog closes with the new name
         setNewFolderOpen(false);
-        widget.openNewFolder(newFolderData["parent"], newFolderData["path"], datastore, datastorePassword, name);
+        widget.newFolderSave(newFolderData["parent"], newFolderData["path"], datastore, datastorePassword, name);
     };
     const onNewFolder = (parent, path) => {
         onContextMenuClose();
@@ -195,7 +196,7 @@ const TrustedUsersView = (props) => {
 
     const onEditFolderSave = (node) => {
         setEditFolderOpen(false);
-        widget.openEditFolder(node, editFolderData.path, datastore, datastoreUser);
+        widget.editFolderSave(node, editFolderData.path, datastore, datastoreUser);
     };
     const onEditFolder = (node, path) => {
         setEditFolderData({

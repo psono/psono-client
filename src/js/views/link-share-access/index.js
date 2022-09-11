@@ -172,11 +172,12 @@ const LinkShareAccessView = (props) => {
 
     const approveHost = () => {
         host.approveHost(serverCheck.server_url, serverCheck.verify_key);
+        setView("default");
         return linkShareAccess();
     };
 
     const cancel = () => {
-        setView("default");
+        window.location.href = "index.html";
     };
 
     return (

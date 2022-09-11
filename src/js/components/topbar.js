@@ -164,7 +164,7 @@ const Topbar = (props) => {
                     >
                         <MenuIcon />
                     </IconButton>
-                    <a className={classes.topLogo} href="#">
+                    <a className={classes.topLogo} href="index.html">
                         <img alt="Psono" src="img/logo-inverse.png" height="100%" />
                     </a>
                     <div style={{ width: "100%" }}>

@@ -14,7 +14,7 @@ import datastoreUserService from "./datastore-user";
 import helper from "./helper";
 
 /**
- * Opens the modal to create a new folder
+ * Adds a new folder to the datastore and saves the structures (secret, datastore, share) if necessary
  *
  * @param {TreeObject} parent The parent of the new folder
  * @param {Array} path The path to the parent of the new folder
@@ -22,7 +22,7 @@ import helper from "./helper";
  * @param {Object} manager manager responsible for
  * @param {String} name The name of the new folder
  */
-function openNewFolder(parent, path, dataStructure, manager, name) {
+function newFolderSave(parent, path, dataStructure, manager, name) {
     let onSuccess, onError;
 
     if (typeof parent === "undefined") {
@@ -128,14 +128,14 @@ function openNewFolder(parent, path, dataStructure, manager, name) {
 }
 
 /**
- * Opens the modal to edit a folder
+ * Edits a folder and saves the structures (secret, datastore, share) if necessary
  *
  * @param {object} node The node you want to edit
  * @param {Array} path The path to the node
  * @param {TreeObject} dataStructure the data structure
  * @param {Object} manager manager responsible for
  */
-function openEditFolder(node, path, dataStructure, manager) {
+function editFolderSave(node, path, dataStructure, manager) {
     let onSuccess, onError;
 
     const closest_share_info = shareService.getClosestParentShare(path.slice(), dataStructure, dataStructure, 0);
@@ -188,7 +188,7 @@ function openEditFolder(node, path, dataStructure, manager) {
 }
 
 /**
- * Adds a new item to the datastore
+ * Adds a new item to the datastore and saves the structures (secret, datastore, share) if necessary
  *
  * @param {object} datastoreObject The new entry that needs to be added to the datastore
  * @param {TreeObject} datastore The Datastore object
@@ -196,7 +196,7 @@ function openEditFolder(node, path, dataStructure, manager) {
  * @param {Array} path The path to the parent
  * @param {Object} manager manager responsible for
  */
-function openNewItem(datastoreObject, datastore, parent, path, manager) {
+function newItemSave(datastoreObject, datastore, parent, path, manager) {
     if (typeof parent === "undefined") {
         parent = datastore;
     }
@@ -294,14 +294,14 @@ function openNewItem(datastoreObject, datastore, parent, path, manager) {
 }
 
 /**
- * Opens the modal for a the edit entry
+ * Edits an item and saves the structures (secret, datastore, share) if necessary
  *
  * @param {TreeObject} datastore The Datastore object
  * @param {object} newContent The new content for the node
  * @param {Array} path The path to the item
  * @param {Object} manager manager responsible for
  */
-function openEditItem(datastore, newContent, path, manager) {
+function editItemSave(datastore, newContent, path, manager) {
     let onSuccess, onError;
 
     const closest_share_info = shareService.getClosestParentShare(path.slice(), datastore, datastore, 0);
@@ -311,8 +311,14 @@ function openEditItem(datastore, newContent, path, manager) {
     if (closest_share.hasOwnProperty("share_id")) {
         // refresh share content before updating the share
         onSuccess = function (content) {
-            const search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], content.data);
-            const node = search[0][search[1]];
+            let node;
+            if (closest_share_info["relative_path"].length === 0) {
+                // handle special case that we have an entry that is also a share
+                node = content.data
+            } else {
+                const search = datastorePasswordService.findInDatastore(closest_share_info["relative_path"], content.data);
+                node = search[0][search[1]];
+            }
 
             // we delete all keys from the existing object and copy all the new ones
             let keys = Object.keys(node);
@@ -1327,11 +1333,11 @@ function itemIcon(item) {
 }
 
 const widgetService = {
-    openNewFolder: openNewFolder,
-    openEditFolder: openEditFolder,
+    newFolderSave: newFolderSave,
+    editFolderSave: editFolderSave,
     findInStructure: findInStructure,
-    openNewItem: openNewItem,
-    openEditItem: openEditItem,
+    newItemSave: newItemSave,
+    editItemSave: editItemSave,
     moveItem: moveItem,
     deleteItemPermanent: deleteItemPermanent,
     markItemAsDeleted: markItemAsDeleted,

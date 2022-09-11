@@ -86,7 +86,7 @@ const DialogAcceptShare = (props) => {
     const onNewFolderCreate = (name) => {
         // called once someone clicked the CREATE button in the dialog closes with the new name
         setNewFolderOpen(false);
-        widget.openNewFolder(newFolderData["parent"], newFolderData["path"], datastore, datastorePassword, name);
+        widget.newFolderSave(newFolderData["parent"], newFolderData["path"], datastore, datastorePassword, name);
     };
     const onNewFolder = (parent, path) => {
         // called whenever someone clicks on a new folder Icon
