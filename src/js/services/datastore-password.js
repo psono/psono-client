@@ -772,19 +772,19 @@ function bookmarkActiveTab() {
         console.log("could not find out the url of the active tab");
     };
 
-    const onSuccess = function (tab) {
-        const parsed_url = helperService.parseUrl(tab.url);
+    const onSuccess = function (url) {
+        const parsed_url = helperService.parseUrl(url);
 
         const secret_object = {
-            bookmark_title: tab.title || i18n.t("UNKNOWN"),
-            bookmark_url: tab.url,
+            bookmark_title: parsed_url.authority || i18n.t("UNKNOWN"),
+            bookmark_url: url,
             bookmark_notes: "",
             bookmark_url_filter: parsed_url.authority || "",
         };
 
         const datastore_object = {
             type: "bookmark",
-            name: tab.title || i18n.t("UNKNOWN"),
+            name: parsed_url.authority || i18n.t("UNKNOWN"),
             urlfilter: parsed_url.authority || "",
         };
 
