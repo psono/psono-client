@@ -697,6 +697,7 @@
   "SUCCESS": "Erfolg",
   "WARNING": "Warnung",
   "DELETE": "Löschen",
+  "MOVE_TO_TRASH": "In Papierkorb verschieben",
   "RESTORE": "Wiederherstellen",
   "GENERATE": "Generieren",
   "SERVER": "Server",

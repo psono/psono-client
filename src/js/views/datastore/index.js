@@ -782,6 +782,8 @@ const DatastoreView = (props) => {
                                                 onMoveFolder={onMoveFolder}
                                                 onMoveEntry={onMoveEntry}
                                                 onRightsOverview={onRightsOverview}
+                                                deleteFolderLabel={t('MOVE_TO_TRASH')}
+                                                deleteItemLabel={t('MOVE_TO_TRASH')}
                                             />
                                         )}
                                     </Grid>

@@ -99,6 +99,8 @@ const DialogSelectSecret = (props) => {
                                 onSelectItem={onSelectItem}
                                 isSelectable={isSelectable}
                                 search={search}
+                                deleteFolderLabel={t('DELETE')}
+                                deleteItemLabel={t('DELETE')}
                             />
                         )}
                     </Grid>
