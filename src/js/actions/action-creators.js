@@ -27,6 +27,7 @@ import {
     SET_EMAIL,
     SET_USER_DATASTORE_OVERVIEW,
     SET_HIDE_DOWNLOAD_BANNER,
+    SET_LAST_POPUP_SEARCH,
 } from "./action-types";
 
 import datastoreSettingService from "../services/datastore-setting";
@@ -193,6 +194,14 @@ function setHideDownloadBanner(hideDownloadBanner) {
         });
     };
 }
+function setLastPopupSearch(lastPopupSearch) {
+    return (dispatch) => {
+        dispatch({
+            type: SET_LAST_POPUP_SEARCH,
+            lastPopupSearch,
+        });
+    };
+}
 function settingsDatastoreLoaded(data) {
     return (dispatch) => {
         dispatch({
@@ -339,6 +348,7 @@ const actionCreators = {
     setNotificationOnCopy,
     setDisableBrowserPm,
     setHideDownloadBanner,
+    setLastPopupSearch,
     setPasswordConfig,
     setGpgConfig,
     settingsDatastoreLoaded,

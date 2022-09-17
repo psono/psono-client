@@ -29,6 +29,7 @@ import helper from "../../services/helper";
 import widgetService from "../../services/widget";
 import offlineCacheService from "../../services/offline-cache";
 import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
+import action from "../../actions/bound-action-creators";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -247,7 +248,7 @@ const PopupView = (props) => {
     const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
     const hasTwoFactor = useSelector((state) => state.user.hasTwoFactor);
     const [unlockOfflineCache, setUnlockOfflineCache] = React.useState(false);
-    const [search, setSearch] = React.useState("");
+    const search = useSelector((state) => state.client.lastPopupSearch);
     const [items, setItems] = React.useState([]);
     let isSubscribed = true;
     const passwordFilter = helper.getPasswordFilter(search);
@@ -321,7 +322,7 @@ const PopupView = (props) => {
         browserClient.closePopup();
     };
     const clear = (event) => {
-        setSearch("");
+        action.setLastPopupSearch("");
     };
     const editItem = (item) => {
         browserClient.openTab("index.html#!/datastore/edit/" + item.type + "/" + item.secret_id);
@@ -390,7 +391,7 @@ const PopupView = (props) => {
                         autoComplete="off"
                         value={search}
                         onChange={(event) => {
-                            setSearch(event.target.value);
+                            action.setLastPopupSearch(event.target.value);
                         }}
                         InputProps={{
                             endAdornment: search && (

@@ -39,11 +39,20 @@ const migrations = {
             },
         }
     },
+    1: (state) => {
+        return {
+            ...state,
+            client: {
+                ...state.client,
+                lastPopupSearch: ""
+            },
+        }
+    },
 }
 
 const persistConfig = {
     key: "client",
-    version: 0,
+    version: 1,
     storage,
     debug: false,
     migrate: createMigrate(migrations, { debug: false }),
