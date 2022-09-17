@@ -742,14 +742,19 @@ const DatastoreView = (props) => {
                                                 </Typography>
                                             </MenuItem>
                                         </Menu>
-                                        <Divider className={classes.divider} orientation="vertical"/>
-                                        <IconButton
-                                            className={classes.iconButton}
-                                            aria-label="trash bin"
-                                            onClick={openTrashBin}
-                                        >
-                                            <DeleteSweepIcon/>
-                                        </IconButton>
+                                        {!offlineMode && (
+                                            <>
+
+                                                <Divider className={classes.divider} orientation="vertical"/>
+                                                <IconButton
+                                                    className={classes.iconButton}
+                                                    aria-label="trash bin"
+                                                    onClick={openTrashBin}
+                                                >
+                                                    <DeleteSweepIcon/>
+                                                </IconButton>
+                                            </>
+                                        )}
                                     </div>)}
                                 </Toolbar>
                             </AppBar>
