@@ -28,11 +28,11 @@ import {
     SET_USER_DATASTORE_OVERVIEW,
     SET_HIDE_DOWNLOAD_BANNER,
     SET_LAST_POPUP_SEARCH,
+    SET_REQUESTS_IN_PROGRESS,
 } from "./action-types";
 
 import datastoreSettingService from "../services/datastore-setting";
 import store from "../services/store";
-import settingsDatastore from "../reducers/settings-datastore";
 
 function setUserUsername(username) {
     return (dispatch) => {
@@ -329,6 +329,16 @@ function setNotifications(messages) {
     };
 }
 
+function setRequestsInProgress(requestCounterOpen, requestCounterClosed) {
+    return (dispatch) => {
+        dispatch({
+            type: SET_REQUESTS_IN_PROGRESS,
+            requestCounterOpen: requestCounterOpen,
+            requestCounterClosed: requestCounterClosed,
+        });
+    };
+}
+
 const actionCreators = {
     setUserUsername,
     setUserInfo1,
@@ -359,6 +369,7 @@ const actionCreators = {
     setRemoteConfigJson,
     sendNotification,
     setNotifications,
+    setRequestsInProgress,
 };
 
 export default actionCreators;

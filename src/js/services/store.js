@@ -52,6 +52,7 @@ const migrations = {
 
 const persistConfig = {
     key: "client",
+    blacklist: ['transient'],
     version: 1,
     storage,
     debug: false,
