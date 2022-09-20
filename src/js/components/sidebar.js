@@ -319,7 +319,7 @@ const Sidebar = (props) => {
                                 classes={{ root: classes.listItemRoot }}
                             >
                                 <ListItemIcon className={classes.listItemIcon}>
-                                    <FontAwesome name={link.class.slice(3)} />
+                                    {link.class && (<FontAwesome name={link.class.slice(3)}/>)}
                                 </ListItemIcon>
                                 <ListItemText classes={{ primary: classes.listItemText }} primary={t(link.title)} />
                             </ListItem>
