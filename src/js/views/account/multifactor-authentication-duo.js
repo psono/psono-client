@@ -140,7 +140,7 @@ const MultifactorAuthenticatorDuo = (props) => {
 
     const columns = [
         { name: t("ID"), options: { display: false } },
-        { name: t("YUBIKEY_TITLE") },
+        { name: t("DUO_TITLE") },
         {
             name: t("ACTIVE"),
             options: {
