@@ -162,7 +162,7 @@ const MultifactorAuthenticatorGoogleAuthenticator = (props) => {
             <DialogTitle id="alert-dialog-title">{t("GOOGLE_AUTHENTICATOR")}</DialogTitle>
             {view === "default" && (
                 <DialogContent>
-                    <Table data={googleAuthenticators} columns={columns} options={options} onCreate={onCreate} />;
+                    <Table data={googleAuthenticators} columns={columns} options={options} onCreate={onCreate} />
                 </DialogContent>
             )}
             {view === "create_step0" && (
