@@ -19,9 +19,7 @@ function is_ipv4_address(address) {
 function parseUrl(url) {
     let authority;
     let splitted_authority;
-    let splitted_domain;
     let full_domain;
-    let top_domain;
     let base_url;
     let schema;
     let port = null;
@@ -43,19 +41,7 @@ function parseUrl(url) {
         port = splitted_authority[splitted_authority.length - 1];
     }
     if (typeof splitted_authority !== "undefined") {
-        splitted_domain = splitted_authority[0].split(".");
         full_domain = splitted_authority[0];
-    }
-
-    if (typeof splitted_domain !== "undefined" && is_ipv4_address(full_domain)) {
-        top_domain = full_domain;
-    } else if (typeof splitted_domain !== "undefined") {
-        if (splitted_domain.length > 1) {
-            top_domain =
-                splitted_domain[splitted_domain.length - 2] + "." + splitted_domain[splitted_domain.length - 1];
-        } else {
-            top_domain = splitted_domain[splitted_domain.length - 1];
-        }
     }
 
     return {
@@ -63,7 +49,7 @@ function parseUrl(url) {
         base_url: base_url,
         authority: authority, //remove leading www.
         full_domain: full_domain,
-        top_domain: top_domain,
+        top_domain: full_domain,
         port: port,
         path: matches[5],
         query: matches[7],
