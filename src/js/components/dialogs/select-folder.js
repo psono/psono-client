@@ -126,6 +126,8 @@ const DialogSelectFolder = (props) => {
                                 isSelectable={isSelectable}
                                 hideItems={true}
                                 search={search}
+                                deleteFolderLabel={t('DELETE')}
+                                deleteItemLabel={t('DELETE')}
                             />
                         )}
                     </Grid>

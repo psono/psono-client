@@ -398,7 +398,10 @@ const LoginViewForm = (props) => {
 
         setAllowLostPassword(allowLostPassword);
         setAllowRegistration(allowRegistration);
-        setServer(serverUrl);
+        if (!server) {
+            // if we didn't "remember" a server, we will take the one from the config.
+            setServer(serverUrl);
+        }
         setDomain(domain);
         setSamlProvider(samlProvider);
         setOidcProvider(oidcProvider);

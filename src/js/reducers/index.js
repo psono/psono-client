@@ -1,5 +1,6 @@
 import { combineReducers } from "redux";
 import persistent from "./persistent";
+import transient from "./transient";
 // import adminClient from './admin_client';
 import user from "./user";
 import settingsDatastore from "./settings-datastore";
@@ -9,6 +10,7 @@ import client from "./client";
 
 const rootReducer = combineReducers({
     persistent,
+    transient,
     // adminClient,
     user,
     settingsDatastore,

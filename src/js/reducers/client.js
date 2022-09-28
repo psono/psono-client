@@ -7,6 +7,7 @@ import {
     SET_NOTIFICATION_ON_COPY,
     SET_DISABLE_BROWSER_PM,
     SET_HIDE_DOWNLOAD_BANNER,
+    SET_LAST_POPUP_SEARCH,
 } from "../actions/action-types";
 
 const default_url = "";
@@ -20,6 +21,7 @@ function client(
         notificationOnCopy: true,
         disableBrowserPm: true,
         hideDownloadBanner: false,
+        lastPopupSearch: "",
     },
     action
 ) {
@@ -56,6 +58,10 @@ function client(
         case SET_HIDE_DOWNLOAD_BANNER:
             return Object.assign({}, state, {
                 hideDownloadBanner: action.hideDownloadBanner,
+            });
+        case SET_LAST_POPUP_SEARCH:
+            return Object.assign({}, state, {
+                lastPopupSearch: action.lastPopupSearch,
             });
         default:
             return state;

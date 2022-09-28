@@ -742,14 +742,19 @@ const DatastoreView = (props) => {
                                                 </Typography>
                                             </MenuItem>
                                         </Menu>
-                                        <Divider className={classes.divider} orientation="vertical"/>
-                                        <IconButton
-                                            className={classes.iconButton}
-                                            aria-label="trash bin"
-                                            onClick={openTrashBin}
-                                        >
-                                            <DeleteSweepIcon/>
-                                        </IconButton>
+                                        {!offlineMode && (
+                                            <>
+
+                                                <Divider className={classes.divider} orientation="vertical"/>
+                                                <IconButton
+                                                    className={classes.iconButton}
+                                                    aria-label="trash bin"
+                                                    onClick={openTrashBin}
+                                                >
+                                                    <DeleteSweepIcon/>
+                                                </IconButton>
+                                            </>
+                                        )}
                                     </div>)}
                                 </Toolbar>
                             </AppBar>
@@ -782,6 +787,8 @@ const DatastoreView = (props) => {
                                                 onMoveFolder={onMoveFolder}
                                                 onMoveEntry={onMoveEntry}
                                                 onRightsOverview={onRightsOverview}
+                                                deleteFolderLabel={t('MOVE_TO_TRASH')}
+                                                deleteItemLabel={t('MOVE_TO_TRASH')}
                                             />
                                         )}
                                     </Grid>

@@ -8,6 +8,9 @@ import { createLogger } from "redux-logger";
 import { persistReducer, createMigrate } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import { createStateSyncMiddleware, initMessageListener } from "redux-state-sync";
+import {
+    SET_REQUESTS_IN_PROGRESS,
+} from "../actions/action-types";
 
 import rootReducer from "../reducers";
 
@@ -19,7 +22,9 @@ const config = {
 const middlewares = [thunkMiddleware, createStateSyncMiddleware(config)];
 
 if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
-    const loggerMiddleware = createLogger();
+    const loggerMiddleware = createLogger({
+        predicate: (getState, action) => action.type !== SET_REQUESTS_IN_PROGRESS
+    });
     middlewares.push(loggerMiddleware);
 }
 
@@ -39,11 +44,21 @@ const migrations = {
             },
         }
     },
+    1: (state) => {
+        return {
+            ...state,
+            client: {
+                ...state.client,
+                lastPopupSearch: ""
+            },
+        }
+    },
 }
 
 const persistConfig = {
     key: "client",
-    version: 0,
+    blacklist: ['transient'],
+    version: 1,
     storage,
     debug: false,
     migrate: createMigrate(migrations, { debug: false }),

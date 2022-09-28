@@ -92,6 +92,8 @@ const DatastoreTree = (props) => {
                                     content={content}
                                     offline={offline}
                                     isExpandedDefault={Boolean(content["is_expanded"])}
+                                    deleteFolderLabel={props.deleteFolderLabel}
+                                    deleteItemLabel={props.deleteItemLabel}
                                 />
                             );
                         })}
@@ -123,6 +125,7 @@ const DatastoreTree = (props) => {
                                     nodePath={[content]}
                                     content={content}
                                     offline={offline}
+                                    deleteItemLabel={props.deleteItemLabel}
                                 />
                             );
                         })}
@@ -152,6 +155,8 @@ DatastoreTree.propTypes = {
     onSelectNode: PropTypes.func,
     isSelectable: PropTypes.func,
     hideItems: PropTypes.bool,
+    deleteFolderLabel: PropTypes.string.isRequired,
+    deleteItemLabel: PropTypes.string.isRequired,
 };
 
 export default DatastoreTree;

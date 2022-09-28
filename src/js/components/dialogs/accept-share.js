@@ -222,6 +222,8 @@ const DialogAcceptShare = (props) => {
                                 onSelectNode={onSelectNode}
                                 isSelectable={isSelectable}
                                 search={search}
+                                deleteFolderLabel={t('DELETE')}
+                                deleteItemLabel={t('DELETE')}
                             />
                         )}
                         {newFolderOpen && (

@@ -333,6 +333,8 @@ const DatastoreTreeFolder = (props) => {
                                         content={content}
                                         offline={offline}
                                         isExpandedDefault={Boolean(content["is_expanded"])}
+                                        deleteFolderLabel={props.deleteFolderLabel}
+                                        deleteItemLabel={props.deleteItemLabel}
                                     />
                                 );
                             })}
@@ -366,6 +368,7 @@ const DatastoreTreeFolder = (props) => {
                                         nodePath={nodePathClone}
                                         content={content}
                                         offline={offline}
+                                        deleteItemLabel={props.deleteItemLabel}
                                     />
                                 );
                             })}
@@ -464,7 +467,7 @@ const DatastoreTreeFolder = (props) => {
                             <DeleteIcon className={classes.icon} fontSize="small" />
                         </ListItemIcon>
                         <Typography variant="body2" noWrap>
-                            {t("DELETE")}
+                            {props.deleteFolderLabel}
                         </Typography>
                     </MenuItem>
                 )}
@@ -496,6 +499,8 @@ DatastoreTreeFolder.propTypes = {
     onEditFolder: PropTypes.func,
     onSelectNode: PropTypes.func,
     onSelectItem: PropTypes.func,
+    deleteFolderLabel: PropTypes.string,
+    deleteItemLabel: PropTypes.string,
 };
 
 export default DatastoreTreeFolder;
