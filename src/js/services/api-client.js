@@ -1468,6 +1468,143 @@ function readStatus(token, sessionSecretKey) {
 }
 
 /**
+ * Ajax PUT request with the token as authentication to generate a webauthn
+ *
+ * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+ * @param {string} sessionSecretKey The session secret key
+ * @param {string} title The title of the new webauthn
+ * @param {string} origin The current origin e.g. https://example.com
+ *
+ * @returns {Promise} Returns a promise with the secret
+ */
+function createWebauthn(token, sessionSecretKey, title, origin) {
+    const endpoint = "/user/webauthn/";
+    const method = "PUT";
+    const data = {
+        title: title,
+        origin: origin,
+    };
+    const headers = {
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+}
+
+/**
+ * Ajax GET request to get a list of all registered webauthns
+ *
+ * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+ * @param {string} sessionSecretKey The session secret key
+ *
+ * @returns {Promise} Returns a promise with a list of all google authenticators
+ */
+function readWebauthn(token, sessionSecretKey) {
+    const endpoint = "/user/webauthn/";
+    const method = "GET";
+    const data = null;
+
+    const headers = {
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+}
+
+/**
+ * Ajax DELETE request to delete a given webauthn
+ *
+ * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+ * @param {string} sessionSecretKey The session secret key
+ * @param {uuid} webauthn_id The webauthn id to delete
+ *
+ * @returns {Promise} Returns a promise which can succeed or fail
+ */
+function deleteWebauthn(token, sessionSecretKey, webauthn_id) {
+    const endpoint = "/user/webauthn/";
+    const method = "DELETE";
+    const data = {
+        webauthn_id: webauthn_id,
+    };
+
+    const headers = {
+        "Content-Type": "application/json",
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+}
+
+/**
+ * Ajax POST request to activate registered webauthn
+ *
+ * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+ * @param {string} sessionSecretKey The session secret key
+ * @param {uuid} webauthnId The webauthn id
+ * @param {string} credential The credentials passed by the browser
+ *
+ * @returns {Promise} Returns weather it was successful or not
+ */
+function activateWebauthn(token, sessionSecretKey, webauthnId, credential) {
+    const endpoint = "/user/webauthn/";
+    const method = "POST";
+    const data = {
+        webauthn_id: webauthnId,
+        credential: credential,
+    };
+
+    const headers = {
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+}
+
+/**
+ * Ajax PUT request to the backend to initiate the second factor authentication with webauthn
+ *
+ * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+ * @param {string} sessionSecretKey The session secret key
+ * @param {string} origin The current origin e.g. https://example.com
+ *
+ * @returns {Promise} Returns a promise with the verification status
+ */
+function webauthnVerifyInit(token, sessionSecretKey, origin) {
+    const endpoint = "/authentication/webauthn-verify/";
+    const method = "PUT";
+    const data = {
+        origin: origin,
+    };
+    const headers = {
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+}
+
+/**
+ * Ajax POST request to the backend with the response from the browser to solve the webauthn challenge
+ *
+ * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+ * @param {string} sessionSecretKey The session secret key
+ * @param {string} credential The credentials passed by the browser
+ *
+ * @returns {Promise} Returns a promise with the verification status
+ */
+function webauthnVerify(token, sessionSecretKey, credential) {
+    const endpoint = "/authentication/webauthn-verify/";
+    const method = "POST";
+    const data = {
+        credential: credential,
+    };
+    const headers = {
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+}
+
+/**
  * Ajax PUT request with the token as authentication to generate a google authenticator
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
@@ -3113,6 +3250,12 @@ const apiClientService = {
     activateGa: activateGa,
     deleteGa: deleteGa,
     readStatus: readStatus,
+    createWebauthn: createWebauthn,
+    readWebauthn: readWebauthn,
+    deleteWebauthn: deleteWebauthn,
+    activateWebauthn: activateWebauthn,
+    webauthnVerifyInit: webauthnVerifyInit,
+    webauthnVerify: webauthnVerify,
     createGa: createGa,
     readDuo: readDuo,
     activateDuo: activateDuo,

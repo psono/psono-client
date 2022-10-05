@@ -9,10 +9,13 @@ import { useTranslation } from "react-i18next";
 import Button from "@material-ui/core/Button";
 import { BarLoader } from "react-spinners";
 import { useHistory } from "react-router-dom";
+
 import browserClient from "../../services/browser-client";
 import helperService from "../../services/helper";
 import user from "../../services/user";
 import host from "../../services/host";
+import webauthnService from "../../services/webauthn";
+import converterService from "../../services/converter";
 import store from "../../services/store";
 import action from "../../actions/bound-action-creators";
 import GridContainerErrors from "../../components/grid-container-errors";
@@ -153,6 +156,64 @@ const LoginViewForm = (props) => {
         );
     };
 
+    const verifyWebauthn = () => {
+
+        webauthnService.verifyWebauthnInit().then(
+            async function (webauthn) {
+                webauthn.options.challenge = Uint8Array.from(webauthn.options.challenge, c => c.charCodeAt(0))
+                for (let i = 0; i < webauthn.options.allowCredentials.length; i++) {
+                    webauthn.options.allowCredentials[i]['id'] = Uint8Array.from(webauthn.options.allowCredentials[i]['id'], c => c.charCodeAt(0))
+                }
+
+                let credential;
+                try {
+                    credential = await navigator.credentials.get({
+                        publicKey: webauthn.options
+                    });
+                } catch (error) {
+                    setView('default');
+                    return
+                }
+
+                const onSuccess = async function (successful) {
+                    let requiredMultifactors = multifactors;
+                    if (store.getState().server.multifactorEnabled) {
+                        helperService.removeFromArray(requiredMultifactors, "webauthn_2fa");
+                    } else {
+                        requiredMultifactors = [];
+                    }
+                    setMultifactors(requiredMultifactors);
+                    requirementCheckMfa(requiredMultifactors);
+                };
+
+                const onError = function (error) {
+                    console.log(error);
+                    setErrors(["WEBAUTHN_FIDO2_TOKEN_NOT_FOUND"]);
+                };
+
+                const convertedCredential = {
+                    "id": credential.id,
+                    "rawId": credential.id,
+                    "type": credential.type,
+                    "authenticatorAttachment": credential.authenticatorAttachment,
+                    "response": {
+                        "authenticatorData": converterService.arrayBufferToBase64(credential.response.authenticatorData),
+                        "clientDataJSON": converterService.arrayBufferToBase64(credential.response.clientDataJSON),
+                        "signature": converterService.arrayBufferToBase64(credential.response.signature),
+                        "userHandle": converterService.arrayBufferToBase64(credential.response.userHandle),
+                    },
+                }
+
+                return webauthnService.verifyWebauthn(JSON.stringify(convertedCredential)).then(onSuccess, onError);
+
+            },
+            function (error) {
+                console.log(error);
+                setErrors(["WEBAUTHN_FIDO2_TOKEN_NOT_FOUND_FOR_THIS_ORIGIN"]);
+            }
+        );
+    };
+
     const showGa2faForm = () => {
         setView("google_authenticator");
         setLoginLoading(false);
@@ -169,11 +230,19 @@ const LoginViewForm = (props) => {
         verifyDuo();
     };
 
+    const showWebauthn2faForm = () => {
+        setView("webauthn");
+        setLoginLoading(false);
+        verifyWebauthn();
+    };
+
     const handleMfa = (multifactors) => {
         if (store.getState().server.multifactorEnabled === false && multifactors.length > 1) {
             // show choose multifactor screen as only one is required to be solved
             setView("pick_second_factor");
             setLoginLoading(false);
+        } else if (multifactors.indexOf("webauthn_2fa") !== -1) {
+            showWebauthn2faForm();
         } else if (multifactors.indexOf("yubikey_otp_2fa") !== -1) {
             showYubikeyOtp2faForm();
         } else if (multifactors.indexOf("google_authenticator_2fa") !== -1) {
@@ -1140,6 +1209,26 @@ const LoginViewForm = (props) => {
         );
     }
 
+    if (view === "webauthn") {
+        formContent = (
+            <>
+                <Grid container>
+                    <Grid item xs={12} sm={12} md={12}>
+                        <p>{t("SOLVE_THE_WEBAUTHN_CHALLENGE")}</p>
+                    </Grid>
+                </Grid>
+                <Grid container>
+                    <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
+                        <Button variant="contained" onClick={cancel}>
+                            {t("CANCEL")}
+                        </Button>
+                    </Grid>
+                </Grid>
+                <GridContainerErrors errors={errors} setErrors={setErrors} />
+            </>
+        );
+    }
+
     if (view === "pick_second_factor") {
         formContent = (
             <>
@@ -1162,6 +1251,15 @@ const LoginViewForm = (props) => {
                         <Grid item xs={12} sm={12} md={12}>
                             <Button variant="contained" color="primary" onClick={showYubikeyOtp2faForm} type="submit">
                                 {t("YUBIKEY")}
+                            </Button>
+                        </Grid>
+                    </Grid>
+                )}
+                {multifactors.indexOf("webauthn_2fa") !== -1 && (
+                    <Grid container style={{ marginTop: "5px", marginBottom: "5px" }}>
+                        <Grid item xs={12} sm={12} md={12}>
+                            <Button variant="contained" color="primary" onClick={showWebauthn2faForm} type="submit">
+                                {t("FIDO2_WEBAUTHN")}
                             </Button>
                         </Grid>
                     </Grid>

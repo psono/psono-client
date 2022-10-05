@@ -8,7 +8,10 @@ import Divider from "@material-ui/core/Divider";
 import store from "../../services/store";
 import MultifactorAuthenticatorGoogleAuthenticator from "./multifactor-authentication-google-authenticator";
 import MultifactorAuthenticatorYubikeyOtp from "./multifactor-authentication-yubikey-otp";
+import MultifactorAuthenticatorWebauthn from "./multifactor-authentication-webauthn";
 import MultifactorAuthenticatorDuo from "./multifactor-authentication-duo";
+import deviceService from "../../services/device";
+import browserClient from "../../services/browser-client";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -24,12 +27,14 @@ const MultifactorAuthenticationView = (props) => {
     const classes = useStyles();
     const [googleAuthenticatorOpen, setGoogleAuthenticatorOpen] = React.useState(false);
     const [yubikeyOtpOpen, setYubikeyOtpOpen] = React.useState(false);
+    const [webauthnOpen, setWebauthnOpen] = React.useState(false);
     const [duoOpen, setDuoOpen] = React.useState(false);
 
     const closeModal = () => {
         setGoogleAuthenticatorOpen(false);
         setYubikeyOtpOpen(false);
         setDuoOpen(false);
+        setWebauthnOpen(false);
     };
 
     const onConfigureGoogleAuthenticator = (event) => {
@@ -42,6 +47,10 @@ const MultifactorAuthenticationView = (props) => {
 
     const onConfigureDuo = (event) => {
         setDuoOpen(true);
+    };
+
+    const onConfigureWebauthn = (event) => {
+        setWebauthnOpen(true);
     };
 
     return (
@@ -86,6 +95,21 @@ const MultifactorAuthenticationView = (props) => {
                     </Grid>
                     {yubikeyOtpOpen && (
                         <MultifactorAuthenticatorYubikeyOtp {...props} open={yubikeyOtpOpen} onClose={closeModal} />
+                    )}
+                </Grid>
+            )}
+            {browserClient.getClientType() !== "firefox_extension" && store.getState().server.allowedSecondFactors.indexOf("webauthn") !== -1 && (
+                <Grid container style={{ marginBottom: "8px" }}>
+                    <Grid item xs={6} sm={6} md={4} style={{ paddingTop: "8px" }}>
+                        {t("FIDO2_WEBAUTHN")}
+                    </Grid>
+                    <Grid item xs={6} sm={6} md={8}>
+                        <Button variant="contained" color="primary" onClick={onConfigureWebauthn}>
+                            {t("CONFIGURE")}
+                        </Button>
+                    </Grid>
+                    {webauthnOpen && (
+                        <MultifactorAuthenticatorWebauthn {...props} open={webauthnOpen} onClose={closeModal} />
                     )}
                 </Grid>
             )}
