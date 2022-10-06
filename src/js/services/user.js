@@ -496,6 +496,8 @@ function activateToken() {
         session_password = "";
         verification = {};
 
+        browserClient.emit("login", null);
+
         return {
             response: "success",
         };

@@ -10,7 +10,7 @@
   "homepage_url":"https://psono.com/",
 
   "browser_action": {
-    "default_icon": "data/img/icon-32.png",
+    "default_icon": "data/img/icon-32-disabled.png",
     "default_popup": "data/default_popup.html"
   },
   "permissions": [

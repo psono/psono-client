@@ -347,6 +347,9 @@ function onLogout(request, sender, sendResponse) {
 
         chrome.tabs.remove(tabids);
     });
+    chrome.browserAction.setIcon({
+        path : "img/icon-32-disabled.png"
+    });
 }
 
 /**
@@ -369,6 +372,9 @@ function onStorageReload(request, sender, sendResponse) {
  */
 function onLogin(request, sender, sendResponse) {
     // pass
+    chrome.browserAction.setIcon({
+        path : "img/icon-32.png"
+    });
 }
 
 /**
