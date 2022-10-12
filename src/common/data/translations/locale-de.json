@@ -124,7 +124,7 @@
   "USER_WITH_EMAIL_ALREADY_EXISTS": "Benutzer mit der angegebenen E-Mail-Adresse existiert bereits.",
   "USER_WITH_USERNAME_ALREADY_EXISTS": "Benutzer mit dem angegebenen Benutzernamen existiert bereits.",
   "PASSWORD_INCORRECT_SERVER_DECLINED_SECURITY_REPORT": "Das angegebene Passwort war leider falsch. Der Server hat die gesendete Sicherheitsanalyse daher abgelehnt. Bitte versuchen sie es erneut.",
-  "SECURITY_REPORT_REQUIRED": "Ihr Administrator verlangt von ihnen eine neue Sicherheitsanalysen. Bitte erstellen sie eine neue.",
+  "SECURITY_REPORT_REQUIRED": "Ihr Administrator verlangt von ihnen eine neue Sicherheitsanalysen bevor sie auf ihren Datastore wieder zugreifen können. Bitte erstellen sie eine neue.",
   "SECURITY_REPORT_SOON_REQUIRED": "Ihr Administrator wird in Kürze eine neue Sicherheitsanalyse von ihnen verlangen. Sie können ihm zuvorkommen und jetzt eine erstellen.",
   "BACK": "Zurück",
   "RECOVERY_CODES_DISABLED": "Wiederherstellungs Codes wurden deaktiviert.",
