@@ -8,9 +8,9 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
 import { Grid } from "@material-ui/core";
+import MuiAlert from "@material-ui/lab/Alert";
 
 import passwordRecoveryCode from "../../services/password-recovery-code";
-import MuiAlert from "@material-ui/lab/Alert";
 
 const useStyles = makeStyles((theme) => ({
     code: {
