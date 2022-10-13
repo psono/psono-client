@@ -368,7 +368,7 @@ const DatastoreTreeItem = (props) => {
                                 <DeleteIcon className={classes.icon} fontSize="small" />
                             </ListItemIcon>
                             <Typography variant="body2" noWrap>
-                                {t("DELETE")}
+                                {props.deleteItemLabel}
                             </Typography>
                         </MenuItem>
                     )}
