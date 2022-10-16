@@ -13,8 +13,10 @@ import Tab from "@material-ui/core/Tab";
 import CheckIcon from "@material-ui/icons/Check";
 import IconButton from "@material-ui/core/IconButton";
 import BlockIcon from "@material-ui/icons/Block";
+import { Grid } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import HourglassEmptyIcon from "@material-ui/icons/HourglassEmpty";
+import MuiAlert from "@material-ui/lab/Alert";
 
 import shareService from "../../services/share";
 import TabPanel from "../tab-panel";
@@ -384,6 +386,10 @@ const DialogRightsOverview = (props) => {
         filterType: "checkbox",
     };
 
+    const hasNoAdminGroups = groupShareRights.filter((groupRight) => groupRight[4]).length === 0;
+    const ownRightsAreAdmin = userShareRights.filter((userRight) => userRight[1] === store.getState().user.username && userRight[4]).length === 1;
+    const hasOnlyOneAdmin = userShareRights.filter((userRight) => userRight[4] && userRight[5]).length < 2;
+
     return (
         <Dialog
             fullWidth
@@ -399,24 +405,39 @@ const DialogRightsOverview = (props) => {
                 {t("SHARE_RIGHTS_OF")} {item.name}
             </DialogTitle>
             <DialogContent>
-                <Tabs
-                    value={value}
-                    indicatorColor="primary"
-                    textColor="primary"
-                    onChange={(event, newValue) => {
-                        setValue(newValue);
-                    }}
-                    aria-label="user and group rights"
-                >
-                    <Tab label={t("USERS")} />
-                    <Tab label={t("GROUPS")} />
-                </Tabs>
-                <TabPanel value={value} index={0} className={classes.tabPanel}>
-                    <Table data={userShareRights} columns={userColumns} options={options} />
-                </TabPanel>
-                <TabPanel value={value} index={1} className={classes.tabPanel}>
-                    <Table data={groupShareRights} columns={groupColumns} options={options} />
-                </TabPanel>
+                <Grid container>
+                    {hasNoAdminGroups && ownRightsAreAdmin && hasOnlyOneAdmin && (<Grid item xs={12} sm={12} md={12}>
+                        <MuiAlert
+                            severity="warning"
+                            style={{
+                                marginBottom: "5px",
+                                marginTop: "5px",
+                            }}
+                        >
+                            {t('CONFIGURE_MULTIPLE_ACCOUNTS_WITH_GRANT_PRIVILEGE')}
+                        </MuiAlert>
+                    </Grid>)}
+                    <Grid item xs={12} sm={12} md={12}>
+                        <Tabs
+                            value={value}
+                            indicatorColor="primary"
+                            textColor="primary"
+                            onChange={(event, newValue) => {
+                                setValue(newValue);
+                            }}
+                            aria-label="user and group rights"
+                        >
+                            <Tab label={t("USERS")} />
+                            <Tab label={t("GROUPS")} />
+                        </Tabs>
+                        <TabPanel value={value} index={0} className={classes.tabPanel}>
+                            <Table data={userShareRights} columns={userColumns} options={options} />
+                        </TabPanel>
+                        <TabPanel value={value} index={1} className={classes.tabPanel}>
+                            <Table data={groupShareRights} columns={groupColumns} options={options} />
+                        </TabPanel>
+                    </Grid>
+                </Grid>
             </DialogContent>
             <DialogActions>
                 <Button

@@ -526,14 +526,25 @@ function summarizeUser(analysis) {
     };
 
     const onSuccess = function (result) {
-        analysis["user_summary"]["multifactor_auth_enabled"] = result.data.multifactor_auth_enabled;
-        analysis["user_summary"]["recovery_code_enabled"] = result.data.recovery_code_enabled;
+        const users = result.data;
+        if (Object.prototype.toString.call(users) === "[object Array]") {
+            users.map((user) => {
+                if (user.username === store.getState().user.username) {
+                    console.log(user);
+                    analysis["user_summary"]["multifactor_auth_enabled"] = user.multifactor_auth_enabled;
+                    analysis["user_summary"]["recovery_code_enabled"] = user.recovery_code_enabled;
+                }
+            });
+        } else {
+            analysis["user_summary"]["multifactor_auth_enabled"] = users.multifactor_auth_enabled;
+            analysis["user_summary"]["recovery_code_enabled"] = users.recovery_code_enabled;
+        }
         emit("summarize-user-complete", {});
+        return analysis;
     };
 
-    datastoreUserService.searchUser(store.getState().user.username).then(onSuccess, onError);
+    return datastoreUserService.searchUser(store.getState().user.username).then(onSuccess, onError);
 
-    return analysis;
 }
 
 /**

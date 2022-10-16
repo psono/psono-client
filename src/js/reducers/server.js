@@ -107,7 +107,7 @@ function server(
     switch (action.type) {
         case LOGOUT:
             return Object.assign({}, state, {
-                url: action.rememberMe ? state.url : defaultUrl.toLowerCase(),
+                url: action.rememberMe ? state.url : defaultUrl,
                 allowUserSearchByEmail: defaultAllowUserSearchByEmail,
                 allowUserSearchByUsernamePartial: defaultAllowUserSearchByUsernamePartial,
                 allowedSecondFactors: defaultAllowedSecondFactors,
@@ -223,7 +223,7 @@ function server(
             });
         case SET_SERVER_URL:
             return Object.assign({}, state, {
-                url: action.url.toLowerCase(),
+                url: action.url,
             });
         default:
             return state;

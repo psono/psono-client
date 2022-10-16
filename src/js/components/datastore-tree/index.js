@@ -34,7 +34,7 @@ const DatastoreTree = (props) => {
 
     datastorePassword.modifyTreeForSearch(search, datastore);
 
-    if (!datastore.folders && !datastore.items) {
+    if ((!datastore.folders || datastore.folders.filter((folder) => !folder["deleted"]).length === 0) && (!datastore.items || datastore.items.filter((item) => !item["deleted"]).length === 0)) {
         return (
             <div className={classes.fullWidth}>
                 <div className={classes.center}>

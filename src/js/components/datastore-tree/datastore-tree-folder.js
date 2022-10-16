@@ -287,7 +287,7 @@ const DatastoreTreeFolder = (props) => {
                                     <DeleteIcon className={classes.icon} fontSize="small" />
                                 </ListItemIcon>
                                 <Typography variant="body2" noWrap>
-                                    {t("DELETE")}
+                                    {props.deleteFolderLabel}
                                 </Typography>
                             </MenuItem>
                         )}

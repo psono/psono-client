@@ -18,7 +18,7 @@ const DialogTrashBin = (props) => {
     const { open, onClose, datastore } = props;
     const { t } = useTranslation();
     const [entries, setEntries] = useState([]);
-    const [entriesFull, setEntriesFull] = useState([]);
+    const [entriesFull, setEntriesFull] = useState({});
     const [verifyDeletePermanentOpen, setVerifyDeletePermanentOpen] = useState(false);
     const [entryIndexBeingDeleted, setEntryIndexBeingDeleted] = useState(0);
 
@@ -29,9 +29,8 @@ const DialogTrashBin = (props) => {
     }, []);
 
     const fillRecyclingBinEntries = (datastore) => {
-        let index = 0;
         const newRecyclingBinEntries = [];
-        const newRecyclingBinEntriesFull = [];
+        const newRecyclingBinEntriesFull = {};
 
         const fillRecyclingBinEntriesHelper = (folder, path) => {
             let pathCopy;
@@ -44,12 +43,12 @@ const DialogTrashBin = (props) => {
                 if (!folder.hasOwnProperty("share_rights") || !folder.share_rights.delete) {
                     return;
                 }
-                newRecyclingBinEntries.push([index, folder.name]);
-                newRecyclingBinEntriesFull.push({
+                newRecyclingBinEntries.push([folder.id, folder.name]);
+                newRecyclingBinEntriesFull[folder.id] = {
                     path: path,
                     item: folder,
                     type: "folder",
-                });
+                };
                 return;
             }
 
@@ -71,12 +70,12 @@ const DialogTrashBin = (props) => {
                 if (!folder.items[i].hasOwnProperty("share_rights") || !folder.items[i].share_rights.delete) {
                     continue;
                 }
-                newRecyclingBinEntries.push([index, folder.items[i].name]);
-                newRecyclingBinEntriesFull.push({
+                newRecyclingBinEntries.push([folder.items[i].id, folder.items[i].name]);
+                newRecyclingBinEntriesFull[folder.items[i].id] = {
                     path: pathCopy,
                     item: folder.items[i],
                     type: "item",
-                });
+                };
             }
         };
 
@@ -88,9 +87,12 @@ const DialogTrashBin = (props) => {
     const removeEntry = (index) => {
         const entriesClone = helper.duplicateObject(entries);
         const entriesFullClone = helper.duplicateObject(entriesFull);
-        entriesClone.splice(index, 1);
+        const arrayIndex = entriesClone.findIndex(entry => {
+            return entry[0] === index
+        })
+        entriesClone.splice(arrayIndex, 1);
         setEntries(entriesClone);
-        entriesFullClone.splice(index, 1);
+        delete entriesFullClone[index];
         setEntriesFull(entriesFullClone);
     };
 

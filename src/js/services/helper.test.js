@@ -40,6 +40,22 @@ describe('Service: helper test suite', function() {
 
     it('parse_url sub domain', function() {
         expect(
+            helperService.parseUrl('chrome-extension://nknmfipbcebafiaclacheccehghgikkk/data/index.html#!/account/multifactor-authentication')
+        ).toEqual({
+            scheme: 'chrome-extension',
+            authority: 'nknmfipbcebafiaclacheccehghgikkk',
+            base_url: 'chrome-extension://nknmfipbcebafiaclacheccehghgikkk',
+            full_domain: 'nknmfipbcebafiaclacheccehghgikkk',
+            top_domain: 'nknmfipbcebafiaclacheccehghgikkk',
+            port: null,
+            path: '/data/index.html',
+            query: undefined,
+            fragment: '!/account/multifactor-authentication'
+        });
+    });
+
+    it('parse_url sub domain', function() {
+        expect(
             helperService.parseUrl('http://test.example.com/url-part/#is-not-part')
         ).toEqual({
             scheme: 'http',

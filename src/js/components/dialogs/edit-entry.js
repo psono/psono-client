@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
 import Dialog from "@material-ui/core/Dialog";
+import MuiAlert from "@material-ui/lab/Alert";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogActions from "@material-ui/core/DialogActions";
@@ -173,8 +174,7 @@ const DialogEditEntry = (props) => {
     const itemBlueprint = itemBlueprintService.getEntryTypes().find((entryType) => entryType.value === item.type);
     const hasHistory = !hideShowHistory && ["file"].indexOf(item.type) === -1; // only files have no history
     const hasCallback = ["file"].indexOf(item.type) === -1; // only files have no callbacks
-
-    const showGeneratePassword = item.share_rights.write;
+    const showGeneratePassword = item.share_rights && item.share_rights.write;
     const isValidWebsitePassword = Boolean(websitePasswordTitle);
     const isValidApplicationPassword = Boolean(applicationPasswordTitle);
     const isValidBookmark = Boolean(bookmarkTitle) && (!bookmarkUrl || helperService.isValidUrl(bookmarkUrl));
@@ -598,7 +598,12 @@ const DialogEditEntry = (props) => {
         setAnchorEl(null);
     };
 
-    let title = item.share_rights.write ? t(itemBlueprint.edit_title) : t(itemBlueprint.show_title);
+    let title = ''
+    if (item.share_rights && item.share_rights.read) {
+        title = item.share_rights && item.share_rights.write ? t(itemBlueprint.edit_title) : t(itemBlueprint.show_title);
+    } else {
+        title = t('ACCESS_DENIED')
+    }
 
     let actions = (
         <React.Fragment>
@@ -609,7 +614,7 @@ const DialogEditEntry = (props) => {
             >
                 {t("CLOSE")}
             </Button>
-            {item.share_rights.write && !offline && props.onEdit && (
+            {item.share_rights && item.share_rights.read && item.share_rights.write && !offline && props.onEdit && (
                 <Button onClick={onEdit} variant="contained" color="primary" disabled={!canSave}>
                     {t("SAVE")}
                 </Button>
@@ -632,7 +637,6 @@ const DialogEditEntry = (props) => {
             )}
         </React.Fragment>
     )
-
     const content = (
         <Grid container>
             {item.type === "website_password" && (
@@ -646,7 +650,7 @@ const DialogEditEntry = (props) => {
                         name="websitePasswordTitle"
                         autoComplete="off"
                         value={websitePasswordTitle}
-                        InputProps={{ readOnly: !item.share_rights.write }}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
                             setWebsitePasswordTitle(event.target.value);
@@ -665,7 +669,7 @@ const DialogEditEntry = (props) => {
                         name="websitePasswordUrl"
                         autoComplete="off"
                         value={websitePasswordUrl}
-                        InputProps={{ readOnly: !item.share_rights.write }}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
                             // get only toplevel domain
                             const parsedUrl = helperService.parseUrl(event.target.value);
@@ -692,7 +696,7 @@ const DialogEditEntry = (props) => {
                         name="websitePasswordUsername"
                         autoComplete="off"
                         value={websitePasswordUsername}
-                        InputProps={{ readOnly: !item.share_rights.write }}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
                             setWebsitePasswordUsername(event.target.value);
                         }}
@@ -714,7 +718,7 @@ const DialogEditEntry = (props) => {
                             setWebsitePasswordPassword(event.target.value);
                         }}
                         InputProps={{
-                            readOnly: !item.share_rights.write,
+                            readOnly: !item.share_rights || !item.share_rights.write,
                             type: showPassword ? "text" : "password",
                             classes: {
                                 input: classes.passwordField,
@@ -783,7 +787,7 @@ const DialogEditEntry = (props) => {
                         name="websitePasswordNotes"
                         autoComplete="off"
                         value={websitePasswordNotes}
-                        InputProps={{ readOnly: !item.share_rights.write }}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
                             setWebsitePasswordNotes(event.target.value);
                         }}
@@ -804,7 +808,7 @@ const DialogEditEntry = (props) => {
                         name="applicationPasswordTitle"
                         autoComplete="off"
                         value={applicationPasswordTitle}
-                        InputProps={{ readOnly: !item.share_rights.write }}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
                             setApplicationPasswordTitle(event.target.value);
@@ -823,7 +827,7 @@ const DialogEditEntry = (props) => {
                         name="applicationPasswordUsername"
                         autoComplete="off"
                         value={applicationPasswordUsername}
-                        InputProps={{ readOnly: !item.share_rights.write }}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
                             setApplicationPasswordUsername(event.target.value);
                         }}
@@ -845,7 +849,7 @@ const DialogEditEntry = (props) => {
                             setApplicationPasswordPassword(event.target.value);
                         }}
                         InputProps={{
-                            readOnly: !item.share_rights.write,
+                            readOnly: !item.share_rights || !item.share_rights.write,
                             type: showPassword ? "text" : "password",
                             classes: {
                                 input: classes.passwordField,
@@ -914,7 +918,7 @@ const DialogEditEntry = (props) => {
                         name="applicationPasswordNotes"
                         autoComplete="off"
                         value={applicationPasswordNotes}
-                        InputProps={{ readOnly: !item.share_rights.write }}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
                             setApplicationPasswordNotes(event.target.value);
                         }}
@@ -935,7 +939,7 @@ const DialogEditEntry = (props) => {
                         name="bookmarkTitle"
                         autoComplete="off"
                         value={bookmarkTitle}
-                        InputProps={{ readOnly: !item.share_rights.write }}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
                             setBookmarkTitle(event.target.value);
@@ -955,7 +959,7 @@ const DialogEditEntry = (props) => {
                         name="bookmarkUrl"
                         autoComplete="off"
                         value={bookmarkUrl}
-                        InputProps={{ readOnly: !item.share_rights.write }}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
                             // get only toplevel domain
                             const parsedUrl = helperService.parseUrl(event.target.value);
@@ -982,7 +986,7 @@ const DialogEditEntry = (props) => {
                         name="bookmarkNotes"
                         autoComplete="off"
                         value={bookmarkNotes}
-                        InputProps={{ readOnly: !item.share_rights.write }}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
                             setBookmarkNotes(event.target.value);
                         }}
@@ -1003,7 +1007,7 @@ const DialogEditEntry = (props) => {
                         name="noteTitle"
                         autoComplete="off"
                         value={noteTitle}
-                        InputProps={{ readOnly: !item.share_rights.write }}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
                             setNoteTitle(event.target.value);
@@ -1022,7 +1026,7 @@ const DialogEditEntry = (props) => {
                         name="noteNotes"
                         autoComplete="off"
                         value={noteNotes}
-                        InputProps={{ readOnly: !item.share_rights.write }}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
                             setNoteNotes(event.target.value);
                         }}
@@ -1043,7 +1047,7 @@ const DialogEditEntry = (props) => {
                         name="totpTitle"
                         autoComplete="off"
                         value={totpTitle}
-                        InputProps={{ readOnly: !item.share_rights.write }}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
                             setTotpTitle(event.target.value);
@@ -1074,7 +1078,7 @@ const DialogEditEntry = (props) => {
                         name="totpNotes"
                         autoComplete="off"
                         value={totpNotes}
-                        InputProps={{ readOnly: !item.share_rights.write }}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
                             setTotpNotes(event.target.value);
                         }}
@@ -1095,7 +1099,7 @@ const DialogEditEntry = (props) => {
                         name="environmentVariablesTitle"
                         autoComplete="off"
                         value={environmentVariablesTitle}
-                        InputProps={{ readOnly: !item.share_rights.write }}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
                             setEnvironmentVariablesTitle(event.target.value);
@@ -1119,7 +1123,7 @@ const DialogEditEntry = (props) => {
                                         name={"environmentVariablesVariables-key-" + index}
                                         autoComplete={"environmentVariablesVariables-key-" + index}
                                         value={variable.key}
-                                        InputProps={{ readOnly: !item.share_rights.write }}
+                                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                                         required
                                         onChange={(event) => {
                                             const newEnvs =
@@ -1139,7 +1143,7 @@ const DialogEditEntry = (props) => {
                                         name={"environmentVariablesVariables-value-" + index}
                                         autoComplete={"environmentVariablesVariables-value-" + index}
                                         value={variable.value}
-                                        InputProps={{ readOnly: !item.share_rights.write }}
+                                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                                         required
                                         onChange={(event) => {
                                             const newEnvs =
@@ -1196,7 +1200,7 @@ const DialogEditEntry = (props) => {
                         name="environmentVariablesNotes"
                         autoComplete="off"
                         value={environmentVariablesNotes}
-                        InputProps={{ readOnly: !item.share_rights.write }}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
                             setEnvironmentVariablesNotes(event.target.value);
                         }}
@@ -1217,7 +1221,7 @@ const DialogEditEntry = (props) => {
                         name="fileTitle"
                         autoComplete="off"
                         value={fileTitle}
-                        InputProps={{ readOnly: !item.share_rights.write }}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
                             setFileTitle(event.target.value);
@@ -1237,7 +1241,7 @@ const DialogEditEntry = (props) => {
                         name="mailGpgOwnKeyTitle"
                         autoComplete="off"
                         value={mailGpgOwnKeyTitle}
-                        InputProps={{ readOnly: !item.share_rights.write }}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
                             setMailGpgOwnKeyTitle(event.target.value);
@@ -1256,7 +1260,7 @@ const DialogEditEntry = (props) => {
                         name="mailGpgOwnKeyEmail"
                         autoComplete="off"
                         value={mailGpgOwnKeyEmail}
-                        InputProps={{ readOnly: !item.share_rights.write }}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
                             setMailGpgOwnKeyEmail(event.target.value);
@@ -1276,7 +1280,7 @@ const DialogEditEntry = (props) => {
                         name="mailGpgOwnKeyName"
                         autoComplete="off"
                         value={mailGpgOwnKeyName}
-                        InputProps={{ readOnly: !item.share_rights.write }}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
                             setMailGpgOwnKeyName(event.target.value);
@@ -1296,7 +1300,7 @@ const DialogEditEntry = (props) => {
                         name="mailGpgOwnKeyPublic"
                         autoComplete="off"
                         value={mailGpgOwnKeyPublic}
-                        InputProps={{ readOnly: !item.share_rights.write }}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
                         onChange={(event) => {
                             setMailGpgOwnKeyPublic(event.target.value);
@@ -1322,16 +1326,28 @@ const DialogEditEntry = (props) => {
                 </Grid>
             )}
 
-            <Grid item xs={12} sm={12} md={12} className={classes.right}>
-                <Button aria-label="settings" onClick={() => setShowAdvanced(!showAdvanced)}>
-                    {t("ADVANCED")}
-                </Button>
-                {hasHistory && !offline && (
-                    <Button aria-label="settings" onClick={showHistory}>
-                        {t("SHOW_HISTORY")}
+            {(!item.share_rights || !item.share_rights.read) && (
+                <Grid item xs={12} sm={12} md={12} className={classes.right}>
+                    <MuiAlert
+                        severity="error"
+                    >
+                        {t("PERMISSIONS_TO_ACCESS_THIS_ENTRY_HAVE_BEEN_DENIED")}
+                    </MuiAlert>
+                </Grid>
+            )}
+
+            {item.share_rights && item.share_rights.read  && (
+                <Grid item xs={12} sm={12} md={12} className={classes.right}>
+                    <Button aria-label="settings" onClick={() => setShowAdvanced(!showAdvanced)}>
+                        {t("ADVANCED")}
                     </Button>
-                )}
-            </Grid>
+                    {hasHistory && !offline && (
+                        <Button aria-label="settings" onClick={showHistory}>
+                            {t("SHOW_HISTORY")}
+                        </Button>
+                    )}
+                </Grid>
+            )}
 
             {item.type === "website_password" && showAdvanced && (
                 <Grid item xs={12} sm={12} md={12}>
@@ -1361,7 +1377,7 @@ const DialogEditEntry = (props) => {
                         name="websitePasswordUrlFilter"
                         autoComplete="off"
                         value={websitePasswordUrlFilter}
-                        InputProps={{ readOnly: !item.share_rights.write }}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
                             setWebsitePasswordUrlFilter(event.target.value);
                         }}
@@ -1380,7 +1396,7 @@ const DialogEditEntry = (props) => {
                         name="bookmarkUrlFilter"
                         autoComplete="off"
                         value={bookmarkUrlFilter}
-                        InputProps={{ readOnly: !item.share_rights.write }}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
                             setBookmarkUrlFilter(event.target.value);
                         }}
@@ -1399,7 +1415,7 @@ const DialogEditEntry = (props) => {
                         name="callbackUrl"
                         autoComplete="off"
                         value={callbackUrl}
-                        InputProps={{ readOnly: !item.share_rights.write }}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
                             setCallbackUrl(event.target.value);
                         }}
@@ -1417,7 +1433,7 @@ const DialogEditEntry = (props) => {
                         name="callbackUser"
                         autoComplete="off"
                         value={callbackUser}
-                        InputProps={{ readOnly: !item.share_rights.write }}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         onChange={(event) => {
                             setCallbackUser(event.target.value);
                         }}
@@ -1439,7 +1455,7 @@ const DialogEditEntry = (props) => {
                             setCallbackPass(event.target.value);
                         }}
                         InputProps={{
-                            readOnly: !item.share_rights.write,
+                            readOnly: !item.share_rights || !item.share_rights.write,
                             type: showPassword ? "text" : "password",
                             classes: {
                                 input: classes.passwordField,
