@@ -277,6 +277,23 @@ function arrayBufferToBase64(buffer) {
 }
 
 /**
+ * Converts an Base64 encoded string to arrayBuffer
+ *
+ * @param base64
+ *
+ * @returns {string} The buffer representation of the base64 encoded string
+ */
+function base64ToArrayBuffer(base64) {
+    var binary_string = window.atob(base64);
+    var len = binary_string.length;
+    var bytes = new Uint8Array(len);
+    for (var i = 0; i < len; i++) {
+        bytes[i] = binary_string.charCodeAt(i);
+    }
+    return bytes.buffer;
+}
+
+/**
  * uuid to hex converter
  *
  * @param {string} val The uuid one wants to convert
@@ -445,6 +462,7 @@ const converterService = {
     base58ToHex: base58ToHex,
     uuidToHex: uuidToHex,
     arrayBufferToBase64: arrayBufferToBase64,
+    base64ToArrayBuffer: base64ToArrayBuffer,
     hexToUuid: hexToUuid,
     wordsToHex: wordsToHex,
     hexToWords: hexToWords,
