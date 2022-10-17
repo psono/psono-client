@@ -4,13 +4,21 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
 import MuiAlert from "@material-ui/lab/Alert";
+import statusService from "../../services/status";
 
 function AlertSecurityReport(props) {
     const { t } = useTranslation();
     const serverStatus = useSelector((state) => state.server.status);
     const recurrenceInterval = useSelector((state) => state.server.complianceCentralSecurityReportsRecurrenceInterval);
 
+    React.useEffect(() => {
+        if (recurrenceInterval > 0) {
+            statusService.getStatus();
+        }
+    }, []);
+
     let newSecurityReport = "NOT_REQUIRED";
+
     if (recurrenceInterval > 0) {
         if (
             serverStatus.hasOwnProperty("data") &&

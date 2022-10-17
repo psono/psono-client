@@ -19,7 +19,7 @@ function activate() {
 /**
  * Queries the server for the current status of the user if the local cached status is outdated.
  *
- * @param {boolean} forceFresh Whether a fresh result should be fetched or a cache will do fine
+ * @param {boolean} [forceFresh] Whether a fresh result should be fetched or a cache will do fine
  *
  * @returns {Promise} Returns a promise with the current status
  */
