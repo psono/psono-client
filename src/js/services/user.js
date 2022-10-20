@@ -560,6 +560,7 @@ function handleLoginResponse(response, password, sessionKeys, serverPublicKey) {
     // encrypt the validator as verification
     verification = cryptoLibrary.encryptData(user_validator, sessionSecretKey);
 
+    action.setUserUsername(response.data.user.username);
     action.setUserInfo2(user_private_key, user_public_key, sessionSecretKey, token, user_sauce);
 
     action.setHasTwoFactor(response.data["required_multifactors"] > 0);
