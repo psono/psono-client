@@ -11,6 +11,9 @@ curl -fL https://getcli.jfrog.io | sh && \
 ./jfrog rt dl psono/client/$CI_COMMIT_REF_NAME/firefox-extension.zip --flat && \
 ./jfrog rt dl psono/client/$CI_COMMIT_REF_NAME/chrome-extension.zip --flat && \
 ./jfrog rt dl psono/client/$CI_COMMIT_REF_NAME/webclient.zip --flat && \
-gsutil cp firefox-extension.zip gs://get.psono.com/$CI_PROJECT_PATH/nightly/firefox-extension.zip && \
-gsutil cp chrome-extension.zip gs://get.psono.com/$CI_PROJECT_PATH/nightly/chrome-extension.zip && \
-gsutil cp webclient.zip gs://get.psono.com/$CI_PROJECT_PATH/nightly/webclient.zip
+gsutil cp firefox-extension.zip gs://get.psono.com/$CI_PROJECT_PATH/latest/firefox-extension.zip && \
+gsutil cp chrome-extension.zip gs://get.psono.com/$CI_PROJECT_PATH/latest/chrome-extension.zip && \
+gsutil cp webclient.zip gs://get.psono.com/$CI_PROJECT_PATH/latest/webclient.zip && \
+gsutil cp firefox-extension.zip gs://get.psono.com/$CI_PROJECT_PATH/$CI_COMMIT_REF_NAME/firefox-extension.zip && \
+gsutil cp chrome-extension.zip gs://get.psono.com/$CI_PROJECT_PATH/$CI_COMMIT_REF_NAME/chrome-extension.zip && \
+gsutil cp webclient.zip gs://get.psono.com/$CI_PROJECT_PATH/$CI_COMMIT_REF_NAME/webclient.zip
