@@ -14,7 +14,6 @@ import cryptoLibrary from "./crypto-library";
 import HKP from "@openpgp/hkp-client";
 import * as openpgp from "openpgp";
 import storage from "./storage";
-import datastorePassword from "./datastore-password";
 
 let lastLoginCredentials;
 let activeTabId;
@@ -111,9 +110,21 @@ function activate() {
         });
     }
 
+    // create the context menu once the translations are loaded
     i18n.on("loaded", function (loaded) {
         updateContextMenu();
     });
+
+    // set the correct icon on start
+    if (user.isLoggedIn()) {
+        chrome.browserAction.setIcon({
+            path : "img/icon-32.png"
+        });
+    } else {
+        chrome.browserAction.setIcon({
+            path : "img/icon-32-disabled.png"
+        });
+    }
 }
 
 /**
