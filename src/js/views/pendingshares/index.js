@@ -12,6 +12,7 @@ import BaseContent from "../../components/base-content";
 import Table from "../../components/table";
 import shareService from "../../services/share";
 import DialogAcceptShare from "../../components/dialogs/accept-share";
+import format from "../../services/date";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -56,6 +57,7 @@ const PendingSharesView = (props) => {
                             request.id,
                             request.share_right_create_user_username,
                             request.share_right_title,
+                            request.share_right_create_date ? format(new Date(request.share_right_create_date)) : null,
                             request.share_right_read,
                             request.share_right_write,
                             request.share_right_grant,
@@ -78,7 +80,7 @@ const PendingSharesView = (props) => {
     };
 
     const decline = (rowData) => {
-        shareService.declineShareRight(rowData[6]).then(() => {
+        shareService.declineShareRight(rowData[7]).then(() => {
             loadShares();
         });
     };
@@ -87,6 +89,7 @@ const PendingSharesView = (props) => {
         { name: t("ID"), options: { display: false } },
         { name: t("USERNAME") },
         { name: t("TITLE") },
+        { name: t("SHARED_ON"), options: { display: false } },
         {
             name: t("READ"),
             options: {
@@ -94,7 +97,7 @@ const PendingSharesView = (props) => {
                 sort: true,
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
-                    return <span>{tableMeta.rowData[3] && <CheckIcon />}</span>;
+                    return <span>{tableMeta.rowData[4] && <CheckIcon />}</span>;
                 },
             },
         },
@@ -105,7 +108,7 @@ const PendingSharesView = (props) => {
                 sort: true,
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
-                    return <span>{tableMeta.rowData[4] && <CheckIcon />}</span>;
+                    return <span>{tableMeta.rowData[5] && <CheckIcon />}</span>;
                 },
             },
         },
@@ -116,7 +119,7 @@ const PendingSharesView = (props) => {
                 sort: true,
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
-                    return <span>{tableMeta.rowData[4] && <CheckIcon />}</span>;
+                    return <span>{tableMeta.rowData[5] && <CheckIcon />}</span>;
                 },
             },
         },
