@@ -622,11 +622,13 @@ const DatastoreView = (props) => {
 
     const isSelectableForMoveEntry = (node) => {
         // filter out all targets that are a share if the item is not allowed to be shared
-        if (!moveEntryData.item.share_rights.grant && node.share_id) {
+        // yet don't filter out entries that are just moved within a share
+        if (!moveEntryData.item.share_rights.grant && node.share_id && (!moveEntryData.item.parent_share_id || moveEntryData.item.parent_share_id !== node.share_id)) {
             return false;
         }
         // filter out all targets that are inside of a share if the item is not allowed to be shared
-        if (!moveEntryData.item.share_rights.grant && node.parent_share_id) {
+        // yet don't filter out entries that are just moved within a share
+        if (!moveEntryData.item.share_rights.grant && node.parent_share_id && (!moveEntryData.item.parent_share_id || moveEntryData.item.parent_share_id !== node.parent_share_id)) {
             return false;
         }
         //
