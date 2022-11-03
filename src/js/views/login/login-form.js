@@ -117,10 +117,14 @@ const LoginViewForm = (props) => {
         browserClient.getConfig().then(onNewConfigLoaded);
     }, []);
 
+    React.useEffect(() => {
+        requirementCheckMfa(multifactors);
+    }, [multifactors]);
+
+
     const handleLogin = (requiredMultifactors) => {
         action.setHasTwoFactor(requiredMultifactors.length > 0);
         setMultifactors(requiredMultifactors);
-        requirementCheckMfa(requiredMultifactors);
     }
 
     const hasLdapAuth = (serverCheck) => {
@@ -139,7 +143,7 @@ const LoginViewForm = (props) => {
 
         user.duoVerify(duoCode).then(
             () => {
-                let requiredMultifactors = multifactors;
+                let requiredMultifactors = [...multifactors];
                 if (store.getState().server.multifactorEnabled) {
                     helperService.removeFromArray(requiredMultifactors, "duo_2fa");
                 } else {
@@ -147,7 +151,6 @@ const LoginViewForm = (props) => {
                 }
 
                 setMultifactors(requiredMultifactors);
-                requirementCheckMfa(requiredMultifactors);
             },
             (errors) => {
                 console.log(errors);
@@ -175,14 +178,13 @@ const LoginViewForm = (props) => {
                 }
 
                 const onSuccess = async function (successful) {
-                    let requiredMultifactors = multifactors;
+                    let requiredMultifactors = [...multifactors];
                     if (store.getState().server.multifactorEnabled) {
                         helperService.removeFromArray(requiredMultifactors, "webauthn_2fa");
                     } else {
                         requiredMultifactors = [];
                     }
                     setMultifactors(requiredMultifactors);
-                    requirementCheckMfa(requiredMultifactors);
                 };
 
                 const onError = function (error) {
@@ -257,6 +259,9 @@ const LoginViewForm = (props) => {
     };
 
     const requirementCheckMfa = (multifactors) => {
+        if (!store.getState().user.token) {
+            return;
+        }
         if (multifactors.length === 0) {
             user.activateToken().then(() => {
                 //setLoginLoading(false);
@@ -353,14 +358,13 @@ const LoginViewForm = (props) => {
         };
 
         const onSuccess = function () {
-            let requiredMultifactors = multifactors;
+            let requiredMultifactors = [...multifactors];
             if (store.getState().server.multifactorEnabled) {
                 helperService.removeFromArray(requiredMultifactors, "google_authenticator_2fa");
             } else {
                 requiredMultifactors = [];
             }
             setMultifactors(requiredMultifactors);
-            requirementCheckMfa(requiredMultifactors);
         };
         user.gaVerify(gaToken).then(onSuccess, onError);
     };
@@ -371,14 +375,13 @@ const LoginViewForm = (props) => {
         };
 
         const onSuccess = function () {
-            let requiredMultifactors = multifactors;
+            let requiredMultifactors = [...multifactors];
             if (store.getState().server.multifactorEnabled) {
                 helperService.removeFromArray(requiredMultifactors, "yubikey_otp_2fa");
             } else {
                 requiredMultifactors = [];
             }
             setMultifactors(requiredMultifactors);
-            requirementCheckMfa(requiredMultifactors);
         };
         user.yubikeyOtpVerify(yubikeyOtpToken).then(onSuccess, onError);
     };
@@ -393,14 +396,13 @@ const LoginViewForm = (props) => {
         };
 
         const onSuccess = function () {
-            let requiredMultifactors = multifactors;
+            let requiredMultifactors = [...multifactors];
             if (store.getState().server.multifactorEnabled) {
                 helperService.removeFromArray(requiredMultifactors, "duo_2fa");
             } else {
                 requiredMultifactors = [];
             }
             setMultifactors(requiredMultifactors);
-            requirementCheckMfa(requiredMultifactors);
         };
         user.duoVerify(duoCode).then(onSuccess, onError);
     };
