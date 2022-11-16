@@ -21,7 +21,7 @@ function getOrigin() {
 /**
  * Creates a webauthn
  *
- * @param {string} title The title of the Google Authenticator
+ * @param {string} title The title of the Webauthn
  *
  * @returns {Promise} Returns a promise with the user information
  */

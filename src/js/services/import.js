@@ -7,6 +7,7 @@ import secretService from "./secret";
 import importPsonoPwJson from "./import-psono-pw-json";
 import importChromeCsv from "./import-chrome-csv";
 import importFirefoxCsvService from "./import-firefox-csv";
+import importSafariCsvService from "./import-safari-csv";
 import importEnpassJson from "./import-enpass-json";
 import importKeepassInfoCsv from "./import-keepass-info-csv";
 import importKeepassInfoXml from "./import-keepass-info-xml";
@@ -37,6 +38,11 @@ const _importer = {
         name: "Firefox (CSV)",
         value: "firefox_csv",
         parser: importFirefoxCsvService.parser,
+    },
+    safari_csv: {
+        name: "Safari (CSV)",
+        value: "safari_csv",
+        parser: importSafariCsvService.parser,
     },
     enpass_json: {
         name: "Enpass (JSON)",
