@@ -6,7 +6,7 @@
   "FILE_FORMAT_WRONG": "File format wrong.",
   "DECRYPTION_OF_EXPORT_FAILED_WRONG_PASSWORD": "The decryption of the export failed. You most likely provided a wrong password.",
   "ENTER_PASSWORD_IF_YOUR_EXPORT_IS_ENCRYPTED": "Enter the password that was used to encrypt your export. Leave the input field empty, if your export is not encrypted.",
-  "SET_PASSWORD_TO_ENCRYPT_YOUR_EXPORT": "Enter a password to encrypt your export. If you don't enter a password the export won't be encrypted.",
+  "ENTER_PASSWORD_TO_ENCRYPT_YOUR_EXPORT": "Enter a password to encrypt your export. If you don't enter a password the export won't be encrypted.",
   "AUTOMATIC_SIGN_OFF_IN": "Automatic sign off in {{time}}",
   "SELECTED": "Selected",
   "ACTION": "Action",
