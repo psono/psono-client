@@ -124,7 +124,7 @@ const OtherImportView = (props) => {
                     </Select>
                 </FormControl>
             </Grid>
-            <Grid item xs={12} sm={12} md={12}>
+            {exportFormat === 'psono_pw_json' && (<Grid item xs={12} sm={12} md={12}>
                 <TextFieldPassword
                     className={classes.textField}
                     variant="outlined"
@@ -139,7 +139,7 @@ const OtherImportView = (props) => {
                         setPassword(event.target.value);
                     }}
                 />
-            </Grid>
+            </Grid>)}
             <Grid item xs={12} sm={12} md={12}>
                 <FormControl variant="outlined" margin="dense" className={classes.textField} required>
                     <InputLabel id="export-encoding-select-label-label">{t("ENCODING")}</InputLabel>
