@@ -195,6 +195,7 @@ function onMessage(request, sender, sendResponse) {
         "open-tab": onOpenTab,
         "generate-password": onGeneratePassword,
         "login-form-submit": loginFormSubmit,
+        "oidc-saml-redirect-detected": oidcSamlRedirectDetected,
         "decrypt-gpg": decryptPgp,
         "encrypt-gpg": encryptPgp,
         "read-gpg": readGpg,
@@ -815,21 +816,22 @@ function setOfflineCacheEncryptionKey(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function launchWebAuthFlowInBackground(request, sender, sendResponse) {
-    browser.identity.launchWebAuthFlow(
-        {
-            url: request.data.url,
-            interactive: true,
-        },
-        function (response_url) {
-            if (response_url.indexOf(browserClient.getOidcReturnToUrl()) !== -1) {
-                const oidc_token_id = response_url.replace(browserClient.getOidcReturnToUrl(), "");
-                browserClient.replaceTabUrl("/data/index.html#!/oidc/token/" + oidc_token_id);
-            } else {
-                const saml_token_id = response_url.replace(browserClient.getSamlReturnToUrl(), "");
-                browserClient.replaceTabUrl("/data/index.html#!/saml/token/" + saml_token_id);
-            }
-        }
-    );
+    browserClient.openTabBg(request.data.url);
+    // browser.identity.launchWebAuthFlow(
+    //     {
+    //         url: request.data.url,
+    //         interactive: true,
+    //     },
+    //     function (response_url) {
+    //         if (response_url.indexOf(browserClient.getOidcReturnToUrl()) !== -1) {
+    //             const oidc_token_id = response_url.replace(browserClient.getOidcReturnToUrl(), "");
+    //             browserClient.replaceTabUrl("/data/index.html#!/oidc/token/" + oidc_token_id);
+    //         } else {
+    //             const saml_token_id = response_url.replace(browserClient.getSamlReturnToUrl(), "");
+    //             browserClient.replaceTabUrl("/data/index.html#!/saml/token/" + saml_token_id);
+    //         }
+    //     }
+    // );
 }
 
 /**
@@ -875,6 +877,21 @@ function loginFormSubmit(request, sender, sendResponse) {
             eventTime: Date.now() + 4 * 1000,
         });
     });
+}
+
+/**
+ * Catches login form submits
+ *
+ * @param {object} request The message sent by the calling script.
+ * @param {object} sender The sender of the message
+ * @param {function} sendResponse Function to call (at most once) when you have a response.
+ */
+function oidcSamlRedirectDetected(request, sender, sendResponse) {
+    if (request.data.url.indexOf("#") !== -1) {
+        const split = request.data.url.split("#");
+        browserClient.replaceTabUrl("/data/index.html#" + split[1]);
+    }
+
 }
 
 /**
