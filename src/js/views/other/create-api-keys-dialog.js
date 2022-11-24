@@ -147,7 +147,7 @@ const CreateApiKeysDialog = (props) => {
                             variant="outlined"
                             margin="dense"
                             id="title"
-                            label={t("DATASTORE_DESCRIPTION")}
+                            label={t("TITLE")}
                             name="title"
                             autoComplete="off"
                             value={title}

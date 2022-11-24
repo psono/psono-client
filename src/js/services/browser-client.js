@@ -83,9 +83,11 @@ function openTab(url) {
  */
 function getSamlReturnToUrl() {
     if (TARGET === "firefox") {
-        return browser.identity.getRedirectURL() + "data/index.html#!/saml/token/";
+        return 'https://psono.com/redirect#!/saml/token/'
+        //return browser.identity.getRedirectURL() + "data/index.html#!/saml/token/";
     } else if (TARGET === "chrome") {
-        return chrome.identity.getRedirectURL() + "data/index.html#!/saml/token/";
+        return 'https://psono.com/redirect#!/saml/token/'
+        //return chrome.identity.getRedirectURL() + "data/index.html#!/saml/token/";
     } else {
         return window.location.href.split("#")[0].split("/").slice(0, -1).join("/") + "/index.html#!/saml/token/";
     }
@@ -98,9 +100,11 @@ function getSamlReturnToUrl() {
  */
 function getOidcReturnToUrl() {
     if (TARGET === "firefox") {
-        return browser.identity.getRedirectURL() + "data/index.html#!/oidc/token/";
+        return 'https://psono.com/redirect#!/oidc/token/'
+        //return browser.identity.getRedirectURL() + "data/index.html#!/oidc/token/";
     } else if (TARGET === "chrome") {
-        return chrome.identity.getRedirectURL() + "data/index.html#!/oidc/token/";
+        return 'https://psono.com/redirect#!/oidc/token/'
+        //return chrome.identity.getRedirectURL() + "data/index.html#!/oidc/token/";
     } else {
         return window.location.href.split("#")[0].split("/").slice(0, -1).join("/") + "/index.html#!/oidc/token/";
     }
@@ -116,23 +120,25 @@ function launchWebAuthFlow(url) {
         emitSec("launch-web-auth-flow-in-background", { url: url });
         return Promise.resolve();
     } else if (TARGET === "chrome") {
-        return new Promise(function (resolve, reject) {
-            chrome.identity.launchWebAuthFlow(
-                {
-                    url: url,
-                    interactive: true,
-                },
-                function (response_url) {
-                    if (response_url.indexOf(getOidcReturnToUrl()) !== -1) {
-                        const oidc_token_id = response_url.replace(getOidcReturnToUrl(), "");
-                        resolve(oidc_token_id);
-                    } else {
-                        const saml_token_id = response_url.replace(getSamlReturnToUrl(), "");
-                        resolve(saml_token_id);
-                    }
-                }
-            );
-        });
+        emitSec("launch-web-auth-flow-in-background", { url: url });
+        return Promise.resolve();
+        // return new Promise(function (resolve, reject) {
+        //     chrome.identity.launchWebAuthFlow(
+        //         {
+        //             url: url,
+        //             interactive: true,
+        //         },
+        //         function (response_url) {
+        //             if (response_url.indexOf(getOidcReturnToUrl()) !== -1) {
+        //                 const oidc_token_id = response_url.replace(getOidcReturnToUrl(), "");
+        //                 resolve(oidc_token_id);
+        //             } else {
+        //                 const saml_token_id = response_url.replace(getSamlReturnToUrl(), "");
+        //                 resolve(saml_token_id);
+        //             }
+        //         }
+        //     );
+        // });
     } else {
         window.location.href = url;
         return Promise.resolve();

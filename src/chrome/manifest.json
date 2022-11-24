@@ -55,6 +55,7 @@
         "data/js/lib/uuid.js",
         "data/js/extension/worker-content-script-base.js",
         "data/js/extension/worker-content-script.js",
+        "data/js/extension/worker-content-script-oidc-saml.js",
         "data/js/extension/worker-content-script-pgp.js",
         "data/js/content-script.js"
       ],
