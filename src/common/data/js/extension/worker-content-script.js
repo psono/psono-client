@@ -506,7 +506,10 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
                 data.hasOwnProperty("auto_submit") &&
                 data.auto_submit //auto submit checked in settings
             ) {
-                myForms[i].form.submit();
+                const myForm = myForms[i];
+                setTimeout(function(){
+                    myForm.form.submit();
+                }, 1000);
             }
         }
     }

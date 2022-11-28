@@ -706,7 +706,7 @@ function savePassword(url, username, password) {
     const parsed_url = helperService.parseUrl(url);
 
     const secret_object = {
-        website_password_title: parsed_url.authority || i18n.t("UNKNOWN"),
+        website_password_title: parsed_url.authority_without_www || i18n.t("UNKNOWN"),
         website_password_url: url,
         website_password_username: username || "",
         website_password_password: password || "",
@@ -717,7 +717,7 @@ function savePassword(url, username, password) {
 
     const datastore_object = {
         type: "website_password",
-        name: parsed_url.authority || i18n.t("UNKNOWN"),
+        name: parsed_url.authority_without_www || i18n.t("UNKNOWN"),
         urlfilter: parsed_url.authority || "",
     };
 
@@ -776,7 +776,7 @@ function bookmarkActiveTab() {
         const parsed_url = helperService.parseUrl(url);
 
         const secret_object = {
-            bookmark_title: parsed_url.authority || i18n.t("UNKNOWN"),
+            bookmark_title: parsed_url.authority_without_www || i18n.t("UNKNOWN"),
             bookmark_url: url,
             bookmark_notes: "",
             bookmark_url_filter: parsed_url.authority || "",
@@ -784,7 +784,7 @@ function bookmarkActiveTab() {
 
         const datastore_object = {
             type: "bookmark",
-            name: parsed_url.authority || i18n.t("UNKNOWN"),
+            name: parsed_url.authority_without_www || i18n.t("UNKNOWN"),
             urlfilter: parsed_url.authority || "",
         };
 

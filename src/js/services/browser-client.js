@@ -349,7 +349,7 @@ function loadConfig() {
                         newConfig["backend_servers"][i]["url"] = parsed_url["base_url"] + "/server";
                     }
                     if (!newConfig["backend_servers"][i].hasOwnProperty("domain")) {
-                        newConfig["backend_servers"][i]["domain"] = helperService.getDomain(
+                        newConfig["backend_servers"][i]["domain"] = helperService.getDomainWithoutWww(
                             newConfig["backend_servers"][i]["url"]
                         );
                     }

@@ -88,7 +88,7 @@ const EmergencyCodeViewForm = (props) => {
 
     const arm = (localEmergencyCode) => {
         let parsedUrl = helperService.parseUrl(server);
-        let fullUsername = helperService.formFullUsername(username, domain || parsedUrl["full_domain"]);
+        let fullUsername = helperService.formFullUsername(username, domain || parsedUrl["full_domain_without_www"]);
 
         function onError(data) {
             setView("default");
@@ -142,7 +142,7 @@ const EmergencyCodeViewForm = (props) => {
         action.setServerUrl(server);
 
         let parsedUrl = helperService.parseUrl(server);
-        let fullUsername = helperService.formFullUsername(username, domain || parsedUrl["full_domain"]);
+        let fullUsername = helperService.formFullUsername(username, domain || parsedUrl["full_domain_without_www"]);
         const test_result = helperService.isValidUsername(fullUsername);
         if (test_result) {
             setErrors([test_result]);
@@ -289,7 +289,7 @@ const EmergencyCodeViewForm = (props) => {
                                 value={server}
                                 onChange={(event) => {
                                     setServer(event.target.value);
-                                    setDomain(helperService.getDomain(event.target.value));
+                                    setDomain(helperService.getDomainWithoutWww(event.target.value));
                                 }}
                             />
                         </Grid>

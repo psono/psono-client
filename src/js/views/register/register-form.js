@@ -156,7 +156,7 @@ const RegisterForm = (props) => {
                 }
                 let parsedUrl = helperService.parseUrl(server);
 
-                let fullUsername = helperService.formFullUsername(username, domain || parsedUrl["full_domain"]);
+                let fullUsername = helperService.formFullUsername(username, domain || parsedUrl["full_domain_without_www"]);
 
                 test_result = helperService.isValidUsername(fullUsername);
                 if (test_result) {
@@ -322,7 +322,7 @@ const RegisterForm = (props) => {
                                 value={server}
                                 onChange={(event) => {
                                     setServer(event.target.value);
-                                    setDomain(helperService.getDomain(event.target.value));
+                                    setDomain(helperService.getDomainWithoutWww(event.target.value));
                                 }}
                             />
                         </Grid>

@@ -33,7 +33,7 @@ function parseUrl(url) {
 
     if (typeof matches[4] !== "undefined") {
         base_url = base_url + matches[4];
-        authority = matches[4].replace(/^(www\.)/, "");
+        authority = matches[4];
         splitted_authority = authority.split(":");
     }
 
@@ -47,8 +47,10 @@ function parseUrl(url) {
     return {
         scheme: schema,
         base_url: base_url,
-        authority: authority, //remove leading www.
+        authority: authority,
+        authority_without_www: authority ? authority.replace(/^(www\.)/, ""): authority, //remove leading www.
         full_domain: full_domain,
+        full_domain_without_www: full_domain ? full_domain.replace(/^(www\.)/, "") : full_domain,
         top_domain: full_domain,
         port: port,
         path: matches[5],
@@ -124,9 +126,9 @@ function isValidTotpCode(b32str) {
  * @param {url} url The URL we want to parse
  * @returns {string} The full domain of the url
  */
-function getDomain(url) {
+function getDomainWithoutWww(url) {
     const parsed_url = parseUrl(url);
-    return parsed_url.full_domain;
+    return parsed_url.full_domain_without_www;
 }
 
 /**
@@ -531,7 +533,7 @@ const helperService = {
     isValidJson: isValidJson,
     isValidEmail: isValidEmail,
     isValidTotpCode: isValidTotpCode,
-    getDomain: getDomain,
+    getDomainWithoutWww: getDomainWithoutWww,
     arrayStartsWith: arrayStartsWith,
     createList: createList,
     duplicateObject: duplicateObject,

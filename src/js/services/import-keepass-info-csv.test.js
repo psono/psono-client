@@ -19,7 +19,7 @@ describe('Service: importKeePassInfoCsv test suite', function () {
             "\"Sample Entry Title\",\"Greg\",\"ycXfARD2G1AOBzLlhtbn\",\"http://www.somepage.net\",\"Some notes...\"\n" +
             "\"Yet Another Sample Entry\",\"Michael\",\"qgyXFZ1iGgNqzg+eZter\",\"http://www.anotherpage.org\",\"More notes...\"\n" +
             "\"Entry To Test Special Characters\",\"!§$%&/()=?´`_#²³{[]}\\\\\",\"öäüÖÄÜß€@<>µ©®\",\"http://www.website.com\",\"The user name and password fields contain special characters.\"\n" +
-            "\"Multi-Line Test Entry\",\"User\",\"bBbescXqkgGF21PK09gV\",\"http://www.web.com\",\"This is a multi-line comment.\n" +
+            "\"Multi-Line Test Entry\",\"User\",\"bBbescXqkgGF21PK09gV\",\"http://web.com\",\"This is a multi-line comment.\n" +
             "This is a multi-line comment.\n" +
             "This is a multi-line comment.\n" +
             "This is a multi-line comment.\n" +
@@ -38,8 +38,8 @@ describe('Service: importKeePassInfoCsv test suite', function () {
                     "id": generic_uuid,
                     "type": "website_password",
                     "name": "Sample Entry Title",
-                    "urlfilter": "somepage.net",
-                    "website_password_url_filter": "somepage.net",
+                    "urlfilter": "www.somepage.net",
+                    "website_password_url_filter": "www.somepage.net",
                     "website_password_password": "ycXfARD2G1AOBzLlhtbn",
                     "website_password_username": "Greg",
                     "website_password_notes": "Some notes...",
@@ -49,8 +49,8 @@ describe('Service: importKeePassInfoCsv test suite', function () {
                     "id": generic_uuid,
                     "type": "website_password",
                     "name": "Yet Another Sample Entry",
-                    "urlfilter": "anotherpage.org",
-                    "website_password_url_filter": "anotherpage.org",
+                    "urlfilter": "www.anotherpage.org",
+                    "website_password_url_filter": "www.anotherpage.org",
                     "website_password_password": "qgyXFZ1iGgNqzg+eZter",
                     "website_password_username": "Michael",
                     "website_password_notes": "More notes...",
@@ -60,8 +60,8 @@ describe('Service: importKeePassInfoCsv test suite', function () {
                     "id": generic_uuid,
                     "type": "website_password",
                     "name": "Entry To Test Special Characters",
-                    "urlfilter": "website.com",
-                    "website_password_url_filter": "website.com",
+                    "urlfilter": "www.website.com",
+                    "website_password_url_filter": "www.website.com",
                     "website_password_password": "öäüÖÄÜß€@<>µ©®",
                     "website_password_username": "!§$%&/()=?´`_#²³{[]}\\",
                     "website_password_notes": "The user name and password fields contain special characters.",
@@ -76,7 +76,7 @@ describe('Service: importKeePassInfoCsv test suite', function () {
                     "website_password_password": "bBbescXqkgGF21PK09gV",
                     "website_password_username": "User",
                     "website_password_notes": "This is a multi-line comment.\nThis is a multi-line comment.\nThis is a multi-line comment.\nThis is a multi-line comment.\nThis is a multi-line comment.\nThis is a multi-line comment.\nThis is a multi-line comment.",
-                    "website_password_url": "http://www.web.com",
+                    "website_password_url": "http://web.com",
                     "website_password_title": "Multi-Line Test Entry"
                 }]
             },
@@ -84,8 +84,8 @@ describe('Service: importKeePassInfoCsv test suite', function () {
                 "id": generic_uuid,
                 "type": "website_password",
                 "name": "Sample Entry Title",
-                "urlfilter": "somepage.net",
-                "website_password_url_filter": "somepage.net",
+                "urlfilter": "www.somepage.net",
+                "website_password_url_filter": "www.somepage.net",
                 "website_password_password": "ycXfARD2G1AOBzLlhtbn",
                 "website_password_username": "Greg",
                 "website_password_notes": "Some notes...",
@@ -95,8 +95,8 @@ describe('Service: importKeePassInfoCsv test suite', function () {
                 "id": generic_uuid,
                 "type": "website_password",
                 "name": "Yet Another Sample Entry",
-                "urlfilter": "anotherpage.org",
-                "website_password_url_filter": "anotherpage.org",
+                "urlfilter": "www.anotherpage.org",
+                "website_password_url_filter": "www.anotherpage.org",
                 "website_password_password": "qgyXFZ1iGgNqzg+eZter",
                 "website_password_username": "Michael",
                 "website_password_notes": "More notes...",
@@ -106,8 +106,8 @@ describe('Service: importKeePassInfoCsv test suite', function () {
                 "id": generic_uuid,
                 "type": "website_password",
                 "name": "Entry To Test Special Characters",
-                "urlfilter": "website.com",
-                "website_password_url_filter": "website.com",
+                "urlfilter": "www.website.com",
+                "website_password_url_filter": "www.website.com",
                 "website_password_password": "öäüÖÄÜß€@<>µ©®",
                 "website_password_username": "!§$%&/()=?´`_#²³{[]}\\",
                 "website_password_notes": "The user name and password fields contain special characters.",
@@ -122,7 +122,7 @@ describe('Service: importKeePassInfoCsv test suite', function () {
                 "website_password_password": "bBbescXqkgGF21PK09gV",
                 "website_password_username": "User",
                 "website_password_notes": "This is a multi-line comment.\nThis is a multi-line comment.\nThis is a multi-line comment.\nThis is a multi-line comment.\nThis is a multi-line comment.\nThis is a multi-line comment.\nThis is a multi-line comment.",
-                "website_password_url": "http://www.web.com",
+                "website_password_url": "http://web.com",
                 "website_password_title": "Multi-Line Test Entry"
             }]
         };
