@@ -27,6 +27,7 @@ let numTabs;
 let contextMenuId;
 let contextMenuChild1Id;
 let contextMenuChild2Id;
+let clearFillPasswordTimeout;
 
 function activate() {
     browserClient.disableBrowserPasswordSaving();
@@ -231,7 +232,6 @@ function onReady(request, sender, sendResponse) {
         let sentResponse = false;
         let found = false;
 
-
         for (let i = fillpassword.length - 1; i >= 0; i--) {
 
             if (fillpassword[i].url_filter) {
@@ -253,7 +253,7 @@ function onReady(request, sender, sendResponse) {
                 break;
             }
         }
-        setTimeout(function () {
+        clearFillPasswordTimeout = setTimeout(function () {
             fillpassword = [];
         }, 3000);
 
@@ -272,6 +272,7 @@ function onReady(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function onFillpassword(request, sender, sendResponse) {
+    clearTimeout(clearFillPasswordTimeout)
     fillpassword.push(request.data);
 }
 
