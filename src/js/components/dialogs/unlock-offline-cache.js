@@ -84,7 +84,7 @@ const DialogUnlockOfflineCache = (props) => {
                                             onClick={() => setShowPassword(!showPassword)}
                                             edge="end"
                                         >
-                                            {showPassword ? <Visibility /> : <VisibilityOff />}
+                                            {showPassword ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
                                         </IconButton>
                                     </InputAdornment>
                                 ),

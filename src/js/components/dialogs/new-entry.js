@@ -743,7 +743,7 @@ const DialogNewEntry = (props) => {
                                                 aria-label="menu"
                                                 onClick={openMenu}
                                             >
-                                                <MenuOpenIcon />
+                                                <MenuOpenIcon fontSize="small" />
                                             </IconButton>
                                             <Menu
                                                 id="simple-menu"
@@ -865,7 +865,7 @@ const DialogNewEntry = (props) => {
                                                 aria-label="menu"
                                                 onClick={openMenu}
                                             >
-                                                <MenuOpenIcon />
+                                                <MenuOpenIcon fontSize="small" />
                                             </IconButton>
                                             <Menu
                                                 id="simple-menu"
@@ -1145,7 +1145,7 @@ const DialogNewEntry = (props) => {
                                                 aria-label="menu"
                                                 onClick={onShowHidePassword}
                                             >
-                                                <VisibilityOffIcon />
+                                                <VisibilityOffIcon fontSize="small" />
                                             </IconButton>
                                         </InputAdornment>
                                     ),
@@ -1602,7 +1602,7 @@ const DialogNewEntry = (props) => {
                                                 onClick={() => setShowPassword(!showPassword)}
                                                 edge="end"
                                             >
-                                                {showPassword ? <Visibility /> : <VisibilityOff />}
+                                                {showPassword ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
                                             </IconButton>
                                         </InputAdornment>
                                     ),

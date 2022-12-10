@@ -47,7 +47,7 @@ const TextFieldPath = (props) => {
                     value.length > 0 && (
                         <InputAdornment position="end">
                             <IconButton aria-label="clear path" onClick={() => setPath([])} edge="end">
-                                <ClearIcon />
+                                <ClearIcon fontSize="small" />
                             </IconButton>
                         </InputAdornment>
                     )
