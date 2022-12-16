@@ -397,7 +397,7 @@ const PopupView = (props) => {
                             endAdornment: search && (
                                 <InputAdornment position="end">
                                     <IconButton aria-label="clear search" onClick={clear} edge="end">
-                                        <ClearIcon />
+                                        <ClearIcon fontSize="small" />
                                     </IconButton>
                                 </InputAdornment>
                             ),

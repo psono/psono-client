@@ -26,7 +26,7 @@ function createGa(title) {
             id: request.data["id"],
             uri:
                 "otpauth://totp/" +
-                parsedUrl["top_domain"] +
+                parsedUrl["full_domain_without_www"] +
                 ":" +
                 store.getState().user.username +
                 "?secret=" +

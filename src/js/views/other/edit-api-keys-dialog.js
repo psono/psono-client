@@ -361,7 +361,7 @@ const EditApiKeysDialog = (props) => {
                                                         onClick={() => setShowApiKeyId(!showApiKeyId)}
                                                         edge="end"
                                                     >
-                                                        {showApiKeyId ? <Visibility /> : <VisibilityOff />}
+                                                        {showApiKeyId ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
                                                     </IconButton>
                                                 </InputAdornment>
                                             ),
@@ -391,7 +391,7 @@ const EditApiKeysDialog = (props) => {
                                                         onClick={() => setShowApiKeyPrivateKey(!showApiKeyPrivateKey)}
                                                         edge="end"
                                                     >
-                                                        {showApiKeyPrivateKey ? <Visibility /> : <VisibilityOff />}
+                                                        {showApiKeyPrivateKey ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
                                                     </IconButton>
                                                 </InputAdornment>
                                             ),
@@ -421,7 +421,7 @@ const EditApiKeysDialog = (props) => {
                                                         onClick={() => setShowApiKeySecretKey(!showApiKeySecretKey)}
                                                         edge="end"
                                                     >
-                                                        {showApiKeySecretKey ? <Visibility /> : <VisibilityOff />}
+                                                        {showApiKeySecretKey ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
                                                     </IconButton>
                                                 </InputAdornment>
                                             ),

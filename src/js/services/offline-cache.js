@@ -17,9 +17,11 @@ function activate() {
     if (window.psono_offline_cache_encryption_key) {
         setEncryptionKey(window.psono_offline_cache_encryption_key);
     }
-    browserClient.getOfflineCacheEncryptionKey(function (new_encryption_key) {
-        setEncryptionKey(new_encryption_key);
-    });
+    if (browserClient) {
+        browserClient.getOfflineCacheEncryptionKey(function (new_encryption_key) {
+            setEncryptionKey(new_encryption_key);
+        });
+    }
 }
 
 /**

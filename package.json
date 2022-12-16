@@ -14,15 +14,6 @@
     "buildsw": "node ./src/build-service-worker.js",
     "test": "jest --detectOpenHandles --forceExit"
   },
-  "jest": {
-    "testEnvironment": "jsdom",
-    "setupFilesAfterEnv": [
-      "<rootDir>/src/setupTests.js"
-    ],
-    "globals": {
-      "TARGET": "webclient"
-    }
-  },
   "keywords": [],
   "license": "Apache-2.0",
   "dependencies": {
@@ -35,7 +26,7 @@
     "@openpgp/hkp-client": "^0.0.2",
     "@sentry/react": "^6.19.6",
     "@sentry/tracing": "^6.19.6",
-    "axios": "^0.24.0",
+    "axios": "^1.2.1",
     "chart.js": "^3.7.0",
     "clientjs": "^0.2.1",
     "core-js": "^3.19.1",

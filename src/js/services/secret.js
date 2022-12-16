@@ -136,7 +136,7 @@ function redirectSecret(type, secretId) {
                 browserClient.emitSec("fillpassword", {
                     username: content.website_password_username,
                     password: content.website_password_password,
-                    authority: content.website_password_url_filter,
+                    url_filter: content.website_password_url_filter,
                     auto_submit: content.website_password_auto_submit,
                 });
                 window.location.href = content.website_password_url;

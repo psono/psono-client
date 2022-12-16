@@ -27,6 +27,7 @@ let numTabs;
 let contextMenuId;
 let contextMenuChild1Id;
 let contextMenuChild2Id;
+let clearFillPasswordTimeout;
 
 function activate() {
     browserClient.disableBrowserPasswordSaving();
@@ -229,15 +230,30 @@ function onReady(request, sender, sendResponse) {
         const url = sender.tab.url;
         const parsedUrl = helper.parseUrl(url);
         let sentResponse = false;
+        let found = false;
+
         for (let i = fillpassword.length - 1; i >= 0; i--) {
-            if (helper.endsWith(parsedUrl.authority, fillpassword[i].authority)) {
-                fillpassword[i].submit = parsedUrl.scheme === "https";
-                sentResponse = true;
-                sendResponse({ event: "fillpassword", data: fillpassword[i] });
+
+            if (fillpassword[i].url_filter) {
+                const urlFilters = fillpassword[i].url_filter.split(/\s+|,|;/);
+                for (let i = 0; i < urlFilters.length; i++) {
+                    if (!urlFilters[i]) {
+                        continue;
+                    }
+                    if (helper.endsWith(parsedUrl.authority, urlFilters[i])) {
+                        fillpassword[i].submit = parsedUrl.scheme === "https";
+                        sentResponse = true;
+                        sendResponse({ event: "fillpassword", data: fillpassword[i] });
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            if (found) {
                 break;
             }
         }
-        setTimeout(function () {
+        clearFillPasswordTimeout = setTimeout(function () {
             fillpassword = [];
         }, 3000);
 
@@ -256,6 +272,7 @@ function onReady(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function onFillpassword(request, sender, sendResponse) {
+    clearTimeout(clearFillPasswordTimeout)
     fillpassword.push(request.data);
 }
 
@@ -390,14 +407,15 @@ function onLogin(request, sender, sendResponse) {
 }
 
 /**
- * Returns all website passwords where the specified url matches the url filter
+ * Returns the function that returns whether a certain leaf entry should be considered a possible condidate
+ * for a provided url
  *
  * @param {string} url The url to match
  * @param {boolean} onlyAutoSubmit Only entries with autosubmit
  *
- * @returns {Promise} The database objects where the url filter match the url
+ * @returns {(function(*): (boolean|*))|*}
  */
-function searchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit) {
+const getSearchWebsitePasswordsByUrlfilter = function (url, onlyAutoSubmit) {
     const parsedUrl = helper.parseUrl(url);
 
     const filter = function (leaf) {
@@ -424,6 +442,20 @@ function searchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit) {
 
         return false;
     };
+
+    return filter;
+};
+
+/**
+ * Returns all website passwords where the specified url matches the url filter
+ *
+ * @param {string} url The url to match
+ * @param {boolean} onlyAutoSubmit Only entries with autosubmit
+ *
+ * @returns {Promise} The database objects where the url filter match the url
+ */
+function searchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit) {
+    const filter = getSearchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit);
 
     return storage.where("datastore-password-leafs", filter);
 }
@@ -1098,6 +1130,7 @@ function saveLastLoginCredentials() {
 
 const backgroundService = {
     activate,
+    getSearchWebsitePasswordsByUrlfilter,
 };
 
 export default backgroundService;

@@ -622,7 +622,7 @@ const LoginViewForm = (props) => {
 
         let parsedUrl = helperService.parseUrl(server);
 
-        let fullUsername = helperService.formFullUsername(username, domain || parsedUrl["full_domain"]);
+        let fullUsername = helperService.formFullUsername(username, domain || parsedUrl["full_domain_without_www"]);
 
         return user
             .initiateLogin(fullUsername, server, rememberMe, trustDevice, true)
@@ -873,7 +873,7 @@ const LoginViewForm = (props) => {
                                 value={server}
                                 onChange={(event) => {
                                     setServer(event.target.value);
-                                    setDomain(helperService.getDomain(event.target.value));
+                                    setDomain(helperService.getDomainWithoutWww(event.target.value));
                                 }}
                             />
                         </Grid>

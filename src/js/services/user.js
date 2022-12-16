@@ -64,7 +64,7 @@ function initiateLogin(username, server, rememberMe, trustDevice, twoFaRedirect)
     action.setServerUrl(server);
     let parsedUrl = helperService.parseUrl(server);
 
-    username = helperService.formFullUsername(username, parsedUrl["full_domain"]);
+    username = helperService.formFullUsername(username, parsedUrl["full_domain_without_www"]);
     action.setUserUsername(username);
     action.setUserInfo1(rememberMe, trustDevice, "AUTHKEY");
 

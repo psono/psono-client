@@ -206,7 +206,7 @@ const DialogGoOffline = (props) => {
                                                 onClick={() => setShowPassword(!showPassword)}
                                                 edge="end"
                                             >
-                                                {showPassword ? <Visibility /> : <VisibilityOff />}
+                                                {showPassword ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
                                             </IconButton>
                                         </InputAdornment>
                                     ),
@@ -240,7 +240,7 @@ const DialogGoOffline = (props) => {
                                                     onClick={() => setShowPassword(!showPassword)}
                                                     edge="end"
                                                 >
-                                                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                                                    {showPassword ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
                                                 </IconButton>
                                             </InputAdornment>
                                         ),

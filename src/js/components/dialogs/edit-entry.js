@@ -26,6 +26,7 @@ import Typography from "@material-ui/core/Typography";
 import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 import PhonelinkSetupIcon from "@material-ui/icons/PhonelinkSetup";
 import DeleteIcon from "@material-ui/icons/Delete";
+import OpenInNewIcon from "@material-ui/icons/OpenInNew";
 import PlaylistAddIcon from "@material-ui/icons/PlaylistAdd";
 import LinearProgress from "@material-ui/core/LinearProgress";
 
@@ -598,6 +599,11 @@ const DialogEditEntry = (props) => {
         setAnchorEl(null);
     };
 
+    const linkItem = function (event) {
+        event.stopPropagation();
+        secretService.onItemClick(item);
+    };
+
     let title = ''
     if (item.share_rights && item.share_rights.read) {
         title = item.share_rights && item.share_rights.write ? t(itemBlueprint.edit_title) : t(itemBlueprint.show_title);
@@ -669,7 +675,20 @@ const DialogEditEntry = (props) => {
                         name="websitePasswordUrl"
                         autoComplete="off"
                         value={websitePasswordUrl}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{
+                            readOnly: !item.share_rights || !item.share_rights.write,
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        className={classes.iconButton}
+                                        aria-label="menu"
+                                        onClick={linkItem}
+                                    >
+                                        <OpenInNewIcon fontSize="small" />
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
                         onChange={(event) => {
                             // get only toplevel domain
                             const parsedUrl = helperService.parseUrl(event.target.value);
@@ -730,7 +749,7 @@ const DialogEditEntry = (props) => {
                                         aria-label="menu"
                                         onClick={openMenu}
                                     >
-                                        <MenuOpenIcon />
+                                        <MenuOpenIcon fontSize="small" />
                                     </IconButton>
                                     <Menu
                                         id="simple-menu"
@@ -861,7 +880,7 @@ const DialogEditEntry = (props) => {
                                         aria-label="menu"
                                         onClick={openMenu}
                                     >
-                                        <MenuOpenIcon />
+                                        <MenuOpenIcon fontSize="small" />
                                     </IconButton>
                                     <Menu
                                         id="simple-menu"
@@ -959,7 +978,20 @@ const DialogEditEntry = (props) => {
                         name="bookmarkUrl"
                         autoComplete="off"
                         value={bookmarkUrl}
-                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        InputProps={{
+                            readOnly: !item.share_rights || !item.share_rights.write,
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        className={classes.iconButton}
+                                        aria-label="menu"
+                                        onClick={linkItem}
+                                    >
+                                        <OpenInNewIcon fontSize="small" />
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
                         onChange={(event) => {
                             // get only toplevel domain
                             const parsedUrl = helperService.parseUrl(event.target.value);
@@ -1467,7 +1499,7 @@ const DialogEditEntry = (props) => {
                                         onClick={() => setShowPassword(!showPassword)}
                                         edge="end"
                                     >
-                                        {showPassword ? <Visibility /> : <VisibilityOff />}
+                                        {showPassword ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
                                     </IconButton>
                                 </InputAdornment>
                             ),

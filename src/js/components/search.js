@@ -62,7 +62,7 @@ const Search = (props) => {
                 endAdornment={
                     <InputAdornment position="end">
                         <IconButton aria-label="clear" onClick={onClear} disabled={!search}>
-                            <BackspaceOutlinedIcon/>
+                            <BackspaceOutlinedIcon fontSize="small"/>
                         </IconButton>
                     </InputAdornment>
                 }

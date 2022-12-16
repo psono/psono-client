@@ -155,7 +155,7 @@ const DialogCreateLinkShare = (props) => {
                                                 onClick={copyToClipbard}
                                                 edge="end"
                                             >
-                                                <ContentCopy />
+                                                <ContentCopy fontSize="small" />
                                             </IconButton>
                                         </InputAdornment>
                                     ),

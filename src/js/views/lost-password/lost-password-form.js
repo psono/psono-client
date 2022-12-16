@@ -104,7 +104,7 @@ const LostPasswordViewForm = (props) => {
                     setView("success");
                 }
                 let parsedUrl = helperService.parseUrl(server);
-                let fullUsername = helperService.formFullUsername(username, domain || parsedUrl["full_domain"]);
+                let fullUsername = helperService.formFullUsername(username, domain || parsedUrl["full_domain_without_www"]);
 
                 // Validate now the username
                 user.setPassword(
@@ -148,7 +148,7 @@ const LostPasswordViewForm = (props) => {
         let parsedUrl = helperService.parseUrl(server);
 
         // Validate now the username
-        let fullUsername = helperService.formFullUsername(username, domain || parsedUrl["full_domain"]);
+        let fullUsername = helperService.formFullUsername(username, domain || parsedUrl["full_domain_without_www"]);
         const testResult = helperService.isValidUsername(fullUsername);
         if (testResult) {
             setErrors([testResult]);
@@ -335,7 +335,7 @@ const LostPasswordViewForm = (props) => {
                                 value={server}
                                 onChange={(event) => {
                                     setServer(event.target.value);
-                                    setDomain(helperService.getDomain(event.target.value));
+                                    setDomain(helperService.getDomainWithoutWww(event.target.value));
                                 }}
                             />
                         </Grid>

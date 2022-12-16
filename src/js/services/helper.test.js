@@ -11,10 +11,12 @@ describe('Service: helper test suite', function() {
             helperService.parseUrl('https://www.example.com/url-part/#is-not-part')
         ).toEqual({
             scheme: 'https',
-            authority: 'example.com',
+            authority: 'www.example.com',
+            authority_without_www: 'example.com',
             base_url: "https://www.example.com",
-            full_domain: 'example.com',
-            top_domain: 'example.com',
+            full_domain: 'www.example.com',
+            full_domain_without_www: 'example.com',
+            top_domain: 'www.example.com',
             port: null,
             path: '/url-part/',
             query: undefined,
@@ -28,8 +30,10 @@ describe('Service: helper test suite', function() {
         ).toEqual({
             scheme: 'https',
             authority: 'example.com',
+            authority_without_www: 'example.com',
             base_url: "https://example.com",
             full_domain: 'example.com',
+            full_domain_without_www: "example.com",
             top_domain: 'example.com',
             port: null,
             path: '/url-part/',
@@ -44,8 +48,10 @@ describe('Service: helper test suite', function() {
         ).toEqual({
             scheme: 'chrome-extension',
             authority: 'nknmfipbcebafiaclacheccehghgikkk',
+            authority_without_www: 'nknmfipbcebafiaclacheccehghgikkk',
             base_url: 'chrome-extension://nknmfipbcebafiaclacheccehghgikkk',
             full_domain: 'nknmfipbcebafiaclacheccehghgikkk',
+            full_domain_without_www: "nknmfipbcebafiaclacheccehghgikkk",
             top_domain: 'nknmfipbcebafiaclacheccehghgikkk',
             port: null,
             path: '/data/index.html',
@@ -60,8 +66,10 @@ describe('Service: helper test suite', function() {
         ).toEqual({
             scheme: 'http',
             authority: 'test.example.com',
+            authority_without_www: 'test.example.com',
             base_url: 'http://test.example.com',
             full_domain: 'test.example.com',
+            full_domain_without_www: 'test.example.com',
             top_domain: 'test.example.com',
             port: null,
             path: '/url-part/',
@@ -78,8 +86,10 @@ describe('Service: helper test suite', function() {
         ).toEqual({
             scheme: 'http',
             authority: 'test.example.com:6000',
+            authority_without_www: 'test.example.com:6000',
             base_url: "http://test.example.com:6000",
             full_domain: 'test.example.com',
+            full_domain_without_www: 'test.example.com',
             top_domain: 'test.example.com',
             port: '6000',
             path: '/url-part/',
@@ -88,21 +98,21 @@ describe('Service: helper test suite', function() {
         });
     });
 
-    it('getDomain sub domain', function() {
+    it('getDomainWithoutWww sub domain', function() {
         expect(
-            helperService.getDomain('http://test.example.com/url-part/#is-not-part')
+            helperService.getDomainWithoutWww('http://test.example.com/url-part/#is-not-part')
         ).toEqual('test.example.com');
     });
 
     it('getDomain www domain', function() {
         expect(
-            helperService.getDomain('http://www.example.com/url-part/#is-not-part')
+            helperService.getDomainWithoutWww('http://www.example.com/url-part/#is-not-part')
         ).toEqual('example.com');
     });
 
     it('getDomain top level domain', function() {
         expect(
-            helperService.getDomain('http://example.com/url-part/#is-not-part')
+            helperService.getDomainWithoutWww('http://example.com/url-part/#is-not-part')
         ).toEqual('example.com');
     });
 

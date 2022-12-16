@@ -25,7 +25,7 @@ const TextFieldPassword = (props) => {
     localInputProps["endAdornment"] = (
         <InputAdornment position="end">
             <IconButton aria-label="toggle show" onClick={() => setShowPassword(!showPassword)} edge="end">
-                {showPassword ? <Visibility /> : <VisibilityOff />}
+                {showPassword ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
             </IconButton>
         </InputAdornment>
     );
