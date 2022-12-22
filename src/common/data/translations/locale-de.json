@@ -1,4 +1,5 @@
 {
+  "PROVIDED_DOMAIN_NOT_ALLOWED_FOR_REGISTRATION": "Die in ihrem Nutzernamen angegebene Domain ist nicht für die Registrierung auf diesem Server erlaubt.",
   "PERMISSIONS_TO_ACCESS_THIS_ENTRY_HAVE_BEEN_DENIED": "Die Berechtigung auf diesen Eintrag zuzugreifen wurden verweigert.",
   "CONFIGURE_MULTIPLE_ACCOUNTS_WITH_GRANT_PRIVILEGE": "Konfigurieren sie meherere Konten mit Admin Privilegien um die Berechtigungen auf den Share im Falle eines verlorenen Administratorkennworts oder eines ausgetretenen Administrators immer noch ändern zu können.",
   "UPLOAD_FAILED": "Upload fehlgeschlagen.",
