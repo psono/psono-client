@@ -315,6 +315,7 @@ const TrustedUsersView = (props) => {
                                 onEditFolder={onEditFolder}
                                 onDeleteEntry={onDeleteEntry}
                                 onDeleteFolder={onDeleteFolder}
+                                onSelectItem={onEditEntry}
                                 deleteFolderLabel={t('DELETE')}
                                 deleteItemLabel={t('DELETE')}
                             />
