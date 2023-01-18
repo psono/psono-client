@@ -79,7 +79,7 @@ build-docker-image:
     - sh ./var/download_translations_from_artifactory.sh
     - sh ./var/prep-build.sh
     - npm run buildwebclient
-    - curl -fSL "https://download.docker.com/linux/static/stable/x86_64/docker-20.10.17.tgz" -o docker.tgz && echo "969210917b5548621a2b541caf00f86cc6963c6cf0fb13265b9731c3b98974d9 *docker.tgz" | sha256sum -c - && tar -xzvf docker.tgz && mv docker/* /usr/local/bin/ && rm -Rf docker && rm docker.tgz
+    - curl -fSL "https://psono.jfrog.io/artifactory/generic-local/docker/docker-20.10.17.tgz" -o docker.tgz && echo "969210917b5548621a2b541caf00f86cc6963c6cf0fb13265b9731c3b98974d9 *docker.tgz" | sha256sum -c - && tar -xzvf docker.tgz && mv docker/* /usr/local/bin/ && rm -Rf docker && rm docker.tgz
     - docker info
     - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker.jfrog.io
     - docker build -t $CONTAINER_TEST_IMAGE --pull .
