@@ -484,7 +484,8 @@ const LoginViewForm = (props) => {
         setOidcEnabled(oidcEnabled);
     };
 
-    const remoteConfig = (e) => {
+    const remoteConfig = (event) => {
+        event.preventDefault();
         action.setServerUrl(server);
         setErrors([]);
 
