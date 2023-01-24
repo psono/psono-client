@@ -201,7 +201,7 @@ const DatastoreTreeFolder = (props) => {
                     <Menu
                         id="simple-menu"
                         anchorEl={anchorEl}
-                        keepMounted
+                        keepMounted={false}
                         open={Boolean(anchorEl)}
                         onClose={handleClose}
                         onContextMenu={(event) => {
@@ -375,7 +375,7 @@ const DatastoreTreeFolder = (props) => {
                 </div>
             )}
             <Menu
-                keepMounted
+                keepMounted={false}
                 open={contextMenuPosition.mouseY !== null}
                 onClose={onContextMenuClose}
                 onContextMenu={(event) => {
