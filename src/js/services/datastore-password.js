@@ -1605,6 +1605,36 @@ function getAllOwnPgpKeys() {
     });
 }
 
+/**
+ * Collapse all the folders in datastore.
+ * Calls recursive itself for all folders
+ *
+ * @param {TreeObject} obj The tree object
+ * @returns {TreeObject} Returns an immutable datastore
+ */
+function collapseFoldersRecursive(obj) {
+    if (obj.hasOwnProperty("folders")) {
+        return {
+            ...obj,
+            expanded: undefined,
+            folders: obj.folders.map(item => collapseFoldersRecursive(item))
+        }
+    }
+
+    if (obj.hasOwnProperty("items")) {
+        return {
+            ...obj,
+            expanded: undefined,
+            items: obj.items.map(item => collapseFoldersRecursive(item))
+        }
+    }
+
+    return {
+        ...obj,
+        expanded: undefined,
+    };
+}
+
 // itemBlueprint.register('generate', generate);
 // itemBlueprint.register('get_password_datastore', getPasswordDatastore);
 // itemBlueprint.register('save_datastore_content', saveDatastoreContent);
@@ -1641,6 +1671,7 @@ const datastorePasswordService = {
     getInaccessibleShares: getInaccessibleShares,
     getAllOwnPgpKeys: getAllOwnPgpKeys,
     updatePathsRecursive: updatePathsRecursive,
+    collapseFoldersRecursive: collapseFoldersRecursive,
 };
 
 export default datastorePasswordService;

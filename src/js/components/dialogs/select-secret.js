@@ -96,6 +96,7 @@ const DialogSelectSecret = (props) => {
                         {datastore && (
                             <DatastoreTree
                                 datastore={datastore}
+                                setDatastore={setDatastore}
                                 onSelectItem={onSelectItem}
                                 isSelectable={isSelectable}
                                 search={search}

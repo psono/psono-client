@@ -122,6 +122,7 @@ const DialogSelectFolder = (props) => {
                         {datastore && (
                             <DatastoreTree
                                 datastore={datastore}
+                                setDatastore={setDatastore}
                                 onSelectNode={onSelectNode}
                                 isSelectable={isSelectable}
                                 hideItems={true}

@@ -218,6 +218,7 @@ const DialogAcceptShare = (props) => {
                         {datastore && (
                             <DatastoreTree
                                 datastore={datastore}
+                                setDatastore={setDatastore}
                                 onNewFolder={onNewFolder}
                                 onSelectNode={onSelectNode}
                                 isSelectable={isSelectable}
