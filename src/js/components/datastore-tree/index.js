@@ -115,8 +115,6 @@ const DatastoreTree = (props) => {
         setDatastore(updatedDatastore);
     };
 
-    console.log('datastore', datastore);
-
     const datastoreItems = formatDatastoreItems(datastore, [], true, []);
 
     if ((!datastore.folders || datastore.folders.filter((folder) => !folder["deleted"]).length === 0) && (!datastore.items || datastore.items.filter((item) => !item["deleted"]).length === 0)) {
