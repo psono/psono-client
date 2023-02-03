@@ -46,10 +46,13 @@ const DatastoreTree = (props) => {
 
     datastorePassword.modifyTreeForSearch(search, datastore);
 
-    const formatDatastoreItems = (folder, acc, isFolder, nodePath) => {
+    const formatDatastoreItems = (folder, acc, isFolder, nodePath, path) => {
+        const currentPath = folder.datastore_id ? [...path] : [...path, folder.id];
+
         // Ignore the parent datastore folder with 'datastore_id' property
         if (!folder.datastore_id) {
             folder.is_folder = isFolder;
+            folder.path = currentPath;
 
             acc.push(folder);
         }
@@ -66,7 +69,7 @@ const DatastoreTree = (props) => {
                     return 0;
                 })
                 .filter((folder) => !folder["hidden"] && !folder["deleted"])
-                .forEach(item => formatDatastoreItems(item, acc, true, nodePath.concat(item)));
+                .forEach(item => formatDatastoreItems(item, acc, true, nodePath.concat(item), currentPath));
         }
 
         if (!props.hideItems && isExpanded && folder.items) {
@@ -79,7 +82,7 @@ const DatastoreTree = (props) => {
                     return 0;
                 })
                 .filter((item) => !item["hidden"] && !item["deleted"])
-                .forEach(item => formatDatastoreItems(item, acc, false, nodePath.concat(item)))
+                .forEach(item => formatDatastoreItems(item, acc, false, nodePath.concat(item), currentPath))
         }
 
         return acc;
@@ -115,7 +118,7 @@ const DatastoreTree = (props) => {
         setDatastore(updatedDatastore);
     };
 
-    const datastoreItems = formatDatastoreItems(datastore, [], true, []);
+    const datastoreItems = formatDatastoreItems(datastore, [], true, [], []);
 
     if ((!datastore.folders || datastore.folders.filter((folder) => !folder["deleted"]).length === 0) && (!datastore.items || datastore.items.filter((item) => !item["deleted"]).length === 0)) {
         return (
