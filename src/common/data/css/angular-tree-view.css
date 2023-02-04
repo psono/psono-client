@@ -10,22 +10,10 @@
 
 /* tree control */
 .tree {
-    padding-left: 9px;
     overflow-x: hidden;
     overflow-y: auto;
     position: relative;
     width: 100%;
-}
-.tree:before {
-    display: inline-block;
-    content: "";
-    position: absolute;
-    top: -20px;
-    bottom: 16px;
-    left: 0;
-    border: dotted #67b2dd;
-    border-width: 0 0 0 1px;
-    z-index: 1;
 }
 .tree .tree-folder {
     width: auto;
@@ -223,9 +211,6 @@
     vertical-align: middle;
 }
 
-.tree {
-    padding-left: 22px;
-}
 .tree:before {
     margin-left: 9px;
 }

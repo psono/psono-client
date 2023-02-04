@@ -774,6 +774,7 @@ const DatastoreView = (props) => {
                                         {datastore && newSecurityReport !== 'REQUIRED' && (
                                             <DatastoreTree
                                                 datastore={datastore}
+                                                setDatastore={setDatastore}
                                                 search={search}
                                                 onNewFolder={onNewFolder}
                                                 onNewEntry={onNewEntry}

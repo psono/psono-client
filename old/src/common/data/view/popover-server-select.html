@@ -1,8 +1,0 @@
-<div>
-    <p>{{'PICK_ONE_SERVER_BELOW_OR_ENTER_URL' | translate}}:</p>
-    <p ng-repeat="server in filtered_servers | limitTo:4">
-        <a title="{{ server.title + ' ' + server.url }}" href="#" ng-click="select_server(server)">
-            {{ server.title + ' ' + server.url | limitTo:32 }}<span ng-if="(server.title + ' ' + server.url).length > 32">...</span>
-        </a>
-    </p>
-</div>

@@ -179,7 +179,7 @@ function editFolderSave(node, path, dataStructure, manager) {
             }
 
             folder.name = node.name;
-            manager.saveDatastoreContent(datastore, [path]);
+            manager.saveDatastoreContent(datastore, [path.slice()]);
             manager.handleDatastoreContentChanged(dataStructure);
         };
 

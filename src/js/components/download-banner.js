@@ -80,6 +80,7 @@ const DownloadBanner = (props) => {
 
     const hideDownloadBanner = (event) => {
         action.setHideDownloadBanner(true);
+        event.preventDefault();
     };
 
     return (

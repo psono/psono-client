@@ -308,6 +308,7 @@ const TrustedUsersView = (props) => {
                         {datastore && (
                             <DatastoreTree
                                 datastore={datastore}
+                                setDatastore={setDatastore}
                                 search={search}
                                 onNewFolder={onNewFolder}
                                 onNewUser={onNewUser}
@@ -315,6 +316,7 @@ const TrustedUsersView = (props) => {
                                 onEditFolder={onEditFolder}
                                 onDeleteEntry={onDeleteEntry}
                                 onDeleteFolder={onDeleteFolder}
+                                onSelectItem={onEditEntry}
                                 deleteFolderLabel={t('DELETE')}
                                 deleteItemLabel={t('DELETE')}
                             />

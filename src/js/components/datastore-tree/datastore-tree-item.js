@@ -251,7 +251,7 @@ const DatastoreTreeItem = (props) => {
                         event.stopPropagation();
                     }}
                     anchorEl={anchorEl}
-                    keepMounted
+                    keepMounted={false}
                     open={Boolean(anchorEl)}
                     onClose={handleClose}
                 >
@@ -375,7 +375,7 @@ const DatastoreTreeItem = (props) => {
                 </Menu>
             </div>
             <Menu
-                keepMounted
+                keepMounted={false}
                 onContextMenu={(event) => {
                     event.preventDefault();
                     event.stopPropagation();

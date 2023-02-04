@@ -4,12 +4,12 @@ import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import Hidden from "@material-ui/core/Hidden";
 import { makeStyles } from "@material-ui/core/styles";
-
+import { FixedSizeList as List } from 'react-window';
+import AutoSizer from "react-virtualized-auto-sizer";
 
 import offlineCache from "../../services/offline-cache";
-import DatastoreTreeItem from "./datastore-tree-item.js";
-import DatastoreTreeFolder from "./datastore-tree-folder.js";
 import datastorePassword from "../../services/datastore-password";
+import DatastoreTreeVirtualElement from "./datastore-tree-virtual-element";
 
 const useStyles = makeStyles((theme) => ({
     fullWidth: {
@@ -28,11 +28,99 @@ const useStyles = makeStyles((theme) => ({
 
 const DatastoreTree = (props) => {
     const classes = useStyles();
-    const { datastore, search } = props;
+    const { datastore, setDatastore, search } = props;
     const { t } = useTranslation();
     const offline = offlineCache.isActive();
 
+    const getIsExpandedFolder = (folder) => {
+        if (folder.datastore_id) return true;
+
+        return folder.expanded_temporary
+            ? typeof folder.expanded === 'undefined' ? true : folder.expanded
+            : folder.expanded;
+    };
+
+    React.useEffect(() => {
+        const updatedDatastore = datastorePassword.collapseFoldersRecursive(datastore);
+
+        setDatastore(updatedDatastore);
+    }, [search]);
+
     datastorePassword.modifyTreeForSearch(search, datastore);
+
+    const formatDatastoreItems = (folder, acc, isFolder, nodePath, path) => {
+        const currentPath = folder.datastore_id ? [...path] : [...path, folder.id];
+
+        // Ignore the parent datastore folder with 'datastore_id' property
+        if (!folder.datastore_id) {
+            folder.is_folder = isFolder;
+            folder.path = currentPath;
+
+            acc.push(folder);
+        }
+
+        const isExpanded = getIsExpandedFolder(folder);
+
+        if (folder.folders && (folder.datastore_id || isExpanded)) {
+            folder.folders
+                .sort(function(a, b){
+                    if (a.name.toLowerCase() < b.name.toLowerCase())
+                        return -1;
+                    if (a.name.toLowerCase() > b.name.toLowerCase())
+                        return 1;
+                    return 0;
+                })
+                .filter((folder) => !folder["hidden"] && !folder["deleted"])
+                .forEach(item => formatDatastoreItems(item, acc, true, nodePath.concat(item), currentPath));
+        }
+
+        if (!props.hideItems && isExpanded && folder.items) {
+            folder.items
+                .sort(function(a, b){
+                    if (a.name.toLowerCase() < b.name.toLowerCase())
+                        return -1;
+                    if (a.name.toLowerCase() > b.name.toLowerCase())
+                        return 1;
+                    return 0;
+                })
+                .filter((item) => !item["hidden"] && !item["deleted"])
+                .forEach(item => formatDatastoreItems(item, acc, false, nodePath.concat(item), currentPath))
+        }
+
+        return acc;
+    }
+
+    const updateExpandFolderProperty = (id, folder) => {
+        if (folder.id === id) {
+            const isExpanded = getIsExpandedFolder(folder);
+
+            return {
+                ...folder,
+                expanded: !isExpanded,
+            };
+        }
+
+        if (folder.folders) {
+            const updatedFolders = folder.folders.map(item => {
+                return updateExpandFolderProperty(id, item);
+            });
+
+            return {
+                ...folder,
+                folders: updatedFolders,
+            };
+        }
+
+        return folder;
+    }
+
+    const onUpdateExpandFolderProperty = (id) => {
+        const updatedDatastore = updateExpandFolderProperty(id, datastore);
+
+        setDatastore(updatedDatastore);
+    };
+
+    const datastoreItems = formatDatastoreItems(datastore, [], true, [], []);
 
     if ((!datastore.folders || datastore.folders.filter((folder) => !folder["deleted"]).length === 0) && (!datastore.items || datastore.items.filter((item) => !item["deleted"]).length === 0)) {
         return (
@@ -55,80 +143,27 @@ const DatastoreTree = (props) => {
         );
     } else {
         return (
-            <div className={"tree"}>
-                {datastore.folders &&
-                    datastore.folders
-                        .sort(function(a, b){
-                            if (a.name.toLowerCase() < b.name.toLowerCase())
-                                return -1;
-                            if (a.name.toLowerCase() > b.name.toLowerCase())
-                                return 1;
-                            return 0;
-                        })
-                        .filter((folder) => !folder["hidden"] && !folder["deleted"])
-                        .map(function (content, i) {
-                            return (
-                                <DatastoreTreeFolder
-                                    isSelectable={props.isSelectable}
-                                    hideItems={props.hideItems}
-                                    onSelectItem={props.onSelectItem}
-                                    onSelectNode={props.onSelectNode}
-                                    onEditFolder={props.onEditFolder}
-                                    onEditEntry={props.onEditEntry}
-                                    onCloneEntry={props.onCloneEntry}
-                                    onDeleteEntry={props.onDeleteEntry}
-                                    onMoveEntry={props.onMoveEntry}
-                                    onDeleteFolder={props.onDeleteFolder}
-                                    onMoveFolder={props.onMoveFolder}
-                                    onLinkItem={props.onLinkItem}
-                                    onNewFolder={props.onNewFolder}
-                                    onNewUser={props.onNewUser}
-                                    onNewEntry={props.onNewEntry}
-                                    onNewShare={props.onNewShare}
-                                    onLinkShare={props.onLinkShare}
-                                    onRightsOverview={props.onRightsOverview}
-                                    key={i}
-                                    nodePath={[content]}
-                                    content={content}
-                                    offline={offline}
-                                    isExpandedDefault={Boolean(content["is_expanded"])}
-                                    deleteFolderLabel={props.deleteFolderLabel}
-                                    deleteItemLabel={props.deleteItemLabel}
-                                />
-                            );
-                        })}
-                {!props.hideItems &&
-                    datastore.items &&
-                    datastore.items
-                        .sort(function(a, b){
-                            if (a.name.toLowerCase() < b.name.toLowerCase())
-                                return -1;
-                            if (a.name.toLowerCase() > b.name.toLowerCase())
-                                return 1;
-                            return 0;
-                        })
-                        .filter((item) => !item["hidden"] && !item["deleted"])
-                        .map(function (content, i) {
-                            return (
-                                <DatastoreTreeItem
-                                    isSelectable={props.isSelectable}
-                                    onSelectItem={props.onSelectItem}
-                                    onEditEntry={props.onEditEntry}
-                                    onCloneEntry={props.onCloneEntry}
-                                    onDeleteEntry={props.onDeleteEntry}
-                                    onMoveEntry={props.onMoveEntry}
-                                    onLinkItem={props.onLinkItem}
-                                    onNewShare={props.onNewShare}
-                                    onLinkShare={props.onLinkShare}
-                                    onRightsOverview={props.onRightsOverview}
-                                    key={i}
-                                    nodePath={[content]}
-                                    content={content}
-                                    offline={offline}
-                                    deleteItemLabel={props.deleteItemLabel}
-                                />
-                            );
-                        })}
+            <div className={"tree"} style={{ height: 'calc(100vh - 200px)' }}>
+                <AutoSizer>
+                    {({ height, width }) => (
+                        <List
+                            itemCount={datastoreItems.length}
+                            itemSize={46}
+                            width={width}
+                            height={height}
+                            itemData={{
+                                props,
+                                offline,
+                                datastore,
+                                items: datastoreItems,
+                                getIsExpandedFolder,
+                                onUpdateExpandFolderProperty,
+                            }}
+                        >
+                            {DatastoreTreeVirtualElement}
+                        </List>
+                    )}
+                </AutoSizer>
             </div>
         );
     }
@@ -157,6 +192,7 @@ DatastoreTree.propTypes = {
     hideItems: PropTypes.bool,
     deleteFolderLabel: PropTypes.string.isRequired,
     deleteItemLabel: PropTypes.string.isRequired,
+    setDatastore: PropTypes.func.isRequired,
 };
 
 export default DatastoreTree;
