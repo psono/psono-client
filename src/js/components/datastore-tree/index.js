@@ -33,6 +33,8 @@ const DatastoreTree = (props) => {
     const offline = offlineCache.isActive();
 
     const getIsExpandedFolder = (folder) => {
+        if (folder.datastore_id) return true;
+
         return folder.expanded_temporary
             ? typeof folder.expanded === 'undefined' ? true : folder.expanded
             : folder.expanded;
