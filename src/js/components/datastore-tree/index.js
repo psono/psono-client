@@ -10,6 +10,7 @@ import AutoSizer from "react-virtualized-auto-sizer";
 import offlineCache from "../../services/offline-cache";
 import datastorePassword from "../../services/datastore-password";
 import DatastoreTreeVirtualElement from "./datastore-tree-virtual-element";
+import deviceService from "../../services/device";
 
 const useStyles = makeStyles((theme) => ({
     fullWidth: {
@@ -143,7 +144,7 @@ const DatastoreTree = (props) => {
         );
     } else {
         return (
-            <div className={"tree"} style={{ height: 'calc(100vh - 200px)' }}>
+            <div className={"tree"} style={{ height: deviceService.hasTitlebar() ? 'calc(100vh - 232px)' : 'calc(100vh - 200px)' }}>
                 <AutoSizer>
                     {({ height, width }) => (
                         <List

@@ -8,6 +8,9 @@ node_modules
 build/
 dist/
 doc/
+src/electron/out/
+src/electron/src/*
+!src/electron/src/.gitkeep
 test
 *~
 *.py[cod]

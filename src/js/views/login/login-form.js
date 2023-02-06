@@ -550,6 +550,9 @@ const LoginViewForm = (props) => {
                                     );
                                 }
                             });
+                        }, (result) => {
+                            setLoginLoading(false);
+                            console.log(result);
                         });
                     }
                 },
@@ -596,6 +599,9 @@ const LoginViewForm = (props) => {
                                     );
                                 }
                             });
+                        }, (result) => {
+                            setLoginLoading(false);
+                            console.log(result);
                         });
                     }
                 },

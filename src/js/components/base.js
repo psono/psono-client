@@ -4,6 +4,7 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import { makeStyles } from "@material-ui/core/styles";
 import Sidebar from "./sidebar";
 import Topbar from "./topbar";
+import deviceService from "../services/device";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -11,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
     },
     // necessary for content to be below app bar
     toolbar: {
-        minHeight: "50px",
+        minHeight: deviceService.hasTitlebar() ? "82px" : "50px",
     },
     fullContent: {
         flexGrow: 1,

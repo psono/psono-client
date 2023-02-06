@@ -16,9 +16,8 @@ import browserClient from "../../services/browser-client";
 import { useParams } from "react-router-dom";
 import DOMPurify from "dompurify";
 import offlineCacheService from "../../services/offline-cache";
-import datastorePasswordService from "../../services/datastore-password";
 import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
-import secret from "../../services/secret";
+import deviceService from "../../services/device";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -43,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
     },
     // necessary for content to be below app bar
     toolbar: {
-        minHeight: "50px",
+        minHeight: deviceService.hasTitlebar() ? "82px" : "50px",
     },
     fullContent: {
         flexGrow: 1,

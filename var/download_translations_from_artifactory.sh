@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-# poeditor language codes: https://poeditor.com/docs/languages
-apt-get update && \
-apt-get install -y curl && \
 curl -o src/common/data/translations/locale-da.json https://psono.jfrog.io/psono/psono/client/languages/locale-da.json && \
 curl -o src/common/data/translations/locale-ca.json https://psono.jfrog.io/psono/psono/client/languages/locale-ca.json && \
 curl -o src/common/data/translations/locale-sv.json https://psono.jfrog.io/psono/psono/client/languages/locale-sv.json && \

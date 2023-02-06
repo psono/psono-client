@@ -1,17 +1,20 @@
 import React from "react";
 import RegisterViewForm from "./register-form";
 import { useParams } from "react-router-dom";
+import FrameControls from "../../components/frame-controls";
 
 const RegisterView = (props) => {
     let { samlTokenId, oidcTokenId } = useParams();
-    return (
-        <div className={"registerbox dark"}>
-            <img src="img/logo.png" alt="Psono Web Client" id="logo" />
-            <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
-                <i className="fa fa-info-circle" aria-hidden="true" />
-            </a>
-            <RegisterViewForm samlTokenId={samlTokenId} oidcTokenId={oidcTokenId} />
-        </div>
+    return (<>
+            <FrameControls />
+            <div className={"registerbox dark"}>
+                <img src="img/logo.png" alt="Psono Web Client" id="logo" />
+                <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
+                    <i className="fa fa-info-circle" aria-hidden="true" />
+                </a>
+                <RegisterViewForm samlTokenId={samlTokenId} oidcTokenId={oidcTokenId} />
+            </div>
+        </>
     );
 };
 

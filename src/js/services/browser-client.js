@@ -59,6 +59,8 @@ function getClientType(url) {
         return "firefox_extension";
     } else if (TARGET === "chrome") {
         return "chrome_extension";
+    } else if (TARGET === "electron") {
+        return "electron";
     } else {
         return "webclient";
     }
@@ -88,6 +90,8 @@ function getSamlReturnToUrl() {
     } else if (TARGET === "chrome") {
         return 'https://psono.com/redirect#!/saml/token/'
         //return chrome.identity.getRedirectURL() + "data/index.html#!/saml/token/";
+    } else if (TARGET === "electron") {
+        return 'https://psono.com/redirect#!/saml/token/'
     } else {
         return window.location.href.split("#")[0].split("/").slice(0, -1).join("/") + "/index.html#!/saml/token/";
     }
@@ -105,6 +109,8 @@ function getOidcReturnToUrl() {
     } else if (TARGET === "chrome") {
         return 'https://psono.com/redirect#!/oidc/token/'
         //return chrome.identity.getRedirectURL() + "data/index.html#!/oidc/token/";
+    } else if (TARGET === "electron") {
+        return 'https://psono.com/redirect#!/oidc/token/'
     } else {
         return window.location.href.split("#")[0].split("/").slice(0, -1).join("/") + "/index.html#!/oidc/token/";
     }
@@ -425,6 +431,19 @@ function loadConfig() {
                 } else if (TARGET === "chrome") {
                     chrome.storage.managed.get("ConfigJson", onStorageRetrieve);
                 }
+            };
+        } else if (TARGET === "electron") {
+            onSuccess = async function (origJsonConfig) {
+                let newConfig = origJsonConfig.data;
+                const electronsConfigJson = await window.electronAPI.getConfigJson();
+                if (electronsConfigJson) {
+                    try {
+                        newConfig = JSON.parse(electronsConfigJson);
+                    } catch (e) {
+                        // pass
+                    }
+                }
+                return resolve(standardizeConfig(newConfig, "https://www.psono.pw/"));
             };
         } else {
             onSuccess = function (origJsonConfig) {
@@ -768,6 +787,10 @@ function notify(content) {
                 iconUrl: "img/icon-32.png",
             });
         });
+    } else if (TARGET === "electron") {
+        new Notification(content, {
+            silent: true,
+        })
     } else {
         const options = { silent: true };
         function sendNotification() {

@@ -356,3 +356,11 @@ p.horizontalline span {
         margin-left: -200%;
         width: 0;
         overflow: hidden; }
+
+.drag {
+  -webkit-user-select: none;
+  -webkit-app-region: drag;
+}
+.nodrag {
+  -webkit-app-region: no-drag;
+}
