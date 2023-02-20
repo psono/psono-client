@@ -812,6 +812,7 @@ const DialogEditEntry = (props) => {
                         }}
                         multiline
                         minRows={3}
+                        maxRows={32}
                     />
                 </Grid>
             )}
@@ -943,6 +944,7 @@ const DialogEditEntry = (props) => {
                         }}
                         multiline
                         minRows={3}
+                        maxRows={32}
                     />
                 </Grid>
             )}
@@ -1024,6 +1026,7 @@ const DialogEditEntry = (props) => {
                         }}
                         multiline
                         minRows={3}
+                        maxRows={32}
                     />
                 </Grid>
             )}
@@ -1064,6 +1067,7 @@ const DialogEditEntry = (props) => {
                         }}
                         multiline
                         minRows={3}
+                        maxRows={32}
                     />
                 </Grid>
             )}
@@ -1116,6 +1120,7 @@ const DialogEditEntry = (props) => {
                         }}
                         multiline
                         minRows={3}
+                        maxRows={32}
                     />
                 </Grid>
             )}
@@ -1238,6 +1243,7 @@ const DialogEditEntry = (props) => {
                         }}
                         multiline
                         minRows={3}
+                        maxRows={32}
                     />
                 </Grid>
             )}

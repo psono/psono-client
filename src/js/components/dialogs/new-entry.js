@@ -800,6 +800,7 @@ const DialogNewEntry = (props) => {
                                 }}
                                 multiline
                                 minRows={3}
+                                maxRows={32}
                             />
                         </Grid>
                     )}
@@ -922,6 +923,7 @@ const DialogNewEntry = (props) => {
                                 }}
                                 multiline
                                 minRows={3}
+                                maxRows={32}
                             />
                         </Grid>
                     )}
@@ -987,6 +989,7 @@ const DialogNewEntry = (props) => {
                                 }}
                                 multiline
                                 minRows={3}
+                                maxRows={32}
                             />
                         </Grid>
                     )}
@@ -1025,6 +1028,7 @@ const DialogNewEntry = (props) => {
                                 }}
                                 multiline
                                 minRows={3}
+                                maxRows={32}
                             />
                         </Grid>
                     )}
@@ -1181,6 +1185,7 @@ const DialogNewEntry = (props) => {
                                 }}
                                 multiline
                                 minRows={3}
+                                maxRows={32}
                             />
                         </Grid>
                     )}
@@ -1299,6 +1304,7 @@ const DialogNewEntry = (props) => {
                                 }}
                                 multiline
                                 minRows={3}
+                                maxRows={32}
                             />
                         </Grid>
                     )}

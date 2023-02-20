@@ -52,6 +52,7 @@ const DialogNewUser = (props) => {
     const [domain, setDomain] = useState("");
     const allowUserSearchByUsernamePartial = store.getState().server.allowUserSearchByUsernamePartial;
     const allowUserSearchByEmail = store.getState().server.allowUserSearchByEmail;
+    const serverUrl = store.getState().server.url;
     const [errors, setErrors] = useState([]);
     const [visualUsername, setVisualUsername] = useState("");
     const [foundUsername, setFoundUsername] = useState("");
@@ -73,7 +74,12 @@ const DialogNewUser = (props) => {
         if (!isSubscribed) {
             return;
         }
-        const domain = configJson["backend_servers"][0]["domain"];
+        let domain = configJson["backend_servers"][0]["domain"];
+
+        if (domain === 'psono.pw' && serverUrl !== 'https://www.psono.pw/server') {
+            domain = helperService.getDomainWithoutWww(serverUrl);
+        }
+
         setDomain(domain);
     };
 

@@ -2,7 +2,7 @@
   "PROVIDED_DOMAIN_NOT_ALLOWED_FOR_REGISTRATION": "The provided domain in your username is not allowed for the registration on this server.",
   "PERMISSIONS_TO_ACCESS_THIS_ENTRY_HAVE_BEEN_DENIED": "The permission to access this entry has been denied.",
   "CONFIGURE_MULTIPLE_ACCOUNTS_WITH_GRANT_PRIVILEGE": "Configure multiple accounts with admin privilege to be able to modify the permissions of the share in the case of a lost admin password or resigned administrator.",
-  "UPLOAD_FAILED": "Upload fehlgeschlagen.",
+  "UPLOAD_FAILED": "Upload failed.",
   "PARSER_NOT_FOUND": "Parser not found.",
   "FILE_FORMAT_WRONG": "File format wrong.",
   "DECRYPTION_OF_EXPORT_FAILED_WRONG_PASSWORD": "The decryption of the export failed. You most likely provided a wrong password.",

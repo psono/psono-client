@@ -12,6 +12,14 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
         return str;
     }
 
+    function stringToBase64 (str) {
+        return btoa(unescape(encodeURIComponent(str)));
+    }
+
+    function base64ToString (base64EncodedString) {
+        return decodeURIComponent(escape(atob(base64EncodedString)));
+    }
+
     // to implement gmx, web.de outlook.com, t-online, yahoo, hotmail
     var supported_hoster = [
         {
@@ -31,7 +39,7 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
                 // var direct_parent = jQuery(node).parent();
                 // var top_parent = direct_parent.parents('.gs').first();
                 // return top_parent.find("span.gD").data('hovercardId');
-                return [];
+                return "";
             },
             get_receiver: function (node) {
                 return [];
@@ -50,7 +58,7 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
                 return direct_parent.text();
             },
             get_sender: function (node) {
-                return [];
+                return "";
             },
             get_receiver: function (node) {
                 return [];
@@ -69,7 +77,7 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
                 return direct_parent.text();
             },
             get_sender: function (node) {
-                return [];
+                return "";
             },
             get_receiver: function (node) {
                 return [];
@@ -88,7 +96,7 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
                 return direct_parent.text();
             },
             get_sender: function (node) {
-                return [];
+                return "";
             },
             get_receiver: function (node) {
                 return [];
@@ -194,29 +202,32 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
             var pgp_content = hoster.get_pgp_content(node);
             var pgp_sender = hoster.get_sender(node);
 
+            var pgp_content_base64 = stringToBase64(pgp_content);
+            var pgp_sender_base64 = stringToBase64(pgp_sender);
+
             // Attach our element with the parsed information
             var element_id = "psono_pgp_reader-" + uuid.v4();
             var element = jQuery(
                 "" +
-                    '<div class="psono-pw-pgp-link yui3-cssreset">' +
-                    '    <div style="max-width: 150px">' +
-                    '        <img class="' +
-                    element_id +
-                    '" width="100%" data-pgp-content="' +
-                    pgp_content +
-                    '" data-pgp-sender="' +
-                    pgp_sender +
-                    '" src="' +
-                    browser.runtime.getURL("data/img/psono-decrypt.png") +
-                    '">' +
-                    "    </div>" +
-                    "</div>"
+                '<div class="psono-pw-pgp-link yui3-cssreset">' +
+                '    <div style="max-width: 150px">' +
+                '        <img class="' +
+                element_id +
+                '" width="100%" data-pgp-content="' +
+                pgp_content_base64 +
+                '" data-pgp-sender="' +
+                pgp_sender_base64 +
+                '" src="' +
+                browser.runtime.getURL("data/img/psono-decrypt.png") +
+                '">' +
+                "    </div>" +
+                "</div>"
             );
 
             var parent = node.parentElement.closest("div");
             element.prependTo(parent);
             jQuery(parent.getElementsByClassName(element_id)).on("click", function () {
-                decryptGPG(jQuery(this).attr("data-pgp-content"), jQuery(this).attr("data-pgp-sender"));
+                decryptGPG(base64ToString(jQuery(this).attr("data-pgp-content")), base64ToString(jQuery(this).attr("data-pgp-sender")));
             });
         }
     }
