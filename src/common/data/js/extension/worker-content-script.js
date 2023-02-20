@@ -4,8 +4,8 @@
 
 var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
     "use strict";
-    var website_passwords = [];
-    var last_request_element = null;
+    var websitePasswords = [];
+    var lastRequestElement = null;
     var dropInstances = [];
     var myForms = [];
 
@@ -63,6 +63,18 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
         for (var i = 0; i < document.forms.length; i++) {
             form_submit_catcher(document.forms[i]);
         }
+    }
+
+    /**
+     * Sanitizes some text and returns proper html escaped text
+     *
+     * @param unsaveText
+     * @returns {string}
+     */
+    function sanitizeText(unsaveText) {
+        var element = document.createElement('div');
+        element.innerText = unsaveText;
+        return element.innerHTML;
     }
 
     /**
@@ -363,33 +375,36 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      */
     function click(evt, target, document) {
         if (getDistance(evt, target) < 30) {
-            var open_datastore_class = "psono_open-datastore-" + uuid.v4();
-            var generate_password_class = "psono_generate-password-" + uuid.v4();
-            var request_secret_class = "psono_request-secret-" + uuid.v4();
+            var openDatastoreClass = "psono_open-datastore-" + uuid.v4();
+            var generatePasswordClass = "psono_generate-password-" + uuid.v4();
+            var requestSecretClasses = [];
 
             var dropcontent = "";
             dropcontent += '<div class="psono-pw-drop-content-inner">';
             dropcontent += '<ul class="navigations">';
             dropcontent +=
-                '<li><div class="' + open_datastore_class + '" style="cursor: pointer;">Open Datastore</div></li>';
-            if (website_passwords.length < 1) {
+                '<li><div class="' + openDatastoreClass + '" style="cursor: pointer;">Open Datastore</div></li>';
+            if (websitePasswords.length < 1) {
                 dropcontent +=
-                    '<li><div class="' + generate_password_class + '" style="cursor: pointer;">Generate Password</div></li>';
+                    '<li><div class="' + generatePasswordClass + '" style="cursor: pointer;">Generate Password</div></li>';
             }
-            for (var i = 0; i < website_passwords.length; i++) {
+            for (var i = 0; i < websitePasswords.length; i++) {
+
+                var sanitizedText = sanitizeText(websitePasswords[i].name)
+                var requestSecretClass = "psono_request-secret-" + uuid.v4();
+
                 dropcontent +=
                     '<li><div class="' +
-                    request_secret_class +
-                    '" style="cursor: pointer;" data-secret-id="' +
-                    website_passwords[i].secret_id +
-                    '">' +
-                    website_passwords[i].name +
+                    requestSecretClass +
+                    '" style="cursor: pointer;"">' +
+                    sanitizedText +
                     "</div></li>";
+                requestSecretClasses.push({'class': requestSecretClass, 'secret_id': websitePasswords[i].secret_id});
             }
             dropcontent += "</ul>";
             dropcontent += "</div>";
 
-            last_request_element = evt.target;
+            lastRequestElement = evt.target;
 
             var dropInstance = create_dropdown_menu(evt, dropcontent, document);
             dropInstance.open();
@@ -397,19 +412,24 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
             dropInstances.push(dropInstance);
 
             setTimeout(function () {
-                var element = dropInstance.get_element();
+                var element = dropInstance.getElement();
 
-                jQuery(element.getElementsByClassName(open_datastore_class)).on("click", function () {
+                jQuery(element.getElementsByClassName(openDatastoreClass)).on("click", function () {
                     open_datastore();
                 });
 
-                jQuery(element.getElementsByClassName(generate_password_class)).on("click", function () {
+                jQuery(element.getElementsByClassName(generatePasswordClass)).on("click", function () {
                     generate_password();
                 });
 
-                jQuery(element.getElementsByClassName(request_secret_class)).on("click", function () {
-                    requestSecret(jQuery(this).attr("data-secret-id"));
-                });
+                for (var i = 0; i < requestSecretClasses.length; i++) {
+                    (function(className, secretId) {
+                        jQuery(element.getElementsByClassName(className)).on("click", function () {
+                            requestSecret(secretId);
+                        });
+                    })(requestSecretClasses[i]['class'], requestSecretClasses[i]['secret_id'])
+
+                }
             }, 0);
         }
     }
@@ -462,14 +482,14 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
             element.remove();
         }
 
-        function get_element() {
+        function getElement() {
             return document.getElementById(element_id);
         }
 
         return {
             open: open,
             close: close,
-            get_element: get_element,
+            getElement: getElement,
         };
     }
     // Messaging functions below
@@ -522,7 +542,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * @param sendResponse
      */
     function on_website_password_update(data, sender, sendResponse) {
-        website_passwords = data;
+        websitePasswords = data;
     }
 
     /**
@@ -568,8 +588,8 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
 
         for (var i = 0; i < myForms.length; i++) {
             if (
-                (myForms[i].username && myForms[i].username.isEqualNode(last_request_element)) ||
-                (myForms[i].password && myForms[i].password.isEqualNode(last_request_element))
+                (myForms[i].username && myForms[i].username.isEqualNode(lastRequestElement)) ||
+                (myForms[i].password && myForms[i].password.isEqualNode(lastRequestElement))
             ) {
                 fill_field_helper(myForms[i].username, data.website_password_username);
                 fill_field_helper(myForms[i].password, data.website_password_password);
