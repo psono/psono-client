@@ -11,6 +11,7 @@ curl -fL https://getcli.jfrog.io | sh && \
 ./jfrog rt dl psono/client/$CI_COMMIT_REF_NAME/psono.x86_64.rpm --flat && \
 ./jfrog rt dl psono/client/$CI_COMMIT_REF_NAME/psono.amd64.deb --flat && \
 ./jfrog rt dl psono/client/$CI_COMMIT_REF_NAME/psono.x86_64.exe --flat && \
+./jfrog rt dl psono/client/$CI_COMMIT_REF_NAME/psono.x86_64.msi --flat && \
 ./jfrog rt dl psono/client/$CI_COMMIT_REF_NAME/psono.dmg --flat && \
 ./jfrog rt dl psono/client/$CI_COMMIT_REF_NAME/firefox-extension.zip --flat && \
 ./jfrog rt dl psono/client/$CI_COMMIT_REF_NAME/chrome-extension.zip --flat && \
@@ -18,6 +19,7 @@ curl -fL https://getcli.jfrog.io | sh && \
 gsutil cp psono.x86_64.rpm gs://get.psono.com/$CI_PROJECT_PATH/nightly/psono.x86_64.rpm && \
 gsutil cp psono.amd64.deb gs://get.psono.com/$CI_PROJECT_PATH/nightly/psono.amd64.deb && \
 gsutil cp psono.x86_64.exe gs://get.psono.com/$CI_PROJECT_PATH/nightly/psono.x86_64.exe && \
+gsutil cp psono.x86_64.msi gs://get.psono.com/$CI_PROJECT_PATH/nightly/psono.x86_64.msi && \
 gsutil cp psono.x86_64.dmg gs://get.psono.com/$CI_PROJECT_PATH/nightly/psono.x86_64.dmg && \
 gsutil cp firefox-extension.zip gs://get.psono.com/$CI_PROJECT_PATH/nightly/firefox-extension.zip && \
 gsutil cp chrome-extension.zip gs://get.psono.com/$CI_PROJECT_PATH/nightly/chrome-extension.zip && \

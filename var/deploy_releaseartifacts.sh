@@ -17,6 +17,7 @@ curl -fL https://getcli.jfrog.io | sh && \
 gsutil cp psono.x86_64.rpm gs://get.psono.com/$CI_PROJECT_PATH/latest/psono.x86_64.rpm && \
 gsutil cp psono.amd64.deb gs://get.psono.com/$CI_PROJECT_PATH/latest/psono.amd64.deb && \
 gsutil cp psono.x86_64.exe gs://get.psono.com/$CI_PROJECT_PATH/latest/psono.x86_64.exe && \
+gsutil cp psono.x86_64.msi gs://get.psono.com/$CI_PROJECT_PATH/latest/psono.x86_64.msi && \
 gsutil cp psono.dmg gs://get.psono.com/$CI_PROJECT_PATH/latest/psono.dmg && \
 gsutil cp firefox-extension.zip gs://get.psono.com/$CI_PROJECT_PATH/latest/firefox-extension.zip && \
 gsutil cp chrome-extension.zip gs://get.psono.com/$CI_PROJECT_PATH/latest/chrome-extension.zip && \
@@ -24,6 +25,7 @@ gsutil cp webclient.zip gs://get.psono.com/$CI_PROJECT_PATH/latest/webclient.zip
 gsutil cp psono.x86_64.rpm gs://get.psono.com/$CI_PROJECT_PATH/$CI_COMMIT_REF_NAME/psono.x86_64.rpm && \
 gsutil cp psono.amd64.deb gs://get.psono.com/$CI_PROJECT_PATH/$CI_COMMIT_REF_NAME/psono.amd64.deb && \
 gsutil cp psono.x86_64.exe gs://get.psono.com/$CI_PROJECT_PATH/$CI_COMMIT_REF_NAME/psono.x86_64.exe && \
+gsutil cp psono.x86_64.msi gs://get.psono.com/$CI_PROJECT_PATH/$CI_COMMIT_REF_NAME/psono.x86_64.msi && \
 gsutil cp psono.dmg gs://get.psono.com/$CI_PROJECT_PATH/$CI_COMMIT_REF_NAME/psono.dmg && \
 gsutil cp firefox-extension.zip gs://get.psono.com/$CI_PROJECT_PATH/$CI_COMMIT_REF_NAME/firefox-extension.zip && \
 gsutil cp chrome-extension.zip gs://get.psono.com/$CI_PROJECT_PATH/$CI_COMMIT_REF_NAME/chrome-extension.zip && \

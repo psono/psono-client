@@ -18,17 +18,28 @@ module.exports = {
         authors: 'esaqa GmbH',
         iconUrl: 'https://static.esaqa.com/assets/psono256x256.ico',
         setupIcon: 'images/icon.ico',
+        certificateFile: './cert.pfx',
+        certificatePassword: process.env.WINDOWS_SIGNING_CERTIFICATE_PASSWORD
       },
     },
-    // {
-    //   name: '@electron-forge/maker-wix',
-    //   config: {
-    //     language: 1033,
-    //     name: 'Psono',
-    //     upgradeCode: '9bfa6820-f37f-42f6-9977-369f8970366f',
-    //     manufacturer: 'esaqa GmbH'
-    //   }
-    // },
+    {
+      name: '@electron-forge/maker-wix',
+      config: {
+        language: 1033,
+        name: 'Psono',
+        upgradeCode: '9bfa6820-f37f-42f6-9977-369f8970366f',
+        manufacturer: 'esaqa GmbH',
+        certificateFile: './cert.pfx',
+        features: {
+          autoUpdate: true,
+          autoLaunch: true,
+        },
+        ui: {
+          chooseDirectory: true,
+        },
+        certificatePassword: process.env.WINDOWS_SIGNING_CERTIFICATE_PASSWORD
+      }
+    },
     {
       name: '@electron-forge/maker-zip',
       platforms: ['darwin'],
@@ -68,8 +79,7 @@ module.exports = {
         repository: {
           owner: 'psono',
           name: 'psono-client'
-        },
-        prerelease: true
+        }
       }
     }
   ]
