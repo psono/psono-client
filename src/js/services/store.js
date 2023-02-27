@@ -53,12 +53,28 @@ const migrations = {
             },
         }
     },
+    2: (state) => {
+        return {
+            ...state,
+            server: {
+                ...state.server,
+                disableCallbacks: true,
+                allowedFileRepositoryTypes: [
+                    'azure_blob',
+                    'gcp_cloud_storage',
+                    'aws_s3',
+                    'do_spaces',
+                    'backblaze',
+                ],
+            },
+        }
+    },
 }
 
 const persistConfig = {
     key: "client",
     blacklist: ['transient'],
-    version: 1,
+    version: 2,
     storage,
     debug: false,
     migrate: createMigrate(migrations, { debug: false }),

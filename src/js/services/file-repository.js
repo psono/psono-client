@@ -134,7 +134,7 @@ function deleteFileRepositoryRight(fileRepositoryRightId) {
  * @returns {*[]}
  */
 function getPossibleTypes() {
-    return [
+    const fileRepositoryTypes = [
         { value: "aws_s3", title: "AWS S3" },
         { value: "azure_blob", title: "Azure Blob Storage" },
         // Backblaze reported (May 11, 2020, 4:11:19 PM PDT):
@@ -143,7 +143,17 @@ function getPossibleTypes() {
         { value: "gcp_cloud_storage", title: "GCP Cloud Storage" },
         { value: "do_spaces", title: "Digital Ocean Spaces" },
         { value: "other_s3", title: "Other S3 compatible storage" },
-    ];
+    ]
+
+    const allowedFileRepositoryTypes = store.getState().server.allowedFileRepositoryTypes
+
+    for (let i = fileRepositoryTypes.length - 1; i >= 0; i--) {
+        if (!allowedFileRepositoryTypes.includes(fileRepositoryTypes[i]['value'])) {
+            fileRepositoryTypes.splice(i, 1);
+        }
+    }
+
+    return fileRepositoryTypes;
 }
 
 /**
