@@ -365,6 +365,7 @@ const DialogEditEntry = (props) => {
                 setEnvironmentVariablesTitle("");
             }
             if (data.hasOwnProperty("environment_variables_variables")) {
+                data["environment_variables_variables"].sort((a, b) => (a["key"].toLowerCase() > b["key"].toLowerCase()) ? 1 : -1)
                 setEnvironmentVariablesVariables(data["environment_variables_variables"]);
             } else {
                 setEnvironmentVariablesVariables([]);
