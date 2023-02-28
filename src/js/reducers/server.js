@@ -224,8 +224,8 @@ function server(
                 version: action.info.version,
                 webClient: action.info.web_client,
 
-                disableCallbacks: action.info.disable_callbacks,
-                allowedFileRepositoryTypes: action.info.allowed_file_repository_types,
+                disableCallbacks: typeof(action.info.disable_callbacks) === "undefined" ? defaultDisableCallbacks : action.info.disable_callbacks,
+                allowedFileRepositoryTypes: typeof(action.info.allowed_file_repository_types) === "undefined" ? defaultAllowedFileRepositoryTypes : action.info.allowed_file_repository_types,
                 disableCentralSecurityReports: action.info.disable_central_security_reports,
                 multifactorEnabled: action.info.multifactor_enabled,
                 systemWideDuoExists: action.info.system_wide_duo_exists,
