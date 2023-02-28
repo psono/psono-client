@@ -25,7 +25,7 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
         {
             name: "gmail",
             domain_filter: function () {
-                return window.location.href.toLowerCase().indexOf("mail.google.com") !== -1;
+                return window.location.host.toLowerCase() === "mail.google.com";
             },
             get_pgp_content: function (node) {
                 var direct_parent = jQuery(node).parent();
@@ -51,7 +51,7 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
         {
             name: "livecom",
             domain_filter: function () {
-                return window.location.href.toLowerCase().indexOf("outlook.live.com") !== -1;
+                return window.location.host.toLowerCase() === "outlook.live.com";
             },
             get_pgp_content: function (node) {
                 var direct_parent = jQuery(node).parent();
@@ -70,7 +70,7 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
         {
             name: "outlookoffice365com",
             domain_filter: function () {
-                return window.location.href.toLowerCase().indexOf("outlook.office365.com") !== -1;
+                return window.location.host.toLowerCase() === "outlook.office365.com";
             },
             get_pgp_content: function (node) {
                 var direct_parent = jQuery(node).parent();
@@ -89,7 +89,7 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
         {
             name: "yahoo",
             domain_filter: function () {
-                return window.location.href.toLowerCase().indexOf("mail.yahoo.com") !== -1;
+                return window.location.host.toLowerCase() === "mail.yahoo.com";
             },
             get_pgp_content: function (node) {
                 var direct_parent = jQuery(node).parent();
