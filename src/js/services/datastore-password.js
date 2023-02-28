@@ -1149,11 +1149,11 @@ function onShareAdded(shareId, path, datastore, distance) {
     if (typeof parent_share.share_index === "undefined") {
         parent_share.share_index = {};
     }
-
+    let share;
     // add the the entry for the share in the share_index if not yet exists
     if (typeof parent_share.share_index[shareId] === "undefined") {
         const search = findInDatastore(path_copy2, datastore);
-        const share = search[0][search[1]];
+        share = search[0][search[1]];
 
         parent_share.share_index[shareId] = {
             paths: [],
