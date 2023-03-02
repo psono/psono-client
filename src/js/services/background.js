@@ -74,7 +74,7 @@ function activate() {
             }
 
             browser.tabs.create({
-                url: "https://www.psono.pw/register.html",
+                url: "/data/index.html",
             });
         });
     }
