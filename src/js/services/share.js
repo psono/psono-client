@@ -141,6 +141,7 @@ function createShare(content, parentShareId, parentDatastoreId, linkId) {
         if (filtered_content.hasOwnProperty("file_id")) {
             fileLinkService.moveFileLink(old_link_id, content.data.share_id);
         } else {
+            fileLinkService.resetFileLinkTimeout();
             fileLinkService.moveFileLinks(filtered_content, content.data.share_id);
         }
 

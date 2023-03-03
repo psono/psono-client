@@ -21,10 +21,10 @@ let timeout = 0;
 function moveSecretLinks(datastore, newParentShareId, newParentDatastoreId) {
     let i;
 
-    function move_secret_link_timed(link_id, new_parent_share_id, new_parent_datastore_id) {
+    function moveSecretLinkTimed(linkId, newParentShareId, newParentDatastoreId) {
         timeout = timeout + 50;
         setTimeout(function () {
-            moveSecretLink(link_id, new_parent_share_id, new_parent_datastore_id);
+            moveSecretLink(linkId, newParentShareId, newParentDatastoreId);
         }, timeout);
     }
 
@@ -41,12 +41,12 @@ function moveSecretLinks(datastore, newParentShareId, newParentDatastoreId) {
         if (datastore["items"][i].hasOwnProperty("share_id")) {
             continue;
         }
-        move_secret_link_timed(datastore["items"][i]["id"], newParentShareId, newParentDatastoreId);
+        moveSecretLinkTimed(datastore["items"][i]["id"], newParentShareId, newParentDatastoreId);
     }
 }
 
 /**
- * Resets the timeout for secret links. need to be called before running move_secret_links
+ * Resets the timeout for secret links. need to be called before running moveSecretLinks
  */
 function resetSecretLinkTimeout() {
     timeout = 0;

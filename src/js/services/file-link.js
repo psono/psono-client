@@ -5,6 +5,7 @@
 import apiClient from "../services/api-client";
 import store from "./store";
 
+let timeout = 0;
 /**
  * Searches a datastore object and moves all links to the
  *
@@ -16,14 +17,33 @@ import store from "./store";
  */
 function moveFileLinks(datastore, newParentShareId, newParentDatastoreId) {
     let i;
+    function moveFileLinkTimed(linkId, newParentShareId, newParentDatastoreId) {
+        timeout = timeout + 50;
+        setTimeout(function () {
+            moveFileLink(linkId, newParentShareId, newParentDatastoreId);
+        }, timeout);
+    }
     for (i = 0; datastore.hasOwnProperty("folders") && i < datastore["folders"].length; i++) {
+        if (datastore["folders"][i].hasOwnProperty("share_id")) {
+            continue;
+        }
         moveFileLinks(datastore["folders"][i], newParentShareId, newParentDatastoreId);
     }
     for (i = 0; datastore.hasOwnProperty("items") && i < datastore["items"].length; i++) {
+        if (datastore["items"][i].hasOwnProperty("share_id")) {
+            continue;
+        }
         if (datastore["items"][i].hasOwnProperty("file_id")) {
-            moveFileLink(datastore["items"][i]["id"], newParentShareId, newParentDatastoreId);
+            moveFileLinkTimed(datastore["items"][i]["id"], newParentShareId, newParentDatastoreId);
         }
     }
+}
+
+/**
+ * Resets the timeout for file links. need to be called before running moveFileLinks
+ */
+function resetFileLinkTimeout() {
+    timeout = 0;
 }
 
 /**
@@ -110,6 +130,7 @@ function onFileDeleted(linkId) {
 
 const fileLinkService = {
     moveFileLinks: moveFileLinks,
+    resetFileLinkTimeout: resetFileLinkTimeout,
     moveFileLink: moveFileLink,
     deleteFileLink: deleteFileLink,
     onFileMoved: onFileMoved,
