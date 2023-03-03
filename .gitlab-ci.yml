@@ -451,6 +451,9 @@ deploy-firefox:
   stage: deploy
   image: psono-docker.jfrog.io/ubuntu:22.04
   script:
+    - apt-get update && apt-get install -y zip
+    - zip -r ../source.zip ./
+    - mv ../source.zip ./
     - sh ./var/prep-build.sh
     - npm run buildfirefox
     - sh ./var/deploy-firefox-extension.sh
