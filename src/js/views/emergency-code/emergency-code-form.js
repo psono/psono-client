@@ -86,7 +86,7 @@ const EmergencyCodeViewForm = (props) => {
         setAllowCustomServer(allowCustomServer);
     };
 
-    const arm = (localEmergencyCode) => {
+    const arm = (localEmergencyCode, serverCheck) => {
         let parsedUrl = helperService.parseUrl(server);
         let fullUsername = helperService.formFullUsername(username, domain || parsedUrl["full_domain_without_www"]);
 
@@ -125,7 +125,7 @@ const EmergencyCodeViewForm = (props) => {
 
     const approveHost = () => {
         host.approveHost(serverCheck.server_url, serverCheck.verify_key);
-        arm(emergencyCode);
+        arm(emergencyCode, serverCheck);
     };
 
     const approveNewServer = () => {
@@ -182,7 +182,7 @@ const EmergencyCodeViewForm = (props) => {
                 return;
             }
 
-            arm(localEmergencyCode);
+            arm(localEmergencyCode, serverCheck);
         };
         host.checkHost(server).then(onSuccess, onError);
     };
