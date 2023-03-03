@@ -60,7 +60,7 @@ const LinkShareAccessView = (props) => {
     const [view, setView] = useState("default");
     const [errors, setErrors] = useState([]);
     const creditBuyAddress = store.getState().server.credit_buy_address;
-    let { linkShareId, linkShareSecret, backendServerUrl } = useParams();
+    let { linkShareId, linkShareSecret, backendServerUrl, verifyKey } = useParams();
 
     const [editEntryOpen, setEditEntryOpen] = useState(false);
     const [editEntryData, setEditEntryData] = useState({});
@@ -121,7 +121,7 @@ const LinkShareAccessView = (props) => {
             }
             return linkShareAccess();
         };
-        hostService.checkHost(serverUrl).then(onSuccess, onError);
+        hostService.checkHost(serverUrl, verifyKey).then(onSuccess, onError);
     }
     function linkShareAccess() {
         setErrors([]);

@@ -102,7 +102,9 @@ const DialogCreateLinkShare = (props) => {
                         "/" +
                         linkShareSecret +
                         "/" +
-                        encodedServerUrl
+                        encodedServerUrl +
+                        "/" +
+                        store.getState().server.verifyKey
                 );
             });
         };
