@@ -13,7 +13,6 @@ import DeleteSweepIcon from "@material-ui/icons/DeleteSweep";
 import IconButton from "@material-ui/core/IconButton";
 import MenuOpenIcon from "@material-ui/icons/MenuOpen";
 import Divider from "@material-ui/core/Divider";
-import MuiAlert from "@material-ui/lab/Alert";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import Grid from "@material-ui/core/Grid";
@@ -47,6 +46,7 @@ import offlineCacheService from "../../services/offline-cache";
 import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
 import DialogSelectFolder from "../../components/dialogs/select-folder";
 import AlertSecurityReport from "../../components/alert/security-report";
+import DialogProgress from "../../components/dialogs/progress";
 import widgetService from "../../services/widget";
 import Search from "../../components/search";
 
@@ -127,6 +127,7 @@ const useStyles = makeStyles((theme) => ({
 const DatastoreView = (props) => {
     const { width } = props;
     let { defaultSearch, secretType, secretId } = useParams();
+    const [shareMoveProgress, setShareMoveProgress] = React.useState(0);
     const serverStatus = useSelector((state) => state.server.status);
     const offlineMode = useSelector((state) => state.client.offlineMode);
     const passwordDatastore = useSelector((state) => state.user.userDatastoreOverview?.datastores?.find(datastore => datastore.type === 'password' && datastore.is_default));
@@ -180,6 +181,19 @@ const DatastoreView = (props) => {
     React.useEffect(() => {
         loadDatastore();
     }, [passwordDatastore]);
+
+    const shareMoveProgressDialogOpen = shareMoveProgress !== 0 && shareMoveProgress !== 100;
+    let openShareMoveRequests = 0;
+    let closedShareMoveRequests = 0;
+
+    const onOpenShareMoveRequest = () => {
+        openShareMoveRequests = openShareMoveRequests + 1;
+        setShareMoveProgress(Math.round((closedShareMoveRequests / openShareMoveRequests) * 1000) / 10);
+    }
+    const onCloseShareMoveRequest = () => {
+        closedShareMoveRequests = closedShareMoveRequests + 1;
+        setShareMoveProgress(Math.round((closedShareMoveRequests / openShareMoveRequests) * 1000) / 10);
+    }
 
     const loadDatastore = () => {
         if (offlineCacheService.isActive() && offlineCacheService.isLocked()) {
@@ -409,7 +423,7 @@ const DatastoreView = (props) => {
 
                 // create the share
                 shareService
-                    .createShare(newShareData.node, parent_share_id, parent_datastore_id, newShareData.node.id)
+                    .createShare(newShareData.node, parent_share_id, parent_datastore_id, newShareData.node.id, onOpenShareMoveRequest, onCloseShareMoveRequest)
                     .then(function (share_details) {
                         const item_path = newShareData.path.slice();
                         const item_path_copy = newShareData.path.slice();
@@ -686,7 +700,6 @@ const DatastoreView = (props) => {
             mouseY: null,
         });
     };
-
     return (
         <Base {...props}>
             <BaseTitle>{t("DATASTORE")}</BaseTitle>
@@ -938,6 +951,11 @@ const DatastoreView = (props) => {
                         </Grid>
                     )}
                 </Grid>
+
+                {shareMoveProgressDialogOpen && (
+                    <DialogProgress percentageComplete={shareMoveProgress} open={shareMoveProgressDialogOpen}/>
+                )}
+
             </BaseContent>
         </Base>
     );

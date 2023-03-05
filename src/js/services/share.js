@@ -101,10 +101,12 @@ function writeShare(shareId, content, secretKey) {
  * @param {uuid|undefined} [parentShareId] (optional) The parent share's id
  * @param {uuid|undefined} [parentDatastoreId] (optional) The parent datastore's id
  * @param {uuid} linkId The link id in the parent
+ * @param {function|undefined} [onOpenRequest] (optional) callback function that is called whenever a request to the backend is fired
+ * @param {function|undefined} [onClosedRequest] (optional) callback function that is called whenever a request to the backend finishes
  *
  * @returns {Promise} Returns a promise with the status and the new share id
  */
-function createShare(content, parentShareId, parentDatastoreId, linkId) {
+function createShare(content, parentShareId, parentDatastoreId, linkId, onOpenRequest, onClosedRequest) {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
 
@@ -135,14 +137,14 @@ function createShare(content, parentShareId, parentDatastoreId, linkId) {
             secretLinkService.moveSecretLink(old_link_id, content.data.share_id);
         } else {
             secretLinkService.resetSecretLinkTimeout();
-            secretLinkService.moveSecretLinks(filtered_content, content.data.share_id);
+            secretLinkService.moveSecretLinks(filtered_content, content.data.share_id, undefined, onOpenRequest, onClosedRequest);
         }
 
         if (filtered_content.hasOwnProperty("file_id")) {
             fileLinkService.moveFileLink(old_link_id, content.data.share_id);
         } else {
             fileLinkService.resetFileLinkTimeout();
-            fileLinkService.moveFileLinks(filtered_content, content.data.share_id);
+            fileLinkService.moveFileLinks(filtered_content, content.data.share_id, undefined, onOpenRequest, onClosedRequest);
         }
 
         // Update all child shares to be now a child of this share.

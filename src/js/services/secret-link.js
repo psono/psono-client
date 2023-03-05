@@ -15,16 +15,21 @@ let timeout = 0;
  * @param {object} datastore The datastore object
  * @param {uuid|undefined} [newParentShareId=null] (optional) New parent share ID, necessary if no new_parent_datastore_id is provided
  * @param {uuid|undefined} [newParentDatastoreId=null] (optional) New datastore ID, necessary if no new_parent_share_id is provided
+ * @param {function|undefined} [onOpenRequest] (optional) callback function that is called whenever a request to the backend is fired
+ * @param {function|undefined} [onClosedRequest] (optional) callback function that is called whenever a request to the backend finishes
  *
  * @returns {Promise} Returns promise with the status of the move
  */
-function moveSecretLinks(datastore, newParentShareId, newParentDatastoreId) {
+function moveSecretLinks(datastore, newParentShareId, newParentDatastoreId, onOpenRequest, onClosedRequest) {
     let i;
 
     function moveSecretLinkTimed(linkId, newParentShareId, newParentDatastoreId) {
+        if (onOpenRequest) {
+            onOpenRequest();
+        }
         timeout = timeout + 50;
         setTimeout(function () {
-            moveSecretLink(linkId, newParentShareId, newParentDatastoreId);
+            moveSecretLink(linkId, newParentShareId, newParentDatastoreId, undefined, onClosedRequest);
         }, timeout);
     }
 
@@ -32,7 +37,7 @@ function moveSecretLinks(datastore, newParentShareId, newParentDatastoreId) {
         if (datastore["folders"][i].hasOwnProperty("share_id")) {
             continue;
         }
-        moveSecretLinks(datastore["folders"][i], newParentShareId, newParentDatastoreId);
+        moveSecretLinks(datastore["folders"][i], newParentShareId, newParentDatastoreId, onOpenRequest, onClosedRequest);
     }
     for (i = 0; datastore.hasOwnProperty("items") && i < datastore["items"].length; i++) {
         if (!datastore["items"][i].hasOwnProperty("secret_id")) {
@@ -58,19 +63,29 @@ function resetSecretLinkTimeout() {
  * @param {uuid} linkId The id of the link that should be moved
  * @param {uuid|undefined} [newParentShareId=null] (optional) New parent share ID, necessary if no newParentDatastoreId is provided
  * @param {uuid|undefined} [newParentDatastoreId=null] (optional) New datastore ID, necessary if no newParentShareId is provided
+ * @param {function|undefined} [onOpenRequest] (optional) callback function that is called whenever a request to the backend is fired
+ * @param {function|undefined} [onClosedRequest] (optional) callback function that is called whenever a request to the backend finishes
  *
  * @returns {Promise} Returns promise with the status of the move
  */
-function moveSecretLink(linkId, newParentShareId, newParentDatastoreId) {
+function moveSecretLink(linkId, newParentShareId, newParentDatastoreId, onOpenRequest, onClosedRequest) {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
 
+    if (onOpenRequest) {
+        onOpenRequest()
+    }
+
     const onError = function (result) {
-        // pass
+        if (onClosedRequest) {
+            onClosedRequest()
+        }
     };
 
     const onSuccess = function (content) {
-        // pass
+        if (onClosedRequest) {
+            onClosedRequest()
+        }
     };
 
     return apiClientService
