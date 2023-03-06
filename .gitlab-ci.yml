@@ -494,7 +494,7 @@ deploy-nightlyartifacts:
 deploy-releaseartifacts:
   except:
     - schedules
-  stage: release
+  stage: deploy
   image: psono-docker.jfrog.io/ubuntu:22.04
   script:
     - sh ./var/deploy_releaseartifacts.sh
