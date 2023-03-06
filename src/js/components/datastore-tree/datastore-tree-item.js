@@ -66,7 +66,7 @@ const DatastoreTreeItem = (props) => {
 
     const onLinkShare = (event) => {
         handleClose(event);
-        if (content.hasOwnProperty("share_rights") && content.share_rights.grant === false) {
+        if (content.hasOwnProperty("share_rights") && content.share_rights.read === false) {
             return;
         }
         return props.onLinkShare(content, content.path, props.nodePath);
@@ -139,7 +139,7 @@ const DatastoreTreeItem = (props) => {
     const hideLinkShare =
         offline ||
         !content.hasOwnProperty("type") ||
-        (content.hasOwnProperty("share_rights") && content.share_rights.grant === false) ||
+        (content.hasOwnProperty("share_rights") && content.share_rights.read === false) ||
         store.getState().server.complianceDisableLinkShares ||
         content.type === "user" ||
         !props.onLinkShare;

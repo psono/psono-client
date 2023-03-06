@@ -94,10 +94,11 @@ function info() {
  * Validates the signature of the server and compares it to known hosts.
  *
  * @param {String} server The server url
+ * @param {String} [preApprovedVerifyKey] A preapproved verify key
  *
  * @returns {Promise} Result of the check
  */
-function checkHost(server) {
+function checkHost(server, preApprovedVerifyKey) {
     const onSuccess = function (response) {
         let checkResult;
         const data = response.data;
@@ -118,7 +119,7 @@ function checkHost(server) {
 
         checkResult = checkKnownHosts(serverUrl, data["verify_key"]);
 
-        if (checkResult["status"] === "matched") {
+        if (checkResult["status"] === "matched" || (preApprovedVerifyKey && preApprovedVerifyKey === data["verify_key"])) {
             return {
                 server_url: serverUrl,
                 status: "matched",

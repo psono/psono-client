@@ -43,6 +43,7 @@ import DialogEncryptGpgMessage from "./encrypt-gpg-message";
 import DialogHistory from "./history";
 import notification from "../../services/notification";
 import cryptoLibrary from "../../services/crypto-library";
+import store from "../../services/store";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -174,7 +175,8 @@ const DialogEditEntry = (props) => {
 
     const itemBlueprint = itemBlueprintService.getEntryTypes().find((entryType) => entryType.value === item.type);
     const hasHistory = !hideShowHistory && ["file"].indexOf(item.type) === -1; // only files have no history
-    const hasCallback = ["file"].indexOf(item.type) === -1; // only files have no callbacks
+    const hasCallback = ["file"].indexOf(item.type) === -1 &&  // files have no callbacks
+        !store.getState().server.disableCallbacks;
     const showGeneratePassword = item.share_rights && item.share_rights.write;
     const isValidWebsitePassword = Boolean(websitePasswordTitle);
     const isValidApplicationPassword = Boolean(applicationPasswordTitle);
@@ -363,6 +365,7 @@ const DialogEditEntry = (props) => {
                 setEnvironmentVariablesTitle("");
             }
             if (data.hasOwnProperty("environment_variables_variables")) {
+                data["environment_variables_variables"].sort((a, b) => (a["key"].toLowerCase() > b["key"].toLowerCase()) ? 1 : -1)
                 setEnvironmentVariablesVariables(data["environment_variables_variables"]);
             } else {
                 setEnvironmentVariablesVariables([]);

@@ -27,6 +27,8 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import { Link } from "react-router-dom";
 
+import FrameControls from "./frame-controls";
+
 import store from "../services/store";
 import user from "../services/user";
 import offlineCache from "../services/offline-cache";
@@ -151,6 +153,7 @@ const Topbar = (props) => {
 
     return (
         <AppBar position="fixed" className={classes.appBar}>
+            <FrameControls />
             <Container maxWidth="lg">
                 <Toolbar
                     disableGutters={true}
@@ -265,11 +268,11 @@ const Topbar = (props) => {
                                 open={Boolean(anchorTopMenuEl)}
                                 onClose={closeTopMenu}
                                 anchorOrigin={{
-                                    vertical: "top",
+                                    vertical: "bottom",
                                     horizontal: "right",
                                 }}
                                 transformOrigin={{
-                                    vertical: "bottom",
+                                    vertical: "top",
                                     horizontal: "right",
                                 }}
                             >

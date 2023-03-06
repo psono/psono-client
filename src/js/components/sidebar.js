@@ -24,6 +24,7 @@ import PropTypes from "prop-types";
 
 import RuleIcon from "./icons/Rule";
 import browserClient from "../services/browser-client";
+import deviceService from "../services/device";
 
 const drawerWidth = 240;
 
@@ -37,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
     },
     // necessary for content to be below app bar
     toolbar: {
-        minHeight: "50px",
+        minHeight: deviceService.hasTitlebar() ? "82px" : "50px",
     },
     drawerPaper: {
         width: drawerWidth,

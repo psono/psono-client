@@ -28,6 +28,51 @@ function getDeviceFingerprint() {
 }
 
 /**
+ * Returns weather we are supposed to show a title bar
+ *
+ * @returns {boolean} Is this an electron app
+ */
+function hasTitlebar() {
+    return isElectron() && (isWindows() || isMac());
+}
+
+/**
+ * Returns weather we have an electron app
+ *
+ * @returns {boolean} Is this an electron app
+ */
+function isElectron() {
+    return TARGET === 'electron';
+}
+
+/**
+ * Returns weather we have a windows machine
+ *
+ * @returns {boolean} Is this a windows device
+ */
+function isWindows() {
+    return clientJs.isWindows()
+}
+
+/**
+ * Returns weather we have a mac
+ *
+ * @returns {boolean} Is this a mac device
+ */
+function isMac() {
+    return clientJs.isMac()
+}
+
+/**
+ * Returns weather we have a linux device
+ *
+ * @returns {boolean} Is this a linux device
+ */
+function isLinux() {
+    return clientJs.isLinux()
+}
+
+/**
  * Returns weather we have an android device or not
  *
  * @returns {boolean} Is this an android device
@@ -111,6 +156,11 @@ function getDeviceDescription() {
 
 const deviceService = {
     getDeviceFingerprint: getDeviceFingerprint,
+    hasTitlebar: hasTitlebar,
+    isElectron: isElectron,
+    isWindows: isWindows,
+    isLinux: isLinux,
+    isMac: isMac,
     isMobileAndroid: isMobileAndroid,
     isMobileIos: isMobileIos,
     isMobile: isMobile,

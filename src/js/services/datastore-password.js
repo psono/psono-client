@@ -44,7 +44,6 @@ function isStrongEnough(password) {
         passwordLettersLowercase = '',
         passwordNumbers = '',
         passwordSpecialChars = '',
-        sexy = '',
     } = store.getState().settingsDatastore;
 
     const uc = password.match(
@@ -111,19 +110,47 @@ function generatePassword(length, allowedCharacters) {
 }
 
 /**
+ *
  * Main function to generate a random password based on the specified settings.
+ *
+ * @param [passwordLength]
+ * @param [passwordLettersUppercase]
+ * @param [passwordLettersLowercase]
+ * @param [passwordNumbers]
+ * @param [passwordSpecialChars]
  *
  * @returns {string} Returns the generated random password
  */
-function generate() {
+function generate(passwordLength, passwordLettersUppercase, passwordLettersLowercase, passwordNumbers, passwordSpecialChars) {
     let password = "";
+
+    if (typeof(passwordLength) === "undefined") {
+        passwordLength = store.getState().settingsDatastore.passwordLength
+    }
+
+    if (typeof(passwordLettersUppercase) === "undefined") {
+        passwordLettersUppercase = store.getState().settingsDatastore.passwordLettersUppercase
+    }
+
+    if (typeof(passwordLettersLowercase) === "undefined") {
+        passwordLettersLowercase = store.getState().settingsDatastore.passwordLettersLowercase
+    }
+
+    if (typeof(passwordNumbers) === "undefined") {
+        passwordNumbers = store.getState().settingsDatastore.passwordNumbers
+    }
+
+    if (typeof(passwordSpecialChars) === "undefined") {
+        passwordSpecialChars = store.getState().settingsDatastore.passwordSpecialChars
+    }
+
     while (!isStrongEnough(password)) {
         password = generatePassword(
-            store.getState().settingsDatastore.passwordLength,
-            store.getState().settingsDatastore.passwordLettersUppercase +
-                store.getState().settingsDatastore.passwordLettersLowercase +
-                store.getState().settingsDatastore.passwordNumbers +
-                store.getState().settingsDatastore.passwordSpecialChars
+            passwordLength,
+            passwordLettersUppercase +
+            passwordLettersLowercase +
+            passwordNumbers +
+            passwordSpecialChars
         );
     }
     return password;
@@ -1122,11 +1149,11 @@ function onShareAdded(shareId, path, datastore, distance) {
     if (typeof parent_share.share_index === "undefined") {
         parent_share.share_index = {};
     }
-
+    let share;
     // add the the entry for the share in the share_index if not yet exists
     if (typeof parent_share.share_index[shareId] === "undefined") {
         const search = findInDatastore(path_copy2, datastore);
-        const share = search[0][search[1]];
+        share = search[0][search[1]];
 
         parent_share.share_index[shareId] = {
             paths: [],
@@ -1643,6 +1670,7 @@ function collapseFoldersRecursive(obj) {
 shareService.register("get_all_child_shares", getAllChildShares);
 
 const datastorePasswordService = {
+    generatePassword: generatePassword,
     generate: generate,
     escapeRegExp: escapeRegExp,
     getPasswordDatastore: getPasswordDatastore,

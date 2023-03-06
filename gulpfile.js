@@ -68,7 +68,20 @@ gulp.task('firefox-deploy', function(cb) {
         algorithm: 'HS256'  // HMAC-SHA256 signing algorithm
     });
 
-    run('curl "https://addons.mozilla.org/api/v3/addons/'+mozilla_addon_id+'/versions/'+ version +'/" -g -XPUT --form "upload=@firefox-extension.zip" -H "Authorization: JWT '+ token +'"').exec();
+    run('curl "https://addons.mozilla.org/api/v4/addons/'+mozilla_addon_id+'/versions/'+ version +'/" -g -XPUT -F "upload=@firefox-extension.zip" -H "Authorization: JWT '+ token +'"').exec();
+
+    issuedAt = Math.floor(Date.now() / 1000);
+    payload = {
+        iss: jwt_issuer,
+        jti: Math.random().toString(),
+        iat: issuedAt,
+        exp: issuedAt + 60
+    };
+    token = jwt.sign(payload, jwt_secret, {
+        algorithm: 'HS256'  // HMAC-SHA256 signing algorithm
+    });
+
+    run('curl "https://addons.mozilla.org/api/v5/addons/addon/'+mozilla_addon_id+'/versions/'+ version +'/" -g -XPATCH -F "source=@source.zip" -F "license=Apache-2.0" -H "Authorization: JWT '+ token +'"').exec();
 
     cb();
 });

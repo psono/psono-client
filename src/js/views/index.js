@@ -87,6 +87,9 @@ const IndexView = (props) => {
     } else if (pathname.endsWith("/link-share-access.html")) {
         return (
             <Switch>
+                <Route path="/link-share-access/:linkShareId/:linkShareSecret/:backendServerUrl/:verifyKey">
+                    <LinkShareAccessView {...props} />
+                </Route>
                 <Route path="/link-share-access/:linkShareId/:linkShareSecret/:backendServerUrl">
                     <LinkShareAccessView {...props} />
                 </Route>

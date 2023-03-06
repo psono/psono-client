@@ -24,6 +24,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import DialogGpgAddressBook from "../../components/dialogs/gpg-address-book";
 import { BarLoader } from "react-spinners";
 import { useParams } from "react-router-dom";
+import deviceService from "../../services/device";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -48,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
     },
     // necessary for content to be below app bar
     toolbar: {
-        minHeight: "50px",
+        minHeight: deviceService.hasTitlebar() ? "82px" : "50px",
     },
     fullContent: {
         flexGrow: 1,

@@ -11,6 +11,7 @@
     "buildchrome": "webpack --config webpack.environment.prod.chrome.js",
     "buildfirefox": "webpack --config webpack.environment.prod.firefox.js",
     "buildwebclient": "webpack --config webpack.environment.prod.webclient.js",
+    "buildelectron": "webpack --config webpack.environment.prod.electron.js",
     "buildsw": "node ./src/build-service-worker.js",
     "test": "jest --detectOpenHandles --forceExit"
   },

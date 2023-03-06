@@ -550,6 +550,9 @@ const LoginViewForm = (props) => {
                                     );
                                 }
                             });
+                        }, (result) => {
+                            setLoginLoading(false);
+                            console.log(result);
                         });
                     }
                 },
@@ -596,6 +599,9 @@ const LoginViewForm = (props) => {
                                     );
                                 }
                             });
+                        }, (result) => {
+                            setLoginLoading(false);
+                            console.log(result);
                         });
                     }
                 },
@@ -648,6 +654,9 @@ const LoginViewForm = (props) => {
                     if (result.hasOwnProperty("errors")) {
                         setLoginLoading(false);
                         setErrors(result.errors);
+                    } else if (result.hasOwnProperty("data") && result.data.hasOwnProperty("non_field_errors")) {
+                        setLoginLoading(false);
+                        setErrors(result.data.non_field_errors);
                     } else {
                         console.log(result);
                         setLoginLoading(false);

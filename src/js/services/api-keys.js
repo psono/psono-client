@@ -259,25 +259,6 @@ function deleteApiKeySecret(apiKeySecretId) {
     return apiClient.deleteApiKeySecret(token, sessionSecretKey, apiKeySecretId).then(onSuccess, onError);
 }
 
-/**
- * Returns weather the server allows the api keys feature or not
- * By default it will return false (indicate enabled api keys)
- */
-function apiKeysDisabled() {
-    return store.getState().server.complianceDisableApiKeys;
-}
-
-/**
- * Returns the currents server url and public key
- */
-function getServerParameter() {
-    return {
-        url: storage.find_key("config", "server")["value"]["url"],
-        public_key: storage.find_key("config", "server_info")["value"]["public_key"],
-        signature: storage.find_key("config", "server_verify_key").value,
-    };
-}
-
 const apiKeysService = {
     readApiKey: readApiKey,
     readApiKeys: readApiKeys,
@@ -288,7 +269,5 @@ const apiKeysService = {
     addSecretsToApiKey: addSecretsToApiKey,
     addSecretToApiKey: addSecretToApiKey,
     deleteApiKeySecret: deleteApiKeySecret,
-    apiKeysDisabled: apiKeysDisabled,
-    getServerParameter: getServerParameter,
 };
 export default apiKeysService;

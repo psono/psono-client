@@ -17,6 +17,21 @@ const decryptData = function (sessionSecretKey, data, req) {
         sessionSecretKey &&
         data !== null &&
         data.hasOwnProperty("data") &&
+        data.data !== "" &&
+        (
+            !data.data.hasOwnProperty("text") ||
+            !data.data.hasOwnProperty("nonce")
+        )
+    ) {
+        // we expected an encrypted response, yet the response was unencrypted, so we don't trust it.
+        console.log("UNENCRYPTED_RESPONSE_RECEIVED", data.data)
+        throw new Error("UNENCRYPTED_RESPONSE_RECEIVED");
+    }
+    if (
+        sessionSecretKey &&
+        data !== null &&
+        data.hasOwnProperty("data") &&
+        data.data !== "" &&
         data.data.hasOwnProperty("text") &&
         data.data.hasOwnProperty("nonce")
     ) {
@@ -69,7 +84,15 @@ function call(method, endpoint, data, headers, sessionSecretKey) {
 
         return new Promise((resolve, reject) => {
             const onSuccess = function (data) {
-                return resolve(decryptData(sessionSecretKey, data, req));
+                let decryptedData
+                try {
+                    decryptedData = decryptData(sessionSecretKey, data, req)
+                } catch(e){
+                    user.logout(i18n.t("UNENCRYPTED_RESPONSE_RECEIVED"));
+                    return reject({ errors: ["UNENCRYPTED_RESPONSE_RECEIVED"] })
+                }
+
+                return resolve(decryptedData);
             };
 
             const onError = function (error) {
@@ -95,11 +118,19 @@ function call(method, endpoint, data, headers, sessionSecretKey) {
                     }
                     if (error.response.status >= 500) {
                         if (error.response.statusText) {
-                            return reject(decryptData(sessionSecretKey, error.response.statusText, req));
+                            return reject(error.response.statusText);
                         }
                         return reject({ errors: ["SERVER_OFFLINE"] });
                     }
-                    return reject(decryptData(sessionSecretKey, error.response, req));
+                    
+                    let decryptedData
+                    try {
+                        decryptedData = decryptData(sessionSecretKey, error.response, req)
+                    } catch(e){
+                        user.logout(i18n.t("UNENCRYPTED_RESPONSE_RECEIVED"));
+                        return reject({ errors: ["UNENCRYPTED_RESPONSE_RECEIVED"] })
+                    }
+                    return reject(decryptedData);
                 } else if (error.request) {
                     // The request was made but no response was received
                     // `error.request` is an instance of XMLHttpRequest in the browser and an instance of

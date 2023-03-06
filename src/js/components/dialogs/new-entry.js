@@ -44,6 +44,7 @@ import DialogGenerateNewGpgKey from "./generate-new-gpg-key";
 import DialogImportGpgKeyAsText from "./import-gpg-key-as-text";
 import SelectFieldFileDestination from "../select-field/file-destination";
 import GridContainerErrors from "../grid-container-errors";
+import store from "../../services/store";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -172,7 +173,8 @@ const DialogNewEntry = (props) => {
 
     const [type, setType] = useState("website_password");
 
-    const hasCallback = ["file"].indexOf(type) === -1; // only files have no callbacks
+    const hasCallback = ["file"].indexOf(type) === -1 &&  // files have no callbacks
+        !store.getState().server.disableCallbacks;
 
     const isValidWebsitePassword = Boolean(websitePasswordTitle);
     const isValidApplicationPassword = Boolean(applicationPasswordTitle);

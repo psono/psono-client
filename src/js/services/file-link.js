@@ -5,25 +5,48 @@
 import apiClient from "../services/api-client";
 import store from "./store";
 
+let timeout = 0;
 /**
  * Searches a datastore object and moves all links to the
  *
  * @param {object} datastore The datastore object
  * @param {uuid|undefined} [newParentShareId=null] (optional) New parent share ID, necessary if no newParentDatastoreId is provided
  * @param {uuid|undefined} [newParentDatastoreId=null] (optional) New datastore ID, necessary if no newParentShareId is provided
+ * @param {function|undefined} [onOpenRequest] (optional) callback function that is called whenever a request to the backend is fired
+ * @param {function|undefined} [onClosedRequest] (optional) callback function that is called whenever a request to the backend finishes
  *
  * @returns {Promise} Returns promise with the status of the move
  */
-function moveFileLinks(datastore, newParentShareId, newParentDatastoreId) {
+function moveFileLinks(datastore, newParentShareId, newParentDatastoreId, onOpenRequest, onClosedRequest) {
     let i;
+    function moveFileLinkTimed(linkId, newParentShareId, newParentDatastoreId) {
+        onOpenRequest()
+        timeout = timeout + 50;
+        setTimeout(function () {
+            moveFileLink(linkId, newParentShareId, newParentDatastoreId, undefined, onClosedRequest);
+        }, timeout);
+    }
     for (i = 0; datastore.hasOwnProperty("folders") && i < datastore["folders"].length; i++) {
-        moveFileLinks(datastore["folders"][i], newParentShareId, newParentDatastoreId);
+        if (datastore["folders"][i].hasOwnProperty("share_id")) {
+            continue;
+        }
+        moveFileLinks(datastore["folders"][i], newParentShareId, newParentDatastoreId, onOpenRequest, onClosedRequest);
     }
     for (i = 0; datastore.hasOwnProperty("items") && i < datastore["items"].length; i++) {
+        if (datastore["items"][i].hasOwnProperty("share_id")) {
+            continue;
+        }
         if (datastore["items"][i].hasOwnProperty("file_id")) {
-            moveFileLink(datastore["items"][i]["id"], newParentShareId, newParentDatastoreId);
+            moveFileLinkTimed(datastore["items"][i]["id"], newParentShareId, newParentDatastoreId);
         }
     }
+}
+
+/**
+ * Resets the timeout for file links. need to be called before running moveFileLinks
+ */
+function resetFileLinkTimeout() {
+    timeout = 0;
 }
 
 /**
@@ -32,18 +55,29 @@ function moveFileLinks(datastore, newParentShareId, newParentDatastoreId) {
  * @param {uuid} linkId The id of the link that should be moved
  * @param {uuid|undefined} [newParentShareId=null] (optional) New parent share ID, necessary if no newParentDatastoreId is provided
  * @param {uuid|undefined} [newParentDatastoreId=null] (optional) New datastore ID, necessary if no newParentShareId is provided
+ * @param {function|undefined} [onOpenRequest] (optional) callback function that is called whenever a request to the backend is fired
+ * @param {function|undefined} [onClosedRequest] (optional) callback function that is called whenever a request to the backend finishes
  *
  * @returns {Promise} Returns promise with the status of the move
  */
-function moveFileLink(linkId, newParentShareId, newParentDatastoreId) {
+function moveFileLink(linkId, newParentShareId, newParentDatastoreId, onOpenRequest, onClosedRequest) {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
+
+    if (onOpenRequest) {
+        onOpenRequest()
+    }
+
     const onError = function (result) {
-        // pass
+        if (onClosedRequest) {
+            onClosedRequest()
+        }
     };
 
     const onSuccess = function (content) {
-        // pass
+        if (onClosedRequest) {
+            onClosedRequest()
+        }
     };
 
     return apiClient
@@ -110,6 +144,7 @@ function onFileDeleted(linkId) {
 
 const fileLinkService = {
     moveFileLinks: moveFileLinks,
+    resetFileLinkTimeout: resetFileLinkTimeout,
     moveFileLink: moveFileLink,
     deleteFileLink: deleteFileLink,
     onFileMoved: onFileMoved,

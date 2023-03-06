@@ -45,6 +45,14 @@ const defaultPublicKey = "";
 const defaultVersion = "";
 const defaultWebClient = "";
 const defaultDisableCentralSecurityReports = false;
+const defaultDisableCallbacks = true;
+const defaultAllowedFileRepositoryTypes = [
+    'azure_blob',
+    'gcp_cloud_storage',
+    'aws_s3',
+    'do_spaces',
+    'backblaze',
+];
 const defaultMultifactorEnabled = false;
 const defaultSystemWideDuoExists = false;
 const defaultVerifyKey = "";
@@ -97,6 +105,8 @@ function server(
         version: defaultVersion,
         webClient: defaultWebClient,
         disableCentralSecurityReports: defaultDisableCentralSecurityReports,
+        disableCallbacks: defaultDisableCallbacks,
+        allowedFileRepositoryTypes: defaultAllowedFileRepositoryTypes,
         multifactorEnabled: defaultMultifactorEnabled,
         systemWideDuoExists: defaultSystemWideDuoExists,
         verifyKey: defaultVerifyKey,
@@ -156,6 +166,8 @@ function server(
                 version: defaultVersion,
                 webClient: defaultWebClient,
                 disableCentralSecurityReports: defaultDisableCentralSecurityReports,
+                disableCallbacks: defaultDisableCallbacks,
+                allowedFileRepositoryTypes: defaultAllowedFileRepositoryTypes,
                 multifactorEnabled: defaultMultifactorEnabled,
                 systemWideDuoExists: defaultSystemWideDuoExists,
                 verifyKey: defaultVerifyKey,
@@ -212,6 +224,8 @@ function server(
                 version: action.info.version,
                 webClient: action.info.web_client,
 
+                disableCallbacks: typeof(action.info.disable_callbacks) === "undefined" ? defaultDisableCallbacks : action.info.disable_callbacks,
+                allowedFileRepositoryTypes: typeof(action.info.allowed_file_repository_types) === "undefined" ? defaultAllowedFileRepositoryTypes : action.info.allowed_file_repository_types,
                 disableCentralSecurityReports: action.info.disable_central_security_reports,
                 multifactorEnabled: action.info.multifactor_enabled,
                 systemWideDuoExists: action.info.system_wide_duo_exists,
