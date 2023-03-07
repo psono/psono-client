@@ -378,10 +378,10 @@ function hasSpecialCharacter(some_string) {
  */
 function isValidPassword(password, password2, min_length, min_complexity) {
     if (typeof min_length === "undefined") {
-        min_length = 12;
+        min_length = 14;
     }
     if (typeof min_complexity === "undefined") {
-        min_complexity = 0;
+        min_complexity = 2;
     }
 
     if (password.length < min_length) {
