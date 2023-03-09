@@ -6,5 +6,4 @@ apt-get install -y nodejs && \
 node --version && \
 npm --version && \
 npm ci && \
-npm install -g node-poeditor && \
-npm install -g add gulp
+npm install -g node-poeditor

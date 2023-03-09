@@ -12,6 +12,8 @@
     "buildfirefox": "webpack --config webpack.environment.prod.firefox.js",
     "buildwebclient": "webpack --config webpack.environment.prod.webclient.js",
     "buildelectron": "webpack --config webpack.environment.prod.electron.js",
+    "deployfirefox": "node ./var/firefox_deploy.js",
+    "deploychrome": "node ./var/chrome_deploy.js",
     "buildsw": "node ./src/build-service-worker.js",
     "test": "jest --detectOpenHandles --forceExit"
   },
@@ -78,8 +80,6 @@
     "babel-jest": "^27.3.1",
     "babel-preset-react-app": "^10.0.1",
     "copy-webpack-plugin": "^9.0.1",
-    "gulp": "*",
-    "gulp-run": "^1.7.1",
     "jest": "^27.3.1",
     "jest-environment-jsdom": "^27.3.1",
     "json-post-process-webpack-plugin": "^2.0.4",
