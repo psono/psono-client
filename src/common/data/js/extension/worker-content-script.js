@@ -328,7 +328,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
     function find_username() {
         var username = '';
         for (var i = 0; i < myForms.length; i++) {
-            if (!myForms[i].username.value) {
+            if (!myForms[i].username || !myForms[i].username.value) {
                 continue
             }
             username = myForms[i].username.value;
