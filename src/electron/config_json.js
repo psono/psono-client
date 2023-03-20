@@ -1,5 +1,8 @@
 const fs = require("fs");
-const windows = require("windows");
+let windows
+if (process.platform === "win32") {
+    windows = require("windows");
+}
 
 let config;
 

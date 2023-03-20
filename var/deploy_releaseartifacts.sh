@@ -10,6 +10,8 @@ curl -fL https://getcli.jfrog.io | sh && \
 ./jfrog config add rt-server-1 --artifactory-url=https://psono.jfrog.io/psono --user=gitlab --password=$artifactory_credentials --interactive=false && \
 ./jfrog rt dl psono/client/$CI_COMMIT_REF_NAME/psono.x86_64.rpm --flat && \
 ./jfrog rt dl psono/client/$CI_COMMIT_REF_NAME/psono.amd64.deb --flat && \
+./jfrog rt dl psono/client/$CI_COMMIT_REF_NAME/psono.x86_64.exe --flat && \
+./jfrog rt dl psono/client/$CI_COMMIT_REF_NAME/psono.x86_64.msi --flat && \
 ./jfrog rt dl psono/client/$CI_COMMIT_REF_NAME/psono.dmg --flat && \
 ./jfrog rt dl psono/client/$CI_COMMIT_REF_NAME/firefox-extension.zip --flat && \
 ./jfrog rt dl psono/client/$CI_COMMIT_REF_NAME/chrome-extension.zip --flat && \

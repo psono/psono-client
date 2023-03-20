@@ -273,8 +273,16 @@ describe('Service: helper test suite', function() {
         expect(full_username).toEqual(username);
     });
 
+    it('isValidPassword_successful', function() {
+        const password1 = 'ab123456789012';
+
+        const is_valid = helperService.isValidPassword(password1, password1);
+
+        expect(is_valid).toEqual(null);
+    });
+
     it('isValidPassword_too_short', function() {
-        const password1 = '12345678901';
+        const password1 = 'a2345678901';
 
         const is_valid = helperService.isValidPassword(password1, password1);
 
@@ -282,11 +290,20 @@ describe('Service: helper test suite', function() {
     });
 
     it('isValidPassword_no_match', function() {
-        const password1 = '123456789012';
-        const password2 = '123456789013';
+        const password1 = 'a2345678901234';
+        const password2 = 'b2345678901235';
 
         const is_valid = helperService.isValidPassword(password1, password2);
 
         expect(is_valid).toEqual("PASSWORDS_DONT_MATCH");
+    });
+
+    it('isValidPassword_not_complex_enough', function() {
+        const password1 = '12345678901234';
+        const password2 = '12345678901234';
+
+        const is_valid = helperService.isValidPassword(password1, password2);
+
+        expect(is_valid).toEqual("PASSWORD_NOT_COMPLEX_ENOUGH");
     });
 });
