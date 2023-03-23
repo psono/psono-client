@@ -234,11 +234,15 @@ function transformToTotpCode(item) {
         totp_title = item["name"] + ' TOTP';
     }
     if (item.hasOwnProperty("login") && item["login"] !== null && item["login"].hasOwnProperty("totp") && item["login"]["totp"] !== null) {
-        let parsedTotp = OTPAuth.URI.parse(item["login"]["totp"]);
-        totp_period = parsedTotp.period;
-        totp_algorithm = parsedTotp.algorithm;
-        totp_digits = parsedTotp.digits;
-        totp_code = parsedTotp.secret.base32;
+        try {
+            let parsedTotp = OTPAuth.URI.parse(item["login"]["totp"]);
+            totp_period = parsedTotp.period;
+            totp_algorithm = parsedTotp.algorithm;
+            totp_digits = parsedTotp.digits;
+            totp_code = parsedTotp.secret.base32;
+        } catch (e) {
+            // pass. Bitwarden is not enforcing an URL schema so people can actually store whatever they want here :(
+        }
     }
     
     return {
