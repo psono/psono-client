@@ -221,10 +221,10 @@ build-electron-windows:
   tags:
     - windows
 
-upload-electron-gcp:
+release-electron-jfrog:
   except:
     - schedules
-  stage: deploy
+  stage: release
   image: psono-docker.jfrog.io/ubuntu:22.04
   dependencies:
     - build-electron-linux
