@@ -80,6 +80,7 @@ function filterDatastoreExport(folder, includeTrashBinItems) {
     const unwanted_folder_properties = [
         "id",
         "datastore_id",
+        "is_folder",
         "parent_datastore_id",
         "share_index",
         "parent_share_id",
@@ -92,6 +93,7 @@ function filterDatastoreExport(folder, includeTrashBinItems) {
     const unwanted_item_properties = [
         "id",
         "datastore_id",
+        "is_folder",
         "parent_datastore_id",
         "parent_share_id",
         "secret_id",
