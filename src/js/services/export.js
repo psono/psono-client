@@ -140,13 +140,6 @@ function filterDatastoreExport(folder, includeTrashBinItems) {
         }
     }
 
-    // Delete folder attribute if its empty
-    if (folder.hasOwnProperty("folders")) {
-        if (folder["folders"].length === 0) {
-            delete folder["folders"];
-        }
-    }
-
     // Delete folders that have been marked as deleted if includeTrashBinItems is not set
     if (folder.hasOwnProperty("folders")) {
         if (!includeTrashBinItems) {
@@ -157,7 +150,15 @@ function filterDatastoreExport(folder, includeTrashBinItems) {
             }
         }
     }
-    // folder folders recursive
+
+    // Delete folder attribute if its empty
+    if (folder.hasOwnProperty("folders")) {
+        if (folder["folders"].length === 0) {
+            delete folder["folders"];
+        }
+    }
+
+    // filter folders recursive
     if (folder.hasOwnProperty("folders")) {
         for (i = folder["folders"].length - 1; i >= 0; i--) {
             folder["folders"][i] = filterDatastoreExport(folder["folders"][i]);
