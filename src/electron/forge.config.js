@@ -18,7 +18,7 @@ module.exports = {
         authors: 'esaqa GmbH',
         iconUrl: 'https://static.esaqa.com/assets/psono256x256.ico',
         setupIcon: 'images/icon.ico',
-        certificateFile: './cert.pfx',
+        certificateFile: '../cert.pfx',
         certificatePassword: process.env.WINDOWS_SIGNING_CERTIFICATE_PASSWORD
       },
     },
@@ -29,7 +29,7 @@ module.exports = {
         name: 'Psono',
         upgradeCode: '9bfa6820-f37f-42f6-9977-369f8970366f',
         manufacturer: 'esaqa GmbH',
-        certificateFile: './cert.pfx',
+        certificateFile: '../cert.pfx',
         features: {
           autoUpdate: true,
           autoLaunch: true,
