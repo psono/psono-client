@@ -1,8 +1,8 @@
 const fs = require("fs");
-let windows
-if (process.platform === "win32") {
-    windows = require("windows");
-}
+// let windows
+// if (process.platform === "win32") {
+//     windows = require("windows");
+// }
 
 let config;
 
@@ -10,13 +10,18 @@ function getConfigJsonWindows() {
     if ( typeof config !== 'undefined') {
         return config
     }
-    try {
-        keyset = windows.registry('HKLM\\SOFTWARE\\Policies\\Google\\Chrome\\3rdparty\\extensions\\eljmjmgjkbmpmfljlmklcfineebidmlo\\policy')
-        config = keyset.ConfigJson.value
-    } catch (e) {
-        config = null;
-    }
+    // TODO implement logic for Windows. The npm package "windows" has a lot of quirks.
     return config;
+    // if ( typeof config !== 'undefined') {
+    //     return config
+    // }
+    // try {
+    //     keyset = windows.registry('HKLM\\SOFTWARE\\Policies\\Google\\Chrome\\3rdparty\\extensions\\eljmjmgjkbmpmfljlmklcfineebidmlo\\policy')
+    //     config = keyset.ConfigJson.value
+    // } catch (e) {
+    //     config = null;
+    // }
+    // return config;
 }
 
 function getConfigJsonLinux() {
