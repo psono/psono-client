@@ -62,10 +62,17 @@ const createWindow = () => {
   const {session: {webRequest}} = mainWindow.webContents;
 
   mainWindow.webContents.on('will-navigate', function(e, url) {
-    if (url.startsWith('http')) {
+    if (url.startsWith('http://') || url.startsWith('https://')) {
       e.preventDefault();
       shell.openExternal(url);
     }
+  });
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      shell.openExternal(url);
+      return { action: 'deny' };
+    }
+    return { action: 'allow' };
   });
 
   webRequest.onBeforeRequest({
