@@ -31,7 +31,7 @@ test-linter:
   script:
     - sh ./var/prep-build.sh
     - npm run buildfirefox
-    - npm install -g addons-linter@1.17.0
+    - npm install -g addons-linter@6.1.0
     - cat ./build/firefox/manifest.json
     - addons-linter --help
     - addons-linter ./build/firefox
