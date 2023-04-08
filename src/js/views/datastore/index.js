@@ -592,7 +592,9 @@ const DatastoreView = (props) => {
             moveFolderData.path,
             breadcrumbs["id_breadcrumbs"],
             "folders",
-            "password"
+            "password",
+            onOpenShareMoveRequest,
+            onCloseShareMoveRequest
         );
         setMoveFolderData(null);
         loadDatastore();
