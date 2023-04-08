@@ -40,7 +40,7 @@ describe('Service: helper test suite', function() {
         ).toBeTruthy()
     });
 
-    it('urlfilter should match subdomains', () => {
+    it('urlfilter shouldn not match subdomains', () => {
         const filter = backgroundService.getSearchWebsitePasswordsByUrlfilter('https://abc.example.com/url-part/#is-not-part')
         const leaf = {
             type: "website_password",
@@ -48,10 +48,10 @@ describe('Service: helper test suite', function() {
         }
         return expect(
             filter(leaf)
-        ).toBeTruthy()
+        ).toBeFalsy()
     });
 
-    it('urlfilter should match subdomains (including www.)', () => {
+    it('urlfilter should not match subdomains (including www.)', () => {
         const filter = backgroundService.getSearchWebsitePasswordsByUrlfilter('https://www.example.com/url-part/#is-not-part')
         const leaf = {
             type: "website_password",
@@ -59,14 +59,14 @@ describe('Service: helper test suite', function() {
         }
         return expect(
             filter(leaf)
-        ).toBeTruthy()
+        ).toBeFalsy()
     });
 
     it('urlfilter with multiple domains', () => {
         const filter = backgroundService.getSearchWebsitePasswordsByUrlfilter('https://www.example.com/url-part/#is-not-part')
         const leaf = {
             type: "website_password",
-            urlfilter: "example.com, narf.com",
+            urlfilter: "www.example.com, narf.com",
         }
         return expect(
             filter(leaf)

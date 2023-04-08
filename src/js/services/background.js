@@ -237,10 +237,7 @@ function onReady(request, sender, sendResponse) {
             if (fillpassword[i].url_filter) {
                 const urlFilters = fillpassword[i].url_filter.split(/\s+|,|;/);
                 for (let i = 0; i < urlFilters.length; i++) {
-                    if (!urlFilters[i]) {
-                        continue;
-                    }
-                    if (helper.endsWith(parsedUrl.authority, urlFilters[i])) {
+                    if (helper.isUrlFilterMatch(parsedUrl.authority, urlFilters[i])) {
                         fillpassword[i].submit = parsedUrl.scheme === "https";
                         sentResponse = true;
                         sendResponse({ event: "fillpassword", data: fillpassword[i] });
@@ -430,10 +427,7 @@ const getSearchWebsitePasswordsByUrlfilter = function (url, onlyAutoSubmit) {
         if (leaf.urlfilter) {
             const urlFilters = leaf.urlfilter.split(/\s+|,|;/);
             for (let i = 0; i < urlFilters.length; i++) {
-                if (!urlFilters[i]) {
-                    continue;
-                }
-                if (!helper.endsWith(parsedUrl.authority, urlFilters[i])) {
+                if (!helper.isUrlFilterMatch(parsedUrl.authority, urlFilters[i])) {
                     continue;
                 }
                 return !onlyAutoSubmit || (leaf.hasOwnProperty("autosubmit") && leaf["autosubmit"]);
