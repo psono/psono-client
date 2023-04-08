@@ -155,6 +155,10 @@ const DialogEditEntry = (props) => {
 
     const [fileTitle, setFileTitle] = useState("");
 
+    const [sshOwnKeyTitle, setSshOwnKeyTitle] = useState("");
+    const [sshOwnKeyPublic, setSshOwnKeyPublic] = useState("");
+    const [sshOwnKeyPrivate, setSshOwnKeyPrivate] = useState("");
+
     const [mailGpgOwnKeyTitle, setMailGpgOwnKeyTitle] = useState("");
     const [mailGpgOwnKeyEmail, setMailGpgOwnKeyEmail] = useState("");
     const [mailGpgOwnKeyName, setMailGpgOwnKeyName] = useState("");
@@ -190,6 +194,10 @@ const DialogEditEntry = (props) => {
         Boolean(mailGpgOwnKeyName) &&
         Boolean(mailGpgOwnKeyPublic) &&
         Boolean(mailGpgOwnKeyPrivate);
+    const isValidSshOwnKey =
+        Boolean(sshOwnKeyTitle) &&
+        Boolean(sshOwnKeyPublic) &&
+        Boolean(sshOwnKeyPrivate);
     const isValidFile = Boolean(fileTitle);
     const canSave =
         (item.type === "website_password" && isValidWebsitePassword) ||
@@ -198,6 +206,7 @@ const DialogEditEntry = (props) => {
         (item.type === "note" && isValidNote) ||
         (item.type === "totp" && isValidTotp) ||
         (item.type === "environment_variables" && isValidEnvironmentVariables) ||
+        (item.type === "ssh_own_key" && isValidSshOwnKey) ||
         (item.type === "mail_gpg_own_key" && isValidMailGpgOwnKey) ||
         (item.type === "file" && isValidFile);
 
@@ -383,6 +392,23 @@ const DialogEditEntry = (props) => {
                 setFileTitle("");
             }
 
+            // ssh_own_key
+            if (data.hasOwnProperty("ssh_own_key_title")) {
+                setSshOwnKeyTitle(data["ssh_own_key_title"]);
+            } else {
+                setSshOwnKeyTitle("");
+            }
+            if (data.hasOwnProperty("ssh_own_key_public")) {
+                setSshOwnKeyPublic(data["ssh_own_key_public"]);
+            } else {
+                setSshOwnKeyPublic("");
+            }
+            if (data.hasOwnProperty("ssh_own_key_private")) {
+                setSshOwnKeyPrivate(data["ssh_own_key_private"]);
+            } else {
+                setSshOwnKeyPrivate("");
+            }
+
             // mail_gpg_own_key
             if (data.hasOwnProperty("mail_gpg_own_key_title")) {
                 setMailGpgOwnKeyTitle(data["mail_gpg_own_key_title"]);
@@ -533,6 +559,15 @@ const DialogEditEntry = (props) => {
             secretObject["file_title"] = fileTitle;
         }
 
+        if (item.type === "ssh_own_key") {
+            item["name"] = sshOwnKeyTitle;
+            secretObject["ssh_own_key_title"] = sshOwnKeyTitle;
+            if (sshOwnKeyPublic) {
+                secretObject["ssh_own_key_public"] = sshOwnKeyPublic;
+            }
+            secretObject["ssh_own_key_private"] = sshOwnKeyPrivate;
+        }
+
         if (item.type === "mail_gpg_own_key") {
             item["name"] = mailGpgOwnKeyTitle;
             secretObject["mail_gpg_own_key_title"] = mailGpgOwnKeyTitle;
@@ -583,6 +618,17 @@ const DialogEditEntry = (props) => {
             browserClientService.copyToClipboard(() => Promise.resolve(applicationPasswordPassword));
         }
         notification.push("password_copy", t("PASSWORD_COPY_NOTIFICATION"));
+    };
+
+    const onCopyPrivateKey = (event) => {
+        handleClose();
+        if (item.type === "ssh_own_key") {
+            browserClientService.copyToClipboard(() => Promise.resolve(sshOwnKeyPrivate));
+        }
+        if (item.type === "mail_gpg_own_key") {
+            browserClientService.copyToClipboard(() => Promise.resolve(mailGpgOwnKeyPrivate));
+        }
+        notification.push("password_copy", t("PRIVATE_KEY_COPY_NOTIFICATION"));
     };
     const onGeneratePassword = (event) => {
         handleClose();
@@ -1271,6 +1317,118 @@ const DialogEditEntry = (props) => {
                 </Grid>
             )}
 
+
+
+            {item.type === "ssh_own_key" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="sshOwnKeyTitle"
+                        label={t("TITLE")}
+                        name="sshOwnKeyTitle"
+                        autoComplete="off"
+                        value={sshOwnKeyTitle}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        required
+                        onChange={(event) => {
+                            setSshOwnKeyTitle(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+            {item.type === "ssh_own_key" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="sshOwnKeyPublic"
+                        label={t("PUBLIC_KEY")}
+                        name="sshOwnKeyPublic"
+                        autoComplete="off"
+                        value={sshOwnKeyPublic}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        required
+                        onChange={(event) => {
+                            setSshOwnKeyPublic(event.target.value);
+                        }}
+                        multiline
+                        minRows={3}
+                        maxRows={10}
+                    />
+                </Grid>
+            )}
+            {item.type === "ssh_own_key" && (
+                <Grid item xs={12} sm={12} md={12}>
+
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="sshOwnKeyPrivate"
+                        label={t("PRIVATE_KEY")}
+                        name="sshOwnKeyPrivate"
+                        autoComplete="off"
+                        value={sshOwnKeyPrivate}
+                        required
+                        onChange={(event) => {
+                            setSshOwnKeyPrivate(event.target.value);
+                        }}
+                        multiline={showPassword}
+                        minRows={3}
+                        maxRows={10}
+                        InputProps={{
+                            readOnly: !item.share_rights || !item.share_rights.write,
+                            type: showPassword ? "text" : "password",
+                            classes: {
+                                input: classes.passwordField,
+                            },
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        className={classes.iconButton}
+                                        aria-label="menu"
+                                        onClick={openMenu}
+                                    >
+                                        <MenuOpenIcon fontSize="small" />
+                                    </IconButton>
+                                    <Menu
+                                        id="simple-menu"
+                                        anchorEl={anchorEl}
+                                        keepMounted
+                                        open={Boolean(anchorEl)}
+                                        onClose={handleClose}
+                                    >
+                                        <MenuItem onClick={onShowHidePassword}>
+                                            <ListItemIcon className={classes.listItemIcon}>
+                                                <VisibilityOffIcon className={classes.icon} fontSize="small" />
+                                            </ListItemIcon>
+                                            <Typography variant="body2" noWrap>
+                                                {t("SHOW_OR_HIDE_PASSWORD")}
+                                            </Typography>
+                                        </MenuItem>
+                                        <MenuItem onClick={onCopyPrivateKey}>
+                                            <ListItemIcon className={classes.listItemIcon}>
+                                                <ContentCopy className={classes.icon} fontSize="small" />
+                                            </ListItemIcon>
+                                            <Typography variant="body2" noWrap>
+                                                {t("COPY_PRIVATE_KEY")}
+                                            </Typography>
+                                        </MenuItem>
+                                    </Menu>
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                </Grid>
+            )}
+
+
+
+
+
             {item.type === "mail_gpg_own_key" && (
                 <Grid item xs={12} sm={12} md={12}>
                     <TextField
@@ -1350,6 +1508,70 @@ const DialogEditEntry = (props) => {
                         multiline
                         minRows={3}
                         maxRows={10}
+                    />
+                </Grid>
+            )}
+            {item.type === "mail_gpg_own_key" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="mailGpgOwnKeyPrivate"
+                        label={t("PRIVATE_KEY")}
+                        name="mailGpgOwnKeyPrivate"
+                        autoComplete="off"
+                        value={mailGpgOwnKeyPrivate}
+                        required
+                        onChange={(event) => {
+                            setMailGpgOwnKeyPrivate(event.target.value);
+                        }}
+                        disabled
+                        multiline={showPassword}
+                        minRows={3}
+                        maxRows={10}
+                        InputProps={{
+                            readOnly: !item.share_rights || !item.share_rights.write,
+                            type: showPassword ? "text" : "password",
+                            classes: {
+                                input: classes.passwordField,
+                            },
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        className={classes.iconButton}
+                                        aria-label="menu"
+                                        onClick={openMenu}
+                                    >
+                                        <MenuOpenIcon fontSize="small" />
+                                    </IconButton>
+                                    <Menu
+                                        id="simple-menu"
+                                        anchorEl={anchorEl}
+                                        keepMounted
+                                        open={Boolean(anchorEl)}
+                                        onClose={handleClose}
+                                    >
+                                        <MenuItem onClick={onShowHidePassword}>
+                                            <ListItemIcon className={classes.listItemIcon}>
+                                                <VisibilityOffIcon className={classes.icon} fontSize="small" />
+                                            </ListItemIcon>
+                                            <Typography variant="body2" noWrap>
+                                                {t("SHOW_OR_HIDE_PASSWORD")}
+                                            </Typography>
+                                        </MenuItem>
+                                        <MenuItem onClick={onCopyPrivateKey}>
+                                            <ListItemIcon className={classes.listItemIcon}>
+                                                <ContentCopy className={classes.icon} fontSize="small" />
+                                            </ListItemIcon>
+                                            <Typography variant="body2" noWrap>
+                                                {t("COPY_PRIVATE_KEY")}
+                                            </Typography>
+                                        </MenuItem>
+                                    </Menu>
+                                </InputAdornment>
+                            ),
+                        }}
                     />
                 </Grid>
             )}

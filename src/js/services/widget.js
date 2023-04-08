@@ -1321,6 +1321,10 @@ function itemIcon(item) {
         return "fa fa-lock";
     }
 
+    if (item.type === "ssh_own_key") {
+        return "fa fa-lock";
+    }
+
     if (item.type === "environment_variables") {
         return "fa fa-superscript";
     }

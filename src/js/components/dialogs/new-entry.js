@@ -42,6 +42,8 @@ import SelectFieldEntryType from "../select-field/entry-type";
 import SelectFieldTotpAlgorithm from "../select-field/totp-algorithm";
 import DialogGenerateNewGpgKey from "./generate-new-gpg-key";
 import DialogImportGpgKeyAsText from "./import-gpg-key-as-text";
+import DialogGenerateNewSshKey from "./generate-new-ssh-key";
+import DialogImportSshKeyAsText from "./import-ssh-key-as-text";
 import SelectFieldFileDestination from "../select-field/file-destination";
 import GridContainerErrors from "../grid-container-errors";
 import store from "../../services/store";
@@ -107,6 +109,9 @@ const DialogNewEntry = (props) => {
     const [importGpgKeyAsTextDialogOpen, setImportGpgKeyAsTextDialogOpen] = useState(false);
     const [generateNewGpgKeyDialogOpen, setGenerateNewGpgKeyDialogOpen] = useState(false);
 
+    const [importSshKeyAsTextDialogOpen, setImportSshKeyAsTextDialogOpen] = useState(false);
+    const [generateNewSshKeyDialogOpen, setGenerateNewSshKeyDialogOpen] = useState(false);
+
     const [decryptMessageDialogOpen, setDecryptMessageDialogOpen] = useState(false);
     const [encryptMessageDialogOpen, setEncryptMessageDialogOpen] = useState(false);
     const [encryptSecretId, setEncryptSecretId] = useState("");
@@ -150,6 +155,10 @@ const DialogNewEntry = (props) => {
     const [fileDestination, setFileDestination] = useState(null);
     const [uploadStepComplete, setUploadStepComplete] = useState("");
 
+    const [sshOwnKeyTitle, setSshOwnKeyTitle] = useState("");
+    const [sshOwnKeyPublic, setSshOwnKeyPublic] = useState("");
+    const [sshOwnKeyPrivate, setSshOwnKeyPrivate] = useState("");
+
     const [mailGpgOwnKeyTitle, setMailGpgOwnKeyTitle] = useState("");
     const [mailGpgOwnKeyEmail, setMailGpgOwnKeyEmail] = useState("");
     const [mailGpgOwnKeyName, setMailGpgOwnKeyName] = useState("");
@@ -188,6 +197,10 @@ const DialogNewEntry = (props) => {
         Boolean(mailGpgOwnKeyName) &&
         Boolean(mailGpgOwnKeyPublic) &&
         Boolean(mailGpgOwnKeyPrivate);
+    const isValidSshOwnKey =
+        Boolean(sshOwnKeyTitle) &&
+        Boolean(sshOwnKeyPublic) &&
+        Boolean(sshOwnKeyPrivate);
     const isValidFile = Boolean(fileTitle) && Boolean(file);
     const canSave =
         (type === "website_password" && isValidWebsitePassword) ||
@@ -196,6 +209,7 @@ const DialogNewEntry = (props) => {
         (type === "note" && isValidNote) ||
         (type === "totp" && isValidTotp) ||
         (type === "environment_variables" && isValidEnvironmentVariables) ||
+        (type === "ssh_own_key" && isValidSshOwnKey) ||
         (type === "mail_gpg_own_key" && isValidMailGpgOwnKey) ||
         (type === "file" && isValidFile);
     const hasAdvanced = type !== "file";
@@ -527,6 +541,15 @@ const DialogNewEntry = (props) => {
             item["file_title"] = fileTitle;
         }
 
+        if (item.type === "ssh_own_key") {
+            item["name"] = sshOwnKeyTitle;
+            secretObject["ssh_own_key_title"] = sshOwnKeyTitle;
+            if (sshOwnKeyPublic) {
+                secretObject["ssh_own_key_public"] = sshOwnKeyPublic;
+            }
+            secretObject["ssh_own_key_private"] = sshOwnKeyPrivate;
+        }
+
         if (item.type === "mail_gpg_own_key") {
             item["name"] = mailGpgOwnKeyTitle;
             secretObject["mail_gpg_own_key_title"] = mailGpgOwnKeyTitle;
@@ -620,6 +643,18 @@ const DialogNewEntry = (props) => {
         setMailGpgOwnKeyEmail(email);
         setMailGpgOwnKeyPrivate(privateKey);
         setMailGpgOwnKeyPublic(publicKey);
+    };
+    const onNewSshKeysGenerated = (title, privateKey, publicKey) => {
+        setGenerateNewSshKeyDialogOpen(false);
+        setSshOwnKeyTitle(title);
+        setSshOwnKeyPrivate(privateKey);
+        setSshOwnKeyPublic(publicKey);
+    };
+    const onNewSshKeyImported = (title, privateKey, publicKey) => {
+        setImportSshKeyAsTextDialogOpen(false);
+        setSshOwnKeyTitle(title);
+        setSshOwnKeyPrivate(privateKey);
+        setSshOwnKeyPublic(publicKey);
     };
     const openMenu = (event) => {
         setAnchorEl(event.currentTarget);
@@ -1373,6 +1408,77 @@ const DialogNewEntry = (props) => {
                         </Grid>
                     )}
 
+
+                    {type === "ssh_own_key" && sshOwnKeyTitle && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="sshOwnKeyTitle"
+                                label={t("TITLE")}
+                                name="sshOwnKeyTitle"
+                                autoComplete="off"
+                                value={sshOwnKeyTitle}
+                                required
+                                onChange={(event) => {
+                                    setSshOwnKeyTitle(event.target.value);
+                                }}
+                            />
+                        </Grid>
+                    )}
+                    {type === "ssh_own_key" && sshOwnKeyPublic && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="sshOwnKeyPublic"
+                                label={t("PUBLIC_KEY")}
+                                name="sshOwnKeyPublic"
+                                autoComplete="off"
+                                value={sshOwnKeyPublic}
+                                required
+                                disabled
+                                multiline
+                                minRows={3}
+                                maxRows={10}
+                            />
+                        </Grid>
+                    )}
+                    {type === "ssh_own_key" && sshOwnKeyPrivate && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="sshOwnKeyPrivate"
+                                label={t("PRIVATE_KEY")}
+                                name="sshOwnKeyPrivate"
+                                autoComplete="off"
+                                value={sshOwnKeyPrivate}
+                                required
+                                disabled
+                                multiline
+                                minRows={3}
+                                maxRows={10}
+                            />
+                        </Grid>
+                    )}
+
+                    {type === "ssh_own_key" && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <Button
+                                onClick={() => {
+                                    setGenerateNewSshKeyDialogOpen(true);
+                                }}
+                            >
+                                {t("GENERATE_NEW_SSH_KEY")}
+                            </Button>
+                            <Button onClick={() => setImportSshKeyAsTextDialogOpen(true)}>{t("IMPORT_AS_TEXT")}</Button>
+                        </Grid>
+                    )}
+
                     {type === "mail_gpg_own_key" && mailGpgOwnKeyTitle && (
                         <Grid item xs={12} sm={12} md={12}>
                             <TextField
@@ -1662,6 +1768,20 @@ const DialogNewEntry = (props) => {
                     open={generateNewGpgKeyDialogOpen}
                     onClose={() => setGenerateNewGpgKeyDialogOpen(false)}
                     onNewGpgKeysGenerated={onNewGpgKeysGenerated}
+                />
+            )}
+            {importSshKeyAsTextDialogOpen && (
+                <DialogImportSshKeyAsText
+                    open={importSshKeyAsTextDialogOpen}
+                    onClose={() => setImportSshKeyAsTextDialogOpen(false)}
+                    onNewSshKeyImported={onNewSshKeyImported}
+                />
+            )}
+            {generateNewSshKeyDialogOpen && (
+                <DialogGenerateNewSshKey
+                    open={generateNewSshKeyDialogOpen}
+                    onClose={() => setGenerateNewSshKeyDialogOpen(false)}
+                    onNewSshKeysGenerated={onNewSshKeysGenerated}
                 />
             )}
         </Dialog>

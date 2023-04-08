@@ -37,6 +37,7 @@
     "date-fns": "^2.26.0",
     "dompurify": "^2.3.6",
     "ecma-nacl": "^2.4.2",
+    "ed25519-keygen": "^0.4.1",
     "fast-xml-parser": "^3.21.1",
     "file-loader": "^6.2.0",
     "file-saver": "^2.0.5",
