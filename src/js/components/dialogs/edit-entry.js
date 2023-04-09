@@ -44,6 +44,9 @@ import DialogHistory from "./history";
 import notification from "../../services/notification";
 import cryptoLibrary from "../../services/crypto-library";
 import store from "../../services/store";
+import TextFieldCreditCardNumber from "../text-field/credit-card-number";
+import TextFieldCreditCardValidThrough from "../text-field/credit-card-valid-through";
+import TextFieldCreditCardCVC from "../text-field/credit-card-cvc";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -159,6 +162,13 @@ const DialogEditEntry = (props) => {
     const [sshOwnKeyPublic, setSshOwnKeyPublic] = useState("");
     const [sshOwnKeyPrivate, setSshOwnKeyPrivate] = useState("");
 
+    const [creditCardTitle, setCreditCardTitle] = useState("");
+    const [creditCardNumber, setCreditCardNumber] = useState("");
+    const [creditCardCVC, setCreditCardCVC] = useState("");
+    const [creditCardName, setCreditCardName] = useState("");
+    const [creditCardValidThrough, setCreditCardValidThrough] = useState("");
+    const [creditCardNotes, setCreditCardNotes] = useState("");
+
     const [mailGpgOwnKeyTitle, setMailGpgOwnKeyTitle] = useState("");
     const [mailGpgOwnKeyEmail, setMailGpgOwnKeyEmail] = useState("");
     const [mailGpgOwnKeyName, setMailGpgOwnKeyName] = useState("");
@@ -198,6 +208,12 @@ const DialogEditEntry = (props) => {
         Boolean(sshOwnKeyTitle) &&
         Boolean(sshOwnKeyPublic) &&
         Boolean(sshOwnKeyPrivate);
+    const isValidCreditCard =
+        Boolean(creditCardTitle) &&
+        Boolean(creditCardNumber) &&
+        Boolean(creditCardCVC) &&
+        Boolean(creditCardName) &&
+        Boolean(creditCardValidThrough);
     const isValidFile = Boolean(fileTitle);
     const canSave =
         (item.type === "website_password" && isValidWebsitePassword) ||
@@ -207,6 +223,7 @@ const DialogEditEntry = (props) => {
         (item.type === "totp" && isValidTotp) ||
         (item.type === "environment_variables" && isValidEnvironmentVariables) ||
         (item.type === "ssh_own_key" && isValidSshOwnKey) ||
+        (item.type === "credit_card" && isValidCreditCard) ||
         (item.type === "mail_gpg_own_key" && isValidMailGpgOwnKey) ||
         (item.type === "file" && isValidFile);
 
@@ -409,6 +426,38 @@ const DialogEditEntry = (props) => {
                 setSshOwnKeyPrivate("");
             }
 
+            // credit_card
+            if (data.hasOwnProperty("credit_card_title")) {
+                setCreditCardTitle(data["credit_card_title"]);
+            } else {
+                setCreditCardTitle("");
+            }
+            if (data.hasOwnProperty("credit_card_number")) {
+                setCreditCardNumber(data["credit_card_number"]);
+            } else {
+                setCreditCardNumber("");
+            }
+            if (data.hasOwnProperty("credit_card_cvc")) {
+                setCreditCardCVC(data["credit_card_cvc"]);
+            } else {
+                setCreditCardCVC("");
+            }
+            if (data.hasOwnProperty("credit_card_name")) {
+                setCreditCardName(data["credit_card_name"]);
+            } else {
+                setCreditCardName("");
+            }
+            if (data.hasOwnProperty("credit_card_valid_through")) {
+                setCreditCardValidThrough(data["credit_card_valid_through"]);
+            } else {
+                setCreditCardValidThrough("");
+            }
+            if (data.hasOwnProperty("credit_card_notes")) {
+                setCreditCardNotes(data["credit_card_notes"]);
+            } else {
+                setCreditCardNotes("");
+            }
+
             // mail_gpg_own_key
             if (data.hasOwnProperty("mail_gpg_own_key_title")) {
                 setMailGpgOwnKeyTitle(data["mail_gpg_own_key_title"]);
@@ -566,6 +615,26 @@ const DialogEditEntry = (props) => {
                 secretObject["ssh_own_key_public"] = sshOwnKeyPublic;
             }
             secretObject["ssh_own_key_private"] = sshOwnKeyPrivate;
+        }
+
+        if (item.type === "credit_card") {
+            item["name"] = creditCardTitle;
+            secretObject["credit_card_title"] = creditCardTitle;
+            if (creditCardNumber) {
+                secretObject["credit_card_number"] = creditCardNumber;
+            }
+            if (creditCardCVC) {
+                secretObject["credit_card_cvc"] = creditCardCVC;
+            }
+            if (creditCardName) {
+                secretObject["credit_card_name"] = creditCardName;
+            }
+            if (creditCardValidThrough) {
+                secretObject["credit_card_valid_through"] = creditCardValidThrough;
+            }
+            if (creditCardNotes) {
+                secretObject["credit_card_notes"] = creditCardNotes;
+            }
         }
 
         if (item.type === "mail_gpg_own_key") {
@@ -1313,6 +1382,133 @@ const DialogEditEntry = (props) => {
                         onChange={(event) => {
                             setFileTitle(event.target.value);
                         }}
+                    />
+                </Grid>
+            )}
+
+            {item.type === "credit_card" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="creditCardTitle"
+                        label={t("TITLE")}
+                        name="creditCardTitle"
+                        autoComplete="off"
+                        value={creditCardTitle}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        required
+                        required
+                        onChange={(event) => {
+                            setCreditCardTitle(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+
+            {item.type === "credit_card" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextFieldCreditCardNumber
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="creditCardNumber"
+                        label={t("CREDIT_CARD_NUMBER")}
+                        placeholder="1234 1234 1234 1234"
+                        name="creditCardNumber"
+                        autoComplete="off"
+                        value={creditCardNumber}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        required
+                        onChange={(event) => {
+                            setCreditCardNumber(event.target.value);
+                        }}
+                    />
+
+                </Grid>
+            )}
+
+            {item.type === "credit_card" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="creditCardName"
+                        label={t("NAME")}
+                        name="creditCardName"
+                        autoComplete="off"
+                        value={creditCardName}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        required
+                        onChange={(event) => {
+                            setCreditCardName(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+
+            {item.type === "credit_card" && (
+                <Grid item xs={6} sm={6} md={6}>
+                    <TextFieldCreditCardValidThrough
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="creditCardValidThrough"
+                        label={t("VALID_THROUGH")}
+                        placeholder="MM / YY"
+                        name="creditCardValidThrough"
+                        autoComplete="off"
+                        value={creditCardValidThrough}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        required
+                        onChange={(event) => {
+                            setCreditCardValidThrough(event.target.value)
+                        }}
+                    />
+                </Grid>
+            )}
+
+            {item.type === "credit_card" && (
+                <Grid item xs={6} sm={6} md={6}>
+                    <TextFieldCreditCardCVC
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="creditCardCVC"
+                        label={t("CVC")}
+                        placeholder="123"
+                        name="creditCardCVC"
+                        autoComplete="off"
+                        value={creditCardCVC}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        required
+                        onChange={(event) => {
+                            setCreditCardCVC(event.target.value)
+                        }}
+                    />
+                </Grid>
+            )}
+
+            {item.type === "credit_card" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="creditCardNotes"
+                        label={t("NOTES")}
+                        name="creditCardNotes"
+                        autoComplete="off"
+                        value={creditCardNotes}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        onChange={(event) => {
+                            setCreditCardNotes(event.target.value);
+                        }}
+                        multiline
+                        minRows={3}
+                        maxRows={32}
                     />
                 </Grid>
             )}

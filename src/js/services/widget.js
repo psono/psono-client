@@ -1344,6 +1344,10 @@ function itemIcon(item) {
         return "fa fa-lock";
     }
 
+    if (item.type === "credit_card") {
+        return "fa fa-credit-card";
+    }
+
     if (item.type === "environment_variables") {
         return "fa fa-superscript";
     }
