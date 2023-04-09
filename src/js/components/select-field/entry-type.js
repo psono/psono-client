@@ -27,14 +27,14 @@ const SelectFieldEntryType = (props) => {
 
     let defaultValue = null;
     if (value) {
-        defaultValue = entryTypes.find(function (country) {
-            return country.value === value;
+        defaultValue = entryTypes.find(function (entryType) {
+            return entryType.value === value;
         });
     }
 
     return (
         <Autocomplete
-            options={entryTypes}
+            options={entryTypes.sort((a, b) => t(a.title).localeCompare(t(b.title)))}
             classes={{
                 option: classes.option,
             }}
