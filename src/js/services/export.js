@@ -214,6 +214,7 @@ function composeExport(data, type) {
                 ssh_own_key_name: "ssh_own_key_name",
                 ssh_own_key_public: "ssh_own_key_public",
                 ssh_own_key_private: "ssh_own_key_private",
+                ssh_own_key_notes: "ssh_own_key_notes",
                 mail_gpg_own_key_title: "mail_gpg_own_key_title",
                 mail_gpg_own_key_email: "mail_gpg_own_key_email",
                 mail_gpg_own_key_name: "mail_gpg_own_key_name",

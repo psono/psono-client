@@ -161,6 +161,7 @@ const DialogEditEntry = (props) => {
     const [sshOwnKeyTitle, setSshOwnKeyTitle] = useState("");
     const [sshOwnKeyPublic, setSshOwnKeyPublic] = useState("");
     const [sshOwnKeyPrivate, setSshOwnKeyPrivate] = useState("");
+    const [sshOwnKeyNotes, setSshOwnKeyNotes] = useState("");
 
     const [creditCardTitle, setCreditCardTitle] = useState("");
     const [creditCardNumber, setCreditCardNumber] = useState("");
@@ -425,6 +426,11 @@ const DialogEditEntry = (props) => {
             } else {
                 setSshOwnKeyPrivate("");
             }
+            if (data.hasOwnProperty("ssh_own_key_notes")) {
+                setSshOwnKeyNotes(data["ssh_own_key_notes"]);
+            } else {
+                setSshOwnKeyNotes("");
+            }
 
             // credit_card
             if (data.hasOwnProperty("credit_card_title")) {
@@ -613,6 +619,9 @@ const DialogEditEntry = (props) => {
             secretObject["ssh_own_key_title"] = sshOwnKeyTitle;
             if (sshOwnKeyPublic) {
                 secretObject["ssh_own_key_public"] = sshOwnKeyPublic;
+            }
+            if (sshOwnKeyNotes) {
+                secretObject["ssh_own_key_notes"] = sshOwnKeyNotes;
             }
             secretObject["ssh_own_key_private"] = sshOwnKeyPrivate;
         }
@@ -1617,6 +1626,28 @@ const DialogEditEntry = (props) => {
                                 </InputAdornment>
                             ),
                         }}
+                    />
+                </Grid>
+            )}
+
+            {item.type === "ssh_own_key" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="sshOwnKeyNotes"
+                        label={t("NOTES")}
+                        name="sshOwnKeyNotes"
+                        autoComplete="off"
+                        value={sshOwnKeyNotes}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        onChange={(event) => {
+                            setSshOwnKeyNotes(event.target.value);
+                        }}
+                        multiline
+                        minRows={3}
+                        maxRows={32}
                     />
                 </Grid>
             )}

@@ -162,6 +162,7 @@ const DialogNewEntry = (props) => {
     const [sshOwnKeyTitle, setSshOwnKeyTitle] = useState("");
     const [sshOwnKeyPublic, setSshOwnKeyPublic] = useState("");
     const [sshOwnKeyPrivate, setSshOwnKeyPrivate] = useState("");
+    const [sshOwnKeyNotes, setSshOwnKeyNotes] = useState("");
 
     const [creditCardTitle, setCreditCardTitle] = useState("");
     const [creditCardNumber, setCreditCardNumber] = useState("");
@@ -564,6 +565,9 @@ const DialogNewEntry = (props) => {
             secretObject["ssh_own_key_title"] = sshOwnKeyTitle;
             if (sshOwnKeyPublic) {
                 secretObject["ssh_own_key_public"] = sshOwnKeyPublic;
+            }
+            if (sshOwnKeyNotes) {
+                secretObject["ssh_own_key_notes"] = sshOwnKeyNotes;
             }
             secretObject["ssh_own_key_private"] = sshOwnKeyPrivate;
         }
@@ -1567,7 +1571,7 @@ const DialogNewEntry = (props) => {
                     )}
 
 
-                    {type === "ssh_own_key" && sshOwnKeyTitle && (
+                    {type === "ssh_own_key" && (sshOwnKeyTitle || sshOwnKeyPublic || sshOwnKeyPrivate || sshOwnKeyNotes) && (
                         <Grid item xs={12} sm={12} md={12}>
                             <TextField
                                 className={classes.textField}
@@ -1620,6 +1624,26 @@ const DialogNewEntry = (props) => {
                                 multiline
                                 minRows={3}
                                 maxRows={10}
+                            />
+                        </Grid>
+                    )}
+                    {type === "ssh_own_key" && (sshOwnKeyTitle || sshOwnKeyPublic || sshOwnKeyPrivate || sshOwnKeyNotes) && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="sshOwnKeyNotes"
+                                label={t("NOTES")}
+                                name="sshOwnKeyNotes"
+                                autoComplete="off"
+                                value={sshOwnKeyNotes}
+                                onChange={(event) => {
+                                    setSshOwnKeyNotes(event.target.value);
+                                }}
+                                multiline
+                                minRows={3}
+                                maxRows={32}
                             />
                         </Grid>
                     )}
