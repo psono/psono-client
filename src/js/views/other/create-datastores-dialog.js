@@ -39,11 +39,32 @@ const useStyles = makeStyles((theme) => ({
 const CreateDatastoresDialog = (props) => {
     const { open, onClose, datastoreId } = props;
     const { t } = useTranslation();
+    const [existingDatastoreDescriptions, setExistingDatastoreDescriptions] = React.useState([]);
     const classes = useStyles();
     const [description, setDescription] = useState("");
     const [isDefault, setIsDefault] = useState(false);
     const [errors, setErrors] = useState([]);
 
+    React.useEffect(() => {
+        loadDatastores();
+    }, []);
+
+    const loadDatastores = () => {
+        return datastore.getDatastoreOverview(true).then(
+            function (overview) {
+                setExistingDatastoreDescriptions(
+                    overview.datastores
+                        .filter((datastore) => datastore["type"] === "password")
+                        .map((datastore, index) => {
+                            return datastore.description;
+                        })
+                );
+            },
+            function (error) {
+                console.log(error);
+            }
+        );
+    };
     const create = () => {
         const onError = function (result) {
             // pass
@@ -55,6 +76,8 @@ const CreateDatastoresDialog = (props) => {
 
         return datastore.createDatastore("password", description, isDefault).then(onSuccess, onError);
     };
+
+    let descriptionAlreadyExists = existingDatastoreDescriptions.includes(description)
 
     return (
         <Dialog
@@ -82,6 +105,11 @@ const CreateDatastoresDialog = (props) => {
                             value={description}
                             onChange={(event) => {
                                 setDescription(event.target.value);
+                                if (existingDatastoreDescriptions.includes(event.target.value)) {
+                                    setErrors(["DATASTORE_DESCRIPTION_MUST_BE_UNIQUE"]);
+                                } else {
+                                    setErrors([]);
+                                }
                             }}
                         />
                     </Grid>
@@ -118,7 +146,7 @@ const CreateDatastoresDialog = (props) => {
                     }}
                     variant="contained"
                     color="primary"
-                    disabled={!description}
+                    disabled={!description || descriptionAlreadyExists}
                 >
                     {t("CREATE")}
                 </Button>

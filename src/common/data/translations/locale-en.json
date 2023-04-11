@@ -746,6 +746,7 @@
   "TOGGLE_NAVIGATION": "Toggle navigation",
   "HERE_YOU_CAN_MANAGE_ALL_YOUR_PASSWORD_DATASTORES": "Here you can manage all your password datastores",
   "DATASTORE": "Datastore",
+  "DATASTORE_DESCRIPTION_MUST_BE_UNIQUE": "The description of a datastore must be unique. The chosen description is already used by another datastore.",
   "DATASTORES": "Datastores",
   "NEW_SERVER": "New Server",
   "APPROVE_UNSAFE": "Approve (unsafe)",
