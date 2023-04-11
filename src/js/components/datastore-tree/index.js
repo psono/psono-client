@@ -65,9 +65,11 @@ const DatastoreTree = (props) => {
         if (folder.folders && (folder.datastore_id || isExpanded)) {
             folder.folders
                 .sort(function(a, b){
-                    if (a.name.toLowerCase() < b.name.toLowerCase())
+                    let a_name = a.name ? a.name : '';
+                    let b_name = b.name ? b.name : '';
+                    if (a_name.toLowerCase() < b_name.toLowerCase())
                         return -1;
-                    if (a.name.toLowerCase() > b.name.toLowerCase())
+                    if (a_name.toLowerCase() > b_name.toLowerCase())
                         return 1;
                     return 0;
                 })
@@ -78,9 +80,11 @@ const DatastoreTree = (props) => {
         if (!props.hideItems && isExpanded && folder.items) {
             folder.items
                 .sort(function(a, b){
-                    if (a.name.toLowerCase() < b.name.toLowerCase())
+                    let a_name = a.name ? a.name : '';
+                    let b_name = b.name ? b.name : '';
+                    if (a_name.toLowerCase() < b_name.toLowerCase())
                         return -1;
-                    if (a.name.toLowerCase() > b.name.toLowerCase())
+                    if (a_name.toLowerCase() > b_name.toLowerCase())
                         return 1;
                     return 0;
                 })
