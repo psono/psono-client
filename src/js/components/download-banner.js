@@ -144,7 +144,7 @@ const DownloadBanner = (props) => {
                     </a>
                     <div className={classes.overlayContent}>
                         <a
-                            href="https://addons.mozilla.org/de/firefox/addon/psono-pw-password-manager/"
+                            href="https://addons.mozilla.org/firefox/addon/psono-pw-password-manager/"
                             target="_blank"
                             rel="noopener"
                         >
