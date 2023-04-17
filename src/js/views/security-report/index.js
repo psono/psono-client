@@ -339,6 +339,7 @@ const SecurityReportView = (props) => {
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
                         <TextFieldPassword
+                            key={tableMeta.rowData[0]}
                             className={classes.textField}
                             variant="outlined"
                             margin="dense"
