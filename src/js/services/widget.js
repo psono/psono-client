@@ -520,15 +520,17 @@ function check_if_parent_changed(element, target) {
 }
 
 /**
- * Move an item (or folder) from one position to anther
+ * Move an item (or folder) from one position to another
  *
  * @param {TreeObject} datastore The datastore
  * @param {Array} itemPath the current path of the item
  * @param {Array} targetPath the path where we want to put the item
  * @param {string} type type of the item ('items' or 'folders')
  * @param {string} datastoreType The type of the datastore (e.g. 'password' or 'user')
+ * @param {function|undefined} [onOpenRequest] (optional) callback function that is called whenever a request to the backend is fired
+ * @param {function|undefined} [onClosedRequest] (optional) callback function that is called whenever a request to the backend finishes
  */
-function moveItem(datastore, itemPath, targetPath, type, datastoreType) {
+function moveItem(datastore, itemPath, targetPath, type, datastoreType, onOpenRequest, onClosedRequest) {
     let i;
     let closest_parent;
     let closest_share_info;
@@ -654,6 +656,9 @@ function moveItem(datastore, itemPath, targetPath, type, datastoreType) {
         for (i = secret_links.length - 1; i >= 0; i--) {
             (function (secret_link) {
                 timeout = timeout + 50;
+                if (onOpenRequest) {
+                    onOpenRequest();
+                }
                 setTimeout(function () {
                     closest_share_info = shareService.getClosestParentShare(
                         target_path_copy2.concat(secret_link.path),
@@ -662,7 +667,21 @@ function moveItem(datastore, itemPath, targetPath, type, datastoreType) {
                         0
                     );
                     closest_parent = closest_share_info["closest_share"];
-                    secretLinkService.onSecretMoved(secret_link.id, closest_parent);
+
+                    const onError = function (result) {
+                        if (onClosedRequest) {
+                            onClosedRequest()
+                        }
+                    };
+
+                    const onSuccess = function (content) {
+                        if (onClosedRequest) {
+                            onClosedRequest()
+                        }
+                    };
+                    secretLinkService.onSecretMoved(secret_link.id, closest_parent)
+                        .then(onSuccess, onError);
+
                 }, timeout);
             })(secret_links[i]);
         }
@@ -1319,6 +1338,14 @@ function itemIcon(item) {
 
     if (item.type === "mail_gpg_own_key") {
         return "fa fa-lock";
+    }
+
+    if (item.type === "ssh_own_key") {
+        return "fa fa-lock";
+    }
+
+    if (item.type === "credit_card") {
+        return "fa fa-credit-card";
     }
 
     if (item.type === "environment_variables") {

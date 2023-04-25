@@ -255,7 +255,7 @@ describe('Service: helper test suite', function() {
         expect(array).toEqual(target);
     });
 
-    it('formFullUsername_without_email_syntax', function() {
+    it('formFullUsername without email syntax', function() {
         const username = 'test';
         const domain = 'example.com';
 
@@ -264,7 +264,7 @@ describe('Service: helper test suite', function() {
         expect(full_username).toEqual(username + '@' + domain);
     });
 
-    it('formFullUsername_with_email_syntax', function() {
+    it('formFullUsername with email syntax', function() {
         const username = 'test@example1.com';
         const domain = 'example.com';
 
@@ -305,5 +305,75 @@ describe('Service: helper test suite', function() {
         const is_valid = helperService.isValidPassword(password1, password2);
 
         expect(is_valid).toEqual("PASSWORD_NOT_COMPLEX_ENOUGH");
+    });
+
+    it('isUrlFilterMatch direct match', function() {
+        const authority = 'example.com';
+        const urlFilter = 'example.com';
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeTruthy()
+    });
+
+    it('isUrlFilterMatch empty url filter', function() {
+        const authority = 'example.com';
+        const urlFilter = ''; // shouldn't match anything
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeFalsy()
+    });
+
+    it('isUrlFilterMatch empty authority', function() {
+        const authority = '';
+        const urlFilter = 'example.com'; // shouldn't match if the authority is empty
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeFalsy()
+    });
+
+    it('isUrlFilterMatch undefined authority', function() {
+        const authority = undefined;
+        const urlFilter = 'example.com'; // shouldn't match if the authority is undefined
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeFalsy()
+    });
+
+    it('isUrlFilterMatch undefined url filter', function() {
+        const authority = 'example.com';
+        const urlFilter = undefined; // shouldn't match anything
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeFalsy()
+    });
+
+    it('isUrlFilterMatch subdomains not matched', function() {
+        const authority = 'sub.example.com';
+        const urlFilter = 'example.com'; // shouldn't match a subdomain
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeFalsy()
+    });
+
+    it('isUrlFilterMatch wildcard match with sub domain', function() {
+        const authority = 'sub.example.com';
+        const urlFilter = '*.example.com';
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeTruthy()
+    });
+
+    it('isUrlFilterMatch wildcard match with sub sub domain', function() {
+        const authority = 'sub.sub.example.com';
+        const urlFilter = '*.example.com';
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeTruthy()
+    });
+
+    it('isUrlFilterMatch wildcard match with invalid wildcard', function() {
+        const authority = 'sub.sub.example.com';
+        const urlFilter = '*example.com'; // potentially dangerous (e.g. evilexample.com) so shouldn't match
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeFalsy()
+    });
+
+    it('isUrlFilterMatch wildcard match with apex domain', function() {
+        const authority = 'example.com';
+        const urlFilter = '*.example.com';
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeFalsy()
     });
 });

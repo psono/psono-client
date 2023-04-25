@@ -477,6 +477,24 @@ function endsWith(to_test, suffix) {
 }
 
 /**
+ * Checks if a provided urlfilter and authority fit together
+ *
+ * @param {string} authority The "authority" of the current website, e.g. www.example.com:80
+ * @param {string} urlFilter The url filter, e.g. *.example.com or www.example.com
+ *
+ * @returns {boolean} Whether the string ends with the suffix or not
+ */
+function isUrlFilterMatch(authority, urlFilter) {
+    if (!authority || !urlFilter) {
+        return false
+    }
+    let directMatch = authority === urlFilter;
+    let wildcardMatch = urlFilter.startsWith('*.') && authority.endsWith(urlFilter.substring(1));
+
+    return directMatch || wildcardMatch
+}
+
+/**
  * Returns a test function that can be used to filter according to the name and urlfilter
  *
  * @param {string} test Testable string
@@ -545,6 +563,7 @@ const helperService = {
     removeFromArray: removeFromArray,
     endsWith: endsWith,
     getPasswordFilter: getPasswordFilter,
+    isUrlFilterMatch: isUrlFilterMatch,
 };
 
 export default helperService;

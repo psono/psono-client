@@ -98,7 +98,7 @@ const MultifactorAuthenticationView = (props) => {
                     )}
                 </Grid>
             )}
-            {browserClient.getClientType() !== "firefox_extension" && store.getState().server.allowedSecondFactors.indexOf("webauthn") !== -1 && (
+            {browserClient.getClientType() !== "firefox_extension" && !deviceService.isElectron() && store.getState().server.allowedSecondFactors.indexOf("webauthn") !== -1 && (
                 <Grid container style={{ marginBottom: "8px" }}>
                     <Grid item xs={6} sm={6} md={4} style={{ paddingTop: "8px" }}>
                         {t("FIDO2_WEBAUTHN")}

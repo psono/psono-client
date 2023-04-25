@@ -37,6 +37,7 @@
     "date-fns": "^2.26.0",
     "dompurify": "^2.3.6",
     "ecma-nacl": "^2.4.2",
+    "ed25519-keygen": "^0.4.1",
     "fast-xml-parser": "^3.21.1",
     "file-loader": "^6.2.0",
     "file-saver": "^2.0.5",
@@ -58,6 +59,7 @@
     "react-dom": "^17.0.2",
     "react-fontawesome": "^1.6.1",
     "react-i18next": "^11.13.0",
+    "react-number-format": "^4.9.4",
     "react-redux": "^7.2.6",
     "react-router-dom": "^5.3.0",
     "react-scripts": "^5.0.1",
@@ -87,9 +89,9 @@
     "prettier": "^2.6.2",
     "react-test-renderer": "^17.0.2",
     "replace-in-file-webpack-plugin": "^1.0.6",
-    "webpack": "^5.62.1",
-    "webpack-cli": "^4.9.1",
-    "webpack-dev-server": "^4.7.4",
+    "webpack": "^5.78.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.13.2",
     "webstore-upload": "0.0.7"
   }
 }

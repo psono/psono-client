@@ -10,8 +10,6 @@ import TextField from "@material-ui/core/TextField";
 import { makeStyles } from "@material-ui/core/styles";
 import { Grid } from "@material-ui/core";
 
-import * as openpgp from "openpgp";
-
 import GridContainerErrors from "../grid-container-errors";
 
 const useStyles = makeStyles((theme) => ({
@@ -20,69 +18,34 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const DialogImportGpgKeyAsText = (props) => {
+const DialogImportSshKeyAsText = (props) => {
     const classes = useStyles();
-    const { open, onClose, onNewGpgKeyImported } = props;
+    const { open, onClose, onNewSshKeyImported } = props;
     const { t } = useTranslation();
     const [title, setTitle] = useState("");
-    const [passphrase, setPassphrase] = useState("");
     const [publicKey, setPublicKey] = useState("");
     const [privateKey, setPrivateKey] = useState("");
     const [errors, setErrors] = useState([]);
 
-    const importGpgKey = async () => {
+    const importSshKey = async () => {
         setErrors([]);
 
         if (
-            !publicKey.startsWith("-----BEGIN PGP PUBLIC KEY BLOCK-----") ||
-            !publicKey.endsWith("-----END PGP PUBLIC KEY BLOCK-----")
+            !publicKey.startsWith("ssh-")
         ) {
             setErrors(["PUBLIC_KEY_MISSING_TAGS"]);
             return;
         }
 
         if (
-            !privateKey.startsWith("-----BEGIN PGP PRIVATE KEY BLOCK-----") ||
-            !privateKey.endsWith("-----END PGP PRIVATE KEY BLOCK-----")
+            !privateKey.startsWith("-----BEGIN") ||
+            !privateKey.endsWith("PRIVATE KEY-----")
         ) {
             setErrors(["PRIVATE_KEY_MISSING_TAGS"]);
             return;
         }
 
-        const publicKeyObj = await openpgp.readKey({ armoredKey: publicKey });
-
-        let privateKeyObj = await openpgp.readPrivateKey({ armoredKey: privateKey });
-        try {
-            privateKeyObj = await openpgp.decryptKey({
-                privateKey: privateKeyObj,
-                passphrase,
-            });
-        } catch (error) {
-            if (error.message === "Error decrypting private key: Key packet is already decrypted.") {
-                // pass
-            } else {
-                setErrors([error.message]);
-                return;
-            }
-        }
-
-        publicKeyObj.getPrimaryUser().then(function (primaryUser) {
-            var name_email_sum = primaryUser.user.userID.userID;
-            var emails = name_email_sum.match(/[^@<\s]+@[^@\s>]+/g);
-            let email = "";
-            if (emails.length > 0) {
-                email = emails[0];
-            }
-
-            var names = name_email_sum.split(/\s+/);
-            let name = "";
-            if (names.length > 1) {
-                names.pop();
-                name = names.join(" ").replace(/"/g, "");
-            }
-
-            onNewGpgKeyImported(title, name, email, privateKeyObj.armor(), publicKeyObj.armor());
-        });
+        onNewSshKeyImported(title, privateKey, publicKey);
     };
 
     return (
@@ -94,7 +57,7 @@ const DialogImportGpgKeyAsText = (props) => {
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
         >
-            <DialogTitle id="alert-dialog-title">{t("IMPORT_GPG_KEY")}</DialogTitle>
+            <DialogTitle id="alert-dialog-title">{t("IMPORT_SSH_KEY")}</DialogTitle>
             <DialogContent>
                 <Grid container>
                     <GridContainerErrors errors={errors} setErrors={setErrors} />
@@ -120,27 +83,11 @@ const DialogImportGpgKeyAsText = (props) => {
                             className={classes.textField}
                             variant="outlined"
                             margin="dense"
-                            id="passphrase"
-                            label={t("PASSPHRASE")}
-                            helperText={t("YOUR_KEYS_PASSPHRASE")}
-                            name="passphrase"
-                            autoComplete="off"
-                            value={passphrase}
-                            onChange={(event) => {
-                                setPassphrase(event.target.value);
-                            }}
-                        />
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={12}>
-                        <TextField
-                            className={classes.textField}
-                            variant="outlined"
-                            margin="dense"
                             id="publicKey"
                             label={t("PUBLIC_KEY")}
                             helperText={
-                                t("YOUR_PUBLIC_GPG_KEY") +
-                                " -----BEGIN PGP PUBLIC KEY BLOCK----- and -----END PGP PUBLIC KEY BLOCK-----"
+                                t("YOUR_PUBLIC_SSH_KEY") +
+                                " ssh..."
                             }
                             name="publicKey"
                             autoComplete="off"
@@ -162,8 +109,8 @@ const DialogImportGpgKeyAsText = (props) => {
                             id="privateKey"
                             label={t("PRIVATE_KEY")}
                             helperText={
-                                t("YOUR_PRIVATE_GPG_KEY") +
-                                " -----BEGIN PGP PRIVATE KEY BLOCK----- and -----END PGP PRIVATE KEY BLOCK-----"
+                                t("YOUR_PRIVATE_SSH_KEY") +
+                                " -----BEGIN OPENSSH PRIVATE KEY----- and -----END OPENSSH PRIVATE KEY-----"
                             }
                             name="privateKey"
                             autoComplete="off"
@@ -182,7 +129,7 @@ const DialogImportGpgKeyAsText = (props) => {
             <DialogActions>
                 <Button onClick={onClose}>{t("CLOSE")}</Button>
                 <Button
-                    onClick={importGpgKey}
+                    onClick={importSshKey}
                     variant="contained"
                     color="primary"
                     disabled={!title || !publicKey || !privateKey}
@@ -194,10 +141,10 @@ const DialogImportGpgKeyAsText = (props) => {
     );
 };
 
-DialogImportGpgKeyAsText.propTypes = {
+DialogImportSshKeyAsText.propTypes = {
     onClose: PropTypes.func.isRequired,
-    onNewGpgKeyImported: PropTypes.func.isRequired,
+    onNewSshKeyImported: PropTypes.func.isRequired,
     open: PropTypes.bool.isRequired,
 };
 
-export default DialogImportGpgKeyAsText;
+export default DialogImportSshKeyAsText;

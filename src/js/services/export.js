@@ -80,6 +80,7 @@ function filterDatastoreExport(folder, includeTrashBinItems) {
     const unwanted_folder_properties = [
         "id",
         "datastore_id",
+        "is_folder",
         "parent_datastore_id",
         "share_index",
         "parent_share_id",
@@ -92,6 +93,7 @@ function filterDatastoreExport(folder, includeTrashBinItems) {
     const unwanted_item_properties = [
         "id",
         "datastore_id",
+        "is_folder",
         "parent_datastore_id",
         "parent_share_id",
         "secret_id",
@@ -138,13 +140,6 @@ function filterDatastoreExport(folder, includeTrashBinItems) {
         }
     }
 
-    // Delete folder attribute if its empty
-    if (folder.hasOwnProperty("folders")) {
-        if (folder["folders"].length === 0) {
-            delete folder["folders"];
-        }
-    }
-
     // Delete folders that have been marked as deleted if includeTrashBinItems is not set
     if (folder.hasOwnProperty("folders")) {
         if (!includeTrashBinItems) {
@@ -155,7 +150,15 @@ function filterDatastoreExport(folder, includeTrashBinItems) {
             }
         }
     }
-    // folder folders recursive
+
+    // Delete folder attribute if its empty
+    if (folder.hasOwnProperty("folders")) {
+        if (folder["folders"].length === 0) {
+            delete folder["folders"];
+        }
+    }
+
+    // filter folders recursive
     if (folder.hasOwnProperty("folders")) {
         for (i = folder["folders"].length - 1; i >= 0; i--) {
             folder["folders"][i] = filterDatastoreExport(folder["folders"][i]);
@@ -206,11 +209,23 @@ function composeExport(data, type) {
                 environment_variables_title: "environment_variables_title",
                 environment_variables_variables: "environment_variables_variables",
                 environment_variables_notes: "environment_variables_notes",
+                ssh_own_key_title: "ssh_own_key_title",
+                ssh_own_key_email: "ssh_own_key_email",
+                ssh_own_key_name: "ssh_own_key_name",
+                ssh_own_key_public: "ssh_own_key_public",
+                ssh_own_key_private: "ssh_own_key_private",
+                ssh_own_key_notes: "ssh_own_key_notes",
                 mail_gpg_own_key_title: "mail_gpg_own_key_title",
                 mail_gpg_own_key_email: "mail_gpg_own_key_email",
                 mail_gpg_own_key_name: "mail_gpg_own_key_name",
                 mail_gpg_own_key_public: "mail_gpg_own_key_public",
                 mail_gpg_own_key_private: "mail_gpg_own_key_private",
+                credit_card_title: "credit_card_title",
+                credit_card_number: "credit_card_number",
+                credit_card_name: "credit_card_name",
+                credit_card_cvc: "credit_card_cvc",
+                credit_card_valid_through: "credit_card_valid_through",
+                credit_card_notes: "credit_card_notes",
                 bookmark_title: "bookmark_title",
                 bookmark_url: "bookmark_url",
                 bookmark_notes: "bookmark_notes",

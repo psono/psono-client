@@ -9,4 +9,4 @@ var s = new Readable()
 s.push(imgBuffer)
 s.push(null)
 
-s.pipe(fs.createWriteStream("cert.pfx"));
+s.pipe(fs.createWriteStream("../cert.pfx"));

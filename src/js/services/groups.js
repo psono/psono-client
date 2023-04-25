@@ -324,12 +324,12 @@ function createMembership(user, group, groupAdmin, shareAdmin) {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
 
-    const onSuccess = function (data) {
-        return data.data;
+    const onSuccess = function (request) {
+        return request.data;
     };
 
-    const onError = function () {
-        //pass
+    const onError = function (request) {
+        return Promise.reject(request);
     };
 
     const groupSecretKey = getGroupSecretKey(

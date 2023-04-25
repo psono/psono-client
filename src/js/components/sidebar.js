@@ -113,6 +113,7 @@ const Sidebar = (props) => {
     const serverStatus = useSelector((state) => state.server.status);
     const offlineMode = useSelector((state) => state.client.offlineMode);
     const recurrenceInterval = useSelector((state) => state.server.complianceCentralSecurityReportsRecurrenceInterval);
+    const disableCentralSecurityReports = useSelector((state) => state.server.disableCentralSecurityReports);
     const classes = useStyles();
     const theme = useTheme();
     const [moreLinks, setMoreLinks] = React.useState([]);
@@ -140,7 +141,7 @@ const Sidebar = (props) => {
     };
 
     let newSecurityReport = "NOT_REQUIRED";
-    if (recurrenceInterval > 0) {
+    if (recurrenceInterval > 0 && !disableCentralSecurityReports) {
         if (
             serverStatus.hasOwnProperty("data") &&
             serverStatus.data.hasOwnProperty("last_security_report_created") &&

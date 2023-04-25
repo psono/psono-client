@@ -31,7 +31,9 @@ const _entryTypes = [
         edit_title: "EDIT_ENVIRONMENT_VARIABLES",
         show_title: "SHOW_ENVIRONMENT_VARIABLES",
     },
+    { value: "ssh_own_key", title: "SSH_KEY", edit_title: "EDIT_SSH_KEY", show_title: "SHOW_SSH_KEY" },
     { value: "mail_gpg_own_key", title: "GPG_KEY", edit_title: "EDIT_GPG_KEY", show_title: "SHOW_GPG_KEY" },
+    { value: "credit_card", title: "CREDIT_CARD", edit_title: "EDIT_CREDIT_CARD", show_title: "SHOW_CREDIT_CARD" },
     { value: "bookmark", title: "BOOKMARK", edit_title: "EDIT_BOOKMARK", show_title: "SHOW_BOOKMARK" },
 ];
 

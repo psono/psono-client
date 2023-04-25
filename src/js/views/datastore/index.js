@@ -132,6 +132,7 @@ const DatastoreView = (props) => {
     const offlineMode = useSelector((state) => state.client.offlineMode);
     const passwordDatastore = useSelector((state) => state.user.userDatastoreOverview?.datastores?.find(datastore => datastore.type === 'password' && datastore.is_default));
     const recurrenceInterval = useSelector((state) => state.server.complianceCentralSecurityReportsRecurrenceInterval);
+    const disableCentralSecurityReports = useSelector((state) => state.server.disableCentralSecurityReports);
     const classes = useStyles();
     const { t } = useTranslation();
     const [ignored, forceUpdate] = useReducer((x) => x + 1, 0);
@@ -230,7 +231,7 @@ const DatastoreView = (props) => {
     };
 
     let newSecurityReport = "NOT_REQUIRED";
-    if (recurrenceInterval > 0) {
+    if (recurrenceInterval > 0 && !disableCentralSecurityReports) {
         if (
             serverStatus.hasOwnProperty("data") &&
             serverStatus.data.hasOwnProperty("last_security_report_created") &&
@@ -591,7 +592,9 @@ const DatastoreView = (props) => {
             moveFolderData.path,
             breadcrumbs["id_breadcrumbs"],
             "folders",
-            "password"
+            "password",
+            onOpenShareMoveRequest,
+            onCloseShareMoveRequest
         );
         setMoveFolderData(null);
         loadDatastore();

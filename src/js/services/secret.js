@@ -10,6 +10,7 @@ import offlineCache from "../services/offline-cache";
 import store from "./store";
 import storage from "./storage";
 import notification from "./notification";
+import deviceService from "./device";
 
 /**
  * Encrypts the content and creates a new secret out of it.
@@ -162,9 +163,19 @@ function onItemClick(item) {
         item["urlfilter"] !== "" &&
         ["website_password", "bookmark"].indexOf(item.type) !== -1
     ) {
-        browserClient.openTab("open-secret.html#!/secret/" + item.type + "/" + item.secret_id).then(function (window) {
-            window.psono_offline_cache_encryption_key = offlineCache.getEncryptionKey();
-        });
+        if (deviceService.isElectron()) {
+            readSecret(item.secret_id, item.secret_key).then((content) => {
+                if (item.type === "website_password") {
+                    browserClient.openTab(content.website_password_url);
+                } else if (item.type === "bookmark") {
+                    browserClient.openTab(content.bookmark_url);
+                }
+            });
+        } else {
+            browserClient.openTab("open-secret.html#!/secret/" + item.type + "/" + item.secret_id).then(function (window) {
+                window.psono_offline_cache_encryption_key = offlineCache.getEncryptionKey();
+            });
+        }
     }
 }
 

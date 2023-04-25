@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
+
 import { makeStyles } from "@material-ui/core/styles";
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
@@ -42,9 +43,14 @@ import SelectFieldEntryType from "../select-field/entry-type";
 import SelectFieldTotpAlgorithm from "../select-field/totp-algorithm";
 import DialogGenerateNewGpgKey from "./generate-new-gpg-key";
 import DialogImportGpgKeyAsText from "./import-gpg-key-as-text";
+import DialogGenerateNewSshKey from "./generate-new-ssh-key";
+import DialogImportSshKeyAsText from "./import-ssh-key-as-text";
 import SelectFieldFileDestination from "../select-field/file-destination";
 import GridContainerErrors from "../grid-container-errors";
 import store from "../../services/store";
+import TextFieldCreditCardNumber from "../text-field/credit-card-number";
+import TextFieldCreditCardValidThrough from "../text-field/credit-card-valid-through";
+import TextFieldCreditCardCVC from "../text-field/credit-card-cvc";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -107,6 +113,9 @@ const DialogNewEntry = (props) => {
     const [importGpgKeyAsTextDialogOpen, setImportGpgKeyAsTextDialogOpen] = useState(false);
     const [generateNewGpgKeyDialogOpen, setGenerateNewGpgKeyDialogOpen] = useState(false);
 
+    const [importSshKeyAsTextDialogOpen, setImportSshKeyAsTextDialogOpen] = useState(false);
+    const [generateNewSshKeyDialogOpen, setGenerateNewSshKeyDialogOpen] = useState(false);
+
     const [decryptMessageDialogOpen, setDecryptMessageDialogOpen] = useState(false);
     const [encryptMessageDialogOpen, setEncryptMessageDialogOpen] = useState(false);
     const [encryptSecretId, setEncryptSecretId] = useState("");
@@ -150,6 +159,18 @@ const DialogNewEntry = (props) => {
     const [fileDestination, setFileDestination] = useState(null);
     const [uploadStepComplete, setUploadStepComplete] = useState("");
 
+    const [sshOwnKeyTitle, setSshOwnKeyTitle] = useState("");
+    const [sshOwnKeyPublic, setSshOwnKeyPublic] = useState("");
+    const [sshOwnKeyPrivate, setSshOwnKeyPrivate] = useState("");
+    const [sshOwnKeyNotes, setSshOwnKeyNotes] = useState("");
+
+    const [creditCardTitle, setCreditCardTitle] = useState("");
+    const [creditCardNumber, setCreditCardNumber] = useState("");
+    const [creditCardCVC, setCreditCardCVC] = useState("");
+    const [creditCardName, setCreditCardName] = useState("");
+    const [creditCardValidThrough, setCreditCardValidThrough] = useState("");
+    const [creditCardNotes, setCreditCardNotes] = useState("");
+
     const [mailGpgOwnKeyTitle, setMailGpgOwnKeyTitle] = useState("");
     const [mailGpgOwnKeyEmail, setMailGpgOwnKeyEmail] = useState("");
     const [mailGpgOwnKeyName, setMailGpgOwnKeyName] = useState("");
@@ -188,6 +209,16 @@ const DialogNewEntry = (props) => {
         Boolean(mailGpgOwnKeyName) &&
         Boolean(mailGpgOwnKeyPublic) &&
         Boolean(mailGpgOwnKeyPrivate);
+    const isValidSshOwnKey =
+        Boolean(sshOwnKeyTitle) &&
+        Boolean(sshOwnKeyPublic) &&
+        Boolean(sshOwnKeyPrivate);
+    const isValidCreditCard =
+        Boolean(creditCardTitle) &&
+        Boolean(creditCardNumber) &&
+        Boolean(creditCardCVC) &&
+        Boolean(creditCardName) &&
+        Boolean(creditCardValidThrough);
     const isValidFile = Boolean(fileTitle) && Boolean(file);
     const canSave =
         (type === "website_password" && isValidWebsitePassword) ||
@@ -196,6 +227,8 @@ const DialogNewEntry = (props) => {
         (type === "note" && isValidNote) ||
         (type === "totp" && isValidTotp) ||
         (type === "environment_variables" && isValidEnvironmentVariables) ||
+        (type === "ssh_own_key" && isValidSshOwnKey) ||
+        (type === "credit_card" && isValidCreditCard) ||
         (type === "mail_gpg_own_key" && isValidMailGpgOwnKey) ||
         (type === "file" && isValidFile);
     const hasAdvanced = type !== "file";
@@ -527,6 +560,38 @@ const DialogNewEntry = (props) => {
             item["file_title"] = fileTitle;
         }
 
+        if (item.type === "ssh_own_key") {
+            item["name"] = sshOwnKeyTitle;
+            secretObject["ssh_own_key_title"] = sshOwnKeyTitle;
+            if (sshOwnKeyPublic) {
+                secretObject["ssh_own_key_public"] = sshOwnKeyPublic;
+            }
+            if (sshOwnKeyNotes) {
+                secretObject["ssh_own_key_notes"] = sshOwnKeyNotes;
+            }
+            secretObject["ssh_own_key_private"] = sshOwnKeyPrivate;
+        }
+
+        if (item.type === "credit_card") {
+            item["name"] = creditCardTitle;
+            secretObject["credit_card_title"] = creditCardTitle;
+            if (creditCardNumber) {
+                secretObject["credit_card_number"] = creditCardNumber;
+            }
+            if (creditCardCVC) {
+                secretObject["credit_card_cvc"] = creditCardCVC;
+            }
+            if (creditCardName) {
+                secretObject["credit_card_name"] = creditCardName;
+            }
+            if (creditCardValidThrough) {
+                secretObject["credit_card_valid_through"] = creditCardValidThrough;
+            }
+            if (creditCardNotes) {
+                secretObject["credit_card_notes"] = creditCardNotes;
+            }
+        }
+
         if (item.type === "mail_gpg_own_key") {
             item["name"] = mailGpgOwnKeyTitle;
             secretObject["mail_gpg_own_key_title"] = mailGpgOwnKeyTitle;
@@ -620,6 +685,18 @@ const DialogNewEntry = (props) => {
         setMailGpgOwnKeyEmail(email);
         setMailGpgOwnKeyPrivate(privateKey);
         setMailGpgOwnKeyPublic(publicKey);
+    };
+    const onNewSshKeysGenerated = (title, privateKey, publicKey) => {
+        setGenerateNewSshKeyDialogOpen(false);
+        setSshOwnKeyTitle(title);
+        setSshOwnKeyPrivate(privateKey);
+        setSshOwnKeyPublic(publicKey);
+    };
+    const onNewSshKeyImported = (title, privateKey, publicKey) => {
+        setImportSshKeyAsTextDialogOpen(false);
+        setSshOwnKeyTitle(title);
+        setSshOwnKeyPrivate(privateKey);
+        setSshOwnKeyPublic(publicKey);
     };
     const openMenu = (event) => {
         setAnchorEl(event.currentTarget);
@@ -1373,6 +1450,217 @@ const DialogNewEntry = (props) => {
                         </Grid>
                     )}
 
+                    {type === "credit_card" && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="creditCardTitle"
+                                label={t("TITLE")}
+                                name="creditCardTitle"
+                                autoComplete="off"
+                                value={creditCardTitle}
+                                required
+                                onChange={(event) => {
+                                    setCreditCardTitle(event.target.value);
+                                }}
+                            />
+                        </Grid>
+                    )}
+
+                    {type === "credit_card" && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextFieldCreditCardNumber
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="creditCardNumber"
+                                label={t("CREDIT_CARD_NUMBER")}
+                                placeholder="1234 1234 1234 1234"
+                                name="creditCardNumber"
+                                autoComplete="off"
+                                value={creditCardNumber}
+                                required
+                                onChange={(event) => {
+                                    setCreditCardNumber(event.target.value);
+                                }}
+                            />
+
+                        </Grid>
+                    )}
+
+                    {type === "credit_card" && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="creditCardName"
+                                label={t("NAME")}
+                                name="creditCardName"
+                                autoComplete="off"
+                                value={creditCardName}
+                                required
+                                onChange={(event) => {
+                                    setCreditCardName(event.target.value);
+                                }}
+                            />
+                        </Grid>
+                    )}
+
+                    {type === "credit_card" && (
+                        <Grid item xs={6} sm={6} md={6}>
+                            <TextFieldCreditCardValidThrough
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="creditCardValidThrough"
+                                label={t("VALID_THROUGH")}
+                                placeholder="MM / YY"
+                                name="creditCardValidThrough"
+                                autoComplete="off"
+                                value={creditCardValidThrough}
+                                required
+                                onChange={(event) => {
+                                    setCreditCardValidThrough(event.target.value)
+                                }}
+                            />
+                        </Grid>
+                    )}
+
+                    {type === "credit_card" && (
+                        <Grid item xs={6} sm={6} md={6}>
+                            <TextFieldCreditCardCVC
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="creditCardCVC"
+                                label={t("CVC")}
+                                placeholder="123"
+                                name="creditCardCVC"
+                                autoComplete="off"
+                                value={creditCardCVC}
+                                required
+                                onChange={(event) => {
+                                    setCreditCardCVC(event.target.value)
+                                }}
+                            />
+                        </Grid>
+                    )}
+
+                    {type === "credit_card" && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="creditCardNotes"
+                                label={t("NOTES")}
+                                name="creditCardNotes"
+                                autoComplete="off"
+                                value={creditCardNotes}
+                                onChange={(event) => {
+                                    setCreditCardNotes(event.target.value);
+                                }}
+                                multiline
+                                minRows={3}
+                                maxRows={32}
+                            />
+                        </Grid>
+                    )}
+
+
+                    {type === "ssh_own_key" && (sshOwnKeyTitle || sshOwnKeyPublic || sshOwnKeyPrivate || sshOwnKeyNotes) && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="sshOwnKeyTitle"
+                                label={t("TITLE")}
+                                name="sshOwnKeyTitle"
+                                autoComplete="off"
+                                value={sshOwnKeyTitle}
+                                required
+                                onChange={(event) => {
+                                    setSshOwnKeyTitle(event.target.value);
+                                }}
+                            />
+                        </Grid>
+                    )}
+                    {type === "ssh_own_key" && sshOwnKeyPublic && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="sshOwnKeyPublic"
+                                label={t("PUBLIC_KEY")}
+                                name="sshOwnKeyPublic"
+                                autoComplete="off"
+                                value={sshOwnKeyPublic}
+                                required
+                                disabled
+                                multiline
+                                minRows={3}
+                                maxRows={10}
+                            />
+                        </Grid>
+                    )}
+                    {type === "ssh_own_key" && sshOwnKeyPrivate && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="sshOwnKeyPrivate"
+                                label={t("PRIVATE_KEY")}
+                                name="sshOwnKeyPrivate"
+                                autoComplete="off"
+                                value={sshOwnKeyPrivate}
+                                required
+                                disabled
+                                multiline
+                                minRows={3}
+                                maxRows={10}
+                            />
+                        </Grid>
+                    )}
+                    {type === "ssh_own_key" && (sshOwnKeyTitle || sshOwnKeyPublic || sshOwnKeyPrivate || sshOwnKeyNotes) && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="sshOwnKeyNotes"
+                                label={t("NOTES")}
+                                name="sshOwnKeyNotes"
+                                autoComplete="off"
+                                value={sshOwnKeyNotes}
+                                onChange={(event) => {
+                                    setSshOwnKeyNotes(event.target.value);
+                                }}
+                                multiline
+                                minRows={3}
+                                maxRows={32}
+                            />
+                        </Grid>
+                    )}
+
+                    {type === "ssh_own_key" && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <Button
+                                onClick={() => {
+                                    setGenerateNewSshKeyDialogOpen(true);
+                                }}
+                            >
+                                {t("GENERATE_NEW_SSH_KEY")}
+                            </Button>
+                            <Button onClick={() => setImportSshKeyAsTextDialogOpen(true)}>{t("IMPORT_AS_TEXT")}</Button>
+                        </Grid>
+                    )}
+
                     {type === "mail_gpg_own_key" && mailGpgOwnKeyTitle && (
                         <Grid item xs={12} sm={12} md={12}>
                             <TextField
@@ -1662,6 +1950,20 @@ const DialogNewEntry = (props) => {
                     open={generateNewGpgKeyDialogOpen}
                     onClose={() => setGenerateNewGpgKeyDialogOpen(false)}
                     onNewGpgKeysGenerated={onNewGpgKeysGenerated}
+                />
+            )}
+            {importSshKeyAsTextDialogOpen && (
+                <DialogImportSshKeyAsText
+                    open={importSshKeyAsTextDialogOpen}
+                    onClose={() => setImportSshKeyAsTextDialogOpen(false)}
+                    onNewSshKeyImported={onNewSshKeyImported}
+                />
+            )}
+            {generateNewSshKeyDialogOpen && (
+                <DialogGenerateNewSshKey
+                    open={generateNewSshKeyDialogOpen}
+                    onClose={() => setGenerateNewSshKeyDialogOpen(false)}
+                    onNewSshKeysGenerated={onNewSshKeysGenerated}
                 />
             )}
         </Dialog>

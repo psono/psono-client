@@ -44,6 +44,9 @@ import DialogHistory from "./history";
 import notification from "../../services/notification";
 import cryptoLibrary from "../../services/crypto-library";
 import store from "../../services/store";
+import TextFieldCreditCardNumber from "../text-field/credit-card-number";
+import TextFieldCreditCardValidThrough from "../text-field/credit-card-valid-through";
+import TextFieldCreditCardCVC from "../text-field/credit-card-cvc";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -155,6 +158,18 @@ const DialogEditEntry = (props) => {
 
     const [fileTitle, setFileTitle] = useState("");
 
+    const [sshOwnKeyTitle, setSshOwnKeyTitle] = useState("");
+    const [sshOwnKeyPublic, setSshOwnKeyPublic] = useState("");
+    const [sshOwnKeyPrivate, setSshOwnKeyPrivate] = useState("");
+    const [sshOwnKeyNotes, setSshOwnKeyNotes] = useState("");
+
+    const [creditCardTitle, setCreditCardTitle] = useState("");
+    const [creditCardNumber, setCreditCardNumber] = useState("");
+    const [creditCardCVC, setCreditCardCVC] = useState("");
+    const [creditCardName, setCreditCardName] = useState("");
+    const [creditCardValidThrough, setCreditCardValidThrough] = useState("");
+    const [creditCardNotes, setCreditCardNotes] = useState("");
+
     const [mailGpgOwnKeyTitle, setMailGpgOwnKeyTitle] = useState("");
     const [mailGpgOwnKeyEmail, setMailGpgOwnKeyEmail] = useState("");
     const [mailGpgOwnKeyName, setMailGpgOwnKeyName] = useState("");
@@ -190,6 +205,16 @@ const DialogEditEntry = (props) => {
         Boolean(mailGpgOwnKeyName) &&
         Boolean(mailGpgOwnKeyPublic) &&
         Boolean(mailGpgOwnKeyPrivate);
+    const isValidSshOwnKey =
+        Boolean(sshOwnKeyTitle) &&
+        Boolean(sshOwnKeyPublic) &&
+        Boolean(sshOwnKeyPrivate);
+    const isValidCreditCard =
+        Boolean(creditCardTitle) &&
+        Boolean(creditCardNumber) &&
+        Boolean(creditCardCVC) &&
+        Boolean(creditCardName) &&
+        Boolean(creditCardValidThrough);
     const isValidFile = Boolean(fileTitle);
     const canSave =
         (item.type === "website_password" && isValidWebsitePassword) ||
@@ -198,6 +223,8 @@ const DialogEditEntry = (props) => {
         (item.type === "note" && isValidNote) ||
         (item.type === "totp" && isValidTotp) ||
         (item.type === "environment_variables" && isValidEnvironmentVariables) ||
+        (item.type === "ssh_own_key" && isValidSshOwnKey) ||
+        (item.type === "credit_card" && isValidCreditCard) ||
         (item.type === "mail_gpg_own_key" && isValidMailGpgOwnKey) ||
         (item.type === "file" && isValidFile);
 
@@ -383,6 +410,60 @@ const DialogEditEntry = (props) => {
                 setFileTitle("");
             }
 
+            // ssh_own_key
+            if (data.hasOwnProperty("ssh_own_key_title")) {
+                setSshOwnKeyTitle(data["ssh_own_key_title"]);
+            } else {
+                setSshOwnKeyTitle("");
+            }
+            if (data.hasOwnProperty("ssh_own_key_public")) {
+                setSshOwnKeyPublic(data["ssh_own_key_public"]);
+            } else {
+                setSshOwnKeyPublic("");
+            }
+            if (data.hasOwnProperty("ssh_own_key_private")) {
+                setSshOwnKeyPrivate(data["ssh_own_key_private"]);
+            } else {
+                setSshOwnKeyPrivate("");
+            }
+            if (data.hasOwnProperty("ssh_own_key_notes")) {
+                setSshOwnKeyNotes(data["ssh_own_key_notes"]);
+            } else {
+                setSshOwnKeyNotes("");
+            }
+
+            // credit_card
+            if (data.hasOwnProperty("credit_card_title")) {
+                setCreditCardTitle(data["credit_card_title"]);
+            } else {
+                setCreditCardTitle("");
+            }
+            if (data.hasOwnProperty("credit_card_number")) {
+                setCreditCardNumber(data["credit_card_number"]);
+            } else {
+                setCreditCardNumber("");
+            }
+            if (data.hasOwnProperty("credit_card_cvc")) {
+                setCreditCardCVC(data["credit_card_cvc"]);
+            } else {
+                setCreditCardCVC("");
+            }
+            if (data.hasOwnProperty("credit_card_name")) {
+                setCreditCardName(data["credit_card_name"]);
+            } else {
+                setCreditCardName("");
+            }
+            if (data.hasOwnProperty("credit_card_valid_through")) {
+                setCreditCardValidThrough(data["credit_card_valid_through"]);
+            } else {
+                setCreditCardValidThrough("");
+            }
+            if (data.hasOwnProperty("credit_card_notes")) {
+                setCreditCardNotes(data["credit_card_notes"]);
+            } else {
+                setCreditCardNotes("");
+            }
+
             // mail_gpg_own_key
             if (data.hasOwnProperty("mail_gpg_own_key_title")) {
                 setMailGpgOwnKeyTitle(data["mail_gpg_own_key_title"]);
@@ -533,6 +614,38 @@ const DialogEditEntry = (props) => {
             secretObject["file_title"] = fileTitle;
         }
 
+        if (item.type === "ssh_own_key") {
+            item["name"] = sshOwnKeyTitle;
+            secretObject["ssh_own_key_title"] = sshOwnKeyTitle;
+            if (sshOwnKeyPublic) {
+                secretObject["ssh_own_key_public"] = sshOwnKeyPublic;
+            }
+            if (sshOwnKeyNotes) {
+                secretObject["ssh_own_key_notes"] = sshOwnKeyNotes;
+            }
+            secretObject["ssh_own_key_private"] = sshOwnKeyPrivate;
+        }
+
+        if (item.type === "credit_card") {
+            item["name"] = creditCardTitle;
+            secretObject["credit_card_title"] = creditCardTitle;
+            if (creditCardNumber) {
+                secretObject["credit_card_number"] = creditCardNumber;
+            }
+            if (creditCardCVC) {
+                secretObject["credit_card_cvc"] = creditCardCVC;
+            }
+            if (creditCardName) {
+                secretObject["credit_card_name"] = creditCardName;
+            }
+            if (creditCardValidThrough) {
+                secretObject["credit_card_valid_through"] = creditCardValidThrough;
+            }
+            if (creditCardNotes) {
+                secretObject["credit_card_notes"] = creditCardNotes;
+            }
+        }
+
         if (item.type === "mail_gpg_own_key") {
             item["name"] = mailGpgOwnKeyTitle;
             secretObject["mail_gpg_own_key_title"] = mailGpgOwnKeyTitle;
@@ -583,6 +696,17 @@ const DialogEditEntry = (props) => {
             browserClientService.copyToClipboard(() => Promise.resolve(applicationPasswordPassword));
         }
         notification.push("password_copy", t("PASSWORD_COPY_NOTIFICATION"));
+    };
+
+    const onCopyPrivateKey = (event) => {
+        handleClose();
+        if (item.type === "ssh_own_key") {
+            browserClientService.copyToClipboard(() => Promise.resolve(sshOwnKeyPrivate));
+        }
+        if (item.type === "mail_gpg_own_key") {
+            browserClientService.copyToClipboard(() => Promise.resolve(mailGpgOwnKeyPrivate));
+        }
+        notification.push("password_copy", t("PRIVATE_KEY_COPY_NOTIFICATION"));
     };
     const onGeneratePassword = (event) => {
         handleClose();
@@ -1271,6 +1395,267 @@ const DialogEditEntry = (props) => {
                 </Grid>
             )}
 
+            {item.type === "credit_card" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="creditCardTitle"
+                        label={t("TITLE")}
+                        name="creditCardTitle"
+                        autoComplete="off"
+                        value={creditCardTitle}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        required
+                        required
+                        onChange={(event) => {
+                            setCreditCardTitle(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+
+            {item.type === "credit_card" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextFieldCreditCardNumber
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="creditCardNumber"
+                        label={t("CREDIT_CARD_NUMBER")}
+                        placeholder="1234 1234 1234 1234"
+                        name="creditCardNumber"
+                        autoComplete="off"
+                        value={creditCardNumber}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        required
+                        onChange={(event) => {
+                            setCreditCardNumber(event.target.value);
+                        }}
+                    />
+
+                </Grid>
+            )}
+
+            {item.type === "credit_card" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="creditCardName"
+                        label={t("NAME")}
+                        name="creditCardName"
+                        autoComplete="off"
+                        value={creditCardName}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        required
+                        onChange={(event) => {
+                            setCreditCardName(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+
+            {item.type === "credit_card" && (
+                <Grid item xs={6} sm={6} md={6}>
+                    <TextFieldCreditCardValidThrough
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="creditCardValidThrough"
+                        label={t("VALID_THROUGH")}
+                        placeholder="MM / YY"
+                        name="creditCardValidThrough"
+                        autoComplete="off"
+                        value={creditCardValidThrough}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        required
+                        onChange={(event) => {
+                            setCreditCardValidThrough(event.target.value)
+                        }}
+                    />
+                </Grid>
+            )}
+
+            {item.type === "credit_card" && (
+                <Grid item xs={6} sm={6} md={6}>
+                    <TextFieldCreditCardCVC
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="creditCardCVC"
+                        label={t("CVC")}
+                        placeholder="123"
+                        name="creditCardCVC"
+                        autoComplete="off"
+                        value={creditCardCVC}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        required
+                        onChange={(event) => {
+                            setCreditCardCVC(event.target.value)
+                        }}
+                    />
+                </Grid>
+            )}
+
+            {item.type === "credit_card" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="creditCardNotes"
+                        label={t("NOTES")}
+                        name="creditCardNotes"
+                        autoComplete="off"
+                        value={creditCardNotes}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        onChange={(event) => {
+                            setCreditCardNotes(event.target.value);
+                        }}
+                        multiline
+                        minRows={3}
+                        maxRows={32}
+                    />
+                </Grid>
+            )}
+
+
+
+            {item.type === "ssh_own_key" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="sshOwnKeyTitle"
+                        label={t("TITLE")}
+                        name="sshOwnKeyTitle"
+                        autoComplete="off"
+                        value={sshOwnKeyTitle}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        required
+                        onChange={(event) => {
+                            setSshOwnKeyTitle(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
+            {item.type === "ssh_own_key" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="sshOwnKeyPublic"
+                        label={t("PUBLIC_KEY")}
+                        name="sshOwnKeyPublic"
+                        autoComplete="off"
+                        value={sshOwnKeyPublic}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        required
+                        onChange={(event) => {
+                            setSshOwnKeyPublic(event.target.value);
+                        }}
+                        multiline
+                        minRows={3}
+                        maxRows={10}
+                    />
+                </Grid>
+            )}
+            {item.type === "ssh_own_key" && (
+                <Grid item xs={12} sm={12} md={12}>
+
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="sshOwnKeyPrivate"
+                        label={t("PRIVATE_KEY")}
+                        name="sshOwnKeyPrivate"
+                        autoComplete="off"
+                        value={sshOwnKeyPrivate}
+                        required
+                        onChange={(event) => {
+                            setSshOwnKeyPrivate(event.target.value);
+                        }}
+                        multiline={showPassword}
+                        minRows={3}
+                        maxRows={10}
+                        InputProps={{
+                            readOnly: !item.share_rights || !item.share_rights.write,
+                            type: showPassword ? "text" : "password",
+                            classes: {
+                                input: classes.passwordField,
+                            },
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        className={classes.iconButton}
+                                        aria-label="menu"
+                                        onClick={openMenu}
+                                    >
+                                        <MenuOpenIcon fontSize="small" />
+                                    </IconButton>
+                                    <Menu
+                                        id="simple-menu"
+                                        anchorEl={anchorEl}
+                                        keepMounted
+                                        open={Boolean(anchorEl)}
+                                        onClose={handleClose}
+                                    >
+                                        <MenuItem onClick={onShowHidePassword}>
+                                            <ListItemIcon className={classes.listItemIcon}>
+                                                <VisibilityOffIcon className={classes.icon} fontSize="small" />
+                                            </ListItemIcon>
+                                            <Typography variant="body2" noWrap>
+                                                {t("SHOW_OR_HIDE_PASSWORD")}
+                                            </Typography>
+                                        </MenuItem>
+                                        <MenuItem onClick={onCopyPrivateKey}>
+                                            <ListItemIcon className={classes.listItemIcon}>
+                                                <ContentCopy className={classes.icon} fontSize="small" />
+                                            </ListItemIcon>
+                                            <Typography variant="body2" noWrap>
+                                                {t("COPY_PRIVATE_KEY")}
+                                            </Typography>
+                                        </MenuItem>
+                                    </Menu>
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                </Grid>
+            )}
+
+            {item.type === "ssh_own_key" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="sshOwnKeyNotes"
+                        label={t("NOTES")}
+                        name="sshOwnKeyNotes"
+                        autoComplete="off"
+                        value={sshOwnKeyNotes}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        onChange={(event) => {
+                            setSshOwnKeyNotes(event.target.value);
+                        }}
+                        multiline
+                        minRows={3}
+                        maxRows={32}
+                    />
+                </Grid>
+            )}
+
+
+
+
+
             {item.type === "mail_gpg_own_key" && (
                 <Grid item xs={12} sm={12} md={12}>
                     <TextField
@@ -1350,6 +1735,70 @@ const DialogEditEntry = (props) => {
                         multiline
                         minRows={3}
                         maxRows={10}
+                    />
+                </Grid>
+            )}
+            {item.type === "mail_gpg_own_key" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="mailGpgOwnKeyPrivate"
+                        label={t("PRIVATE_KEY")}
+                        name="mailGpgOwnKeyPrivate"
+                        autoComplete="off"
+                        value={mailGpgOwnKeyPrivate}
+                        required
+                        onChange={(event) => {
+                            setMailGpgOwnKeyPrivate(event.target.value);
+                        }}
+                        disabled
+                        multiline={showPassword}
+                        minRows={3}
+                        maxRows={10}
+                        InputProps={{
+                            readOnly: !item.share_rights || !item.share_rights.write,
+                            type: showPassword ? "text" : "password",
+                            classes: {
+                                input: classes.passwordField,
+                            },
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        className={classes.iconButton}
+                                        aria-label="menu"
+                                        onClick={openMenu}
+                                    >
+                                        <MenuOpenIcon fontSize="small" />
+                                    </IconButton>
+                                    <Menu
+                                        id="simple-menu"
+                                        anchorEl={anchorEl}
+                                        keepMounted
+                                        open={Boolean(anchorEl)}
+                                        onClose={handleClose}
+                                    >
+                                        <MenuItem onClick={onShowHidePassword}>
+                                            <ListItemIcon className={classes.listItemIcon}>
+                                                <VisibilityOffIcon className={classes.icon} fontSize="small" />
+                                            </ListItemIcon>
+                                            <Typography variant="body2" noWrap>
+                                                {t("SHOW_OR_HIDE_PASSWORD")}
+                                            </Typography>
+                                        </MenuItem>
+                                        <MenuItem onClick={onCopyPrivateKey}>
+                                            <ListItemIcon className={classes.listItemIcon}>
+                                                <ContentCopy className={classes.icon} fontSize="small" />
+                                            </ListItemIcon>
+                                            <Typography variant="body2" noWrap>
+                                                {t("COPY_PRIVATE_KEY")}
+                                            </Typography>
+                                        </MenuItem>
+                                    </Menu>
+                                </InputAdornment>
+                            ),
+                        }}
                     />
                 </Grid>
             )}
