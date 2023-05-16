@@ -13,6 +13,7 @@ import importEnpassJson from "./import-enpass-json";
 import importKeepassInfoCsv from "./import-keepass-info-csv";
 import importKeepassInfoXml from "./import-keepass-info-xml";
 import importKeepassxOrgCsv from "./import-keepassx-org-csv";
+import importKeepassXCOrgCsv from "./import-keepassxc-org-csv";
 import importLastpassComCsv from "./import-lastpass-com-csv";
 import importPwsafeOrgCsv from "./import-pwsafe-org-csv";
 import importTeampassNetCsv from "./import-teampass-net-csv";
@@ -69,6 +70,11 @@ const _importer = {
         name: "KeePassX.org (CSV)",
         value: "keepassx_org_csv",
         parser: importKeepassxOrgCsv.parser,
+    },
+    keepassxc_org_csv: {
+        name: "KeePassXC.org (CSV)",
+        value: "keepassxc_org_csv",
+        parser: importKeepassXCOrgCsv.parser,
     },
     lastpass_com_csv: {
         name: "LastPass.com (CSV)",
