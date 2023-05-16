@@ -9,6 +9,7 @@ import importChromeCsv from "./import-chrome-csv";
 import importFirefoxCsvService from "./import-firefox-csv";
 import importSafariCsvService from "./import-safari-csv";
 import importBitwardenJson from "./import-bitwarden-json";
+import importDashlaneCsv from "./import-dashlane-csv";
 import importEnpassJson from "./import-enpass-json";
 import importKeepassInfoCsv from "./import-keepass-info-csv";
 import importKeepassInfoXml from "./import-keepass-info-xml";
@@ -50,6 +51,11 @@ const _importer = {
         name: "Bitwarden (JSON, unencrypted)",
         value: "bitwarden_json",
         parser: importBitwardenJson.parser,
+    },
+    dashlane_csv: {
+        name: "Dashlane (CSV)",
+        value: "dashlane_csv",
+        parser: importDashlaneCsv.parser,
     },
     enpass_json: {
         name: "Enpass (JSON)",
