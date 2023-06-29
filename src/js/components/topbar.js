@@ -147,8 +147,11 @@ const Topbar = (props) => {
         offlineCache.disable();
         offlineCache.clear();
     };
-    const logout = () => {
-        user.logout();
+    const logout = async () => {
+        const logoutResponse = await user.logout(undefined, window.location.origin);
+        if (logoutResponse.hasOwnProperty('redirect_url')) {
+            window.location.href = logoutResponse['redirect_url'];
+        }
     };
 
     return (
