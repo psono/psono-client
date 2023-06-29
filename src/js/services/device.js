@@ -46,6 +46,15 @@ function isElectron() {
 }
 
 /**
+ * Returns weather we have a webclient (no electron app
+ *
+ * @returns {boolean} Is this a webclient
+ */
+function isWebclient() {
+    return TARGET === 'chrome' || TARGET === 'firefox';
+}
+
+/**
  * Returns weather we have a windows machine
  *
  * @returns {boolean} Is this a windows device
@@ -158,6 +167,7 @@ const deviceService = {
     getDeviceFingerprint: getDeviceFingerprint,
     hasTitlebar: hasTitlebar,
     isElectron: isElectron,
+    isWebclient: isWebclient,
     isWindows: isWindows,
     isLinux: isLinux,
     isMac: isMac,

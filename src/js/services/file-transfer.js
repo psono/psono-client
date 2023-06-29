@@ -719,7 +719,6 @@ function downloadFileFromShard(file, shards, fileTransfer) {
         storage
             .findKey("file-downloads", "shards")
             .then(function (data) {
-                console.log(data);
                 downloadFileFromShardHelper(data.shards);
             })
             .catch(function (err) {
@@ -830,7 +829,6 @@ function downloadFile(file, shards, fileTransfer) {
  */
 function downloadFileByStorageId(id) {
     return storage.findKey("datastore-file-leafs", id).then(function (file) {
-        console.log(file);
         if (file === null || typeof file === "undefined") {
             return Promise.resolve();
         }

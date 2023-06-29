@@ -14,6 +14,7 @@ import browserClient from "../../services/browser-client";
 import helperService from "../../services/helper";
 import user from "../../services/user";
 import host from "../../services/host";
+import deviceService from "../../services/device";
 import webauthnService from "../../services/webauthn";
 import converterService from "../../services/converter";
 import store from "../../services/store";
@@ -1295,6 +1296,8 @@ const LoginViewForm = (props) => {
         );
     }
 
+    // a webclient that doesn't allow different servers, doesn't need remote config, so we can hide it.
+    const hideRemoteConfig = deviceService.isWebclient() && !allowCustomServer;
     return (
         <form
             onSubmit={(e) => {
@@ -1305,10 +1308,15 @@ const LoginViewForm = (props) => {
         >
             {formContent}
             <div className="box-footer">
-                <a onClick={remoteConfig} href="#">
-                    {t("REMOTE_CONFIG")}
-                </a>
-                &nbsp;&nbsp;
+                {!hideRemoteConfig && (
+                    <>
+                        <a onClick={remoteConfig} href="#">
+                            {t("REMOTE_CONFIG")}
+                        </a>
+                        &nbsp;&nbsp;
+                    </>
+                )}
+
                 {allowLostPassword && !window.location.pathname.endsWith("/default_popup.html") && (
                     <a href="lost-password.html">{t("LOST_PASSWORD")}</a>
                 )}

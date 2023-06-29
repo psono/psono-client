@@ -341,7 +341,7 @@ const PopupView = (props) => {
     };
 
     const logout = (event) => {
-        user.logout();
+        user.logout(undefined, window.location.origin);
     };
     const back = (event) => {
         setView("default");

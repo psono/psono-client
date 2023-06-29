@@ -9,10 +9,12 @@ import importChromeCsv from "./import-chrome-csv";
 import importFirefoxCsvService from "./import-firefox-csv";
 import importSafariCsvService from "./import-safari-csv";
 import importBitwardenJson from "./import-bitwarden-json";
+import importDashlaneCsv from "./import-dashlane-csv";
 import importEnpassJson from "./import-enpass-json";
 import importKeepassInfoCsv from "./import-keepass-info-csv";
 import importKeepassInfoXml from "./import-keepass-info-xml";
 import importKeepassxOrgCsv from "./import-keepassx-org-csv";
+import importKeepassXCOrgCsv from "./import-keepassxc-org-csv";
 import importLastpassComCsv from "./import-lastpass-com-csv";
 import importPwsafeOrgCsv from "./import-pwsafe-org-csv";
 import importTeampassNetCsv from "./import-teampass-net-csv";
@@ -50,6 +52,11 @@ const _importer = {
         value: "bitwarden_json",
         parser: importBitwardenJson.parser,
     },
+    dashlane_csv: {
+        name: "Dashlane (CSV)",
+        value: "dashlane_csv",
+        parser: importDashlaneCsv.parser,
+    },
     enpass_json: {
         name: "Enpass (JSON)",
         value: "enpass_json",
@@ -69,6 +76,11 @@ const _importer = {
         name: "KeePassX.org (CSV)",
         value: "keepassx_org_csv",
         parser: importKeepassxOrgCsv.parser,
+    },
+    keepassxc_org_csv: {
+        name: "KeePassXC.org (CSV)",
+        value: "keepassxc_org_csv",
+        parser: importKeepassXCOrgCsv.parser,
     },
     lastpass_com_csv: {
         name: "LastPass.com (CSV)",

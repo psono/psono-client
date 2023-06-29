@@ -270,6 +270,7 @@ const RegisterForm = (props) => {
                                 margin="dense"
                                 id="passwordRepeat"
                                 label={t("PASSWORD_REPEAT")}
+                                error={password && passwordRepeat && passwordRepeat !== password}
                                 InputProps={{
                                     type: "password",
                                 }}

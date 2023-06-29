@@ -349,6 +349,20 @@ describe('Service: helper test suite', function() {
         expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeFalsy()
     });
 
+    it('isUrlFilterMatch with port', function() {
+        const authority = 'example.com:8090';
+        const urlFilter = 'example.com:8090'; // should match
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeTruthy()
+    });
+
+    it('isUrlFilterMatch with port', function() {
+        const parsedUrl = helperService.parseUrl('http://example.com:8090/whatever.php');
+        const urlFilter = 'example.com:8090'; // should match
+
+        expect(helperService.isUrlFilterMatch(parsedUrl.authority, urlFilter)).toBeTruthy()
+    });
+
     it('isUrlFilterMatch wildcard match with sub domain', function() {
         const authority = 'sub.example.com';
         const urlFilter = '*.example.com';

@@ -122,7 +122,7 @@ function call(method, endpoint, data, headers, sessionSecretKey) {
                         }
                         return reject({ errors: ["SERVER_OFFLINE"] });
                     }
-                    
+
                     let decryptedData
                     try {
                         decryptedData = decryptData(sessionSecretKey, error.response, req)
@@ -480,15 +480,17 @@ function deleteEmergencyCode(token, sessionSecretKey, emergency_code_id) {
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {string|undefined} [session_id] An optional session ID to logout
+ * @param {string|undefined} [session_id] An optional session ID to log out
+ * @param {string|undefined} [postLogoutRedirectUri] An optional url to redirect to upon logout
  *
  * @returns {Promise} Returns a promise with the logout status
  */
-function logout(token, sessionSecretKey, session_id) {
+function logout(token, sessionSecretKey, session_id, postLogoutRedirectUri) {
     const endpoint = "/authentication/logout/";
     const method = "POST";
     const data = {
         session_id: session_id,
+        post_logout_redirect_uri: postLogoutRedirectUri,
     };
     const headers = {
         Authorization: "Token " + token,

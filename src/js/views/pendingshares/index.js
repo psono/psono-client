@@ -119,7 +119,7 @@ const PendingSharesView = (props) => {
                 sort: true,
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
-                    return <span>{tableMeta.rowData[5] && <CheckIcon />}</span>;
+                    return <span>{tableMeta.rowData[6] && <CheckIcon />}</span>;
                 },
             },
         },

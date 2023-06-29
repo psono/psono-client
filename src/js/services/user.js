@@ -619,12 +619,13 @@ function login(password, serverInfo, sendPlain) {
  * Initiates the logout, deletes all data including user tokens and session secrets
  *
  * @param {string} msg An optional message to display
+ * @param {string|undefined} [postLogoutRedirectUri] An optional message to display
  */
-function logout(msg = "") {
+function logout(msg = "", postLogoutRedirectUri = "") {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
 
-    const onSuccess = function () {
+    const onSuccess = function (result) {
         action.disableOfflineMode();
         storage.removeAll();
         storage.save();
@@ -634,9 +635,15 @@ function logout(msg = "") {
             notification.infoSend(msg);
         }
 
-        return {
+        const response = {
             response: "success",
-        };
+        }
+
+        if (result.data.hasOwnProperty('redirect_url')) {
+            response['redirect_url'] = result.data['redirect_url']
+        }
+
+        return response;
     };
 
     const onError = function () {
@@ -655,7 +662,7 @@ function logout(msg = "") {
         };
     };
 
-    return apiClient.logout(token, sessionSecretKey).then(onSuccess, onError);
+    return apiClient.logout(token, sessionSecretKey, undefined, postLogoutRedirectUri).then(onSuccess, onError);
 }
 
 /**
