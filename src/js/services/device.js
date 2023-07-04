@@ -51,7 +51,7 @@ function isElectron() {
  * @returns {boolean} Is this a webclient
  */
 function isWebclient() {
-    return TARGET === 'chrome' || TARGET === 'firefox';
+    return TARGET !== 'chrome' && TARGET !== 'firefox';
 }
 
 /**
