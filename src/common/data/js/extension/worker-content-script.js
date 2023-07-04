@@ -173,7 +173,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
                 if (inputs[r].type === "password") continue;
                 if (inputs[r].style.display === "none") continue;
 
-                if (inputs[i].checkVisibility() && inputs[r].offsetWidth < 90) continue; // we don't modify input fields that are too small if they are visible
+                if (inputs[i].hasOwnProperty('checkVisibility') && inputs[i].checkVisibility() && inputs[r].offsetWidth < 90) continue; // we don't modify input fields that are too small if they are visible
 
                 // username field is inputs[r]
                 padding_right = jQuery(inputs[r]).css("padding-right");
@@ -192,7 +192,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
                 break;
             }
 
-            if (!inputs[i].checkVisibility() || inputs[i].offsetWidth >= 90) {
+            if (!inputs[i].hasOwnProperty('checkVisibility') || !inputs[i].checkVisibility() || inputs[i].offsetWidth >= 90) {
                 // we don't modify input fields that are too small (offsetWidth is only proper calculated if the field is visible)
                 // Password field is inputs[i]
                 padding_right = jQuery(inputs[i]).css("padding-right");
