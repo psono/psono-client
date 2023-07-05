@@ -229,7 +229,7 @@ const LinkShareAccessView = (props) => {
                                             autoComplete="off"
                                             value={server}
                                             onChange={(event) => {
-                                                setServer(event.target.value);
+                                                setServer(event.target.value.trim());
                                             }}
                                         />
                                     </Grid>
