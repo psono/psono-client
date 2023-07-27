@@ -614,7 +614,7 @@
   "DATASTORE_DESCRIPTION": "Datastore Description",
   "DATASTORE_NAME_REQUIRED": "The datastore's name is required",
   "SET_AS_DEFAULT_DATASTORE": "Set as Default Datastore",
-  "EXPORT_DESCRIPTION": "Export data for an offline backup or other purposes.",
+  "EXPORT_DESCRIPTION": "Export data for an offline backup or other purposes. The export contains all the passwords, usernames and URLs, ... excluding files which need to be manually downloaded.",
   "IMPORT": "Import",
   "IMPORT_DESCRIPTION": "Import data from browsers or other password managers.",
   "FILE": "File",

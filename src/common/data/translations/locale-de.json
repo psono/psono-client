@@ -614,7 +614,7 @@
   "DATASTORE_DESCRIPTION": "Datenspeicher Beschreibung",
   "DATASTORE_NAME_REQUIRED": "Der Name des Datenspeichers ist erforderlich",
   "SET_AS_DEFAULT_DATASTORE": "Als default Datenspeicher verwenden",
-  "EXPORT_DESCRIPTION": "Hier können sie ihre Daten für ein offline Backup oder andere Zwecke exportieren.",
+  "EXPORT_DESCRIPTION": "Hier können sie ihre Daten für ein offline Backup oder andere Zwecke exportieren. Der Export entält alle Passwörter, Benutzernamen und URLs, ... ausgenommen Dateien welche manuell heruntergeladen werden müssen.",
   "IMPORT": "Import",
   "IMPORT_DESCRIPTION": "Hier können sie Daten von einem Browser oder anderen Passwort Managern importieren.",
   "FILE": "Datei",
