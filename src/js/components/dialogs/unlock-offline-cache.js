@@ -59,50 +59,60 @@ const DialogUnlockOfflineCache = (props) => {
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
         >
-            <DialogTitle id="alert-dialog-title">{t("UNLOCK_OFFLINE_CACHE")}</DialogTitle>
-            <DialogContent>
-                <Grid container>
-                    <Grid item xs={12} sm={12} md={12}>
-                        <TextField
-                            className={classes.textField}
-                            variant="outlined"
-                            margin="dense"
-                            id="passphrase"
-                            label={t("PASSPHRASE")}
-                            name="passphrase"
-                            autoComplete="off"
-                            value={passphrase}
-                            onChange={(event) => {
-                                setPassphrase(event.target.value);
-                            }}
-                            InputProps={{
-                                type: showPassword ? "text" : "password",
-                                classes: {
-                                    input: classes.passwordField,
-                                },
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            aria-label="toggle password visibility"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            edge="end"
-                                        >
-                                            {showPassword ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                ),
-                            }}
-                        />
+
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault();
+                }}
+                name="unlockOfflineCache"
+                autoComplete="off"
+            >
+                <DialogTitle id="alert-dialog-title">{t("UNLOCK_OFFLINE_CACHE")}</DialogTitle>
+                <DialogContent>
+                    <Grid container>
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="passphrase"
+                                label={t("PASSPHRASE")}
+                                name="passphrase"
+                                autoComplete="off"
+                                value={passphrase}
+                                onChange={(event) => {
+                                    setPassphrase(event.target.value);
+                                }}
+                                InputProps={{
+                                    type: showPassword ? "text" : "password",
+                                    classes: {
+                                        input: classes.passwordField,
+                                    },
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                aria-label="toggle password visibility"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                edge="end"
+                                            >
+                                                {showPassword ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                        </Grid>
+                        <GridContainerErrors errors={errors} setErrors={setErrors} />
                     </Grid>
-                    <GridContainerErrors errors={errors} setErrors={setErrors} />
-                </Grid>
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={logout}>{t("LOGOUT")}</Button>
-                <Button onClick={unlock} variant="contained" color="primary" disabled={!passphrase}>
-                    <span>{t("UNLOCK")}</span>
-                </Button>
-            </DialogActions>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={logout}>{t("LOGOUT")}</Button>
+                    <Button onClick={unlock} variant="contained" color="primary" disabled={!passphrase} type="submit">
+                        <span>{t("UNLOCK")}</span>
+                    </Button>
+                </DialogActions>
+
+            </form>
         </Dialog>
     );
 };
