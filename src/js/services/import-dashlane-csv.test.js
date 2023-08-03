@@ -1,5 +1,5 @@
 import cryptoLibrary from "./crypto-library";
-import importDashlaneCsv from './import-keepassxc-org-csv';
+import importDashlaneCsv from './import-dashlane-csv';
 
 describe('Service: importDashlaneCsv test suite', function () {
 
@@ -34,316 +34,392 @@ describe('Service: importDashlaneCsv test suite', function () {
 
         const expected_output = {
             "datastore": {
-                id: generic_uuid,
-                name: output.datastore.name,
-                folders: [],
-                items: [
+                "id": generic_uuid,
+                "name": output.datastore.name,
+                "folders": [
                     {
-                        id: generic_uuid,
-                        type: 'website_password',
-                        name: '',
-                        website_password_password: 'service',
-                        website_password_username: '',
-                        website_password_notes: '',
-                        website_password_url: 'p4assw0rd',
-                        website_password_title: ''
+                        "id": generic_uuid,
+                        "name": "Undefined",
+                        "items": [
+                            {
+                                "id": generic_uuid,
+                                "type": "application_password",
+                                "name": "service",
+                                "application_password_password": "p4assw0rd",
+                                "application_password_username": "email@example.com",
+                                "application_password_notes": "",
+                                "application_password_title": "service"
+                            },
+                            {
+                                "id": generic_uuid,
+                                "type": "website_password",
+                                "name": "title",
+                                "urlfilter": "title.com",
+                                "website_password_url_filter": "title.com",
+                                "website_password_password": "v3rys3cur3",
+                                "website_password_username": "email@example.com",
+                                "website_password_notes": "",
+                                "website_password_url": "https://title.com",
+                                "website_password_title": "title"
+                            },
+                            {
+                                "id": generic_uuid,
+                                "type": "website_password",
+                                "name": "title",
+                                "urlfilter": "title.com",
+                                "website_password_url_filter": "title.com",
+                                "website_password_password": "dontleakme",
+                                "website_password_username": "justausername",
+                                "website_password_notes": "",
+                                "website_password_url": "https://title.com",
+                                "website_password_title": "title"
+                            },
+                            {
+                                "id": generic_uuid,
+                                "type": "website_password",
+                                "name": "title",
+                                "urlfilter": "title.com",
+                                "website_password_url_filter": "title.com",
+                                "website_password_password": "p4assw0rd",
+                                "website_password_username": "username",
+                                "website_password_notes": "",
+                                "website_password_url": "https://title.com/account/register",
+                                "website_password_title": "title"
+                            },
+                            {
+                                "id": generic_uuid,
+                                "type": "website_password",
+                                "name": "title",
+                                "urlfilter": "title.com",
+                                "website_password_url_filter": "title.com",
+                                "website_password_password": "p4assw0rd",
+                                "website_password_username": "email@example.com",
+                                "website_password_notes": "",
+                                "website_password_url": "https://title.com/",
+                                "website_password_title": "title"
+                            },
+                            {
+                                "id": generic_uuid,
+                                "type": "website_password",
+                                "name": "https://account.title.com/login/oauth2/enter-password",
+                                "urlfilter": "account.title.com",
+                                "website_password_url_filter": "account.title.com",
+                                "website_password_password": "p4assw0rd",
+                                "website_password_username": "",
+                                "website_password_notes": "",
+                                "website_password_url": "https://account.title.com/login/oauth2/enter-password",
+                                "website_password_title": "https://account.title.com/login/oauth2/enter-password"
+                            },
+                            {
+                                "id": generic_uuid,
+                                "type": "website_password",
+                                "name": "title",
+                                "urlfilter": "git.title.com",
+                                "website_password_url_filter": "git.title.com",
+                                "website_password_password": "p4assw0rd",
+                                "website_password_username": "email@example.com",
+                                "website_password_notes": "",
+                                "website_password_url": "https://git.title.com/-/profile/password/edit",
+                                "website_password_title": "title"
+                            },
+                            {
+                                "id": generic_uuid,
+                                "type": "website_password",
+                                "name": "title",
+                                "urlfilter": "title",
+                                "website_password_url_filter": "title",
+                                "website_password_password": "p4assw0rd",
+                                "website_password_username": "justausername",
+                                "website_password_notes": "",
+                                "website_password_url": "https://title",
+                                "website_password_title": "title"
+                            },
+                            {
+                                "id": generic_uuid,
+                                "type": "website_password",
+                                "name": "title",
+                                "urlfilter": "www.title.com",
+                                "website_password_url_filter": "www.title.com",
+                                "website_password_password": "p4assw0rd",
+                                "website_password_username": "email@example.com",
+                                "website_password_notes": "",
+                                "website_password_url": "https://www.title.com/checkout/shippingPayment",
+                                "website_password_title": "title"
+                            },
+                            {
+                                "id": generic_uuid,
+                                "type": "website_password",
+                                "name": "title",
+                                "urlfilter": "title.com",
+                                "website_password_url_filter": "title.com",
+                                "website_password_password": "p4assw0rd",
+                                "website_password_username": "login name",
+                                "website_password_notes": "",
+                                "website_password_url": "https://title.com",
+                                "website_password_title": "title"
+                            }
+                        ]
                     },
                     {
-                        id: generic_uuid,
-                        type: 'website_password',
-                        name: '',
-                        website_password_password: 'title',
-                        website_password_username: '',
-                        website_password_notes: '',
-                        website_password_url: 'v3rys3cur3',
-                        website_password_title: ''
+                        "id": generic_uuid,
+                        "name": "Geschäftlich",
+                        "items": [
+                            {
+                                "id": generic_uuid,
+                                "type": "website_password",
+                                "name": "title",
+                                "urlfilter": "www.title.com",
+                                "website_password_url_filter": "www.title.com",
+                                "website_password_password": "this contains `,` so it's in quotes",
+                                "website_password_username": "email@example.com",
+                                "website_password_notes": "",
+                                "website_password_url": "https://www.title.com/accounts/edit",
+                                "website_password_title": "title"
+                            }
+                        ]
                     },
                     {
-                        id: generic_uuid,
-                        type: 'website_password',
-                        name: '',
-                        website_password_password: 'title',
-                        website_password_username: '',
-                        website_password_notes: '',
-                        website_password_url: 'dontleakme',
-                        website_password_title: ''
+                        "id": generic_uuid,
+                        "name": "Shopping",
+                        "items": [
+                            {
+                                "id": generic_uuid,
+                                "type": "website_password",
+                                "name": "https://title.com/us/",
+                                "urlfilter": "title.com",
+                                "website_password_url_filter": "title.com",
+                                "website_password_password": "p4assw0rd",
+                                "website_password_username": "email@example.com",
+                                "website_password_notes": "",
+                                "website_password_url": "https://title.com/us/",
+                                "website_password_title": "https://title.com/us/"
+                            },
+                            {
+                                "id": generic_uuid,
+                                "type": "website_password",
+                                "name": "title",
+                                "urlfilter": "www.title.com",
+                                "website_password_url_filter": "www.title.com",
+                                "website_password_password": "p4assw0rd",
+                                "website_password_username": "justausername",
+                                "website_password_notes": "",
+                                "website_password_url": "https://www.title.com/html/myAccount/login/page.html",
+                                "website_password_title": "title"
+                            }
+                        ]
                     },
                     {
-                        id: generic_uuid,
-                        type: 'website_password',
-                        name: '',
-                        website_password_password: 'title',
-                        website_password_username: '',
-                        website_password_notes: '',
-                        website_password_url: "this contains `,` so it's in quotes",
-                        website_password_title: ''
-                    },
-                    {
-                        id: generic_uuid,
-                        type: 'website_password',
-                        name: 'username',
-                        website_password_password: 'title',
-                        website_password_username: '',
-                        website_password_notes: '',
-                        website_password_url: 'p4assw0rd',
-                        website_password_title: 'username'
-                    },
-                    {
-                        id: generic_uuid,
-                        type: 'website_password',
-                        name: '',
-                        website_password_password: '',
-                        website_password_username: '',
-                        website_password_notes: '',
-                        website_password_url: 'p4assw0rd',
-                        website_password_title: ''
-                    },
-                    {
-                        id: generic_uuid,
-                        type: 'website_password',
-                        name: 'use this instead of email',
-                        website_password_password: 'title',
-                        website_password_username: '',
-                        website_password_notes: '',
-                        website_password_url: 'p4assw0rd',
-                        website_password_title: 'use this instead of email'
-                    },
-                    {
-                        id: generic_uuid,
-                        type: 'website_password',
-                        name: '',
-                        website_password_password: 'title',
-                        website_password_username: '',
-                        website_password_notes: '',
-                        website_password_url: 'p4assw0rd',
-                        website_password_title: ''
-                    },
-                    {
-                        id: generic_uuid,
-                        type: 'website_password',
-                        name: '',
-                        website_password_password: 'title',
-                        website_password_username: '',
-                        website_password_notes: '',
-                        website_password_url: 'p4assw0rd',
-                        website_password_title: ''
-                    },
-                    {
-                        id: generic_uuid,
-                        type: 'website_password',
-                        name: '',
-                        website_password_password: '',
-                        website_password_username: '',
-                        website_password_notes: '',
-                        website_password_url: 'p4assw0rd',
-                        website_password_title: ''
-                    },
-                    {
-                        id: generic_uuid,
-                        type: 'website_password',
-                        name: '',
-                        website_password_password: 'title',
-                        website_password_username: '',
-                        website_password_notes: '',
-                        website_password_url: 'p4assw0rd',
-                        website_password_title: ''
-                    },
-                    {
-                        id: generic_uuid,
-                        type: 'website_password',
-                        name: '',
-                        website_password_password: 'title',
-                        website_password_username: '',
-                        website_password_notes: '',
-                        website_password_url: 'p4assw0rd',
-                        website_password_title: ''
-                    },
-                    {
-                        id: generic_uuid,
-                        type: 'website_password',
-                        name: 'use me',
-                        website_password_password: '',
-                        website_password_username: '',
-                        website_password_notes: '',
-                        website_password_url: 'p4assw0rd',
-                        website_password_title: 'use me'
-                    },
-                    {
-                        id: generic_uuid,
-                        type: 'website_password',
-                        name: '',
-                        website_password_password: 'title',
-                        website_password_username: '',
-                        website_password_notes: '',
-                        website_password_url: 'p4assw0rd',
-                        website_password_title: ''
-                    },
-                    {
-                        id: generic_uuid,
-                        type: 'website_password',
-                        name: 'login name',
-                        website_password_password: 'title',
-                        website_password_username: '',
-                        website_password_notes: '',
-                        website_password_url: 'p4assw0rd',
-                        website_password_title: 'login name'
+                        "id": generic_uuid,
+                        "name": "Unterhaltung",
+                        "items": [
+                            {
+                                "id": generic_uuid,
+                                "type": "website_password",
+                                "name": "title",
+                                "urlfilter": "title.com",
+                                "website_password_url_filter": "title.com",
+                                "website_password_password": "p4assw0rd",
+                                "website_password_username": "use this instead of email",
+                                "website_password_notes": "",
+                                "website_password_url": "https://title.com/key/",
+                                "website_password_title": "title"
+                            },
+                            {
+                                "id": generic_uuid,
+                                "type": "website_password",
+                                "name": "https://www.title.com/v3/register/main.page",
+                                "urlfilter": "www.title.com",
+                                "website_password_url_filter": "www.title.com",
+                                "website_password_password": "p4assw0rd",
+                                "website_password_username": "use me",
+                                "website_password_notes": "",
+                                "website_password_url": "https://www.title.com/v3/register/main.page",
+                                "website_password_title": "https://www.title.com/v3/register/main.page"
+                            }
+                        ]
                     }
                 ]
             },
             "secrets": [
                 {
-                    id: generic_uuid,
-                    type: 'website_password',
-                    name: '',
-                    website_password_password: 'service',
-                    website_password_username: '',
-                    website_password_notes: '',
-                    website_password_url: 'p4assw0rd',
-                    website_password_title: ''
+                    "id": generic_uuid,
+                    "type": "application_password",
+                    "name": "service",
+                    "application_password_password": "p4assw0rd",
+                    "application_password_username": "email@example.com",
+                    "application_password_notes": "",
+                    "application_password_title": "service"
                 },
                 {
-                    id: generic_uuid,
-                    type: 'website_password',
-                    name: '',
-                    website_password_password: 'title',
-                    website_password_username: '',
-                    website_password_notes: '',
-                    website_password_url: 'v3rys3cur3',
-                    website_password_title: ''
+                    "id": generic_uuid,
+                    "type": "website_password",
+                    "name": "title",
+                    "urlfilter": "title.com",
+                    "website_password_url_filter": "title.com",
+                    "website_password_password": "v3rys3cur3",
+                    "website_password_username": "email@example.com",
+                    "website_password_notes": "",
+                    "website_password_url": "https://title.com",
+                    "website_password_title": "title"
                 },
                 {
-                    id: generic_uuid,
-                    type: 'website_password',
-                    name: '',
-                    website_password_password: 'title',
-                    website_password_username: '',
-                    website_password_notes: '',
-                    website_password_url: 'dontleakme',
-                    website_password_title: ''
+                    "id": generic_uuid,
+                    "type": "website_password",
+                    "name": "title",
+                    "urlfilter": "title.com",
+                    "website_password_url_filter": "title.com",
+                    "website_password_password": "dontleakme",
+                    "website_password_username": "justausername",
+                    "website_password_notes": "",
+                    "website_password_url": "https://title.com",
+                    "website_password_title": "title"
                 },
                 {
-                    id: generic_uuid,
-                    type: 'website_password',
-                    name: '',
-                    website_password_password: 'title',
-                    website_password_username: '',
-                    website_password_notes: '',
-                    website_password_url: "this contains `,` so it's in quotes",
-                    website_password_title: ''
+                    "id": generic_uuid,
+                    "type": "website_password",
+                    "name": "title",
+                    "urlfilter": "www.title.com",
+                    "website_password_url_filter": "www.title.com",
+                    "website_password_password": "this contains `,` so it's in quotes",
+                    "website_password_username": "email@example.com",
+                    "website_password_notes": "",
+                    "website_password_url": "https://www.title.com/accounts/edit",
+                    "website_password_title": "title"
                 },
                 {
-                    id: generic_uuid,
-                    type: 'website_password',
-                    name: 'username',
-                    website_password_password: 'title',
-                    website_password_username: '',
-                    website_password_notes: '',
-                    website_password_url: 'p4assw0rd',
-                    website_password_title: 'username'
+                    "id": generic_uuid,
+                    "type": "website_password",
+                    "name": "title",
+                    "urlfilter": "title.com",
+                    "website_password_url_filter": "title.com",
+                    "website_password_password": "p4assw0rd",
+                    "website_password_username": "username",
+                    "website_password_notes": "",
+                    "website_password_url": "https://title.com/account/register",
+                    "website_password_title": "title"
                 },
                 {
-                    id: generic_uuid,
-                    type: 'website_password',
-                    name: '',
-                    website_password_password: '',
-                    website_password_username: '',
-                    website_password_notes: '',
-                    website_password_url: 'p4assw0rd',
-                    website_password_title: ''
+                    "id": generic_uuid,
+                    "type": "website_password",
+                    "name": "https://title.com/us/",
+                    "urlfilter": "title.com",
+                    "website_password_url_filter": "title.com",
+                    "website_password_password": "p4assw0rd",
+                    "website_password_username": "email@example.com",
+                    "website_password_notes": "",
+                    "website_password_url": "https://title.com/us/",
+                    "website_password_title": "https://title.com/us/"
                 },
                 {
-                    id: generic_uuid,
-                    type: 'website_password',
-                    name: 'use this instead of email',
-                    website_password_password: 'title',
-                    website_password_username: '',
-                    website_password_notes: '',
-                    website_password_url: 'p4assw0rd',
-                    website_password_title: 'use this instead of email'
+                    "id": generic_uuid,
+                    "type": "website_password",
+                    "name": "title",
+                    "urlfilter": "title.com",
+                    "website_password_url_filter": "title.com",
+                    "website_password_password": "p4assw0rd",
+                    "website_password_username": "use this instead of email",
+                    "website_password_notes": "",
+                    "website_password_url": "https://title.com/key/",
+                    "website_password_title": "title"
                 },
                 {
-                    id: generic_uuid,
-                    type: 'website_password',
-                    name: '',
-                    website_password_password: 'title',
-                    website_password_username: '',
-                    website_password_notes: '',
-                    website_password_url: 'p4assw0rd',
-                    website_password_title: ''
+                    "id": generic_uuid,
+                    "type": "website_password",
+                    "name": "title",
+                    "urlfilter": "title.com",
+                    "website_password_url_filter": "title.com",
+                    "website_password_password": "p4assw0rd",
+                    "website_password_username": "email@example.com",
+                    "website_password_notes": "",
+                    "website_password_url": "https://title.com/",
+                    "website_password_title": "title"
                 },
                 {
-                    id: generic_uuid,
-                    type: 'website_password',
-                    name: '',
-                    website_password_password: 'title',
-                    website_password_username: '',
-                    website_password_notes: '',
-                    website_password_url: 'p4assw0rd',
-                    website_password_title: ''
+                    "id": generic_uuid,
+                    "type": "website_password",
+                    "name": "title",
+                    "urlfilter": "www.title.com",
+                    "website_password_url_filter": "www.title.com",
+                    "website_password_password": "p4assw0rd",
+                    "website_password_username": "justausername",
+                    "website_password_notes": "",
+                    "website_password_url": "https://www.title.com/html/myAccount/login/page.html",
+                    "website_password_title": "title"
                 },
                 {
-                    id: generic_uuid,
-                    type: 'website_password',
-                    name: '',
-                    website_password_password: '',
-                    website_password_username: '',
-                    website_password_notes: '',
-                    website_password_url: 'p4assw0rd',
-                    website_password_title: ''
+                    "id": generic_uuid,
+                    "type": "website_password",
+                    "name": "https://account.title.com/login/oauth2/enter-password",
+                    "urlfilter": "account.title.com",
+                    "website_password_url_filter": "account.title.com",
+                    "website_password_password": "p4assw0rd",
+                    "website_password_username": "",
+                    "website_password_notes": "",
+                    "website_password_url": "https://account.title.com/login/oauth2/enter-password",
+                    "website_password_title": "https://account.title.com/login/oauth2/enter-password"
                 },
                 {
-                    id: generic_uuid,
-                    type: 'website_password',
-                    name: '',
-                    website_password_password: 'title',
-                    website_password_username: '',
-                    website_password_notes: '',
-                    website_password_url: 'p4assw0rd',
-                    website_password_title: ''
+                    "id": generic_uuid,
+                    "type": "website_password",
+                    "name": "title",
+                    "urlfilter": "git.title.com",
+                    "website_password_url_filter": "git.title.com",
+                    "website_password_password": "p4assw0rd",
+                    "website_password_username": "email@example.com",
+                    "website_password_notes": "",
+                    "website_password_url": "https://git.title.com/-/profile/password/edit",
+                    "website_password_title": "title"
                 },
                 {
-                    id: generic_uuid,
-                    type: 'website_password',
-                    name: '',
-                    website_password_password: 'title',
-                    website_password_username: '',
-                    website_password_notes: '',
-                    website_password_url: 'p4assw0rd',
-                    website_password_title: ''
+                    "id": generic_uuid,
+                    "type": "website_password",
+                    "name": "title",
+                    "urlfilter": "title",
+                    "website_password_url_filter": "title",
+                    "website_password_password": "p4assw0rd",
+                    "website_password_username": "justausername",
+                    "website_password_notes": "",
+                    "website_password_url": "https://title",
+                    "website_password_title": "title"
                 },
                 {
-                    id: generic_uuid,
-                    type: 'website_password',
-                    name: 'use me',
-                    website_password_password: '',
-                    website_password_username: '',
-                    website_password_notes: '',
-                    website_password_url: 'p4assw0rd',
-                    website_password_title: 'use me'
+                    "id": generic_uuid,
+                    "type": "website_password",
+                    "name": "https://www.title.com/v3/register/main.page",
+                    "urlfilter": "www.title.com",
+                    "website_password_url_filter": "www.title.com",
+                    "website_password_password": "p4assw0rd",
+                    "website_password_username": "use me",
+                    "website_password_notes": "",
+                    "website_password_url": "https://www.title.com/v3/register/main.page",
+                    "website_password_title": "https://www.title.com/v3/register/main.page"
                 },
                 {
-                    id: generic_uuid,
-                    type: 'website_password',
-                    name: '',
-                    website_password_password: 'title',
-                    website_password_username: '',
-                    website_password_notes: '',
-                    website_password_url: 'p4assw0rd',
-                    website_password_title: ''
+                    "id": generic_uuid,
+                    "type": "website_password",
+                    "name": "title",
+                    "urlfilter": "www.title.com",
+                    "website_password_url_filter": "www.title.com",
+                    "website_password_password": "p4assw0rd",
+                    "website_password_username": "email@example.com",
+                    "website_password_notes": "",
+                    "website_password_url": "https://www.title.com/checkout/shippingPayment",
+                    "website_password_title": "title"
                 },
                 {
-                    id: generic_uuid,
-                    type: 'website_password',
-                    name: 'login name',
-                    website_password_password: 'title',
-                    website_password_username: '',
-                    website_password_notes: '',
-                    website_password_url: 'p4assw0rd',
-                    website_password_title: 'login name'
+                    "id": generic_uuid,
+                    "type": "website_password",
+                    "name": "title",
+                    "urlfilter": "title.com",
+                    "website_password_url_filter": "title.com",
+                    "website_password_password": "p4assw0rd",
+                    "website_password_username": "login name",
+                    "website_password_notes": "",
+                    "website_password_url": "https://title.com",
+                    "website_password_title": "title"
                 }
             ]
         };
-
         expect(JSON.parse(JSON.stringify(output))).toEqual(expected_output);
     });
 
