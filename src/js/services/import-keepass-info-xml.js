@@ -3,9 +3,12 @@
  */
 import cryptoLibrary from "./crypto-library";
 import helperService from "./helper";
-const fastXmlParser = require("fast-xml-parser");
+const { XMLParser} = require("fast-xml-parser");
 
 function unescapeValue(value) {
+    if (typeof value === 'number') {
+        value = value.toString();
+    }
     value = value.replace(/&lt;/g, "<");
     value = value.replace(/&gt;/g, ">");
     value = value.replace(/&amp;/g, "&");
@@ -137,16 +140,16 @@ function gatherSecrets(datastore, secrets, xml) {
  * @returns {object} The array of arrays representing the XML
  */
 function parseXml(xmlString) {
-    fastXmlParser.validate(xmlString); // Throws sometimes an error if its no valid xml
-    const parsed_xml = fastXmlParser.parse(xmlString, { parseNodeValue: false });
+    const parser = new XMLParser();
+    const parsedXml = parser.parse(xmlString, { parseNodeValue: false });
     if (
-        !parsed_xml.hasOwnProperty("KeePassFile") ||
-        !parsed_xml["KeePassFile"].hasOwnProperty("Root") ||
-        !parsed_xml["KeePassFile"]["Root"].hasOwnProperty("Group")
+        !parsedXml.hasOwnProperty("KeePassFile") ||
+        !parsedXml["KeePassFile"].hasOwnProperty("Root") ||
+        !parsedXml["KeePassFile"]["Root"].hasOwnProperty("Group")
     ) {
         throw new Error("Error parsing XML");
     }
-    return parsed_xml["KeePassFile"]["Root"]["Group"];
+    return parsedXml["KeePassFile"]["Root"]["Group"];
 }
 
 /**
