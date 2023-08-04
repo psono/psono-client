@@ -44,6 +44,11 @@ function set(messages) {
  */
 function push(notificationType, notificationContent) {
     switch (notificationType) {
+        case "pin_copy":
+            if (store.getState().client.notificationOnCopy) {
+                browserClient.notify(notificationContent);
+            }
+            return;
         case "password_copy":
             if (store.getState().client.notificationOnCopy) {
                 browserClient.notify(notificationContent);

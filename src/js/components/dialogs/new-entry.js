@@ -169,6 +169,7 @@ const DialogNewEntry = (props) => {
     const [creditCardCVC, setCreditCardCVC] = useState("");
     const [creditCardName, setCreditCardName] = useState("");
     const [creditCardValidThrough, setCreditCardValidThrough] = useState("");
+    const [creditCardPIN, setCreditCardPIN] = useState("");
     const [creditCardNotes, setCreditCardNotes] = useState("");
 
     const [mailGpgOwnKeyTitle, setMailGpgOwnKeyTitle] = useState("");
@@ -587,6 +588,9 @@ const DialogNewEntry = (props) => {
             if (creditCardValidThrough) {
                 secretObject["credit_card_valid_through"] = creditCardValidThrough;
             }
+            if (creditCardPIN) {
+                secretObject["credit_card_pin"] = creditCardPIN;
+            }
             if (creditCardNotes) {
                 secretObject["credit_card_notes"] = creditCardNotes;
             }
@@ -659,6 +663,13 @@ const DialogNewEntry = (props) => {
             browserClientService.copyToClipboard(() => Promise.resolve(applicationPasswordPassword));
         }
         notification.push("password_copy", t("PASSWORD_COPY_NOTIFICATION"));
+    };
+    const onCopyPIN = (event) => {
+        handleClose();
+        if (type === "credit_card") {
+            browserClientService.copyToClipboard(() => Promise.resolve(creditCardPIN));
+        }
+        notification.push("pin_copy", t("PIN_COPY_NOTIFICATION"));
     };
     const onGeneratePassword = (event) => {
         handleClose();
@@ -1544,6 +1555,71 @@ const DialogNewEntry = (props) => {
                                 required
                                 onChange={(event) => {
                                     setCreditCardCVC(event.target.value)
+                                }}
+                            />
+                        </Grid>
+                    )}
+
+                    {type === "credit_card" && (
+                        <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                                className={classes.textField}
+                                variant="outlined"
+                                margin="dense"
+                                id="creditCardPIN"
+                                label={t("PIN")}
+                                placeholder="123"
+                                name="creditCardPIN"
+                                autoComplete="off"
+                                value={creditCardPIN}
+                                onChange={(event) => {
+                                    //check whether our string only contains numbers
+                                    const pattern = new RegExp('^[0-9]*$');
+                                    if (!pattern.test(event.target.value)) {
+                                        return;
+                                    }
+                                    setCreditCardPIN(event.target.value);
+                                }}
+                                InputProps={{
+                                    type: showPassword ? "text" : "password",
+                                    classes: {
+                                        input: classes.passwordField,
+                                    },
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                className={classes.iconButton}
+                                                aria-label="menu"
+                                                onClick={openMenu}
+                                            >
+                                                <MenuOpenIcon fontSize="small" />
+                                            </IconButton>
+                                            <Menu
+                                                id="simple-menu"
+                                                anchorEl={anchorEl}
+                                                keepMounted
+                                                open={Boolean(anchorEl)}
+                                                onClose={handleClose}
+                                            >
+                                                <MenuItem onClick={onShowHidePassword}>
+                                                    <ListItemIcon className={classes.listItemIcon}>
+                                                        <VisibilityOffIcon className={classes.icon} fontSize="small" />
+                                                    </ListItemIcon>
+                                                    <Typography variant="body2" noWrap>
+                                                        {t("SHOW_OR_HIDE_PIN")}
+                                                    </Typography>
+                                                </MenuItem>
+                                                <MenuItem onClick={onCopyPIN}>
+                                                    <ListItemIcon className={classes.listItemIcon}>
+                                                        <ContentCopy className={classes.icon} fontSize="small" />
+                                                    </ListItemIcon>
+                                                    <Typography variant="body2" noWrap>
+                                                        {t("COPY_PIN")}
+                                                    </Typography>
+                                                </MenuItem>
+                                            </Menu>
+                                        </InputAdornment>
+                                    ),
                                 }}
                             />
                         </Grid>

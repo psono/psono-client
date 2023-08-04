@@ -360,12 +360,6 @@ function parser(data) {
 
     gatherSecrets(datastore, secrets, csv);
 
-    console.log({
-        datastore: datastore,
-        secrets: secrets,
-    })
-    return {}
-
     return {
         datastore: datastore,
         secrets: secrets,

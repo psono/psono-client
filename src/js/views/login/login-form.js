@@ -883,8 +883,8 @@ const LoginViewForm = (props) => {
                                 autoComplete="off"
                                 value={server}
                                 onChange={(event) => {
-                                    setServer(event.target.value);
-                                    setDomain(helperService.getDomainWithoutWww(event.target.value));
+                                    setServer(event.target.value.trim());
+                                    setDomain(helperService.getDomainWithoutWww(event.target.value.trim()));
                                 }}
                             />
                         </Grid>
