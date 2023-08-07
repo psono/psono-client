@@ -477,6 +477,16 @@ function onWebsitePasswordRefresh(request, sender, sendResponse) {
             });
         }
 
+        update.sort(function(a, b){
+            let a_name = a.name ? a.name : '';
+            let b_name = b.name ? b.name : '';
+            if (a_name.toLowerCase() < b_name.toLowerCase())
+                return -1;
+            if (a_name.toLowerCase() > b_name.toLowerCase())
+                return 1;
+            return 0;
+        })
+
         sendResponse({ event: "website-password-update", data: update });
     });
 
