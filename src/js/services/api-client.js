@@ -2245,12 +2245,12 @@ const deleteApiKeySecret = function (token, sessionSecretKey, api_key_secret_id)
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid|undefined} [file_repository_id=null] (optional) api key id
+ * @param {uuid|undefined} [fileRepositoryId=null] (optional) api key id
  *
  * @returns {Promise} promise
  */
-const readFileRepository = function (token, sessionSecretKey, file_repository_id) {
-    const endpoint = "/file-repository/" + (!file_repository_id ? "" : file_repository_id + "/");
+const readFileRepository = function (token, sessionSecretKey, fileRepositoryId) {
+    const endpoint = "/file-repository/" + (!fileRepositoryId ? "" : fileRepositoryId + "/");
     const method = "GET";
     const data = null;
     const headers = {
@@ -2361,7 +2361,7 @@ const createFileRepository = function (
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} file_repository_id The file_repository id to update
+ * @param {uuid} fileRepositoryId The file_repository id to update
  * @param {string} title title of the new file repository
  * @param {string} type The type of the new file repository
  * @param {string} [gcp_cloud_storage_bucket] (optional) The gcp cloud storage bucket
@@ -2393,7 +2393,7 @@ const createFileRepository = function (
 const updateFileRepository = function (
     token,
     sessionSecretKey,
-    file_repository_id,
+    fileRepositoryId,
     title,
     type,
     gcp_cloud_storage_bucket,
@@ -2423,7 +2423,7 @@ const updateFileRepository = function (
     const endpoint = "/file-repository/";
     const method = "POST";
     const data = {
-        file_repository_id: file_repository_id,
+        file_repository_id: fileRepositoryId,
         title: title,
         type: type,
         gcp_cloud_storage_bucket: gcp_cloud_storage_bucket,
@@ -2463,15 +2463,97 @@ const updateFileRepository = function (
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} file_repository_id The file_repository id to delete
+ * @param {uuid} fileRepositoryId The file_repository id to delete
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const deleteFileRepository = function (token, sessionSecretKey, file_repository_id) {
+const deleteFileRepository = function (token, sessionSecretKey, fileRepositoryId) {
     const endpoint = "/file-repository/";
     const method = "DELETE";
     const data = {
-        file_repository_id: file_repository_id,
+        file_repository_id: fileRepositoryId,
+    };
+
+    const headers = {
+        "Content-Type": "application/json",
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+};
+
+/**
+ * Ajax PUT request to create a group file repository right for a file repository with the token as authentication
+ *
+ * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+ * @param {string} sessionSecretKey The session secret key
+ * @param {uuid} fileRepositoryId ID of the file_repository
+ * @param {uuid} groupId ID of the group
+ * @param {boolean} read Weather the users should have read rights to read the details
+ * @param {boolean} write Weather the users should have read rights to write / update details
+ * @param {boolean} grant Weather the users should have read rights to modify other users read and write priviliges
+ *
+ * @returns {Promise} promise
+ */
+const createGroupFileRepositoryRight = function (token, sessionSecretKey, fileRepositoryId, groupId, read, write, grant) {
+    const endpoint = "/group-file-repository-right/";
+    const method = "PUT";
+    const data = {
+        file_repository_id: fileRepositoryId,
+        group_id: groupId,
+        read: read,
+        write: write,
+        grant: grant,
+    };
+    const headers = {
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+};
+
+/**
+ * Ajax POST request to update a group file repository right with the token as authentication
+ *
+ * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+ * @param {string} sessionSecretKey The session secret key
+ * @param {uuid} groupFileRepositoryRightId The file_repository_right id to update
+ * @param {boolean} read Weather the users should have read rights to read the details
+ * @param {boolean} write Weather the users should have read rights to write / update details
+ * @param {boolean} grant Weather the users should have read rights to modify other users read and write priviliges
+ *
+ * @returns {Promise} promise
+ */
+const updateGroupFileRepositoryRight = function (token, sessionSecretKey, groupFileRepositoryRightId, read, write, grant) {
+    const endpoint = "/group-file-repository-right/";
+    const method = "POST";
+    const data = {
+        group_file_repository_right_id: groupFileRepositoryRightId,
+        read: read,
+        write: write,
+        grant: grant,
+    };
+    const headers = {
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+};
+
+/**
+ * Ajax DELETE request to delete a given group file repository right
+ *
+ * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+ * @param {string} sessionSecretKey The session secret key
+ * @param {uuid} groupFileRepositoryRightId The file repository right id to delete
+ *
+ * @returns {Promise} Returns a promise which can succeed or fail
+ */
+const deleteGroupFileRepositoryRight = function (token, sessionSecretKey, groupFileRepositoryRightId) {
+    const endpoint = "/group-file-repository-right/";
+    const method = "DELETE";
+    const data = {
+        group_file_repository_right_id: groupFileRepositoryRightId,
     };
 
     const headers = {
@@ -2487,7 +2569,7 @@ const deleteFileRepository = function (token, sessionSecretKey, file_repository_
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} file_repository_id ID of the file_repository
+ * @param {uuid} fileRepositoryId ID of the file_repository
  * @param {uuid} user_id ID of the user
  * @param {boolean} read Weather the users should have read rights to read the details
  * @param {boolean} write Weather the users should have read rights to write / update details
@@ -2495,11 +2577,11 @@ const deleteFileRepository = function (token, sessionSecretKey, file_repository_
  *
  * @returns {Promise} promise
  */
-const createFileRepositoryRight = function (token, sessionSecretKey, file_repository_id, user_id, read, write, grant) {
+const createFileRepositoryRight = function (token, sessionSecretKey, fileRepositoryId, user_id, read, write, grant) {
     const endpoint = "/file-repository-right/";
     const method = "PUT";
     const data = {
-        file_repository_id: file_repository_id,
+        file_repository_id: fileRepositoryId,
         user_id: user_id,
         read: read,
         write: write,
@@ -2517,18 +2599,18 @@ const createFileRepositoryRight = function (token, sessionSecretKey, file_reposi
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} file_repository_right_id The file_repository_right id to update
+ * @param {uuid} fileRepositoryRightId The file_repository_right id to update
  * @param {boolean} read Weather the users should have read rights to read the details
  * @param {boolean} write Weather the users should have read rights to write / update details
  * @param {boolean} grant Weather the users should have read rights to modify other users read and write priviliges
  *
  * @returns {Promise} promise
  */
-const updateFileRepositoryRight = function (token, sessionSecretKey, file_repository_right_id, read, write, grant) {
+const updateFileRepositoryRight = function (token, sessionSecretKey, fileRepositoryRightId, read, write, grant) {
     const endpoint = "/file-repository-right/";
     const method = "POST";
     const data = {
-        file_repository_right_id: file_repository_right_id,
+        file_repository_right_id: fileRepositoryRightId,
         read: read,
         write: write,
         grant: grant,
@@ -2545,15 +2627,15 @@ const updateFileRepositoryRight = function (token, sessionSecretKey, file_reposi
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} file_repository_right_id The file repository right id to delete
+ * @param {uuid} fileRepositoryRightId The file repository right id to delete
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const deleteFileRepositoryRight = function (token, sessionSecretKey, file_repository_right_id) {
+const deleteFileRepositoryRight = function (token, sessionSecretKey, fileRepositoryRightId) {
     const endpoint = "/file-repository-right/";
     const method = "DELETE";
     const data = {
-        file_repository_right_id: file_repository_right_id,
+        file_repository_right_id: fileRepositoryRightId,
     };
 
     const headers = {
@@ -2569,15 +2651,15 @@ const deleteFileRepositoryRight = function (token, sessionSecretKey, file_reposi
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} file_repository_right_id The file_repository user id to accept
+ * @param {uuid} fileRepositoryRightId The file_repository user id to accept
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const acceptFileRepositoryRight = function (token, sessionSecretKey, file_repository_right_id) {
+const acceptFileRepositoryRight = function (token, sessionSecretKey, fileRepositoryRightId) {
     const endpoint = "/file-repository-right/accept/";
     const method = "POST";
     const data = {
-        file_repository_right_id: file_repository_right_id,
+        file_repository_right_id: fileRepositoryRightId,
     };
 
     const headers = {
@@ -2592,15 +2674,15 @@ const acceptFileRepositoryRight = function (token, sessionSecretKey, file_reposi
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} file_repository_right_id The file_repository user id to decline
+ * @param {uuid} fileRepositoryRightId The file_repository user id to decline
  *
  * @returns {Promise} Returns a promise which can succeed or fail
  */
-const declineFileRepositoryRight = function (token, sessionSecretKey, file_repository_right_id) {
+const declineFileRepositoryRight = function (token, sessionSecretKey, fileRepositoryRightId) {
     const endpoint = "/file-repository-right/decline/";
     const method = "POST";
     const data = {
-        file_repository_right_id: file_repository_right_id,
+        file_repository_right_id: fileRepositoryRightId,
     };
 
     const headers = {
@@ -2971,7 +3053,7 @@ const readFile = function (token, sessionSecretKey, file_id) {
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
  * @param {string|undefined} shard_id (optional) The id of the target shard
- * @param {string|undefined} file_repository_id (optional) The id of the target file repository
+ * @param {string|undefined} fileRepositoryId (optional) The id of the target file repository
  * @param {int} size The size of the complete file in bytes
  * @param {int} chunk_count The amount of chunks that this file is split into
  * @param {string} link_id the local id of the file in the datastructure
@@ -2984,7 +3066,7 @@ const createFile = function (
     token,
     sessionSecretKey,
     shard_id,
-    file_repository_id,
+    fileRepositoryId,
     size,
     chunk_count,
     link_id,
@@ -2995,7 +3077,7 @@ const createFile = function (
     const method = "PUT";
     const data = {
         shard_id: shard_id,
-        file_repository_id: file_repository_id,
+        file_repository_id: fileRepositoryId,
         size: size,
         chunk_count: chunk_count,
         link_id: link_id,
@@ -3312,6 +3394,9 @@ const apiClientService = {
     createFileRepository: createFileRepository,
     updateFileRepository: updateFileRepository,
     deleteFileRepository: deleteFileRepository,
+    createGroupFileRepositoryRight: createGroupFileRepositoryRight,
+    updateGroupFileRepositoryRight: updateGroupFileRepositoryRight,
+    deleteGroupFileRepositoryRight: deleteGroupFileRepositoryRight,
     createFileRepositoryRight: createFileRepositoryRight,
     updateFileRepositoryRight: updateFileRepositoryRight,
     deleteFileRepositoryRight: deleteFileRepositoryRight,

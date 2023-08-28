@@ -195,6 +195,9 @@ const OtherFileRepositoriesView = (props) => {
                 empty: false,
                 customHeadLabelRender: () => null,
                 customBodyRender: (value, tableMeta, updateValue) => {
+                    if (!tableMeta.rowData[8]) {
+                        return;
+                    }
                     if (tableMeta.rowData[4]) {
                         return (
                             <Button
@@ -236,6 +239,7 @@ const OtherFileRepositoriesView = (props) => {
                 fileRepository.read,
                 fileRepository.write,
                 fileRepository.grant,
+                fileRepository.file_repository_right_id,
             ];
         })
 
