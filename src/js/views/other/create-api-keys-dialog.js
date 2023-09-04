@@ -81,10 +81,13 @@ const CreateApiKeysDialog = (props) => {
             .then(onSuccess, onError);
     };
 
-    const onAddSecret = (item, path, nodePath) => {
+    const onAddSecret = (items, path, nodePath) => {
         setAddSecretOpen(false);
-        secrets.push([item.id, item.name, item.secret_id, item.secret_key]);
-        setSecrets(secrets);
+        const newSecrets = [...secrets];
+        items.forEach((item) => {
+            newSecrets.push([item.id, item.name, item.secret_id, item.secret_key]);
+        })
+        setSecrets(newSecrets);
     };
 
     const onDeleteSecret = (rowData) => {
@@ -276,7 +279,7 @@ const CreateApiKeysDialog = (props) => {
                 <DialogSelectSecret
                     open={addSecretOpen}
                     onClose={() => setAddSecretOpen(false)}
-                    onSelectItem={onAddSecret}
+                    onSelectItems={onAddSecret}
                     isSelectable={isSelectable}
                 />
             )}

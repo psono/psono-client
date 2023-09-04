@@ -35,6 +35,10 @@ const useStyles = makeStyles((theme) => ({
     icon: {
         fontSize: "18px",
     },
+    iconCheckbox: {
+        fontSize: "14px",
+        marginRight: "4px",
+    },
     listItemIcon: {
         minWidth: theme.spacing(4),
     },
@@ -228,6 +232,12 @@ const DatastoreTreeItem = (props) => {
                     {content.share_id && <i className="fa fa-circle fa-stack-2x text-danger is-shared" />}
                     {content.share_id && <i className="fa fa-group fa-stack-2x is-shared" />}
                 </span>
+                {props.allowMultiselect && props.isSelected(content) && (
+                    <i className={"fa fa-check-square-o" + " " + classes.iconCheckbox}  />
+                )}
+                {props.allowMultiselect && !props.isSelected(content) && (
+                    <i className={"fa fa-square-o" + " " + classes.iconCheckbox}  />
+                )}
                 <span className="tree-item-name">{content.name}</span>
                 <ButtonGroup variant="text" aria-label="outlined button group" className={"node-open-link"}>
                     {Boolean(props.onLinkItem) && ["bookmark", "website_password"].indexOf(content.type) !== -1 && (
@@ -525,6 +535,8 @@ DatastoreTreeItem.propTypes = {
     onMoveEntry: PropTypes.func,
     onLinkItem: PropTypes.func,
     onSelectItem: PropTypes.func,
+    isSelected: PropTypes.func,
+    allowMultiselect: PropTypes.bool.isRequired,
     deleteItemLabel: PropTypes.string.isRequired,
 };
 export default DatastoreTreeItem;

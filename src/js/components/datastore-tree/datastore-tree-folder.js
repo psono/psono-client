@@ -417,6 +417,8 @@ DatastoreTreeFolder.propTypes = {
     onEditFolder: PropTypes.func,
     onSelectNode: PropTypes.func,
     onSelectItem: PropTypes.func,
+    isSelected: PropTypes.func,
+    allowMultiselect: PropTypes.bool.isRequired,
     onUpdateExpandFolderProperty: PropTypes.func.isRequired,
     deleteFolderLabel: PropTypes.string,
     deleteItemLabel: PropTypes.string,

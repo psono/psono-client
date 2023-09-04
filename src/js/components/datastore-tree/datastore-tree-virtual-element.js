@@ -89,6 +89,8 @@ const DatastoreTreeVirtualElement = ({ index, style, data }) => {
                             isSelectable={props.isSelectable}
                             hideItems={props.hideItems}
                             onSelectItem={props.onSelectItem}
+                            isSelected={props.isSelected}
+                            allowMultiselect={props.allowMultiselect}
                             onSelectNode={props.onSelectNode}
                             onEditFolder={props.onEditFolder}
                             onEditEntry={props.onEditEntry}
@@ -118,6 +120,8 @@ const DatastoreTreeVirtualElement = ({ index, style, data }) => {
                         <DatastoreTreeItem
                             isSelectable={props.isSelectable}
                             onSelectItem={props.onSelectItem}
+                            isSelected={props.isSelected}
+                            allowMultiselect={props.allowMultiselect}
                             onEditEntry={props.onEditEntry}
                             onCloneEntry={props.onCloneEntry}
                             onDeleteEntry={props.onDeleteEntry}
