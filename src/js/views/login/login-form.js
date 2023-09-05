@@ -775,6 +775,7 @@ const LoginViewForm = (props) => {
                                 }}
                                 name="username"
                                 autoComplete="off"
+                                autoFocus
                                 value={username}
                                 onChange={(event) => {
                                     setUsername(event.target.value);

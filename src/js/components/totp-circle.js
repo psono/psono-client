@@ -4,6 +4,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import Button from "@material-ui/core/Button";
 import Box from "@material-ui/core/Box";
 import { useTranslation } from "react-i18next";
+import { useHotkeys } from 'react-hotkeys-hook'
 
 import ContentCopy from "./icons/ContentCopy";
 import cryptoLibraryService from "../services/crypto-library";
@@ -15,6 +16,11 @@ const TotpCircle = (props) => {
     const { t } = useTranslation();
     const [progress, setProgress] = React.useState(10);
     const [token, setToken] = useState("");
+
+    useHotkeys('alt+t', () => {
+        // copy username
+        onCopyTotpToken();
+    })
 
     // setInterval is wrapped in a closure and as such it would not use the current props / state
     // https://github.com/facebook/react/issues/14010
@@ -51,6 +57,13 @@ const TotpCircle = (props) => {
             clearInterval(timer);
         };
     }, []);
+
+    const onCopyTotpToken = (event) => {
+        browserClientService.copyToClipboard(() => Promise.resolve(token));
+        notification.push("totp_token_copy", t("TOTP_TOKEN_COPY_NOTIFICATION"));
+    };
+
+
     return (
         <Box position="relative" display="inline-flex" {...rest}>
             <CircularProgress variant="determinate" value={progress} size={"100%"} />
@@ -66,10 +79,7 @@ const TotpCircle = (props) => {
             >
                 <Button
                     endIcon={<ContentCopy>copy</ContentCopy>}
-                    onClick={() => {
-                        browserClientService.copyToClipboard(() => Promise.resolve(token));
-                        notification.push("totp_token_copy", t("TOTP_TOKEN_COPY_NOTIFICATION"));
-                    }}
+                    onClick={onCopyTotpToken}
                 >
                     {token}
                 </Button>

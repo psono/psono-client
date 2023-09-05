@@ -73,5 +73,12 @@
     "gecko": {
       "id": "{3dce78ca-2a07-4017-9111-998d4f826625}"
     }
+  },
+  "commands": {
+    "_execute_browser_action": {
+      "suggested_key": {
+        "default": "Alt+P"
+      }
+    }
   }
 }

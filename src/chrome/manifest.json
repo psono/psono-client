@@ -69,5 +69,12 @@
     "data/css/contentscript.css",
     "data/img/psono-encrypt.png",
     "data/img/psono-decrypt.png"
-  ]
+  ],
+  "commands": {
+    "_execute_browser_action": {
+      "suggested_key": {
+        "default": "Alt+P"
+      }
+    }
+  }
 }
