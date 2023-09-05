@@ -694,7 +694,7 @@ const LoginViewForm = (props) => {
                                     variant="contained"
                                     color="primary"
                                     onClick={initiateOidcLoginHelper}
-                                    type="submit"
+                                    type={Boolean(username) && Boolean(password) ? "button": "submit"}
                                     id="sad"
                                 >
                                     <span
@@ -733,7 +733,7 @@ const LoginViewForm = (props) => {
                                     variant="contained"
                                     color="primary"
                                     onClick={initiateSamlLoginHelper}
-                                    type="submit"
+                                    type={Boolean(username) && Boolean(password) ? "button": "submit"}
                                     id="sad"
                                 >
                                     <span
