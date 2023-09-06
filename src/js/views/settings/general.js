@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import Divider from "@material-ui/core/Divider";
@@ -41,6 +41,17 @@ const SettingsGeneralView = (props) => {
     const classes = useStyles();
     const disableBrowserPm = useSelector((state) => state.client.disableBrowserPm);
 
+    const [passwordSavingControlledByThisExtension, setPasswordSavingControlledByThisExtension] = useState(false);
+
+    let isSubscribed = true;
+    React.useEffect(() => {
+        browserClientService.passwordSavingControlledByThisExtension().then(
+            function (isControllable) {
+                setPasswordSavingControlledByThisExtension(isControllable);
+            });
+        return () => (isSubscribed = false);
+    }, []);
+
     return (
         <Grid container>
             <Grid item xs={12} sm={12} md={12}>
@@ -62,7 +73,7 @@ const SettingsGeneralView = (props) => {
                     }}
                 />
             </Grid>
-            <Grid item xs={12} sm={12} md={12}>
+            {passwordSavingControlledByThisExtension && (<Grid item xs={12} sm={12} md={12}>
                 <Checkbox
                     tabIndex={1}
                     checked={disableBrowserPm}
@@ -70,14 +81,14 @@ const SettingsGeneralView = (props) => {
                         action.setDisableBrowserPm(event.target.checked);
                         browserClientService.disableBrowserPasswordSaving(event.target.checked);
                     }}
-                    checkedIcon={<Check className={classes.checkedIcon} />}
-                    icon={<Check className={classes.uncheckedIcon} />}
+                    checkedIcon={<Check className={classes.checkedIcon}/>}
+                    icon={<Check className={classes.uncheckedIcon}/>}
                     classes={{
                         checked: classes.checked,
                     }}
                 />{" "}
                 {t("DISABLE_BROWSER_PM")}
-            </Grid>
+            </Grid>)}
         </Grid>
     );
 };
