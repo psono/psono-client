@@ -452,12 +452,12 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
             "" +
                 '<div id="' +
                 element_id +
-                '" class="psono-pw-drop yui3-cssreset" style="top: 0; left: 0; position: absolute;' +
+                '" class="psono-pw-drop yui3-cssreset" style="' +
                 "     transform: translateX(" +
                 position.left +
                 "px) translateY(" +
                 (position.top + height) +
-                'px) translateZ(0px);">' +
+                'px) translateZ(0px) !important;">' +
                 '    <div class="psono-pw-drop-content">' +
                 "        " +
                 content +
