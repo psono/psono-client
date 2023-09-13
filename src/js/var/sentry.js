@@ -24,6 +24,12 @@ export function initSentry () {
             // of transactions for performance monitoring.
             // We recommend adjusting this value in production
             tracesSampleRate: 1.0,
+            beforeSend(event) {
+                if (event.request && event.request.url) {
+                    event.request.url = event.request.url.split('#')[0]
+                }
+                return event;
+            }
         });
     }
 }
