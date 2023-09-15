@@ -190,6 +190,7 @@ function onMessage(request, sender, sendResponse) {
         "bookmark-active-tab": bookmarkActiveTab,
         login: onLogin,
         logout: onLogout,
+        "is-logged-in": onIsLoggedIn,
         "storage-reload": onStorageReload,
         "website-password-refresh": onWebsitePasswordRefresh,
         "request-secret": onRequestSecret,
@@ -376,6 +377,18 @@ function onLogout(request, sender, sendResponse) {
     chrome.browserAction.setIcon({
         path : "img/icon-32-disabled.png"
     });
+}
+
+/**
+ * check whether the user is logged in or not
+ * 
+ * @param {object} request The message sent by the calling script.
+ * @param {object} sender The sender of the message
+ * @param {function} sendResponse Function to call (at most once) when you have a response.
+ */
+function
+    onIsLoggedIn(request, sender, sendResponse) {
+    sendResponse(store.getState().user.isLoggedIn);
 }
 
 /**
