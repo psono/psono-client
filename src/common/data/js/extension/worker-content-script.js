@@ -383,10 +383,10 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
             dropcontent += '<div class="psono-pw-drop-content-inner">';
             dropcontent += '<ul class="navigations">';
             dropcontent +=
-                '<li><div class="' + openDatastoreClass + '" style="cursor: pointer;">Open Datastore</div></li>';
+                '<li><div class="' + openDatastoreClass + '" style="cursor: pointer !important;">Open Datastore</div></li>';
             if (websitePasswords.length < 1) {
                 dropcontent +=
-                    '<li><div class="' + generatePasswordClass + '" style="cursor: pointer;">Generate Password</div></li>';
+                    '<li><div class="' + generatePasswordClass + '" style="cursor: pointer !important;">Generate Password</div></li>';
             }
             for (var i = 0; i < websitePasswords.length; i++) {
 
@@ -396,7 +396,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
                 dropcontent +=
                     '<li><div class="' +
                     requestSecretClass +
-                    '" style="cursor: pointer;"">' +
+                    '" style="cursor: pointer !important;"">' +
                     sanitizedText +
                     "</div></li>";
                 requestSecretClasses.push({'class': requestSecretClass, 'secret_id': websitePasswords[i].secret_id});
