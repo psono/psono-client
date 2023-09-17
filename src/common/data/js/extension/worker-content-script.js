@@ -383,14 +383,13 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
             dropcontent += '<div class="psono-pw-drop-content-inner">';
             dropcontent += '<ul class="navigations">';
 
-            let isLoggedIn = await new Promise(function (resolve,) {
-                setTimeout(() => resolve(false), 5000);
+            let isLogged = await new Promise(function (resolve,) {
                 base.emit("is-logged-in", undefined, (state) => {
                     resolve(state);
                 });
             });
 
-            if (!isLoggedIn) {
+            if (!isLogged) {
                 dropcontent +=
                     '<li><div class="' + openDatastoreClass + '" style="cursor: pointer !important;">Login</div></li>';
             } else {
