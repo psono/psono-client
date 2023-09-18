@@ -54,6 +54,7 @@ function user(
                 sessionSecretKey: action.sessionSecretKey,
                 token: action.token,
                 userSauce: action.userSauce,
+                authentication: action.authentication,
             });
         case SET_USER_INFO_3:
             return Object.assign({}, state, {

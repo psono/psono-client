@@ -53,6 +53,82 @@ function decline(fileRepositoryRightId) {
 }
 
 /**
+ * Creates a group file repository right
+ *
+ * @param fileRepositoryId
+ * @param groupId
+ * @param read
+ * @param write
+ * @param grant
+ *
+ * @returns {PromiseLike<T> | Promise<T> | *}
+ */
+function createGroupFileRepositoryRight(fileRepositoryId, groupId, read, write, grant) {
+    const token = store.getState().user.token;
+    const sessionSecretKey = store.getState().user.sessionSecretKey;
+
+    const onSuccess = function (result) {
+        return result.data;
+    };
+    const onError = function () {
+        // pass
+    };
+
+    return apiClientService
+        .createGroupFileRepositoryRight(token, sessionSecretKey, fileRepositoryId, groupId, read, write, grant)
+        .then(onSuccess, onError);
+}
+
+/**
+ * Updates a group file repository right
+ *
+ * @param fileRepositoryRightId
+ * @param read
+ * @param write
+ * @param grant
+ *
+ * @returns {PromiseLike<T> | Promise<T> | *}
+ */
+function updateGroupFileRepositoryRight(fileRepositoryRightId, read, write, grant) {
+    const token = store.getState().user.token;
+    const sessionSecretKey = store.getState().user.sessionSecretKey;
+
+    const onSuccess = function (result) {
+        return result.data;
+    };
+    const onError = function () {
+        // pass
+    };
+
+    return apiClientService
+        .updateGroupFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId, read, write, grant)
+        .then(onSuccess, onError);
+}
+
+/**
+ * Deletes a group file repository right
+ *
+ * @param fileRepositoryRightId
+ *
+ * @returns {PromiseLike<T> | Promise<T> | *}
+ */
+function deleteGroupFileRepositoryRight(fileRepositoryRightId) {
+    const token = store.getState().user.token;
+    const sessionSecretKey = store.getState().user.sessionSecretKey;
+
+    const onSuccess = function (result) {
+        return result.data;
+    };
+    const onError = function () {
+        // pass
+    };
+
+    return apiClientService
+        .deleteGroupFileRepositoryRight(token, sessionSecretKey, fileRepositoryRightId)
+        .then(onSuccess, onError);
+}
+
+/**
  * Creates a file repository right for another user
  *
  * @param fileRepositoryId
@@ -496,6 +572,9 @@ function getDoSpacesRegions() {
 const fileRepositoryService = {
     accept: accept,
     decline: decline,
+    createGroupFileRepositoryRight: createGroupFileRepositoryRight,
+    updateGroupFileRepositoryRight: updateGroupFileRepositoryRight,
+    deleteGroupFileRepositoryRight: deleteGroupFileRepositoryRight,
     createFileRepositoryRight: createFileRepositoryRight,
     updateFileRepositoryRight: updateFileRepositoryRight,
     deleteFileRepositoryRight: deleteFileRepositoryRight,

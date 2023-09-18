@@ -373,7 +373,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * @param target The original element that this event was bound to
      * @param document The document the click occurred in
      */
-    function click(evt, target, document) {
+    async function click(evt, target, document) {
         if (getDistance(evt, target) < 30) {
             var openDatastoreClass = "psono_open-datastore-" + uuid.v4();
             var generatePasswordClass = "psono_generate-password-" + uuid.v4();
@@ -382,25 +382,38 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
             var dropcontent = "";
             dropcontent += '<div class="psono-pw-drop-content-inner">';
             dropcontent += '<ul class="navigations">';
-            dropcontent +=
-                '<li><div class="' + openDatastoreClass + '" style="cursor: pointer;">Open Datastore</div></li>';
-            if (websitePasswords.length < 1) {
-                dropcontent +=
-                    '<li><div class="' + generatePasswordClass + '" style="cursor: pointer;">Generate Password</div></li>';
-            }
-            for (var i = 0; i < websitePasswords.length; i++) {
 
-                var sanitizedText = sanitizeText(websitePasswords[i].name)
-                var requestSecretClass = "psono_request-secret-" + uuid.v4();
+            let isLogged = await new Promise(function (resolve,) {
+                base.emit("is-logged-in", undefined, (state) => {
+                    resolve(state);
+                });
+            });
 
+            if (!isLogged) {
                 dropcontent +=
-                    '<li><div class="' +
-                    requestSecretClass +
-                    '" style="cursor: pointer;"">' +
-                    sanitizedText +
-                    "</div></li>";
-                requestSecretClasses.push({'class': requestSecretClass, 'secret_id': websitePasswords[i].secret_id});
+                    '<li><div class="' + openDatastoreClass + '" style="cursor: pointer !important;">Login</div></li>';
+            } else {
+                dropcontent +=
+                    '<li><div class="' + openDatastoreClass + '" style="cursor: pointer !important;">Open Datastore</div></li>';
+                if (websitePasswords.length < 1) {
+                    dropcontent +=
+                        '<li><div class="' + generatePasswordClass + '" style="cursor: pointer !important;">Generate Password</div></li>';
+                }
+                for (var i = 0; i < websitePasswords.length; i++) {
+
+                    var sanitizedText = sanitizeText(websitePasswords[i].name)
+                    var requestSecretClass = "psono_request-secret-" + uuid.v4();
+
+                    dropcontent +=
+                        '<li><div class="' +
+                        requestSecretClass +
+                        '" style="cursor: pointer !important;"">' +
+                        sanitizedText +
+                        "</div></li>";
+                    requestSecretClasses.push({ 'class': requestSecretClass, 'secret_id': websitePasswords[i].secret_id });
+                }
             }
+
             dropcontent += "</ul>";
             dropcontent += "</div>";
 
@@ -452,12 +465,12 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
             "" +
                 '<div id="' +
                 element_id +
-                '" class="psono-pw-drop yui3-cssreset" style="top: 0; left: 0; position: absolute;' +
+                '" class="psono-pw-drop yui3-cssreset" style="' +
                 "     transform: translateX(" +
                 position.left +
                 "px) translateY(" +
                 (position.top + height) +
-                'px) translateZ(0px);">' +
+                'px) translateZ(0px) !important;">' +
                 '    <div class="psono-pw-drop-content">' +
                 "        " +
                 content +

@@ -47,10 +47,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const DialogSelectSecret = (props) => {
-    const { open, onClose, onSelectItem, isSelectable } = props;
+    const { open, onClose, onSelectItems, isSelectable } = props;
     const { t } = useTranslation();
     const classes = useStyles();
 
+    const [selected, setSelected] = useState({});
     const [search, setSearch] = useState("");
     const [datastore, setDatastore] = useState(null);
 
@@ -67,6 +68,20 @@ const DialogSelectSecret = (props) => {
         }
         setDatastore(data);
     };
+
+    const isSelected = (item) => {
+        return selected.hasOwnProperty(item.id);
+    }
+
+    const onSelectItem = (item) => {
+        const newSelected = {...selected };
+        if (isSelected(item)) {
+            delete newSelected[item.id];
+        } else {
+            newSelected[item.id] = item
+        }
+        setSelected(newSelected);
+    }
 
     return (
         <Dialog
@@ -98,6 +113,8 @@ const DialogSelectSecret = (props) => {
                                 datastore={datastore}
                                 setDatastore={setDatastore}
                                 onSelectItem={onSelectItem}
+                                isSelected={isSelected}
+                                allowMultiselect={true}
                                 isSelectable={isSelectable}
                                 search={search}
                                 deleteFolderLabel={t('DELETE')}
@@ -115,6 +132,9 @@ const DialogSelectSecret = (props) => {
                 >
                     {t("CLOSE")}
                 </Button>
+                <Button onClick={() => {onSelectItems(Object.values(selected))}} variant="contained" color="primary">
+                    {t("CONFIRM")}
+                </Button>
             </DialogActions>
         </Dialog>
     );
@@ -123,7 +143,7 @@ const DialogSelectSecret = (props) => {
 DialogSelectSecret.propTypes = {
     onClose: PropTypes.func.isRequired,
     open: PropTypes.bool.isRequired,
-    onSelectItem: PropTypes.func.isRequired,
+    onSelectItems: PropTypes.func.isRequired,
     isSelectable: PropTypes.func,
 };
 

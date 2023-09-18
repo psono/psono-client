@@ -166,10 +166,17 @@ const RegisterForm = (props) => {
 
                 userService.register(email, fullUsername, password, server).then(onRequestReturn, onError);
             },
-            function (data) {
-                console.log(data);
-                // handle server is offline
-                setErrors(["SERVER_OFFLINE"]);
+            function (result) {
+                if (result.hasOwnProperty("errors")) {
+                    let errors = result.errors;
+                    setErrors(errors);
+                } else if (typeof (result) === 'object') {
+                    console.log(result);
+                    setErrors(["RECEIVED_MALFORMED_RESPONSE"]);
+                } else {
+                    console.log(result);
+                    setErrors([result]);
+                }
             }
         );
     };

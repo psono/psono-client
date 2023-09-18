@@ -23,7 +23,12 @@ import TextFieldAWSRegion from "../../components/text-field/aws-region";
 import TextFieldDoRegion from "../../components/text-field/do-region";
 import Table from "../../components/table";
 import DialogSelectUser from "../../components/dialogs/select-user";
+import DialogSelectGroup from "../../components/dialogs/select-group";
 import fileRepositoryService from "../../services/file-repository";
+import Divider from "@material-ui/core/Divider";
+import Tabs from "@material-ui/core/Tabs";
+import Tab from "@material-ui/core/Tab";
+import TabPanel from "../../components/tab-panel";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -51,6 +56,7 @@ const EditFileRepositoryDialog = (props) => {
     const { open, onClose, fileRepositoryId } = props;
     const { t } = useTranslation();
     const classes = useStyles();
+    const [value, setValue] = useState(0);
     const [title, setTitle] = useState("");
     const [type, setType] = useState("");
     const [active, setActive] = useState(false);
@@ -78,7 +84,9 @@ const EditFileRepositoryDialog = (props) => {
     const [doSecret, setDoSecret] = useState("");
     const [errors, setErrors] = useState([]);
     const [fileRepositoryRights, setFileRepositoryRights] = useState([]);
+    const [groupFileRepositoryRights, setGroupFileRepositoryRights] = useState([]);
     const [selectUserDialogOpen, setSelectUserDialogOpen] = useState(false);
+    const [selectGroupDialogOpen, setSelectGroupDialogOpen] = useState(false);
 
     React.useEffect(() => {
         return loadFileRepository();
@@ -127,6 +135,19 @@ const EditFileRepositoryDialog = (props) => {
                         ];
                     })
                 );
+                setGroupFileRepositoryRights(
+                    data.group_file_repository_rights.map((fileRepositoryRight, index) => {
+                        return [
+                            fileRepositoryRight.id,
+                            fileRepositoryRight.group_name.length <= 15
+                                ? fileRepositoryRight.group_name
+                                : fileRepositoryRight.group_name.substring(0, 15) + "...",
+                            fileRepositoryRight.read,
+                            fileRepositoryRight.write,
+                            fileRepositoryRight.grant,
+                        ];
+                    })
+                );
             },
             function (error) {
                 console.log(error);
@@ -149,7 +170,7 @@ const EditFileRepositoryDialog = (props) => {
                 type,
                 gcpCloudStorageBucket || undefined,
                 gcpCloudStorageJsonKey || undefined,
-                true,
+                active,
                 awsS3Bucket || undefined,
                 awsS3Region || undefined,
                 awsS3AccessKeyId || undefined,
@@ -243,6 +264,45 @@ const EditFileRepositoryDialog = (props) => {
         fileRepository.updateFileRepositoryRight(fileRepositoryRightId, read, write, !grant).then(onSuccess, onError);
     };
 
+    const toggleGroupRead = (fileRepositoryRightId, read, write, grant) => {
+        const onError = function (result) {
+            // pass
+            console.log(result);
+        };
+
+        const onSuccess = function (result) {
+            return loadFileRepository();
+        };
+
+        fileRepository.updateGroupFileRepositoryRight(fileRepositoryRightId, !read, write, grant).then(onSuccess, onError);
+    };
+
+    const toggleGroupWrite = (fileRepositoryRightId, read, write, grant) => {
+        const onError = function (result) {
+            // pass
+            console.log(result);
+        };
+
+        const onSuccess = function (result) {
+            return loadFileRepository();
+        };
+
+        fileRepository.updateGroupFileRepositoryRight(fileRepositoryRightId, read, !write, grant).then(onSuccess, onError);
+    };
+
+    const toggleGroupGrant = (fileRepositoryRightId, read, write, grant) => {
+        const onError = function (result) {
+            // pass
+            console.log(result);
+        };
+
+        const onSuccess = function (result) {
+            return loadFileRepository();
+        };
+
+        fileRepository.updateGroupFileRepositoryRight(fileRepositoryRightId, read, write, !grant).then(onSuccess, onError);
+    };
+
     const onDeleteFileRepositoryRight = (rowData) => {
         const onError = function (result) {
             // pass
@@ -254,6 +314,35 @@ const EditFileRepositoryDialog = (props) => {
         };
 
         fileRepository.deleteFileRepositoryRight(rowData[0]).then(onSuccess, onError);
+    };
+
+    const onDeleteGroupFileRepositoryRight = (rowData) => {
+        const onError = function (result) {
+            // pass
+            console.log(result);
+        };
+
+        const onSuccess = function (result) {
+            return loadFileRepository();
+        };
+
+        fileRepository.deleteGroupFileRepositoryRight(rowData[0]).then(onSuccess, onError);
+    };
+
+    const onCreateGroupFileRepositoryRight = () => {
+        setSelectGroupDialogOpen(true)
+    };
+
+    const onSelectGroupDialogClose = async (selectedGroupIds) => {
+        setSelectGroupDialogOpen(false);
+        if (selectedGroupIds.length === 0) {
+            return
+        }
+
+        for (let i = 0; i < selectedGroupIds.length; i++) {
+            await fileRepositoryService.createGroupFileRepositoryRight(fileRepositoryId, selectedGroupIds[i], false, false, false)
+        }
+        await loadFileRepository()
     };
 
     const onCreateFileRepositoryRight = () => {
@@ -382,6 +471,115 @@ const EditFileRepositoryDialog = (props) => {
             },
         },
     ];
+
+    const groupColumns = [
+        { name: t("ID"), options: { display: false } },
+        { name: t("GROUP") },
+        {
+            name: t("READ"),
+            options: {
+                filter: true,
+                sort: true,
+                empty: false,
+                customBodyRender: (value, tableMeta, updateValue) => {
+                    return (
+                        <IconButton
+                            onClick={() => {
+                                toggleGroupRead(
+                                    tableMeta.rowData[0],
+                                    tableMeta.rowData[2],
+                                    tableMeta.rowData[3],
+                                    tableMeta.rowData[4]
+                                );
+                            }}
+                        >
+                            {tableMeta.rowData[2] ? <CheckIcon /> : <BlockIcon />}
+                        </IconButton>
+                    );
+                },
+            },
+        },
+        {
+            name: t("WRITE"),
+            options: {
+                filter: true,
+                sort: true,
+                empty: false,
+                customBodyRender: (value, tableMeta, updateValue) => {
+                    return (
+                        <IconButton
+                            onClick={() => {
+                                toggleGroupWrite(
+                                    tableMeta.rowData[0],
+                                    tableMeta.rowData[2],
+                                    tableMeta.rowData[3],
+                                    tableMeta.rowData[4]
+                                );
+                            }}
+                        >
+                            {tableMeta.rowData[3] ? <CheckIcon /> : <BlockIcon />}
+                        </IconButton>
+                    );
+                },
+            },
+        },
+        {
+            name: t("ADMIN"),
+            options: {
+                filter: true,
+                sort: true,
+                empty: false,
+                customBodyRender: (value, tableMeta, updateValue) => {
+                    return (
+                        <IconButton
+                            onClick={() => {
+                                toggleGroupGrant(
+                                    tableMeta.rowData[0],
+                                    tableMeta.rowData[2],
+                                    tableMeta.rowData[3],
+                                    tableMeta.rowData[4]
+                                );
+                            }}
+                        >
+                            {tableMeta.rowData[4] ? <CheckIcon /> : <BlockIcon />}
+                        </IconButton>
+                    );
+                },
+            },
+        },
+        {
+            name: t("ACCEPTED"),
+            options: {
+                filter: true,
+                sort: true,
+                empty: false,
+                customBodyRender: (value, tableMeta, updateValue) => {
+                    return <span>{<CheckIcon />}</span>;
+                },
+            },
+        },
+        {
+            name: t("DELETE"),
+            options: {
+                filter: true,
+                sort: false,
+                empty: false,
+                customHeadLabelRender: () => null,
+                customBodyRender: (value, tableMeta, updateValue) => {
+                    return (
+                        <IconButton
+                            onClick={() => {
+                                onDeleteGroupFileRepositoryRight(tableMeta.rowData);
+                            }}
+                        >
+                            <DeleteIcon />
+                        </IconButton>
+                    );
+                },
+            },
+        },
+    ];
+
 
     const options = {
         filterType: "checkbox",
@@ -855,12 +1053,34 @@ const EditFileRepositoryDialog = (props) => {
                         <h2>{t("ACCESS_RIGHTS")}</h2>
                     </Grid>
                     <Grid item xs={12} sm={12} md={12}>
-                        <Table
-                            data={fileRepositoryRights}
-                            columns={columns}
-                            options={options}
-                            onCreate={onCreateFileRepositoryRight}
-                        />
+                        <Tabs
+                            value={value}
+                            indicatorColor="primary"
+                            textColor="primary"
+                            onChange={(event, newValue) => {
+                                setValue(newValue);
+                            }}
+                            aria-label="users and groups"
+                        >
+                            <Tab label={t("USERS")} />
+                            <Tab label={t("GROUPS")} />
+                        </Tabs>
+                        <TabPanel value={value} index={0} className={classes.tabPanel}>
+                            <Table
+                                data={fileRepositoryRights}
+                                columns={columns}
+                                options={options}
+                                onCreate={onCreateFileRepositoryRight}
+                            />
+                        </TabPanel>
+                        <TabPanel value={value} index={1} className={classes.tabPanel}>
+                            <Table
+                                data={groupFileRepositoryRights}
+                                columns={groupColumns}
+                                options={options}
+                                onCreate={onCreateGroupFileRepositoryRight}
+                            />
+                        </TabPanel>
                     </Grid>
                 </Grid>
             </DialogContent>
@@ -887,6 +1107,12 @@ const EditFileRepositoryDialog = (props) => {
                 <DialogSelectUser
                     open={selectUserDialogOpen}
                     onClose={onSelectUserDialogClose}
+                />
+            )}
+            {selectGroupDialogOpen && (
+                <DialogSelectGroup
+                    open={selectGroupDialogOpen}
+                    onClose={onSelectGroupDialogClose}
                 />
             )}
         </Dialog>

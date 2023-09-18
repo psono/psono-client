@@ -174,6 +174,11 @@ const DatastoreTree = (props) => {
     }
 };
 
+DatastoreTree.defaultProps = {
+    allowMultiselect: false,
+};
+
+
 DatastoreTree.propTypes = {
     search: PropTypes.string,
     datastore: PropTypes.object.isRequired,
@@ -192,6 +197,8 @@ DatastoreTree.propTypes = {
     onLinkItem: PropTypes.func,
     onEditFolder: PropTypes.func,
     onSelectItem: PropTypes.func,
+    isSelected: PropTypes.func,
+    allowMultiselect: PropTypes.bool.isRequired,
     onSelectNode: PropTypes.func,
     isSelectable: PropTypes.func,
     hideItems: PropTypes.bool,

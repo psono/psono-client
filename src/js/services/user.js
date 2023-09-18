@@ -219,7 +219,8 @@ function samlLogin(samlTokenId) {
             response.data.user.public_key,
             response.data.session_secret_key,
             response.data.token,
-            response.data.user.user_sauce
+            response.data.user.user_sauce,
+            'SAML'
         );
 
         action.setHasTwoFactor(response.data.required_multifactors > 0);
@@ -344,7 +345,8 @@ function oidcLogin(oidcTokenId) {
             response.data.user.public_key,
             response.data.session_secret_key,
             response.data.token,
-            response.data.user.user_sauce
+            response.data.user.user_sauce,
+            'OIDC',
         );
 
         action.setHasTwoFactor(response.data.required_multifactors > 0);
@@ -533,6 +535,8 @@ function handleLoginResponse(response, password, sessionKeys, serverPublicKey) {
     const user_public_key = response.data.user.public_key;
     session_password = password;
 
+    const authentication = response.data.user.authentication ? response.data.user.authentication : 'AUTHKEY';
+
     // decrypt the session key
     const sessionSecretKey = cryptoLibrary.decryptDataPublicKey(
         response.data.session_secret_key,
@@ -561,7 +565,7 @@ function handleLoginResponse(response, password, sessionKeys, serverPublicKey) {
     verification = cryptoLibrary.encryptData(user_validator, sessionSecretKey);
 
     action.setUserUsername(response.data.user.username);
-    action.setUserInfo2(user_private_key, user_public_key, sessionSecretKey, token, user_sauce);
+    action.setUserInfo2(user_private_key, user_public_key, sessionSecretKey, token, user_sauce, authentication);
 
     action.setHasTwoFactor(response.data["required_multifactors"] > 0);
 
@@ -940,6 +944,7 @@ function armEmergencyCode(username, emergencyCode, server, serverInfo, verifyKey
 
         userSauce = data.data.user_sauce;
         userSecretKey = emergency_data.user_secret_key;
+        const authentication = data.data.authentication ? data.data.authentication : 'AUTHKEY';
 
         const sessionKey = cryptoLibrary.generatePublicPrivateKeypair();
 
@@ -971,7 +976,8 @@ function armEmergencyCode(username, emergencyCode, server, serverInfo, verifyKey
                 loginInfo.user_public_key,
                 loginInfo.session_secret_key,
                 loginInfo.token,
-                userSauce
+                userSauce,
+                authentication,
             );
             action.setUserInfo3(loginInfo.user_id, loginInfo.user_email, userSecretKey);
 

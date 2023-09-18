@@ -51,6 +51,7 @@ import store from "../../services/store";
 import TextFieldCreditCardNumber from "../text-field/credit-card-number";
 import TextFieldCreditCardValidThrough from "../text-field/credit-card-valid-through";
 import TextFieldCreditCardCVC from "../text-field/credit-card-cvc";
+import {useHotkeys} from "react-hotkeys-hook";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -233,6 +234,21 @@ const DialogNewEntry = (props) => {
         (type === "mail_gpg_own_key" && isValidMailGpgOwnKey) ||
         (type === "file" && isValidFile);
     const hasAdvanced = type !== "file";
+
+    useHotkeys('alt+b', () => {
+        // copy username
+        onCopyUsername();
+    })
+
+    useHotkeys('alt+c', () => {
+        // copy password
+        onCopyPassword();
+    })
+
+    useHotkeys('alt+shift+u', () => {
+        // copy url
+        onCopyUrl();
+    })
 
     const onFileChange = (event) => {
         event.preventDefault();
@@ -654,6 +670,17 @@ const DialogNewEntry = (props) => {
         setShowPassword(!showPassword);
     };
 
+    const onCopyUsername = (event) => {
+        handleClose();
+        if (type === "website_password") {
+            browserClientService.copyToClipboard(() => Promise.resolve(websitePasswordUsername));
+        }
+        if (type === "application_password") {
+            browserClientService.copyToClipboard(() => Promise.resolve(applicationPasswordUsername));
+        }
+        notification.push("password_copy", t("USERNAME_COPY_NOTIFICATION"));
+    };
+
     const onCopyPassword = (event) => {
         handleClose();
         if (type === "website_password") {
@@ -664,6 +691,18 @@ const DialogNewEntry = (props) => {
         }
         notification.push("password_copy", t("PASSWORD_COPY_NOTIFICATION"));
     };
+
+    const onCopyUrl = (event) => {
+        handleClose();
+        if (type === "website_password") {
+            browserClientService.copyToClipboard(() => Promise.resolve(websitePasswordUrl));
+        }
+        if (type === "bookmark") {
+            browserClientService.copyToClipboard(() => Promise.resolve(bookmarkUrl));
+        }
+        notification.push("password_copy", t("URL_COPY_NOTIFICATION"));
+    };
+
     const onCopyPIN = (event) => {
         handleClose();
         if (type === "credit_card") {

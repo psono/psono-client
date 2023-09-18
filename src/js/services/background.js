@@ -190,6 +190,7 @@ function onMessage(request, sender, sendResponse) {
         "bookmark-active-tab": bookmarkActiveTab,
         login: onLogin,
         logout: onLogout,
+        "is-logged-in": onIsLoggedIn,
         "storage-reload": onStorageReload,
         "website-password-refresh": onWebsitePasswordRefresh,
         "request-secret": onRequestSecret,
@@ -379,6 +380,18 @@ function onLogout(request, sender, sendResponse) {
 }
 
 /**
+ * check whether the user is logged in or not
+ * 
+ * @param {object} request The message sent by the calling script.
+ * @param {object} sender The sender of the message
+ * @param {function} sendResponse Function to call (at most once) when you have a response.
+ */
+function
+    onIsLoggedIn(request, sender, sendResponse) {
+    sendResponse(store.getState().user.isLoggedIn);
+}
+
+/**
  * Reloads the storage
  *
  * @param {object} request The message sent by the calling script.
@@ -476,6 +489,16 @@ function onWebsitePasswordRefresh(request, sender, sendResponse) {
                 name: leafs[ii].name,
             });
         }
+
+        update.sort(function(a, b){
+            let a_name = a.name ? a.name : '';
+            let b_name = b.name ? b.name : '';
+            if (a_name.toLowerCase() < b_name.toLowerCase())
+                return -1;
+            if (a_name.toLowerCase() > b_name.toLowerCase())
+                return 1;
+            return 0;
+        })
 
         sendResponse({ event: "website-password-update", data: update });
     });

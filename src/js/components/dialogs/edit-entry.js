@@ -29,6 +29,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import OpenInNewIcon from "@material-ui/icons/OpenInNew";
 import PlaylistAddIcon from "@material-ui/icons/PlaylistAdd";
 import LinearProgress from "@material-ui/core/LinearProgress";
+import { useHotkeys } from 'react-hotkeys-hook'
 
 import itemBlueprintService from "../../services/item-blueprint";
 import secretService from "../../services/secret";
@@ -229,6 +230,26 @@ const DialogEditEntry = (props) => {
         (item.type === "mail_gpg_own_key" && isValidMailGpgOwnKey) ||
         (item.type === "file" && isValidFile);
 
+    useHotkeys('alt+b', () => {
+        // copy username
+        onCopyUsername();
+    })
+
+    useHotkeys('alt+c', () => {
+        // copy password
+        onCopyPassword();
+    })
+
+    useHotkeys('alt+u', () => {
+        // open url
+        secretService.onItemClick(item);
+    })
+
+    useHotkeys('alt+shift+u', () => {
+        // copy url
+        onCopyUrl();
+    })
+
     React.useEffect(() => {
         const onError = function (result) {
             console.log(result);
@@ -392,7 +413,7 @@ const DialogEditEntry = (props) => {
             } else {
                 setEnvironmentVariablesTitle("");
             }
-            if (data.hasOwnProperty("environment_variables_variables")) {
+            if (data.hasOwnProperty("environment_variables_variables") && data["environment_variables_variables"]) {
                 data["environment_variables_variables"].sort((a, b) => (a["key"].toLowerCase() > b["key"].toLowerCase()) ? 1 : -1)
                 setEnvironmentVariablesVariables(data["environment_variables_variables"]);
             } else {
@@ -696,6 +717,17 @@ const DialogEditEntry = (props) => {
         setShowPassword(!showPassword);
     };
 
+    const onCopyUsername = (event) => {
+        handleClose();
+        if (item.type === "website_password") {
+            browserClientService.copyToClipboard(() => Promise.resolve(websitePasswordUsername));
+        }
+        if (item.type === "application_password") {
+            browserClientService.copyToClipboard(() => Promise.resolve(applicationPasswordUsername));
+        }
+        notification.push("password_copy", t("USERNAME_COPY_NOTIFICATION"));
+    };
+
     const onCopyPassword = (event) => {
         handleClose();
         if (item.type === "website_password") {
@@ -705,6 +737,17 @@ const DialogEditEntry = (props) => {
             browserClientService.copyToClipboard(() => Promise.resolve(applicationPasswordPassword));
         }
         notification.push("password_copy", t("PASSWORD_COPY_NOTIFICATION"));
+    };
+
+    const onCopyUrl = (event) => {
+        handleClose();
+        if (item.type === "website_password") {
+            browserClientService.copyToClipboard(() => Promise.resolve(websitePasswordUrl));
+        }
+        if (item.type === "bookmark") {
+            browserClientService.copyToClipboard(() => Promise.resolve(bookmarkUrl));
+        }
+        notification.push("password_copy", t("URL_COPY_NOTIFICATION"));
     };
 
     const onCopyPIN = (event) => {

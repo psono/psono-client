@@ -647,62 +647,80 @@ function closePopup() {
 }
 
 /**
- * Disables the password saving function in the browser
+ * Returns whether password savings is controlled (or controllable) by this extension
  *
- * @returns {Promise} A promise with the success or failure state
+ * @returns {Promise} A promise with the success or failure
  */
-function disableBrowserPasswordSaving(value) {
-    let oldPMValue;
-    if (TARGET === "firefox") {
-        oldPMValue = store.getState().client.disableBrowserPm;
-        value = value !== undefined ? value : oldPMValue;
-        return new Promise(function (resolve, reject) {
-            function onSet(result) {
-                if (result) {
-                    resolve("Hooray, it worked!");
-                } else {
-                    reject("Sadness!");
-                }
-            }
+function passwordSavingControlledByThisExtension(value) {
 
+    if (TARGET === "firefox") {
+        return new Promise(function (resolve, reject) {
             const getting = browser.privacy.services.passwordSavingEnabled.get({});
             getting.then(function (details) {
                 if (
                     details.levelOfControl === "controlled_by_this_extension" ||
                     details.levelOfControl === "controllable_by_this_extension"
                 ) {
-                    const setting = browser.privacy.services.passwordSavingEnabled.set({
-                        value: !value,
-                    });
-                    setting.then(onSet);
+                    resolve(true);
                 } else {
-                    reject("Sadness!");
+                    resolve(false);
                 }
             });
         });
     } else if (TARGET === "chrome") {
-        oldPMValue = store.getState().client.disableBrowserPm;
-        value = value !== undefined ? value : oldPMValue;
         return new Promise(function (resolve, reject) {
             chrome.privacy.services.passwordSavingEnabled.get({}, function (details) {
                 if (
                     details.levelOfControl === "controlled_by_this_extension" ||
                     details.levelOfControl === "controllable_by_this_extension"
                 ) {
-                    chrome.privacy.services.passwordSavingEnabled.set({ value: !value }, function () {
-                        if (chrome.runtime.lastError === undefined) {
-                            resolve("Hooray, it worked!");
-                        } else {
-                            reject("Sadness!");
-                            console.log("Sadness!", chrome.runtime.lastError);
-                        }
-                    });
+                    resolve(true);
+                } else {
+                    resolve(false);
                 }
             });
         });
     } else {
-        return Promise.resolve("nothing done");
+        return Promise.resolve(false);
     }
+}
+
+/**
+ * Disables the password saving function in the browser
+ *
+ * @returns {Promise} A promise with the success or failure state
+ */
+function disableBrowserPasswordSaving(value) {
+    return passwordSavingControlledByThisExtension().then(function (isControllable) {
+        if (!isControllable) {
+            return false;
+        }
+
+        let oldPMValue = store.getState().client.disableBrowserPm;
+        value = value !== undefined ? value : oldPMValue;
+        if (TARGET === "firefox") {
+            function onSet(result) {
+                if (result) {
+                    return true;
+                } else {
+                    console.log("Sadness!", result);
+                    return false;
+                }
+            }
+            const setting = browser.privacy.services.passwordSavingEnabled.set({
+                value: !value,
+            });
+            setting.then(onSet);
+        } else if (TARGET === "chrome") {
+            chrome.privacy.services.passwordSavingEnabled.set({ value: !value }, function () {
+                if (chrome.runtime.lastError !== undefined) {
+                    console.log("Sadness!", chrome.runtime.lastError);
+                    return false;
+                }
+                return true;
+            });
+        }
+    })
 }
 
 /**
@@ -876,6 +894,7 @@ const browserClientService = {
     emitSec: emitSec,
     on: on,
     getConfig: getConfig,
+    passwordSavingControlledByThisExtension: passwordSavingControlledByThisExtension,
     disableBrowserPasswordSaving: disableBrowserPasswordSaving,
     copyToClipboard: copyToClipboard,
     notify: notify,

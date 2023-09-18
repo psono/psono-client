@@ -32,6 +32,7 @@ import offlineCacheService from "../../services/offline-cache";
 import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
 import action from "../../actions/bound-action-creators";
 import {Check} from "@material-ui/icons";
+import {useHotkeys} from "react-hotkeys-hook";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -289,6 +290,45 @@ const PopupView = (props) => {
     const [items, setItems] = React.useState([]);
     let isSubscribed = true;
     const passwordFilter = helper.getPasswordFilter(search);
+
+    useHotkeys('alt+b', () => {
+        // copy username
+        if (itemsToDisplay.length > 0) {
+            secretService.copyUsername(itemsToDisplay[0].content);
+        }
+    })
+
+    useHotkeys('alt+c', () => {
+        // copy password
+        if (itemsToDisplay.length > 0) {
+            secretService.copyPassword(itemsToDisplay[0].content);
+        }
+    })
+
+    useHotkeys('alt+u', () => {
+        // open url
+        if (itemsToDisplay.length > 0) {
+            secretService.onItemClick(itemsToDisplay[0].content);
+        }
+    })
+
+    useHotkeys('alt+shift+u', () => {
+        // copy url
+        if (itemsToDisplay.length > 0) {
+            secretService.copyUrl(itemsToDisplay[0].content);
+        }
+    })
+
+    useHotkeys('alt+t', () => {
+        // copy totp
+        onCopyTotpToken();
+    })
+
+    const onCopyTotpToken = (event) => {
+        if (itemsToDisplay.length > 0) {
+            secretService.copyTotpToken(itemsToDisplay[0].content);
+        }
+    };
 
     React.useEffect(() => {
         if (offlineCacheService.isActive() && offlineCacheService.isLocked()) {
@@ -594,9 +634,10 @@ const PopupView = (props) => {
                             variant="outlined"
                             margin="dense"
                             id="search"
-                            label={t("SEARCH_DATSTORE")}
+                            label={t("SEARCH_DATASTORE")}
                             name="search"
                             autoComplete="off"
+                            autoFocus
                             value={search}
                             onChange={(event) => {
                                 action.setLastPopupSearch(event.target.value);

@@ -53,7 +53,7 @@ function setUserInfo1(rememberMe, trustDevice, authentication) {
         });
     };
 }
-function setUserInfo2(userPrivateKey, userPublicKey, sessionSecretKey, token, userSauce) {
+function setUserInfo2(userPrivateKey, userPublicKey, sessionSecretKey, token, userSauce, authentication) {
     return (dispatch) => {
         dispatch({
             type: SET_USER_INFO_2,
@@ -62,6 +62,7 @@ function setUserInfo2(userPrivateKey, userPublicKey, sessionSecretKey, token, us
             sessionSecretKey: sessionSecretKey,
             token,
             userSauce: userSauce,
+            authentication: authentication,
         });
     };
 }

@@ -11,6 +11,7 @@ import store from "./store";
 import storage from "./storage";
 import notification from "./notification";
 import deviceService from "./device";
+import browserClientService from "../services/browser-client";
 
 /**
  * Encrypts the content and creates a new secret out of it.
@@ -210,6 +211,22 @@ function copyPassword(item) {
 }
 
 /**
+ * Copies the password of a given secret to the clipboard
+ *
+ * @param {object} item The item of which we want to load the password into our clipboard
+ */
+function copyUrl(item) {
+
+    if (item["type"] === "website_password") {
+        browserClient.copyToClipboard(() => readSecret(item.secret_id, item.secret_key).then((decryptedSecret) => decryptedSecret["website_password_url"]));
+    } else if (item["type"] === "bookmark") {
+        browserClient.copyToClipboard(() => readSecret(item.secret_id, item.secret_key).then((decryptedSecret) => decryptedSecret["bookmark_url"]));
+    }
+
+    notification.push("password_copy", i18n.t("URL_COPY_NOTIFICATION"));
+}
+
+/**
  * Copies the TOTP token of a given secret to the clipboard
  *
  * @param {object} item The item of which we want to load the TOTP token into our clipboard
@@ -232,12 +249,6 @@ function copyTotpToken(item) {
     notification.push("totp_token_copy", i18n.t("TOTP_TOKEN_COPY_NOTIFICATION"));
 }
 
-// registrations
-
-// itemBlueprint.register('copy_username', copyUsername);
-// itemBlueprint.register('copy_password', copyPassword);
-// itemBlueprint.register('copy_totp_token', copyTotpToken);
-
 const secretService = {
     createSecret: createSecret,
     readSecret: readSecret,
@@ -247,6 +258,7 @@ const secretService = {
     copyUsername: copyUsername,
     copyPassword: copyPassword,
     copyTotpToken: copyTotpToken,
+    copyUrl: copyUrl,
 };
 
 export default secretService;
