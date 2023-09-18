@@ -174,13 +174,17 @@ const LostPasswordViewForm = (props) => {
         }
 
         function onError(data) {
-            console.log(data);
             if (data.hasOwnProperty("data") && data.data.hasOwnProperty("non_field_errors")) {
                 setErrors(data.data.non_field_errors);
-            } else if (!data.hasOwnProperty("data")) {
-                setErrors(["SERVER_OFFLINE"]);
-            } else {
-                alert("Error, should not happen.");
+            } else if (data.hasOwnProperty("errors")) {
+                let errors = data.errors;
+                setErrors(errors);
+            } else if (typeof (data) === 'object') {
+                console.log(data);
+                setErrors(["RECEIVED_MALFORMED_RESPONSE"]);
+            } else  {
+                console.log(data);
+                setErrors([data]);
             }
         }
 

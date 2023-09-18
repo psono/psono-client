@@ -562,7 +562,12 @@ const LoginViewForm = (props) => {
                         let errors = result.errors;
                         setLoginLoading(false);
                         setErrors(errors);
+                    } else if (typeof (result) === 'object') {
+                        console.log(result);
+                        setLoginLoading(false);
+                        setErrors(["RECEIVED_MALFORMED_RESPONSE"]);
                     } else {
+                        console.log(result);
                         setLoginLoading(false);
                         setErrors([result]);
                     }
@@ -611,7 +616,12 @@ const LoginViewForm = (props) => {
                         let errors = result.errors;
                         setLoginLoading(false);
                         setErrors(errors);
+                    } else if (typeof (result) === 'object') {
+                        console.log(result);
+                        setLoginLoading(false);
+                        setErrors(["RECEIVED_MALFORMED_RESPONSE"]);
                     } else {
+                        console.log(result);
                         setLoginLoading(false);
                         setErrors([result]);
                     }
@@ -658,6 +668,10 @@ const LoginViewForm = (props) => {
                     } else if (result.hasOwnProperty("data") && result.data.hasOwnProperty("non_field_errors")) {
                         setLoginLoading(false);
                         setErrors(result.data.non_field_errors);
+                    } else if (typeof (result) === 'object') {
+                        console.log(result);
+                        setLoginLoading(false);
+                        setErrors(["RECEIVED_MALFORMED_RESPONSE"]);
                     } else {
                         console.log(result);
                         setLoginLoading(false);
