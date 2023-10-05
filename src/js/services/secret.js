@@ -160,8 +160,6 @@ function redirectSecret(type, secretId) {
  */
 function onItemClick(item) {
     if (
-        item.hasOwnProperty("urlfilter") &&
-        item["urlfilter"] !== "" &&
         ["website_password", "bookmark"].indexOf(item.type) !== -1
     ) {
         if (deviceService.isElectron()) {
