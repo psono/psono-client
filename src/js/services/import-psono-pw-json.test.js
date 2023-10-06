@@ -15,7 +15,7 @@ describe('Service: importPsonoPwJson test suite', function () {
         cryptoLibrary.generateUuid = jest.fn();
         cryptoLibrary.generateUuid.mockImplementation(() => generic_uuid);
 
-        const input = '{"folders":[{"name":"A Folder"},{"name":"Company Passwords","folders":[{"name":"bla","items":[{"type":"website_password","urlfilter":"facebook.com","name":"Facebook","website_password_url_filter":"facebook.com","website_password_auto_submit":true,"website_password_password":"mypassword","website_password_username":"myusername","website_password_url":"https://de-de.facebook.com/","website_password_title":"Facebook"}]}]}],"items":[{"type":"website_password","urlfilter":"amazon.de","name":"Amazon.de","website_password_url_filter":"amazon.de","website_password_password":"mypw","website_password_username":"myuser","website_password_url":"https://www.amazon.de","website_password_title":"Amazon.de"},{"type":"note","name":"My secret note","note_notes":"Some nice secrets go in here!","note_title":"My secret note"}]}';
+        const input = '{"folders":[{"name":"A Folder"},{"name":"Company Passwords","folders":[{"name":"bla","items":[{"type":"website_password","urlfilter":"facebook.com","name":"Facebook","website_password_url_filter":"facebook.com","website_password_auto_submit":true,"website_password_password":"mypassword","website_password_username":"myusername","website_password_url":"https://de-de.facebook.com/","website_password_title":"Facebook"}, {"type":"website_password","name":"Instagram","website_password_auto_submit":true,"website_password_password":"mypassword","website_password_username":"myusername","website_password_url":"https://de-de.instagram.com/","website_password_title":"Instagram"}]}]}],"items":[{"type":"website_password","urlfilter":"amazon.de","name":"Amazon.de","website_password_url_filter":"amazon.de","website_password_password":"mypw","website_password_username":"myuser","website_password_url":"https://www.amazon.de","website_password_title":"Amazon.de"},{"type":"note","name":"My secret note","note_notes":"Some nice secrets go in here!","note_title":"My secret note"}]}';
 
         const output = importPsonoPwJson.parser(input);
 
@@ -38,6 +38,17 @@ describe('Service: importPsonoPwJson test suite', function () {
                             "website_password_username": "myusername",
                             "website_password_url": "https://de-de.facebook.com/",
                             "website_password_title": "Facebook",
+                            "id": generic_uuid
+                        },{
+                            "type": "website_password",
+                            "urlfilter": "de-de.instagram.com",
+                            "name": "Instagram",
+                            "website_password_url_filter": "de-de.instagram.com",
+                            "website_password_auto_submit": true,
+                            "website_password_password": "mypassword",
+                            "website_password_username": "myusername",
+                            "website_password_url": "https://de-de.instagram.com/",
+                            "website_password_title": "Instagram",
                             "id": generic_uuid
                         }],
                         "id": generic_uuid
@@ -74,6 +85,17 @@ describe('Service: importPsonoPwJson test suite', function () {
                 "website_password_username": "myusername",
                 "website_password_url": "https://de-de.facebook.com/",
                 "website_password_title": "Facebook",
+                "id": generic_uuid
+            }, {
+                "type": "website_password",
+                "urlfilter": "de-de.instagram.com",
+                "name": "Instagram",
+                "website_password_url_filter": "de-de.instagram.com",
+                "website_password_auto_submit": true,
+                "website_password_password": "mypassword",
+                "website_password_username": "myusername",
+                "website_password_url": "https://de-de.instagram.com/",
+                "website_password_title": "Instagram",
                 "id": generic_uuid
             }, {
                 "type": "website_password",

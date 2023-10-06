@@ -44,21 +44,21 @@ function validate_secrets(secrets) {
             continue;
         }
         if (secrets[i]['type'] === 'website_password') {
-            if (secrets[i].hasOwnProperty('website_password_url') && secrets[i]['website_password_url'] && (!secrets[i].hasOwnProperty('urlfilter') || secrets[i]['urlfilter'])) {
+            if (secrets[i].hasOwnProperty('website_password_url') && secrets[i]['website_password_url'] && (!secrets[i].hasOwnProperty('urlfilter') || !secrets[i]['urlfilter'])) {
                 parsedUrl = helperService.parseUrl(secrets[i]['website_password_url']);
                 secrets[i]['urlfilter'] = parsedUrl.authority || "";
             }
-            if (secrets[i].hasOwnProperty('website_password_url') && secrets[i]['website_password_url'] && (!secrets[i].hasOwnProperty('website_password_url_filter') || secrets[i]['website_password_url_filter'])) {
+            if (secrets[i].hasOwnProperty('website_password_url') && secrets[i]['website_password_url'] && (!secrets[i].hasOwnProperty('website_password_url_filter') || !secrets[i]['website_password_url_filter'])) {
                 parsedUrl = helperService.parseUrl(secrets[i]['website_password_url']);
                 secrets[i]['website_password_url_filter'] = parsedUrl.authority || "";
             }
         }
         if (secrets[i]['type'] === 'bookmark') {
-            if (secrets[i].hasOwnProperty('bookmark_url') && secrets[i]['bookmark_url'] && (!secrets[i].hasOwnProperty('urlfilter') || secrets[i]['urlfilter'])) {
+            if (secrets[i].hasOwnProperty('bookmark_url') && secrets[i]['bookmark_url'] && (!secrets[i].hasOwnProperty('urlfilter') || !secrets[i]['urlfilter'])) {
                 parsedUrl = helperService.parseUrl(secrets[i]['bookmark_url']);
                 secrets[i]['urlfilter'] = parsedUrl.authority || "";
             }
-            if (secrets[i].hasOwnProperty('bookmark_url') && secrets[i]['bookmark_url'] && (!secrets[i].hasOwnProperty('bookmark_url_filter') || secrets[i]['bookmark_url_filter'])) {
+            if (secrets[i].hasOwnProperty('bookmark_url') && secrets[i]['bookmark_url'] && (!secrets[i].hasOwnProperty('bookmark_url_filter') || !secrets[i]['bookmark_url_filter'])) {
                 parsedUrl = helperService.parseUrl(secrets[i]['bookmark_url']);
                 secrets[i]['bookmark_url_filter'] = parsedUrl.authority || "";
             }
