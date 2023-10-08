@@ -37,6 +37,9 @@ module.exports = () => {
       new InjectManifest({
         swSrc: './src/webclient/service-worker.js',
         swDest: './webclient/service-worker.js',
+        exclude: [
+            /authenticate\.html/
+        ],
         modifyURLPrefix: {
           'webclient/': './'
         },
