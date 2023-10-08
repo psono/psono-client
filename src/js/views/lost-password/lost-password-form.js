@@ -1,12 +1,14 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+
 import { Grid } from "@material-ui/core";
-import { withStyles } from "@material-ui/styles";
+import {makeStyles} from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import ThumbUpIcon from "@material-ui/icons/ThumbUp";
 import MuiAlert from "@material-ui/lab/Alert";
-import { useTranslation } from "react-i18next";
 import Button from "@material-ui/core/Button";
+
 import browserClient from "../../services/browser-client";
 import helperService from "../../services/helper";
 import user from "../../services/user";
@@ -17,7 +19,7 @@ import GridContainerErrors from "../../components/grid-container-errors";
 import store from "../../services/store";
 import FooterLinks from "../../components/footer-links";
 
-const styles = (theme) => ({
+const useStyles = makeStyles((theme) => ({
     textField: {
         width: "100%",
         "& .MuiInputBase-root": {
@@ -47,10 +49,10 @@ const styles = (theme) => ({
     button: {
         color: "white !important",
     },
-});
+}));
 
 const LostPasswordViewForm = (props) => {
-    const { classes } = props;
+    const classes = useStyles();
     const { t } = useTranslation();
 
     const [view, setView] = useState("default");
@@ -448,4 +450,4 @@ const LostPasswordViewForm = (props) => {
     );
 };
 
-export default withStyles(styles)(LostPasswordViewForm);
+export default LostPasswordViewForm;

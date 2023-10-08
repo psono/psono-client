@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { Grid } from "@material-ui/core";
 import { useSelector } from "react-redux";
-import { withStyles } from "@material-ui/styles";
 import { useTranslation } from "react-i18next";
 import Button from "@material-ui/core/Button";
-import browserClient from "../../services/browser-client";
 import GridContainerErrors from "../../components/grid-container-errors";
 import MuiAlert from "@material-ui/lab/Alert";
 import userService from "../../services/user";
@@ -13,8 +11,9 @@ import MultifactorAuthenticatorGoogleAuthenticator from "../account/multifactor-
 import MultifactorAuthenticatorYubikeyOtp from "../account/multifactor-authentication-yubikey-otp";
 import MultifactorAuthenticatorDuo from "../account/multifactor-authentication-duo";
 import FooterLinks from "../../components/footer-links";
+import {makeStyles} from "@material-ui/core/styles";
 
-const styles = (theme) => ({
+const useStyles = makeStyles((theme) => ({
     textField: {
         width: "100%",
         "& .MuiInputBase-root": {
@@ -44,10 +43,10 @@ const styles = (theme) => ({
     button: {
         color: "white !important",
     },
-});
+}));
 
 const EnforceTwoFaViewForm = (props) => {
-    const { classes } = props;
+    const classes = useStyles();
     const { t } = useTranslation();
 
     const hasTwoFactor = useSelector((state) => state.user.hasTwoFactor);
@@ -174,4 +173,4 @@ const EnforceTwoFaViewForm = (props) => {
     );
 };
 
-export default withStyles(styles)(EnforceTwoFaViewForm);
+export default EnforceTwoFaViewForm;

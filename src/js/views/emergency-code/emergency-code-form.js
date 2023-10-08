@@ -1,11 +1,14 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+
 import { Grid } from "@material-ui/core";
-import { withStyles } from "@material-ui/styles";
 import TextField from "@material-ui/core/TextField";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import ThumbUpIcon from "@material-ui/icons/ThumbUp";
-import { useTranslation } from "react-i18next";
+import {makeStyles} from "@material-ui/core/styles";
+import MuiAlert from "@material-ui/lab/Alert";
 import Button from "@material-ui/core/Button";
+
 import browserClient from "../../services/browser-client";
 import helperService from "../../services/helper";
 import user from "../../services/user";
@@ -13,12 +16,11 @@ import converterService from "../../services/converter";
 import host from "../../services/host";
 import cryptoLibrary from "../../services/crypto-library";
 import GridContainerErrors from "../../components/grid-container-errors";
-import MuiAlert from "@material-ui/lab/Alert";
 import action from "../../actions/bound-action-creators";
 import store from "../../services/store";
 import FooterLinks from "../../components/footer-links";
 
-const styles = (theme) => ({
+const useStyles = makeStyles((theme) => ({
     textField: {
         width: "100%",
         "& .MuiInputBase-root": {
@@ -48,10 +50,10 @@ const styles = (theme) => ({
     button: {
         color: "white !important",
     },
-});
+}));
 
 const EmergencyCodeViewForm = (props) => {
-    const { classes } = props;
+    const classes = useStyles();
     const { t } = useTranslation();
 
     const [view, setView] = useState("default");
@@ -538,4 +540,4 @@ const EmergencyCodeViewForm = (props) => {
     );
 };
 
-export default withStyles(styles)(EmergencyCodeViewForm);
+export default EmergencyCodeViewForm;
