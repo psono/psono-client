@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Grid } from "@material-ui/core";
-import { withStyles } from "@material-ui/styles";
+import {makeStyles} from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import ThumbUpIcon from "@material-ui/icons/ThumbUp";
@@ -18,7 +18,7 @@ import store from "../../services/store";
 import FooterLinks from "../../components/footer-links";
 import cryptoLibrary from "../../services/crypto-library";
 
-const styles = (theme) => ({
+const useStyles = makeStyles((theme) => ({
     textField: {
         width: "100%",
         "& .MuiInputBase-root": {
@@ -53,10 +53,10 @@ const styles = (theme) => ({
     button: {
         color: "white !important",
     },
-});
+}));
 
 const RegisterForm = (props) => {
-    const { classes } = props;
+    const classes = useStyles();
     const { t } = useTranslation();
 
     const [view, setView] = useState("default");
@@ -380,4 +380,4 @@ const RegisterForm = (props) => {
     );
 };
 
-export default withStyles(styles)(RegisterForm);
+export default RegisterForm;

@@ -14,6 +14,7 @@ import OtherView from "./other";
 import SettingsView from "./settings";
 import LostPasswordView from "./lost-password";
 import EmergencyCodeView from "./emergency-code";
+import AuthenticateView from "./authenticate";
 import EnforceTwoFaView from "./enforce-two-fa";
 import OpenSecretView from "./open-secret";
 import DownloadFileView from "./download-file";
@@ -82,6 +83,8 @@ const IndexView = (props) => {
         );
     } else if (pathname.endsWith("/emergency-code.html")) {
         return <EmergencyCodeView {...props} />;
+    } else if (pathname.endsWith("/authenticate.html")) {
+        return <AuthenticateView {...props} />;
     } else if (pathname.endsWith("/enforce-two-fa.html")) {
         return <EnforceTwoFaView {...props} />;
     } else if (pathname.endsWith("/link-share-access.html")) {

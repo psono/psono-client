@@ -131,7 +131,7 @@ def main():
     # Upload
     for lang in FILE_PATHS:
         upload_language(lang)
-        time.sleep(20)
+        time.sleep(30)
 
     # Download
     languages = get_languages()
