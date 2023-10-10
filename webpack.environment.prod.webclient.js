@@ -41,7 +41,8 @@ module.exports = () => {
             /authenticate\.html/
         ],
         modifyURLPrefix: {
-          'webclient/': './'
+          'webclient/': './',
+          './webclient/': './',
         },
         compileSrc: true,
         maximumFileSizeToCacheInBytes: 30000000,
