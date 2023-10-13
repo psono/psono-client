@@ -14,6 +14,7 @@ import MuiAlert from "@material-ui/lab/Alert";
 import { Check } from "@material-ui/icons";
 import { BarLoader } from "react-spinners";
 
+import store from "../../services/store";
 import exportService from "../../services/export";
 import GridContainerErrors from "../../components/grid-container-errors";
 import TextFieldPassword from "../../components/text-field/password";
@@ -50,6 +51,7 @@ const OtherExportView = (props) => {
     const [percentageComplete, setPercentageComplete] = React.useState(0);
     const [processing, setProcessing] = React.useState(false);
     const [includeTrashBinItems, setIncludeTrashBinItems] = React.useState(false);
+    const [includeSharedItems, setIncludeSharedItems] = React.useState(true);
     const [errors, setErrors] = React.useState([]);
     const [messages, setMessages] = React.useState([]);
     const [password, setPassword] = React.useState("");
@@ -94,7 +96,9 @@ const OtherExportView = (props) => {
             setErrors(data.errors);
         };
 
-        exportService.exportDatastore(exportFormat, includeTrashBinItems, exportFormat === 'json' ? password : '').then(onSuccess, onError);
+        const calculatedIncludeSharedItems = !store.getState().server.complianceDisableExportOfSharedItems && includeSharedItems;
+
+        exportService.exportDatastore(exportFormat, includeTrashBinItems, calculatedIncludeSharedItems, exportFormat === 'json' ? password : '').then(onSuccess, onError);
     };
 
     const formHasError = exportFormat === 'json' && Boolean(password) && password !== passwordRepeat;
@@ -177,6 +181,21 @@ const OtherExportView = (props) => {
                 />{" "}
                 {t("INCLUDE_TRASH_BIN_ENTRIES")}
             </Grid>
+            {!store.getState().server.complianceDisableExportOfSharedItems && (<Grid item xs={12} sm={12} md={12}>
+                <Checkbox
+                    tabIndex={1}
+                    checked={includeSharedItems}
+                    onChange={(event) => {
+                        setIncludeSharedItems(event.target.checked);
+                    }}
+                    checkedIcon={<Check className={classes.checkedIcon} />}
+                    icon={<Check className={classes.uncheckedIcon} />}
+                    classes={{
+                        checked: classes.checked,
+                    }}
+                />{" "}
+                {t("INCLUDE_SHARED_ENTRIES")}
+            </Grid>)}
             <Grid item xs={12} sm={12} md={12} style={{ marginBottom: "8px", marginTop: "8px" }}>
                 <Button variant="contained" color="primary" onClick={exportPasswords} disabled={processing || formHasError}>
                     <span style={!processing ? {} : { display: "none" }}>{t("EXPORT")}</span>

@@ -70,10 +70,11 @@ function downloadExport(data, type, isEncrypted) {
  *
  * @param {object} folder The folder to filter
  * @param {boolean} includeTrashBinItems Should the items of the trash bin be included in the export
+ * @param {boolean} includeSharedItems Should shared items be included in the export
  *
  * @returns {*} filtered folder
  */
-function filterDatastoreExport(folder, includeTrashBinItems) {
+function filterDatastoreExport(folder, includeTrashBinItems, includeSharedItems) {
     let i;
     let p;
 
@@ -120,6 +121,13 @@ function filterDatastoreExport(folder, includeTrashBinItems) {
                 }
             }
         }
+        if (!includeSharedItems) {
+            for (i = folder["items"].length - 1; i >= 0; i--) {
+                if (folder["items"][i].hasOwnProperty("share_id")) {
+                    folder["items"].splice(i, 1);
+                }
+            }
+        }
     }
 
     // Delete folder attribute if its empty
@@ -145,6 +153,13 @@ function filterDatastoreExport(folder, includeTrashBinItems) {
         if (!includeTrashBinItems) {
             for (i = folder["folders"].length - 1; i >= 0; i--) {
                 if (folder["folders"][i].hasOwnProperty("deleted") && folder["folders"][i]["deleted"]) {
+                    folder["folders"].splice(i, 1);
+                }
+            }
+        }
+        if (!includeSharedItems) {
+            for (i = folder["folders"].length - 1; i >= 0; i--) {
+                if (folder["folders"][i].hasOwnProperty("share_id")) {
                     folder["folders"].splice(i, 1);
                 }
             }
@@ -269,10 +284,11 @@ function composeExport(data, type) {
  *
  * @param {object} datastore The datastore structure with secrets
  * @param {boolean} includeTrashBinItems Should the items of the trash bin be included in the export
+ * @param {boolean} includeSharedItems Should shared items be included in the export
  *
  * @returns {*} The datastore structure where all secrets have been filled
  */
-function getAllSecrets(datastore, includeTrashBinItems) {
+function getAllSecrets(datastore, includeTrashBinItems, includeSharedItems) {
     let open_secret_requests = 0;
 
     let resolver;
@@ -307,6 +323,9 @@ function getAllSecrets(datastore, includeTrashBinItems) {
             }, timeout);
         };
         for (let i = 0; i < items.length; i++) {
+            if (items[i].hasOwnProperty("share_id") && !includeSharedItems) {
+                continue
+            }
             if (items[i].hasOwnProperty("secret_id") && items[i].hasOwnProperty("secret_key")) {
                 if (!includeTrashBinItems && items[i].hasOwnProperty('deleted') && items[i]['deleted']) {
                     continue
@@ -318,6 +337,9 @@ function getAllSecrets(datastore, includeTrashBinItems) {
 
     const handle_folders = function (folders) {
         for (let i = 0; i < folders.length; i++) {
+            if (folders[i].hasOwnProperty("share_id") && !includeSharedItems) {
+                continue
+            }
             if (folders[i].hasOwnProperty("folders")) {
                 handle_folders(folders[i]["folders"]);
             }
@@ -361,19 +383,20 @@ function getExporter() {
  * @param {string} type The selected type of the export
  * @param {uuid} id The id of the datastore one wants to download
  * @param {boolean} includeTrashBinItems Should the items of the trash bin be included in the export
+ * @param {boolean} includeSharedItems Should shared items be included in the export
  *
  * @returns {Promise} Returns a promise with the exportable datastore content
  */
-function fetchDatastore(type, id, includeTrashBinItems) {
+function fetchDatastore(type, id, includeTrashBinItems, includeSharedItems) {
     emit("export-started", {});
 
     return datastorePasswordService
         .getPasswordDatastore(id)
         .then(function (datastore) {
-            return getAllSecrets(datastore, includeTrashBinItems);
+            return getAllSecrets(datastore, includeTrashBinItems, includeSharedItems);
         })
         .then(function (folder) {
-            return filterDatastoreExport(folder, includeTrashBinItems);
+            return filterDatastoreExport(folder, includeTrashBinItems, includeSharedItems);
         })
         .then(function (data) {
             emit("export-complete", {});
@@ -386,12 +409,13 @@ function fetchDatastore(type, id, includeTrashBinItems) {
  *
  * @param {string} type The selected type of the export
  * @param {boolean} includeTrashBinItems Should the items of the trash bin be included in the export
+ * @param {boolean} includeSharedItems Should shared items be included in the export
  * @param {string} [password] A password which if provided will be used to encrypt the datastore
  *
  * @returns {Promise} Returns a promise once the export is successful
  */
-function exportDatastore(type, includeTrashBinItems, password) {
-    return fetchDatastore(type, undefined, includeTrashBinItems)
+function exportDatastore(type, includeTrashBinItems, includeSharedItems, password) {
+    return fetchDatastore(type, undefined, includeTrashBinItems, includeSharedItems)
         .then(function (data) {
             if (password) {
                 data = JSON.stringify(cryptoLibraryService.encryptSecret(data, password, ""))
