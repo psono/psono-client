@@ -16,6 +16,7 @@ const defaultComplianceDisableApiKeys = false;
 const defaultComplianceDisableDeleteAccount = false;
 const defaultComplianceDisableEmergencyCodes = false;
 const defaultComplianceDisableExport = false;
+const defaultComplianceDisableExportOfSharedItems = false;
 const defaultComplianceDisableUnmanagedGroups = false;
 const defaultComplianceDisableFileRepositories = false;
 const defaultComplianceDisableLinkShares = false;
@@ -76,6 +77,7 @@ function server(
         complianceDisableDeleteAccount: defaultComplianceDisableDeleteAccount,
         complianceDisableEmergencyCodes: defaultComplianceDisableEmergencyCodes,
         complianceDisableExport: defaultComplianceDisableExport,
+        complianceDisableExportOfSharedItems: defaultComplianceDisableExportOfSharedItems,
         complianceDisableUnmanagedGroups: defaultComplianceDisableUnmanagedGroups,
         complianceDisableFileRepositories: defaultComplianceDisableFileRepositories,
         complianceDisableLinkShares: defaultComplianceDisableLinkShares,
@@ -134,6 +136,7 @@ function server(
                 complianceDisableDeleteAccount: defaultComplianceDisableDeleteAccount,
                 complianceDisableEmergencyCodes: defaultComplianceDisableEmergencyCodes,
                 complianceDisableExport: defaultComplianceDisableExport,
+                complianceDisableExportOfSharedItems: defaultComplianceDisableExportOfSharedItems,
                 complianceDisableUnmanagedGroups: defaultComplianceDisableUnmanagedGroups,
                 complianceDisableFileRepositories: defaultComplianceDisableFileRepositories,
                 complianceDisableLinkShares: defaultComplianceDisableLinkShares,
@@ -191,6 +194,7 @@ function server(
                 complianceDisableDeleteAccount: action.info.compliance_disable_delete_account,
                 complianceDisableEmergencyCodes: action.info.compliance_disable_emergency_codes,
                 complianceDisableExport: action.info.compliance_disable_export,
+                complianceDisableExportOfSharedItems: action.info.compliance_disable_export_of_shared_items,
                 complianceDisableUnmanagedGroups: action.info.compliance_disable_unmanaged_groups,
                 complianceDisableFileRepositories: action.info.compliance_disable_file_repositories,
                 complianceDisableLinkShares: action.info.compliance_disable_link_shares,
