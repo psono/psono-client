@@ -82,11 +82,12 @@ build-docker-image:
     - sh ./var/download_translations_from_artifactory.sh
     - sh ./var/prep-build.sh
     - npm run buildwebclient
-    - curl -fSL "https://psono.jfrog.io/artifactory/generic-local/docker/docker-20.10.17.tgz" -o docker.tgz && echo "969210917b5548621a2b541caf00f86cc6963c6cf0fb13265b9731c3b98974d9 *docker.tgz" | sha256sum -c - && tar -xzvf docker.tgz && mv docker/* /usr/local/bin/ && rm -Rf docker && rm docker.tgz
+    - curl -fSL "https://psono.jfrog.io/artifactory/generic-local/docker/docker-24.0.7.tgz" -o docker.tgz && echo "984d59a77fa6acab97ea725a966facd33725e0e09c2fee975397fe1c6379bd3d *docker.tgz" | sha256sum -c - && tar -xzvf docker.tgz && mv docker/* /usr/local/bin/ && rm -Rf docker && rm docker.tgz
     - docker info
     - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker.jfrog.io
-    - docker build -t $CONTAINER_TEST_IMAGE --pull .
-    - docker push $CONTAINER_TEST_IMAGE
+    - docker context create builder
+    - docker buildx create builder --use
+    - docker buildx build --platform linux/amd64,linux/arm64 -t $CONTAINER_TEST_IMAGE --pull --push .
     - curl -fL https://getcli.jfrog.io | sh
     - ./jfrog config add rt-server-1 --artifactory-url=https://psono.jfrog.io/psono --user=gitlab --password=$artifactory_credentials --interactive=false
     - ./jfrog rt sp "docker/psono/psono-client/$CI_COMMIT_REF_NAME/manifest.json" "CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION"
