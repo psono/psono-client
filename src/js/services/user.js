@@ -222,6 +222,9 @@ function samlLogin(samlTokenId) {
             response.data.user.user_sauce,
             'SAML'
         );
+        if (response.data.user.policies) {
+            action.setServerPolicy(response.data.user.policies);
+        }
 
         action.setHasTwoFactor(response.data.required_multifactors > 0);
 
@@ -348,6 +351,9 @@ function oidcLogin(oidcTokenId) {
             response.data.user.user_sauce,
             'OIDC',
         );
+        if (response.data.user.policies) {
+            action.setServerPolicy(response.data.user.policies);
+        }
 
         action.setHasTwoFactor(response.data.required_multifactors > 0);
 
@@ -532,6 +538,7 @@ function handleLoginResponse(response, password, sessionKeys, serverPublicKey) {
 
     const token = response.data.token;
     const user_sauce = response.data.user.user_sauce;
+    const policies = response.data.user.policies;
     const user_public_key = response.data.user.public_key;
     session_password = password;
 
@@ -566,6 +573,10 @@ function handleLoginResponse(response, password, sessionKeys, serverPublicKey) {
 
     action.setUserUsername(response.data.user.username);
     action.setUserInfo2(user_private_key, user_public_key, sessionSecretKey, token, user_sauce, authentication);
+
+    if (policies) {
+        action.setServerPolicy(policies);
+    }
 
     action.setHasTwoFactor(response.data["required_multifactors"] > 0);
 
@@ -853,6 +864,10 @@ function recoveryEnable(username, recoveryCode, server) {
             )
         );
 
+        if (data.data.policies) {
+            action.setServerPolicy(data.data.policies);
+        }
+
         return {
             user_private_key: recovery_data.user_private_key,
             user_secret_key: recovery_data.user_secret_key,
@@ -924,6 +939,7 @@ function armEmergencyCode(username, emergencyCode, server, serverInfo, verifyKey
     action.setServerUrl(server);
 
     let userSauce;
+    let policies;
     let userSecretKey;
 
     const emergencyAuthkey = cryptoLibrary.generateAuthkey(username, emergencyCode);
@@ -944,6 +960,7 @@ function armEmergencyCode(username, emergencyCode, server, serverInfo, verifyKey
 
         userSauce = data.data.user_sauce;
         userSecretKey = emergency_data.user_secret_key;
+        policies = data.data.policies;
         const authentication = data.data.authentication ? data.data.authentication : 'AUTHKEY';
 
         const sessionKey = cryptoLibrary.generatePublicPrivateKeypair();
@@ -979,6 +996,9 @@ function armEmergencyCode(username, emergencyCode, server, serverInfo, verifyKey
                 userSauce,
                 authentication,
             );
+            if (policies) {
+                action.setServerPolicy(policies);
+            }
             action.setUserInfo3(loginInfo.user_id, loginInfo.user_email, userSecretKey);
 
             return {
