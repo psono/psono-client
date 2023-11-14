@@ -1,4 +1,4 @@
-import { LOGOUT, SET_SERVER_INFO, SET_SERVER_STATUS, SET_SERVER_URL } from "../actions/action-types";
+import { LOGOUT, SET_SERVER_INFO, SET_SERVER_POLICY, SET_SERVER_STATUS, SET_SERVER_URL } from "../actions/action-types";
 
 const defaultUrl = "";
 const defaultApi = "";
@@ -21,6 +21,7 @@ const defaultComplianceDisableUnmanagedGroups = false;
 const defaultComplianceDisableFileRepositories = false;
 const defaultComplianceDisableLinkShares = false;
 const defaultComplianceDisableOfflineMode = false;
+const defaultComplianceMaxOfflineCacheTimeValid = 31536000;
 const defaultComplianceDisableShares = false;
 const defaultComplianceDisableRecoveryCodes = false;
 const defaultComplianceEnforce2fa = false;
@@ -82,6 +83,7 @@ function server(
         complianceDisableFileRepositories: defaultComplianceDisableFileRepositories,
         complianceDisableLinkShares: defaultComplianceDisableLinkShares,
         complianceDisableOfflineMode: defaultComplianceDisableOfflineMode,
+        complianceMaxOfflineCacheTimeValid: defaultComplianceMaxOfflineCacheTimeValid,
         complianceDisableShares: defaultComplianceDisableShares,
         complianceDisableRecoveryCodes: defaultComplianceDisableRecoveryCodes,
         complianceEnforce2fa: defaultComplianceEnforce2fa,
@@ -141,6 +143,7 @@ function server(
                 complianceDisableFileRepositories: defaultComplianceDisableFileRepositories,
                 complianceDisableLinkShares: defaultComplianceDisableLinkShares,
                 complianceDisableOfflineMode: defaultComplianceDisableOfflineMode,
+                complianceMaxOfflineCacheTimeValid: defaultComplianceMaxOfflineCacheTimeValid,
                 complianceDisableShares: defaultComplianceDisableShares,
                 complianceDisableRecoveryCodes: defaultComplianceDisableRecoveryCodes,
                 complianceEnforce2fa: defaultComplianceEnforce2fa,
@@ -199,6 +202,7 @@ function server(
                 complianceDisableFileRepositories: action.info.compliance_disable_file_repositories,
                 complianceDisableLinkShares: action.info.compliance_disable_link_shares,
                 complianceDisableOfflineMode: action.info.compliance_disable_offline_mode,
+                complianceMaxOfflineCacheTimeValid: typeof(action.info.compliance_max_offline_cache_time_valid) === "undefined" ? defaultComplianceMaxOfflineCacheTimeValid : action.info.compliance_max_offline_cache_time_valid,
                 complianceDisableShares: action.info.compliance_disable_shares,
                 complianceDisableRecoveryCodes: action.info.compliance_disable_recovery_codes,
                 complianceEnforce2fa: action.info.compliance_enforce_2fa,
@@ -235,6 +239,90 @@ function server(
                 systemWideDuoExists: action.info.system_wide_duo_exists,
                 verifyKey: action.verifyKey,
             });
+        case SET_SERVER_POLICY:
+
+            const data = {}
+
+            if (action.policy.hasOwnProperty('allow_user_search_by_email')) {
+                data['allowUserSearchByEmail'] = action.policy.allow_user_search_by_email;
+            }
+            if (action.policy.hasOwnProperty('compliance_enforce_central_security_reports')) {
+                data['complianceEnforceCentralSecurityReports'] = action.policy.compliance_enforce_central_security_reports;
+            }
+            if (action.policy.hasOwnProperty('compliance_central_security_reports_recurrence_interval')) {
+                data['complianceCentralSecurityReportsRecurrenceInterval'] = action.policy.compliance_central_security_reports_recurrence_interval;
+            }
+            if (action.policy.hasOwnProperty('compliance_enforce_2fa')) {
+                data['complianceEnforce2fa'] = action.policy.compliance_enforce_2fa;
+            }
+            if (action.policy.hasOwnProperty('compliance_disable_export')) {
+                data['complianceDisableExport'] = action.policy.compliance_disable_export;
+            }
+            if (action.policy.hasOwnProperty('compliance_disable_export_of_shared_items')) {
+                data['complianceDisableExportOfSharedItems'] = action.policy.compliance_disable_export_of_shared_items;
+            }
+            if (action.policy.hasOwnProperty('compliance_disable_unmanaged_groups')) {
+                data['complianceDisableUnmanagedGroups'] = action.policy.compliance_disable_unmanaged_groups;
+            }
+            if (action.policy.hasOwnProperty('compliance_disable_delete_account')) {
+                data['complianceDisableDeleteAccount'] = action.policy.compliance_disable_delete_account;
+            }
+            if (action.policy.hasOwnProperty('compliance_disable_api_keys')) {
+                data['complianceDisableApiKeys'] = action.policy.compliance_disable_api_keys;
+            }
+            if (action.policy.hasOwnProperty('compliance_disable_emergency_codes')) {
+                data['complianceDisableEmergencyCodes'] = action.policy.compliance_disable_emergency_codes;
+            }
+            if (action.policy.hasOwnProperty('compliance_disable_recovery_codes')) {
+                data['complianceDisableRecoveryCodes'] = action.policy.compliance_disable_recovery_codes;
+            }
+            if (action.policy.hasOwnProperty('compliance_disable_file_repositories')) {
+                data['complianceDisableFileRepositories'] = action.policy.compliance_disable_file_repositories;
+            }
+            if (action.policy.hasOwnProperty('compliance_disable_link_shares')) {
+                data['complianceDisableLinkShares'] = action.policy.compliance_disable_link_shares;
+            }
+            if (action.policy.hasOwnProperty('compliance_disable_offline_mode')) {
+                data['complianceDisableOfflineMode'] = action.policy.compliance_disable_offline_mode;
+            }
+            if (action.policy.hasOwnProperty('compliance_max_offline_cache_time_valid')) {
+                data['complianceMaxOfflineCacheTimeValid'] = action.policy.compliance_max_offline_cache_time_valid;
+            }
+            if (action.policy.hasOwnProperty('compliance_disable_shares')) {
+                data['complianceDisableShares'] = action.policy.compliance_disable_shares;
+            }
+            if (action.policy.hasOwnProperty('compliance_password_generator_default_password_length')) {
+                data['compliancePasswordGeneratorDefaultPasswordLength'] = action.policy.compliance_password_generator_default_password_length;
+            }
+            if (action.policy.hasOwnProperty('compliance_password_generator_default_letters_uppercase')) {
+                data['compliancePasswordGeneratorDefaultLettersUppercase'] = action.policy.compliance_password_generator_default_letters_uppercase;
+            }
+            if (action.policy.hasOwnProperty('compliance_password_generator_default_letters_lowercase')) {
+                data['compliancePasswordGeneratorDefaultLettersLowercase'] = action.policy.compliance_password_generator_default_letters_lowercase;
+            }
+            if (action.policy.hasOwnProperty('compliance_password_generator_default_numbers')) {
+                data['compliancePasswordGeneratorDefaultNumbers'] = action.policy.compliance_password_generator_default_numbers;
+            }
+            if (action.policy.hasOwnProperty('compliance_password_generator_default_special_chars')) {
+                data['compliancePasswordGeneratorDefaultSpecialChars'] = action.policy.compliance_password_generator_default_special_chars;
+            }
+            if (action.policy.hasOwnProperty('allowed_file_repository_types')) {
+                data['allowedFileRepositoryTypes'] = action.policy.allowed_file_repository_types;
+            }
+            if (action.policy.hasOwnProperty('allowed_second_factors')) {
+                data['allowedSecondFactors'] = action.policy.allowed_second_factors;
+            }
+            if (action.policy.hasOwnProperty('disable_central_security_reports')) {
+                data['disableCentralSecurityReports'] = action.policy.disable_central_security_reports;
+            }
+            if (action.policy.hasOwnProperty('disable_callbacks')) {
+                data['disableCallbacks'] = action.policy.disable_callbacks;
+            }
+            if (action.policy.hasOwnProperty('allow_user_search_by_username_partial')) {
+                data['allowUserSearchByUsernamePartial'] = action.policy.allow_user_search_by_username_partial;
+            }
+
+            return Object.assign({}, state, data);
         case SET_SERVER_STATUS:
             return Object.assign({}, state, {
                 status: action.status,

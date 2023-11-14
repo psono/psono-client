@@ -10,6 +10,7 @@ import {
     SET_SERVER_URL,
     SET_SERVER_STATUS,
     SET_SERVER_INFO,
+    SET_SERVER_POLICY,
     SET_CLIENT_URL,
     ENABLE_OFFLINE_MODE,
     DISABLE_OFFLINE_MODE,
@@ -118,6 +119,15 @@ function setServerInfo(info, verifyKey) {
             type: SET_SERVER_INFO,
             info,
             verifyKey,
+        });
+    };
+}
+
+function setServerPolicy(policy) {
+    return (dispatch) => {
+        dispatch({
+            type: SET_SERVER_POLICY,
+            policy,
         });
     };
 }
@@ -350,6 +360,7 @@ const actionCreators = {
     setUserDatastoreOverview,
     logout,
     setServerInfo,
+    setServerPolicy,
     setServerUrl,
     setServerStatus,
     setClientUrl,

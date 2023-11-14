@@ -895,6 +895,37 @@ function cloneItem(datastore, item, path) {
         delete secret_object["callback_user"];
         delete secret_object["callback_pass"];
 
+        if (secret_object.hasOwnProperty('website_password_title')) {
+            secret_object['website_password_title'] = 'Copy ' + secret_object['website_password_title'];
+        }
+        if (secret_object.hasOwnProperty('application_password_title')) {
+            secret_object['application_password_title'] = 'Copy ' + secret_object['application_password_title'];
+        }
+        if (secret_object.hasOwnProperty('bookmark_title')) {
+            secret_object['bookmark_title'] = 'Copy ' + secret_object['bookmark_title'];
+        }
+        if (secret_object.hasOwnProperty('note_title')) {
+            secret_object['note_title'] = 'Copy ' + secret_object['note_title'];
+        }
+        if (secret_object.hasOwnProperty('totp_title')) {
+            secret_object['totp_title'] = 'Copy ' + secret_object['totp_title'];
+        }
+        if (secret_object.hasOwnProperty('environment_variables_title')) {
+            secret_object['environment_variables_title'] = 'Copy ' + secret_object['environment_variables_title'];
+        }
+        if (secret_object.hasOwnProperty('file_title')) {
+            secret_object['file_title'] = 'Copy ' + secret_object['file_title'];
+        }
+        if (secret_object.hasOwnProperty('ssh_own_key_title')) {
+            secret_object['ssh_own_key_title'] = 'Copy ' + secret_object['ssh_own_key_title'];
+        }
+        if (secret_object.hasOwnProperty('credit_card_title')) {
+            secret_object['credit_card_title'] = 'Copy ' + secret_object['credit_card_title'];
+        }
+        if (secret_object.hasOwnProperty('mail_gpg_own_key_title')) {
+            secret_object['mail_gpg_own_key_title'] = 'Copy ' + secret_object['mail_gpg_own_key_title'];
+        }
+
         const link_id = cryptoLibrary.generateUuid();
 
         let onSuccess = function (e) {
