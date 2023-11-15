@@ -1268,7 +1268,7 @@ const LoginViewForm = (props) => {
                     <Grid container style={{ marginTop: "5px", marginBottom: "5px" }}>
                         <Grid item xs={12} sm={12} md={12}>
                             <Button variant="contained" color="primary" onClick={showGa2faForm} type="submit">
-                                {t("GOOGLE_AUTHENTICATOR")}
+                                {t("TOTP")}
                             </Button>
                         </Grid>
                     </Grid>

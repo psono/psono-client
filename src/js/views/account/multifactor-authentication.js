@@ -1,5 +1,5 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
+import {Trans, useTranslation} from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import { Grid } from "@material-ui/core";
@@ -66,7 +66,10 @@ const MultifactorAuthenticationView = (props) => {
             {store.getState().server.allowedSecondFactors.indexOf("google_authenticator") !== -1 && (
                 <Grid container style={{ marginBottom: "8px" }}>
                     <Grid item xs={6} sm={6} md={4} style={{ paddingTop: "8px" }}>
-                        {t("GOOGLE_AUTHENTICATOR")}
+                        {/*{t("TOTP_LIKE_QUANT_GA_MS", {'quant_authenticator': '<a href="https://google.com">Quant</a>'})}*/}
+                        <Trans i18nKey="TOTP_LIKE_QUANT_GA_MS">
+                            TOTP (like <a target={"_blank"} href={"https://quantauth.app/app/"}>Quant</a>, Google or Microsoft Authenticator)
+                        </Trans>
                     </Grid>
                     <Grid item xs={6} sm={6} md={8}>
                         <Button variant="contained" color="primary" onClick={onConfigureGoogleAuthenticator}>

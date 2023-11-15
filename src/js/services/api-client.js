@@ -1680,12 +1680,12 @@ function readGa(token, sessionSecretKey) {
 }
 
 /**
- * Ajax POST request to activate registered Google Authenticator
+ * Ajax POST request to activate registered TOTP
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
  * @param {string} sessionSecretKey The session secret key
- * @param {uuid} google_authenticator_id The Google Authenticator id to activate
- * @param {string} google_authenticator_token One Google Authenticator Code
+ * @param {uuid} google_authenticator_id The TOTP id to activate
+ * @param {string} google_authenticator_token One TOTP Code
  *
  * @returns {Promise} Returns weather it was successful or not
  */
