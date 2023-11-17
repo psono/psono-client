@@ -76,11 +76,6 @@ const DatastoreTreeItem = (props) => {
         return props.onLinkShare(content, content.path, props.nodePath);
     };
 
-    const onRightsOverview = (event) => {
-        handleClose(event);
-        props.onRightsOverview(content, content.path, props.nodePath);
-    };
-
     const onCopyTotpToken = (event) => {
         handleClose(event);
         secretService.copyTotpToken(content);
@@ -107,9 +102,9 @@ const DatastoreTreeItem = (props) => {
 
     };
 
-    const onNewShare = (event) => {
+    const onShare = (event) => {
         handleClose(event);
-        props.onNewShare(content, content.path);
+        props.onShare(content, content.path, props.nodePath);
     };
 
     const onMoveEntry = (event) => {
@@ -134,12 +129,18 @@ const DatastoreTreeItem = (props) => {
         }
     };
 
-    const hideShare =
+    const hideNewShare =
         (store.getState().server.complianceDisableShares && !content.hasOwnProperty("share_id")) ||
         offline ||
         (content.hasOwnProperty("share_rights") && content.share_rights.grant === false) ||
         content.type === "user" ||
-        !props.onNewShare;
+        !props.onShare;
+    const hideRightsOverview =
+        offline ||
+        (content.hasOwnProperty("share_rights") && content.share_rights.grant === false) ||
+        !content.hasOwnProperty("share_id") ||
+        typeof content.share_id === "undefined";
+    const hideShare = hideNewShare && hideRightsOverview;
     const hideLinkShare =
         offline ||
         !content.hasOwnProperty("type") ||
@@ -147,12 +148,6 @@ const DatastoreTreeItem = (props) => {
         store.getState().server.complianceDisableLinkShares ||
         content.type === "user" ||
         !props.onLinkShare;
-    const hideRightsOverview =
-        offline ||
-        (content.hasOwnProperty("share_rights") && content.share_rights.grant === false) ||
-        !content.hasOwnProperty("share_id") ||
-        typeof content.share_id === "undefined" ||
-        !props.onRightsOverview;
     const hideCopyTotpToken =
         (content.hasOwnProperty("share_rights") && content.share_rights.read !== true) ||
         !content.hasOwnProperty("type") ||
@@ -189,9 +184,8 @@ const DatastoreTreeItem = (props) => {
         (content.hasOwnProperty("share_rights") && content.share_rights.delete === false) ||
         !props.onDeleteEntry;
     const disableMenu =
-        hideShare &&
         hideLinkShare &&
-        hideRightsOverview &&
+        hideShare &&
         hideCopyTotpToken &&
         hideCopyUsername &&
         hideCopyPassword &&
@@ -266,7 +260,7 @@ const DatastoreTreeItem = (props) => {
                     onClose={handleClose}
                 >
                     {!hideShare && (
-                        <MenuItem onClick={onNewShare}>
+                        <MenuItem onClick={onShare}>
                             <ListItemIcon className={classes.listItemIcon}>
                                 <ShareIcon className={classes.icon} fontSize="small" />
                             </ListItemIcon>
@@ -282,16 +276,6 @@ const DatastoreTreeItem = (props) => {
                             </ListItemIcon>
                             <Typography variant="body2" noWrap>
                                 {t("LINK_SHARE")}
-                            </Typography>
-                        </MenuItem>
-                    )}
-                    {!hideRightsOverview && (
-                        <MenuItem onClick={onRightsOverview}>
-                            <ListItemIcon className={classes.listItemIcon}>
-                                <ListIcon className={classes.icon} fontSize="small" />
-                            </ListItemIcon>
-                            <Typography variant="body2" noWrap>
-                                {t("RIGHTS_OVERVIEW")}
                             </Typography>
                         </MenuItem>
                     )}
@@ -327,7 +311,6 @@ const DatastoreTreeItem = (props) => {
                     )}
                     {(!hideShare ||
                         !hideLinkShare ||
-                        !hideRightsOverview ||
                         !hideCopyTotpToken ||
                         !hideCopyUsername ||
                         !hideCopyPassword) && <Divider className={classes.divider} />}
@@ -400,7 +383,7 @@ const DatastoreTreeItem = (props) => {
                 }
             >
                 {!hideShare && (
-                    <MenuItem onClick={onNewShare}>
+                    <MenuItem onClick={onShare}>
                         <ListItemIcon className={classes.listItemIcon}>
                             <ShareIcon className={classes.icon} fontSize="small" />
                         </ListItemIcon>
@@ -416,16 +399,6 @@ const DatastoreTreeItem = (props) => {
                         </ListItemIcon>
                         <Typography variant="body2" noWrap>
                             {t("LINK_SHARE")}
-                        </Typography>
-                    </MenuItem>
-                )}
-                {!hideRightsOverview && (
-                    <MenuItem onClick={onRightsOverview}>
-                        <ListItemIcon className={classes.listItemIcon}>
-                            <ListIcon className={classes.icon} fontSize="small" />
-                        </ListItemIcon>
-                        <Typography variant="body2" noWrap>
-                            {t("RIGHTS_OVERVIEW")}
                         </Typography>
                     </MenuItem>
                 )}
@@ -461,7 +434,6 @@ const DatastoreTreeItem = (props) => {
                 )}
                 {(!hideShare ||
                     !hideLinkShare ||
-                    !hideRightsOverview ||
                     !hideCopyTotpToken ||
                     !hideCopyUsername ||
                     !hideCopyPassword) && <Divider className={classes.divider} />}
@@ -526,9 +498,8 @@ DatastoreTreeItem.propTypes = {
     nodePath: PropTypes.array.isRequired,
     content: PropTypes.object,
     offline: PropTypes.bool.isRequired,
-    onNewShare: PropTypes.func,
+    onShare: PropTypes.func,
     onLinkShare: PropTypes.func,
-    onRightsOverview: PropTypes.func,
     onEditEntry: PropTypes.func,
     onCloneEntry: PropTypes.func,
     onDeleteEntry: PropTypes.func,

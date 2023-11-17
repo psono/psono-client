@@ -292,7 +292,7 @@ const TrustedUsersView = (props) => {
                                             <PersonAddIcon className={classes.icon} fontSize="small" />
                                         </ListItemIcon>
                                         <Typography variant="body2" noWrap>
-                                            {t("NEW_USER")}
+                                            {t("SEARCH_USER")}
                                         </Typography>
                                     </MenuItem>
                                 </Menu>
@@ -350,7 +350,7 @@ const TrustedUsersView = (props) => {
                                 <PersonAddIcon className={classes.icon} fontSize="small" />
                             </ListItemIcon>
                             <Typography variant="body2" noWrap>
-                                {t("NEW_USER")}
+                                {t("SEARCH_USER")}
                             </Typography>
                         </MenuItem>
                     </Menu>

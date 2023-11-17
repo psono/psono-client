@@ -103,9 +103,8 @@ const DatastoreTreeVirtualElement = ({ index, style, data }) => {
                             onNewFolder={props.onNewFolder}
                             onNewUser={props.onNewUser}
                             onNewEntry={props.onNewEntry}
-                            onNewShare={props.onNewShare}
+                            onShare={props.onShare}
                             onLinkShare={props.onLinkShare}
-                            onRightsOverview={props.onRightsOverview}
                             onUpdateExpandFolderProperty={onUpdateExpandFolderProperty}
                             key={content.id}
                             nodePath={nodePath}
@@ -127,9 +126,8 @@ const DatastoreTreeVirtualElement = ({ index, style, data }) => {
                             onDeleteEntry={props.onDeleteEntry}
                             onMoveEntry={props.onMoveEntry}
                             onLinkItem={props.onLinkItem}
-                            onNewShare={props.onNewShare}
+                            onShare={props.onShare}
                             onLinkShare={props.onLinkShare}
-                            onRightsOverview={props.onRightsOverview}
                             key={content.id}
                             nodePath={nodePath}
                             content={content}

@@ -808,7 +808,7 @@ const DialogEditEntry = (props) => {
                 {t("CLOSE")}
             </Button>
             {item.share_rights && item.share_rights.read && item.share_rights.write && !offline && props.onEdit && (
-                <Button onClick={onEdit} variant="contained" color="primary" disabled={!canSave}>
+                <Button onClick={onEdit} variant="contained" color="primary" disabled={!canSave} type="submit">
                     {t("SAVE")}
                 </Button>
             )}
@@ -2128,15 +2128,24 @@ const DialogEditEntry = (props) => {
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
             >
-                <DialogTitle id="alert-dialog-title">
-                    {title}
-                </DialogTitle>
-                <DialogContent>
-                    {content}
-                </DialogContent>
-                <DialogActions>
-                    {actions}
-                </DialogActions>
+
+                <form
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                    }}
+                    name="editEntry"
+                    autoComplete="off"
+                >
+                    <DialogTitle id="alert-dialog-title">
+                        {title}
+                    </DialogTitle>
+                    <DialogContent>
+                        {content}
+                    </DialogContent>
+                    <DialogActions>
+                        {actions}
+                    </DialogActions>
+                </form>
             </Dialog>
         )
     }
