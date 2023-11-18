@@ -14,6 +14,107 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
     var backgroundImageHover =
         "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTVweCIgaGVpZ2h0PSIxNnB4IiB2aWV3Qm94PSIwIDAgMTUgMTUiIHZlcnNpb249IjEuMSI+CjxnIGlkPSJzdXJmYWNlMSI+CjxwYXRoIHN0eWxlPSIgc3Ryb2tlOm5vbmU7ZmlsbC1ydWxlOmV2ZW5vZGQ7ZmlsbDpyZ2IoNTkuNjA3ODQzJSw4NS40OTAxOTYlLDY4LjYyNzQ1MSUpO2ZpbGwtb3BhY2l0eToxOyIgZD0iTSAwLjY5NTMxMiAzLjc4OTA2MiBMIDMuMTc1NzgxIDUuMTc5Njg4IEwgNy41NjY0MDYgMi43MzQzNzUgTCAxMS45MTQwNjIgNS4xNjAxNTYgTCAxNC4zNzg5MDYgMy44MDg1OTQgTCA3LjU4NTkzOCAwLjA0Njg3NSBaIE0gMC42OTUzMTIgMy43ODkwNjIgIi8+CjxwYXRoIHN0eWxlPSIgc3Ryb2tlOm5vbmU7ZmlsbC1ydWxlOmV2ZW5vZGQ7ZmlsbDpyZ2IoNTkuNjA3ODQzJSw4NS40OTAxOTYlLDY4LjYyNzQ1MSUpO2ZpbGwtb3BhY2l0eToxOyIgZD0iTSA1LjE2MDE1NiA1Ljg2NzE4OCBMIDcuNTcwMzEyIDcuMjE4NzUgTCA5LjkyMTg3NSA1Ljk1MzEyNSBMIDcuNTY2NDA2IDQuNjUyMzQ0IFogTSA1LjE2MDE1NiA1Ljg2NzE4OCAiLz4KPHBhdGggc3R5bGU9IiBzdHJva2U6bm9uZTtmaWxsLXJ1bGU6ZXZlbm9kZDtmaWxsOnJnYigyOS4wMTk2MDglLDc1LjI5NDExOCUsNTYuMDc4NDMxJSk7ZmlsbC1vcGFjaXR5OjE7IiBkPSJNIDAuNjk1MzEyIDMuNzczNDM4IEwgMC42OTUzMTIgMTEuMjEwOTM4IEwgMy4xNzU3ODEgMTIuNTMxMjUgTCAzLjE5NTMxMiA1LjE3OTY4OCBaIE0gMC42OTUzMTIgMy43NzM0MzggIi8+CjxwYXRoIHN0eWxlPSIgc3Ryb2tlOm5vbmU7ZmlsbC1ydWxlOmV2ZW5vZGQ7ZmlsbDpyZ2IoMjkuMDE5NjA4JSw3NS4yOTQxMTglLDU2LjA3ODQzMSUpO2ZpbGwtb3BhY2l0eToxOyIgZD0iTSA1LjE3NTc4MSA1Ljg2NzE4OCBMIDUuMTU2MjUgOC4zMDg1OTQgTCA3LjU2NjQwNiA5LjU5Mzc1IEwgOS45Mzc1IDguMjc3MzQ0IEwgOS45Mzc1IDUuOTkyMTg4IEwgNy41ODU5MzggNy4yMzgyODEgWiBNIDUuMTc1NzgxIDUuODY3MTg4ICIvPgo8cGF0aCBzdHlsZT0iIHN0cm9rZTpub25lO2ZpbGwtcnVsZTpldmVub2RkO2ZpbGw6cmdiKDI5LjAxOTYwOCUsNzUuMjk0MTE4JSw1Ni4wNzg0MzElKTtmaWxsLW9wYWNpdHk6MTsiIGQ9Ik0gMTEuODk4NDM4IDUuMTc5Njg4IEwgMTEuOTE0MDYyIDkuMTE3MTg4IEwgNy41NjY0MDYgMTEuNDg4MjgxIEwgNS4xNzU3ODEgMTAuMjQyMTg4IEwgNS4xNzU3ODEgMTMuNjMyODEyIEwgNy41NDY4NzUgMTQuOTUzMTI1IEwgMTQuNDE3OTY5IDExLjIwNzAzMSBMIDE0LjM3ODkwNiAzLjgzOTg0NCBaIE0gMTEuODk4NDM4IDUuMTc5Njg4ICIvPgo8L2c+Cjwvc3ZnPgo=";
 
+
+    const passwordSubmitButtonLabels = new Set([
+        "change",
+        "change password",
+        "continue",
+        "log in",
+        "save",
+        "save password",
+        "submit",
+        "sign in",
+        "go",
+        "login",
+        "update password",
+        "next",
+
+        "cambiar contraseña", // Spanish: change password
+        "passwort ändern", // German: change password
+        "changer le mot de passe", // French: change password
+        "cambia password", // Italian: change password
+        "mudar senha", // Portuguese: change password
+        "wachtwoord wijzigen", // Dutch: change password
+
+        "enviar", // Spanish: submit
+        "einreichen", // German: submit
+        "soumettre", // French: submit
+        "inviare", // Italian: submit
+        "enviar", // Portuguese: submit
+        "indienen", // Dutch: submit
+
+        "siguiente", // Spanish: next
+        "nächster", // German: next
+        "suivant", // French: next
+        "prossimo", // Italian: next
+        "próximo", // Portuguese: next
+        "volgende", // Dutch: next
+
+        "continuar", // Spanish: continue
+        "fortsetzen", // German: continue
+        "continuer", // French: continue
+        "continuare", // Italian: continue
+        "continuar", // Portuguese: continue
+        "doorgaan", // Dutch: continue
+
+        "iniciar sesión", // Spanish: log in
+        "einloggen", // German: log in
+        "se connecter", // French: log in
+        "accedere", // Italian: log in
+        "entrar", // Portuguese: log in
+        "inloggen", // Dutch: log in
+
+        "guardar contraseña", // Spanish: save password
+        "passwort speichern", // German: save password
+        "sauvegarder le mot de passe", // French: save password
+        "salva password", // Italian: save password
+        "salvar senha", // Portuguese: save password
+        "wachtwoord opslaan", // Dutch: save password
+
+        "inicio de sesión", // Spanish: login
+        "Login", // German: login
+        "connexion", // French: login
+        "login", // Italian: login
+        "login", // Portuguese: login
+        "login", // Dutch: login
+
+        "registrarse", // Spanish: sign in
+        "anmelden", // German: sign in
+        "s'inscrire", // French: sign in
+        "registrarsi", // Italian: sign in
+        "inscrever-se", // Portuguese: sign in
+        "aanmelden", // Dutch: sign in
+
+        "ir", // Spanish: go
+        "gehen", // German: go
+        "aller", // French: go
+        "andare", // Italian: go
+        "ir", // Portuguese: go
+        "gaan", // Dutch: go
+
+        "actualizar contraseña", // Spanish: update password
+        "passwort aktualisieren", // German: update password
+        "mettre à jour le mot de passe", // French: update password
+        "aggiorna password", // Italian: update password
+        "atualizar senha", // Portuguese: update password
+        "wachtwoord bijwerken", // Dutch: update password
+
+        "guardar", // Spanish: save
+        "speichern", // German: save
+        "sauvegarder", // French: save
+        "salvare", // Italian: save
+        "salvar", // Portuguese: save
+        "opslaan", // Dutch: save
+
+        "cambiar", // Spanish: change
+        "ändern", // German: change
+        "changer", // French: change
+        "cambiare", // Italian: change
+        "mudar", // Portuguese: change
+        "wijzigen", // Dutch: change
+    ]);
+
+
     jQuery(function () {
         activate();
     });
@@ -118,7 +219,18 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
         let submitButtons = form.querySelectorAll("button[type='submit'], input[type='submit'], input[type='image']");
 
         if (submitButtons.length < 1) {
-            // TODO search for other submit buttons with a broader scope
+            // we didn't find any direct submit buttons, so we expand the scope and try just with buttons, potential
+            // image buttons, buttons without type, spans and links.
+            const otherButtons = form.querySelectorAll("button[type='button'], input[type='button'], input[type='image'], button:not([type]), a, span");
+            submitButtons = []
+            for (let i = 0; i < otherButtons.length; i++) {
+                let buttonContent = otherButtons[i].tagName.toLowerCase() === "input" ? otherButtons[i].value : otherButtons[i].innerText;
+
+                if (passwordSubmitButtonLabels.has(buttonContent.toLowerCase().trim())) {
+                    submitButtons.append(otherButtons[i]);
+                }
+            }
+
             return;
         }
         for (let i = 0; i < submitButtons.length; i++) {
