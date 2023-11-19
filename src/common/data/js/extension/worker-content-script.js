@@ -6,6 +6,8 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
     "use strict";
     var websitePasswords = [];
     var lastRequestElement = null;
+    var fillAll = false;
+    var nextFillAllIndex = 0;
     var dropInstances = [];
     var myForms = [];
 
@@ -693,6 +695,16 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      */
     function onWebsitePasswordUpdate(data, sender, sendResponse) {
         websitePasswords = data;
+        if (data.length > 0) {
+            document.onkeyup = function(e) {
+                if (e.ctrlKey && e.shiftKey && e.code === "KeyL") {
+                    //Ctrl + Shift + L
+                    fillAll=true;
+                    requestSecret(websitePasswords[nextFillAllIndex % data.length].secret_id)
+                    nextFillAllIndex = nextFillAllIndex + 1
+                }
+            };
+        }
     }
 
     /**
@@ -739,7 +751,8 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
         for (var i = 0; i < myForms.length; i++) {
             if (
                 (myForms[i].username && myForms[i].username.isEqualNode(lastRequestElement)) ||
-                (myForms[i].password && myForms[i].password.isEqualNode(lastRequestElement))
+                (myForms[i].password && myForms[i].password.isEqualNode(lastRequestElement)) ||
+                fillAll
             ) {
                 fill_field_helper(myForms[i].username, data.website_password_username);
                 fill_field_helper(myForms[i].password, data.website_password_password);
@@ -748,9 +761,12 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
                     dropInstances[ii].close();
                 }
                 dropInstances = [];
-                break;
+                if (!fillAll) {
+                    break;
+                }
             }
         }
+        fillAll=false;
     }
 
     /**
