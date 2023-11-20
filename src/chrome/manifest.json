@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
 
   "name": "Psono - Free Password Manager",
   "short_name": "Psono - Free Password Manager",
@@ -9,7 +9,7 @@
   "version": "1.0.0",
   "homepage_url":"https://psono.com/",
 
-  "browser_action": {
+  "action": {
     "default_icon": "data/img/icon-32-disabled.png",
     "default_popup": "data/default_popup.html"
   },
@@ -23,7 +23,10 @@
     "tabs",
     "clipboardWrite",
     "webRequest",
-    "webRequestBlocking",
+    "webRequestAuthProvider",
+    "offscreen"
+  ],
+  "host_permissions": [
     "http://*/*",
     "https://*/*"
   ],
@@ -41,8 +44,7 @@
     "keyword": "pp"
   },
   "background": {
-    "page": "data/background.html",
-    "persistent": true
+    "service_worker": "data/js/background-chrome.js"
   },
   "content_scripts": [
     {
@@ -64,14 +66,17 @@
     }
   ],
   "options_page": "data/index.html#!/settings",
-  "web_accessible_resources": [
-    "data/fonts/*.woff2",
-    "data/css/contentscript.css",
-    "data/img/psono-encrypt.png",
-    "data/img/psono-decrypt.png"
-  ],
+  "web_accessible_resources": [{
+    "resources": [
+      "data/fonts/*.woff2",
+      "data/css/contentscript.css",
+      "data/img/psono-encrypt.png",
+      "data/img/psono-decrypt.png"
+    ],
+    "matches": ["*://*/*"]
+  }],
   "commands": {
-    "_execute_browser_action": {
+    "_execute_action": {
       "suggested_key": {
         "default": "Alt+P"
       }

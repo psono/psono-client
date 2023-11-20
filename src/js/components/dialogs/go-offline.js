@@ -65,7 +65,7 @@ const DialogGoOffline = (props) => {
                     .then(function (datastore) {
                         closedRequest = closedRequest + 1;
                         openRequests = openRequests + 1;
-                        exportService.getAllSecrets(datastore, true).then(function () {
+                        exportService.getAllSecrets(datastore, true, true).then(function () {
                             closedRequest = closedRequest + 1;
                             potentiallyCloseDialog();
                         });

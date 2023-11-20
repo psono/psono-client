@@ -2,29 +2,32 @@
  * Service to talk to the psono REST api
  */
 
-import axios from "axios";
-
-function call(connection_type, endpoint, data, headers) {
+function call(connection_type, endpoint, body, headers) {
     const backend = "https://api.pwnedpasswords.com";
 
     const req = {
         method: connection_type,
-        url: backend + endpoint,
-        data: data,
+        headers: {
+            ...headers
+        }
     };
 
-    req.headers = headers;
+    if (body != null) {
+        req['body'] = JSON.stringify(body);
+    }
 
     return new Promise(function (resolve, reject) {
-        const onSuccess = function (data) {
-            return resolve(data);
+        const onSuccess = async function (data) {
+            return resolve({
+                data: await data.text(),
+            });
         };
 
         const onError = function (data) {
             return reject(data);
         };
 
-        axios(req).then(onSuccess, onError);
+        fetch(backend + endpoint, req).then(onSuccess, onError);
     });
 }
 
@@ -38,10 +41,10 @@ function call(connection_type, endpoint, data, headers) {
 function range(hash_chars) {
     const endpoint = "/range/" + hash_chars;
     const connection_type = "GET";
-    const data = null;
-    const headers = null;
+    const body = null;
+    const headers = {};
 
-    return call(connection_type, endpoint, data, headers);
+    return call(connection_type, endpoint, body, headers);
 }
 
 const apiPwnedpasswordsService = {

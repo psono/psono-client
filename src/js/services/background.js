@@ -14,6 +14,8 @@ import cryptoLibrary from "./crypto-library";
 import HKP from "@openpgp/hkp-client";
 import * as openpgp from "openpgp";
 import storage from "./storage";
+import datastoreSettingService from "./datastore-setting";
+import {persistStore} from "redux-persist";
 
 let lastLoginCredentials;
 let activeTabId;
@@ -28,6 +30,7 @@ let contextMenuId;
 let contextMenuChild1Id;
 let contextMenuChild2Id;
 let clearFillPasswordTimeout;
+
 
 function activate() {
     browserClient.disableBrowserPasswordSaving();
@@ -96,20 +99,35 @@ function activate() {
     }
 
     if (typeof chrome.contextMenus !== "undefined") {
-        contextMenuId = chrome.contextMenus.create({ title: "Psono" });
+        contextMenuId = chrome.contextMenus.create({
+            id: "psono-psono",
+            title: "Psono",
+        });
         contextMenuChild1Id = chrome.contextMenus.create({
+            id: "psono-datastore",
             title: i18n.t("OPEN_DATASTORE"),
             contexts: ["all"],
             parentId: contextMenuId,
-            onclick: openDatastore,
         });
         contextMenuChild2Id = chrome.contextMenus.create({
+            id: "psono-recheck-page",
             title: i18n.t("RECHECK_PAGE"),
             contexts: ["all"],
             parentId: contextMenuId,
-            onclick: recheckPage,
+        });
+
+        chrome.contextMenus.onClicked.addListener((info, tab) => {
+            switch (info.menuItemId) {
+                case "psono-datastore":
+                    openDatastore()
+                    break;
+                case "psono-recheck-page":
+                    recheckPage()
+                    break;
+            }
         });
     }
+
 
     // create the context menu once the translations are loaded
     i18n.on("loaded", function (loaded) {
@@ -118,12 +136,12 @@ function activate() {
 
     // set the correct icon on start
     if (user.isLoggedIn()) {
-        chrome.browserAction.setIcon({
-            path : "img/icon-32.png"
+        browserClient.setIcon({
+            path : "/data/img/icon-32.png"
         });
     } else {
-        chrome.browserAction.setIcon({
-            path : "img/icon-32-disabled.png"
+        browserClient.setIcon({
+            path : "/data/img/icon-32-disabled.png"
         });
     }
 }
@@ -137,7 +155,6 @@ function updateContextMenu() {
             title: i18n.t("OPEN_DATASTORE"),
             contexts: ["all"],
             parentId: contextMenuId,
-            onclick: openDatastore,
         });
     }
     if (contextMenuChild2Id) {
@@ -145,7 +162,6 @@ function updateContextMenu() {
             title: i18n.t("RECHECK_PAGE"),
             contexts: ["all"],
             parentId: contextMenuId,
-            onclick: recheckPage,
         });
     }
 }
@@ -207,6 +223,8 @@ function onMessage(request, sender, sendResponse) {
         "set-offline-cache-encryption-key": setOfflineCacheEncryptionKey,
         "launch-web-auth-flow-in-background": launchWebAuthFlowInBackground,
         "language-changed": languageChanged,
+        "get-offline-cache-encryption-key-offscreen": () => {}, // dummy as these are handled offscreen
+        "set-offline-cache-encryption-key-offscreen": () => {}, // dummy as these are handled offscreen
     };
 
     if (eventFunctions.hasOwnProperty(request.event)) {
@@ -314,8 +332,8 @@ function savePasswordActiveTab(request, sender, sendResponse) {
                     // don't do anything
                 });
             }, 500); // delay 500 ms to give the storage a chance to be stored
-            browserClient.openTab(
-                "index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id
+            browserClient.openTabBg(
+                "/data/index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id
             );
         };
 
@@ -347,8 +365,8 @@ function bookmarkActiveTab(request, sender, sendResponse) {
             });
         }, 500); // delay 500 ms to give the storage a chance to be stored
 
-        browserClient.openTab(
-            "index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id
+        browserClient.openTabBg(
+            "/data/index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id
         );
     };
     datastorePasswordService.bookmarkActiveTab().then(onSuccess, onError);
@@ -374,8 +392,8 @@ function onLogout(request, sender, sendResponse) {
 
         chrome.tabs.remove(tabids);
     });
-    chrome.browserAction.setIcon({
-        path : "img/icon-32-disabled.png"
+    browserClient.setIcon({
+        path : "/data/img/icon-32-disabled.png"
     });
 }
 
@@ -411,8 +429,8 @@ function onStorageReload(request, sender, sendResponse) {
  */
 function onLogin(request, sender, sendResponse) {
     // pass
-    chrome.browserAction.setIcon({
-        path : "img/icon-32.png"
+    browserClient.setIcon({
+        path : "/data/img/icon-32.png"
     });
 }
 
@@ -539,6 +557,7 @@ function onRequestSecret(request, sender, sendResponse) {
             sendResponse({ event: "return-secret", data: data });
         },
         function (value) {
+            console.log(value);
             // failed
             sendResponse({ event: "return-secret", data: "fail" });
         }
@@ -580,8 +599,8 @@ function onGeneratePassword(request, sender, sendResponse) {
                 // don't do anything
             });
         }, 500); // delay 500 ms to give the storage a chance to be stored
-        browserClient.openTab(
-            "index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id
+        browserClient.openTabBg(
+            "/data/index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id
         );
     };
 

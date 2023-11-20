@@ -8,7 +8,17 @@ import action from "../actions/bound-action-creators";
 import store from "./store";
 
 let fingerprint;
-const clientJs = new ClientJS();
+let clientJs;
+
+activate();
+
+function activate() {
+    if (typeof window === "undefined") {
+        //we are in a background script and don't have a window
+        return;
+    }
+    clientJs = new ClientJS();
+}
 
 /**
  * Returns the device fingerprint
@@ -60,7 +70,7 @@ function isWebclient() {
  * @returns {boolean} Is this a windows device
  */
 function isWindows() {
-    return clientJs.isWindows()
+    return clientJs && clientJs.isWindows()
 }
 
 /**
@@ -69,7 +79,7 @@ function isWindows() {
  * @returns {boolean} Is this a mac device
  */
 function isMac() {
-    return clientJs.isMac()
+    return clientJs && clientJs.isMac()
 }
 
 /**
@@ -78,7 +88,7 @@ function isMac() {
  * @returns {boolean} Is this a linux device
  */
 function isLinux() {
-    return clientJs.isLinux()
+    return clientJs && clientJs.isLinux()
 }
 
 /**
@@ -87,7 +97,7 @@ function isLinux() {
  * @returns {boolean} Is this an android device
  */
 function isMobileAndroid() {
-    return clientJs.isMobileAndroid();
+    return clientJs && clientJs.isMobileAndroid();
 }
 
 /**
@@ -96,7 +106,7 @@ function isMobileAndroid() {
  * @returns {boolean} Is this an ios device
  */
 function isMobileIos() {
-    return clientJs.isMobileIOS();
+    return clientJs && clientJs.isMobileIOS();
 }
 
 /**
@@ -105,7 +115,7 @@ function isMobileIos() {
  * @returns {boolean} Is this an ios device
  */
 function isMobile() {
-    return clientJs.isMobile();
+    return clientJs && clientJs.isMobile();
 }
 
 /**
@@ -114,7 +124,7 @@ function isMobile() {
  * @returns {boolean} Is this an Chrome user
  */
 function isChrome() {
-    return clientJs.isChrome();
+    return clientJs && clientJs.isChrome();
 }
 
 /**
@@ -123,7 +133,7 @@ function isChrome() {
  * @returns {boolean} Is this an Chrome user
  */
 function isSafari() {
-    return clientJs.isSafari();
+    return clientJs && clientJs.isSafari();
 }
 
 /**
@@ -132,7 +142,7 @@ function isSafari() {
  * @returns {boolean} Is this an Firefox user
  */
 function isFirefox() {
-    return clientJs.isFirefox();
+    return clientJs && clientJs.isFirefox();
 }
 
 /**
@@ -142,22 +152,22 @@ function isFirefox() {
  */
 function getDeviceDescription() {
     let description = "";
-    if (typeof clientJs.getDeviceVendor() !== "undefined") {
+    if (clientJs && typeof clientJs.getDeviceVendor() !== "undefined") {
         description = description + clientJs.getDeviceVendor() + " ";
     }
-    if (typeof clientJs.getDevice() !== "undefined") {
+    if (clientJs && typeof clientJs.getDevice() !== "undefined") {
         description = description + clientJs.getDevice() + " ";
     }
-    if (typeof clientJs.getOS() !== "undefined") {
+    if (clientJs && typeof clientJs.getOS() !== "undefined") {
         description = description + clientJs.getOS() + " ";
     }
-    if (typeof clientJs.getOSVersion() !== "undefined") {
+    if (clientJs && typeof clientJs.getOSVersion() !== "undefined") {
         description = description + clientJs.getOSVersion() + " ";
     }
-    if (typeof clientJs.getBrowser() !== "undefined") {
+    if (clientJs && typeof clientJs.getBrowser() !== "undefined") {
         description = description + clientJs.getBrowser() + " ";
     }
-    if (typeof clientJs.getBrowserVersion() !== "undefined") {
+    if (clientJs && typeof clientJs.getBrowserVersion() !== "undefined") {
         description = description + clientJs.getBrowserVersion() + " ";
     }
     return description;

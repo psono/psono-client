@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {useTranslation} from "react-i18next";
-import axios from "axios";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import Button from "@material-ui/core/Button";
@@ -33,12 +32,9 @@ const PrivacyPolicyView = (props) => {
     const [privacyPolicy, setPrivacyPolicy] = useState("");
 
     React.useEffect(() => {
-        axios({
-            method: "get",
-            url: "privacy-policy-content.html",
-        })
-            .then((result) => {
-                setPrivacyPolicy(result.data);
+        fetch("privacy-policy-content.html")
+            .then(async (result) => {
+                setPrivacyPolicy(await result.text());
             })
             .catch((error) => {
                 console.error(error);

@@ -28,6 +28,7 @@ function InvalidRecoveryCodeException(message) {
  */
 function randomBytes(count) {
     let bs;
+
     if (typeof module !== "undefined" && module.exports) {
         // add node.js implementations
         const crypto = require("crypto");
@@ -36,6 +37,11 @@ function randomBytes(count) {
         for (let i = 0; i < buf.length; ++i) {
             bs[i] = buf[i];
         }
+        return bs;
+    } else if (typeof window === "undefined") {
+        // manifest v3 background script without access to window
+        bs = new Uint8Array(count);
+        crypto.getRandomValues(bs);
         return bs;
     } else if (window && window.crypto && window.crypto.getRandomValues) {
         // add in-browser implementation
@@ -60,7 +66,12 @@ function randomBytes(count) {
 function random() {
     let bs;
     let byte;
-    if (window && window.crypto && window.crypto.getRandomValues) {
+    if (typeof window === "undefined") {
+        // manifest v3 background script without access to window
+        bs = new Uint32Array(1);
+        crypto.getRandomValues(bs);
+        byte = bs[0];
+    } else if (window && window.crypto && window.crypto.getRandomValues) {
         // add in-browser implementation
         bs = new Uint32Array(1);
         window.crypto.getRandomValues(bs);

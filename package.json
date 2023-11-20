@@ -29,7 +29,6 @@
     "@openpgp/hkp-client": "^0.0.2",
     "@sentry/react": "^6.19.6",
     "@sentry/tracing": "^6.19.6",
-    "axios": "^1.2.1",
     "chart.js": "^3.7.0",
     "classnames": "^2.3.2",
     "clientjs": "^0.2.1",

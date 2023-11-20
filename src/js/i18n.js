@@ -44,6 +44,14 @@ Object.entries(languages).forEach(([key, value]) => {
     }
 });
 
+let loadPath = ''
+if (typeof window === "undefined") {
+    // chrome backend worker
+    loadPath = "/data/translations/locale-{{lng}}.json"
+} else {
+    loadPath = "./translations/locale-{{lng}}.json"
+}
+
 i18n
     // load translation using xhr -> see /public/locales
     // learn more: https://github.com/i18next/i18next-xhr-backend
@@ -62,7 +70,7 @@ i18n
         debug: process.env.NODE_ENV === "development",
         backend: {
             // for all available options read the backend's repository readme file
-            loadPath: "./translations/locale-{{lng}}.json",
+            loadPath: loadPath,
         },
 
         interpolation: {

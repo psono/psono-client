@@ -2,23 +2,16 @@
  * Service to talk to the Azure Blob Storage and upload or download files
  */
 
-import axios from "axios";
-import converterService from "./converter";
-
-function call(signedUrl, method, endpoint, data, headers, transformRequest, responseType) {
-    if (!transformRequest) {
-        transformRequest = axios.defaults.transformRequest;
-    }
+function call(signedUrl, method, endpoint, data, headers) {
 
     const req = {
         method: method,
-        url: signedUrl + endpoint,
-        data: data,
-        transformRequest: transformRequest,
-        responseType: responseType,
+        body: data,
     };
 
-    req.headers = headers;
+    if (headers) {
+        req.headers = headers;
+    }
 
     return new Promise(function (resolve, reject) {
         const onSuccess = function (data) {
@@ -29,14 +22,14 @@ function call(signedUrl, method, endpoint, data, headers, transformRequest, resp
             return reject(data);
         };
 
-        axios(req).then(onSuccess, onError);
+        fetch(signedUrl + endpoint, req).then(onSuccess, onError);
     });
 }
 
 /**
  * Ajax PUT request to upload a file chunk to Azure Blob Storage
  *
- * @param {string} signedUrl The signed ulr
+ * @param {string} signedUrl The signed url
  * @param {Blob} chunk The content of the chunk to upload
  *
  * @returns {Promise} promise
@@ -44,10 +37,8 @@ function call(signedUrl, method, endpoint, data, headers, transformRequest, resp
 function upload(signedUrl, chunk) {
     const endpoint = ""; // the signed url already has everything
     const method = "PUT";
-
     const headers = {
-        "x-ms-blob-type": "BlockBlob",
-        "Content-Type": undefined,
+        "x-ms-blob-type": "BlockBlob"
     };
 
     return call(signedUrl, method, endpoint, chunk, headers);
@@ -56,7 +47,7 @@ function upload(signedUrl, chunk) {
 /**
  * Ajax GET request to download a file chunk from Azure Blob Storage
  *
- * @param {string} signedUrl The signed ulr
+ * @param {string} signedUrl The signed url
  *
  * @returns {Promise} promise with the data
  */
@@ -67,14 +58,13 @@ function download(signedUrl) {
 
     const headers = {};
 
-    return call(signedUrl, method, endpoint, data, headers, undefined, "arraybuffer").then(
-        function (data) {
-            return data;
+    return call(signedUrl, method, endpoint, data, headers).then(
+        async function (data) {
+            return {
+                data: await data.arrayBuffer()
+            };
         },
         function (data) {
-            if (data.status === 400) {
-                data.data = JSON.parse(converterService.bytesToString(data.data));
-            }
             return Promise.reject(data);
         }
     );

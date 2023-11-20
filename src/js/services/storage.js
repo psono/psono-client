@@ -6,62 +6,10 @@ import localforage from "localforage";
 
 const registrations = {};
 
-//const loki_storage = new loki("password_manager_local_storage");
-const dbs = [];
-
-// const db_config = {
-//     'config': {
-//         name: 'config',
-//         indices: ['key'],
-//         uniques: ['key']
-//     },
-//     'persistent': {
-//         name: 'persistent',
-//         indices: ['key'],
-//         uniques: ['key']
-//     },
-//     'settings': {
-//         name: 'settings',
-//         indices: ['key'],
-//         uniques: ['key']
-//     },
-//     'offline-cache': {
-//         name: 'offline-cache',
-//         indices: ['key'],
-//         uniques: ['key']
-//     },
-//     'datastore-password-leafs': {
-//         name: 'datastore-password-leafs',
-//         indices: ['key', 'urlfilter', 'name'],
-//         uniques: ['key']
-//     },
-//     'datastore-file-leafs': {
-//         name: 'datastore-file-leafs',
-//         indices: ['key'],
-//         uniques: ['key']
-//     },
-//     'datastore-user-leafs': {
-//         name: 'datastore-user-leafs',
-//         indices: ['key', 'filter', 'name'],
-//         uniques: ['key'],
-//         subscribers: {
-//             update: {
-//                 current: 0,
-//                 max: 1
-//             },
-//             insert: {
-//                 current: 0,
-//                 max: 1
-//             },
-//             delete: {
-//                 current: 0,
-//                 max: 1
-//             }
-//         }
-//     }
-// };
-
 const dbConfig = {
+    "state": localforage.createInstance({
+        name: "state",
+    }),
     "file-downloads": localforage.createInstance({
         name: "datastore-password-leafs",
     }),
@@ -95,7 +43,6 @@ function activate() {
  * @param {object|Array} items One or multiple items to put into the database
  */
 function insert(db, items) {
-    //return dbs[db].insert(items);
     dbConfig[db].setItem(items["key"], items["value"]);
 }
 
@@ -168,7 +115,6 @@ function where(db, filterFunction) {
  */
 function findKey(db, key) {
     return dbConfig[db].getItem(key);
-    //return dbs[db].findOne({key: key});
 }
 
 /**
@@ -194,9 +140,22 @@ function removeAll(db) {
             if (!dbConfig.hasOwnProperty(dbName)) {
                 continue;
             }
+            if (dbName === "state") {
+                //state contains data that potentially be persisted
+                continue;
+            }
             dbConfig[dbName].clear();
         }
     }
+}
+
+/**
+ * removes all objects in all dbs (excluding the persistent one) or only in the specified one
+ *
+ * @param {string} [db] (optional) The database
+ */
+function get(db) {
+    return dbConfig[db]
 }
 
 /**
@@ -288,6 +247,7 @@ const storageService = {
     findKey: findKey,
     remove: remove,
     removeAll: removeAll,
+    get: get,
     on: on,
     save: save,
     reload: reload,

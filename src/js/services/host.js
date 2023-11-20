@@ -2,7 +2,6 @@
  * Service to manage the host
  */
 
-import axios from "axios";
 import store from "./store";
 import cryptoLibrary from "./crypto-library";
 import helperService from "./helper";
@@ -157,29 +156,26 @@ function checkHost(server, preApprovedVerifyKey) {
  * @returns {Promise} Result of the check
  */
 function loadRemoteConfig(web_client_url, server_url) {
-    const req = {
-        method: "GET",
-        url: web_client_url + "/config.json",
-    };
 
-    const onSuccess = function (config) {
+    const onSuccess = async function (data) {
+        const config = await data.json();
         // we need to preserve the base_url and the backend server as they are optional and the original web
         // client would create them dynamically
-        if (!config.data.hasOwnProperty("base_url")) {
-            config.data["base_url"] = web_client_url;
+        if (!config.hasOwnProperty("base_url")) {
+            config["base_url"] = web_client_url;
         }
 
-        if (config.data.hasOwnProperty("backend_servers")) {
-            for (let i = 0; i < config.data["backend_servers"].length; i++) {
-                if (config.data["backend_servers"][i].hasOwnProperty("url")) {
+        if (config.hasOwnProperty("backend_servers")) {
+            for (let i = 0; i < config["backend_servers"].length; i++) {
+                if (config["backend_servers"][i].hasOwnProperty("url")) {
                     continue;
                 }
-                config.data["backend_servers"][i]["url"] = server_url;
+                config["backend_servers"][i]["url"] = server_url;
             }
         }
 
         // we store the loaded configuration
-        action.setRemoteConfigJson(config.data);
+        action.setRemoteConfigJson(config);
         action.setUserUsername("");
         action.setServerUrl("");
         browserClient.clearConfigCache();
@@ -190,7 +186,7 @@ function loadRemoteConfig(web_client_url, server_url) {
         return Promise.reject(data);
     };
 
-    return axios(req).then(onSuccess, onError);
+    return fetch(web_client_url + "/config.json").then(onSuccess, onError);
 }
 
 /**

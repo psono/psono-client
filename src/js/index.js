@@ -19,14 +19,11 @@ import datastoreSettingService from "./services/datastore-setting";
 import i18n from "./i18n";
 import theme from "./theme";
 import { initSentry } from './var/sentry'
-import { initRequestProgressBar } from './var/request-progress-bar'
 
 initSentry()
-initRequestProgressBar()
 
 import IndexView from "./views/index";
 import DownloadBanner from "./components/download-banner";
-import RequestProgressBar from "./components/request-progress-bar";
 
 /**
  * Loads the datastore
@@ -56,7 +53,6 @@ const App = () => {
                             <ThemeProvider theme={theme}>
                                 <CssBaseline />
                                 <HashRouter history={customHistory} hashType={"hashbang"}>
-                                    <RequestProgressBar />
                                     <DownloadBanner />
                                     <IndexView />
                                 </HashRouter>

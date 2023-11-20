@@ -1,9 +1,10 @@
 /**
- * Service to talk to the psono REST api
+ * Service to handle the offline cache
  */
 
 import cryptoLibrary from "./crypto-library";
 import browserClient from "./browser-client";
+import offscreenDocument from "./offscreen-document";
 import storage from "./storage";
 import action from "../actions/bound-action-creators";
 import store from "./store";
@@ -14,14 +15,12 @@ const onSetEncryptionKeyRegistrations = [];
 activate();
 
 function activate() {
-    if (window.psono_offline_cache_encryption_key) {
+    if (typeof window !== "undefined" && window.psono_offline_cache_encryption_key) {
         setEncryptionKey(window.psono_offline_cache_encryption_key);
     }
-    if (browserClient) {
-        browserClient.getOfflineCacheEncryptionKey(function (new_encryption_key) {
-            setEncryptionKey(new_encryption_key);
-        });
-    }
+    offscreenDocument.getOfflineCacheEncryptionKey(function (newEncryptionKey) {
+        setEncryptionKey(newEncryptionKey);
+    });
 }
 
 /**
@@ -107,7 +106,12 @@ function setEncryptionKey(newEncryptionKey) {
         return;
     }
     encryptionKey = newEncryptionKey;
-    window.psono_offline_cache_encryption_key = newEncryptionKey;
+    if (typeof window !== "undefined") {
+        window.psono_offline_cache_encryption_key = newEncryptionKey;
+    } else {
+        // we are in a chrome extension in background service worker, so we store it in offscreen document
+        offscreenDocument.setOfflineCacheEncryptionKey(newEncryptionKey);
+    }
     for (let i = 0; i < onSetEncryptionKeyRegistrations.length; i++) {
         onSetEncryptionKeyRegistrations[i]();
     }
@@ -134,13 +138,14 @@ function setEncryptionPassword(password) {
 /**
  * Sets the request data in cache
  *
- * @param {object} request the request
+ * @param {string} url the url of the request
+ * @param {string} method the request method
  * @param {object} data the data
  *
  * @returns {Promise} promise
  */
-function set(request, data) {
-    if (request.method !== "GET" || !isActive()) {
+function set(url, method, data) {
+    if (method !== "GET" || !isActive()) {
         return;
     }
 
@@ -150,21 +155,22 @@ function set(request, data) {
         value = cryptoLibrary.encryptData(value, encryptionKey);
     }
 
-    storage.upsert("offline-cache", { key: request.url.toLowerCase(), value: value });
+    storage.upsert("offline-cache", { key: url.toLowerCase(), value: value });
 }
 
 /**
  * Returns the cached request
  *
- * @param {object} request the request
+ * @param {string} url the request url
+ * @param {string} method the request method
  *
  * @returns {Promise} our original request
  */
-function get(request) {
+function get(url, method) {
     if (!isActive()) {
         return Promise.resolve(null);
     }
-    if (request.method !== "GET") {
+    if (method !== "GET") {
         return Promise.resolve({
             data: {
                 error: ["Leave the offline mode before creating / modifying any content."],
@@ -172,7 +178,7 @@ function get(request) {
         });
     }
 
-    return storage.findKey("offline-cache", request.url.toLowerCase()).then((storageEntry) => {
+    return storage.findKey("offline-cache", url.toLowerCase()).then((storageEntry) => {
         if (storageEntry === null) {
             return null;
         }

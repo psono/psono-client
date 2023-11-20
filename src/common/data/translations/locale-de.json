@@ -754,6 +754,7 @@
   "HERE_YOU_CAN_MANAGE_ALL_YOUR_PASSWORD_DATASTORES": "Hier können sie alle ihre Passwort Datenspeicher verwalten",
   "DATASTORE": "Datenspeicher",
   "DATASTORE_DESCRIPTION_MUST_BE_UNIQUE": "Die Beschreibung des Datenspeichers muss eindeutig sein. Die gewählte Beschreibung wird bereits von einem anderen Datenspeicher verwendet.",
+  "UNIQUE": "Einzigartig",
   "DATASTORES": "Datenspeicher",
   "NEW_SERVER": "Neuer Server",
   "APPROVE_UNSAFE": "Genehmigen (unsicher)",
