@@ -78,15 +78,22 @@ build-docker-image:
     DOCKER_HOST: tcp://docker:2375/
     DOCKER_TLS_CERTDIR: ""
   script:
-    - apt-get update && apt-get install -y curl
+    - apt-get update && apt-get install -y curl iptables libdevmapper1.02.1
     - sh ./var/download_translations_from_artifactory.sh
     - sh ./var/prep-build.sh
     - npm run buildwebclient
-    - curl -fSL "https://psono.jfrog.io/artifactory/generic-local/docker/docker-24.0.7.tgz" -o docker.tgz && echo "984d59a77fa6acab97ea725a966facd33725e0e09c2fee975397fe1c6379bd3d *docker.tgz" | sha256sum -c - && tar -xzvf docker.tgz && mv docker/* /usr/local/bin/ && rm -Rf docker && rm docker.tgz
+    - curl -fSL "https://download.docker.com/linux/ubuntu/dists/jammy/pool/stable/amd64/containerd.io_1.6.24-1_amd64.deb" -o containerd.deb && echo "5e57863201a147369d1cc54dcb1493ada00ee22ceb90c49f91adc7a8238cd51f containerd.deb" | sha256sum -c -
+    - curl -fSL "https://download.docker.com/linux/ubuntu/dists/jammy/pool/stable/amd64/docker-buildx-plugin_0.11.2-1~ubuntu.22.04~jammy_amd64.deb" -o docker-buildx-plugin.deb && echo "18289b895394f8ad694f2107070dd95365866e5fa79a8d7f8f6d405bb8e9b68b docker-buildx-plugin.deb" | sha256sum -c -
+    - curl -fSL "https://download.docker.com/linux/ubuntu/dists/jammy/pool/stable/amd64/docker-ce-cli_24.0.7-1~ubuntu.22.04~jammy_amd64.deb" -o docker-ce-cli.deb && echo "bfca81c55faacef808c476e16de548a9b7f1d1e537d24d546aef47df7c598564 docker-ce-cli.deb" | sha256sum -c -
+    - curl -fSL "https://download.docker.com/linux/ubuntu/dists/jammy/pool/stable/amd64/docker-ce_24.0.7-1~ubuntu.22.04~jammy_amd64.deb" -o docker-ce.deb && echo "81273f05dbc410d9ec62b264bbef5452bfa892117e82be5a673e8e9a39192699 docker-ce.deb" | sha256sum -c -
+    - dpkg -i ./containerd.deb ./docker-ce.deb ./docker-ce-cli.deb ./docker-buildx-plugin.deb
     - docker info
     - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker.jfrog.io
-    - docker build -t $CONTAINER_TEST_IMAGE --pull .
-    - docker push $CONTAINER_TEST_IMAGE
+    - docker context create builder
+    - docker buildx create builder --use
+    - docker buildx build --platform linux/amd64,linux/arm64 -t $CONTAINER_TEST_IMAGE --push --pull .
+#    - docker build -t $CONTAINER_TEST_IMAGE --pull .
+#    - docker push $CONTAINER_TEST_IMAGE
     - curl -fL https://getcli.jfrog.io | sh
     - ./jfrog config add rt-server-1 --artifactory-url=https://psono.jfrog.io/psono --user=gitlab --password=$artifactory_credentials --interactive=false
     - ./jfrog rt sp "docker/psono/psono-client/$CI_COMMIT_REF_NAME/manifest.json" "CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION"
@@ -378,11 +385,10 @@ release-docker:
     DOCKER_HOST: tcp://docker:2375/
     DOCKER_TLS_CERTDIR: ""
   script:
+    - apk add skopeo
     - docker info
     - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker.jfrog.io
-    - docker pull $CONTAINER_TEST_IMAGE
-    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
-    - docker push $CONTAINER_RELEASE_IMAGE
+    - skopeo copy --all docker://$CONTAINER_TEST_IMAGE docker://$CONTAINER_RELEASE_IMAGE
   only:
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
