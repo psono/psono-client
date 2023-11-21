@@ -24,6 +24,7 @@ import TabPanel from "../tab-panel";
 import Table from "../table";
 import DialogNewUser from "./new-user";
 import CreateGroupDialog from "../../views/groups/create-group-dialog";
+import DialogError from "./error";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -73,8 +74,12 @@ const DialogNewShare = (props) => {
 
     let isSubscribed = true;
     React.useEffect(() => {
-        loadUsers();
-        loadGroups();
+        if (props.users) {
+            loadUsers();
+        }
+        if (props.groups) {
+            loadGroups();
+        }
         return () => (isSubscribed = false);
     }, []);
 
@@ -247,117 +252,115 @@ const DialogNewShare = (props) => {
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
         >
-            <DialogTitle id="alert-dialog-title">
-                {t("SHARE")} {node.name}
-            </DialogTitle>
-            <DialogContent>
-                <Grid container>
-                    <Grid item xs={4} sm={4} md={4}>
-                        <Checkbox
-                            tabIndex={1}
-                            checked={read}
-                            onChange={(event) => {
-                                setRead(event.target.checked);
-                            }}
-                            checkedIcon={<Check className={classes.checkedIcon} />}
-                            icon={<Check className={classes.uncheckedIcon} />}
-                            classes={{
-                                checked: classes.checked,
-                            }}
-                        />{" "}
-                        {t("READ")}
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault();
+                }}
+                name="createShare"
+                autoComplete="off"
+            >
+
+                <DialogTitle id="alert-dialog-title">
+                    {t("SHARE")} {node.name}
+                </DialogTitle>
+                <DialogContent>
+                    <Grid container>
+                        <Grid item xs={4} sm={4} md={4}>
+                            <Checkbox
+                                tabIndex={1}
+                                checked={read}
+                                onChange={(event) => {
+                                    setRead(event.target.checked);
+                                }}
+                                checkedIcon={<Check className={classes.checkedIcon} />}
+                                icon={<Check className={classes.uncheckedIcon} />}
+                                classes={{
+                                    checked: classes.checked,
+                                }}
+                            />{" "}
+                            {t("READ")}
+                        </Grid>
+                        <Grid item xs={4} sm={4} md={4}>
+                            <Checkbox
+                                tabIndex={1}
+                                checked={write}
+                                onChange={(event) => {
+                                    setWrite(event.target.checked);
+                                }}
+                                checkedIcon={<Check className={classes.checkedIcon} />}
+                                icon={<Check className={classes.uncheckedIcon} />}
+                                classes={{
+                                    checked: classes.checked,
+                                }}
+                            />{" "}
+                            {t("WRITE")}
+                        </Grid>
+                        <Grid item xs={4} sm={4} md={4}>
+                            <Checkbox
+                                tabIndex={1}
+                                checked={grant}
+                                onChange={(event) => {
+                                    setGrant(event.target.checked);
+                                }}
+                                checkedIcon={<Check className={classes.checkedIcon} />}
+                                icon={<Check className={classes.uncheckedIcon} />}
+                                classes={{
+                                    checked: classes.checked,
+                                }}
+                            />{" "}
+                            {t("ADMIN")}
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={12}>
+                            <Divider style={{ marginTop: "20px", marginBottom: "10px" }} />
+                            {props.users && (
+                                <Table
+                                    data={userColumnData}
+                                    columns={userColumns}
+                                    options={options}
+                                    onCreate={onCreateTrustedUser}
+                                />
+                            )}
+                            {props.groups && (
+                                <Table
+                                    data={groupColumnData}
+                                    columns={groupColumns}
+                                    options={options}
+                                    onCreate={disableUnmanagedGroups ? undefined : onCreateGroup}
+                                />
+                            )}
+                        </Grid>
                     </Grid>
-                    <Grid item xs={4} sm={4} md={4}>
-                        <Checkbox
-                            tabIndex={1}
-                            checked={write}
-                            onChange={(event) => {
-                                setWrite(event.target.checked);
-                            }}
-                            checkedIcon={<Check className={classes.checkedIcon} />}
-                            icon={<Check className={classes.uncheckedIcon} />}
-                            classes={{
-                                checked: classes.checked,
-                            }}
-                        />{" "}
-                        {t("WRITE")}
-                    </Grid>
-                    <Grid item xs={4} sm={4} md={4}>
-                        <Checkbox
-                            tabIndex={1}
-                            checked={grant}
-                            onChange={(event) => {
-                                setGrant(event.target.checked);
-                            }}
-                            checkedIcon={<Check className={classes.checkedIcon} />}
-                            icon={<Check className={classes.uncheckedIcon} />}
-                            classes={{
-                                checked: classes.checked,
-                            }}
-                        />{" "}
-                        {t("ADMIN")}
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={12}>
-                        <Divider style={{ marginTop: "20px", marginBottom: "10px" }} />
-                        <Tabs
-                            value={value}
-                            indicatorColor="primary"
-                            textColor="primary"
-                            onChange={(event, newValue) => {
-                                setValue(newValue);
-                            }}
-                            aria-label="users and groups"
-                        >
-                            <Tab label={t("TRUSTED_USERS")} />
-                            <Tab label={t("KNOWN_GROUPS")} />
-                        </Tabs>
-                        <TabPanel value={value} index={0} className={classes.tabPanel}>
-                            <Table
-                                data={userColumnData}
-                                columns={userColumns}
-                                options={options}
-                                onCreate={onCreateTrustedUser}
-                            />
-                        </TabPanel>
-                        <TabPanel value={value} index={1} className={classes.tabPanel}>
-                            <Table
-                                data={groupColumnData}
-                                columns={groupColumns}
-                                options={options}
-                                onCreate={disableUnmanagedGroups ? undefined : onCreateGroup}
-                            />
-                        </TabPanel>
-                    </Grid>
-                </Grid>
-            </DialogContent>
-            <DialogActions>
-                <Button
-                    onClick={() => {
-                        onClose();
-                    }}
-                >
-                    {t("CLOSE")}
-                </Button>
-                <Button
-                    onClick={() => {
-                        onCreate(
-                            users.filter((user) => selectedUsers.indexOf(user.id) > -1),
-                            groups.filter((group) => selectedGroups.indexOf(group.group_id) > -1),
-                            read,
-                            write,
-                            grant
-                        );
-                    }}
-                    variant="contained"
-                    color="primary"
-                >
-                    {t("CREATE")}
-                </Button>
-            </DialogActions>
-            {newGroupOpen && <CreateGroupDialog {...props} open={newGroupOpen} onClose={onCloseCreateGroupModal} />}
-            {newUserOpen && (
-                <DialogNewUser open={newUserOpen} onClose={() => setNewUserOpen(false)} onCreate={onNewUserCreate} />
-            )}
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        onClick={() => {
+                            onClose();
+                        }}
+                    >
+                        {t("CLOSE")}
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            onCreate(
+                                users.filter((user) => selectedUsers.indexOf(user.id) > -1),
+                                groups.filter((group) => selectedGroups.indexOf(group.group_id) > -1),
+                                read,
+                                write,
+                                grant
+                            );
+                        }}
+                        variant="contained"
+                        color="primary"
+                        type="submit"
+                    >
+                        {t("CREATE")}
+                    </Button>
+                </DialogActions>
+                {newGroupOpen && <CreateGroupDialog {...props} open={newGroupOpen} onClose={onCloseCreateGroupModal} />}
+                {newUserOpen && (
+                    <DialogNewUser open={newUserOpen} onClose={() => setNewUserOpen(false)} onCreate={onNewUserCreate} />
+                )}
+            </form>
         </Dialog>
     );
 };
@@ -367,6 +370,8 @@ DialogNewShare.propTypes = {
     onCreate: PropTypes.func.isRequired,
     open: PropTypes.bool.isRequired,
     node: PropTypes.object.isRequired,
+    users: PropTypes.bool.isRequired,
+    groups: PropTypes.bool.isRequired,
 };
 
 export default DialogNewShare;

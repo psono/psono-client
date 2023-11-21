@@ -10,7 +10,7 @@ import action from "../actions/bound-action-creators";
 /**
  * creates a google authenticator
  *
- * @param {string} title The title of the Google Authenticator
+ * @param {string} title The title of the TOTP
  *
  * @returns {Promise} Returns a promise with the user information
  */

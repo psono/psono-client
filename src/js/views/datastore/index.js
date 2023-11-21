@@ -165,9 +165,6 @@ const DatastoreView = (props) => {
     const [moveEntryData, setMoveEntryData] = useState(null);
     const [moveFolderData, setMoveFolderData] = useState(null);
 
-    const [newShareOpen, setNewShareOpen] = useState(false);
-    const [newShareData, setNewShareData] = useState({});
-
     const [createLinkShareOpen, setCreateLinkShareOpen] = useState(false);
     const [createLinkShareData, setCreateLinkShareData] = useState({});
 
@@ -258,229 +255,28 @@ const DatastoreView = (props) => {
         }
     }
 
-    const createShareRights = (share_id, share_secret_key, node, users, groups, read, write, grant) => {
-        let i;
 
-        let title = "";
-        if (typeof node.type === "undefined") {
-            // we have a folder
-            title = t("SHARE_TITLE_ITEM", { entry_type: t("FOLDER"), title: node.name });
-        } else {
-            // we have an item
-            const blueprint = itemBlueprintService.getEntryTypes().find((entry) => entry.value === node.type);
-            title = t("SHARE_TITLE_ITEM", { entry_type: t(blueprint.title), title: node.name });
-        }
 
-        // get the type
-        let type = "";
-        if (typeof node.type === "undefined") {
-            // we have a folder
-            type = "folder";
-        } else {
-            // we have an item
-            type = node.type;
-        }
-
-        function createUserShareRight(user) {
-            const onSuccess = function (data) {
-                // pass
-            };
-            const onError = function (result) {
-                let title;
-                let description;
-                if (result.data === null) {
-                    title = "UNKNOWN_ERROR";
-                    description = "UNKNOWN_ERROR_CHECK_BROWSER_CONSOLE";
-                } else if (
-                    result.data.hasOwnProperty("non_field_errors") &&
-                    (result.data["non_field_errors"].indexOf("USER_DOES_NOT_EXIST_PROBABLY_DELETED") !== -1 ||
-                        result.data["non_field_errors"].indexOf("Target user does not exist.") !== -1)
-                ) {
-                    title = "UNKNOWN_USER";
-                    description = t("USER_DOES_NOT_EXIST_PROBABLY_DELETED", { name: user.name });
-                } else if (result.data.hasOwnProperty("non_field_errors")) {
-                    title = "ERROR";
-                    description = result.data["non_field_errors"][0];
-                } else {
-                    title = "UNKNOWN_ERROR";
-                    description = "UNKNOWN_ERROR_CHECK_BROWSER_CONSOLE";
-                }
-                setError({
-                    title,
-                    description,
-                });
-            };
-            return shareService
-                .createShareRight(
-                    title,
-                    type,
-                    share_id,
-                    user.data.user_id,
-                    undefined,
-                    user.data.user_public_key,
-                    undefined,
-                    share_secret_key,
-                    read,
-                    write,
-                    grant
-                )
-                .then(onSuccess, onError);
-        }
-
-        for (i = 0; i < users.length; i++) {
-            createUserShareRight(users[i]);
-        }
-
-        function createGroupShareRight(group) {
-            const onSuccess = function (data) {
-                // pass
-            };
-            const onError = function (result) {
-                let title;
-                let description;
-                if (result.data === null) {
-                    title = "UNKNOWN_ERROR";
-                    description = "UNKNOWN_ERROR_CHECK_BROWSER_CONSOLE";
-                } else if (result.data.hasOwnProperty("non_field_errors")) {
-                    title = "ERROR";
-                    description = result.data["non_field_errors"][0];
-                } else {
-                    title = "UNKNOWN_ERROR";
-                    description = "UNKNOWN_ERROR_CHECK_BROWSER_CONSOLE";
-                }
-                setError({
-                    title,
-                    description,
-                });
-            };
-            const groupSecretKey = groupsService.getGroupSecretKey(
-                group.group_id,
-                group.secret_key,
-                group.secret_key_nonce,
-                group.secret_key_type,
-                group.public_key
-            );
-            return shareService
-                .createShareRight(
-                    title,
-                    type,
-                    share_id,
-                    undefined,
-                    group.group_id,
-                    undefined,
-                    groupSecretKey,
-                    share_secret_key,
-                    read,
-                    write,
-                    grant
-                )
-                .then(onSuccess, onError);
-        }
-
-        for (i = 0; i < groups.length; i++) {
-            createGroupShareRight(groups[i]);
-        }
-    };
-
-    const onNewShareCreate = (users, groups, read, write, grant) => {
-        setNewShareOpen(false);
-
-        const hasNoUsers = users.length < 1;
-        const hasNoGroups = groups.length < 1;
-
-        if (hasNoUsers && hasNoGroups) {
-            // TODO echo not shared message because no user / group selected
-            return;
-        }
-
-        if (newShareData.node.hasOwnProperty("share_id")) {
-            // its already a share, so generate only the share_rights
-            createShareRights(
-                newShareData.node.share_id,
-                newShareData.node.share_secret_key,
-                newShareData.node,
-                users,
-                groups,
-                read,
-                write,
-                grant
-            );
-        } else {
-            // its not yet a share, so generate the share, generate the share_rights and update
-            // the datastore
-
-            datastorePasswordService.getPasswordDatastore().then(function (datastore) {
-                const path = newShareData.path.slice();
-                const closest_share_info = shareService.getClosestParentShare(path, datastore, null, 1);
-                const parent_share = closest_share_info["closest_share"];
-                let parent_share_id;
-                let parent_datastore_id;
-
-                if (parent_share !== false && parent_share !== null) {
-                    parent_share_id = parent_share.share_id;
-                } else {
-                    parent_datastore_id = datastore.datastore_id;
-                }
-
-                // create the share
-                shareService
-                    .createShare(newShareData.node, parent_share_id, parent_datastore_id, newShareData.node.id, onOpenShareMoveRequest, onCloseShareMoveRequest)
-                    .then(function (share_details) {
-                        const item_path = newShareData.path.slice();
-                        const item_path_copy = newShareData.path.slice();
-                        const item_path_copy2 = newShareData.path.slice();
-
-                        // create the share right
-                        createShareRights(
-                            share_details.share_id,
-                            share_details.secret_key,
-                            newShareData.node,
-                            users,
-                            groups,
-                            read,
-                            write,
-                            grant
-                        );
-
-                        // update datastore and / or possible parent shares
-                        const search = datastorePasswordService.findInDatastore(item_path, datastore);
-
-                        if (typeof newShareData.node.type === "undefined") {
-                            // we have an item
-                            delete search[0][search[1]].secret_id;
-                            delete search[0][search[1]].secret_key;
-                        }
-                        search[0][search[1]].share_id = share_details.share_id;
-                        search[0][search[1]].share_secret_key = share_details.secret_key;
-
-                        // update node in our displayed datastore
-                        newShareData.node.share_id = share_details.share_id;
-                        newShareData.node.share_secret_key = share_details.secret_key;
-
-                        const changed_paths = datastorePasswordService.onShareAdded(
-                            share_details.share_id,
-                            item_path_copy,
-                            datastore,
-                            1
-                        );
-
-                        const parent_path = item_path_copy2.slice();
-                        parent_path.pop();
-
-                        changed_paths.push(parent_path);
-
-                        datastorePasswordService.saveDatastoreContent(datastore, changed_paths);
-                    });
-            });
-        }
-    };
-    const onNewShare = (node, path) => {
-        // called whenever someone clicks on a new folder Icon
-        setNewShareOpen(true);
-        setNewShareData({
-            node: node,
+    const onRightsOverview = (item, path) => {
+        setRightsOverviewData({
+            item: item,
             path: path,
         });
+        setRightsOverviewOpen(true);
+    };
+
+    const onShare = (node, path) => {
+        setRightsOverviewData({
+            item: node,
+            path: path,
+        });
+        setRightsOverviewOpen(true);
+        // called whenever someone clicks on a new folder Icon
+        // setNewShareOpen(true);
+        // setNewShareData({
+        //     node: node,
+        //     path: path,
+        // });
     };
 
     const onNewFolderCreate = (name) => {
@@ -659,14 +455,6 @@ const DatastoreView = (props) => {
         return false;
     };
 
-    const onRightsOverview = (item, path) => {
-        setRightsOverviewData({
-            item: item,
-            path: path,
-        });
-        setRightsOverviewOpen(true);
-    };
-
     const onLinkShare = (item, path) => {
         setCreateLinkShareData({
             item: item,
@@ -794,7 +582,7 @@ const DatastoreView = (props) => {
                                                 search={search}
                                                 onNewFolder={onNewFolder}
                                                 onNewEntry={onNewEntry}
-                                                onNewShare={onNewShare}
+                                                onShare={onShare}
                                                 onEditEntry={onEditEntry}
                                                 onCloneEntry={onCloneEntry}
                                                 onDeleteEntry={onDeleteEntry}
@@ -805,7 +593,6 @@ const DatastoreView = (props) => {
                                                 onLinkShare={onLinkShare}
                                                 onMoveFolder={onMoveFolder}
                                                 onMoveEntry={onMoveEntry}
-                                                onRightsOverview={onRightsOverview}
                                                 deleteFolderLabel={t('MOVE_TO_TRASH')}
                                                 deleteItemLabel={t('MOVE_TO_TRASH')}
                                             />
@@ -845,14 +632,6 @@ const DatastoreView = (props) => {
                                     </Typography>
                                 </MenuItem>
                             </Menu>
-                            {newShareOpen && (
-                                <DialogNewShare
-                                    open={newShareOpen}
-                                    onClose={() => setNewShareOpen(false)}
-                                    onCreate={onNewShareCreate}
-                                    node={newShareData.node}
-                                />
-                            )}
                             {newFolderOpen && (
                                 <DialogNewFolder
                                     open={newFolderOpen}
@@ -904,6 +683,7 @@ const DatastoreView = (props) => {
                                     open={rightsOverviewOpen}
                                     onClose={() => setRightsOverviewOpen(false)}
                                     item={rightsOverviewData.item}
+                                    path={rightsOverviewData.path}
                                 />
                             )}
                             {Boolean(moveEntryData) && (

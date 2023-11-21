@@ -250,7 +250,7 @@ const DialogNewUser = (props) => {
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
             >
-                <DialogTitle id="alert-dialog-title">{t("NEW_USER")}</DialogTitle>
+                <DialogTitle id="alert-dialog-title">{t("SEARCH_USER")}</DialogTitle>
                 <DialogContent>
                     <Grid container>
                         <Grid item xs={12} sm={12} md={12}>

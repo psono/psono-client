@@ -109,7 +109,7 @@ const MultifactorAuthenticatorGoogleAuthenticator = (props) => {
 
     const columns = [
         { name: t("ID"), options: { display: false } },
-        { name: t("GA_TITLE") },
+        { name: t("TOTP_TITLE") },
         {
             name: t("ACTIVE"),
             options: {
@@ -159,7 +159,7 @@ const MultifactorAuthenticatorGoogleAuthenticator = (props) => {
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
         >
-            <DialogTitle id="alert-dialog-title">{t("GOOGLE_AUTHENTICATOR")}</DialogTitle>
+            <DialogTitle id="alert-dialog-title">{t("TOTP")}</DialogTitle>
             {view === "default" && (
                 <DialogContent>
                     <Table data={googleAuthenticators} columns={columns} options={options} onCreate={onCreate} />

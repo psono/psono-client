@@ -60,11 +60,6 @@ const DatastoreTreeFolder = (props) => {
         onContextMenuClose();
     };
 
-    const onRightsOverview = (event) => {
-        handleClose(event);
-        props.onRightsOverview(content, content.path, props.nodePath);
-    };
-
     const onEdit = (event) => {
         handleClose(event);
         props.onEditFolder(content, content.path);
@@ -77,9 +72,9 @@ const DatastoreTreeFolder = (props) => {
         }
     };
 
-    const onNewShare = (event) => {
+    const onShare = (event) => {
         handleClose(event);
-        props.onNewShare(content, content.path);
+        props.onShare(content, content.path, props.nodePath);
     };
 
     const onNewEntry = (event) => {
@@ -109,17 +104,17 @@ const DatastoreTreeFolder = (props) => {
             props.onSelectNode(content, content.path, nodePath);
         }
     };
-    const hideShare =
+    const hideNewShare =
         (store.getState().server.complianceDisableShares && !content.hasOwnProperty("share_id")) ||
         offline ||
         (content.hasOwnProperty("share_rights") && content.share_rights.grant === false) ||
-        !props.onNewShare;
+        !props.onShare;
     const hideRightsOverview =
         offline ||
         //(content.hasOwnProperty("share_rights") && content.share_rights.grant === false) ||
         !content.hasOwnProperty("share_id") ||
-        typeof content.share_id === "undefined" ||
-        !props.onRightsOverview;
+        typeof content.share_id === "undefined"
+    const hideShare = hideNewShare && hideRightsOverview;
     const hideEdit =
         offline ||
         (content.hasOwnProperty("share_rights") && content.share_rights.write === false) ||
@@ -147,7 +142,6 @@ const DatastoreTreeFolder = (props) => {
         !props.onDeleteFolder;
     const disableMenu =
         hideShare &&
-        hideRightsOverview &&
         hideEdit &&
         hideNewFolder &&
         hideNewEntry &&
@@ -206,8 +200,8 @@ const DatastoreTreeFolder = (props) => {
                                 event.stopPropagation();
                             }}
                         >
-                            {!hideShare && onNewShare && (
-                                <MenuItem onClick={onNewShare}>
+                            {!hideShare && onShare && (
+                                <MenuItem onClick={onShare}>
                                     <ListItemIcon className={classes.listItemIcon}>
                                         <ShareIcon className={classes.icon} fontSize="small" />
                                     </ListItemIcon>
@@ -216,17 +210,7 @@ const DatastoreTreeFolder = (props) => {
                                     </Typography>
                                 </MenuItem>
                             )}
-                            {!hideRightsOverview && (
-                                <MenuItem onClick={onRightsOverview}>
-                                    <ListItemIcon className={classes.listItemIcon}>
-                                        <ListIcon className={classes.icon} fontSize="small" />
-                                    </ListItemIcon>
-                                    <Typography variant="body2" noWrap>
-                                        {t("RIGHTS_OVERVIEW")}
-                                    </Typography>
-                                </MenuItem>
-                            )}
-                            {(!hideShare || !hideRightsOverview) && <Divider className={classes.divider} />}
+                            {!hideShare && <Divider className={classes.divider} />}
                             {!hideEdit && (
                                 <MenuItem onClick={onEdit}>
                                     <ListItemIcon className={classes.listItemIcon}>
@@ -263,7 +247,7 @@ const DatastoreTreeFolder = (props) => {
                                         <PersonAddIcon className={classes.icon} fontSize="small" />
                                     </ListItemIcon>
                                     <Typography variant="body2" noWrap>
-                                        {t("NEW_USER")}
+                                        {t("SEARCH_USER")}
                                     </Typography>
                                 </MenuItem>
                             )}
@@ -306,8 +290,8 @@ const DatastoreTreeFolder = (props) => {
                             : undefined
                     }
                 >
-                    {!hideShare && onNewShare && (
-                        <MenuItem onClick={onNewShare}>
+                    {!hideShare && onShare && (
+                        <MenuItem onClick={onShare}>
                             <ListItemIcon className={classes.listItemIcon}>
                                 <ShareIcon className={classes.icon} fontSize="small" />
                             </ListItemIcon>
@@ -316,17 +300,7 @@ const DatastoreTreeFolder = (props) => {
                             </Typography>
                         </MenuItem>
                     )}
-                    {!hideRightsOverview && (
-                        <MenuItem onClick={onRightsOverview}>
-                            <ListItemIcon className={classes.listItemIcon}>
-                                <ListIcon className={classes.icon} fontSize="small" />
-                            </ListItemIcon>
-                            <Typography variant="body2" noWrap>
-                                {t("RIGHTS_OVERVIEW")}
-                            </Typography>
-                        </MenuItem>
-                    )}
-                    {(!hideShare || !hideRightsOverview) && <Divider className={classes.divider} />}
+                    {!hideShare && <Divider className={classes.divider} />}
                     {!hideEdit && (
                         <MenuItem onClick={onEdit}>
                             <ListItemIcon className={classes.listItemIcon}>
@@ -363,7 +337,7 @@ const DatastoreTreeFolder = (props) => {
                                 <PersonAddIcon className={classes.icon} fontSize="small" />
                             </ListItemIcon>
                             <Typography variant="body2" noWrap>
-                                {t("NEW_USER")}
+                                {t("SEARCH_USER")}
                             </Typography>
                         </MenuItem>
                     )}
@@ -402,9 +376,8 @@ DatastoreTreeFolder.propTypes = {
     nodePath: PropTypes.array.isRequired,
     offline: PropTypes.bool.isRequired,
     onNewFolder: PropTypes.func,
-    onNewShare: PropTypes.func,
+    onShare: PropTypes.func,
     onLinkShare: PropTypes.func,
-    onRightsOverview: PropTypes.func,
     onNewUser: PropTypes.func,
     onNewEntry: PropTypes.func,
     onEditEntry: PropTypes.func,

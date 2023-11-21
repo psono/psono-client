@@ -24,6 +24,13 @@ import Table from "../table";
 import store from "../../services/store";
 import helper from "../../services/helper";
 import DialogVerify from "./verify";
+import DialogNewShare from "./new-share";
+import datastorePasswordService from "../../services/datastore-password";
+import itemBlueprintService from "../../services/item-blueprint";
+import groupsService from "../../services/groups";
+import DialogError from "./error";
+import DialogProgress from "./progress";
+import offlineCache from "../../services/offline-cache";
 
 const useStyles = makeStyles((theme) => ({
     tabPanel: {
@@ -34,7 +41,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const DialogRightsOverview = (props) => {
-    const { open, onClose, item } = props;
+    const { open, onClose, item, path } = props;
+    const [shareMoveProgress, setShareMoveProgress] = React.useState(0);
     const { t } = useTranslation();
     const classes = useStyles();
     const [value, setValue] = React.useState(0);
@@ -45,6 +53,23 @@ const DialogRightsOverview = (props) => {
     const [shareDetails, setShareDetails] = useState({});
     const [userShareRights, setUserShareRights] = useState([]);
     const [groupShareRights, setGroupShareRights] = useState([]);
+    const [newShareUserOpen, setNewShareUserOpen] = useState(false);
+    const [newShareGroupOpen, setNewShareGroupOpen] = useState(false);
+    const [error, setError] = useState(null);
+
+
+    const shareMoveProgressDialogOpen = shareMoveProgress !== 0 && shareMoveProgress !== 100;
+    let openShareMoveRequests = 0;
+    let closedShareMoveRequests = 0;
+
+    const onOpenShareMoveRequest = () => {
+        openShareMoveRequests = openShareMoveRequests + 1;
+        setShareMoveProgress(Math.round((closedShareMoveRequests / openShareMoveRequests) * 1000) / 10);
+    }
+    const onCloseShareMoveRequest = () => {
+        closedShareMoveRequests = closedShareMoveRequests + 1;
+        setShareMoveProgress(Math.round((closedShareMoveRequests / openShareMoveRequests) * 1000) / 10);
+    }
 
     let isSubscribed = true;
     React.useEffect(() => {
@@ -53,6 +78,10 @@ const DialogRightsOverview = (props) => {
     }, []);
 
     const loadShareRights = () => {
+        if (!item.share_id) {
+            return;
+        }
+        // we already have a share and no new object that wants to become a share
         shareService.readShareRights(item.share_id).then(function (newShareDetails) {
             if (!isSubscribed) {
                 return;
@@ -72,6 +101,14 @@ const DialogRightsOverview = (props) => {
             }
         });
     };
+
+    const onCreateUser = () => {
+        setNewShareUserOpen(true);
+    }
+
+    const onCreateGroup = () => {
+        setNewShareGroupOpen(true);
+    }
 
     /**
      * Deletes a share right without further warning.
@@ -129,6 +166,227 @@ const DialogRightsOverview = (props) => {
         return deleteRightWithoutFurtherWarning(verifyDeleteOwnShareRightData.right);
     };
 
+    const createShareRights = async (share_id, share_secret_key, node, users, groups, read, write, grant) => {
+        let i;
+
+        let title = "";
+        if (typeof node.type === "undefined") {
+            // we have a folder
+            title = t("SHARE_TITLE_ITEM", {entry_type: t("FOLDER"), title: node.name});
+        } else {
+            // we have an item
+            const blueprint = itemBlueprintService.getEntryTypes().find((entry) => entry.value === node.type);
+            title = t("SHARE_TITLE_ITEM", {entry_type: t(blueprint.title), title: node.name});
+        }
+
+        // get the type
+        let type = "";
+        if (typeof node.type === "undefined") {
+            // we have a folder
+            type = "folder";
+        } else {
+            // we have an item
+            type = node.type;
+        }
+
+        function createUserShareRight(user) {
+            const onSuccess = function (data) {
+                // pass
+            };
+            const onError = function (result) {
+                let title;
+                let description;
+                if (result.data === null) {
+                    title = "UNKNOWN_ERROR";
+                    description = "UNKNOWN_ERROR_CHECK_BROWSER_CONSOLE";
+                } else if (
+                    result.data.hasOwnProperty("non_field_errors") &&
+                    (result.data["non_field_errors"].indexOf("USER_DOES_NOT_EXIST_PROBABLY_DELETED") !== -1 ||
+                        result.data["non_field_errors"].indexOf("Target user does not exist.") !== -1)
+                ) {
+                    title = "UNKNOWN_USER";
+                    description = t("USER_DOES_NOT_EXIST_PROBABLY_DELETED", {name: user.name});
+                } else if (result.data.hasOwnProperty("non_field_errors")) {
+                    title = "ERROR";
+                    description = result.data["non_field_errors"][0];
+                } else {
+                    title = "UNKNOWN_ERROR";
+                    description = "UNKNOWN_ERROR_CHECK_BROWSER_CONSOLE";
+                }
+                setError({
+                    title,
+                    description,
+                });
+            };
+            return shareService
+                .createShareRight(
+                    title,
+                    type,
+                    share_id,
+                    user.data.user_id,
+                    undefined,
+                    user.data.user_public_key,
+                    undefined,
+                    share_secret_key,
+                    read,
+                    write,
+                    grant
+                )
+                .then(onSuccess, onError);
+        }
+
+        for (i = 0; i < users.length; i++) {
+            await createUserShareRight(users[i]);
+        }
+
+        function createGroupShareRight(group) {
+            const onSuccess = function (data) {
+                // pass
+            };
+            const onError = function (result) {
+                let title;
+                let description;
+                if (result.data === null) {
+                    title = "UNKNOWN_ERROR";
+                    description = "UNKNOWN_ERROR_CHECK_BROWSER_CONSOLE";
+                } else if (result.data.hasOwnProperty("non_field_errors")) {
+                    title = "ERROR";
+                    description = result.data["non_field_errors"][0];
+                } else {
+                    title = "UNKNOWN_ERROR";
+                    description = "UNKNOWN_ERROR_CHECK_BROWSER_CONSOLE";
+                }
+                setError({
+                    title,
+                    description,
+                });
+            };
+            const groupSecretKey = groupsService.getGroupSecretKey(
+                group.group_id,
+                group.secret_key,
+                group.secret_key_nonce,
+                group.secret_key_type,
+                group.public_key
+            );
+            return shareService
+                .createShareRight(
+                    title,
+                    type,
+                    share_id,
+                    undefined,
+                    group.group_id,
+                    undefined,
+                    groupSecretKey,
+                    share_secret_key,
+                    read,
+                    write,
+                    grant
+                )
+                .then(onSuccess, onError);
+        }
+
+        for (i = 0; i < groups.length; i++) {
+            await createGroupShareRight(groups[i]);
+        }
+    };
+
+
+    const onNewShareCreate = async (users, groups, read, write, grant) => {
+        setNewShareUserOpen(false);
+        setNewShareGroupOpen(false);
+
+        const hasNoUsers = users.length < 1;
+        const hasNoGroups = groups.length < 1;
+
+        if (hasNoUsers && hasNoGroups) {
+            // TODO echo not shared message because no user / group selected
+            return;
+        }
+
+        if (item.hasOwnProperty("share_id")) {
+            // its already a share, so generate only the share_rights
+            await createShareRights(
+                item.share_id,
+                item.share_secret_key,
+                item,
+                users,
+                groups,
+                read,
+                write,
+                grant
+            );
+            loadShareRights();
+        } else {
+            // its not yet a share, so generate the share, generate the share_rights and update
+            // the datastore
+            datastorePasswordService.getPasswordDatastore().then(function (datastore) {
+                const pathCopy = path.slice();
+                const closest_share_info = shareService.getClosestParentShare(pathCopy, datastore, null, 1);
+                const parent_share = closest_share_info["closest_share"];
+                let parent_share_id;
+                let parent_datastore_id;
+
+                if (parent_share !== false && parent_share !== null) {
+                    parent_share_id = parent_share.share_id;
+                } else {
+                    parent_datastore_id = datastore.datastore_id;
+                }
+
+                // create the share
+                shareService
+                    .createShare(item, parent_share_id, parent_datastore_id, item.id, onOpenShareMoveRequest, onCloseShareMoveRequest)
+                    .then(async function (share_details) {
+                        const item_path = path.slice();
+                        const item_path_copy = path.slice();
+                        const item_path_copy2 = path.slice();
+
+                        // create the share right
+                        createShareRights(
+                            share_details.share_id,
+                            share_details.secret_key,
+                            item,
+                            users,
+                            groups,
+                            read,
+                            write,
+                            grant
+                        );
+
+                        // update datastore and / or possible parent shares
+                        const search = datastorePasswordService.findInDatastore(item_path, datastore);
+
+                        if (typeof item.type === "undefined") {
+                            // we have an item
+                            delete search[0][search[1]].secret_id;
+                            delete search[0][search[1]].secret_key;
+                        }
+                        search[0][search[1]].share_id = share_details.share_id;
+                        search[0][search[1]].share_secret_key = share_details.secret_key;
+
+                        // update node in our displayed datastore
+                        item.share_id = share_details.share_id;
+                        item.share_secret_key = share_details.secret_key;
+
+                        const changed_paths = datastorePasswordService.onShareAdded(
+                            share_details.share_id,
+                            item_path_copy,
+                            datastore,
+                            1
+                        );
+
+                        const parent_path = item_path_copy2.slice();
+                        parent_path.pop();
+
+                        changed_paths.push(parent_path);
+
+                        await datastorePasswordService.saveDatastoreContent(datastore, changed_paths);
+                        onClose();
+                    });
+            });
+        }
+    };
+
+
     const toggleRightWithoutFurtherWarning = (type, right) => {
         const onError = function (data) {
             // pass
@@ -163,6 +421,7 @@ const DialogRightsOverview = (props) => {
             )
             .then(onSuccess, onError);
     };
+
 
     const toggleRight = (type, rightId) => {
         let right = shareDetails.user_share_rights.find((right) => right.id === rightId);
@@ -389,6 +648,10 @@ const DialogRightsOverview = (props) => {
     const hasNoAdminGroups = groupShareRights.filter((groupRight) => groupRight[4]).length === 0;
     const ownRightsAreAdmin = userShareRights.filter((userRight) => userRight[1] === store.getState().user.username && userRight[4]).length === 1;
     const hasOnlyOneAdmin = userShareRights.filter((userRight) => userRight[4] && userRight[5]).length < 2;
+    const hideNewShare =
+        store.getState().server.complianceDisableShares ||
+        offlineCache.isActive() ||
+        (item.hasOwnProperty("share_rights") && item.share_rights.grant === false);
 
     return (
         <Dialog
@@ -431,10 +694,10 @@ const DialogRightsOverview = (props) => {
                             <Tab label={t("GROUPS")} />
                         </Tabs>
                         <TabPanel value={value} index={0} className={classes.tabPanel}>
-                            <Table data={userShareRights} columns={userColumns} options={options} />
+                            <Table data={userShareRights} columns={userColumns} options={options} onCreate={hideNewShare ? undefined : onCreateUser} />
                         </TabPanel>
                         <TabPanel value={value} index={1} className={classes.tabPanel}>
-                            <Table data={groupShareRights} columns={groupColumns} options={options} />
+                            <Table data={groupShareRights} columns={groupColumns} options={options} onCreate={hideNewShare ? undefined : onCreateGroup} />
                         </TabPanel>
                     </Grid>
                 </Grid>
@@ -469,6 +732,38 @@ const DialogRightsOverview = (props) => {
                     onClose={() => setVerifyDeleteOwnShareRightOpen(false)}
                     onConfirm={deleteOwnShareRightConfirmed}
                 />
+            )}
+            {newShareUserOpen && (
+                <DialogNewShare
+                    open={newShareUserOpen}
+                    onClose={() => setNewShareUserOpen(false)}
+                    onCreate={onNewShareCreate}
+                    node={item}
+                    users={true}
+                    groups={false}
+                />
+            )}
+            {newShareGroupOpen && (
+                <DialogNewShare
+                    open={newShareGroupOpen}
+                    onClose={() => setNewShareGroupOpen(false)}
+                    onCreate={onNewShareCreate}
+                    node={item}
+                    users={false}
+                    groups={true}
+                />
+            )}
+            {error !== null && (
+                <DialogError
+                    open={error !== null}
+                    onClose={() => setError(null)}
+                    title={error.title}
+                    description={error.description}
+                />
+            )}
+
+            {shareMoveProgressDialogOpen && (
+                <DialogProgress percentageComplete={shareMoveProgress} open={shareMoveProgressDialogOpen}/>
             )}
         </Dialog>
     );
