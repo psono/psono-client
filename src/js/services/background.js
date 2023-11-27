@@ -19,6 +19,7 @@ import {persistStore} from "redux-persist";
 
 let lastLoginCredentials;
 let activeTabId;
+let activeTabUrl;
 const entryExtraInfo = {};
 let fillpassword = [];
 const alreadyFilledMaxAllowed = {};
@@ -26,10 +27,12 @@ const alreadyFilledMaxAllowed = {};
 const gpgMessages = {};
 
 let numTabs;
-let contextMenuId;
-let contextMenuChild1Id;
-let contextMenuChild2Id;
 let clearFillPasswordTimeout;
+
+const CM_PSONO_ID = "psono-psono";
+const CM_DATASTORE_ID = "psono-datastore";
+const CM_AUTOFILL_ID = "psono-autofill";
+const CM_RECHECK_PAGE_ID = "psono-recheck-page";
 
 
 function activate() {
@@ -38,6 +41,17 @@ function activate() {
     if (typeof chrome.tabs !== "undefined") {
         chrome.tabs.onActivated.addListener(function (activeInfo) {
             activeTabId = activeInfo.tabId;
+            chrome.tabs.get(activeInfo.tabId, function (tabInfo) {
+                activeTabUrl = tabInfo.url;
+                updateContextMenu();
+            });
+        });
+        chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tabInfo) {
+            if (changeInfo.status !== 'complete') {
+                return;
+            }
+            activeTabUrl = tabInfo.url;
+            updateContextMenu();
         });
     }
 
@@ -98,41 +112,27 @@ function activate() {
         });
     }
 
-    if (typeof chrome.contextMenus !== "undefined") {
-        contextMenuId = chrome.contextMenus.create({
-            id: "psono-psono",
-            title: "Psono",
-        });
-        contextMenuChild1Id = chrome.contextMenus.create({
-            id: "psono-datastore",
-            title: i18n.t("OPEN_DATASTORE"),
-            contexts: ["all"],
-            parentId: contextMenuId,
-        });
-        contextMenuChild2Id = chrome.contextMenus.create({
-            id: "psono-recheck-page",
-            title: i18n.t("RECHECK_PAGE"),
-            contexts: ["all"],
-            parentId: contextMenuId,
-        });
-
-        chrome.contextMenus.onClicked.addListener((info, tab) => {
-            switch (info.menuItemId) {
-                case "psono-datastore":
-                    openDatastore()
-                    break;
-                case "psono-recheck-page":
-                    recheckPage()
-                    break;
-            }
-        });
-    }
-
-
     // create the context menu once the translations are loaded
     i18n.on("loaded", function (loaded) {
         updateContextMenu();
     });
+
+
+    if (chrome.contextMenus) {
+        chrome.contextMenus.onClicked.addListener((info, tab) => {
+            switch (info.menuItemId) {
+                case CM_DATASTORE_ID:
+                    openDatastore()
+                    break;
+                case CM_RECHECK_PAGE_ID:
+                    recheckPage()
+                    break;
+                default:
+                    fillSecretTab(info.menuItemId, tab)
+
+            }
+        });
+    }
 
     // set the correct icon on start
     if (user.isLoggedIn()) {
@@ -146,24 +146,84 @@ function activate() {
     }
 }
 
+
+
 /**
- * Updates the context menu, usually called when the language changes
+ * Updates the context menu, usually called when the language changes or new tab loads or url changes.
  */
 function updateContextMenu() {
-    if (contextMenuChild1Id) {
-        chrome.contextMenus.update(contextMenuChild1Id, {
+    if (!chrome.contextMenus) {
+        return;
+    }
+    chrome.contextMenus.removeAll(function() {
+        const contextMenu = chrome.contextMenus.create({
+            id: CM_PSONO_ID,
+            title: "Psono",
+        });
+        chrome.contextMenus.create({
+            id: CM_DATASTORE_ID,
             title: i18n.t("OPEN_DATASTORE"),
             contexts: ["all"],
-            parentId: contextMenuId,
+            parentId: contextMenu,
         });
-    }
-    if (contextMenuChild2Id) {
-        chrome.contextMenus.update(contextMenuChild2Id, {
+        const contextMenuChildAutofill = chrome.contextMenus.create({
+            id: CM_AUTOFILL_ID,
+            title: i18n.t("AUTOFILL"),
+            contexts: ["all"],
+            visible: false,
+            parentId: contextMenu,
+        });
+        chrome.contextMenus.create({
+            id: CM_RECHECK_PAGE_ID,
             title: i18n.t("RECHECK_PAGE"),
             contexts: ["all"],
-            parentId: contextMenuId,
+            parentId: contextMenu,
         });
-    }
+
+        function addAutofill (leafs) {
+
+            const entries = [];
+
+            for (let ii = 0; ii < leafs.length; ii++) {
+                entries.push({
+                    secret_id: leafs[ii].secret_id,
+                    name: leafs[ii].name,
+                });
+            }
+
+            entries.sort(function(a, b){
+                let a_name = a.name ? a.name : '';
+                let b_name = b.name ? b.name : '';
+                if (a_name.toLowerCase() < b_name.toLowerCase())
+                    return -1;
+                if (a_name.toLowerCase() > b_name.toLowerCase())
+                    return 1;
+                return 0;
+            })
+
+            entries.forEach(function(entry) {
+                chrome.contextMenus.create({
+                    id: entry.secret_id,
+                    title: entry.name,
+                    contexts: ["all"],
+                    parentId: contextMenuChildAutofill,
+                });
+            })
+
+            if (entries.length > 0) {
+                chrome.contextMenus.update(CM_AUTOFILL_ID, {
+                    visible: true,
+                });
+            }
+
+        }
+
+        if (!activeTabUrl) {
+            addAutofill([])
+        } else {
+            searchWebsitePasswordsByUrlfilter(activeTabUrl, false).then(addAutofill);
+        }
+    })
 }
 
 /**
@@ -186,6 +246,35 @@ function openDatastore(info, tab) {
  */
 function recheckPage(info, tab) {
     // TODO implement
+}
+
+/**
+ * Trigger to fill a specific secret on a website
+ *
+ * @param secretId The secret id
+ * @param tab The tab info
+ */
+function fillSecretTab(secretId, tab) {
+    return storage.findKey("datastore-password-leafs", secretId).then(function (leaf) {
+        const onError = function (result) {
+            // pass
+        };
+
+        const onSuccess = function (content) {
+            chrome.tabs.sendMessage(tab.id, {
+                event: "fillpassword",
+                data: {
+                    username: content.website_password_username,
+                    password: content.website_password_password,
+                    url_filter: content.website_password_url_filter,
+                    auto_submit: content.website_password_auto_submit,
+                }
+            });
+        };
+
+        return secretService.readSecret(secretId, leaf.secret_key).then(onSuccess, onError);
+    });
+
 }
 
 // Start helper functions
@@ -304,14 +393,12 @@ function onFillpasswordActiveTab(request, sender, sendResponse) {
     if (typeof activeTabId === "undefined") {
         return;
     }
-    browser.tabs.sendMessage(activeTabId, { event: "fillpassword", data: request.data }, function (response) {
-        // pass
-    });
+    browser.tabs.sendMessage(activeTabId, { event: "fillpassword", data: request.data });
 }
 
 /**
- * we received a fillpassword active tab event
- * lets send a fillpassword event to the to the active tab
+ * we received a save-password-active-tab event
+ * lets save the password for the current active tab
  *
  * @param {object} request The message sent by the calling script.
  * @param {object} sender The sender of the message
@@ -342,8 +429,8 @@ function savePasswordActiveTab(request, sender, sendResponse) {
 }
 
 /**
- * we received a fillpassword active tab event
- * lets send a fillpassword event to the to the active tab
+ * we received a bookmark-active-tab event
+ * lets bookmark the current active tab
  *
  * @param {object} request The message sent by the calling script.
  * @param {object} sender The sender of the message
