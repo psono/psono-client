@@ -10,6 +10,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
     var nextFillAllIndex = 0;
     var dropInstances = [];
     var myForms = [];
+    var creditCardInputFields = [];
 
     var backgroundImage =
         "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTVweCIgaGVpZ2h0PSIxNnB4IiB2aWV3Qm94PSIwIDAgMTUgMTUiIHZlcnNpb249IjEuMSI+CjxnIGlkPSJzdXJmYWNlMSI+CjxwYXRoIHN0eWxlPSIgc3Ryb2tlOm5vbmU7ZmlsbC1ydWxlOmV2ZW5vZGQ7ZmlsbDpyZ2IoNTkuNjA3ODQzJSw4NS40OTAxOTYlLDY4LjYyNzQ1MSUpO2ZpbGwtb3BhY2l0eTowLjUwMTk2MTsiIGQ9Ik0gMC42OTUzMTIgMy43ODkwNjIgTCAzLjE3NTc4MSA1LjE3OTY4OCBMIDcuNTY2NDA2IDIuNzM0Mzc1IEwgMTEuOTE0MDYyIDUuMTYwMTU2IEwgMTQuMzc4OTA2IDMuODA4NTk0IEwgNy41ODU5MzggMC4wNDY4NzUgWiBNIDAuNjk1MzEyIDMuNzg5MDYyICIvPgo8cGF0aCBzdHlsZT0iIHN0cm9rZTpub25lO2ZpbGwtcnVsZTpldmVub2RkO2ZpbGw6cmdiKDU5LjYwNzg0MyUsODUuNDkwMTk2JSw2OC42Mjc0NTElKTtmaWxsLW9wYWNpdHk6MC41MDE5NjE7IiBkPSJNIDUuMTYwMTU2IDUuODY3MTg4IEwgNy41NzAzMTIgNy4yMTg3NSBMIDkuOTIxODc1IDUuOTUzMTI1IEwgNy41NjY0MDYgNC42NTIzNDQgWiBNIDUuMTYwMTU2IDUuODY3MTg4ICIvPgo8cGF0aCBzdHlsZT0iIHN0cm9rZTpub25lO2ZpbGwtcnVsZTpldmVub2RkO2ZpbGw6cmdiKDI5LjAxOTYwOCUsNzUuMjk0MTE4JSw1Ni4wNzg0MzElKTtmaWxsLW9wYWNpdHk6MC41MDE5NjE7IiBkPSJNIDAuNjk1MzEyIDMuNzczNDM4IEwgMC42OTUzMTIgMTEuMjEwOTM4IEwgMy4xNzU3ODEgMTIuNTMxMjUgTCAzLjE5NTMxMiA1LjE3OTY4OCBaIE0gMC42OTUzMTIgMy43NzM0MzggIi8+CjxwYXRoIHN0eWxlPSIgc3Ryb2tlOm5vbmU7ZmlsbC1ydWxlOmV2ZW5vZGQ7ZmlsbDpyZ2IoMjkuMDE5NjA4JSw3NS4yOTQxMTglLDU2LjA3ODQzMSUpO2ZpbGwtb3BhY2l0eTowLjUwMTk2MTsiIGQ9Ik0gNS4xNzU3ODEgNS44NjcxODggTCA1LjE1NjI1IDguMzA4NTk0IEwgNy41NjY0MDYgOS41OTM3NSBMIDkuOTM3NSA4LjI3NzM0NCBMIDkuOTM3NSA1Ljk5MjE4OCBMIDcuNTg1OTM4IDcuMjM4MjgxIFogTSA1LjE3NTc4MSA1Ljg2NzE4OCAiLz4KPHBhdGggc3R5bGU9IiBzdHJva2U6bm9uZTtmaWxsLXJ1bGU6ZXZlbm9kZDtmaWxsOnJnYigyOS4wMTk2MDglLDc1LjI5NDExOCUsNTYuMDc4NDMxJSk7ZmlsbC1vcGFjaXR5OjAuNTAxOTYxOyIgZD0iTSAxMS44OTg0MzggNS4xNzk2ODggTCAxMS45MTQwNjIgOS4xMTcxODggTCA3LjU2NjQwNiAxMS40ODgyODEgTCA1LjE3NTc4MSAxMC4yNDIxODggTCA1LjE3NTc4MSAxMy42MzI4MTIgTCA3LjU0Njg3NSAxNC45NTMxMjUgTCAxNC40MTc5NjkgMTEuMjA3MDMxIEwgMTQuMzc4OTA2IDMuODM5ODQ0IFogTSAxMS44OTg0MzggNS4xNzk2ODggIi8+CjwvZz4KPC9zdmc+Cg==";
@@ -116,6 +117,36 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
         "wijzigen", // Dutch: change
     ]);
 
+    // https://web.dev/learn/forms/payment#help_users_enter_their_payment_details
+    // https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete#values
+    const creditCardNameFields = new Set([
+        "cc-name",
+    ]);
+    const creditCardNumberFields = new Set([
+        "cc-number",
+    ]);
+    const creditCardCSCFields = new Set([
+        "cc-csc",
+    ]);
+    const creditCardExpiryDateFields = new Set([
+        "cc-exp",
+    ]);
+    const creditCardExpiryDateMonthFields = new Set([
+        "cc-exp-month",
+    ]);
+    const creditCardExpiryDateYearFields = new Set([
+        "cc-exp-year",
+    ]);
+
+    const creditCardAllFields = new Set([
+        ...creditCardNameFields,
+        ...creditCardNumberFields,
+        ...creditCardCSCFields,
+        ...creditCardExpiryDateFields,
+        ...creditCardExpiryDateMonthFields,
+        ...creditCardExpiryDateYearFields,
+    ]);
+
 
     jQuery(function () {
         activate();
@@ -123,6 +154,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
 
     function activate() {
         base.on("fillpassword", onFillPassword);
+        base.on("fillcreditcard", onFillCreditCard);
         base.on("website-password-update", onWebsitePasswordUpdate);
         base.on("return-secret", onReturnSecret);
         base.on("secrets-changed", onSecretChanged);
@@ -153,7 +185,8 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * @param document
      */
     function analyzeDocument(document) {
-        addFormButtons(document);
+        addPasswordFormButtons(document);
+        findCreditCardInputFields(document);
         documentSubmitCatcher(document);
     }
 
@@ -275,30 +308,30 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
     }
 
     /**
-     * Manipulates the forms of all documents
+     * Manipulates the forms of a document and adds the password buttons
      *
      * @param document
      */
-    function addFormButtons(document) {
-        var padding_right;
+    function addPasswordFormButtons(document) {
+        let paddingRight;
 
         // Lets start with searching all input fields and forms
         // if we find a password field, we remember that and take the field before as username field
 
-        var inputs = document.querySelectorAll(
+        const inputs = document.querySelectorAll(
             "input[type='text'], input:not([type]), input[type='email'], input[type='password']"
         );
 
-        for (var i = 0; i < inputs.length; ++i) {
+        for (let i = 0; i < inputs.length; ++i) {
             if (inputs[i].type !== "password") {
                 continue;
             }
 
-            if (inputs[i].classList.contains("psono-addFormButtons-covered")) {
+            if (inputs[i].classList.contains("psono-addPasswordFormButtons-covered")) {
                 continue;
             }
 
-            inputs[i].classList.add("psono-addFormButtons-covered");
+            inputs[i].classList.add("psono-addPasswordFormButtons-covered");
 
             // found a password field, lets start the magic
 
@@ -315,11 +348,11 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
                 if (inputs[i].hasOwnProperty('checkVisibility') && inputs[i].checkVisibility() && inputs[r].offsetWidth < 90) continue; // we don't modify input fields that are too small if they are visible
 
                 // username field is inputs[r]
-                padding_right = jQuery(inputs[r]).css("padding-right");
+                paddingRight = jQuery(inputs[r]).css("padding-right");
                 base.modify_input_field(
                     inputs[r],
                     backgroundImage,
-                    "center right " + padding_right,
+                    "center right " + paddingRight,
                     document,
                     click,
                     mouseOver,
@@ -334,11 +367,11 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
             if (!inputs[i].hasOwnProperty('checkVisibility') || !inputs[i].checkVisibility() || inputs[i].offsetWidth >= 90) {
                 // we don't modify input fields that are too small (offsetWidth is only proper calculated if the field is visible)
                 // Password field is inputs[i]
-                padding_right = jQuery(inputs[i]).css("padding-right");
+                paddingRight = jQuery(inputs[i]).css("padding-right");
                 base.modify_input_field(
                     inputs[i],
                     backgroundImage,
-                    "center right " + padding_right,
+                    "center right " + paddingRight,
                     document,
                     click,
                     mouseOver,
@@ -362,6 +395,29 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
             }
             if (newForm.username !== null || newForm.password !== null) {
                 myForms.push(newForm);
+            }
+        }
+    }
+
+    /**
+     * Searches the document to find all credit card input fields
+     *
+     * @param document
+     */
+    function findCreditCardInputFields(document) {
+        // Lets start with searching all input fields
+        const inputs = document.querySelectorAll(
+            "input"
+        );
+
+        for (let i = 0; i < inputs.length; ++i) {
+            if (inputs[i].classList.contains("psono-findCreditCardInputFields-covered")) {
+                continue;
+            }
+
+            if (creditCardAllFields.has(inputs[i].autocomplete.trim().toLowerCase())) {
+                inputs[i].classList.add("psono-findCreditCardInputFields-covered");
+                creditCardInputFields.push(inputs[i]);
             }
         }
     }
@@ -646,6 +702,33 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
     }
     // Messaging functions below
 
+
+    /**
+     * Small helper function to fill the values of a field and mimic user behavior events for compatibility reasons
+     * with modern javascript frameworks.
+     *
+     * @param field
+     * @param value
+     */
+    function fillFieldHelper (field, value) {
+        if (typeof field.click === "function") {
+            field.click()
+        }
+        jQuery(field).focus();
+        field.value = value;
+        jQuery(field).keydown();
+        jQuery(field).trigger( "keypress" );
+        jQuery(field).keyup();
+
+        field.dispatchEvent(new Event("input", {
+            bubbles: true,
+            cancelable: true,
+        }));
+
+        jQuery(field).change();
+        jQuery(field).blur();
+    };
+
     /**
      * Handler for a fillpassword event
      *
@@ -654,21 +737,13 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * @param sendResponse
      */
     function onFillPassword(data, sender, sendResponse) {
-        var fill_field_helper = function (field, value) {
-            jQuery(field).focus();
-            field.value = value;
-            jQuery(field).blur();
-            jQuery(field).keydown();
-            jQuery(field).keyup();
-            jQuery(field).change();
-        };
 
-        for (var i = 0; i < myForms.length; i++) {
+        for (let i = 0; i < myForms.length; i++) {
             if (data.hasOwnProperty("username") && data.username !== "") {
-                fill_field_helper(myForms[i].username, data.username);
+                fillFieldHelper(myForms[i].username, data.username);
             }
             if (data.hasOwnProperty("password") && data.password !== "") {
-                fill_field_helper(myForms[i].password, data.password);
+                fillFieldHelper(myForms[i].password, data.password);
             }
             if (
                 myForms.length === 1 && //only 1 form
@@ -682,6 +757,43 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
                 setTimeout(function(){
                     myForm.form.submit();
                 }, 1000);
+            }
+        }
+    }
+
+    /**
+     * Handler for a fillcreditcard event
+     *
+     * @param data
+     * @param sender
+     * @param sendResponse
+     */
+    function onFillCreditCard(data, sender, sendResponse) {
+
+        for (let i = 0; i < creditCardInputFields.length; i++) {
+            if (creditCardNameFields.has(creditCardInputFields[i].autocomplete.trim().toLowerCase()) &&
+                data.hasOwnProperty("credit_card_name") && data.credit_card_name !== "") {
+                fillFieldHelper(creditCardInputFields[i], data.credit_card_name);
+            }
+            if (creditCardNumberFields.has(creditCardInputFields[i].autocomplete.trim().toLowerCase()) &&
+                data.hasOwnProperty("credit_card_number") && data.credit_card_number !== "") {
+                fillFieldHelper(creditCardInputFields[i], data.credit_card_number);
+            }
+            if (creditCardCSCFields.has(creditCardInputFields[i].autocomplete.trim().toLowerCase()) &&
+                data.hasOwnProperty("credit_card_cvc") && data.credit_card_cvc !== "") {
+                fillFieldHelper(creditCardInputFields[i], data.credit_card_cvc);
+            }
+            if (creditCardExpiryDateFields.has(creditCardInputFields[i].autocomplete.trim().toLowerCase()) &&
+                data.hasOwnProperty("credit_card_valid_through") && data.credit_card_valid_through !== "") {
+                fillFieldHelper(creditCardInputFields[i], data.credit_card_valid_through);
+            }
+            if (creditCardExpiryDateMonthFields.has(creditCardInputFields[i].autocomplete.trim().toLowerCase()) &&
+                data.hasOwnProperty("credit_card_valid_through") && data.credit_card_valid_through !== "") {
+                fillFieldHelper(creditCardInputFields[i], data.credit_card_valid_through.slice(0, 2));
+            }
+            if (creditCardExpiryDateYearFields.has(creditCardInputFields[i].autocomplete.trim().toLowerCase()) &&
+                data.hasOwnProperty("credit_card_valid_through") && data.credit_card_valid_through !== "") {
+                fillFieldHelper(creditCardInputFields[i], data.credit_card_valid_through.slice(2, 4));
             }
         }
     }

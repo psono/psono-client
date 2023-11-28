@@ -31,7 +31,8 @@ let clearFillPasswordTimeout;
 
 const CM_PSONO_ID = "psono-psono";
 const CM_DATASTORE_ID = "psono-datastore";
-const CM_AUTOFILL_ID = "psono-autofill";
+const CM_AUTOFILL_CREDENTIAL_ID = "psono-autofill-credential";
+const CM_AUTOFILL_CREDIT_CARD_ID = "psono-autofill-creditcard";
 const CM_RECHECK_PAGE_ID = "psono-recheck-page";
 
 
@@ -166,9 +167,16 @@ function updateContextMenu() {
             contexts: ["all"],
             parentId: contextMenu,
         });
-        const contextMenuChildAutofill = chrome.contextMenus.create({
-            id: CM_AUTOFILL_ID,
-            title: i18n.t("AUTOFILL"),
+        const contextMenuChildAutofillCredential = chrome.contextMenus.create({
+            id: CM_AUTOFILL_CREDENTIAL_ID,
+            title: i18n.t("AUTOFILL_CREDENTIAL"),
+            contexts: ["all"],
+            visible: false,
+            parentId: contextMenu,
+        });
+        const contextMenuChildAutofillCreditCard = chrome.contextMenus.create({
+            id: CM_AUTOFILL_CREDIT_CARD_ID,
+            title: i18n.t("AUTOFILL_CREDIT_CARD"),
             contexts: ["all"],
             visible: false,
             parentId: contextMenu,
@@ -180,7 +188,7 @@ function updateContextMenu() {
             parentId: contextMenu,
         });
 
-        function addAutofill (leafs) {
+        function addAutofillCredentials (leafs) {
 
             const entries = [];
 
@@ -206,12 +214,49 @@ function updateContextMenu() {
                     id: entry.secret_id,
                     title: entry.name,
                     contexts: ["all"],
-                    parentId: contextMenuChildAutofill,
+                    parentId: contextMenuChildAutofillCredential,
                 });
             })
 
             if (entries.length > 0) {
-                chrome.contextMenus.update(CM_AUTOFILL_ID, {
+                chrome.contextMenus.update(CM_AUTOFILL_CREDENTIAL_ID, {
+                    visible: true,
+                });
+            }
+
+        }
+
+        function addAutofillCreditCards (leafs) {
+            const entries = [];
+
+            for (let ii = 0; ii < leafs.length; ii++) {
+                entries.push({
+                    secret_id: leafs[ii].secret_id,
+                    name: leafs[ii].name,
+                });
+            }
+
+            entries.sort(function(a, b){
+                let a_name = a.name ? a.name : '';
+                let b_name = b.name ? b.name : '';
+                if (a_name.toLowerCase() < b_name.toLowerCase())
+                    return -1;
+                if (a_name.toLowerCase() > b_name.toLowerCase())
+                    return 1;
+                return 0;
+            })
+
+            entries.forEach(function(entry) {
+                chrome.contextMenus.create({
+                    id: entry.secret_id,
+                    title: entry.name,
+                    contexts: ["all"],
+                    parentId: contextMenuChildAutofillCreditCard,
+                });
+            })
+
+            if (entries.length > 0) {
+                chrome.contextMenus.update(CM_AUTOFILL_CREDIT_CARD_ID, {
                     visible: true,
                 });
             }
@@ -219,10 +264,11 @@ function updateContextMenu() {
         }
 
         if (!activeTabUrl) {
-            addAutofill([])
+            addAutofillCredentials([])
         } else {
-            searchWebsitePasswordsByUrlfilter(activeTabUrl, false).then(addAutofill);
+            searchWebsitePasswordsByUrlfilter(activeTabUrl, false).then(addAutofillCredentials);
         }
+        searchCreditCard().then(addAutofillCreditCards);
     })
 }
 
@@ -261,15 +307,29 @@ function fillSecretTab(secretId, tab) {
         };
 
         const onSuccess = function (content) {
-            chrome.tabs.sendMessage(tab.id, {
-                event: "fillpassword",
-                data: {
-                    username: content.website_password_username,
-                    password: content.website_password_password,
-                    url_filter: content.website_password_url_filter,
-                    auto_submit: content.website_password_auto_submit,
-                }
-            });
+            if (leaf.type === 'website_password') {
+                chrome.tabs.sendMessage(tab.id, {
+                    event: "fillpassword",
+                    data: {
+                        username: content.website_password_username,
+                        password: content.website_password_password,
+                        url_filter: content.website_password_url_filter,
+                        auto_submit: content.website_password_auto_submit,
+                    }
+                });
+            }
+            if (leaf.type === 'credit_card') {
+                console.log("chrome.tabs.sendMessage: fillcreditcard")
+                chrome.tabs.sendMessage(tab.id, {
+                    event: "fillcreditcard",
+                    data: {
+                        credit_card_number: content.credit_card_number,
+                        credit_card_cvc: content.credit_card_cvc,
+                        credit_card_name: content.credit_card_name,
+                        credit_card_valid_through: content.credit_card_valid_through,
+                    }
+                });
+            }
         };
 
         return secretService.readSecret(secretId, leaf.secret_key).then(onSuccess, onError);
@@ -568,6 +628,17 @@ const getSearchWebsitePasswordsByUrlfilter = function (url, onlyAutoSubmit) {
  */
 function searchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit) {
     const filter = getSearchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit);
+
+    return storage.where("datastore-password-leafs", filter);
+}
+
+/**
+ * Returns all credit cards
+ *
+ * @returns {Promise} The database objects
+ */
+function searchCreditCard() {
+    const filter = (leaf) => leaf.type === "credit_card";
 
     return storage.where("datastore-password-leafs", filter);
 }
