@@ -632,7 +632,8 @@ function closePopup() {
     if (TARGET === "firefox") {
         window.close();
     } else if (TARGET === "chrome") {
-        window.close();
+        // will be automatically closed
+        //window.close();
     } else {
         // pass
     }
