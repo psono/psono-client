@@ -230,7 +230,7 @@ const ActivationForm = (props) => {
             onSubmit={(e) => {
                 e.preventDefault();
             }}
-            name="loginForm"
+            name="activationForm"
             autoComplete="off"
         >
             {formContent}

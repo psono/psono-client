@@ -22,42 +22,50 @@ const DialogVerify = (props) => {
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
         >
-            <DialogTitle id="alert-dialog-title">{t(title)}</DialogTitle>
-            <DialogContent>
-                <Grid container>
-                    {entries.length > 0 && (
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault();
+                }}
+                name="verifyDialog"
+                autoComplete="off"
+            >
+                <DialogTitle id="alert-dialog-title">{t(title)}</DialogTitle>
+                <DialogContent>
+                    <Grid container>
+                        {entries.length > 0 && (
+                            <Grid item xs={12} sm={12} md={12}>
+                                <strong>{t(affectedEntriesText)}</strong>
+                            </Grid>
+                        )}
+                        {entries.length > 0 && (
+                            <Grid item xs={12} sm={12} md={12} style={{ marginTop: "10px" }}>
+                                <ul>
+                                    {entries.map((entry, i) => (
+                                        <li key={i}>{t(entry)}</li>
+                                    ))}
+                                </ul>
+                            </Grid>
+                        )}
                         <Grid item xs={12} sm={12} md={12}>
-                            <strong>{t(affectedEntriesText)}</strong>
+                            <MuiAlert
+                                severity="warning"
+                                style={{
+                                    marginBottom: "5px",
+                                    marginTop: "5px",
+                                }}
+                            >
+                                {t(description)}
+                            </MuiAlert>
                         </Grid>
-                    )}
-                    {entries.length > 0 && (
-                        <Grid item xs={12} sm={12} md={12} style={{ marginTop: "10px" }}>
-                            <ul>
-                                {entries.map((entry, i) => (
-                                    <li key={i}>{t(entry)}</li>
-                                ))}
-                            </ul>
-                        </Grid>
-                    )}
-                    <Grid item xs={12} sm={12} md={12}>
-                        <MuiAlert
-                            severity="warning"
-                            style={{
-                                marginBottom: "5px",
-                                marginTop: "5px",
-                            }}
-                        >
-                            {t(description)}
-                        </MuiAlert>
                     </Grid>
-                </Grid>
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={onClose}>{t("CLOSE")}</Button>
-                <Button onClick={onConfirm} variant="contained" color="primary">
-                    {t("CONFIRM")}
-                </Button>
-            </DialogActions>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={onClose}>{t("CLOSE")}</Button>
+                    <Button onClick={onConfirm} variant="contained" color="primary" type="submit">
+                        {t("CONFIRM")}
+                    </Button>
+                </DialogActions>
+            </form>
         </Dialog>
     );
 };
