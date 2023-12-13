@@ -14,8 +14,6 @@ import cryptoLibrary from "./crypto-library";
 import HKP from "@openpgp/hkp-client";
 import * as openpgp from "openpgp";
 import storage from "./storage";
-import datastoreSettingService from "./datastore-setting";
-import {persistStore} from "redux-persist";
 
 let lastLoginCredentials;
 let activeTabId;
