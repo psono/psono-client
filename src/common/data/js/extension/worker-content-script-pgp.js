@@ -209,7 +209,7 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
             var element_id = "psono_pgp_reader-" + uuid.v4();
             var element = jQuery(
                 "" +
-                '<div class="psono-pw-pgp-link yui3-cssreset">' +
+                '<div class="psono-pgp-link yui3-cssreset">' +
                 '    <div style="max-width: 150px">' +
                 '        <img class="' +
                 element_id +

@@ -2,20 +2,20 @@
  * The content script worker loaded in every page
  */
 
-var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
+const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
     "use strict";
-    var websitePasswords = [];
-    var lastRequestElement = null;
-    var fillAll = false;
-    var nextFillAllIndex = 0;
-    var dropInstances = [];
-    var myForms = [];
-    var creditCardInputFields = [];
-    var identityInputFields = [];
+    let websitePasswords = [];
+    let lastRequestElement = null;
+    let fillAll = false;
+    let nextFillAllIndex = 0;
+    let dropInstances = [];
+    let myForms = [];
+    let creditCardInputFields = [];
+    let identityInputFields = [];
 
-    var backgroundImage =
+    let backgroundImage =
         "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTVweCIgaGVpZ2h0PSIxNnB4IiB2aWV3Qm94PSIwIDAgMTUgMTUiIHZlcnNpb249IjEuMSI+CjxnIGlkPSJzdXJmYWNlMSI+CjxwYXRoIHN0eWxlPSIgc3Ryb2tlOm5vbmU7ZmlsbC1ydWxlOmV2ZW5vZGQ7ZmlsbDpyZ2IoNTkuNjA3ODQzJSw4NS40OTAxOTYlLDY4LjYyNzQ1MSUpO2ZpbGwtb3BhY2l0eTowLjUwMTk2MTsiIGQ9Ik0gMC42OTUzMTIgMy43ODkwNjIgTCAzLjE3NTc4MSA1LjE3OTY4OCBMIDcuNTY2NDA2IDIuNzM0Mzc1IEwgMTEuOTE0MDYyIDUuMTYwMTU2IEwgMTQuMzc4OTA2IDMuODA4NTk0IEwgNy41ODU5MzggMC4wNDY4NzUgWiBNIDAuNjk1MzEyIDMuNzg5MDYyICIvPgo8cGF0aCBzdHlsZT0iIHN0cm9rZTpub25lO2ZpbGwtcnVsZTpldmVub2RkO2ZpbGw6cmdiKDU5LjYwNzg0MyUsODUuNDkwMTk2JSw2OC42Mjc0NTElKTtmaWxsLW9wYWNpdHk6MC41MDE5NjE7IiBkPSJNIDUuMTYwMTU2IDUuODY3MTg4IEwgNy41NzAzMTIgNy4yMTg3NSBMIDkuOTIxODc1IDUuOTUzMTI1IEwgNy41NjY0MDYgNC42NTIzNDQgWiBNIDUuMTYwMTU2IDUuODY3MTg4ICIvPgo8cGF0aCBzdHlsZT0iIHN0cm9rZTpub25lO2ZpbGwtcnVsZTpldmVub2RkO2ZpbGw6cmdiKDI5LjAxOTYwOCUsNzUuMjk0MTE4JSw1Ni4wNzg0MzElKTtmaWxsLW9wYWNpdHk6MC41MDE5NjE7IiBkPSJNIDAuNjk1MzEyIDMuNzczNDM4IEwgMC42OTUzMTIgMTEuMjEwOTM4IEwgMy4xNzU3ODEgMTIuNTMxMjUgTCAzLjE5NTMxMiA1LjE3OTY4OCBaIE0gMC42OTUzMTIgMy43NzM0MzggIi8+CjxwYXRoIHN0eWxlPSIgc3Ryb2tlOm5vbmU7ZmlsbC1ydWxlOmV2ZW5vZGQ7ZmlsbDpyZ2IoMjkuMDE5NjA4JSw3NS4yOTQxMTglLDU2LjA3ODQzMSUpO2ZpbGwtb3BhY2l0eTowLjUwMTk2MTsiIGQ9Ik0gNS4xNzU3ODEgNS44NjcxODggTCA1LjE1NjI1IDguMzA4NTk0IEwgNy41NjY0MDYgOS41OTM3NSBMIDkuOTM3NSA4LjI3NzM0NCBMIDkuOTM3NSA1Ljk5MjE4OCBMIDcuNTg1OTM4IDcuMjM4MjgxIFogTSA1LjE3NTc4MSA1Ljg2NzE4OCAiLz4KPHBhdGggc3R5bGU9IiBzdHJva2U6bm9uZTtmaWxsLXJ1bGU6ZXZlbm9kZDtmaWxsOnJnYigyOS4wMTk2MDglLDc1LjI5NDExOCUsNTYuMDc4NDMxJSk7ZmlsbC1vcGFjaXR5OjAuNTAxOTYxOyIgZD0iTSAxMS44OTg0MzggNS4xNzk2ODggTCAxMS45MTQwNjIgOS4xMTcxODggTCA3LjU2NjQwNiAxMS40ODgyODEgTCA1LjE3NTc4MSAxMC4yNDIxODggTCA1LjE3NTc4MSAxMy42MzI4MTIgTCA3LjU0Njg3NSAxNC45NTMxMjUgTCAxNC40MTc5NjkgMTEuMjA3MDMxIEwgMTQuMzc4OTA2IDMuODM5ODQ0IFogTSAxMS44OTg0MzggNS4xNzk2ODggIi8+CjwvZz4KPC9zdmc+Cg==";
-    var backgroundImageHover =
+    let backgroundImageHover =
         "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTVweCIgaGVpZ2h0PSIxNnB4IiB2aWV3Qm94PSIwIDAgMTUgMTUiIHZlcnNpb249IjEuMSI+CjxnIGlkPSJzdXJmYWNlMSI+CjxwYXRoIHN0eWxlPSIgc3Ryb2tlOm5vbmU7ZmlsbC1ydWxlOmV2ZW5vZGQ7ZmlsbDpyZ2IoNTkuNjA3ODQzJSw4NS40OTAxOTYlLDY4LjYyNzQ1MSUpO2ZpbGwtb3BhY2l0eToxOyIgZD0iTSAwLjY5NTMxMiAzLjc4OTA2MiBMIDMuMTc1NzgxIDUuMTc5Njg4IEwgNy41NjY0MDYgMi43MzQzNzUgTCAxMS45MTQwNjIgNS4xNjAxNTYgTCAxNC4zNzg5MDYgMy44MDg1OTQgTCA3LjU4NTkzOCAwLjA0Njg3NSBaIE0gMC42OTUzMTIgMy43ODkwNjIgIi8+CjxwYXRoIHN0eWxlPSIgc3Ryb2tlOm5vbmU7ZmlsbC1ydWxlOmV2ZW5vZGQ7ZmlsbDpyZ2IoNTkuNjA3ODQzJSw4NS40OTAxOTYlLDY4LjYyNzQ1MSUpO2ZpbGwtb3BhY2l0eToxOyIgZD0iTSA1LjE2MDE1NiA1Ljg2NzE4OCBMIDcuNTcwMzEyIDcuMjE4NzUgTCA5LjkyMTg3NSA1Ljk1MzEyNSBMIDcuNTY2NDA2IDQuNjUyMzQ0IFogTSA1LjE2MDE1NiA1Ljg2NzE4OCAiLz4KPHBhdGggc3R5bGU9IiBzdHJva2U6bm9uZTtmaWxsLXJ1bGU6ZXZlbm9kZDtmaWxsOnJnYigyOS4wMTk2MDglLDc1LjI5NDExOCUsNTYuMDc4NDMxJSk7ZmlsbC1vcGFjaXR5OjE7IiBkPSJNIDAuNjk1MzEyIDMuNzczNDM4IEwgMC42OTUzMTIgMTEuMjEwOTM4IEwgMy4xNzU3ODEgMTIuNTMxMjUgTCAzLjE5NTMxMiA1LjE3OTY4OCBaIE0gMC42OTUzMTIgMy43NzM0MzggIi8+CjxwYXRoIHN0eWxlPSIgc3Ryb2tlOm5vbmU7ZmlsbC1ydWxlOmV2ZW5vZGQ7ZmlsbDpyZ2IoMjkuMDE5NjA4JSw3NS4yOTQxMTglLDU2LjA3ODQzMSUpO2ZpbGwtb3BhY2l0eToxOyIgZD0iTSA1LjE3NTc4MSA1Ljg2NzE4OCBMIDUuMTU2MjUgOC4zMDg1OTQgTCA3LjU2NjQwNiA5LjU5Mzc1IEwgOS45Mzc1IDguMjc3MzQ0IEwgOS45Mzc1IDUuOTkyMTg4IEwgNy41ODU5MzggNy4yMzgyODEgWiBNIDUuMTc1NzgxIDUuODY3MTg4ICIvPgo8cGF0aCBzdHlsZT0iIHN0cm9rZTpub25lO2ZpbGwtcnVsZTpldmVub2RkO2ZpbGw6cmdiKDI5LjAxOTYwOCUsNzUuMjk0MTE4JSw1Ni4wNzg0MzElKTtmaWxsLW9wYWNpdHk6MTsiIGQ9Ik0gMTEuODk4NDM4IDUuMTc5Njg4IEwgMTEuOTE0MDYyIDkuMTE3MTg4IEwgNy41NjY0MDYgMTEuNDg4MjgxIEwgNS4xNzU3ODEgMTAuMjQyMTg4IEwgNS4xNzU3ODEgMTMuNjMyODEyIEwgNy41NDY4NzUgMTQuOTUzMTI1IEwgMTQuNDE3OTY5IDExLjIwNzAzMSBMIDE0LjM3ODkwNiAzLjgzOTg0NCBaIE0gMTEuODk4NDM4IDUuMTc5Njg4ICIvPgo8L2c+Cjwvc3ZnPgo=";
 
 
@@ -179,13 +179,13 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
         base.on("get-username", onGetUsername);
 
         jQuery(function () {
-            var i;
+            let i;
             // Tell our backend, that we are ready and waiting for instructions
             base.emit("ready", document.location.toString());
             base.emit("website-password-refresh", document.location.toString());
 
-            var documents = [];
-            var windows = [];
+            let documents = [];
+            let windows = [];
 
             base.get_all_documents(window, documents, windows);
 
@@ -215,7 +215,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * @param document
      */
     function documentSubmitCatcher(document) {
-        for (var i = 0; i < document.forms.length; i++) {
+        for (let i = 0; i < document.forms.length; i++) {
             formSubmitCatcher(document.forms[i]);
         }
     }
@@ -227,7 +227,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * @returns {string}
      */
     function sanitizeText(unsaveText) {
-        var element = document.createElement('div');
+        const element = document.createElement('div');
         element.innerText = unsaveText;
         return element.innerHTML;
     }
@@ -238,7 +238,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * @param form
      */
     function formSubmitCatcher(form) {
-        var passwordFields = form.querySelectorAll("input[type='password']");
+        let passwordFields = form.querySelectorAll("input[type='password']");
         if (passwordFields.length !== 1) {
             return;
         }
@@ -262,7 +262,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
                 return;
             }
 
-            var formData = getUsernameAndPassword(form);
+            let formData = getUsernameAndPassword(form);
             if (formData) {
                 base.emit("login-form-submit", getUsernameAndPassword(form));
             }
@@ -300,11 +300,11 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * @returns {{username: string, password: string}}
      */
     function getUsernameAndPassword(form) {
-        var fields = form.querySelectorAll("input[type='text'], input[type='email'], input[type='password']");
+        let fields = form.querySelectorAll("input[type='text'], input[type='email'], input[type='password']");
 
-        var username = "";
-        var password = "";
-        for (var i = 0; i < fields.length; i++) {
+        let username = "";
+        let password = "";
+        for (let i = 0; i < fields.length; i++) {
             if (fields[i].type === "") {
                 continue;
             }
@@ -354,13 +354,13 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
 
             // found a password field, lets start the magic
 
-            var newForm = {
+            let newForm = {
                 username: null,
                 password: null,
                 form: null,
             };
 
-            for (var r = i - 1; r > -1; r--) {
+            for (let r = i - 1; r > -1; r--) {
                 if (inputs[r].type === "password") continue;
                 if (inputs[r].style.display === "none") continue;
 
@@ -400,7 +400,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
             }
             newForm.password = inputs[i];
 
-            var parent = inputs[i].parentElement;
+            let parent = inputs[i].parentElement;
 
             while (parent.nodeName !== "FORM" && parent.parentNode) {
                 parent = parent.parentNode;
@@ -471,10 +471,10 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      */
     function loadCss(document) {
         // taken from https://stackoverflow.com/questions/574944/how-to-load-up-css-files-using-javascript
-        var cssId = "psono-css"; // you could encode the css path itself to generate id..
+        let cssId = "psono-css"; // you could encode the css path itself to generate id..
         if (!document.getElementById(cssId)) {
-            var head = document.getElementsByTagName("head")[0];
-            var link = document.createElement("link");
+            let head = document.getElementsByTagName("head")[0];
+            let link = document.createElement("link");
             link.id = cssId;
             link.rel = "stylesheet";
             link.type = "text/css";
@@ -563,8 +563,8 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * @returns {string}
      */
     function find_username() {
-        var username = '';
-        for (var i = 0; i < myForms.length; i++) {
+        let username = '';
+        for (let i = 0; i < myForms.length; i++) {
             if (!myForms[i].username || !myForms[i].username.value) {
                 continue
             }
@@ -590,7 +590,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
     //  * @param event
     //  */
     // function close (event) {
-    //     for (var i = dropInstances.length - 1; i >= 0; i--) {
+    //     for (let i = dropInstances.length - 1; i >= 0; i--) {
     //         if(dropInstances[i].drop.contains(event.target)) {
     //             continue;
     //         }
@@ -612,12 +612,12 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      */
     async function click(evt, target, document) {
         if (getDistance(evt, target) < 30) {
-            var openDatastoreClass = "psono_open-datastore-" + uuid.v4();
-            var generatePasswordClass = "psono_generate-password-" + uuid.v4();
-            var requestSecretClasses = [];
+            let openDatastoreClass = "psono_open-datastore-" + uuid.v4();
+            let generatePasswordClass = "psono_generate-password-" + uuid.v4();
+            let requestSecretClasses = [];
 
-            var dropcontent = "";
-            dropcontent += '<div class="psono-pw-drop-content-inner">';
+            let dropcontent = "";
+            dropcontent += '<div class="psono-drop-content-inner">';
             dropcontent += '<ul class="navigations">';
 
             let isLogged = await new Promise(function (resolve,) {
@@ -636,10 +636,10 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
                     dropcontent +=
                         '<li><div class="' + generatePasswordClass + '" style="cursor: pointer !important;">Generate Password</div></li>';
                 }
-                for (var i = 0; i < websitePasswords.length; i++) {
+                for (let i = 0; i < websitePasswords.length; i++) {
 
-                    var sanitizedText = sanitizeText(websitePasswords[i].name)
-                    var requestSecretClass = "psono_request-secret-" + uuid.v4();
+                    let sanitizedText = sanitizeText(websitePasswords[i].name)
+                    let requestSecretClass = "psono_request-secret-" + uuid.v4();
 
                     dropcontent +=
                         '<li><div class="' +
@@ -656,13 +656,13 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
 
             lastRequestElement = evt.target;
 
-            var dropInstance = createDropdownMenu(evt, dropcontent, document);
+            let dropInstance = createDropdownMenu(evt, dropcontent, document);
             dropInstance.open();
 
             dropInstances.push(dropInstance);
 
             setTimeout(function () {
-                var element = dropInstance.getElement();
+                let element = dropInstance.getElement();
 
                 jQuery(element.getElementsByClassName(openDatastoreClass)).on("click", function () {
                     openDatastore();
@@ -672,7 +672,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
                     generate_password();
                 });
 
-                for (var i = 0; i < requestSecretClasses.length; i++) {
+                for (let i = 0; i < requestSecretClasses.length; i++) {
                     (function(className, secretId) {
                         jQuery(element.getElementsByClassName(className)).on("click", function () {
                             requestSecret(secretId);
@@ -693,22 +693,22 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * @returns {{open: open, close: close}}
      */
     function createDropdownMenu(setup_event, content, document) {
-        var position = jQuery(setup_event.target).offset();
-        var height = jQuery(setup_event.target).outerHeight();
+        let position = jQuery(setup_event.target).offset();
+        let height = jQuery(setup_event.target).outerHeight();
 
-        var element_id = "psono_drop-" + uuid.v4();
+        let element_id = "psono_drop-" + uuid.v4();
 
-        var element = jQuery(
+        let element = jQuery(
             "" +
                 '<div id="' +
                 element_id +
-                '" class="psono-pw-drop yui3-cssreset" style="' +
+                '" class="psono-drop yui3-cssreset" style="' +
                 "     transform: translateX(" +
                 position.left +
                 "px) translateY(" +
                 (position.top + height) +
                 'px) translateZ(0px) !important;">' +
-                '    <div class="psono-pw-drop-content">' +
+                '    <div class="psono-drop-content">' +
                 "        " +
                 content +
                 "    </div>" +
@@ -717,8 +717,8 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
 
         document.onclick = function (event) {
             if (event.target !== setup_event.target) {
-                var dropdowns = document.getElementsByClassName("psono-pw-drop");
-                for (var i = dropdowns.length - 1; i >= 0; i--) {
+                let dropdowns = document.getElementsByClassName("psono-drop");
+                for (let i = dropdowns.length - 1; i >= 0; i--) {
                     dropdowns[i].remove();
                 }
             }
@@ -769,6 +769,16 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
 
         jQuery(field).change();
         jQuery(field).blur();
+
+        if (!field.classList.contains("psono-autofill-style")) {
+            // we don't want to animate a field multiple times
+            field.classList.add('psono-autofill-style');
+            setTimeout(function () {
+                if (field) {
+                    field.classList.remove('psono-autofill-style');
+                }
+            }, 100);
+        }
     };
 
     /**
@@ -885,49 +895,16 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * @param sendResponse
      */
     function onReturnSecret(data, sender, sendResponse) {
-        var fill_field_helper = function (field, value) {
-            if (field === null) {
-                return;
-            }
-            if (typeof value === "undefined" || value === "") {
-                return;
-            }
-
-            // trigger click event
-            var clickEvent = new MouseEvent("click", {
-                view: window,
-                bubbles: true,
-                cancelable: true,
-            });
-            field.dispatchEvent(clickEvent);
-
-            // fill value
-            field.value = value;
-
-            // trigger 'input' event
-            const inputEvent = new Event("input", { bubbles: true });
-            field.dispatchEvent(inputEvent);
-
-            // jQuery event triggering is not working for angular apps
-            if ("createEvent" in document) {
-                var evt = document.createEvent("HTMLEvents");
-                evt.initEvent("change", false, true);
-                field.dispatchEvent(evt);
-            } else {
-                field.fireEvent("onchange");
-            }
-        };
-
-        for (var i = 0; i < myForms.length; i++) {
+        for (let i = 0; i < myForms.length; i++) {
             if (
                 (myForms[i].username && myForms[i].username.isEqualNode(lastRequestElement)) ||
                 (myForms[i].password && myForms[i].password.isEqualNode(lastRequestElement)) ||
                 fillAll
             ) {
-                fill_field_helper(myForms[i].username, data.website_password_username);
-                fill_field_helper(myForms[i].password, data.website_password_password);
+                fillFieldHelper(myForms[i].username, data.website_password_username);
+                fillFieldHelper(myForms[i].password, data.website_password_password);
 
-                for (var ii = 0; ii < dropInstances.length; ii++) {
+                for (let ii = 0; ii < dropInstances.length; ii++) {
                     dropInstances[ii].close();
                 }
                 dropInstances = [];

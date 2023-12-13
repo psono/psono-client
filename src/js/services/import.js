@@ -4,7 +4,7 @@
 
 import datastorePasswordService from "./datastore-password";
 import secretService from "./secret";
-import importPsonoPwJson from "./import-psono-pw-json";
+import importPsonoJson from "./import-psono-json";
 import importChromeCsv from "./import-chrome-csv";
 import importFirefoxCsvService from "./import-firefox-csv";
 import importSafariCsvService from "./import-safari-csv";
@@ -24,7 +24,7 @@ const _importer = {
     psono_pw_json: {
         name: "Psono.pw (JSON)",
         value: "psono_pw_json",
-        parser: importPsonoPwJson.parser,
+        parser: importPsonoJson.parser,
     },
     chrome_csv: {
         name: "Chrome (CSV)",
