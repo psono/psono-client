@@ -11,6 +11,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
     var dropInstances = [];
     var myForms = [];
     var creditCardInputFields = [];
+    var identityInputFields = [];
 
     var backgroundImage =
         "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTVweCIgaGVpZ2h0PSIxNnB4IiB2aWV3Qm94PSIwIDAgMTUgMTUiIHZlcnNpb249IjEuMSI+CjxnIGlkPSJzdXJmYWNlMSI+CjxwYXRoIHN0eWxlPSIgc3Ryb2tlOm5vbmU7ZmlsbC1ydWxlOmV2ZW5vZGQ7ZmlsbDpyZ2IoNTkuNjA3ODQzJSw4NS40OTAxOTYlLDY4LjYyNzQ1MSUpO2ZpbGwtb3BhY2l0eTowLjUwMTk2MTsiIGQ9Ik0gMC42OTUzMTIgMy43ODkwNjIgTCAzLjE3NTc4MSA1LjE3OTY4OCBMIDcuNTY2NDA2IDIuNzM0Mzc1IEwgMTEuOTE0MDYyIDUuMTYwMTU2IEwgMTQuMzc4OTA2IDMuODA4NTk0IEwgNy41ODU5MzggMC4wNDY4NzUgWiBNIDAuNjk1MzEyIDMuNzg5MDYyICIvPgo8cGF0aCBzdHlsZT0iIHN0cm9rZTpub25lO2ZpbGwtcnVsZTpldmVub2RkO2ZpbGw6cmdiKDU5LjYwNzg0MyUsODUuNDkwMTk2JSw2OC42Mjc0NTElKTtmaWxsLW9wYWNpdHk6MC41MDE5NjE7IiBkPSJNIDUuMTYwMTU2IDUuODY3MTg4IEwgNy41NzAzMTIgNy4yMTg3NSBMIDkuOTIxODc1IDUuOTUzMTI1IEwgNy41NjY0MDYgNC42NTIzNDQgWiBNIDUuMTYwMTU2IDUuODY3MTg4ICIvPgo8cGF0aCBzdHlsZT0iIHN0cm9rZTpub25lO2ZpbGwtcnVsZTpldmVub2RkO2ZpbGw6cmdiKDI5LjAxOTYwOCUsNzUuMjk0MTE4JSw1Ni4wNzg0MzElKTtmaWxsLW9wYWNpdHk6MC41MDE5NjE7IiBkPSJNIDAuNjk1MzEyIDMuNzczNDM4IEwgMC42OTUzMTIgMTEuMjEwOTM4IEwgMy4xNzU3ODEgMTIuNTMxMjUgTCAzLjE5NTMxMiA1LjE3OTY4OCBaIE0gMC42OTUzMTIgMy43NzM0MzggIi8+CjxwYXRoIHN0eWxlPSIgc3Ryb2tlOm5vbmU7ZmlsbC1ydWxlOmV2ZW5vZGQ7ZmlsbDpyZ2IoMjkuMDE5NjA4JSw3NS4yOTQxMTglLDU2LjA3ODQzMSUpO2ZpbGwtb3BhY2l0eTowLjUwMTk2MTsiIGQ9Ik0gNS4xNzU3ODEgNS44NjcxODggTCA1LjE1NjI1IDguMzA4NTk0IEwgNy41NjY0MDYgOS41OTM3NSBMIDkuOTM3NSA4LjI3NzM0NCBMIDkuOTM3NSA1Ljk5MjE4OCBMIDcuNTg1OTM4IDcuMjM4MjgxIFogTSA1LjE3NTc4MSA1Ljg2NzE4OCAiLz4KPHBhdGggc3R5bGU9IiBzdHJva2U6bm9uZTtmaWxsLXJ1bGU6ZXZlbm9kZDtmaWxsOnJnYigyOS4wMTk2MDglLDc1LjI5NDExOCUsNTYuMDc4NDMxJSk7ZmlsbC1vcGFjaXR5OjAuNTAxOTYxOyIgZD0iTSAxMS44OTg0MzggNS4xNzk2ODggTCAxMS45MTQwNjIgOS4xMTcxODggTCA3LjU2NjQwNiAxMS40ODgyODEgTCA1LjE3NTc4MSAxMC4yNDIxODggTCA1LjE3NTc4MSAxMy42MzI4MTIgTCA3LjU0Njg3NSAxNC45NTMxMjUgTCAxNC40MTc5NjkgMTEuMjA3MDMxIEwgMTQuMzc4OTA2IDMuODM5ODQ0IFogTSAxMS44OTg0MzggNS4xNzk2ODggIi8+CjwvZz4KPC9zdmc+Cg==";
@@ -147,6 +148,23 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
         ...creditCardExpiryDateYearFields,
     ]);
 
+    // https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete#values
+    const usernameFields = new Set([
+        "username",
+        "email", // not really a username yet may be missused
+    ]);
+    const newPasswordFields = new Set([
+        "new-password",
+    ]);
+    const currentPasswordFields = new Set([
+        "current-password",
+    ]);
+    const identityAllFields = new Set([
+        ...usernameFields,
+        ...newPasswordFields,
+        ...currentPasswordFields,
+    ]);
+
 
     jQuery(function () {
         activate();
@@ -187,6 +205,7 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
     function analyzeDocument(document) {
         addPasswordFormButtons(document);
         findCreditCardInputFields(document);
+        findIdentityInputFields(document);
         documentSubmitCatcher(document);
     }
 
@@ -418,6 +437,29 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
             if (creditCardAllFields.has(inputs[i].autocomplete.trim().toLowerCase())) {
                 inputs[i].classList.add("psono-findCreditCardInputFields-covered");
                 creditCardInputFields.push(inputs[i]);
+            }
+        }
+    }
+
+    /**
+     * Searches the document to find all identity (username or password) input fields
+     *
+     * @param document
+     */
+    function findIdentityInputFields(document) {
+        // Lets start with searching all input fields
+        const inputs = document.querySelectorAll(
+            "input"
+        );
+
+        for (let i = 0; i < inputs.length; ++i) {
+            if (inputs[i].classList.contains("psono-findIdentityInputFields-covered")) {
+                continue;
+            }
+
+            if (identityAllFields.has(inputs[i].autocomplete.trim().toLowerCase())) {
+                inputs[i].classList.add("psono-findIdentityInputFields-covered");
+                identityInputFields.push(inputs[i]);
             }
         }
     }
@@ -759,6 +801,22 @@ var ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
                 }, 1000);
             }
         }
+
+        for (let i = 0; i < identityInputFields.length; i++) {
+            if (usernameFields.has(identityInputFields[i].autocomplete.trim().toLowerCase()) &&
+                data.hasOwnProperty("username") && data.username !== "") {
+                fillFieldHelper(identityInputFields[i], data.username);
+            }
+            if (newPasswordFields.has(identityInputFields[i].autocomplete.trim().toLowerCase()) &&
+                data.hasOwnProperty("password") && data.password !== "") {
+                fillFieldHelper(identityInputFields[i], data.password);
+            }
+            if (currentPasswordFields.has(identityInputFields[i].autocomplete.trim().toLowerCase()) &&
+                data.hasOwnProperty("password") && data.password !== "") {
+                fillFieldHelper(identityInputFields[i], data.password);
+            }
+        }
+
     }
 
     /**
