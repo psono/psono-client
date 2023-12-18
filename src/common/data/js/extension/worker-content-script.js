@@ -753,6 +753,9 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * @param value
      */
     function fillFieldHelper (field, value) {
+        if (!field) {
+            return
+        }
         if (typeof field.click === "function") {
             field.click()
         }
