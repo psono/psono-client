@@ -756,6 +756,9 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
         if (!field) {
             return
         }
+        if (!value) {
+            return
+        }
         if (typeof field.click === "function") {
             field.click()
         }
