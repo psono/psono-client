@@ -366,7 +366,6 @@ function onMessage(request, sender, sendResponse) {
         "read-gpg": readGpg,
         "write-gpg": writeGpg,
         "write-gpg-complete": writeGpgComplete,
-        "secrets-changed": secretChanged,
         "set-offline-cache-encryption-key": setOfflineCacheEncryptionKey,
         "launch-web-auth-flow-in-background": launchWebAuthFlowInBackground,
         "language-changed": languageChanged,
@@ -472,11 +471,6 @@ function savePasswordActiveTab(request, sender, sendResponse) {
         };
 
         const onSuccess = function (datastore_object) {
-            setTimeout(function () {
-                chrome.tabs.sendMessage(activeTabId, { event: "secrets-changed", data: {} }, function (response) {
-                    // don't do anything
-                });
-            }, 500); // delay 500 ms to give the storage a chance to be stored
             browserClient.openTabBg(
                 "/data/index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id
             );
@@ -504,11 +498,6 @@ function bookmarkActiveTab(request, sender, sendResponse) {
     };
 
     const onSuccess = function (datastore_object) {
-        setTimeout(function () {
-            chrome.tabs.sendMessage(activeTabId, { event: "secrets-changed", data: {} }, function (response) {
-                // don't do anything
-            });
-        }, 500); // delay 500 ms to give the storage a chance to be stored
 
         browserClient.openTabBg(
             "/data/index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id
@@ -750,11 +739,6 @@ function onGeneratePassword(request, sender, sendResponse) {
     };
 
     const onSuccess = function (datastore_object) {
-        setTimeout(function () {
-            chrome.tabs.sendMessage(activeTabId, { event: "secrets-changed", data: {} }, function (response) {
-                // don't do anything
-            });
-        }, 500); // delay 500 ms to give the storage a chance to be stored
         browserClient.openTabBg(
             "/data/index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id
         );
@@ -919,41 +903,6 @@ function writeGpg(request, sender, sendResponse) {
     });
 }
 
-/**
- * Triggered whenever a secret changed / updated
- *
- * @param {object} request The message sent by the calling script.
- * @param {object} sender The sender of the message
- * @param {function} sendResponse Function to call (at most once) when you have a response.
- */
-function secretChanged(request, sender, sendResponse) {
-    setTimeout(function () {
-        let url_filter = "";
-        const url_filter_fields = ["website_password_url_filter", "bookmark_url_filter"];
-        for (let i = 0; i < url_filter_fields.length; i++) {
-            if (request.data.hasOwnProperty(url_filter_fields[i])) {
-                url_filter = request.data[url_filter_fields[i]];
-                break;
-            }
-        }
-        if (url_filter) {
-            chrome.tabs.query({ url: "*://" + url_filter + "/*" }, function (tabs) {
-                for (let i = 0; i < tabs.length; i++) {
-                    chrome.tabs.sendMessage(tabs[i].id, { event: "secrets-changed", data: {} }, function (response) {
-                        // don't do anything
-                    });
-                }
-            });
-            chrome.tabs.query({ url: "*://*." + url_filter + "/*" }, function (tabs) {
-                for (let i = 0; i < tabs.length; i++) {
-                    chrome.tabs.sendMessage(tabs[i].id, { event: "secrets-changed", data: {} }, function (response) {
-                        // don't do anything
-                    });
-                }
-            });
-        }
-    }, 300); // delay 300 ms to give the storage a chance to be stored
-}
 
 /**
  * Triggered from the encryption popup once a user clicks "encrypt". Contains the encrypted message and the

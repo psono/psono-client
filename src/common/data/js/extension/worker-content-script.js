@@ -4,7 +4,6 @@
 
 const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
     "use strict";
-    let websitePasswords = [];
     let lastRequestElement = null;
     let fillAll = false;
     let nextFillAllIndex = 0;
@@ -173,16 +172,13 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
     function activate() {
         base.on("fillpassword", onFillPassword);
         base.on("fillcreditcard", onFillCreditCard);
-        base.on("website-password-update", onWebsitePasswordUpdate);
         base.on("return-secret", onReturnSecret);
-        base.on("secrets-changed", onSecretChanged);
         base.on("get-username", onGetUsername);
 
         jQuery(function () {
             let i;
             // Tell our backend, that we are ready and waiting for instructions
             base.emit("ready", document.location.toString());
-            base.emit("website-password-refresh", document.location.toString());
 
             let documents = [];
             let windows = [];
@@ -195,6 +191,18 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
 
             base.register_observer(analyzeDocument);
         });
+
+
+        document.onkeyup = function(e) {
+            if (e.ctrlKey && e.shiftKey && e.code === "KeyL") {
+                //Ctrl + Shift + L
+                base.emit("website-password-refresh", document.location.toString(), async (response) => {
+                    fillAll=true;
+                    requestSecret(response.data[nextFillAllIndex % response.data.length].secret_id)
+                    nextFillAllIndex = nextFillAllIndex + 1
+                })
+            }
+        };
     }
 
     /**
@@ -612,75 +620,83 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      */
     async function click(evt, target, document) {
         if (getDistance(evt, target) < 30) {
-            let openDatastoreClass = "psono_open-datastore-" + uuid.v4();
-            let generatePasswordClass = "psono_generate-password-" + uuid.v4();
-            let requestSecretClasses = [];
+            base.emit("website-password-refresh", document.location.toString(), async (response) => {
 
-            let dropcontent = "";
-            dropcontent += '<div class="psono-drop-content-inner">';
-            dropcontent += '<ul class="navigations">';
+                let openDatastoreClass = "psono_open-datastore-" + uuid.v4();
+                let generatePasswordClass = "psono_generate-password-" + uuid.v4();
+                let requestSecretClasses = [];
 
-            let isLogged = await new Promise(function (resolve,) {
-                base.emit("is-logged-in", undefined, (state) => {
-                    resolve(state);
+                let dropcontent = "";
+                dropcontent += '<div class="psono-drop-content-inner">';
+                dropcontent += '<ul class="navigations">';
+
+                let isLogged = await new Promise(function (resolve,) {
+                    base.emit("is-logged-in", undefined, (state) => {
+                        resolve(state);
+                    });
                 });
+
+                if (!isLogged) {
+                    dropcontent +=
+                        '<li><div class="' + openDatastoreClass + '" style="cursor: pointer !important;">Login</div></li>';
+                } else {
+                    dropcontent +=
+                        '<li><div class="' + openDatastoreClass + '" style="cursor: pointer !important;">Open Datastore</div></li>';
+                    if (response.data.length < 1) {
+                        dropcontent +=
+                            '<li><div class="' + generatePasswordClass + '" style="cursor: pointer !important;">Generate Password</div></li>';
+                    }
+                    for (let i = 0; i < response.data.length; i++) {
+
+                        let sanitizedText = sanitizeText(response.data[i].name)
+                        let requestSecretClass = "psono_request-secret-" + uuid.v4();
+
+                        dropcontent +=
+                            '<li><div class="' +
+                            requestSecretClass +
+                            '" style="cursor: pointer !important;"">' +
+                            sanitizedText +
+                            "</div></li>";
+                        requestSecretClasses.push({
+                            'class': requestSecretClass,
+                            'secret_id': response.data[i].secret_id
+                        });
+                    }
+                }
+
+                dropcontent += "</ul>";
+                dropcontent += "</div>";
+
+                lastRequestElement = evt.target;
+
+                let dropInstance = createDropdownMenu(evt, dropcontent, document);
+                dropInstance.open();
+
+                dropInstances.push(dropInstance);
+
+                setTimeout(function () {
+                    let element = dropInstance.getElement();
+
+                    jQuery(element.getElementsByClassName(openDatastoreClass)).on("click", function () {
+                        openDatastore();
+                    });
+
+                    jQuery(element.getElementsByClassName(generatePasswordClass)).on("click", function () {
+                        generate_password();
+                    });
+
+                    for (let i = 0; i < requestSecretClasses.length; i++) {
+                        (function (className, secretId) {
+                            jQuery(element.getElementsByClassName(className)).on("click", function () {
+                                requestSecret(secretId);
+                            });
+                        })(requestSecretClasses[i]['class'], requestSecretClasses[i]['secret_id'])
+
+                    }
+                }, 0);
+
             });
 
-            if (!isLogged) {
-                dropcontent +=
-                    '<li><div class="' + openDatastoreClass + '" style="cursor: pointer !important;">Login</div></li>';
-            } else {
-                dropcontent +=
-                    '<li><div class="' + openDatastoreClass + '" style="cursor: pointer !important;">Open Datastore</div></li>';
-                if (websitePasswords.length < 1) {
-                    dropcontent +=
-                        '<li><div class="' + generatePasswordClass + '" style="cursor: pointer !important;">Generate Password</div></li>';
-                }
-                for (let i = 0; i < websitePasswords.length; i++) {
-
-                    let sanitizedText = sanitizeText(websitePasswords[i].name)
-                    let requestSecretClass = "psono_request-secret-" + uuid.v4();
-
-                    dropcontent +=
-                        '<li><div class="' +
-                        requestSecretClass +
-                        '" style="cursor: pointer !important;"">' +
-                        sanitizedText +
-                        "</div></li>";
-                    requestSecretClasses.push({ 'class': requestSecretClass, 'secret_id': websitePasswords[i].secret_id });
-                }
-            }
-
-            dropcontent += "</ul>";
-            dropcontent += "</div>";
-
-            lastRequestElement = evt.target;
-
-            let dropInstance = createDropdownMenu(evt, dropcontent, document);
-            dropInstance.open();
-
-            dropInstances.push(dropInstance);
-
-            setTimeout(function () {
-                let element = dropInstance.getElement();
-
-                jQuery(element.getElementsByClassName(openDatastoreClass)).on("click", function () {
-                    openDatastore();
-                });
-
-                jQuery(element.getElementsByClassName(generatePasswordClass)).on("click", function () {
-                    generate_password();
-                });
-
-                for (let i = 0; i < requestSecretClasses.length; i++) {
-                    (function(className, secretId) {
-                        jQuery(element.getElementsByClassName(className)).on("click", function () {
-                            requestSecret(secretId);
-                        });
-                    })(requestSecretClasses[i]['class'], requestSecretClasses[i]['secret_id'])
-
-                }
-            }, 0);
         }
     }
 
@@ -873,27 +889,6 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
     }
 
     /**
-     * handles password update events
-     *
-     * @param data
-     * @param sender
-     * @param sendResponse
-     */
-    function onWebsitePasswordUpdate(data, sender, sendResponse) {
-        websitePasswords = data;
-        if (data.length > 0) {
-            document.onkeyup = function(e) {
-                if (e.ctrlKey && e.shiftKey && e.code === "KeyL") {
-                    //Ctrl + Shift + L
-                    fillAll=true;
-                    requestSecret(websitePasswords[nextFillAllIndex % data.length].secret_id)
-                    nextFillAllIndex = nextFillAllIndex + 1
-                }
-            };
-        }
-    }
-
-    /**
      * handles password request answer
      *
      * @param data
@@ -920,17 +915,6 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
             }
         }
         fillAll=false;
-    }
-
-    /**
-     * handles secret changed requests
-     *
-     * @param data
-     * @param sender
-     * @param sendResponse
-     */
-    function onSecretChanged(data, sender, sendResponse) {
-        base.emit("website-password-refresh", document.location.toString());
     }
 
     /**
