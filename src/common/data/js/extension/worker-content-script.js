@@ -611,6 +611,18 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
     // }
 
     /**
+     * Checks whether the element or one of its parent elements has display False and as such the element is not displayed
+     * Uses offsetParent which returns null when the element or any ancestor has the display property set to none.
+     * https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetParent
+     *
+     * @param el
+     * @returns {boolean} Is display false
+     */
+    function isDisplayed(el) {
+        return !!el.offsetParent;
+    }
+
+    /**
      * triggered when a click happens in an input field. Used to open the drop down menu and handle the closing
      * once a click happens outside of the dropdown menu
      *
@@ -619,85 +631,97 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * @param document The document the click occurred in
      */
     async function click(evt, target, document) {
-        if (getDistance(evt, target) < 30) {
-            base.emit("website-password-refresh", document.location.toString(), async (response) => {
 
-                let openDatastoreClass = "psono_open-datastore-" + uuid.v4();
-                let generatePasswordClass = "psono_generate-password-" + uuid.v4();
-                let requestSecretClasses = [];
+        if (!isDisplayed(target)) {
+            // we only open dropdown menus for elements that are displayed
+            return;
+        }
 
-                let dropcontent = "";
-                dropcontent += '<div class="psono-drop-content-inner">';
-                dropcontent += '<ul class="navigations">';
+        if (target.hasOwnProperty('checkVisibility') && !target.checkVisibility()) {
+            // we only open dropdown menus for elements that are visible
+            return;
+        }
 
-                let isLogged = await new Promise(function (resolve,) {
-                    base.emit("is-logged-in", undefined, (state) => {
-                        resolve(state);
-                    });
+        if (getDistance(evt, target) >= 30) {
+            return
+        }
+
+        base.emit("website-password-refresh", document.location.toString(), async (response) => {
+
+            let openDatastoreClass = "psono_open-datastore-" + uuid.v4();
+            let generatePasswordClass = "psono_generate-password-" + uuid.v4();
+            let requestSecretClasses = [];
+
+            let dropcontent = "";
+            dropcontent += '<div class="psono-drop-content-inner">';
+            dropcontent += '<ul class="navigations">';
+
+            let isLogged = await new Promise(function (resolve,) {
+                base.emit("is-logged-in", undefined, (state) => {
+                    resolve(state);
                 });
-
-                if (!isLogged) {
-                    dropcontent +=
-                        '<li><div class="' + openDatastoreClass + '" style="cursor: pointer !important;">Login</div></li>';
-                } else {
-                    dropcontent +=
-                        '<li><div class="' + openDatastoreClass + '" style="cursor: pointer !important;">Open Datastore</div></li>';
-                    if (response.data.length < 1) {
-                        dropcontent +=
-                            '<li><div class="' + generatePasswordClass + '" style="cursor: pointer !important;">Generate Password</div></li>';
-                    }
-                    for (let i = 0; i < response.data.length; i++) {
-
-                        let sanitizedText = sanitizeText(response.data[i].name)
-                        let requestSecretClass = "psono_request-secret-" + uuid.v4();
-
-                        dropcontent +=
-                            '<li><div class="' +
-                            requestSecretClass +
-                            '" style="cursor: pointer !important;"">' +
-                            sanitizedText +
-                            "</div></li>";
-                        requestSecretClasses.push({
-                            'class': requestSecretClass,
-                            'secret_id': response.data[i].secret_id
-                        });
-                    }
-                }
-
-                dropcontent += "</ul>";
-                dropcontent += "</div>";
-
-                lastRequestElement = evt.target;
-
-                let dropInstance = createDropdownMenu(evt, dropcontent, document);
-                dropInstance.open();
-
-                dropInstances.push(dropInstance);
-
-                setTimeout(function () {
-                    let element = dropInstance.getElement();
-
-                    jQuery(element.getElementsByClassName(openDatastoreClass)).on("click", function () {
-                        openDatastore();
-                    });
-
-                    jQuery(element.getElementsByClassName(generatePasswordClass)).on("click", function () {
-                        generate_password();
-                    });
-
-                    for (let i = 0; i < requestSecretClasses.length; i++) {
-                        (function (className, secretId) {
-                            jQuery(element.getElementsByClassName(className)).on("click", function () {
-                                requestSecret(secretId);
-                            });
-                        })(requestSecretClasses[i]['class'], requestSecretClasses[i]['secret_id'])
-
-                    }
-                }, 0);
-
             });
 
-        }
+            if (!isLogged) {
+                dropcontent +=
+                    '<li><div class="' + openDatastoreClass + '" style="cursor: pointer !important;">Login</div></li>';
+            } else {
+                dropcontent +=
+                    '<li><div class="' + openDatastoreClass + '" style="cursor: pointer !important;">Open Datastore</div></li>';
+                if (response.data.length < 1) {
+                    dropcontent +=
+                        '<li><div class="' + generatePasswordClass + '" style="cursor: pointer !important;">Generate Password</div></li>';
+                }
+                for (let i = 0; i < response.data.length; i++) {
+
+                    let sanitizedText = sanitizeText(response.data[i].name)
+                    let requestSecretClass = "psono_request-secret-" + uuid.v4();
+
+                    dropcontent +=
+                        '<li><div class="' +
+                        requestSecretClass +
+                        '" style="cursor: pointer !important;"">' +
+                        sanitizedText +
+                        "</div></li>";
+                    requestSecretClasses.push({
+                        'class': requestSecretClass,
+                        'secret_id': response.data[i].secret_id
+                    });
+                }
+            }
+
+            dropcontent += "</ul>";
+            dropcontent += "</div>";
+
+            lastRequestElement = evt.target;
+
+            let dropInstance = createDropdownMenu(evt, dropcontent, document);
+            dropInstance.open();
+
+            dropInstances.push(dropInstance);
+
+            setTimeout(function () {
+                let element = dropInstance.getElement();
+
+                jQuery(element.getElementsByClassName(openDatastoreClass)).on("click", function () {
+                    openDatastore();
+                });
+
+                jQuery(element.getElementsByClassName(generatePasswordClass)).on("click", function () {
+                    generate_password();
+                });
+
+                for (let i = 0; i < requestSecretClasses.length; i++) {
+                    (function (className, secretId) {
+                        jQuery(element.getElementsByClassName(className)).on("click", function () {
+                            requestSecret(secretId);
+                        });
+                    })(requestSecretClasses[i]['class'], requestSecretClasses[i]['secret_id'])
+
+                }
+            }, 0);
+
+        });
     }
 
     /**
