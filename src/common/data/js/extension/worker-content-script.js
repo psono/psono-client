@@ -612,15 +612,6 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
     // }
 
     /**
-     * Checks whether we just did recently close the dialog.
-     * @param el
-     * @returns {boolean}
-     */
-    function hasRecentlyBeenClosed(el) {
-        return lastCloseTime + 50 > new Date().getTime();
-    }
-
-    /**
      * triggered when a click happens in an input field. Used to open the drop down menu and handle the closing
      * once a click happens outside of the dropdown menu
      *
@@ -629,14 +620,6 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * @param document The document the click occurred in
      */
     async function click(evt, target, document) {
-
-        if (hasRecentlyBeenClosed(target)) {
-            // we only open dropdown menus 50 ms after the last time that one has been closed.
-            // necessary for e.g. upwork login, otherwise the Dropdown opens a second time when the first one closes
-            // as their password field is directly beneath the user field. Tried to block it different with ignoring not
-            // displayed targets, yet that breaks sites like e.g. reddit.
-            return;
-        }
 
         if (target.hasOwnProperty('checkVisibility') && !target.checkVisibility()) {
             // we only open dropdown menus for elements that are visible
@@ -801,9 +784,6 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
         }
         if (!value) {
             return
-        }
-        if (typeof field.click === "function") {
-            field.click()
         }
         jQuery(field).focus();
         field.value = value;
