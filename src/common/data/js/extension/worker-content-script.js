@@ -11,6 +11,7 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
     let myForms = [];
     let creditCardInputFields = [];
     let identityInputFields = [];
+    let lastCloseTime = 0;
 
     let backgroundImage =
         "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTVweCIgaGVpZ2h0PSIxNnB4IiB2aWV3Qm94PSIwIDAgMTUgMTUiIHZlcnNpb249IjEuMSI+CjxnIGlkPSJzdXJmYWNlMSI+CjxwYXRoIHN0eWxlPSIgc3Ryb2tlOm5vbmU7ZmlsbC1ydWxlOmV2ZW5vZGQ7ZmlsbDpyZ2IoNTkuNjA3ODQzJSw4NS40OTAxOTYlLDY4LjYyNzQ1MSUpO2ZpbGwtb3BhY2l0eTowLjUwMTk2MTsiIGQ9Ik0gMC42OTUzMTIgMy43ODkwNjIgTCAzLjE3NTc4MSA1LjE3OTY4OCBMIDcuNTY2NDA2IDIuNzM0Mzc1IEwgMTEuOTE0MDYyIDUuMTYwMTU2IEwgMTQuMzc4OTA2IDMuODA4NTk0IEwgNy41ODU5MzggMC4wNDY4NzUgWiBNIDAuNjk1MzEyIDMuNzg5MDYyICIvPgo8cGF0aCBzdHlsZT0iIHN0cm9rZTpub25lO2ZpbGwtcnVsZTpldmVub2RkO2ZpbGw6cmdiKDU5LjYwNzg0MyUsODUuNDkwMTk2JSw2OC42Mjc0NTElKTtmaWxsLW9wYWNpdHk6MC41MDE5NjE7IiBkPSJNIDUuMTYwMTU2IDUuODY3MTg4IEwgNy41NzAzMTIgNy4yMTg3NSBMIDkuOTIxODc1IDUuOTUzMTI1IEwgNy41NjY0MDYgNC42NTIzNDQgWiBNIDUuMTYwMTU2IDUuODY3MTg4ICIvPgo8cGF0aCBzdHlsZT0iIHN0cm9rZTpub25lO2ZpbGwtcnVsZTpldmVub2RkO2ZpbGw6cmdiKDI5LjAxOTYwOCUsNzUuMjk0MTE4JSw1Ni4wNzg0MzElKTtmaWxsLW9wYWNpdHk6MC41MDE5NjE7IiBkPSJNIDAuNjk1MzEyIDMuNzczNDM4IEwgMC42OTUzMTIgMTEuMjEwOTM4IEwgMy4xNzU3ODEgMTIuNTMxMjUgTCAzLjE5NTMxMiA1LjE3OTY4OCBaIE0gMC42OTUzMTIgMy43NzM0MzggIi8+CjxwYXRoIHN0eWxlPSIgc3Ryb2tlOm5vbmU7ZmlsbC1ydWxlOmV2ZW5vZGQ7ZmlsbDpyZ2IoMjkuMDE5NjA4JSw3NS4yOTQxMTglLDU2LjA3ODQzMSUpO2ZpbGwtb3BhY2l0eTowLjUwMTk2MTsiIGQ9Ik0gNS4xNzU3ODEgNS44NjcxODggTCA1LjE1NjI1IDguMzA4NTk0IEwgNy41NjY0MDYgOS41OTM3NSBMIDkuOTM3NSA4LjI3NzM0NCBMIDkuOTM3NSA1Ljk5MjE4OCBMIDcuNTg1OTM4IDcuMjM4MjgxIFogTSA1LjE3NTc4MSA1Ljg2NzE4OCAiLz4KPHBhdGggc3R5bGU9IiBzdHJva2U6bm9uZTtmaWxsLXJ1bGU6ZXZlbm9kZDtmaWxsOnJnYigyOS4wMTk2MDglLDc1LjI5NDExOCUsNTYuMDc4NDMxJSk7ZmlsbC1vcGFjaXR5OjAuNTAxOTYxOyIgZD0iTSAxMS44OTg0MzggNS4xNzk2ODggTCAxMS45MTQwNjIgOS4xMTcxODggTCA3LjU2NjQwNiAxMS40ODgyODEgTCA1LjE3NTc4MSAxMC4yNDIxODggTCA1LjE3NTc4MSAxMy42MzI4MTIgTCA3LjU0Njg3NSAxNC45NTMxMjUgTCAxNC40MTc5NjkgMTEuMjA3MDMxIEwgMTQuMzc4OTA2IDMuODM5ODQ0IFogTSAxMS44OTg0MzggNS4xNzk2ODggIi8+CjwvZz4KPC9zdmc+Cg==";
@@ -611,15 +612,12 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
     // }
 
     /**
-     * Checks whether the element or one of its parent elements has display False and as such the element is not displayed
-     * Uses offsetParent which returns null when the element or any ancestor has the display property set to none.
-     * https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetParent
-     *
+     * Checks whether we just did recently close the dialog.
      * @param el
-     * @returns {boolean} Is display false
+     * @returns {boolean}
      */
-    function isDisplayed(el) {
-        return !!el.offsetParent;
+    function hasRecentlyBeenClosed(el) {
+        return lastCloseTime + 50 > new Date().getTime();
     }
 
     /**
@@ -632,8 +630,11 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      */
     async function click(evt, target, document) {
 
-        if (!isDisplayed(target)) {
-            // we only open dropdown menus for elements that are displayed
+        if (hasRecentlyBeenClosed(target)) {
+            // we only open dropdown menus 50 ms after the last time that one has been closed.
+            // necessary for e.g. upwork login, otherwise the Dropdown opens a second time when the first one closes
+            // as their password field is directly beneath the user field. Tried to block it different with ignoring not
+            // displayed targets, yet that breaks sites like e.g. reddit.
             return;
         }
 
@@ -761,6 +762,7 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
                 for (let i = dropdowns.length - 1; i >= 0; i--) {
                     dropdowns[i].remove();
                 }
+                lastCloseTime = new Date().getTime();
             }
         };
 
@@ -770,6 +772,7 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
 
         function close() {
             element.remove();
+            lastCloseTime = new Date().getTime();
         }
 
         function getElement() {
