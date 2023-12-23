@@ -6,13 +6,13 @@ import { createStore, applyMiddleware } from "redux";
 import thunkMiddleware from "redux-thunk";
 import { createLogger } from "redux-logger";
 import { persistReducer, createMigrate } from "redux-persist";
-import storage from "redux-persist/lib/storage";
 import { createStateSyncMiddleware, initMessageListener } from "redux-state-sync";
 import {
     SET_REQUESTS_IN_PROGRESS,
 } from "../actions/action-types";
 
 import rootReducer from "../reducers";
+import storageService from "./storage";
 
 const config = {
     channel: "redux_state_sync",
@@ -21,7 +21,7 @@ const config = {
 
 const middlewares = [thunkMiddleware, createStateSyncMiddleware(config)];
 
-if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
+if (true || !process.env.NODE_ENV || process.env.NODE_ENV === "development") {
     const loggerMiddleware = createLogger({
         predicate: (getState, action) => action.type !== SET_REQUESTS_IN_PROGRESS
     });
@@ -75,7 +75,7 @@ const persistConfig = {
     key: "client",
     blacklist: ['transient'],
     version: 2,
-    storage,
+    storage: storageService.get('state'),
     debug: false,
     migrate: createMigrate(migrations, { debug: false }),
 };

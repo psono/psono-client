@@ -16,6 +16,7 @@ import apiDO from "./api-aws";
 import apiFileserver from "./api-fileserver";
 import store from "./store";
 import storage from "./storage";
+import offlineCache from "./offline-cache";
 
 const registrations = {};
 
@@ -508,7 +509,7 @@ function onItemClick(item) {
     readShards().then(function (data) {
         storage.upsert("file-downloads", { key: "shards", shards: data });
         browserClient.openTab("download-file.html#!/file/download/" + item.id).then(function (window) {
-            //window.psono_offline_cache_encryption_key = offlineCache.get_encryption_key();
+            window.psono_offline_cache_encryption_key = offlineCache.getEncryptionKey();
         });
     });
 }
@@ -722,7 +723,7 @@ function downloadFileFromShard(file, shards, fileTransfer) {
                 downloadFileFromShardHelper(data.shards);
             })
             .catch(function (err) {
-                console.log(data);
+                console.log(err);
                 return Promise.reject({
                     non_field_errors: ["NO_FILESERVER_AVAILABLE"],
                 });

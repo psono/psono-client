@@ -103,8 +103,8 @@ function parser(data) {
     };
 }
 
-const importPsonoPwJsonService = {
+const importPsonoJsonService = {
     parser,
 };
 
-export default importPsonoPwJsonService;
+export default importPsonoJsonService;

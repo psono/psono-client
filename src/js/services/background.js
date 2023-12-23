@@ -17,6 +17,7 @@ import storage from "./storage";
 
 let lastLoginCredentials;
 let activeTabId;
+let activeTabUrl;
 const entryExtraInfo = {};
 let fillpassword = [];
 const alreadyFilledMaxAllowed = {};
@@ -24,10 +25,14 @@ const alreadyFilledMaxAllowed = {};
 const gpgMessages = {};
 
 let numTabs;
-let contextMenuId;
-let contextMenuChild1Id;
-let contextMenuChild2Id;
 let clearFillPasswordTimeout;
+
+const CM_PSONO_ID = "psono-psono";
+const CM_DATASTORE_ID = "psono-datastore";
+const CM_AUTOFILL_CREDENTIAL_ID = "psono-autofill-credential";
+const CM_AUTOFILL_CREDIT_CARD_ID = "psono-autofill-creditcard";
+const CM_RECHECK_PAGE_ID = "psono-recheck-page";
+
 
 function activate() {
     browserClient.disableBrowserPasswordSaving();
@@ -35,6 +40,17 @@ function activate() {
     if (typeof chrome.tabs !== "undefined") {
         chrome.tabs.onActivated.addListener(function (activeInfo) {
             activeTabId = activeInfo.tabId;
+            chrome.tabs.get(activeInfo.tabId, function (tabInfo) {
+                activeTabUrl = tabInfo.url;
+                updateContextMenu();
+            });
+        });
+        chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tabInfo) {
+            if (changeInfo.status !== 'complete') {
+                return;
+            }
+            activeTabUrl = tabInfo.url;
+            updateContextMenu();
         });
     }
 
@@ -95,59 +111,163 @@ function activate() {
         });
     }
 
-    if (typeof chrome.contextMenus !== "undefined") {
-        contextMenuId = chrome.contextMenus.create({ title: "Psono" });
-        contextMenuChild1Id = chrome.contextMenus.create({
-            title: i18n.t("OPEN_DATASTORE"),
-            contexts: ["all"],
-            parentId: contextMenuId,
-            onclick: openDatastore,
-        });
-        contextMenuChild2Id = chrome.contextMenus.create({
-            title: i18n.t("RECHECK_PAGE"),
-            contexts: ["all"],
-            parentId: contextMenuId,
-            onclick: recheckPage,
-        });
-    }
-
     // create the context menu once the translations are loaded
     i18n.on("loaded", function (loaded) {
         updateContextMenu();
     });
 
+
+    if (chrome.contextMenus) {
+        chrome.contextMenus.onClicked.addListener((info, tab) => {
+            switch (info.menuItemId) {
+                case CM_DATASTORE_ID:
+                    openDatastore()
+                    break;
+                case CM_RECHECK_PAGE_ID:
+                    recheckPage()
+                    break;
+                default:
+                    fillSecretTab(info.menuItemId, tab)
+
+            }
+        });
+    }
+
     // set the correct icon on start
     if (user.isLoggedIn()) {
-        chrome.browserAction.setIcon({
-            path : "img/icon-32.png"
+        browserClient.setIcon({
+            path : "/data/img/icon-32.png"
         });
     } else {
-        chrome.browserAction.setIcon({
-            path : "img/icon-32-disabled.png"
+        browserClient.setIcon({
+            path : "/data/img/icon-32-disabled.png"
         });
     }
 }
 
+
+
 /**
- * Updates the context menu, usually called when the language changes
+ * Updates the context menu, usually called when the language changes or new tab loads or url changes.
  */
 function updateContextMenu() {
-    if (contextMenuChild1Id) {
-        chrome.contextMenus.update(contextMenuChild1Id, {
+    if (!chrome.contextMenus) {
+        return;
+    }
+    chrome.contextMenus.removeAll(function() {
+        const contextMenu = chrome.contextMenus.create({
+            id: CM_PSONO_ID,
+            title: "Psono",
+        });
+        chrome.contextMenus.create({
+            id: CM_DATASTORE_ID,
             title: i18n.t("OPEN_DATASTORE"),
             contexts: ["all"],
-            parentId: contextMenuId,
-            onclick: openDatastore,
+            parentId: contextMenu,
         });
-    }
-    if (contextMenuChild2Id) {
-        chrome.contextMenus.update(contextMenuChild2Id, {
+        const contextMenuChildAutofillCredential = chrome.contextMenus.create({
+            id: CM_AUTOFILL_CREDENTIAL_ID,
+            title: i18n.t("AUTOFILL_CREDENTIAL"),
+            contexts: ["all"],
+            visible: false,
+            parentId: contextMenu,
+        });
+        const contextMenuChildAutofillCreditCard = chrome.contextMenus.create({
+            id: CM_AUTOFILL_CREDIT_CARD_ID,
+            title: i18n.t("AUTOFILL_CREDIT_CARD"),
+            contexts: ["all"],
+            visible: false,
+            parentId: contextMenu,
+        });
+        chrome.contextMenus.create({
+            id: CM_RECHECK_PAGE_ID,
             title: i18n.t("RECHECK_PAGE"),
             contexts: ["all"],
-            parentId: contextMenuId,
-            onclick: recheckPage,
+            parentId: contextMenu,
         });
-    }
+
+        function addAutofillCredentials (leafs) {
+
+            const entries = [];
+
+            for (let ii = 0; ii < leafs.length; ii++) {
+                entries.push({
+                    secret_id: leafs[ii].secret_id,
+                    name: leafs[ii].name,
+                });
+            }
+
+            entries.sort(function(a, b){
+                let a_name = a.name ? a.name : '';
+                let b_name = b.name ? b.name : '';
+                if (a_name.toLowerCase() < b_name.toLowerCase())
+                    return -1;
+                if (a_name.toLowerCase() > b_name.toLowerCase())
+                    return 1;
+                return 0;
+            })
+
+            entries.forEach(function(entry) {
+                chrome.contextMenus.create({
+                    id: entry.secret_id,
+                    title: entry.name,
+                    contexts: ["all"],
+                    parentId: contextMenuChildAutofillCredential,
+                });
+            })
+
+            if (entries.length > 0) {
+                chrome.contextMenus.update(CM_AUTOFILL_CREDENTIAL_ID, {
+                    visible: true,
+                });
+            }
+
+        }
+
+        function addAutofillCreditCards (leafs) {
+            const entries = [];
+
+            for (let ii = 0; ii < leafs.length; ii++) {
+                entries.push({
+                    secret_id: leafs[ii].secret_id,
+                    name: leafs[ii].name,
+                });
+            }
+
+            entries.sort(function(a, b){
+                let a_name = a.name ? a.name : '';
+                let b_name = b.name ? b.name : '';
+                if (a_name.toLowerCase() < b_name.toLowerCase())
+                    return -1;
+                if (a_name.toLowerCase() > b_name.toLowerCase())
+                    return 1;
+                return 0;
+            })
+
+            entries.forEach(function(entry) {
+                chrome.contextMenus.create({
+                    id: entry.secret_id,
+                    title: entry.name,
+                    contexts: ["all"],
+                    parentId: contextMenuChildAutofillCreditCard,
+                });
+            })
+
+            if (entries.length > 0) {
+                chrome.contextMenus.update(CM_AUTOFILL_CREDIT_CARD_ID, {
+                    visible: true,
+                });
+            }
+
+        }
+
+        if (!activeTabUrl) {
+            addAutofillCredentials([])
+        } else {
+            searchWebsitePasswordsByUrlfilter(activeTabUrl, false).then(addAutofillCredentials);
+        }
+        searchCreditCard().then(addAutofillCreditCards);
+    })
 }
 
 /**
@@ -170,6 +290,49 @@ function openDatastore(info, tab) {
  */
 function recheckPage(info, tab) {
     // TODO implement
+}
+
+/**
+ * Trigger to fill a specific secret on a website
+ *
+ * @param secretId The secret id
+ * @param tab The tab info
+ */
+function fillSecretTab(secretId, tab) {
+    return storage.findKey("datastore-password-leafs", secretId).then(function (leaf) {
+        const onError = function (result) {
+            // pass
+        };
+
+        const onSuccess = function (content) {
+            if (leaf.type === 'website_password') {
+                chrome.tabs.sendMessage(tab.id, {
+                    event: "fillpassword",
+                    data: {
+                        username: content.website_password_username,
+                        password: content.website_password_password,
+                        url_filter: content.website_password_url_filter,
+                        auto_submit: content.website_password_auto_submit,
+                    }
+                });
+            }
+            if (leaf.type === 'credit_card') {
+                console.log("chrome.tabs.sendMessage: fillcreditcard")
+                chrome.tabs.sendMessage(tab.id, {
+                    event: "fillcreditcard",
+                    data: {
+                        credit_card_number: content.credit_card_number,
+                        credit_card_cvc: content.credit_card_cvc,
+                        credit_card_name: content.credit_card_name,
+                        credit_card_valid_through: content.credit_card_valid_through,
+                    }
+                });
+            }
+        };
+
+        return secretService.readSecret(secretId, leaf.secret_key).then(onSuccess, onError);
+    });
+
 }
 
 // Start helper functions
@@ -203,10 +366,11 @@ function onMessage(request, sender, sendResponse) {
         "read-gpg": readGpg,
         "write-gpg": writeGpg,
         "write-gpg-complete": writeGpgComplete,
-        "secrets-changed": secretChanged,
         "set-offline-cache-encryption-key": setOfflineCacheEncryptionKey,
         "launch-web-auth-flow-in-background": launchWebAuthFlowInBackground,
         "language-changed": languageChanged,
+        "get-offline-cache-encryption-key-offscreen": () => {}, // dummy as these are handled offscreen
+        "set-offline-cache-encryption-key-offscreen": () => {}, // dummy as these are handled offscreen
     };
 
     if (eventFunctions.hasOwnProperty(request.event)) {
@@ -286,14 +450,12 @@ function onFillpasswordActiveTab(request, sender, sendResponse) {
     if (typeof activeTabId === "undefined") {
         return;
     }
-    browser.tabs.sendMessage(activeTabId, { event: "fillpassword", data: request.data }, function (response) {
-        // pass
-    });
+    browser.tabs.sendMessage(activeTabId, { event: "fillpassword", data: request.data });
 }
 
 /**
- * we received a fillpassword active tab event
- * lets send a fillpassword event to the to the active tab
+ * we received a save-password-active-tab event
+ * lets save the password for the current active tab
  *
  * @param {object} request The message sent by the calling script.
  * @param {object} sender The sender of the message
@@ -309,13 +471,8 @@ function savePasswordActiveTab(request, sender, sendResponse) {
         };
 
         const onSuccess = function (datastore_object) {
-            setTimeout(function () {
-                chrome.tabs.sendMessage(activeTabId, { event: "secrets-changed", data: {} }, function (response) {
-                    // don't do anything
-                });
-            }, 500); // delay 500 ms to give the storage a chance to be stored
-            browserClient.openTab(
-                "index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id
+            browserClient.openTabBg(
+                "/data/index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id
             );
         };
 
@@ -324,8 +481,8 @@ function savePasswordActiveTab(request, sender, sendResponse) {
 }
 
 /**
- * we received a fillpassword active tab event
- * lets send a fillpassword event to the to the active tab
+ * we received a bookmark-active-tab event
+ * lets bookmark the current active tab
  *
  * @param {object} request The message sent by the calling script.
  * @param {object} sender The sender of the message
@@ -341,14 +498,9 @@ function bookmarkActiveTab(request, sender, sendResponse) {
     };
 
     const onSuccess = function (datastore_object) {
-        setTimeout(function () {
-            chrome.tabs.sendMessage(activeTabId, { event: "secrets-changed", data: {} }, function (response) {
-                // don't do anything
-            });
-        }, 500); // delay 500 ms to give the storage a chance to be stored
 
-        browserClient.openTab(
-            "index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id
+        browserClient.openTabBg(
+            "/data/index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id
         );
     };
     datastorePasswordService.bookmarkActiveTab().then(onSuccess, onError);
@@ -374,8 +526,8 @@ function onLogout(request, sender, sendResponse) {
 
         chrome.tabs.remove(tabids);
     });
-    chrome.browserAction.setIcon({
-        path : "img/icon-32-disabled.png"
+    browserClient.setIcon({
+        path : "/data/img/icon-32-disabled.png"
     });
 }
 
@@ -411,8 +563,8 @@ function onStorageReload(request, sender, sendResponse) {
  */
 function onLogin(request, sender, sendResponse) {
     // pass
-    chrome.browserAction.setIcon({
-        path : "img/icon-32.png"
+    browserClient.setIcon({
+        path : "/data/img/icon-32.png"
     });
 }
 
@@ -463,6 +615,17 @@ const getSearchWebsitePasswordsByUrlfilter = function (url, onlyAutoSubmit) {
  */
 function searchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit) {
     const filter = getSearchWebsitePasswordsByUrlfilter(url, onlyAutoSubmit);
+
+    return storage.where("datastore-password-leafs", filter);
+}
+
+/**
+ * Returns all credit cards
+ *
+ * @returns {Promise} The database objects
+ */
+function searchCreditCard() {
+    const filter = (leaf) => leaf.type === "credit_card";
 
     return storage.where("datastore-password-leafs", filter);
 }
@@ -539,6 +702,7 @@ function onRequestSecret(request, sender, sendResponse) {
             sendResponse({ event: "return-secret", data: data });
         },
         function (value) {
+            console.log(value);
             // failed
             sendResponse({ event: "return-secret", data: "fail" });
         }
@@ -575,13 +739,8 @@ function onGeneratePassword(request, sender, sendResponse) {
     };
 
     const onSuccess = function (datastore_object) {
-        setTimeout(function () {
-            chrome.tabs.sendMessage(activeTabId, { event: "secrets-changed", data: {} }, function (response) {
-                // don't do anything
-            });
-        }, 500); // delay 500 ms to give the storage a chance to be stored
-        browserClient.openTab(
-            "index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id
+        browserClient.openTabBg(
+            "/data/index.html#!/datastore/edit/" + datastore_object.type + "/" + datastore_object.secret_id
         );
     };
 
@@ -744,41 +903,6 @@ function writeGpg(request, sender, sendResponse) {
     });
 }
 
-/**
- * Triggered whenever a secret changed / updated
- *
- * @param {object} request The message sent by the calling script.
- * @param {object} sender The sender of the message
- * @param {function} sendResponse Function to call (at most once) when you have a response.
- */
-function secretChanged(request, sender, sendResponse) {
-    setTimeout(function () {
-        let url_filter = "";
-        const url_filter_fields = ["website_password_url_filter", "bookmark_url_filter"];
-        for (let i = 0; i < url_filter_fields.length; i++) {
-            if (request.data.hasOwnProperty(url_filter_fields[i])) {
-                url_filter = request.data[url_filter_fields[i]];
-                break;
-            }
-        }
-        if (url_filter) {
-            chrome.tabs.query({ url: "*://" + url_filter + "/*" }, function (tabs) {
-                for (let i = 0; i < tabs.length; i++) {
-                    chrome.tabs.sendMessage(tabs[i].id, { event: "secrets-changed", data: {} }, function (response) {
-                        // don't do anything
-                    });
-                }
-            });
-            chrome.tabs.query({ url: "*://*." + url_filter + "/*" }, function (tabs) {
-                for (let i = 0; i < tabs.length; i++) {
-                    chrome.tabs.sendMessage(tabs[i].id, { event: "secrets-changed", data: {} }, function (response) {
-                        // don't do anything
-                    });
-                }
-            });
-        }
-    }, 300); // delay 300 ms to give the storage a chance to be stored
-}
 
 /**
  * Triggered from the encryption popup once a user clicks "encrypt". Contains the encrypted message and the

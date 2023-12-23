@@ -249,7 +249,7 @@ const SecurityReportView = (props) => {
                 ],
             });
             setPasswordDuplicateData({
-                labels: [t("Duplicate"), t("Unique")],
+                labels: [t("DUPLICATES"), t("UNIQUE")],
                 datasets: [
                     {
                         label: t("DUPLICATES"),

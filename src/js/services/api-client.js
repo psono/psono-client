@@ -1,7 +1,6 @@
 /**
  * Service to talk to the psono REST api
  */
-import axios from "axios";
 import cryptoLibrary from "./crypto-library";
 import offlineCache from "./offline-cache";
 import device from "./device";
@@ -12,7 +11,7 @@ import i18n from "../i18n";
 // TODO add later for audit log again
 //let AUDIT_LOG_HEADER = 'Audit-Log';
 
-const decryptData = function (sessionSecretKey, data, req) {
+const decryptData = function (sessionSecretKey, data, url, method) {
     if (
         sessionSecretKey &&
         data !== null &&
@@ -37,15 +36,15 @@ const decryptData = function (sessionSecretKey, data, req) {
     ) {
         data.data = JSON.parse(cryptoLibrary.decryptData(data.data.text, data.data.nonce, sessionSecretKey));
     }
-    offlineCache.set(req, data);
+    offlineCache.set(url, method, data);
     return data;
 };
 
-function call(method, endpoint, data, headers, sessionSecretKey) {
+function call(method, endpoint, body, headers, sessionSecretKey) {
     const url = store.getState().server.url + endpoint;
 
-    if (sessionSecretKey && data !== null) {
-        data = cryptoLibrary.encryptData(JSON.stringify(data), sessionSecretKey);
+    if (sessionSecretKey && body !== null) {
+        body = cryptoLibrary.encryptData(JSON.stringify(body), sessionSecretKey);
     }
 
     if (sessionSecretKey && headers && headers.hasOwnProperty("Authorization")) {
@@ -72,79 +71,93 @@ function call(method, endpoint, data, headers, sessionSecretKey) {
 
     const req = {
         method,
-        url,
-        data,
-        headers,
+        headers: {
+            "Content-Type": "application/json",
+            ...headers
+        }
     };
 
-    return offlineCache.get(req).then((cached) => {
+    if (body != null) {
+        req['body'] = JSON.stringify(body);
+    }
+
+    return offlineCache.get(url, req.method).then((cached) => {
         if (cached !== null) {
             return cached;
         }
 
-        return new Promise((resolve, reject) => {
-            const onSuccess = function (data) {
-                let decryptedData
+        return new Promise(async (resolve, reject) => {
+            let rawResponse;
+            try {
+                rawResponse = await fetch(url, req);
+            } catch (e) {
+                console.log(e);
+                reject({errors: ["SERVER_OFFLINE"]});
+                return;
+            }
+
+            let data = await rawResponse.text();
+            if (data) {
                 try {
-                    decryptedData = decryptData(sessionSecretKey, data, req)
-                } catch(e){
-                    user.logout(i18n.t("UNENCRYPTED_RESPONSE_RECEIVED"));
-                    return reject({ errors: ["UNENCRYPTED_RESPONSE_RECEIVED"] })
+                    data = JSON.parse(data);
+                } catch (e) {
+                    // pass
                 }
+            }
 
+            let decryptedData
+
+            // compatibility to old axios library
+            if (data) {
+                data = {
+                    data
+                }
+            }
+
+            if (!rawResponse.ok) {
+                console.log(rawResponse);
+                console.log(data);
+
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                if (rawResponse.status === 401 && user.isLoggedIn()) {
+                    // session expired, lets log the user out
+                    user.logout(i18n.t("SESSION_EXPIRED"));
+                }
+                if (rawResponse.status === 423 && user.isLoggedIn()) {
+                    // server error, lets log the user out
+                    user.logout(rawResponse.statusText);
+                }
+                if (rawResponse.status === 502 && user.isLoggedIn()) {
+                    // server error, lets log the user out
+                    user.logout(rawResponse.statusText);
+                }
+                if (rawResponse.status === 503 && user.isLoggedIn()) {
+                    // server error, lets log the user out
+                    user.logout(rawResponse.statusText);
+                }
+                if (rawResponse.status >= 500) {
+                    if (rawResponse.statusText) {
+                        return reject(rawResponse.statusText);
+                    }
+                    return reject({errors: ["SERVER_OFFLINE"]});
+                }
+                // received error 400. We fall through here and check below with rawResponse.ok whether we have to return
+                // a success or failed response
+
+            }
+
+            try {
+                decryptedData = decryptData(sessionSecretKey, data, url, req.method)
+            } catch (e) {
+                user.logout(i18n.t("UNENCRYPTED_RESPONSE_RECEIVED"));
+                return reject({errors: ["UNENCRYPTED_RESPONSE_RECEIVED"]})
+            }
+            if (rawResponse.ok) {
                 return resolve(decryptedData);
-            };
-
-            const onError = function (error) {
-                if (error.response) {
-                    console.log(error.response);
-                    // The request was made and the server responded with a status code
-                    // that falls out of the range of 2xx
-                    if (error.response.status === 401 && user.isLoggedIn()) {
-                        // session expired, lets log the user out
-                        user.logout(i18n.t("SESSION_EXPIRED"));
-                    }
-                    if (error.response.status === 423 && user.isLoggedIn()) {
-                        // server error, lets log the user out
-                        user.logout(error.response.statusText);
-                    }
-                    if (error.response.status === 502 && user.isLoggedIn()) {
-                        // server error, lets log the user out
-                        user.logout(error.response.statusText);
-                    }
-                    if (error.response.status === 503 && user.isLoggedIn()) {
-                        // server error, lets log the user out
-                        user.logout(error.response.statusText);
-                    }
-                    if (error.response.status >= 500) {
-                        if (error.response.statusText) {
-                            return reject(error.response.statusText);
-                        }
-                        return reject({ errors: ["SERVER_OFFLINE"] });
-                    }
-
-                    let decryptedData
-                    try {
-                        decryptedData = decryptData(sessionSecretKey, error.response, req)
-                    } catch(e){
-                        user.logout(i18n.t("UNENCRYPTED_RESPONSE_RECEIVED"));
-                        return reject({ errors: ["UNENCRYPTED_RESPONSE_RECEIVED"] })
-                    }
-                    return reject(decryptedData);
-                } else if (error.request) {
-                    // The request was made but no response was received
-                    // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                    // http.ClientRequest in node.js
-                    console.log(error.request);
-                } else {
-                    // Something happened in setting up the request that triggered an Error
-                    console.log("Error", error.message);
-                }
-                console.log(error.config);
-                reject({ errors: ["SERVER_OFFLINE"] });
-            };
-
-            axios(req).then(onSuccess, onError);
+            } else {
+                return reject(decryptedData);
+            }
         });
     });
 }

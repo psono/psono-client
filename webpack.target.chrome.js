@@ -23,6 +23,7 @@ module.exports = merge(common, {
   entry: {
     'chrome/data/js/bundle.min.js': './src/js/index.js',
     'chrome/data/js/crypto-worker.js': './src/js/crypto-worker.js',
+    'chrome/data/js/background-chrome.js': './src/js/background-chrome.js',
   },
   plugins: [
     new webpack.DefinePlugin({

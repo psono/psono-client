@@ -1,24 +1,17 @@
 /**
- * Service to talk to the Digital Ocean and upload or download files
+ * Service to talk to the Backblaze and upload or download files
  */
 
-import axios from "axios";
-import converterService from "./converter";
-
-function call(signedUrl, method, endpoint, data, headers, transformRequest, responseType) {
-    if (!transformRequest) {
-        transformRequest = axios.defaults.transformRequest;
-    }
+function call(signedUrl, method, endpoint, data, headers) {
 
     const req = {
         method: method,
-        url: signedUrl + endpoint,
-        data: data,
-        transformRequest: transformRequest,
-        responseType: responseType,
+        body: data,
     };
 
-    req.headers = headers;
+    if (headers) {
+        req.headers = headers;
+    }
 
     return new Promise(function (resolve, reject) {
         const onSuccess = function (data) {
@@ -29,14 +22,14 @@ function call(signedUrl, method, endpoint, data, headers, transformRequest, resp
             return reject(data);
         };
 
-        axios(req).then(onSuccess, onError);
+        fetch(signedUrl + endpoint, req).then(onSuccess, onError);
     });
 }
 
 /**
- * Ajax PUT request to upload a file chunk to AWS S3
+ * Ajax PUT request to upload a file chunk to Backblaze
  *
- * @param {string} signedUrl The signed ulr
+ * @param {string} signedUrl The signed url
  * @param {object} fields Array of fields that need to be part of the request
  * @param {Blob} chunk The content of the chunk to upload
  *
@@ -53,17 +46,15 @@ function upload(signedUrl, fields, chunk) {
         data.append(field_name, fields[field_name]);
     }
     data.append("file", chunk);
-    const headers = {
-        "Content-Type": undefined,
-    };
+    const headers = {};
 
     return call(signedUrl, method, endpoint, data, headers);
 }
 
 /**
- * Ajax GET request to download a file chunk from AWS S3
+ * Ajax GET request to download a file chunk from Backblaze
  *
- * @param {string} signedUrl The signed ulr
+ * @param {string} signedUrl The signed url
  *
  * @returns {Promise} promise with the data
  */
@@ -74,14 +65,13 @@ function download(signedUrl) {
 
     const headers = {};
 
-    return call(signedUrl, method, endpoint, data, headers, undefined, "arraybuffer").then(
-        function (data) {
-            return data;
+    return call(signedUrl, method, endpoint, data, headers).then(
+        async function (data) {
+            return {
+                data: await data.arrayBuffer()
+            };
         },
         function (data) {
-            if (data.status === 400) {
-                data.data = JSON.parse(converterService.bytesToString(data.data));
-            }
             return Promise.reject(data);
         }
     );

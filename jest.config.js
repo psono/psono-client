@@ -7,8 +7,5 @@ module.exports = async () => {
         "globals": {
             "TARGET": "webclient"
         },
-        "moduleNameMapper": {
-            '^axios$': require.resolve('axios'),
-        },
     };
 };

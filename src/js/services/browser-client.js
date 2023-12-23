@@ -2,10 +2,10 @@
  * The browser interface, responsible for the cross browser / platform compatibility.
  */
 
-import axios from "axios";
 import helperService from "./helper";
 import store from "./store";
 import deviceService from "./device";
+
 
 const registrations = {};
 let config = {};
@@ -320,17 +320,9 @@ function getBaseUrl() {
  *
  * @returns {Promise} promise
  */
-function loadVersion() {
-    return axios({
-        method: "get",
-        url: "VERSION.txt",
-    })
-        .then((result) => {
-            return result.data;
-        })
-        .catch((error) => {
-            console.error(error);
-        });
+async function loadVersion() {
+    const response = await fetch("VERSION.txt");
+    return await response.text();
 }
 
 /**
@@ -453,9 +445,9 @@ function loadConfig() {
         }
 
         if (remoteConfigJson === null) {
-            return axios.get("config.json").then((response) => {
-                onSuccess(response);
-            });
+            fetch("config.json").then(async (response) => {
+                return onSuccess({ data: await response.json() });
+            })
         } else {
             return onSuccess({ data: remoteConfigJson });
         }
@@ -640,7 +632,8 @@ function closePopup() {
     if (TARGET === "firefox") {
         window.close();
     } else if (TARGET === "chrome") {
-        window.close();
+        // will be automatically closed
+        //window.close();
     } else {
         // pass
     }
@@ -789,7 +782,7 @@ function notify(content) {
             type: "basic",
             title: content,
             message: "",
-            iconUrl: "img/icon-32.png",
+            iconUrl: "/data/img/icon-32.png",
         });
     } else if (TARGET === "chrome") {
         chrome.notifications.getPermissionLevel(function (permissionLevel) {
@@ -802,7 +795,7 @@ function notify(content) {
                 type: "basic",
                 title: content,
                 message: "",
-                iconUrl: "img/icon-32.png",
+                iconUrl: "/data/img/icon-32.png",
             });
         });
     } else if (TARGET === "electron") {
@@ -853,19 +846,15 @@ function notify(content) {
 }
 
 /**
- * Asks the background page for the offline cache encryption key
+ * Sets an icon
  *
- * @param {function} fnc The callback function
+ * @param {object} icon The callback function
  */
-function getOfflineCacheEncryptionKey(fnc) {
+function setIcon(icon) {
     if (TARGET === "firefox") {
-        browser.runtime.getBackgroundPage().then(function (bg) {
-            fnc(bg.psono_offline_cache_encryption_key);
-        });
+        chrome.browserAction.setIcon(icon)
     } else if (TARGET === "chrome") {
-        chrome.runtime.getBackgroundPage(function (bg) {
-            fnc(bg.psono_offline_cache_encryption_key);
-        });
+        chrome.action.setIcon(icon)
     } else {
         //pass, no background page on the website
     }
@@ -898,7 +887,7 @@ const browserClientService = {
     disableBrowserPasswordSaving: disableBrowserPasswordSaving,
     copyToClipboard: copyToClipboard,
     notify: notify,
-    getOfflineCacheEncryptionKey: getOfflineCacheEncryptionKey,
+    setIcon: setIcon,
 };
 
 export default browserClientService;

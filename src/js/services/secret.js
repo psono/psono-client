@@ -40,7 +40,6 @@ function createSecret(content, linkId, parentDatastoreId, parentShareId, callbac
     };
 
     const onSuccess = function (response) {
-        browserClient.emit("secrets-changed", content);
         return { secret_id: response.data.secret_id, secret_key: secretKey };
     };
 
@@ -112,7 +111,6 @@ function writeSecret(secretId, secretKey, content, callbackUrl, callbackUser, ca
     };
 
     const onSuccess = function (response) {
-        browserClient.emit("secrets-changed", content);
         return { secret_id: response.data.secret_id };
     };
 

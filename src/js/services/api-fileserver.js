@@ -2,23 +2,18 @@
  * Service to talk to the psono REST api
  */
 
-import axios from "axios";
 import converterService from "./converter";
 
-function call(fileserverUrl, method, endpoint, data, headers, transformRequest, responseType) {
-    if (!transformRequest) {
-        transformRequest = axios.defaults.transformRequest;
-    }
+function call(fileserverUrl, method, endpoint, data, headers) {
 
     const req = {
         method: method,
-        url: fileserverUrl + endpoint,
-        data: data,
-        transformRequest: transformRequest,
-        responseType: responseType,
+        body: data,
     };
 
-    req.headers = headers;
+    if (headers) {
+        req.headers = headers;
+    }
 
     return new Promise(function (resolve, reject) {
         const onSuccess = function (data) {
@@ -29,7 +24,7 @@ function call(fileserverUrl, method, endpoint, data, headers, transformRequest, 
             return reject(data);
         };
 
-        axios(req).then(onSuccess, onError);
+        fetch(fileserverUrl + endpoint, req).then(onSuccess, onError);
     });
 }
 
@@ -52,9 +47,7 @@ function upload(fileserverUrl, fileTransferId, chunk, ticket, ticketNonce) {
     data.append("chunk", chunk);
     data.append("ticket", ticket);
     data.append("ticket_nonce", ticketNonce);
-    const headers = {
-        "Content-Type": undefined,
-    };
+    const headers = {};
 
     return call(fileserverUrl, method, endpoint, data, headers);
 }
@@ -78,11 +71,15 @@ function download(fileserverUrl, fileTransferId, ticket, ticketNonce) {
         ticket_nonce: ticketNonce,
     };
 
-    const headers = {};
+    const headers = {
+        "Content-Type": "application/json",
+    };
 
-    return call(fileserverUrl, method, endpoint, data, headers, undefined, "arraybuffer").then(
-        function (data) {
-            return data;
+    return call(fileserverUrl, method, endpoint, JSON.stringify(data), headers).then(
+        async function (data) {
+            return {
+                data: await data.arrayBuffer()
+            };
         },
         function (data) {
             if (data.status === 400) {
