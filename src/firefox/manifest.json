@@ -2,7 +2,7 @@
   "manifest_version": 2,
 
   "name": "Psono - Free Password Manager",
-  "short_name": "Psono - Free Password Manager",
+  "short_name": "Psono",
   "author": "Psono",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
