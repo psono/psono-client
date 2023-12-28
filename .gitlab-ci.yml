@@ -454,6 +454,26 @@ deploy-chrome:
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
 
+deploy-edge:
+  except:
+    - schedules
+  stage: deploy
+  image: psono-docker.jfrog.io/python:3
+  script:
+    - cd /builds/psono/psono-client/
+    - curl -fL https://getcli.jfrog.io | sh
+    - ./jfrog config add rt-server-1 --artifactory-url=https://psono.jfrog.io/psono --user=gitlab --password=$artifactory_credentials --overwrite
+    - ./jfrog rt dl psono/client/$CI_COMMIT_REF_NAME/chrome-extension.zip
+    - mv client/$CI_COMMIT_REF_NAME/chrome-extension.zip ./edge-extension.zip
+    - pip install edge-addons-api==0.3.3
+    - python3 var/deploy_edge_extension.py
+  environment:
+    name: edge-webstore
+    url: https://chrome.google.com/webstore/detail/psonopw/eljmjmgjkbmpmfljlmklcfineebidmlo
+  only:
+    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
+
+
 deploy-firefox:
   except:
     - schedules
