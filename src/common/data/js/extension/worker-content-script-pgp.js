@@ -2,7 +2,7 @@
  * The content script worker loaded in every page
  */
 
-var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
+var ClassWorkerContentScriptPGP = function (base, browser, setTimeout) {
     "use strict";
 
     function htmlToText(str) {
@@ -21,31 +21,32 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
     }
 
     // to implement gmx, web.de outlook.com, t-online, yahoo, hotmail
-    var supported_hoster = [
+    const supportedHoster = [
         {
             name: "gmail",
             domain_filter: function () {
                 return window.location.host.toLowerCase() === "mail.google.com";
             },
-            get_pgp_content: function (node) {
-                var direct_parent = jQuery(node).parent();
-                if (!direct_parent.text().includes("-----END PGP MESSAGE-----")) {
-                    direct_parent = jQuery(direct_parent).parent();
+            getPgpContent: function (node) {
+                let directParent = node.parentNode;
+                if (!directParent.textContent.includes("-----END PGP MESSAGE-----")) {
+                    directParent = directParent.parentNode;
                 }
-                var html_text = direct_parent.html();
-                return htmlToText(html_text);
+                let htmlText = directParent.innerHTML;
+                return htmlToText(htmlText);
             },
-            get_sender: function (node) {
-                // var direct_parent = jQuery(node).parent();
-                // var top_parent = direct_parent.parents('.gs').first();
-                // return top_parent.find("span.gD").data('hovercardId');
+            getSender: function (node) {
                 return "";
             },
-            get_receiver: function (node) {
+            getReceiver: function (node) {
                 return [];
             },
-            get_content_editable_fields: function (node) {
-                return jQuery('textarea, [contenteditable="true"]').filter(":visible");
+            getContentEditableFields: function (node) {
+                const elements = document.querySelectorAll('textarea, [contenteditable="true"]');
+                const visibleElements = Array.from(elements).filter(function(el) {
+                    return el.offsetWidth > 0 && el.offsetHeight > 0;
+                });
+                return visibleElements;
             },
         },
         {
@@ -53,18 +54,22 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
             domain_filter: function () {
                 return window.location.host.toLowerCase() === "outlook.live.com";
             },
-            get_pgp_content: function (node) {
-                var direct_parent = jQuery(node).parent();
-                return direct_parent.text();
+            getPgpContent: function (node) {
+                const directParent = node.parentNode;
+                return directParent.textContent;
             },
-            get_sender: function (node) {
+            getSender: function (node) {
                 return "";
             },
-            get_receiver: function (node) {
+            getReceiver: function (node) {
                 return [];
             },
-            get_content_editable_fields: function (node) {
-                return jQuery('textarea, [contenteditable="true"]').filter(":visible");
+            getContentEditableFields: function (node) {
+                const elements = document.querySelectorAll('textarea, [contenteditable="true"]');
+                const visibleElements = Array.from(elements).filter(function(el) {
+                    return el.offsetWidth > 0 && el.offsetHeight > 0;
+                });
+                return visibleElements;
             },
         },
         {
@@ -72,18 +77,22 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
             domain_filter: function () {
                 return window.location.host.toLowerCase() === "outlook.office365.com";
             },
-            get_pgp_content: function (node) {
-                var direct_parent = jQuery(node).parent();
-                return direct_parent.text();
+            getPgpContent: function (node) {
+                const directParent = node.parentNode;
+                return directParent.textContent;
             },
-            get_sender: function (node) {
+            getSender: function (node) {
                 return "";
             },
-            get_receiver: function (node) {
+            getReceiver: function (node) {
                 return [];
             },
-            get_content_editable_fields: function (node) {
-                return jQuery('textarea, [contenteditable="true"]').filter(":visible");
+            getContentEditableFields: function (node) {
+                const elements = document.querySelectorAll('textarea, [contenteditable="true"]');
+                const visibleElements = Array.from(elements).filter(function(el) {
+                    return el.offsetWidth > 0 && el.offsetHeight > 0;
+                });
+                return visibleElements;
             },
         },
         {
@@ -91,46 +100,32 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
             domain_filter: function () {
                 return window.location.host.toLowerCase() === "mail.yahoo.com";
             },
-            get_pgp_content: function (node) {
-                var direct_parent = jQuery(node).parent();
-                return direct_parent.text();
+            getPgpContent: function (node) {
+                const directParent = node.parentNode;
+                return directParent.textContent;
             },
-            get_sender: function (node) {
+            getSender: function (node) {
                 return "";
             },
-            get_receiver: function (node) {
+            getReceiver: function (node) {
                 return [];
             },
-            get_content_editable_fields: function (node) {
-                return jQuery('textarea, [contenteditable="true"]').filter(":visible");
+            getContentEditableFields: function (node) {
+                const elements = document.querySelectorAll('textarea, [contenteditable="true"]');
+                const visibleElements = Array.from(elements).filter(function(el) {
+                    return el.offsetWidth > 0 && el.offsetHeight > 0;
+                });
+                return visibleElements;
             },
         },
     ];
-    // var default_hoster = {
-    //     'name': 'default',
-    //     'domain_filter': function() {
-    //         return true; // lets start with always true and see how that plays out
-    //     },
-    //     'get_pgp_content': function (node) {
-    //         var direct_parent = jQuery(node).parent();
-    //         return direct_parent.text();
-    //     },
-    //     'get_sender': function (node) {
-    //         var direct_parent = jQuery(node).parent();
-    //         var top_parent = direct_parent.parents('.gs').first();
-    //         return top_parent.find("span.gD").data('hovercardId');
-    //     },
-    //     'get_receiver': function (node) {
-    //         return [];
-    //     }
-    // };
 
-    jQuery(function () {
+    base.ready(function() {
         activate();
     });
 
     function activate() {
-        base.register_observer(analyze_document);
+        base.registerObserver(analyze_document);
     }
 
     /**
@@ -148,10 +143,10 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
      *
      * @returns {*}
      */
-    function get_supported_hoster(type) {
-        for (var i = 0; i < supported_hoster.length; i++) {
-            if (supported_hoster[i].hasOwnProperty("domain_filter") && supported_hoster[i].domain_filter()) {
-                return supported_hoster[i];
+    function get_supportedHoster(type) {
+        for (let i = 0; i < supportedHoster.length; i++) {
+            if (supportedHoster[i].hasOwnProperty("domain_filter") && supportedHoster[i].domain_filter()) {
+                return supportedHoster[i];
             }
         }
 
@@ -165,6 +160,21 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
         return null;
     }
 
+
+    function isElementVisible(elem) {
+        return !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length);
+    }
+
+    function hasParentWithSelector(element, selector) {
+        while (element.parentElement) {
+            if (element.parentElement.matches(selector)) {
+                return true;
+            }
+            element = element.parentElement;
+        }
+        return false;
+    }
+
     /**
      * Searches a document if it has a pgp message to decode and if yes add the necessary dom elements
      * RFC to filter messages https://tools.ietf.org/html/rfc4880
@@ -174,19 +184,19 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
      * @param document
      */
     function add_pgp_message_readers(document) {
-        var hoster = get_supported_hoster("PGP MESSAGE");
+        const hoster = get_supportedHoster("PGP MESSAGE");
         if (hoster === null) {
             return;
         }
 
-        var tree_walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+        const tree_walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
             acceptNode: function (node) {
                 if (
                     node.textContent.includes("-----BEGIN PGP MESSAGE") &&
                     !node.parentNode.classList.contains("psono-add_pgp_message_readers-covered") &&
-                    jQuery(node.parentNode).is(":visible") &&
-                    jQuery(node).parents("[contenteditable]").length === 0 &&
-                    jQuery(node).parents("textarea").length === 0
+                    isElementVisible(node.parentNode) &&
+                    !hasParentWithSelector(node, "[contenteditable]") &&
+                    !hasParentWithSelector(node, "textarea")
                 ) {
                     node.parentNode.classList.add("psono-add_pgp_message_readers-covered");
                     return NodeFilter.FILTER_ACCEPT;
@@ -199,36 +209,36 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
         while (tree_walker.nextNode()) {
             var node = tree_walker.currentNode;
 
-            var pgp_content = hoster.get_pgp_content(node);
-            var pgp_sender = hoster.get_sender(node);
+            var pgpContent = hoster.getPgpContent(node);
+            var pgp_sender = hoster.getSender(node);
 
-            var pgp_content_base64 = stringToBase64(pgp_content);
+            var pgpContent_base64 = stringToBase64(pgpContent);
             var pgp_sender_base64 = stringToBase64(pgp_sender);
 
-            // Attach our element with the parsed information
-            var element_id = "psono_pgp_reader-" + uuid.v4();
-            var element = jQuery(
-                "" +
-                '<div class="psono-pgp-link yui3-cssreset">' +
-                '    <div style="max-width: 150px">' +
-                '        <img class="' +
-                element_id +
-                '" width="100%" data-pgp-content="' +
-                pgp_content_base64 +
-                '" data-pgp-sender="' +
-                pgp_sender_base64 +
-                '" src="' +
-                browser.runtime.getURL("data/img/psono-decrypt.png") +
-                '">' +
-                "    </div>" +
-                "</div>"
-            );
+            // Create and configure the new element with the parsed information
+            var elementId = "psono_pgp_reader-" + uuid.v4();
+            var element = document.createElement('div');
+            element.className = 'psono-pgp-link yui3-cssreset';
+            element.innerHTML = '<div style="max-width: 150px">' +
+                '    <img class="' + elementId + '" width="100%" data-pgp-content="' +
+                pgpContent_base64 + '" data-pgp-sender="' + pgp_sender_base64 +
+                '" src="' + browser.runtime.getURL("data/img/psono-decrypt.png") + '">' +
+                '</div>';
 
             var parent = node.parentElement.closest("div");
-            element.prependTo(parent);
-            jQuery(parent.getElementsByClassName(element_id)).on("click", function () {
-                decryptGPG(base64ToString(jQuery(this).attr("data-pgp-content")), base64ToString(jQuery(this).attr("data-pgp-sender")));
-            });
+            if (parent) {
+                // Prepend the new element to the parent
+                parent.insertBefore(element, parent.firstChild);
+
+                // Attach event listener for clicks on the new element
+                var imgElement = parent.getElementsByClassName(elementId)[0];
+                if (imgElement) {
+                    imgElement.addEventListener("click", function() {
+                        decryptGPG(base64ToString(this.getAttribute("data-pgp-content")),
+                            base64ToString(this.getAttribute("data-pgp-sender")));
+                    });
+                }
+            }
         }
     }
 
@@ -238,12 +248,16 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
      * @param document
      */
     function add_pgp_message_writers(document) {
-        var hoster = get_supported_hoster("");
+        const hoster = get_supportedHoster("");
         if (hoster === null) {
             return;
         }
-        var fields = hoster.get_content_editable_fields().not(".psono-add_pgp_message_writers-covered");
-        for (var i = 0; i < fields.length; ++i) {
+        const fields = hoster.getContentEditableFields();
+
+        for (let i = 0; i < fields.length; ++i) {
+            if (fields[i].classList.contains(".psono-add_pgp_message_writers-covered")) {
+                continue;
+            }
             add_pgp_message_writer(hoster, fields[i]);
         }
     }
@@ -255,13 +269,12 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
      * @param node
      */
     function add_pgp_message_writer(hoster, node) {
-        var field = jQuery(node);
-        field.addClass("psono-add_pgp_message_writers-covered");
-        base.modify_input_field(
+        node.classList.add("psono-add_pgp_message_writers-covered");
+        base.modifyInputField(
             node,
             browser.runtime.getURL("data/img/psono-encrypt.png"),
             "top right",
-            { node: node, get_receiver: hoster.get_receiver },
+            { node: node, getReceiver: hoster.getReceiver },
             onClick,
             mouseOver,
             mouseOut,
@@ -275,12 +288,12 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
      *
      * @param evt Click event
      * @param target The original element that this event was bound to
-     * @param click_data The data specified before to pass on
+     * @param clickData The data specified before to pass on
      */
-    function onClick(evt, target, click_data) {
+    function onClick(evt, target, clickData) {
         if (getDistance(evt, target) < 30 && getDistance(evt, target) > 0) {
-            var field = jQuery(click_data["node"]);
-            var receiver = click_data["get_receiver"](click_data["node"]);
+            const field = clickData["node"]; // Assuming 'node' is a DOM element
+            const receiver = clickData["getReceiver"](clickData["node"]);
             encryptGPG(field, receiver);
         }
     }
@@ -294,18 +307,19 @@ var ClassWorkerContentScriptPGP = function (base, browser, jQuery, setTimeout) {
      * @returns {number} Distance
      */
     function getDistance(evt, target) {
-        var left_border = target.getBoundingClientRect().left;
-        var top_border = target.getBoundingClientRect().top;
+        const rect = target.getBoundingClientRect();
+        const leftBorder = rect.left;
+        const topBorder = rect.top;
 
-        var distance_x =
-            jQuery(target).width() -
+        const distanceX =
+            target.offsetWidth -
             evt.pageX +
-            left_border +
-            (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
+            leftBorder +
+            (document.documentElement.scrollLeft || document.body.scrollLeft);
 
-        var distance_y = top_border - evt.pageY;
+        const distanceY = topBorder - evt.pageY;
 
-        if (distance_y > -27 && distance_x < 51) {
+        if (distanceY > -27 && distanceX < 51) {
             return 1;
         }
 
