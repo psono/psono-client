@@ -2,7 +2,7 @@
  * The content script worker loaded in every page
  */
 
-var ClassWorkerContentScriptBase = function (browser, jQuery, setTimeout) {
+var ClassWorkerContentScriptBase = function (browser, setTimeout) {
     "use strict";
     var registrations = {};
     var observer_executables = [];
@@ -11,9 +11,9 @@ var ClassWorkerContentScriptBase = function (browser, jQuery, setTimeout) {
 
     activate();
     function activate() {
-        jQuery(function () {
+        ready(function() {
             var i;
-            get_all_documents(window, documents, windows);
+            getAllDocuments(window, documents, windows);
             for (i = 0; i < windows.length; i++) {
                 observe(windows[i]);
             }
@@ -21,14 +21,28 @@ var ClassWorkerContentScriptBase = function (browser, jQuery, setTimeout) {
         browser.runtime.onMessage.addListener(onMessage);
     }
 
-    function get_all_documents(window, documents, windows) {
+    /**
+     * Fires once the document is ready, similar to jQuery(function() { ... })
+     * @param fn
+     */
+    function ready(fn) {
+        // see if DOM is already available
+        if (document.readyState === "complete" || document.readyState === "interactive") {
+            // call on next available tick
+            setTimeout(fn, 1);
+        } else {
+            document.addEventListener("DOMContentLoaded", fn);
+        }
+    }
+
+    function getAllDocuments(window, documents, windows) {
         var frames = window.document.querySelectorAll("iframe");
         windows.push(window);
         documents.push(window.document);
 
         for (var i = 0; i < frames.length; i++) {
             try {
-                get_all_documents(frames[i].contentWindow.document, documents, windows);
+                getAllDocuments(frames[i].contentWindow.document, documents, windows);
             } catch (e) {
                 //console.log(e);
             }
@@ -56,7 +70,7 @@ var ClassWorkerContentScriptBase = function (browser, jQuery, setTimeout) {
         var config = { childList: true, characterData: true, subtree: true };
         observer.observe(doc.body, config);
     }
-    function register_observer(fnc) {
+    function registerObserver(fnc) {
         observer_executables.push(fnc);
         for (var i = 0; i < documents.length; i++) {
             fnc(documents[i]);
@@ -75,7 +89,7 @@ var ClassWorkerContentScriptBase = function (browser, jQuery, setTimeout) {
      * @param mouseOut
      * @param mouseMove
      */
-    function modify_input_field(input, background_image, position, document, click, mouseOver, mouseOut, mouseMove) {
+    function modifyInputField(input, background_image, position, document, click, mouseOver, mouseOut, mouseMove) {
         input.style.setProperty("background-image", 'url("' + background_image + '")', "important");
         input.style.setProperty("background-position", position, "important");
         input.style.setProperty("background-repeat", "no-repeat", "important");
@@ -157,9 +171,10 @@ var ClassWorkerContentScriptBase = function (browser, jQuery, setTimeout) {
     }
 
     return {
-        get_all_documents: get_all_documents,
-        register_observer: register_observer,
-        modify_input_field: modify_input_field,
+        ready: ready,
+        getAllDocuments: getAllDocuments,
+        registerObserver: registerObserver,
+        modifyInputField: modifyInputField,
         emit: emit,
         on: on,
         onMessage: onMessage,

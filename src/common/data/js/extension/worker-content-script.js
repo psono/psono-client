@@ -2,7 +2,7 @@
  * The content script worker loaded in every page
  */
 
-const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
+const ClassWorkerContentScript = function (base, browser, setTimeout) {
     "use strict";
     let lastRequestElement = null;
     let fillAll = false;
@@ -166,7 +166,7 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
     ]);
 
 
-    jQuery(function () {
+    base.ready(function() {
         activate();
     });
 
@@ -176,7 +176,7 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
         base.on("return-secret", onReturnSecret);
         base.on("get-username", onGetUsername);
 
-        jQuery(function () {
+        base.ready(function() {
             let i;
             // Tell our backend, that we are ready and waiting for instructions
             base.emit("ready", document.location.toString());
@@ -184,13 +184,13 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
             let documents = [];
             let windows = [];
 
-            base.get_all_documents(window, documents, windows);
+            base.getAllDocuments(window, documents, windows);
 
             for (i = 0; i < documents.length; i++) {
                 loadCss(documents[i]);
             }
 
-            base.register_observer(analyzeDocument);
+            base.registerObserver(analyzeDocument);
         });
 
 
@@ -376,8 +376,8 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
                 if (inputs[i].hasOwnProperty('checkVisibility') && inputs[i].checkVisibility() && inputs[r].offsetWidth < 90) continue; // we don't modify input fields that are too small if they are visible
 
                 // username field is inputs[r]
-                paddingRight = jQuery(inputs[r]).css("padding-right");
-                base.modify_input_field(
+                paddingRight = window.getComputedStyle(inputs[r]).getPropertyValue("padding-right");
+                base.modifyInputField(
                     inputs[r],
                     backgroundImage,
                     "center right " + paddingRight,
@@ -395,8 +395,8 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
             if (!inputs[i].hasOwnProperty('checkVisibility') || !inputs[i].checkVisibility() || inputs[i].offsetWidth >= 90) {
                 // we don't modify input fields that are too small (offsetWidth is only proper calculated if the field is visible)
                 // Password field is inputs[i]
-                paddingRight = jQuery(inputs[i]).css("padding-right");
-                base.modify_input_field(
+                paddingRight = window.getComputedStyle(inputs[i]).getPropertyValue("padding-right");
+                base.modifyInputField(
                     inputs[i],
                     backgroundImage,
                     "center right " + paddingRight,
@@ -502,10 +502,10 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      */
     function getDistance(evt, target) {
         return (
-            jQuery(target).width() -
+            target.offsetWidth -
             evt.pageX +
             target.getBoundingClientRect().left +
-            (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft)
+            (document.documentElement.scrollLeft || document.body.scrollLeft)
         );
     }
 
@@ -593,24 +593,6 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
         });
     }
 
-    // /**
-    //  * closes dropinstances if a click outside of a dropinstance happens.
-    //  *
-    //  * @param event
-    //  */
-    // function close (event) {
-    //     for (let i = dropInstances.length - 1; i >= 0; i--) {
-    //         if(dropInstances[i].drop.contains(event.target)) {
-    //             continue;
-    //         }
-    //         dropInstances[i].close();
-    //         dropInstances.splice(i, 1);
-    //     }
-    //     if (dropInstances.length > 0) {
-    //         jQuery(window).one("click", close);
-    //     }
-    // }
-
     /**
      * triggered when a click happens in an input field. Used to open the drop down menu and handle the closing
      * once a click happens outside of the dropdown menu
@@ -687,26 +669,58 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
             setTimeout(function () {
                 let element = dropInstance.getElement();
 
-                jQuery(element.getElementsByClassName(openDatastoreClass)).on("click", function () {
-                    openDatastore();
-                });
+                let openDatastoreElements = element.getElementsByClassName(openDatastoreClass);
+                for (let el of openDatastoreElements) {
+                    el.addEventListener("click", function () {
+                        openDatastore();
+                    });
+                }
 
-                jQuery(element.getElementsByClassName(generatePasswordClass)).on("click", function () {
-                    generate_password();
-                });
+                let generatePasswordElements = element.getElementsByClassName(generatePasswordClass);
+                for (let el of generatePasswordElements) {
+                    el.addEventListener("click", function () {
+                        generate_password();
+                    });
+                }
 
                 for (let i = 0; i < requestSecretClasses.length; i++) {
-                    (function (className, secretId) {
-                        jQuery(element.getElementsByClassName(className)).on("click", function () {
+                    let className = requestSecretClasses[i]['class'];
+                    let secretId = requestSecretClasses[i]['secret_id'];
+                    let secretElements = element.getElementsByClassName(className);
+
+                    for (let el of secretElements) {
+                        el.addEventListener("click", function () {
                             requestSecret(secretId);
                         });
-                    })(requestSecretClasses[i]['class'], requestSecretClasses[i]['secret_id'])
-
+                    }
                 }
             }, 0);
 
         });
     }
+
+    /**
+     * Calculated the absolute position of an element, similar to jQuery's .offset() function
+     *
+     * @param element
+     * @returns {{top: number, left: number}}
+     */
+    function getOffset(element){
+        if (element.getClientRects().length < 1){
+            return {
+                top: 0,
+                left: 0
+            };
+        }
+
+        let rect = element.getBoundingClientRect();
+        let win = element.ownerDocument.defaultView;
+        return {
+            top: rect.top + win.pageYOffset,
+            left: rect.left + win.pageXOffset
+        };
+    }
+
 
     /**
      * Creates the dropdown menu
@@ -717,27 +731,17 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * @returns {{open: open, close: close}}
      */
     function createDropdownMenu(setup_event, content, document) {
-        let position = jQuery(setup_event.target).offset();
-        let height = jQuery(setup_event.target).outerHeight();
+        let position = getOffset(setup_event.target);
+
+        let height = setup_event.target.offsetHeight;
 
         let element_id = "psono_drop-" + uuid.v4();
 
-        let element = jQuery(
-            "" +
-                '<div id="' +
-                element_id +
-                '" class="psono-drop yui3-cssreset" style="' +
-                "     transform: translateX(" +
-                position.left +
-                "px) translateY(" +
-                (position.top + height) +
-                'px) translateZ(0px) !important;">' +
-                '    <div class="psono-drop-content">' +
-                "        " +
-                content +
-                "    </div>" +
-                "</div>"
-        );
+        let element = document.createElement('div');
+        element.id = element_id;
+        element.className = 'psono-drop yui3-cssreset';
+        element.setAttribute('style', `transform: translateX(${position.left}px) translateY(${position.top + height}px) translateZ(0px) !important`);
+        element.innerHTML = '<div class="psono-drop-content">' + content + '</div>';
 
         document.onclick = function (event) {
             if (event.target !== setup_event.target) {
@@ -750,7 +754,7 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
         };
 
         function open() {
-            element.appendTo(document.body);
+            document.body.appendChild(element);
         }
 
         function close() {
@@ -778,29 +782,27 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
      * @param field
      * @param value
      */
-    function fillFieldHelper (field, value) {
-        if (!field) {
-            return
+    function fillFieldHelper(field, value) {
+        if (!field || !value) {
+            return;
         }
-        if (!value) {
-            return
-        }
-        jQuery(field).focus();
+
+        // Focus the field
+        field.focus();
+
+        // Set the value of the field
         field.value = value;
-        jQuery(field).keydown();
-        jQuery(field).trigger( "keypress" );
-        jQuery(field).keyup();
 
-        field.dispatchEvent(new Event("input", {
-            bubbles: true,
-            cancelable: true,
-        }));
+        // Create and dispatch keyboard and other events
+        ['keydown', 'keypress', 'keyup', 'change', 'blur', 'input'].forEach(eventType => {
+            field.dispatchEvent(new Event(eventType, {
+                bubbles: true,
+                cancelable: true,
+            }));
+        });
 
-        jQuery(field).change();
-        jQuery(field).blur();
-
+        // Add a class to animate the field, then remove it after a delay
         if (!field.classList.contains("psono-autofill-style")) {
-            // we don't want to animate a field multiple times
             field.classList.add('psono-autofill-style');
             setTimeout(function () {
                 if (field) {
@@ -808,7 +810,7 @@ const ClassWorkerContentScript = function (base, browser, jQuery, setTimeout) {
                 }
             }, 100);
         }
-    };
+    }
 
     /**
      * Handler for a fillpassword event

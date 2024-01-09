@@ -2,7 +2,7 @@
   "manifest_version": 2,
 
   "name": "Psono - Free Password Manager",
-  "short_name": "Psono - Free Password Manager",
+  "short_name": "Psono",
   "author": "Psono",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
@@ -48,7 +48,6 @@
         "data/css/lib/cssreset-context-min.css"
       ],
       "js": [
-        "data/js/lib/jquery.min.js",
         "data/js/lib/uuid.js",
         "data/js/extension/worker-content-script-base.js",
         "data/js/extension/worker-content-script.js",

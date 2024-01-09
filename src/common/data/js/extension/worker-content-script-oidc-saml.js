@@ -2,15 +2,15 @@
  * The content script worker loaded in every page
  */
 
-var ClassWorkerContentScriptOIDCSAML = function (base, browser, jQuery, setTimeout) {
+var ClassWorkerContentScriptOIDCSAML = function (base, browser, setTimeout) {
     "use strict";
 
-    jQuery(function () {
+    base.ready(function() {
         activate();
     });
 
     function activate() {
-        base.register_observer(observer);
+        base.registerObserver(observer);
     }
 
     /**

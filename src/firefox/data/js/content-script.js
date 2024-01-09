@@ -1,8 +1,8 @@
-(function (jQuery, browser, setTimeout) {
+(function (browser, setTimeout) {
     "use strict";
 
-    var base = ClassWorkerContentScriptBase(browser, jQuery, setTimeout);
-    ClassWorkerContentScript(base, browser, jQuery, setTimeout);
-    ClassWorkerContentScriptOIDCSAML(base, browser, jQuery, setTimeout);
-    ClassWorkerContentScriptPGP(base, browser, jQuery, setTimeout);
-})(jQuery, browser, setTimeout);
+    var base = ClassWorkerContentScriptBase(browser, setTimeout);
+    ClassWorkerContentScript(base, browser, setTimeout);
+    ClassWorkerContentScriptOIDCSAML(base, browser, setTimeout);
+    ClassWorkerContentScriptPGP(base, browser, setTimeout);
+})(browser, setTimeout);
