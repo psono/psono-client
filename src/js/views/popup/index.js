@@ -438,6 +438,8 @@ const PopupView = (props) => {
             itemsToDisplay.push(item);
         });
         itemsToDisplay = itemsToDisplay.slice(0, 50);
+    } else {
+        itemsToDisplay = items.slice(0, 50);
     }
 
     if (isLoggedIn && !hasTwoFactor && user.requireTwoFaSetup()) {
@@ -664,7 +666,7 @@ const PopupView = (props) => {
                 />
                 <Divider classes={{ root: classes.divider }} />
             </Grid>
-            {search && itemsToDisplay.length > 0 && (
+            {itemsToDisplay.length > 0 && (
                 <Grid item xs={12} sm={12} md={12}>
                     <ul className={classes.navigation}>
                         {itemsToDisplay.map((item, i) => (
@@ -673,30 +675,9 @@ const PopupView = (props) => {
                     </ul>
                 </Grid>
             )}
-            {search && itemsToDisplay.length === 0 && (
+            {itemsToDisplay.length === 0 && (
                 <Grid item xs={12} sm={12} md={12} style={{ color: "#b1b6c1" }}>
                     {t("NO_ENTRY_FOUND")}
-                </Grid>
-            )}
-            {!search && (
-                <Grid item xs={12} sm={12} md={12}>
-                    <Button onClick={openDatastore} className={classes.button}>
-                        {t("OPEN_DATASTORE")}
-                    </Button>
-                </Grid>
-            )}
-            {!search && (
-                <Grid item xs={12} sm={12} md={12}>
-                    <Button onClick={showGeneratePassword} className={classes.button}>
-                        {t("GENERATE_PASSWORD")}
-                    </Button>
-                </Grid>
-            )}
-            {!search && (
-                <Grid item xs={12} sm={12} md={12}>
-                    <Button onClick={bookmark} className={classes.button}>
-                        {t("BOOKMARK")}
-                    </Button>
                 </Grid>
             )}
             <Grid item xs={12} sm={12} md={12}>
