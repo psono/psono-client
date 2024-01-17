@@ -191,8 +191,9 @@ const PopupItem = (props) => {
             <a href="#" className={classes.navigationItemA} onClick={onEditItem}>
                 <i className={"fa-fw " + widgetService.itemIcon(item.content)} /> {item.content.name}
                 <br />
-                <Tooltip title={item.path} placement="top">
-                    <FormHelperText>
+                <Tooltip title={item.path} placement="top" PopperProps={{
+                    disablePortal: true,
+                }}>
                         {item.path.substring(0, 65)}
                         {item.path.length > 65 ? "..." : ""}
                     </FormHelperText>
