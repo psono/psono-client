@@ -194,8 +194,8 @@ const PopupItem = (props) => {
                 <Tooltip title={item.path} placement="top" PopperProps={{
                     disablePortal: true,
                 }}>
-                        {item.path.substring(0, 65)}
-                        {item.path.length > 65 ? "..." : ""}
+                    <FormHelperText style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {item.path}
                     </FormHelperText>
                 </Tooltip>
             </a>
