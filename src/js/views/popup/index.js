@@ -645,6 +645,9 @@ const PopupView = (props) => {
                     name="search"
                     autoComplete="off"
                     autoFocus
+                    onFocus={event => {
+                        event.target.select();
+                    }}
                     value={search}
                     onChange={(event) => {
                         action.setLastPopupSearch(event.target.value);
