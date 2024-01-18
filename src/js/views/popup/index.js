@@ -144,6 +144,9 @@ const useStyles = makeStyles((theme) => ({
         border: "1px solid #666",
         borderRadius: "3px",
     },
+    widePopper: {
+        width: "max-content",
+    }
 }));
 
 const PopupItem = (props) => {
@@ -253,8 +256,10 @@ const PopupItem = (props) => {
                     </Button>
                 )}
                 {["totp"].indexOf(item.content.type) !== -1 && (
-                    <Tooltip title={t("COPY_TOTP_TOKEN")} placement="top" PopperProps={{
+                    <Tooltip title={t("COPY_TOTP_TOKEN")} placement="left" PopperProps={{
                         disablePortal: true,
+                    }} classes={{
+                        tooltip: classes.widePopper
                     }}>
                         <Button aria-label="settings" onClick={onCopyTotpToken}>
                             <ContentCopy fontSize="small" />
@@ -262,8 +267,10 @@ const PopupItem = (props) => {
                     </Tooltip>
                 )}
                 {["note"].indexOf(item.content.type) !== -1 && (
-                    <Tooltip title={t("COPY_NOTE_CONTENT")} placement="top" PopperProps={{
+                    <Tooltip title={t("COPY_NOTE_CONTENT")} placement="left" PopperProps={{
                         disablePortal: true,
+                    }} classes={{
+                        tooltip: classes.widePopper
                     }}>
                         <Button aria-label="settings" onClick={onCopyNoteContent}>
                             <ContentCopy fontSize="small" />
@@ -271,8 +278,10 @@ const PopupItem = (props) => {
                     </Tooltip>
                 )}
                 {["bookmark"].indexOf(item.content.type) !== -1 && (
-                    <Tooltip title={t("COPY_URL")} placement="top" PopperProps={{
+                    <Tooltip title={t("COPY_URL")} placement="left" PopperProps={{
                         disablePortal: true,
+                    }} classes={{
+                        tooltip: classes.widePopper
                     }}>
                         <Button aria-label="settings" onClick={onCopyURL}>
                             <ContentCopy fontSize="small" />
