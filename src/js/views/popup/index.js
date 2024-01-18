@@ -13,11 +13,9 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Check } from "@material-ui/icons";
 import BookmarkBorderRoundedIcon from '@material-ui/icons/BookmarkBorderRounded';
 import ClearIcon from "@material-ui/icons/Clear";
-import EditIcon from "@material-ui/icons/Edit";
 import ExitToAppRoundedIcon from '@material-ui/icons/ExitToAppRounded';
 import OpenInNewIcon from "@material-ui/icons/OpenInNew";
 import ReplayRoundedIcon from '@material-ui/icons/ReplayRounded';
-import SettingsIcon from "@material-ui/icons/Settings";
 import StorageRoundedIcon from "@material-ui/icons/StorageRounded";
 import VpnKeyRoundedIcon from '@material-ui/icons/VpnKeyRounded';
 import MuiAlert from "@material-ui/lab/Alert";
@@ -181,6 +179,41 @@ const PopupItem = (props) => {
         handleClose(event);
     };
 
+    const onCopyNoteContent = (event) => {
+        secretService.copyNoteContent(item.content);
+        handleClose(event);
+    };
+
+    const onCopyCreditCardNumber = (event) => {
+        secretService.copyCreditCardNumber(item.content);
+        handleClose(event);
+    };
+
+    const onCopyCreditCardName = (event) => {
+        secretService.copyCreditCardName(item.content);
+        handleClose(event);
+    };
+
+    const onCopyCreditCardExpiryDate = (event) => {
+        secretService.copyCreditCardExpiryDate(item.content);
+        handleClose(event);
+    };
+
+    const onCopyCreditCardCvc = (event) => {
+        secretService.copyCreditCardCvc(item.content);
+        handleClose(event);
+    };
+
+    const onCopyCreditCardPin = (event) => {
+        secretService.copyCreditCardPin(item.content);
+        handleClose(event);
+    };
+
+    const onCopyURL = (event) => {
+        secretService.copyUrl(item.content);
+        handleClose(event);
+    };
+
     const onEditItem = (event) => {
         handleClose(event);
         editItem(item.content);
@@ -214,50 +247,107 @@ const PopupItem = (props) => {
                         <OpenInNewIcon fontSize="small" />
                     </Button>
                 )}
-                <Button aria-label="settings" onClick={openMenu}>
-                    <SettingsIcon fontSize="small" />
-                </Button>
-            </ButtonGroup>
-            <Menu id="simple-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
-                {["application_password", "website_password"].indexOf(item.content.type) !== -1 && (
-                    <MenuItem onClick={onCopyUsername}>
-                        <ListItemIcon className={classes.listItemIcon}>
-                            <ContentCopy className={classes.icon} fontSize="small" />
-                        </ListItemIcon>
-                        <Typography variant="body2" noWrap>
-                            {t("COPY_USERNAME")}
-                        </Typography>
-                    </MenuItem>
-                )}
-                {["application_password", "website_password"].indexOf(item.content.type) !== -1 && (
-                    <MenuItem onClick={onCopyPassword}>
-                        <ListItemIcon className={classes.listItemIcon}>
-                            <ContentCopy className={classes.icon} fontSize="small" />
-                        </ListItemIcon>
-                        <Typography variant="body2" noWrap>
-                            {t("COPY_PASSWORD")}
-                        </Typography>
-                    </MenuItem>
+                {["application_password", "website_password", "credit_card"].indexOf(item.content.type) !== -1 && (
+                    <Button aria-label="settings" onClick={openMenu}>
+                        <ContentCopy fontSize="small" />
+                    </Button>
                 )}
                 {["totp"].indexOf(item.content.type) !== -1 && (
-                    <MenuItem onClick={onCopyTotpToken}>
-                        <ListItemIcon className={classes.listItemIcon}>
-                            <ContentCopy className={classes.icon} fontSize="small" />
-                        </ListItemIcon>
-                        <Typography variant="body2" noWrap>
-                            {t("COPY_TOTP_TOKEN")}
-                        </Typography>
-                    </MenuItem>
+                    <Tooltip title={t("COPY_TOTP_TOKEN")} placement="top" PopperProps={{
+                        disablePortal: true,
+                    }}>
+                        <Button aria-label="settings" onClick={onCopyTotpToken}>
+                            <ContentCopy fontSize="small" />
+                        </Button>
+                    </Tooltip>
                 )}
-                <MenuItem onClick={onEditItem}>
-                    <ListItemIcon className={classes.listItemIcon}>
-                        <EditIcon className={classes.icon} fontSize="small" />
-                    </ListItemIcon>
-                    <Typography variant="body2" noWrap>
-                        {t("SHOW_OR_EDIT")}
-                    </Typography>
-                </MenuItem>
-            </Menu>
+                {["note"].indexOf(item.content.type) !== -1 && (
+                    <Tooltip title={t("COPY_NOTE_CONTENT")} placement="top" PopperProps={{
+                        disablePortal: true,
+                    }}>
+                        <Button aria-label="settings" onClick={onCopyNoteContent}>
+                            <ContentCopy fontSize="small" />
+                        </Button>
+                    </Tooltip>
+                )}
+                {["bookmark"].indexOf(item.content.type) !== -1 && (
+                    <Tooltip title={t("COPY_URL")} placement="top" PopperProps={{
+                        disablePortal: true,
+                    }}>
+                        <Button aria-label="settings" onClick={onCopyURL}>
+                            <ContentCopy fontSize="small" />
+                        </Button>
+                    </Tooltip>
+                )}
+            </ButtonGroup>
+            {["application_password", "website_password", "credit_card"].indexOf(item.content.type) !== -1 && (
+                <Menu id="simple-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
+                    {["application_password", "website_password"].indexOf(item.content.type) !== -1 && (
+                        <>
+                            <MenuItem onClick={onCopyUsername}>
+                                <ListItemIcon className={classes.listItemIcon}>
+                                    <ContentCopy className={classes.icon} fontSize="small" />
+                                </ListItemIcon>
+                                <Typography variant="body2" noWrap>
+                                    {t("COPY_USERNAME")}
+                                </Typography>
+                            </MenuItem>
+                            <MenuItem onClick={onCopyPassword}>
+                                <ListItemIcon className={classes.listItemIcon}>
+                                    <ContentCopy className={classes.icon} fontSize="small" />
+                                </ListItemIcon>
+                                <Typography variant="body2" noWrap>
+                                    {t("COPY_PASSWORD")}
+                                </Typography>
+                            </MenuItem>
+                        </>
+                    )}
+                    {["credit_card"].indexOf(item.content.type) !== -1 && (
+                        <>
+                            <MenuItem onClick={onCopyCreditCardNumber}>
+                                <ListItemIcon className={classes.listItemIcon}>
+                                    <ContentCopy className={classes.icon} fontSize="small" />
+                                </ListItemIcon>
+                                <Typography variant="body2" noWrap>
+                                    {t("COPY_CREDIT_CARD_NUMBER")}
+                                </Typography>
+                            </MenuItem>
+                            <MenuItem onClick={onCopyCreditCardName}>
+                                <ListItemIcon className={classes.listItemIcon}>
+                                    <ContentCopy className={classes.icon} fontSize="small" />
+                                </ListItemIcon>
+                                <Typography variant="body2" noWrap>
+                                    {t("COPY_CREDIT_CARD_NAME")}
+                                </Typography>
+                            </MenuItem>
+                            <MenuItem onClick={onCopyCreditCardExpiryDate}>
+                                <ListItemIcon className={classes.listItemIcon}>
+                                    <ContentCopy className={classes.icon} fontSize="small" />
+                                </ListItemIcon>
+                                <Typography variant="body2" noWrap>
+                                    {t("COPY_CREDIT_CARD_EXPIRATION_DATE")}
+                                </Typography>
+                            </MenuItem>
+                            <MenuItem onClick={onCopyCreditCardCvc}>
+                                <ListItemIcon className={classes.listItemIcon}>
+                                    <ContentCopy className={classes.icon} fontSize="small" />
+                                </ListItemIcon>
+                                <Typography variant="body2" noWrap>
+                                    {t("COPY_CREDIT_CARD_CVC")}
+                                </Typography>
+                            </MenuItem>
+                            <MenuItem onClick={onCopyCreditCardPin}>
+                                <ListItemIcon className={classes.listItemIcon}>
+                                    <ContentCopy className={classes.icon} fontSize="small" />
+                                </ListItemIcon>
+                                <Typography variant="body2" noWrap>
+                                    {t("COPY_CREDIT_CARD_PIN")}
+                                </Typography>
+                            </MenuItem>
+                        </>
+                    )}
+                </Menu>
+            )}
         </li>
     );
 };
