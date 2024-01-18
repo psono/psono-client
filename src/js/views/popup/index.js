@@ -22,7 +22,7 @@ import StorageRoundedIcon from "@material-ui/icons/StorageRounded";
 import VpnKeyRoundedIcon from '@material-ui/icons/VpnKeyRounded';
 import MuiAlert from "@material-ui/lab/Alert";
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
@@ -294,6 +294,7 @@ const PopupView = (props) => {
     const [items, setItems] = React.useState([]);
     let isSubscribed = true;
     const passwordFilter = helper.getPasswordFilter(search);
+    const [url, setUrl] = React.useState();
 
     useHotkeys('alt+b', () => {
         // copy username
@@ -334,13 +335,19 @@ const PopupView = (props) => {
         }
     };
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (offlineCacheService.isActive() && offlineCacheService.isLocked()) {
             setUnlockOfflineCache(true);
         } else {
             datastorePassword.getPasswordDatastore().then(onNewDatastoreLoaded);
         }
         return () => (isSubscribed = false);
+    }, []);
+
+    useEffect(() => {
+        browserClient.getActiveTabUrl().then((url) => {
+            setUrl(helper.parseUrl(url));
+        });
     }, []);
 
     const onUnlockOfflineCacheClosed = () => {
@@ -430,16 +437,6 @@ const PopupView = (props) => {
             return false;
         }
         return passwordFilter(item.content);
-    }
-
-    let itemsToDisplay = [];
-    if (search) {
-        items.filter(filterBySearch).map((item, index) => {
-            itemsToDisplay.push(item);
-        });
-        itemsToDisplay = itemsToDisplay.slice(0, 50);
-    } else {
-        itemsToDisplay = items.slice(0, 50);
     }
 
     if (isLoggedIn && !hasTwoFactor && user.requireTwoFaSetup()) {
@@ -633,6 +630,26 @@ const PopupView = (props) => {
                 </Grid>
             </Grid>
         )
+    }
+
+    let itemsToDisplay = [];
+    if (search) {
+        itemsToDisplay = items.filter(filterBySearch).slice(0, 50);
+    } else if (url) {
+        const matching = [];
+        const notMatching = [];
+        items.map((item, _) => {
+            if (!(item.content.hasOwnProperty("deleted") && item.content["deleted"]) &&
+                item.content.urlfilter &&
+                item.content.urlfilter.split(/\s+|,|;/).some((filter) => helper.isUrlFilterMatch(url.authority, filter))) {
+                matching.push(item);
+            } else {
+                notMatching.push(item);
+            }
+        });
+        itemsToDisplay = matching.concat(notMatching).slice(0, 50);
+    } else {
+        itemsToDisplay = items.slice(0, 50);
     }
 
     return (
