@@ -677,6 +677,8 @@
   "CREDIT_CARD_EXPIRATION_DATE_COPY_NOTIFICATION": "Credit card expiration date copied to clipboard",
   "CREDIT_CARD_CVC_COPY_NOTIFICATION": "Credit card CVC copied to clipboard",
   "CREDIT_CARD_PIN_COPY_NOTIFICATION": "Credit card PIN copied to clipboard",
+  "ENTRY_TYPES": "Entry Types",
+  "ENTRY_TYPES_DESCRIPTION": "Adjust here the normally offered types for new entries. Types that are not selected will be hidden.",
   "PASSWORD_GENERATOR": "Password Generator",
   "PASSWORD_GENERATOR_DESCRIPTION": "Adjust here the settings for the password generator.",
   "RECOVERY_INFORMATION": "Recovery Information",

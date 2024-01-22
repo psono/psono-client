@@ -677,6 +677,8 @@
   "CREDIT_CARD_EXPIRATION_DATE_COPY_NOTIFICATION": "Kreditkarten Ablaufdatum in Zwischenablage kopiert",
   "CREDIT_CARD_CVC_COPY_NOTIFICATION": "Kreditkarten CVC in Zwischenablage kopiert",
   "CREDIT_CARD_PIN_COPY_NOTIFICATION": "Kreditkarten PIN in Zwischenablage kopiert",
+  "ENTRY_TYPES": "Eintrags Typen",
+  "ENTRY_TYPES_DESCRIPTION": "Ändern sie hier die ihnen normal angeboten Typen für einen neuen Eintrag. Typen die nicht ausgewählte wurden werden ausgeblendet.",
   "PASSWORD_GENERATOR": "Passwort Generator",
   "PASSWORD_GENERATOR_DESCRIPTION": "Ändern sie hier die Einstellungen für den Passwort Generator.",
   "RECOVERY_INFORMATION": "Wiederherstellungs Informationen",

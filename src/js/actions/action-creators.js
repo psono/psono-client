@@ -19,6 +19,7 @@ import {
     SET_DISABLE_BROWSER_PM,
     SETTINGS_DATASTORE_LOADED,
     SET_PASSWORD_CONFIG,
+    SET_SHOWN_ENTRIES_CONFIG,
     SET_GPG_CONFIG,
     SET_ADMIN_CLIENT_CONFIG,
     NOTIFICATION_SEND,
@@ -229,6 +230,16 @@ function setPasswordConfig(
     passwordSpecialChars
 ) {
     datastoreSettingService.saveSettingsDatastore([
+        { key: "setting_show_website_password", value: store.getState().settingsDatastore.showWebsitePassword },
+        { key: "setting_show_application_password", value: store.getState().settingsDatastore.showApplicationPassword },
+        { key: "setting_show_totp", value: store.getState().settingsDatastore.showTOTPAuthenticator },
+        { key: "setting_show_note", value: store.getState().settingsDatastore.showNote },
+        { key: "setting_show_environment_variables", value: store.getState().settingsDatastore.showEnvironmentVariables },
+        { key: "setting_show_ssh_own_key", value: store.getState().settingsDatastore.showSSHKey },
+        { key: "setting_show_mail_gpg_own_key", value: store.getState().settingsDatastore.howGPGKey },
+        { key: "setting_show_credit_card", value: store.getState().settingsDatastore.showCreditCard },
+        { key: "setting_show_bookmark", value: store.getState().settingsDatastore.showBookmark },
+        { key: "setting_show_file", value: store.getState().settingsDatastore.showFile },
         { key: "setting_password_length", value: passwordLength },
         { key: "setting_password_letters_uppercase", value: passwordLettersUppercase },
         { key: "setting_password_letters_lowercase", value: passwordLettersLowercase },
@@ -249,8 +260,72 @@ function setPasswordConfig(
         });
     };
 }
+function setShownEntriesConfig(
+    showWebsitePassword,
+    showApplicationPassword,
+    showTOTPAuthenticator,
+    showNote,
+    showEnvironmentVariables,
+    showSSHKey,
+    showGPGKey,
+    showCreditCard,
+    showBookmark,
+    showFile,
+) {
+    datastoreSettingService.saveSettingsDatastore([
+        { key: "setting_show_website_password", value: showWebsitePassword },
+        { key: "setting_show_application_password", value: showApplicationPassword },
+        { key: "setting_show_totp", value: showTOTPAuthenticator },
+        { key: "setting_show_note", value: showNote },
+        { key: "setting_show_environment_variables", value: showEnvironmentVariables },
+        { key: "setting_show_ssh_own_key", value: showSSHKey },
+        { key: "setting_show_mail_gpg_own_key", value: showGPGKey },
+        { key: "setting_show_credit_card", value: showCreditCard },
+        { key: "setting_show_bookmark", value: showBookmark },
+        { key: "setting_show_file", value: showFile },
+        { key: "setting_password_length", value: store.getState().settingsDatastore.passwordLength },
+        {
+            key: "setting_password_letters_uppercase",
+            value: store.getState().settingsDatastore.passwordLettersUppercase,
+        },
+        {
+            key: "setting_password_letters_lowercase",
+            value: store.getState().settingsDatastore.passwordLettersLowercase,
+        },
+        { key: "setting_password_numbers", value: store.getState().settingsDatastore.passwordNumbers },
+        { key: "setting_password_special_chars", value: store.getState().settingsDatastore.passwordSpecialChars },
+        { key: "gpg_default_key", value: store.getState().settingsDatastore.gpgDefaultKey },
+        { key: "gpg_hkp_key_server", value: store.getState().settingsDatastore.gpgHkpKeyServer },
+        { key: "gpg_hkp_search", value: store.getState().settingsDatastore.gpgHkpSearch },
+    ]);
+    return (dispatch) => {
+        dispatch({
+            type: SET_SHOWN_ENTRIES_CONFIG,
+            showWebsitePassword,
+            showApplicationPassword,
+            showTOTPAuthenticator,
+            showNote,
+            showEnvironmentVariables,
+            showSSHKey,
+            showGPGKey,
+            showCreditCard,
+            showBookmark,
+            showFile,
+        });
+    };
+}
 function setGpgConfig(gpgDefaultKey, gpgHkpKeyServer, gpgHkpSearch) {
     datastoreSettingService.saveSettingsDatastore([
+        { key: "setting_show_website_password", value: store.getState().settingsDatastore.showWebsitePassword },
+        { key: "setting_show_application_password", value: store.getState().settingsDatastore.showApplicationPassword },
+        { key: "setting_show_totp", value: store.getState().settingsDatastore.showTOTPAuthenticator },
+        { key: "setting_show_note", value: store.getState().settingsDatastore.showNote },
+        { key: "setting_show_environment_variables", value: store.getState().settingsDatastore.showEnvironmentVariables },
+        { key: "setting_show_ssh_own_key", value: store.getState().settingsDatastore.showSSHKey },
+        { key: "setting_show_mail_gpg_own_key", value: store.getState().settingsDatastore.howGPGKey },
+        { key: "setting_show_credit_card", value: store.getState().settingsDatastore.showCreditCard },
+        { key: "setting_show_bookmark", value: store.getState().settingsDatastore.showBookmark },
+        { key: "setting_show_file", value: store.getState().settingsDatastore.showFile },
         { key: "setting_password_length", value: store.getState().settingsDatastore.passwordLength },
         {
             key: "setting_password_letters_uppercase",
@@ -372,6 +447,7 @@ const actionCreators = {
     setHideDownloadBanner,
     setLastPopupSearch,
     setPasswordConfig,
+    setShownEntriesConfig,
     setGpgConfig,
     settingsDatastoreLoaded,
     setAdminClientConfig,

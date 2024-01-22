@@ -159,7 +159,7 @@ const SettingsPasswordGeneratorView = (props) => {
                     }}
                 />
             </Grid>
-            <Grid container style={{ marginBottom: "8px" }}>
+            <Grid container style={{ marginBottom: "8px",  marginTop: "8px" }}>
                 <Grid item xs={12} sm={12} md={12}>
                     <Button
                         variant="contained"
