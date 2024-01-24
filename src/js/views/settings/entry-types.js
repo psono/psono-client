@@ -9,6 +9,7 @@ import store from "../../services/store";
 import action from "../../actions/bound-action-creators";
 import {useSelector} from "react-redux";
 import Button from "@material-ui/core/Button";
+import itemBlueprintService from "../../services/item-blueprint";
 
 const useStyles = makeStyles((theme) => ({
     checked: {
@@ -43,6 +44,48 @@ const SettingsEntryTypesView = (props) => {
     const [showCreditCard, setShowCreditCard] = useState(settingsDatastore.showCreditCard);
     const [showBookmark, setShowBookmark] = useState(settingsDatastore.showBookmark);
     const [showFile, setShowFile] = useState(settingsDatastore.showFile);
+    const stateLookupDict = {
+        "website_password": {
+            'value': showWebsitePassword,
+            'setter': setShowWebsitePassword,
+        },
+        "application_password": {
+            'value': showApplicationPassword,
+            'setter': setShowApplicationPassword,
+        },
+        "totp": {
+            'value': showTOTPAuthenticator,
+            'setter': setShowTOTPAuthenticator,
+        },
+        "note": {
+            'value': showNote,
+            'setter': setShowNote,
+        },
+        "environment_variables": {
+            'value': showEnvironmentVariables,
+            'setter': setShowEnvironmentVariables,
+        },
+        "ssh_own_key": {
+            'value': showSSHKey,
+            'setter': setShowSSHKey,
+        },
+        "mail_gpg_own_key": {
+            'value': showGPGKey,
+            'setter': setShowGPGKey,
+        },
+        "credit_card": {
+            'value': showCreditCard,
+            'setter': setShowCreditCard,
+        },
+        "bookmark": {
+            'value': showBookmark,
+            'setter': setShowBookmark,
+        },
+        "file": {
+            'value': showFile,
+            'setter': setShowFile,
+        }
+    }
 
     React.useEffect(() => {
         setShowWebsitePassword(settingsDatastore.showWebsitePassword);
@@ -72,6 +115,8 @@ const SettingsEntryTypesView = (props) => {
         );
     };
 
+    const entryTypes = itemBlueprintService.getEntryTypes();
+
     return (
         <Grid container>
             <Grid item xs={12} sm={12} md={12}>
@@ -79,12 +124,12 @@ const SettingsEntryTypesView = (props) => {
                 <p>{t("ENTRY_TYPES_DESCRIPTION")}</p>
                 <Divider style={{ marginBottom: "20px" }} />
             </Grid>
-            <Grid item xs={12} sm={12} md={12}>
+            {entryTypes.sort((a, b) => t(a.title).localeCompare(t(b.title))).map((entryType) => (<Grid item xs={12} sm={12} md={12}>
                 <Checkbox
                     tabIndex={1}
-                    checked={showWebsitePassword}
+                    checked={stateLookupDict[entryType.value].value}
                     onChange={(event) => {
-                        setShowWebsitePassword(event.target.checked);
+                        stateLookupDict[entryType.value].setter(event.target.checked);
                     }}
                     checkedIcon={<Check className={classes.checkedIcon} />}
                     icon={<Check className={classes.uncheckedIcon} />}
@@ -92,143 +137,8 @@ const SettingsEntryTypesView = (props) => {
                         checked: classes.checked,
                     }}
                 />{" "}
-                {t("WEBSITE_PASSWORD")}
-            </Grid>
-            <Grid item xs={12} sm={12} md={12}>
-                <Checkbox
-                    tabIndex={1}
-                    checked={showApplicationPassword}
-                    onChange={(event) => {
-                        setShowApplicationPassword(event.target.checked);
-                    }}
-                    checkedIcon={<Check className={classes.checkedIcon} />}
-                    icon={<Check className={classes.uncheckedIcon} />}
-                    classes={{
-                        checked: classes.checked,
-                    }}
-                />{" "}
-                {t("APPLICATION_PASSWORD")}
-            </Grid>
-            <Grid item xs={12} sm={12} md={12}>
-                <Checkbox
-                    tabIndex={1}
-                    checked={showTOTPAuthenticator}
-                    onChange={(event) => {
-                        setShowTOTPAuthenticator(event.target.checked);
-                    }}
-                    checkedIcon={<Check className={classes.checkedIcon} />}
-                    icon={<Check className={classes.uncheckedIcon} />}
-                    classes={{
-                        checked: classes.checked,
-                    }}
-                />{" "}
-                {t("TOTP_AUTHENTICATOR")}
-            </Grid>
-            <Grid item xs={12} sm={12} md={12}>
-                <Checkbox
-                    tabIndex={1}
-                    checked={showNote}
-                    onChange={(event) => {
-                        setShowNote(event.target.checked);
-                    }}
-                    checkedIcon={<Check className={classes.checkedIcon} />}
-                    icon={<Check className={classes.uncheckedIcon} />}
-                    classes={{
-                        checked: classes.checked,
-                    }}
-                />{" "}
-                {t("NOTE")}
-            </Grid>
-            <Grid item xs={12} sm={12} md={12}>
-                <Checkbox
-                    tabIndex={1}
-                    checked={showEnvironmentVariables}
-                    onChange={(event) => {
-                        setShowEnvironmentVariables(event.target.checked);
-                    }}
-                    checkedIcon={<Check className={classes.checkedIcon} />}
-                    icon={<Check className={classes.uncheckedIcon} />}
-                    classes={{
-                        checked: classes.checked,
-                    }}
-                />{" "}
-                {t("ENVIRONMENT_VARIABLES")}
-            </Grid>
-            <Grid item xs={12} sm={12} md={12}>
-                <Checkbox
-                    tabIndex={1}
-                    checked={showSSHKey}
-                    onChange={(event) => {
-                        setShowSSHKey(event.target.checked);
-                    }}
-                    checkedIcon={<Check className={classes.checkedIcon} />}
-                    icon={<Check className={classes.uncheckedIcon} />}
-                    classes={{
-                        checked: classes.checked,
-                    }}
-                />{" "}
-                {t("SSH_KEY")}
-            </Grid>
-            <Grid item xs={12} sm={12} md={12}>
-                <Checkbox
-                    tabIndex={1}
-                    checked={showGPGKey}
-                    onChange={(event) => {
-                        setShowGPGKey(event.target.checked);
-                    }}
-                    checkedIcon={<Check className={classes.checkedIcon} />}
-                    icon={<Check className={classes.uncheckedIcon} />}
-                    classes={{
-                        checked: classes.checked,
-                    }}
-                />{" "}
-                {t("GPG_KEY")}
-            </Grid>
-            <Grid item xs={12} sm={12} md={12}>
-                <Checkbox
-                    tabIndex={1}
-                    checked={showCreditCard}
-                    onChange={(event) => {
-                        setShowCreditCard(event.target.checked);
-                    }}
-                    checkedIcon={<Check className={classes.checkedIcon} />}
-                    icon={<Check className={classes.uncheckedIcon} />}
-                    classes={{
-                        checked: classes.checked,
-                    }}
-                />{" "}
-                {t("CREDIT_CARD")}
-            </Grid>
-            <Grid item xs={12} sm={12} md={12}>
-                <Checkbox
-                    tabIndex={1}
-                    checked={showBookmark}
-                    onChange={(event) => {
-                        setShowBookmark(event.target.checked);
-                    }}
-                    checkedIcon={<Check className={classes.checkedIcon} />}
-                    icon={<Check className={classes.uncheckedIcon} />}
-                    classes={{
-                        checked: classes.checked,
-                    }}
-                />{" "}
-                {t("BOOKMARK")}
-            </Grid>
-            <Grid item xs={12} sm={12} md={12}>
-                <Checkbox
-                    tabIndex={1}
-                    checked={showFile}
-                    onChange={(event) => {
-                        setShowFile(event.target.checked);
-                    }}
-                    checkedIcon={<Check className={classes.checkedIcon} />}
-                    icon={<Check className={classes.uncheckedIcon} />}
-                    classes={{
-                        checked: classes.checked,
-                    }}
-                />{" "}
-                {t("FILE")}
-            </Grid>
+                {t(entryType.title)}
+            </Grid>))}
             <Grid container style={{ marginBottom: "8px",  marginTop: "8px" }}>
                 <Grid item xs={12} sm={12} md={12}>
                     <Button
