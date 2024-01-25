@@ -43,6 +43,7 @@ const SettingsEntryTypesView = (props) => {
     const [showGPGKey, setShowGPGKey] = useState(settingsDatastore.showGPGKey);
     const [showCreditCard, setShowCreditCard] = useState(settingsDatastore.showCreditCard);
     const [showBookmark, setShowBookmark] = useState(settingsDatastore.showBookmark);
+    const [showElsterCertificate, setShowElsterCertificate] = useState(settingsDatastore.showElsterCertificate);
     const [showFile, setShowFile] = useState(settingsDatastore.showFile);
     const stateLookupDict = {
         "website_password": {
@@ -81,6 +82,10 @@ const SettingsEntryTypesView = (props) => {
             'value': showBookmark,
             'setter': setShowBookmark,
         },
+        "elster_certificate": {
+            'value': showElsterCertificate,
+            'setter': setShowElsterCertificate,
+        },
         "file": {
             'value': showFile,
             'setter': setShowFile,
@@ -97,6 +102,7 @@ const SettingsEntryTypesView = (props) => {
         setShowGPGKey(settingsDatastore.showGPGKey);
         setShowCreditCard(settingsDatastore.showCreditCard);
         setShowBookmark(settingsDatastore.showBookmark);
+        setShowElsterCertificate(settingsDatastore.showElsterCertificate);
         setShowFile(settingsDatastore.showFile);
     }, [settingsDatastore]);
 
@@ -111,6 +117,7 @@ const SettingsEntryTypesView = (props) => {
             showGPGKey,
             showCreditCard,
             showBookmark,
+            showElsterCertificate,
             showFile,
         );
     };

@@ -52,6 +52,8 @@ import TextFieldCreditCardNumber from "../text-field/credit-card-number";
 import TextFieldCreditCardValidThrough from "../text-field/credit-card-valid-through";
 import TextFieldCreditCardCVC from "../text-field/credit-card-cvc";
 import {useHotkeys} from "react-hotkeys-hook";
+import cryptoLibraryService from "../../services/crypto-library";
+import converterService from "../../services/converter";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -160,6 +162,13 @@ const DialogNewEntry = (props) => {
     const [fileDestination, setFileDestination] = useState(null);
     const [uploadStepComplete, setUploadStepComplete] = useState("");
 
+    const [elsterCertificateTitle, setElsterCertificateTitle] = useState("");
+    const [elsterCertificateFileContent, setElsterCertificateFileContent] = useState(null);
+    const [elsterCertificateFileName, setElsterCertificateFileName] = useState(null);
+    const [elsterCertificatePassword, setElsterCertificatePassword] = useState("");
+    const [elsterCertificateRetrievalCode, setElsterCertificateRetrievalCode] = useState("");
+    const [elsterCertificateNotes, setElsterCertificateNotes] = useState("");
+
     const [sshOwnKeyTitle, setSshOwnKeyTitle] = useState("");
     const [sshOwnKeyPublic, setSshOwnKeyPublic] = useState("");
     const [sshOwnKeyPrivate, setSshOwnKeyPrivate] = useState("");
@@ -180,6 +189,7 @@ const DialogNewEntry = (props) => {
     const [mailGpgOwnKeyPrivate, setMailGpgOwnKeyPrivate] = useState("");
 
     const [anchorEl, setAnchorEl] = React.useState(null);
+    const [anchorEl2, setAnchorEl2] = React.useState(null);
 
     const [callbackUrl, setCallbackUrl] = useState("");
     const [callbackPass, setCallbackPass] = useState("");
@@ -196,7 +206,7 @@ const DialogNewEntry = (props) => {
 
     const [type, setType] = useState("website_password");
 
-    const hasCallback = ["file"].indexOf(type) === -1 &&  // files have no callbacks
+    const hasCallback = ["file", "elster_certificate"].indexOf(type) === -1 &&  // files have no callbacks
         !store.getState().server.disableCallbacks;
 
     const isValidWebsitePassword = Boolean(websitePasswordTitle);
@@ -222,6 +232,10 @@ const DialogNewEntry = (props) => {
         Boolean(creditCardName) &&
         Boolean(creditCardValidThrough);
     const isValidFile = Boolean(fileTitle) && Boolean(file);
+    const isValidElsterCertificate =
+        Boolean(elsterCertificateTitle) &&
+        Boolean(elsterCertificateFileContent) &&
+        Boolean(elsterCertificatePassword);
     const canSave =
         (type === "website_password" && isValidWebsitePassword) ||
         (type === "application_password" && isValidApplicationPassword) ||
@@ -232,8 +246,9 @@ const DialogNewEntry = (props) => {
         (type === "ssh_own_key" && isValidSshOwnKey) ||
         (type === "credit_card" && isValidCreditCard) ||
         (type === "mail_gpg_own_key" && isValidMailGpgOwnKey) ||
-        (type === "file" && isValidFile);
-    const hasAdvanced = type !== "file";
+        (type === "file" && isValidFile) ||
+        (type === "elster_certificate" && isValidElsterCertificate);
+    const hasAdvanced = type !== "file" && type !== "elster_certificate";
 
     useHotkeys('alt+b', () => {
         // copy username
@@ -258,6 +273,25 @@ const DialogNewEntry = (props) => {
         }
         setFileName(event.target.files[0].name);
         setFile(event.target.files[0]);
+    };
+
+    const onElsterCertificateFileChange = (event) => {
+        event.preventDefault();
+
+        if (!elsterCertificateTitle && event.target.files[0].name) {
+            setElsterCertificateTitle(event.target.files[0].name);
+        }
+        setElsterCertificateFileName(event.target.files[0].name);
+
+        const fileReader = new FileReader();
+
+        fileReader.onloadend = function (event) {
+            const bytes = new Uint8Array(event.target.result);
+            setElsterCertificateFileContent(converterService.toHex(bytes));
+        };
+
+
+        fileReader.readAsArrayBuffer(event.target.files[0]);
     };
 
     /**
@@ -572,6 +606,19 @@ const DialogNewEntry = (props) => {
             }
         }
 
+        if (item.type === "elster_certificate") {
+            item["name"] = elsterCertificateTitle;
+            secretObject["elster_certificate_title"] = elsterCertificateTitle;
+            secretObject["elster_certificate_file_content"] = elsterCertificateFileContent;
+            secretObject["elster_certificate_password"] = elsterCertificatePassword;
+            if (elsterCertificateRetrievalCode) {
+                secretObject["elster_certificate_retrieval_code"] = elsterCertificateRetrievalCode;
+            }
+            if (elsterCertificateNotes) {
+                secretObject["elster_certificate_notes"] = elsterCertificateNotes;
+            }
+        }
+
         if (item.type === "file") {
             item["name"] = fileTitle;
             item["file_title"] = fileTitle;
@@ -689,7 +736,18 @@ const DialogNewEntry = (props) => {
         if (type === "application_password") {
             browserClientService.copyToClipboard(() => Promise.resolve(applicationPasswordPassword));
         }
+        if (type === "elster_certificate") {
+            browserClientService.copyToClipboard(() => Promise.resolve(elsterCertificatePassword));
+        }
         notification.push("password_copy", t("PASSWORD_COPY_NOTIFICATION"));
+    };
+
+    const onCopyRetrievalCode = (event) => {
+        handleClose();
+        if (type === "elster_certificate") {
+            browserClientService.copyToClipboard(() => Promise.resolve(elsterCertificateRetrievalCode));
+        }
+        notification.push("password_copy", t("RETRIEVAL_CODE_COPY_NOTIFICATION"));
     };
 
     const onCopyUrl = (event) => {
@@ -718,6 +776,9 @@ const DialogNewEntry = (props) => {
         }
         if (type === "application_password") {
             setApplicationPasswordPassword(password);
+        }
+        if (type === "elster_certificate") {
+            setElsterCertificatePassword(password);
         }
     };
     const onNewGpgKeysGenerated = (title, name, email, privateKey, publicKey) => {
@@ -748,12 +809,10 @@ const DialogNewEntry = (props) => {
         setSshOwnKeyPrivate(privateKey);
         setSshOwnKeyPublic(publicKey);
     };
-    const openMenu = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
 
     const handleClose = () => {
         setAnchorEl(null);
+        setAnchorEl2(null);
     };
 
     return (
@@ -878,7 +937,9 @@ const DialogNewEntry = (props) => {
                                                 <IconButton
                                                     className={classes.iconButton}
                                                     aria-label="menu"
-                                                    onClick={openMenu}
+                                                    onClick={(event) => {
+                                                        setAnchorEl(event.currentTarget);
+                                                    }}
                                                 >
                                                     <MenuOpenIcon fontSize="small" />
                                                 </IconButton>
@@ -1001,7 +1062,9 @@ const DialogNewEntry = (props) => {
                                                 <IconButton
                                                     className={classes.iconButton}
                                                     aria-label="menu"
-                                                    onClick={openMenu}
+                                                    onClick={(event) => {
+                                                        setAnchorEl(event.currentTarget);
+                                                    }}
                                                 >
                                                     <MenuOpenIcon fontSize="small" />
                                                 </IconButton>
@@ -1446,6 +1509,190 @@ const DialogNewEntry = (props) => {
                             </Grid>
                         )}
 
+                        {type === "elster_certificate" && (
+                            <Grid item xs={12} sm={12} md={12}>
+                                <TextField
+                                    className={classes.textField}
+                                    variant="outlined"
+                                    margin="dense"
+                                    id="elsterCertificateTitle"
+                                    label={t("TITLE")}
+                                    name="elsterCertificateTitle"
+                                    autoComplete="off"
+                                    value={elsterCertificateTitle}
+                                    required
+                                    onChange={(event) => {
+                                        setElsterCertificateTitle(event.target.value);
+                                    }}
+                                />
+                            </Grid>
+                        )}
+
+                        {type === "elster_certificate" && (
+                            <Grid item xs={12} sm={12} md={12}>
+                                <Grid item xs={12} sm={12} md={12} style={{ marginBottom: "8px", marginTop: "8px" }}>
+                                    <Button variant="contained" component="label">
+                                        {elsterCertificateFileName ? elsterCertificateFileName : t("CERTIFICATE_FILE")}
+                                        <input type="file" hidden onChange={onElsterCertificateFileChange} accept=".pfx" required />
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        )}
+
+                        {type === "elster_certificate" && (
+                            <Grid item xs={12} sm={12} md={12}>
+                                <TextField
+                                    className={classes.textField}
+                                    variant="outlined"
+                                    margin="dense"
+                                    id="elsterCertificatePassword"
+                                    label={t("CERTIFICATE_PASSWORD")}
+                                    name="elsterCertificatePassword"
+                                    autoComplete="off"
+                                    required
+                                    value={elsterCertificatePassword}
+                                    onChange={(event) => {
+                                        setElsterCertificatePassword(event.target.value);
+                                    }}
+                                    InputProps={{
+                                        type: showPassword ? "text" : "password",
+                                        classes: {
+                                            input: classes.passwordField,
+                                        },
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    className={classes.iconButton}
+                                                    aria-label="menu"
+                                                    onClick={(event) => {
+                                                        setAnchorEl(event.currentTarget);
+                                                    }}
+                                                >
+                                                    <MenuOpenIcon fontSize="small" />
+                                                </IconButton>
+                                                <Menu
+                                                    id="simple-menu"
+                                                    anchorEl={anchorEl}
+                                                    keepMounted
+                                                    open={Boolean(anchorEl)}
+                                                    onClose={handleClose}
+                                                >
+                                                    <MenuItem onClick={onShowHidePassword}>
+                                                        <ListItemIcon className={classes.listItemIcon}>
+                                                            <VisibilityOffIcon className={classes.icon} fontSize="small" />
+                                                        </ListItemIcon>
+                                                        <Typography variant="body2" noWrap>
+                                                            {t("SHOW_OR_HIDE_PASSWORD")}
+                                                        </Typography>
+                                                    </MenuItem>
+                                                    <MenuItem onClick={onCopyPassword}>
+                                                        <ListItemIcon className={classes.listItemIcon}>
+                                                            <ContentCopy className={classes.icon} fontSize="small" />
+                                                        </ListItemIcon>
+                                                        <Typography variant="body2" noWrap>
+                                                            {t("COPY_PASSWORD")}
+                                                        </Typography>
+                                                    </MenuItem>
+                                                    <MenuItem onClick={onGeneratePassword}>
+                                                        <ListItemIcon className={classes.listItemIcon}>
+                                                            <PhonelinkSetupIcon className={classes.icon} fontSize="small" />
+                                                        </ListItemIcon>
+                                                        <Typography variant="body2" noWrap>
+                                                            {t("GENERATE_PASSWORD")}
+                                                        </Typography>
+                                                    </MenuItem>
+                                                </Menu>
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                />
+                                {!!elsterCertificatePassword && (<LinearProgress variant="determinate" value={cryptoLibrary.calculatePasswordStrengthInPercent(elsterCertificatePassword)} />)}
+                            </Grid>
+                        )}
+
+                        {type === "elster_certificate" && (
+                            <Grid item xs={12} sm={12} md={12}>
+                                <TextField
+                                    className={classes.textField}
+                                    variant="outlined"
+                                    margin="dense"
+                                    id="elsterCertificateRetrievalCode"
+                                    label={t("RETRIEVAL_CODE")}
+                                    name="elsterCertificateRetrievalCode"
+                                    autoComplete="off"
+                                    value={elsterCertificateRetrievalCode}
+                                    onChange={(event) => {
+                                        setElsterCertificateRetrievalCode(event.target.value);
+                                    }}
+                                    InputProps={{
+                                        type: showPassword ? "text" : "password",
+                                        classes: {
+                                            input: classes.passwordField,
+                                        },
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    className={classes.iconButton}
+                                                    aria-label="menu"
+                                                    onClick={(event) => {
+                                                        setAnchorEl2(event.currentTarget);
+                                                    }}
+                                                >
+                                                    <MenuOpenIcon fontSize="small" />
+                                                </IconButton>
+                                                <Menu
+                                                    id="simple-menu"
+                                                    anchorEl={anchorEl2}
+                                                    keepMounted
+                                                    open={Boolean(anchorEl2)}
+                                                    onClose={handleClose}
+                                                >
+                                                    <MenuItem onClick={onShowHidePassword}>
+                                                        <ListItemIcon className={classes.listItemIcon}>
+                                                            <VisibilityOffIcon className={classes.icon} fontSize="small" />
+                                                        </ListItemIcon>
+                                                        <Typography variant="body2" noWrap>
+                                                            {t("SHOW_OR_HIDE_PASSWORD")}
+                                                        </Typography>
+                                                    </MenuItem>
+                                                    <MenuItem onClick={onCopyRetrievalCode}>
+                                                        <ListItemIcon className={classes.listItemIcon}>
+                                                            <ContentCopy className={classes.icon} fontSize="small" />
+                                                        </ListItemIcon>
+                                                        <Typography variant="body2" noWrap>
+                                                            {t("COPY_PASSWORD")}
+                                                        </Typography>
+                                                    </MenuItem>
+                                                </Menu>
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                />
+                            </Grid>
+                        )}
+
+                        {type === "elster_certificate" && (
+                            <Grid item xs={12} sm={12} md={12}>
+                                <TextField
+                                    className={classes.textField}
+                                    variant="outlined"
+                                    margin="dense"
+                                    id="elsterCertificateNotes"
+                                    label={t("NOTES")}
+                                    name="elsterCertificateNotes"
+                                    autoComplete="off"
+                                    value={elsterCertificateNotes}
+                                    onChange={(event) => {
+                                        setElsterCertificateNotes(event.target.value);
+                                    }}
+                                    multiline
+                                    minRows={3}
+                                    maxRows={32}
+                                />
+                            </Grid>
+                        )}
+
+
                         {type === "file" && (
                             <Grid item xs={12} sm={12} md={12}>
                                 <TextField
@@ -1637,7 +1884,9 @@ const DialogNewEntry = (props) => {
                                                 <IconButton
                                                     className={classes.iconButton}
                                                     aria-label="menu"
-                                                    onClick={openMenu}
+                                                    onClick={(event) => {
+                                                        setAnchorEl(event.currentTarget);
+                                                    }}
                                                 >
                                                     <MenuOpenIcon fontSize="small" />
                                                 </IconButton>

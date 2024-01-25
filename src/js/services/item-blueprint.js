@@ -54,6 +54,10 @@ const _entryTypes = [
         value: "bookmark", title: "BOOKMARK", edit_title: "EDIT_BOOKMARK", show_title: "SHOW_BOOKMARK",
         show: () => store.getState().settingsDatastore.showBookmark,
     },
+    {
+        value: "elster_certificate", title: "ELSTER_CERTIFICATE", edit_title: "EDIT_ELSTER_CERTIFICATE", show_title: "SHOW_ELSTER_CERTIFICATE",
+        show: () => store.getState().settingsDatastore.showElsterCertificate,
+    },
 ];
 
 /**

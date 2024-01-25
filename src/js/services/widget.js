@@ -1379,6 +1379,10 @@ function itemIcon(item) {
         return "fa fa-credit-card";
     }
 
+    if (item.type === "elster_certificate") {
+        return "fa fa-id-card-o";
+    }
+
     if (item.type === "environment_variables") {
         return "fa fa-superscript";
     }

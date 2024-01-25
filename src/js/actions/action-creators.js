@@ -239,6 +239,7 @@ function setPasswordConfig(
         { key: "setting_show_mail_gpg_own_key", value: store.getState().settingsDatastore.howGPGKey },
         { key: "setting_show_credit_card", value: store.getState().settingsDatastore.showCreditCard },
         { key: "setting_show_bookmark", value: store.getState().settingsDatastore.showBookmark },
+        { key: "setting_show_elster_certificate", value: store.getState().settingsDatastore.showElsterCertificate },
         { key: "setting_show_file", value: store.getState().settingsDatastore.showFile },
         { key: "setting_password_length", value: passwordLength },
         { key: "setting_password_letters_uppercase", value: passwordLettersUppercase },
@@ -270,6 +271,7 @@ function setShownEntriesConfig(
     showGPGKey,
     showCreditCard,
     showBookmark,
+    showElsterCertificate,
     showFile,
 ) {
     datastoreSettingService.saveSettingsDatastore([
@@ -282,6 +284,7 @@ function setShownEntriesConfig(
         { key: "setting_show_mail_gpg_own_key", value: showGPGKey },
         { key: "setting_show_credit_card", value: showCreditCard },
         { key: "setting_show_bookmark", value: showBookmark },
+        { key: "setting_show_elster_certificate", value: showElsterCertificate },
         { key: "setting_show_file", value: showFile },
         { key: "setting_password_length", value: store.getState().settingsDatastore.passwordLength },
         {
@@ -310,6 +313,7 @@ function setShownEntriesConfig(
             showGPGKey,
             showCreditCard,
             showBookmark,
+            showElsterCertificate,
             showFile,
         });
     };
@@ -325,6 +329,7 @@ function setGpgConfig(gpgDefaultKey, gpgHkpKeyServer, gpgHkpSearch) {
         { key: "setting_show_mail_gpg_own_key", value: store.getState().settingsDatastore.howGPGKey },
         { key: "setting_show_credit_card", value: store.getState().settingsDatastore.showCreditCard },
         { key: "setting_show_bookmark", value: store.getState().settingsDatastore.showBookmark },
+        { key: "setting_show_elster_certificate", value: store.getState().settingsDatastore.showElsterCertificate },
         { key: "setting_show_file", value: store.getState().settingsDatastore.showFile },
         { key: "setting_password_length", value: store.getState().settingsDatastore.passwordLength },
         {

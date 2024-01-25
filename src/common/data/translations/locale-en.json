@@ -1,4 +1,11 @@
 {
+  "RETRIEVAL_CODE_COPY_NOTIFICATION": "Retrieval code copied to clipboard",
+  "RETRIEVAL_CODE": "Retrieval Code",
+  "CERTIFICATE_FILE": "Certificate File",
+  "CERTIFICATE_PASSWORD": "Certificate Password",
+  "SHOW_ELSTER_CERTIFICATE": "Show Elster Certificate",
+  "EDIT_ELSTER_CERTIFICATE": "Edit Elster Certificate",
+  "ELSTER_CERTIFICATE": "Elster Certificate",
   "RECEIVED_MALFORMED_RESPONSE": "Received malformed response. Check that the server URL is correct. More details can be found in the developer console of the browser.",
   "PIN": "PIN",
   "OPERATION_IN_PROGRESS": "Operation in progress",

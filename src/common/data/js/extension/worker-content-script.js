@@ -13,6 +13,10 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
     let identityInputFields = [];
     let lastCloseTime = 0;
 
+    const excludedOrigins = new Set([
+        'https://www.elster.de', // conflict with elster certificates
+    ])
+
     let backgroundImage =
         "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTVweCIgaGVpZ2h0PSIxNnB4IiB2aWV3Qm94PSIwIDAgMTUgMTUiIHZlcnNpb249IjEuMSI+CjxnIGlkPSJzdXJmYWNlMSI+CjxwYXRoIHN0eWxlPSIgc3Ryb2tlOm5vbmU7ZmlsbC1ydWxlOmV2ZW5vZGQ7ZmlsbDpyZ2IoNTkuNjA3ODQzJSw4NS40OTAxOTYlLDY4LjYyNzQ1MSUpO2ZpbGwtb3BhY2l0eTowLjUwMTk2MTsiIGQ9Ik0gMC42OTUzMTIgMy43ODkwNjIgTCAzLjE3NTc4MSA1LjE3OTY4OCBMIDcuNTY2NDA2IDIuNzM0Mzc1IEwgMTEuOTE0MDYyIDUuMTYwMTU2IEwgMTQuMzc4OTA2IDMuODA4NTk0IEwgNy41ODU5MzggMC4wNDY4NzUgWiBNIDAuNjk1MzEyIDMuNzg5MDYyICIvPgo8cGF0aCBzdHlsZT0iIHN0cm9rZTpub25lO2ZpbGwtcnVsZTpldmVub2RkO2ZpbGw6cmdiKDU5LjYwNzg0MyUsODUuNDkwMTk2JSw2OC42Mjc0NTElKTtmaWxsLW9wYWNpdHk6MC41MDE5NjE7IiBkPSJNIDUuMTYwMTU2IDUuODY3MTg4IEwgNy41NzAzMTIgNy4yMTg3NSBMIDkuOTIxODc1IDUuOTUzMTI1IEwgNy41NjY0MDYgNC42NTIzNDQgWiBNIDUuMTYwMTU2IDUuODY3MTg4ICIvPgo8cGF0aCBzdHlsZT0iIHN0cm9rZTpub25lO2ZpbGwtcnVsZTpldmVub2RkO2ZpbGw6cmdiKDI5LjAxOTYwOCUsNzUuMjk0MTE4JSw1Ni4wNzg0MzElKTtmaWxsLW9wYWNpdHk6MC41MDE5NjE7IiBkPSJNIDAuNjk1MzEyIDMuNzczNDM4IEwgMC42OTUzMTIgMTEuMjEwOTM4IEwgMy4xNzU3ODEgMTIuNTMxMjUgTCAzLjE5NTMxMiA1LjE3OTY4OCBaIE0gMC42OTUzMTIgMy43NzM0MzggIi8+CjxwYXRoIHN0eWxlPSIgc3Ryb2tlOm5vbmU7ZmlsbC1ydWxlOmV2ZW5vZGQ7ZmlsbDpyZ2IoMjkuMDE5NjA4JSw3NS4yOTQxMTglLDU2LjA3ODQzMSUpO2ZpbGwtb3BhY2l0eTowLjUwMTk2MTsiIGQ9Ik0gNS4xNzU3ODEgNS44NjcxODggTCA1LjE1NjI1IDguMzA4NTk0IEwgNy41NjY0MDYgOS41OTM3NSBMIDkuOTM3NSA4LjI3NzM0NCBMIDkuOTM3NSA1Ljk5MjE4OCBMIDcuNTg1OTM4IDcuMjM4MjgxIFogTSA1LjE3NTc4MSA1Ljg2NzE4OCAiLz4KPHBhdGggc3R5bGU9IiBzdHJva2U6bm9uZTtmaWxsLXJ1bGU6ZXZlbm9kZDtmaWxsOnJnYigyOS4wMTk2MDglLDc1LjI5NDExOCUsNTYuMDc4NDMxJSk7ZmlsbC1vcGFjaXR5OjAuNTAxOTYxOyIgZD0iTSAxMS44OTg0MzggNS4xNzk2ODggTCAxMS45MTQwNjIgOS4xMTcxODggTCA3LjU2NjQwNiAxMS40ODgyODEgTCA1LjE3NTc4MSAxMC4yNDIxODggTCA1LjE3NTc4MSAxMy42MzI4MTIgTCA3LjU0Njg3NSAxNC45NTMxMjUgTCAxNC40MTc5NjkgMTEuMjA3MDMxIEwgMTQuMzc4OTA2IDMuODM5ODQ0IFogTSAxMS44OTg0MzggNS4xNzk2ODggIi8+CjwvZz4KPC9zdmc+Cg==";
     let backgroundImageHover =
@@ -212,6 +216,11 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
      * @param document
      */
     function analyzeDocument(document) {
+
+        if (excludedOrigins.has(document.defaultView.location.origin)) {
+            return;
+        }
+
         addPasswordFormButtons(document);
         findCreditCardInputFields(document);
         findIdentityInputFields(document);
@@ -638,13 +647,18 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
                     dropcontent +=
                         '<li><div class="' + generatePasswordClass + '" style="cursor: pointer !important;">Generate Password</div></li>';
                 }
+                if (response.data.length > 5) {
+                    dropcontent += '<li><input type="text" class="psono-search-input" placeholder="Search..." /></li>';
+                }
                 for (let i = 0; i < response.data.length; i++) {
-
                     let sanitizedText = sanitizeText(response.data[i].name)
                     let requestSecretClass = "psono_request-secret-" + uuid.v4();
-
+                    let style = '';
+                    if (i >= 5) {
+                        style = 'display:none !important';
+                    }
                     dropcontent +=
-                        '<li><div class="' +
+                        '<li class="psono_request-secret" style="'+style+'"><div class="' +
                         requestSecretClass +
                         '" style="cursor: pointer !important;"">' +
                         sanitizedText +
@@ -693,6 +707,45 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
                             requestSecret(secretId);
                         });
                     }
+                }
+
+                // Setup search functionality if response.data is longer than 5
+                if (response.data.length > 5) {
+                    let searchInput = document.querySelector('.psono-search-input');
+                    let listItems = document.querySelectorAll('.psono_request-secret');
+
+                    searchInput.addEventListener('click', function (event) {
+                        event.stopPropagation();
+                    });
+
+                    searchInput.addEventListener('keyup', function () {
+                        const searchStrings = searchInput.value.toLowerCase().split(" ");
+
+                        function match(searched) {
+                            let containCounter = 0;
+                            searched = searched.toLowerCase()
+
+                            for (let ii = searchStrings.length - 1; ii >= 0; ii--) {
+                                if (
+                                    searched.indexOf(searchStrings[ii]) > -1
+                                ) {
+                                    containCounter++;
+                                }
+                            }
+                            return containCounter === searchStrings.length;
+                        }
+
+                        let shownElements = 0;
+                        listItems.forEach(function (li) {
+                            let listItemText = li.textContent.toLowerCase();
+                            if (!match(listItemText) || (shownElements >= 5)) {
+                                li.setAttribute('style', 'display:none !important');
+                            } else {
+                                shownElements = shownElements + 1;
+                                li.setAttribute('style', '');
+                            }
+                        });
+                    });
                 }
             }, 0);
 

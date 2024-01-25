@@ -1,4 +1,11 @@
 {
+  "RETRIEVAL_CODE_COPY_NOTIFICATION": "Abrufcode in Zwischenablage kopiert",
+  "RETRIEVAL_CODE": "Abrufcode",
+  "CERTIFICATE_FILE": "Zertifikatsdatei",
+  "CERTIFICATE_PASSWORD": "Zertifikatspasswort",
+  "SHOW_ELSTER_CERTIFICATE": "Zeige Elster Zertifikat",
+  "EDIT_ELSTER_CERTIFICATE": "Bearbeite Elster Zertifikat",
+  "ELSTER_CERTIFICATE": "Elster Zertifikat",
   "RECEIVED_MALFORMED_RESPONSE": "Fehlerhafte Antwort erhalten. Überprüfen sie die Server-URL. Weitere Details finden sie in der Entwicklerkonsole des Browsers.",
   "PIN": "PIN",
   "OPERATION_IN_PROGRESS": "Vorgang wird ausgeführt",
