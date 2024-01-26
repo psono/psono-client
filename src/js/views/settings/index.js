@@ -11,6 +11,7 @@ import Base from "../../components/base";
 import BaseTitle from "../../components/base-title";
 import BaseContent from "../../components/base-content";
 import SettingsPasswordGeneratorView from "./password-generator";
+import SettingsEntryTypesView from "./entry-types";
 import SettingsNotificationView from "./notification";
 import SettingsGpgView from "./gpg";
 import SettingsGeneralView from "./general";
@@ -41,6 +42,13 @@ const SettingsView = (props) => {
                                 onClick={() => setValue("/settings/password-generator")}
                             />
                             <Tab
+                                label={t("ENTRY_TYPES")}
+                                value="/settings/entry-types"
+                                component={Link}
+                                to={"/settings/entry-types"}
+                                onClick={() => setValue("/settings/entry-types")}
+                            />
+                            <Tab
                                 label={t("NOTIFICATIONS")}
                                 value="/settings/notification"
                                 component={Link}
@@ -65,6 +73,9 @@ const SettingsView = (props) => {
                     </AppBar>
                     <TabPanel value={value} index={"/settings/password-generator"}>
                         <SettingsPasswordGeneratorView {...props} />
+                    </TabPanel>
+                    <TabPanel value={value} index={"/settings/entry-types"}>
+                        <SettingsEntryTypesView {...props} />
                     </TabPanel>
                     <TabPanel value={value} index={"/settings/notification"}>
                         <SettingsNotificationView {...props} />

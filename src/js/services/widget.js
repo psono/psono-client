@@ -870,13 +870,20 @@ function reverseMarkItemAsDeleted(datastore, item, path, datastoreType) {
  * @param {Array} path The path to the item
  */
 function cloneItem(datastore, item, path) {
+
     let onError = function (result) {
         console.log(result);
         // pass
     };
 
     const onSuccess = function (secret_object) {
-        const closest_share_info = shareService.getClosestParentShare(path.slice(), datastore, datastore, 0);
+        let closest_share_info;
+        if (item.hasOwnProperty('share_id')) {
+            // we have an item that is a share on its own
+            closest_share_info = shareService.getClosestParentShare(path.slice(), datastore, datastore, 1);
+        } else {
+            closest_share_info = shareService.getClosestParentShare(path.slice(), datastore, datastore, 0);
+        }
 
         const closest_share = closest_share_info["closest_share"];
 
@@ -925,12 +932,16 @@ function cloneItem(datastore, item, path) {
         if (secret_object.hasOwnProperty('mail_gpg_own_key_title')) {
             secret_object['mail_gpg_own_key_title'] = 'Copy ' + secret_object['mail_gpg_own_key_title'];
         }
+        if (secret_object.hasOwnProperty('elster_certificate_title')) {
+            secret_object['elster_certificate_title'] = 'Copy ' + secret_object['elster_certificate_title'];
+        }
 
         const link_id = cryptoLibrary.generateUuid();
 
         let onSuccess = function (e) {
             secret_object["secret_id"] = e.secret_id;
             secret_object["secret_key"] = e.secret_key;
+
             if (closest_share.hasOwnProperty("share_id")) {
                 // refresh share content before updating the share
                 onSuccess = async function (content) {
@@ -1028,7 +1039,12 @@ function cloneItem(datastore, item, path) {
                         parent.items = [];
                     }
                     parent.items.push(element_copy);
-                    await datastorePasswordService.saveDatastoreContent(datastore, [path]);
+
+                    const newElementPath = path.slice();
+                    newElementPath.pop()
+                    newElementPath.push(link_id)
+
+                    await datastorePasswordService.saveDatastoreContent(datastore, [newElementPath]);
                     return datastorePasswordService.handleDatastoreContentChanged(datastore);
                 };
 
@@ -1377,6 +1393,10 @@ function itemIcon(item) {
 
     if (item.type === "credit_card") {
         return "fa fa-credit-card";
+    }
+
+    if (item.type === "elster_certificate") {
+        return "fa fa-id-card-o";
     }
 
     if (item.type === "environment_variables") {

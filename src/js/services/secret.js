@@ -3,15 +3,14 @@
  */
 
 import i18n from "../i18n";
-import cryptoLibrary from "../services/crypto-library";
 import apiClient from "../services/api-client";
 import browserClient from "../services/browser-client";
+import cryptoLibrary from "../services/crypto-library";
 import offlineCache from "../services/offline-cache";
-import store from "./store";
-import storage from "./storage";
-import notification from "./notification";
 import deviceService from "./device";
-import browserClientService from "../services/browser-client";
+import notification from "./notification";
+import storage from "./storage";
+import store from "./store";
 
 /**
  * Encrypts the content and creates a new secret out of it.
@@ -245,6 +244,66 @@ function copyTotpToken(item) {
     notification.push("totp_token_copy", i18n.t("TOTP_TOKEN_COPY_NOTIFICATION"));
 }
 
+/**
+ * Copies the note content of a given secret to the clipboard
+ * 
+ * @param {object} item The item of which we want to load the note content into our clipboard
+ */
+function copyNoteContent(item) {
+    browserClient.copyToClipboard(() => readSecret(item.secret_id, item.secret_key).then((decryptedSecret) => decryptedSecret["note_notes"].replace(/\\n/g, "\n")));
+    notification.push("note_content_copy", i18n.t("NOTE_CONTENT_COPY_NOTIFICATION"));
+}
+
+/**
+ * Copies the credit card number of a given secret to the clipboard
+ * 
+ * @param {object} item The item of which we want to load the credit card number into our clipboard
+ */
+function copyCreditCardNumber(item) {
+    browserClient.copyToClipboard(() => readSecret(item.secret_id, item.secret_key).then((decryptedSecret) => decryptedSecret["credit_card_number"]));
+    notification.push("credit_card_number_copy", i18n.t("CREDIT_CARD_NUMBER_COPY_NOTIFICATION"));
+}
+
+/**
+ * Copies the credit card name of a given secret to the clipboard
+ * 
+ * @param {object} item The item of which we want to load the credit card name into our clipboard
+ */
+function copyCreditCardName(item) {
+    browserClient.copyToClipboard(() => readSecret(item.secret_id, item.secret_key).then((decryptedSecret) => decryptedSecret["credit_card_name"]));
+    notification.push("credit_card_name_copy", i18n.t("CREDIT_CARD_NAME_COPY_NOTIFICATION"));
+}
+
+/**
+ * Copies the credit card expiry date of a given secret to the clipboard
+ * 
+ * @param {object} item The item of which we want to load the credit card expiry date into our clipboard
+ */
+function copyCreditCardExpiryDate(item) {
+    browserClient.copyToClipboard(() => readSecret(item.secret_id, item.secret_key).then((decryptedSecret) => decryptedSecret["credit_card_valid_through"]));
+    notification.push("credit_card_expiry_date_copy", i18n.t("CREDIT_CARD_EXPIRATION_DATE_COPY_NOTIFICATION"));
+}
+
+/**
+ * Copies the credit card CVC of a given secret to the clipboard
+ * 
+ * @param {object} item The item of which we want to load the credit card CVC into our clipboard
+ */
+function copyCreditCardCvc(item) {
+    browserClient.copyToClipboard(() => readSecret(item.secret_id, item.secret_key).then((decryptedSecret) => decryptedSecret["credit_card_cvc"]));
+    notification.push("credit_card_cvc_copy", i18n.t("CREDIT_CARD_CVC_COPY_NOTIFICATION"));
+}
+
+/**
+ * Copies the credit card PIN of a given secret to the clipboard
+ * 
+ * @param {object} item The item of which we want to load the credit card PIN into our clipboard
+ */
+function copyCreditCardPin(item) {
+    browserClient.copyToClipboard(() => readSecret(item.secret_id, item.secret_key).then((decryptedSecret) => decryptedSecret["credit_card_pin"]));
+    notification.push("credit_card_pin_copy", i18n.t("CREDIT_CARD_PIN_COPY_NOTIFICATION"));
+}
+
 const secretService = {
     createSecret: createSecret,
     readSecret: readSecret,
@@ -254,6 +313,12 @@ const secretService = {
     copyUsername: copyUsername,
     copyPassword: copyPassword,
     copyTotpToken: copyTotpToken,
+    copyNoteContent: copyNoteContent,
+    copyCreditCardNumber: copyCreditCardNumber,
+    copyCreditCardName: copyCreditCardName,
+    copyCreditCardExpiryDate: copyCreditCardExpiryDate,
+    copyCreditCardCvc: copyCreditCardCvc,
+    copyCreditCardPin: copyCreditCardPin,
     copyUrl: copyUrl,
 };
 

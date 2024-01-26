@@ -98,6 +98,11 @@
   width: 100% !important;
 }
 
+.psono-drop .navigations li input {
+  padding: 10px !important;
+  width: 100% !important;
+}
+
 .psono-drop .navigations li:hover {
   background-color: #fff !important;
   color: #151f2b !important;

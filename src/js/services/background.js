@@ -356,6 +356,7 @@ function onMessage(request, sender, sendResponse) {
         "is-logged-in": onIsLoggedIn,
         "storage-reload": onStorageReload,
         "website-password-refresh": onWebsitePasswordRefresh,
+        "elster-certificate-refresh": onElsterCertificateRefresh,
         "request-secret": onRequestSecret,
         "open-tab": onOpenTab,
         "generate-password": onGeneratePassword,
@@ -628,6 +629,58 @@ function searchCreditCard() {
     const filter = (leaf) => leaf.type === "credit_card";
 
     return storage.where("datastore-password-leafs", filter);
+}
+
+/**
+ * a page finished loading, and wants to know if we have passwords for this page to display to the customer
+ * in the input popup menu
+ *
+ * @param {object} request The message sent by the calling script.
+ * @param {object} sender The sender of the message
+ * @param {function} sendResponse Function to call (at most once) when you have a response.
+ */
+function onElsterCertificateRefresh(request, sender, sendResponse) {
+    if (!sender.tab) {
+        sendResponse({ event: "status", data: "ok" });
+        return;
+    }
+
+    let senderUrl;
+    try {
+        senderUrl = new URL(sender.tab.url);
+    } catch (err) {
+        return;
+    }
+
+    if (senderUrl.origin + senderUrl.pathname !== 'https://www.elster.de/eportal/login/softpse') {
+        sendResponse({ event: "status", data: "ok" });
+        return;
+    }
+
+    storage.where("datastore-password-leafs", (leaf) => leaf.type === "elster_certificate").then(function (leafs) {
+        const update = [];
+
+        for (let ii = 0; ii < leafs.length; ii++) {
+            update.push({
+                secret_id: leafs[ii].secret_id,
+                name: leafs[ii].name,
+            });
+        }
+
+        update.sort(function(a, b){
+            let a_name = a.name ? a.name : '';
+            let b_name = b.name ? b.name : '';
+            if (a_name.toLowerCase() < b_name.toLowerCase())
+                return -1;
+            if (a_name.toLowerCase() > b_name.toLowerCase())
+                return 1;
+            return 0;
+        })
+
+        sendResponse({ event: "elster-certificate-update", data: update });
+    });
+
+    return true; // Important, do not remove! Otherwise Async return wont work
 }
 
 /**

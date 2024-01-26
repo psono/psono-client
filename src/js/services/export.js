@@ -176,7 +176,7 @@ function filterDatastoreExport(folder, includeTrashBinItems, includeSharedItems)
     // filter folders recursive
     if (folder.hasOwnProperty("folders")) {
         for (i = folder["folders"].length - 1; i >= 0; i--) {
-            folder["folders"][i] = filterDatastoreExport(folder["folders"][i]);
+            folder["folders"][i] = filterDatastoreExport(folder["folders"][i], includeTrashBinItems, includeSharedItems);
         }
     }
 
@@ -245,6 +245,11 @@ function composeExport(data, type) {
                 bookmark_url: "bookmark_url",
                 bookmark_notes: "bookmark_notes",
                 bookmark_url_filter: "bookmark_url_filter",
+                elster_certificate_title: "elster_certificate_title",
+                elster_certificate_file_content: "elster_certificate_file_content",
+                elster_certificate_password: "elster_certificate_password",
+                elster_certificate_retrieval_code: "elster_certificate_retrieval_code",
+                elster_certificate_notes: "elster_certificate_notes",
             },
         ];
 

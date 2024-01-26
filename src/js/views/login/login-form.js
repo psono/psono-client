@@ -21,6 +21,7 @@ import store from "../../services/store";
 import action from "../../actions/bound-action-creators";
 import GridContainerErrors from "../../components/grid-container-errors";
 import FooterLinks from "../../components/footer-links";
+import datastoreSettingService from "../../services/datastore-setting";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -269,10 +270,13 @@ const LoginViewForm = (props) => {
 
                 if (props.samlTokenId) {
                     history.push("/");
-                }
-                if (props.oidcTokenId) {
+                } else if (props.oidcTokenId) {
                     history.push("/");
                 }
+                setTimeout(function () {
+                    // initialize settings datastore
+                    datastoreSettingService.getSettingsDatastore();
+                }, 1);
             });
         } else {
             setLoginLoading(false);

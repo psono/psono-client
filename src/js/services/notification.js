@@ -43,29 +43,26 @@ function set(messages) {
  * @param {string} notificationType The suffix key to manage this type of notification in settings
  */
 function push(notificationType, notificationContent) {
-    switch (notificationType) {
-        case "pin_copy":
-            if (store.getState().client.notificationOnCopy) {
-                browserClient.notify(notificationContent);
-            }
-            return;
-        case "password_copy":
-            if (store.getState().client.notificationOnCopy) {
-                browserClient.notify(notificationContent);
-            }
-            return;
-        case "username_copy":
-            if (store.getState().client.notificationOnCopy) {
-                browserClient.notify(notificationContent);
-            }
-            return;
-        case "totp_token_copy":
-            if (store.getState().client.notificationOnCopy) {
-                browserClient.notify(notificationContent);
-            }
-            return;
-        default:
-            console.error("This notification type: '" + notificationType + "' doesn't exist");
+    const knownNotificationTypes = [
+        "pin_copy",
+        "password_copy",
+        "username_copy",
+        "totp_token_copy",
+        "note_content_copy",
+        "credit_card_number_copy",
+        "credit_card_name_copy",
+        "credit_card_expiry_date_copy",
+        "credit_card_cvc_copy",
+        "credit_card_pin_copy"
+    ];
+
+    if (!knownNotificationTypes.includes(notificationType)) {
+        console.error("This notification type: '" + notificationType + "' doesn't exist");
+        return;
+    }
+
+    if (store.getState().client.notificationOnCopy) {
+        browserClient.notify(notificationContent);
     }
 }
 

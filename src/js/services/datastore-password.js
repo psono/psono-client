@@ -664,7 +664,6 @@ function saveDatastoreContent(datastore, paths) {
 
         const duplicate = helperService.duplicateObject(closest_shares[prop]);
         hideSubShareContent(duplicate);
-
         if (prop === "datastore") {
             promises.push(datastoreService.saveDatastoreContent(type, description, duplicate));
         } else {
