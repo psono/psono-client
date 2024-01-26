@@ -85,7 +85,7 @@ const useStyles = makeStyles((theme) => ({
         margin: 0,
         overflow: "hidden",
         overflowY: "auto",
-        height: "60vh",
+        height: "300px",
     },
     navigationItemLi: {
         position: "relative",
