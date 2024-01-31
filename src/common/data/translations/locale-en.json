@@ -798,6 +798,7 @@
   "ACCEPTING_THIS_WILL_SEND_YOUR_PLAIN_PASSWORD": "Accepting this will send your plain password to the server and should only be allowed if you are using LDAP or similar authentication methods. You can decline this, but this might fail in an authentication failure.",
   "REMEMBER_SERVER": "Remember server",
   "REMEMBER_USERNAME_AND_SERVER": "Remember username and server",
+  "REMEMBER_USERNAME": "Remember username",
   "TRUST_DEVICE": "Trust device",
   "REGISTER": "Register",
   "LOGIN": "Login",

@@ -798,6 +798,7 @@
   "ACCEPTING_THIS_WILL_SEND_YOUR_PLAIN_PASSWORD": "Wenn sie die Anfrage genehmigen werden sie ihr Klartext-Passwort zum Server übermitteln. Sie sollten dies nur tun, wenn sie LDAP oder eine ähnliche Authentifizierungsmethode einsetzen. Sie können diese Anfrage abweisen was aber zu einem Authentifizierungsfehler führen kann.",
   "REMEMBER_SERVER": "Server merken",
   "REMEMBER_USERNAME_AND_SERVER": "Benutzername und Server merken",
+  "REMEMBER_USERNAME": "Benutzername merken",
   "TRUST_DEVICE": "Vertrauenswürdiges Gerät",
   "REGISTER": "Registrieren",
   "LOGIN": "Login",
