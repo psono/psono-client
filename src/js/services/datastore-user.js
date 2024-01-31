@@ -1015,14 +1015,6 @@ function getUserDatastore() {
     const description = "default";
 
     const onSuccess = function (datastore) {
-        /*
-         _fill_storage('datastore-user-leafs', result, [
-         ['key', 'secret_id'],
-         ['value', 'secret_key'],
-         ['name', 'name'],
-         ['filter', 'filter']
-         ]);
-         */
         datastoreService.updateShareRightsOfFoldersAndItems(datastore, {
             read: true,
             write: true,
