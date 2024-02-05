@@ -848,7 +848,24 @@ function notify(content) {
 /**
  * Sets an icon
  *
- * @param {object} icon The callback function
+ * @param {object} text The text to overlay
+ */
+function setBadgeText(text) {
+    if (TARGET === "firefox") {
+        chrome.browserAction.setBadgeBackgroundColor({color: "#666"});
+        chrome.browserAction.setBadgeText({text: text});
+    } else if (TARGET === "chrome") {
+        chrome.action.setBadgeBackgroundColor({color: "#666"});
+        chrome.action.setBadgeText({text: text});
+    } else {
+        //pass, no badge text for the regular webclient
+    }
+}
+
+/**
+ * Sets an icon
+ *
+ * @param {object} icon The icon to set
  */
 function setIcon(icon) {
     if (TARGET === "firefox") {
@@ -856,7 +873,7 @@ function setIcon(icon) {
     } else if (TARGET === "chrome") {
         chrome.action.setIcon(icon)
     } else {
-        //pass, no background page on the website
+        //pass, no icon for the regular webclient
     }
 }
 
@@ -888,6 +905,7 @@ const browserClientService = {
     copyToClipboard: copyToClipboard,
     notify: notify,
     setIcon: setIcon,
+    setBadgeText: setBadgeText,
 };
 
 export default browserClientService;

@@ -640,9 +640,9 @@ function logout(msg = "", postLogoutRedirectUri = "") {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
 
-    const onSuccess = function (result) {
+    const onSuccess = async function (result) {
         action.disableOfflineMode();
-        storage.removeAll();
+        await storage.removeAll();
         storage.save();
         browserClient.emit("logout", null);
         action.logout(store.getState().user.rememberMe);

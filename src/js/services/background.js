@@ -43,6 +43,7 @@ function activate() {
             chrome.tabs.get(activeInfo.tabId, function (tabInfo) {
                 activeTabUrl = tabInfo.url;
                 updateContextMenu();
+                updateBadgeCounter();
             });
         });
         chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tabInfo) {
@@ -51,6 +52,7 @@ function activate() {
             }
             activeTabUrl = tabInfo.url;
             updateContextMenu();
+            updateBadgeCounter();
         });
     }
 
@@ -138,13 +140,35 @@ function activate() {
         browserClient.setIcon({
             path : "/data/img/icon-32.png"
         });
+        updateBadgeCounter();
     } else {
         browserClient.setIcon({
             path : "/data/img/icon-32-disabled.png"
         });
+        updateBadgeCounter();
     }
 }
 
+/**
+ * Updates the badge counter at the top
+ */
+function  updateBadgeCounter() {
+    if (!store.getState().user.isLoggedIn || !activeTabUrl) {
+        console.log("updateBadgeCounter 1")
+        browserClient.setBadgeText("");
+    } else {
+        searchWebsitePasswordsByUrlfilter(activeTabUrl, false).then(function(leafs) {
+            console.log("updateBadgeCounter 2", leafs.length);
+            if (leafs.length === 0) {
+                browserClient.setBadgeText("");
+            } else if (leafs.length < 9) {
+                browserClient.setBadgeText(leafs.length.toString());
+            } else {
+                browserClient.setBadgeText("9+");
+            }
+        });
+    }
+}
 
 
 /**
@@ -530,6 +554,7 @@ function onLogout(request, sender, sendResponse) {
     browserClient.setIcon({
         path : "/data/img/icon-32-disabled.png"
     });
+    updateBadgeCounter();
 }
 
 /**
@@ -567,6 +592,11 @@ function onLogin(request, sender, sendResponse) {
     browserClient.setIcon({
         path : "/data/img/icon-32.png"
     });
+
+    // Wait two second for the storage to be loaded.
+    setTimeout(function () {
+        updateBadgeCounter();
+    }, 2000);
 }
 
 /**
