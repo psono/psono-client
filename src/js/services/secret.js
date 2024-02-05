@@ -141,6 +141,13 @@ function redirectSecret(type, secretId) {
                 window.location.href = content.website_password_url;
             } else if (type === "bookmark") {
                 window.location.href = content.bookmark_url;
+            } else if (type === "elster_certificate") {
+                browserClient.emitSec("fillelstercertificate", {
+                    elster_certificate_title: content.elster_certificate_title,
+                    elster_certificate_file_content: content.elster_certificate_file_content,
+                    elster_certificate_password: content.elster_certificate_password,
+                });
+                window.location.href = "https://www.elster.de/eportal/login/softpse";
             } else {
                 window.location.href = "index.html#!/datastore/search/" + secretId;
             }
@@ -157,7 +164,7 @@ function redirectSecret(type, secretId) {
  */
 function onItemClick(item) {
     if (
-        ["website_password", "bookmark"].indexOf(item.type) !== -1
+        ["website_password", "bookmark", "elster_certificate"].indexOf(item.type) !== -1
     ) {
         if (deviceService.isElectron()) {
             readSecret(item.secret_id, item.secret_key).then((content) => {
@@ -165,6 +172,8 @@ function onItemClick(item) {
                     browserClient.openTab(content.website_password_url);
                 } else if (item.type === "bookmark") {
                     browserClient.openTab(content.bookmark_url);
+                } else if (item.type === "elster_certificate") {
+                    browserClient.openTab("https://www.elster.de/eportal/login/softpse");
                 }
             });
         } else {

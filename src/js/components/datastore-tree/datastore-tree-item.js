@@ -234,7 +234,7 @@ const DatastoreTreeItem = (props) => {
                 )}
                 <span className="tree-item-name">{content.name}</span>
                 <ButtonGroup variant="text" aria-label="outlined button group" className={"node-open-link"}>
-                    {Boolean(props.onLinkItem) && ["bookmark", "website_password"].indexOf(content.type) !== -1 && (
+                    {Boolean(props.onLinkItem) && ["bookmark", "website_password", "elster_certificate"].indexOf(content.type) !== -1 && (
                         <Button aria-label="open" onClick={linkItem}>
                             <OpenInNewIcon fontSize="small" />
                         </Button>

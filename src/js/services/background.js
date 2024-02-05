@@ -20,12 +20,14 @@ let activeTabId;
 let activeTabUrl;
 const entryExtraInfo = {};
 let fillpassword = [];
+let fillelstercertificate = [];
 const alreadyFilledMaxAllowed = {};
 
 const gpgMessages = {};
 
 let numTabs;
 let clearFillPasswordTimeout;
+let clearFillElsterCertificateTimeout;
 
 const CM_PSONO_ID = "psono-psono";
 const CM_DATASTORE_ID = "psono-datastore";
@@ -154,11 +156,9 @@ function activate() {
  */
 function  updateBadgeCounter() {
     if (!store.getState().user.isLoggedIn || !activeTabUrl) {
-        console.log("updateBadgeCounter 1")
         browserClient.setBadgeText("");
     } else {
         searchWebsitePasswordsByUrlfilter(activeTabUrl, false).then(function(leafs) {
-            console.log("updateBadgeCounter 2", leafs.length);
             if (leafs.length === 0) {
                 browserClient.setBadgeText("");
             } else if (leafs.length < 9) {
@@ -371,6 +371,7 @@ function fillSecretTab(secretId, tab) {
 function onMessage(request, sender, sendResponse) {
     const eventFunctions = {
         fillpassword: onFillpassword,
+        fillelstercertificate: onFillElsterCertificate,
         ready: onReady,
         "fillpassword-active-tab": onFillpasswordActiveTab,
         "save-password-active-tab": savePasswordActiveTab,
@@ -440,14 +441,39 @@ function onReady(request, sender, sendResponse) {
                 break;
             }
         }
+
+        if (parsedUrl.base_url === 'https://www.elster.de' && parsedUrl.path && parsedUrl.path.startsWith('/eportal/login/')) {
+            for (let i = fillelstercertificate.length - 1; i >= 0; i--) {
+                sentResponse = true;
+                sendResponse({ event: "fillelstercertificate", data: fillelstercertificate[i] });
+                found = true;
+                break;
+            }
+        }
         clearFillPasswordTimeout = setTimeout(function () {
             fillpassword = [];
+        }, 3000);
+        clearFillElsterCertificateTimeout = setTimeout(function () {
+            fillelstercertificate = [];
         }, 3000);
 
         if (!sentResponse) {
             sendResponse({ event: "status", data: "ok" });
         }
     }
+}
+
+/**
+ * we received a fillpassword event
+ * lets remember it
+ *
+ * @param {object} request The message sent by the calling script.
+ * @param {object} sender The sender of the message
+ * @param {function} sendResponse Function to call (at most once) when you have a response.
+ */
+function onFillElsterCertificate(request, sender, sendResponse) {
+    clearTimeout(clearFillElsterCertificateTimeout)
+    fillelstercertificate.push(request.data);
 }
 
 /**
