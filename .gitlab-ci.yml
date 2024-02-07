@@ -70,7 +70,7 @@ build-docker-image:
   stage: build
   image: psono-docker.jfrog.io/ubuntu:22.04
   services:
-    - name: docker:24-dind
+    - name: docker:25-dind
       alias: docker
       command: ["--tls=false"]
   variables:
@@ -82,10 +82,10 @@ build-docker-image:
     - sh ./var/download_translations_from_artifactory.sh
     - sh ./var/prep-build.sh
     - npm run buildwebclient
-    - curl -fSL "https://download.docker.com/linux/ubuntu/dists/jammy/pool/stable/amd64/containerd.io_1.6.24-1_amd64.deb" -o containerd.deb && echo "5e57863201a147369d1cc54dcb1493ada00ee22ceb90c49f91adc7a8238cd51f containerd.deb" | sha256sum -c -
-    - curl -fSL "https://download.docker.com/linux/ubuntu/dists/jammy/pool/stable/amd64/docker-buildx-plugin_0.11.2-1~ubuntu.22.04~jammy_amd64.deb" -o docker-buildx-plugin.deb && echo "18289b895394f8ad694f2107070dd95365866e5fa79a8d7f8f6d405bb8e9b68b docker-buildx-plugin.deb" | sha256sum -c -
-    - curl -fSL "https://download.docker.com/linux/ubuntu/dists/jammy/pool/stable/amd64/docker-ce-cli_24.0.7-1~ubuntu.22.04~jammy_amd64.deb" -o docker-ce-cli.deb && echo "bfca81c55faacef808c476e16de548a9b7f1d1e537d24d546aef47df7c598564 docker-ce-cli.deb" | sha256sum -c -
-    - curl -fSL "https://download.docker.com/linux/ubuntu/dists/jammy/pool/stable/amd64/docker-ce_24.0.7-1~ubuntu.22.04~jammy_amd64.deb" -o docker-ce.deb && echo "81273f05dbc410d9ec62b264bbef5452bfa892117e82be5a673e8e9a39192699 docker-ce.deb" | sha256sum -c -
+    - curl -fSL "https://download.docker.com/linux/ubuntu/dists/jammy/pool/stable/amd64/containerd.io_1.6.28-1_amd64.deb" -o containerd.deb && echo "3fcc3e44e6d507c346ae05bbaef8f4bb04dfa8da9f04af658537f7e373c91340 containerd.deb" | sha256sum -c -
+    - curl -fSL "https://download.docker.com/linux/ubuntu/dists/jammy/pool/stable/amd64/docker-buildx-plugin_0.12.1-1~ubuntu.22.04~jammy_amd64.deb" -o docker-buildx-plugin.deb && echo "3fb7cd11fd9bf7c31d81c1afa96c023519d9e6e17422192aa4d0aa2767ed0776 docker-buildx-plugin.deb" | sha256sum -c -
+    - curl -fSL "https://download.docker.com/linux/ubuntu/dists/jammy/pool/stable/amd64/docker-ce-cli_25.0.3-1~ubuntu.22.04~jammy_amd64.deb" -o docker-ce-cli.deb && echo "624abe860a3d9dd190c278263b3ae115d54ce1135774a79f84026a6ec6ebafd1 docker-ce-cli.deb" | sha256sum -c -
+    - curl -fSL "https://download.docker.com/linux/ubuntu/dists/jammy/pool/stable/amd64/docker-ce_25.0.3-1~ubuntu.22.04~jammy_amd64.deb" -o docker-ce.deb && echo "63c7703814558a829ab3cc37c8018c050c9dad56f99c261090500f6c87821fd1 docker-ce.deb" | sha256sum -c -
     - dpkg -i ./containerd.deb ./docker-ce.deb ./docker-ce-cli.deb ./docker-buildx-plugin.deb
     - docker info
     - echo $artifactory_credentials | docker login --username=gitlab --password-stdin psono-docker.jfrog.io
@@ -375,9 +375,9 @@ release-docker:
   except:
     - schedules
   stage: release
-  image: psono-docker.jfrog.io/docker:24.0.7-git
+  image: psono-docker.jfrog.io/docker:25.0.3-git
   services:
-    - name: docker:24-dind
+    - name: docker:25-dind
       alias: docker
       command: ["--tls=false"]
   variables:
@@ -396,9 +396,9 @@ deploy-docker:
   except:
     - schedules
   stage: deploy
-  image: psono-docker.jfrog.io/docker:24.0.7-git
+  image: psono-docker.jfrog.io/docker:25.0.3-git
   services:
-    - name: docker:24-dind
+    - name: docker:25-dind
       alias: docker
       command: ["--tls=false"]
   variables:
@@ -420,9 +420,9 @@ deploy-github:
   except:
     - schedules
   stage: deploy
-  image: psono-docker.jfrog.io/docker:24.0.7-git
+  image: psono-docker.jfrog.io/docker:25.0.3-git
   services:
-    - name: docker:24-dind
+    - name: docker:25-dind
       alias: docker
       command: ["--tls=false"]
   variables:
