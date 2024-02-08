@@ -124,6 +124,7 @@ const DialogHistory = (props) => {
                     data={historyData}
                     hideLinkToEntry={true}
                     hideShowHistory={true}
+                    hideMoreMenu={true}
                 />
             )}
         </Dialog>

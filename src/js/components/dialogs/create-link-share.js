@@ -13,7 +13,6 @@ import { KeyboardDateTimePicker } from "@material-ui/pickers";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import IconButton from "@material-ui/core/IconButton";
 import add from "date-fns/add";
-import TextFieldPassword from "../text-field/password";
 import cryptoLibraryService from "../../services/crypto-library";
 import linkShareService from "../../services/link-share";
 import store from "../../services/store";
@@ -21,6 +20,16 @@ import hostService from "../../services/host";
 import converter from "../../services/converter";
 import ContentCopy from "../icons/ContentCopy";
 import browserClient from "../../services/browser-client";
+import MenuOpenIcon from "@material-ui/icons/MenuOpen";
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
+import Typography from "@material-ui/core/Typography";
+import PhonelinkSetupIcon from "@material-ui/icons/PhonelinkSetup";
+import browserClientService from "../../services/browser-client";
+import notification from "../../services/notification";
+import datastorePasswordService from "../../services/datastore-password";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -35,9 +44,31 @@ const DialogCreateLinkShare = (props) => {
     const [publicTitle, setPublicTitle] = useState(props.item.name);
     const [allowedReads, setAllowedReads] = useState(1);
     const [validTill, setValidTill] = useState(add(new Date(), { days: 1 }));
+    const [showPassphrase, setShowPassphrase] = useState(false);
     const [passphrase, setPassphrase] = useState("");
-    const [passphraseRepeat, setPassphraseRepeat] = useState("");
     const [linkShareAccessUrl, setLinkShareAccessUrl] = useState("");
+    const [anchorEl, setAnchorEl] = React.useState(null);
+
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const onShowHidePassphrase = (event) => {
+        handleClose();
+        setShowPassphrase(!showPassphrase);
+    };
+
+    const onCopyPassphrase = (event) => {
+        handleClose();
+        browserClientService.copyToClipboard(() => Promise.resolve(passphrase));
+        notification.push("password_copy", t("PASSPHRASE_COPY_NOTIFICATION"));
+    };
+    const onGeneratePassphrase = (event) => {
+        handleClose();
+        const generatedPassphrase = datastorePasswordService.generate();
+        setPassphrase(generatedPassphrase);
+    };
 
     const copyToClipbard = (event) => {
         browserClient.copyToClipboard(() => Promise.resolve(linkShareAccessUrl));
@@ -226,7 +257,7 @@ const DialogCreateLinkShare = (props) => {
                             />
                         </Grid>
                         <Grid item xs={12} sm={12} md={12}>
-                            <TextFieldPassword
+                            <TextField
                                 className={classes.textField}
                                 variant="outlined"
                                 margin="dense"
@@ -239,31 +270,59 @@ const DialogCreateLinkShare = (props) => {
                                 onChange={(event) => {
                                     setPassphrase(event.target.value);
                                 }}
+                                InputProps={{
+                                    type: showPassphrase ? "text" : "password",
+                                    classes: {
+                                        input: classes.passwordField,
+                                    },
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                className={classes.iconButton}
+                                                aria-label="menu"
+                                                onClick={(event) => {
+                                                    setAnchorEl(event.currentTarget);
+                                                }}
+                                            >
+                                                <MenuOpenIcon fontSize="small" />
+                                            </IconButton>
+                                            <Menu
+                                                id="simple-menu"
+                                                anchorEl={anchorEl}
+                                                keepMounted
+                                                open={Boolean(anchorEl)}
+                                                onClose={handleClose}
+                                            >
+                                                <MenuItem onClick={onShowHidePassphrase}>
+                                                    <ListItemIcon className={classes.listItemIcon}>
+                                                        <VisibilityOffIcon className={classes.icon} fontSize="small" />
+                                                    </ListItemIcon>
+                                                    <Typography variant="body2" noWrap>
+                                                        {t("SHOW_OR_HIDE_PASSPHRASE")}
+                                                    </Typography>
+                                                </MenuItem>
+                                                <MenuItem onClick={onCopyPassphrase}>
+                                                    <ListItemIcon className={classes.listItemIcon}>
+                                                        <ContentCopy className={classes.icon} fontSize="small" />
+                                                    </ListItemIcon>
+                                                    <Typography variant="body2" noWrap>
+                                                        {t("COPY_PASSPHRASE")}
+                                                    </Typography>
+                                                </MenuItem>
+                                                <MenuItem onClick={onGeneratePassphrase}>
+                                                    <ListItemIcon className={classes.listItemIcon}>
+                                                        <PhonelinkSetupIcon className={classes.icon} fontSize="small" />
+                                                    </ListItemIcon>
+                                                    <Typography variant="body2" noWrap>
+                                                        {t("GENERATE_PASSPHRASE")}
+                                                    </Typography>
+                                                </MenuItem>
+                                            </Menu>
+                                        </InputAdornment>
+                                    ),
+                                }}
                             />
                         </Grid>
-                        {Boolean(passphrase) && (
-                            <Grid item xs={12} sm={12} md={12}>
-                                <TextFieldPassword
-                                    className={classes.textField}
-                                    variant="outlined"
-                                    margin="dense"
-                                    id="passphraseRepeat"
-                                    label={t("PASSPHRASE_REPEAT")}
-                                    name="passphraseRepeat"
-                                    autoComplete="off"
-                                    error={
-                                        Boolean(passphrase) &&
-                                        Boolean(passphraseRepeat) &&
-                                        passphrase !== passphraseRepeat
-                                    }
-                                    value={passphraseRepeat}
-                                    required
-                                    onChange={(event) => {
-                                        setPassphraseRepeat(event.target.value);
-                                    }}
-                                />
-                            </Grid>
-                        )}
                     </Grid>
                 </DialogContent>
             )}
@@ -280,7 +339,7 @@ const DialogCreateLinkShare = (props) => {
                         onClick={onCreate}
                         variant="contained"
                         color="primary"
-                        disabled={!publicTitle || (Boolean(passphrase) && passphrase !== passphraseRepeat)}
+                        disabled={!publicTitle}
                     >
                         {t("CREATE")}
                     </Button>

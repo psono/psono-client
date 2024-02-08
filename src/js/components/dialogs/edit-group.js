@@ -30,6 +30,7 @@ import GridContainerErrors from "../grid-container-errors";
 import shareService from "../../services/share";
 import DialogNewUser from "./new-user";
 import DialogVerify from "./verify";
+import DialogError from "./error";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -74,6 +75,7 @@ const DialogEditGroup = (props) => {
     const [originalGroupName, setOriginalGroupName] = useState("");
     const [shareAdmin, setShareAdmin] = useState(false);
     const [newUserOpen, setNewUserOpen] = useState(false);
+    const [error, setError] = useState(null);
 
     const onSave = (event) => {
         setErrors([]);
@@ -186,8 +188,28 @@ const DialogEditGroup = (props) => {
      */
     const createMembership = (user) => {
         const onError = function (result) {
-            // pass
-            console.log(result);
+            let title;
+            let description;
+            if (result.data === null) {
+                title = "UNKNOWN_ERROR";
+                description = "UNKNOWN_ERROR_CHECK_BROWSER_CONSOLE";
+            } else if (
+                result.data.hasOwnProperty("non_field_errors") &&
+                (result.data["non_field_errors"].indexOf("USER_DOES_NOT_EXIST") !== -1)
+            ) {
+                title = "UNKNOWN_USER";
+                description = t("USER_DOES_NOT_EXIST_PROBABLY_DELETED", {name: user.name});
+            } else if (result.data.hasOwnProperty("non_field_errors")) {
+                title = "ERROR";
+                description = result.data["non_field_errors"][0];
+            } else {
+                title = "UNKNOWN_ERROR";
+                description = "UNKNOWN_ERROR_CHECK_BROWSER_CONSOLE";
+            }
+            setError({
+                title,
+                description,
+            });
         };
 
         const onSuccess = function (result) {
@@ -676,6 +698,14 @@ const DialogEditGroup = (props) => {
                     {t("SAVE")}
                 </Button>
             </DialogActions>
+            {error !== null && (
+                <DialogError
+                    open={error !== null}
+                    onClose={() => setError(null)}
+                    title={error.title}
+                    description={error.description}
+                />
+            )}
         </Dialog>
     );
 };

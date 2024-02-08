@@ -240,7 +240,7 @@ const PopupItem = (props) => {
                 aria-label="outlined button group"
                 className={classes.navigationItemButtonGroup}
             >
-                {["bookmark", "website_password"].indexOf(item.content.type) !== -1 && (
+                {["bookmark", "website_password", "elster_certificate"].indexOf(item.content.type) !== -1 && (
                     <Button
                         aria-label="open"
                         onClick={() => {

@@ -37,6 +37,7 @@ const TextFieldCreditCardNumber = (props) => {
         <TextField
             {...props}
             InputProps={{
+                ...props.InputProps,
                 inputComponent: CreditCardFormat,
             }}
         />

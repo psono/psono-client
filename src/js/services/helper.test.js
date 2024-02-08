@@ -98,6 +98,26 @@ describe('Service: helper test suite', function() {
         });
     });
 
+    it('parse_url with capital letters in url', function() {
+        expect(
+            helperService.parseUrl(
+                'http://TEST.example.com:6000/url-Part/#is-not-part'
+            )
+        ).toEqual({
+            scheme: 'http',
+            authority: 'test.example.com:6000',
+            authority_without_www: 'test.example.com:6000',
+            base_url: "http://test.example.com:6000",
+            full_domain: 'test.example.com',
+            full_domain_without_www: 'test.example.com',
+            top_domain: 'test.example.com',
+            port: '6000',
+            path: '/url-Part/',
+            query: undefined,
+            fragment: 'is-not-part'
+        });
+    });
+
     it('getDomainWithoutWww sub domain', function() {
         expect(
             helperService.getDomainWithoutWww('http://test.example.com/url-part/#is-not-part')
@@ -389,5 +409,19 @@ describe('Service: helper test suite', function() {
         const urlFilter = '*.example.com';
 
         expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeFalsy()
+    });
+
+    it('isUrlFilterMatch with authority being caps while urlfilter being all lowercase', function() {
+        const authority = 'sub.sub.Example.com';
+        const urlFilter = '*.example.com';
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeTruthy()
+    });
+
+    it('isUrlFilterMatch with urlfilter being caps while authority being all lowercase', function() {
+        const authority = 'sub.sub.example.com';
+        const urlFilter = '*.Example.com';
+
+        expect(helperService.isUrlFilterMatch(authority, urlFilter)).toBeTruthy()
     });
 });

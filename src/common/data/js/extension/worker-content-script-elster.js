@@ -18,6 +18,7 @@ var ClassWorkerContentScriptElster = function (base, browser, setTimeout) {
         if (document.defaultView.location.origin + document.defaultView.location.pathname === 'https://www.elster.de/eportal/login/softpse') {
             // we use origin and pathname instead of href as we also want to support this url
             // https://www.elster.de/eportal/login/softpse?locale=en_US
+            base.on("fillelstercertificate", onFillElsterCertificate);
             base.registerObserver(analyze_document);
         }
     }
@@ -31,6 +32,18 @@ var ClassWorkerContentScriptElster = function (base, browser, setTimeout) {
         addDropdownMenuButton(document);
         // add_pgp_message_writers(document);
     }
+
+    /**
+     * Handler for a fillelstercertificate event
+     *
+     * @param data
+     * @param sender
+     * @param sendResponse
+     */
+    function onFillElsterCertificate(data, sender, sendResponse) {
+        fillCertificate(data);
+    }
+
 
     /**
      * Sanitizes some text and returns proper html escaped text
@@ -61,6 +74,62 @@ var ClassWorkerContentScriptElster = function (base, browser, setTimeout) {
     }
 
     /**
+     * Fills the provided certificate data into the fields
+     *
+     * @param data
+     */
+    function fillCertificate(data) {
+        let fileName = data.elster_certificate_title.replace(/\s/g,'');
+        if (!fileName.toLowerCase().endsWith('.pfx')) {
+            fileName = fileName + '.pfx';
+        }
+        const content = fromHex(data.elster_certificate_file_content);
+
+        // fill certificate field
+        const blob = new Blob([content], { type: 'application/x-pkcs12' });
+        const file = new File([blob], fileName, {
+            type: 'application/x-pkcs12',
+        });
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        const inputElement = document.getElementById('loginBox.file_cert');
+        inputElement.files = dataTransfer.files;
+        inputElement.dispatchEvent(new Event('change'));
+        // small animation
+        if (!inputElement.classList.contains("psono-autofill-style")) {
+            inputElement.classList.add('psono-autofill-style');
+            setTimeout(function () {
+                if (inputElement) {
+                    inputElement.classList.remove('psono-autofill-style');
+                }
+            }, 100);
+        }
+
+
+        // fill password field
+        const passwordField = document.getElementById("password");
+        passwordField.focus();
+        passwordField.value = data.elster_certificate_password;
+        ['keydown', 'keypress', 'keyup', 'change', 'blur', 'input'].forEach(eventType => {
+            passwordField.dispatchEvent(new Event(eventType, {
+                bubbles: true,
+                cancelable: true,
+            }));
+        });
+        // small animation
+        if (!passwordField.classList.contains("psono-autofill-style")) {
+            passwordField.classList.add('psono-autofill-style');
+            setTimeout(function () {
+                if (passwordField) {
+                    passwordField.classList.remove('psono-autofill-style');
+                }
+            }, 100);
+        }
+
+
+    }
+
+    /**
      * Requests the password from the backend
      *
      * @param secret_id
@@ -71,52 +140,7 @@ var ClassWorkerContentScriptElster = function (base, browser, setTimeout) {
             secret_id: secret_id,
         }, async (response) => {
 
-            let fileName = response.data.elster_certificate_title.replace(/\s/g,'');
-            if (!fileName.toLowerCase().endsWith('.pfx')) {
-                fileName = fileName + '.pfx';
-            }
-            const content = fromHex(response.data.elster_certificate_file_content);
-
-            // fill certificate field
-            const blob = new Blob([content], { type: 'application/x-pkcs12' });
-            const file = new File([blob], fileName, {
-                type: 'application/x-pkcs12',
-            });
-            const dataTransfer = new DataTransfer();
-            dataTransfer.items.add(file);
-            const inputElement = document.getElementById('loginBox.file_cert');
-            inputElement.files = dataTransfer.files;
-            inputElement.dispatchEvent(new Event('change'));
-            // small animation
-            if (!inputElement.classList.contains("psono-autofill-style")) {
-                inputElement.classList.add('psono-autofill-style');
-                setTimeout(function () {
-                    if (inputElement) {
-                        inputElement.classList.remove('psono-autofill-style');
-                    }
-                }, 100);
-            }
-
-
-            // fill password field
-            const passwordField = document.getElementById("password");
-            passwordField.focus();
-            passwordField.value = response.data.elster_certificate_password;
-            ['keydown', 'keypress', 'keyup', 'change', 'blur', 'input'].forEach(eventType => {
-                passwordField.dispatchEvent(new Event(eventType, {
-                    bubbles: true,
-                    cancelable: true,
-                }));
-            });
-            // small animation
-            if (!passwordField.classList.contains("psono-autofill-style")) {
-                passwordField.classList.add('psono-autofill-style');
-                setTimeout(function () {
-                    if (passwordField) {
-                        passwordField.classList.remove('psono-autofill-style');
-                    }
-                }, 100);
-            }
+            fillCertificate(response.data);
 
         });
     }

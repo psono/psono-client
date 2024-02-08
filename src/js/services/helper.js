@@ -32,7 +32,11 @@ function parseUrl(url) {
     base_url = matches[2] + "://";
 
     if (typeof matches[4] !== "undefined") {
-        base_url = base_url + matches[4];
+        if (matches[4]) {
+            base_url = base_url + matches[4].toLowerCase();
+        } else {
+            base_url = base_url + matches[4];
+        }
         authority = matches[4];
         splitted_authority = authority.split(":");
     }
@@ -47,11 +51,11 @@ function parseUrl(url) {
     return {
         scheme: schema,
         base_url: base_url,
-        authority: authority,
-        authority_without_www: authority ? authority.replace(/^(www\.)/, ""): authority, //remove leading www.
-        full_domain: full_domain,
-        full_domain_without_www: full_domain ? full_domain.replace(/^(www\.)/, "") : full_domain,
-        top_domain: full_domain,
+        authority: authority ? authority.toLowerCase() : authority,
+        authority_without_www: authority ? authority.toLowerCase().replace(/^(www\.)/, ""): authority, //remove leading www.
+        full_domain: full_domain ? full_domain.toLowerCase() : full_domain,
+        full_domain_without_www: full_domain ? full_domain.toLowerCase().replace(/^(www\.)/, "") : full_domain,
+        top_domain: full_domain ? full_domain.toLowerCase() : full_domain,
         port: port,
         path: matches[5],
         query: matches[7],
@@ -488,6 +492,8 @@ function isUrlFilterMatch(authority, urlFilter) {
     if (!authority || !urlFilter) {
         return false
     }
+    authority = authority.toLowerCase();
+    urlFilter = urlFilter.toLowerCase();
     let directMatch = authority === urlFilter;
     let wildcardMatch = urlFilter.startsWith('*.') && authority.endsWith(urlFilter.substring(1));
 

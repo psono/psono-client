@@ -37,6 +37,7 @@ const TextFieldCreditCardValidThrough = (props) => {
         <TextField
             {...props}
             InputProps={{
+                ...props.InputProps,
                 inputComponent: InputComponent,
             }}
         />

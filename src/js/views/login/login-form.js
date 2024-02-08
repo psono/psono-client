@@ -826,22 +826,63 @@ const LoginViewForm = (props) => {
                         </Grid>
                     </Grid>
                 )}
-                <Grid container>
-                    <Grid item xs={12} sm={12} md={12}>
-                        <Checkbox
-                            checked={rememberMe}
-                            onChange={(event) => {
-                                setRememberMe(event.target.checked);
-                            }}
-                            checkedIcon={<Check className={classes.checkedIcon} />}
-                            icon={<Check className={classes.uncheckedIcon} />}
-                            classes={{
-                                checked: classes.checked,
-                            }}
-                        />{" "}
-                        {t("REMEMBER_USERNAME_AND_SERVER")}
+
+                {allowUsernamePasswordLogin && allowCustomServer && (
+                    <Grid container>
+                        <Grid item xs={12} sm={12} md={12}>
+                            <Checkbox
+                                checked={rememberMe}
+                                onChange={(event) => {
+                                    setRememberMe(event.target.checked);
+                                }}
+                                checkedIcon={<Check className={classes.checkedIcon} />}
+                                icon={<Check className={classes.uncheckedIcon} />}
+                                classes={{
+                                    checked: classes.checked,
+                                }}
+                            />{" "}
+                            {t("REMEMBER_USERNAME_AND_SERVER")}
+                        </Grid>
                     </Grid>
-                </Grid>
+                )}
+
+                {allowUsernamePasswordLogin && !allowCustomServer && (
+                    <Grid container>
+                        <Grid item xs={12} sm={12} md={12}>
+                            <Checkbox
+                                checked={rememberMe}
+                                onChange={(event) => {
+                                    setRememberMe(event.target.checked);
+                                }}
+                                checkedIcon={<Check className={classes.checkedIcon} />}
+                                icon={<Check className={classes.uncheckedIcon} />}
+                                classes={{
+                                    checked: classes.checked,
+                                }}
+                            />{" "}
+                            {t("REMEMBER_USERNAME")}
+                        </Grid>
+                    </Grid>
+                )}
+
+                {!allowUsernamePasswordLogin && allowCustomServer && (
+                    <Grid container>
+                        <Grid item xs={12} sm={12} md={12}>
+                            <Checkbox
+                                checked={rememberMe}
+                                onChange={(event) => {
+                                    setRememberMe(event.target.checked);
+                                }}
+                                checkedIcon={<Check className={classes.checkedIcon} />}
+                                icon={<Check className={classes.uncheckedIcon} />}
+                                classes={{
+                                    checked: classes.checked,
+                                }}
+                            />{" "}
+                            {t("REMEMBER_SERVER")}
+                        </Grid>
+                    </Grid>
+                )}
                 <Grid container>
                     <Grid item xs={12} sm={12} md={12}>
                         <Checkbox

@@ -1,10 +1,10 @@
 /**
- * linkShare collects all functions to edit / update / create link shares and to work with them.
+ * All the entry types and their various translations and functions.
+ * Should be extended to simplify how new entry types are added
  */
 
 import helperService from "./helper";
 import store from "./store";
-import datastoreSetting from "./datastore-setting";
 
 const _entryTypes = [
     {

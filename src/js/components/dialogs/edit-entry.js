@@ -26,6 +26,7 @@ import Typography from "@material-ui/core/Typography";
 import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 import PhonelinkSetupIcon from "@material-ui/icons/PhonelinkSetup";
 import DeleteIcon from "@material-ui/icons/Delete";
+import MoreVertIcon from '@material-ui/icons/MoreVert';
 import OpenInNewIcon from "@material-ui/icons/OpenInNew";
 import PlaylistAddIcon from "@material-ui/icons/PlaylistAdd";
 import LinearProgress from "@material-ui/core/LinearProgress";
@@ -49,6 +50,9 @@ import TextFieldCreditCardNumber from "../text-field/credit-card-number";
 import TextFieldCreditCardValidThrough from "../text-field/credit-card-valid-through";
 import TextFieldCreditCardCVC from "../text-field/credit-card-cvc";
 import converterService from "../../services/converter";
+import LinkIcon from "@material-ui/icons/Link";
+import DialogCreateLinkShare from "./create-link-share";
+import Divider from "@material-ui/core/Divider";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -112,13 +116,19 @@ const useStyles = makeStyles((theme) => ({
     iconButton2: {
         padding: 14,
     },
+    divider: {
+        marginTop: "8px",
+        marginBottom: "8px",
+    },
 }));
 
 const DialogEditEntry = (props) => {
-    const { open, onClose, item, hideLinkToEntry, hideShowHistory, inline } = props;
+    const { open, onClose, item, hideLinkToEntry, hideShowHistory, hideMoreMenu, inline } = props;
     const { t } = useTranslation();
     const classes = useStyles();
     const offline = offlineCache.isActive();
+
+    const [createLinkShareOpen, setCreateLinkShareOpen] = useState(false);
 
     const [decryptMessageDialogOpen, setDecryptMessageDialogOpen] = useState(false);
     const [encryptMessageDialogOpen, setEncryptMessageDialogOpen] = useState(false);
@@ -188,6 +198,7 @@ const DialogEditEntry = (props) => {
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [anchorEl2, setAnchorEl2] = React.useState(null);
+    const [anchorElMoreMenu, setAnchorElMoreMenu] = React.useState(null);
 
     const [callbackUrl, setCallbackUrl] = useState("");
     const [callbackPass, setCallbackPass] = useState("");
@@ -864,6 +875,10 @@ const DialogEditEntry = (props) => {
         fileReader.readAsArrayBuffer(event.target.files[0]);
     };
 
+    const openMenuMoreMenu = (event) => {
+        setAnchorElMoreMenu(event.currentTarget);
+    };
+
     const openMenu = (event) => {
         setAnchorEl(event.currentTarget);
     };
@@ -871,12 +886,21 @@ const DialogEditEntry = (props) => {
     const handleClose = () => {
         setAnchorEl(null);
         setAnchorEl2(null);
+        setAnchorElMoreMenu(null);
     };
 
     const linkItem = function (event) {
         event.stopPropagation();
         secretService.onItemClick(item);
     };
+
+    const onLinkShare = () => {
+        setCreateLinkShareOpen(true);
+    };
+    const onDelete = () => {
+        props.onDeleteItem();
+        onClose();
+    }
 
     let title = ''
     if (item.share_rights && item.share_rights.read) {
@@ -898,6 +922,38 @@ const DialogEditEntry = (props) => {
                 <Button onClick={onEdit} variant="contained" color="primary" disabled={!canSave} type="submit">
                     {t("SAVE")}
                 </Button>
+            )}
+            {!hideMoreMenu && item.share_rights && (item.share_rights.read || item.share_rights.write) && !offline && (
+                <>
+                    <IconButton aria-controls="more-menu" aria-label="open more menu" onClick={openMenuMoreMenu}>
+                        <MoreVertIcon />
+                    </IconButton>
+                    <Menu
+                        id="more-menu"
+                        anchorEl={anchorElMoreMenu}
+                        keepMounted
+                        open={Boolean(anchorElMoreMenu)}
+                        onClose={handleClose}
+                    >
+                        {!store.getState().server.complianceDisableLinkShares && (<MenuItem onClick={onLinkShare}>
+                            <ListItemIcon className={classes.listItemIcon}>
+                                <LinkIcon className={classes.icon} fontSize="small"/>
+                            </ListItemIcon>
+                            <Typography variant="body2" noWrap>
+                                {t("LINK_SHARE")}
+                            </Typography>
+                        </MenuItem>)}
+                        {!store.getState().server.complianceDisableLinkShares && item.share_rights.write && props.onDeleteItem && <Divider className={classes.divider} />}
+                        {item.share_rights.write && props.onDeleteItem && <MenuItem onClick={onDelete}>
+                            <ListItemIcon className={classes.listItemIcon}>
+                                <DeleteIcon className={classes.icon} fontSize="small" />
+                            </ListItemIcon>
+                            <Typography variant="body2" noWrap>
+                                {t("MOVE_TO_TRASH")}
+                            </Typography>
+                        </MenuItem>}
+                    </Menu>
+                </>
             )}
             {decryptMessageDialogOpen && (
                 <DialogDecryptGpgMessage
@@ -1742,7 +1798,6 @@ const DialogEditEntry = (props) => {
                         value={creditCardTitle}
                         InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
                         required
-                        required
                         onChange={(event) => {
                             setCreditCardTitle(event.target.value);
                         }}
@@ -2372,6 +2427,14 @@ const DialogEditEntry = (props) => {
                     {t("ENTRY_LINK")}: <a href={"index.html#!/datastore/search/" + item.id}>{item.id}</a>
                 </Grid>
             )}
+
+            {createLinkShareOpen && (
+                <DialogCreateLinkShare
+                    open={createLinkShareOpen}
+                    onClose={() => setCreateLinkShareOpen(false)}
+                    item={item}
+                />
+            )}
         </Grid>
     )
 
@@ -2428,16 +2491,19 @@ const DialogEditEntry = (props) => {
 DialogEditEntry.defaultProps = {
     hideLinkToEntry: false,
     hideShowHistory: false,
+    hideMoreMenu: false,
     inline: false,
 };
 
 DialogEditEntry.propTypes = {
     onClose: PropTypes.func.isRequired,
     onEdit: PropTypes.func,
+    onDeleteItem: PropTypes.func,
     open: PropTypes.bool.isRequired,
     item: PropTypes.object.isRequired,
     hideLinkToEntry: PropTypes.bool,
     hideShowHistory: PropTypes.bool,
+    hideMoreMenu: PropTypes.bool,
     inline: PropTypes.bool,
 };
 

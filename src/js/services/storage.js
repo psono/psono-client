@@ -19,9 +19,6 @@ const dbConfig = {
     "datastore-file-leafs": localforage.createInstance({
         name: "datastore-file-leafs",
     }),
-    "datastore-user-leafs": localforage.createInstance({
-        name: "datastore-user-leafs",
-    }),
     "offline-cache": localforage.createInstance({
         name: "offline-cache",
     }),
@@ -132,9 +129,9 @@ function remove(db, key) {
  *
  * @param {string} [db] (optional) The database
  */
-function removeAll(db) {
+async function removeAll(db) {
     if (typeof db !== "undefined") {
-        dbConfig[db].clear();
+        await dbConfig[db].clear();
     } else {
         for (let dbName in dbConfig) {
             if (!dbConfig.hasOwnProperty(dbName)) {
@@ -144,7 +141,7 @@ function removeAll(db) {
                 //state contains data that potentially be persisted
                 continue;
             }
-            dbConfig[dbName].clear();
+            await dbConfig[dbName].clear();
         }
     }
 }

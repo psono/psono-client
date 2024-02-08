@@ -20,12 +20,14 @@ let activeTabId;
 let activeTabUrl;
 const entryExtraInfo = {};
 let fillpassword = [];
+let fillelstercertificate = [];
 const alreadyFilledMaxAllowed = {};
 
 const gpgMessages = {};
 
 let numTabs;
 let clearFillPasswordTimeout;
+let clearFillElsterCertificateTimeout;
 
 const CM_PSONO_ID = "psono-psono";
 const CM_DATASTORE_ID = "psono-datastore";
@@ -43,6 +45,7 @@ function activate() {
             chrome.tabs.get(activeInfo.tabId, function (tabInfo) {
                 activeTabUrl = tabInfo.url;
                 updateContextMenu();
+                updateBadgeCounter();
             });
         });
         chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tabInfo) {
@@ -51,6 +54,7 @@ function activate() {
             }
             activeTabUrl = tabInfo.url;
             updateContextMenu();
+            updateBadgeCounter();
         });
     }
 
@@ -138,13 +142,33 @@ function activate() {
         browserClient.setIcon({
             path : "/data/img/icon-32.png"
         });
+        updateBadgeCounter();
     } else {
         browserClient.setIcon({
             path : "/data/img/icon-32-disabled.png"
         });
+        updateBadgeCounter();
     }
 }
 
+/**
+ * Updates the badge counter at the top
+ */
+function  updateBadgeCounter() {
+    if (!store.getState().user.isLoggedIn || !activeTabUrl) {
+        browserClient.setBadgeText("");
+    } else {
+        searchWebsitePasswordsByUrlfilter(activeTabUrl, false).then(function(leafs) {
+            if (leafs.length === 0) {
+                browserClient.setBadgeText("");
+            } else if (leafs.length < 9) {
+                browserClient.setBadgeText(leafs.length.toString());
+            } else {
+                browserClient.setBadgeText("9+");
+            }
+        });
+    }
+}
 
 
 /**
@@ -347,6 +371,7 @@ function fillSecretTab(secretId, tab) {
 function onMessage(request, sender, sendResponse) {
     const eventFunctions = {
         fillpassword: onFillpassword,
+        fillelstercertificate: onFillElsterCertificate,
         ready: onReady,
         "fillpassword-active-tab": onFillpasswordActiveTab,
         "save-password-active-tab": savePasswordActiveTab,
@@ -416,14 +441,39 @@ function onReady(request, sender, sendResponse) {
                 break;
             }
         }
+
+        if (parsedUrl.base_url === 'https://www.elster.de' && parsedUrl.path && parsedUrl.path.startsWith('/eportal/login/')) {
+            for (let i = fillelstercertificate.length - 1; i >= 0; i--) {
+                sentResponse = true;
+                sendResponse({ event: "fillelstercertificate", data: fillelstercertificate[i] });
+                found = true;
+                break;
+            }
+        }
         clearFillPasswordTimeout = setTimeout(function () {
             fillpassword = [];
+        }, 3000);
+        clearFillElsterCertificateTimeout = setTimeout(function () {
+            fillelstercertificate = [];
         }, 3000);
 
         if (!sentResponse) {
             sendResponse({ event: "status", data: "ok" });
         }
     }
+}
+
+/**
+ * we received a fillpassword event
+ * lets remember it
+ *
+ * @param {object} request The message sent by the calling script.
+ * @param {object} sender The sender of the message
+ * @param {function} sendResponse Function to call (at most once) when you have a response.
+ */
+function onFillElsterCertificate(request, sender, sendResponse) {
+    clearTimeout(clearFillElsterCertificateTimeout)
+    fillelstercertificate.push(request.data);
 }
 
 /**
@@ -530,6 +580,7 @@ function onLogout(request, sender, sendResponse) {
     browserClient.setIcon({
         path : "/data/img/icon-32-disabled.png"
     });
+    updateBadgeCounter();
 }
 
 /**
@@ -567,6 +618,11 @@ function onLogin(request, sender, sendResponse) {
     browserClient.setIcon({
         path : "/data/img/icon-32.png"
     });
+
+    // Wait two second for the storage to be loaded.
+    setTimeout(function () {
+        updateBadgeCounter();
+    }, 2000);
 }
 
 /**

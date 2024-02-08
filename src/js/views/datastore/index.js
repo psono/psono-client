@@ -29,18 +29,14 @@ import widget from "../../services/widget";
 import DialogNewFolder from "../../components/dialogs/new-folder";
 import DialogNewEntry from "../../components/dialogs/new-entry";
 import DatastoreTree from "../../components/datastore-tree";
-import DialogNewShare from "../../components/dialogs/new-share";
 import DialogEditFolder from "../../components/dialogs/edit-folder";
 import DialogEditEntry from "../../components/dialogs/edit-entry";
 import fileTransferService from "../../services/file-transfer";
 import secretService from "../../services/secret";
 import DialogCreateLinkShare from "../../components/dialogs/create-link-share";
 import DialogTrashBin from "../../components/dialogs/trash-bin";
-import shareService from "../../services/share";
 import DialogRightsOverview from "../../components/dialogs/rights-overview";
-import itemBlueprintService from "../../services/item-blueprint";
 import DialogError from "../../components/dialogs/error";
-import groupsService from "../../services/groups";
 import datastorePasswordService from "../../services/datastore-password";
 import offlineCacheService from "../../services/offline-cache";
 import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
@@ -367,6 +363,12 @@ const DatastoreView = (props) => {
         });
     };
 
+    const onDeleteItemFromEditModal = () => {
+        widget.markItemAsDeleted(datastore, editEntryData.path, "password").then(() => {
+            forceUpdate();
+        });
+    };
+
     const onLinkItem = (item, path) => {
         if (item.type === "file") {
             return fileTransferService.onItemClick(item);
@@ -662,6 +664,7 @@ const DatastoreView = (props) => {
                                     onClose={() => setEditEntryOpen(false)}
                                     onEdit={onEditEntrySave}
                                     item={editEntryData.item}
+                                    onDeleteItem={onDeleteItemFromEditModal}
                                 />
                             )}
                             {createLinkShareOpen && (
@@ -728,6 +731,7 @@ const DatastoreView = (props) => {
                                     onClose={() => setEditEntryOpen(false)}
                                     onEdit={onEditEntrySave}
                                     item={editEntryData.item}
+                                    onDeleteItem={onDeleteItemFromEditModal}
                                     inline={true}
                                 />
                             )}
