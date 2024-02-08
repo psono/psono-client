@@ -421,6 +421,7 @@ const LinkShareAccessView = (props) => {
                     data={editEntryData.data}
                     hideLinkToEntry={true}
                     hideShowHistory={true}
+                    hideMoreMenu={true}
                 />
             )}
         </div>

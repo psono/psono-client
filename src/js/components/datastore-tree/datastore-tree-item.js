@@ -114,7 +114,7 @@ const DatastoreTreeItem = (props) => {
 
     const onDelete = (event) => {
         handleClose(event);
-        props.onDeleteEntry(content, content.path, props.nodePath);
+        props.onDeleteEntry(content, content.path);
     };
     const selectItem = function (event) {
         event.stopPropagation();
