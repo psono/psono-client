@@ -80,7 +80,10 @@ const EnforceTwoFaViewForm = (props) => {
     };
 
     if (hasTwoFactor) {
-        window.location.href = "index.html";
+        setTimeout(function () {
+            // Timeout required, otherwise hasTwoFactor is not persisted
+            window.location.href = "index.html";
+        }, 1);
     }
 
     return (

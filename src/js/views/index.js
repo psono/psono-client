@@ -137,7 +137,10 @@ const IndexView = (props) => {
     } else {
         // pathname.endsWith('/index.html')
         if (isLoggedIn && !hasTwoFactor && user.requireTwoFaSetup()) {
-            window.location.href = "enforce-two-fa.html";
+            setTimeout(function () {
+                // Timeout required, otherwise setUserInfo3 doesn't finish and not persisted
+                window.location.href = "enforce-two-fa.html";
+            }, 1);
         }
         if (!isLoggedIn) {
             return (
