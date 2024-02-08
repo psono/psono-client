@@ -13,6 +13,7 @@ import Table from "../../components/table";
 import shareService from "../../services/share";
 import DialogAcceptShare from "../../components/dialogs/accept-share";
 import format from "../../services/date";
+import itemBlueprintService from "../../services/item-blueprint";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -53,10 +54,23 @@ const PendingSharesView = (props) => {
                     .filter((request) => request.share_right_accepted === null)
                     .map((request, index) => {
                         newPendingRequestsDict[request.id] = request;
+                        let title = request.share_right_title;
+                        if (request.share_right_type && !request.share_right_title.endsWith('\'')) {
+
+                            let entry_type = t('FOLDER')
+                            if (request.share_right_type !== 'folder') {
+                                const blueprint = itemBlueprintService.getEntryTypes().find((entry) => entry.value === request.share_right_type);
+                                if (blueprint) {
+                                    entry_type = t(blueprint.title)
+                                }
+                            }
+
+                            title = t("SHARE_TITLE_ITEM", {entry_type: entry_type, title: request.share_right_title});
+                        }
                         return [
                             request.id,
                             request.share_right_create_user_username,
-                            request.share_right_title,
+                            title,
                             request.share_right_create_date ? format(new Date(request.share_right_create_date)) : null,
                             request.share_right_read,
                             request.share_right_write,

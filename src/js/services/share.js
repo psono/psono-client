@@ -63,6 +63,17 @@ function readShares() {
                     content.data.shares[i].share_right_create_user_public_key
                 );
             }
+            if (
+                content.data.shares[i].share_right_type &&
+                content.data.shares[i].share_right_type !== "" &&
+                content.data.shares[i].share_right_create_user_public_key
+            ) {
+                content.data.shares[i].share_right_type = cryptoLibrary.decryptPrivateKey(
+                    content.data.shares[i].share_right_type,
+                    content.data.shares[i].share_right_type_nonce,
+                    content.data.shares[i].share_right_create_user_public_key
+                );
+            }
         }
 
         return content.data;

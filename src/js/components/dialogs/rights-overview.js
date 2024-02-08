@@ -169,15 +169,7 @@ const DialogRightsOverview = (props) => {
     const createShareRights = async (share_id, share_secret_key, node, users, groups, read, write, grant) => {
         let i;
 
-        let title = "";
-        if (typeof node.type === "undefined") {
-            // we have a folder
-            title = t("SHARE_TITLE_ITEM", {entry_type: t("FOLDER"), title: node.name});
-        } else {
-            // we have an item
-            const blueprint = itemBlueprintService.getEntryTypes().find((entry) => entry.value === node.type);
-            title = t("SHARE_TITLE_ITEM", {entry_type: t(blueprint.title), title: node.name});
-        }
+        let title = node.name;
 
         // get the type
         let type = "";
