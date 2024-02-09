@@ -6,6 +6,7 @@ def main():
     EDGE_CLIENT_ID = os.environ.get('EDGE_CLIENT_ID')
     EDGE_CLIENT_SECRET = os.environ.get('EDGE_CLIENT_SECRET')
     EDGE_ACCESS_TOKEN_URL = os.environ.get('EDGE_ACCESS_TOKEN_URL')
+    EDGE_NOTES = os.environ.get('EDGE_NOTES')
 
     options = Options(
         product_id=EDGE_PRODUCT_ID,
@@ -19,7 +20,7 @@ def main():
     # Upload extension
     operation_id = client.submit(
         file_path="edge-extension.zip",
-        notes=""
+        notes=EDGE_NOTES
     )
 
     # Check publish status

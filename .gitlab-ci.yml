@@ -458,7 +458,7 @@ deploy-edge:
   except:
     - schedules
   stage: deploy
-  image: psono-docker.jfrog.io/python:3
+  image: psono-docker.jfrog.io/python:3.11-buster
   script:
     - cd /builds/psono/psono-client/
     - curl -fL https://getcli.jfrog.io | sh
