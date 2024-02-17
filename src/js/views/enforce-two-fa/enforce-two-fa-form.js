@@ -75,7 +75,7 @@ const EnforceTwoFaViewForm = (props) => {
 
     const logout = () => {
         userService.logout().then(() => {
-            window.location.href = "index.html";
+            window.location.href = "logout-success.html";
         });
     };
 

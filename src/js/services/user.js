@@ -662,7 +662,7 @@ function logout(msg = "", postLogoutRedirectUri = "") {
     };
 
     const onError = function () {
-        //session expired, so lets delete the data anyway
+        //session expired, so let's delete the local data
 
         storage.removeAll();
         storage.save();

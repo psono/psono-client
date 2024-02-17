@@ -151,6 +151,8 @@ const Topbar = (props) => {
         const logoutResponse = await user.logout(undefined, window.location.origin);
         if (logoutResponse.hasOwnProperty('redirect_url')) {
             window.location.href = logoutResponse['redirect_url'];
+        }else {
+            window.location.href = 'logout-success.html';
         }
     };
 

@@ -295,9 +295,9 @@ const LoginViewForm = (props) => {
         host.approveHost(serverCheck.server_url, serverCheck.verify_key);
 
         if (loginType === "SAML") {
-            initiateSamlLogin(providerId);
+            initiateSamlLogin(providerId, server);
         } else if (loginType === "OIDC") {
-            initiateOidcLogin(providerId);
+            initiateOidcLogin(providerId, server);
         } else if (loginType === "LOAD_REMOTE_CONFIG") {
             const onError = function (data) {
                 console.log(data);
@@ -473,10 +473,12 @@ const LoginViewForm = (props) => {
 
         setAllowLostPassword(allowLostPassword);
         setAllowRegistration(allowRegistration);
-        if (!server) {
+        let newServer = server;
+        if (!newServer) {
             // if we didn't "remember" a server, we will take the one from the config.
-            setServer(serverUrl);
+            newServer = serverUrl;
         }
+        setServer(newServer);
         setDomain(domain);
         setSamlProvider(samlProvider);
         setOidcProvider(oidcProvider);
@@ -487,6 +489,19 @@ const LoginViewForm = (props) => {
         setLdapEnabled(ldapEnabled);
         setSamlEnabled(samlEnabled);
         setOidcEnabled(oidcEnabled);
+        if (!authkeyEnabled && !ldapEnabled && configJson.hasOwnProperty('auto_login') && configJson['auto_login']) {
+            setTimeout(function () {
+                if (!props.samlTokenId && !props.oidcTokenId) {
+                    if (oidcEnabled && oidcProvider.length === 1) {
+                        initiateOidcLogin(oidcProvider[0].provider_id, newServer);
+                    }
+                    if (samlEnabled && samlProvider.length === 1) {
+                        initiateSamlLogin(samlProvider[0].provider_id, newServer);
+                    }
+                }
+            }, 1);
+        }
+
     };
 
     const remoteConfig = (event) => {
@@ -529,7 +544,7 @@ const LoginViewForm = (props) => {
         host.checkHost(server).then(onSuccess, onError);
     };
 
-    const initiateOidcLogin = (providerId) => {
+    const initiateOidcLogin = (providerId, server) => {
         setLoginLoading(true);
         setLoginType("OIDC");
         setErrors([]);
@@ -583,7 +598,7 @@ const LoginViewForm = (props) => {
             });
     };
 
-    const initiateSamlLogin = (providerId) => {
+    const initiateSamlLogin = (providerId, server) => {
         setLoginLoading(true);
         setLoginType("SAML");
         setErrors([]);
@@ -700,7 +715,7 @@ const LoginViewForm = (props) => {
             <>
                 {oidcProvider.map((provider, i) => {
                     const initiateOidcLoginHelper = () => {
-                        return initiateOidcLogin(provider.provider_id);
+                        return initiateOidcLogin(provider.provider_id, server);
                     };
                     return (
                         <Grid container key={i}>
@@ -739,7 +754,7 @@ const LoginViewForm = (props) => {
                 )}
                 {samlProvider.map((provider, i) => {
                     const initiateSamlLoginHelper = () => {
-                        return initiateSamlLogin(provider.provider_id);
+                        return initiateSamlLogin(provider.provider_id, server);
                     };
                     return (
                         <Grid container key={i}>

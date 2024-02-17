@@ -806,6 +806,7 @@
   "TRUST_DEVICE": "Trust device",
   "REGISTER": "Register",
   "LOGIN": "Login",
+  "LOGOUT_SUCCESSFUL": "You have successfully logged out. You can close now the window or login again.",
   "USERNAME": "Username",
   "PASSWORD": "Password",
   "REQUEST_PASSWORD_RESET": "Request Password Reset",
