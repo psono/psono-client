@@ -87,6 +87,7 @@ const LoginViewForm = (props) => {
     const [multifactors, setMultifactors] = useState([]);
     const [allowRegistration, setAllowRegistration] = useState(false);
     const [loginType, setLoginType] = useState("");
+    const [plainPasswordWhitelistedServerUrls, setPlainPasswordWhitelistedServerUrls] = useState([]);
     const [allowLostPassword, setAllowLostPassword] = useState(false);
     const [authkeyEnabled, setAuthkeyEnabled] = useState(false);
     const [ldapEnabled, setLdapEnabled] = useState(false);
@@ -316,7 +317,7 @@ const LoginViewForm = (props) => {
                 onError
             );
         } else if (hasLdapAuth(serverCheck)) {
-            if (store.getState().persistent.autoApproveLdap.hasOwnProperty(serverCheck.server_url)) {
+            if (store.getState().persistent.autoApproveLdap.hasOwnProperty(serverCheck.server_url) || plainPasswordWhitelistedServerUrls.includes(serverCheck.server_url)) {
                 const userPassword = password;
                 setPassword("");
 
@@ -453,6 +454,11 @@ const LoginViewForm = (props) => {
     const onNewConfigLoaded = (configJson) => {
         const serverUrl = configJson["backend_servers"][0]["url"];
         const domain = configJson["backend_servers"][0]["domain"];
+        const plainPasswordWhitelistedServerUrls = configJson["backend_servers"].filter(function(server) {
+            return server.hasOwnProperty('autoapprove_plain_password') && !!server['autoapprove_plain_password']
+        }).map(function(server) {
+            return server["url"]
+        })
         const allowRegistration =
             !configJson.hasOwnProperty("allow_registration") ||
             (configJson.hasOwnProperty("allow_registration") && configJson["allow_registration"]);
@@ -471,6 +477,7 @@ const LoginViewForm = (props) => {
         const samlEnabled = configJson["authentication_methods"].indexOf("SAML") !== -1;
         const oidcEnabled = configJson["authentication_methods"].indexOf("OIDC") !== -1;
 
+        setPlainPasswordWhitelistedServerUrls(plainPasswordWhitelistedServerUrls);
         setAllowLostPassword(allowLostPassword);
         setAllowRegistration(allowRegistration);
         let newServer = server;
@@ -670,7 +677,7 @@ const LoginViewForm = (props) => {
                     if (serverCheck.status !== "matched") {
                         setView(serverCheck.status);
                     } else if (hasLdapAuth(serverCheck)) {
-                        if (store.getState().persistent.autoApproveLdap.hasOwnProperty(serverCheck.server_url)) {
+                        if (store.getState().persistent.autoApproveLdap.hasOwnProperty(serverCheck.server_url) || plainPasswordWhitelistedServerUrls.includes(serverCheck.server_url)) {
                             return nextLoginStep(true, serverCheck);
                         } else {
                             setView("ask_send_plain");
