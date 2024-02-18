@@ -1002,6 +1002,38 @@ function createSecret(
 }
 
 /**
+ * Ajax PUT request to create a secret with the token as authentication together with the encrypted data and nonce
+ *
+ * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+ * @param {string} sessionSecretKey The session secret key
+ * @param {array} secrets The secrets with their content to create
+ * @param {string|undefined} [parent_datastore_id] (optional) id of the parent datastore, may be left empty if the share resides in a share
+ * @param {string|undefined} [parent_share_id] (optional) id of the parent share, may be left empty if the share resides in the datastore
+ *
+ * @returns {Promise} Returns a promise with the new secret_id
+ */
+function createSecretBulk(
+    token,
+    sessionSecretKey,
+    secrets,
+    parent_datastore_id,
+    parent_share_id
+) {
+    const endpoint = "/bulk-secret/";
+    const method = "PUT";
+    const data = {
+        parent_datastore_id: parent_datastore_id,
+        parent_share_id: parent_share_id,
+        secrets: secrets,
+    };
+    const headers = {
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+}
+
+/**
  * Ajax PUT request with the token as authentication and the new secret content
  *
  * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
@@ -3439,6 +3471,7 @@ const apiClientService = {
     readSecret: readSecret,
     writeSecret: writeSecret,
     createSecret: createSecret,
+    createSecretBulk: createSecretBulk,
     moveSecretLink: moveSecretLink,
     deleteSecretLink: deleteSecretLink,
     moveFileLink: moveFileLink,

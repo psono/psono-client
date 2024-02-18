@@ -15,6 +15,60 @@ import store from "./store";
 /**
  * Encrypts the content and creates a new secret out of it.
  *
+ * @param {array} objects The content of the new secret
+ * @param {uuid|undefined} [parentDatastoreId] (optional) The id of the parent datastore, may be left empty if the share resides in a share
+ * @param {uuid|undefined} [parentShareId] (optional) The id of the parent share, may be left empty if the share resides in the datastore
+ *
+ * @returns {Promise} Returns a promise with a list of dictionaries with the new secret_id and provided link_ids
+ */
+function createSecretBulk(objects, parentDatastoreId, parentShareId) {
+    const token = store.getState().user.token;
+    const sessionSecretKey = store.getState().user.sessionSecretKey;
+
+    const encryptionKeyLookup = {};
+
+    const bulkObjects = objects.map(function(o) {
+
+        const secretKey = cryptoLibrary.generateSecretKey();
+        encryptionKeyLookup[o.linkId] = secretKey;
+        const jsonContent = JSON.stringify(o.content);
+
+        const c = cryptoLibrary.encryptData(jsonContent, secretKey);
+
+        return {
+            'data': c.text,
+            'data_nonce': c.nonce,
+            'link_id': o.linkId,
+            'callback_url': o.callbackUrl,
+            'callback_user': o.callbackUser,
+            'callback_pass': o.callbackPass,
+        }
+    })
+
+
+    const onError = function (result) {
+        // pass
+    };
+
+    const onSuccess = function (response) {
+        return response.data.secrets.map(function(s) {
+            return { secret_id: s.secret_id, secret_key: encryptionKeyLookup[s.link_id], link_id: s.link_id }
+        })
+    };
+
+    return apiClient
+        .createSecretBulk(
+            token,
+            sessionSecretKey,
+            bulkObjects,
+            parentDatastoreId,
+            parentShareId
+        )
+        .then(onSuccess, onError);
+}
+/**
+ * Encrypts the content and creates a new secret out of it.
+ *
  * @param {object} content The content of the new secret
  * @param {uuid} linkId the local id of the share in the data structure
  * @param {uuid|undefined} [parentDatastoreId] (optional) The id of the parent datastore, may be left empty if the share resides in a share
@@ -329,6 +383,7 @@ function copyCreditCardPin(item) {
 }
 
 const secretService = {
+    createSecretBulk: createSecretBulk,
     createSecret: createSecret,
     readSecret: readSecret,
     writeSecret: writeSecret,
