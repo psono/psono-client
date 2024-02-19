@@ -12,6 +12,9 @@ import store from "./store";
 import device from "./device";
 import storage from "./storage";
 import apiClient from "./api-client";
+import browserClientService from "./browser-client";
+
+import i18n from "../i18n";
 
 let session_password = "";
 let verification = {};
@@ -574,6 +577,12 @@ function handleLoginResponse(response, password, sessionKeys, serverPublicKey) {
     action.setUserUsername(response.data.user.username);
     action.setUserInfo2(user_private_key, user_public_key, sessionSecretKey, token, user_sauce, authentication);
 
+    if (response.data.user.hasOwnProperty('language') && i18n.options.supportedLngs.includes(response.data.user.language)) {
+        i18n.changeLanguage(response.data.user.language).then(() => {
+            browserClientService.emitSec("language-changed", response.data.user.language, function () {});
+        });
+    }
+
     if (policies) {
         action.setServerPolicy(policies);
     }
@@ -728,10 +737,11 @@ function deleteAccount(password) {
  * @param {string|null} privateKeyNonce The nonce of the private key (hex format)
  * @param {string|null} secretKey The encrypted secret key of the user (hex format)
  * @param {string|null} secretKeyNonce The nonce of the secret key (hex format)
+ * @param {string|null} language The new language
  *
  * @returns {Promise} Returns a promise with the update status
  */
-function updateUser(email, authkey, authkeyOld, privateKey, privateKeyNonce, secretKey, secretKeyNonce) {
+function updateUser(email, authkey, authkeyOld, privateKey, privateKeyNonce, secretKey, secretKeyNonce, language) {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
     return apiClient.updateUser(
@@ -743,7 +753,8 @@ function updateUser(email, authkey, authkeyOld, privateKey, privateKeyNonce, sec
         privateKey,
         privateKeyNonce,
         secretKey,
-        secretKeyNonce
+        secretKeyNonce,
+        language,
     );
 }
 
@@ -805,7 +816,8 @@ function saveNewPassword(newPassword, newPasswordRepeat, oldPassword) {
                 privKeyEnc.text,
                 privKeyEnc.nonce,
                 secretKeyEnc.text,
-                secretKeyEnc.nonce
+                secretKeyEnc.nonce,
+                undefined,
             ).then(onSuccess, onError);
         },
         function (data) {
@@ -838,7 +850,42 @@ function saveNewEmail(newEmail, verificationPassword) {
     const onError = function () {
         return Promise.reject({ errors: ["OLD_PASSWORD_INCORRECT"] });
     };
-    return updateUser(newEmail, null, authkeyOld, undefined, undefined, undefined, undefined).then(onSuccess, onError);
+    return updateUser(
+        newEmail,
+        null,
+        authkeyOld,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        ).then(onSuccess, onError);
+}
+
+/**
+ * Saves a new language
+ *
+ * @param {string} language The new language
+ *
+ * @returns {Promise} Returns a promise with the result
+ */
+function saveNewLanguage(language) {
+    const onSuccess = function (data) {
+        return { msgs: ["SAVE_SUCCESS"] };
+    };
+    const onError = function (result) {
+        return Promise.reject(result);
+    };
+    return updateUser(
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        language,
+    ).then(onSuccess, onError);
 }
 
 /**
@@ -1154,6 +1201,7 @@ const userService = {
     deleteAccount,
     saveNewPassword,
     saveNewEmail,
+    saveNewLanguage,
     recoveryEnable,
     setPassword,
     armEmergencyCode,
