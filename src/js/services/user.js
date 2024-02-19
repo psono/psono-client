@@ -644,6 +644,7 @@ function login(password, serverInfo, sendPlain) {
  *
  * @param {string} msg An optional message to display
  * @param {string|undefined} [postLogoutRedirectUri] An optional message to display
+ * @returns {Promise} Returns a promise with the result
  */
 function logout(msg = "", postLogoutRedirectUri = "") {
     const token = store.getState().user.token;
@@ -660,7 +661,7 @@ function logout(msg = "", postLogoutRedirectUri = "") {
         }
 
         const response = {
-            response: "success",
+            "response": "success",
         }
 
         if (result.data.hasOwnProperty('redirect_url')) {
@@ -682,7 +683,7 @@ function logout(msg = "", postLogoutRedirectUri = "") {
         }
 
         return {
-            response: "success",
+            "response": "success",
         };
     };
 

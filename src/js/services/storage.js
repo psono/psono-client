@@ -11,7 +11,7 @@ const dbConfig = {
         name: "state",
     }),
     "file-downloads": localforage.createInstance({
-        name: "datastore-password-leafs",
+        name: "file-downloads",
     }),
     "datastore-password-leafs": localforage.createInstance({
         name: "datastore-password-leafs",
