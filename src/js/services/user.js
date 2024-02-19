@@ -652,7 +652,7 @@ function logout(msg = "", postLogoutRedirectUri = "") {
 
     const onSuccess = async function (result) {
         action.disableOfflineMode();
-        await storage.removeAll();
+        storage.removeAll();
         storage.save();
         browserClient.emit("logout", null);
         action.logout(store.getState().user.rememberMe);
