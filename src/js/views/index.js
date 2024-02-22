@@ -12,6 +12,7 @@ import PopupPgpReadView from "./popup-pgp-read";
 import PrivacyPolicyView from "./privacy-policy";
 import OtherView from "./other";
 import SettingsView from "./settings";
+import LogoutSuccessView from "./logout-success";
 import LostPasswordView from "./lost-password";
 import EmergencyCodeView from "./emergency-code";
 import AuthenticateView from "./authenticate";
@@ -49,6 +50,14 @@ const IndexView = (props) => {
                 </Route>
                 <Route path="/">
                     <ActivateView {...props} />
+                </Route>
+            </Switch>
+        )
+    } else if (pathname.endsWith("/logout-success.html")) {
+        return (
+            <Switch>
+                <Route path="/">
+                    <LogoutSuccessView {...props} />
                 </Route>
             </Switch>
         )

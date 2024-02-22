@@ -7,7 +7,7 @@ body {
   height: 100%;
   overflow: hidden; }
 
-.loginbox, .registerbox, .activationbox, .lostpasswordbox {
+.loginbox, .registerbox, .activationbox, .logoutsuccessbox, .lostpasswordbox {
   width: 340px;
   padding: 20px 20px 20px 20px;
   position: absolute;
@@ -15,11 +15,14 @@ body {
   left: 50%;
   margin: -130px 0 0 -170px;
   border-radius: 4px; }
-  .loginbox .progress-bar, .registerbox .progress-bar, .activationbox .progress-bar, .lostpasswordbox .progress-bar {
+  .loginbox .progress-bar, .registerbox .progress-bar, .activationbox .progress-bar, .logoutsuccessbox .progress-bar, .lostpasswordbox .progress-bar {
     background-color: #2dbb93; }
 
+.logoutsuccessbox {
+  top: 60%;}
+
 @media only screen and (min-width: 600px) {
-  .loginbox, .registerbox, .activationbox, .lostpasswordbox {
+  .loginbox, .registerbox, .activationbox, .logoutsuccessbox, .lostpasswordbox {
     width: 540px;
     margin: -130px 0 0 -270px; } }
 

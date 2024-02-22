@@ -232,6 +232,9 @@ function updatePathsWithData(datastore, path, content, parentShareRights, parent
         if (!content.data.hasOwnProperty(prop)) {
             continue;
         }
+        if (prop == 'share_rights') {
+            continue;
+        }
         obj[prop] = content.data[prop];
     }
 
@@ -298,6 +301,7 @@ function _readShares(datastore, shareRightsDict) {
                         return;
                     }
                     all_share_data[share_id] = content;
+
 
                     updatePathsWithData(
                         datastore,

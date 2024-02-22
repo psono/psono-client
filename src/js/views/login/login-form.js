@@ -87,6 +87,7 @@ const LoginViewForm = (props) => {
     const [multifactors, setMultifactors] = useState([]);
     const [allowRegistration, setAllowRegistration] = useState(false);
     const [loginType, setLoginType] = useState("");
+    const [plainPasswordWhitelistedServerUrls, setPlainPasswordWhitelistedServerUrls] = useState([]);
     const [allowLostPassword, setAllowLostPassword] = useState(false);
     const [authkeyEnabled, setAuthkeyEnabled] = useState(false);
     const [ldapEnabled, setLdapEnabled] = useState(false);
@@ -295,9 +296,9 @@ const LoginViewForm = (props) => {
         host.approveHost(serverCheck.server_url, serverCheck.verify_key);
 
         if (loginType === "SAML") {
-            initiateSamlLogin(providerId);
+            initiateSamlLogin(providerId, server);
         } else if (loginType === "OIDC") {
-            initiateOidcLogin(providerId);
+            initiateOidcLogin(providerId, server);
         } else if (loginType === "LOAD_REMOTE_CONFIG") {
             const onError = function (data) {
                 console.log(data);
@@ -316,7 +317,7 @@ const LoginViewForm = (props) => {
                 onError
             );
         } else if (hasLdapAuth(serverCheck)) {
-            if (store.getState().persistent.autoApproveLdap.hasOwnProperty(serverCheck.server_url)) {
+            if (store.getState().persistent.autoApproveLdap.hasOwnProperty(serverCheck.server_url) || plainPasswordWhitelistedServerUrls.includes(serverCheck.server_url)) {
                 const userPassword = password;
                 setPassword("");
 
@@ -453,6 +454,11 @@ const LoginViewForm = (props) => {
     const onNewConfigLoaded = (configJson) => {
         const serverUrl = configJson["backend_servers"][0]["url"];
         const domain = configJson["backend_servers"][0]["domain"];
+        const plainPasswordWhitelistedServerUrls = configJson["backend_servers"].filter(function(server) {
+            return server.hasOwnProperty('autoapprove_plain_password') && !!server['autoapprove_plain_password']
+        }).map(function(server) {
+            return server["url"]
+        })
         const allowRegistration =
             !configJson.hasOwnProperty("allow_registration") ||
             (configJson.hasOwnProperty("allow_registration") && configJson["allow_registration"]);
@@ -471,12 +477,15 @@ const LoginViewForm = (props) => {
         const samlEnabled = configJson["authentication_methods"].indexOf("SAML") !== -1;
         const oidcEnabled = configJson["authentication_methods"].indexOf("OIDC") !== -1;
 
+        setPlainPasswordWhitelistedServerUrls(plainPasswordWhitelistedServerUrls);
         setAllowLostPassword(allowLostPassword);
         setAllowRegistration(allowRegistration);
-        if (!server) {
+        let newServer = server;
+        if (!newServer) {
             // if we didn't "remember" a server, we will take the one from the config.
-            setServer(serverUrl);
+            newServer = serverUrl;
         }
+        setServer(newServer);
         setDomain(domain);
         setSamlProvider(samlProvider);
         setOidcProvider(oidcProvider);
@@ -487,6 +496,19 @@ const LoginViewForm = (props) => {
         setLdapEnabled(ldapEnabled);
         setSamlEnabled(samlEnabled);
         setOidcEnabled(oidcEnabled);
+        if (!authkeyEnabled && !ldapEnabled && configJson.hasOwnProperty('auto_login') && configJson['auto_login']) {
+            setTimeout(function () {
+                if (!props.samlTokenId && !props.oidcTokenId) {
+                    if (oidcEnabled && oidcProvider.length === 1) {
+                        initiateOidcLogin(oidcProvider[0].provider_id, newServer);
+                    }
+                    if (samlEnabled && samlProvider.length === 1) {
+                        initiateSamlLogin(samlProvider[0].provider_id, newServer);
+                    }
+                }
+            }, 1);
+        }
+
     };
 
     const remoteConfig = (event) => {
@@ -529,7 +551,7 @@ const LoginViewForm = (props) => {
         host.checkHost(server).then(onSuccess, onError);
     };
 
-    const initiateOidcLogin = (providerId) => {
+    const initiateOidcLogin = (providerId, server) => {
         setLoginLoading(true);
         setLoginType("OIDC");
         setErrors([]);
@@ -583,7 +605,7 @@ const LoginViewForm = (props) => {
             });
     };
 
-    const initiateSamlLogin = (providerId) => {
+    const initiateSamlLogin = (providerId, server) => {
         setLoginLoading(true);
         setLoginType("SAML");
         setErrors([]);
@@ -655,7 +677,7 @@ const LoginViewForm = (props) => {
                     if (serverCheck.status !== "matched") {
                         setView(serverCheck.status);
                     } else if (hasLdapAuth(serverCheck)) {
-                        if (store.getState().persistent.autoApproveLdap.hasOwnProperty(serverCheck.server_url)) {
+                        if (store.getState().persistent.autoApproveLdap.hasOwnProperty(serverCheck.server_url) || plainPasswordWhitelistedServerUrls.includes(serverCheck.server_url)) {
                             return nextLoginStep(true, serverCheck);
                         } else {
                             setView("ask_send_plain");
@@ -700,7 +722,7 @@ const LoginViewForm = (props) => {
             <>
                 {oidcProvider.map((provider, i) => {
                     const initiateOidcLoginHelper = () => {
-                        return initiateOidcLogin(provider.provider_id);
+                        return initiateOidcLogin(provider.provider_id, server);
                     };
                     return (
                         <Grid container key={i}>
@@ -739,7 +761,7 @@ const LoginViewForm = (props) => {
                 )}
                 {samlProvider.map((provider, i) => {
                     const initiateSamlLoginHelper = () => {
-                        return initiateSamlLogin(provider.provider_id);
+                        return initiateSamlLogin(provider.provider_id, server);
                     };
                     return (
                         <Grid container key={i}>

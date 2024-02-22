@@ -806,6 +806,7 @@
   "TRUST_DEVICE": "Vertrauenswürdiges Gerät",
   "REGISTER": "Registrieren",
   "LOGIN": "Login",
+  "LOGOUT_SUCCESSFUL": "Sie haben sich erfolgreich abgemeldet. Sie können das Fenster jetzt schließen oder sich erneut anmelden.",
   "USERNAME": "Benutzername",
   "PASSWORD": "Passwort",
   "REQUEST_PASSWORD_RESET": "Passwort Zurücksetzen",

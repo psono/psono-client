@@ -592,6 +592,7 @@ function verifyEmail(activation_code) {
  * @param {string} private_key_nonce The nonce for the private key
  * @param {string} secret_key The (encrypted) secret key
  * @param {string} secret_key_nonce The nonce for the secret key
+ * @param {string} language The language
  *
  * @returns {Promise} Returns a promise with the update status
  */
@@ -604,7 +605,8 @@ function updateUser(
     private_key,
     private_key_nonce,
     secret_key,
-    secret_key_nonce
+    secret_key_nonce,
+    language,
 ) {
     const endpoint = "/user/update/";
     const method = "PUT";
@@ -616,6 +618,7 @@ function updateUser(
         private_key_nonce: private_key_nonce,
         secret_key: secret_key,
         secret_key_nonce: secret_key_nonce,
+        language: language,
     };
     const headers = {
         Authorization: "Token " + token,

@@ -23,6 +23,7 @@ test-unittests:
 #    - apt-get install -y google-chrome-stable
 #    - karma start ./unittests/karma-chromium-headless.conf.js
 
+
 test-linter:
   except:
     - schedules
@@ -62,7 +63,7 @@ test-upload-translations:
     - pip install requests
     - python3 var/sync_translations.py
   only:
-    - develop
+    - develop@psono/psono-client
 
 build-docker-image:
   except:
@@ -98,7 +99,9 @@ build-docker-image:
     - ./jfrog config add rt-server-1 --artifactory-url=https://psono.jfrog.io/psono --user=gitlab --password=$artifactory_credentials --interactive=false
     - ./jfrog rt sp "docker/psono/psono-client/$CI_COMMIT_REF_NAME/manifest.json" "CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION"
     - ./jfrog rt sp "docker/psono/psono-client/$CI_COMMIT_REF_NAME/manifest.json" "CI_COMMIT_TAG=$CI_COMMIT_TAG" || true
-
+  only:
+    - branches@psono/psono-client
+    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
 
 build-firefox-extension:
@@ -124,6 +127,9 @@ build-firefox-extension:
     name: "firefox_$CI_COMMIT_REF_NAME"
     paths:
       - ./*
+  only:
+    - branches@psono/psono-client
+    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
 
 build-chrome-extension:
@@ -149,6 +155,9 @@ build-chrome-extension:
     name: "chrome_$CI_COMMIT_REF_NAME"
     paths:
       - ./*
+  only:
+    - branches@psono/psono-client
+    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
 build-electron-linux:
   except:
@@ -176,6 +185,9 @@ build-electron-linux:
     paths:
       - ./*
     expire_in: 1 week
+  only:
+    - branches@psono/psono-client
+    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
 build-electron-macos:
   except:
@@ -202,6 +214,9 @@ build-electron-macos:
     expire_in: 1 week
   tags:
     - macos
+  only:
+    - branches@psono/psono-client
+    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
 build-electron-windows:
   except:
@@ -230,6 +245,9 @@ build-electron-windows:
     expire_in: 1 week
   tags:
     - windows
+  only:
+    - branches@psono/psono-client
+    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
 release-electron-jfrog:
   except:
@@ -263,8 +281,8 @@ release-electron-jfrog:
     - ./jfrog rt u --target-props="CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_COMMIT_SHA=$CI_COMMIT_SHA;CI_COMMIT_URL=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA;CI_PROJECT_ID=$CI_PROJECT_ID;CI_PROJECT_NAME=$CI_PROJECT_NAME;CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE;CI_PROJECT_URL=$CI_PROJECT_URL;CI_PIPELINE_ID=$CI_PIPELINE_ID;CI_PIPELINE_URL=$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID;CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME;CI_JOB_ID=$CI_JOB_ID;CI_JOB_URL=$CI_PROJECT_URL/-/jobs/$CI_JOB_ID;CI_JOB_NAME=$CI_JOB_NAME;CI_JOB_STAGE=$CI_JOB_STAGE;CI_RUNNER_ID=$CI_RUNNER_ID;GITLAB_USER_ID=$GITLAB_USER_ID;CI_SERVER_VERSION=$CI_SERVER_VERSION" ./upload/psono.dmg psono/client/$CI_COMMIT_REF_NAME/psono.dmg
     - ./jfrog rt sp "psono/client/$CI_COMMIT_REF_NAME/psono.dmg" "CI_COMMIT_TAG=$CI_COMMIT_TAG" || true
   only:
-    - develop
-    - master
+    - develop@psono/psono-client
+    - master@psono/psono-client
     - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
 deploy-electron-linux:
@@ -353,6 +371,9 @@ build-webclient:
     name: "webclient_$CI_COMMIT_REF_NAME"
     paths:
       - ./*
+  only:
+    - branches@psono/psono-client
+    - /^v[0-9]*\.[0-9]*\.[0-9]*$/
 
 release-artifacts:
   except:
@@ -458,7 +479,7 @@ deploy-edge:
   except:
     - schedules
   stage: deploy
-  image: psono-docker.jfrog.io/python:3
+  image: psono-docker.jfrog.io/python:3.11-buster
   script:
     - cd /builds/psono/psono-client/
     - curl -fL https://getcli.jfrog.io | sh
@@ -517,7 +538,7 @@ deploy-nightlyartifacts:
     name: static.psono.com
     url: https://get.psono.com/psono/psono-client/nightly/chrome-extension.zip
   only:
-    - develop
+    - develop@psono/psono-client
 
 
 deploy-releaseartifacts:

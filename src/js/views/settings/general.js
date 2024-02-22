@@ -10,6 +10,7 @@ import action from "../../actions/bound-action-creators";
 import browserClientService from "../../services/browser-client";
 import SelectFieldLanguage from "../../components/select-field/language";
 import { languages } from "../../i18n";
+import userService from "../../services/user";
 
 const useStyles = makeStyles((theme) => ({
     checked: {
@@ -69,6 +70,7 @@ const SettingsGeneralView = (props) => {
                     onChange={(value) => {
                         i18n.changeLanguage(value).then(() => {
                             browserClientService.emitSec("language-changed", value, function () {});
+                            userService.saveNewLanguage(value);
                         });
                     }}
                 />
