@@ -98,6 +98,9 @@ function writeShare(shareId, content, secretKey) {
     if (content.hasOwnProperty("id")) {
         delete content.id;
     }
+    if (content.hasOwnProperty("share_rights")) {
+        delete content.share_rights;
+    }
 
     const jsonContent = JSON.stringify(content);
 
