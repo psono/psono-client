@@ -626,8 +626,6 @@ function handleDatastoreContentChanged(datastore) {
 
     updatePathsRecursive(datastore_copy, []);
 
-    triggerRegistration("save_datastore_content", datastore_copy);
-
     // datastore has changed, so lets regenerate local lookup
     fillStorage(datastore);
 }
@@ -703,7 +701,7 @@ function saveInDatastore(secretObject, datastoreObject) {
     const onSuccess = function (datastore) {
         return secretService
             .createSecret(secretObject, link_id, datastore.datastore_id, undefined)
-            .then(function (data) {
+            .then(async function (data) {
                 if (!datastore.hasOwnProperty("items")) {
                     datastore["items"] = [];
                 }
@@ -713,7 +711,7 @@ function saveInDatastore(secretObject, datastoreObject) {
                 datastoreObject["secret_key"] = data.secret_key;
                 datastore.items.push(datastoreObject);
 
-                saveDatastoreContent(datastore, [[]]);
+                await saveDatastoreContent(datastore, [[]]);
                 handleDatastoreContentChanged(datastore);
 
                 return datastoreObject;
@@ -1667,7 +1665,6 @@ function collapseFoldersRecursive(obj) {
 
 // itemBlueprint.register('generate', generate);
 // itemBlueprint.register('get_password_datastore', getPasswordDatastore);
-// itemBlueprint.register('save_datastore_content', saveDatastoreContent);
 // itemBlueprint.register('find_in_datastore', findInDatastore);
 // itemBlueprint.register('on_share_added', onShareAdded);
 shareService.register("get_all_child_shares", getAllChildShares);
