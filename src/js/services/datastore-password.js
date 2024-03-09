@@ -20,10 +20,6 @@ const lowercaseMinCount = 1;
 const numberMinCount = 1;
 const specialMinCount = 1;
 
-// $rootScope.$on('force_logout', function() {
-//     _shareIndex = {};
-// });
-
 /**
  * checks if the given password complies with the minimal complexity
  *
@@ -1663,10 +1659,6 @@ function collapseFoldersRecursive(obj) {
     };
 }
 
-// itemBlueprint.register('generate', generate);
-// itemBlueprint.register('get_password_datastore', getPasswordDatastore);
-// itemBlueprint.register('find_in_datastore', findInDatastore);
-// itemBlueprint.register('on_share_added', onShareAdded);
 shareService.register("get_all_child_shares", getAllChildShares);
 
 const datastorePasswordService = {

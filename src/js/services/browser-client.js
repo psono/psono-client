@@ -511,14 +511,10 @@ function emit(event, data) {
         browser.runtime.sendMessage({ event: event, data: data }, function (response) {
             //console.log(response);
         });
-        //$rootScope.$broadcast(event, "");
     } else if (TARGET === "chrome") {
         chrome.runtime.sendMessage({ event: event, data: data }, function (response) {
             //console.log(response);
         });
-        //$rootScope.$broadcast(event, "");
-    } else {
-        //$rootScope.$broadcast(event, "");
     }
 }
 
@@ -550,15 +546,11 @@ function emitSec(event, data, fnc) {
  */
 function on(event, myFunction) {
     if (TARGET === "firefox") {
-        //$rootScope.$on(event, myFunction);
-
         if (!registrations.hasOwnProperty(event)) {
             registrations[event] = [];
         }
         registrations[event].push(myFunction);
     } else if (TARGET === "chrome") {
-        //$rootScope.$on(event, myFunction);
-
         if (!registrations.hasOwnProperty(event)) {
             registrations[event] = [];
         }
