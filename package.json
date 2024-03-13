@@ -32,7 +32,6 @@
     "@sentry/tracing": "^6.19.6",
     "chart.js": "^3.7.0",
     "classnames": "^2.3.2",
-    "clientjs": "^0.2.1",
     "core-js": "^3.19.1",
     "date-fns": "^2.26.0",
     "dompurify": "^2.3.6",
@@ -71,6 +70,7 @@
     "redux-persist": "^6.0.0",
     "redux-state-sync": "^3.1.2",
     "redux-thunk": "^2.4.0",
+    "ua-parser-js": "^1.0.37",
     "uuid-js": "^0.7.5"
   },
   "devDependencies": {

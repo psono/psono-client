@@ -43,12 +43,8 @@ const useStyles = makeStyles((theme) => ({
         top: 0,
         right: "5px",
     },
-    wrapIcon: {
-        verticalAlign: "middle",
-        display: "inline-flex",
-    },
     downloadIcon: {
-        fontSize: "1.2rem",
+        marginLeft: "5px",
     },
 }));
 
@@ -61,6 +57,8 @@ const DownloadBanner = (props) => {
     const showIosDownload = deviceService.isMobileIos();
     const showChromeDownload =
         !deviceService.isMobile() && deviceService.isChrome() && browserClient.getClientType() === "webclient";
+    const showEdgeDownload =
+        !deviceService.isMobile() && deviceService.isEdge() && browserClient.getClientType() === "webclient";
     const showFirefoxDownload =
         !deviceService.isMobile() && deviceService.isFirefox() && browserClient.getClientType() === "webclient";
 
@@ -83,73 +81,36 @@ const DownloadBanner = (props) => {
         event.preventDefault();
     };
 
+    let downloadUrl = '';
+    if (showAndroidDownload) {
+        downloadUrl = 'https://play.google.com/store/apps/details?id=com.psono.psono';
+    } else if (showIosDownload) {
+        downloadUrl = 'https://apps.apple.com/us/app/psono-password-manager/id1545581224';
+    } else if (showChromeDownload) {
+        downloadUrl = 'https://chrome.google.com/webstore/detail/psono-free-password-manag/eljmjmgjkbmpmfljlmklcfineebidmlo';
+    } else if (showEdgeDownload) {
+        downloadUrl = 'https://microsoftedge.microsoft.com/addons/detail/psono-free-password-man/abobmepfpbkapdlmfhnnkebcnhgeccbm';
+    } else if (showFirefoxDownload) {
+        downloadUrl = 'https://addons.mozilla.org/firefox/addon/psono-pw-password-manager';
+    }
+
     return (
         <div id="PsonoDownloadBanner">
-            {!disableDownloadBanner && !isDownloadBannerHidden && showAndroidDownload && (
+            {!disableDownloadBanner && !isDownloadBannerHidden && downloadUrl && (
                 <div className={classes.overlay}>
                     <a href="#" className={classes.closeBtn} onClick={hideDownloadBanner}>
-                        <i className="fa fa-times" aria-hidden="true" />
+                        <i className="fa fa-times" aria-hidden="true"/>
                     </a>
                     <div className={classes.overlayContent}>
                         <a
-                            href="https://play.google.com/store/apps/details?id=com.psono.psono"
+                            href={downloadUrl}
                             target="_blank"
                             rel="noopener"
                         >
                             {t("DOWNLOAD_PSONO")}
-                            <i className="fa fa-download" aria-hidden="true" />
-                        </a>
-                    </div>
-                </div>
-            )}
-            {!disableDownloadBanner && !isDownloadBannerHidden && showIosDownload && (
-                <div className={classes.overlay}>
-                    <a href="#" className={classes.closeBtn} onClick={hideDownloadBanner}>
-                        <i className="fa fa-times" aria-hidden="true" />
-                    </a>
-                    <div className={classes.overlayContent}>
-                        <a
-                            href="https://apps.apple.com/us/app/psono-password-manager/id1545581224"
-                            target="_blank"
-                            rel="noopener"
-                        >
-                            {t("DOWNLOAD_PSONO")}
-                            <i className="fa fa-download" aria-hidden="true" />
-                        </a>
-                    </div>
-                </div>
-            )}
-            {!disableDownloadBanner && !isDownloadBannerHidden && showChromeDownload && (
-                <div className={classes.overlay}>
-                    <a href="#" className={classes.closeBtn} onClick={hideDownloadBanner}>
-                        <i className="fa fa-times" aria-hidden="true" />
-                    </a>
-                    <div className={classes.overlayContent}>
-                        <a
-                            href="https://chrome.google.com/webstore/detail/psono-free-password-manag/eljmjmgjkbmpmfljlmklcfineebidmlo"
-                            target="_blank"
-                            rel="noopener"
-                        >
-                            <Typography variant="body2" className={classes.wrapIcon}>
-                                {t("DOWNLOAD_PSONO")} <GetAppIcon className={classes.downloadIcon} />
-                            </Typography>
-                        </a>
-                    </div>
-                </div>
-            )}
-            {!disableDownloadBanner && !isDownloadBannerHidden && showFirefoxDownload && (
-                <div className={classes.overlay}>
-                    <a href="#" className={classes.closeBtn} onClick={hideDownloadBanner}>
-                        <i className="fa fa-times" aria-hidden="true" />
-                    </a>
-                    <div className={classes.overlayContent}>
-                        <a
-                            href="https://addons.mozilla.org/firefox/addon/psono-pw-password-manager/"
-                            target="_blank"
-                            rel="noopener"
-                        >
-                            {t("DOWNLOAD_PSONO")}
-                            <i className="fa fa-download" aria-hidden="true" />
+                            <span className={classes.downloadIcon}>
+                                <i className="fa fa-download" aria-hidden="true"/>
+                            </span>
                         </a>
                     </div>
                 </div>
