@@ -13,6 +13,7 @@ import PrivacyPolicyView from "./privacy-policy";
 import OtherView from "./other";
 import SettingsView from "./settings";
 import LogoutSuccessView from "./logout-success";
+import NotificationBarView from "./notification-bar";
 import LostPasswordView from "./lost-password";
 import EmergencyCodeView from "./emergency-code";
 import AuthenticateView from "./authenticate";
@@ -58,6 +59,14 @@ const IndexView = (props) => {
             <Switch>
                 <Route path="/">
                     <LogoutSuccessView {...props} />
+                </Route>
+            </Switch>
+        )
+    } else if (pathname.endsWith("/notification-bar.html")) {
+        return (
+            <Switch>
+                <Route path="/">
+                    <NotificationBarView {...props} />
                 </Route>
             </Switch>
         )

@@ -350,7 +350,7 @@
   "EXISTING_EMERGENCY_CODES": "Existierende Notfall Codes",
   "EMERGENCY_CODES": "Notfall Codes",
   "EMERGENCY_CODES_DESCRIPTION": "Notfall Codes erlauben es vertrauenswürdigen anderen Personen (z.B. ihren Eltern, oder Ehefrau) sich im Falle, dass ihnen etwas zustößt oä sich einzuloggen. Im Gegensatz zu Wiederherstellungs Codes muss die andere Person etwas warten, bevor der Code den Zugang erlaubt. Weiter werden sie über die Aktivierung eines solches Codes informiert und können den Vorgang abbrechen.",
-  "PSONO_WILL_STORE_THE_PASSWORD_ENCRYPTED": "Psono wird das Passwort verschlüsselt speichern",
+  "PSONO_WILL_STORE_THE_PASSWORD_ENCRYPTED": "Psono wird das Passwort verschlüsselt speichern.",
   "NEW_PASSWORD_DETECTED": "Neues Passwort erkannt",
   "DO_YOU_WANT_TO_SAVE_THIS_PASSWORD": "Möchten sie das Passwort speichern?",
   "PICK_ONE_SERVER_BELOW_OR_ENTER_URL": "Wählen sie einen Server von unten aus oder geben sie eine neue URL ein",

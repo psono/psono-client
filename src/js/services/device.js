@@ -138,7 +138,6 @@ function isChrome() {
  * @returns {boolean} Is this an Edge user
  */
 function isEdge() {
-    console.log(browserData.browser.name)
     return browserData && (/Edge/i.test(browserData.browser.name));
 }
 

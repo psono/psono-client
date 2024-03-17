@@ -471,6 +471,7 @@ function getActiveTab() {
             });
         } else {
             resolve({
+                id: 0,
                 title: document.title,
                 url: window.location.href,
             });

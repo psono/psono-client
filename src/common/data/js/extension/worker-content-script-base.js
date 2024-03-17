@@ -78,6 +78,19 @@ var ClassWorkerContentScriptBase = function (browser, setTimeout) {
     }
 
     /**
+     * Cheks whether the code runs in an iframe or not.
+     *
+     * @returns {boolean}
+     */
+    function inIframe () {
+        try {
+            return window.self !== window.top;
+        } catch (e) {
+            return true;
+        }
+    }
+
+    /**
      * modifies an input field and adds the image button to click together with the appropriate event handlers
      *
      * @param input
@@ -175,6 +188,7 @@ var ClassWorkerContentScriptBase = function (browser, setTimeout) {
         getAllDocuments: getAllDocuments,
         registerObserver: registerObserver,
         modifyInputField: modifyInputField,
+        inIframe: inIframe,
         emit: emit,
         on: on,
         onMessage: onMessage,

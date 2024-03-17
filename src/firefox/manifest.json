@@ -54,6 +54,25 @@
         "data/js/extension/worker-content-script-oidc-saml.js",
         "data/js/extension/worker-content-script-elster.js",
         "data/js/extension/worker-content-script-pgp.js",
+        "data/js/extension/worker-content-script-notification-bar.js",
+        "data/js/content-script.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": true
+    },
+    {
+      "matches": ["*://*/*"],
+      "css": [
+        "data/css/lib/cssreset-context-min.css"
+      ],
+      "js": [
+        "data/js/lib/uuid.js",
+        "data/js/extension/worker-content-script-base.js",
+        "data/js/extension/worker-content-script.js",
+        "data/js/extension/worker-content-script-oidc-saml.js",
+        "data/js/extension/worker-content-script-elster.js",
+        "data/js/extension/worker-content-script-pgp.js",
+        "data/js/extension/worker-content-script-notification-bar.js",
         "data/js/content-script.js"
       ],
       "run_at": "document_idle",
@@ -67,7 +86,8 @@
     "data/fonts/*.woff2",
     "data/css/contentscript.css",
     "data/img/psono-encrypt.png",
-    "data/img/psono-decrypt.png"
+    "data/img/psono-decrypt.png",
+    "data/js/extension/notification-bar.html"
   ],
   "applications": {
     "gecko": {

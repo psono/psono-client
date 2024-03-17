@@ -51,6 +51,9 @@ async function createOffscreenDocument() {
  */
 async function getOfflineCacheEncryptionKey(fnc) {
     if (TARGET === "firefox") {
+        if (!browser.runtime.getBackgroundPage) {
+            return;
+        }
         browser.runtime.getBackgroundPage().then(function (bg) {
             fnc(bg.psono_offline_cache_encryption_key);
         });
