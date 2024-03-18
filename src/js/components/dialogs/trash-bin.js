@@ -40,7 +40,7 @@ const DialogTrashBin = (props) => {
             }
 
             if (folder.hasOwnProperty("deleted") && folder["deleted"]) {
-                if (!folder.hasOwnProperty("share_rights") || !folder.share_rights.delete) {
+                if (folder.hasOwnProperty("share_rights") && !folder.share_rights.delete) {
                     return;
                 }
                 newRecyclingBinEntries.push([folder.id, folder.name]);
