@@ -1,4 +1,7 @@
 {
+  "CHROME_EXPORT_OPEN_THE_FOLLOWING_IN_YOUR_ADDRESS_BAR_AND_ACTIVATE_THE_EXPORT_FUNCTION": "Open the following line in your address bar and activate the export function:",
+  "CHROME_EXPORT_AFTERWARDS_OPEN_THE_FOLLOWING_AND_EXPORT_ALL_PASSWORDS": "Afterwards you can open the following line in your address bar and export all passwords as a file and upload that here:",
+  "NEXTCLOUD_EXPORT_EXTRACT_ZIP_AND_UPLOAD_THE_PASSWORD_CSV": "When exporting from Nextcloud, please unzip the zip file and upload the Passwords.csv it contains here.",
   "RETRIEVAL_CODE_COPY_NOTIFICATION": "Retrieval code copied to clipboard",
   "RETRIEVAL_CODE": "Retrieval Code",
   "CERTIFICATE_FILE": "Certificate File",
