@@ -1,7 +1,7 @@
 /**
  * Service to manage the export of datastores
  */
-
+import React from "react";
 import datastorePasswordService from "./datastore-password";
 import secretService from "./secret";
 import importPsonoJson from "./import-psono-json";
@@ -18,7 +18,9 @@ import importKeepassXCOrgCsv from "./import-keepassxc-org-csv";
 import importLastpassComCsv from "./import-lastpass-com-csv";
 import importPwsafeOrgCsv from "./import-pwsafe-org-csv";
 import importTeampassNetCsv from "./import-teampass-net-csv";
+import importNextcloudCsvService from "./import-nextcloud-csv";
 import cryptoLibraryService from "./crypto-library";
+import i18n from "../i18n";
 
 const _importer = {
     psono_pw_json: {
@@ -28,12 +30,12 @@ const _importer = {
     },
     chrome_csv: {
         name: "Chrome (CSV)",
-        help:
-            "Open the following in your address bar and activate the export function:" +
-            "<pre>chrome://flags/#password-import-export</pre>" +
-            "Afterwards you can open the following in your address bar and export all passwords as a file:" +
-            "<pre>chrome://settings/passwords</pre>" +
-            "As a last step upload the file here.",
+        help: function () {
+            return (<>{i18n.t("CHROME_EXPORT_OPEN_THE_FOLLOWING_IN_YOUR_ADDRESS_BAR_AND_ACTIVATE_THE_EXPORT_FUNCTION")}
+                <pre>chrome://flags/#password-import-export</pre>
+                {i18n.t("CHROME_EXPORT_AFTERWARDS_OPEN_THE_FOLLOWING_AND_EXPORT_ALL_PASSWORDS")}
+                <pre>chrome://settings/passwords</pre></>)
+        },
         value: "chrome_csv",
         parser: importChromeCsv.parser,
     },
@@ -96,6 +98,14 @@ const _importer = {
         name: "Teampass (CSV)",
         value: "teampass_net_csv",
         parser: importTeampassNetCsv.parser,
+    },
+    nextcloud_csv: {
+        name: "Nextcloud (CSV)",
+        help: function () {
+            return i18n.t("NEXTCLOUD_EXPORT_EXTRACT_ZIP_AND_UPLOAD_THE_PASSWORD_CSV")
+        },
+        value: "nextcloud_csv",
+        parser: importNextcloudCsvService.parser,
     },
 };
 const registrations = {};
@@ -264,6 +274,21 @@ function getImporter() {
 }
 
 /**
+ * Returns the help text for a given importer
+ *
+ * @param {string} type The type of the import
+ *
+ * @returns {function} The help text for this importer
+ */
+function getImporterHelp(type) {
+    if (_importer.hasOwnProperty(type) && _importer[type].hasOwnProperty('help')) {
+        return _importer[type]['help'];
+    }
+
+    return undefined;
+}
+
+/**
  * Imports a datastore
  *
  * @param {string} type The type of the import
@@ -304,6 +329,7 @@ const importService = {
     on: on,
     emit: emit,
     getImporter: getImporter,
+    getImporterHelp: getImporterHelp,
     importDatastore: importDatastore,
 };
 

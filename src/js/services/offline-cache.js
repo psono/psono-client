@@ -198,8 +198,6 @@ function get(url, method) {
  */
 function enable() {
     action.enableOfflineMode();
-
-    //$rootScope.$broadcast("offline_mode_enabled", "");
 }
 
 /**
@@ -207,7 +205,6 @@ function enable() {
  */
 function disable() {
     action.disableOfflineMode();
-    // $rootScope.$broadcast("offline_mode_disabled", "");
 }
 
 /**

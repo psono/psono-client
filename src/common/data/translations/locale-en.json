@@ -1,4 +1,7 @@
 {
+  "CHROME_EXPORT_OPEN_THE_FOLLOWING_IN_YOUR_ADDRESS_BAR_AND_ACTIVATE_THE_EXPORT_FUNCTION": "Open the following line in your address bar and activate the export function:",
+  "CHROME_EXPORT_AFTERWARDS_OPEN_THE_FOLLOWING_AND_EXPORT_ALL_PASSWORDS": "Afterwards you can open the following line in your address bar and export all passwords as a file and upload that here:",
+  "NEXTCLOUD_EXPORT_EXTRACT_ZIP_AND_UPLOAD_THE_PASSWORD_CSV": "When exporting from Nextcloud, please unzip the zip file and upload the Passwords.csv it contains here.",
   "RETRIEVAL_CODE_COPY_NOTIFICATION": "Retrieval code copied to clipboard",
   "RETRIEVAL_CODE": "Retrieval Code",
   "CERTIFICATE_FILE": "Certificate File",
@@ -350,7 +353,7 @@
   "EXISTING_EMERGENCY_CODES": "Existing Emergency Codes",
   "EMERGENCY_CODES": "Emergency Codes",
   "EMERGENCY_CODES_DESCRIPTION": "Emergency Codes allows other trustworthy people (e.g. your parents or wife) to login on your behalf if something happens to you. In contrast to recovery codes the other person has to wait a bit before the code will grant access. Further you will be informed once someone activates such a code giving you the chance to prevent this action.",
-  "PSONO_WILL_STORE_THE_PASSWORD_ENCRYPTED": "Psono will store the password encrypted",
+  "PSONO_WILL_STORE_THE_PASSWORD_ENCRYPTED": "Psono will store the password encrypted.",
   "NEW_PASSWORD_DETECTED": "New Password detected",
   "DO_YOU_WANT_TO_SAVE_THIS_PASSWORD": "Do you want to save this password?",
   "PICK_ONE_SERVER_BELOW_OR_ENTER_URL": "Pick one of the servers below or enter the new url",

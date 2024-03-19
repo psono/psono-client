@@ -251,6 +251,10 @@ function samlLogin(samlTokenId) {
     const loginInfoEnc = cryptoLibrary.encryptDataPublicKey(login_info, server_public_key, session_keys.private_key);
 
     let sessionDuration = 24 * 60 * 60;
+    const trustDevice = store.getState().user.trustDevice;
+    if (trustDevice) {
+        sessionDuration = 24 * 60 * 60 * 30;
+    }
 
     return apiClient
         .samlLogin(loginInfoEnc["text"], loginInfoEnc["nonce"], session_keys.public_key, sessionDuration)
@@ -380,6 +384,10 @@ function oidcLogin(oidcTokenId) {
     const loginInfoEnc = cryptoLibrary.encryptDataPublicKey(login_info, server_public_key, session_keys.private_key);
 
     let sessionDuration = 24 * 60 * 60;
+    const trustDevice = store.getState().user.trustDevice;
+    if (trustDevice) {
+        sessionDuration = 24 * 60 * 60 * 30;
+    }
 
     return apiClient
         .oidcLogin(loginInfoEnc["text"], loginInfoEnc["nonce"], session_keys.public_key, sessionDuration)

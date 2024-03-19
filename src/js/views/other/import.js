@@ -95,6 +95,8 @@ const OtherImportView = (props) => {
         reader.readAsText(event.target.files[0], encoding);
     };
 
+    const getHelpText = importService.getImporterHelp(exportFormat);
+
     return (
         <Grid container>
             <Grid item xs={12} sm={12} md={12}>
@@ -213,6 +215,17 @@ const OtherImportView = (props) => {
                         </Box>
                     </Box>
                 </Grid>
+            )}
+            {getHelpText && (
+                <MuiAlert
+                    severity="info"
+                    style={{
+                        marginBottom: "5px",
+                        marginTop: "5px",
+                    }}
+                >
+                    {getHelpText()}
+                </MuiAlert>
             )}
             <GridContainerErrors errors={errors} setErrors={setErrors} />
             {messages && (

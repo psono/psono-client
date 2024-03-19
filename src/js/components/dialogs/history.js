@@ -47,6 +47,7 @@ const DialogHistory = (props) => {
                     historyItem.id,
                     format(new Date(historyItem.create_date)),
                     historyItem.username,
+                    new Date(historyItem.create_date),
                 ])
             );
         });
@@ -61,7 +62,16 @@ const DialogHistory = (props) => {
 
     const columns = [
         { name: t("ID"), options: { display: false } },
-        { name: t("DATE") },
+        {
+            name: t("DATE"),
+            options: {
+                sortCompare: (order) => {
+                    return (obj1, obj2) => {
+                        return (obj1.rowData[3] - obj2.rowData[3]) * (order === 'asc' ? 1 : -1);
+                    };
+                }
+            },
+        },
         { name: t("USER") },
         {
             name: t("SHOW"),

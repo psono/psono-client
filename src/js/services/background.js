@@ -8,6 +8,7 @@ import store from "./store";
 import datastorePasswordService from "./datastore-password";
 import offlineCache from "./offline-cache";
 import helper from "./helper";
+import notificationBarService from "./notification-bar";
 import user from "./user";
 import secretService from "./secret";
 import cryptoLibrary from "./crypto-library";
@@ -71,15 +72,6 @@ function activate() {
     browserClient.registerAuthRequiredListener(onAuthRequired);
     // browser.webRequest.onBeforeRequest.addListener(on_before_request, {urls: ["<all_urls>"]}, ["blocking", "requestBody"]);
     // browser.webRequest.onBeforeSendHeaders.addListener(on_before_send_headers, {urls: ["<all_urls>"]}, ["blocking", "requestHeaders"]);
-
-    if (typeof browser.notifications !== "undefined") {
-        browser.notifications.onButtonClicked.addListener(function (notificationId, buttonIndex) {
-            if (notificationId.startsWith("new-password-detected-") && buttonIndex === 0) {
-                saveLastLoginCredentials();
-            }
-            chrome.notifications.clear(notificationId);
-        });
-    }
 
     if (typeof browser.runtime.setUninstallURL !== "undefined") {
         // set url to open if someone uninstalls our extension
@@ -373,6 +365,10 @@ function onMessage(request, sender, sendResponse) {
         fillpassword: onFillpassword,
         fillelstercertificate: onFillElsterCertificate,
         ready: onReady,
+        "notification-bar-close": notificationBarService.onNotificationBarClose,
+        "notification-bar-ready": notificationBarService.onNotificationBarReady,
+        "notification-bar-loaded": notificationBarService.onNotificationBarLoaded,
+        "notification-bar-button-click": notificationBarService.onNotificationBarButtonClick,
         "fillpassword-active-tab": onFillpasswordActiveTab,
         "save-password-active-tab": savePasswordActiveTab,
         "bookmark-active-tab": bookmarkActiveTab,
@@ -1099,21 +1095,6 @@ function setOfflineCacheEncryptionKey(request, sender, sendResponse) {
  */
 function launchWebAuthFlowInBackground(request, sender, sendResponse) {
     browserClient.openTabBg(request.data.url);
-    // browser.identity.launchWebAuthFlow(
-    //     {
-    //         url: request.data.url,
-    //         interactive: true,
-    //     },
-    //     function (response_url) {
-    //         if (response_url.indexOf(browserClient.getOidcReturnToUrl()) !== -1) {
-    //             const oidc_token_id = response_url.replace(browserClient.getOidcReturnToUrl(), "");
-    //             browserClient.replaceTabUrl("/data/index.html#!/oidc/token/" + oidc_token_id);
-    //         } else {
-    //             const saml_token_id = response_url.replace(browserClient.getSamlReturnToUrl(), "");
-    //             browserClient.replaceTabUrl("/data/index.html#!/saml/token/" + saml_token_id);
-    //         }
-    //     }
-    // );
 }
 
 /**
@@ -1149,15 +1130,22 @@ function loginFormSubmit(request, sender, sendResponse) {
             return;
         }
 
-        browser.notifications.create("new-password-detected-" + cryptoLibrary.generateUuid(), {
-            type: "basic",
-            iconUrl: "img/icon-64.png",
-            title: i18n.t("NEW_PASSWORD_DETECTED"),
-            message: i18n.t("DO_YOU_WANT_TO_SAVE_THIS_PASSWORD"),
-            contextMessage: i18n.t("PSONO_WILL_STORE_THE_PASSWORD_ENCRYPTED"),
-            buttons: [{ title: i18n.t("YES") }, { title: i18n.t("NO") }],
-            eventTime: Date.now() + 4 * 1000,
-        });
+        notificationBarService.create(
+            i18n.t("NEW_PASSWORD_DETECTED"),
+            i18n.t("DO_YOU_WANT_TO_SAVE_THIS_PASSWORD") + " " + i18n.t("PSONO_WILL_STORE_THE_PASSWORD_ENCRYPTED"),
+            [
+                {
+                    title: i18n.t("YES"),
+                    onClick: saveLastLoginCredentials,
+                    color: "primary",
+                },
+                {
+                    title: i18n.t("NO"),
+                    onClick: function() {},
+                },
+            ],
+        10 * 1000,
+            )
     });
 }
 

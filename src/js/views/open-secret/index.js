@@ -32,18 +32,6 @@ const OpenSecretView = (props) => {
         }
     };
 
-    // $rootScope.$on("cfpLoadingBar:loading", function () {
-    //     setPercentage(20);
-    // });
-    //
-    // $rootScope.$on("cfpLoadingBar:loaded", function (status) {
-    //     setPercentage(80);
-    // });
-    //
-    // $rootScope.$on("cfpLoadingBar:completed", function () {
-    //     setPercentage(100);
-    // });
-
     return (
         <div className="loading-lock">
             <img src="img/logo.png" alt="Psono Web Client" id="logo" />
