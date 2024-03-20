@@ -37,6 +37,7 @@ const SettingsEntryTypesView = (props) => {
     const [showWebsitePassword, setShowWebsitePassword] = useState(settingsDatastore.showWebsitePassword);
     const [showApplicationPassword, setShowApplicationPassword] = useState(settingsDatastore.showApplicationPassword);
     const [showTOTPAuthenticator, setShowTOTPAuthenticator] = useState(settingsDatastore.showTOTPAuthenticator);
+    const [showPasskey, setShowPasskey] = useState(settingsDatastore.showPasskey);
     const [showNote, setShowNote] = useState(settingsDatastore.showNote);
     const [showEnvironmentVariables, setShowEnvironmentVariables] = useState(settingsDatastore.showEnvironmentVariables);
     const [showSSHKey, setShowSSHKey] = useState(settingsDatastore.showSSHKey);
@@ -57,6 +58,10 @@ const SettingsEntryTypesView = (props) => {
         "totp": {
             'value': showTOTPAuthenticator,
             'setter': setShowTOTPAuthenticator,
+        },
+        "passkey": {
+            'value': showPasskey,
+            'setter': setShowPasskey,
         },
         "note": {
             'value': showNote,
@@ -96,6 +101,7 @@ const SettingsEntryTypesView = (props) => {
         setShowWebsitePassword(settingsDatastore.showWebsitePassword);
         setShowApplicationPassword(settingsDatastore.showApplicationPassword);
         setShowTOTPAuthenticator(settingsDatastore.showTOTPAuthenticator);
+        setShowPasskey(settingsDatastore.showPasskey);
         setShowNote(settingsDatastore.showNote);
         setShowEnvironmentVariables(settingsDatastore.showEnvironmentVariables);
         setShowSSHKey(settingsDatastore.showSSHKey);
@@ -111,6 +117,7 @@ const SettingsEntryTypesView = (props) => {
             showWebsitePassword,
             showApplicationPassword,
             showTOTPAuthenticator,
+            showPasskey,
             showNote,
             showEnvironmentVariables,
             showSSHKey,

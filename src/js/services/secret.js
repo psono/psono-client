@@ -75,6 +75,9 @@ function readSecret(secretId, secretKey) {
 
     const onSuccess = function (content) {
         const secret = JSON.parse(cryptoLibrary.decryptData(content.data.data, content.data.data_nonce, secretKey));
+        if (content.data) {
+            secret["read_count"] = content.data["read_count"];
+        }
         secret["create_date"] = content.data["create_date"];
         secret["write_date"] = content.data["write_date"];
         secret["callback_url"] = content.data["callback_url"];

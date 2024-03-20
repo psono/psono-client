@@ -502,6 +502,37 @@ function testBackgroundPage() {
 }
 
 /**
+ * sends an event message to a specific tab
+ *
+ * @param {string} tabId The id of the tab
+ * @param {string} event The event
+ * @param {*} data The payload for the event
+ * @param {function} [callbackFunction] Ann optional callback function
+ */
+function emitTab(tabId, event, data, callbackFunction) {
+    if (TARGET === "firefox") {
+        browser.tabs.sendMessage(tabId, { event: event, data: data }, callbackFunction);
+    } else if (TARGET === "chrome") {
+        chrome.tabs.sendMessage(tabId, { event: event, data: data }, callbackFunction);
+    }
+}
+
+/**
+ * Returns the absolute path for a given relative path
+ *
+ * @param {string} path The relative path
+ *
+ * @returns {string} The absolute path
+ */
+function getURL(path) {
+    if (TARGET === "firefox") {
+        return browser.runtime.getURL(path);
+    } else if (TARGET === "chrome") {
+        return chrome.runtime.getURL(path);
+    }
+}
+
+/**
  * sends an event message to browser
  *
  * @param {string} event The event
@@ -890,6 +921,8 @@ const browserClientService = {
     getActiveTabUrl: getActiveTabUrl,
     testBackgroundPage: testBackgroundPage,
     emit: emit,
+    emitTab: emitTab,
+    getURL: getURL,
     emitSec: emitSec,
     on: on,
     getConfig: getConfig,

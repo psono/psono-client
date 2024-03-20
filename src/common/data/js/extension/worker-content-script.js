@@ -492,6 +492,9 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
         let cssId = "psono-css"; // you could encode the css path itself to generate id..
         if (!document.getElementById(cssId)) {
             let head = document.getElementsByTagName("head")[0];
+            if (!head) {
+                return;
+            }
             let link = document.createElement("link");
             link.id = cssId;
             link.rel = "stylesheet";

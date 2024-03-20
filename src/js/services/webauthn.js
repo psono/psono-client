@@ -70,7 +70,8 @@ function activateWebauthn(webauthnId, credential) {
         action.setHasTwoFactor(true);
         return true;
     };
-    const onError = function () {
+    const onError = function (data) {
+        console.log(data)
         return false;
     };
     return apiClientService

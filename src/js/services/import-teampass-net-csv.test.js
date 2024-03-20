@@ -46,11 +46,13 @@ describe('Service: importTeampassNetCsv test suite', function () {
                     }, {
                         "id": generic_uuid,
                         "type": "website_password",
+                        "urlfilter": "192.168.0.34",
                         "name": "Server admin (tag1,tag2)",
                         "website_password_password": "test",
                         "website_password_username": "admin",
                         "website_password_notes": "sample notes\ncustom1: custom value 1\ncustom2: custom value 2\n",
                         "website_password_url": "192.168.0.34",
+                        "website_password_url_filter": "192.168.0.34",
                         "website_password_title": "Server admin (tag1,tag2)"
                     }
                     ]
@@ -61,11 +63,13 @@ describe('Service: importTeampassNetCsv test suite', function () {
                     "items": [{
                         "id": generic_uuid,
                         "type": "website_password",
+                        "urlfilter": "192.168.0.1",
                         "name": "Router",
                         "website_password_password": "easypwd",
                         "website_password_username": "admin",
                         "website_password_notes": "\n",
                         "website_password_url": "192.168.0.1",
+                        "website_password_url_filter": "192.168.0.1",
                         "website_password_title": "Router"
                     }, {
                         "id": generic_uuid,
@@ -95,19 +99,23 @@ describe('Service: importTeampassNetCsv test suite', function () {
                 "id": generic_uuid,
                 "type": "website_password",
                 "name": "Server admin (tag1,tag2)",
+                "urlfilter": "192.168.0.34",
                 "website_password_password": "test",
                 "website_password_username": "admin",
                 "website_password_notes": "sample notes\ncustom1: custom value 1\ncustom2: custom value 2\n",
                 "website_password_url": "192.168.0.34",
+                "website_password_url_filter": "192.168.0.34",
                 "website_password_title": "Server admin (tag1,tag2)"
             }, {
                 "id": generic_uuid,
                 "type": "website_password",
+                "urlfilter": "192.168.0.1",
                 "name": "Router",
                 "website_password_password": "easypwd",
                 "website_password_username": "admin",
                 "website_password_notes": "\n",
                 "website_password_url": "192.168.0.1",
+                "website_password_url_filter": "192.168.0.1",
                 "website_password_title": "Router"
             }, {
                 "id": generic_uuid,

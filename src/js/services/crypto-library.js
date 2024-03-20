@@ -13,9 +13,12 @@ import helperService from "./helper";
 import converterService from "./converter";
 import store from "./store";
 
-function InvalidRecoveryCodeException(message) {
-    this.message = message;
-    this.name = "InvalidRecoveryCodeException";
+
+class InvalidRecoveryCodeException extends Error {
+    constructor(message) {
+        super(message);
+        this.name = this.constructor.name;
+    }
 }
 
 /**

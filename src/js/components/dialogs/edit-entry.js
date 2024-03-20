@@ -144,6 +144,16 @@ const DialogEditEntry = (props) => {
     const [websitePasswordAutoSubmit, setWebsitePasswordAutoSubmit] = useState(false);
     const [websitePasswordUrlFilter, setWebsitePasswordUrlFilter] = useState("");
 
+    const [passkeyTitle, setPasskeyTitle] = useState("");
+    const [passkeyRpId, setPasskeyRpId] = useState("");
+    const [passkeyId, setPasskeyId] = useState("");
+    const [passkeyPublicKey, setPasskeyPublicKey] = useState("");
+    const [passkeyPrivateKey, setPasskeyPrivateKey] = useState("");
+    const [passkeyUserHandle, setPasskeyUserHandle] = useState("");
+    const [passkeyAlgorithm, setPasskeyAlgorithm] = useState(null);
+    const [passkeyAutoSubmit, setPasskeyAutoSubmit] = useState(false);
+    const [passkeyUrlFilter, setPasskeyUrlFilter] = useState("");
+
     const [applicationPasswordTitle, setApplicationPasswordTitle] = useState("");
     const [applicationPasswordUsername, setApplicationPasswordUsername] = useState("");
     const [applicationPasswordPassword, setApplicationPasswordPassword] = useState("");
@@ -216,6 +226,7 @@ const DialogEditEntry = (props) => {
         !store.getState().server.disableCallbacks;
     const showGeneratePassword = item.share_rights && item.share_rights.write;
     const isValidWebsitePassword = Boolean(websitePasswordTitle);
+    const isValidPasskey = Boolean(passkeyTitle);
     const isValidApplicationPassword = Boolean(applicationPasswordTitle);
     const isValidBookmark = Boolean(bookmarkTitle) && (!bookmarkUrl || helperService.isValidUrl(bookmarkUrl));
     const isValidNote = Boolean(noteTitle);
@@ -244,6 +255,7 @@ const DialogEditEntry = (props) => {
         Boolean(elsterCertificatePassword);
     const canSave =
         (item.type === "website_password" && isValidWebsitePassword) ||
+        (item.type === "passkey" && isValidPasskey) ||
         (item.type === "application_password" && isValidApplicationPassword) ||
         (item.type === "bookmark" && isValidBookmark) ||
         (item.type === "note" && isValidNote) ||
@@ -342,6 +354,53 @@ const DialogEditEntry = (props) => {
                 setWebsitePasswordUrlFilter(data["website_password_url_filter"]);
             } else {
                 setWebsitePasswordUrlFilter("");
+            }
+
+            // passkey
+            if (data.hasOwnProperty("passkey_title")) {
+                setPasskeyTitle(data["passkey_title"]);
+            } else {
+                setPasskeyTitle("");
+            }
+            if (data.hasOwnProperty("passkey_rp_id")) {
+                setPasskeyRpId(data["passkey_rp_id"]);
+            } else {
+                setPasskeyRpId("");
+            }
+            if (data.hasOwnProperty("passkey_id")) {
+                setPasskeyId(data["passkey_id"]);
+            } else {
+                setPasskeyId("");
+            }
+            if (data.hasOwnProperty("passkey_public_key")) {
+                setPasskeyPublicKey(data["passkey_public_key"]);
+            } else {
+                setPasskeyPublicKey("");
+            }
+            if (data.hasOwnProperty("passkey_private_key")) {
+                setPasskeyPrivateKey(data["passkey_private_key"]);
+            } else {
+                setPasskeyPrivateKey("");
+            }
+            if (data.hasOwnProperty("passkey_user_handle")) {
+                setPasskeyUserHandle(data["passkey_user_handle"]);
+            } else {
+                setPasskeyUserHandle("");
+            }
+            if (data.hasOwnProperty("passkey_algorithm")) {
+                setPasskeyAlgorithm(data["passkey_algorithm"]);
+            } else {
+                setPasskeyAlgorithm(null);
+            }
+            if (data.hasOwnProperty("passkey_auto_submit")) {
+                setPasskeyAutoSubmit(data["passkey_auto_submit"]);
+            } else {
+                setPasskeyAutoSubmit(false);
+            }
+            if (data.hasOwnProperty("passkey_url_filter")) {
+                setPasskeyUrlFilter(data["passkey_url_filter"]);
+            } else {
+                setPasskeyUrlFilter("");
             }
 
             // application passwords
@@ -613,6 +672,38 @@ const DialogEditEntry = (props) => {
             if (websitePasswordUrlFilter) {
                 item["urlfilter"] = websitePasswordUrlFilter;
                 secretObject["website_password_url_filter"] = websitePasswordUrlFilter;
+            } else {
+                delete item["urlfilter"];
+            }
+        }
+
+        if (item.type === "passkey") {
+            item["name"] = passkeyTitle;
+            secretObject["passkey_title"] = passkeyTitle;
+            if (passkeyRpId) {
+                secretObject["passkey_rp_id"] = passkeyRpId;
+            }
+            if (passkeyId) {
+                secretObject["passkey_id"] = passkeyId;
+            }
+            if (passkeyPublicKey) {
+                secretObject["passkey_public_key"] = passkeyPublicKey;
+            }
+            if (passkeyPrivateKey) {
+                secretObject["passkey_private_key"] = passkeyPrivateKey;
+            }
+            if (passkeyUserHandle) {
+                secretObject["passkey_user_handle"] = passkeyUserHandle;
+            }
+            if (passkeyAlgorithm) {
+                secretObject["passkey_algorithm"] = passkeyAlgorithm;
+            }
+
+            secretObject["passkey_auto_submit"] = passkeyAutoSubmit;
+            item["autosubmit"] = passkeyAutoSubmit;
+            if (passkeyUrlFilter) {
+                item["urlfilter"] = passkeyUrlFilter;
+                secretObject["passkey_url_filter"] = passkeyUrlFilter;
             } else {
                 delete item["urlfilter"];
             }
@@ -975,6 +1066,25 @@ const DialogEditEntry = (props) => {
     )
     const content = (
         <Grid container>
+            {item.type === "passkey" && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <TextField
+                        className={classes.textField}
+                        variant="outlined"
+                        margin="dense"
+                        id="passkeyTitle"
+                        label={t("TITLE")}
+                        name="passkeyTitle"
+                        autoComplete="off"
+                        value={passkeyTitle}
+                        InputProps={{ readOnly: !item.share_rights || !item.share_rights.write }}
+                        required
+                        onChange={(event) => {
+                            setPasskeyTitle(event.target.value);
+                        }}
+                    />
+                </Grid>
+            )}
             {item.type === "website_password" && (
                 <Grid item xs={12} sm={12} md={12}>
                     <TextField
@@ -2291,6 +2401,23 @@ const DialogEditEntry = (props) => {
                             {t("SHOW_HISTORY")}
                         </Button>
                     )}
+                </Grid>
+            )}
+
+            {item.type === "passkey" && showAdvanced && (
+                <Grid item xs={12} sm={12} md={12}>
+                    <Checkbox
+                        checked={passkeyAutoSubmit}
+                        onChange={(event) => {
+                            setPasskeyAutoSubmit(event.target.checked);
+                        }}
+                        checkedIcon={<Check className={classes.checkedIcon} />}
+                        icon={<Check className={classes.uncheckedIcon} />}
+                        classes={{
+                            checked: classes.checked,
+                        }}
+                    />{" "}
+                    {t("DISCOVERABLE")}
                 </Grid>
             )}
 

@@ -31,6 +31,7 @@ test-linter:
   image: psono-docker.jfrog.io/ubuntu:22.04
   script:
     - sh ./var/prep-build.sh
+    - node var/update_public_suffix_list.js
     - npm run buildfirefox
     - npm install -g addons-linter@6.1.0
     - cat ./build/firefox/manifest.json
@@ -113,6 +114,7 @@ build-firefox-extension:
     - apt-get update && apt-get install -y curl
     - sh ./var/download_translations_from_artifactory.sh
     - sh ./var/prep-build.sh
+    - node var/update_public_suffix_list.js
     - npm run buildfirefox
     - sh ./var/package-firefox-extension.sh
     - curl -fL https://getcli.jfrog.io | sh
@@ -141,6 +143,7 @@ build-chrome-extension:
     - apt-get update && apt-get install -y curl
     - sh ./var/download_translations_from_artifactory.sh
     - sh ./var/prep-build.sh
+    - node var/update_public_suffix_list.js
     - npm run buildchrome
     - sh ./var/package-chrome-extension.sh
     - curl -fL https://getcli.jfrog.io | sh
@@ -466,6 +469,7 @@ deploy-chrome:
   image: psono-docker.jfrog.io/ubuntu:22.04
   script:
     - sh ./var/prep-build.sh
+    - node var/update_public_suffix_list.js
     - npm run buildchrome
     - sh ./var/deploy-chrome-extension.sh
   environment:
@@ -505,6 +509,7 @@ deploy-firefox:
     - zip -r ../source.zip ./
     - mv ../source.zip ./
     - sh ./var/prep-build.sh
+    - node var/update_public_suffix_list.js
     - npm run buildfirefox
     - sh ./var/deploy-firefox-extension.sh
   environment:

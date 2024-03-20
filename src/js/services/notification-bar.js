@@ -13,12 +13,10 @@ function showNotificationBarInTab(tabId) {
         return;
     }
 
-    chrome.tabs.sendMessage(tabId, {
-        event: "show-notification-bar",
-        data: {
-            'notificationBarUrl': chrome.runtime.getURL('data/notification-bar.html'),
+    browserClient.emitTab(tabId, "show-notification-bar", {
+            'notificationBarUrl': browserClient.getURL('data/notification-bar.html'),
         }
-    });
+    )
 }
 
 /**
@@ -27,10 +25,7 @@ function showNotificationBarInTab(tabId) {
  * @param tabId The id of the tab
  */
 function removeNotificationBar(tabId) {
-    chrome.tabs.sendMessage(tabId, {
-        event: "remove-notification-bar",
-        data: {}
-    });
+    browserClient.emitTab(tabId, "remove-notification-bar", {});
 }
 
 /**
@@ -40,8 +35,9 @@ function removeNotificationBar(tabId) {
  * @param description The desciription
  * @param buttons potential buttons
  * @param [autoClose] Automatic close in seconds
+ * @param [onAutoClose] A callback function that is triggered on auto close
  */
-async function create(title, description, buttons, autoClose) {
+async function create(title, description, buttons, autoClose, onAutoClose) {
 
     const id = cryptoLibraryService.generateUuid();
     const activeTab = await browserClient.getActiveTab();
@@ -65,6 +61,9 @@ async function create(title, description, buttons, autoClose) {
             delete _notifications[activeTab.id];
 
             removeNotificationBar(activeTab.id)
+            if (typeof onAutoClose === "function") {
+                onAutoClose()
+            }
         }, autoClose);
     }
 }

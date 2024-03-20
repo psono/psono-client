@@ -29,6 +29,13 @@ const _entryTypes = [
         show: () => store.getState().settingsDatastore.showTOTPAuthenticator,
     },
     {
+        value: "passkey",
+        title: "PASSKEY",
+        edit_title: "EDIT_PASSKEY",
+        show_title: "SHOW_PASSKEY",
+        show: () => store.getState().settingsDatastore.showPasskey,
+    },
+    {
         value: "note", title: "NOTE", edit_title: "EDIT_NOTE", show_title: "SHOW_NOTE",
         show: () => store.getState().settingsDatastore.showNote },
     {
