@@ -64,7 +64,7 @@
   "ACCEPT_SHARE": "Share annehmen",
   "ACCEPT_GROUP": "Gruppe annehmen",
   "DATE_TIME_YYYY_MM_DD_HH_MM": "dd.MM.yyyy HH:mm",
-  "TABLE_BODY_NO_MATCH": "Entschulding, keine übereinstimmenden Einträge gefunden",
+  "TABLE_BODY_NO_MATCH": "Entschuldigung, keine übereinstimmenden Einträge gefunden",
   "TABLE_BODY_TOOL_TIP": "Sortieren",
   "TABLE_BODY_COLUMN_HEADER_TOOLTIP": "Sortieren nach",
   "TABLE_PAGINATION_NEXT": "Nächste Seite",
