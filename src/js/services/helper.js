@@ -10,56 +10,94 @@ function is_ipv4_address(address) {
     );
 }
 
+// /**
+//  * parses an URL and returns an object with all details separated
+//  *
+//  * @param {url} url The url to be parsed
+//  * @returns {SplittedUrl} Returns the split up url
+//  */
+// function parseUrl(url) {
+//     let authority;
+//     let splitted_authority;
+//     let full_domain;
+//     let base_url;
+//     let schema;
+//     let port = null;
+//
+//     // According to RFC http://www.ietf.org/rfc/rfc3986.txt Appendix B
+//     const pattern = new RegExp("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
+//     const matches = url.match(pattern);
+//
+//     schema = matches[2];
+//     base_url = matches[2] + "://";
+//
+//     if (typeof matches[4] !== "undefined") {
+//         base_url = base_url + matches[4];
+//         authority = matches[4];
+//         splitted_authority = authority.split(":");
+//     }
+//
+//     if (typeof splitted_authority !== "undefined" && splitted_authority.length === 2) {
+//         port = splitted_authority[splitted_authority.length - 1];
+//     }
+//     if (typeof splitted_authority !== "undefined") {
+//         full_domain = splitted_authority[0];
+//     }
+//
+//     return {
+//         scheme: schema,
+//         base_url: base_url,
+//         authority: authority,
+//         authority_without_www: authority ? authority.replace(/^(www\.)/, ""): authority, //remove leading www.
+//         full_domain: full_domain,
+//         full_domain_without_www: full_domain ? full_domain.replace(/^(www\.)/, "") : full_domain,
+//         port: port,
+//         path: matches[5],
+//         query: matches[7],
+//         fragment: matches[9],
+//     };
+// }
+
 /**
  * parses an URL and returns an object with all details separated
  *
- * @param {url} url The url to be parsed
+ * @param {String} url The url to be parsed
  * @returns {SplittedUrl} Returns the split up url
  */
 function parseUrl(url) {
-    let authority;
-    let splitted_authority;
-    let full_domain;
-    let base_url;
-    let schema;
-    let port = null;
-
-    // According to RFC http://www.ietf.org/rfc/rfc3986.txt Appendix B
-    const pattern = new RegExp("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
-    const matches = url.match(pattern);
-
-    schema = matches[2];
-    base_url = matches[2] + "://";
-
-    if (typeof matches[4] !== "undefined") {
-        if (matches[4]) {
-            base_url = base_url + matches[4].toLowerCase();
-        } else {
-            base_url = base_url + matches[4];
-        }
-        authority = matches[4];
-        splitted_authority = authority.split(":");
+    if (!url) {
+        return {
+            scheme: null,
+            authority: null,
+            authority_without_www: null,
+            base_url: null,
+            full_domain: null,
+            full_domain_without_www: null,
+            port: null,
+            path: null,
+            query: null,
+            fragment: null
+        };
     }
 
-    if (typeof splitted_authority !== "undefined" && splitted_authority.length === 2) {
-        port = splitted_authority[splitted_authority.length - 1];
+    if (!url.includes("://")) {
+        // Its supposed to be an url but doesn't include a schema so let's prefix it with http://
+        url = 'http://' + url;
     }
-    if (typeof splitted_authority !== "undefined") {
-        full_domain = splitted_authority[0];
-    }
+
+    const parsedUrl = new URL(url);
 
     return {
-        scheme: schema,
-        base_url: base_url,
-        authority: authority ? authority.toLowerCase() : authority,
-        authority_without_www: authority ? authority.toLowerCase().replace(/^(www\.)/, ""): authority, //remove leading www.
-        full_domain: full_domain ? full_domain.toLowerCase() : full_domain,
-        full_domain_without_www: full_domain ? full_domain.toLowerCase().replace(/^(www\.)/, "") : full_domain,
-        top_domain: full_domain ? full_domain.toLowerCase() : full_domain,
-        port: port,
-        path: matches[5],
-        query: matches[7],
-        fragment: matches[9],
+        scheme: parsedUrl.protocol.slice(0,-1),
+        base_url: parsedUrl.protocol + '//' + parsedUrl.host,
+        authority: parsedUrl.host,
+        authority_without_www: parsedUrl.host ? parsedUrl.host.replace(/^(www\.)/, ""): parsedUrl.host, //remove leading www.
+        full_domain: parsedUrl.hostname,
+        full_domain_without_www: parsedUrl.hostname ? parsedUrl.hostname.replace(/^(www\.)/, "") : parsedUrl.hostname,
+        port: parsedUrl.port || null,
+        path: parsedUrl.pathname,
+        query: parsedUrl.search || null,
+        fragment: parsedUrl.hash ? parsedUrl.hash.substring(1) : null,
     };
 }
 

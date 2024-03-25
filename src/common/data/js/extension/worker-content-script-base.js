@@ -5,7 +5,7 @@
 var ClassWorkerContentScriptBase = function (browser, setTimeout) {
     "use strict";
     var registrations = {};
-    var observer_executables = [];
+    var observerExecutables = [];
     var documents = [];
     var windows = [];
 
@@ -50,9 +50,14 @@ var ClassWorkerContentScriptBase = function (browser, setTimeout) {
     }
 
     function observe(window) {
-        var doc = window.document;
-        var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
-        var observer = new MutationObserver(function (mutations) {
+        const doc = window.document;
+
+        if (doc.body === null) {
+            return;
+        }
+
+        const MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
+        const observer = new MutationObserver(function (mutations) {
             // watch for changes, but block multiple executions for potentially the same event
             // by delaying the actual execution for 300ms and blocking all events within this timeslot to fire again
             if (doc.analyze_waiting) {
@@ -60,19 +65,18 @@ var ClassWorkerContentScriptBase = function (browser, setTimeout) {
             }
             doc.analyze_waiting = true;
             setTimeout(function () {
-                for (var i = 0; i < observer_executables.length; i++) {
-                    observer_executables[i](doc);
+                for (let i = 0; i < observerExecutables.length; i++) {
+                    observerExecutables[i](doc);
                 }
                 doc.analyze_waiting = false;
             }, 300);
         });
-        //var config = { attributes: true, childList: true, characterData: true, subtree:true };
-        var config = { childList: true, characterData: true, subtree: true };
+        const config = { childList: true, characterData: true, subtree: true };
         observer.observe(doc.body, config);
     }
     function registerObserver(fnc) {
-        observer_executables.push(fnc);
-        for (var i = 0; i < documents.length; i++) {
+        observerExecutables.push(fnc);
+        for (let i = 0; i < documents.length; i++) {
             fnc(documents[i]);
         }
     }
@@ -146,7 +150,7 @@ var ClassWorkerContentScriptBase = function (browser, setTimeout) {
                 return;
             }
             for (
-                var i = 0;
+                let i = 0;
                 registrations.hasOwnProperty(response.event) && i < registrations[response.event].length;
                 i++
             ) {

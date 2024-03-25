@@ -9,12 +9,15 @@ import datastorePasswordService from "./datastore-password";
 import offlineCache from "./offline-cache";
 import helper from "./helper";
 import notificationBarService from "./notification-bar";
+import passkeyService from "./passkey";
 import user from "./user";
 import secretService from "./secret";
 import cryptoLibrary from "./crypto-library";
 import HKP from "@openpgp/hkp-client";
 import * as openpgp from "openpgp";
 import storage from "./storage";
+import converterService from "./converter";
+import helperService from "./helper";
 
 let lastLoginCredentials;
 let activeTabId;
@@ -111,7 +114,6 @@ function activate() {
     i18n.on("loaded", function (loaded) {
         updateContextMenu();
     });
-
 
     if (chrome.contextMenus) {
         chrome.contextMenus.onClicked.addListener((info, tab) => {
@@ -322,27 +324,22 @@ function fillSecretTab(secretId, tab) {
 
         const onSuccess = function (content) {
             if (leaf.type === 'website_password') {
-                chrome.tabs.sendMessage(tab.id, {
-                    event: "fillpassword",
-                    data: {
+                browserClient.emitTab(tab.id, "fillpassword", {
                         username: content.website_password_username,
                         password: content.website_password_password,
                         url_filter: content.website_password_url_filter,
                         auto_submit: content.website_password_auto_submit,
                     }
-                });
+                )
             }
             if (leaf.type === 'credit_card') {
-                console.log("chrome.tabs.sendMessage: fillcreditcard")
-                chrome.tabs.sendMessage(tab.id, {
-                    event: "fillcreditcard",
-                    data: {
+                browserClient.emitTab(tab.id, "fillcreditcard", {
                         credit_card_number: content.credit_card_number,
                         credit_card_cvc: content.credit_card_cvc,
                         credit_card_name: content.credit_card_name,
                         credit_card_valid_through: content.credit_card_valid_through,
                     }
-                });
+                )
             }
         };
 
@@ -391,6 +388,8 @@ function onMessage(request, sender, sendResponse) {
         "set-offline-cache-encryption-key": setOfflineCacheEncryptionKey,
         "launch-web-auth-flow-in-background": launchWebAuthFlowInBackground,
         "language-changed": languageChanged,
+        "navigator-credentials-get": passkeyService.onNavigatorCredentialsGet,
+        "navigator-credentials-create": passkeyService.onNavigatorCredentialsCreate,
         "get-offline-cache-encryption-key-offscreen": () => {}, // dummy as these are handled offscreen
         "set-offline-cache-encryption-key-offscreen": () => {}, // dummy as these are handled offscreen
     };
@@ -497,7 +496,7 @@ function onFillpasswordActiveTab(request, sender, sendResponse) {
     if (typeof activeTabId === "undefined") {
         return;
     }
-    browser.tabs.sendMessage(activeTabId, { event: "fillpassword", data: request.data });
+    browserClient.emitTab(activeTabId, "fillpassword", request.data);
 }
 
 /**
@@ -512,7 +511,7 @@ function savePasswordActiveTab(request, sender, sendResponse) {
     if (typeof activeTabId === "undefined") {
         return;
     }
-    chrome.tabs.sendMessage(activeTabId, { event: "get-username", data: {} }, function (response) {
+    browserClient.emitTab(activeTabId, "get-username", {}, function (response) {
         const onError = function (data) {
             console.log(data);
         };

@@ -167,7 +167,7 @@ const LoginViewForm = (props) => {
             async function (webauthn) {
                 webauthn.options.challenge = Uint8Array.from(webauthn.options.challenge, c => c.charCodeAt(0))
                 for (let i = 0; i < webauthn.options.allowCredentials.length; i++) {
-                    webauthn.options.allowCredentials[i]['id'] = converterService.base64ToArrayBuffer(webauthn.options.allowCredentials[i]['id'].replace(/-/g, '+').replace(/_/g, '/'))
+                    webauthn.options.allowCredentials[i]['id'] = converterService.base64UrlToArrayBuffer(webauthn.options.allowCredentials[i]['id'])
                 }
 
                 let credential;

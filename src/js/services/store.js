@@ -21,7 +21,7 @@ const config = {
 
 const middlewares = [thunkMiddleware, createStateSyncMiddleware(config)];
 
-if (true || !process.env.NODE_ENV || process.env.NODE_ENV === "development") {
+if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
     const loggerMiddleware = createLogger({
         predicate: (getState, action) => action.type !== SET_REQUESTS_IN_PROGRESS
     });

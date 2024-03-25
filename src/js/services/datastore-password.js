@@ -538,6 +538,7 @@ function getPasswordDatastore(id) {
             const onError = function (datastore) {
                 // pass
                 console.log(datastore);
+                return Promise.reject(datastore);
             };
 
             return _readShares(datastore, share_rights_dict).then(onSuccess, onError);
@@ -546,6 +547,7 @@ function getPasswordDatastore(id) {
         const onError = function (data) {
             // pass
             console.log(data);
+            return Promise.reject(data);
         };
 
         return shareService.readShareRightsOverview().then(onSuccess, onError);
@@ -553,6 +555,7 @@ function getPasswordDatastore(id) {
     const onError = function (data) {
         // pass
         console.log(data);
+        return Promise.reject(data);
     };
 
     return datastoreService.getDatastore(type, id).then(onSuccess, onError);
@@ -743,6 +746,56 @@ function savePassword(url, username, password) {
         type: "website_password",
         name: parsed_url.authority_without_www || i18n.t("UNKNOWN"),
         urlfilter: parsed_url.authority || "",
+    };
+
+    const onError = function (data) {
+        console.log(data);
+    };
+
+    const onSuccess = function (datastoreObject) {
+        // we return a promise. We do not yet have a proper error handling and returning
+        // a promise might make it easier later to wait or fix errors
+        return new Promise(function (resolve) {
+            resolve(datastoreObject);
+        });
+    };
+
+    return saveInDatastore(secret_object, datastore_object).then(onSuccess, onError);
+}
+
+/**
+ * Stores a passkey in the datastore
+ *
+ * @param {string} passkey_id The id of the passkey in Hex notation
+ * @param {string} passkey_rp_id The RPID e.g. a domain or ip address
+ * @param {string} passkey_public_key The public key in jwk format
+ * @param {string} passkey_private_key The private key in jwk format
+ * @param {string} passkey_user_handle The user handle
+ * @param {string} username The username
+ * @param {object} passkey_algorithm The algorithm object e.g { 'name': "ECDSA", 'namedCurve': "P-256" }
+ *
+ * @returns {Promise} Returns a promise with the datastore object
+ */
+function savePasskey(passkey_id, passkey_rp_id, passkey_public_key, passkey_private_key, passkey_user_handle, username, passkey_algorithm) {
+    const title = (passkey_rp_id + " " + username).trim() || i18n.t("UNKNOWN");
+    const urlfilter = passkey_rp_id + '#' + passkey_id;
+
+    const secret_object = {
+        passkey_title: title,
+        passkey_rp_id: passkey_rp_id,
+        passkey_id: passkey_id,
+        passkey_public_key: passkey_public_key,
+        passkey_private_key: passkey_private_key,
+        passkey_user_handle: passkey_user_handle,
+        passkey_algorithm: passkey_algorithm,
+        passkey_url_filter: urlfilter,
+        passkey_auto_submit: false,
+    };
+
+    const datastore_object = {
+        type: "passkey",
+        name: title,
+        urlfilter: urlfilter,
     };
 
     const onError = function (data) {
@@ -1671,6 +1724,7 @@ const datastorePasswordService = {
     handleDatastoreContentChanged: handleDatastoreContentChanged,
     savePassword: savePassword,
     savePasswordActiveTab: savePasswordActiveTab,
+    savePasskey: savePasskey,
     bookmarkActiveTab: bookmarkActiveTab,
     findInDatastore: findInDatastore,
     searchInDatastore: searchInDatastore,

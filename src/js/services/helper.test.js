@@ -16,10 +16,9 @@ describe('Service: helper test suite', function() {
             base_url: "https://www.example.com",
             full_domain: 'www.example.com',
             full_domain_without_www: 'example.com',
-            top_domain: 'www.example.com',
             port: null,
             path: '/url-part/',
-            query: undefined,
+            query: null,
             fragment: 'is-not-part'
         });
     });
@@ -34,15 +33,14 @@ describe('Service: helper test suite', function() {
             base_url: "https://example.com",
             full_domain: 'example.com',
             full_domain_without_www: "example.com",
-            top_domain: 'example.com',
             port: null,
             path: '/url-part/',
-            query: undefined,
+            query: null,
             fragment: 'is-not-part'
         });
     });
 
-    it('parse_url sub domain', function() {
+    it('parse_url chrome extension', function() {
         expect(
             helperService.parseUrl('chrome-extension://nknmfipbcebafiaclacheccehghgikkk/data/index.html#!/account/multifactor-authentication')
         ).toEqual({
@@ -52,10 +50,9 @@ describe('Service: helper test suite', function() {
             base_url: 'chrome-extension://nknmfipbcebafiaclacheccehghgikkk',
             full_domain: 'nknmfipbcebafiaclacheccehghgikkk',
             full_domain_without_www: "nknmfipbcebafiaclacheccehghgikkk",
-            top_domain: 'nknmfipbcebafiaclacheccehghgikkk',
             port: null,
             path: '/data/index.html',
-            query: undefined,
+            query: null,
             fragment: '!/account/multifactor-authentication'
         });
     });
@@ -70,10 +67,9 @@ describe('Service: helper test suite', function() {
             base_url: 'http://test.example.com',
             full_domain: 'test.example.com',
             full_domain_without_www: 'test.example.com',
-            top_domain: 'test.example.com',
             port: null,
             path: '/url-part/',
-            query: undefined,
+            query: null,
             fragment: 'is-not-part'
         });
     });
@@ -90,10 +86,9 @@ describe('Service: helper test suite', function() {
             base_url: "http://test.example.com:6000",
             full_domain: 'test.example.com',
             full_domain_without_www: 'test.example.com',
-            top_domain: 'test.example.com',
             port: '6000',
             path: '/url-part/',
-            query: undefined,
+            query: null,
             fragment: 'is-not-part'
         });
     });
@@ -110,11 +105,77 @@ describe('Service: helper test suite', function() {
             base_url: "http://test.example.com:6000",
             full_domain: 'test.example.com',
             full_domain_without_www: 'test.example.com',
-            top_domain: 'test.example.com',
             port: '6000',
             path: '/url-Part/',
-            query: undefined,
+            query: null,
             fragment: 'is-not-part'
+        });
+    });
+    it('parse_url ipv4 address', function() {
+        expect(
+            helperService.parseUrl('http://1.2.3.4:5092/url-part/#is-not-part')
+        ).toEqual({
+            scheme: 'http',
+            authority: '1.2.3.4:5092',
+            authority_without_www: '1.2.3.4:5092',
+            base_url: 'http://1.2.3.4:5092',
+            full_domain: '1.2.3.4',
+            full_domain_without_www: '1.2.3.4',
+            port: '5092',
+            path: '/url-part/',
+            query: null,
+            fragment: 'is-not-part'
+        });
+    });
+
+    it('parse_url ipv6 address', function() {
+        expect(
+            helperService.parseUrl('http://[2001:db8:3333:4444:5555:6666:7777:8888]:5092/url-part/#is-not-part')
+        ).toEqual({
+            scheme: 'http',
+            authority: '[2001:db8:3333:4444:5555:6666:7777:8888]:5092',
+            authority_without_www: '[2001:db8:3333:4444:5555:6666:7777:8888]:5092',
+            base_url: 'http://[2001:db8:3333:4444:5555:6666:7777:8888]:5092',
+            full_domain: '[2001:db8:3333:4444:5555:6666:7777:8888]',
+            full_domain_without_www: '[2001:db8:3333:4444:5555:6666:7777:8888]',
+            port: '5092',
+            path: '/url-part/',
+            query: null,
+            fragment: 'is-not-part'
+        });
+    });
+
+    it('parse_url empty', function() {
+        expect(
+            helperService.parseUrl('')
+        ).toEqual({
+            scheme: null,
+            authority: null,
+            authority_without_www: null,
+            base_url: null,
+            full_domain: null,
+            full_domain_without_www: null,
+            port: null,
+            path: null,
+            query: null,
+            fragment: null
+        });
+    });
+
+    it('parse_url just ip', function() {
+        expect(
+            helperService.parseUrl('1.2.3.4')
+        ).toEqual({
+            scheme: 'http',
+            authority: '1.2.3.4',
+            authority_without_www: '1.2.3.4',
+            base_url: 'http://1.2.3.4',
+            full_domain: '1.2.3.4',
+            full_domain_without_www: '1.2.3.4',
+            port: null,
+            path: '/',
+            query: null,
+            fragment: null
         });
     });
 

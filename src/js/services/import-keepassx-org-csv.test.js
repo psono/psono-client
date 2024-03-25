@@ -67,11 +67,13 @@ describe('Service: importKeePassXOrgCsv test suite', function () {
                         "items": [{
                             "id": generic_uuid,
                             "type": "website_password",
+                            "urlfilter": "tunnelbroker.net",
                             "name": "tunnelbroker",
                             "website_password_password": "xxx",
                             "website_password_username": "xxx",
                             "website_password_notes": "",
                             "website_password_url": "tunnelbroker.net",
+                            "website_password_url_filter": "tunnelbroker.net",
                             "website_password_title": "tunnelbroker"
                         }
                         ]
@@ -85,20 +87,24 @@ describe('Service: importKeePassXOrgCsv test suite', function () {
                             "items": [{
                                 "id": generic_uuid,
                                 "type": "website_password",
+                                "urlfilter": "80.81.241.58",
                                 "name": "MySQL DB (DB28571)",
                                 "website_password_password": "asd35F233f",
                                 "website_password_username": "asd-d.dd",
                                 "website_password_notes": "Datenbank:\nDB28571",
                                 "website_password_url": "80.81.241.58",
+                                "website_password_url_filter": "80.81.241.58",
                                 "website_password_title": "MySQL DB (DB28571)"
                             }, {
                                 "id": generic_uuid,
                                 "type": "website_password",
+                                "urlfilter": "asd-t.de",
                                 "name": "FTP ",
                                 "website_password_password": "asdasdDasd3s",
                                 "website_password_username": "asd-t-de",
                                 "website_password_notes": "",
                                 "website_password_url": "asd-t.de",
+                                "website_password_url_filter": "asd-t.de",
                                 "website_password_title": "FTP "
                             }
                             ]
@@ -137,11 +143,13 @@ describe('Service: importKeePassXOrgCsv test suite', function () {
                             "items": [{
                                 "id": generic_uuid,
                                 "type": "website_password",
+                                "urlfilter": "192.168.90.12",
                                 "name": "DCParis",
                                 "website_password_password": "af3!%%$aA'4gk",
                                 "website_password_username": "my_user",
                                 "website_password_notes": "Hostname: 192.168.90.12\nPort: 1521\nSID: akdb",
                                 "website_password_url": "192.168.90.12",
+                                "website_password_url_filter": "192.168.90.12",
                                 "website_password_title": "DCParis"
                             }
                             ]
@@ -250,11 +258,13 @@ describe('Service: importKeePassXOrgCsv test suite', function () {
                 }, {
                     "id": generic_uuid,
                     "type": "website_password",
+                    "urlfilter": "tunnelbroker.net",
                     "name": "tunnelbroker",
                     "website_password_password": "xxx",
                     "website_password_username": "xxx",
                     "website_password_notes": "",
                     "website_password_url": "tunnelbroker.net",
+                    "website_password_url_filter": "tunnelbroker.net",
                     "website_password_title": "tunnelbroker"
                 }, {
                     "id": generic_uuid,
@@ -311,19 +321,23 @@ describe('Service: importKeePassXOrgCsv test suite', function () {
                     "id": generic_uuid,
                     "type": "website_password",
                     "name": "MySQL DB (DB28571)",
+                    "urlfilter": "80.81.241.58",
                     "website_password_password": "asd35F233f",
                     "website_password_username": "asd-d.dd",
                     "website_password_notes": "Datenbank:\nDB28571",
                     "website_password_url": "80.81.241.58",
+                    "website_password_url_filter": "80.81.241.58",
                     "website_password_title": "MySQL DB (DB28571)"
                 }, {
                     "id": generic_uuid,
                     "type": "website_password",
+                    "urlfilter": "asd-t.de",
                     "name": "FTP ",
                     "website_password_password": "asdasdDasd3s",
                     "website_password_username": "asd-t-de",
                     "website_password_notes": "",
                     "website_password_url": "asd-t.de",
+                    "website_password_url_filter": "asd-t.de",
                     "website_password_title": "FTP "
                 }, {
                     "id": generic_uuid,
@@ -350,11 +364,13 @@ describe('Service: importKeePassXOrgCsv test suite', function () {
                 }, {
                     "id": generic_uuid,
                     "type": "website_password",
+                    "urlfilter": "192.168.90.12",
                     "name": "DCParis",
                     "website_password_password": "af3!%%$aA'4gk",
                     "website_password_username": "my_user",
                     "website_password_notes": "Hostname: 192.168.90.12\nPort: 1521\nSID: akdb",
                     "website_password_url": "192.168.90.12",
+                    "website_password_url_filter": "192.168.90.12",
                     "website_password_title": "DCParis"
                 }, {
                     "id": generic_uuid,
