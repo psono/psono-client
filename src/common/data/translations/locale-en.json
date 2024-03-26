@@ -145,6 +145,7 @@
   "SERVER_NOT_SUPPORT_GA": "The server does not support TOTP.",
   "SERVER_NOT_SUPPORT_YUBIKEY": "The server does not support Yubikeys",
   "YUBICO_TOKEN_INVALID": "Yubikey token invalid.",
+  "YUBICO_TOKEN_VALID_BUT_NOT_CONFIGURED": "Yubikey valid, yet not configured with in this account.",
   "RECHECK_PAGE": "Recheck Page",
   "REMOTE_CONFIG": "Remote Config",
   "AUTOFILL_SERVICE_ACTIVATE_NOW_INFO": "In order to use the full feature set of the app you should activate Psono's autofill service. You can do so by pushing the button below or skip this step.",

@@ -33,7 +33,7 @@ const languages = {
     ar: { code: "ar", lng_code: "LANG_AR", lng_title_native: "" }, // lng_title_native incorrect
     hi: { code: "hi", lng_code: "LANG_HI", lng_title_native: "" }, // lng_title_native incorrect
     bn: { code: "bn", lng_code: "LANG_BN", lng_title_native: "বাংলা", active: true },
-    zh_CN: { code: "zh_CN", lng_code: "LANG_ZH_CN", lng_title_native: "漢語" },
+    zh: { code: "zh", lng_code: "LANG_ZH", lng_title_native: "漢語", active: true },
 };
 
 const supportedLngs = [];

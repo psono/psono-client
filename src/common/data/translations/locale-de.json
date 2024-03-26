@@ -145,6 +145,7 @@
   "SERVER_NOT_SUPPORT_GA": "Der Server unterstützt kein TOTP.",
   "SERVER_NOT_SUPPORT_YUBIKEY": "Der Server unterstützt keine Yubikeys.",
   "YUBICO_TOKEN_INVALID": "Yubikey Token ungültig.",
+  "YUBICO_TOKEN_VALID_BUT_NOT_CONFIGURED": "Yubikey gültig aber nicht bei diesem Account konfiguriert.",
   "RECHECK_PAGE": "Seite Überprüfen",
   "REMOTE_CONFIG": "Remote Config",
   "AUTOFILL_SERVICE_ACTIVATE_NOW_INFO": "Um Psono in vollem Funktionsumfang nutzen zu können sollten sie Psono's automatischen Ausfüllservice aktivieren. Sie können dies tun indem sie auf den Button unten drücken oder den Schritt überspringen.",
