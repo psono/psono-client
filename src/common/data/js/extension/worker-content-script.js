@@ -189,11 +189,6 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
             let windows = [];
 
             base.getAllDocuments(window, documents, windows);
-
-            for (i = 0; i < documents.length; i++) {
-                loadCss(documents[i]);
-            }
-
             base.registerObserver(analyzeDocument);
         });
 
@@ -482,28 +477,6 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
         }
     }
 
-    /**
-     * Loads the necessary content script css into the provided document
-     *
-     * @param document
-     */
-    function loadCss(document) {
-        // taken from https://stackoverflow.com/questions/574944/how-to-load-up-css-files-using-javascript
-        let cssId = "psono-css"; // you could encode the css path itself to generate id..
-        if (!document.getElementById(cssId)) {
-            let head = document.getElementsByTagName("head")[0];
-            if (!head) {
-                return;
-            }
-            let link = document.createElement("link");
-            link.id = cssId;
-            link.rel = "stylesheet";
-            link.type = "text/css";
-            link.href = browser.runtime.getURL("data/css/contentscript.css");
-            link.media = "all";
-            head.appendChild(link);
-        }
-    }
     /**
      * called within an event in a input field. Used to measure the distance from the right border of the input
      * element and the mouse at the moment of the click
