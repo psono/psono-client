@@ -152,3 +152,7 @@
   animation: psono-autofill-animation 100ms ease-in-out 0ms 1;
   -webkit-animation: psono-autofill-animation 100ms ease-in-out 0ms 1;
 }
+
+#PsonoDownloadBanner {
+  display: none;
+}

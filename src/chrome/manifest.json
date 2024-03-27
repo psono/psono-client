@@ -50,6 +50,7 @@
     {
       "matches": ["*://*/*"],
       "css": [
+        "data/css/contentscript.css",
         "data/css/lib/cssreset-context-min.css"
       ],
       "js": [
@@ -71,7 +72,6 @@
   "web_accessible_resources": [{
     "resources": [
       "data/fonts/*.woff2",
-      "data/css/contentscript.css",
       "data/img/psono-encrypt.png",
       "data/img/psono-decrypt.png",
       "data/notification-bar.html",
