@@ -323,7 +323,7 @@ async function navigatorCredentialsGet(options, origin) {
                 10*1000,
             )
         }
-        throw new PasskeyException('NO_PASSKEY_FOUND', i18n.t('NO_PASSKEY_FOUND'));
+        throw new PasskeyException('BYPASS_PSONO', i18n.t('BYPASS_PSONO'))
     }
 
     await createNotificationAsync(
