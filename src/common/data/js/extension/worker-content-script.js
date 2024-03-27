@@ -877,11 +877,16 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
      */
     function onFillPassword(data, sender, sendResponse) {
 
+        let foundUsername;
+        let foundPassword;
+
         for (let i = 0; i < myForms.length; i++) {
             if (data.hasOwnProperty("username") && data.username !== "") {
+                foundUsername = true;
                 fillFieldHelper(myForms[i].username, data.username);
             }
             if (data.hasOwnProperty("password") && data.password !== "") {
+                foundPassword = true;
                 fillFieldHelper(myForms[i].password, data.password);
             }
             if (
@@ -902,15 +907,34 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
         for (let i = 0; i < identityInputFields.length; i++) {
             if (usernameFields.has(identityInputFields[i].autocomplete.trim().toLowerCase()) &&
                 data.hasOwnProperty("username") && data.username !== "") {
+                foundUsername = true;
                 fillFieldHelper(identityInputFields[i], data.username);
             }
             if (newPasswordFields.has(identityInputFields[i].autocomplete.trim().toLowerCase()) &&
                 data.hasOwnProperty("password") && data.password !== "") {
+                foundPassword = true;
                 fillFieldHelper(identityInputFields[i], data.password);
             }
             if (currentPasswordFields.has(identityInputFields[i].autocomplete.trim().toLowerCase()) &&
                 data.hasOwnProperty("password") && data.password !== "") {
+                foundPassword = true;
                 fillFieldHelper(identityInputFields[i], data.password);
+            }
+        }
+
+        if (!foundUsername) {
+            // if we don't have a username field we try to find one with a name that matches username or email
+
+            const inputs = Array.from(document.querySelectorAll(
+                "input"
+            ));
+
+            let potentialUsernameFields = inputs.filter((input) => input.name.toLowerCase() === 'username');
+            if (potentialUsernameFields.length === 0) {
+                potentialUsernameFields = inputs.filter((input) => input.name.toLowerCase() === 'email');
+            }
+            if (potentialUsernameFields.length === 1) {
+                fillFieldHelper(potentialUsernameFields[0], data.username);
             }
         }
 
