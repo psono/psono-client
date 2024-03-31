@@ -1,4 +1,5 @@
 {
+  "IP_ADDRESS_NOT_ALLOWED": "Your IP address is not allowed to connect.",
   "NO_PASSKEY_FOUND_FOR_THIS_WEBSITE": "The authentication failed because we haven't found a passkey for this website.",
   "BYPASS_PSONO": "Bypass Psono",
   "USER_DENIED_REQUEST": "The user denied the request.",
