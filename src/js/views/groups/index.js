@@ -83,6 +83,7 @@ const GroupsView = (props) => {
                         group.secret_key_nonce,
                         group.secret_key_type,
                         group.share_admin,
+                        group.forced_membership || false,
                     ];
                 })
             );
@@ -284,6 +285,7 @@ const GroupsView = (props) => {
                 sort: true,
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
+                    const groupId = tableMeta.rowData[0];
                     return (
                         tableMeta.rowData[3] !== false &&
                         tableMeta.rowData[3] !== true && (
@@ -292,6 +294,7 @@ const GroupsView = (props) => {
                                 onClick={() => {
                                     declineGroup(tableMeta.rowData);
                                 }}
+                                disabled={groupIndex[groupId] && groupIndex[groupId].forced_membership === true}
                             >
                                 {t("DECLINE")}
                             </Button>
@@ -319,16 +322,18 @@ const GroupsView = (props) => {
         {
             name: t("LEAVE"),
             options: {
+
                 filter: true,
                 sort: false,
                 empty: false,
                 customBodyRender: (value, tableMeta, updateValue) => {
+                    const groupId = tableMeta.rowData[0];
                     return (
                         <IconButton
                             onClick={() => {
                                 leaveGroup(tableMeta.rowData);
                             }}
-                            disabled={tableMeta.rowData[3] !== false && tableMeta.rowData[3] !== true}
+                            disabled={(tableMeta.rowData[3] !== false && tableMeta.rowData[3] !== true) || (groupIndex[groupId] && groupIndex[groupId].forced_membership === true)}
                         >
                             <ExitToAppIcon />
                         </IconButton>
