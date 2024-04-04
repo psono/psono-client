@@ -289,8 +289,9 @@ var ClassWorkerContentScriptPGP = function (base, browser, setTimeout) {
      * @param evt Click event
      * @param target The original element that this event was bound to
      * @param clickData The data specified before to pass on
+     * @param input The input element firing the event
      */
-    function onClick(evt, target, clickData) {
+    function onClick(evt, target, clickData, input) {
         if (getDistance(evt, target) < 30 && getDistance(evt, target) > 0) {
             const field = clickData["node"]; // Assuming 'node' is a DOM element
             const receiver = clickData["getReceiver"](clickData["node"]);

@@ -251,7 +251,7 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
      * @param form
      */
     function formSubmitCatcher(form) {
-        let passwordFields = form.querySelectorAll("input[type='password']");
+        let passwordFields = querySelectorAllIncShadowRoots(form, "input[type='password']");
         if (passwordFields.length !== 1) {
             return;
         }
@@ -283,12 +283,12 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
 
         form.addEventListener("submit", formSubmitEventListener);
 
-        let submitButtons = form.querySelectorAll("button[type='submit'], input[type='submit'], input[type='image']");
+        let submitButtons = querySelectorAllIncShadowRoots(form, "button[type='submit'], input[type='submit'], input[type='image']");
 
         if (submitButtons.length < 1) {
             // we didn't find any direct submit buttons, so we expand the scope and try just with buttons, potential
             // image buttons, buttons without type, spans and links.
-            const otherButtons = form.querySelectorAll("button[type='button'], input[type='button'], input[type='image'], button:not([type]), a, span");
+            const otherButtons = querySelectorAllIncShadowRoots(form, "button[type='button'], input[type='button'], input[type='image'], button:not([type]), a, span");
             submitButtons = []
             for (let i = 0; i < otherButtons.length; i++) {
                 let buttonContent = otherButtons[i].tagName.toLowerCase() === "input" ? otherButtons[i].value : otherButtons[i].innerText;
@@ -313,7 +313,7 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
      * @returns {{username: string, password: string}}
      */
     function getUsernameAndPassword(form) {
-        let fields = form.querySelectorAll("input[type='text'], input[type='email'], input[type='password']");
+        let fields = querySelectorAllIncShadowRoots(form, "input[type='text'], input[type='email'], input[type='password']");
 
         let username = "";
         let password = "";
@@ -339,6 +339,23 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
         }
     }
 
+    function querySelectorAllIncShadowRoots(node, selector) {
+        let inputs = [];
+
+        // Search for inputs in the current node
+        inputs = inputs.concat(Array.from(node.querySelectorAll(selector)));
+
+        // Search for shadow roots and recursively search within them
+        node.querySelectorAll('*').forEach(el => {
+            if (el.shadowRoot) {
+                inputs = inputs.concat(querySelectorAllIncShadowRoots(el.shadowRoot, selector));
+            }
+        });
+
+        return inputs;
+    }
+
+
     /**
      * Manipulates the forms of a document and adds the password buttons
      *
@@ -350,7 +367,7 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
         // Lets start with searching all input fields and forms
         // if we find a password field, we remember that and take the field before as username field
 
-        const inputs = document.querySelectorAll(
+        const inputs = querySelectorAllIncShadowRoots(document,
             "input[type='text'], input:not([type]), input[type='email'], input[type='password']"
         );
 
@@ -438,7 +455,7 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
      */
     function findCreditCardInputFields(document) {
         // Lets start with searching all input fields
-        const inputs = document.querySelectorAll(
+        const inputs = querySelectorAllIncShadowRoots(document,
             "input"
         );
 
@@ -461,7 +478,7 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
      */
     function findIdentityInputFields(document) {
         // Lets start with searching all input fields
-        const inputs = document.querySelectorAll(
+        const inputs = querySelectorAllIncShadowRoots(document,
             "input"
         );
 
@@ -585,8 +602,9 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
      * @param evt Click event
      * @param target The original element that this event was bound to
      * @param document The document the click occurred in
+     * @param input The input firing the click event
      */
-    async function click(evt, target, document) {
+    async function click(evt, target, document, input) {
 
         if (target.hasOwnProperty('checkVisibility') && !target.checkVisibility()) {
             // we only open dropdown menus for elements that are visible
@@ -649,7 +667,9 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
             dropcontent += "</ul>";
             dropcontent += "</div>";
 
-            lastRequestElement = evt.target;
+            // events from inputs nested in shadowRoot won't set evt.target to the input.
+            // as such we need this elaborated logic to find the correct input element that triggered things
+            lastRequestElement = input;
 
             let dropInstance = createDropdownMenu(evt, dropcontent, document);
             dropInstance.open();
@@ -688,7 +708,7 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
                 // Setup search functionality if response.data is longer than 5
                 if (response.data.length > 5) {
                     let searchInput = document.querySelector('.psono-search-input');
-                    let listItems = document.querySelectorAll('.psono_request-secret');
+                    let listItems = querySelectorAllIncShadowRoots(document, '.psono_request-secret');
 
                     searchInput.addEventListener('click', function (event) {
                         event.stopPropagation();
@@ -849,7 +869,6 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
      * @param sendResponse
      */
     function onFillPassword(data, sender, sendResponse) {
-
         let foundUsername;
         let foundPassword;
 
@@ -898,7 +917,7 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
         if (!foundUsername) {
             // if we don't have a username field we try to find one with a name that matches username or email
 
-            const inputs = Array.from(document.querySelectorAll(
+            const inputs = Array.from(querySelectorAllIncShadowRoots(document,
                 "input"
             ));
 
