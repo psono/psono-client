@@ -839,11 +839,18 @@ const ClassWorkerContentScript = function (base, browser, setTimeout) {
         // Focus the field
         field.focus();
 
+        ['keydown', 'keypress'].forEach(eventType => {
+            field.dispatchEvent(new Event(eventType, {
+                bubbles: true,
+                cancelable: true,
+            }));
+        });
+
         // Set the value of the field
         field.value = value;
 
         // Create and dispatch keyboard and other events
-        ['keydown', 'keypress', 'keyup', 'change', 'blur', 'input'].forEach(eventType => {
+        ['input', 'keyup', 'change', 'blur'].forEach(eventType => {
             field.dispatchEvent(new Event(eventType, {
                 bubbles: true,
                 cancelable: true,
