@@ -143,7 +143,7 @@ const ClassWebAccessibleFido2 = function () {
             console.log(response.error);
             if (response.error.hasOwnProperty('errorType') &&  new Set(['BYPASS_PSONO', 'USER_INSTRUCTION_BYPASS_PSONO', 'PASSKEY_DISABLED']).has(response.error.errorType)) {
                 const options = eventNavigatorCredentialsCreateIndex[response.eventId].options;
-                return originalNavigatorCredentialsCreate(options);
+                return eventNavigatorCredentialsCreateIndex[response.eventId].resolve(originalNavigatorCredentialsCreate(options));
             }
             eventNavigatorCredentialsCreateIndex[response.eventId].reject(
                 new DOMException("The operation either timed out or was not allowed.", "AbortError")
@@ -194,7 +194,7 @@ const ClassWebAccessibleFido2 = function () {
             console.log(response.error);
             if (response.error.hasOwnProperty('errorType') && new Set(['USER_INSTRUCTION_BYPASS_PSONO', 'BYPASS_PSONO']).has(response.error.errorType)) {
                 const options = eventNavigatorCredentialsGetIndex[response.eventId].options;
-                return originalNavigatorCredentialsGet(options);
+                return eventNavigatorCredentialsGetIndex[response.eventId].resolve(originalNavigatorCredentialsGet(options));
             }
             eventNavigatorCredentialsGetIndex[response.eventId].reject(
                 new DOMException("The operation either timed out or was not allowed.", "AbortError")

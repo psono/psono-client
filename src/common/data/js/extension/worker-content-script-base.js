@@ -129,7 +129,7 @@ var ClassWorkerContentScriptBase = function (browser, setTimeout) {
         }
         if (click) {
             input.addEventListener("click", function (evt) {
-                click(evt, this, document);
+                click(evt, this, document, input);
             });
         }
     }
