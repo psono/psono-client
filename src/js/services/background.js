@@ -561,17 +561,17 @@ function bookmarkActiveTab(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function onLogout(request, sender, sendResponse) {
-    chrome.tabs.query({ url: "chrome-extension://" + chrome.runtime.id + "/*" }, function (tabs) {
-        const tabids = [];
-
-        if (typeof tabs !== "undefined") {
-            for (let i = 0; i < tabs.length; i++) {
-                tabids.push(tabs[i].id);
-            }
-        }
-
-        chrome.tabs.remove(tabids);
-    });
+    // chrome.tabs.query({ url: "chrome-extension://" + chrome.runtime.id + "/*" }, function (tabs) {
+    //     const tabids = [];
+    //
+    //     if (typeof tabs !== "undefined") {
+    //         for (let i = 0; i < tabs.length; i++) {
+    //             tabids.push(tabs[i].id);
+    //         }
+    //     }
+    //
+    //     chrome.tabs.remove(tabids);
+    // });
     browserClient.setIcon({
         path : "/data/img/icon-32-disabled.png"
     });

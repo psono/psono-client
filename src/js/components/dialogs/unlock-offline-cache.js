@@ -36,12 +36,7 @@ const DialogUnlockOfflineCache = (props) => {
     const [errors, setErrors] = useState([]);
 
     const logout = async () => {
-        const logoutResponse = await userService.logout(undefined, window.location.origin);
-        if (logoutResponse.hasOwnProperty('redirect_url')) {
-            window.location.href = logoutResponse['redirect_url'];
-        } else {
-            window.location.href = 'logout-success.html';
-        }
+        window.location.href = 'logout-success.html';
     };
 
     const unlock = async () => {
