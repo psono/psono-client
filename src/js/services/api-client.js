@@ -124,6 +124,12 @@ function call(method, endpoint, body, headers, sessionSecretKey) {
                     // session expired, lets log the user out
                     user.logout(i18n.t("SESSION_EXPIRED"));
                 }
+                if (rawResponse.status === 404) {
+                    if (rawResponse.statusText) {
+                        return reject(rawResponse.statusText);
+                    }
+                    return reject({errors: ["RESSOURCE_NOT_FOUND"]});
+                }
                 if (rawResponse.status === 423 && user.isLoggedIn()) {
                     // server error, lets log the user out
                     user.logout(rawResponse.statusText);
@@ -3327,6 +3333,79 @@ const sendSecurityReport = function (token, sessionSecretKey, entries, check_hav
     return call(method, endpoint, data, headers, sessionSecretKey);
 };
 
+
+/**
+ * Ajax GET request with the token as authentication to get the current user's avatars
+ *
+ * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+ * @param {string} sessionSecretKey The session secret key
+ * @param {uuid|undefined} [userId=null] (optional) avatar ID
+ * @param {uuid|undefined} [avatarId=null] (optional) avatar ID
+ *
+ * @returns {Promise} promise
+ */
+const readAvatar = function (token, sessionSecretKey, userId, avatarId) {
+    const endpoint = "/avatar/" + (!userId ? "" : userId + "/") + (!avatarId ? "" : avatarId + "/");
+    const method = "GET";
+    const data = null;
+    const headers = {
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+};
+
+/**
+ * Ajax POST request to create a avatar with the token as authentication and together with the base64 encoded data of the avatar
+ *
+ * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+ * @param {string} sessionSecretKey The session secret key
+ * @param {string} dataBase64 The base64 encoded data
+ *
+ * @returns {Promise} promise
+ */
+const createAvatar = function (
+    token,
+    sessionSecretKey,
+    dataBase64,
+) {
+    const endpoint = "/avatar/";
+    const method = "POST";
+    const data = {
+        data_base64: dataBase64,
+    };
+    const headers = {
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+};
+
+/**
+ * Ajax DELETE request to delete a given avatar
+ *
+ * @param {string} token authentication token of the user, returned by authentication_login(email, authkey)
+ * @param {string} sessionSecretKey The session secret key
+ * @param {uuid} avatarId The avatar id to delete
+ *
+ * @returns {Promise} Returns a promise which can succeed or fail
+ */
+const deleteAvatar = function (token, sessionSecretKey, avatarId) {
+    const endpoint = "/avatar/";
+    const method = "DELETE";
+    const data = {
+        avatar_id: avatarId,
+    };
+
+    const headers = {
+        "Content-Type": "application/json",
+        Authorization: "Token " + token,
+    };
+
+    return call(method, endpoint, data, headers, sessionSecretKey);
+};
+
+
 const apiClientService = {
     info: info,
     login: login,
@@ -3440,6 +3519,9 @@ const apiClientService = {
     deleteLinkShare: deleteLinkShare,
     linkShareAccess: linkShareAccess,
     sendSecurityReport: sendSecurityReport,
+    readAvatar: readAvatar,
+    createAvatar: createAvatar,
+    deleteAvatar: deleteAvatar,
 };
 
 export default apiClientService;

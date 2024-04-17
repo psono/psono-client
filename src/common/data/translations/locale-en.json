@@ -1,4 +1,8 @@
 {
+  "FEATURE_NOT_SUPPORTED_SERVER_REQUIRES_UPGRADE": "Feature not supported. The server requires an update.",
+  "MAX_SIZE_KB": "max. {{size}}KB",
+  "FILE_MUST_BE_SMALLER_THAN_KB": "The file must be smaller than {{filesize}}KB.",
+  "FILE_MUST_BE_PIXEL_BIG": "The file must be {{filedimension_x}} x {{filedimension_y}} pixel big.",
   "IP_ADDRESS_NOT_ALLOWED": "Your IP address is not allowed to connect.",
   "NO_PASSKEY_FOUND_FOR_THIS_WEBSITE": "The authentication failed because we haven't found a passkey for this website.",
   "BYPASS_PSONO": "Bypass Psono",
@@ -739,7 +743,7 @@
   "SERVER_LICENSE_VALID_TILL": "Server License Valid Till",
   "SERVER_INFO": "Server Info",
   "CLIENT_INFO": "Client Info",
-  "OVERVIEW_DESCRIPTION": "The overview of your account with details like your public key.",
+  "SERVER_INFO_DESCRIPTION": "The overview of your server with details like its version or public key.",
   "CHANGE_E_MAIL_DESCRIPTION": "You can provide here a new e-mail address (together with your current password for verification).",
   "CHANGE_PASSWORD_DESCRIPTION": "You can provide here a new password (together with your current password for verification).",
   "GENERATE_PASSWORD_RECOVERY_DESCRIPTION": "You should create a password recovery code to recover your account with a lost password.",

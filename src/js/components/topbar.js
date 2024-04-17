@@ -277,7 +277,7 @@ const Topbar = (props) => {
                                 }}
                             >
                                 {!offlineCache.isActive() && (
-                                    <MenuItem component={Link} to="/account/overview">
+                                    <MenuItem component={Link} to="/account/server-info">
                                         <ListItemIcon className={classes.listItemIcon}>
                                             <TuneIcon className={classes.icon} />
                                         </ListItemIcon>

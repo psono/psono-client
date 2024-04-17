@@ -29,111 +29,13 @@ const useStyles = makeStyles((theme) => ({
 const AccountOverviewView = (props) => {
     const { t } = useTranslation();
     const classes = useStyles();
-    const [qrModalOpen, setQrModalOpen] = React.useState(false);
-    const [qrContent, setQrContent] = React.useState('');
-
-    const closeQrModal = () => {
-        setQrModalOpen(false);
-    };
-
-    const onClickShowQRClientConfig = (event) => {
-        setQrModalOpen(true);
-        browserClient.loadConfig().then(function (config) {
-            setQrContent(JSON.stringify({
-                ConfigJson: config,
-            }))
-        });
-    };
 
     return (
         <Grid container>
             <Grid item xs={12} sm={12} md={12}>
-                <h2>{t("OVERVIEW")}</h2>
-                <p>{t("OVERVIEW_DESCRIPTION")}</p>
+                <h2>{t("SERVER_INFO")}</h2>
+                <p>{t("SERVER_INFO_DESCRIPTION")}</p>
                 <Divider style={{ marginBottom: "20px" }} />
-            </Grid>
-            <Grid item xs={12} sm={12} md={12}>
-                <h4>{t("CLIENT_INFO")}</h4>
-            </Grid>
-            <Grid item xs={12} sm={12} md={12}>
-                <TextField
-                    className={classes.textField}
-                    variant="outlined"
-                    margin="dense"
-                    id="userId"
-                    label={t("USER_ID")}
-                    name="userId"
-                    autoComplete="off"
-                    value={store.getState().user.userId}
-                    readOnly
-                    InputProps={{
-                        classes: {
-                            input: classes.passwordField,
-                        },
-                    }}
-                />
-            </Grid>
-            <Grid item xs={12} sm={12} md={12}>
-                <TextField
-                    className={classes.textField}
-                    variant="outlined"
-                    margin="dense"
-                    id="username"
-                    label={t("USERNAME")}
-                    name="username"
-                    autoComplete="off"
-                    value={store.getState().user.username}
-                    readOnly
-                    InputProps={{
-                        classes: {
-                            input: classes.passwordField,
-                        },
-                    }}
-                />
-            </Grid>
-            <Grid item xs={12} sm={12} md={12}>
-                <TextField
-                    className={classes.textField}
-                    variant="outlined"
-                    margin="dense"
-                    id="userEmail"
-                    label={t("E_MAIL")}
-                    name="userEmail"
-                    autoComplete="off"
-                    value={store.getState().user.userEmail}
-                    readOnly
-                    InputProps={{
-                        classes: {
-                            input: classes.passwordField,
-                        },
-                    }}
-                />
-            </Grid>
-            <Grid item xs={12} sm={12} md={12}>
-                <TextField
-                    className={classes.textField}
-                    variant="outlined"
-                    margin="dense"
-                    id="userPublicKey"
-                    label={t("PUBLIC_KEY")}
-                    name="userPublicKey"
-                    autoComplete="off"
-                    value={store.getState().user.userPublicKey}
-                    readOnly
-                    InputProps={{
-                        classes: {
-                            input: classes.passwordField,
-                        },
-                    }}
-                />
-            </Grid>
-            <Grid item xs={12} sm={12} md={12}>
-                <Button variant="contained" color="primary" onClick={onClickShowQRClientConfig}>
-                    {t("QR_CLIENT_CONFIG")}
-                </Button>
-            </Grid>
-            <Grid item xs={12} sm={12} md={12}>
-                <h4>{t("SERVER_INFO")}</h4>
             </Grid>
             <Grid item xs={12} sm={12} md={12}>
                 <TextField
@@ -305,27 +207,7 @@ const AccountOverviewView = (props) => {
                     }}
                 />
             </Grid>
-            <Dialog
-                open={qrModalOpen}
-                onClose={closeQrModal}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-            >
-                <DialogTitle id="alert-dialog-title">{t("QR_CLIENT_CONFIG")}</DialogTitle>
-                <DialogContent>
-                    <TextFieldQrCode
-                        className={classes.textField}
-                        variant="outlined"
-                        margin="dense"
-                        value={qrContent}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={closeQrModal} autoFocus>
-                        {t("CLOSE")}
-                    </Button>
-                </DialogActions>
-            </Dialog>
+
         </Grid>
     );
 };
