@@ -6,6 +6,7 @@ import Hidden from '@material-ui/core/Hidden';
 
 import browserClient from "../../services/browser-client";
 import {BarLoader, ClipLoader} from "react-spinners";
+import ConfigLogo from "../../components/config-logo";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -92,9 +93,11 @@ const NotificationBarView = (props) => {
 
     return (<div className={classes.root}>
             <Hidden xsDown>
-                <a href="https://psono.com" target="_blank">
-                    <img alt="Logo" src="img/logo.png" className={classes.logoImg}/>
-                </a>
+                <div className={classes.logoImg}>
+                    <a href="https://psono.com" target="_blank">
+                        <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'}/>
+                    </a>
+                </div>
             </Hidden>
             <div className={classes.textContainer}>
                 <div className={classes.textContainerCell}>

@@ -5,6 +5,7 @@ import Container from "@material-ui/core/Container";
 import Button from "@material-ui/core/Button";
 
 import FrameControls from "../../components/frame-controls";
+import ConfigLogo from "../../components/config-logo";
 
 const useStyles = makeStyles((theme) => ({
     dark: {
@@ -50,8 +51,10 @@ const PrivacyPolicyView = (props) => {
             <FrameControls />
             <div className={"wrapper"}>
                 <Container className={classes.privacyPolicyBox + " " + classes.dark}>
-                    <Button className={classes.backButton} onClick={back} variant="contained" color="primary">{t("BACK")}</Button>
-                    <div dangerouslySetInnerHTML={{ __html: privacyPolicy }} />
+                    <Button className={classes.backButton} onClick={back} variant="contained"
+                            color="primary">{t("BACK")}</Button>
+                    <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'} />
+                    <div dangerouslySetInnerHTML={{__html: privacyPolicy}}/>
                 </Container>
             </div>
         </>

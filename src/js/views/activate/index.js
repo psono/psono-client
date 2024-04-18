@@ -1,6 +1,7 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import ActivationForm from "./activation-form";
+import ConfigLogo from "../../components/config-logo";
 
 
 const ActivateView = (props) => {
@@ -8,7 +9,7 @@ const ActivateView = (props) => {
 
     return (
         <div className={"activationbox dark"}>
-            <img src="img/logo.png" alt="Psono Web Client" id="logo" />
+            <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'} />
             <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
                 <i className="fa fa-info-circle" aria-hidden="true" />
             </a>

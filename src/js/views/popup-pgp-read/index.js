@@ -18,6 +18,7 @@ import DOMPurify from "dompurify";
 import offlineCacheService from "../../services/offline-cache";
 import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
 import deviceService from "../../services/device";
+import ConfigLogo from "../../components/config-logo";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -86,6 +87,7 @@ const PopupPgpReadView = (props) => {
         } else {
             readGpg();
         }
+
         // cancel subscription to useEffect
         return () => (isSubscribed = false);
     }, []);
@@ -95,7 +97,6 @@ const PopupPgpReadView = (props) => {
             if (!isSubscribed) {
                 return;
             }
-            console.log(data);
             if (data.hasOwnProperty("plaintext")) {
                 setDecrypting(false);
                 setDecryptedMessage(data.plaintext.data);
@@ -137,7 +138,7 @@ const PopupPgpReadView = (props) => {
                             <MenuIcon />
                         </IconButton>
                         <a className={classes.topLogo} href="#">
-                            <img alt="Psono" src="img/logo-inverse.png" height="100%" />
+                            <ConfigLogo configKey={'logo_inverse'} defaultLogo={'img/logo-inverse.png'} />
                         </a>
                         <div style={{ width: "100%" }}>
                             <div style={{ float: "right" }}>

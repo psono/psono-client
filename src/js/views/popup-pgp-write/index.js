@@ -25,6 +25,7 @@ import DialogGpgAddressBook from "../../components/dialogs/gpg-address-book";
 import { BarLoader } from "react-spinners";
 import { useParams } from "react-router-dom";
 import deviceService from "../../services/device";
+import ConfigLogo from "../../components/config-logo";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -221,7 +222,7 @@ const PopupPgpWriteView = (props) => {
                             <MenuIcon />
                         </IconButton>
                         <a className={classes.topLogo} href="#">
-                            <img alt="Psono" src="img/logo-inverse.png" height="100%" />
+                            <ConfigLogo configKey={'logo_inverse'} defaultLogo={'img/logo-inverse.png'} />
                         </a>
                         <div style={{ width: "100%" }}>
                             <div style={{ float: "right" }}>

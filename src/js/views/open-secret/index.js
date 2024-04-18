@@ -4,6 +4,7 @@ import secret from "../../services/secret";
 import { useParams } from "react-router-dom";
 import DialogUnlockOfflineCache from "../../components/dialogs/unlock-offline-cache";
 import offlineCacheService from "../../services/offline-cache";
+import ConfigLogo from "../../components/config-logo";
 
 const OpenSecretView = (props) => {
     const { t } = useTranslation();
@@ -34,7 +35,7 @@ const OpenSecretView = (props) => {
 
     return (
         <div className="loading-lock">
-            <img src="img/logo.png" alt="Psono Web Client" id="logo" />
+            <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'} />
             <div className="loading-lock-logo">
                 <div className="loading-lock-logo-unloaded">
                     <i className="fa fa-lock" />

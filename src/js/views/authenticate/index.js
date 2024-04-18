@@ -7,6 +7,7 @@ import Button from "@material-ui/core/Button";
 import {makeStyles} from "@material-ui/core/styles";
 
 import FooterLinks from "../../components/footer-links";
+import ConfigLogo from "../../components/config-logo";
 
 const useStyles = makeStyles((theme) => ({
     button: {
@@ -19,7 +20,7 @@ const AuthenticateView = (props) => {
     const { t } = useTranslation();
     return (
         <div className={"lostpasswordbox dark"}>
-            <img src="img/logo.png" alt="Psono Web Client" id="logo" />
+            <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'} />
             <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
                 <i className="fa fa-info-circle" aria-hidden="true" />
             </a>

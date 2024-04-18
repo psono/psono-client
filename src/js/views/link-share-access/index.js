@@ -19,6 +19,7 @@ import action from "../../actions/bound-action-creators";
 import GridContainerErrors from "../../components/grid-container-errors";
 import host from "../../services/host";
 import DialogEditEntry from "../../components/dialogs/edit-entry";
+import ConfigLogo from "../../components/config-logo";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -182,7 +183,7 @@ const LinkShareAccessView = (props) => {
 
     return (
         <div className={"progress-box " + classes.textCenter}>
-            <img src="img/logo.png" alt="Psono Web Client" id="logo" />
+            <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'} />
             <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
                 <i className="fa fa-info-circle" aria-hidden="true" />
             </a>

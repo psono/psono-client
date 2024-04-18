@@ -138,7 +138,7 @@ function ProfilePicture() {
     };
 
     const onClickShowQRClientConfig = (event) => {
-        browserClient.loadConfig().then(function (config) {
+        browserClient.getConfig().then(function (config) {
             setQrContent(JSON.stringify({
                 ConfigJson: config,
             }))

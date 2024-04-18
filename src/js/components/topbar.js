@@ -30,11 +30,11 @@ import { Link } from "react-router-dom";
 import FrameControls from "./frame-controls";
 
 import store from "../services/store";
-import user from "../services/user";
 import offlineCache from "../services/offline-cache";
 import datastoreService from "../services/datastore";
 import DialogGoOffline from "./dialogs/go-offline";
 import CreateDatastoresDialog from "../views/other/create-datastores-dialog";
+import ConfigLogo from "./config-logo";
 
 const useStyles = makeStyles((theme) => ({
     appBar: {
@@ -168,7 +168,7 @@ const Topbar = (props) => {
                         <MenuIcon />
                     </IconButton>
                     <a className={classes.topLogo} href="index.html">
-                        <img alt="Psono" src="img/logo-inverse.png" height="100%" />
+                        <ConfigLogo configKey={'logo_inverse'} defaultLogo={'img/logo-inverse.png'} />
                     </a>
                     <div style={{ width: "100%" }}>
                         {datastores && datastores.length > 1 && (<div style={{float: "left"}}>
