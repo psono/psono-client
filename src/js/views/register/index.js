@@ -10,9 +10,6 @@ const RegisterView = (props) => {
             <FrameControls />
             <div className={"registerbox dark"}>
                 <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'} />
-                <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
-                    <i className="fa fa-info-circle" aria-hidden="true" />
-                </a>
                 <RegisterViewForm samlTokenId={samlTokenId} oidcTokenId={oidcTokenId} />
             </div>
         </>

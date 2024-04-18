@@ -29,6 +29,9 @@ const ConfigLogo = (props) => {
     return (
         <div>
             <img alt="Psono" src={defaultLogo} height="100%"/>
+            <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
+                <i className="fa fa-info-circle" aria-hidden="true" />
+            </a>
         </div>
     );
 };
