@@ -1,12 +1,13 @@
-import React, {useState} from "react";
+import React, {Fragment, useState} from "react";
 import PropTypes from "prop-types";
 
+import DOMPurify from "dompurify";
 import browserClient from "../services/browser-client";
 
 
 const ConfigLogo = (props) => {
     const { defaultLogo, configKey } = props;
-    const [imageSrc, setImageSrc] = useState(defaultLogo);
+    const [imageSrc, setImageSrc] = useState('');
 
     let isSubscribed = true;
     React.useEffect(() => {
@@ -17,12 +18,16 @@ const ConfigLogo = (props) => {
     const loadImageFromConfig = async () => {
         const newImage = await browserClient.getConfig(configKey);
         if (newImage) {
-            setImageSrc(newImage);
+            setImageSrc(DOMPurify.sanitize('<img alt="Psono" src="' + newImage + '" height="100%"/>', { USE_PROFILES: { html: true } }));
         }
     };
 
+    if (imageSrc) {
+        return <div dangerouslySetInnerHTML={{__html: imageSrc}}/>
+    }
+
     return (
-        <img alt="Psono" src={imageSrc} height="100%"/>
+        <img alt="Psono" src={defaultLogo} height="100%"/>
     );
 };
 
