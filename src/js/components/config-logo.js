@@ -18,7 +18,7 @@ const ConfigLogo = (props) => {
     const loadImageFromConfig = async () => {
         const newImage = await browserClient.getConfig(configKey);
         if (newImage) {
-            setImageSrc(DOMPurify.sanitize('<img alt="Psono" src="' + newImage + '" height="100%"/>', { USE_PROFILES: { html: true } }));
+            setImageSrc(DOMPurify.sanitize('<img alt="Psono" src="' + newImage + '" height="100%"/>', {ALLOWED_TAGS: ['img']}));
         }
     };
 
