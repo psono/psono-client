@@ -27,7 +27,9 @@ const ConfigLogo = (props) => {
     }
 
     return (
-        <img alt="Psono" src={defaultLogo} height="100%"/>
+        <div>
+            <img alt="Psono" src={defaultLogo} height="100%"/>
+        </div>
     );
 };
 
