@@ -94,9 +94,8 @@ function ProfilePicture() {
         if (!avatars || avatars.length <= 0) {
             return;
         }
-        const avatar = await avatarService.readAvatar(store.getState().user.userId, avatars[0].id);
-        setAvatarId(avatars[0].id);
-        setProfilePic('data:' + avatar['mime_type'] + ';base64,' + avatar['data_base64'])
+        const path = "/avatar-image/" + store.getState().user.userId + "/" + avatars[0].id + "/";
+        setProfilePic(store.getState().server.url + path)
     }
 
     const handleFileChange = event => {

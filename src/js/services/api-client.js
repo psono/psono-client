@@ -3344,8 +3344,8 @@ const sendSecurityReport = function (token, sessionSecretKey, entries, check_hav
  *
  * @returns {Promise} promise
  */
-const readAvatar = function (token, sessionSecretKey, userId, avatarId) {
-    const endpoint = "/avatar/" + (!userId ? "" : userId + "/") + (!avatarId ? "" : avatarId + "/");
+const readAvatar = function (token, sessionSecretKey) {
+    const endpoint = "/avatar/";
     const method = "GET";
     const data = null;
     const headers = {

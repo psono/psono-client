@@ -5,27 +5,6 @@ import apiClient from "./api-client";
 import store from "./store";
 
 
-/**
- * Fetches the details of one avatar including the base64 encoded data and mime type
- *
- * @param {uuid} avatarId the avatar id
- *
- * @returns {Promise} Returns the details of a avatar
- */
-function readAvatar(userId, avatarId) {
-    const token = store.getState().user.token;
-    const sessionSecretKey = store.getState().user.sessionSecretKey;
-
-    const onSuccess = function (data) {
-        return data.data;
-    };
-
-    const onError = function () {
-        //pass
-    };
-
-    return apiClient.readAvatar(token, sessionSecretKey, userId, avatarId).then(onSuccess, onError);
-}
 
 /**
  * Fetches the list of all avatars of this user (eather one or none) so that one can check if one already cached the avatar
@@ -101,7 +80,6 @@ function deleteAvatar(avatarId) {
 
 
 const avatarService = {
-    readAvatar: readAvatar,
     readAvatars: readAvatars,
     createAvatar: createAvatar,
     deleteAvatar: deleteAvatar,
