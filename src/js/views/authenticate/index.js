@@ -20,12 +20,15 @@ const AuthenticateView = (props) => {
     const { t } = useTranslation();
     return (
         <div className={"lostpasswordbox dark"}>
-            <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'} />
+            <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'}/>
+            <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
+                <i className="fa fa-info-circle" aria-hidden="true"/>
+            </a>
             <Grid container>
-                <Grid item xs={12} sm={12} md={12} style={{ textAlign: "center" }}>
-                    <ThumbUpIcon style={{ fontSize: 160 }} />
+                <Grid item xs={12} sm={12} md={12} style={{textAlign: "center"}}>
+                    <ThumbUpIcon style={{fontSize: 160}}/>
                 </Grid>
-                <Grid item xs={6} sm={6} md={6} style={{ marginTop: "5px", marginBottom: "5px" }}>
+                <Grid item xs={6} sm={6} md={6} style={{marginTop: "5px", marginBottom: "5px"}}>
                     <Button
                         variant="contained"
                         color="primary"
@@ -38,7 +41,7 @@ const AuthenticateView = (props) => {
                 </Grid>
             </Grid>
             <div className="box-footer">
-                <FooterLinks />
+                <FooterLinks/>
             </div>
         </div>
     );

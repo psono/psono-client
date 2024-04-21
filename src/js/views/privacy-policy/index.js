@@ -53,7 +53,10 @@ const PrivacyPolicyView = (props) => {
                 <Container className={classes.privacyPolicyBox + " " + classes.dark}>
                     <Button className={classes.backButton} onClick={back} variant="contained"
                             color="primary">{t("BACK")}</Button>
-                    <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'} />
+                    <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'}/>
+                    <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
+                        <i className="fa fa-info-circle" aria-hidden="true"/>
+                    </a>
                     <div dangerouslySetInnerHTML={{__html: privacyPolicy}}/>
                 </Container>
             </div>

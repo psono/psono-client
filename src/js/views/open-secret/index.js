@@ -35,10 +35,13 @@ const OpenSecretView = (props) => {
 
     return (
         <div className="loading-lock">
-            <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'} />
+            <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'}/>
+            <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
+                <i className="fa fa-info-circle" aria-hidden="true"/>
+            </a>
             <div className="loading-lock-logo">
                 <div className="loading-lock-logo-unloaded">
-                    <i className="fa fa-lock" />
+                    <i className="fa fa-lock"/>
                 </div>
                 <div className="loading-lock-logo-loaded">
                     <i
@@ -52,7 +55,7 @@ const OpenSecretView = (props) => {
             </div>
             <div className="loading-lock-text">{t("DECRYPTING_SECRET")}</div>
             {unlockOfflineCache && (
-                <DialogUnlockOfflineCache open={unlockOfflineCache} onClose={onUnlockOfflineCacheClosed} />
+                <DialogUnlockOfflineCache open={unlockOfflineCache} onClose={onUnlockOfflineCacheClosed}/>
             )}
         </div>
     );

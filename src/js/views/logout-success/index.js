@@ -25,9 +25,12 @@ const LogoutSuccessView = (props) => {
 
     return (
         <div className={"logoutsuccessbox dark"}>
-            <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'} />
+            <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'}/>
+            <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
+                <i className="fa fa-info-circle" aria-hidden="true"/>
+            </a>
             <Grid container>
-                <GridContainerErrors errors={msgs} setErrors={setMsgs} severity={"info"} />
+                <GridContainerErrors errors={msgs} setErrors={setMsgs} severity={"info"}/>
             </Grid>
         </div>
     );

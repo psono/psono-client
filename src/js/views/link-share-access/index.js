@@ -183,7 +183,10 @@ const LinkShareAccessView = (props) => {
 
     return (
         <div className={"progress-box " + classes.textCenter}>
-            <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'} />
+            <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'}/>
+            <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
+                <i className="fa fa-info-circle" aria-hidden="true"/>
+            </a>
             {view === "default" && (
                 <React.Fragment>
                     {!processing && (
@@ -204,13 +207,13 @@ const LinkShareAccessView = (props) => {
                                         }}
                                     />
                                 </Grid>
-                                <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
+                                <Grid item xs={12} sm={12} md={12} style={{marginTop: "5px", marginBottom: "5px"}}>
                                     <Button
                                         variant="contained"
                                         color="primary"
                                         onClick={() => initiateLinkShareAccess(server)}
                                         type="submit"
-                                        style={{ marginRight: "10px" }}
+                                        style={{marginRight: "10px"}}
                                     >
                                         {t("SEND")}
                                     </Button>
@@ -239,10 +242,10 @@ const LinkShareAccessView = (props) => {
                         <React.Fragment>
                             <Box display="flex" alignItems="center">
                                 <Box width="100%" mr={1}>
-                                    <LinearProgress variant="determinate" value={percentageComplete} />
+                                    <LinearProgress variant="determinate" value={percentageComplete}/>
                                 </Box>
                                 <Box minWidth={35}>
-                                    <span style={{ color: "white", whiteSpace: "nowrap" }}>{percentageComplete} %</span>
+                                    <span style={{color: "white", whiteSpace: "nowrap"}}>{percentageComplete} %</span>
                                 </Box>
                             </Box>
                             <span>{t(nextStep)}</span>
@@ -288,13 +291,13 @@ const LinkShareAccessView = (props) => {
                         </Grid>
                     </Grid>
                     <Grid container>
-                        <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
+                        <Grid item xs={12} sm={12} md={12} style={{marginTop: "5px", marginBottom: "5px"}}>
                             <Button
                                 variant="contained"
                                 color="primary"
                                 onClick={approveHost}
                                 type="submit"
-                                style={{ marginRight: "10px" }}
+                                style={{marginRight: "10px"}}
                             >
                                 {t("APPROVE")}
                             </Button>
@@ -303,7 +306,7 @@ const LinkShareAccessView = (props) => {
                             </Button>
                         </Grid>
                     </Grid>
-                    <GridContainerErrors errors={errors} setErrors={setErrors} />
+                    <GridContainerErrors errors={errors} setErrors={setErrors}/>
                 </>
             )}
             {view === "signature_changed" && (
@@ -357,20 +360,20 @@ const LinkShareAccessView = (props) => {
                                 }}
                             >
                                 {t("THE_SIGNATURE_OF_THE_SERVER_CHANGED")}
-                                <br />
-                                <br />
+                                <br/>
+                                <br/>
                                 <strong>{t("CONTACT_THE_OWNER_OF_THE_SERVER")}</strong>
                             </MuiAlert>
                         </Grid>
                     </Grid>
                     <Grid container>
-                        <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
+                        <Grid item xs={12} sm={12} md={12} style={{marginTop: "5px", marginBottom: "5px"}}>
                             <Button
                                 variant="contained"
                                 color="primary"
                                 onClick={cancel}
                                 type="submit"
-                                style={{ marginRight: "10px" }}
+                                style={{marginRight: "10px"}}
                             >
                                 {t("CANCEL")}
                             </Button>
@@ -379,7 +382,7 @@ const LinkShareAccessView = (props) => {
                             </Button>
                         </Grid>
                     </Grid>
-                    <GridContainerErrors errors={errors} setErrors={setErrors} />
+                    <GridContainerErrors errors={errors} setErrors={setErrors}/>
                 </>
             )}
 
@@ -395,7 +398,7 @@ const LinkShareAccessView = (props) => {
                                 }}
                                 key={index}
                                 severity="error"
-                                style={{ marginBottom: "5px" }}
+                                style={{marginBottom: "5px"}}
                             >
                                 {(prop !== "INSUFFICIENT_FUNDS" || !creditBuyAddress) && <span>{t(prop)}</span>}
                                 {prop === "INSUFFICIENT_FUNDS" && creditBuyAddress && (
