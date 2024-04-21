@@ -138,11 +138,13 @@ function ProfilePicture() {
     };
 
     const onClickShowQRClientConfig = (event) => {
-        browserClient.getConfig().then(function (config) {
-            setQrContent(JSON.stringify({
-                ConfigJson: config,
-            }))
-        });
+        setQrContent(JSON.stringify({
+            version: 2,
+            config: {
+                'verify_key': store.getState().server.verifyKey,
+                'url': store.getState().server.url,
+            },
+        }))
     };
 
     const handleClearPicture = async () => {
