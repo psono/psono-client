@@ -141,9 +141,21 @@ function redirectSecret(type, secretId) {
                     url_filter: content.website_password_url_filter,
                     auto_submit: content.website_password_auto_submit,
                 });
-                window.location.href = content.website_password_url;
+
+                let url = content.website_password_url;
+
+                if (!url.includes("://")) {
+                    url = 'https://' + url;
+                }
+                window.location.href = url;
             } else if (type === "bookmark") {
-                window.location.href = content.bookmark_url;
+
+                let url = content.bookmark_url;
+
+                if (!url.includes("://")) {
+                    url = 'https://' + url;
+                }
+                window.location.href = url;
             } else if (type === "elster_certificate") {
                 browserClient.emitSec("fillelstercertificate", {
                     elster_certificate_title: content.elster_certificate_title,
