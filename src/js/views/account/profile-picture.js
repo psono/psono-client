@@ -96,6 +96,7 @@ function ProfilePicture() {
         }
         const path = "/avatar-image/" + store.getState().user.userId + "/" + avatars[0].id + "/";
         setProfilePic(store.getState().server.url + path)
+        setAvatarId(avatars[0].id);
     }
 
     const handleFileChange = event => {
