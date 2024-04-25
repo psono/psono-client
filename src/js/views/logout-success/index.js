@@ -5,6 +5,7 @@ import {makeStyles} from "@material-ui/core/styles";
 import {useTranslation} from "react-i18next";
 import GridContainerErrors from "../../components/grid-container-errors";
 import userService from "../../services/user";
+import ConfigLogo from "../../components/config-logo";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -24,12 +25,12 @@ const LogoutSuccessView = (props) => {
 
     return (
         <div className={"logoutsuccessbox dark"}>
-            <img src="img/logo.png" alt="Psono Web Client" id="logo" />
+            <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'}/>
             <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
-                <i className="fa fa-info-circle" aria-hidden="true" />
+                <i className="fa fa-info-circle" aria-hidden="true"/>
             </a>
             <Grid container>
-                <GridContainerErrors errors={msgs} setErrors={setMsgs} severity={"info"} />
+                <GridContainerErrors errors={msgs} setErrors={setMsgs} severity={"info"}/>
             </Grid>
         </div>
     );

@@ -2,6 +2,7 @@ import React from "react";
 import LoginViewForm from "./login-form";
 import { useParams } from "react-router-dom";
 import FrameControls from "../../components/frame-controls";
+import ConfigLogo from "../../components/config-logo";
 
 const LoginView = (props) => {
     let { samlTokenId, oidcTokenId } = useParams();
@@ -9,11 +10,11 @@ const LoginView = (props) => {
         <>
             <FrameControls />
             <div className={"loginbox dark"}>
-                <img src="img/logo.png" alt="Psono Web Client" id="logo" />
+                <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'}/>
                 <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
-                    <i className="fa fa-info-circle" aria-hidden="true" />
+                    <i className="fa fa-info-circle" aria-hidden="true"/>
                 </a>
-                <LoginViewForm samlTokenId={samlTokenId} oidcTokenId={oidcTokenId} />
+                <LoginViewForm samlTokenId={samlTokenId} oidcTokenId={oidcTokenId}/>
             </div>
         </>
     );

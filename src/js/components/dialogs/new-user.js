@@ -8,7 +8,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
 import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
-import { Grid } from "@material-ui/core";
+import {Avatar, Grid} from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import IconButton from "@material-ui/core/IconButton";
@@ -34,6 +34,26 @@ const useStyles = makeStyles((theme) => ({
         border: "1px solid #666",
         borderRadius: "3px",
     },
+    avatar: {
+        width: 150,
+        height: 150,
+        marginTop: '8px',
+    },
+    avatarPlaceholder: {
+        width: 150,
+        height: 150,
+        fontSize: '11rem',
+        backgroundColor: '#2dbb93',
+        paddingTop: '20px',
+        marginTop: '8px',
+        color: 'white',
+    },
+    avatarPlaceholderText: {
+        position: "absolute",
+        bottom: "30px",
+        color: '#666',
+        fontSize: '0.8rem',
+    },
     uncheckedIcon: {
         width: "0px",
         height: "0px",
@@ -57,6 +77,7 @@ const DialogNewUser = (props) => {
     const [visualUsername, setVisualUsername] = useState("");
     const [foundUsername, setFoundUsername] = useState("");
     const [foundUserId, setFoundUserId] = useState("");
+    const [profilePic, setProfilePic] = useState("");
     const [foundPublicKey, setFoundPublicKey] = useState("");
     const [users, setUsers] = useState([]);
 
@@ -83,11 +104,17 @@ const DialogNewUser = (props) => {
         setDomain(domain);
     };
 
-    const showUser = (userId, username, publicKey) => {
+    const showUser = (userId, username, publicKey, avatarId) => {
         setUsers([]);
         setFoundUserId(userId);
         setFoundUsername(username);
         setFoundPublicKey(publicKey);
+        if (avatarId) {
+            const path = "/avatar-image/" + userId + "/" + avatarId + "/";
+            setProfilePic(store.getState().server.url + path)
+        } else {
+            setProfilePic("");
+        }
     };
 
     const onSearch = (event) => {
@@ -106,15 +133,14 @@ const DialogNewUser = (props) => {
 
         const onSuccess = function (data) {
             data = data.data;
-
             if (Object.prototype.toString.call(data) === "[object Array]") {
                 setUsers(
                     data.map((user) => {
-                        return [user.id, user.username, user.public_key];
+                        return [user.id, user.username, user.public_key, user.avatar_id];
                     })
                 );
             } else {
-                showUser(data.id, data.username, data.public_key);
+                showUser(data.id, data.username, data.public_key, data.avatar_id);
             }
         };
 
@@ -167,7 +193,7 @@ const DialogNewUser = (props) => {
                         return (
                             <IconButton
                                 onClick={() => {
-                                    showUser(tableMeta.rowData[0], tableMeta.rowData[1], tableMeta.rowData[2]);
+                                    showUser(tableMeta.rowData[0], tableMeta.rowData[1], tableMeta.rowData[2], tableMeta.rowData[3]);
                                 }}
                             >
                                 <CheckBoxOutlineBlankIcon />
@@ -304,54 +330,74 @@ const DialogNewUser = (props) => {
                                 {t("SEARCH")}
                             </Button>
                         </Grid>
+
                         {Boolean(foundUserId) && (
                             <Grid item xs={12} sm={12} md={12}>
-                                <TextField
-                                    className={classes.textField}
-                                    variant="outlined"
-                                    margin="dense"
-                                    id="visualUsername"
-                                    label={t("NAME_OPTIONAL")}
-                                    name="visualUsername"
-                                    autoComplete="off"
-                                    value={visualUsername}
-                                    onChange={(event) => {
-                                        setVisualUsername(event.target.value);
-                                    }}
-                                />
+                                <Grid container>
+                                    <Grid item xs={12} sm={4} md={4}>
+                                        <center>
+
+                                            {profilePic ? (
+                                                <Avatar alt="Profile Picture" src={profilePic} className={classes.avatar} />
+                                            ) : (
+                                                <Avatar className={classes.avatarPlaceholder}>
+                                                    <i className="fa fa-user" aria-hidden="true"></i>
+                                                    <span className={classes.avatarPlaceholderText}>{t("NO_IMAGE")}</span>
+                                                </Avatar>
+                                            )}
+                                        </center>
+                                    </Grid>
+                                    <Grid item xs={12} sm={8} md={8}>
+                                        <Grid container>
+                                            <Grid item xs={12} sm={12} md={12}>
+                                                <TextField
+                                                    className={classes.textField}
+                                                    variant="outlined"
+                                                    margin="dense"
+                                                    id="visualUsername"
+                                                    label={t("NAME_OPTIONAL")}
+                                                    name="visualUsername"
+                                                    autoComplete="off"
+                                                    value={visualUsername}
+                                                    onChange={(event) => {
+                                                        setVisualUsername(event.target.value);
+                                                    }}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12} sm={12} md={12}>
+                                                <TextField
+                                                    className={classes.textField}
+                                                    variant="outlined"
+                                                    margin="dense"
+                                                    id="foundUsername"
+                                                    label={t("USERNAME")}
+                                                    name="foundUsername"
+                                                    autoComplete="off"
+                                                    value={foundUsername}
+                                                    disabled
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12} sm={12} md={12}>
+                                                <TextField
+                                                    className={classes.textField}
+                                                    variant="outlined"
+                                                    margin="dense"
+                                                    id="foundPublicKey"
+                                                    label={t("PUBLIC_KEY")}
+                                                    name="foundPublicKey"
+                                                    autoComplete="off"
+                                                    helperText={t("TO_VERIFY_PUBLIC_KEY")}
+                                                    value={foundPublicKey}
+                                                    disabled
+                                                />
+                                            </Grid>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+
                             </Grid>
                         )}
-                        {Boolean(foundUserId) && (
-                            <Grid item xs={12} sm={12} md={12}>
-                                <TextField
-                                    className={classes.textField}
-                                    variant="outlined"
-                                    margin="dense"
-                                    id="foundUsername"
-                                    label={t("USERNAME")}
-                                    name="foundUsername"
-                                    autoComplete="off"
-                                    value={foundUsername}
-                                    disabled
-                                />
-                            </Grid>
-                        )}
-                        {Boolean(foundUserId) && (
-                            <Grid item xs={12} sm={12} md={12}>
-                                <TextField
-                                    className={classes.textField}
-                                    variant="outlined"
-                                    margin="dense"
-                                    id="foundPublicKey"
-                                    label={t("PUBLIC_KEY")}
-                                    name="foundPublicKey"
-                                    autoComplete="off"
-                                    helperText={t("TO_VERIFY_PUBLIC_KEY")}
-                                    value={foundPublicKey}
-                                    disabled
-                                />
-                            </Grid>
-                        )}
+
                     </Grid>
                     <GridContainerErrors errors={errors} setErrors={setErrors} />
                 </DialogContent>

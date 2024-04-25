@@ -491,10 +491,8 @@ const PopupView = (props) => {
     };
 
     const logout = (event) => {
-        user.logout(undefined, window.location.origin).then(() => {
-            browserClient.closePopup();
-            window.location.href = "logout-success.html";
-        });
+        browserClient.openTab("logout-success.html");
+        browserClient.closePopup();
     };
     const back = (event) => {
         setView("default");

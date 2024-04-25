@@ -7,6 +7,7 @@ import LinearProgress from "@material-ui/core/LinearProgress";
 import { useParams } from "react-router-dom";
 import store from "../../services/store";
 import fileTransferService from "../../services/file-transfer";
+import ConfigLogo from "../../components/config-logo";
 
 const useStyles = makeStyles((theme) => ({
     textCenter: {
@@ -65,18 +66,18 @@ const DownloadFileView = (props) => {
 
     return (
         <div className={"progress-box " + classes.textCenter}>
-            <img src="img/logo.png" alt="Psono Web Client" id="logo" />
+            <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'}/>
             <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
-                <i className="fa fa-info-circle" aria-hidden="true" />
+                <i className="fa fa-info-circle" aria-hidden="true"/>
             </a>
 
             {processing && (
                 <Box display="flex" alignItems="center">
                     <Box width="100%" mr={1}>
-                        <LinearProgress variant="determinate" value={percentageComplete} />
+                        <LinearProgress variant="determinate" value={percentageComplete}/>
                     </Box>
                     <Box minWidth={35}>
-                        <span style={{ color: "white", whiteSpace: "nowrap" }}>{percentageComplete} %</span>
+                        <span style={{color: "white", whiteSpace: "nowrap"}}>{percentageComplete} %</span>
                     </Box>
                 </Box>
             )}
@@ -94,7 +95,7 @@ const DownloadFileView = (props) => {
                                 }}
                                 key={index}
                                 severity="error"
-                                style={{ marginBottom: "5px" }}
+                                style={{marginBottom: "5px"}}
                             >
                                 {(prop !== "INSUFFICIENT_FUNDS" || !creditBuyAddress) && <span>{t(prop)}</span>}
                                 {prop === "INSUFFICIENT_FUNDS" && creditBuyAddress && (

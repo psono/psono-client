@@ -8,7 +8,6 @@ import deviceService from "./device";
 
 
 const registrations = {};
-let config = {};
 const events = ["login", "logout"];
 
 if (TARGET === "chrome") {
@@ -315,22 +314,40 @@ function getBaseUrl() {
     }
 }
 
-/**
- * returns a promise with the version string
- *
- * @returns {Promise} promise
- */
-async function loadVersion() {
-    const response = await fetch("VERSION.txt");
-    return await response.text();
-}
+
 
 /**
  * returns a promise with the version string
  *
  * @returns {Promise} promise
  */
-function loadConfig() {
+async function _loadVersion() {
+    const response = await fetch("VERSION.txt");
+    return await response.text();
+}
+
+
+let versionSingleton;
+
+/**
+ returns a promise with the version string
+ * @returns {Promise}
+ * @private
+ */
+function loadVersion() {
+    if (!versionSingleton) {
+        versionSingleton = _loadVersion();
+    }
+    return versionSingleton;
+}
+
+
+/**
+ * returns a promise with the version string
+ *
+ * @returns {Promise} promise
+ */
+function _loadConfig() {
     return new Promise((resolve, reject) => {
         const remoteConfigJson = getRemoteConfigJson();
 
@@ -491,17 +508,6 @@ function getActiveTabUrl() {
 }
 
 /**
- * Dummy function to see if the background page works
- */
-function testBackgroundPage() {
-    if (TARGET === "firefox" || TARGET === "chrome") {
-        return backgroundPage.bg.test();
-    } else {
-        return false;
-    }
-}
-
-/**
  * sends an event message to a specific tab
  *
  * @param {string} tabId The id of the tab
@@ -598,14 +604,30 @@ function on(event, myFunction) {
     }
 }
 
+
+let configSingleton;
+
 /**
- * helper function to return either the config itself or if key has been specified only the config part for the key
- *
- * @param {string} key The config "key" one wants to have
- * @returns {*} The config value
+ * Helper function that acts as a singleton to load the config only once.
+ * @returns {Promise}
  * @private
  */
-function _getConfig(key) {
+function loadConfig() {
+    if (!configSingleton) {
+        configSingleton = _loadConfig();
+    }
+    return configSingleton;
+}
+
+/**
+ * Loads the config (or only the part specified by the "key") fresh or from "cache"
+ *
+ * @param {string} [key] The config "key" one wants to have
+ *
+ * @returns {Promise} A promise with the config value
+ */
+async function getConfig(key) {
+    const config = await loadConfig();
     if (typeof key === "undefined") {
         return config;
     }
@@ -617,36 +639,10 @@ function _getConfig(key) {
 }
 
 /**
- * Loads the config (or only the part specified by the "key") fresh or from "cache"
- *
- * @param {string} [key] The config "key" one wants to have
- *
- * @returns {Promise} A promise with the config value
- */
-function getConfig(key) {
-    return new Promise((resolve, reject) => {
-        if (Object.keys(config).length === 0) {
-            const onSuccess = function (new_config) {
-                config = new_config;
-                return resolve(_getConfig(key));
-            };
-
-            const onError = function (data) {
-                reject(data);
-            };
-
-            loadConfig().then(onSuccess, onError);
-        } else {
-            return resolve(_getConfig(key));
-        }
-    });
-}
-
-/**
  * Clears the config cache
  */
 function clearConfigCache() {
-    config = {};
+    configSingleton = undefined;
 }
 
 /**
@@ -916,10 +912,8 @@ const browserClientService = {
     closePopup: closePopup,
     getBaseUrl: getBaseUrl,
     loadVersion: loadVersion,
-    loadConfig: loadConfig,
     getActiveTab: getActiveTab,
     getActiveTabUrl: getActiveTabUrl,
-    testBackgroundPage: testBackgroundPage,
     emit: emit,
     emitTab: emitTab,
     getURL: getURL,

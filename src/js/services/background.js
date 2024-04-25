@@ -437,7 +437,7 @@ function onReady(request, sender, sendResponse) {
             }
         }
 
-        if (parsedUrl.base_url === 'https://www.elster.de' && parsedUrl.path && parsedUrl.path.startsWith('/eportal/login/')) {
+        if (parsedUrl.base_url === 'https://www.elster.de' && parsedUrl.path && (parsedUrl.path.startsWith('/eportal/login/') || parsedUrl.path.startsWith('/ekona/login/') )) {
             for (let i = fillelstercertificate.length - 1; i >= 0; i--) {
                 sentResponse = true;
                 sendResponse({ event: "fillelstercertificate", data: fillelstercertificate[i] });
@@ -561,17 +561,17 @@ function bookmarkActiveTab(request, sender, sendResponse) {
  * @param {function} sendResponse Function to call (at most once) when you have a response.
  */
 function onLogout(request, sender, sendResponse) {
-    chrome.tabs.query({ url: "chrome-extension://" + chrome.runtime.id + "/*" }, function (tabs) {
-        const tabids = [];
-
-        if (typeof tabs !== "undefined") {
-            for (let i = 0; i < tabs.length; i++) {
-                tabids.push(tabs[i].id);
-            }
-        }
-
-        chrome.tabs.remove(tabids);
-    });
+    // chrome.tabs.query({ url: "chrome-extension://" + chrome.runtime.id + "/*" }, function (tabs) {
+    //     const tabids = [];
+    //
+    //     if (typeof tabs !== "undefined") {
+    //         for (let i = 0; i < tabs.length; i++) {
+    //             tabids.push(tabs[i].id);
+    //         }
+    //     }
+    //
+    //     chrome.tabs.remove(tabids);
+    // });
     browserClient.setIcon({
         path : "/data/img/icon-32-disabled.png"
     });
@@ -702,8 +702,8 @@ function onElsterCertificateRefresh(request, sender, sendResponse) {
     } catch (err) {
         return;
     }
-
-    if (senderUrl.origin + senderUrl.pathname !== 'https://www.elster.de/eportal/login/softpse') {
+    const fullOrigin = senderUrl.origin + senderUrl.pathname;
+    if (fullOrigin !== 'https://www.elster.de/eportal/login/softpse' && fullOrigin !== 'https://www.elster.de/ekona/login/softpse') {
         sendResponse({ event: "status", data: "ok" });
         return;
     }

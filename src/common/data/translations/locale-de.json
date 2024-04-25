@@ -1,4 +1,9 @@
 {
+  "NO_IMAGE": "Kein Bild",
+  "FEATURE_NOT_SUPPORTED_SERVER_REQUIRES_UPGRADE": "Feature wird nicht unterstützt. Der Server benötigt ein update.",
+  "MAX_SIZE_KB": "max. {{size}}KB",
+  "FILE_MUST_BE_SMALLER_THAN_KB": "Die Datei muss kleiner sein als {{filesize}}KB.",
+  "FILE_MUST_BE_PIXEL_BIG": "Die Datei muss {{filedimension_x}} x {{filedimension_y}} pixel groß sein.",
   "IP_ADDRESS_NOT_ALLOWED": "Ihrer IP Adresse ist es nicht erlaubt sich zu verbinden.",
   "NO_PASSKEY_FOUND_FOR_THIS_WEBSITE": "Die Authentifizierung ist fehlgeschlagen weil wir keinen Passkey für diese Webseite gefunden haben.",
   "BYPASS_PSONO": "Bypass Psono",
@@ -739,7 +744,7 @@
   "SERVER_LICENSE_VALID_TILL": "Server Lizens Gültig bis",
   "SERVER_INFO": "Server Info",
   "CLIENT_INFO": "Client Info",
-  "OVERVIEW_DESCRIPTION": "Eine Übersicht über ihr Konto mit Details wie ihrem Public Key.",
+  "SERVER_INFO_DESCRIPTION": "Eine Übersicht über den Server mit Details wie dessen Version oder Public Key.",
   "CHANGE_E_MAIL_DESCRIPTION": "Sie können hier eine neue E-Mail Adresse setzen (zusammen mit ihrem aktuellen Passwort zur Verifikation).",
   "CHANGE_PASSWORD_DESCRIPTION": "Sie können hier ein neues Passwort setzen (zusammen mit ihrem aktuellen Passwort zur Verifikation).",
   "GENERATE_PASSWORD_RECOVERY_DESCRIPTION": "Sie sollten einen Wiederherstellungs Code erstellen um ihr Konto im Falle eines Passwortverlusts wiederherstellen zu können.",

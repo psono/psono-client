@@ -554,6 +554,7 @@ function filterDatastoreContent(content) {
     const contentCopy = helperService.duplicateObject(content);
 
     const filter = [
+        "is_folder",
         "expanded",
         "expanded_temporary",
         "is_expanded",

@@ -235,7 +235,7 @@ function readShareRightsOverview() {
  * @param {uuid} userId The user id
  * @param {uuid} groupId The group id
  * @param {string} publicKey The other user's / group's public key
- * @param {string} secretKey The other user's / group's public key
+ * @param {string} secretKey The other user's / group's secret key
  * @param {string} key the key of the share
  * @param {boolean} read The read right
  * @param {boolean} write The write right
