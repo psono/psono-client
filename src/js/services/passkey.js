@@ -306,7 +306,7 @@ async function navigatorCredentialsGet(options, origin) {
         )
     }
     if (!isLoggedIn) {
-        throw new PasskeyException('USER_NOT_LOGGED_IN', i18n.t('USER_DENIED_REQUEST'));
+        throw new PasskeyException('BYPASS_PSONO', i18n.t('BYPASS_PSONO'));
     }
 
     let credentials = await searchPasskeys(rpId, allowCredentialIds);
@@ -595,7 +595,7 @@ function createNotificationAsync(title, description, timeout) {
                 },
                 {
                     title: i18n.t("BYPASS_PSONO"),
-                    onClick: () => reject(new PasskeyException('USER_INSTRUCTION_BYPASS_PSONO', i18n.t('USER_INSTRUCTION_BYPASS_PSONO'))),
+                    onClick: () => reject(new PasskeyException('BYPASS_PSONO', i18n.t('BYPASS_PSONO'))),
                 },
             ],
             timeout,
