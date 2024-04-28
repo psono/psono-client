@@ -47,7 +47,7 @@ function createSecretBulk(objects, parentDatastoreId, parentShareId) {
 
 
     const onError = function (result) {
-        // pass
+        return Promise.reject(result);
     };
 
     const onSuccess = function (response) {

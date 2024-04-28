@@ -251,6 +251,8 @@ function createSecrets(parsedData) {
             })
             emit("create-secret-complete", {});
             return parsedData;
+        }, function (result) {
+            return Promise.reject(result)
         });
     });
 }
