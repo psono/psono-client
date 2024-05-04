@@ -183,6 +183,9 @@ function writeSecret(secretId, secretKey, content, callbackUrl, callbackUser, ca
  */
 function redirectSecret(type, secretId) {
     return storage.findKey("datastore-password-leafs", secretId).then(function (leaf) {
+        if (leaf === null) {
+            return;
+        }
         const onError = function (result) {
             // pass
         };
