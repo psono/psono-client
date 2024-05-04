@@ -1,17 +1,6 @@
 (function (setTimeout) {
     "use strict";
 
-    function ready(fn) {
-        // see if DOM is already available
-        if (document.readyState === "complete" || document.readyState === "interactive") {
-            // call on next available tick
-            setTimeout(fn, 1);
-        } else {
-            document.addEventListener("DOMContentLoaded", fn);
-        }
-    }
-
-    ready(function(){
-        ClassWebAccessibleFido2()
-    });
+    // we don't wrap Psono in ready so that it's loaded faster before any potential authentication attempt
+    ClassWebAccessibleFido2()
 })(setTimeout);

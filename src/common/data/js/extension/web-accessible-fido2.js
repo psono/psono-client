@@ -296,7 +296,6 @@ const ClassWebAccessibleFido2 = function () {
      * @param options
      */
     function mockedNavigatorCredentialsGet (options) {
-
         return new Promise(function(resolve, reject) {
 
             const eventId = toHex(window.crypto.getRandomValues(new Uint8Array(16)));
@@ -325,7 +324,6 @@ const ClassWebAccessibleFido2 = function () {
                     'eventId': eventId,
                 },
             }, window.location.origin);
-
         })
     }
 }

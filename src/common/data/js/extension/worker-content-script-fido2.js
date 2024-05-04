@@ -5,13 +5,11 @@
 var ClassWorkerContentScriptFido2 = function (base, browser, setTimeout) {
     "use strict";
 
-    base.ready(function() {
-        activate();
-    });
+    activate();
 
     function activate() {
-
-        if (document.head === null) {
+        const root = document.head || document.documentElement;
+        if (root === null) {
             return;
         }
 
@@ -46,9 +44,9 @@ var ClassWorkerContentScriptFido2 = function (base, browser, setTimeout) {
         // create script
         const script1 = document.createElement("script");
         script1.src = browser.runtime.getURL("data/js/extension/web-accessible-fido2.js");
-        document.head.appendChild(script1);
+        root.appendChild(script1);
         const script2 = document.createElement("script");
         script2.src = browser.runtime.getURL("data/js/web-accessible.js");
-        document.head.appendChild(script2);
+        root.appendChild(script2);
     }
 };
