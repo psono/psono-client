@@ -168,7 +168,7 @@ const Topbar = (props) => {
                         <MenuIcon />
                     </IconButton>
                     <a className={classes.topLogo} href="index.html">
-                        <ConfigLogo configKey={'logo_inverse'} defaultLogo={'img/logo-inverse.png'} />
+                        <ConfigLogo configKey={'logo_inverse'} defaultLogo={'img/logo-inverse.png'} height="100%" />
                     </a>
                     <div style={{ width: "100%" }}>
                         {datastores && datastores.length > 1 && (<div style={{float: "left"}}>

@@ -7,7 +7,7 @@ const EmergencyCodeView = (props) => {
     let { samlTokenId, oidcTokenId } = useParams();
     return (
         <div className={"lostpasswordbox dark"}>
-            <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'}/>
+            <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'} height="100%"/>
             <a href="https://psono.com/" target="_blank" rel="noopener" className="infolabel">
                 <i className="fa fa-info-circle" aria-hidden="true"/>
             </a>

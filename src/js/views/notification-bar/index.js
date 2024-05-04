@@ -95,7 +95,7 @@ const NotificationBarView = (props) => {
             <Hidden xsDown>
                 <div className={classes.logoImg}>
                     <a href="https://psono.com" target="_blank">
-                        <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'}/>
+                        <ConfigLogo configKey={'logo'} defaultLogo={'img/logo.png'} height="100%"/>
                     </a>
                 </div>
             </Hidden>
