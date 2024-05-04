@@ -34,6 +34,7 @@ import offlineCacheService from "../../services/offline-cache";
 import secretService from "../../services/secret";
 import user from "../../services/user";
 import widgetService from "../../services/widget";
+import store from "../../services/store";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -562,6 +563,37 @@ const PopupView = (props) => {
                         color="primary"
                     >
                         {t("SETUP_SECOND_FACTOR")}
+                    </Button>
+                    <Button onClick={logout} variant="contained">
+                        {t("LOGOUT")}
+                    </Button>
+                </Grid>
+            </Grid>
+        );
+    } else if (isLoggedIn && user.requireServerSecretModification()) {
+
+        return (
+            <Grid container className={"dark"}>
+                <Grid item xs={12} sm={12} md={12}>
+                    <MuiAlert
+                        severity="info"
+                        style={{
+                            marginBottom: "5px",
+                            marginTop: "5px",
+                        }}
+                    >
+                        {store.getState().user.serverSecretExists ? t("ADMINISTRATOR_REQUIRES_ACCOUNT_SWITCH_TO_CLIENT_SIDE_ENCRYPTION") : t("ADMINISTRATOR_REQUIRES_ACCOUNT_SWITCH_TO_SERVER_SIDE_ENCRYPTION")}
+                    </MuiAlert>
+                </Grid>
+                <Grid item xs={12} sm={12} md={12}>
+                    <Button
+                        onClick={() => {
+                            browserClient.openTab("key-transfer.html");
+                        }}
+                        variant="contained"
+                        color="primary"
+                    >
+                        {t("CONFIGURE")}
                     </Button>
                     <Button onClick={logout} variant="contained">
                         {t("LOGOUT")}

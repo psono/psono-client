@@ -5,7 +5,7 @@ import Button from "@material-ui/core/Button";
 import Hidden from '@material-ui/core/Hidden';
 
 import browserClient from "../../services/browser-client";
-import {BarLoader, ClipLoader} from "react-spinners";
+import {ClipLoader} from "react-spinners";
 import ConfigLogo from "../../components/config-logo";
 
 const useStyles = makeStyles((theme) => ({

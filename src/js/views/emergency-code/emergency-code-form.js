@@ -529,7 +529,7 @@ const EmergencyCodeViewForm = (props) => {
             onSubmit={(e) => {
                 e.preventDefault();
             }}
-            name="lostpasswordForm"
+            name="emergencyCodeForm"
             autoComplete="off"
         >
             {formContent}

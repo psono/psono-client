@@ -18,6 +18,7 @@ import LostPasswordView from "./lost-password";
 import EmergencyCodeView from "./emergency-code";
 import AuthenticateView from "./authenticate";
 import EnforceTwoFaView from "./enforce-two-fa";
+import KeyTransferView from "./key-transfer";
 import OpenSecretView from "./open-secret";
 import DownloadFileView from "./download-file";
 import ActivateView from "./activate";
@@ -105,6 +106,8 @@ const IndexView = (props) => {
         return <AuthenticateView {...props} />;
     } else if (pathname.endsWith("/enforce-two-fa.html")) {
         return <EnforceTwoFaView {...props} />;
+    } else if (pathname.endsWith("/key-transfer.html")) {
+        return <KeyTransferView {...props} />;
     } else if (pathname.endsWith("/link-share-access.html")) {
         return (
             <Switch>
@@ -158,6 +161,12 @@ const IndexView = (props) => {
             setTimeout(function () {
                 // Timeout required, otherwise setUserInfo3 doesn't finish and not persisted
                 window.location.href = "enforce-two-fa.html";
+            }, 1);
+        }
+        if (isLoggedIn && user.requireServerSecretModification()) {
+            setTimeout(function () {
+                // Timeout required, otherwise setUserInfo3 doesn't finish and not persisted
+                window.location.href = "key-transfer.html";
             }, 1);
         }
         if (!isLoggedIn) {

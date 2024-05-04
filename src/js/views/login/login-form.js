@@ -99,6 +99,7 @@ const LoginViewForm = (props) => {
     const [authenticationMethods, setAuthenticationMethods] = useState([]);
     const [allowCustomServer, setAllowCustomServer] = useState(true);
     const [allowUsernamePasswordLogin, setAllowUsernamePasswordLogin] = useState(true);
+    const [decryptLoginDataFunction, setDecryptLoginDataFunction] = useState(null);
 
     React.useEffect(() => {
         if (props.samlTokenId) {
@@ -125,10 +126,28 @@ const LoginViewForm = (props) => {
     }, [multifactors]);
 
 
-    const handleLogin = (requiredMultifactors) => {
-        action.setHasTwoFactor(requiredMultifactors.length > 0);
-        setMultifactors(requiredMultifactors);
+    const handleLogin = (loginDetails) => {
+        if (loginDetails.hasOwnProperty("required_multifactors")) {
+            const requiredMultifactors = loginDetails["required_multifactors"];
+            action.setHasTwoFactor(requiredMultifactors.length > 0);
+            setMultifactors(requiredMultifactors);
+        }
+        if (loginDetails.hasOwnProperty('require_password')) {
+            setDecryptLoginDataFunction(() => loginDetails["require_password"]);
+        }
     }
+
+    const decryptData = () => {
+        const loginDetails = decryptLoginDataFunction(password);
+        if (loginDetails.hasOwnProperty("required_multifactors")) {
+            const requiredMultifactors = loginDetails["required_multifactors"];
+            action.setHasTwoFactor(requiredMultifactors.length > 0);
+            setMultifactors(requiredMultifactors);
+        }
+        if (loginDetails.hasOwnProperty('require_password')) {
+            setErrors(['PASSWORD_INCORRECT'])
+        }
+    };
 
     const hasLdapAuth = (serverCheck) => {
         return (
@@ -717,7 +736,58 @@ const LoginViewForm = (props) => {
 
     let formContent;
 
-    if (view === "default") {
+    if (decryptLoginDataFunction !== null) {
+        formContent = (
+            <>
+                <Grid container>
+                    <Grid item xs={12} sm={12} md={12}>
+                        <MuiAlert
+                            severity="info"
+                            style={{
+                                marginBottom: "5px",
+                                marginTop: "5px",
+                            }}
+                        >
+                            {t("ENTER_PASSWORD_TO_DECRYPT_YOUR_DATASTORE")}
+                        </MuiAlert>
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={12}>
+                        <TextField
+                            className={classes.textField}
+                            variant="outlined"
+                            margin="dense"
+                            id="password"
+                            label={t("PASSWORD")}
+                            InputProps={{
+                                type: "password",
+                            }}
+                            name="password"
+                            autoComplete="off"
+                            value={password}
+                            onChange={(event) => {
+                                setPassword(event.target.value);
+                            }}
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={12} style={{ marginTop: "5px", marginBottom: "5px" }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={decryptData}
+                            type="submit"
+                            style={{ marginRight: "10px" }}
+                        >
+                            {t("DECRYPT")}
+                        </Button>
+                        <Button variant="contained" onClick={cancel}>
+                            {t("CANCEL")}
+                        </Button>
+                    </Grid>
+                </Grid>
+                <GridContainerErrors errors={errors} setErrors={setErrors} />
+            </>
+        )
+    } else if (view === "default") {
         formContent = (
             <>
                 {oidcProvider.map((provider, i) => {

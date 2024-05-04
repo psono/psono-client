@@ -16,7 +16,7 @@ import browserClientService from "./browser-client";
 
 import i18n from "../i18n";
 
-let session_password = "";
+let sessionPassword = "";
 let verification = {};
 let redirectOnTwoFaMissing;
 
@@ -169,69 +169,17 @@ function initiateOidcLoginNewTab(provider, remember, trust_device, two_fa_redire
  * Will try to use the token to authenticate and login
  *
  * @param {string} samlTokenId The saml token id
+ * @param {string} defaultAuthentication The default authentication if not provided by the server
  *
  * @returns {Promise}
  */
-function samlLogin(samlTokenId) {
-    const server_public_key = store.getState().server.publicKey;
-    const session_keys = cryptoLibrary.generatePublicPrivateKeypair();
+function samlLogin(samlTokenId, defaultAuthentication) {
+    const serverPublicKey = store.getState().server.publicKey;
+    const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
+    const password = '';
+
     const onSuccess = function (response) {
-        response.data = JSON.parse(
-            cryptoLibrary.decryptDataPublicKey(
-                response.data.login_info,
-                response.data.login_info_nonce,
-                server_public_key,
-                session_keys.private_key
-            )
-        );
-        const server_session_public_key = response.data.server_session_public_key;
-
-        response.data = JSON.parse(
-            cryptoLibrary.decryptDataPublicKey(
-                response.data.data,
-                response.data.data_nonce,
-                server_session_public_key,
-                session_keys.private_key
-            )
-        );
-
-        // decrypt user private key
-        const user_private_key = cryptoLibrary.decryptSecret(
-            response.data.user.private_key,
-            response.data.user.private_key_nonce,
-            response.data.password,
-            response.data.user.user_sauce
-        );
-        session_password = response.data.password;
-
-        // decrypt the user_validator
-        const user_validator = cryptoLibrary.decryptDataPublicKey(
-            response.data.user_validator,
-            response.data.user_validator_nonce,
-            server_session_public_key,
-            user_private_key
-        );
-
-        // encrypt the validator as verification
-        verification = cryptoLibrary.encryptData(user_validator, response.data.session_secret_key);
-
-        action.setUserUsername(response.data.user.username);
-
-        action.setUserInfo2(
-            user_private_key,
-            response.data.user.public_key,
-            response.data.session_secret_key,
-            response.data.token,
-            response.data.user.user_sauce,
-            'SAML'
-        );
-        if (response.data.user.policies) {
-            action.setServerPolicy(response.data.user.policies);
-        }
-
-        action.setHasTwoFactor(response.data.required_multifactors > 0);
-
-        return response.data.required_multifactors;
+        return handleLoginResponse(response, password, sessionKeys, serverPublicKey, defaultAuthentication);
     };
 
     const onError = function (response) {
@@ -248,7 +196,7 @@ function samlLogin(samlTokenId) {
     login_info = JSON.stringify(login_info);
 
     // encrypt the login infos
-    const loginInfoEnc = cryptoLibrary.encryptDataPublicKey(login_info, server_public_key, session_keys.private_key);
+    const loginInfoEnc = cryptoLibrary.encryptDataPublicKey(login_info, serverPublicKey, sessionKeys.private_key);
 
     let sessionDuration = 24 * 60 * 60;
     const trustDevice = store.getState().user.trustDevice;
@@ -257,7 +205,7 @@ function samlLogin(samlTokenId) {
     }
 
     return apiClient
-        .samlLogin(loginInfoEnc["text"], loginInfoEnc["nonce"], session_keys.public_key, sessionDuration)
+        .samlLogin(loginInfoEnc["text"], loginInfoEnc["nonce"], sessionKeys.public_key, sessionDuration)
         .then(onSuccess, onError);
 }
 
@@ -302,69 +250,17 @@ function getSamlRedirectUrl(providerId) {
  * Will try to use the token to authenticate and login
  *
  * @param {string} oidcTokenId The oidc token id
+ * @param {string} defaultAuthentication The default authentication if not provided by the server
  *
  * @returns {Promise}
  */
-function oidcLogin(oidcTokenId) {
-    const server_public_key = store.getState().server.publicKey;
-    const session_keys = cryptoLibrary.generatePublicPrivateKeypair();
+function oidcLogin(oidcTokenId, defaultAuthentication) {
+    const serverPublicKey = store.getState().server.publicKey;
+    const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
+    const password = '';
+
     const onSuccess = function (response) {
-        response.data = JSON.parse(
-            cryptoLibrary.decryptDataPublicKey(
-                response.data.login_info,
-                response.data.login_info_nonce,
-                server_public_key,
-                session_keys.private_key
-            )
-        );
-        const server_session_public_key = response.data.server_session_public_key;
-
-        response.data = JSON.parse(
-            cryptoLibrary.decryptDataPublicKey(
-                response.data.data,
-                response.data.data_nonce,
-                server_session_public_key,
-                session_keys.private_key
-            )
-        );
-
-        // decrypt user private key
-        const user_private_key = cryptoLibrary.decryptSecret(
-            response.data.user.private_key,
-            response.data.user.private_key_nonce,
-            response.data.password,
-            response.data.user.user_sauce
-        );
-        session_password = response.data.password;
-
-        // decrypt the user_validator
-        const user_validator = cryptoLibrary.decryptDataPublicKey(
-            response.data.user_validator,
-            response.data.user_validator_nonce,
-            server_session_public_key,
-            user_private_key
-        );
-
-        // encrypt the validator as verification
-        verification = cryptoLibrary.encryptData(user_validator, response.data.session_secret_key);
-
-        action.setUserUsername(response.data.user.username);
-
-        action.setUserInfo2(
-            user_private_key,
-            response.data.user.public_key,
-            response.data.session_secret_key,
-            response.data.token,
-            response.data.user.user_sauce,
-            'OIDC',
-        );
-        if (response.data.user.policies) {
-            action.setServerPolicy(response.data.user.policies);
-        }
-
-        action.setHasTwoFactor(response.data.required_multifactors > 0);
-
-        return response.data.required_multifactors;
+        return handleLoginResponse(response, password, sessionKeys, serverPublicKey, defaultAuthentication);
     };
 
     const onError = function (response) {
@@ -381,7 +277,7 @@ function oidcLogin(oidcTokenId) {
     login_info = JSON.stringify(login_info);
 
     // encrypt the login infos
-    const loginInfoEnc = cryptoLibrary.encryptDataPublicKey(login_info, server_public_key, session_keys.private_key);
+    const loginInfoEnc = cryptoLibrary.encryptDataPublicKey(login_info, serverPublicKey, sessionKeys.private_key);
 
     let sessionDuration = 24 * 60 * 60;
     const trustDevice = store.getState().user.trustDevice;
@@ -390,7 +286,7 @@ function oidcLogin(oidcTokenId) {
     }
 
     return apiClient
-        .oidcLogin(loginInfoEnc["text"], loginInfoEnc["nonce"], session_keys.public_key, sessionDuration)
+        .oidcLogin(loginInfoEnc["text"], loginInfoEnc["nonce"], sessionKeys.public_key, sessionDuration)
         .then(onSuccess, onError);
 }
 
@@ -498,21 +394,26 @@ function yubikeyOtpVerify(yubikeyOtp) {
 function activateToken() {
     const token = store.getState().user.token;
     const sessionSecretKey = store.getState().user.sessionSecretKey;
-    const user_sauce = store.getState().user.userSauce;
+    const userSauce = store.getState().user.userSauce;
 
-    const onSuccess = function (activation_data) {
+    const onSuccess = function (activationData) {
         // decrypt user secret key
-        const user_secret_key = cryptoLibrary.decryptSecret(
-            activation_data.data.user.secret_key,
-            activation_data.data.user.secret_key_nonce,
-            session_password,
-            user_sauce
+        const userSecretKey = cryptoLibrary.decryptSecret(
+            activationData.data.user.secret_key,
+            activationData.data.user.secret_key_nonce,
+            sessionPassword,
+            userSauce
         );
 
-        action.setUserInfo3(activation_data.data.user.id, activation_data.data.user.email, user_secret_key);
+        let serverSecretExists = ['SAML', 'OIDC', 'LDAP'].includes(activationData.data.user.authentication)
+        if (activationData.data.user.hasOwnProperty('server_secret_exists')) {
+            serverSecretExists = activationData.data.user.server_secret_exists;
+        }
+
+        action.setUserInfo3(activationData.data.user.id, activationData.data.user.email, userSecretKey, serverSecretExists);
 
         // no need anymore for the public / private session keys
-        session_password = "";
+        sessionPassword = "";
         verification = {};
 
         browserClient.emit("login", null);
@@ -534,11 +435,12 @@ function activateToken() {
  * @param {string} password The password
  * @param {object} sessionKeys The session keys
  * @param {string} serverPublicKey The server's public key
+ * @param {string} defaultAuthentication The default authentication if not provided by the server
  *
  * @returns {Array} The list of required multifactor challenges to solve
  */
-function handleLoginResponse(response, password, sessionKeys, serverPublicKey) {
-    response.data = JSON.parse(
+function handleLoginResponse(response, password, sessionKeys, serverPublicKey, defaultAuthentication) {
+    let decrypted_response_data = JSON.parse(
         cryptoLibrary.decryptDataPublicKey(
             response.data.login_info,
             response.data.login_info_nonce,
@@ -546,70 +448,96 @@ function handleLoginResponse(response, password, sessionKeys, serverPublicKey) {
             sessionKeys.private_key
         )
     );
+    const server_session_public_key = decrypted_response_data.server_session_public_key || decrypted_response_data.session_public_key;
 
-    const token = response.data.token;
-    const user_sauce = response.data.user.user_sauce;
-    const policies = response.data.user.policies;
-    const user_public_key = response.data.user.public_key;
-    session_password = password;
-
-    const authentication = response.data.user.authentication ? response.data.user.authentication : 'AUTHKEY';
+    if (decrypted_response_data.hasOwnProperty('data') && decrypted_response_data.hasOwnProperty('data_nonce')) {
+        decrypted_response_data = JSON.parse(
+            cryptoLibrary.decryptDataPublicKey(
+                decrypted_response_data.data,
+                decrypted_response_data.data_nonce,
+                server_session_public_key,
+                sessionKeys.private_key
+            )
+        );
+    }
+    sessionPassword = (password || !decrypted_response_data.hasOwnProperty("password")) ? password : decrypted_response_data.password;
 
     // decrypt the session key
-    const sessionSecretKey = cryptoLibrary.decryptDataPublicKey(
-        response.data.session_secret_key,
-        response.data.session_secret_key_nonce,
-        response.data.session_public_key,
-        sessionKeys.private_key
-    );
+    let sessionSecretKey = decrypted_response_data.session_secret_key;
+    if (decrypted_response_data.hasOwnProperty('session_secret_key_nonce')) {
+        sessionSecretKey = cryptoLibrary.decryptDataPublicKey(
+            decrypted_response_data.session_secret_key,
+            decrypted_response_data.session_secret_key_nonce,
+            decrypted_response_data.session_public_key,
+            sessionKeys.private_key
+        );
+    }
 
-    // decrypt user private key
-    const user_private_key = cryptoLibrary.decryptSecret(
-        response.data.user.private_key,
-        response.data.user.private_key_nonce,
-        password,
-        user_sauce
-    );
+    const authentication = decrypted_response_data.user.authentication ? decrypted_response_data.user.authentication : defaultAuthentication;
+
+    let user_private_key;
+    try {
+        // decrypt user private key which may fail if the user server's password isn't correct and the user
+        // needs to enter one
+        user_private_key = cryptoLibrary.decryptSecret(
+            decrypted_response_data.user.private_key,
+            decrypted_response_data.user.private_key_nonce,
+            sessionPassword,
+            decrypted_response_data.user.user_sauce
+        );
+    } catch (error) {
+        return {
+            'require_password': (password) => handleLoginResponse(response, password, sessionKeys, serverPublicKey, defaultAuthentication)
+        }
+    }
 
     // decrypt the user_validator
     const user_validator = cryptoLibrary.decryptDataPublicKey(
-        response.data.user_validator,
-        response.data.user_validator_nonce,
-        response.data.session_public_key,
+        decrypted_response_data.user_validator,
+        decrypted_response_data.user_validator_nonce,
+        server_session_public_key,
         user_private_key
     );
 
     // encrypt the validator as verification
     verification = cryptoLibrary.encryptData(user_validator, sessionSecretKey);
 
-    action.setUserUsername(response.data.user.username);
-    action.setUserInfo2(user_private_key, user_public_key, sessionSecretKey, token, user_sauce, authentication);
+    action.setUserUsername(decrypted_response_data.user.username);
 
-    if (response.data.user.hasOwnProperty('language') && i18n.options.supportedLngs.includes(response.data.user.language)) {
-        i18n.changeLanguage(response.data.user.language).then(() => {
-            browserClientService.emitSec("language-changed", response.data.user.language, function () {});
+    action.setUserInfo2(
+        user_private_key,
+        decrypted_response_data.user.public_key,
+        sessionSecretKey,
+        decrypted_response_data.token,
+        decrypted_response_data.user.user_sauce,
+        authentication
+    );
+
+    if (decrypted_response_data.user.hasOwnProperty('language') && i18n.options.supportedLngs.includes(decrypted_response_data.user.language)) {
+        i18n.changeLanguage(decrypted_response_data.user.language).then(() => {
+            browserClientService.emitSec("language-changed", decrypted_response_data.user.language, function () {});
         });
     }
 
-    if (policies) {
-        action.setServerPolicy(policies);
+    if (decrypted_response_data.user.policies) {
+        action.setServerPolicy(decrypted_response_data.user.policies);
     }
 
-    action.setHasTwoFactor(response.data["required_multifactors"] > 0);
+    action.setHasTwoFactor(decrypted_response_data.required_multifactors > 0);
 
-    return response.data["required_multifactors"];
+    return decrypted_response_data;
 }
 
 function login(password, serverInfo, sendPlain) {
     const username = store.getState().user.username;
-    const trust_device = store.getState().user.trustDevice;
-    const server_public_key = serverInfo.info.public_key;
+    const trustDevice = store.getState().user.trustDevice;
+    const serverPublicKey = serverInfo.info.public_key;
 
     const authkey = cryptoLibrary.generateAuthkey(username, password);
-    const session_keys = cryptoLibrary.generatePublicPrivateKeypair();
+    const sessionKeys = cryptoLibrary.generatePublicPrivateKeypair();
 
     const onSuccess = function (response) {
-        return handleLoginResponse(response, password, session_keys, server_public_key);
+        return handleLoginResponse(response, password, sessionKeys, serverPublicKey, 'AUTHKEY');
     };
 
     const onError = function (response) {
@@ -620,7 +548,7 @@ function login(password, serverInfo, sendPlain) {
         }
     };
 
-    let login_info = {
+    let loginInfo = {
         username: username,
         authkey: authkey,
         device_time: new Date().toISOString(),
@@ -629,21 +557,21 @@ function login(password, serverInfo, sendPlain) {
     };
 
     if (sendPlain) {
-        login_info["password"] = password;
+        loginInfo["password"] = password;
     }
 
-    login_info = JSON.stringify(login_info);
+    loginInfo = JSON.stringify(loginInfo);
 
     // encrypt the login infos
-    const login_info_enc = cryptoLibrary.encryptDataPublicKey(login_info, server_public_key, session_keys.private_key);
+    const loginInfoEnc = cryptoLibrary.encryptDataPublicKey(loginInfo, serverPublicKey, sessionKeys.private_key);
 
-    let session_duration = 24 * 60 * 60;
-    if (trust_device) {
-        session_duration = 24 * 60 * 60 * 30;
+    let sessionDuration = 24 * 60 * 60;
+    if (trustDevice) {
+        sessionDuration = 24 * 60 * 60 * 30;
     }
 
     return apiClient
-        .login(login_info_enc["text"], login_info_enc["nonce"], session_keys.public_key, session_duration)
+        .login(loginInfoEnc["text"], loginInfoEnc["nonce"], sessionKeys.public_key, sessionDuration)
         .then(onSuccess, onError);
 }
 
@@ -1055,7 +983,16 @@ function armEmergencyCode(username, emergencyCode, server, serverInfo, verifyKey
             if (policies) {
                 action.setServerPolicy(policies);
             }
-            action.setUserInfo3(loginInfo.user_id, loginInfo.user_email, userSecretKey);
+
+            let serverSecretExists = false;
+            if (loginInfo.hasOwnProperty('authentication')) {
+                serverSecretExists = ['SAML', 'OIDC', 'LDAP'].includes(loginInfo.authentication)
+                if (loginInfo.hasOwnProperty('server_secret_exists')) {
+                    serverSecretExists = loginInfo.server_secret_exists;
+                }
+            }
+
+            action.setUserInfo3(loginInfo.user_id, loginInfo.user_email, userSecretKey, serverSecretExists);
 
             return {
                 status: "active",
@@ -1084,6 +1021,58 @@ function requireTwoFaSetup() {
         && store.getState().server.complianceEnforce2fa
         && store.getState().server.allowedSecondFactors.length > 0;
 }
+
+/**
+ * Checks if a server secret is needed or not
+ *
+ * @return {boolean} Returns whether the user should be forced to configure a server secret or not
+ */
+function requireServerSecret() {
+    const authentication = store.getState().user.authentication;
+    const complianceServerSecrets = store.getState().server.complianceServerSecrets.toLowerCase();
+
+    const lookupTable = {
+        'auto': {
+            'LDAP': true,
+            'SAML': true,
+            'OIDC': true,
+            'AUTHKEY': false,
+        },
+        'noone': {
+            'LDAP': false,
+            'SAML': false,
+            'OIDC': false,
+            'AUTHKEY': false,
+        },
+        'all': {
+            'LDAP': true,
+            'SAML': true,
+            'OIDC': true,
+            'AUTHKEY': true,
+        }
+    }
+
+    if (!lookupTable.hasOwnProperty(complianceServerSecrets)) {
+        return false;
+    }
+
+    if (!lookupTable[complianceServerSecrets].hasOwnProperty(authentication)) {
+        return false;
+    }
+
+    return lookupTable[complianceServerSecrets][authentication];
+}
+
+/**
+ * Checks if the user needs to setup a second factor
+ *
+ * @return {boolean} Returns whether the user should be forced to setup two factor
+ */
+function requireServerSecretModification() {
+    const serverSecretExists = store.getState().user.serverSecretExists;
+    return requireServerSecret() !== serverSecretExists;
+}
+
 
 /**
  * loads the sessions
@@ -1215,6 +1204,8 @@ const userService = {
     setPassword,
     armEmergencyCode,
     requireTwoFaSetup,
+    requireServerSecret,
+    requireServerSecretModification,
     getSessions,
     deleteSession,
     register,

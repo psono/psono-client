@@ -69,12 +69,25 @@ const migrations = {
             },
         }
     },
+    3: (state) => {
+        return {
+            ...state,
+            user: {
+                ...state.user,
+                serverSecretExists: ['SAML', 'OIDC', 'LDAP'].includes(state.user.authentication),
+            },
+            server: {
+                ...state.server,
+                complianceServerSecrets: 'auto',
+            },
+        }
+    },
 }
 
 const persistConfig = {
     key: "client",
     blacklist: ['transient'],
-    version: 2,
+    version: 3,
     storage: storageService.get('state'),
     debug: false,
     migrate: createMigrate(migrations, { debug: false }),

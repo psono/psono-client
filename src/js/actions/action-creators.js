@@ -5,6 +5,7 @@ import {
     SET_USER_INFO_1,
     SET_USER_INFO_2,
     SET_USER_INFO_3,
+    SET_SERVER_SECRET_EXISTS,
     SET_HAS_TWO_FACTOR,
     LOGOUT,
     SET_SERVER_URL,
@@ -68,13 +69,22 @@ function setUserInfo2(userPrivateKey, userPublicKey, sessionSecretKey, token, us
         });
     };
 }
-function setUserInfo3(userId, userEmail, userSecretKey) {
+function setUserInfo3(userId, userEmail, userSecretKey, serverSecretExists) {
     return (dispatch) => {
         dispatch({
             type: SET_USER_INFO_3,
             userId: userId,
             userEmail,
             userSecretKey,
+            serverSecretExists,
+        });
+    };
+}
+function setServerSecretExists(serverSecretExists) {
+    return (dispatch) => {
+        dispatch({
+            type: SET_SERVER_SECRET_EXISTS,
+            serverSecretExists: serverSecretExists,
         });
     };
 }
@@ -440,6 +450,7 @@ const actionCreators = {
     setUserInfo1,
     setUserInfo2,
     setUserInfo3,
+    setServerSecretExists,
     setHasTwoFactor,
     setEmail,
     setUserDatastoreOverview,

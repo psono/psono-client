@@ -89,7 +89,7 @@ const EnforceTwoFaViewForm = (props) => {
             onSubmit={(e) => {
                 e.preventDefault();
             }}
-            name="lostpasswordForm"
+            name="enforce2FaForm"
             autoComplete="off"
         >
             <Grid container>
