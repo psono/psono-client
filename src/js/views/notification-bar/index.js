@@ -42,7 +42,9 @@ const useStyles = makeStyles((theme) => ({
     },
     button: {
         marginLeft: '5px',
-        height: "38px"
+        height: "38px",
+        whiteSpace: "nowrap",
+        minWidth: "32px",
     },
     close: {
         color: "#b1b6c1",
